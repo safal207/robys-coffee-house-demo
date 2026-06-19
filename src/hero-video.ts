@@ -1,4 +1,4 @@
-const BRAND_BUILD = "cup-20260619-3";
+const BRAND_BUILD = "napkin-20260619-1";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
@@ -6,11 +6,11 @@ function ensureBrandAssets(): void {
   if (!document.querySelector<HTMLLinkElement>('link[href*="family=Montserrat"]')) {
     const font = document.createElement("link");
     font.rel = "stylesheet";
-    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&display=swap";
+    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap";
     document.head.append(font);
   }
 
-  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css"].forEach((file) => {
+  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css"].forEach((file) => {
     if (document.querySelector<HTMLLinkElement>(`link[href*="${file}"]`)) return;
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
@@ -19,8 +19,8 @@ function ensureBrandAssets(): void {
   });
 
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (themeColor) themeColor.content = "#1d1d21";
-  document.documentElement.classList.add("cup-brand");
+  if (themeColor) themeColor.content = "#312b2a";
+  document.documentElement.classList.add("napkin-brand");
 }
 
 function mountWordmarks(): void {
@@ -32,6 +32,7 @@ function mountWordmarks(): void {
           <span>R</span><span class="cup-o"></span><span>BY</span><span class="cup-apostrophe">’</span><span>S</span>
         </span>
         <span class="cup-sub">COFFEE HOUSE</span>
+        <span class="cup-tagline">· FRESH COFFEE POINT ·</span>
       </span>`;
   });
 }
