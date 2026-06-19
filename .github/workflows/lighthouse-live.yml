@@ -17,7 +17,7 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,8 +28,18 @@ jobs:
       - name: Install Lighthouse
         run: npm install --global lighthouse@12.8.2
 
-      - name: Wait for Pages
-        run: sleep 30
+      - name: Wait for optimized Pages build
+        run: |
+          for attempt in {1..24}; do
+            if curl --silent --fail "https://safal207.github.io/robys-coffee-house-demo/?deploy=${GITHUB_SHA}" | grep -q "perf-20260619-8"; then
+              echo "Optimized build is live"
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages deployment ($attempt/24)"
+            sleep 10
+          done
+          echo "Optimized Pages build did not appear in time"
+          exit 1
 
       - name: Run mobile Lighthouse
         run: |
@@ -78,6 +88,7 @@ jobs:
             lighthouseVersion: mobile.lighthouseVersion,
             testedUrl: mobile.finalDisplayedUrl || mobile.finalUrl,
             commit: process.env.GITHUB_SHA,
+            build: 'perf-20260619-8',
             mobile: pick(mobile),
             desktop: pick(desktop)
           };
