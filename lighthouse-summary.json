@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-06-19T04:47:09.272Z",
+  "lighthouseVersion": "12.8.2",
+  "testedUrl": "http://127.0.0.1:8080/",
+  "categories": {
+    "performance": 85,
+    "accessibility": 100,
+    "best-practices": 75,
+    "seo": 100
+  },
+  "metrics": {
+    "first-contentful-paint": {
+      "displayValue": "1.4 s",
+      "numericValue": 1411.7402499999998,
+      "score": 0.97
+    },
+    "largest-contentful-paint": {
+      "displayValue": "4.2 s",
+      "numericValue": 4244.814249999999,
+      "score": 0.43
+    },
+    "speed-index": {
+      "displayValue": "1.4 s",
+      "numericValue": 1411.7402499999998,
+      "score": 1
+    },
+    "total-blocking-time": {
+      "displayValue": "0 ms",
+      "numericValue": 0,
+      "score": 1
+    },
+    "cumulative-layout-shift": {
+      "displayValue": "0.001",
+      "numericValue": 0.001306595871153121,
+      "score": 1
+    },
+    "interactive": {
+      "displayValue": "4.2 s",
+      "numericValue": 4244.814249999999,
+      "score": 0.85
+    }
+  },
+  "opportunities": [
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 540 ms",
+      "score": 0
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "displayValue": "Est savings of 44 KiB",
+      "score": 0
+    },
+    {
+      "id": "uses-responsive-images",
+      "title": "Properly size images",
+      "displayValue": "Est savings of 63 KiB",
+      "score": 0
+    },
+    {
+      "id": "uses-text-compression",
+      "title": "Enable text compression",
+      "displayValue": "Est savings of 59 KiB",
+      "score": 0
+    }
+  ],
+  "failedAudits": [
+    {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0,
+      "displayValue": null
+    },
+    {
+      "id": "third-party-cookies",
+      "title": "Uses third-party cookies",
+      "score": 0,
+      "displayValue": "1 cookie found"
+    },
+    {
+      "id": "largest-contentful-paint-element",
+      "title": "Largest Contentful Paint element",
+      "score": 0,
+      "displayValue": "4,240 ms"
+    },
+    {
+      "id": "label-content-name-mismatch",
+      "title": "Elements with visible text labels do not have matching accessible names.",
+      "score": 0,
+      "displayValue": null
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "score": 0,
+      "displayValue": "Est savings of 540 ms"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 44 KiB"
+    },
+    {
+      "id": "uses-text-compression",
+      "title": "Enable text compression",
+      "score": 0,
+      "displayValue": "Est savings of 59 KiB"
+    },
+    {
+      "id": "uses-responsive-images",
+      "title": "Properly size images",
+      "score": 0,
+      "displayValue": "Est savings of 63 KiB"
+    },
+    {
+      "id": "inspector-issues",
+      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "score": 0,
+      "displayValue": null
+    },
+    {
+      "id": "cache-insight",
+      "title": "Use efficient cache lifetimes",
+      "score": 0,
+      "displayValue": "Est savings of 96 KiB"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0,
+      "displayValue": "Est savings of 149 KiB"
+    },
+    {
+      "id": "network-dependency-tree-insight",
+      "title": "Network dependency tree",
+      "score": 0,
+      "displayValue": null
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 690 ms"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.43,
+      "displayValue": "4.2 s"
+    },
+    {
+      "id": "uses-long-cache-ttl",
+      "title": "Serve static assets with an efficient cache policy",
+      "score": 0.5,
+      "displayValue": "11 resources found"
+    }
+  ]
+}
