@@ -1,0 +1,60 @@
+/* Compact Roby's flow: fewer large sections, same essential content. */
+#experience,.story-section,#my-robys,.quote-section,.world-dialog{display:none!important}
+.main-nav a[href="#experience"]{display:none!important}
+
+.amenities-section{padding:48px 0!important}
+.amenities-section::before{opacity:.45}
+.amenities-head{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(220px,.62fr)!important;gap:18px!important;margin-bottom:22px!important}
+.amenities-head .eyebrow{grid-column:1/-1!important;margin-bottom:-5px!important}
+.amenities-head h2{font-size:clamp(2.35rem,5vw,4.3rem)!important}
+.amenities-head>p:last-child{font-size:.92rem!important;line-height:1.55!important}
+.amenities-grid{display:flex!important;gap:9px!important;overflow-x:auto!important;padding:2px 0 8px!important;scrollbar-width:none!important;scroll-snap-type:x proximity}
+.amenities-grid::-webkit-scrollbar{display:none}
+.amenity-card,.amenity-card-wide{display:flex!important;min-width:218px!important;min-height:108px!important;flex:0 0 218px!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;padding:14px!important;border-radius:18px!important;scroll-snap-align:start}
+.amenity-card-wide{min-width:300px!important;flex-basis:300px!important}
+.amenity-mark{width:42px!important;height:42px!important;flex:0 0 42px!important;font-size:.56rem!important}
+.amenity-mark-music{font-size:1.18rem!important}
+.amenity-card h3,.amenity-card-wide h3{margin:0 0 4px!important;font-size:1.08rem!important}
+.amenity-card p{font-size:.7rem!important;line-height:1.35!important}
+
+/* Reviews remain, but as one compact credibility band. */
+.guest-reviews{padding:54px 0!important}
+.reviews-head{grid-template-columns:minmax(0,1fr) auto!important;gap:18px!important;margin-bottom:20px!important}
+.reviews-head h2{font-size:clamp(2.35rem,5vw,4rem)!important}
+.reviews-summary{grid-template-columns:repeat(2,minmax(130px,1fr))!important;gap:8px!important}
+.rating-pill{min-height:92px!important;padding:14px!important;border-radius:17px!important}
+.reviews-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.review-card{min-height:0!important;padding:16px!important;border-radius:17px!important}
+.review-card:nth-child(n+3){display:none!important}
+.review-quote{font-size:1rem!important;line-height:1.45!important}
+.review-card p{font-size:.72rem!important}
+
+/* Tighten the remaining major sections. */
+.intro,.menu-section,.social-gallery,.visit-section{padding-top:64px!important;padding-bottom:64px!important}
+.section-heading,.menu-intro,.gallery-head{margin-bottom:28px!important}
+.feature-grid,.menu-cards{gap:10px!important}
+.feature-card,.menu-card{min-height:0!important;padding:20px!important}
+
+/* Keep the mobile nav useful, but only three clear actions. */
+.mobile-dock{grid-template-columns:repeat(3,1fr)!important}
+.mobile-dock .matcher-open,.mobile-dock a[href="#my-robys"]{display:none!important}
+.floating-cta{display:none!important}
+
+@media(max-width:760px){
+  .amenities-section{padding:42px 0!important}
+  .amenities-head{grid-template-columns:1fr!important;gap:9px!important;margin-bottom:16px!important}
+  .amenities-head .eyebrow{grid-column:auto!important;margin-bottom:0!important}
+  .amenities-head h2{font-size:2.65rem!important}
+  .amenity-card,.amenity-card-wide{min-width:205px!important;flex-basis:205px!important;min-height:98px!important}
+  .amenity-card-wide{min-width:270px!important;flex-basis:270px!important}
+
+  .guest-reviews{padding:46px 0!important}
+  .reviews-head{grid-template-columns:1fr!important;gap:14px!important}
+  .reviews-summary{width:100%!important}
+  .reviews-grid{grid-template-columns:1fr!important}
+  .review-card:nth-child(2){display:none!important}
+
+  .intro,.menu-section,.social-gallery,.visit-section{padding-top:52px!important;padding-bottom:52px!important}
+  .feature-grid{grid-template-columns:1fr!important}
+  .feature-card{padding:17px!important}
+}
