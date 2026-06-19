@@ -13,8 +13,8 @@
   <main class="card">
     <div class="word"><span>R</span><span class="o"></span><span>BY’S</span></div>
     <div class="sub">COFFEE HOUSE</div>
-    <h1>Обновляем мобильную версию</h1>
-    <p>Исправляю галерею, карту и нижнюю навигацию.</p>
+    <h1>Обновляем первый экран</h1>
+    <p>Сжимаю кнопки и карточки, исправляю контраст и убираю нижнее меню с видео.</p>
     <div class="spinner" aria-label="Загрузка"></div>
   </main>
   <script>
@@ -28,9 +28,9 @@
           const keys = await caches.keys();
           await Promise.all(keys.map((key) => caches.delete(key)));
         }
-        try { localStorage.setItem('robys-build', 'cup-20260619-2'); } catch {}
+        try { localStorage.setItem('robys-build', 'cup-20260619-3'); } catch {}
       } finally {
-        location.replace('./?build=cup-20260619-2');
+        location.replace('./?build=cup-20260619-3');
       }
     })();
   </script>
