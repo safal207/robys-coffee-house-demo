@@ -2,21 +2,36 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="description" content="Roby's Coffee House — Gazipaşa'da iyi kahve, tatlılar ve sakin anlar." />
   <meta name="theme-color" content="#173d32" />
+  <meta name="color-scheme" content="light" />
+  <meta name="format-detection" content="telephone=no" />
   <meta property="og:title" content="Roby's Coffee House | Gazipaşa" />
   <meta property="og:description" content="Good coffee. Calm moments in Gazipaşa." />
   <meta property="og:type" content="website" />
   <title>Roby's Coffee House | Gazipaşa</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://images.openai.com" />
+  <link rel="dns-prefetch" href="https://img02.restaurantguru.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="premium.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <link rel="stylesheet" href="gallery.css" />
+  <link rel="stylesheet" href="reviews.css" />
+  <link rel="stylesheet" href="optimizations.css" />
+
   <script src="script.js" defer></script>
+  <script src="premium.js" defer></script>
+  <script src="gallery.js" defer></script>
+  <script src="reviews.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main" data-i18n="skipContent">Skip to content</a>
 
   <header class="site-header" id="top">
     <div class="container header-inner">
@@ -28,30 +43,32 @@
         </span>
       </a>
 
-      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="main-navigation">
         <span></span><span></span>
       </button>
 
-      <nav class="main-nav" aria-label="Main navigation">
+      <nav class="main-nav" id="main-navigation" aria-label="Main navigation">
         <a href="#about" data-i18n="navAbout">Hakkımızda</a>
         <a href="#menu" data-i18n="navMenu">Menü</a>
+        <a href="#gallery" data-i18n="navGallery">Fotoğraflar</a>
+        <a href="#reviews" data-i18n="navReviews">Yorumlar</a>
         <a href="#visit" data-i18n="navVisit">Ziyaret</a>
       </nav>
 
       <div class="language-switcher" aria-label="Language selector">
-        <button class="lang-button active" type="button" data-lang="tr">TR</button>
-        <button class="lang-button" type="button" data-lang="en">EN</button>
-        <button class="lang-button" type="button" data-lang="ru">RU</button>
+        <button class="lang-button active" type="button" data-lang="tr" aria-label="Türkçe">TR</button>
+        <button class="lang-button" type="button" data-lang="en" aria-label="English">EN</button>
+        <button class="lang-button" type="button" data-lang="ru" aria-label="Русский">RU</button>
       </div>
     </div>
   </header>
 
   <main id="main">
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow" data-i18n="heroEyebrow">GAZİPAŞA · FRESH COFFEE POINT</p>
-          <h1 data-i18n-html="heroTitle">İyi kahve.<br /><em>Sakin anlar.</em></h1>
+          <h1 id="hero-title" data-i18n-html="heroTitle">İyi kahve.<br /><em>Sakin anlar.</em></h1>
           <p class="hero-text" data-i18n="heroText">Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#menu" data-i18n="viewMenu">Menüyü Gör</a>
@@ -68,6 +85,10 @@
             <img
               src="https://images.openai.com/static-rsc-4/2cNHjajsW-WEGp3MgTtvlpE4f0w_Hd8v2cHCY7mfN3Q9H3imd6K9nqQT2CcvsUl_iEFedQRMg3V0LmeAhAXt2IVcI8ChhnljU9opiLQr7J9UToSHUObH4ddjzYjI8yNVCo27QrMdSHx3QS0wG-5gF0M_bTDF2xtyJg3q7pp2rwI?purpose=inline"
               alt="Roby's Coffee House terrace in Gazipaşa"
+              width="900"
+              height="1100"
+              loading="eager"
+              decoding="async"
               fetchpriority="high"
             />
             <div class="image-note">
@@ -122,15 +143,15 @@
 
         <div class="menu-cards">
           <article class="menu-card reveal">
-            <span class="menu-icon">☕</span>
+            <span class="menu-icon" aria-hidden="true">☕</span>
             <div><h3 data-i18n="hotCoffee">Sıcak Kahveler</h3><p>Espresso · Americano · Latte · Flat White</p></div>
           </article>
           <article class="menu-card reveal">
-            <span class="menu-icon">🧊</span>
+            <span class="menu-icon" aria-hidden="true">🧊</span>
             <div><h3 data-i18n="coldDrinks">Soğuk İçecekler</h3><p>Iced Coffee · Cold Brew · Refreshers</p></div>
           </article>
           <article class="menu-card reveal">
-            <span class="menu-icon">🍰</span>
+            <span class="menu-icon" aria-hidden="true">🍰</span>
             <div><h3 data-i18n="desserts">Tatlılar</h3><p data-i18n="dessertsText">Günün tatlıları · Kurabiyeler · Pastalar</p></div>
           </article>
         </div>
@@ -139,7 +160,7 @@
 
     <section class="quote-section">
       <div class="container quote-inner reveal">
-        <span class="quote-mark">“</span>
+        <span class="quote-mark" aria-hidden="true">“</span>
         <blockquote data-i18n="quote">Bazen ihtiyacınız olan tek şey iyi bir kahve ve biraz sakinliktir.</blockquote>
         <p>— Roby's Coffee House</p>
       </div>
@@ -181,7 +202,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <a class="brand brand-light" href="#top">
+      <a class="brand brand-light" href="#top" aria-label="Roby's Coffee House home">
         <span class="brand-mark">R</span>
         <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
       </a>
@@ -190,8 +211,8 @@
     </div>
   </footer>
 
-  <a class="floating-cta" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer">
-    <span>⌖</span><span data-i18n="getDirections">Yol Tarifi Al</span>
+  <a class="floating-cta" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" aria-label="Get directions to Roby's Coffee House">
+    <span aria-hidden="true">⌖</span><span data-i18n="getDirections">Yol Tarifi Al</span>
   </a>
 </body>
 </html>
