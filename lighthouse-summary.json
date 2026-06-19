@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T05:06:09.437Z",
+  "generatedAt": "2026-06-19T05:08:11.388Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 80,
+    "performance": 78,
     "accessibility": 100,
     "best-practices": 75,
     "seo": 100
@@ -31,18 +31,18 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "3.2 s",
-      "numericValue": 3203.3849500000006,
-      "score": 0.43
+      "numericValue": 3247.7296499999998,
+      "score": 0.42
     },
     "largest-contentful-paint": {
-      "displayValue": "4.1 s",
-      "numericValue": 4132.0719500000005,
-      "score": 0.46
+      "displayValue": "4.0 s",
+      "numericValue": 4030.1436499999995,
+      "score": 0.49
     },
     "speed-index": {
-      "displayValue": "3.4 s",
-      "numericValue": 3368.018279999998,
-      "score": 0.9
+      "displayValue": "4.8 s",
+      "numericValue": 4823.702473999981,
+      "score": 0.66
     },
     "total-blocking-time": {
       "displayValue": "0 ms",
@@ -55,22 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.1 s",
-      "numericValue": 4132.071950000001,
-      "score": 0.86
+      "displayValue": "4.0 s",
+      "numericValue": 4030.1436499999995,
+      "score": 0.87
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,940 ms",
-      "score": 0
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 44 KiB",
+      "displayValue": "Est savings of 1,200 ms",
       "score": 0
     },
     {
@@ -80,10 +74,16 @@
       "score": 0
     },
     {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "displayValue": "Est savings of 44 KiB",
+      "score": 0
+    },
+    {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 60 KiB",
-      "score": 0
+      "score": 0.5
     }
   ],
   "failedAudits": [
@@ -103,7 +103,7 @@
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "4,130 ms"
+      "displayValue": "4,030 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -115,19 +115,13 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,940 ms"
+      "displayValue": "Est savings of 1,200 ms"
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0,
       "displayValue": "Est savings of 44 KiB"
-    },
-    {
-      "id": "uses-text-compression",
-      "title": "Enable text compression",
-      "score": 0,
-      "displayValue": "Est savings of 60 KiB"
     },
     {
       "id": "uses-responsive-images",
@@ -142,10 +136,10 @@
       "displayValue": null
     },
     {
-      "id": "cache-insight",
-      "title": "Use efficient cache lifetimes",
+      "id": "forced-reflow-insight",
+      "title": "Forced reflow",
       "score": 0,
-      "displayValue": "Est savings of 97 KiB"
+      "displayValue": null
     },
     {
       "id": "image-delivery-insight",
@@ -163,19 +157,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 2,090 ms"
+      "displayValue": "Est savings of 1,350 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.43,
+      "score": 0.42,
       "displayValue": "3.2 s"
     },
     {
       "id": "largest-contentful-paint",
       "title": "Largest Contentful Paint",
-      "score": 0.46,
-      "displayValue": "4.1 s"
+      "score": 0.49,
+      "displayValue": "4.0 s"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0.5,
+      "displayValue": "3.4 s"
     }
   ]
 }
