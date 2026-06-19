@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T13:35:11.091Z",
+  "generatedAt": "2026-06-19T13:40:50.487Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,41 +23,41 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 58,
+    "performance": 65,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.7 s",
-      "numericValue": 1731.4924999999998,
-      "score": 0.91
+      "displayValue": "3.4 s",
+      "numericValue": 3363.7942000000003,
+      "score": 0.38
     },
     "largest-contentful-paint": {
       "displayValue": "3.6 s",
-      "numericValue": 3586.0432999999994,
+      "numericValue": 3588.7942,
       "score": 0.61
     },
     "speed-index": {
       "displayValue": "3.4 s",
-      "numericValue": 3415.3092883007143,
-      "score": 0.89
+      "numericValue": 3363.7942000000003,
+      "score": 0.9
     },
     "total-blocking-time": {
-      "displayValue": "4,630 ms",
-      "numericValue": 4632.3045,
-      "score": 0
+      "displayValue": "720 ms",
+      "numericValue": 724,
+      "score": 0.41
     },
     "cumulative-layout-shift": {
-      "displayValue": "0.002",
-      "numericValue": 0.002009011312645063,
+      "displayValue": "0",
+      "numericValue": 0,
       "score": 1
     },
     "interactive": {
-      "displayValue": "7.0 s",
-      "numericValue": 7041.197,
-      "score": 0.52
+      "displayValue": "4.3 s",
+      "numericValue": 4271.542700000001,
+      "score": 0.85
     }
   },
   "opportunities": [
@@ -70,14 +70,8 @@
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 39 KiB",
+      "displayValue": "Est savings of 26 KiB",
       "score": 0
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 0 ms",
-      "score": 0.5
     },
     {
       "id": "unused-css-rules",
@@ -88,22 +82,10 @@
   ],
   "failedAudits": [
     {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0,
-      "displayValue": "4,630 ms"
-    },
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0,
-      "displayValue": "1,180 ms"
-    },
-    {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "8.3 s"
+      "displayValue": "5.1 s"
     },
     {
       "id": "largest-contentful-paint-element",
@@ -121,7 +103,7 @@
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0,
-      "displayValue": "Est savings of 39 KiB"
+      "displayValue": "Est savings of 26 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -133,7 +115,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 322 KiB"
+      "displayValue": "Est savings of 284 KiB"
     },
     {
       "id": "lcp-discovery-insight",
@@ -148,16 +130,28 @@
       "displayValue": null
     },
     {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.01,
+      "displayValue": "760 ms"
+    },
+    {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "score": 0.38,
+      "displayValue": "3.4 s"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.41,
+      "displayValue": "720 ms"
+    },
+    {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "26 resources found"
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "score": 0.5,
-      "displayValue": "Est savings of 0 ms"
+      "displayValue": "24 resources found"
     },
     {
       "id": "unused-css-rules",
@@ -169,7 +163,7 @@
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
-      "displayValue": "Est savings of 7 KiB"
+      "displayValue": "Est savings of 10 KiB"
     },
     {
       "id": "image-delivery-insight",
