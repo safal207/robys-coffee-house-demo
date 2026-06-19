@@ -10,6 +10,16 @@
   responsiveStyles.href = "responsive.css";
   document.head.appendChild(responsiveStyles);
 
+  const galleryStyles = document.createElement("link");
+  galleryStyles.rel = "stylesheet";
+  galleryStyles.href = "gallery.css";
+  document.head.appendChild(galleryStyles);
+
+  const galleryScript = document.createElement("script");
+  galleryScript.src = "gallery.js";
+  galleryScript.defer = true;
+  document.head.appendChild(galleryScript);
+
   const loader = document.createElement("div");
   loader.className = "page-loader";
   loader.setAttribute("aria-hidden", "true");
