@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-perf-inline-v11";
+const CACHE_NAME = "robys-hero-raised-v13";
 const CORE_ASSETS = [
   "./",
   "./index.html",
