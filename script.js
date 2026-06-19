@@ -170,3 +170,13 @@ document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe
 
 document.getElementById("current-year").textContent = new Date().getFullYear();
 setLanguage(localStorage.getItem("robys-language") || "tr");
+
+const premiumStyles = document.createElement("link");
+premiumStyles.rel = "stylesheet";
+premiumStyles.href = "premium.css";
+document.head.appendChild(premiumStyles);
+
+const premiumScript = document.createElement("script");
+premiumScript.src = "premium.js";
+premiumScript.async = true;
+document.head.appendChild(premiumScript);
