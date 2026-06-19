@@ -1,4 +1,4 @@
-const BRAND_BUILD = "napkin-logo-20260619-2";
+const BRAND_BUILD = "amenities-20260619-3";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
@@ -10,13 +10,20 @@ function ensureBrandAssets(): void {
     document.head.append(font);
   }
 
-  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css", "logo-video-tune.css"].forEach((file) => {
+  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css", "logo-video-tune.css", "amenities.css"].forEach((file) => {
     if (document.querySelector<HTMLLinkElement>(`link[href*="${file}"]`)) return;
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
     stylesheet.href = `${file}?v=${BRAND_BUILD}`;
     document.head.append(stylesheet);
   });
+
+  if (!document.querySelector<HTMLScriptElement>('script[src*="amenities.js"]')) {
+    const amenities = document.createElement("script");
+    amenities.type = "module";
+    amenities.src = `amenities.js?v=${BRAND_BUILD}`;
+    document.head.append(amenities);
+  }
 
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (themeColor) themeColor.content = "#312b2a";
