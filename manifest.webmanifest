@@ -2,15 +2,15 @@
   "name": "Roby's Coffee House",
   "short_name": "Roby's",
   "description": "Good coffee and calm moments in Gazipaşa.",
-  "start_url": "./?theme=ruby",
+  "start_url": "./?brand=cup",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080608",
-  "theme_color": "#97163e",
+  "background_color": "#1d1d21",
+  "theme_color": "#b32035",
   "lang": "tr",
   "icons": [
     {
-      "src": "icon.svg?v=ruby-20260619-1",
+      "src": "icon.svg?v=cup-20260619-1",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
