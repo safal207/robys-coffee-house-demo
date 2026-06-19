@@ -1,34 +1,8 @@
-const BRAND_BUILD = "perf-20260619-8";
+const BRAND_BUILD = "perf-inline-20260619-12";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
 function ensureBrandAssets(): void {
-  if (!document.querySelector<HTMLLinkElement>('link[href*="family=Montserrat"]')) {
-    const font = document.createElement("link");
-    font.rel = "stylesheet";
-    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap";
-    font.media = "print";
-    font.onload = () => { font.media = "all"; };
-    document.head.append(font);
-  }
-
-  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css", "logo-video-tune.css", "amenities.css"].forEach((file) => {
-    if (document.querySelector<HTMLLinkElement>(`link[href*="${file}"]`)) return;
-    const stylesheet = document.createElement("link");
-    stylesheet.rel = "stylesheet";
-    stylesheet.href = `${file}?v=${BRAND_BUILD}`;
-    stylesheet.media = "print";
-    stylesheet.onload = () => { stylesheet.media = "all"; };
-    document.head.append(stylesheet);
-  });
-
-  if (!document.querySelector<HTMLScriptElement>('script[src*="amenities.js"]')) {
-    const amenities = document.createElement("script");
-    amenities.type = "module";
-    amenities.src = `amenities.js?v=${BRAND_BUILD}`;
-    document.head.append(amenities);
-  }
-
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (themeColor) themeColor.content = "#312b2a";
   document.documentElement.classList.add("napkin-brand");
@@ -62,7 +36,6 @@ function setupDockVisibility(): void {
     const threshold = Math.max(220, window.innerHeight * 0.58);
     document.body.classList.toggle("show-mobile-dock", window.scrollY > threshold);
   };
-
   update();
   window.addEventListener("scroll", update, { passive: true });
   mediaQuery.addEventListener?.("change", update);
@@ -73,12 +46,10 @@ function mountHeroVideo(): void {
   const grid = hero?.querySelector<HTMLElement>(".hero-grid");
   const copy = hero?.querySelector<HTMLElement>(".hero-copy");
   const visual = hero?.querySelector<HTMLElement>(".hero-visual");
-
   if (!hero || !grid || !copy || hero.classList.contains("ruby-video-ready")) return;
 
   const media = document.createElement("div");
   media.className = "ruby-hero-media";
-
   const video = document.createElement("video");
   video.className = "ruby-hero-video";
   video.autoplay = true;
@@ -109,8 +80,7 @@ function mountHeroVideo(): void {
     video.remove();
   }, { once: true });
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reducedMotion) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     video.autoplay = false;
     video.pause();
   } else {
@@ -118,24 +88,16 @@ function mountHeroVideo(): void {
   }
 }
 
-function scheduleHeroVideo(): void {
-  const start = (): void => {
-    const idle = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number };
-    if (idle.requestIdleCallback) idle.requestIdleCallback(mountHeroVideo, { timeout: 1600 });
-    else window.setTimeout(mountHeroVideo, 700);
-  };
-
-  if (document.readyState === "complete") start();
-  else window.addEventListener("load", start, { once: true });
+export function startHeroVideo(): void {
+  mountHeroVideo();
 }
 
 function initializeBrand(): void {
+  ensureBrandAssets();
   mountWordmarks();
   setupDockVisibility();
-  scheduleHeroVideo();
 }
 
-ensureBrandAssets();
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initializeBrand, { once: true });
 } else {
