@@ -14,6 +14,10 @@ type AmenityCopy = {
   restroomText: string;
   musicTitle: string;
   musicText: string;
+  workTitle: string;
+  workText: string;
+  socketsTitle: string;
+  socketsText: string;
 };
 
 const copies: Record<Lang, AmenityCopy> = {
@@ -30,7 +34,11 @@ const copies: Record<Lang, AmenityCopy> = {
     restroomTitle: "Tuvalet",
     restroomText: "Misafirler için temiz ve düzenli alan.",
     musicTitle: "Keyifli müzik",
-    musicText: "Sohbeti bölmeden atmosferi tamamlar."
+    musicText: "Sohbeti bölmeden atmosferi tamamlar.",
+    workTitle: "Sabah buluşmaları ve çalışma",
+    workText: "Sabah saatlerinde toplantı, laptopla çalışma ve sakin bir başlangıç için uygun.",
+    socketsTitle: "Prizler",
+    socketsText: "Laptop ve telefonlarınızı rahatça şarj edin."
   },
   en: {
     eyebrow: "COMFORT AT ROBY'S",
@@ -45,7 +53,11 @@ const copies: Record<Lang, AmenityCopy> = {
     restroomTitle: "Restroom",
     restroomText: "A clean and convenient guest facility.",
     musicTitle: "Pleasant music",
-    musicText: "A warm soundtrack that never gets in the way."
+    musicText: "A warm soundtrack that never gets in the way.",
+    workTitle: "Morning meetings and work",
+    workText: "A calm place for meetings, laptop work and a productive start to the day.",
+    socketsTitle: "Power outlets",
+    socketsText: "Convenient charging for laptops and phones."
   },
   ru: {
     eyebrow: "КОМФОРТ В ROBY'S",
@@ -60,13 +72,18 @@ const copies: Record<Lang, AmenityCopy> = {
     restroomTitle: "Туалетная комната",
     restroomText: "Чистое и удобное пространство для гостей.",
     musicTitle: "Приятная музыка",
-    musicText: "Создаёт настроение и не мешает разговору."
+    musicText: "Создаёт настроение и не мешает разговору.",
+    workTitle: "Утренние встречи и работа",
+    workText: "Удобное место для встреч, работы за ноутбуком и спокойного начала дня.",
+    socketsTitle: "Удобные розетки",
+    socketsText: "Для зарядки ноутбуков и телефонов рядом с местами для гостей."
   }
 };
 
 const keys = [
   "eyebrow", "title", "text", "wifiTitle", "wifiText", "menuTitle", "menuText",
-  "airTitle", "airText", "restroomTitle", "restroomText", "musicTitle", "musicText"
+  "airTitle", "airText", "restroomTitle", "restroomText", "musicTitle", "musicText",
+  "workTitle", "workText", "socketsTitle", "socketsText"
 ] as const;
 
 type CopyKey = typeof keys[number];
@@ -84,8 +101,7 @@ function getLanguage(): Lang {
 }
 
 function renderAmenities(): void {
-  const lang = getLanguage();
-  const copy = copies[lang];
+  const copy = copies[getLanguage()];
   keys.forEach((key) => {
     document.querySelectorAll<HTMLElement>(`[data-amenity-copy="${key}"]`).forEach((element) => {
       if (key === "title") element.innerHTML = copy[key];
@@ -125,6 +141,14 @@ function mountAmenities(): void {
             <div><h3 data-amenity-copy="restroomTitle"></h3><p data-amenity-copy="restroomText"></p></div>
           </article>
           <article class="amenity-card reveal amenity-card-wide">
+            <span class="amenity-mark" aria-hidden="true">09:00</span>
+            <div><h3 data-amenity-copy="workTitle"></h3><p data-amenity-copy="workText"></p></div>
+          </article>
+          <article class="amenity-card reveal">
+            <span class="amenity-mark" aria-hidden="true">220V</span>
+            <div><h3 data-amenity-copy="socketsTitle"></h3><p data-amenity-copy="socketsText"></p></div>
+          </article>
+          <article class="amenity-card reveal">
             <span class="amenity-mark amenity-mark-music" aria-hidden="true">♪</span>
             <div><h3 data-amenity-copy="musicTitle"></h3><p data-amenity-copy="musicText"></p></div>
           </article>
@@ -133,13 +157,10 @@ function mountAmenities(): void {
     </section>`);
 
   renderAmenities();
-
   document.querySelectorAll<HTMLButtonElement>(".lang-button").forEach((button) => {
     button.addEventListener("click", () => window.setTimeout(renderAmenities, 0));
   });
-
-  const observer = new MutationObserver(renderAmenities);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  new MutationObserver(renderAmenities).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
 }
 
 if (document.readyState === "loading") {
