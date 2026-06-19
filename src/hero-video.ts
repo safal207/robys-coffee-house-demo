@@ -1,4 +1,4 @@
-const BRAND_BUILD = "napkin-20260619-1";
+const BRAND_BUILD = "napkin-logo-20260619-2";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
@@ -10,7 +10,7 @@ function ensureBrandAssets(): void {
     document.head.append(font);
   }
 
-  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css"].forEach((file) => {
+  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css", "napkin-style.css", "logo-video-tune.css"].forEach((file) => {
     if (document.querySelector<HTMLLinkElement>(`link[href*="${file}"]`)) return;
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
@@ -29,10 +29,14 @@ function mountWordmarks(): void {
     brand.innerHTML = `
       <span class="cup-wordmark" aria-hidden="true">
         <span class="cup-main">
-          <span>R</span><span class="cup-o"></span><span>BY</span><span class="cup-apostrophe">’</span><span>S</span>
+          <span class="cup-r">R</span>
+          <span class="cup-o"></span>
+          <span class="cup-bys">BY</span>
+          <span class="cup-apostrophe">’</span>
+          <span class="cup-s">S</span>
         </span>
         <span class="cup-sub">COFFEE HOUSE</span>
-        <span class="cup-tagline">· FRESH COFFEE POINT ·</span>
+        <span class="cup-tagline">· Fresh Coffee Point ·</span>
       </span>`;
   });
 }
