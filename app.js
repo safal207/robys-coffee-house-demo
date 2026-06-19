@@ -39,6 +39,11 @@ function setLanguage(next) {
   });
 }
 
+function revealAllContent() {
+  document.documentElement.classList.add("content-ready");
+  qa(".reveal").forEach((node) => node.classList.add("visible"));
+}
+
 function galleryMarkup() {
   const photos = [
     [POSTER, "terrace", "OUTDOOR"],
@@ -118,12 +123,13 @@ function requestHeroVideo() {
 }
 
 function init() {
+  revealAllContent();
   const year = q("#current-year");
   if (year) year.textContent = String(new Date().getFullYear());
   setupMenu();
   setupDockVisibility();
   qa(".lang-button").forEach((button) => button.addEventListener("click", () => setLanguage(button.dataset.lang)));
-  if (language !== "tr") setLanguage(language);
+  setLanguage(language);
 
   setTimeout(setupDeferredSections, 1800);
   ["pointerdown", "keydown", "touchstart"].forEach((eventName) => window.addEventListener(eventName, requestHeroVideo, { once: true, passive: true }));
@@ -134,6 +140,7 @@ function init() {
   }
 }
 
+revealAllContent();
 document.readyState === "loading"
   ? document.addEventListener("DOMContentLoaded", init, { once: true })
   : init();
