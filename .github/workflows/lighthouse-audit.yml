@@ -1,0 +1,119 @@
+name: Lighthouse mobile audit
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - lighthouse-summary.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Lighthouse
+        run: npm install --global lighthouse@12.8.2
+
+      - name: Start local server
+        run: |
+          python3 -m http.server 8080 >/tmp/robys-server.log 2>&1 &
+          echo $! > /tmp/robys-server.pid
+          for attempt in {1..20}; do
+            if curl --silent --fail http://127.0.0.1:8080/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/robys-server.log
+          exit 1
+
+      - name: Run Lighthouse mobile audit
+        run: |
+          lighthouse http://127.0.0.1:8080/ \
+            --output=json \
+            --output=html \
+            --output-path=./lighthouse-report \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --form-factor=mobile \
+            --screen-emulation.mobile=true \
+            --throttling-method=simulate \
+            --chrome-flags='--headless --no-sandbox --disable-gpu' \
+            --quiet
+
+      - name: Create readable summary
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('lighthouse-report.report.json', 'utf8'));
+          const categories = Object.fromEntries(
+            Object.entries(report.categories).map(([key, value]) => [key, Math.round(value.score * 100)])
+          );
+          const metricIds = [
+            'first-contentful-paint',
+            'largest-contentful-paint',
+            'speed-index',
+            'total-blocking-time',
+            'cumulative-layout-shift',
+            'interactive'
+          ];
+          const metrics = Object.fromEntries(metricIds.map((id) => {
+            const audit = report.audits[id];
+            return [id, audit ? { displayValue: audit.displayValue, numericValue: audit.numericValue, score: audit.score } : null];
+          }));
+          const opportunities = Object.values(report.audits)
+            .filter((audit) => audit && audit.details && audit.details.type === 'opportunity' && typeof audit.numericValue === 'number' && audit.score !== 1)
+            .sort((a, b) => (b.numericValue || 0) - (a.numericValue || 0))
+            .slice(0, 8)
+            .map((audit) => ({ id: audit.id, title: audit.title, displayValue: audit.displayValue, score: audit.score }));
+          const failedAudits = Object.values(report.audits)
+            .filter((audit) => audit && audit.scoreDisplayMode !== 'notApplicable' && typeof audit.score === 'number' && audit.score < 0.9)
+            .sort((a, b) => a.score - b.score)
+            .slice(0, 15)
+            .map((audit) => ({ id: audit.id, title: audit.title, score: audit.score, displayValue: audit.displayValue || null }));
+          const summary = {
+            generatedAt: new Date().toISOString(),
+            lighthouseVersion: report.lighthouseVersion,
+            testedUrl: report.finalDisplayedUrl,
+            categories,
+            metrics,
+            opportunities,
+            failedAudits
+          };
+          fs.writeFileSync('lighthouse-summary.json', JSON.stringify(summary, null, 2) + '\n');
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+      - name: Upload full Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-mobile-report
+          path: |
+            lighthouse-report.report.html
+            lighthouse-report.report.json
+            lighthouse-summary.json
+          retention-days: 14
+
+      - name: Commit summary to repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lighthouse-summary.json
+          if git diff --cached --quiet; then
+            echo 'Summary unchanged'
+            exit 0
+          fi
+          git commit -m 'chore: update Lighthouse audit summary'
+          git push
