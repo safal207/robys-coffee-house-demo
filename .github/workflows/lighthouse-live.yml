@@ -1,5 +1,6 @@
 name: Lighthouse Live Audit
 
+# Manual trigger: 2026-06-19
 on:
   push:
     branches: [main]
