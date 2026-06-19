@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-napkin-v1";
+const CACHE_NAME = "robys-napkin-logo-v2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -16,6 +16,7 @@ const CORE_ASSETS = [
   "./mobile-polish.css",
   "./hero-mobile-fix.css",
   "./napkin-style.css",
+  "./logo-video-tune.css",
   "./app.js",
   "./hero-video.js",
   "./src/i18n.js",
