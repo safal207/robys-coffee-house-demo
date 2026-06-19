@@ -20,6 +20,16 @@
   galleryScript.defer = true;
   document.head.appendChild(galleryScript);
 
+  const reviewsStyles = document.createElement("link");
+  reviewsStyles.rel = "stylesheet";
+  reviewsStyles.href = "reviews.css";
+  document.head.appendChild(reviewsStyles);
+
+  const reviewsScript = document.createElement("script");
+  reviewsScript.src = "reviews.js";
+  reviewsScript.defer = true;
+  document.head.appendChild(reviewsScript);
+
   const loader = document.createElement("div");
   loader.className = "page-loader";
   loader.setAttribute("aria-hidden", "true");
