@@ -5,6 +5,26 @@
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const desktopMotion = finePointer && !reducedMotion && window.innerWidth > 1100;
 
+  function loadMapAssets() {
+    if (document.querySelector('link[href="map.css"]')) return;
+
+    const mapStyles = document.createElement("link");
+    mapStyles.rel = "stylesheet";
+    mapStyles.href = "map.css";
+    document.head.appendChild(mapStyles);
+
+    const mapScript = document.createElement("script");
+    mapScript.src = "map.js";
+    mapScript.defer = true;
+    document.head.appendChild(mapScript);
+  }
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(loadMapAssets, { timeout: 1200 });
+  } else {
+    window.setTimeout(loadMapAssets, 450);
+  }
+
   const progress = document.createElement("div");
   progress.className = "scroll-progress";
   progress.setAttribute("aria-hidden", "true");
