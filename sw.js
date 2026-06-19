@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-ruby-v3";
+const CACHE_NAME = "robys-ruby-v4";
 const CORE_ASSETS = [
   "./",
   "./index.html",
