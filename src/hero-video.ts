@@ -1,4 +1,4 @@
-const BRAND_BUILD = "amenities-20260619-3";
+const BRAND_BUILD = "amenities-work-20260619-4";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
