@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T11:55:44.084Z",
+  "generatedAt": "2026-06-19T12:15:25.264Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,30 +23,30 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 85,
+    "performance": 86,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3254.6920499999997,
-      "score": 0.41
+      "displayValue": "3.2 s",
+      "numericValue": 3181.9370499999995,
+      "score": 0.44
     },
     "largest-contentful-paint": {
       "displayValue": "3.3 s",
-      "numericValue": 3329.69205,
+      "numericValue": 3331.93705,
       "score": 0.69
     },
     "speed-index": {
-      "displayValue": "3.8 s",
-      "numericValue": 3772.240510593015,
-      "score": 0.84
+      "displayValue": "3.2 s",
+      "numericValue": 3181.9370499999995,
+      "score": 0.92
     },
     "total-blocking-time": {
-      "displayValue": "50 ms",
-      "numericValue": 45.63435000000004,
+      "displayValue": "0 ms",
+      "numericValue": 0,
       "score": 1
     },
     "cumulative-layout-shift": {
@@ -56,7 +56,7 @@
     },
     "interactive": {
       "displayValue": "3.3 s",
-      "numericValue": 3329.6920500000006,
+      "numericValue": 3331.93705,
       "score": 0.93
     }
   },
@@ -88,12 +88,6 @@
   ],
   "failedAudits": [
     {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "4.3 s"
-    },
-    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
@@ -124,12 +118,6 @@
       "displayValue": "Est savings of 264 KiB"
     },
     {
-      "id": "forced-reflow-insight",
-      "title": "Forced reflow",
-      "score": 0,
-      "displayValue": null
-    },
-    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
@@ -138,8 +126,14 @@
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.41,
-      "displayValue": "3.3 s"
+      "score": 0.44,
+      "displayValue": "3.2 s"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0.5,
+      "displayValue": "3.8 s"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -176,6 +170,12 @@
       "title": "Render blocking requests",
       "score": 0.5,
       "displayValue": null
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.69,
+      "displayValue": "3.3 s"
     }
   ]
 }
