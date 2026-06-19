@@ -5,6 +5,11 @@
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const root = document.documentElement;
 
+  const responsiveStyles = document.createElement("link");
+  responsiveStyles.rel = "stylesheet";
+  responsiveStyles.href = "responsive.css";
+  document.head.appendChild(responsiveStyles);
+
   const loader = document.createElement("div");
   loader.className = "page-loader";
   loader.setAttribute("aria-hidden", "true");
