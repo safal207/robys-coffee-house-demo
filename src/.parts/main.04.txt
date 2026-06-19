@@ -1,0 +1,34 @@
+ });
+}
+
+function initialize(): void {
+  const year = qs<HTMLElement>("#current-year");
+  if (year) year.textContent = String(new Date().getFullYear());
+
+  injectMarquee();
+  injectLiveStatus();
+  injectWorldExperience();
+  injectStories();
+  injectGallery();
+  injectReviews();
+  injectPassport();
+  injectMap();
+  injectMobileDock();
+  injectMatcherDialog();
+
+  setupLanguage();
+  setupNavigation();
+  setupHeaderAndProgress();
+  setupRitualCards();
+  setupGallery();
+  setupPassport();
+  setupMap();
+  setupInstallPrompt();
+  addHeroFallback();
+  setupReveal();
+  setupServiceWorker();
+  setLanguage(state.lang);
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
+else initialize();
