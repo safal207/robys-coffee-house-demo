@@ -3,9 +3,19 @@
 .ruby-hero-media .hero-text{margin-bottom:12px!important}
 .ruby-hero-media .hero-meta{margin-top:12px!important}
 
+@media(max-width:760px){
+  .hero-copy,
+  .ruby-hero-media .hero-copy{
+    min-height:100svh!important;
+    justify-content:flex-end!important;
+    padding:96px 16px clamp(92px,10svh,120px)!important;
+  }
+}
+
 @media(max-width:620px){
   .ruby-hero-media{min-height:100svh!important}
-  .ruby-hero-media .hero-copy{min-height:100svh!important;justify-content:flex-end!important;padding:96px 16px 28px!important}
+  .hero-copy,
+  .ruby-hero-media .hero-copy{padding:92px 16px clamp(94px,10svh,118px)!important}
   .ruby-hero-media h1{margin-bottom:12px!important}
   .ruby-hero-media .hero-text{margin-bottom:10px!important;font-size:.96rem!important;line-height:1.55!important}
 
@@ -25,7 +35,13 @@
 }
 
 @media(max-width:390px){
-  .ruby-hero-media .hero-copy{padding:88px 12px 24px!important}
+  .hero-copy,
+  .ruby-hero-media .hero-copy{padding:86px 12px clamp(84px,9svh,106px)!important}
   .ruby-hero-media .hero-meta{grid-template-columns:1fr 1fr!important}
   .ruby-hero-media .hero-meta strong{font-size:.84rem!important}
+}
+
+@media(max-height:720px) and (max-width:760px){
+  .hero-copy,
+  .ruby-hero-media .hero-copy{padding-bottom:72px!important}
 }
