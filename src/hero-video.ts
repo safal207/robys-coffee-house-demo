@@ -1,22 +1,27 @@
-const BRAND_BUILD = "cup-20260619-1";
+const BRAND_BUILD = "cup-20260619-2";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
 function ensureBrandAssets(): void {
-  if (!document.querySelector<HTMLLinkElement>('link[data-robys-font="cup"]')) {
+  if (!document.querySelector<HTMLLinkElement>('link[href*="family=Montserrat"]')) {
     const font = document.createElement("link");
     font.rel = "stylesheet";
     font.href = "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&display=swap";
-    font.dataset.robysFont = "cup";
     document.head.append(font);
   }
 
-  if (!document.querySelector<HTMLLinkElement>('link[data-robys-theme="cup"]')) {
+  if (!document.querySelector<HTMLLinkElement>('link[href*="brand-cup.css"]')) {
     const theme = document.createElement("link");
     theme.rel = "stylesheet";
     theme.href = `brand-cup.css?v=${BRAND_BUILD}`;
-    theme.dataset.robysTheme = "cup";
     document.head.append(theme);
+  }
+
+  if (!document.querySelector<HTMLLinkElement>('link[href*="mobile-polish.css"]')) {
+    const polish = document.createElement("link");
+    polish.rel = "stylesheet";
+    polish.href = `mobile-polish.css?v=${BRAND_BUILD}`;
+    document.head.append(polish);
   }
 
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
