@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T14:55:11.098Z",
+  "generatedAt": "2026-06-19T14:56:31.631Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,26 +23,26 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 84,
+    "performance": 85,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3344.4353,
-      "score": 0.39
+      "displayValue": "1.1 s",
+      "numericValue": 1053.57755,
+      "score": 1
     },
     "largest-contentful-paint": {
-      "displayValue": "3.5 s",
-      "numericValue": 3494.435300000001,
-      "score": 0.64
+      "displayValue": "3.6 s",
+      "numericValue": 3634.0132,
+      "score": 0.6
     },
     "speed-index": {
-      "displayValue": "3.4 s",
-      "numericValue": 3351.7271100000025,
-      "score": 0.9
+      "displayValue": "1.1 s",
+      "numericValue": 1053.57755,
+      "score": 1
     },
     "total-blocking-time": {
       "displayValue": "0 ms",
@@ -50,14 +50,14 @@
       "score": 1
     },
     "cumulative-layout-shift": {
-      "displayValue": "0",
-      "numericValue": 0,
-      "score": 1
+      "displayValue": "0.135",
+      "numericValue": 0.13533555942862943,
+      "score": 0.8
     },
     "interactive": {
-      "displayValue": "3.5 s",
-      "numericValue": 3494.435300000001,
-      "score": 0.92
+      "displayValue": "3.6 s",
+      "numericValue": 3634.0132000000003,
+      "score": 0.91
     }
   },
   "opportunities": [
@@ -71,13 +71,13 @@
       "id": "unused-css-rules",
       "title": "Reduce unused CSS",
       "displayValue": "Est savings of 12 KiB",
-      "score": 0.5
+      "score": 0
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
+      "displayValue": "Est savings of 26 KiB",
+      "score": 0
     }
   ],
   "failedAudits": [
@@ -85,13 +85,31 @@
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,490 ms"
+      "displayValue": "3,630 ms"
+    },
+    {
+      "id": "layout-shifts",
+      "title": "Avoid large layout shifts",
+      "score": 0,
+      "displayValue": "2 layout shifts found"
     },
     {
       "id": "label-content-name-mismatch",
       "title": "Elements with visible text labels do not have matching accessible names.",
       "score": 0,
       "displayValue": null
+    },
+    {
+      "id": "unused-css-rules",
+      "title": "Reduce unused CSS",
+      "score": 0,
+      "displayValue": "Est savings of 12 KiB"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 26 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -103,11 +121,11 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 172 KiB"
+      "displayValue": "Est savings of 206 KiB"
     },
     {
-      "id": "forced-reflow-insight",
-      "title": "Forced reflow",
+      "id": "cls-culprits-insight",
+      "title": "Layout shift culprits",
       "score": 0,
       "displayValue": null
     },
@@ -118,34 +136,10 @@
       "displayValue": null
     },
     {
-      "id": "first-contentful-paint",
-      "title": "First Contentful Paint",
-      "score": 0.39,
-      "displayValue": "3.3 s"
-    },
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0.5,
-      "displayValue": "3.0 s"
-    },
-    {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "22 resources found"
-    },
-    {
-      "id": "unused-css-rules",
-      "title": "Reduce unused CSS",
-      "score": 0.5,
-      "displayValue": "Est savings of 12 KiB"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
+      "displayValue": "23 resources found"
     },
     {
       "id": "document-latency-insight",
@@ -156,8 +150,14 @@
     {
       "id": "largest-contentful-paint",
       "title": "Largest Contentful Paint",
-      "score": 0.64,
-      "displayValue": "3.5 s"
+      "score": 0.6,
+      "displayValue": "3.6 s"
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift",
+      "score": 0.8,
+      "displayValue": "0.135"
     }
   ]
 }
