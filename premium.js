@@ -5,8 +5,10 @@
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const desktopMotion = finePointer && !reducedMotion && window.innerWidth > 1100;
 
+  let mapAssetsLoaded = false;
   function loadMapAssets() {
-    if (document.querySelector('link[href="map.css"]')) return;
+    if (mapAssetsLoaded) return;
+    mapAssetsLoaded = true;
 
     const mapStyles = document.createElement("link");
     mapStyles.rel = "stylesheet";
@@ -19,10 +21,18 @@
     document.head.appendChild(mapScript);
   }
 
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(loadMapAssets, { timeout: 1200 });
-  } else {
-    window.setTimeout(loadMapAssets, 450);
+  const mapPlaceholder = document.querySelector(".map-card");
+  if (mapPlaceholder && "IntersectionObserver" in window) {
+    const mapObserver = new IntersectionObserver((entries, observer) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      loadMapAssets();
+      observer.disconnect();
+    }, { rootMargin: "500px 0px", threshold: 0.01 });
+    mapObserver.observe(mapPlaceholder);
+  } else if (mapPlaceholder) {
+    mapPlaceholder.addEventListener("pointerenter", loadMapAssets, { once: true });
+    mapPlaceholder.addEventListener("focusin", loadMapAssets, { once: true });
+    mapPlaceholder.addEventListener("touchstart", loadMapAssets, { once: true, passive: true });
   }
 
   const progress = document.createElement("div");
