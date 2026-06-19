@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T13:34:21.028Z",
+  "generatedAt": "2026-06-19T13:35:11.091Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,41 +23,41 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 85,
+    "performance": 58,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.1 s",
-      "numericValue": 3106.683,
-      "score": 0.46
+      "displayValue": "1.7 s",
+      "numericValue": 1731.4924999999998,
+      "score": 0.91
     },
     "largest-contentful-paint": {
-      "displayValue": "3.4 s",
-      "numericValue": 3406.683000000001,
-      "score": 0.66
+      "displayValue": "3.6 s",
+      "numericValue": 3586.0432999999994,
+      "score": 0.61
     },
     "speed-index": {
-      "displayValue": "3.1 s",
-      "numericValue": 3106.683,
-      "score": 0.93
+      "displayValue": "3.4 s",
+      "numericValue": 3415.3092883007143,
+      "score": 0.89
     },
     "total-blocking-time": {
-      "displayValue": "0 ms",
-      "numericValue": 0,
-      "score": 1
+      "displayValue": "4,630 ms",
+      "numericValue": 4632.3045,
+      "score": 0
     },
     "cumulative-layout-shift": {
-      "displayValue": "0",
-      "numericValue": 0,
+      "displayValue": "0.002",
+      "numericValue": 0.002009011312645063,
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.4 s",
-      "numericValue": 3414.183000000001,
-      "score": 0.93
+      "displayValue": "7.0 s",
+      "numericValue": 7041.197,
+      "score": 0.52
     }
   },
   "opportunities": [
@@ -70,7 +70,7 @@
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 26 KiB",
+      "displayValue": "Est savings of 39 KiB",
       "score": 0
     },
     {
@@ -88,10 +88,28 @@
   ],
   "failedAudits": [
     {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0,
+      "displayValue": "4,630 ms"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0,
+      "displayValue": "1,180 ms"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0,
+      "displayValue": "8.3 s"
+    },
+    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,410 ms"
+      "displayValue": "3,590 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -103,7 +121,7 @@
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0,
-      "displayValue": "Est savings of 26 KiB"
+      "displayValue": "Est savings of 39 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -115,7 +133,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 289 KiB"
+      "displayValue": "Est savings of 322 KiB"
     },
     {
       "id": "lcp-discovery-insight",
@@ -130,22 +148,10 @@
       "displayValue": null
     },
     {
-      "id": "first-contentful-paint",
-      "title": "First Contentful Paint",
-      "score": 0.46,
-      "displayValue": "3.1 s"
-    },
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0.5,
-      "displayValue": "3.5 s"
-    },
-    {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "25 resources found"
+      "displayValue": "26 resources found"
     },
     {
       "id": "render-blocking-resources",
@@ -170,12 +176,6 @@
       "title": "Improve image delivery",
       "score": 0.5,
       "displayValue": "Est savings of 6 KiB"
-    },
-    {
-      "id": "render-blocking-insight",
-      "title": "Render blocking requests",
-      "score": 0.5,
-      "displayValue": null
     }
   ]
 }
