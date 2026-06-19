@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T19:31:59.046Z",
+  "generatedAt": "2026-06-19T19:39:59.584Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,48 +23,48 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 56,
+    "performance": 86,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.2 s",
-      "numericValue": 3188.88795,
-      "score": 0.43
+      "displayValue": "3.1 s",
+      "numericValue": 3127.7136500000006,
+      "score": 0.45
     },
     "largest-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3348.8362,
+      "displayValue": "3.4 s",
+      "numericValue": 3352.7136500000006,
       "score": 0.68
     },
     "speed-index": {
-      "displayValue": "3.8 s",
-      "numericValue": 3756.1073208962416,
-      "score": 0.84
+      "displayValue": "3.3 s",
+      "numericValue": 3299.7872219999995,
+      "score": 0.91
     },
     "total-blocking-time": {
-      "displayValue": "2,560 ms",
-      "numericValue": 2561.3965000000003,
-      "score": 0.04
-    },
-    "cumulative-layout-shift": {
-      "displayValue": "0",
+      "displayValue": "0 ms",
       "numericValue": 0,
       "score": 1
     },
+    "cumulative-layout-shift": {
+      "displayValue": "0.003",
+      "numericValue": 0.002681929378026514,
+      "score": 1
+    },
     "interactive": {
-      "displayValue": "6.2 s",
-      "numericValue": 6246.934450000001,
-      "score": 0.61
+      "displayValue": "3.4 s",
+      "numericValue": 3367.7136500000006,
+      "score": 0.93
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 840 ms",
+      "displayValue": "Est savings of 2,010 ms",
       "score": 0
     },
     {
@@ -88,12 +88,6 @@
   ],
   "failedAudits": [
     {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "7.1 s"
-    },
-    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
@@ -115,7 +109,13 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 840 ms"
+      "displayValue": "Est savings of 2,010 ms"
+    },
+    {
+      "id": "cache-insight",
+      "title": "Use efficient cache lifetimes",
+      "score": 0,
+      "displayValue": "Est savings of 198 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -127,25 +127,13 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 990 ms"
-    },
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.01,
-      "displayValue": "730 ms"
-    },
-    {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.04,
-      "displayValue": "2,560 ms"
+      "displayValue": "Est savings of 2,160 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.43,
-      "displayValue": "3.2 s"
+      "score": 0.45,
+      "displayValue": "3.1 s"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -172,10 +160,22 @@
       "displayValue": "Est savings of 26 KiB"
     },
     {
-      "id": "cache-insight",
-      "title": "Use efficient cache lifetimes",
+      "id": "document-latency-insight",
+      "title": "Document request latency",
       "score": 0.5,
-      "displayValue": "Est savings of 197 KiB"
+      "displayValue": "Est savings of 7 KiB"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0.5,
+      "displayValue": "Est savings of 82 KiB"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.68,
+      "displayValue": "3.4 s"
     }
   ]
 }
