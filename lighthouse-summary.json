@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T15:16:34.940Z",
+  "generatedAt": "2026-06-19T16:38:47.501Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,41 +23,41 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 86,
+    "performance": 89,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.2 s",
-      "numericValue": 3192.45995,
-      "score": 0.43
+      "displayValue": "1.3 s",
+      "numericValue": 1343.2487499999997,
+      "score": 0.98
     },
     "largest-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3342.5129000000006,
-      "score": 0.68
+      "displayValue": "3.7 s",
+      "numericValue": 3663.0280000000002,
+      "score": 0.59
     },
     "speed-index": {
-      "displayValue": "3.2 s",
-      "numericValue": 3192.45995,
-      "score": 0.92
+      "displayValue": "1.3 s",
+      "numericValue": 1343.2487499999997,
+      "score": 1
     },
     "total-blocking-time": {
-      "displayValue": "0 ms",
-      "numericValue": 0,
-      "score": 1
+      "displayValue": "90 ms",
+      "numericValue": 92.50000000000011,
+      "score": 0.98
     },
     "cumulative-layout-shift": {
-      "displayValue": "0",
-      "numericValue": 0,
-      "score": 1
+      "displayValue": "0.042",
+      "numericValue": 0.04235755445285821,
+      "score": 0.99
     },
     "interactive": {
-      "displayValue": "3.3 s",
-      "numericValue": 3342.5129000000006,
-      "score": 0.93
+      "displayValue": "3.7 s",
+      "numericValue": 3663.0280000000007,
+      "score": 0.91
     }
   },
   "opportunities": [
@@ -68,15 +68,15 @@
       "score": 0
     },
     {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "displayValue": "Est savings of 26 KiB",
+      "score": 0
+    },
+    {
       "id": "unused-css-rules",
       "title": "Reduce unused CSS",
       "displayValue": "Est savings of 12 KiB",
-      "score": 0.5
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 13 KiB",
       "score": 0.5
     }
   ],
@@ -85,13 +85,19 @@
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,340 ms"
+      "displayValue": "3,660 ms"
     },
     {
       "id": "label-content-name-mismatch",
       "title": "Elements with visible text labels do not have matching accessible names.",
       "score": 0,
       "displayValue": null
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 26 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -103,7 +109,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 173 KiB"
+      "displayValue": "Est savings of 206 KiB"
     },
     {
       "id": "forced-reflow-insight",
@@ -118,34 +124,16 @@
       "displayValue": null
     },
     {
-      "id": "first-contentful-paint",
-      "title": "First Contentful Paint",
-      "score": 0.43,
-      "displayValue": "3.2 s"
-    },
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0.5,
-      "displayValue": "2.6 s"
-    },
-    {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "22 resources found"
+      "displayValue": "23 resources found"
     },
     {
       "id": "unused-css-rules",
       "title": "Reduce unused CSS",
       "score": 0.5,
       "displayValue": "Est savings of 12 KiB"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "document-latency-insight",
@@ -156,8 +144,14 @@
     {
       "id": "largest-contentful-paint",
       "title": "Largest Contentful Paint",
-      "score": 0.68,
-      "displayValue": "3.3 s"
+      "score": 0.59,
+      "displayValue": "3.7 s"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.62,
+      "displayValue": "210 ms"
     }
   ]
 }
