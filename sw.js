@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-comfort-three-v6";
+const CACHE_NAME = "robys-no-hero-buttons-v7";
 const CORE_ASSETS = [
   "./",
   "./index.html",
