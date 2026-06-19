@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-amenities-work-v4";
+const CACHE_NAME = "robys-compact-v5";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -18,9 +18,11 @@ const CORE_ASSETS = [
   "./napkin-style.css",
   "./logo-video-tune.css",
   "./amenities.css",
+  "./compact-layout.css",
   "./app.js",
   "./hero-video.js",
   "./amenities.js",
+  "./compact-layout.js",
   "./src/i18n.js",
   "./src/robys-hero-mobile-lite.mp4",
   "./src/robys-hero-poster.jpg",
