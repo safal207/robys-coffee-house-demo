@@ -2,7 +2,12 @@ const translations = {
   tr: {
     navAbout: "Hakkımızda",
     navMenu: "Menü",
+    navGallery: "Fotoğraflar",
+    navReviews: "Yorumlar",
     navVisit: "Ziyaret",
+    skipContent: "İçeriğe geç",
+    openMenu: "Menüyü aç",
+    closeMenu: "Menüyü kapat",
     heroEyebrow: "GAZİPAŞA · FRESH COFFEE POINT",
     heroTitle: "İyi kahve.<br /><em>Sakin anlar.</em>",
     heroText: "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
@@ -38,7 +43,12 @@ const translations = {
   en: {
     navAbout: "About",
     navMenu: "Menu",
+    navGallery: "Photos",
+    navReviews: "Reviews",
     navVisit: "Visit",
+    skipContent: "Skip to content",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
     heroEyebrow: "GAZİPAŞA · FRESH COFFEE POINT",
     heroTitle: "Good coffee.<br /><em>Calm moments.</em>",
     heroText: "Fresh coffee, delicious desserts and a relaxing atmosphere away from the rush of the day.",
@@ -74,7 +84,12 @@ const translations = {
   ru: {
     navAbout: "О нас",
     navMenu: "Меню",
+    navGallery: "Фото",
+    navReviews: "Отзывы",
     navVisit: "Контакты",
+    skipContent: "Перейти к содержанию",
+    openMenu: "Открыть меню",
+    closeMenu: "Закрыть меню",
     heroEyebrow: "ГАЗИПАША · FRESH COFFEE POINT",
     heroTitle: "Хороший кофе.<br /><em>Спокойные моменты.</em>",
     heroText: "Свежий кофе, вкусные десерты и уютная атмосфера, где можно ненадолго замедлиться.",
@@ -112,12 +127,43 @@ const translations = {
 const html = document.documentElement;
 const header = document.querySelector(".site-header");
 const menuToggle = document.querySelector(".menu-toggle");
-const navLinks = document.querySelectorAll(".main-nav a");
-const languageButtons = document.querySelectorAll(".lang-button");
+const navLinks = [...document.querySelectorAll(".main-nav a")];
+const languageButtons = [...document.querySelectorAll(".lang-button")];
+let currentLanguage = "tr";
+
+function getStoredLanguage() {
+  try {
+    return localStorage.getItem("robys-language") || "tr";
+  } catch {
+    return "tr";
+  }
+}
+
+function setStoredLanguage(language) {
+  try {
+    localStorage.setItem("robys-language", language);
+  } catch {
+    // Storage can be blocked in private mode; the page still works.
+  }
+}
+
+function setMenuState(isOpen, returnFocus = false) {
+  document.body.classList.toggle("menu-open", isOpen);
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  const dictionary = translations[currentLanguage] || translations.tr;
+  menuToggle.setAttribute("aria-label", isOpen ? dictionary.closeMenu : dictionary.openMenu);
+
+  if (isOpen) {
+    window.requestAnimationFrame(() => navLinks[0]?.focus());
+  } else if (returnFocus) {
+    menuToggle.focus();
+  }
+}
 
 function setLanguage(language) {
   const dictionary = translations[language] || translations.tr;
-  html.lang = language;
+  currentLanguage = translations[language] ? language : "tr";
+  html.lang = currentLanguage;
 
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const key = element.dataset.i18n;
@@ -130,12 +176,16 @@ function setLanguage(language) {
   });
 
   languageButtons.forEach((button) => {
-    const isActive = button.dataset.lang === language;
+    const isActive = button.dataset.lang === currentLanguage;
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
 
-  localStorage.setItem("robys-language", language);
+  menuToggle.setAttribute(
+    "aria-label",
+    document.body.classList.contains("menu-open") ? dictionary.closeMenu : dictionary.openMenu
+  );
+  setStoredLanguage(currentLanguage);
 }
 
 languageButtons.forEach((button) => {
@@ -143,40 +193,81 @@ languageButtons.forEach((button) => {
 });
 
 menuToggle.addEventListener("click", () => {
-  const isOpen = document.body.classList.toggle("menu-open");
-  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  setMenuState(!document.body.classList.contains("menu-open"));
 });
 
 navLinks.forEach((link) => {
-  link.addEventListener("click", () => {
-    document.body.classList.remove("menu-open");
-    menuToggle.setAttribute("aria-expanded", "false");
-  });
+  link.addEventListener("click", () => setMenuState(false));
 });
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && document.body.classList.contains("menu-open")) {
+    setMenuState(false, true);
+  }
+});
+
+let headerTicking = false;
 window.addEventListener("scroll", () => {
-  header.classList.toggle("scrolled", window.scrollY > 16);
+  if (headerTicking) return;
+  headerTicking = true;
+  window.requestAnimationFrame(() => {
+    header.classList.toggle("scrolled", window.scrollY > 16);
+    headerTicking = false;
+  });
 }, { passive: true });
 
-const revealObserver = new IntersectionObserver((entries, observer) => {
-  entries.forEach((entry) => {
-    if (!entry.isIntersecting) return;
-    entry.target.classList.add("visible");
-    observer.unobserve(entry.target);
-  });
-}, { threshold: 0.14 });
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("visible");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -4% 0px" });
 
-document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+  document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+} else {
+  document.querySelectorAll(".reveal").forEach((element) => element.classList.add("visible"));
+}
+
+const heroImage = document.querySelector(".hero-image-wrap img");
+heroImage?.addEventListener("error", () => {
+  heroImage.hidden = true;
+  heroImage.parentElement?.classList.add("image-fallback");
+}, { once: true });
+
+function initActiveNavigation() {
+  if (!("IntersectionObserver" in window)) return;
+  const targets = navLinks
+    .map((link) => document.querySelector(link.getAttribute("href")))
+    .filter(Boolean);
+
+  const activeObserver = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+
+    navLinks.forEach((link) => {
+      const active = link.getAttribute("href") === `#${visible.target.id}`;
+      link.classList.toggle("active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  }, { rootMargin: "-25% 0px -60% 0px", threshold: [0.01, 0.2] });
+
+  targets.forEach((target) => activeObserver.observe(target));
+}
+
+document.addEventListener("DOMContentLoaded", initActiveNavigation, { once: true });
 
 document.getElementById("current-year").textContent = new Date().getFullYear();
-setLanguage(localStorage.getItem("robys-language") || "tr");
+setLanguage(getStoredLanguage());
 
-const premiumStyles = document.createElement("link");
-premiumStyles.rel = "stylesheet";
-premiumStyles.href = "premium.css";
-document.head.appendChild(premiumStyles);
-
-const premiumScript = document.createElement("script");
-premiumScript.src = "premium.js";
-premiumScript.async = true;
-document.head.appendChild(premiumScript);
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      // Offline caching is an enhancement; failure must not affect the site.
+    });
+  }, { once: true });
+}
