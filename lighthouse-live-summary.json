@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-06-19T11:46:05.897Z",
+  "lighthouseVersion": "12.8.2",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=d7183e24101c2f51eb220f1a33cc286c5c3ff881",
+  "commit": "d7183e24101c2f51eb220f1a33cc286c5c3ff881",
+  "mobile": {
+    "categories": {
+      "performance": 82,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "first-contentful-paint": {
+        "displayValue": "3.3 s",
+        "numericValue": 3297.3179999999993
+      },
+      "largest-contentful-paint": {
+        "displayValue": "3.4 s",
+        "numericValue": 3372.3179999999993
+      },
+      "speed-index": {
+        "displayValue": "5.0 s",
+        "numericValue": 4979.796020967075
+      },
+      "total-blocking-time": {
+        "displayValue": "60 ms",
+        "numericValue": 59
+      },
+      "cumulative-layout-shift": {
+        "displayValue": "0",
+        "numericValue": 0
+      },
+      "interactive": {
+        "displayValue": "3.5 s",
+        "numericValue": 3498.802
+      }
+    },
+    "opportunities": [
+      {
+        "id": "render-blocking-resources",
+        "title": "Eliminate render-blocking resources",
+        "displayValue": "Est savings of 1,010 ms",
+        "score": 0
+      },
+      {
+        "id": "server-response-time",
+        "title": "Initial server response time was short",
+        "displayValue": "Root document took 90 ms",
+        "score": 1
+      }
+    ]
+  },
+  "desktop": {
+    "categories": {
+      "performance": 99,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "first-contentful-paint": {
+        "displayValue": "0.8 s",
+        "numericValue": 807.4694999999999
+      },
+      "largest-contentful-paint": {
+        "displayValue": "0.8 s",
+        "numericValue": 807.4694999999999
+      },
+      "speed-index": {
+        "displayValue": "0.8 s",
+        "numericValue": 807.4694999999999
+      },
+      "total-blocking-time": {
+        "displayValue": "0 ms",
+        "numericValue": 0
+      },
+      "cumulative-layout-shift": {
+        "displayValue": "0",
+        "numericValue": 0.00009449161780806983
+      },
+      "interactive": {
+        "displayValue": "0.8 s",
+        "numericValue": 807.4694999999999
+      }
+    },
+    "opportunities": [
+      {
+        "id": "render-blocking-resources",
+        "title": "Eliminate render-blocking resources",
+        "displayValue": "Est savings of 520 ms",
+        "score": 0
+      },
+      {
+        "id": "modern-image-formats",
+        "title": "Serve images in next-gen formats",
+        "displayValue": "Est savings of 26 KiB",
+        "score": 0.5
+      },
+      {
+        "id": "server-response-time",
+        "title": "Initial server response time was short",
+        "displayValue": "Root document took 0 ms",
+        "score": 1
+      }
+    ]
+  }
+}
