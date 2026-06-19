@@ -1,96 +1,91 @@
 {
-  "generatedAt": "2026-06-19T11:46:05.897Z",
+  "generatedAt": "2026-06-19T12:34:42.346Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=d7183e24101c2f51eb220f1a33cc286c5c3ff881",
-  "commit": "d7183e24101c2f51eb220f1a33cc286c5c3ff881",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=b33e16cf0be827c1b669c5ec73f0f2c591eb51bb",
+  "commit": "b33e16cf0be827c1b669c5ec73f0f2c591eb51bb",
+  "build": "perf-20260619-8",
   "mobile": {
     "categories": {
-      "performance": 82,
+      "performance": 78,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "3.3 s",
-        "numericValue": 3297.3179999999993
+        "displayValue": "2.9 s",
+        "numericValue": 2908.1427000000003
       },
       "largest-contentful-paint": {
-        "displayValue": "3.4 s",
-        "numericValue": 3372.3179999999993
+        "displayValue": "3.3 s",
+        "numericValue": 3283.1427000000003
       },
       "speed-index": {
-        "displayValue": "5.0 s",
-        "numericValue": 4979.796020967075
+        "displayValue": "2.9 s",
+        "numericValue": 2908.1427000000003
       },
       "total-blocking-time": {
-        "displayValue": "60 ms",
-        "numericValue": 59
+        "displayValue": "380 ms",
+        "numericValue": 377.5
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "3.5 s",
-        "numericValue": 3498.802
+        "displayValue": "3.6 s",
+        "numericValue": 3604.1710000000003
       }
     },
     "opportunities": [
       {
-        "id": "render-blocking-resources",
-        "title": "Eliminate render-blocking resources",
-        "displayValue": "Est savings of 1,010 ms",
+        "id": "modern-image-formats",
+        "title": "Serve images in next-gen formats",
+        "displayValue": "Est savings of 13 KiB",
         "score": 0
       },
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 90 ms",
+        "displayValue": "Root document took 20 ms",
         "score": 1
       }
     ]
   },
   "desktop": {
     "categories": {
-      "performance": 99,
+      "performance": 98,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "0.8 s",
-        "numericValue": 807.4694999999999
+        "displayValue": "0.3 s",
+        "numericValue": 266.62199999999996
       },
       "largest-contentful-paint": {
         "displayValue": "0.8 s",
-        "numericValue": 807.4694999999999
+        "numericValue": 824.1134999999999
       },
       "speed-index": {
-        "displayValue": "0.8 s",
-        "numericValue": 807.4694999999999
+        "displayValue": "0.4 s",
+        "numericValue": 412.98061170332903
       },
       "total-blocking-time": {
-        "displayValue": "0 ms",
-        "numericValue": 0
+        "displayValue": "50 ms",
+        "numericValue": 54.99999999999994
       },
       "cumulative-layout-shift": {
-        "displayValue": "0",
-        "numericValue": 0.00009449161780806983
+        "displayValue": "0.082",
+        "numericValue": 0.08221414073649505
       },
       "interactive": {
         "displayValue": "0.8 s",
-        "numericValue": 807.4694999999999
+        "numericValue": 824.1134999999999
       }
     },
     "opportunities": [
-      {
-        "id": "render-blocking-resources",
-        "title": "Eliminate render-blocking resources",
-        "displayValue": "Est savings of 520 ms",
-        "score": 0
-      },
       {
         "id": "modern-image-formats",
         "title": "Serve images in next-gen formats",
@@ -100,7 +95,7 @@
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 0 ms",
+        "displayValue": "Root document took 10 ms",
         "score": 1
       }
     ]
