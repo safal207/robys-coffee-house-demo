@@ -6,34 +6,19 @@
   <meta name="theme-color" content="#312b2a" />
   <title>Обновление Roby's</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;color:#312b2a;background:linear-gradient(180deg,#f8f5f0,#ece7e0);font-family:Arial,sans-serif;text-align:center}.card{max-width:420px;padding:36px;border:1px solid rgba(49,43,42,.13);background:rgba(255,255,255,.78);border-radius:24px;box-shadow:0 18px 48px rgba(49,43,42,.1)}.word{display:flex;justify-content:center;align-items:center;margin-bottom:10px;font-size:36px;font-weight:900;letter-spacing:-4px}.o{display:inline-block;width:26px;height:26px;margin:0 3px;border-radius:50%;background:conic-gradient(from 24deg,#b64b57 0 292deg,transparent 292deg 360deg);position:relative}.o:after{position:absolute;inset:6px;border-radius:50%;background:#fff;content:""}.sub{margin-bottom:7px;font-size:12px;font-weight:300;letter-spacing:5px}.tag{margin-bottom:26px;color:#6b6260;font-size:8px;letter-spacing:4px}.spinner{width:32px;height:32px;margin:22px auto 0;border:3px solid rgba(49,43,42,.12);border-top-color:#b64b57;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#f4f1ec;color:#312b2a;font-family:Arial,sans-serif;text-align:center}.card{max-width:420px;padding:36px;background:#fff;border:1px solid #ddd5ce;border-radius:24px}.logo{font-size:38px;font-weight:900}.logo b{color:#b84d58}.sub{margin:6px 0 24px;letter-spacing:4px}.spinner{width:30px;height:30px;margin:20px auto;border:3px solid #ddd;border-top-color:#b84d58;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
   <main class="card">
-    <div class="word"><span>R</span><span class="o"></span><span>BY’S</span></div>
+    <div class="logo">R<b>O</b>BY’S</div>
     <div class="sub">COFFEE HOUSE</div>
-    <div class="tag">· FRESH COFFEE POINT ·</div>
-    <h1>Обновляем фирменный стиль</h1>
-    <p>Открываю лёгкую версию в стиле салфетки Roby's.</p>
-    <div class="spinner" aria-label="Загрузка"></div>
+    <h1>Обновляем логотип и видео</h1>
+    <p>Открываю новую версию Roby's.</p>
+    <div class="spinner"></div>
   </main>
   <script>
-    (async () => {
-      try {
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(registrations.map((registration) => registration.unregister()));
-        }
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          await Promise.all(keys.map((key) => caches.delete(key)));
-        }
-        try { localStorage.setItem('robys-build', 'napkin-20260619-1'); } catch {}
-      } finally {
-        location.replace('./?build=napkin-20260619-1');
-      }
-    })();
+    (async()=>{try{if('serviceWorker'in navigator){const r=await navigator.serviceWorker.getRegistrations();await Promise.all(r.map(x=>x.unregister()))}if('caches'in window){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}finally{location.replace('./?build=napkin-logo-20260619-2')}})();
   </script>
 </body>
 </html>
