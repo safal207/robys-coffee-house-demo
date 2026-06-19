@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-hero-raised-v13";
+const CACHE_NAME = "robys-content-recovery-v14";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -29,8 +29,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  const freshRequest = new Request(request, { cache: "no-store" });
   event.respondWith(
-    fetch(request)
+    fetch(freshRequest)
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();
