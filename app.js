@@ -10,11 +10,70 @@ const qa = (selector, root = document) => Array.from(root.querySelectorAll(selec
 const readLocal = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
 const writeLocal = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
 
+const amenityCopies = {
+  tr: {
+    eyebrow: "ROBY'S KONFORU",
+    title: "Rahat bir mola için<br><em>her şey hazır.</em>",
+    text: "Bağlanın, şarj edin, buluşun ve rahatça çalışın.",
+    wifiTitle: "Ücretsiz Wi‑Fi",
+    wifiText: "Çalışmak, iletişim kurmak ve bağlantıda kalmak için.",
+    restroomTitle: "Konforlu tuvalet",
+    restroomText: "Misafirler için temiz, düzenli ve rahat bir alan.",
+    socketsTitle: "Kullanışlı prizler",
+    socketsText: "Telefon, tablet ve laptoplarınızı kolayca şarj edin.",
+    temperatureTitle: "17–22 °C konfor",
+    temperatureText: "Birinci ve ikinci katta klimalı, ferah bir ortam.",
+    tablesTitle: "2 büyük toplantı masası",
+    tablesText: "Toplantılar, ekip çalışması ve laptopla çalışma için."
+  },
+  en: {
+    eyebrow: "COMFORT AT ROBY'S",
+    title: "Everything is ready<br><em>for an easy pause.</em>",
+    text: "Connect, recharge, meet and work comfortably.",
+    wifiTitle: "Free Wi‑Fi",
+    wifiText: "For work, messages and staying connected.",
+    restroomTitle: "Comfortable restroom",
+    restroomText: "A clean, tidy and convenient space for guests.",
+    socketsTitle: "Convenient outlets",
+    socketsText: "Charge phones, tablets and laptops with ease.",
+    temperatureTitle: "Comfortable 17–22 °C",
+    temperatureText: "Air conditioning on both the first and second floors.",
+    tablesTitle: "2 large meeting tables",
+    tablesText: "For meetings, teamwork and working on a laptop."
+  },
+  ru: {
+    eyebrow: "КОМФОРТ В ROBY'S",
+    title: "Всё готово<br><em>для комфортного отдыха.</em>",
+    text: "Подключайтесь, заряжайте устройства, встречайтесь и работайте.",
+    wifiTitle: "Бесплатный Wi‑Fi",
+    wifiText: "Для работы, общения и стабильной связи.",
+    restroomTitle: "Комфортная туалетная комната",
+    restroomText: "Чистое, аккуратное и удобное пространство для гостей.",
+    socketsTitle: "Удобные розетки",
+    socketsText: "Для зарядки телефонов, планшетов и ноутбуков.",
+    temperatureTitle: "Комфортные 17–22 °C",
+    temperatureText: "Кондиционеры установлены на первом и втором этажах.",
+    tablesTitle: "2 больших стола для встреч",
+    tablesText: "Для переговоров, совместной работы и ноутбуков."
+  }
+};
+
 let language = ["tr", "en", "ru"].includes(readLocal("robys-language")) ? readLocal("robys-language") : "tr";
 let deferredMounted = false;
+let heroVideoRequested = false;
 
 function translate(key) {
   return dictionaries[language]?.[key] ?? dictionaries.tr?.[key] ?? "";
+}
+
+function updateAmenityCopy() {
+  const copy = amenityCopies[language] ?? amenityCopies.tr;
+  qa("[data-amenity-copy]").forEach((node) => {
+    const key = node.dataset.amenityCopy;
+    if (!key || !(key in copy)) return;
+    if (key === "title") node.innerHTML = copy[key];
+    else node.textContent = copy[key];
+  });
 }
 
 function updateDockLabels() {
@@ -43,6 +102,7 @@ function setLanguage(next) {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  updateAmenityCopy();
   updateDockLabels();
 }
 
@@ -77,17 +137,15 @@ function mountDeferredSections() {
 function setupDeferredSections() {
   const menu = q("#menu");
   if (!menu) return;
-
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
         mountDeferredSections();
         observer.disconnect();
       }
-    }, { rootMargin: "700px 0px", threshold: 0 });
+    }, { rootMargin: "200px 0px", threshold: 0 });
     observer.observe(menu);
   }
-
   document.addEventListener("click", (event) => {
     const link = event.target.closest('a[href="#gallery"]');
     if (!link) return;
@@ -121,17 +179,32 @@ function showStaticContent() {
   qa(".reveal").forEach((node) => node.classList.add("visible"));
 }
 
+function requestHeroVideo() {
+  if (heroVideoRequested) return;
+  heroVideoRequested = true;
+  import("./hero-video.js").catch(() => undefined);
+}
+
+function scheduleOptionalFeatures() {
+  const startVideo = () => requestHeroVideo();
+  ["pointerdown", "keydown", "touchstart"].forEach((eventName) => {
+    window.addEventListener(eventName, startVideo, { once: true, passive: true });
+  });
+  window.setTimeout(startVideo, 5000);
+}
+
 function init() {
   const year = q("#current-year");
   if (year) year.textContent = String(new Date().getFullYear());
   setupMenu();
-  mountDock();
   setLanguage(language);
   showStaticContent();
   setupDeferredSections();
+  scheduleOptionalFeatures();
 
+  window.setTimeout(mountDock, 1800);
   if ("serviceWorker" in navigator && location.protocol === "https:") {
-    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => undefined), { once: true });
+    window.addEventListener("load", () => window.setTimeout(() => navigator.serviceWorker.register("./sw.js").catch(() => undefined), 2500), { once: true });
   }
 }
 
