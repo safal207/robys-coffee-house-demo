@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T05:24:59.845Z",
+  "generatedAt": "2026-06-19T05:26:37.312Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,26 +23,26 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 86,
+    "performance": 80,
     "accessibility": 100,
     "best-practices": 75,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.6 s",
-      "numericValue": 2614.0882,
-      "score": 0.63
+      "displayValue": "3.2 s",
+      "numericValue": 3213.29785,
+      "score": 0.43
     },
     "largest-contentful-paint": {
-      "displayValue": "3.7 s",
-      "numericValue": 3701.8097,
-      "score": 0.58
+      "displayValue": "4.1 s",
+      "numericValue": 4110.6618499999995,
+      "score": 0.47
     },
     "speed-index": {
-      "displayValue": "2.6 s",
-      "numericValue": 2614.0882,
-      "score": 0.97
+      "displayValue": "3.4 s",
+      "numericValue": 3414.2265639999973,
+      "score": 0.89
     },
     "total-blocking-time": {
       "displayValue": "0 ms",
@@ -55,22 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.7 s",
-      "numericValue": 3701.8097,
-      "score": 0.9
+      "displayValue": "4.1 s",
+      "numericValue": 4110.66185,
+      "score": 0.86
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,730 ms",
-      "score": 0
-    },
-    {
-      "id": "uses-responsive-images",
-      "title": "Properly size images",
-      "displayValue": "Est savings of 63 KiB",
+      "displayValue": "Est savings of 1,790 ms",
       "score": 0
     },
     {
@@ -80,10 +74,16 @@
       "score": 0
     },
     {
+      "id": "uses-responsive-images",
+      "title": "Properly size images",
+      "displayValue": "Est savings of 63 KiB",
+      "score": 0
+    },
+    {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 60 KiB",
-      "score": 0
+      "score": 0.5
     }
   ],
   "failedAudits": [
@@ -103,7 +103,7 @@
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,700 ms"
+      "displayValue": "4,110 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -115,19 +115,13 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,730 ms"
+      "displayValue": "Est savings of 1,790 ms"
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0,
       "displayValue": "Est savings of 44 KiB"
-    },
-    {
-      "id": "uses-text-compression",
-      "title": "Enable text compression",
-      "score": 0,
-      "displayValue": "Est savings of 60 KiB"
     },
     {
       "id": "uses-responsive-images",
@@ -163,19 +157,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,880 ms"
+      "displayValue": "Est savings of 1,940 ms"
     },
     {
-      "id": "uses-long-cache-ttl",
-      "title": "Serve static assets with an efficient cache policy",
-      "score": 0.5,
-      "displayValue": "11 resources found"
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "score": 0.43,
+      "displayValue": "3.2 s"
     },
     {
-      "id": "document-latency-insight",
-      "title": "Document request latency",
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.47,
+      "displayValue": "4.1 s"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
       "score": 0.5,
-      "displayValue": "Est savings of 7 KiB"
+      "displayValue": "3.4 s"
     }
   ]
 }
