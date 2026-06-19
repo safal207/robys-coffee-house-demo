@@ -1,4 +1,4 @@
-name: Build TypeScript app
+name: Verify TypeScript app
 
 on:
   push:
@@ -11,44 +11,22 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: typescript-main
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-
       - name: Install dependencies
         run: npm install
-
       - name: Type-check and build
         run: npm run check
-
       - name: Verify generated JavaScript
         run: node --check app.js
-
-      - name: Commit generated application
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add app.js package-lock.json
-          if git diff --cached --quiet; then
-            echo 'Generated files are current'
-            exit 0
-          fi
-          git commit -m 'build: compile TypeScript application'
-          git pull --rebase origin main
-          git push
