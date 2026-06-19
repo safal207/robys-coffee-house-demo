@@ -14,11 +14,11 @@
     <div class="logo">R<b>O</b>BY’S</div>
     <div class="sub">COFFEE HOUSE</div>
     <h1>Ускоряем сайт</h1>
-    <p>Очищаю старый кеш и открываю оптимизированную версию.</p>
+    <p>Очищаю старый кеш и открываю лёгкую версию без лишнего JavaScript.</p>
     <div class="spinner"></div>
   </main>
   <script>
-    (async()=>{try{if('serviceWorker'in navigator){const r=await navigator.serviceWorker.getRegistrations();await Promise.all(r.map(x=>x.unregister()))}if('caches'in window){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}finally{location.replace('./?build=perf-20260619-8')}})();
+    (async()=>{try{if('serviceWorker'in navigator){const r=await navigator.serviceWorker.getRegistrations();await Promise.all(r.map(x=>x.unregister()))}if('caches'in window){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}finally{location.replace('./?build=perf-lite-20260619-10')}})();
   </script>
 </body>
 </html>
