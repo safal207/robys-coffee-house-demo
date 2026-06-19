@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-comfort-plus-v9";
+const CACHE_NAME = "robys-perf-lite-v10";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -27,7 +27,6 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
