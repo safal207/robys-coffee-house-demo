@@ -1,31 +1,8 @@
-const CACHE_NAME = "robys-no-hero-buttons-v7";
+const CACHE_NAME = "robys-perf-v8";
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./refresh.html",
-  "./styles.css",
-  "./premium.css",
-  "./responsive.css",
-  "./gallery.css",
-  "./reviews.css",
-  "./map.css",
-  "./optimizations.css",
-  "./world-class.css",
-  "./ruby-theme.css",
-  "./brand-cup.css",
-  "./mobile-polish.css",
-  "./hero-mobile-fix.css",
-  "./napkin-style.css",
-  "./logo-video-tune.css",
-  "./amenities.css",
-  "./compact-layout.css",
-  "./comfort-three-fix.css",
-  "./app.js",
-  "./hero-video.js",
-  "./amenities.js",
-  "./compact-layout.js",
-  "./src/i18n.js",
-  "./src/robys-hero-mobile-lite.mp4",
+  "./critical.css",
   "./src/robys-hero-poster.jpg",
   "./manifest.webmanifest",
   "./icon.svg"
@@ -64,8 +41,8 @@ self.addEventListener("fetch", (event) => {
         return response;
       })
       .catch(async () => {
-        const direct = await caches.match(request);
-        if (direct) return direct;
+        const cached = await caches.match(request);
+        if (cached) return cached;
         if (request.mode === "navigate") return caches.match("./index.html");
         return Response.error();
       })
