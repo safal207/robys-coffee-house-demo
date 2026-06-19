@@ -1,5 +1,41 @@
-const VIDEO_SRC = "src/robys-hero-mobile-lite.mp4?v=ruby-20260619-1";
-const POSTER_SRC = "src/robys-hero-poster.jpg?v=ruby-20260619-1";
+const BRAND_BUILD = "cup-20260619-1";
+const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
+const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
+
+function ensureBrandAssets(): void {
+  if (!document.querySelector<HTMLLinkElement>('link[data-robys-font="cup"]')) {
+    const font = document.createElement("link");
+    font.rel = "stylesheet";
+    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&display=swap";
+    font.dataset.robysFont = "cup";
+    document.head.append(font);
+  }
+
+  if (!document.querySelector<HTMLLinkElement>('link[data-robys-theme="cup"]')) {
+    const theme = document.createElement("link");
+    theme.rel = "stylesheet";
+    theme.href = `brand-cup.css?v=${BRAND_BUILD}`;
+    theme.dataset.robysTheme = "cup";
+    document.head.append(theme);
+  }
+
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (themeColor) themeColor.content = "#1d1d21";
+  document.documentElement.classList.add("cup-brand");
+}
+
+function mountWordmarks(): void {
+  document.querySelectorAll<HTMLElement>(".brand").forEach((brand) => {
+    if (brand.querySelector(".cup-wordmark")) return;
+    brand.innerHTML = `
+      <span class="cup-wordmark" aria-hidden="true">
+        <span class="cup-main">
+          <span>R</span><span class="cup-o"></span><span>BY</span><span class="cup-apostrophe">’</span><span>S</span>
+        </span>
+        <span class="cup-sub">COFFEE HOUSE</span>
+      </span>`;
+  });
+}
 
 function mountHeroVideo(): void {
   const hero = document.querySelector<HTMLElement>(".hero");
@@ -51,8 +87,14 @@ function mountHeroVideo(): void {
   }
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", mountHeroVideo, { once: true });
-} else {
+function initializeBrand(): void {
+  mountWordmarks();
   mountHeroVideo();
+}
+
+ensureBrandAssets();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeBrand, { once: true });
+} else {
+  initializeBrand();
 }
