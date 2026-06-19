@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: lighthouse-main
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -83,10 +87,18 @@ jobs:
             .sort((a, b) => a.score - b.score)
             .slice(0, 15)
             .map((audit) => ({ id: audit.id, title: audit.title, score: audit.score, displayValue: audit.displayValue || null }));
+          const settings = report.configSettings || {};
           const summary = {
             generatedAt: new Date().toISOString(),
             lighthouseVersion: report.lighthouseVersion,
             testedUrl: report.finalDisplayedUrl,
+            device: {
+              formFactor: settings.formFactor || null,
+              screenEmulation: settings.screenEmulation || null,
+              throttlingMethod: settings.throttlingMethod || null,
+              throttling: settings.throttling || null,
+              locale: settings.locale || null
+            },
             categories,
             metrics,
             opportunities,
@@ -116,4 +128,5 @@ jobs:
             exit 0
           fi
           git commit -m 'chore: update Lighthouse audit summary'
+          git pull --rebase origin main
           git push
