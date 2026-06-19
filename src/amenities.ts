@@ -10,47 +10,64 @@ type AmenityCopy = {
   restroomText: string;
   socketsTitle: string;
   socketsText: string;
+  temperatureTitle: string;
+  temperatureText: string;
+  tablesTitle: string;
+  tablesText: string;
 };
 
 const copies: Record<Lang, AmenityCopy> = {
   tr: {
     eyebrow: "ROBY'S KONFORU",
-    title: "Gününüzü kolaylaştıran<br><em>üç detay.</em>",
-    text: "Bağlanın, şarj edin ve rahat bir mola verin.",
+    title: "Rahat bir mola için<br><em>her şey hazır.</em>",
+    text: "Bağlanın, şarj edin, buluşun ve rahatça çalışın.",
     wifiTitle: "Ücretsiz Wi‑Fi",
     wifiText: "Çalışmak, iletişim kurmak ve bağlantıda kalmak için.",
     restroomTitle: "Konforlu tuvalet",
     restroomText: "Misafirler için temiz, düzenli ve rahat bir alan.",
     socketsTitle: "Kullanışlı prizler",
-    socketsText: "Telefon, tablet ve laptoplarınızı kolayca şarj edin."
+    socketsText: "Telefon, tablet ve laptoplarınızı kolayca şarj edin.",
+    temperatureTitle: "17–22 °C konfor",
+    temperatureText: "Birinci ve ikinci katta klimalı, ferah bir ortam.",
+    tablesTitle: "2 büyük toplantı masası",
+    tablesText: "Toplantılar, ekip çalışması ve laptopla çalışma için."
   },
   en: {
     eyebrow: "COMFORT AT ROBY'S",
-    title: "Three details that make<br><em>your visit easier.</em>",
-    text: "Connect, recharge and enjoy a comfortable pause.",
+    title: "Everything is ready<br><em>for an easy pause.</em>",
+    text: "Connect, recharge, meet and work comfortably.",
     wifiTitle: "Free Wi‑Fi",
     wifiText: "For work, messages and staying connected.",
     restroomTitle: "Comfortable restroom",
     restroomText: "A clean, tidy and convenient space for guests.",
     socketsTitle: "Convenient outlets",
-    socketsText: "Charge phones, tablets and laptops with ease."
+    socketsText: "Charge phones, tablets and laptops with ease.",
+    temperatureTitle: "Comfortable 17–22 °C",
+    temperatureText: "Air conditioning on both the first and second floors.",
+    tablesTitle: "2 large meeting tables",
+    tablesText: "For meetings, teamwork and working on a laptop."
   },
   ru: {
     eyebrow: "КОМФОРТ В ROBY'S",
-    title: "Три детали для<br><em>комфортного отдыха.</em>",
-    text: "Подключайтесь, заряжайте устройства и отдыхайте с комфортом.",
+    title: "Всё готово<br><em>для комфортного отдыха.</em>",
+    text: "Подключайтесь, заряжайте устройства, встречайтесь и работайте.",
     wifiTitle: "Бесплатный Wi‑Fi",
     wifiText: "Для работы, общения и стабильной связи.",
     restroomTitle: "Комфортная туалетная комната",
     restroomText: "Чистое, аккуратное и удобное пространство для гостей.",
     socketsTitle: "Удобные розетки",
-    socketsText: "Для зарядки телефонов, планшетов и ноутбуков."
+    socketsText: "Для зарядки телефонов, планшетов и ноутбуков.",
+    temperatureTitle: "Комфортные 17–22 °C",
+    temperatureText: "Кондиционеры установлены на первом и втором этажах.",
+    tablesTitle: "2 больших стола для встреч",
+    tablesText: "Для переговоров, совместной работы и ноутбуков."
   }
 };
 
 const keys = [
   "eyebrow", "title", "text", "wifiTitle", "wifiText",
-  "restroomTitle", "restroomText", "socketsTitle", "socketsText"
+  "restroomTitle", "restroomText", "socketsTitle", "socketsText",
+  "temperatureTitle", "temperatureText", "tablesTitle", "tablesText"
 ] as const;
 
 function getLanguage(): Lang {
@@ -100,6 +117,14 @@ function mountAmenities(): void {
           <article class="amenity-card">
             <span class="amenity-mark" aria-hidden="true">220V</span>
             <div><h3 data-amenity-copy="socketsTitle"></h3><p data-amenity-copy="socketsText"></p></div>
+          </article>
+          <article class="amenity-card amenity-card-feature">
+            <span class="amenity-mark amenity-mark-temperature" aria-hidden="true">17–22°</span>
+            <div><h3 data-amenity-copy="temperatureTitle"></h3><p data-amenity-copy="temperatureText"></p></div>
+          </article>
+          <article class="amenity-card amenity-card-feature">
+            <span class="amenity-mark" aria-hidden="true">2×</span>
+            <div><h3 data-amenity-copy="tablesTitle"></h3><p data-amenity-copy="tablesText"></p></div>
           </article>
         </div>
       </div>
