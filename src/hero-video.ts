@@ -1,4 +1,4 @@
-const BRAND_BUILD = "cup-20260619-2";
+const BRAND_BUILD = "cup-20260619-3";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
@@ -10,19 +10,13 @@ function ensureBrandAssets(): void {
     document.head.append(font);
   }
 
-  if (!document.querySelector<HTMLLinkElement>('link[href*="brand-cup.css"]')) {
-    const theme = document.createElement("link");
-    theme.rel = "stylesheet";
-    theme.href = `brand-cup.css?v=${BRAND_BUILD}`;
-    document.head.append(theme);
-  }
-
-  if (!document.querySelector<HTMLLinkElement>('link[href*="mobile-polish.css"]')) {
-    const polish = document.createElement("link");
-    polish.rel = "stylesheet";
-    polish.href = `mobile-polish.css?v=${BRAND_BUILD}`;
-    document.head.append(polish);
-  }
+  ["brand-cup.css", "mobile-polish.css", "hero-mobile-fix.css"].forEach((file) => {
+    if (document.querySelector<HTMLLinkElement>(`link[href*="${file}"]`)) return;
+    const stylesheet = document.createElement("link");
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = `${file}?v=${BRAND_BUILD}`;
+    document.head.append(stylesheet);
+  });
 
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (themeColor) themeColor.content = "#1d1d21";
@@ -40,6 +34,22 @@ function mountWordmarks(): void {
         <span class="cup-sub">COFFEE HOUSE</span>
       </span>`;
   });
+}
+
+function setupDockVisibility(hero: HTMLElement): void {
+  const mediaQuery = window.matchMedia("(max-width: 620px)");
+  const update = (): void => {
+    if (!mediaQuery.matches) {
+      document.body.classList.add("show-mobile-dock");
+      return;
+    }
+    const threshold = Math.max(220, hero.offsetHeight * 0.58);
+    document.body.classList.toggle("show-mobile-dock", window.scrollY > threshold);
+  };
+
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+  mediaQuery.addEventListener?.("change", update);
 }
 
 function mountHeroVideo(): void {
@@ -76,6 +86,7 @@ function mountHeroVideo(): void {
   grid.replaceChildren(media);
   visual?.remove();
   hero.classList.add("ruby-video-ready");
+  setupDockVisibility(hero);
 
   video.addEventListener("loadeddata", () => hero.classList.add("video-loaded"), { once: true });
   video.addEventListener("error", () => {
