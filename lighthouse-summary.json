@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T05:52:07.598Z",
+  "generatedAt": "2026-06-19T08:13:37.271Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 68,
+    "performance": 80,
     "accessibility": 100,
     "best-practices": 79,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3297.3986499999996,
-      "score": 0.4
+      "displayValue": "3.2 s",
+      "numericValue": 3185.1205500000005,
+      "score": 0.44
     },
     "largest-contentful-paint": {
-      "displayValue": "4.3 s",
-      "numericValue": 4348.908149999999,
-      "score": 0.4
+      "displayValue": "4.2 s",
+      "numericValue": 4176.442050000001,
+      "score": 0.45
     },
     "speed-index": {
-      "displayValue": "4.9 s",
-      "numericValue": 4940.731936000007,
-      "score": 0.64
+      "displayValue": "3.4 s",
+      "numericValue": 3402.9055240000034,
+      "score": 0.89
     },
     "total-blocking-time": {
-      "displayValue": "330 ms",
-      "numericValue": 328.75350000000026,
-      "score": 0.75
+      "displayValue": "0 ms",
+      "numericValue": 0,
+      "score": 1
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,22 +55,22 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.3 s",
-      "numericValue": 4348.908149999999,
-      "score": 0.84
+      "displayValue": "4.2 s",
+      "numericValue": 4176.442050000001,
+      "score": 0.86
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,640 ms",
+      "displayValue": "Est savings of 1,530 ms",
       "score": 0
     },
     {
-      "id": "uses-text-compression",
-      "title": "Enable text compression",
-      "displayValue": "Est savings of 69 KiB",
+      "id": "uses-responsive-images",
+      "title": "Properly size images",
+      "displayValue": "Est savings of 63 KiB",
       "score": 0
     },
     {
@@ -80,9 +80,9 @@
       "score": 0
     },
     {
-      "id": "uses-responsive-images",
-      "title": "Properly size images",
-      "displayValue": "Est savings of 63 KiB",
+      "id": "uses-text-compression",
+      "title": "Enable text compression",
+      "displayValue": "Est savings of 69 KiB",
       "score": 0
     }
   ],
@@ -94,16 +94,10 @@
       "displayValue": "1 cookie found"
     },
     {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "4.5 s"
-    },
-    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "4,350 ms"
+      "displayValue": "4,180 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -115,7 +109,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,640 ms"
+      "displayValue": "Est savings of 1,530 ms"
     },
     {
       "id": "modern-image-formats",
@@ -163,19 +157,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,790 ms"
-    },
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.17,
-      "displayValue": "400 ms"
+      "displayValue": "Est savings of 1,680 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.4,
-      "displayValue": "3.3 s"
+      "score": 0.44,
+      "displayValue": "3.2 s"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.45,
+      "displayValue": "4.2 s"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0.5,
+      "displayValue": "3.4 s"
     }
   ]
 }
