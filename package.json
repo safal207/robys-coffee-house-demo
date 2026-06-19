@@ -1,0 +1,14 @@
+{
+  "name": "robys-coffee-house",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "build": "esbuild src/app.ts --bundle --minify --format=iife --target=es2020 --outfile=app.js",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "typescript": "5.8.3"
+  }
+}
