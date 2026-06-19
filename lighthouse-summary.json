@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T05:04:39.576Z",
+  "generatedAt": "2026-06-19T05:06:09.437Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,26 +23,26 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 86,
+    "performance": 80,
     "accessibility": 100,
     "best-practices": 75,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.4 s",
-      "numericValue": 1433.79275,
-      "score": 0.97
+      "displayValue": "3.2 s",
+      "numericValue": 3203.3849500000006,
+      "score": 0.43
     },
     "largest-contentful-paint": {
       "displayValue": "4.1 s",
-      "numericValue": 4093.56975,
-      "score": 0.47
+      "numericValue": 4132.0719500000005,
+      "score": 0.46
     },
     "speed-index": {
-      "displayValue": "1.4 s",
-      "numericValue": 1433.79275,
-      "score": 1
+      "displayValue": "3.4 s",
+      "numericValue": 3368.018279999998,
+      "score": 0.9
     },
     "total-blocking-time": {
       "displayValue": "0 ms",
@@ -50,27 +50,21 @@
       "score": 1
     },
     "cumulative-layout-shift": {
-      "displayValue": "0.001",
-      "numericValue": 0.001308156394729639,
+      "displayValue": "0",
+      "numericValue": 0,
       "score": 1
     },
     "interactive": {
       "displayValue": "4.1 s",
-      "numericValue": 4093.56975,
-      "score": 0.87
+      "numericValue": 4132.071950000001,
+      "score": 0.86
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 560 ms",
-      "score": 0
-    },
-    {
-      "id": "uses-responsive-images",
-      "title": "Properly size images",
-      "displayValue": "Est savings of 63 KiB",
+      "displayValue": "Est savings of 1,940 ms",
       "score": 0
     },
     {
@@ -80,10 +74,16 @@
       "score": 0
     },
     {
+      "id": "uses-responsive-images",
+      "title": "Properly size images",
+      "displayValue": "Est savings of 63 KiB",
+      "score": 0
+    },
+    {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 60 KiB",
-      "score": 0.5
+      "score": 0
     }
   ],
   "failedAudits": [
@@ -103,7 +103,7 @@
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "4,090 ms"
+      "displayValue": "4,130 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -115,13 +115,19 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 560 ms"
+      "displayValue": "Est savings of 1,940 ms"
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0,
       "displayValue": "Est savings of 44 KiB"
+    },
+    {
+      "id": "uses-text-compression",
+      "title": "Enable text compression",
+      "score": 0,
+      "displayValue": "Est savings of 60 KiB"
     },
     {
       "id": "uses-responsive-images",
@@ -157,25 +163,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 710 ms"
+      "displayValue": "Est savings of 2,090 ms"
+    },
+    {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "score": 0.43,
+      "displayValue": "3.2 s"
     },
     {
       "id": "largest-contentful-paint",
       "title": "Largest Contentful Paint",
-      "score": 0.47,
+      "score": 0.46,
       "displayValue": "4.1 s"
-    },
-    {
-      "id": "uses-long-cache-ttl",
-      "title": "Serve static assets with an efficient cache policy",
-      "score": 0.5,
-      "displayValue": "11 resources found"
-    },
-    {
-      "id": "uses-text-compression",
-      "title": "Enable text compression",
-      "score": 0.5,
-      "displayValue": "Est savings of 60 KiB"
     }
   ]
 }
