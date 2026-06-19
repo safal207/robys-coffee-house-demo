@@ -15,144 +15,52 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=simple-20260619-1" />
-  <link rel="stylesheet" href="responsive.css?v=simple-20260619-1" />
-  <script type="module" src="app.js?v=simple-20260619-1"></script>
+  <link rel="stylesheet" href="styles.css?v=simple-20260619-2" />
+  <link rel="stylesheet" href="mobile.css?v=simple-20260619-2" />
+  <script type="module" src="app.js?v=simple-20260619-2"></script>
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skipContent">İçeriğe geç</a>
-
   <header class="site-header" id="top">
     <div class="container header-inner">
-      <a class="brand" href="#top" aria-label="Roby's Coffee House">
-        <span class="brand-mark">R</span>
-        <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
-      </a>
-
+      <a class="brand" href="#top" aria-label="Roby's Coffee House"><span class="brand-mark">R</span><span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span></a>
       <nav class="main-nav" id="main-navigation" aria-label="Main navigation">
-        <a href="#about" data-i18n="navAbout">Hakkımızda</a>
-        <a href="#menu" data-i18n="navMenu">Menü</a>
-        <a href="#gallery" data-i18n="navGallery">Fotoğraflar</a>
-        <a href="#visit" data-i18n="navVisit">Ziyaret</a>
+        <a href="#about" data-i18n="navAbout">Hakkımızda</a><a href="#menu" data-i18n="navMenu">Menü</a><a href="#gallery" data-i18n="navGallery">Fotoğraflar</a><a href="#visit" data-i18n="navVisit">Ziyaret</a>
       </nav>
-
       <div class="header-actions">
-        <div class="language-switcher" aria-label="Language selector">
-          <button class="lang-button active" type="button" data-lang="tr">TR</button>
-          <button class="lang-button" type="button" data-lang="en">EN</button>
-          <button class="lang-button" type="button" data-lang="ru">RU</button>
-        </div>
-        <button class="menu-toggle" type="button" aria-label="Menüyü aç" aria-expanded="false" aria-controls="main-navigation">
-          <span></span><span></span>
-        </button>
+        <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="tr">TR</button><button class="lang-button" type="button" data-lang="en">EN</button><button class="lang-button" type="button" data-lang="ru">RU</button></div>
+        <button class="menu-toggle" type="button" aria-label="Menüyü aç" aria-expanded="false" aria-controls="main-navigation"><span></span><span></span></button>
       </div>
     </div>
   </header>
-
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="src/robys-hero-poster.jpg" aria-hidden="true">
-        <source src="src/robys-hero-mobile-lite.mp4" type="video/mp4" />
-      </video>
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="src/robys-hero-poster.jpg" aria-hidden="true"><source src="src/robys-hero-mobile-lite.mp4" type="video/mp4" /></video>
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="container hero-content">
-        <p class="eyebrow" data-i18n="heroEyebrow">GAZİPAŞA · FRESH COFFEE POINT</p>
-        <h1 id="hero-title" data-i18n-html="heroTitle">İyi kahve.<br /><em>Sakin anlar.</em></h1>
-        <p class="hero-text" data-i18n="heroText">Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" data-i18n="getDirections">Yol Tarifi Al</a>
-          <a class="button button-ghost" href="#menu" data-i18n="viewMenu">Menüyü Gör</a>
-        </div>
-        <div class="hero-meta">
-          <div><strong>09:00 — 00:00</strong><span data-i18n="daily">Her gün</span></div>
-          <div><strong>Gazipaşa</strong><span data-i18n="antalya">Antalya</span></div>
-        </div>
+        <p class="eyebrow" data-i18n="heroEyebrow">GAZİPAŞA · FRESH COFFEE POINT</p><h1 id="hero-title" data-i18n-html="heroTitle">İyi kahve.<br /><em>Sakin anlar.</em></h1><p class="hero-text" data-i18n="heroText">Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.</p>
+        <div class="hero-actions"><a class="button button-primary" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" data-i18n="getDirections">Yol Tarifi Al</a><a class="button button-ghost" href="#menu" data-i18n="viewMenu">Menüyü Gör</a></div>
+        <div class="hero-meta"><div><strong>09:00 — 00:00</strong><span data-i18n="daily">Her gün</span></div><div><strong>Gazipaşa</strong><span data-i18n="antalya">Antalya</span></div></div>
       </div>
     </section>
-
-    <section class="section about" id="about">
-      <div class="container">
-        <header class="section-heading">
-          <p class="eyebrow" data-i18n="aboutEyebrow">ROBY'S HİSSİ</p>
-          <h2 data-i18n-html="aboutTitle">Kahveden fazlası.<br /><em>Kendinize ayırdığınız zaman.</em></h2>
-        </header>
-        <div class="feature-grid">
-          <article class="feature-card"><span>01</span><h3 data-i18n="featureCoffeeTitle">Taze kahve</h3><p data-i18n="featureCoffeeText">Her fincanda dengeli tat, özenli hazırlık ve iyi çekirdeklerin sıcak aroması.</p></article>
-          <article class="feature-card"><span>02</span><h3 data-i18n="featureDessertTitle">Tatlı molalar</h3><p data-i18n="featureDessertText">Kahvenize eşlik eden tatlılar, kurabiyeler ve günün küçük mutlulukları.</p></article>
-          <article class="feature-card"><span>03</span><h3 data-i18n="featureAtmosphereTitle">Sakin atmosfer</h3><p data-i18n="featureAtmosphereText">Arkadaşlarınızla buluşmak, çalışmak ya da sadece yavaşlamak için rahat bir köşe.</p></article>
-        </div>
-        <div class="amenities-line" aria-label="Amenities">
-          <span>Wi‑Fi</span><span>220V</span>
-          <span data-localized data-tr="Klima" data-en="Air conditioning" data-ru="Кондиционер">Klima</span>
-          <span data-localized data-tr="Çalışmaya uygun" data-en="Laptop friendly" data-ru="Удобно с ноутбуком">Çalışmaya uygun</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="section menu-section" id="menu">
-      <div class="container menu-layout">
-        <header class="menu-intro">
-          <p class="eyebrow" data-i18n="menuEyebrow">MENÜDEN SEÇMELER</p>
-          <h2 data-i18n-html="menuTitle">Her ruh hâline<br /><em>bir fincan.</em></h2>
-          <p data-i18n="menuText">Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.</p>
-          <a class="text-link" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer"><span data-i18n="seeInstagram">Instagram'da keşfet</span> ↗</a>
-        </header>
-        <div class="menu-cards">
-          <article class="menu-card"><span class="menu-icon" aria-hidden="true">☕</span><div><h3 data-i18n="hotCoffee">Sıcak Kahveler</h3><p>Espresso · Americano · Latte · Flat White</p></div></article>
-          <article class="menu-card"><span class="menu-icon" aria-hidden="true">🧊</span><div><h3 data-i18n="coldDrinks">Soğuk İçecekler</h3><p>Iced Coffee · Cold Brew · Refreshers</p></div></article>
-          <article class="menu-card"><span class="menu-icon" aria-hidden="true">🍰</span><div><h3 data-i18n="desserts">Tatlılar</h3><p data-i18n="dessertsText">Günün tatlıları · Kurabiyeler · Pastalar</p></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section gallery-section" id="gallery">
-      <div class="container">
-        <header class="section-heading gallery-heading">
-          <div>
-            <p class="eyebrow" data-i18n="galleryEyebrow">ROBY'S FOTOĞRAF DUVARI</p>
-            <h2 data-i18n-html="galleryTitle">Mekânı keşfet.<br /><em>Bir karede hissini yakala.</em></h2>
-          </div>
-          <a class="text-link dark-link" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
-        </header>
-        <div class="gallery-grid">
-          <figure class="gallery-card gallery-main"><img src="src/robys-hero-poster.jpg" alt="Roby's Coffee House terrace" loading="lazy" decoding="async" /><figcaption data-i18n="terrace">Teras</figcaption></figure>
-          <figure class="gallery-card"><img src="https://img02.restaurantguru.com/c34f-Restaurant-Robys-Coffee-House-interior.jpg" alt="Roby's Coffee House interior" loading="lazy" decoding="async" /><figcaption data-i18n="interior">İç mekân</figcaption></figure>
-          <figure class="gallery-card"><img src="https://img02.restaurantguru.com/c893-Restaurant-Robys-Coffee-House-food.jpg" alt="Dessert at Roby's Coffee House" loading="lazy" decoding="async" /><figcaption data-i18n="food">Tatlı bir mola</figcaption></figure>
-          <figure class="gallery-card"><img src="https://img02.restaurantguru.com/cde4-Restaurant-Robys-Coffee-House-beverage.jpg" alt="Coffee at Roby's Coffee House" loading="lazy" decoding="async" /><figcaption data-i18n="drink">Kahve anı</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="section visit-section" id="visit">
-      <div class="container visit-grid">
-        <div class="visit-card">
-          <p class="eyebrow" data-i18n="visitEyebrow">BİZE UĞRAYIN</p>
-          <h2 data-i18n-html="visitTitle">Sıradaki kahveniz<br /><em>burada bekliyor.</em></h2>
-          <div class="contact-list">
-            <div><span data-i18n="addressLabel">Adres</span><strong>Pazarcı, Uğur Mumcu Cd.<br />Gazipaşa / Antalya</strong></div>
-            <div><span data-i18n="hoursLabel">Çalışma saatleri</span><strong>09:00 — 00:00</strong></div>
-            <div><span>Instagram</span><strong>@robyscoffeehouse</strong></div>
-          </div>
-          <div class="visit-actions">
-            <a class="button button-light" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" data-i18n="openMap">Haritada Aç</a>
-            <a class="button button-ghost" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
-          </div>
-        </div>
-        <a class="map-card" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" aria-label="Open Roby's Coffee House in Google Maps">
-          <div class="map-grid" aria-hidden="true"></div>
-          <div class="map-pin" aria-hidden="true"><span>R</span></div>
-          <div class="map-label"><strong>ROBY'S</strong><span>Gazipaşa</span></div>
-        </a>
-      </div>
-    </section>
+    <section class="section about" id="about"><div class="container">
+      <header class="section-heading"><p class="eyebrow" data-i18n="aboutEyebrow">ROBY'S HİSSİ</p><h2 data-i18n-html="aboutTitle">Kahveden fazlası.<br /><em>Kendinize ayırdığınız zaman.</em></h2></header>
+      <div class="feature-grid"><article class="feature-card"><span>01</span><h3 data-i18n="featureCoffeeTitle">Taze kahve</h3><p data-i18n="featureCoffeeText">Her fincanda dengeli tat, özenli hazırlık ve iyi çekirdeklerin sıcak aroması.</p></article><article class="feature-card"><span>02</span><h3 data-i18n="featureDessertTitle">Tatlı molalar</h3><p data-i18n="featureDessertText">Kahvenize eşlik eden tatlılar, kurabiyeler ve günün küçük mutlulukları.</p></article><article class="feature-card"><span>03</span><h3 data-i18n="featureAtmosphereTitle">Sakin atmosfer</h3><p data-i18n="featureAtmosphereText">Arkadaşlarınızla buluşmak, çalışmak ya da sadece yavaşlamak için rahat bir köşe.</p></article></div>
+      <div class="amenities-line" aria-label="Amenities"><span>Wi‑Fi</span><span>220V</span><span data-localized data-tr="Klima" data-en="Air conditioning" data-ru="Кондиционер">Klima</span><span data-localized data-tr="Çalışmaya uygun" data-en="Laptop friendly" data-ru="Удобно с ноутбуком">Çalışmaya uygun</span></div>
+    </div></section>
+    <section class="section menu-section" id="menu"><div class="container menu-layout">
+      <header class="menu-intro"><p class="eyebrow" data-i18n="menuEyebrow">MENÜDEN SEÇMELER</p><h2 data-i18n-html="menuTitle">Her ruh hâline<br /><em>bir fincan.</em></h2><p data-i18n="menuText">Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.</p><a class="text-link" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer"><span data-i18n="seeInstagram">Instagram'da keşfet</span> ↗</a></header>
+      <div class="menu-cards"><article class="menu-card"><span class="menu-icon" aria-hidden="true">☕</span><div><h3 data-i18n="hotCoffee">Sıcak Kahveler</h3><p>Espresso · Americano · Latte · Flat White</p></div></article><article class="menu-card"><span class="menu-icon" aria-hidden="true">🧊</span><div><h3 data-i18n="coldDrinks">Soğuk İçecekler</h3><p>Iced Coffee · Cold Brew · Refreshers</p></div></article><article class="menu-card"><span class="menu-icon" aria-hidden="true">🍰</span><div><h3 data-i18n="desserts">Tatlılar</h3><p data-i18n="dessertsText">Günün tatlıları · Kurabiyeler · Pastalar</p></div></article></div>
+    </div></section>
+    <section class="section gallery-section" id="gallery"><div class="container">
+      <header class="section-heading gallery-heading"><div><p class="eyebrow" data-i18n="galleryEyebrow">ROBY'S FOTOĞRAF DUVARI</p><h2 data-i18n-html="galleryTitle">Mekânı keşfet.<br /><em>Bir karede hissini yakala.</em></h2></div><a class="text-link dark-link" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></header>
+      <div class="gallery-grid"><figure class="gallery-card gallery-main"><img src="src/robys-hero-poster.jpg" alt="Roby's Coffee House terrace" loading="lazy" decoding="async" /><figcaption data-i18n="terrace">Teras</figcaption></figure><figure class="gallery-card"><img src="https://img02.restaurantguru.com/c34f-Restaurant-Robys-Coffee-House-interior.jpg" alt="Roby's Coffee House interior" loading="lazy" decoding="async" /><figcaption data-i18n="interior">İç mekân</figcaption></figure><figure class="gallery-card"><img src="https://img02.restaurantguru.com/c893-Restaurant-Robys-Coffee-House-food.jpg" alt="Dessert at Roby's Coffee House" loading="lazy" decoding="async" /><figcaption data-i18n="food">Tatlı bir mola</figcaption></figure><figure class="gallery-card"><img src="https://img02.restaurantguru.com/cde4-Restaurant-Robys-Coffee-House-beverage.jpg" alt="Coffee at Roby's Coffee House" loading="lazy" decoding="async" /><figcaption data-i18n="drink">Kahve anı</figcaption></figure></div>
+    </div></section>
+    <section class="section visit-section" id="visit"><div class="container visit-grid">
+      <div class="visit-card"><p class="eyebrow" data-i18n="visitEyebrow">BİZE UĞRAYIN</p><h2 data-i18n-html="visitTitle">Sıradaki kahveniz<br /><em>burada bekliyor.</em></h2><div class="contact-list"><div><span data-i18n="addressLabel">Adres</span><strong>Pazarcı, Uğur Mumcu Cd.<br />Gazipaşa / Antalya</strong></div><div><span data-i18n="hoursLabel">Çalışma saatleri</span><strong>09:00 — 00:00</strong></div><div><span>Instagram</span><strong>@robyscoffeehouse</strong></div></div><div class="visit-actions"><a class="button button-light" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" data-i18n="openMap">Haritada Aç</a><a class="button button-ghost" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div></div>
+      <a class="map-card" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" aria-label="Open Roby's Coffee House in Google Maps"><div class="map-grid" aria-hidden="true"></div><div class="map-pin" aria-hidden="true"><span>R</span></div><div class="map-label"><strong>ROBY'S</strong><span>Gazipaşa</span></div></a>
+    </div></section>
   </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <a class="brand" href="#top" aria-label="Roby's Coffee House"><span class="brand-mark">R</span><span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span></a>
-      <p>© <span id="current-year"></span> Roby's Coffee House. <span data-i18n="footerText">Gazipaşa'da iyi kahve ve sakin anlar.</span></p>
-      <a class="back-top" href="#top" aria-label="Back to top">↑</a>
-    </div>
-  </footer>
+  <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="#top" aria-label="Roby's Coffee House"><span class="brand-mark">R</span><span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span></a><p>© <span id="current-year"></span> Roby's Coffee House. <span data-i18n="footerText">Gazipaşa'da iyi kahve ve sakin anlar.</span></p><a class="back-top" href="#top" aria-label="Back to top">↑</a></div></footer>
 </body>
 </html>
