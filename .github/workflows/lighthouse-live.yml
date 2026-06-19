@@ -1,0 +1,95 @@
+name: Lighthouse Live Audit
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - lighthouse-live-summary.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lighthouse-live
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install Lighthouse
+        run: npm install --global lighthouse@12.8.2
+
+      - name: Wait for Pages
+        run: sleep 30
+
+      - name: Run mobile Lighthouse
+        run: |
+          lighthouse "https://safal207.github.io/robys-coffee-house-demo/?audit=${GITHUB_SHA}" \
+            --chrome-flags="--headless --no-sandbox --disable-gpu" \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=json \
+            --output-path=lh-mobile.json \
+            --quiet
+
+      - name: Run desktop Lighthouse
+        run: |
+          lighthouse "https://safal207.github.io/robys-coffee-house-demo/?audit=${GITHUB_SHA}" \
+            --preset=desktop \
+            --chrome-flags="--headless --no-sandbox --disable-gpu" \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=json \
+            --output-path=lh-desktop.json \
+            --quiet
+
+      - name: Build compact summary
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const read = (path) => JSON.parse(fs.readFileSync(path, 'utf8'));
+          const pick = (report) => {
+            const audit = (id) => report.audits[id];
+            const categories = Object.fromEntries(
+              ['performance','accessibility','best-practices','seo'].map(id => [id, Math.round(report.categories[id].score * 100)])
+            );
+            const metrics = Object.fromEntries(
+              ['first-contentful-paint','largest-contentful-paint','speed-index','total-blocking-time','cumulative-layout-shift','interactive']
+                .map(id => [id, { displayValue: audit(id)?.displayValue ?? null, numericValue: audit(id)?.numericValue ?? null }])
+            );
+            const opportunities = Object.values(report.audits)
+              .filter(a => a.details?.type === 'opportunity' && a.numericValue > 0)
+              .sort((a,b) => (b.numericValue || 0) - (a.numericValue || 0))
+              .slice(0, 8)
+              .map(a => ({ id: a.id, title: a.title, displayValue: a.displayValue ?? null, score: a.score }));
+            return { categories, metrics, opportunities };
+          };
+          const mobile = read('lh-mobile.json');
+          const desktop = read('lh-desktop.json');
+          const summary = {
+            generatedAt: new Date().toISOString(),
+            lighthouseVersion: mobile.lighthouseVersion,
+            testedUrl: mobile.finalDisplayedUrl || mobile.finalUrl,
+            commit: process.env.GITHUB_SHA,
+            mobile: pick(mobile),
+            desktop: pick(desktop)
+          };
+          fs.writeFileSync('lighthouse-live-summary.json', JSON.stringify(summary, null, 2) + '\n');
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+      - name: Commit summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase
+          git add lighthouse-live-summary.json
+          git diff --cached --quiet || git commit -m "chore: update live Lighthouse summary [skip ci]"
+          git push
