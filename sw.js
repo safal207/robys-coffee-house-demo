@@ -1,4 +1,4 @@
-const CACHE_NAME = "robys-world-v2";
+const CACHE_NAME = "robys-ruby-v3";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -11,8 +11,12 @@ const CORE_ASSETS = [
   "./map.css",
   "./optimizations.css",
   "./world-class.css",
+  "./ruby-theme.css",
   "./app.js",
+  "./hero-video.js",
   "./src/i18n.js",
+  "./src/robys-hero-mobile-lite.mp4",
+  "./src/robys-hero-poster.jpg",
   "./manifest.webmanifest",
   "./icon.svg"
 ];
