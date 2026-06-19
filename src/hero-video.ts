@@ -1,4 +1,4 @@
-const BRAND_BUILD = "amenities-work-20260619-4";
+const BRAND_BUILD = "perf-20260619-8";
 const VIDEO_SRC = `src/robys-hero-mobile-lite.mp4?v=${BRAND_BUILD}`;
 const POSTER_SRC = `src/robys-hero-poster.jpg?v=${BRAND_BUILD}`;
 
@@ -7,6 +7,8 @@ function ensureBrandAssets(): void {
     const font = document.createElement("link");
     font.rel = "stylesheet";
     font.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap";
+    font.media = "print";
+    font.onload = () => { font.media = "all"; };
     document.head.append(font);
   }
 
@@ -15,6 +17,8 @@ function ensureBrandAssets(): void {
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
     stylesheet.href = `${file}?v=${BRAND_BUILD}`;
+    stylesheet.media = "print";
+    stylesheet.onload = () => { stylesheet.media = "all"; };
     document.head.append(stylesheet);
   });
 
@@ -48,14 +52,14 @@ function mountWordmarks(): void {
   });
 }
 
-function setupDockVisibility(hero: HTMLElement): void {
+function setupDockVisibility(): void {
   const mediaQuery = window.matchMedia("(max-width: 620px)");
   const update = (): void => {
     if (!mediaQuery.matches) {
       document.body.classList.add("show-mobile-dock");
       return;
     }
-    const threshold = Math.max(220, hero.offsetHeight * 0.58);
+    const threshold = Math.max(220, window.innerHeight * 0.58);
     document.body.classList.toggle("show-mobile-dock", window.scrollY > threshold);
   };
 
@@ -98,7 +102,6 @@ function mountHeroVideo(): void {
   grid.replaceChildren(media);
   visual?.remove();
   hero.classList.add("ruby-video-ready");
-  setupDockVisibility(hero);
 
   video.addEventListener("loadeddata", () => hero.classList.add("video-loaded"), { once: true });
   video.addEventListener("error", () => {
@@ -115,9 +118,21 @@ function mountHeroVideo(): void {
   }
 }
 
+function scheduleHeroVideo(): void {
+  const start = (): void => {
+    const idle = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number };
+    if (idle.requestIdleCallback) idle.requestIdleCallback(mountHeroVideo, { timeout: 1600 });
+    else window.setTimeout(mountHeroVideo, 700);
+  };
+
+  if (document.readyState === "complete") start();
+  else window.addEventListener("load", start, { once: true });
+}
+
 function initializeBrand(): void {
   mountWordmarks();
-  mountHeroVideo();
+  setupDockVisibility();
+  scheduleHeroVideo();
 }
 
 ensureBrandAssets();
