@@ -1,6 +1,5 @@
 name: Lighthouse Live Audit
 
-# Manual trigger: 2026-06-19
 on:
   push:
     branches: [main]
@@ -25,23 +24,34 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Read expected build
+        id: build
+        shell: bash
+        run: |
+          BUILD=$(grep -oP 'name="robys-build" content="\K[^"]+' index.html)
+          test -n "$BUILD"
+          echo "value=$BUILD" >> "$GITHUB_OUTPUT"
+          echo "Auditing build: $BUILD"
+
       - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Install Lighthouse
         run: npm install --global lighthouse@12.8.2
 
-      - name: Wait for optimized Pages build
+      - name: Wait for current Pages build
+        env:
+          BUILD_ID: ${{ steps.build.outputs.value }}
         run: |
           for attempt in {1..24}; do
-            if curl --silent --fail "https://safal207.github.io/robys-coffee-house-demo/?deploy=${GITHUB_SHA}" | grep -q "perf-20260619-8"; then
-              echo "Optimized build is live"
+            if curl --silent --fail "https://safal207.github.io/robys-coffee-house-demo/?deploy=${GITHUB_SHA}" | grep -q "$BUILD_ID"; then
+              echo "Build $BUILD_ID is live"
               exit 0
             fi
             echo "Waiting for GitHub Pages deployment ($attempt/24)"
             sleep 10
           done
-          echo "Optimized Pages build did not appear in time"
+          echo "Build $BUILD_ID did not appear in time"
           exit 1
 
       - name: Run mobile Lighthouse
@@ -64,6 +74,8 @@ jobs:
             --quiet
 
       - name: Build compact summary
+        env:
+          BUILD_ID: ${{ steps.build.outputs.value }}
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -91,7 +103,7 @@ jobs:
             lighthouseVersion: mobile.lighthouseVersion,
             testedUrl: mobile.finalDisplayedUrl || mobile.finalUrl,
             commit: process.env.GITHUB_SHA,
-            build: 'perf-20260619-8',
+            build: process.env.BUILD_ID,
             mobile: pick(mobile),
             desktop: pick(desktop)
           };
