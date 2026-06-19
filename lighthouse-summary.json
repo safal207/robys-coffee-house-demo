@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T05:21:04.942Z",
+  "generatedAt": "2026-06-19T05:23:02.665Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 80,
+    "performance": 67,
     "accessibility": 100,
     "best-practices": 75,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "3.2 s",
-      "numericValue": 3193.9833999999996,
+      "numericValue": 3193.6345499999998,
       "score": 0.43
     },
     "largest-contentful-paint": {
-      "displayValue": "4.1 s",
-      "numericValue": 4106.0854,
-      "score": 0.47
+      "displayValue": "4.0 s",
+      "numericValue": 3971.0180499999997,
+      "score": 0.5
     },
     "speed-index": {
-      "displayValue": "3.4 s",
-      "numericValue": 3363.0385259999985,
-      "score": 0.9
+      "displayValue": "3.2 s",
+      "numericValue": 3249.6365760428907,
+      "score": 0.91
     },
     "total-blocking-time": {
-      "displayValue": "0 ms",
-      "numericValue": 0,
-      "score": 1
+      "displayValue": "560 ms",
+      "numericValue": 558.2574999999993,
+      "score": 0.53
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,16 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.1 s",
-      "numericValue": 4106.0854,
-      "score": 0.86
+      "displayValue": "4.0 s",
+      "numericValue": 4001.473749999999,
+      "score": 0.87
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 2,060 ms",
+      "displayValue": "Est savings of 2,090 ms",
       "score": 0
     },
     {
@@ -100,10 +100,16 @@
       "displayValue": "1 cookie found"
     },
     {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0,
+      "displayValue": "5.3 s"
+    },
+    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "4,110 ms"
+      "displayValue": "3,970 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -115,7 +121,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 2,060 ms"
+      "displayValue": "Est savings of 2,090 ms"
     },
     {
       "id": "modern-image-formats",
@@ -157,25 +163,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 2,210 ms"
+      "displayValue": "Est savings of 2,240 ms"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.02,
+      "displayValue": "690 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
       "score": 0.43,
       "displayValue": "3.2 s"
-    },
-    {
-      "id": "largest-contentful-paint",
-      "title": "Largest Contentful Paint",
-      "score": 0.47,
-      "displayValue": "4.1 s"
-    },
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0.5,
-      "displayValue": "2.5 s"
     }
   ]
 }
