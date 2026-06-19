@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T09:35:59.933Z",
+  "generatedAt": "2026-06-19T09:38:38.826Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 56,
+    "performance": 84,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "3.4 s",
-      "numericValue": 3405.33585,
-      "score": 0.37
+      "displayValue": "3.3 s",
+      "numericValue": 3334.6322999999998,
+      "score": 0.39
     },
     "largest-contentful-paint": {
       "displayValue": "3.5 s",
-      "numericValue": 3480.33585,
+      "numericValue": 3484.6322999999998,
       "score": 0.64
     },
     "speed-index": {
-      "displayValue": "3.4 s",
-      "numericValue": 3447.1127652142395,
-      "score": 0.89
+      "displayValue": "3.3 s",
+      "numericValue": 3334.6322999999998,
+      "score": 0.9
     },
     "total-blocking-time": {
-      "displayValue": "1,890 ms",
-      "numericValue": 1889.603999999999,
-      "score": 0.09
+      "displayValue": "0 ms",
+      "numericValue": 0,
+      "score": 1
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,22 +55,22 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "5.6 s",
-      "numericValue": 5638.589849999999,
-      "score": 0.69
+      "displayValue": "3.5 s",
+      "numericValue": 3484.6323,
+      "score": 0.92
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,410 ms",
+      "displayValue": "Est savings of 2,050 ms",
       "score": 0
     },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
-      "displayValue": "Est savings of 81 KiB",
+      "displayValue": "Est savings of 85 KiB",
       "score": 0
     },
     {
@@ -81,24 +81,6 @@
     }
   ],
   "failedAudits": [
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0,
-      "displayValue": "1,310 ms"
-    },
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "6.9 s"
-    },
-    {
-      "id": "bootup-time",
-      "title": "Reduce JavaScript execution time",
-      "score": 0,
-      "displayValue": "1.8 s"
-    },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
@@ -115,7 +97,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,410 ms"
+      "displayValue": "Est savings of 2,050 ms"
     },
     {
       "id": "modern-image-formats",
@@ -127,13 +109,13 @@
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "score": 0,
-      "displayValue": "Est savings of 81 KiB"
+      "displayValue": "Est savings of 85 KiB"
     },
     {
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 222 KiB"
+      "displayValue": "Est savings of 226 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -145,31 +127,31 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,710 ms"
-    },
-    {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.09,
-      "displayValue": "1,890 ms"
+      "displayValue": "Est savings of 2,350 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.37,
-      "displayValue": "3.4 s"
+      "score": 0.39,
+      "displayValue": "3.3 s"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "15 resources found"
+      "displayValue": "16 resources found"
     },
     {
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 7 KiB"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.64,
+      "displayValue": "3.5 s"
     }
   ]
 }
