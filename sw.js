@@ -1,8 +1,7 @@
-const CACHE_NAME = "robys-perf-lite-v10";
+const CACHE_NAME = "robys-perf-inline-v11";
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./critical.css",
   "./src/robys-hero-poster.jpg",
   "./manifest.webmanifest",
   "./icon.svg"
