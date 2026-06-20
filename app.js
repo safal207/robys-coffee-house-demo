@@ -163,16 +163,6 @@ function setupGalleryLightbox() {
   const cards = qa(".gallery-card");
   if (!cards.length) return;
 
-  const items = cards.map((card) => {
-    const image = q("img", card);
-    const caption = q("figcaption", card);
-    return {
-      src: image?.currentSrc || image?.src || "",
-      alt: image?.alt || "Roby's Coffee House",
-      caption: caption?.textContent?.trim() || "Roby's Coffee House"
-    };
-  });
-
   const lightbox = document.createElement("div");
   lightbox.className = "lightbox";
   lightbox.setAttribute("role", "dialog");
@@ -198,10 +188,12 @@ function setupGalleryLightbox() {
   let lastFocused;
 
   function render() {
-    const item = items[currentIndex];
-    image.src = item.src;
-    image.alt = item.alt;
-    caption.textContent = item.caption;
+    const card = cards[currentIndex];
+    const source = q("img", card);
+    const text = q("figcaption", card)?.textContent?.trim() || "Roby's Coffee House";
+    image.src = source?.currentSrc || source?.src || "";
+    image.alt = source?.alt || "Roby's Coffee House";
+    caption.textContent = text;
   }
 
   function open(index) {
@@ -222,15 +214,16 @@ function setupGalleryLightbox() {
   }
 
   function move(step) {
-    currentIndex = (currentIndex + step + items.length) % items.length;
+    currentIndex = (currentIndex + step + cards.length) % cards.length;
     render();
   }
 
   cards.forEach((card, index) => {
+    const label = q("figcaption", card)?.textContent?.trim() || "Roby's Coffee House";
     card.classList.add("gallery-interactive");
     card.tabIndex = 0;
     card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `${items[index].caption}: open image`);
+    card.setAttribute("aria-label", `${label}: open image`);
     card.addEventListener("click", () => open(index));
     card.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
@@ -260,14 +253,13 @@ function init() {
 
   setupMenu();
   setupHeroVideo();
+  applyLanguage(language);
   setupReveal();
   setupGalleryLightbox();
 
   qa(".lang-button").forEach((button) => {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
-
-  applyLanguage(language);
 }
 
 document.readyState === "loading"
