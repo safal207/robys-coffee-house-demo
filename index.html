@@ -56,10 +56,12 @@
   <link rel="stylesheet" href="final-qa.css?v=final-20260620-1" />
   <link rel="stylesheet" href="gallery-clean.css?v=clean-20260620-3" />
   <link rel="stylesheet" href="map-live.css?v=map-20260620-1" />
+  <link rel="stylesheet" href="shop.css?v=shop-20260620-1" />
   <script type="module" src="app.js?v=premium-20260620-1"></script>
   <script type="module" src="conversion.js?v=conversion-20260620-1"></script>
   <script type="module" src="analytics.js?v=final-20260620-1"></script>
   <script type="module" src="qa.js?v=final-20260620-1"></script>
+  <script type="module" src="shop.js?v=shop-20260620-1"></script>
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
@@ -97,10 +99,11 @@
       <div class="menu-cards"><article class="menu-card"><span class="menu-icon" aria-hidden="true">☕</span><div><h3 data-i18n="hotCoffee">Sıcak Kahveler</h3><p>Espresso · Americano · Latte · Flat White</p></div></article><article class="menu-card"><span class="menu-icon" aria-hidden="true">🧊</span><div><h3 data-i18n="coldDrinks">Soğuk İçecekler</h3><p>Iced Coffee · Cold Brew · Refreshers</p></div></article><article class="menu-card"><span class="menu-icon" aria-hidden="true">🍰</span><div><h3 data-i18n="desserts">Tatlılar</h3><p data-i18n="dessertsText">Günün tatlıları · Kurabiyeler · Pastalar</p></div></article></div>
     </div></section>
     <section class="section gallery-section" id="prices"><div class="container">
-      <header class="section-heading gallery-heading"><div><p class="eyebrow" data-localized data-tr="ROBY'S FİYATLARI" data-en="ROBY'S PRICES" data-ru="ЦЕНЫ ROBY'S">ROBY'S FİYATLARI</p><h2><span data-localized data-tr="Sevilen tatlar." data-en="Popular favourites." data-ru="Любимые позиции.">Sevilen tatlar.</span><br /><em data-localized data-tr="Net fiyatlar." data-en="Clear prices." data-ru="Понятные цены.">Net fiyatlar.</em></h2></div><a class="text-link dark-link" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></header>
+      <header class="section-heading gallery-heading"><div><p class="eyebrow" data-localized data-tr="ROBY'S FİYATLARI" data-en="ROBY'S PRICES" data-ru="ЦЕНЫ ROBY'S">ROBY'S FİYATLARI</p><h2><span data-localized data-tr="Sepete ekle." data-en="Add your favourites." data-ru="Добавляй любимое.">Sepete ekle.</span><br /><em data-localized data-tr="Telegram'da gönder." data-en="Send it in Telegram." data-ru="Отправляй в Telegram.">Telegram'da gönder.</em></h2></div></header>
       <div class="price-grid">
-        <figure class="price-card"><img src="src/robys-gallery-latte-art.webp" alt="Two latte art coffees at Roby's Coffee House" width="520" height="520" loading="lazy" decoding="async" /><figcaption class="price-card-info"><span class="price-card-copy"><small data-localized data-tr="Kahve" data-en="Coffee" data-ru="Кофе">Kahve</small><strong data-localized data-tr="Latte" data-en="Latte" data-ru="Латте">Latte</strong></span><span class="price-card-price">200 ₺</span></figcaption></figure>
-        <figure class="price-card"><img src="src/robys-gallery-croissant.webp" alt="Croissant sandwich at Roby's Coffee House" width="480" height="480" loading="lazy" decoding="async" /><figcaption class="price-card-info"><span class="price-card-copy"><small data-localized data-tr="Atıştırmalık" data-en="Snack" data-ru="Перекус">Atıştırmalık</small><strong data-localized data-tr="Kruvasan" data-en="Croissant" data-ru="Круассан">Kruvasan</strong></span><span class="price-card-price">180 ₺</span></figcaption></figure>
+        <article class="price-card" data-product-id="latte" data-product-name="Latte" data-product-price="200"><img src="src/robys-gallery-latte-art.webp" data-premium-src alt="Premium Roby's latte" width="640" height="640" loading="lazy" decoding="async" /><button class="price-card-action" type="button" data-add-product="latte" data-localized data-tr="Sepete ekle" data-en="Add to cart" data-ru="В корзину">Sepete ekle</button></article>
+        <article class="price-card" data-product-id="san-sebastian" data-product-name="San Sebastian Cheesecake" data-product-price="240"><img src="src/robys-gallery-signature.webp" data-premium-src alt="San Sebastian cheesecake" width="640" height="640" loading="lazy" decoding="async" /><button class="price-card-action" type="button" data-add-product="san-sebastian" data-localized data-tr="Sepete ekle" data-en="Add to cart" data-ru="В корзину">Sepete ekle</button></article>
+        <article class="price-card" data-product-id="croissant" data-product-name="Croissant" data-product-price="180"><img src="src/robys-gallery-croissant.webp" alt="Roby's croissant" width="640" height="640" loading="lazy" decoding="async" /><button class="price-card-action" type="button" data-add-product="croissant" data-localized data-tr="Sepete ekle" data-en="Add to cart" data-ru="В корзину">Sepete ekle</button></article>
       </div>
     </div></section>
     <section class="section visit-section" id="visit"><div class="container visit-grid">
