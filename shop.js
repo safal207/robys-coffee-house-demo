@@ -11,6 +11,11 @@ const products = new Map(
   ])
 );
 
+const premiumAssets = {
+  latte: ["src/premium-latte.b64"],
+  "san-sebastian": ["src/premium-san-sebastian.b64"],
+};
+
 const labels = {
   tr: { add: "Sepete ekle", added: "Eklendi", cart: "Sepet", total: "Toplam", send: "Telegram’da gönder", empty: "Sepetiniz boş", clear: "Temizle" },
   en: { add: "Add to cart", added: "Added", cart: "Cart", total: "Total", send: "Send in Telegram", empty: "Your cart is empty", clear: "Clear" },
@@ -25,6 +30,24 @@ function currentLanguage() {
 
 function t(key) {
   return labels[currentLanguage()]?.[key] || labels.tr[key];
+}
+
+async function hydratePremiumImages() {
+  await Promise.all(Object.entries(premiumAssets).map(async ([id, urls]) => {
+    const image = document.querySelector(`[data-product-id="${id}"] img[data-premium-src]`);
+    if (!image) return;
+    try {
+      const parts = await Promise.all(urls.map(async (url) => {
+        const response = await fetch(url, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return (await response.text()).trim();
+      }));
+      image.src = `data:image/webp;base64,${parts.join("")}`;
+      image.removeAttribute("data-premium-src");
+    } catch (error) {
+      console.warn("Premium artwork fallback used", id, error);
+    }
+  }));
 }
 
 function loadCart() {
@@ -147,6 +170,7 @@ function addProduct(id, button) {
 
 ensureCartUi();
 renderCart();
+hydratePremiumImages();
 
 document.addEventListener("click", (event) => {
   const add = event.target.closest("[data-add-product]");
