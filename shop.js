@@ -35,7 +35,7 @@ function t(key) {
 
 async function hydratePremiumImages() {
   await Promise.all(Object.entries(premiumAssets).map(async ([id, urls]) => {
-    const image = document.querySelector(`[data-product-id="${id}"] img[data-premium-src]`);
+    const image = document.querySelector(`[data-product-id="${id}"] img`);
     if (!image) return;
     try {
       const parts = await Promise.all(urls.map(async (url) => {
