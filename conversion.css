@@ -1,0 +1,33 @@
+.scroll-progress{position:fixed;inset:0 0 auto;z-index:120;height:3px;pointer-events:none;background:rgba(255,255,255,.08)}
+.scroll-progress>span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#d78991,var(--ruby));transform:scaleX(0);transform-origin:left center;will-change:transform}
+
+.site-header{position:fixed;transition:background .28s ease,box-shadow .28s ease,backdrop-filter .28s ease}
+.site-header.is-scrolled{background:rgba(24,18,17,.9);box-shadow:0 12px 36px rgba(20,15,15,.18);backdrop-filter:blur(18px)}
+section[id]{scroll-margin-top:96px}
+
+.main-nav a{position:relative;opacity:.72;transition:opacity .2s,color .2s}
+.main-nav a::after{content:"";position:absolute;right:0;bottom:4px;left:0;height:2px;background:var(--ruby);border-radius:999px;transform:scaleX(0);transform-origin:left center;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.main-nav a:hover,.main-nav a.is-active{opacity:1}
+.main-nav a.is-active::after{transform:scaleX(1)}
+
+.mobile-cta{display:none}
+
+@media(max-width:980px){
+  .main-nav a{opacity:.72}
+  .main-nav a.is-active{color:#d78991;opacity:1}
+  .main-nav a::after{bottom:-5px}
+}
+
+@media(max-width:680px){
+  .mobile-cta{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));left:12px;z-index:34;display:grid;grid-template-columns:1.15fr .85fr;gap:6px;padding:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,253,249,.9);border-radius:999px;box-shadow:0 20px 54px rgba(24,18,17,.24);backdrop-filter:blur(18px);opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px));transition:opacity .28s ease,transform .38s cubic-bezier(.16,1,.3,1)}
+  .mobile-cta.is-visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+  .mobile-cta a{display:flex;min-height:50px;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.01em}
+  .mobile-cta-route{color:#fff;background:var(--ruby);box-shadow:0 10px 26px rgba(184,77,88,.26)}
+  .mobile-cta-instagram{color:var(--dark);background:rgba(255,255,255,.9)}
+  .mobile-cta-icon{font-size:1rem;line-height:1}
+  body.menu-open .mobile-cta,body.lightbox-open .mobile-cta{opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px))}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .mobile-cta,.main-nav a::after,.site-header{transition:none!important}
+}
