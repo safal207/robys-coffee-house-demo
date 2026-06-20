@@ -81,7 +81,7 @@
 
 @media(max-width:900px){.price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.price-card:last-child{grid-column:1/-1;max-width:560px;justify-self:center;width:100%}}
 @media(max-width:680px){
-.price-grid{grid-template-columns:1fr;gap:14px}.price-card,.price-card:last-child{grid-column:auto;width:100%;max-width:none;aspect-ratio:1/1;border-radius:20px}.price-card-action{right:12px;bottom:12px;padding:9px 12px}.shop-cart-button{right:14px;bottom:calc(112px + env(safe-area-inset-bottom))}.gallery-section{padding-bottom:132px}
+.price-grid{grid-template-columns:1fr;gap:14px}.price-card,.price-card:last-child{grid-column:auto;width:100%;max-width:none;aspect-ratio:1/1;border-radius:20px}.price-card-action{right:12px;bottom:12px;padding:9px 12px}.shop-cart-button{right:14px;bottom:calc(112px + env(safe-area-inset-bottom))}.gallery-section{padding-bottom:28px}.visit-section{padding-top:32px}.gallery-section{padding-bottom:28px}.visit-section{padding-top:32px}
 .order-modal,.cashier-modal{padding:10px;align-items:end}.order-modal-card,.cashier-card{max-height:calc(100dvh - 20px);padding:22px;border-radius:24px 24px 16px 16px}.order-qr-frame{width:min(250px,78%)}
 .cake-offer{padding:10px}.cake-offer-card{grid-template-columns:1fr;border-radius:24px}.cake-offer-card>img{height:42dvh;min-height:250px}.cake-offer-card>div{padding:22px}.cake-offer-card h3{font-size:2.7rem}
 }
