@@ -1,0 +1,12 @@
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:3px solid rgba(215,137,145,.95);outline-offset:4px}
+
+.gallery-card.image-fallback{background:linear-gradient(145deg,#2b2220,#4a3534)}
+.gallery-card.image-fallback::before{content:"ROBY'S";position:absolute;inset:auto auto 18px 18px;z-index:1;color:rgba(255,255,255,.72);font:600 1rem var(--display);letter-spacing:.14em}
+.gallery-card.image-fallback img{filter:saturate(.7) brightness(.68);transform:scale(1.02)}
+
+[inert]{pointer-events:none;user-select:none}
+.lightbox button:focus-visible{outline-color:#fff}
+
+@media(max-width:680px){
+  .mobile-cta a:focus-visible{outline-offset:2px}
+}
