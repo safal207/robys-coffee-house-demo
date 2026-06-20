@@ -14,6 +14,7 @@ const products = new Map(
 const premiumAssets = {
   latte: ["src/premium-latte.b64"],
   "san-sebastian": ["src/premium-san-sebastian.b64"],
+  croissant: ["src/premium-croissant.b64"],
 };
 
 const labels = {
