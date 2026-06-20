@@ -3,6 +3,7 @@ import { dictionaries } from "./src/i18n.js";
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const supportedLanguages = ["tr", "en", "ru"];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function readLanguage() {
   try {
@@ -14,6 +15,8 @@ function readLanguage() {
 }
 
 let language = readLanguage();
+let languageTimer;
+let languageFinishTimer;
 
 function translate(key) {
   return dictionaries[language]?.[key] ?? dictionaries.tr?.[key] ?? "";
@@ -26,7 +29,7 @@ function updateMenuLabel() {
   toggle.setAttribute("aria-label", translate(isOpen ? "closeMenu" : "openMenu"));
 }
 
-function setLanguage(nextLanguage) {
+function applyLanguage(nextLanguage) {
   language = supportedLanguages.includes(nextLanguage) ? nextLanguage : "tr";
   document.documentElement.lang = language;
 
@@ -55,6 +58,28 @@ function setLanguage(nextLanguage) {
   });
 
   updateMenuLabel();
+}
+
+function setLanguage(nextLanguage, animate = true) {
+  const resolved = supportedLanguages.includes(nextLanguage) ? nextLanguage : "tr";
+  if (resolved === language) return;
+
+  const main = q("main");
+  clearTimeout(languageTimer);
+  clearTimeout(languageFinishTimer);
+
+  if (!animate || reduceMotion || !main) {
+    applyLanguage(resolved);
+    return;
+  }
+
+  main.classList.add("language-changing");
+  languageTimer = window.setTimeout(() => {
+    applyLanguage(resolved);
+    languageFinishTimer = window.setTimeout(() => {
+      main.classList.remove("language-changing");
+    }, 150);
+  }, 110);
 }
 
 function setupMenu() {
@@ -91,10 +116,135 @@ function setupHeroVideo() {
     video.remove();
   }, { once: true });
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (reduceMotion) {
     video.pause();
     video.removeAttribute("autoplay");
   }
+}
+
+function setupReveal() {
+  const targets = qa([
+    ".section-heading",
+    ".feature-card",
+    ".amenities-line",
+    ".menu-intro",
+    ".menu-card",
+    ".gallery-card",
+    ".visit-card",
+    ".map-card",
+    ".mobile-quick-info"
+  ].join(","));
+
+  targets.forEach((node, index) => {
+    node.classList.add("reveal-item");
+    node.style.setProperty("--reveal-delay", `${(index % 4) * 65}ms`);
+  });
+
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    targets.forEach((node) => node.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, {
+    threshold: 0.12,
+    rootMargin: "0px 0px -8% 0px"
+  });
+
+  targets.forEach((node) => observer.observe(node));
+}
+
+function setupGalleryLightbox() {
+  const cards = qa(".gallery-card");
+  if (!cards.length) return;
+
+  const lightbox = document.createElement("div");
+  lightbox.className = "lightbox";
+  lightbox.setAttribute("role", "dialog");
+  lightbox.setAttribute("aria-modal", "true");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightbox.innerHTML = `
+    <button class="lightbox-close" type="button" aria-label="Close image">×</button>
+    <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">‹</button>
+    <figure class="lightbox-figure">
+      <img class="lightbox-image" alt="" />
+      <figcaption class="lightbox-caption"></figcaption>
+    </figure>
+    <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">›</button>
+  `;
+  document.body.append(lightbox);
+
+  const image = q(".lightbox-image", lightbox);
+  const caption = q(".lightbox-caption", lightbox);
+  const closeButton = q(".lightbox-close", lightbox);
+  const previousButton = q(".lightbox-prev", lightbox);
+  const nextButton = q(".lightbox-next", lightbox);
+  let currentIndex = 0;
+  let lastFocused;
+
+  function render() {
+    const card = cards[currentIndex];
+    const source = q("img", card);
+    const text = q("figcaption", card)?.textContent?.trim() || "Roby's Coffee House";
+    image.src = source?.currentSrc || source?.src || "";
+    image.alt = source?.alt || "Roby's Coffee House";
+    caption.textContent = text;
+  }
+
+  function open(index) {
+    currentIndex = index;
+    lastFocused = document.activeElement;
+    render();
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.classList.add("lightbox-open");
+    closeButton.focus();
+  }
+
+  function close() {
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("lightbox-open");
+    lastFocused?.focus?.();
+  }
+
+  function move(step) {
+    currentIndex = (currentIndex + step + cards.length) % cards.length;
+    render();
+  }
+
+  cards.forEach((card, index) => {
+    const label = q("figcaption", card)?.textContent?.trim() || "Roby's Coffee House";
+    card.classList.add("gallery-interactive");
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${label}: open image`);
+    card.addEventListener("click", () => open(index));
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      open(index);
+    });
+  });
+
+  closeButton.addEventListener("click", close);
+  previousButton.addEventListener("click", () => move(-1));
+  nextButton.addEventListener("click", () => move(1));
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) close();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (!lightbox.classList.contains("is-open")) return;
+    if (event.key === "Escape") close();
+    if (event.key === "ArrowLeft") move(-1);
+    if (event.key === "ArrowRight") move(1);
+  });
 }
 
 function init() {
@@ -103,12 +253,13 @@ function init() {
 
   setupMenu();
   setupHeroVideo();
+  applyLanguage(language);
+  setupReveal();
+  setupGalleryLightbox();
 
   qa(".lang-button").forEach((button) => {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
-
-  setLanguage(language);
 }
 
 document.readyState === "loading"
