@@ -1,0 +1,83 @@
+const q = (selector, root = document) => root.querySelector(selector);
+const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+const eventBuffer = [];
+
+function placementFor(node) {
+  if (node.closest(".mobile-cta")) return "mobile_dock";
+  if (node.closest(".hero")) return "hero";
+  if (node.closest("#visit")) return "visit";
+  if (node.closest(".gallery-section")) return "gallery";
+  return node.closest("section[id]")?.id || "page";
+}
+
+function track(action, details = {}) {
+  const payload = {
+    event: "robys_action",
+    action,
+    language: document.documentElement.lang || "tr",
+    path: location.pathname,
+    ...details
+  };
+
+  eventBuffer.push(payload);
+  if (eventBuffer.length > 100) eventBuffer.shift();
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(payload);
+  document.dispatchEvent(new CustomEvent("robys:analytics", { detail: payload }));
+}
+
+window.robysAnalytics = {
+  track,
+  events: () => [...eventBuffer],
+  clear: () => { eventBuffer.length = 0; }
+};
+
+function setupClicks() {
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    if (link) {
+      const href = link.href || "";
+      if (href.includes("google.com/maps")) track("route_click", { placement: placementFor(link) });
+      if (href.includes("instagram.com")) track("instagram_click", { placement: placementFor(link) });
+    }
+
+    const languageButton = event.target.closest(".lang-button");
+    if (languageButton) {
+      track("language_select", {
+        placement: "header",
+        selected_language: languageButton.dataset.lang || "unknown"
+      });
+    }
+
+    const galleryCard = event.target.closest(".gallery-card");
+    if (galleryCard) {
+      track("gallery_open", {
+        placement: "gallery",
+        image_index: Math.max(0, qa(".gallery-card").indexOf(galleryCard))
+      });
+    }
+  });
+}
+
+function setupSectionViews() {
+  if (!("IntersectionObserver" in window)) return;
+  const seen = new Set();
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting || entry.intersectionRatio < 0.35 || seen.has(entry.target.id)) return;
+      seen.add(entry.target.id);
+      track("section_view", { placement: entry.target.id });
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: [0.35] });
+  qa("#about,#menu,#gallery,#visit").forEach((section) => observer.observe(section));
+}
+
+function initAnalytics() {
+  setupClicks();
+  setupSectionViews();
+}
+
+document.readyState === "loading"
+  ? document.addEventListener("DOMContentLoaded", initAnalytics, { once: true })
+  : initAnalytics();
