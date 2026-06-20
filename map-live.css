@@ -1,1 +1,35 @@
-x
+.map-card-live{position:relative;isolation:isolate;overflow:hidden;background:#cfc7bf;border:1px solid rgba(47,39,37,.1);box-shadow:0 24px 70px rgba(36,28,27,.12)}
+.map-live-frame{position:absolute;inset:-2%;z-index:0;width:104%;height:104%;border:0;filter:saturate(.78) contrast(1.08) brightness(.94)}
+.map-live-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(20,15,15,.08),transparent 42%,rgba(20,15,15,.52)),linear-gradient(90deg,rgba(20,15,15,.18),transparent 58%)}
+.map-live-link{position:absolute;inset:0;z-index:2;display:block;color:#fff}
+.map-live-badge{position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid rgba(255,255,255,.28);background:rgba(24,18,17,.72);border-radius:999px;backdrop-filter:blur(12px);font-size:.72rem;font-weight:700;letter-spacing:.04em}
+.map-live-badge::before{content:"●";color:#e5969e;font-size:.64rem}
+.map-card-live .map-pin{position:absolute;top:50%;left:50%;z-index:3;transform:translate(-50%,-56%) rotate(-45deg)}
+.map-card-live .map-pin span{transform:rotate(45deg)}
+.map-live-bottom{position:absolute;right:22px;bottom:22px;left:22px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;color:var(--dark);background:rgba(255,253,249,.94);border:1px solid rgba(255,255,255,.74);border-radius:18px;box-shadow:0 16px 44px rgba(24,18,17,.2);backdrop-filter:blur(14px)}
+.map-live-place{display:flex;min-width:0;flex-direction:column}
+.map-live-place strong{font:600 1.15rem var(--display);letter-spacing:.08em}
+.map-live-place span{overflow:hidden;color:var(--muted);font-size:.76rem;text-overflow:ellipsis;white-space:nowrap}
+.map-live-action{display:inline-flex;flex:0 0 auto;align-items:center;gap:8px;padding:10px 14px;color:#fff;background:var(--ruby);border-radius:999px;font-size:.75rem;font-weight:700}
+.map-live-action::after{content:"↗";font-size:.92rem}
+.map-card-live:hover .map-live-frame{filter:saturate(.9) contrast(1.1) brightness(.98)}
+.map-card-live:hover .map-live-action{transform:translateY(-1px)}
+.map-live-frame,.map-live-action{transition:filter .3s ease,transform .25s ease}
+
+@media(max-width:680px){
+  .map-card-live{min-height:430px}
+  .map-live-badge{top:16px;left:16px}
+  .map-card-live .map-pin{top:46%;width:72px;height:72px}
+  .map-live-bottom{right:14px;bottom:14px;left:14px;padding:13px 14px;border-radius:16px}
+  .map-live-place strong{font-size:1rem}
+  .map-live-action{padding:9px 12px;font-size:.7rem}
+}
+
+@media(max-width:390px){
+  .map-live-bottom{align-items:flex-start;flex-direction:column}
+  .map-live-action{width:100%;justify-content:center}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .map-live-frame,.map-live-action{transition:none}
+}
