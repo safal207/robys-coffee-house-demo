@@ -1,0 +1,40 @@
+.price-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.price-card{aspect-ratio:1/1;border-radius:26px}
+.price-card img{object-position:center}
+.price-card::after{background:linear-gradient(180deg,transparent 62%,rgba(15,10,9,.82))}
+.price-card-info{align-items:center;padding:18px}
+.price-card-copy small{color:rgba(255,255,255,.76)}
+.price-card-copy strong{font-size:clamp(1.35rem,2.2vw,2rem)}
+.price-card-price{display:none}
+.price-card-action{position:absolute;right:14px;bottom:14px;z-index:4;min-height:42px;padding:10px 14px;border:1px solid rgba(255,255,255,.35);border-radius:999px;color:#fff;background:rgba(190,67,82,.94);font:700 .75rem Montserrat,sans-serif;box-shadow:0 10px 26px rgba(23,14,13,.24);backdrop-filter:blur(12px);cursor:pointer;transition:transform .2s ease,background .2s ease}
+.price-card-action:hover{transform:translateY(-2px);background:#c94e5f}
+.price-card-action.is-added{background:#2d6b4f}
+.price-card-info{padding-right:118px}
+
+.shop-cart-button{position:fixed;right:18px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:81;display:flex;align-items:center;gap:8px;min-height:48px;padding:9px 12px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#fff;background:rgba(36,28,27,.92);font:700 .75rem Montserrat,sans-serif;box-shadow:0 14px 36px rgba(23,14,13,.28);backdrop-filter:blur(16px);cursor:pointer}
+.shop-cart-button strong{display:grid;min-width:24px;height:24px;place-items:center;border-radius:50%;background:var(--ruby);font-size:.68rem}
+.shop-cart{position:fixed;top:0;right:0;z-index:101;display:flex;width:min(390px,92vw);height:100dvh;flex-direction:column;padding:22px;color:var(--dark);background:#fffdf9;box-shadow:-24px 0 70px rgba(24,18,17,.22);transform:translateX(105%);transition:transform .3s ease}
+.cart-open .shop-cart{transform:translateX(0)}
+.shop-cart-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid rgba(45,35,33,.12)}
+.shop-cart-head h3{margin:0;font:600 2rem/1 var(--display)}
+.shop-cart-close{width:42px;height:42px;border:1px solid rgba(45,35,33,.14);border-radius:50%;background:#fff;font-size:1.5rem;cursor:pointer}
+.shop-cart-items{display:flex;flex:1;flex-direction:column;gap:12px;overflow:auto;padding:18px 0}
+.shop-cart-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;border-radius:16px;background:#f5f0ea}
+.shop-cart-row>div:first-child{display:flex;flex-direction:column;gap:4px}
+.shop-cart-row span{color:var(--muted);font-size:.76rem}
+.shop-cart-stepper{display:flex;align-items:center;gap:10px}
+.shop-cart-stepper button{width:32px;height:32px;border:0;border-radius:50%;background:#fff;font-size:1.1rem;cursor:pointer}
+.shop-cart-stepper span{min-width:18px;color:var(--dark);text-align:center;font-weight:700}
+.shop-cart-empty{margin:auto;color:var(--muted);text-align:center}
+.shop-cart-footer{display:grid;gap:10px;padding-top:16px;border-top:1px solid rgba(45,35,33,.12)}
+.shop-cart-total{display:flex;align-items:center;justify-content:space-between;font-size:.9rem}
+.shop-cart-total strong{font-size:1.2rem}
+.shop-cart-send{display:flex;min-height:50px;align-items:center;justify-content:center;border-radius:999px;color:#fff;background:#2aabee;font-weight:800;text-decoration:none}
+.shop-cart-clear{border:0;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
+.shop-cart-backdrop{position:fixed;inset:0;z-index:100;border:0;background:rgba(17,12,11,.48);opacity:0;pointer-events:none;transition:opacity .3s ease}
+.cart-open .shop-cart-backdrop{opacity:1;pointer-events:auto}
+.cart-open{overflow:hidden}
+
+@media(max-width:900px){.price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.price-card:last-child{grid-column:1/-1;max-width:560px;justify-self:center;width:100%}}
+@media(max-width:680px){.price-grid{grid-template-columns:1fr;gap:14px}.price-card,.price-card:last-child{grid-column:auto;width:100%;max-width:none;aspect-ratio:1/1;border-radius:20px}.price-card-info{padding:15px 112px 15px 15px}.price-card-copy strong{font-size:1.42rem}.price-card-action{right:12px;bottom:12px;padding:9px 12px}.shop-cart-button{right:14px;bottom:calc(96px + env(safe-area-inset-bottom))}.gallery-section{padding-bottom:126px}}
+@media(prefers-reduced-motion:reduce){.shop-cart,.shop-cart-backdrop,.price-card-action{transition:none}}
