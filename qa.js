@@ -1,7 +1,8 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
-const HERO_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260621-10";
+const HERO_VIDEO = "src/hero-video-data.bin?v=20260621-20";
+const FALLBACK_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260621-10";
 
 function enableHeroVideo() {
   const video = q(".hero-video");
@@ -12,8 +13,18 @@ function enableHeroVideo() {
   video.defaultMuted = true;
   video.playsInline = true;
   source.removeAttribute("media");
+  source.type = "video/mp4";
+
+  const restoreFallback = () => {
+    source.src = FALLBACK_VIDEO;
+    video.load();
+    video.play().catch(() => undefined);
+  };
+
+  video.addEventListener("error", restoreFallback, { once: true });
   source.src = HERO_VIDEO;
   video.load();
+  video.play().catch(() => undefined);
 }
 
 function applyImmediateA11yFixes() {
