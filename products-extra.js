@@ -27,14 +27,16 @@ function ensureStableStyles() {
 }
 
 function productCard(product) {
-  const label = LABELS[currentLanguage()] || LABELS.tr;
+  const lang = currentLanguage();
+  const label = LABELS[lang] || LABELS.tr;
+  const displayName = lang === "ru" ? product.ru : product.name;
   return `
     <article class="price-card" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
       <img src="${product.image}" alt="${product.alt}" width="640" height="640" loading="lazy" decoding="async" />
       <div class="price-card-info">
         <div class="price-card-copy">
           <small>ROBY'S SELECTION</small>
-          <strong data-localized data-tr="${product.name}" data-en="${product.name}" data-ru="${product.ru}">${product.name}</strong>
+          <strong data-localized data-tr="${product.name}" data-en="${product.name}" data-ru="${product.ru}">${displayName}</strong>
           <span class="price-card-price">${product.price} ₺</span>
         </div>
         <button class="price-card-action" type="button" data-add-product="${product.id}" data-localized data-tr="${LABELS.tr}" data-en="${LABELS.en}" data-ru="${LABELS.ru}">${label}</button>
