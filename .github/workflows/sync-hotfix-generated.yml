@@ -1,0 +1,32 @@
+name: Sync hotfix generated runtime
+
+on:
+  push:
+    branches: [fix/remove-legacy-runtime-sections]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/remove-legacy-runtime-sections
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Commit generated runtime
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/sync-hotfix-generated.yml
+          git add app.js index.html .github/workflows/sync-hotfix-generated.yml
+          git commit -m "build: sync generated runtime" || exit 0
+          git push origin HEAD:fix/remove-legacy-runtime-sections
