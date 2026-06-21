@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Premium cold drink icon">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="64%">
+      <stop offset="0" stop-color="#5a3823"/>
+      <stop offset=".52" stop-color="#25140d"/>
+      <stop offset="1" stop-color="#130a07"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff0b3"/>
+      <stop offset=".35" stop-color="#d3a04e"/>
+      <stop offset=".7" stop-color="#8d5c21"/>
+      <stop offset="1" stop-color="#f5ca72"/>
+    </linearGradient>
+    <linearGradient id="drink" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#8d4a20"/>
+      <stop offset=".45" stop-color="#b86f36"/>
+      <stop offset=".7" stop-color="#d7a56e"/>
+      <stop offset="1" stop-color="#f2dcc0"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffffff" stop-opacity=".78"/>
+      <stop offset=".45" stop-color="#ffffff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#d7e8ef" stop-opacity=".48"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#000" flood-opacity=".48"/>
+    </filter>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="244" fill="#160c08"/>
+  <circle cx="256" cy="256" r="230" fill="url(#bg)" stroke="url(#gold)" stroke-width="7"/>
+  <circle cx="256" cy="234" r="132" fill="#c28443" opacity=".22" filter="url(#glow)"/>
+  <g filter="url(#shadow)">
+    <path d="M150 158h212l-23 225c-3 29-27 50-56 50h-54c-29 0-53-21-56-50z" fill="url(#drink)" stroke="#e7c69e" stroke-width="8"/>
+    <path d="M150 158h212l-23 225c-3 29-27 50-56 50h-54c-29 0-53-21-56-50z" fill="url(#glass)" opacity=".72"/>
+    <ellipse cx="256" cy="158" rx="106" ry="25" fill="#6f3518" stroke="#f0d9bd" stroke-width="8"/>
+    <g fill="#f6e7d3" fill-opacity=".72" stroke="#fff7ee" stroke-width="4">
+      <rect x="176" y="142" width="55" height="55" rx="9" transform="rotate(-13 203 169)"/>
+      <rect x="230" y="132" width="58" height="58" rx="9" transform="rotate(10 259 161)"/>
+      <rect x="286" y="145" width="56" height="56" rx="9" transform="rotate(-8 314 173)"/>
+      <rect x="211" y="186" width="54" height="54" rx="9" transform="rotate(9 238 213)"/>
+      <rect x="266" y="186" width="54" height="54" rx="9" transform="rotate(-12 293 213)"/>
+    </g>
+    <path d="M183 255c39-33 78 28 128-3" fill="none" stroke="#f4e1cc" stroke-width="18" stroke-linecap="round" opacity=".75"/>
+    <path d="M177 330c47-29 91 31 154-8" fill="none" stroke="#6f371c" stroke-width="20" stroke-linecap="round" opacity=".55"/>
+    <path d="M180 185c-13 58-15 128-5 196" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".42"/>
+    <g fill="#d8eef5" opacity=".9">
+      <circle cx="171" cy="231" r="5"/><circle cx="169" cy="262" r="4"/><circle cx="174" cy="291" r="6"/><circle cx="168" cy="319" r="4"/>
+      <circle cx="339" cy="224" r="5"/><circle cx="342" cy="262" r="4"/><circle cx="337" cy="298" r="6"/><circle cx="340" cy="332" r="4"/>
+    </g>
+  </g>
+</svg>
