@@ -23,28 +23,46 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Decode and validate product artwork
+      - name: Decode Latte
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p src/products
+          tr -d '\r\n\t ' < src/premium-latte.b64 | base64 --decode --ignore-garbage > src/products/latte.webp
+          test -s src/products/latte.webp
+          file src/products/latte.webp | tee /dev/stderr | grep -q "Web/P image"
 
-          decode_webp() {
-            source_file="$1"
-            target_file="$2"
-            echo "Decoding ${source_file}"
-            test -s "$source_file"
-            tr -d '\r\n\t ' < "$source_file" | base64 --decode --ignore-garbage > "$target_file"
-            test -s "$target_file"
-            file "$target_file"
-            file "$target_file" | grep -q "Web/P image"
-          }
+      - name: Decode San Sebastian
+        shell: bash
+        run: |
+          set -euo pipefail
+          tr -d '\r\n\t ' < src/premium-san-sebastian.b64 | base64 --decode --ignore-garbage > src/products/san-sebastian.webp
+          test -s src/products/san-sebastian.webp
+          file src/products/san-sebastian.webp | tee /dev/stderr | grep -q "Web/P image"
 
-          decode_webp src/premium-latte.b64 src/products/latte.webp
-          decode_webp src/premium-san-sebastian.b64 src/products/san-sebastian.webp
-          decode_webp src/premium-croissant.b64 src/products/croissant.webp
-          decode_webp src/products/lotus-cheesecake.b64 src/products/lotus-cheesecake.webp
-          decode_webp src/products/nutella-croissant.b64 src/products/nutella-croissant.webp
+      - name: Decode Croissant
+        shell: bash
+        run: |
+          set -euo pipefail
+          tr -d '\r\n\t ' < src/premium-croissant.b64 | base64 --decode --ignore-garbage > src/products/croissant.webp
+          test -s src/products/croissant.webp
+          file src/products/croissant.webp | tee /dev/stderr | grep -q "Web/P image"
+
+      - name: Decode Lotus Cheesecake
+        shell: bash
+        run: |
+          set -euo pipefail
+          tr -d '\r\n\t ' < src/products/lotus-cheesecake.b64 | base64 --decode --ignore-garbage > src/products/lotus-cheesecake.webp
+          test -s src/products/lotus-cheesecake.webp
+          file src/products/lotus-cheesecake.webp | tee /dev/stderr | grep -q "Web/P image"
+
+      - name: Decode Nutella Croissant
+        shell: bash
+        run: |
+          set -euo pipefail
+          tr -d '\r\n\t ' < src/products/nutella-croissant.b64 | base64 --decode --ignore-garbage > src/products/nutella-croissant.webp
+          test -s src/products/nutella-croissant.webp
+          file src/products/nutella-croissant.webp | tee /dev/stderr | grep -q "Web/P image"
 
       - name: Commit generated WebP files
         shell: bash
