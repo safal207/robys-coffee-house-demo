@@ -1,9 +1,9 @@
 const PRODUCTS = [
-  { id: "latte-direct", name: "Latte", ru: "Латте", price: 200, image: "src/robys-gallery-latte-art.webp", alt: "Roby's Latte — 200 ₺" },
-  { id: "san-sebastian-direct", name: "San Sebastian Cheesecake", ru: "Сан-Себастьян", price: 240, image: "src/robys-gallery-signature.webp", alt: "San Sebastian Cheesecake — 240 ₺" },
-  { id: "croissant-direct", name: "Croissant", ru: "Круассан", price: 180, image: "src/robys-gallery-croissant.webp", alt: "Croissant — 180 ₺" },
-  { id: "lotus-cheesecake", name: "Lotus Cheesecake", ru: "Лотус чизкейк", price: 220, image: "src/products/lotus-cheesecake.webp", alt: "Lotus Cheesecake — 220 ₺" },
-  { id: "nutella-croissant", name: "Nutella Croissant", ru: "Круассан с Nutella", price: 180, image: "src/products/nutella-croissant.webp", alt: "Nutella Croissant — 180 ₺" },
+  { id: "latte-direct", name: "Latte", ru: "Латте", price: 200, image: "src/products/latte.webp?v=20260621-13", alt: "Roby's Latte — 200 ₺" },
+  { id: "san-sebastian-direct", name: "San Sebastian Cheesecake", ru: "Сан-Себастьян", price: 240, image: "src/products/san-sebastian.webp?v=20260621-13", alt: "San Sebastian Cheesecake — 240 ₺" },
+  { id: "croissant-direct", name: "Croissant", ru: "Круассан", price: 180, image: "src/products/croissant.webp?v=20260621-13", alt: "Croissant — 180 ₺" },
+  { id: "lotus-cheesecake", name: "Lotus Cheesecake", ru: "Лотус чизкейк", price: 220, image: "src/products/lotus-cheesecake.webp?v=20260621-13", alt: "Lotus Cheesecake — 220 ₺" },
+  { id: "nutella-croissant", name: "Nutella Croissant", ru: "Круассан с Nutella", price: 180, image: "src/products/nutella-croissant.webp?v=20260621-13", alt: "Nutella Croissant — 180 ₺" },
 ];
 
 const LABELS = { tr: "Sepete ekle", en: "Add to cart", ru: "В корзину" };
