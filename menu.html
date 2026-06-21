@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Roby's Coffee House tam menüsü: kahveler, soğuk içecekler, çaylar, tatlılar ve sandviçler." />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#241c1b" />
+  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />
+  <meta property="og:title" content="Roby's Coffee House | Menu" />
+  <meta property="og:description" content="Full multilingual menu in Turkish, English and Russian." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />
+  <title>Tam Menü | Roby's Coffee House</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />
+  <link rel="stylesheet" href="menu.css?v=menu-20260622-1" />
+</head>
+<body class="menu-page">
+  <a class="skip-link" href="#menu-root">İçeriğe geç</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Roby's Coffee House">
+        <span class="brand-mark">R</span>
+        <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
+      </a>
+      <a class="menu-page-back" href="index.html" data-menu-copy="back">Kafeye dön</a>
+      <div class="language-switcher" aria-label="Language selector">
+        <button class="lang-button active" type="button" data-lang="tr">TR</button>
+        <button class="lang-button" type="button" data-lang="en">EN</button>
+        <button class="lang-button" type="button" data-lang="ru">RU</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="menu-page-main">
+    <section class="menu-page-hero">
+      <div class="container menu-page-hero-inner">
+        <div>
+          <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
+          <h1 data-menu-copy="pageTitle">Tam Menü</h1>
+          <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
+        </div>
+        <div class="menu-page-mark" aria-hidden="true">R</div>
+      </div>
+    </section>
+
+    <section class="menu-controls" aria-label="Menu controls">
+      <div class="container menu-controls-inner">
+        <div class="menu-search">
+          <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
+          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
+        </div>
+        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
+      </div>
+    </section>
+
+    <section class="full-menu-wrap">
+      <div class="container">
+        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
+        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
+        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
+        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+      </div>
+    </section>
+
+    <section class="menu-page-cta">
+      <div class="container menu-page-cta-inner">
+        <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>
+        <a class="button button-primary" href="https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="menu-page-footer">
+    <div class="container menu-page-footer-inner">
+      <span>© <span id="current-year"></span> Roby's Coffee House</span>
+      <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">@robyscoffeehouse ↗</a>
+    </div>
+  </footer>
+
+  <script type="module" src="menu-page.js?v=menu-20260622-1"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.menu-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.menu-card-link{position:relative;min-height:142px;padding-right:48px;cursor:pointer;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s,border-color .25s,background .25s}
+.menu-card-link::after{content:"→";position:absolute;right:20px;top:50%;color:rgba(255,255,255,.52);font-size:1.15rem;transform:translateY(-50%);transition:transform .2s,color .2s}
+.menu-card-link:hover,.menu-card-link:focus-visible{transform:translateY(-4px);border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.08);box-shadow:0 20px 54px rgba(0,0,0,.18);outline:none}
+.menu-card-link:hover::after,.menu-card-link:focus-visible::after{color:#fff;transform:translate(3px,-50%)}
+.menu-card-link h3{font-size:1.42rem}
+.menu-card-link p{font-size:.78rem;line-height:1.5}
+@media(max-width:1120px){.menu-cards{grid-template-columns:1fr}.menu-card-link{min-height:132px}}
+@media(max-width:680px){.menu-card-link{min-height:auto;padding-right:44px}.menu-card-link h3{font-size:1.28rem}.menu-card-link p{font-size:.75rem}}
+@media(max-width:390px){.menu-card-link{grid-template-columns:auto 1fr}.menu-card-link .menu-icon{display:grid}}
