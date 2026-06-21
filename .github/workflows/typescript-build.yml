@@ -1,11 +1,26 @@
-name: Verify TypeScript app
+name: Verify generated runtime
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'app.js'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/typescript-build.yml'
   push:
     branches: [main]
     paths:
       - 'src/**'
+      - 'scripts/**'
+      - 'app.js'
+      - 'index.html'
       - 'package.json'
+      - 'package-lock.json'
       - 'tsconfig.json'
       - '.github/workflows/typescript-build.yml'
   workflow_dispatch:
@@ -20,13 +35,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install dependencies
-        run: npm install
-      - name: Type-check and build
-        run: npm run check
-      - name: Verify generated JavaScript
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Type-check source
+        run: npm run typecheck
+
+      - name: Build generated runtime
+        run: npm run build
+
+      - name: Upload generated runtime for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-runtime-${{ github.sha }}
+          path: |
+            app.js
+            index.html
+          retention-days: 3
+
+      - name: Verify JavaScript syntax
         run: node --check app.js
+
+      - name: Verify IIFE and deferred loading contract
+        run: node scripts/verify-bundle.mjs
+
+      - name: Reject stale generated files
+        run: git diff --exit-code -- app.js index.html
