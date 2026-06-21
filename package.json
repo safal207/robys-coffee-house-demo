@@ -8,7 +8,10 @@
     "check": "npm run typecheck && npm run build && node --check app.js",
     "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs",
     "verify:media": "node scripts/verify-media.mjs",
-    "audit:deps": "node scripts/audit-dependencies.mjs"
+    "audit:deps": "node scripts/audit-dependencies.mjs",
+    "lighthouse:smoke": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.refresh-smoke.cjs",
+    "lighthouse:collect:mobile": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.mobile.cjs",
+    "lighthouse:collect:desktop": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.desktop.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.1",
