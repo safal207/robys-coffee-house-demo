@@ -2,6 +2,16 @@ const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
 
+function applyImmediateA11yFixes() {
+  document.documentElement.style.setProperty("--ruby", "#b24753");
+
+  qa(".brand").forEach((link) => link.removeAttribute("aria-label"));
+  q(".map-live-link")?.removeAttribute("aria-label");
+
+  const backTop = q(".back-top");
+  if (backTop) backTop.setAttribute("aria-label", "↑ Back to top");
+}
+
 function setupExternalLinks() {
   qa('a[target="_blank"]').forEach((link) => {
     const rel = new Set((link.getAttribute("rel") || "").split(/\s+/).filter(Boolean));
@@ -91,10 +101,19 @@ function setupLightboxAccessibility() {
   });
 }
 
-function initQa() {
+let enhanced = false;
+function initQaEnhancements() {
+  if (enhanced) return;
+  enhanced = true;
   setupExternalLinks();
   setupImageFallbacks();
   setupLightboxAccessibility();
+}
+
+function initQa() {
+  applyImmediateA11yFixes();
+  window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });
+  window.addEventListener("keydown", initQaEnhancements, { once: true });
 }
 
 document.readyState === "loading"
