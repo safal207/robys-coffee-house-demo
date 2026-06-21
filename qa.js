@@ -1,7 +1,7 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
-const HERO_VIDEO = "src/hero-video-data.bin?v=20260621-20";
+const HERO_VIDEO = "src/robys-hero-v2.mp4?v=20260621-20";
 const FALLBACK_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260621-10";
 
 function enableHeroVideo() {
