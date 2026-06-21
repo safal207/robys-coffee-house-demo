@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T04:28:59.747Z",
+  "generatedAt": "2026-06-21T04:41:42.299Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 64,
+    "performance": 73,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.1 s",
-      "numericValue": 2062.0304999999994,
-      "score": 0.82
-    },
-    "largest-contentful-paint": {
-      "displayValue": "2.4 s",
-      "numericValue": 2362.5304999999994,
+      "displayValue": "1.7 s",
+      "numericValue": 1690.0098,
       "score": 0.92
     },
+    "largest-contentful-paint": {
+      "displayValue": "2.1 s",
+      "numericValue": 2107.3464000000004,
+      "score": 0.96
+    },
     "speed-index": {
-      "displayValue": "4.3 s",
-      "numericValue": 4264.6115591437465,
-      "score": 0.76
+      "displayValue": "3.3 s",
+      "numericValue": 3261.604416461242,
+      "score": 0.91
     },
     "total-blocking-time": {
-      "displayValue": "4,570 ms",
-      "numericValue": 4572.234750000001,
-      "score": 0
+      "displayValue": "1,220 ms",
+      "numericValue": 1215.3268,
+      "score": 0.2
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "7.2 s",
-      "numericValue": 7184.115250000001,
-      "score": 0.51
+      "displayValue": "3.4 s",
+      "numericValue": 3395.236600000001,
+      "score": 0.93
     }
   },
   "opportunities": [
@@ -68,42 +68,30 @@
       "score": 0
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 0 ms",
-      "score": 0.5
-    },
-    {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "displayValue": "Est savings of 13 KiB",
+      "score": 0
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 0 ms",
       "score": 0.5
     }
   ],
   "failedAudits": [
     {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0,
-      "displayValue": "4,570 ms"
-    },
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0,
-      "displayValue": "1,790 ms"
-    },
-    {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "8.2 s"
+      "displayValue": "3.9 s"
     },
     {
-      "id": "bootup-time",
-      "title": "Reduce JavaScript execution time",
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
       "score": 0,
-      "displayValue": "2.9 s"
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -112,10 +100,34 @@
       "displayValue": "Est savings of 59 KiB"
     },
     {
+      "id": "cache-insight",
+      "title": "Use efficient cache lifetimes",
+      "score": 0,
+      "displayValue": "Est savings of 226 KiB"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0,
+      "displayValue": "Est savings of 17 KiB"
+    },
+    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
       "displayValue": null
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.02,
+      "displayValue": "660 ms"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.2,
+      "displayValue": "1,220 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -130,46 +142,16 @@
       "displayValue": "Est savings of 0 ms"
     },
     {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
-    },
-    {
-      "id": "cache-insight",
-      "title": "Use efficient cache lifetimes",
-      "score": 0.5,
-      "displayValue": "Est savings of 226 KiB"
-    },
-    {
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 9 KiB"
     },
     {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 17 KiB"
-    },
-    {
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0.5,
-      "displayValue": null
-    },
-    {
-      "id": "interactive",
-      "title": "Time to Interactive",
-      "score": 0.51,
-      "displayValue": "7.2 s"
-    },
-    {
-      "id": "speed-index",
-      "title": "Speed Index",
-      "score": 0.76,
-      "displayValue": "4.3 s"
+      "displayValue": "Est savings of 0 ms"
     }
   ]
 }
