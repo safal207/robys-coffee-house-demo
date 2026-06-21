@@ -10,7 +10,6 @@ on:
       - "src/premium-croissant.b64"
       - "src/products/lotus-cheesecake.b64"
       - "src/products/nutella-croissant.b64"
-      - ".product-images-trigger"
       - ".github/workflows/build-product-images.yml"
 
 permissions:
@@ -22,32 +21,73 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Decode product artwork
+      - name: Decode and validate product artwork
         shell: bash
         run: |
           set -euo pipefail
-          base64 --decode src/premium-latte.b64 > src/products/latte.webp
-          base64 --decode src/premium-san-sebastian.b64 > src/products/san-sebastian.webp
-          base64 --decode src/premium-croissant.b64 > src/products/croissant.webp
-          base64 --decode src/products/lotus-cheesecake.b64 > src/products/lotus-cheesecake.webp
-          base64 --decode src/products/nutella-croissant.b64 > src/products/nutella-croissant.webp
-          file \
-            src/products/latte.webp \
-            src/products/san-sebastian.webp \
-            src/products/croissant.webp \
-            src/products/lotus-cheesecake.webp \
-            src/products/nutella-croissant.webp
-          test -s src/products/latte.webp
-          test -s src/products/san-sebastian.webp
-          test -s src/products/croissant.webp
-          test -s src/products/lotus-cheesecake.webp
-          test -s src/products/nutella-croissant.webp
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          import re
+          import sys
+
+          assets = [
+              ("src/premium-latte.b64", "src/products/latte.webp"),
+              ("src/premium-san-sebastian.b64", "src/products/san-sebastian.webp"),
+              ("src/premium-croissant.b64", "src/products/croissant.webp"),
+              ("src/products/lotus-cheesecake.b64", "src/products/lotus-cheesecake.webp"),
+              ("src/products/nutella-croissant.b64", "src/products/nutella-croissant.webp"),
+          ]
+
+          for source_name, output_name in assets:
+              source = Path(source_name)
+              output = Path(output_name)
+              if not source.is_file():
+                  print(f"::error file={source_name}::Source file is missing")
+                  sys.exit(1)
+
+              raw = source.read_text(encoding="utf-8-sig")
+              start = raw.find("UklG")
+              if start < 0:
+                  print(f"::error file={source_name}::WebP Base64 header UklG was not found")
+                  sys.exit(1)
+
+              encoded = re.sub(r"\s+", "", raw[start:])
+              encoded = re.sub(r"[^A-Za-z0-9+/=]", "", encoded)
+              encoded += "=" * ((4 - len(encoded) % 4) % 4)
+
+              try:
+                  decoded = base64.b64decode(encoded, validate=False)
+              except Exception as error:
+                  print(f"::error file={source_name}::Base64 decode failed: {error}")
+                  sys.exit(1)
+
+              if len(decoded) < 12 or decoded[:4] != b"RIFF" or decoded[8:12] != b"WEBP":
+                  print(f"::error file={source_name}::Decoded data is not a WebP file")
+                  sys.exit(1)
+
+              expected_size = int.from_bytes(decoded[4:8], "little") + 8
+              if len(decoded) < expected_size:
+                  print(
+                      f"::error file={source_name}::WebP is truncated: "
+                      f"expected {expected_size} bytes, decoded {len(decoded)}"
+                  )
+                  sys.exit(1)
+
+              decoded = decoded[:expected_size]
+              output.parent.mkdir(parents=True, exist_ok=True)
+              output.write_bytes(decoded)
+              print(f"Decoded {source_name} -> {output_name} ({len(decoded)} bytes)")
+          PY
+
+          file src/products/*.webp
 
       - name: Commit generated WebP files
         shell: bash
         run: |
+          set -euo pipefail
           if git diff --quiet -- src/products/*.webp; then
             echo "Product images are already current."
             exit 0
