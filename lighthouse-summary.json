@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T00:23:31.252Z",
+  "generatedAt": "2026-06-21T00:29:02.164Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 84,
+    "performance": 82,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
@@ -31,22 +31,22 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "3.2 s",
-      "numericValue": 3181.8852500000003,
-      "score": 0.44
+      "numericValue": 3230.7453,
+      "score": 0.42
     },
     "largest-contentful-paint": {
       "displayValue": "3.5 s",
-      "numericValue": 3481.8852500000003,
-      "score": 0.64
+      "numericValue": 3530.7453000000005,
+      "score": 0.63
     },
     "speed-index": {
-      "displayValue": "3.5 s",
-      "numericValue": 3454.3518120000044,
-      "score": 0.89
+      "displayValue": "4.8 s",
+      "numericValue": 4768.10264799997,
+      "score": 0.67
     },
     "total-blocking-time": {
-      "displayValue": "30 ms",
-      "numericValue": 28,
+      "displayValue": "0 ms",
+      "numericValue": 0,
       "score": 1
     },
     "cumulative-layout-shift": {
@@ -56,7 +56,7 @@
     },
     "interactive": {
       "displayValue": "3.5 s",
-      "numericValue": 3481.8852500000003,
+      "numericValue": 3530.7453000000005,
       "score": 0.92
     }
   },
@@ -64,7 +64,7 @@
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,340 ms",
+      "displayValue": "Est savings of 1,540 ms",
       "score": 0
     },
     {
@@ -77,27 +77,21 @@
       "id": "unminified-javascript",
       "title": "Minify JavaScript",
       "displayValue": "Est savings of 2 KiB",
-      "score": 0.5
+      "score": 0
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
+      "score": 0
     }
   ],
   "failedAudits": [
     {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "4.3 s"
-    },
-    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,480 ms"
+      "displayValue": "3,530 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -109,7 +103,19 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,340 ms"
+      "displayValue": "Est savings of 1,540 ms"
+    },
+    {
+      "id": "unminified-javascript",
+      "title": "Minify JavaScript",
+      "score": 0,
+      "displayValue": "Est savings of 2 KiB"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -130,6 +136,12 @@
       "displayValue": null
     },
     {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0,
+      "displayValue": "Est savings of 6 KiB"
+    },
+    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
@@ -139,12 +151,18 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,490 ms"
+      "displayValue": "Est savings of 1,690 ms"
     },
     {
       "id": "first-contentful-paint",
       "title": "First Contentful Paint",
-      "score": 0.44,
+      "score": 0.42,
+      "displayValue": "3.2 s"
+    },
+    {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0.5,
       "displayValue": "3.2 s"
     },
     {
@@ -154,28 +172,10 @@
       "displayValue": "18 resources found"
     },
     {
-      "id": "unminified-javascript",
-      "title": "Minify JavaScript",
-      "score": 0.5,
-      "displayValue": "Est savings of 2 KiB"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
-    },
-    {
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 9 KiB"
-    },
-    {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 6 KiB"
     }
   ]
 }
