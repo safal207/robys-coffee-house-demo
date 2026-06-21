@@ -54,12 +54,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- src/products/latte.webp src/products/croissant.webp; then
+          git add src/products/latte.webp src/products/croissant.webp
+          if git diff --cached --quiet; then
             echo "Product images are already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/products/latte.webp src/products/croissant.webp
           git commit -m "build: generate missing product WebP images [skip ci]"
           git push
