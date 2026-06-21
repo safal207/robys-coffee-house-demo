@@ -6,5 +6,20 @@
 .menu-card-link h3{font-size:1.42rem}
 .menu-card-link p{font-size:.78rem;line-height:1.5}
 @media(max-width:1120px){.menu-cards{grid-template-columns:1fr}.menu-card-link{min-height:132px}}
-@media(max-width:680px){.menu-card-link{min-height:auto;padding-right:44px}.menu-card-link h3{font-size:1.28rem}.menu-card-link p{font-size:.75rem}}
-@media(max-width:390px){.menu-card-link{grid-template-columns:auto 1fr}.menu-card-link .menu-icon{display:grid}}
+@media(max-width:680px){
+  .menu-layout{gap:28px}
+  .menu-intro .text-link{margin-top:8px}
+  .menu-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .menu-card-link{display:grid;min-height:148px;grid-template-columns:1fr;grid-template-rows:auto 1fr;align-content:start;gap:10px;padding:14px 12px 34px;border-radius:18px}
+  .menu-card-link::after{right:12px;top:auto;bottom:10px;font-size:.95rem;transform:none}
+  .menu-card-link:hover::after,.menu-card-link:focus-visible::after{transform:translateX(3px)}
+  .menu-card-link h3{display:-webkit-box;margin:0;font-size:1rem;line-height:1.16;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .menu-card-link p{display:none}
+  .menu-section{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+}
+@media(max-width:390px){
+  .menu-cards{gap:8px}
+  .menu-card-link{min-height:136px;padding:12px 10px 30px}
+  .menu-card-link h3{font-size:.9rem;line-height:1.14}
+  .menu-card-link::after{right:10px;bottom:8px;font-size:.85rem}
+}
