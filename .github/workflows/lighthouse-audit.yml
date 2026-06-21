@@ -118,7 +118,8 @@ jobs:
             lighthouse-summary.json
           retention-days: 14
 
-      - name: Commit summary to repository
+      - name: Publish summary to repository
+        continue-on-error: true
         env:
           AUDITED_SHA: ${{ github.sha }}
         run: |
@@ -150,5 +151,5 @@ jobs:
             exit 0
           fi
 
-          echo '::error::Could not publish Lighthouse summary for an unexpected reason.'
-          exit 1
+          echo '::warning::Could not publish Lighthouse summary; the audit artifact is still available.'
+          exit 0
