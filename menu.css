@@ -1,5 +1,5 @@
 :root{--menu-header-height:76px}
-.visually-hidden{display:none}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
 .menu-page{min-height:100vh;background:var(--cream)}
 .menu-page .site-header{position:sticky;inset:auto;top:0;z-index:100;padding-top:max(8px,env(safe-area-inset-top));color:#fff;background:rgba(36,28,27,.97);box-shadow:0 10px 32px rgba(36,28,27,.14);backdrop-filter:blur(14px)}
 .menu-page .header-inner{min-height:68px}
