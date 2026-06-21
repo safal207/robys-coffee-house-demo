@@ -1,0 +1,27 @@
+name: Decode catalog assets
+
+on:
+  push:
+    branches:
+      - fix/robys-catalog-stability
+
+permissions:
+  contents: write
+
+jobs:
+  decode:
+    if: ${{ !contains(github.event.head_commit.message, '[assets-decoded]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/robys-catalog-stability
+      - name: Decode WebP files
+        run: python3 scripts/decode_catalog_assets.py
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/products/*.webp
+          git commit -m "chore: decode catalog WebP assets [assets-decoded]" || exit 0
+          git push origin HEAD:fix/robys-catalog-stability
