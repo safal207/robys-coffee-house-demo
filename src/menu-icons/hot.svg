@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Premium hot coffee icon">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="64%">
+      <stop offset="0" stop-color="#5a3823"/>
+      <stop offset=".52" stop-color="#25140d"/>
+      <stop offset="1" stop-color="#130a07"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff0b3"/>
+      <stop offset=".35" stop-color="#d3a04e"/>
+      <stop offset=".7" stop-color="#8d5c21"/>
+      <stop offset="1" stop-color="#f5ca72"/>
+    </linearGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset=".62" stop-color="#f5efe7"/>
+      <stop offset="1" stop-color="#d9cdc2"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".46"/>
+    </filter>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="244" fill="#160c08"/>
+  <circle cx="256" cy="256" r="230" fill="url(#bg)" stroke="url(#gold)" stroke-width="7"/>
+  <circle cx="256" cy="226" r="132" fill="#b87832" opacity=".22" filter="url(#glow)"/>
+  <g filter="url(#shadow)">
+    <ellipse cx="256" cy="368" rx="150" ry="42" fill="url(#cup)" stroke="#c99549" stroke-width="5"/>
+    <path d="M148 234h210l-18 112c-5 32-30 52-61 52h-52c-31 0-56-20-61-52z" fill="url(#cup)" stroke="#c99549" stroke-width="5"/>
+    <path d="M356 258c67-9 83 23 70 58-11 30-40 44-78 33" fill="none" stroke="url(#cup)" stroke-width="28" stroke-linecap="round"/>
+    <path d="M356 258c67-9 83 23 70 58-11 30-40 44-78 33" fill="none" stroke="#c99549" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="253" cy="235" rx="104" ry="30" fill="#f7efe3" stroke="#d2a15a" stroke-width="4"/>
+    <ellipse cx="253" cy="235" rx="92" ry="22" fill="#b96f32"/>
+    <path d="M253 249c-24-8-41-18-41-29 0-8 7-13 16-13 10 0 18 6 25 15 7-9 15-15 25-15 9 0 16 5 16 13 0 11-17 21-41 29z" fill="#fff8ed"/>
+    <path d="M253 247c-18-4-31-9-31-15 0-4 4-7 9-7 6 0 11 4 16 9 4-5 10-9 16-9 5 0 9 3 9 7 0 6-13 11-31 15z" fill="#f5eadf" opacity=".9"/>
+  </g>
+  <g fill="none" stroke-linecap="round" opacity=".72">
+    <path d="M211 163c-16-27 15-34 3-60" stroke="#f3d3a0" stroke-width="11"/>
+    <path d="M257 151c-16-27 15-34 3-60" stroke="#f3d3a0" stroke-width="11"/>
+    <path d="M301 163c-16-27 15-34 3-60" stroke="#f3d3a0" stroke-width="11"/>
+  </g>
+</svg>
