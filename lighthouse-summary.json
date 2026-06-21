@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T03:25:14.688Z",
+  "generatedAt": "2026-06-21T03:36:42.315Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -31,17 +31,17 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.5 s",
-      "numericValue": 1509.0475000000001,
+      "numericValue": 1506.16455,
       "score": 0.96
     },
     "largest-contentful-paint": {
-      "displayValue": "1.8 s",
-      "numericValue": 1809.0475000000001,
+      "displayValue": "1.9 s",
+      "numericValue": 1880.2839,
       "score": 0.98
     },
     "speed-index": {
       "displayValue": "1.5 s",
-      "numericValue": 1509.0475000000001,
+      "numericValue": 1506.16455,
       "score": 1
     },
     "total-blocking-time": {
@@ -55,18 +55,12 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "1.8 s",
-      "numericValue": 1823.9182500000002,
+      "displayValue": "1.9 s",
+      "numericValue": 1887.7839000000001,
       "score": 1
     }
   },
   "opportunities": [
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 240 ms",
-      "score": 0
-    },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
@@ -74,10 +68,16 @@
       "score": 0
     },
     {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 210 ms",
+      "score": 0
+    },
+    {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
+      "score": 0
     }
   ],
   "failedAudits": [
@@ -85,7 +85,13 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 240 ms"
+      "displayValue": "Est savings of 210 ms"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -97,7 +103,13 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 145 KiB"
+      "displayValue": "Est savings of 223 KiB"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0,
+      "displayValue": "Est savings of 17 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -109,31 +121,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 390 ms"
+      "displayValue": "Est savings of 360 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "18 resources found"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
+      "displayValue": "19 resources found"
     },
     {
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 9 KiB"
-    },
-    {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 17 KiB"
     }
   ]
 }
