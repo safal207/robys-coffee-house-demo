@@ -4,40 +4,45 @@ const PRODUCTS = [
     name: "Latte",
     ru: "Латте",
     price: 200,
-    image: "src/products/latte.webp?v=20260621-15",
-    alt: "Roby's Latte — 200 ₺",
+    tone: "latte",
+    symbol: "☕",
+    art: "SMOOTH · CREAMY · WARM",
   },
   {
     id: "san-sebastian-direct",
     name: "San Sebastian Cheesecake",
     ru: "Сан-Себастьян",
     price: 240,
-    image: "src/products/san-sebastian.webp?v=20260621-15",
-    alt: "San Sebastian Cheesecake — 240 ₺",
+    tone: "san-sebastian",
+    symbol: "◒",
+    art: "BURNT TOP · SOFT CENTER",
   },
   {
     id: "croissant-direct",
     name: "Croissant",
     ru: "Круассан",
     price: 180,
-    image: "src/products/croissant.webp?v=20260621-15",
-    alt: "Croissant — 180 ₺",
+    tone: "croissant",
+    symbol: "🥐",
+    art: "BUTTERY · FLAKY · FRESH",
   },
   {
     id: "lotus-cheesecake",
     name: "Lotus Cheesecake",
     ru: "Лотус чизкейк",
     price: 220,
-    image: "src/products/lotus-cheesecake.webp?v=20260621-15",
-    alt: "Lotus Cheesecake — 220 ₺",
+    tone: "lotus",
+    symbol: "✦",
+    art: "CARAMEL · BISCUIT · CREAM",
   },
   {
     id: "nutella-croissant",
     name: "Nutella Croissant",
     ru: "Круассан с Nutella",
     price: 180,
-    image: "src/products/nutella-croissant.webp?v=20260621-15",
-    alt: "Nutella Croissant — 180 ₺",
+    tone: "nutella",
+    symbol: "●",
+    art: "CHOCOLATE · HAZELNUT · CRISP",
   },
 ];
 
@@ -56,7 +61,7 @@ function ensureStableStyles() {
   if (document.querySelector('link[data-catalog-stable="true"]')) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "catalog-stable.css?v=20260621-12";
+  link.href = "catalog-stable.css?v=20260621-16";
   link.dataset.catalogStable = "true";
   document.head.append(link);
 }
@@ -65,9 +70,15 @@ function productCard(product) {
   const lang = currentLanguage();
   const label = LABELS[lang] || LABELS.tr;
   const displayName = lang === "ru" ? product.ru : product.name;
+
   return `
-    <article class="price-card" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
-      <img src="${product.image}" alt="${product.alt}" width="640" height="640" loading="lazy" decoding="async" />
+    <article class="price-card price-card--${product.tone}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
+      <div class="price-card-media" aria-hidden="true">
+        <span class="price-card-media-brand">ROBY'S</span>
+        <span class="price-card-media-symbol">${product.symbol}</span>
+        <strong>${product.name}</strong>
+        <small>${product.art}</small>
+      </div>
       <div class="price-card-info">
         <div class="price-card-copy">
           <small>ROBY'S SELECTION</small>
