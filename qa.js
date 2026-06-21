@@ -1,15 +1,39 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
+const FALLBACK_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260621-8";
+const REPLACEMENT_VIDEO = "src/hero-video-data.bin?v=20260621-9";
 
-function enableHeroVideo() {
+async function enableHeroVideo() {
   const video = q(".hero-video");
   const source = video ? q("source", video) : null;
   if (!video || !source) return;
 
   source.removeAttribute("media");
-  source.src = "src/robys-hero-mobile-lite.mp4?v=20260621-8";
+  source.src = FALLBACK_VIDEO;
   video.load();
+
+  try {
+    const response = await fetch(REPLACEMENT_VIDEO, { cache: "force-cache" });
+    if (!response.ok) throw new Error(`Hero video request failed: ${response.status}`);
+
+    const buffer = await response.arrayBuffer();
+    if (buffer.byteLength < 1024) throw new Error("Hero video data is incomplete");
+
+    const objectUrl = URL.createObjectURL(new Blob([buffer], { type: "video/mp4" }));
+    const restoreFallback = () => {
+      URL.revokeObjectURL(objectUrl);
+      source.src = FALLBACK_VIDEO;
+      video.load();
+    };
+
+    video.addEventListener("error", restoreFallback, { once: true });
+    source.src = objectUrl;
+    video.load();
+    video.play().catch(() => undefined);
+  } catch (error) {
+    console.warn("Roby's hero video fallback is active", error);
+  }
 }
 
 function applyImmediateA11yFixes() {
