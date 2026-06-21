@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T17:55:07.344Z",
+  "generatedAt": "2026-06-21T19:14:19.863Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -31,22 +31,22 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.5 s",
-      "numericValue": 1454.8505,
+      "numericValue": 1484.9773999999998,
       "score": 0.96
     },
     "largest-contentful-paint": {
-      "displayValue": "2.2 s",
-      "numericValue": 2221.2525,
+      "displayValue": "2.3 s",
+      "numericValue": 2251.9548000000004,
       "score": 0.94
     },
     "speed-index": {
       "displayValue": "3.2 s",
-      "numericValue": 3159.3161086338637,
+      "numericValue": 3212.141063130069,
       "score": 0.92
     },
     "total-blocking-time": {
-      "displayValue": "1,100 ms",
-      "numericValue": 1097,
+      "displayValue": "1,080 ms",
+      "numericValue": 1078.2613000000001,
       "score": 0.24
     },
     "cumulative-layout-shift": {
@@ -55,16 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.0 s",
-      "numericValue": 2966.1005,
-      "score": 0.96
+      "displayValue": "3.1 s",
+      "numericValue": 3103.6887000000006,
+      "score": 0.95
     }
   },
   "opportunities": [
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
-      "displayValue": "Est savings of 68 KiB",
+      "displayValue": "Est savings of 69 KiB",
       "score": 0
     },
     {
@@ -85,19 +85,19 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "3.4 s"
+      "displayValue": "3.5 s"
     },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "score": 0,
-      "displayValue": "Est savings of 68 KiB"
+      "displayValue": "Est savings of 69 KiB"
     },
     {
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 210 KiB"
+      "displayValue": "Est savings of 212 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -109,19 +109,19 @@
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
       "score": 0.24,
-      "displayValue": "1,100 ms"
+      "displayValue": "1,080 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.26,
-      "displayValue": "350 ms"
+      "score": 0.34,
+      "displayValue": "310 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "18 resources found"
+      "displayValue": "19 resources found"
     },
     {
       "id": "render-blocking-resources",
