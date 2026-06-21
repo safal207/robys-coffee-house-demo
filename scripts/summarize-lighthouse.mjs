@@ -15,7 +15,15 @@ function lhrFrom(path){try{const x=JSON.parse(readFileSync(path,'utf8'));return 
 const lhrs=walk(input).filter(p=>p.endsWith('.json')).map(lhrFrom).filter(Boolean);
 if(!lhrs.length)throw new Error(`No Lighthouse result JSON files found in ${input}`);
 const audit=id=>lhrs.map(l=>Number(l.audits?.[id]?.numericValue)).filter(Number.isFinite);
-function scriptBytes(l){const row=(l.audits?.['resource-summary']?.details?.items??[]).find(x=>x.resourceType==='script');return Number(row?.size??row?.transferSize)}
+function firstPartyScriptBytes(l){
+  const pageUrl=l.finalUrl??l.requestedUrl;
+  if(!pageUrl)return null;
+  const origin=new URL(pageUrl).origin;
+  return (l.audits?.['network-requests']?.details?.items??[])
+    .filter(item=>String(item.resourceType??'').toLowerCase()==='script')
+    .filter(item=>{try{return new URL(String(item.url)).origin===origin}catch{return false}})
+    .reduce((sum,item)=>sum+Number(item.transferSize??0),0);
+}
 function hero(l){return (l.audits?.['network-requests']?.details?.items??[]).find(x=>{const t=String(x.resourceType??'').toLowerCase();const u=String(x.url??'');return (t==='media'||/\.mp4(?:$|[?#])/i.test(u))&&/hero/i.test(u)})??null}
 function duration(x){if(!x)return null;const a=Number(x.networkRequestTime??x.startTime),b=Number(x.networkEndTime??x.endTime);return Number.isFinite(a)&&Number.isFinite(b)&&b>=a?(b-a)*1000:null}
 let links={};try{links=JSON.parse(readFileSync(join(input,'links.json'),'utf8'))}catch{}
@@ -28,7 +36,7 @@ const values={
   cls:median(audit('cumulative-layout-shift')),
   fcp:median(audit('first-contentful-paint')),
   speed_index:median(audit('speed-index')),
-  total_js_bytes:median(lhrs.map(scriptBytes)),
+  total_js_bytes:median(lhrs.map(firstPartyScriptBytes)),
   hero_file_bytes:statSync(heroPath,{throwIfNoEntry:false})?.size??null,
   hero_transfer_bytes:median(heroes.map(x=>Number(x?.transferSize??x?.resourceSize))),
   hero_request_duration:median(heroes.map(duration))
