@@ -61,7 +61,7 @@ function ensureStableStyles() {
   if (document.querySelector('link[data-catalog-stable="true"]')) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "catalog-stable.css?v=20260621-16";
+  link.href = "catalog-stable.css?v=20260621-17";
   link.dataset.catalogStable = "true";
   document.head.append(link);
 }
