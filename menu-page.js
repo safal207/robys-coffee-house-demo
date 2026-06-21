@@ -1,4 +1,5 @@
 import { menuCategories, menuCopy } from "./menu-data.js";
+import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
