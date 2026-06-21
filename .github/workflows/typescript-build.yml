@@ -45,6 +45,14 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Ensure ffprobe is available
+        run: |
+          if ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffprobe -version | head -n 1
+
       - name: Type-check source
         run: npm run typecheck
 
@@ -65,6 +73,9 @@ jobs:
 
       - name: Verify IIFE and deferred loading contract
         run: node scripts/verify-bundle.mjs
+
+      - name: Verify canonical media assets
+        run: npm run verify:media
 
       - name: Reject stale generated files
         run: git diff --exit-code -- app.js index.html
