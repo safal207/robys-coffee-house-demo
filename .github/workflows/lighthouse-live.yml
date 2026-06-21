@@ -1,4 +1,5 @@
 name: Lighthouse Live Audit
+# Verification trigger: latest deployed code
 
 on:
   push:
