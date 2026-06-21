@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T00:49:09.139Z",
+  "generatedAt": "2026-06-21T00:49:57.781Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 72,
+    "performance": 93,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.5 s",
-      "numericValue": 1505.317,
-      "score": 0.96
+      "numericValue": 1527.0802,
+      "score": 0.95
     },
     "largest-contentful-paint": {
-      "displayValue": "2.0 s",
-      "numericValue": 1958.05475,
-      "score": 0.97
-    },
-    "speed-index": {
-      "displayValue": "2.0 s",
-      "numericValue": 1965.968098662005,
+      "displayValue": "1.8 s",
+      "numericValue": 1755.2735999999995,
       "score": 0.99
     },
+    "speed-index": {
+      "displayValue": "2.7 s",
+      "numericValue": 2711.3231114469672,
+      "score": 0.96
+    },
     "total-blocking-time": {
-      "displayValue": "1,690 ms",
-      "numericValue": 1688.8415,
-      "score": 0.11
+      "displayValue": "270 ms",
+      "numericValue": 274.11319999999967,
+      "score": 0.81
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.6 s",
-      "numericValue": 3577.6585000000005,
-      "score": 0.91
+      "displayValue": "2.0 s",
+      "numericValue": 2009.9933999999998,
+      "score": 0.99
     }
   },
   "opportunities": [
@@ -85,7 +85,7 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.2 s"
+      "displayValue": "2.3 s"
     },
     {
       "id": "label-content-name-mismatch",
@@ -106,22 +106,28 @@
       "displayValue": "Est savings of 142 KiB"
     },
     {
+      "id": "forced-reflow-insight",
+      "title": "Forced reflow",
+      "score": 0,
+      "displayValue": null
+    },
+    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
       "displayValue": null
     },
     {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.07,
-      "displayValue": "530 ms"
+      "id": "render-blocking-insight",
+      "title": "Render blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 100 ms"
     },
     {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.11,
-      "displayValue": "1,690 ms"
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.33,
+      "displayValue": "310 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -154,10 +160,10 @@
       "displayValue": "Est savings of 17 KiB"
     },
     {
-      "id": "render-blocking-insight",
-      "title": "Render blocking requests",
-      "score": 0.5,
-      "displayValue": null
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.81,
+      "displayValue": "270 ms"
     }
   ]
 }
