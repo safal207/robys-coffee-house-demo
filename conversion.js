@@ -143,7 +143,11 @@ function setupMobileCta() {
   if (footer) lowerPageObserver.observe(footer);
 }
 
+let initialized = false;
 function initConversionPack() {
+  if (initialized) return;
+  initialized = true;
+
   setupHeaderAndProgress();
   setupActiveNavigation();
   setupMobileCta();
@@ -155,6 +159,8 @@ function initConversionPack() {
   });
 }
 
-document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", initConversionPack, { once: true })
-  : initConversionPack();
+window.addEventListener("scroll", initConversionPack, { once: true, passive: true });
+window.addEventListener("resize", initConversionPack, { once: true, passive: true });
+document.addEventListener("click", (event) => {
+  if (event.target.closest(".lang-button,.menu-toggle,.main-nav a")) initConversionPack();
+}, { capture: true });
