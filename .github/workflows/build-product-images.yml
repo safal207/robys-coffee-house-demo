@@ -10,6 +10,7 @@ on:
       - "src/premium-croissant.b64"
       - "src/products/lotus-cheesecake.b64"
       - "src/products/nutella-croissant.b64"
+      - ".product-images-trigger"
       - ".github/workflows/build-product-images.yml"
 
 permissions:
