@@ -1,51 +1,13 @@
 const PRODUCTS = [
-  {
-    id: "latte-direct",
-    name: "Latte",
-    ru: "Латте",
-    price: 200,
-    image: "src/robys-gallery-latte-art.webp",
-    alt: "Roby's Latte — 200 ₺",
-  },
-  {
-    id: "san-sebastian-direct",
-    name: "San Sebastian Cheesecake",
-    ru: "Сан-Себастьян",
-    price: 240,
-    image: "src/robys-gallery-signature.webp",
-    alt: "San Sebastian Cheesecake — 240 ₺",
-  },
-  {
-    id: "croissant-direct",
-    name: "Croissant",
-    ru: "Круассан",
-    price: 180,
-    image: "src/robys-gallery-croissant.webp",
-    alt: "Croissant — 180 ₺",
-  },
-  {
-    id: "lotus-cheesecake",
-    name: "Lotus Cheesecake",
-    ru: "Лотус чизкейк",
-    price: 220,
-    image: "src/products/lotus-cheesecake.webp",
-    alt: "Lotus Cheesecake — 220 ₺",
-  },
-  {
-    id: "nutella-croissant",
-    name: "Nutella Croissant",
-    ru: "Круассан с Nutella",
-    price: 180,
-    image: "src/products/nutella-croissant.webp",
-    alt: "Nutella Croissant — 180 ₺",
-  },
+  { id: "latte-direct", name: "Latte", ru: "Латте", price: 200, image: "src/robys-gallery-latte-art.webp", alt: "Roby's Latte — 200 ₺" },
+  { id: "san-sebastian-direct", name: "San Sebastian Cheesecake", ru: "Сан-Себастьян", price: 240, image: "src/robys-gallery-signature.webp", alt: "San Sebastian Cheesecake — 240 ₺" },
+  { id: "croissant-direct", name: "Croissant", ru: "Круассан", price: 180, image: "src/robys-gallery-croissant.webp", alt: "Croissant — 180 ₺" },
+  { id: "lotus-cheesecake", name: "Lotus Cheesecake", ru: "Лотус чизкейк", price: 220, image: "src/products/lotus-cheesecake.webp", alt: "Lotus Cheesecake — 220 ₺" },
+  { id: "nutella-croissant", name: "Nutella Croissant", ru: "Круассан с Nutella", price: 180, image: "src/products/nutella-croissant.webp", alt: "Nutella Croissant — 180 ₺" },
 ];
 
-const LABELS = {
-  tr: "Sepete ekle",
-  en: "Add to cart",
-  ru: "В корзину",
-};
+const LABELS = { tr: "Sepete ekle", en: "Add to cart", ru: "В корзину" };
+const mobileViewport = window.matchMedia("(max-width: 680px)");
 
 function currentLanguage() {
   try {
@@ -53,6 +15,15 @@ function currentLanguage() {
   } catch {
     return document.documentElement.lang || "tr";
   }
+}
+
+function ensureStableStyles() {
+  if (document.querySelector('link[data-catalog-stable="true"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "catalog-stable.css?v=20260621-12";
+  link.dataset.catalogStable = "true";
+  document.head.append(link);
 }
 
 function productCard(product) {
@@ -77,8 +48,32 @@ function renderStableCatalog() {
   grid.innerHTML = PRODUCTS.map(productCard).join("");
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", renderStableCatalog, { once: true });
-} else {
+function placeCartButton() {
+  const button = document.querySelector(".shop-cart-button");
+  if (!button) return;
+
+  const dock = document.querySelector(".mobile-cta");
+  const instagram = dock?.querySelector(".mobile-cta-instagram");
+  if (mobileViewport.matches && dock && instagram) {
+    button.classList.add("mobile-cta-cart");
+    if (button.parentElement !== dock) instagram.before(button);
+  } else if (button.parentElement === dock) {
+    button.classList.remove("mobile-cta-cart");
+    document.body.append(button);
+  }
+}
+
+function initStableCatalog() {
+  ensureStableStyles();
   renderStableCatalog();
+  placeCartButton();
+
+  new MutationObserver(placeCartButton).observe(document.body, { childList: true, subtree: true });
+  mobileViewport.addEventListener?.("change", placeCartButton);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initStableCatalog, { once: true });
+} else {
+  initStableCatalog();
 }
