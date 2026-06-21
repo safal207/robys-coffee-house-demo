@@ -24,6 +24,7 @@
     "performance_points": 3,
     "lcp_percent": 15,
     "tbt_percent": 15,
+    "tbt_zero_baseline_absolute_ms": 50,
     "cls_absolute": 0.02,
     "total_js_bytes_percent": 5,
     "hero_file_bytes_percent": 5
