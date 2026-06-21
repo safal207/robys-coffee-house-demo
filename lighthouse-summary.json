@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T03:43:13.978Z",
+  "generatedAt": "2026-06-21T03:52:05.622Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 61,
+    "performance": 94,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.5 s",
-      "numericValue": 2481.5143749999997,
-      "score": 0.68
+      "displayValue": "1.5 s",
+      "numericValue": 1518.6186,
+      "score": 0.95
     },
     "largest-contentful-paint": {
-      "displayValue": "2.9 s",
-      "numericValue": 2867.3115,
-      "score": 0.81
+      "displayValue": "1.8 s",
+      "numericValue": 1819.7217,
+      "score": 0.98
     },
     "speed-index": {
-      "displayValue": "3.6 s",
-      "numericValue": 3551.7905835278616,
-      "score": 0.87
+      "displayValue": "1.5 s",
+      "numericValue": 1536.116288217237,
+      "score": 1
     },
     "total-blocking-time": {
-      "displayValue": "3,540 ms",
-      "numericValue": 3537.391375,
-      "score": 0.01
+      "displayValue": "270 ms",
+      "numericValue": 265.79380000000003,
+      "score": 0.82
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "6.6 s",
-      "numericValue": 6627.65575,
-      "score": 0.57
+      "displayValue": "2.0 s",
+      "numericValue": 2036.4062000000001,
+      "score": 0.99
     }
   },
   "opportunities": [
@@ -82,28 +82,10 @@
   ],
   "failedAudits": [
     {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0,
-      "displayValue": "1,080 ms"
-    },
-    {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "7.6 s"
-    },
-    {
-      "id": "bootup-time",
-      "title": "Reduce JavaScript execution time",
-      "score": 0,
-      "displayValue": "1.3 s"
-    },
-    {
-      "id": "largest-contentful-paint-element",
-      "title": "Largest Contentful Paint element",
-      "score": 0,
-      "displayValue": "2,870 ms"
+      "displayValue": "2.4 s"
     },
     {
       "id": "uses-text-compression",
@@ -124,10 +106,10 @@
       "displayValue": null
     },
     {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.01,
-      "displayValue": "3,540 ms"
+      "id": "render-blocking-insight",
+      "title": "Render blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 130 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -160,16 +142,16 @@
       "displayValue": "Est savings of 17 KiB"
     },
     {
-      "id": "render-blocking-insight",
-      "title": "Render blocking requests",
-      "score": 0.5,
-      "displayValue": null
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.56,
+      "displayValue": "230 ms"
     },
     {
-      "id": "interactive",
-      "title": "Time to Interactive",
-      "score": 0.57,
-      "displayValue": "6.6 s"
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.82,
+      "displayValue": "270 ms"
     }
   ]
 }
