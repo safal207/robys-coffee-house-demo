@@ -1,0 +1,38 @@
+name: Lighthouse build and smoke
+
+on:
+  workflow_call:
+
+env:
+  LHCI_VERSION: "0.15.1"
+
+jobs:
+  build-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node --check app.js
+      - name: Ensure ffprobe is available
+        run: |
+          if ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+      - run: npm run verify:media
+      - name: Refresh redirect smoke
+        run: npx --yes @lhci/cli@${LHCI_VERSION} collect --config=lighthouse/lighthouserc.refresh-smoke.cjs
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-refresh-smoke-${{ github.sha }}
+          path: .lighthouseci/
+          if-no-files-found: warn
+          retention-days: 30
