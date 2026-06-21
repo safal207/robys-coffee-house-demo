@@ -23,6 +23,7 @@
   "regression": {
     "performance_points": 3,
     "lcp_percent": 15,
+    "lcp_absolute_floor_ms": 250,
     "tbt_percent": 15,
     "tbt_zero_baseline_absolute_ms": 50,
     "cls_absolute": 0.02,
