@@ -1,0 +1,1 @@
+Premium product artwork for the Roby's Coffee House demo.
