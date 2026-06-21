@@ -87,10 +87,11 @@ jobs:
       - name: Verify canonical media assets
         run: npm run verify:media
 
-      - name: Build dependency graph report
-        run: npm run audit:deps
+      - name: Reject unreachable runtime CSS and JavaScript
+        run: npm run audit:deps -- --check
 
       - name: Upload dependency graph report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dependency-graph-${{ github.sha }}
