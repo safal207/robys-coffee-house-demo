@@ -169,7 +169,7 @@ while (queue.length) {
 
 function isRuntimeCandidate(path) {
   if (!RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) return false;
-  if (path.startsWith("scripts/") || path.startsWith(".github/") || path.startsWith("tests/") || path.startsWith("test/") || path.startsWith("e2e/")) return false;
+  if (path.startsWith("scripts/") || path.startsWith(".github/") || path.startsWith("lighthouse/") || path.startsWith("tests/") || path.startsWith("test/") || path.startsWith("e2e/")) return false;
   if (/(?:^|\/)[^/]+\.config\.(?:js|mjs|cjs)$/i.test(path)) return false;
   return true;
 }

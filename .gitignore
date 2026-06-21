@@ -1,2 +1,6 @@
 node_modules/
 .artifacts/
+.lighthouseci/
+lighthouse/reports/
+lighthouse/regression-report*.json
+lighthouse-comment.md

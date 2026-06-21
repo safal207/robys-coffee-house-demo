@@ -1,0 +1,32 @@
+{
+  "config_version": 1,
+  "mobile": {
+    "performance": 0.7,
+    "lcp": 4000,
+    "tbt": 600,
+    "cls": 0.1,
+    "fcp": 3000,
+    "speed_index": 5000,
+    "total_js_bytes": 170000,
+    "hero_file_bytes": 256000
+  },
+  "desktop": {
+    "performance": 0.9,
+    "lcp": 2500,
+    "tbt": 250,
+    "cls": 0.1,
+    "fcp": 1800,
+    "speed_index": 2500,
+    "total_js_bytes": 170000,
+    "hero_file_bytes": 256000
+  },
+  "regression": {
+    "performance_points": 3,
+    "lcp_percent": 15,
+    "tbt_percent": 15,
+    "tbt_zero_baseline_absolute_ms": 50,
+    "cls_absolute": 0.02,
+    "total_js_bytes_percent": 5,
+    "hero_file_bytes_percent": 5
+  }
+}
