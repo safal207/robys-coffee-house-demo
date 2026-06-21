@@ -73,11 +73,14 @@ function setupSectionViews() {
   qa("#about,#menu,#gallery,#visit").forEach((section) => observer.observe(section));
 }
 
+let initialized = false;
 function initAnalytics() {
+  if (initialized) return;
+  initialized = true;
   setupClicks();
   setupSectionViews();
 }
 
-document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", initAnalytics, { once: true })
-  : initAnalytics();
+window.addEventListener("pointerdown", initAnalytics, { once: true, passive: true });
+window.addEventListener("keydown", initAnalytics, { once: true });
+window.addEventListener("scroll", initAnalytics, { once: true, passive: true });
