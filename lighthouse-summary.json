@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T08:51:53.647Z",
+  "generatedAt": "2026-06-21T09:47:20.341Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 67,
+    "performance": 71,
     "accessibility": 100,
-    "best-practices": 100,
+    "best-practices": 96,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.9 s",
-      "numericValue": 1882.7300999999998,
-      "score": 0.87
+      "displayValue": "1.8 s",
+      "numericValue": 1794.7982000000002,
+      "score": 0.9
     },
     "largest-contentful-paint": {
-      "displayValue": "2.1 s",
-      "numericValue": 2076.527675,
-      "score": 0.96
+      "displayValue": "2.0 s",
+      "numericValue": 2029.8968500000003,
+      "score": 0.97
     },
     "speed-index": {
-      "displayValue": "5.1 s",
-      "numericValue": 5086.541630111144,
-      "score": 0.62
+      "displayValue": "3.4 s",
+      "numericValue": 3421.4844997575265,
+      "score": 0.89
     },
     "total-blocking-time": {
-      "displayValue": "1,850 ms",
-      "numericValue": 1852.6349500000008,
-      "score": 0.09
+      "displayValue": "1,470 ms",
+      "numericValue": 1473.1009000000004,
+      "score": 0.14
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.2 s",
-      "numericValue": 4212.01505,
-      "score": 0.85
+      "displayValue": "3.9 s",
+      "numericValue": 3894.3491000000013,
+      "score": 0.88
     }
   },
   "opportunities": [
@@ -82,10 +82,16 @@
   ],
   "failedAudits": [
     {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0,
+      "displayValue": null
+    },
+    {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.6 s"
+      "displayValue": "4.1 s"
     },
     {
       "id": "uses-text-compression",
@@ -97,7 +103,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 229 KiB"
+      "displayValue": "Est savings of 220 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -106,22 +112,22 @@
       "displayValue": null
     },
     {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.01,
-      "displayValue": "720 ms"
-    },
-    {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.09,
-      "displayValue": "1,850 ms"
+      "score": 0.14,
+      "displayValue": "1,470 ms"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.22,
+      "displayValue": "370 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "22 resources found"
+      "displayValue": "21 resources found"
     },
     {
       "id": "render-blocking-resources",
@@ -145,7 +151,7 @@
       "id": "image-delivery-insight",
       "title": "Improve image delivery",
       "score": 0.5,
-      "displayValue": "Est savings of 17 KiB"
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "render-blocking-insight",
@@ -154,22 +160,16 @@
       "displayValue": null
     },
     {
-      "id": "speed-index",
-      "title": "Speed Index",
-      "score": 0.62,
-      "displayValue": "5.1 s"
-    },
-    {
       "id": "interactive",
       "title": "Time to Interactive",
-      "score": 0.85,
-      "displayValue": "4.2 s"
+      "score": 0.88,
+      "displayValue": "3.9 s"
     },
     {
-      "id": "first-contentful-paint",
-      "title": "First Contentful Paint",
-      "score": 0.87,
-      "displayValue": "1.9 s"
+      "id": "speed-index",
+      "title": "Speed Index",
+      "score": 0.89,
+      "displayValue": "3.4 s"
     }
   ]
 }
