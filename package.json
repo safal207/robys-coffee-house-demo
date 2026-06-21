@@ -3,10 +3,10 @@
   "private": true,
   "version": "2.0.0",
   "scripts": {
-    "build": "esbuild src/app.ts --bundle --minify --format=iife --target=es2020 --outfile=app.js",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run build && node --check app.js",
-    "verify:bundle": "npm run check && git diff --exit-code -- app.js && node scripts/verify-bundle.mjs"
+    "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.1",
