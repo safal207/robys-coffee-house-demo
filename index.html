@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260621-2" />
+  <meta name="robys-build" content="20260621-3" />
   <meta name="description" content="Roby's Coffee House — Gazipaşa'da iyi kahve, tatlılar ve sakin anlar." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
@@ -56,23 +56,9 @@
     @media(max-width:680px){.container{width:calc(100% - 24px)}.header-inner{min-height:68px;gap:8px}.brand-mark{width:38px;height:38px}.brand-copy strong{font-size:.92rem}.brand-copy small{display:none}.language-switcher{padding:3px}.lang-button{min-width:32px;min-height:32px;padding:0 5px}.menu-toggle{width:40px;height:40px}.hero-video{display:none}.hero-content{justify-content:flex-start;padding:clamp(270px,28svh,390px) 0 34px}html[lang="tr"] .hero-content,html[lang="en"] .hero-content{padding-top:clamp(220px,24svh,320px)}h1{font-size:clamp(3.25rem,16vw,4.8rem)}html[lang="ru"] .hero h1,html[lang="tr"] .hero h1,html[lang="en"] .hero h1{font-size:clamp(3rem,14vw,4.25rem);line-height:.96}.hero-text{margin-bottom:16px;font-size:.94rem;line-height:1.55}html[lang="tr"] .hero-text,html[lang="en"] .hero-text{margin-bottom:14px}.hero-actions{display:block}html[lang="tr"] .hero-actions,html[lang="en"] .hero-actions{margin-top:clamp(110px,12svh,165px)}.hero-actions .button{width:100%;min-height:48px;padding:12px 14px;font-size:.92rem}.hero-actions .button-ghost{display:none}.hero-meta{display:none}}
     @media(max-width:390px){.container{width:calc(100% - 18px)}.brand-copy{display:none}html[lang="tr"] .hero-actions,html[lang="en"] .hero-actions{margin-top:96px}}
   </style>
-  <link rel="preload" href="styles.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="mobile.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="conversion.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="final-qa.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="gallery-clean.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="map-live.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="shop.css?v=perf-20260621-2" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript>
-    <link rel="stylesheet" href="styles.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="mobile.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="conversion.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="final-qa.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="gallery-clean.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="map-live.css?v=perf-20260621-2" />
-    <link rel="stylesheet" href="shop.css?v=perf-20260621-2" />
-  </noscript>
-  <script type="module" src="app.js?v=perf-20260621-2"></script>
+  <link rel="stylesheet" href="site.css?v=perf-20260621-3" media="print" onload="this.onload=null;this.media='all'" />
+  <noscript><link rel="stylesheet" href="site.css?v=perf-20260621-3" /></noscript>
+  <script type="module" src="app.js?v=perf-20260621-3"></script>
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
@@ -129,7 +115,7 @@
   </nav>
   <script type="module">
     let conversionPromise;
-    const loadConversion = () => conversionPromise ??= import("./conversion.js?v=perf-20260621-2");
+    const loadConversion = () => conversionPromise ??= import("./conversion.js?v=perf-20260621-3");
     window.addEventListener("scroll", loadConversion, { once: true, passive: true });
     document.addEventListener("click", (event) => {
       if (event.target.closest(".lang-button,.menu-toggle,.main-nav a")) loadConversion();
@@ -137,15 +123,15 @@
 
     let supportPromise;
     const loadSupport = () => supportPromise ??= Promise.all([
-      import("./analytics.js?v=perf-20260621-2"),
-      import("./qa.js?v=perf-20260621-2")
+      import("./analytics.js?v=perf-20260621-3"),
+      import("./qa.js?v=perf-20260621-3")
     ]);
     window.addEventListener("pointerdown", loadSupport, { once: true, passive: true });
     window.addEventListener("keydown", loadSupport, { once: true, passive: true });
 
     let shopPromise;
     let shopReady = false;
-    const loadShop = () => shopPromise ??= import("./shop.js?v=perf-20260621-2").then(() => { shopReady = true; });
+    const loadShop = () => shopPromise ??= import("./shop.js?v=perf-20260621-3").then(() => { shopReady = true; });
     if (new URLSearchParams(location.search).has("order")) loadShop();
     document.addEventListener("click", async (event) => {
       const trigger = event.target.closest("[data-add-product]");
