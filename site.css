@@ -1,11 +1,3 @@
-@import url("styles.css?v=perf-20260621-3");
-@import url("mobile.css?v=perf-20260621-3");
-@import url("conversion.css?v=perf-20260621-3");
-@import url("final-qa.css?v=perf-20260621-3");
-@import url("gallery-clean.css?v=perf-20260621-3");
-@import url("map-live.css?v=perf-20260621-3");
-@import url("shop.css?v=perf-20260621-3");
-
 :root {
   --display: "Arial Narrow", Arial, sans-serif;
   --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
