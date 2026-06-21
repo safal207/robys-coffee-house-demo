@@ -34,5 +34,6 @@ jobs:
         with:
           name: lighthouse-refresh-smoke-${{ github.sha }}
           path: .lighthouseci/
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30
