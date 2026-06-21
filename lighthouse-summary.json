@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T09:58:17.862Z",
+  "generatedAt": "2026-06-21T10:14:57.782Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,50 +23,44 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 95,
+    "performance": 74,
     "accessibility": 100,
     "best-practices": 96,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.7 s",
-      "numericValue": 1732.0343000000003,
-      "score": 0.91
-    },
-    "largest-contentful-paint": {
-      "displayValue": "2.2 s",
-      "numericValue": 2183.0392,
-      "score": 0.95
-    },
-    "speed-index": {
-      "displayValue": "1.7 s",
-      "numericValue": 1732.0343000000003,
-      "score": 1
-    },
-    "total-blocking-time": {
-      "displayValue": "200 ms",
-      "numericValue": 198.9852999999996,
+      "displayValue": "1.8 s",
+      "numericValue": 1789.2199499999997,
       "score": 0.9
     },
+    "largest-contentful-paint": {
+      "displayValue": "2.0 s",
+      "numericValue": 1954.2199499999997,
+      "score": 0.97
+    },
+    "speed-index": {
+      "displayValue": "2.1 s",
+      "numericValue": 2065.8841993007504,
+      "score": 0.99
+    },
+    "total-blocking-time": {
+      "displayValue": "1,260 ms",
+      "numericValue": 1263.5933500000003,
+      "score": 0.19
+    },
     "cumulative-layout-shift": {
-      "displayValue": "0",
-      "numericValue": 0,
+      "displayValue": "0.001",
+      "numericValue": 0.001001076659093564,
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.2 s",
-      "numericValue": 2190.5392,
-      "score": 0.99
+      "displayValue": "3.6 s",
+      "numericValue": 3611.8566500000006,
+      "score": 0.91
     }
   },
   "opportunities": [
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 520 ms",
-      "score": 0
-    },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
@@ -74,10 +68,16 @@
       "score": 0
     },
     {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 180 ms",
+      "score": 0
+    },
+    {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
+      "score": 0
     }
   ],
   "failedAudits": [
@@ -91,13 +91,19 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "2.1 s"
+      "displayValue": "4.2 s"
     },
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 520 ms"
+      "displayValue": "Est savings of 180 ms"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -121,25 +127,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 520 ms"
+      "displayValue": "Est savings of 180 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.3,
-      "displayValue": "320 ms"
+      "score": 0.15,
+      "displayValue": "420 ms"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.19,
+      "displayValue": "1,260 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
       "displayValue": "23 resources found"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "document-latency-insight",
