@@ -1,0 +1,21 @@
+{
+  "config_version": 1,
+  "mobile": {
+    "performance": 0.90,
+    "lcp": 2500,
+    "tbt": 200,
+    "cls": 0.10,
+    "fcp": 1800,
+    "speed_index": 3400,
+    "total_js_bytes": 140000
+  },
+  "desktop": {
+    "performance": 0.95,
+    "lcp": 1500,
+    "tbt": 100,
+    "cls": 0.10,
+    "fcp": 1200,
+    "speed_index": 1800,
+    "total_js_bytes": 140000
+  }
+}
