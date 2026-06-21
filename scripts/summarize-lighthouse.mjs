@@ -18,8 +18,8 @@ const audit=id=>lhrs.map(l=>Number(l.audits?.[id]?.numericValue)).filter(Number.
 function scriptBytes(l){const row=(l.audits?.['resource-summary']?.details?.items??[]).find(x=>x.resourceType==='script');return Number(row?.size??row?.transferSize)}
 function hero(l){return (l.audits?.['network-requests']?.details?.items??[]).find(x=>{const t=String(x.resourceType??'').toLowerCase();const u=String(x.url??'');return (t==='media'||/\.mp4(?:$|[?#])/i.test(u))&&/hero/i.test(u)})??null}
 function duration(x){if(!x)return null;const a=Number(x.networkRequestTime??x.startTime),b=Number(x.networkEndTime??x.endTime);return Number.isFinite(a)&&Number.isFinite(b)&&b>=a?(b-a)*1000:null}
-let manifest=[];try{manifest=JSON.parse(readFileSync(join(input,'manifest.json'),'utf8'))}catch{}
-const publicUrl=Array.isArray(manifest)?manifest.map(x=>x.url).find(x=>typeof x==='string'&&/^https?:/.test(x))??null:null;
+let links={};try{links=JSON.parse(readFileSync(join(input,'links.json'),'utf8'))}catch{}
+const publicUrl=Object.values(links).find(x=>typeof x==='string'&&/^https?:/.test(x))??null;
 const heroes=lhrs.map(hero);
 const values={
   performance:median(lhrs.map(l=>Number(l.categories?.performance?.score))),
