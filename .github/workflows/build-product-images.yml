@@ -27,62 +27,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import base64
-          import re
-          import sys
+          mkdir -p src/products
 
-          assets = [
-              ("src/premium-latte.b64", "src/products/latte.webp"),
-              ("src/premium-san-sebastian.b64", "src/products/san-sebastian.webp"),
-              ("src/premium-croissant.b64", "src/products/croissant.webp"),
-              ("src/products/lotus-cheesecake.b64", "src/products/lotus-cheesecake.webp"),
-              ("src/products/nutella-croissant.b64", "src/products/nutella-croissant.webp"),
-          ]
+          decode_webp() {
+            source_file="$1"
+            target_file="$2"
+            echo "Decoding ${source_file}"
+            test -s "$source_file"
+            tr -d '\r\n\t ' < "$source_file" | base64 --decode --ignore-garbage > "$target_file"
+            test -s "$target_file"
+            file "$target_file"
+            file "$target_file" | grep -q "Web/P image"
+          }
 
-          for source_name, output_name in assets:
-              source = Path(source_name)
-              output = Path(output_name)
-              if not source.is_file():
-                  print(f"::error file={source_name}::Source file is missing")
-                  sys.exit(1)
-
-              raw = source.read_text(encoding="utf-8-sig")
-              start = raw.find("UklG")
-              if start < 0:
-                  print(f"::error file={source_name}::WebP Base64 header UklG was not found")
-                  sys.exit(1)
-
-              encoded = re.sub(r"\s+", "", raw[start:])
-              encoded = re.sub(r"[^A-Za-z0-9+/=]", "", encoded)
-              encoded += "=" * ((4 - len(encoded) % 4) % 4)
-
-              try:
-                  decoded = base64.b64decode(encoded, validate=False)
-              except Exception as error:
-                  print(f"::error file={source_name}::Base64 decode failed: {error}")
-                  sys.exit(1)
-
-              if len(decoded) < 12 or decoded[:4] != b"RIFF" or decoded[8:12] != b"WEBP":
-                  print(f"::error file={source_name}::Decoded data is not a WebP file")
-                  sys.exit(1)
-
-              expected_size = int.from_bytes(decoded[4:8], "little") + 8
-              if len(decoded) < expected_size:
-                  print(
-                      f"::error file={source_name}::WebP is truncated: "
-                      f"expected {expected_size} bytes, decoded {len(decoded)}"
-                  )
-                  sys.exit(1)
-
-              decoded = decoded[:expected_size]
-              output.parent.mkdir(parents=True, exist_ok=True)
-              output.write_bytes(decoded)
-              print(f"Decoded {source_name} -> {output_name} ({len(decoded)} bytes)")
-          PY
-
-          file src/products/*.webp
+          decode_webp src/premium-latte.b64 src/products/latte.webp
+          decode_webp src/premium-san-sebastian.b64 src/products/san-sebastian.webp
+          decode_webp src/premium-croissant.b64 src/products/croissant.webp
+          decode_webp src/products/lotus-cheesecake.b64 src/products/lotus-cheesecake.webp
+          decode_webp src/products/nutella-croissant.b64 src/products/nutella-croissant.webp
 
       - name: Commit generated WebP files
         shell: bash
