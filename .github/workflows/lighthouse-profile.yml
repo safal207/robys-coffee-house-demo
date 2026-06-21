@@ -5,7 +5,7 @@ on:
 
 env:
   LHCI_VERSION: "0.15.1"
-  LIGHTHOUSE_ENFORCE: "false"
+  LIGHTHOUSE_ENFORCE: "true"
 
 jobs:
   profile:
