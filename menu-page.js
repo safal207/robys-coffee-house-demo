@@ -8,7 +8,7 @@ const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
 
 let language = readStoredLanguage();
-let activeCategory = "all";
+let activeCategory = readInitialCategory();
 let searchTerm = "";
 
 function readStoredLanguage() {
@@ -20,12 +20,23 @@ function readStoredLanguage() {
   }
 }
 
+function readInitialCategory() {
+  const requested = window.location.hash.slice(1);
+  return menuCategories.some((category) => category.id === requested) ? requested : "all";
+}
+
 function storeLanguage(next) {
   try {
     localStorage.setItem("robys-language", next);
   } catch {
     // Persistence is optional; the menu still works without storage access.
   }
+}
+
+function syncCategoryHash(categoryId) {
+  const url = new URL(window.location.href);
+  url.hash = categoryId === "all" ? "" : categoryId;
+  window.history.replaceState(null, "", url);
 }
 
 function normalize(value) {
@@ -174,9 +185,10 @@ function renderCategoryNav() {
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
       activeCategory = option.id;
+      syncCategoryHash(option.id);
       renderCategoryNav();
       renderMenu();
-      document.querySelector(".menu-page-main")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector(".full-menu-wrap")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     categoryNav.append(button);
   });
@@ -212,6 +224,7 @@ function translateStaticPage() {
 
   searchInput.setAttribute("aria-label", copy.searchLabel);
   searchInput.placeholder = copy.searchPlaceholder;
+  categoryNav.setAttribute("aria-label", copy.categories);
 
   languageButtons.forEach((button) => {
     const active = button.dataset.lang === language;
@@ -242,3 +255,9 @@ document.querySelector("#current-year").textContent = String(new Date().getFullY
 translateStaticPage();
 renderCategoryNav();
 renderMenu();
+
+if (activeCategory !== "all") {
+  window.requestAnimationFrame(() => {
+    document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
+  });
+}
