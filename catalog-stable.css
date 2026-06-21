@@ -12,11 +12,15 @@
 .price-card-media-symbol{position:absolute;top:50%;right:26px;font-size:clamp(3.5rem,9vw,6rem);line-height:1;transform:translateY(-50%) rotate(-6deg);filter:drop-shadow(0 14px 26px rgba(0,0,0,.22))}
 .price-card-media strong{max-width:70%;font:600 clamp(1.8rem,4.4vw,3rem)/.95 var(--display);letter-spacing:-.02em}
 .price-card-media small{margin-top:8px;font:700 .56rem/1.4 Montserrat,sans-serif;letter-spacing:.13em;opacity:.78}
+.price-card-media.has-photo{aspect-ratio:16/9;padding:0;background:#f2d39f}
+.price-card-media.has-photo::before{display:none}
+.price-card-media.has-photo>:not(.price-card-photo){opacity:0}
+.price-card-photo{position:absolute;inset:0;z-index:2;display:block;width:100%;height:100%;object-fit:cover}
 .price-card-info{position:static;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:112px;padding:16px 18px;color:#fff;background:#171412}
 .price-card-copy{display:grid;gap:3px;min-width:0}
 .price-card-copy small{margin:0;color:rgba(255,255,255,.6);font-size:.58rem;letter-spacing:.12em}
 .price-card-copy strong{overflow-wrap:anywhere;font:600 1.22rem/1.08 var(--display)}
 .price-card-price{display:inline-flex;width:max-content;margin-top:4px;padding:0;color:#e26d7a;background:transparent;box-shadow:none;font-size:.94rem;font-weight:800}
 .price-card-action{position:static;flex:0 0 auto;min-height:42px;padding:10px 13px}
-@media(max-width:680px){.price-grid{gap:16px}.price-card,.price-card:last-child{aspect-ratio:auto}.price-card-media{aspect-ratio:16/9;padding:20px}.price-card-media strong{max-width:68%;font-size:clamp(1.7rem,8vw,2.6rem)}.price-card-media-symbol{right:20px;font-size:clamp(3.3rem,18vw,5.2rem)}.price-card-info{min-height:106px;padding:14px}.price-card-copy strong{font-size:1.12rem}.price-card-action{min-height:40px;padding:9px 11px;font-size:.7rem}.shop-toast{bottom:calc(88px + env(safe-area-inset-bottom))}}
-@media(max-width:390px){.price-card-media{aspect-ratio:15/9;padding:18px}.price-card-info{align-items:flex-end;gap:10px}.price-card-action{max-width:44%;white-space:normal;text-align:center}}
+@media(max-width:680px){.price-grid{gap:16px}.price-card,.price-card:last-child{aspect-ratio:auto}.price-card-media{aspect-ratio:16/9;padding:20px}.price-card-media.has-photo{padding:0}.price-card-media strong{max-width:68%;font-size:clamp(1.7rem,8vw,2.6rem)}.price-card-media-symbol{right:20px;font-size:clamp(3.3rem,18vw,5.2rem)}.price-card-info{min-height:106px;padding:14px}.price-card-copy strong{font-size:1.12rem}.price-card-action{min-height:40px;padding:9px 11px;font-size:.7rem}.shop-toast{bottom:calc(88px + env(safe-area-inset-bottom))}}
+@media(max-width:390px){.price-card-media{aspect-ratio:15/9;padding:18px}.price-card-media.has-photo{aspect-ratio:16/9;padding:0}.price-card-info{align-items:flex-end;gap:10px}.price-card-action{max-width:44%;white-space:normal;text-align:center}}
