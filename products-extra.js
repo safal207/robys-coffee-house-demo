@@ -34,6 +34,7 @@ const PRODUCTS = [
     tone: "lotus",
     symbol: "✦",
     art: "CARAMEL · BISCUIT · CREAM",
+    image: "src/products/lotus-cheesecake-menu.svg?v=20260621-1",
   },
   {
     id: "nutella-croissant",
@@ -61,7 +62,7 @@ function ensureStableStyles() {
   if (document.querySelector('link[data-catalog-stable="true"]')) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "catalog-stable.css?v=20260621-17";
+  link.href = "catalog-stable.css?v=20260621-18";
   link.dataset.catalogStable = "true";
   document.head.append(link);
 }
@@ -70,14 +71,18 @@ function productCard(product) {
   const lang = currentLanguage();
   const label = LABELS[lang] || LABELS.tr;
   const displayName = lang === "ru" ? product.ru : product.name;
+  const photo = product.image
+    ? `<img class="price-card-photo" src="${product.image}" alt="" width="480" height="270" loading="lazy" decoding="async" />`
+    : "";
 
   return `
     <article class="price-card price-card--${product.tone}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
-      <div class="price-card-media" aria-hidden="true">
+      <div class="price-card-media${product.image ? " has-photo" : ""}" aria-hidden="true">
         <span class="price-card-media-brand">ROBY'S</span>
         <span class="price-card-media-symbol">${product.symbol}</span>
         <strong>${product.name}</strong>
         <small>${product.art}</small>
+        ${photo}
       </div>
       <div class="price-card-info">
         <div class="price-card-copy">
@@ -94,6 +99,13 @@ function renderStableCatalog() {
   const grid = document.querySelector(".price-grid");
   if (!grid) return;
   grid.innerHTML = PRODUCTS.map(productCard).join("");
+
+  grid.querySelectorAll(".price-card-photo").forEach((image) => {
+    image.addEventListener("error", () => {
+      image.closest(".price-card-media")?.classList.remove("has-photo");
+      image.remove();
+    }, { once: true });
+  });
 }
 
 function placeCartButton() {
