@@ -1,0 +1,31 @@
+name: Publish mobile CTA hotfix
+
+on:
+  push:
+    branches: [fix/mobile-cta-overlap]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/mobile-cta-overlap
+          fetch-depth: 0
+      - name: Bust mobile behavior cache
+        run: |
+          sed -i 's/content="20260621-16"/content="20260621-17"/' index.html
+          sed -i 's/products-extra.js?v=products-20260621-16/products-extra.js?v=products-20260621-17/' index.html
+          sed -i 's/conversion.js?v=perf-20260621-5/conversion.js?v=perf-20260621-6/' index.html
+      - name: Commit published asset versions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/publish-mobile-cta-hotfix.yml
+          git add index.html .github/workflows/publish-mobile-cta-hotfix.yml
+          git commit -m "build: publish mobile CTA overlap fix" || exit 0
+          git push origin HEAD:fix/mobile-cta-overlap
