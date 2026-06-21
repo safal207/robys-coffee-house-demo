@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-21T10:20:07.477Z",
+  "generatedAt": "2026-06-21T10:24:43.401Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=ef4a8f9f42c8a707ab5061ecb9aba799f8c60209",
-  "commit": "ef4a8f9f42c8a707ab5061ecb9aba799f8c60209",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=3ab73db5029af2f5d831c10d7bfb4b260827f6e3",
+  "commit": "3ab73db5029af2f5d831c10d7bfb4b260827f6e3",
   "build": "20260621-13",
   "mobile": {
     "categories": {
@@ -13,35 +13,35 @@
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "1.7 s",
-        "numericValue": 1691.87
+        "displayValue": "1.5 s",
+        "numericValue": 1511.54
       },
       "largest-contentful-paint": {
-        "displayValue": "1.9 s",
-        "numericValue": 1919.87
+        "displayValue": "1.7 s",
+        "numericValue": 1711.54
       },
       "speed-index": {
-        "displayValue": "5.0 s",
-        "numericValue": 4989.347466829517
+        "displayValue": "4.9 s",
+        "numericValue": 4876.3896807793935
       },
       "total-blocking-time": {
-        "displayValue": "1,150 ms",
-        "numericValue": 1152.5
+        "displayValue": "1,190 ms",
+        "numericValue": 1192
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "3.5 s",
-        "numericValue": 3500.62
+        "displayValue": "3.4 s",
+        "numericValue": 3358.9900000000002
       }
     },
     "opportunities": [
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 100 ms",
+        "displayValue": "Root document took 10 ms",
         "score": 1
       }
     ]
@@ -56,15 +56,15 @@
     "metrics": {
       "first-contentful-paint": {
         "displayValue": "0.6 s",
-        "numericValue": 636.0264999999999
+        "numericValue": 638.4694999999999
       },
       "largest-contentful-paint": {
         "displayValue": "0.6 s",
-        "numericValue": 636.0264999999999
+        "numericValue": 638.4694999999999
       },
       "speed-index": {
-        "displayValue": "0.6 s",
-        "numericValue": 636.0264999999999
+        "displayValue": "0.7 s",
+        "numericValue": 682.8457283333316
       },
       "total-blocking-time": {
         "displayValue": "0 ms",
@@ -76,7 +76,7 @@
       },
       "interactive": {
         "displayValue": "0.6 s",
-        "numericValue": 636.0265
+        "numericValue": 638.4694999999999
       }
     },
     "opportunities": [
