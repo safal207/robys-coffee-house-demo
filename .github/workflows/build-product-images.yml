@@ -1,0 +1,46 @@
+name: Build product images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/products/*.b64"
+      - "src/products/*.base64.txt"
+      - ".github/workflows/build-product-images.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decode product artwork
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode src/products/san-sebastian.webp.base64.txt > src/products/san-sebastian.webp
+          base64 --decode src/products/lotus-cheesecake.b64 > src/products/lotus-cheesecake.webp
+          base64 --decode src/products/nutella-croissant.b64 > src/products/nutella-croissant.webp
+          file src/products/*.webp
+          test -s src/products/san-sebastian.webp
+          test -s src/products/lotus-cheesecake.webp
+          test -s src/products/nutella-croissant.webp
+
+      - name: Commit generated WebP files
+        shell: bash
+        run: |
+          if git diff --quiet -- src/products/*.webp; then
+            echo "Product images are already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/products/*.webp
+          git commit -m "build: generate stable product WebP images [skip ci]"
+          git push
