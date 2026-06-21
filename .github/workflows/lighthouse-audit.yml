@@ -119,14 +119,36 @@ jobs:
           retention-days: 14
 
       - name: Commit summary to repository
+        env:
+          AUDITED_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          remote_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$remote_sha" != "$AUDITED_SHA" ]; then
+            echo "::notice::main advanced while this audit was running; skipping stale summary commit."
+            exit 0
+          fi
+
           git add lighthouse-summary.json
           if git diff --cached --quiet; then
             echo 'Summary unchanged'
             exit 0
           fi
+
           git commit -m 'chore: update Lighthouse audit summary'
-          git pull --rebase origin main
-          git push
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+
+          git fetch origin main
+          latest_sha="$(git rev-parse origin/main)"
+          if [ "$latest_sha" != "$AUDITED_SHA" ]; then
+            echo "::notice::main changed during push; report is preserved as an artifact and a newer audit will publish the summary."
+            exit 0
+          fi
+
+          echo '::error::Could not publish Lighthouse summary for an unexpected reason.'
+          exit 1
