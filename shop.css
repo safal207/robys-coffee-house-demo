@@ -84,5 +84,16 @@
 .price-grid{grid-template-columns:1fr;gap:14px}.price-card,.price-card:last-child{grid-column:auto;width:100%;max-width:none;aspect-ratio:1/1;border-radius:20px}.price-card-action{right:12px;bottom:12px;padding:9px 12px}.shop-cart-button{right:14px;bottom:calc(112px + env(safe-area-inset-bottom))}.gallery-section{padding-bottom:28px}.visit-section{padding-top:32px}.gallery-section{padding-bottom:28px}.visit-section{padding-top:32px}
 .order-modal,.cashier-modal{padding:10px;align-items:end}.order-modal-card,.cashier-card{max-height:calc(100dvh - 20px);padding:22px;border-radius:24px 24px 16px 16px}.order-qr-frame{width:min(250px,78%)}
 .cake-offer{padding:10px}.cake-offer-card{grid-template-columns:1fr;border-radius:24px}.cake-offer-card>img{height:42dvh;min-height:250px}.cake-offer-card>div{padding:22px}.cake-offer-card h3{font-size:2.7rem}
+
+.hero{background:#20120c;isolation:isolate}
+.hero-video{display:none!important}
+.hero::before{content:"";position:absolute;inset:-5%;z-index:0;background:url("src/robys-hero-premium-warm.webp") 40% 64%/cover no-repeat;filter:saturate(1.12) contrast(1.04) brightness(.9);transform:scale(1.06) translate3d(0,0,0);animation:hero-premium-drift 18s ease-in-out infinite alternate;will-change:transform}
+.hero::after{content:"";position:absolute;inset:-12%;z-index:1;pointer-events:none;background:radial-gradient(circle at 72% 28%,rgba(255,189,96,.22),transparent 26%),radial-gradient(circle at 18% 78%,rgba(255,112,48,.13),transparent 30%),linear-gradient(115deg,transparent 30%,rgba(255,220,164,.09) 48%,transparent 66%);mix-blend-mode:screen;animation:hero-premium-glow 9s ease-in-out infinite alternate}
+.hero-overlay{z-index:2;background:linear-gradient(180deg,rgba(18,10,7,.34),rgba(20,10,7,.08) 30%,rgba(20,10,7,.38) 62%,rgba(17,9,7,.9)),linear-gradient(90deg,rgba(24,12,8,.48),transparent 80%)}
+.hero-content{z-index:3}
 }
-@media(prefers-reduced-motion:reduce){.shop-cart,.shop-cart-backdrop,.shop-cart-button,.order-modal,.cashier-modal,.cake-offer,.shop-toast,.price-card-action{transition:none}.price-card.is-image-loading::before{animation:none}}
+
+@keyframes hero-premium-drift{0%{transform:scale(1.06) translate3d(0,0,0)}50%{transform:scale(1.11) translate3d(-1.5%,-1%,0)}100%{transform:scale(1.16) translate3d(1%,-2%,0)}}
+@keyframes hero-premium-glow{0%{opacity:.62;transform:translate3d(-2%,0,0) scale(1)}100%{opacity:1;transform:translate3d(3%,-1%,0) scale(1.05)}}
+
+@media(prefers-reduced-motion:reduce){.shop-cart,.shop-cart-backdrop,.shop-cart-button,.order-modal,.cashier-modal,.cake-offer,.shop-toast,.price-card-action{transition:none}.price-card.is-image-loading::before{animation:none}.hero::before,.hero::after{animation:none;transform:none}}
