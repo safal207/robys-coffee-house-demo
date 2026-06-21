@@ -1,92 +1,22 @@
-/* Stable direct-WebP product catalog */
-.price-card{
-  display:grid;
-  aspect-ratio:auto;
-  grid-template-rows:auto auto;
-  overflow:hidden;
-  color:var(--dark);
-  background:#fffdf9;
-}
+/* Stable catalog: compact cards, no fragile image decoding. */
+.price-card{display:grid;grid-template-rows:auto auto;overflow:hidden;color:#fff;background:#171412;border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 42px rgba(15,10,9,.16)}
 .price-card::after{display:none}
-.price-card img{
-  width:100%;
-  height:auto;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  background:#2b2220;
-}
-.price-card-info{
-  position:static;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  padding:14px 16px;
-  color:var(--dark);
-  background:#fffdf9;
-}
-.price-card-copy{gap:2px}
-.price-card-copy small{
-  margin:0;
-  color:var(--muted);
-  font-size:.58rem;
-}
-.price-card-copy strong{
-  font:600 1.18rem/1.1 var(--display);
-}
-.price-card-price{
-  display:inline-flex;
-  width:max-content;
-  margin-top:4px;
-  padding:0;
-  color:var(--ruby);
-  background:transparent;
-  box-shadow:none;
-  font-size:.92rem;
-  font-weight:800;
-}
-.price-card-action{
-  position:static;
-  flex:0 0 auto;
-  min-height:42px;
-  padding:10px 13px;
-}
-
-@media(max-width:680px){
-  .site-header{padding-top:max(6px,env(safe-area-inset-top))}
-  .header-inner{min-height:58px}
-  .brand-mark{width:34px;height:34px}
-  .language-switcher{padding:2px}
-  .lang-button{min-width:30px;min-height:30px}
-  .menu-toggle{width:34px;height:34px}
-
-  .price-grid{padding-bottom:86px}
-  .price-card,.price-card:last-child{aspect-ratio:auto}
-  .price-card-info{padding:12px 13px}
-  .price-card-copy strong{font-size:1.08rem}
-  .price-card-action{min-height:40px;padding:9px 11px;font-size:.7rem}
-
-  .mobile-cta .shop-cart-button{
-    position:relative;
-    right:auto;
-    bottom:auto;
-    z-index:auto;
-    display:flex;
-    min-height:50px;
-    padding:9px 8px;
-    border:0;
-    color:#fff;
-    background:#2a2221;
-    box-shadow:none;
-    opacity:1;
-    pointer-events:auto;
-    transform:none;
-    transition:none;
-  }
-  .mobile-cta .shop-cart-button strong{
-    min-width:21px;
-    height:21px;
-    font-size:.62rem;
-  }
-  .shop-toast{bottom:calc(88px + env(safe-area-inset-bottom))}
-}
+.price-card-media{position:relative;display:grid;aspect-ratio:16/10;align-content:end;overflow:hidden;padding:24px;isolation:isolate;color:#fff;background:linear-gradient(135deg,#5a352a,#1d1715 72%)}
+.price-card-media::before{content:"";position:absolute;z-index:-1;width:210px;height:210px;top:-74px;right:-52px;border:1px solid rgba(255,255,255,.28);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.04),0 0 0 56px rgba(255,255,255,.025)}
+.price-card--latte .price-card-media{background:linear-gradient(135deg,#b98f6a,#5d3d2d 48%,#201817)}
+.price-card--san-sebastian .price-card-media{background:linear-gradient(135deg,#d9a25f,#8a572f 50%,#241813)}
+.price-card--croissant .price-card-media{background:linear-gradient(135deg,#d8ab67,#8d5b2b 48%,#241812)}
+.price-card--lotus .price-card-media{background:linear-gradient(135deg,#c95f2a,#7b291c 52%,#241311)}
+.price-card--nutella .price-card-media{background:linear-gradient(135deg,#8e5433,#4a271d 52%,#1b1312)}
+.price-card-media-brand{position:absolute;top:20px;left:22px;font:800 .62rem/1 Montserrat,sans-serif;letter-spacing:.22em;opacity:.82}
+.price-card-media-symbol{position:absolute;top:50%;right:26px;font-size:clamp(3.5rem,9vw,6rem);line-height:1;transform:translateY(-50%) rotate(-6deg);filter:drop-shadow(0 14px 26px rgba(0,0,0,.22))}
+.price-card-media strong{max-width:70%;font:600 clamp(1.8rem,4.4vw,3rem)/.95 var(--display);letter-spacing:-.02em}
+.price-card-media small{margin-top:8px;font:700 .56rem/1.4 Montserrat,sans-serif;letter-spacing:.13em;opacity:.78}
+.price-card-info{position:static;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:112px;padding:16px 18px;color:#fff;background:#171412}
+.price-card-copy{display:grid;gap:3px;min-width:0}
+.price-card-copy small{margin:0;color:rgba(255,255,255,.6);font-size:.58rem;letter-spacing:.12em}
+.price-card-copy strong{overflow-wrap:anywhere;font:600 1.22rem/1.08 var(--display)}
+.price-card-price{display:inline-flex;width:max-content;margin-top:4px;padding:0;color:#e26d7a;background:transparent;box-shadow:none;font-size:.94rem;font-weight:800}
+.price-card-action{position:static;flex:0 0 auto;min-height:42px;padding:10px 13px}
+@media(max-width:680px){.gallery-section{padding-bottom:calc(132px + env(safe-area-inset-bottom))}.price-grid{gap:16px;padding-bottom:calc(126px + env(safe-area-inset-bottom))}.price-card,.price-card:last-child{aspect-ratio:auto}.price-card-media{aspect-ratio:16/9;padding:20px}.price-card-media strong{max-width:68%;font-size:clamp(1.7rem,8vw,2.6rem)}.price-card-media-symbol{right:20px;font-size:clamp(3.3rem,18vw,5.2rem)}.price-card-info{min-height:106px;padding:14px}.price-card-copy strong{font-size:1.12rem}.price-card-action{min-height:40px;padding:9px 11px;font-size:.7rem}.shop-toast{bottom:calc(88px + env(safe-area-inset-bottom))}}
+@media(max-width:390px){.price-card-media{aspect-ratio:15/9;padding:18px}.price-card-info{align-items:flex-end;gap:10px}.price-card-action{max-width:44%;white-space:normal;text-align:center}}
