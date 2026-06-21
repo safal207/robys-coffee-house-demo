@@ -5,8 +5,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/products/*.b64"
-      - "src/products/*.base64.txt"
+      - "src/premium-san-sebastian.b64"
+      - "src/products/lotus-cheesecake.b64"
+      - "src/products/nutella-croissant.b64"
       - ".github/workflows/build-product-images.yml"
 
 permissions:
@@ -24,10 +25,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base64 --decode src/products/san-sebastian.webp.base64.txt > src/products/san-sebastian.webp
+          base64 --decode src/premium-san-sebastian.b64 > src/products/san-sebastian.webp
           base64 --decode src/products/lotus-cheesecake.b64 > src/products/lotus-cheesecake.webp
           base64 --decode src/products/nutella-croissant.b64 > src/products/nutella-croissant.webp
-          file src/products/*.webp
+          file src/products/san-sebastian.webp src/products/lotus-cheesecake.webp src/products/nutella-croissant.webp
           test -s src/products/san-sebastian.webp
           test -s src/products/lotus-cheesecake.webp
           test -s src/products/nutella-croissant.webp
