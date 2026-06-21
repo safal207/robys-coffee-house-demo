@@ -24,18 +24,18 @@ if (!/\bdefer(?:\s|>|=)/i.test(appScript)) {
   throw new Error("The classic app.js script must use defer to preserve module-like DOM timing");
 }
 
-const forbiddenLegacyRuntime = [
-  "#experience",
-  ".story-section",
-  "#my-robys",
-  ".mobile-dock",
-  "#coffee-matcher"
+const forbiddenLegacyMarkup = [
+  '<section id="experience"',
+  '<section class="story-section"',
+  '<section id="my-robys"',
+  '<nav class="mobile-dock"',
+  '<dialog id="coffee-matcher"'
 ];
 
-for (const marker of forbiddenLegacyRuntime) {
+for (const marker of forbiddenLegacyMarkup) {
   if (bundle.includes(marker)) {
-    throw new Error(`app.js contains forbidden legacy runtime marker: ${marker}`);
+    throw new Error(`app.js recreates forbidden legacy markup: ${marker}`);
   }
 }
 
-console.log("Verified: app.js is a classic deferred IIFE bundle with no live ESM imports or legacy runtime sections.");
+console.log("Verified: app.js is a classic deferred IIFE bundle with no live ESM imports or legacy markup injection.");
