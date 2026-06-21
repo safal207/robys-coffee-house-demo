@@ -8,12 +8,8 @@ function enableHeroVideo() {
   if (!video || !source) return;
 
   source.removeAttribute("media");
-  source.src = "src/robys-hero-mobile-lite.mp4?v=20260621-7";
+  source.src = "src/robys-hero-mobile-lite.mp4?v=20260621-8";
   video.load();
-
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    video.play().catch(() => undefined);
-  }
 }
 
 function applyImmediateA11yFixes() {
