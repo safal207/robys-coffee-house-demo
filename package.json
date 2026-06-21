@@ -6,7 +6,8 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run build && node --check app.js",
-    "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs"
+    "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs",
+    "verify:media": "node scripts/verify-media.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.1",
