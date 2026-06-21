@@ -1,0 +1,66 @@
+name: Lighthouse performance contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/*.html"
+      - "**/*.css"
+      - "**/*.js"
+      - "**/*.mjs"
+      - "**/*.cjs"
+      - "src/**"
+      - "scripts/**"
+      - "lighthouse/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/lighthouse-*.yml"
+      - ".github/scripts/upsert-lighthouse-comment.cjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-smoke:
+    uses: ./.github/workflows/lighthouse-build-smoke.yml
+
+  profiles:
+    needs: build-smoke
+    uses: ./.github/workflows/lighthouse-profile.yml
+
+  comment:
+    needs: profiles
+    if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: lighthouse-*
+          path: lighthouse-artifacts
+          merge-multiple: true
+      - name: Build PR report
+        if: always()
+        run: node scripts/lighthouse-comment.mjs --input lighthouse-artifacts --output lighthouse-comment.md
+      - name: Archive PR report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-pr-comment-${{ github.sha }}
+          path: lighthouse-comment.md
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Post or update PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: return require('./.github/scripts/upsert-lighthouse-comment.cjs')({github,context,core})
+
+  fork-notice:
+    needs: profiles
+    if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "::notice::Skipping PR comment for fork pull request with read-only token"
