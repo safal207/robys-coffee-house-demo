@@ -1,35 +1,13 @@
-const PRODUCT_ASSETS = {
-  "san-sebastian": [
-    "src/products/san-sebastian-1.b64",
-    "src/products/san-sebastian-2.b64",
-    "src/products/san-sebastian-3.b64",
-  ],
-  "lotus-cheesecake": ["src/products/lotus-cheesecake.b64"],
-  "nutella-croissant": ["src/products/nutella-croissant.b64"],
-};
-
-const EXTRA_PRODUCTS = [
-  {
-    id: "lotus-cheesecake",
-    name: "Lotus Cheesecake",
-    price: 220,
-    fallback: "src/robys-gallery-signature.webp",
-    alt: "Lotus Cheesecake — 220 ₺",
-  },
-  {
-    id: "nutella-croissant",
-    name: "Nutella Croissant",
-    price: 180,
-    fallback: "src/robys-gallery-croissant.webp",
-    alt: "Nutella Croissant — 180 ₺",
-  },
+const PRODUCTS = [
+  { id: "latte-direct", name: "Latte", ru: "Латте", price: 200, image: "src/robys-gallery-latte-art.webp", alt: "Roby's Latte — 200 ₺" },
+  { id: "san-sebastian-direct", name: "San Sebastian Cheesecake", ru: "Сан-Себастьян", price: 240, image: "src/robys-gallery-signature.webp", alt: "San Sebastian Cheesecake — 240 ₺" },
+  { id: "croissant-direct", name: "Croissant", ru: "Круассан", price: 180, image: "src/robys-gallery-croissant.webp", alt: "Croissant — 180 ₺" },
+  { id: "lotus-cheesecake", name: "Lotus Cheesecake", ru: "Лотус чизкейк", price: 220, image: "src/products/lotus-cheesecake.webp", alt: "Lotus Cheesecake — 220 ₺" },
+  { id: "nutella-croissant", name: "Nutella Croissant", ru: "Круассан с Nutella", price: 180, image: "src/products/nutella-croissant.webp", alt: "Nutella Croissant — 180 ₺" },
 ];
 
-const ADD_LABELS = {
-  tr: "Sepete ekle",
-  en: "Add to cart",
-  ru: "В корзину",
-};
+const LABELS = { tr: "Sepete ekle", en: "Add to cart", ru: "В корзину" };
+const mobileViewport = window.matchMedia("(max-width: 680px)");
 
 function currentLanguage() {
   try {
@@ -39,66 +17,65 @@ function currentLanguage() {
   }
 }
 
-function base64ToBlobUrl(base64) {
-  const clean = base64.replace(/\s+/g, "");
-  if (!clean.startsWith("UklGR") || clean.length < 5000) {
-    throw new Error("Invalid WebP data");
-  }
-
-  const binary = atob(clean);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-  return URL.createObjectURL(new Blob([bytes], { type: "image/webp" }));
+function ensureStableStyles() {
+  if (document.querySelector('link[data-catalog-stable="true"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "catalog-stable.css?v=20260621-12";
+  link.dataset.catalogStable = "true";
+  document.head.append(link);
 }
 
-async function hydrateArtwork(productId) {
-  const image = document.querySelector(`[data-product-id="${productId}"] img`);
-  if (!image) return;
-
-  try {
-    const responses = await Promise.all(
-      PRODUCT_ASSETS[productId].map((path) => fetch(`${path}?v=20260621-4`, { cache: "reload" }))
-    );
-    if (responses.some((response) => !response.ok)) {
-      throw new Error("Artwork unavailable");
-    }
-
-    const parts = await Promise.all(responses.map((response) => response.text()));
-    image.src = base64ToBlobUrl(parts.join(""));
-    image.removeAttribute("data-premium-src");
-  } catch (error) {
-    console.warn("Product artwork fallback used", productId, error);
-  }
+function productCard(product) {
+  const lang = currentLanguage();
+  const label = LABELS[lang] || LABELS.tr;
+  const displayName = lang === "ru" ? product.ru : product.name;
+  return `
+    <article class="price-card" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
+      <img src="${product.image}" alt="${product.alt}" width="640" height="640" loading="lazy" decoding="async" />
+      <div class="price-card-info">
+        <div class="price-card-copy">
+          <small>ROBY'S SELECTION</small>
+          <strong data-localized data-tr="${product.name}" data-en="${product.name}" data-ru="${product.ru}">${displayName}</strong>
+          <span class="price-card-price">${product.price} ₺</span>
+        </div>
+        <button class="price-card-action" type="button" data-add-product="${product.id}" data-localized data-tr="${LABELS.tr}" data-en="${LABELS.en}" data-ru="${LABELS.ru}">${label}</button>
+      </div>
+    </article>`;
 }
 
-function insertExtraProducts() {
+function renderStableCatalog() {
   const grid = document.querySelector(".price-grid");
   if (!grid) return;
-
-  const label = ADD_LABELS[currentLanguage()] || ADD_LABELS.tr;
-  EXTRA_PRODUCTS.forEach((product) => {
-    if (grid.querySelector(`[data-product-id="${product.id}"]`)) return;
-
-    grid.insertAdjacentHTML("beforeend", `
-      <article class="price-card" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
-        <img src="${product.fallback}" alt="${product.alt}" width="640" height="640" loading="lazy" decoding="async" />
-        <button class="price-card-action" type="button" data-add-product="${product.id}" data-localized data-tr="${ADD_LABELS.tr}" data-en="${ADD_LABELS.en}" data-ru="${ADD_LABELS.ru}">${label}</button>
-      </article>
-    `);
-  });
+  grid.innerHTML = PRODUCTS.map(productCard).join("");
 }
 
-function initProducts() {
-  insertExtraProducts();
-  hydrateArtwork("san-sebastian");
-  hydrateArtwork("lotus-cheesecake");
-  hydrateArtwork("nutella-croissant");
+function placeCartButton() {
+  const button = document.querySelector(".shop-cart-button");
+  if (!button) return;
+
+  const dock = document.querySelector(".mobile-cta");
+  const instagram = dock?.querySelector(".mobile-cta-instagram");
+  if (mobileViewport.matches && dock && instagram) {
+    button.classList.add("mobile-cta-cart");
+    if (button.parentElement !== dock) instagram.before(button);
+  } else if (button.parentElement === dock) {
+    button.classList.remove("mobile-cta-cart");
+    document.body.append(button);
+  }
+}
+
+function initStableCatalog() {
+  ensureStableStyles();
+  renderStableCatalog();
+  placeCartButton();
+
+  new MutationObserver(placeCartButton).observe(document.body, { childList: true, subtree: true });
+  mobileViewport.addEventListener?.("change", placeCartButton);
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initProducts, { once: true });
+  document.addEventListener("DOMContentLoaded", initStableCatalog, { once: true });
 } else {
-  initProducts();
+  initStableCatalog();
 }
