@@ -247,7 +247,32 @@ function setupGalleryLightbox() {
   });
 }
 
+let initialized = false;
+let fullStylesPromise;
+
+function loadFullStyles() {
+  if (fullStylesPromise) return fullStylesPromise;
+  fullStylesPromise = new Promise((resolve) => {
+    const existing = document.querySelector('link[data-full-styles]');
+    if (existing) {
+      if (existing.sheet) resolve();
+      else existing.addEventListener("load", resolve, { once: true });
+      return;
+    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "full.css?v=perf-20260621-4";
+    link.dataset.fullStyles = "true";
+    link.addEventListener("load", resolve, { once: true });
+    document.head.append(link);
+  });
+  return fullStylesPromise;
+}
+
 function init() {
+  if (initialized) return;
+  initialized = true;
+
   const year = q("#current-year");
   if (year) year.textContent = String(new Date().getFullYear());
 
@@ -262,6 +287,18 @@ function init() {
   });
 }
 
-document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", init, { once: true })
-  : init();
+function activatePage() {
+  loadFullStyles();
+  init();
+}
+
+window.addEventListener("pointerdown", activatePage, { once: true, passive: true });
+window.addEventListener("touchstart", activatePage, { once: true, passive: true });
+window.addEventListener("wheel", activatePage, { once: true, passive: true });
+window.addEventListener("scroll", activatePage, { once: true, passive: true });
+window.addEventListener("keydown", activatePage, { once: true });
+document.addEventListener("click", activatePage, { once: true, capture: true });
+
+if (language !== "tr" || new URLSearchParams(location.search).has("order")) {
+  activatePage();
+}
