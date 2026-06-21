@@ -2,6 +2,20 @@ const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
 
+function enableHeroVideo() {
+  const video = q(".hero-video");
+  const source = video ? q("source", video) : null;
+  if (!video || !source) return;
+
+  source.removeAttribute("media");
+  source.src = "src/robys-hero-mobile-lite.mp4?v=20260621-7";
+  video.load();
+
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    video.play().catch(() => undefined);
+  }
+}
+
 function applyImmediateA11yFixes() {
   document.documentElement.style.setProperty("--ruby", "#b24753");
 
@@ -111,6 +125,7 @@ function initQaEnhancements() {
 }
 
 function initQa() {
+  enableHeroVideo();
   applyImmediateA11yFixes();
   window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });
   window.addEventListener("keydown", initQaEnhancements, { once: true });
