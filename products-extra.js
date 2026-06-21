@@ -1,6 +1,6 @@
 const PRODUCTS = [
   {
-    id: "latte",
+    id: "latte-direct",
     name: "Latte",
     ru: "Латте",
     price: 200,
@@ -8,7 +8,7 @@ const PRODUCTS = [
     alt: "Roby's Latte — 200 ₺",
   },
   {
-    id: "san-sebastian",
+    id: "san-sebastian-direct",
     name: "San Sebastian Cheesecake",
     ru: "Сан-Себастьян",
     price: 240,
@@ -16,7 +16,7 @@ const PRODUCTS = [
     alt: "San Sebastian Cheesecake — 240 ₺",
   },
   {
-    id: "croissant",
+    id: "croissant-direct",
     name: "Croissant",
     ru: "Круассан",
     price: 180,
