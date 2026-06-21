@@ -102,26 +102,39 @@ function setupActiveNavigation() {
 function setupMobileCta() {
   const cta = q(".mobile-cta");
   const hero = q(".hero");
+  const prices = q("#prices");
   const visit = q("#visit");
   const footer = q(".site-footer");
   if (!cta || !hero) return;
 
   let heroVisible = true;
+  let pricesVisible = false;
   let visitVisible = false;
   let footerVisible = false;
 
   const render = () => {
-    cta.classList.toggle("is-visible", !heroVisible && !visitVisible && !footerVisible);
+    cta.classList.toggle(
+      "is-visible",
+      !heroVisible && !pricesVisible && !visitVisible && !footerVisible
+    );
   };
 
   if (!("IntersectionObserver" in window)) {
     const update = () => {
       const heroBottom = hero.offsetTop + hero.offsetHeight;
       const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 220;
-      cta.classList.toggle("is-visible", window.scrollY > heroBottom * 0.72 && !nearBottom);
+      const pricesRect = prices?.getBoundingClientRect();
+      const catalogOnScreen = Boolean(
+        pricesRect && pricesRect.bottom > 96 && pricesRect.top < window.innerHeight - 64
+      );
+      cta.classList.toggle(
+        "is-visible",
+        window.scrollY > heroBottom * 0.72 && !catalogOnScreen && !nearBottom
+      );
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
     return;
   }
 
@@ -132,13 +145,18 @@ function setupMobileCta() {
 
   const lowerPageObserver = new IntersectionObserver((observed) => {
     observed.forEach((entry) => {
+      if (entry.target === prices) pricesVisible = entry.isIntersecting;
       if (entry.target === visit) visitVisible = entry.isIntersecting;
       if (entry.target === footer) footerVisible = entry.isIntersecting;
     });
     render();
-  }, { threshold: 0.08 });
+  }, {
+    threshold: 0.02,
+    rootMargin: "-84px 0px -48px 0px"
+  });
 
   heroObserver.observe(hero);
+  if (prices) lowerPageObserver.observe(prices);
   if (visit) lowerPageObserver.observe(visit);
   if (footer) lowerPageObserver.observe(footer);
 }
