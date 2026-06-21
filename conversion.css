@@ -19,18 +19,19 @@ section[id]{scroll-margin-top:96px}
 }
 
 @media(max-width:680px){
-  .mobile-cta{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));left:10px;z-index:90;display:grid;grid-template-columns:1fr 1.06fr 1fr;gap:5px;padding:5px;border:1px solid rgba(255,255,255,.28);background:rgba(255,253,249,.92);border-radius:999px;box-shadow:0 18px 48px rgba(24,18,17,.24);backdrop-filter:blur(18px);opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px));transition:opacity .28s ease,transform .38s cubic-bezier(.16,1,.3,1)}
+  .mobile-cta{position:fixed;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));left:10px;z-index:90;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid rgba(255,255,255,.28);background:rgba(255,253,249,.92);border-radius:999px;box-shadow:0 18px 48px rgba(24,18,17,.24);backdrop-filter:blur(18px);opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px));transition:opacity .28s ease,transform .38s cubic-bezier(.16,1,.3,1)}
   .mobile-cta.is-visible{opacity:1;pointer-events:auto;transform:translateY(0)}
-  .mobile-cta a,.mobile-cta button{display:flex;min-width:0;min-height:50px;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border:0;border-radius:999px;font:700 .7rem Montserrat,sans-serif;letter-spacing:0;white-space:nowrap;cursor:pointer}
+  .mobile-cta a,.mobile-cta button{display:flex;min-width:0;min-height:48px;align-items:center;justify-content:center;gap:6px;padding:8px;border:0;border-radius:999px;font:700 .7rem Montserrat,sans-serif;letter-spacing:0;white-space:nowrap;cursor:pointer}
   .mobile-cta-route{color:#fff;background:var(--ruby);box-shadow:0 8px 22px rgba(184,77,88,.24)}
   .mobile-cta-cart{position:relative;color:#fff;background:#2a2221}
   .mobile-cta-cart strong{display:grid;min-width:21px;height:21px;place-items:center;border-radius:50%;background:var(--ruby);font-size:.62rem}
   .mobile-cta-instagram{color:var(--dark);background:rgba(255,255,255,.96)}
   .mobile-cta-icon{font-size:.9rem;line-height:1}
+  body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
   body.menu-open .mobile-cta,body.lightbox-open .mobile-cta,body.cart-open .mobile-cta,body.order-modal-open .mobile-cta{opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px))}
 }
 @media(max-width:390px){
-  .mobile-cta a,.mobile-cta button{min-height:47px;padding:8px 5px;font-size:.64rem}
+  .mobile-cta a,.mobile-cta button{min-height:46px;padding:7px 5px;font-size:.64rem}
   .mobile-cta-icon{font-size:.82rem}
 }
 @media(prefers-reduced-motion:reduce){
