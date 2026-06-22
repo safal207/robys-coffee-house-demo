@@ -1,0 +1,75 @@
+name: Visual regression
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-regression:
+    name: VISUAL-001 screenshot diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: current
+
+      - name: Checkout pull request base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || 'main' }}
+          path: baseline
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: current/package-lock.json
+
+      - name: Install current dependencies
+        working-directory: current
+        run: npm ci
+
+      - name: Install baseline dependencies
+        working-directory: baseline
+        run: npm ci
+
+      - name: Build current branch
+        working-directory: current
+        run: npm run build
+
+      - name: Build base branch
+        working-directory: baseline
+        run: npm run build
+
+      - name: Install visual comparison tools
+        working-directory: current
+        run: npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+
+      - name: Install deterministic Chromium
+        working-directory: current
+        run: npx playwright install --with-deps chromium
+
+      - name: Compare screenshots with base branch
+        working-directory: current
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
+        run: node scripts/visual-regression.mjs
+
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-${{ github.run_id }}
+          path: current/visual-results
+          if-no-files-found: warn
+          retention-days: 14

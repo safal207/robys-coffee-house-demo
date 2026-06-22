@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "updatedAt": "2026-06-22",
   "contracts": [
     {
@@ -276,6 +276,26 @@
         "sitemap.xml lists the landing and menu canonical URLs.",
         "The 404 page remains noindex and returns visitors to the project root.",
         "The retrying live verifier confirms both pages, robots and sitemap after merge."
+      ]
+    },
+    {
+      "id": "VISUAL-001",
+      "area": "Branch-to-branch visual layout and composition",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "A technically valid change can still ship shifted layouts, overlapping prices, clipped content or broken mobile controls.",
+      "devices": ["mobile", "tablet", "desktop"],
+      "evidence": "CI screenshot diff",
+      "owner": "QA",
+      "risk": "Static code assertions cannot detect visible movement, wrapping, overlap, spacing or composition regressions.",
+      "assertions": [
+        "The landing and full menu are captured at 320, 390, 768 and 1440 pixel widths.",
+        "Hero, menu preview, visit/map and mobile CTA receive dedicated element screenshots.",
+        "Every pull request is compared with its exact base commit in the same Chromium environment.",
+        "Animations, transitions, video frames and external map pixels are stabilized before capture.",
+        "Pixel differences use bounded per-capture tolerances no greater than one percent.",
+        "Any comparison above tolerance blocks the pull request.",
+        "Baseline, current and diff screenshots are uploaded as CI evidence even on failure."
       ]
     }
   ]
