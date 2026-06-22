@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "pixelThreshold": 0.12,
+  "defaultMaxDiffPixelRatio": 0.003,
+  "viewports": [
+    { "id": "phone-320", "width": 320, "height": 900 },
+    { "id": "phone-390", "width": 390, "height": 1000 },
+    { "id": "tablet-768", "width": 768, "height": 1024 },
+    { "id": "desktop-1440", "width": 1440, "height": 1100 }
+  ],
+  "captures": [
+    {
+      "id": "landing-full",
+      "path": "index.html",
+      "fullPage": true,
+      "viewports": ["phone-320", "phone-390", "tablet-768", "desktop-1440"],
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "menu-full",
+      "path": "menu.html",
+      "fullPage": true,
+      "waitFor": ".full-menu-item",
+      "viewports": ["phone-320", "phone-390", "tablet-768", "desktop-1440"],
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "hero",
+      "path": "index.html",
+      "selector": ".hero",
+      "viewports": ["phone-390", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "path": "index.html",
+      "selector": ".menu-section",
+      "viewports": ["phone-390", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "path": "index.html",
+      "selector": ".visit-section",
+      "viewports": ["phone-390", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "path": "index.html",
+      "selector": ".mobile-cta",
+      "viewports": ["phone-320", "phone-390"],
+      "maxDiffPixelRatio": 0.002
+    }
+  ]
+}
