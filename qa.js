@@ -1,19 +1,62 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
-const HERO_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260621-10";
+const HERO_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260622-11";
+const HERO_BALANCE_STYLES = "hero-balance.css?v=20260622-1";
+
+function ensureHeroBalanceStyles() {
+  if (document.querySelector('link[data-hero-balance="true"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = HERO_BALANCE_STYLES;
+  link.dataset.heroBalance = "true";
+  document.head.append(link);
+}
+
+function requestHeroPlayback(video) {
+  if (!video || document.hidden) return;
+
+  const playback = video.play();
+  if (!playback || typeof playback.then !== "function") return;
+
+  playback
+    .then(() => {
+      video.classList.add("is-playing");
+      video.dataset.playbackState = "playing";
+    })
+    .catch(() => {
+      video.classList.remove("is-playing");
+      video.dataset.playbackState = "blocked";
+    });
+}
 
 function enableHeroVideo() {
   const video = q(".hero-video");
   const source = video ? q("source", video) : null;
   if (!video || !source) return;
 
+  video.autoplay = true;
+  video.loop = true;
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
   source.removeAttribute("media");
   source.src = HERO_VIDEO;
+
+  const retryPlayback = () => requestHeroPlayback(video);
+
+  video.addEventListener("loadeddata", retryPlayback, { once: true });
+  video.addEventListener("canplay", retryPlayback);
+  video.addEventListener("pause", () => {
+    if (!document.hidden && !video.ended) window.setTimeout(retryPlayback, 180);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) retryPlayback();
+  });
+  window.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
+
   video.load();
+  retryPlayback();
 }
 
 function applyImmediateA11yFixes() {
@@ -125,6 +168,7 @@ function initQaEnhancements() {
 }
 
 function initQa() {
+  ensureHeroBalanceStyles();
   enableHeroVideo();
   applyImmediateA11yFixes();
   window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });

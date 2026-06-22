@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-06-22",
   "contracts": [
     {
@@ -15,6 +15,32 @@
         "The iframe receives pointer events.",
         "The full-card .map-live-link overlay does not receive pointer events.",
         "The visible Google Maps badge and route panel remain clickable."
+      ]
+    },
+    {
+      "id": "VIDEO-001",
+      "area": "Hero background video",
+      "status": "gated",
+      "risk": "Calling video.load() without an explicit playback recovery can leave the hero on a static poster in mobile Chrome.",
+      "assertions": [
+        "The hero contains exactly one muted, looping, inline autoplay video.",
+        "The video source is a local MP4 asset.",
+        "The runtime explicitly calls video.play().",
+        "Playback is retried on canplay, page visibility restoration and first pointer interaction.",
+        "Unexpected pauses trigger playback recovery while the page is visible."
+      ]
+    },
+    {
+      "id": "THEME-001",
+      "area": "Landing visual balance",
+      "status": "gated",
+      "risk": "An overly opaque hero overlay or missing light-section backgrounds can make the entire landing appear black.",
+      "assertions": [
+        "The hero overlay maximum alpha does not exceed 0.78.",
+        "The hero video has a brightness filter of at least 1.0.",
+        "About and visit sections retain the paper background.",
+        "The gallery retains the cream background.",
+        "Only designated contrast sections use the dark palette."
       ]
     }
   ]
