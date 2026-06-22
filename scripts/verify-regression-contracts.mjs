@@ -1,4 +1,5 @@
 import "./verify-critical-user-journeys.mjs";
+import "./verify-p1-interface-contracts.mjs";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("index.html", "utf8");
