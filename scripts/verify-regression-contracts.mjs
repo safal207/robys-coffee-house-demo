@@ -1,3 +1,4 @@
+import "./verify-critical-user-journeys.mjs";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("index.html", "utf8");
