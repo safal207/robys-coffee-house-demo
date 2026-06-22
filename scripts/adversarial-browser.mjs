@@ -5,17 +5,14 @@ import { chromium } from "playwright";
 const PORT = Number(process.env.ADVERSARIAL_PORT ?? 4177);
 const BASE_URL = `http://127.0.0.1:${PORT}/`;
 const report = { generatedAt: new Date().toISOString(), baseUrl: BASE_URL, checks: [], failures: [], networkOrigins: [] };
+const server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { stdio: ["ignore", "pipe", "pipe"] });
+let browser;
+let fatalError;
 
 function check(id, condition, message, evidence = null) {
   const item = { id, passed: Boolean(condition), message, evidence };
   report.checks.push(item);
   if (!condition) report.failures.push(item);
-}
-
-function startServer() {
-  return spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], {
-    stdio: ["ignore", "pipe", "pipe"]
-  });
 }
 
 async function waitForServer(attempts = 40) {
@@ -32,10 +29,6 @@ async function waitForServer(attempts = 40) {
   }
   throw lastError;
 }
-
-const server = startServer();
-let browser;
-let fatalError;
 
 try {
   await waitForServer();
@@ -63,16 +56,13 @@ try {
   let recordBaselineNetwork = true;
   context.on("request", (request) => {
     if (!recordBaselineNetwork) return;
-    try {
-      networkOrigins.add(new URL(request.url()).origin);
-    } catch {
-      // Ignore browser-internal requests.
-    }
+    try { networkOrigins.add(new URL(request.url()).origin); } catch { /* browser-internal URL */ }
   });
-
-  await context.route("https://maps.google.com/**", async (route) => {
-    await route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>embedded map</title>" });
-  });
+  await context.route("https://maps.google.com/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/html",
+    body: "<!doctype html><title>embedded map</title>"
+  }));
 
   const landing = await context.newPage();
   await landing.goto(BASE_URL, { waitUntil: "domcontentloaded" });
@@ -97,9 +87,8 @@ try {
 
   const trustedTypesProbe = await landing.evaluate(() => {
     const target = document.querySelector("#hero-title");
-    const markup = "<svg data-mythos-probe=\"true\"></svg>";
     try {
-      target.innerHTML = markup;
+      target.innerHTML = "<svg data-mythos-probe=\"true\"></svg>";
       return { threw: false, injected: Boolean(target.querySelector("[data-mythos-probe]")) };
     } catch (error) {
       return { threw: true, name: error?.name, injected: Boolean(target.querySelector("[data-mythos-probe]")) };
@@ -111,8 +100,7 @@ try {
     window.__mythosInline = 0;
     try {
       const script = document.createElement("script");
-      const assignment = ["window", ".__mythosInline", "=1"].join("");
-      script.textContent = assignment;
+      script.textContent = ["window", ".__mythosInline", "=1"].join("");
       document.head.append(script);
       return { threw: false, executed: window.__mythosInline === 1 };
     } catch (error) {
@@ -135,14 +123,14 @@ try {
     }
   });
   await landing.waitForTimeout(150);
-  const externalExecuted = await landing.evaluate(() => window.__mythosExternal === 1);
-  check("ADV-001", !externalExecuted, "External script outside the CSP allowlist did not execute", externalProbe);
+  check("ADV-001", !await landing.evaluate(() => window.__mythosExternal === 1), "External script outside the CSP allowlist did not execute", externalProbe);
 
   const violations = await landing.evaluate(() => window.__mythosViolations ?? []);
-  check("ADV-001", violations.some((item) => item.directive === "script-src-elem" || item.directive === "script-src"), "CSP emitted a script blocking violation", violations);
+  check("ADV-001", violations.some((item) =>
+    item.disposition === "enforce" && ["script-src", "script-src-elem", "require-trusted-types-for"].includes(item.directive)
+  ), "Browser emitted an enforcing script or Trusted Types violation", violations);
 
-  const storedProbe = "<svg data-storage-probe=\"true\"></svg>";
-  await landing.evaluate((value) => localStorage.setItem("robys-language", value), storedProbe);
+  await landing.evaluate((value) => localStorage.setItem("robys-language", value), "<svg data-storage-probe=\"true\"></svg>");
   await landing.reload({ waitUntil: "domcontentloaded" });
   await landing.locator("#hero-title").waitFor({ state: "visible" });
   const storageResult = await landing.evaluate(() => ({
@@ -155,7 +143,6 @@ try {
 
   const searchPayload = "<svg data-search-probe=\"true\"></svg>";
   await menu.locator("#menu-search").fill(searchPayload);
-  await menu.waitForTimeout(100);
   const searchResult = await menu.evaluate(() => ({
     injected: Boolean(document.querySelector("[data-search-probe]")),
     value: document.querySelector("#menu-search")?.value
@@ -164,7 +151,6 @@ try {
 
   const hashPayload = encodeURIComponent("<svg data-hash-probe=\"true\"></svg>");
   await menu.goto(`${new URL("menu.html", BASE_URL).href}#${hashPayload}`, { waitUntil: "domcontentloaded" });
-  await menu.waitForTimeout(100);
   const hashResult = await menu.evaluate(() => ({
     injected: Boolean(document.querySelector("[data-hash-probe]")),
     hash: location.hash
@@ -175,13 +161,15 @@ try {
     report.failures.forEach((failure) => console.error(`❌ [${failure.id}] ${failure.message}`));
     throw new Error(`Adversarial browser checks failed: ${report.failures.length}`);
   }
-
   console.log(`✅ ADV-001 passed: ${report.checks.length} adversarial browser checks.`);
 } catch (error) {
   fatalError = error;
-  if (!report.failures.length) {
-    report.failures.push({ id: "ADV-001", passed: false, message: "Browser probe runtime failed", evidence: String(error?.stack ?? error) });
-  }
+  if (!report.failures.length) report.failures.push({
+    id: "ADV-001",
+    passed: false,
+    message: "Browser probe runtime failed",
+    evidence: String(error?.stack ?? error)
+  });
 } finally {
   mkdirSync(".artifacts", { recursive: true });
   writeFileSync(".artifacts/adversarial-browser-report.json", `${JSON.stringify(report, null, 2)}\n`);
