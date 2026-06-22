@@ -6,6 +6,8 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "verify:regression": "node scripts/verify-regression-contracts.mjs",
+    "verify:performance": "node scripts/verify-performance-contract.mjs",
+    "verify:live:smoke": "node scripts/live-smoke.mjs",
     "check": "npm run typecheck && npm run build && node --check app.js && npm run verify:regression",
     "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs",
     "verify:media": "node scripts/verify-media.mjs",
