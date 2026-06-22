@@ -6,8 +6,15 @@
 /package-lock.json @safal207
 /SECURITY.md @safal207
 /docs/threat-model.md @safal207
+/docs/adversarial-test-plan.md @safal207
+/integrity-manifest.json @safal207
 /scripts/verify-security-contracts.mjs @safal207
 /scripts/scan-secrets.mjs @safal207
+/scripts/adversarial-browser.mjs @safal207
+/scripts/generate-integrity-manifest.mjs @safal207
+/scripts/verify-integrity-manifest.mjs @safal207
+/scripts/verify-live-integrity.mjs @safal207
+/scripts/verify-adversarial-contracts.mjs @safal207
 /qa/regression-dashboard.json @safal207
 /index.html @safal207
 /menu.html @safal207
