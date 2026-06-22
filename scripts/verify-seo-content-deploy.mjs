@@ -19,27 +19,43 @@ function dashboardGate(id, minimumAssertions) {
   assert(Array.isArray(contract.assertions) && contract.assertions.length >= minimumAssertions, id, "Dashboard assertions are incomplete");
 }
 
-function oneMatch(html, regex, id, label) {
-  const matches = Array.from(html.matchAll(regex));
-  assert(matches.length === 1, id, `${label}: expected exactly one, found ${matches.length}`);
-  return matches[0][1];
+function attributes(tag) {
+  const result = {};
+  for (const match of tag.matchAll(/([:\w-]+)\s*=\s*(["'])(.*?)\2/gs)) {
+    result[match[1].toLowerCase()] = match[3];
+  }
+  return result;
+}
+
+function oneValue(values, id, label) {
+  assert(values.length === 1, id, `${label}: expected exactly one, found ${values.length}`);
+  return values[0];
 }
 
 function meta(html, key, attribute = "name") {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return oneMatch(html, new RegExp(`<meta\\b[^>]*${attribute}=["']${escaped}["'][^>]*content=["']([^"']+)["'][^>]*>`, "gi"), "SEO-001", `${attribute}=${key}`);
+  const values = Array.from(html.matchAll(/<meta\b[^>]*>/gi), (match) => attributes(match[0]))
+    .filter((item) => item[attribute] === key)
+    .map((item) => item.content)
+    .filter((value) => typeof value === "string");
+  return oneValue(values, "SEO-001", `${attribute}=${key}`);
 }
 
 function canonical(html) {
-  return oneMatch(html, /<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["'][^>]*>/gi, "SEO-001", "canonical");
+  const values = Array.from(html.matchAll(/<link\b[^>]*>/gi), (match) => attributes(match[0]))
+    .filter((item) => item.rel === "canonical")
+    .map((item) => item.href)
+    .filter((value) => typeof value === "string");
+  return oneValue(values, "SEO-001", "canonical");
 }
 
 function title(html) {
-  return oneMatch(html, /<title>([^<]+)<\/title>/gi, "SEO-001", "title");
+  const values = Array.from(html.matchAll(/<title>([^<]+)<\/title>/gi), (match) => match[1]);
+  return oneValue(values, "SEO-001", "title");
 }
 
 function structuredData(html, expectedType) {
-  const raw = oneMatch(html, /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi, "SEO-001", "JSON-LD");
+  const values = Array.from(html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi), (match) => match[1]);
+  const raw = oneValue(values, "SEO-001", "JSON-LD");
   const data = JSON.parse(raw);
   assert(data["@context"] === "https://schema.org", "SEO-001", "JSON-LD context changed");
   assert(data["@type"] === expectedType, "SEO-001", `JSON-LD type must be ${expectedType}`);
