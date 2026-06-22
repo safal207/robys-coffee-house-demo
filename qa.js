@@ -2,6 +2,16 @@ const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
 const HERO_VIDEO = "src/robys-hero-mobile-lite.mp4?v=20260622-11";
+const HERO_BALANCE_STYLES = "hero-balance.css?v=20260622-1";
+
+function ensureHeroBalanceStyles() {
+  if (document.querySelector('link[data-hero-balance="true"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = HERO_BALANCE_STYLES;
+  link.dataset.heroBalance = "true";
+  document.head.append(link);
+}
 
 function requestHeroPlayback(video) {
   if (!video || document.hidden) return;
@@ -158,6 +168,7 @@ function initQaEnhancements() {
 }
 
 function initQa() {
+  ensureHeroBalanceStyles();
   enableHeroVideo();
   applyImmediateA11yFixes();
   window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });
