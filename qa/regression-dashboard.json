@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "updatedAt": "2026-06-22",
   "contracts": [
     {
@@ -215,6 +215,67 @@
         "All six menu icon files remain present and uniquely mapped.",
         "The image fallback remains connected to the canonical poster.",
         "The canonical MP4 codec and size verifier remains wired through verify:media."
+      ]
+    },
+    {
+      "id": "SEO-001",
+      "area": "Search metadata, social cards and structured data",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "Search engines and social previews show missing, duplicated or incorrect page information.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Metadata duplicated across static pages can drift independently from canonical URLs and structured data.",
+      "assertions": [
+        "Each public page has one bounded title and description.",
+        "Robots directives remain indexable with large image previews.",
+        "Canonical and Open Graph URLs match the public project URLs.",
+        "Open Graph site name, locale, image and image alt remain complete.",
+        "Twitter large-image cards remain complete.",
+        "Each page exposes exactly one parseable Schema.org JSON-LD block.",
+        "The landing uses CafeOrCoffeeShop structured data.",
+        "The menu uses Menu structured data and links back to the café entity."
+      ]
+    },
+    {
+      "id": "CONTENT-001",
+      "area": "Canonical café identity, address, hours and destinations",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "Visitors receive incorrect location, opening-hour or contact information.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Repeated business details can drift between visible content, JSON-LD, menu CTAs and social links.",
+      "assertions": [
+        "A versioned business profile is the canonical comparison source.",
+        "Visible name, street, locality and region match the profile.",
+        "Visible opening hours remain present in all key landing locations.",
+        "Structured address and opening hours match the profile.",
+        "Structured landing, menu and image URLs match the profile.",
+        "Instagram links and handle match @robyscoffeehouse.",
+        "Map links consistently target Roby's Coffee House Gazipaşa."
+      ]
+    },
+    {
+      "id": "DEPLOY-001",
+      "area": "GitHub Pages artifact and live publication",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "The repository passes code checks but publishes missing, stale or project-path-broken pages.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI + post-merge HTTP",
+      "owner": "QA",
+      "risk": "Project Pages can break through root-relative URLs, missing root files, stale builds or delayed publication.",
+      "assertions": [
+        "index.html, menu.html, 404.html, robots.txt, sitemap.xml and .nojekyll remain present.",
+        "Landing and menu expose the same build marker.",
+        "Public pages contain no localhost, file or project-unsafe root-relative URLs.",
+        "robots.txt exposes the canonical sitemap.",
+        "sitemap.xml lists the landing and menu canonical URLs.",
+        "The 404 page remains noindex and returns visitors to the project root.",
+        "The retrying live verifier confirms both pages, robots and sitemap after merge."
       ]
     }
   ]

@@ -9,6 +9,7 @@
     "check": "npm run typecheck && npm run build && node --check app.js && npm run verify:regression",
     "verify:bundle": "npm run check && git diff --exit-code -- app.js index.html && node scripts/verify-bundle.mjs",
     "verify:media": "node scripts/verify-media.mjs",
+    "verify:deploy:live": "node scripts/verify-live-deploy.mjs",
     "audit:deps": "node scripts/audit-dependencies.mjs",
     "lighthouse:smoke": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.refresh-smoke.cjs",
     "lighthouse:collect:mobile": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.mobile.cjs",
