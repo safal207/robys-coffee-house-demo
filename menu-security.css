@@ -1,0 +1,8 @@
+.menu-search input{padding-right:58px}
+.menu-search-clear{position:absolute;top:50%;right:9px;display:grid;width:34px;height:34px;place-items:center;padding:0;color:var(--muted);background:transparent;border:0;border-radius:50%;cursor:pointer;font:500 1.35rem/1 var(--sans);transform:translateY(-50%);transition:color .18s,background .18s,transform .18s}
+.menu-search-clear:hover{color:var(--ink);background:rgba(47,39,37,.08)}
+.menu-search-clear:active{transform:translateY(-50%) scale(.94)}
+.menu-search-clear:focus-visible{outline:3px solid rgba(184,77,88,.3);outline-offset:1px}
+.menu-search-clear[hidden]{display:none}
+@media(max-width:680px){.menu-search input{padding-right:54px}.menu-search-clear{right:7px;width:32px;height:32px}}
+@media(prefers-reduced-motion:reduce){.menu-search-clear{transition:none}}

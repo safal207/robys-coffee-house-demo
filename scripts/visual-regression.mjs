@@ -104,7 +104,8 @@ async function captureMatrix(browser, baseUrl, destination) {
       locale: "tr-TR",
       timezoneId: "Europe/Istanbul",
       reducedMotion: "reduce",
-      serviceWorkers: "block"
+      serviceWorkers: "block",
+      bypassCSP: true
     });
     const page = await context.newPage();
 

@@ -1,0 +1,14 @@
+# Security-sensitive controls require maintainer review.
+/.github/workflows/ @safal207
+/.github/dependabot.yml @safal207
+/.github/CODEOWNERS @safal207
+/package.json @safal207
+/package-lock.json @safal207
+/SECURITY.md @safal207
+/docs/threat-model.md @safal207
+/scripts/verify-security-contracts.mjs @safal207
+/scripts/scan-secrets.mjs @safal207
+/qa/regression-dashboard.json @safal207
+/index.html @safal207
+/menu.html @safal207
+/src/app.ts @safal207

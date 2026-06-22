@@ -4,6 +4,7 @@ import "./verify-seo-content-deploy.mjs";
 import "./verify-visual-contract.mjs";
 import "./verify-performance-contract.mjs";
 import "./verify-live-contract.mjs";
+import "./verify-security-contracts.mjs";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("index.html", "utf8");
