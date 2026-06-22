@@ -27,13 +27,13 @@ let language: Lang = readStorage("robys-language") === "en"
 
 function appendSafeRichText(target: HTMLElement, value: string) {
   target.replaceChildren();
-  const containers: Array<HTMLElement> = [target];
+  const containers: HTMLElement[] = [target];
   const allowedToken = /<br\s*\/?>|<em>|<\/em>/gi;
   let cursor = 0;
 
   for (const match of value.matchAll(allowedToken)) {
     const index = match.index ?? 0;
-    const container = containers.at(-1) ?? target;
+    const container = containers[containers.length - 1] ?? target;
     if (index > cursor) container.append(document.createTextNode(value.slice(cursor, index)));
 
     const token = match[0].toLowerCase();
@@ -50,7 +50,7 @@ function appendSafeRichText(target: HTMLElement, value: string) {
     cursor = index + match[0].length;
   }
 
-  const container = containers.at(-1) ?? target;
+  const container = containers[containers.length - 1] ?? target;
   if (cursor < value.length) container.append(document.createTextNode(value.slice(cursor)));
 }
 
