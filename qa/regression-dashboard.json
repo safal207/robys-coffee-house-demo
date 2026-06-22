@@ -1,11 +1,16 @@
 {
-  "version": 2,
+  "version": 3,
   "updatedAt": "2026-06-22",
   "contracts": [
     {
       "id": "MAP-001",
       "area": "Visit section / embedded Google Map",
       "status": "gated",
+      "severity": "P0",
+      "businessImpact": "Visitors cannot inspect the location or interact with the map.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
       "fixedBy": "PR #37",
       "risk": "A full-card overlay can block pointer and touch interaction with the embedded map.",
       "assertions": [
@@ -21,6 +26,11 @@
       "id": "VIDEO-001",
       "area": "Hero background video",
       "status": "gated",
+      "severity": "P1",
+      "businessImpact": "The first screen loses motion and looks like a broken static poster.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
       "risk": "Calling video.load() without an explicit playback recovery can leave the hero on a static poster in mobile Chrome.",
       "assertions": [
         "The hero contains exactly one muted, looping, inline autoplay video.",
@@ -34,6 +44,11 @@
       "id": "THEME-001",
       "area": "Landing visual balance",
       "status": "gated",
+      "severity": "P1",
+      "businessImpact": "The landing appears visually broken or uniformly black.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
       "risk": "An overly opaque hero overlay or missing light-section backgrounds can make the entire landing appear black.",
       "assertions": [
         "The hero overlay maximum alpha does not exceed 0.78.",
@@ -41,6 +56,85 @@
         "About and visit sections retain the paper background.",
         "The gallery retains the cream background.",
         "Only designated contrast sections use the dark palette."
+      ]
+    },
+    {
+      "id": "NAV-001",
+      "area": "Navigation, deep links and critical CTAs",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "Visitors cannot reach the menu, a category, Instagram or directions.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "A renamed file, invalid hash or malformed relative URL can silently break the primary customer journey on GitHub Pages.",
+      "assertions": [
+        "Every internal anchor points to an existing local file.",
+        "Every hash points to a static section or a real menu category.",
+        "The home page contains exactly six unique menu preview deep links.",
+        "Every preview deep link targets a category defined in menu-data.js.",
+        "The route CTA targets Roby's Coffee House Gazipaşa.",
+        "The Instagram CTA targets @robyscoffeehouse."
+      ]
+    },
+    {
+      "id": "MENU-001",
+      "area": "Menu catalogue and prices",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "Customers see missing products, duplicated products or incorrect prices.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Menu data is business content and can regress independently of the page layout.",
+      "assertions": [
+        "Category ids are unique and URL-safe.",
+        "Every category and group contains at least one item.",
+        "Every category, group, item and description is translated into TR, EN and RU.",
+        "Every price is a positive integer TRY amount.",
+        "Item names are not duplicated inside the same category.",
+        "Lotus Cheesecake remains protected at 190 ₺.",
+        "Displayed prices use Turkish formatting and the ₺ symbol."
+      ]
+    },
+    {
+      "id": "I18N-001",
+      "area": "Language switching and persistence",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "A visitor sees mixed languages or loses their selected language between pages.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "The main page and menu use different translation mechanisms and can drift apart.",
+      "assertions": [
+        "Both pages expose exactly TR, EN and RU language buttons.",
+        "All menuCopy languages have identical non-empty keys.",
+        "All menu data translations are complete.",
+        "Both runtimes share the robys-language storage key.",
+        "Both runtimes update document.documentElement.lang.",
+        "Language persistence fails safely when localStorage is unavailable.",
+        "The clear-search control has localized labels in all three languages."
+      ]
+    },
+    {
+      "id": "SEARCH-001",
+      "area": "Menu search, category filtering and clearing",
+      "status": "gated",
+      "severity": "P0",
+      "businessImpact": "Customers cannot find products in the full menu.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Search can fail through normalization, language, category-filter or clear-button changes.",
+      "assertions": [
+        "Search normalizes user input and filters item names and descriptions.",
+        "Search works against TR, EN and RU menu values.",
+        "Category and text filters work together.",
+        "A no-results state appears for unmatched queries.",
+        "The clear button and Escape use the standard input event flow.",
+        "Focus returns to the search field after clearing.",
+        "Searchable content is rendered with textContent rather than innerHTML."
       ]
     }
   ]
