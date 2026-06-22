@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-22",
+  "contracts": [
+    {
+      "id": "MAP-001",
+      "area": "Visit section / embedded Google Map",
+      "status": "gated",
+      "fixedBy": "PR #37",
+      "risk": "A full-card overlay can block pointer and touch interaction with the embedded map.",
+      "assertions": [
+        "The page contains exactly one .map-live-frame iframe.",
+        "The iframe URL is an HTTPS Google Maps embed with output=embed.",
+        "The iframe remains keyboard reachable and must not use tabindex=-1.",
+        "The iframe receives pointer events.",
+        "The full-card .map-live-link overlay does not receive pointer events.",
+        "The visible Google Maps badge and route panel remain clickable."
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import "./verify-regression-contracts.mjs";
 import { readFileSync } from "node:fs";
 
 const bundle = readFileSync("app.js", "utf8");
