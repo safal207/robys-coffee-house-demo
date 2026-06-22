@@ -1,6 +1,7 @@
 name: Temporary integrity manifest sync
 
 on:
+  pull_request:
   push:
     branches: [security/adversarial-integrity]
 
