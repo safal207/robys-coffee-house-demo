@@ -59,11 +59,6 @@
       "sha256": "d6c15fb4bcbe8e01117df8b4374f5d81e528362994126b8e4e8c25bad09841f4"
     },
     {
-      "path": "integrity-readme.txt",
-      "bytes": 107,
-      "sha256": "1b9627ed68a57e373d8def471212a069446de210c8d470c7f4cdebc81993aaea"
-    },
-    {
       "path": "lighthouse-live-summary.json",
       "bytes": 2343,
       "sha256": "462d9ece6cbc24684f1c5acc9607ae34532985247586abc6909c833ec7274d5e"
