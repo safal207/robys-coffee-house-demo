@@ -33,12 +33,17 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run browser probes
-        run: node scripts/adversarial-browser.mjs
+        run: |
+          mkdir -p .artifacts
+          set -o pipefail
+          node scripts/adversarial-browser.mjs 2>&1 | tee .artifacts/adversarial-browser.log
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: adversarial-browser-${{ github.run_id }}
-          path: .artifacts/adversarial-browser-report.json
+          path: |
+            .artifacts/adversarial-browser-report.json
+            .artifacts/adversarial-browser.log
           if-no-files-found: warn
           retention-days: 30
