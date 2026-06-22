@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "updatedAt": "2026-06-22",
   "contracts": [
     {
@@ -135,6 +135,86 @@
         "The clear button and Escape use the standard input event flow.",
         "Focus returns to the search field after clearing.",
         "Searchable content is rendered with textContent rather than innerHTML."
+      ]
+    },
+    {
+      "id": "MOBILE-001",
+      "area": "Responsive layout and fixed mobile controls",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "Phone users see clipped content, horizontal overflow or controls covering the page.",
+      "devices": ["mobile"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Small CSS changes can remove safe-area spacing, collapse breakpoints or reintroduce the empty third mobile CTA column.",
+      "assertions": [
+        "Both pages keep width=device-width and viewport-fit=cover.",
+        "The main layout retains 980px, 680px and 390px breakpoints.",
+        "The fixed CTA keeps two equal columns and bottom safe-area support.",
+        "The page reserves bottom space for the fixed CTA.",
+        "Critical mobile tap targets stay at least 46px tall.",
+        "Menu categories remain horizontally scrollable.",
+        "The full menu collapses to one column with stable product and price columns."
+      ]
+    },
+    {
+      "id": "CTA-001",
+      "area": "Directions, Instagram and visible business details",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "Visitors cannot navigate to the café or reach its social profile.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Duplicated CTA markup can drift to inconsistent destinations or unsafe external-link settings.",
+      "assertions": [
+        "External links use noopener and noreferrer.",
+        "Every directions CTA uses one consistent Roby's Gazipaşa destination.",
+        "Every Instagram CTA targets @robyscoffeehouse.",
+        "The street and city address remain visible on the landing.",
+        "Opening hours remain visible in key landing sections.",
+        "The full menu keeps a localized directions CTA."
+      ]
+    },
+    {
+      "id": "A11Y-001",
+      "area": "Keyboard navigation, labels and semantic state",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "Keyboard and assistive-technology users cannot navigate or understand the interface.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Visual refactors can silently remove labels, focus indication, live regions or modal focus containment.",
+      "assertions": [
+        "Both pages declare language and working skip links.",
+        "Buttons explicitly use type=button.",
+        "Images expose alt attributes and decorative media stays hidden.",
+        "The mobile menu toggle exposes controls and expanded state.",
+        "The search field keeps an explicit label and polite live results.",
+        "The map iframe keeps a descriptive title.",
+        "Global focus-visible styling remains present.",
+        "Lightbox focus trapping and inert background protection remain active.",
+        "Dynamic category state remains exposed through aria-pressed."
+      ]
+    },
+    {
+      "id": "ASSET-001",
+      "area": "Local media, icons and runtime asset references",
+      "status": "gated",
+      "severity": "P1",
+      "businessImpact": "The landing ships broken images, missing styles, empty icons or an invalid hero video.",
+      "devices": ["mobile", "desktop"],
+      "evidence": "CI",
+      "owner": "QA",
+      "risk": "Renaming or deleting a local file can break the deployed static site without a compile-time import error.",
+      "assertions": [
+        "Every local HTML href, src and poster reference resolves to a non-empty file.",
+        "Every local CSS url() reference resolves to a non-empty file.",
+        "The canonical poster and H.264 hero MP4 remain present.",
+        "All six menu icon files remain present and uniquely mapped.",
+        "The image fallback remains connected to the canonical poster.",
+        "The canonical MP4 codec and size verifier remains wired through verify:media."
       ]
     }
   ]
