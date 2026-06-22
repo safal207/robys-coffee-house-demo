@@ -2,6 +2,8 @@ import "./verify-critical-user-journeys.mjs";
 import "./verify-p1-interface-contracts.mjs";
 import "./verify-seo-content-deploy.mjs";
 import "./verify-visual-contract.mjs";
+import "./verify-performance-contract.mjs";
+import "./verify-live-contract.mjs";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("index.html", "utf8");
@@ -32,20 +34,16 @@ function dashboardContract(id, minimumAssertions) {
   );
 }
 
-// MAP-001 — the embedded map must remain interactive.
 const mapFrames = Array.from(html.matchAll(/<iframe\b[^>]*>/gi))
   .map((match) => match[0])
   .filter((tag) => /\bclass=["'][^"']*\bmap-live-frame\b[^"']*["']/i.test(tag));
-
 assert(mapFrames.length === 1, "MAP-001", `Expected exactly one .map-live-frame iframe, found ${mapFrames.length}`);
-
 const iframe = mapFrames[0];
 const mapSrc = iframe.match(/\bsrc=["']([^"']+)["']/i)?.[1] ?? "";
 assert(/^https:\/\/(?:www\.|maps\.)?google\.[^/]+\/maps/i.test(mapSrc), "MAP-001", "Map iframe must use an HTTPS Google Maps URL");
 assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Map iframe URL must include output=embed");
 assert(!/\btabindex=["']-1["']/i.test(iframe), "MAP-001", "Map iframe must remain keyboard reachable; tabindex=-1 is forbidden");
 assert(/\ballowfullscreen(?:\s|>|=)/i.test(iframe), "MAP-001", "Map iframe must allow fullscreen mode");
-
 const frameRule = cssRules(mapCss, ".map-live-frame", "MAP-001")[0];
 const overlayRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
 const badgeRule = cssRules(mapCss, ".map-live-badge", "MAP-001")[0];
@@ -56,10 +54,8 @@ assert(badgeRule.includes("pointer-events:auto"), "MAP-001", ".map-live-badge mu
 assert(bottomRule.includes("pointer-events:auto"), "MAP-001", ".map-live-bottom must remain clickable");
 dashboardContract("MAP-001", 6);
 
-// VIDEO-001 — the hero must not remain frozen on its poster.
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
 assert(heroVideoBlocks.length === 1, "VIDEO-001", `Expected exactly one .hero-video element, found ${heroVideoBlocks.length}`);
-
 const heroVideo = heroVideoBlocks[0];
 for (const attribute of ["autoplay", "muted", "loop", "playsinline"]) {
   assert(new RegExp(`\\b${attribute}(?:\\s|>|=)`, "i").test(heroVideo), "VIDEO-001", `Hero video must keep the ${attribute} attribute`);
@@ -73,18 +69,15 @@ for (const eventName of ["canplay", "visibilitychange", "pointerdown", "pause"])
 assert(qaRuntime.includes("HERO_BALANCE_STYLES"), "VIDEO-001", "Hero runtime must load the visual-balance stylesheet");
 dashboardContract("VIDEO-001", 5);
 
-// THEME-001 — the landing must retain light sections and a readable hero.
 const heroOverlayRules = cssRules(heroCss, ".hero-overlay", "THEME-001");
 const overlayAlphas = heroOverlayRules.flatMap((rule) =>
   Array.from(rule.matchAll(/rgba\([^)]*,\s*(\d*\.?\d+)\)/g), (match) => Number(match[1]))
 );
 assert(overlayAlphas.length > 0, "THEME-001", "Hero overlay must declare RGBA transparency values");
 assert(Math.max(...overlayAlphas) <= 0.78, "THEME-001", `Hero overlay is too dark: max alpha ${Math.max(...overlayAlphas)}`);
-
 const heroVideoRule = cssRules(heroCss, ".hero-video", "THEME-001")[0];
 const brightness = Number(heroVideoRule.match(/brightness\((\d*\.?\d+)\)/)?.[1] ?? 0);
 assert(brightness >= 1, "THEME-001", `Hero video brightness must be at least 1.0, found ${brightness}`);
-
 const lightSectionContracts = [
   [".about", "background:var(--paper)"],
   [".gallery-section", "background:var(--cream)"],
