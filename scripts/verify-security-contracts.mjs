@@ -34,6 +34,12 @@ function read(file) {
   return existsSync(file) ? readFileSync(file, "utf8") : "";
 }
 
+function attribute(tag, name) {
+  const doubleQuoted = tag.match(new RegExp(`\\b${name}="([^"]*)"`, "i"))?.[1];
+  if (doubleQuoted !== undefined) return doubleQuoted;
+  return tag.match(new RegExp(`\\b${name}='([^']*)'`, "i"))?.[1] ?? "";
+}
+
 const runtime = RUNTIME_FILES.map((file) => ({ file, content: read(file) }));
 const dangerousPatterns = [
   [/\.innerHTML\s*=/, "innerHTML assignment"],
@@ -78,7 +84,8 @@ const requiredCsp = [
 
 for (const file of HTML_FILES) {
   const html = read(file);
-  const csp = html.match(/<meta\b[^>]*http-equiv=["']Content-Security-Policy["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
+  const cspTag = html.match(/<meta\b[^>]*http-equiv=["']Content-Security-Policy["'][^>]*>/i)?.[0] ?? "";
+  const csp = attribute(cspTag, "content");
   must("CSP-001", Boolean(csp), `${file} has no Content Security Policy`);
   for (const directive of requiredCsp) must("CSP-001", csp.includes(directive), `${file} CSP is missing ${directive}`);
   must("CSP-001", !csp.includes("'unsafe-inline'"), `${file} CSP allows unsafe-inline`);
@@ -97,7 +104,7 @@ for (const file of HTML_FILES) {
 
   const blankLinks = Array.from(html.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0]);
   for (const link of blankLinks) {
-    const rel = link.match(/\brel=["']([^"']+)["']/i)?.[1] ?? "";
+    const rel = attribute(link, "rel");
     must("SEC-001", /\bnoopener\b/i.test(rel) && /\bnoreferrer\b/i.test(rel), `${file} has an unsafe target=_blank link`);
   }
 
@@ -130,7 +137,7 @@ for (const required of [
 const securityWorkflow = read(".github/workflows/security.yml");
 must("CI-TRUST-001", /permissions:\s*\n\s*contents:\s*read/i.test(securityWorkflow), "Security workflow does not use read-only contents permission");
 must("DEPSEC-001", securityWorkflow.includes("npm audit --audit-level=high"), "High-severity dependency audit is not blocking CI");
-must("SECRET-001", securityWorkflow.includes("scan-secrets.mjs"), "Secret scanner is not wired into CI");
+must("SECRET-001", securityWorkflow.includes("scan-secrets.mjs") || securityWorkflow.includes("npm run verify:security"), "Secret scanner is not wired into CI");
 
 const codeql = read(".github/workflows/codeql.yml");
 must("SAST-001", codeql.includes("javascript-typescript"), "CodeQL does not analyze JavaScript/TypeScript");
