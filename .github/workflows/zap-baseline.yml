@@ -1,0 +1,54 @@
+name: OWASP ZAP baseline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '41 2 * * 4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: DAST-001 passive web scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 --bind 0.0.0.0 >static-server.log 2>&1 &
+          echo $! > static-server.pid
+          for attempt in {1..40}; do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 0.25
+          done
+          cat static-server.log
+          exit 1
+      - name: Run ZAP baseline
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'http://172.17.0.1:4173/'
+          allow_issue_writing: false
+          artifact_name: zap-baseline-${{ github.run_id }}
+          cmd_options: '-a -j -m 2 -I'
+      - name: Stop local site
+        if: always()
+        run: test -f static-server.pid && kill "$(cat static-server.pid)" || true
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-server-log-${{ github.run_id }}
+          path: static-server.log
+          if-no-files-found: warn
+          retention-days: 30
