@@ -122,16 +122,21 @@ try {
   await landing.waitForTimeout(100);
   check("ADV-001", !inlineProbe.executed, "Inline script probe did not execute", inlineProbe);
 
-  await landing.evaluate(() => {
+  const externalProbe = await landing.evaluate(() => {
     window.__mythosExternal = 0;
-    const script = document.createElement("script");
-    script.src = "https://example.invalid/mythos-probe.js";
-    script.onload = () => { window.__mythosExternal = 1; };
-    document.head.append(script);
+    try {
+      const script = document.createElement("script");
+      script.src = "https://example.invalid/mythos-probe.js";
+      script.onload = () => { window.__mythosExternal = 1; };
+      document.head.append(script);
+      return { threw: false, executed: window.__mythosExternal === 1 };
+    } catch (error) {
+      return { threw: true, name: error?.name, executed: window.__mythosExternal === 1 };
+    }
   });
   await landing.waitForTimeout(150);
   const externalExecuted = await landing.evaluate(() => window.__mythosExternal === 1);
-  check("ADV-001", !externalExecuted, "External script outside the CSP allowlist did not execute");
+  check("ADV-001", !externalExecuted, "External script outside the CSP allowlist did not execute", externalProbe);
 
   const violations = await landing.evaluate(() => window.__mythosViolations ?? []);
   check("ADV-001", violations.some((item) => item.directive === "script-src-elem" || item.directive === "script-src"), "CSP emitted a script blocking violation", violations);
