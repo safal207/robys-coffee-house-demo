@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-22T12:19:47.390Z",
+  "generatedAt": "2026-06-22T12:47:09.173Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 69,
+    "performance": 68,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.6 s",
-      "numericValue": 1618.63915,
-      "score": 0.94
+      "displayValue": "1.5 s",
+      "numericValue": 1460.3717000000001,
+      "score": 0.96
     },
     "largest-contentful-paint": {
       "displayValue": "2.4 s",
-      "numericValue": 2372.737025,
-      "score": 0.92
+      "numericValue": 2409.3717,
+      "score": 0.91
     },
     "speed-index": {
-      "displayValue": "3.6 s",
-      "numericValue": 3599.398707595472,
-      "score": 0.87
+      "displayValue": "2.6 s",
+      "numericValue": 2619.0401284433847,
+      "score": 0.97
     },
     "total-blocking-time": {
-      "displayValue": "1,970 ms",
-      "numericValue": 1966,
-      "score": 0.08
+      "displayValue": "3,320 ms",
+      "numericValue": 3321.8141499999997,
+      "score": 0.02
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.0 s",
-      "numericValue": 4017.6391500000004,
-      "score": 0.87
+      "displayValue": "5.4 s",
+      "numericValue": 5373.135850000001,
+      "score": 0.72
     }
   },
   "opportunities": [
@@ -85,13 +85,13 @@
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
       "score": 0,
-      "displayValue": "850 ms"
+      "displayValue": "1,310 ms"
     },
     {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.4 s"
+      "displayValue": "6.0 s"
     },
     {
       "id": "uses-text-compression",
@@ -114,8 +114,8 @@
     {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.08,
-      "displayValue": "1,970 ms"
+      "score": 0.02,
+      "displayValue": "3,320 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -154,16 +154,10 @@
       "displayValue": null
     },
     {
-      "id": "speed-index",
-      "title": "Speed Index",
-      "score": 0.87,
-      "displayValue": "3.6 s"
-    },
-    {
       "id": "interactive",
       "title": "Time to Interactive",
-      "score": 0.87,
-      "displayValue": "4.0 s"
+      "score": 0.72,
+      "displayValue": "5.4 s"
     }
   ]
 }
