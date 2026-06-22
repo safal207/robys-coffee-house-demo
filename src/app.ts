@@ -25,12 +25,41 @@ let language: Lang = readStorage("robys-language") === "en"
     ? "ru"
     : "tr";
 
+function appendSafeRichText(target: HTMLElement, value: string) {
+  target.replaceChildren();
+  const containers: Array<HTMLElement> = [target];
+  const allowedToken = /<br\s*\/?>|<em>|<\/em>/gi;
+  let cursor = 0;
+
+  for (const match of value.matchAll(allowedToken)) {
+    const index = match.index ?? 0;
+    const container = containers.at(-1) ?? target;
+    if (index > cursor) container.append(document.createTextNode(value.slice(cursor, index)));
+
+    const token = match[0].toLowerCase();
+    if (token.startsWith("<br")) {
+      container.append(document.createElement("br"));
+    } else if (token === "<em>") {
+      const emphasis = document.createElement("em");
+      container.append(emphasis);
+      containers.push(emphasis);
+    } else if (containers.length > 1) {
+      containers.pop();
+    }
+
+    cursor = index + match[0].length;
+  }
+
+  const container = containers.at(-1) ?? target;
+  if (cursor < value.length) container.append(document.createTextNode(value.slice(cursor)));
+}
+
 function translateNode(element: HTMLElement) {
   const textKey = element.dataset.i18n as CopyKey | undefined;
   if (textKey) element.textContent = dictionaries[language][textKey];
 
-  const htmlKey = element.dataset.i18nHtml as CopyKey | undefined;
-  if (htmlKey) element.innerHTML = dictionaries[language][htmlKey];
+  const richKey = element.dataset.i18nRich as CopyKey | undefined;
+  if (richKey) appendSafeRichText(element, dictionaries[language][richKey]);
 
   if (element.matches("[data-localized]")) {
     const localized = element.dataset[language];
@@ -40,7 +69,7 @@ function translateNode(element: HTMLElement) {
 
 function translateTree(root: ParentNode = document) {
   if (root instanceof HTMLElement) translateNode(root);
-  qa<HTMLElement>("[data-i18n],[data-i18n-html],[data-localized]", root).forEach(translateNode);
+  qa<HTMLElement>("[data-i18n],[data-i18n-rich],[data-localized]", root).forEach(translateNode);
 }
 
 function setLanguage(next: Lang) {
