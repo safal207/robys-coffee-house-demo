@@ -54,7 +54,7 @@ jobs:
           retention-days: 30
       - name: Post or update PR comment
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: return require('./.github/scripts/upsert-lighthouse-comment.cjs')({github,context,core})
 
