@@ -1,24 +1,32 @@
 {
-  "config_version": 1,
+  "config_version": 2,
   "mobile": {
-    "performance": 0.7,
-    "lcp": 4000,
-    "tbt": 600,
+    "performance": 0.85,
+    "lcp": 2500,
+    "tbt": 200,
     "cls": 0.1,
-    "fcp": 3000,
-    "speed_index": 5000,
+    "fcp": 2000,
+    "speed_index": 3500,
     "total_js_bytes": 170000,
-    "hero_file_bytes": 256000
+    "largest_js_file_bytes": 100000,
+    "total_css_bytes": 250000,
+    "total_html_bytes": 100000,
+    "hero_file_bytes": 256000,
+    "poster_file_bytes": 500000
   },
   "desktop": {
-    "performance": 0.9,
-    "lcp": 2500,
-    "tbt": 250,
-    "cls": 0.1,
-    "fcp": 1800,
-    "speed_index": 2500,
+    "performance": 0.95,
+    "lcp": 1500,
+    "tbt": 100,
+    "cls": 0.05,
+    "fcp": 1000,
+    "speed_index": 1800,
     "total_js_bytes": 170000,
-    "hero_file_bytes": 256000
+    "largest_js_file_bytes": 100000,
+    "total_css_bytes": 250000,
+    "total_html_bytes": 100000,
+    "hero_file_bytes": 256000,
+    "poster_file_bytes": 500000
   },
   "regression": {
     "performance_points": 3,
