@@ -80,7 +80,7 @@ try {
 
   const menu = await context.newPage();
   await menu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
-  await menu.locator("#menu-root .menu-item").first().waitFor({ state: "visible", timeout: 15000 });
+  await menu.locator("#menu-root .full-menu-item").first().waitFor({ state: "visible", timeout: 15000 });
   recordBaselineNetwork = false;
 
   const observedOrigins = [...networkOrigins].sort();
