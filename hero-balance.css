@@ -1,0 +1,16 @@
+.hero-video{filter:saturate(1.06) brightness(1.08);opacity:1}
+.hero-video.is-playing{opacity:1}
+.hero-overlay{background:linear-gradient(180deg,rgba(20,15,15,.38),rgba(20,15,15,.04) 32%,rgba(20,15,15,.12) 60%,rgba(20,15,15,.72)),linear-gradient(90deg,rgba(20,15,15,.42),transparent 76%)}
+.about{color:var(--ink);background:var(--paper)}
+.gallery-section{color:var(--ink);background:var(--cream)}
+.visit-section{color:var(--ink);background:var(--paper)}
+.menu-section{background:linear-gradient(145deg,#352625 0%,#241c1b 58%,#3a2528 100%)}
+.visit-card{background:linear-gradient(145deg,#342524 0%,#241c1b 72%)}
+
+@media(max-width:680px){
+  .hero-overlay{background:linear-gradient(180deg,rgba(20,15,15,.3),rgba(20,15,15,.02) 38%,rgba(20,15,15,.1) 62%,rgba(20,15,15,.66)),linear-gradient(90deg,rgba(20,15,15,.32),transparent 84%)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-video{transition:none}
+}
