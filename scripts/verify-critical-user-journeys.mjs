@@ -107,7 +107,6 @@ function searchMenu(query, categoryId = "all") {
   return results;
 }
 
-// NAV-001 — every critical path and deep link must resolve.
 const categoryIds = menuCategories.map((category) => category.id);
 const dynamicIds = new Map([["menu.html", categoryIds]]);
 verifyInternalLinks(indexHtml, "index.html", dynamicIds);
@@ -121,7 +120,6 @@ assert(/https:\/\/www\.instagram\.com\/robyscoffeehouse\//i.test(indexHtml), "NA
 assert(/google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa/i.test(indexHtml), "NAV-001", "Route CTA must target Roby's Coffee House Gazipaşa");
 contractById("NAV-001");
 
-// MENU-001 — menu structure, translations and prices are business-critical data.
 assert(categoryIds.length > 0, "MENU-001", "Menu must contain categories");
 assert(new Set(categoryIds).size === categoryIds.length, "MENU-001", "Category ids must be unique");
 
@@ -157,7 +155,6 @@ assert(lotus.price === 190, "MENU-001", `Lotus Cheesecake price changed from pro
 assert(menuPageRuntime.includes("Intl.NumberFormat") && menuPageRuntime.includes("₺"), "MENU-001", "Menu prices must render with Turkish formatting and ₺");
 contractById("MENU-001");
 
-// I18N-001 — TR/EN/RU must stay complete and persistent across both pages.
 const expectedLanguages = [...REQUIRED_LANGUAGES].sort();
 assert(JSON.stringify(languageButtons(indexHtml)) === JSON.stringify(expectedLanguages), "I18N-001", "Main page language buttons must be exactly TR/EN/RU");
 assert(JSON.stringify(languageButtons(menuHtml)) === JSON.stringify(expectedLanguages), "I18N-001", "Menu page language buttons must be exactly TR/EN/RU");
@@ -176,12 +173,11 @@ for (const source of [appRuntime, menuPageRuntime]) {
   assert(source.includes("document.documentElement.lang"), "I18N-001", "Both runtimes must update the document language");
   assert(/try\s*\{[\s\S]*localStorage[\s\S]*\}\s*catch/.test(source), "I18N-001", "Language persistence must fail safely when localStorage is unavailable");
 }
-assert(appRuntime.includes("[data-i18n],[data-i18n-html],[data-localized]"), "I18N-001", "Main runtime must translate all supported markup modes");
+assert(appRuntime.includes("[data-i18n],[data-i18n-rich],[data-localized]"), "I18N-001", "Main runtime must translate text, safe rich text and localized markup modes");
 assert(menuPageRuntime.includes('const supportedLanguages = ["tr", "en", "ru"]'), "I18N-001", "Menu runtime must explicitly support TR/EN/RU");
 for (const language of REQUIRED_LANGUAGES) assert(clearSearchRuntime.includes(`${language}:`), "I18N-001", `Clear-search label is missing ${language}`);
 contractById("I18N-001");
 
-// SEARCH-001 — search, category filtering, clearing and safe rendering must survive changes.
 assert(menuPageRuntime.includes("function normalize"), "SEARCH-001", "Search normalization function is missing");
 assert(menuPageRuntime.includes("function filteredItems"), "SEARCH-001", "Item filtering function is missing");
 assert(menuPageRuntime.includes('searchInput.addEventListener("input"'), "SEARCH-001", "Search input listener is missing");
