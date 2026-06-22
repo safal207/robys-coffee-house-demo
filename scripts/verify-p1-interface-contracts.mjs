@@ -1,0 +1,130 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
+
+const indexHtml = readFileSync("index.html", "utf8");
+const menuHtml = readFileSync("menu.html", "utf8");
+const mobileCss = readFileSync("mobile.css", "utf8");
+const conversionCss = readFileSync("conversion.css", "utf8");
+const finalQaCss = readFileSync("final-qa.css", "utf8");
+const menuCss = readFileSync("menu.css", "utf8");
+const qaRuntime = readFileSync("qa.js", "utf8");
+const menuRuntime = readFileSync("menu-page.js", "utf8");
+const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
+const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
+
+function assert(condition, id, message) {
+  if (!condition) throw new Error(`[${id}] ${message}`);
+}
+
+function gate(id) {
+  const item = dashboard.contracts?.find((contract) => contract.id === id);
+  assert(item, id, "Missing dashboard contract");
+  assert(item.status === "gated", id, "Contract must remain gated");
+  assert(item.severity === "P1", id, "Contract must remain P1");
+  assert(item.owner === "QA" && item.evidence === "CI", id, "Owner/evidence metadata changed");
+  assert(item.devices?.includes("mobile"), id, "Mobile coverage is required");
+}
+
+function fileExists(reference, id) {
+  const clean = decodeURIComponent(reference.split(/[?#]/)[0]);
+  const fullPath = path.resolve(process.cwd(), clean);
+  assert(existsSync(fullPath), id, `Missing file: ${clean}`);
+  assert(statSync(fullPath).isFile() && statSync(fullPath).size > 0, id, `Invalid file: ${clean}`);
+}
+
+function hrefs(html, prefix) {
+  return Array.from(html.matchAll(new RegExp(`href=["'](${prefix}[^"']+)["']`, "gi")), (match) => match[1]);
+}
+
+// MOBILE-001
+for (const [name, html] of [["index.html", indexHtml], ["menu.html", menuHtml]]) {
+  assert(html.includes("width=device-width") && html.includes("viewport-fit=cover"), "MOBILE-001", `${name} viewport contract changed`);
+}
+for (const breakpoint of [980, 680, 390]) {
+  assert(mobileCss.includes(`@media(max-width:${breakpoint}px)`), "MOBILE-001", `Missing ${breakpoint}px breakpoint`);
+}
+assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero viewport handling changed");
+assert(conversionCss.includes("grid-template-columns:1fr 1fr"), "MOBILE-001", "Mobile CTA must keep two columns");
+assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-area support changed");
+assert(conversionCss.includes("padding-bottom:calc(70px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
+assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
+assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
+assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
+assert(menuCss.includes("grid-template-columns:minmax(0,1fr) auto"), "MOBILE-001", "Product/price columns changed");
+gate("MOBILE-001");
+
+// CTA-001
+const allHtml = `${indexHtml}\n${menuHtml}`;
+const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/search/\\?api=1&query=");
+assert(routeUrls.length >= 4, "CTA-001", `Expected route CTAs, found ${routeUrls.length}`);
+assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
+assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
+const instagramUrls = hrefs(allHtml, "https://www\\.instagram\\.com/");
+assert(instagramUrls.length >= 3, "CTA-001", `Expected Instagram CTAs, found ${instagramUrls.length}`);
+assert(instagramUrls.every((url) => url === "https://www.instagram.com/robyscoffeehouse/"), "CTA-001", "Wrong Instagram destination");
+for (const tag of Array.from(allHtml.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0])) {
+  assert(/rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(tag), "CTA-001", "Unsafe external link");
+}
+assert(indexHtml.includes("Pazarcı, Uğur Mumcu Cd.") && indexHtml.includes("Gazipaşa / Antalya"), "CTA-001", "Address changed");
+assert((indexHtml.match(/09:00 — 00:00/g) ?? []).length >= 2, "CTA-001", "Opening hours disappeared");
+assert(menuHtml.includes('data-menu-copy="route"'), "CTA-001", "Localized route CTA disappeared");
+gate("CTA-001");
+
+// A11Y-001
+assert(indexHtml.includes('<html lang="tr">') && menuHtml.includes('<html lang="tr">'), "A11Y-001", "Page language is missing");
+assert(indexHtml.includes('class="skip-link" href="#main"') && indexHtml.includes('id="main"'), "A11Y-001", "Landing skip link broke");
+assert(menuHtml.includes('class="skip-link" href="#menu-root"') && menuHtml.includes('id="menu-root"'), "A11Y-001", "Menu skip link broke");
+for (const html of [indexHtml, menuHtml]) {
+  for (const button of Array.from(html.matchAll(/<button\b[^>]*>/gi), (match) => match[0])) {
+    assert(/type=["']button["']/i.test(button), "A11Y-001", "Button without type=button");
+  }
+}
+assert(indexHtml.includes('aria-controls="main-navigation"') && indexHtml.includes('aria-expanded="false"'), "A11Y-001", "Menu toggle state changed");
+assert(menuHtml.includes('for="menu-search"') && menuHtml.includes('aria-live="polite"'), "A11Y-001", "Search semantics changed");
+assert(/class=["'][^"']*map-live-frame[^"']*["'][^>]*title=["'][^"']+/i.test(indexHtml), "A11Y-001", "Map title disappeared");
+assert(indexHtml.includes('class="hero-video"') && indexHtml.includes('aria-hidden="true"'), "A11Y-001", "Hero accessibility changed");
+assert(finalQaCss.includes(":focus-visible"), "A11Y-001", "Focus styling disappeared");
+assert(menuCss.includes(".visually-hidden{"), "A11Y-001", "Visually-hidden utility disappeared");
+assert(qaRuntime.includes('event.key !== "Tab"') && qaRuntime.includes('setAttribute("inert", "")'), "A11Y-001", "Lightbox focus protection changed");
+assert(menuRuntime.includes('aria-pressed'), "A11Y-001", "Dynamic pressed state disappeared");
+gate("A11Y-001");
+
+// ASSET-001
+const criticalFiles = [
+  "icon.svg",
+  "styles.css",
+  "mobile.css",
+  "conversion.css",
+  "final-qa.css",
+  "gallery-clean.css",
+  "map-live.css",
+  "menu-preview.css",
+  "menu.css",
+  "app.js",
+  "conversion.js",
+  "analytics.js",
+  "qa.js",
+  "menu-page.js",
+  "menu-data.js",
+  "menu-search-clear.js",
+  "hero-balance.css",
+  "src/robys-hero-poster.jpg",
+  "src/robys-hero-mobile-lite.mp4",
+  "src/menu-icons/hot.svg",
+  "src/menu-icons/cold.svg",
+  "src/menu-icons/tea.svg",
+  "src/menu-icons/refreshers.svg",
+  "src/menu-icons/dessert.svg",
+  "src/menu-icons/food.svg"
+];
+criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
+const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
+assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
+assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
+assert(qaRuntime.includes('HERO_VIDEO = "src/robys-hero-mobile-lite.mp4'), "ASSET-001", "Hero asset changed");
+assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
+assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
+gate("ASSET-001");
+
+console.log("✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.");
