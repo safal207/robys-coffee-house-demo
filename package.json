@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
-    "verify:regression": "node scripts/verify-regression-contracts.mjs && node scripts/verify-integrity-manifest.mjs && node scripts/verify-adversarial-contracts.mjs",
+    "verify:regression": "node scripts/verify-regression-contracts.mjs && npm run verify:integrity && npm run verify:adversarial",
     "verify:performance": "node scripts/verify-performance-contract.mjs",
     "verify:live:smoke": "node scripts/live-smoke.mjs",
     "verify:security": "node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs",
