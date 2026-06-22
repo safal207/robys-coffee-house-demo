@@ -35,6 +35,7 @@ async function waitForServer(attempts = 40) {
 
 const server = startServer();
 let browser;
+let fatalError;
 
 try {
   await waitForServer();
@@ -59,7 +60,9 @@ try {
   });
 
   const networkOrigins = new Set();
+  let recordBaselineNetwork = true;
   context.on("request", (request) => {
+    if (!recordBaselineNetwork) return;
     try {
       networkOrigins.add(new URL(request.url()).origin);
     } catch {
@@ -74,6 +77,16 @@ try {
   const landing = await context.newPage();
   await landing.goto(BASE_URL, { waitUntil: "domcontentloaded" });
   await landing.locator("#hero-title").waitFor({ state: "visible" });
+
+  const menu = await context.newPage();
+  await menu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
+  await menu.locator("#menu-root .menu-item").first().waitFor({ state: "visible", timeout: 15000 });
+  recordBaselineNetwork = false;
+
+  const observedOrigins = [...networkOrigins].sort();
+  report.networkOrigins = observedOrigins;
+  const allowedOrigins = new Set([new URL(BASE_URL).origin, "https://maps.google.com"]);
+  check("ADV-001", observedOrigins.every((origin) => allowedOrigins.has(origin)), "Page-load network stays inside the explicit origin allowlist", observedOrigins);
 
   const richTree = await landing.locator("[data-i18n-rich]").evaluateAll((nodes) => nodes.map((node) => ({
     key: node.getAttribute("data-i18n-rich"),
@@ -120,6 +133,9 @@ try {
   const externalExecuted = await landing.evaluate(() => window.__mythosExternal === 1);
   check("ADV-001", !externalExecuted, "External script outside the CSP allowlist did not execute");
 
+  const violations = await landing.evaluate(() => window.__mythosViolations ?? []);
+  check("ADV-001", violations.some((item) => item.directive === "script-src-elem" || item.directive === "script-src"), "CSP emitted a script blocking violation", violations);
+
   const storedProbe = "<svg data-storage-probe=\"true\"></svg>";
   await landing.evaluate((value) => localStorage.setItem("robys-language", value), storedProbe);
   await landing.reload({ waitUntil: "domcontentloaded" });
@@ -132,12 +148,6 @@ try {
   check("ADV-001", storageResult.lang === "tr" && !storageResult.injected, "Untrusted stored language value falls back safely", storageResult);
   check("PRIVACY-001", storageResult.keys.every((key) => key === "robys-language"), "Only the approved storage key exists", storageResult.keys);
 
-  const violations = await landing.evaluate(() => window.__mythosViolations ?? []);
-  check("ADV-001", violations.some((item) => item.directive === "script-src-elem" || item.directive === "script-src"), "CSP emitted a script blocking violation", violations);
-
-  const menu = await context.newPage();
-  await menu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
-  await menu.locator("#menu-root .menu-item").first().waitFor({ state: "visible", timeout: 15000 });
   const searchPayload = "<svg data-search-probe=\"true\"></svg>";
   await menu.locator("#menu-search").fill(searchPayload);
   await menu.waitForTimeout(100);
@@ -156,21 +166,22 @@ try {
   }));
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
-  const observedOrigins = [...networkOrigins].sort();
-  report.networkOrigins = observedOrigins;
-  const allowedOrigins = new Set([new URL(BASE_URL).origin, "https://maps.google.com"]);
-  check("ADV-001", observedOrigins.every((origin) => allowedOrigins.has(origin)), "Page-load network stays inside the explicit origin allowlist", observedOrigins);
-
-  mkdirSync(".artifacts", { recursive: true });
-  writeFileSync(".artifacts/adversarial-browser-report.json", `${JSON.stringify(report, null, 2)}\n`);
-
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`❌ [${failure.id}] ${failure.message}`));
     throw new Error(`Adversarial browser checks failed: ${report.failures.length}`);
   }
 
   console.log(`✅ ADV-001 passed: ${report.checks.length} adversarial browser checks.`);
+} catch (error) {
+  fatalError = error;
+  if (!report.failures.length) {
+    report.failures.push({ id: "ADV-001", passed: false, message: "Browser probe runtime failed", evidence: String(error?.stack ?? error) });
+  }
 } finally {
+  mkdirSync(".artifacts", { recursive: true });
+  writeFileSync(".artifacts/adversarial-browser-report.json", `${JSON.stringify(report, null, 2)}\n`);
   await browser?.close();
   server.kill("SIGTERM");
 }
+
+if (fatalError) throw fatalError;
