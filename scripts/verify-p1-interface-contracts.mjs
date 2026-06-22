@@ -60,11 +60,11 @@ function assertExistingFile(file, contract, context) {
   assert(statSync(absolute).size > 0, contract, `${context} is empty: ${file}`);
 }
 
-function cssRule(css, selector, contract) {
+function cssRules(css, selector, contract) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = css.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "i"));
-  assert(match, contract, `Missing CSS rule for ${selector}`);
-  return match[1].replace(/\s+/g, "").toLowerCase();
+  const matches = Array.from(css.matchAll(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "gi")));
+  assert(matches.length > 0, contract, `Missing CSS rule for ${selector}`);
+  return matches.map((match) => match[1].replace(/\s+/g, "").toLowerCase());
 }
 
 function maxWidthBreakpoints(css) {
@@ -84,8 +84,9 @@ assert(mobileCss.includes("width:calc(100% - 24px)"), "MOBILE-001", "Phone conta
 assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero must keep small-viewport height handling");
 assert(conversionCss.includes("section[id]{scroll-margin-top:96px}"), "MOBILE-001", "Sticky header anchor offset must remain protected");
 
-const mobileCtaRule = cssRule(conversionCss, ".mobile-cta", "MOBILE-001");
-assert(mobileCtaRule.includes("position:fixed"), "MOBILE-001", "Mobile CTA must stay fixed");
+const mobileCtaRule = cssRules(conversionCss, ".mobile-cta", "MOBILE-001")
+  .find((rule) => rule.includes("position:fixed"));
+assert(mobileCtaRule, "MOBILE-001", "Mobile CTA fixed-position rule is missing");
 assert(mobileCtaRule.includes("grid-template-columns:1fr1fr"), "MOBILE-001", "Mobile CTA must keep exactly two equal columns");
 assert(mobileCtaRule.includes("env(safe-area-inset-bottom)"), "MOBILE-001", "Mobile CTA must respect the bottom safe area");
 assert(conversionCss.includes("body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}"), "MOBILE-001", "Page must reserve space for the fixed mobile CTA");
