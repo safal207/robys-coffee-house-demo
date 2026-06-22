@@ -1,0 +1,37 @@
+name: Temporary integrity manifest sync
+
+on:
+  push:
+    branches: [security/adversarial-integrity]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: security/adversarial-integrity
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/generate-integrity-manifest.mjs
+      - name: Commit integrity manifest
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest already synchronized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "build: add public integrity manifest"
+          git push origin HEAD:security/adversarial-integrity
