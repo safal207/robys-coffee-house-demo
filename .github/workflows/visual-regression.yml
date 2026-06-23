@@ -65,6 +65,12 @@ jobs:
           VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
         run: node scripts/visual-regression.mjs
 
+      - name: Audit rapid mobile menu scrolling
+        working-directory: current
+        env:
+          SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/scroll-audit
+        run: node scripts/menu-scroll-regression.mjs
+
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4
