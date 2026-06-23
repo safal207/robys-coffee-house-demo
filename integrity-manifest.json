@@ -35,8 +35,8 @@
     },
     {
       "path": "data/featured-products.json",
-      "bytes": 2765,
-      "sha256": "10aae92adae0ffd5adc5bd4b8b6071f171ad487531ce2bfd8651bd174ba1ae55"
+      "bytes": 2582,
+      "sha256": "90dcca4a8f6814421719b490b8472b38c4044f6792614706a9e94f81b5473ee3"
     },
     {
       "path": "featured-strip.css",
@@ -197,6 +197,11 @@
       "path": "src/products/cards/latte-card.v3.svg",
       "bytes": 6973,
       "sha256": "fdcaa2cae619f826993207b9e8166db534c40f694ed7e12dd96717c194ea32c6"
+    },
+    {
+      "path": "src/products/cards/lotus-card.v3.svg",
+      "bytes": 6549,
+      "sha256": "9e7134721fa81e91184d7ff619bd82774b427ec30605157fa1b9a4fb4240f37f"
     },
     {
       "path": "src/products/cards/nutella-card.v3.svg",
