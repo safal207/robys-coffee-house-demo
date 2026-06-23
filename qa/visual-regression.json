@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "pixelThreshold": 0.12,
   "defaultMaxDiffPixelRatio": 0.003,
   "viewports": [
@@ -10,9 +10,9 @@
   ],
   "captures": [
     {
-      "id": "landing-full",
+      "id": "about",
       "path": "index.html",
-      "fullPage": true,
+      "selector": ".about",
       "viewports": ["phone-320", "phone-390", "tablet-768", "desktop-1440"],
       "maxDiffPixelRatio": 0.004
     },
