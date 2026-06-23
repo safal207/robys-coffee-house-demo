@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260622-23" />
+  <meta name="robys-build" content="20260623-1" />
   <meta name="description" content="Roby's Coffee House — Gazipaşa'da iyi kahve, tatlılar ve sakin anlar." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
@@ -61,7 +61,9 @@
   <link rel="stylesheet" href="gallery-clean.css?v=perf-20260621-5" />
   <link rel="stylesheet" href="map-live.css?v=map-fix-20260622-1" />
   <link rel="stylesheet" href="menu-preview.css?v=mobile-menu-20260622-1" />
+  <link rel="stylesheet" href="featured-strip.css?v=20260623-1" />
   <script defer src="app.js?v=67c0e7d61b1b"></script>
+  <script defer src="featured-strip.js?v=20260623-1"></script>
   <script type="module" src="conversion.js?v=perf-20260621-6"></script>
   <script type="module" src="analytics.js?v=perf-20260621-5"></script>
   <script type="module" src="qa.js?v=video-20260621-10"></script>
@@ -91,6 +93,49 @@
         <div class="hero-meta"><div><strong>09:00 — 00:00</strong><span data-i18n="daily">Her gün</span></div><div><strong>Gazipaşa</strong><span data-i18n="antalya">Antalya</span></div></div>
       </div>
     </section>
+
+    <section class="featured-strip" id="favorites" aria-labelledby="featured-title">
+      <div class="container">
+        <header class="featured-strip-header">
+          <div class="featured-strip-copy">
+            <p class="eyebrow" data-localized data-tr="BUGÜN POPÜLER" data-en="POPULAR TODAY" data-ru="ПОПУЛЯРНО СЕГОДНЯ">BUGÜN POPÜLER</p>
+            <h2 id="featured-title" data-localized data-tr="Roby's Favorileri" data-en="Roby's Favorites" data-ru="Любимое в Roby's">Roby's Favorileri</h2>
+            <p data-localized data-tr="Kahvenizin yanına en sevilen tatları seçin." data-en="Choose a favorite treat for your coffee moment." data-ru="Выберите любимое дополнение к кофе.">Kahvenizin yanına en sevilen tatları seçin.</p>
+          </div>
+          <div class="featured-controls" aria-label="Featured products controls">
+            <button class="featured-arrow" type="button" data-featured-prev aria-label="Previous featured product"><span aria-hidden="true">‹</span></button>
+            <button class="featured-arrow" type="button" data-featured-next aria-label="Next featured product"><span aria-hidden="true">›</span></button>
+          </div>
+        </header>
+
+        <div class="featured-viewport" data-featured-viewport tabindex="0" aria-label="Roby's featured products">
+          <div class="featured-track">
+            <a class="featured-card" href="menu.html#food" aria-label="Nutella Croissant, 170 Turkish lira">
+              <img src="src/products/nutella-croissant.webp" alt="" width="640" height="640" loading="lazy" decoding="async" />
+              <div class="featured-card-top"><small data-localized data-tr="FIRIN KLASİKLERİ" data-en="BAKERY CLASSICS" data-ru="КЛАССИКА ВЫПЕЧКИ">FIRIN KLASİKLERİ</small></div>
+              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Nutella Croissant</strong><span class="featured-price">170 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
+            </a>
+            <a class="featured-card" href="menu.html#desserts" aria-label="San Sebastian Cheesecake, 190 Turkish lira">
+              <img src="src/robys-gallery-signature.webp" alt="" width="640" height="640" loading="lazy" decoding="async" />
+              <div class="featured-card-top"><small data-localized data-tr="PREMİUM TATLI" data-en="PREMIUM DESSERT" data-ru="ПРЕМИАЛЬНЫЙ ДЕСЕРТ">PREMİUM TATLI</small></div>
+              <div class="featured-card-bottom"><div class="featured-card-title"><strong>San Sebastian Cheesecake</strong><span class="featured-price">190 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
+            </a>
+            <a class="featured-card" href="menu.html#hot-coffee" aria-label="Latte, 180 Turkish lira">
+              <img src="src/robys-gallery-latte-art.webp" alt="" width="640" height="640" loading="lazy" decoding="async" />
+              <div class="featured-card-top"><small data-localized data-tr="KAHVE FAVORİSİ" data-en="COFFEE FAVORITE" data-ru="КОФЕЙНЫЙ ФАВОРИТ">KAHVE FAVORİSİ</small></div>
+              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Latte</strong><span class="featured-price">180 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
+            </a>
+            <a class="featured-card" href="menu.html#desserts" aria-label="Lotus Cheesecake, 190 Turkish lira">
+              <img src="src/products/lotus-cheesecake.webp" alt="" width="640" height="640" loading="lazy" decoding="async" />
+              <div class="featured-card-top"><small data-localized data-tr="PREMİUM TATLI" data-en="PREMIUM DESSERT" data-ru="ПРЕМИАЛЬНЫЙ ДЕСЕРТ">PREMİUM TATLI</small></div>
+              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Lotus Cheesecake</strong><span class="featured-price">190 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
+            </a>
+          </div>
+        </div>
+        <div class="featured-pagination" data-featured-pagination aria-label="Featured products pagination"></div>
+      </div>
+    </section>
+
     <section class="section about" id="about"><div class="container">
       <div class="mobile-quick-info" aria-label="Quick information"><div><strong>09:00 — 00:00</strong><span data-i18n="daily">Her gün</span></div><div><strong>Gazipaşa</strong><span data-i18n="antalya">Antalya</span></div></div>
       <header class="section-heading"><p class="eyebrow" data-i18n="aboutEyebrow">ROBY'S HİSSİ</p><h2 data-i18n-rich="aboutTitle">Kahveden fazlası.<br /><em>Kendinize ayırdığınız zaman.</em></h2></header>
