@@ -1,0 +1,50 @@
+name: Refresh integrity manifest
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "featured-strip.js"
+      - "featured-strip.css"
+      - "data/**"
+      - "src/products/**"
+      - "scripts/generate-integrity-manifest.mjs"
+      - ".github/workflows/refresh-integrity.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-integrity-main
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run integrity:generate
+
+      - name: Commit refreshed manifest
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "chore: refresh integrity manifest [skip ci]"
+          git push
