@@ -1,3 +1,5 @@
+import "./hits-feed.js?v=20260623-1";
+
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -19,79 +21,6 @@ const seoCopy = {
   }
 };
 
-const hitsCopy = {
-  tr: {
-    eyebrow: "ROBY'S FAVORİLERİ",
-    title: "Kafenin hitleri",
-    lead: "Misafirlerimizin en çok sevdiği dört lezzet.",
-    open: "Menüde aç",
-    swipe: "Kaydırarak keşfedin"
-  },
-  en: {
-    eyebrow: "ROBY'S FAVORITES",
-    title: "Cafe favorites",
-    lead: "Four of the most-loved choices from our menu.",
-    open: "Open in menu",
-    swipe: "Swipe to explore"
-  },
-  ru: {
-    eyebrow: "ЛЮБИМЫЕ ПОЗИЦИИ ROBY'S",
-    title: "Хиты кафе",
-    lead: "Четыре позиции, которые особенно любят наши гости.",
-    open: "Открыть в меню",
-    swipe: "Листайте, чтобы посмотреть"
-  }
-};
-
-const hitsProducts = [
-  {
-    id: "san-sebastian",
-    image: "src/products/san-sebastian.webp",
-    href: "menu.html#desserts",
-    price: 190,
-    names: {
-      tr: "San Sebastian Cheesecake",
-      en: "San Sebastian Cheesecake",
-      ru: "Чизкейк San Sebastian"
-    }
-  },
-  {
-    id: "latte",
-    image: "src/products/latte.webp",
-    href: "menu.html#hot-coffee",
-    price: 180,
-    names: {
-      tr: "Caffè Latte",
-      en: "Caffè Latte",
-      ru: "Латте"
-    }
-  },
-  {
-    id: "nutella-croissant",
-    image: "src/products/nutella-croissant.webp",
-    href: "menu.html#food",
-    price: 170,
-    names: {
-      tr: "Nutellalı Kruvasan",
-      en: "Nutella Croissant",
-      ru: "Круассан с Nutella"
-    }
-  },
-  {
-    id: "lotus-cheesecake",
-    image: "src/products/lotus-cheesecake.webp",
-    href: "menu.html#desserts",
-    price: 190,
-    names: {
-      tr: "Lotus Cheesecake",
-      en: "Lotus Cheesecake",
-      ru: "Чизкейк Lotus"
-    }
-  }
-];
-
-const HITS_STYLESHEET = "hits-feed.css?v=20260623-1";
-
 function updateSeoLanguage() {
   const language = document.documentElement.lang || "tr";
   const copy = seoCopy[language] || seoCopy.tr;
@@ -101,112 +30,6 @@ function updateSeoLanguage() {
   q('meta[property="og:title"]')?.setAttribute("content", copy.title);
   q('meta[property="og:description"]')?.setAttribute("content", copy.description);
   q('meta[property="og:locale"]')?.setAttribute("content", copy.locale);
-}
-
-function createElement(tag, className, text) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
-  return element;
-}
-
-function currentHitsLanguage() {
-  const language = document.documentElement.lang || "tr";
-  return hitsCopy[language] ? language : "tr";
-}
-
-function updateHitsLanguage() {
-  const section = q(".hits-section");
-  if (!section) return;
-
-  const language = currentHitsLanguage();
-  const copy = hitsCopy[language];
-
-  q("[data-hits-eyebrow]", section).textContent = copy.eyebrow;
-  q("[data-hits-title]", section).textContent = copy.title;
-  q("[data-hits-lead]", section).textContent = copy.lead;
-  q("[data-hits-swipe]", section).textContent = copy.swipe;
-
-  qa("[data-hits-product]", section).forEach((card) => {
-    const product = hitsProducts.find((item) => item.id === card.dataset.hitsProduct);
-    if (!product) return;
-    q("[data-hits-name]", card).textContent = product.names[language];
-    q("[data-hits-open]", card).textContent = copy.open;
-    card.setAttribute("aria-label", `${product.names[language]} — ${product.price} ₺`);
-  });
-}
-
-function setupHitsFeed() {
-  if (q(".hits-section")) return;
-
-  const visitSection = q("#visit");
-  if (!visitSection) return;
-
-  if (!q('link[data-hits-feed-styles]')) {
-    const stylesheet = createElement("link");
-    stylesheet.rel = "stylesheet";
-    stylesheet.href = HITS_STYLESHEET;
-    stylesheet.dataset.hitsFeedStyles = "";
-    document.head.append(stylesheet);
-  }
-
-  const section = createElement("section", "section hits-section");
-  section.id = "hits";
-  section.setAttribute("aria-labelledby", "hits-title");
-
-  const container = createElement("div", "container hits-inner");
-  const header = createElement("header", "hits-header");
-  const heading = createElement("div", "hits-heading");
-  const eyebrow = createElement("p", "eyebrow");
-  eyebrow.dataset.hitsEyebrow = "";
-  const title = createElement("h2");
-  title.id = "hits-title";
-  title.dataset.hitsTitle = "";
-  const lead = createElement("p", "hits-lead");
-  lead.dataset.hitsLead = "";
-  const swipe = createElement("span", "hits-swipe");
-  swipe.dataset.hitsSwipe = "";
-
-  heading.append(eyebrow, title, lead);
-  header.append(heading, swipe);
-
-  const track = createElement("div", "hits-track");
-  track.setAttribute("aria-label", "Roby's cafe favorites");
-
-  hitsProducts.forEach((product) => {
-    const card = createElement("a", "hits-card");
-    card.href = product.href;
-    card.dataset.hitsProduct = product.id;
-
-    const media = createElement("div", "hits-card-media");
-    const image = createElement("img");
-    image.src = product.image;
-    image.alt = product.names.tr;
-    image.width = 640;
-    image.height = 640;
-    image.loading = "lazy";
-    image.decoding = "async";
-    const badge = createElement("span", "hits-badge", "HIT");
-    media.append(image, badge);
-
-    const body = createElement("div", "hits-card-body");
-    const cardCopy = createElement("div", "hits-card-copy");
-    const name = createElement("h3");
-    name.dataset.hitsName = "";
-    const open = createElement("span", "hits-card-link");
-    open.dataset.hitsOpen = "";
-    const price = createElement("strong", "hits-price", `${product.price} ₺`);
-
-    cardCopy.append(name, open);
-    body.append(cardCopy, price);
-    card.append(media, body);
-    track.append(card);
-  });
-
-  container.append(header, track);
-  section.append(container);
-  visitSection.before(section);
-  updateHitsLanguage();
 }
 
 function setupHeaderAndProgress() {
@@ -345,26 +168,15 @@ function initConversionPack() {
   if (initialized) return;
   initialized = true;
 
-  setupHitsFeed();
   setupHeaderAndProgress();
   setupActiveNavigation();
   setupMobileCta();
   updateSeoLanguage();
-  updateHitsLanguage();
 
-  new MutationObserver(() => {
-    updateSeoLanguage();
-    updateHitsLanguage();
-  }).observe(document.documentElement, {
+  new MutationObserver(updateSeoLanguage).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["lang"]
   });
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initConversionPack, { once: true });
-} else {
-  initConversionPack();
 }
 
 window.addEventListener("scroll", initConversionPack, { once: true, passive: true });
