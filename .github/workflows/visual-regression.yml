@@ -85,6 +85,14 @@ jobs:
           SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/scroll-audit
         run: node scripts/menu-scroll-regression.mjs
 
+      - name: Export generated integrity manifest
+        if: always()
+        working-directory: current
+        run: |
+          npm run integrity:generate
+          mkdir -p visual-results/generated
+          cp integrity-manifest.json visual-results/generated/integrity-manifest.json
+
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4
