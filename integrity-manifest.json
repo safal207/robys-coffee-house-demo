@@ -120,13 +120,13 @@
     },
     {
       "path": "menu.css",
-      "bytes": 7696,
-      "sha256": "e7ec8140a58366c0c0032a5e4b63aa4f2b7468dcd0571bf16597761fb872d58a"
+      "bytes": 7779,
+      "sha256": "5236cb22a0112ad09dfc79d66ad0981a3c4df0df1e40bc217edea4f294c584ce"
     },
     {
       "path": "menu.html",
-      "bytes": 6232,
-      "sha256": "742def25cf1f7bbc27bb432fd35e9763c7ceb6f6710ead4cb5064e96f159f9de"
+      "bytes": 6230,
+      "sha256": "5314a686250d145fc067e71b75e1a4736174a51551343ccb5ac126a329629d7c"
     },
     {
       "path": "mobile.css",

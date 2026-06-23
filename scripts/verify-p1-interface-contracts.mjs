@@ -80,6 +80,10 @@ for (const contract of [
 ]) {
   assert(menuCss.includes(contract), "MOBILE-001", `Raster safe-mode contract changed: ${contract}`);
 }
+const languageSwitcherRule = cssRule(menuCss, ".menu-page .language-switcher", "MOBILE-001");
+for (const contract of ["width:max-content", "justify-self:end", "flex:00auto", "white-space:nowrap"]) {
+  assert(languageSwitcherRule.includes(contract), "MOBILE-001", `Language switcher sizing changed: ${contract}`);
+}
 gate("MOBILE-001");
 
 // CTA-001

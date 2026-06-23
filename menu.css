@@ -6,7 +6,7 @@ html{background:var(--cream)}
 .menu-page .header-inner{min-height:68px}
 .menu-page .menu-page-back{justify-self:center;padding:10px 15px;border:1px solid rgba(255,255,255,.2);border-radius:999px;font-size:.76rem;font-weight:700;transition:background .2s,border-color .2s}
 .menu-page .menu-page-back:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.34)}
-.menu-page .language-switcher{background:rgba(255,255,255,.07)}
+.menu-page .language-switcher{width:max-content;max-width:100%;justify-self:end;flex:0 0 auto;white-space:nowrap;background:rgba(255,255,255,.07)}
 .menu-page-main{scroll-margin-top:150px}
 .menu-page-hero{padding:72px 0 44px;background:var(--paper);border-bottom:1px solid var(--line)}
 .menu-page-hero-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:30px}
