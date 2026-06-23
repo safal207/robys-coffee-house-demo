@@ -30,8 +30,8 @@
     },
     {
       "path": "conversion.js",
-      "bytes": 14797,
-      "sha256": "fe4614fa9893cfecffea7525688945ecb68c4d7d6343404027fec4d4f5847614"
+      "bytes": 11734,
+      "sha256": "5da7c1ea5ac4c0255fdae77e62326a2a91fa3bbde5d8fce56200647b8034d5d4"
     },
     {
       "path": "final-qa.css",
@@ -47,6 +47,11 @@
       "path": "hero-balance.css",
       "bytes": 903,
       "sha256": "a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba"
+    },
+    {
+      "path": "hits-feed.css",
+      "bytes": 3160,
+      "sha256": "f3a25a6e2b705364653b0a653a1de029d047582b1d76b61f4fd6cf6d8d5347d9"
     },
     {
       "path": "icon.svg",
