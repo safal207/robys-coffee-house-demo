@@ -1,0 +1,1 @@
+Manual check: open the landing on a coarse-pointer phone or tablet; the iframe is hidden, the local map-style background is visible, and tapping anywhere on the card opens the Roby's Google Maps search.
