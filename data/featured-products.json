@@ -1,0 +1,110 @@
+[
+  {
+    "id": "nutella-croissant",
+    "active": true,
+    "order": 1,
+    "title": {
+      "tr": "Nutella Croissant",
+      "en": "Nutella Croissant",
+      "ru": "Круассан с Nutella"
+    },
+    "price": 170,
+    "currency": "₺",
+    "badge": {
+      "tr": "Fırın Klasikleri",
+      "en": "Bakery Classics",
+      "ru": "Классика выпечки"
+    },
+    "href": "menu.html#food",
+    "image": {
+      "webp": "src/products/nutella-croissant.webp",
+      "fallback": "src/products/nutella-croissant.svg"
+    },
+    "alt": {
+      "tr": "Nutella dolgulu kruvasan",
+      "en": "Nutella-filled croissant",
+      "ru": "Круассан с начинкой Nutella"
+    }
+  },
+  {
+    "id": "san-sebastian",
+    "active": true,
+    "order": 2,
+    "title": {
+      "tr": "San Sebastian Cheesecake",
+      "en": "San Sebastian Cheesecake",
+      "ru": "Чизкейк Сан-Себастьян"
+    },
+    "price": 190,
+    "currency": "₺",
+    "badge": {
+      "tr": "Premium Tatlı",
+      "en": "Premium Dessert",
+      "ru": "Премиальный десерт"
+    },
+    "href": "menu.html#desserts",
+    "image": {
+      "webp": "src/products/san-sebastian.webp",
+      "fallback": "src/products/san-sebastian-premium.svg"
+    },
+    "alt": {
+      "tr": "San Sebastian cheesecake dilimi",
+      "en": "Slice of San Sebastian cheesecake",
+      "ru": "Кусочек чизкейка Сан-Себастьян"
+    }
+  },
+  {
+    "id": "latte",
+    "active": true,
+    "order": 3,
+    "title": {
+      "tr": "Latte",
+      "en": "Latte",
+      "ru": "Латте"
+    },
+    "price": 180,
+    "currency": "₺",
+    "badge": {
+      "tr": "Kahve Favorisi",
+      "en": "Coffee Favorite",
+      "ru": "Кофейный фаворит"
+    },
+    "href": "menu.html#hot-coffee",
+    "image": {
+      "webp": "src/products/latte.webp",
+      "fallback": "src/products/latte-premium.svg"
+    },
+    "alt": {
+      "tr": "Latte art ile latte",
+      "en": "Latte with latte art",
+      "ru": "Латте с рисунком на пенке"
+    }
+  },
+  {
+    "id": "lotus-cheesecake",
+    "active": true,
+    "order": 4,
+    "title": {
+      "tr": "Lotus Cheesecake",
+      "en": "Lotus Cheesecake",
+      "ru": "Чизкейк Lotus"
+    },
+    "price": 190,
+    "currency": "₺",
+    "badge": {
+      "tr": "Premium Tatlı",
+      "en": "Premium Dessert",
+      "ru": "Премиальный десерт"
+    },
+    "href": "menu.html#desserts",
+    "image": {
+      "webp": "src/products/lotus-cheesecake.webp",
+      "fallback": "src/products/lotus-cheesecake-v2.svg"
+    },
+    "alt": {
+      "tr": "Lotus cheesecake dilimi",
+      "en": "Slice of Lotus cheesecake",
+      "ru": "Кусочек чизкейка Lotus"
+    }
+  }
+]
