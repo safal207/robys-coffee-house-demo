@@ -4,6 +4,19 @@ const previousButton = document.querySelector("[data-featured-prev]");
 const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
+const productImages = [
+  "src/products/nutella-croissant.webp",
+  "src/products/san-sebastian.webp",
+  "src/products/latte.webp",
+  "src/products/lotus-cheesecake.webp"
+];
+
+cards.forEach((card, index) => {
+  const image = card.querySelector("img");
+  if (!image || !productImages[index]) return;
+  image.src = productImages[index];
+});
+
 if (viewport && cards.length) {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const dots = cards.map((_, index) => {
