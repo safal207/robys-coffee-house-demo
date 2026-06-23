@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260622-23",
+  "build": "20260623-1",
   "files": [
     {
       "path": "404.html",
@@ -34,6 +34,16 @@
       "sha256": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965"
     },
     {
+      "path": "featured-strip.css",
+      "bytes": 6144,
+      "sha256": "fbd14ce79c22a8c00b24e1a29301e56d5d905289cd711a2d505f90077afbe870"
+    },
+    {
+      "path": "featured-strip.js",
+      "bytes": 2617,
+      "sha256": "d1c18fb3c8db026d7b04177b812c095fd8e1a25817b47c9ec5ff5f041f1780b0"
+    },
+    {
       "path": "final-qa.css",
       "bytes": 1874,
       "sha256": "b6e8e008860cafd54a59e7b5bc35e9839397b4cf5b268ec14846c358a4ee80a8"
@@ -55,8 +65,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 14245,
-      "sha256": "d6c15fb4bcbe8e01117df8b4374f5d81e528362994126b8e4e8c25bad09841f4"
+      "bytes": 18676,
+      "sha256": "1d0e778a0f08bffdbeb382b72acefbe63829a62eddbe5097cfead0f59f686a99"
     },
     {
       "path": "lighthouse-live-summary.json",
