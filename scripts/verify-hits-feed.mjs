@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const source = readFileSync("conversion.js", "utf8");
+const css = readFileSync("hits-feed.css", "utf8");
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[HITS-001] ${message}`);
@@ -16,10 +17,14 @@ const expectedProducts = [
 assert(source.includes("function setupHitsFeed()"), "Hits feed setup function is missing");
 assert(source.includes('section.id = "hits"'), "Hits section id is missing");
 assert(source.includes('visitSection.before(section)'), "Hits feed must be inserted before the visit section");
-assert(source.includes('scroll-snap-type:x mandatory'), "Mobile horizontal feed must retain scroll snapping");
-assert(source.includes('@media(max-width:680px)'), "Mobile feed breakpoint is missing");
+assert(source.includes('const HITS_STYLESHEET = "hits-feed.css?v=20260623-1"'), "CSP-safe hits stylesheet reference changed");
+assert(source.includes('stylesheet.rel = "stylesheet"'), "Hits feed must load styles as a self-hosted stylesheet");
+assert(!source.includes('createElement("style")'), "Inline style injection is forbidden by CSP");
 assert(!source.includes("innerHTML"), "Unsafe innerHTML rendering is forbidden");
 assert(source.includes('document.addEventListener("DOMContentLoaded", initConversionPack'), "Hits feed must render without waiting for user interaction");
+assert(css.includes("scroll-snap-type:x mandatory"), "Mobile horizontal feed must retain scroll snapping");
+assert(css.includes("@media(max-width:680px)"), "Mobile feed breakpoint is missing");
+assert(css.includes("grid-template-columns:repeat(4,minmax(0,1fr))"), "Desktop four-card grid changed");
 
 for (const language of ["tr", "en", "ru"]) {
   assert(new RegExp(`\\n  ${language}: \\{`).test(source), `Missing ${language} hits copy`);
@@ -35,4 +40,4 @@ for (const [id, image, price, href] of expectedProducts) {
 const productIds = Array.from(source.matchAll(/\n    id: "([^"]+)",\n    image:/g), (match) => match[1]);
 assert(JSON.stringify(productIds) === JSON.stringify(expectedProducts.map(([id]) => id)), "Hits product order changed");
 
-console.log("✅ HITS-001 passed: multilingual four-card cafe hits feed, prices, images and menu links remain intact.");
+console.log("✅ HITS-001 passed: multilingual four-card cafe hits feed, prices, assets, links and responsive layout remain intact.");
