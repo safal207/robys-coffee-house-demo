@@ -19,6 +19,115 @@ const seoCopy = {
   }
 };
 
+const hitsCopy = {
+  tr: {
+    eyebrow: "ROBY'S FAVORİLERİ",
+    title: "Kafenin hitleri",
+    lead: "Misafirlerimizin en çok sevdiği dört lezzet.",
+    open: "Menüde aç",
+    swipe: "Kaydırarak keşfedin"
+  },
+  en: {
+    eyebrow: "ROBY'S FAVORITES",
+    title: "Cafe favorites",
+    lead: "Four of the most-loved choices from our menu.",
+    open: "Open in menu",
+    swipe: "Swipe to explore"
+  },
+  ru: {
+    eyebrow: "ЛЮБИМЫЕ ПОЗИЦИИ ROBY'S",
+    title: "Хиты кафе",
+    lead: "Четыре позиции, которые особенно любят наши гости.",
+    open: "Открыть в меню",
+    swipe: "Листайте, чтобы посмотреть"
+  }
+};
+
+const hitsProducts = [
+  {
+    id: "san-sebastian",
+    image: "src/products/san-sebastian.webp",
+    href: "menu.html#desserts",
+    price: 190,
+    names: {
+      tr: "San Sebastian Cheesecake",
+      en: "San Sebastian Cheesecake",
+      ru: "Чизкейк San Sebastian"
+    }
+  },
+  {
+    id: "latte",
+    image: "src/products/latte.webp",
+    href: "menu.html#hot-coffee",
+    price: 180,
+    names: {
+      tr: "Caffè Latte",
+      en: "Caffè Latte",
+      ru: "Латте"
+    }
+  },
+  {
+    id: "nutella-croissant",
+    image: "src/products/nutella-croissant.webp",
+    href: "menu.html#food",
+    price: 170,
+    names: {
+      tr: "Nutellalı Kruvasan",
+      en: "Nutella Croissant",
+      ru: "Круассан с Nutella"
+    }
+  },
+  {
+    id: "lotus-cheesecake",
+    image: "src/products/lotus-cheesecake.webp",
+    href: "menu.html#desserts",
+    price: 190,
+    names: {
+      tr: "Lotus Cheesecake",
+      en: "Lotus Cheesecake",
+      ru: "Чизкейк Lotus"
+    }
+  }
+];
+
+const hitsStyles = `
+.hits-section{overflow:hidden;color:var(--ink);background:var(--cream)}
+.hits-inner{display:grid;gap:30px}
+.hits-header{display:flex;align-items:end;justify-content:space-between;gap:28px}
+.hits-heading{max-width:680px}
+.hits-heading .eyebrow{margin-bottom:12px}
+.hits-heading h2{margin:0;font:500 clamp(2.8rem,6vw,5.8rem)/.92 var(--display);letter-spacing:-.045em}
+.hits-heading h2 em{color:var(--ruby);font-style:italic}
+.hits-lead{max-width:530px;margin:18px 0 0;color:var(--muted);font-size:1rem;line-height:1.65}
+.hits-swipe{display:none;flex:0 0 auto;align-items:center;gap:8px;color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.hits-swipe::after{content:"→";color:var(--ruby);font-size:1rem}
+.hits-track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.hits-card{position:relative;display:flex;min-width:0;overflow:hidden;flex-direction:column;color:inherit;background:var(--paper);border:1px solid rgba(47,39,37,.1);border-radius:24px;box-shadow:0 18px 48px rgba(36,28,27,.1);text-decoration:none;transition:transform .25s ease,box-shadow .25s ease}
+.hits-card:hover{transform:translateY(-5px);box-shadow:0 26px 64px rgba(36,28,27,.15)}
+.hits-card-media{position:relative;overflow:hidden;aspect-ratio:1/1;background:#ded3c9}
+.hits-card-media img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.hits-card:hover .hits-card-media img{transform:scale(1.035)}
+.hits-badge{position:absolute;top:14px;left:14px;display:inline-flex;min-height:31px;align-items:center;padding:7px 11px;color:#fff;background:rgba(36,28,27,.86);border:1px solid rgba(255,255,255,.28);border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:.62rem;font-weight:900;letter-spacing:.14em}
+.hits-card-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:end;padding:18px}
+.hits-card-copy{min-width:0}
+.hits-card-copy h3{margin:0;color:var(--dark);font:600 1.18rem/1.15 var(--display);letter-spacing:-.02em}
+.hits-card-link{display:inline-flex;align-items:center;gap:7px;margin-top:9px;color:var(--muted);font-size:.69rem;font-weight:800}
+.hits-card-link::after{content:"↗";color:var(--ruby)}
+.hits-price{align-self:start;padding:8px 10px;color:#fff;background:var(--ruby);border-radius:999px;font-size:.82rem;font-weight:900;white-space:nowrap}
+@media(max-width:960px){.hits-track{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){
+  .hits-inner{gap:22px}
+  .hits-header{align-items:flex-start;flex-direction:column;gap:14px}
+  .hits-swipe{display:inline-flex}
+  .hits-track{display:flex;width:calc(100% + 36px);margin-right:-18px;margin-left:-18px;padding:0 18px 8px;gap:12px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-padding-inline:18px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .hits-track::-webkit-scrollbar{display:none}
+  .hits-card{width:min(78vw,310px);min-width:min(78vw,310px);scroll-snap-align:start}
+  .hits-card-body{padding:16px}
+  .hits-card-copy h3{font-size:1.08rem}
+}
+@media(prefers-reduced-motion:reduce){.hits-card,.hits-card-media img{transition:none}}
+`;
+
 function updateSeoLanguage() {
   const language = document.documentElement.lang || "tr";
   const copy = seoCopy[language] || seoCopy.tr;
@@ -28,6 +137,111 @@ function updateSeoLanguage() {
   q('meta[property="og:title"]')?.setAttribute("content", copy.title);
   q('meta[property="og:description"]')?.setAttribute("content", copy.description);
   q('meta[property="og:locale"]')?.setAttribute("content", copy.locale);
+}
+
+function createElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function currentHitsLanguage() {
+  const language = document.documentElement.lang || "tr";
+  return hitsCopy[language] ? language : "tr";
+}
+
+function updateHitsLanguage() {
+  const section = q(".hits-section");
+  if (!section) return;
+
+  const language = currentHitsLanguage();
+  const copy = hitsCopy[language];
+
+  q("[data-hits-eyebrow]", section).textContent = copy.eyebrow;
+  q("[data-hits-title]", section).textContent = copy.title;
+  q("[data-hits-lead]", section).textContent = copy.lead;
+  q("[data-hits-swipe]", section).textContent = copy.swipe;
+
+  qa("[data-hits-product]", section).forEach((card) => {
+    const product = hitsProducts.find((item) => item.id === card.dataset.hitsProduct);
+    if (!product) return;
+    q("[data-hits-name]", card).textContent = product.names[language];
+    q("[data-hits-open]", card).textContent = copy.open;
+    card.setAttribute("aria-label", `${product.names[language]} — ${product.price} ₺`);
+  });
+}
+
+function setupHitsFeed() {
+  if (q(".hits-section")) return;
+
+  const visitSection = q("#visit");
+  if (!visitSection) return;
+
+  if (!q("#hits-feed-styles")) {
+    const style = createElement("style");
+    style.id = "hits-feed-styles";
+    style.textContent = hitsStyles;
+    document.head.append(style);
+  }
+
+  const section = createElement("section", "section hits-section");
+  section.id = "hits";
+  section.setAttribute("aria-labelledby", "hits-title");
+
+  const container = createElement("div", "container hits-inner");
+  const header = createElement("header", "hits-header");
+  const heading = createElement("div", "hits-heading");
+  const eyebrow = createElement("p", "eyebrow");
+  eyebrow.dataset.hitsEyebrow = "";
+  const title = createElement("h2");
+  title.id = "hits-title";
+  title.dataset.hitsTitle = "";
+  const lead = createElement("p", "hits-lead");
+  lead.dataset.hitsLead = "";
+  const swipe = createElement("span", "hits-swipe");
+  swipe.dataset.hitsSwipe = "";
+
+  heading.append(eyebrow, title, lead);
+  header.append(heading, swipe);
+
+  const track = createElement("div", "hits-track");
+  track.setAttribute("aria-label", "Roby's cafe favorites");
+
+  hitsProducts.forEach((product) => {
+    const card = createElement("a", "hits-card");
+    card.href = product.href;
+    card.dataset.hitsProduct = product.id;
+
+    const media = createElement("div", "hits-card-media");
+    const image = createElement("img");
+    image.src = product.image;
+    image.alt = product.names.tr;
+    image.width = 640;
+    image.height = 640;
+    image.loading = "lazy";
+    image.decoding = "async";
+    const badge = createElement("span", "hits-badge", "HIT");
+    media.append(image, badge);
+
+    const body = createElement("div", "hits-card-body");
+    const cardCopy = createElement("div", "hits-card-copy");
+    const name = createElement("h3");
+    name.dataset.hitsName = "";
+    const open = createElement("span", "hits-card-link");
+    open.dataset.hitsOpen = "";
+    const price = createElement("strong", "hits-price", `${product.price} ₺`);
+
+    cardCopy.append(name, open);
+    body.append(cardCopy, price);
+    card.append(media, body);
+    track.append(card);
+  });
+
+  container.append(header, track);
+  section.append(container);
+  visitSection.before(section);
+  updateHitsLanguage();
 }
 
 function setupHeaderAndProgress() {
@@ -166,15 +380,26 @@ function initConversionPack() {
   if (initialized) return;
   initialized = true;
 
+  setupHitsFeed();
   setupHeaderAndProgress();
   setupActiveNavigation();
   setupMobileCta();
   updateSeoLanguage();
+  updateHitsLanguage();
 
-  new MutationObserver(updateSeoLanguage).observe(document.documentElement, {
+  new MutationObserver(() => {
+    updateSeoLanguage();
+    updateHitsLanguage();
+  }).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["lang"]
   });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initConversionPack, { once: true });
+} else {
+  initConversionPack();
 }
 
 window.addEventListener("scroll", initConversionPack, { once: true, passive: true });
