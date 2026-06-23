@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T17:09:59.943Z",
+  "generatedAt": "2026-06-23T17:18:05.081Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -31,22 +31,22 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.6 s",
-      "numericValue": 1588.0119750000003,
+      "numericValue": 1585.284525,
       "score": 0.94
     },
     "largest-contentful-paint": {
       "displayValue": "2.3 s",
-      "numericValue": 2304.67465,
-      "score": 0.93
+      "numericValue": 2256.85635,
+      "score": 0.94
     },
     "speed-index": {
       "displayValue": "1.6 s",
-      "numericValue": 1588.0119750000003,
+      "numericValue": 1585.284525,
       "score": 1
     },
     "total-blocking-time": {
-      "displayValue": "10 ms",
-      "numericValue": 8.5,
+      "displayValue": "0 ms",
+      "numericValue": 0,
       "score": 1
     },
     "cumulative-layout-shift": {
@@ -56,21 +56,21 @@
     },
     "interactive": {
       "displayValue": "2.3 s",
-      "numericValue": 2334.6746500000004,
+      "numericValue": 2286.85635,
       "score": 0.99
     }
   },
   "opportunities": [
     {
-      "id": "uses-text-compression",
-      "title": "Enable text compression",
-      "displayValue": "Est savings of 69 KiB",
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 310 ms",
       "score": 0
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 240 ms",
+      "id": "uses-text-compression",
+      "title": "Enable text compression",
+      "displayValue": "Est savings of 69 KiB",
       "score": 0
     },
     {
@@ -97,13 +97,19 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 240 ms"
+      "displayValue": "Est savings of 310 ms"
     },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "score": 0,
       "displayValue": "Est savings of 69 KiB"
+    },
+    {
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
+      "score": 0,
+      "displayValue": "1 failure reason"
     },
     {
       "id": "cache-insight",
@@ -121,7 +127,7 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 390 ms"
+      "displayValue": "Est savings of 460 ms"
     },
     {
       "id": "uses-long-cache-ttl",
