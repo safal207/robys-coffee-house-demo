@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T17:18:05.081Z",
+  "generatedAt": "2026-06-23T17:45:35.673Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -31,17 +31,17 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.6 s",
-      "numericValue": 1585.284525,
+      "numericValue": 1585.0367999999996,
       "score": 0.94
     },
     "largest-contentful-paint": {
       "displayValue": "2.3 s",
-      "numericValue": 2256.85635,
-      "score": 0.94
+      "numericValue": 2305.6911999999993,
+      "score": 0.93
     },
     "speed-index": {
       "displayValue": "1.6 s",
-      "numericValue": 1585.284525,
+      "numericValue": 1585.0367999999996,
       "score": 1
     },
     "total-blocking-time": {
@@ -56,21 +56,21 @@
     },
     "interactive": {
       "displayValue": "2.3 s",
-      "numericValue": 2286.85635,
+      "numericValue": 2335.6911999999993,
       "score": 0.99
     }
   },
   "opportunities": [
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 310 ms",
-      "score": 0
-    },
-    {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 69 KiB",
+      "score": 0
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 250 ms",
       "score": 0
     },
     {
@@ -97,7 +97,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 310 ms"
+      "displayValue": "Est savings of 250 ms"
     },
     {
       "id": "uses-text-compression",
@@ -127,7 +127,7 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 460 ms"
+      "displayValue": "Est savings of 400 ms"
     },
     {
       "id": "uses-long-cache-ttl",
