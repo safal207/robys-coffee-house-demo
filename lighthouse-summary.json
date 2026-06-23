@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T11:15:01.510Z",
+  "generatedAt": "2026-06-23T11:43:26.196Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 80,
+    "performance": 70,
     "accessibility": 100,
-    "best-practices": 93,
+    "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.5 s",
-      "numericValue": 1541.5113999999999,
-      "score": 0.95
+      "displayValue": "1.7 s",
+      "numericValue": 1679.6817,
+      "score": 0.92
     },
     "largest-contentful-paint": {
-      "displayValue": "2.3 s",
-      "numericValue": 2301.7632999999996,
-      "score": 0.93
+      "displayValue": "2.4 s",
+      "numericValue": 2366.5756,
+      "score": 0.92
     },
     "speed-index": {
-      "displayValue": "4.4 s",
-      "numericValue": 4362.742806770938,
-      "score": 0.75
+      "displayValue": "4.7 s",
+      "numericValue": 4683.438263530091,
+      "score": 0.69
     },
     "total-blocking-time": {
-      "displayValue": "610 ms",
-      "numericValue": 606.4924000000002,
-      "score": 0.49
+      "displayValue": "1,300 ms",
+      "numericValue": 1295.7122,
+      "score": 0.18
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,16 +55,22 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.7 s",
-      "numericValue": 2661.0038000000004,
-      "score": 0.97
+      "displayValue": "3.4 s",
+      "numericValue": 3371.3439000000003,
+      "score": 0.93
     }
   },
   "opportunities": [
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
-      "displayValue": "Est savings of 59 KiB",
+      "displayValue": "Est savings of 60 KiB",
+      "score": 0
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "displayValue": "Est savings of 13 KiB",
       "score": 0
     },
     {
@@ -72,50 +78,38 @@
       "title": "Eliminate render-blocking resources",
       "displayValue": "Est savings of 0 ms",
       "score": 0.5
-    },
-    {
-      "id": "unused-javascript",
-      "title": "Reduce unused JavaScript",
-      "displayValue": "Est savings of 26 KiB",
-      "score": 0.5
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
     }
   ],
   "failedAudits": [
     {
-      "id": "errors-in-console",
-      "title": "Browser errors were logged to the console",
-      "score": 0,
-      "displayValue": null
-    },
-    {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "3.1 s"
+      "displayValue": "4.1 s"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "score": 0,
-      "displayValue": "Est savings of 59 KiB"
+      "displayValue": "Est savings of 60 KiB"
     },
     {
-      "id": "inspector-issues",
-      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
       "score": 0,
-      "displayValue": null
+      "displayValue": "1 failure reason"
     },
     {
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 283 KiB"
+      "displayValue": "Est savings of 284 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -124,22 +118,16 @@
       "displayValue": null
     },
     {
-      "id": "render-blocking-insight",
-      "title": "Render blocking requests",
-      "score": 0,
-      "displayValue": "Est savings of 70 ms"
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.18,
+      "displayValue": "1,300 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.48,
-      "displayValue": "250 ms"
-    },
-    {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.49,
-      "displayValue": "610 ms"
+      "score": 0.2,
+      "displayValue": "380 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -154,28 +142,22 @@
       "displayValue": "Est savings of 0 ms"
     },
     {
-      "id": "unused-javascript",
-      "title": "Reduce unused JavaScript",
-      "score": 0.5,
-      "displayValue": "Est savings of 26 KiB"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
-    },
-    {
       "id": "document-latency-insight",
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 9 KiB"
     },
     {
+      "id": "render-blocking-insight",
+      "title": "Render blocking requests",
+      "score": 0.5,
+      "displayValue": "Est savings of 10 ms"
+    },
+    {
       "id": "speed-index",
       "title": "Speed Index",
-      "score": 0.75,
-      "displayValue": "4.4 s"
+      "score": 0.69,
+      "displayValue": "4.7 s"
     }
   ]
 }
