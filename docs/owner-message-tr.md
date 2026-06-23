@@ -13,7 +13,7 @@ Tam menü:
 https://safal207.github.io/robys-coffee-house-demo/menu.html
 
 Kısa sunum ve QR:
-https://safal207.github.io/robys-coffee-house-demo/owner-pitch.html
+https://safal207.github.io/robys-coffee-house-demo/docs/owner-pitch.html
 
 Uygun olduğunuzda 5 dakikada göstermek isterim. Beğenirseniz içerik, fiyatlar ve görselleri birlikte netleştirip Roby's için son hâline getirebiliriz.
 
