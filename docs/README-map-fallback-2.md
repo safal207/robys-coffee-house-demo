@@ -1,0 +1,1 @@
+Touch devices use a static map fallback.
