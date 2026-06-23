@@ -49,6 +49,10 @@ jobs:
         working-directory: current
         run: npm run verify:instagram-tools
 
+      - name: Verify cafe hits contract
+        working-directory: current
+        run: npm run verify:hits-feed
+
       - name: Build base branch
         working-directory: baseline
         run: npm run build
@@ -61,13 +65,19 @@ jobs:
         working-directory: current
         run: npx playwright install --with-deps chromium
 
-      - name: Compare screenshots with base branch
+      - name: Compare stable sections with base branch
         working-directory: current
         env:
           VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
           VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
           VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
         run: node scripts/visual-regression.mjs
+
+      - name: Verify cafe hits in browser
+        working-directory: current
+        env:
+          HITS_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/hits-feed
+        run: node scripts/hits-browser-smoke.mjs
 
       - name: Audit rapid mobile menu scrolling
         working-directory: current
