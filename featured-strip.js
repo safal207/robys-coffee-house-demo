@@ -4,11 +4,11 @@ const previousButton = document.querySelector("[data-featured-prev]");
 const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
-const FALLBACK_IMAGES = [
-  ["src/products/nutella-croissant.webp", "src/products/nutella-croissant.svg"],
-  ["src/products/san-sebastian.webp", "src/products/san-sebastian-premium.svg"],
-  ["src/products/latte.webp", "src/products/latte-premium.svg"],
-  ["src/products/lotus-cheesecake.webp", "src/products/lotus-cheesecake-v2.svg"]
+const STATIC_IMAGES = [
+  "src/products/nutella-croissant.svg",
+  "src/products/san-sebastian-premium.svg",
+  "src/products/latte-premium.svg",
+  "src/products/lotus-cheesecake-v2.svg"
 ];
 
 let cards = [];
@@ -28,26 +28,24 @@ function localized(value, language = currentLanguage()) {
   return value[language] || value.tr || value.en || value.ru || "";
 }
 
-function attachImageFallback(image, fallback) {
-  if (!image || !fallback) return;
+function attachImageFallback(image, card) {
+  if (!image || !card) return;
   image.addEventListener("error", () => {
-    if (image.dataset.fallbackUsed === "true") return;
-    image.dataset.fallbackUsed = "true";
-    image.parentElement?.querySelectorAll("source").forEach((source) => source.remove());
-    image.src = fallback;
-  });
+    image.remove();
+    card.classList.add("featured-card--image-missing");
+  }, { once: true });
 }
 
 function prepareStaticFallback() {
   const staticCards = Array.from(document.querySelectorAll(".featured-card"));
   staticCards.forEach((card, index) => {
     const image = card.querySelector("img");
-    const sources = FALLBACK_IMAGES[index];
-    if (!image || !sources) return;
+    const source = STATIC_IMAGES[index];
+    if (!image || !source) return;
     image.loading = "eager";
     image.decoding = "async";
-    image.src = sources[0];
-    attachImageFallback(image, sources[1]);
+    image.src = source;
+    attachImageFallback(image, card);
   });
   cards = staticCards;
 }
@@ -61,7 +59,6 @@ function validProduct(product) {
     && Number.isFinite(Number(product.price))
     && typeof product.href === "string"
     && product.image
-    && typeof product.image.webp === "string"
     && typeof product.image.fallback === "string"
   );
 }
@@ -72,11 +69,6 @@ function createCard(product, index) {
   card.href = product.href;
   card.dataset.productId = product.id;
 
-  const picture = document.createElement("picture");
-  const source = document.createElement("source");
-  source.type = "image/webp";
-  source.srcset = product.image.webp;
-
   const image = document.createElement("img");
   image.src = product.image.fallback;
   image.width = 768;
@@ -85,9 +77,7 @@ function createCard(product, index) {
   image.decoding = "async";
   image.fetchPriority = index === 0 ? "high" : "auto";
   image.alt = localized(product.alt);
-  attachImageFallback(image, product.image.fallback);
-
-  picture.append(source, image);
+  attachImageFallback(image, card);
 
   const top = document.createElement("div");
   top.className = "featured-card-top";
@@ -115,7 +105,7 @@ function createCard(product, index) {
   action.textContent = "+";
 
   bottom.append(titleWrap, action);
-  card.append(picture, top, bottom);
+  card.append(image, top, bottom);
   card.setAttribute(
     "aria-label",
     `${localized(product.title)}, ${Number(product.price)} ${product.currency || "₺"}`
@@ -212,7 +202,7 @@ function buildPagination() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("data/featured-products.json", { cache: "no-store" });
+    const response = await fetch("data/featured-products.json?v=20260624-1", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Expected an array");
