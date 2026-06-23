@@ -1,87 +1,252 @@
 const viewport = document.querySelector("[data-featured-viewport]");
-const cards = Array.from(document.querySelectorAll(".featured-card"));
+const track = document.querySelector(".featured-track");
 const previousButton = document.querySelector("[data-featured-prev]");
 const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
-const productImages = [
-  "src/products/nutella-croissant.webp",
-  "src/products/san-sebastian.webp",
-  "src/products/latte.webp",
-  "src/products/lotus-cheesecake.webp"
+const FALLBACK_IMAGES = [
+  ["src/products/nutella-croissant.webp", "src/products/nutella-croissant.svg"],
+  ["src/products/san-sebastian.webp", "src/products/san-sebastian-premium.svg"],
+  ["src/products/latte.webp", "src/products/latte-premium.svg"],
+  ["src/products/lotus-cheesecake.webp", "src/products/lotus-cheesecake-v2.svg"]
 ];
 
-cards.forEach((card, index) => {
-  const image = card.querySelector("img");
-  if (!image || !productImages[index]) return;
-  image.src = productImages[index];
-});
+let cards = [];
+let products = [];
+let dots = [];
+let frame = 0;
 
-if (viewport && cards.length) {
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const dots = cards.map((_, index) => {
+function currentLanguage() {
+  return document.querySelector(".lang-button.active")?.dataset.lang
+    || document.documentElement.lang
+    || "tr";
+}
+
+function localized(value, language = currentLanguage()) {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return "";
+  return value[language] || value.tr || value.en || value.ru || "";
+}
+
+function attachImageFallback(image, fallback) {
+  if (!image || !fallback) return;
+  image.addEventListener("error", () => {
+    if (image.dataset.fallbackUsed === "true") return;
+    image.dataset.fallbackUsed = "true";
+    image.src = fallback;
+  });
+}
+
+function prepareStaticFallback() {
+  const staticCards = Array.from(document.querySelectorAll(".featured-card"));
+  staticCards.forEach((card, index) => {
+    const image = card.querySelector("img");
+    const sources = FALLBACK_IMAGES[index];
+    if (!image || !sources) return;
+    image.loading = "eager";
+    image.decoding = "async";
+    image.src = sources[0];
+    attachImageFallback(image, sources[1]);
+  });
+  cards = staticCards;
+}
+
+function validProduct(product) {
+  return Boolean(
+    product
+    && typeof product.id === "string"
+    && product.active !== false
+    && product.title
+    && Number.isFinite(Number(product.price))
+    && typeof product.href === "string"
+    && product.image
+    && typeof product.image.webp === "string"
+    && typeof product.image.fallback === "string"
+  );
+}
+
+function createCard(product, index) {
+  const card = document.createElement("a");
+  card.className = "featured-card";
+  card.href = product.href;
+  card.dataset.productId = product.id;
+
+  const picture = document.createElement("picture");
+  const source = document.createElement("source");
+  source.type = "image/webp";
+  source.srcset = product.image.webp;
+
+  const image = document.createElement("img");
+  image.src = product.image.fallback;
+  image.width = 768;
+  image.height = 768;
+  image.loading = "eager";
+  image.decoding = "async";
+  image.fetchPriority = index === 0 ? "high" : "auto";
+  image.alt = localized(product.alt);
+  attachImageFallback(image, product.image.fallback);
+
+  picture.append(source, image);
+
+  const top = document.createElement("div");
+  top.className = "featured-card-top";
+  const badge = document.createElement("small");
+  badge.dataset.productField = "badge";
+  badge.textContent = localized(product.badge);
+  top.append(badge);
+
+  const bottom = document.createElement("div");
+  bottom.className = "featured-card-bottom";
+
+  const titleWrap = document.createElement("div");
+  titleWrap.className = "featured-card-title";
+  const title = document.createElement("strong");
+  title.dataset.productField = "title";
+  title.textContent = localized(product.title);
+  const price = document.createElement("span");
+  price.className = "featured-price";
+  price.textContent = `${Number(product.price)} ${product.currency || "₺"}`;
+  titleWrap.append(title, price);
+
+  const action = document.createElement("span");
+  action.className = "featured-card-action";
+  action.setAttribute("aria-hidden", "true");
+  action.textContent = "+";
+
+  bottom.append(titleWrap, action);
+  card.append(picture, top, bottom);
+  card.setAttribute(
+    "aria-label",
+    `${localized(product.title)}, ${Number(product.price)} ${product.currency || "₺"}`
+  );
+
+  return card;
+}
+
+function renderProducts(nextProducts) {
+  if (!track) return;
+  products = nextProducts
+    .filter(validProduct)
+    .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+
+  if (!products.length) return;
+
+  const fragment = document.createDocumentFragment();
+  products.forEach((product, index) => fragment.append(createCard(product, index)));
+  track.replaceChildren(fragment);
+  cards = Array.from(track.querySelectorAll(".featured-card"));
+  buildPagination();
+  updateState();
+}
+
+function updateTranslations(language = currentLanguage()) {
+  cards.forEach((card, index) => {
+    const product = products[index];
+    if (!product) return;
+    const title = card.querySelector('[data-product-field="title"]');
+    const badge = card.querySelector('[data-product-field="badge"]');
+    const image = card.querySelector("img");
+    if (title) title.textContent = localized(product.title, language);
+    if (badge) badge.textContent = localized(product.badge, language);
+    if (image) image.alt = localized(product.alt, language);
+    card.setAttribute(
+      "aria-label",
+      `${localized(product.title, language)}, ${Number(product.price)} ${product.currency || "₺"}`
+    );
+  });
+}
+
+function closestIndex() {
+  if (!viewport || !cards.length) return 0;
+  const left = viewport.getBoundingClientRect().left;
+  return cards.reduce((bestIndex, card, index) => {
+    const bestDistance = Math.abs(cards[bestIndex].getBoundingClientRect().left - left);
+    const distance = Math.abs(card.getBoundingClientRect().left - left);
+    return distance < bestDistance ? index : bestIndex;
+  }, 0);
+}
+
+function updateState() {
+  if (!viewport) return;
+  const index = closestIndex();
+  dots.forEach((dot, dotIndex) => dot.setAttribute("aria-current", String(dotIndex === index)));
+  previousButton?.toggleAttribute("disabled", viewport.scrollLeft <= 4);
+  nextButton?.toggleAttribute(
+    "disabled",
+    viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 4
+  );
+}
+
+function step(direction) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const index = closestIndex();
+  const targetIndex = Math.max(0, Math.min(cards.length - 1, index + direction));
+  cards[targetIndex]?.scrollIntoView({
+    behavior: reducedMotion ? "auto" : "smooth",
+    block: "nearest",
+    inline: "start"
+  });
+}
+
+function buildPagination() {
+  if (!pagination) return;
+  pagination.replaceChildren();
+  dots = cards.map((_, index) => {
     const dot = document.createElement("button");
     dot.type = "button";
     dot.className = "featured-dot";
     dot.setAttribute("aria-label", `Go to featured item ${index + 1}`);
     dot.addEventListener("click", () => {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       cards[index]?.scrollIntoView({
-        behavior: reducedMotion.matches ? "auto" : "smooth",
+        behavior: reducedMotion ? "auto" : "smooth",
         block: "nearest",
         inline: "start"
       });
     });
-    pagination?.append(dot);
+    pagination.append(dot);
     return dot;
   });
-
-  function closestIndex() {
-    const left = viewport.getBoundingClientRect().left;
-    return cards.reduce((bestIndex, card, index) => {
-      const bestDistance = Math.abs(cards[bestIndex].getBoundingClientRect().left - left);
-      const distance = Math.abs(card.getBoundingClientRect().left - left);
-      return distance < bestDistance ? index : bestIndex;
-    }, 0);
-  }
-
-  function updateState() {
-    const index = closestIndex();
-    dots.forEach((dot, dotIndex) => dot.setAttribute("aria-current", String(dotIndex === index)));
-    previousButton?.toggleAttribute("disabled", viewport.scrollLeft <= 4);
-    nextButton?.toggleAttribute(
-      "disabled",
-      viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 4
-    );
-  }
-
-  function step(direction) {
-    const index = closestIndex();
-    const targetIndex = Math.max(0, Math.min(cards.length - 1, index + direction));
-    cards[targetIndex]?.scrollIntoView({
-      behavior: reducedMotion.matches ? "auto" : "smooth",
-      block: "nearest",
-      inline: "start"
-    });
-  }
-
-  previousButton?.addEventListener("click", () => step(-1));
-  nextButton?.addEventListener("click", () => step(1));
-  viewport.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      step(-1);
-    }
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      step(1);
-    }
-  });
-
-  let frame = 0;
-  viewport.addEventListener("scroll", () => {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(updateState);
-  }, { passive: true });
-  window.addEventListener("resize", updateState, { passive: true });
-  updateState();
 }
+
+async function loadProducts() {
+  try {
+    const response = await fetch("data/featured-products.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!Array.isArray(payload)) throw new Error("Expected an array");
+    renderProducts(payload);
+  } catch (error) {
+    console.warn("Featured products fallback is active:", error);
+    buildPagination();
+    updateState();
+  }
+}
+
+prepareStaticFallback();
+buildPagination();
+updateState();
+loadProducts();
+
+previousButton?.addEventListener("click", () => step(-1));
+nextButton?.addEventListener("click", () => step(1));
+viewport?.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    step(-1);
+  }
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    step(1);
+  }
+});
+viewport?.addEventListener("scroll", () => {
+  cancelAnimationFrame(frame);
+  frame = requestAnimationFrame(updateState);
+}, { passive: true });
+window.addEventListener("resize", updateState, { passive: true });
+document.querySelectorAll(".lang-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    window.setTimeout(() => updateTranslations(button.dataset.lang || "tr"), 0);
+  });
+});
