@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260623-1",
+  "build": "20260624-1",
   "files": [
     {
       "path": "404.html",
@@ -45,8 +45,8 @@
     },
     {
       "path": "featured-strip.js",
-      "bytes": 8460,
-      "sha256": "84ae5f55a223f484e4d2f4d9c0f8687759bfe3790b7e3c4bf36d244087edd1ef"
+      "bytes": 7909,
+      "sha256": "0788b6b594ebe2969634e3c3aba6d9dddb1eeef703d3b2e7a7bf00e60a7ab3c5"
     },
     {
       "path": "final-qa.css",
@@ -70,8 +70,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 18676,
-      "sha256": "1d0e778a0f08bffdbeb382b72acefbe63829a62eddbe5097cfead0f59f686a99"
+      "bytes": 18768,
+      "sha256": "5a96f6064da52c9586cdb3b2ef1f7ff214da9ea608ef4045af878a82bcf1e2ff"
     },
     {
       "path": "manifest.webmanifest",
@@ -194,11 +194,6 @@
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
     },
     {
-      "path": "src/products/README.txt",
-      "bytes": 57,
-      "sha256": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54"
-    },
-    {
       "path": "src/products/carrot-cake.svg",
       "bytes": 1585,
       "sha256": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8"
@@ -272,6 +267,11 @@
       "path": "src/products/raspberry-cheesecake.svg",
       "bytes": 1437,
       "sha256": "cb37a84b67b80888d2017030ff648c556b7280e5f52381e39f1a3eb3acf884d0"
+    },
+    {
+      "path": "src/products/README.txt",
+      "bytes": 57,
+      "sha256": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54"
     },
     {
       "path": "src/products/san-sebastian-premium.svg",
