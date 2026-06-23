@@ -1,1 +1,0 @@
-Map fallback is implemented in map-live.css.
