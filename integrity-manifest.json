@@ -199,6 +199,11 @@
       "sha256": "611a20efa2295dd9f4ba434ac3968dd4e5863c7d3a71bfa70db0e7af0c96401f"
     },
     {
+      "path": "src/products/cards/san-sebastian-card.v3.svg",
+      "bytes": 7974,
+      "sha256": "acbd5fabf50a3b32e8329ed9d54a408eb4cc3886e0fab283f58361838bba02c0"
+    },
+    {
       "path": "src/products/carrot-cake.svg",
       "bytes": 1585,
       "sha256": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8"
