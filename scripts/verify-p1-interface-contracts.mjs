@@ -71,6 +71,15 @@ for (const [selector, expectedBackground] of [
   assert(rule.includes("backdrop-filter:none"), "MOBILE-001", `${selector} must disable backdrop filtering`);
   assert(!rule.includes("blur("), "MOBILE-001", `${selector} must not blur content during scrolling`);
 }
+assert(menuCss.includes("@media(hover:none) and (pointer:coarse){"), "MOBILE-001", "Coarse-pointer raster safe mode is missing");
+for (const contract of [
+  ".menu-page .site-header,.menu-controls{position:static;top:auto;z-index:auto;box-shadow:none}",
+  ".full-menu-grid{display:block}",
+  ".full-menu-panel{box-shadow:none}",
+  ".full-menu-panel+.full-menu-panel{margin-top:18px}"
+]) {
+  assert(menuCss.includes(contract), "MOBILE-001", `Raster safe-mode contract changed: ${contract}`);
+}
 gate("MOBILE-001");
 
 // CTA-001
