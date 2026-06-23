@@ -1,7 +1,8 @@
 :root{--menu-header-height:76px}
+html{background:var(--cream)}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
 .menu-page{min-height:100vh;background:var(--cream)}
-.menu-page .site-header{position:sticky;inset:auto;top:0;z-index:100;padding-top:max(8px,env(safe-area-inset-top));color:#fff;background:rgba(36,28,27,.97);box-shadow:0 10px 32px rgba(36,28,27,.14);backdrop-filter:blur(14px)}
+.menu-page .site-header{position:sticky;inset:auto;top:0;z-index:100;padding-top:max(8px,env(safe-area-inset-top));color:#fff;background:var(--dark);box-shadow:0 10px 32px rgba(36,28,27,.14);-webkit-backdrop-filter:none;backdrop-filter:none}
 .menu-page .header-inner{min-height:68px}
 .menu-page .menu-page-back{justify-self:center;padding:10px 15px;border:1px solid rgba(255,255,255,.2);border-radius:999px;font-size:.76rem;font-weight:700;transition:background .2s,border-color .2s}
 .menu-page .menu-page-back:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.34)}
@@ -12,7 +13,7 @@
 .menu-page-hero h1{max-width:760px;margin:0;font-size:clamp(3.5rem,8vw,7.6rem);color:var(--dark)}
 .menu-page-hero p{max-width:650px;margin:20px 0 0;color:var(--muted);font-size:1.05rem}
 .menu-page-mark{display:grid;width:112px;height:112px;place-items:center;color:#fff;background:var(--ruby);border-radius:50%;font:700 3rem var(--display);box-shadow:0 20px 52px rgba(184,77,88,.25)}
-.menu-controls{position:sticky;top:var(--menu-header-height);z-index:80;padding:15px 0;background:rgba(244,241,236,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+.menu-controls{position:sticky;top:var(--menu-header-height);z-index:80;padding:15px 0;background:var(--cream);border-bottom:1px solid var(--line);-webkit-backdrop-filter:none;backdrop-filter:none}
 .menu-controls-inner{display:grid;gap:12px}
 .menu-search{position:relative}
 .menu-search::before{content:"⌕";position:absolute;top:50%;left:17px;color:var(--muted);font-size:1.35rem;transform:translateY(-52%);pointer-events:none}
