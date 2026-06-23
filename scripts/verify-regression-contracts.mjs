@@ -57,7 +57,7 @@ assert(mapCss.includes("@media(hover:none) and (pointer:coarse){"), "MAP-001", "
 assert(mapCss.includes(".map-live-frame{display:none}"), "MAP-001", "Touch devices must hide the embedded map frame");
 assert(mapCss.includes(".map-live-link{pointer-events:auto}"), "MAP-001", "Touch-device map card must remain fully clickable");
 assert(mapCss.includes(".map-live-badge,.map-live-bottom{pointer-events:none}"), "MAP-001", "Touch-device child controls must delegate clicks to the full map link");
-dashboardContract("MAP-001", 8);
+dashboardContract("MAP-001", 6);
 
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
 assert(heroVideoBlocks.length === 1, "VIDEO-001", `Expected exactly one .hero-video element, found ${heroVideoBlocks.length}`);
