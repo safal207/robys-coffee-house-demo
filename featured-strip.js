@@ -5,10 +5,10 @@ const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
 const STATIC_IMAGES = [
-  "src/products/nutella-croissant.svg",
-  "src/products/san-sebastian-premium.svg",
-  "src/products/latte-premium.svg",
-  "src/products/lotus-cheesecake-v2.svg"
+  "src/products/cards/nutella-card.v3.svg",
+  "src/products/cards/san-sebastian-card.v3.svg",
+  "src/products/cards/latte-card.v3.svg",
+  "src/products/cards/lotus-card.v3.svg"
 ];
 
 let cards = [];
@@ -59,7 +59,7 @@ function validProduct(product) {
     && Number.isFinite(Number(product.price))
     && typeof product.href === "string"
     && product.image
-    && typeof product.image.fallback === "string"
+    && typeof product.image.primary === "string"
   );
 }
 
@@ -70,9 +70,9 @@ function createCard(product, index) {
   card.dataset.productId = product.id;
 
   const image = document.createElement("img");
-  image.src = product.image.fallback;
-  image.width = 768;
-  image.height = 768;
+  image.src = product.image.primary;
+  image.width = 160;
+  image.height = 200;
   image.loading = "eager";
   image.decoding = "async";
   image.fetchPriority = index === 0 ? "high" : "auto";
@@ -202,7 +202,7 @@ function buildPagination() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("data/featured-products.json?v=20260624-1", { cache: "no-store" });
+    const response = await fetch("data/featured-products.json?v=20260624-3", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Expected an array");
