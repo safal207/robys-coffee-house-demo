@@ -33,6 +33,7 @@ function attachImageFallback(image, fallback) {
   image.addEventListener("error", () => {
     if (image.dataset.fallbackUsed === "true") return;
     image.dataset.fallbackUsed = "true";
+    image.parentElement?.querySelectorAll("source").forEach((source) => source.remove());
     image.src = fallback;
   });
 }
