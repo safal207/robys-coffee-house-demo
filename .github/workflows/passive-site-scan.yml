@@ -1,0 +1,23 @@
+name: Passive public site security scan
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '29 3 * * 4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: https://safal207.github.io/robys-coffee-house-demo/
+          fail_action: true
+          allow_issue_writing: false
