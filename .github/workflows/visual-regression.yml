@@ -45,6 +45,10 @@ jobs:
         working-directory: current
         run: npm run build
 
+      - name: Verify Instagram tools contract
+        working-directory: current
+        run: npm run verify:instagram-tools
+
       - name: Build base branch
         working-directory: baseline
         run: npm run build

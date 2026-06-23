@@ -77,7 +77,21 @@ async function stabilize(page) {
     const year = document.querySelector("#current-year");
     if (year) year.textContent = "2026";
     if (document.fonts?.ready) await document.fonts.ready;
+
+    const poster = new Image();
+    poster.src = "/src/robys-hero-poster.jpg";
+    await new Promise((resolve) => {
+      if (poster.complete) {
+        resolve();
+        return;
+      }
+      poster.addEventListener("load", resolve, { once: true });
+      poster.addEventListener("error", resolve, { once: true });
+    });
+    if (poster.decode) await poster.decode().catch(() => {});
+
     window.scrollTo(0, 0);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });
 
   await page.waitForTimeout(180);
