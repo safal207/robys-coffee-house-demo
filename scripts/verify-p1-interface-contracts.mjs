@@ -37,6 +37,13 @@ function hrefs(html, prefix) {
   return Array.from(html.matchAll(new RegExp(`href=["'](${prefix}[^"']+)["']`, "gi")), (match) => match[1]);
 }
 
+function cssRule(css, selector, id) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "i"));
+  assert(match, id, `Missing CSS rule for ${selector}`);
+  return match[1].replace(/\s+/g, "").toLowerCase();
+}
+
 // MOBILE-001
 for (const [name, html] of [["index.html", indexHtml], ["menu.html", menuHtml]]) {
   assert(html.includes("width=device-width") && html.includes("viewport-fit=cover"), "MOBILE-001", `${name} viewport contract changed`);
@@ -52,6 +59,18 @@ assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
 assert(menuCss.includes("grid-template-columns:minmax(0,1fr) auto"), "MOBILE-001", "Product/price columns changed");
+const menuDocumentRule = cssRule(menuCss, "html", "MOBILE-001");
+assert(menuDocumentRule.includes("background:var(--cream)"), "MOBILE-001", "Menu document background must match the page during overscroll");
+for (const [selector, expectedBackground] of [
+  [".menu-page .site-header", "background:var(--dark)"],
+  [".menu-controls", "background:var(--cream)"]
+]) {
+  const rule = cssRule(menuCss, selector, "MOBILE-001");
+  assert(rule.includes("position:sticky"), "MOBILE-001", `${selector} must remain sticky`);
+  assert(rule.includes(expectedBackground), "MOBILE-001", `${selector} must use an opaque background`);
+  assert(rule.includes("backdrop-filter:none"), "MOBILE-001", `${selector} must disable backdrop filtering`);
+  assert(!rule.includes("blur("), "MOBILE-001", `${selector} must not blur content during scrolling`);
+}
 gate("MOBILE-001");
 
 // CTA-001
