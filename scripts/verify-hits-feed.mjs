@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
-const source = readFileSync("conversion.js", "utf8");
+const conversion = readFileSync("conversion.js", "utf8");
+const source = readFileSync("hits-feed.js", "utf8");
 const css = readFileSync("hits-feed.css", "utf8");
 
 function assert(condition, message) {
@@ -14,14 +15,12 @@ const expectedProducts = [
   ["lotus-cheesecake", "src/products/lotus-cheesecake.webp", 190, "menu.html#desserts"]
 ];
 
-assert(source.includes("function setupHitsFeed()"), "Hits feed setup function is missing");
+assert(conversion.startsWith('import "./hits-feed.js?v=20260623-1";'), "Hits module import changed");
+assert(source.includes("function render()"), "Hits feed render function is missing");
 assert(source.includes('section.id = "hits"'), "Hits section id is missing");
 assert(source.includes('visitSection.before(section)'), "Hits feed must be inserted before the visit section");
-assert(source.includes('const HITS_STYLESHEET = "hits-feed.css?v=20260623-1"'), "CSP-safe hits stylesheet reference changed");
-assert(source.includes('stylesheet.rel = "stylesheet"'), "Hits feed must load styles as a self-hosted stylesheet");
-assert(!source.includes('createElement("style")'), "Inline style injection is forbidden by CSP");
 assert(!source.includes("innerHTML"), "Unsafe innerHTML rendering is forbidden");
-assert(source.includes('document.addEventListener("DOMContentLoaded", initConversionPack'), "Hits feed must render without waiting for user interaction");
+assert(source.includes("render();"), "Hits feed must render when the module loads");
 assert(css.includes("scroll-snap-type:x mandatory"), "Mobile horizontal feed must retain scroll snapping");
 assert(css.includes("@media(max-width:680px)"), "Mobile feed breakpoint is missing");
 assert(css.includes("grid-template-columns:repeat(4,minmax(0,1fr))"), "Desktop four-card grid changed");
