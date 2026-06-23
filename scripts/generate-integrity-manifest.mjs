@@ -20,6 +20,8 @@ const excludedDirectories = new Set([
 ]);
 const excludedRootFiles = new Set([
   OUTPUT,
+  "lighthouse-live-summary.json",
+  "lighthouse-summary.json",
   "package.json",
   "package-lock.json",
   "tsconfig.json"
