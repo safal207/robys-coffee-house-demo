@@ -1,1 +1,0 @@
-Touch devices hide the embedded Google Maps iframe and use the full-card external Maps link instead, avoiding in-app browser ERR_BLOCKED_BY_RESPONSE pages.
