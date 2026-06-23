@@ -194,6 +194,11 @@
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
     },
     {
+      "path": "src/products/cards/nutella-card.v3.svg",
+      "bytes": 9074,
+      "sha256": "611a20efa2295dd9f4ba434ac3968dd4e5863c7d3a71bfa70db0e7af0c96401f"
+    },
+    {
       "path": "src/products/carrot-cake.svg",
       "bytes": 1585,
       "sha256": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8"
