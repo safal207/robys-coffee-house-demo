@@ -17,8 +17,7 @@
     },
     "href": "menu.html#food",
     "image": {
-      "webp": "src/products/nutella-croissant.webp",
-      "fallback": "src/products/nutella-croissant.svg"
+      "primary": "src/products/cards/nutella-card.v3.svg"
     },
     "alt": {
       "tr": "Nutella dolgulu kruvasan",
@@ -44,8 +43,7 @@
     },
     "href": "menu.html#desserts",
     "image": {
-      "webp": "src/products/san-sebastian.webp",
-      "fallback": "src/products/san-sebastian-premium.svg"
+      "primary": "src/products/cards/san-sebastian-card.v3.svg"
     },
     "alt": {
       "tr": "San Sebastian cheesecake dilimi",
@@ -71,8 +69,7 @@
     },
     "href": "menu.html#hot-coffee",
     "image": {
-      "webp": "src/products/latte.webp",
-      "fallback": "src/products/latte-premium.svg"
+      "primary": "src/products/cards/latte-card.v3.svg"
     },
     "alt": {
       "tr": "Latte art ile latte",
@@ -98,8 +95,7 @@
     },
     "href": "menu.html#desserts",
     "image": {
-      "webp": "src/products/lotus-cheesecake.webp",
-      "fallback": "src/products/lotus-cheesecake-v2.svg"
+      "primary": "src/products/cards/lotus-card.v3.svg"
     },
     "alt": {
       "tr": "Lotus cheesecake dilimi",
