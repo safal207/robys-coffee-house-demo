@@ -34,14 +34,19 @@
       "sha256": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965"
     },
     {
+      "path": "data/featured-products.json",
+      "bytes": 2765,
+      "sha256": "10aae92adae0ffd5adc5bd4b8b6071f171ad487531ce2bfd8651bd174ba1ae55"
+    },
+    {
       "path": "featured-strip.css",
       "bytes": 6144,
       "sha256": "fbd14ce79c22a8c00b24e1a29301e56d5d905289cd711a2d505f90077afbe870"
     },
     {
       "path": "featured-strip.js",
-      "bytes": 2955,
-      "sha256": "3a9e80395d8330e187c63bf2943c9cc44cc87162564de359f5ff9411c64adab6"
+      "bytes": 8460,
+      "sha256": "84ae5f55a223f484e4d2f4d9c0f8687759bfe3790b7e3c4bf36d244087edd1ef"
     },
     {
       "path": "final-qa.css",
@@ -67,16 +72,6 @@
       "path": "index.html",
       "bytes": 18676,
       "sha256": "1d0e778a0f08bffdbeb382b72acefbe63829a62eddbe5097cfead0f59f686a99"
-    },
-    {
-      "path": "lighthouse-live-summary.json",
-      "bytes": 2343,
-      "sha256": "462d9ece6cbc24684f1c5acc9607ae34532985247586abc6909c833ec7274d5e"
-    },
-    {
-      "path": "lighthouse-summary.json",
-      "bytes": 4079,
-      "sha256": "d856ca34411b204e7e77aa3c6b9bde23c1ba1d0f552463fabf2c305fc4bb61f4"
     },
     {
       "path": "manifest.webmanifest",
@@ -199,6 +194,11 @@
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
     },
     {
+      "path": "src/products/README.txt",
+      "bytes": 57,
+      "sha256": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54"
+    },
+    {
       "path": "src/products/carrot-cake.svg",
       "bytes": 1585,
       "sha256": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8"
@@ -272,11 +272,6 @@
       "path": "src/products/raspberry-cheesecake.svg",
       "bytes": 1437,
       "sha256": "cb37a84b67b80888d2017030ff648c556b7280e5f52381e39f1a3eb3acf884d0"
-    },
-    {
-      "path": "src/products/README.txt",
-      "bytes": 57,
-      "sha256": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54"
     },
     {
       "path": "src/products/san-sebastian-premium.svg",
