@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T20:05:33.327Z",
+  "generatedAt": "2026-06-23T20:08:48.901Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 96,
+    "performance": 62,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.6 s",
-      "numericValue": 1586.7180000000003,
-      "score": 0.94
+      "displayValue": "2.7 s",
+      "numericValue": 2670.3435,
+      "score": 0.61
     },
     "largest-contentful-paint": {
-      "displayValue": "2.6 s",
-      "numericValue": 2583.416,
-      "score": 0.88
+      "displayValue": "3.5 s",
+      "numericValue": 3494.35875,
+      "score": 0.64
     },
     "speed-index": {
-      "displayValue": "1.6 s",
-      "numericValue": 1586.7180000000003,
-      "score": 1
+      "displayValue": "5.0 s",
+      "numericValue": 4975.30539594453,
+      "score": 0.64
     },
     "total-blocking-time": {
-      "displayValue": "10 ms",
-      "numericValue": 13,
-      "score": 1
+      "displayValue": "980 ms",
+      "numericValue": 984.5,
+      "score": 0.28
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.6 s",
-      "numericValue": 2605.916,
-      "score": 0.98
+      "displayValue": "4.0 s",
+      "numericValue": 4013.1412124999997,
+      "score": 0.87
     }
   },
   "opportunities": [
@@ -68,15 +68,15 @@
       "score": 0
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 230 ms",
-      "score": 0
-    },
-    {
       "id": "offscreen-images",
       "title": "Defer offscreen images",
       "displayValue": "Est savings of 3 KiB",
+      "score": 0.5
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 0 ms",
       "score": 0.5
     },
     {
@@ -88,10 +88,16 @@
   ],
   "failedAudits": [
     {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0,
+      "displayValue": "4.8 s"
+    },
+    {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "2,580 ms"
+      "displayValue": "3,490 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -104,12 +110,6 @@
       "title": "Touch targets do not have sufficient size or spacing.",
       "score": 0,
       "displayValue": null
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "score": 0,
-      "displayValue": "Est savings of 230 ms"
     },
     {
       "id": "uses-text-compression",
@@ -142,10 +142,16 @@
       "displayValue": null
     },
     {
-      "id": "render-blocking-insight",
-      "title": "Render blocking requests",
-      "score": 0,
-      "displayValue": "Est savings of 380 ms"
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.05,
+      "displayValue": "560 ms"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.28,
+      "displayValue": "980 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -160,22 +166,16 @@
       "displayValue": "Est savings of 3 KiB"
     },
     {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "score": 0.5,
+      "displayValue": "Est savings of 0 ms"
+    },
+    {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "score": 0.5,
       "displayValue": "Est savings of 13 KiB"
-    },
-    {
-      "id": "document-latency-insight",
-      "title": "Document request latency",
-      "score": 0.5,
-      "displayValue": "Est savings of 12 KiB"
-    },
-    {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 46 KiB"
     }
   ]
 }
