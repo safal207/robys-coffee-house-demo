@@ -53,6 +53,10 @@ assert(frameRule.includes("pointer-events:auto"), "MAP-001", ".map-live-frame mu
 assert(overlayRule.includes("pointer-events:none"), "MAP-001", ".map-live-link must not block the iframe");
 assert(badgeRule.includes("pointer-events:auto"), "MAP-001", ".map-live-badge must remain clickable");
 assert(bottomRule.includes("pointer-events:auto"), "MAP-001", ".map-live-bottom must remain clickable");
+assert(mapCss.includes("@media(hover:none) and (pointer:coarse){"), "MAP-001", "Touch-device map fallback media query is missing");
+assert(mapCss.includes(".map-live-frame{display:none}"), "MAP-001", "Touch devices must hide the embedded map frame");
+assert(mapCss.includes(".map-live-link{pointer-events:auto}"), "MAP-001", "Touch-device map card must remain fully clickable");
+assert(mapCss.includes(".map-live-badge,.map-live-bottom{pointer-events:none}"), "MAP-001", "Touch-device child controls must delegate clicks to the full map link");
 dashboardContract("MAP-001", 6);
 
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
@@ -65,7 +69,7 @@ const heroSource = heroVideo.match(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i
 assert(/^src\/[\w./-]+\.mp4(?:\?[^"']*)?$/i.test(heroSource), "VIDEO-001", "Hero video must use a local MP4 source");
 assert(/\bvideo\.play\s*\(/.test(qaRuntime), "VIDEO-001", "Hero runtime must explicitly call video.play()");
 for (const eventName of ["canplay", "visibilitychange", "pointerdown", "pause"]) {
-  assert(qaRuntime.includes(`\"${eventName}\"`), "VIDEO-001", `Hero playback recovery must handle ${eventName}`);
+  assert(qaRuntime.includes(`"${eventName}"`), "VIDEO-001", `Hero playback recovery must handle ${eventName}`);
 }
 assert(qaRuntime.includes("HERO_BALANCE_STYLES"), "VIDEO-001", "Hero runtime must load the visual-balance stylesheet");
 dashboardContract("VIDEO-001", 5);
@@ -91,6 +95,6 @@ for (const [selector, requiredBackground] of lightSectionContracts) {
 }
 dashboardContract("THEME-001", 5);
 
-console.log("✅ MAP-001 gated: embedded map remains interactive.");
+console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
