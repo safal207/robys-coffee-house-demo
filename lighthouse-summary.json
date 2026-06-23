@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T17:55:08.491Z",
+  "generatedAt": "2026-06-23T17:56:35.653Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 65,
+    "performance": 82,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.4 s",
-      "numericValue": 2381.9614,
-      "score": 0.71
+      "displayValue": "2.2 s",
+      "numericValue": 2158.4446,
+      "score": 0.79
     },
     "largest-contentful-paint": {
-      "displayValue": "3.2 s",
-      "numericValue": 3216.1631500000003,
-      "score": 0.72
+      "displayValue": "2.9 s",
+      "numericValue": 2909.9446,
+      "score": 0.8
     },
     "speed-index": {
-      "displayValue": "4.9 s",
-      "numericValue": 4911.669336436617,
-      "score": 0.65
+      "displayValue": "4.7 s",
+      "numericValue": 4651.597473719121,
+      "score": 0.7
     },
     "total-blocking-time": {
-      "displayValue": "1,000 ms",
-      "numericValue": 1002.5193000000002,
-      "score": 0.27
+      "displayValue": "340 ms",
+      "numericValue": 342.77769999999987,
+      "score": 0.74
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.8 s",
-      "numericValue": 3800.5807000000004,
-      "score": 0.89
+      "displayValue": "3.0 s",
+      "numericValue": 3030.86683,
+      "score": 0.95
     }
   },
   "opportunities": [
@@ -65,12 +65,6 @@
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 69 KiB",
-      "score": 0
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "displayValue": "Est savings of 13 KiB",
       "score": 0
     },
     {
@@ -84,6 +78,12 @@
       "title": "Eliminate render-blocking resources",
       "displayValue": "Est savings of 0 ms",
       "score": 0.5
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "displayValue": "Est savings of 13 KiB",
+      "score": 0.5
     }
   ],
   "failedAudits": [
@@ -91,13 +91,13 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.4 s"
+      "displayValue": "3.2 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,220 ms"
+      "displayValue": "2,910 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -110,12 +110,6 @@
       "title": "Touch targets do not have sufficient size or spacing.",
       "score": 0,
       "displayValue": null
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0,
-      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -150,14 +144,8 @@
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.1,
-      "displayValue": "480 ms"
-    },
-    {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.27,
-      "displayValue": "1,000 ms"
+      "score": 0.25,
+      "displayValue": "350 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -176,6 +164,18 @@
       "title": "Eliminate render-blocking resources",
       "score": 0.5,
       "displayValue": "Est savings of 0 ms"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0.5,
+      "displayValue": "Est savings of 13 KiB"
+    },
+    {
+      "id": "document-latency-insight",
+      "title": "Document request latency",
+      "score": 0.5,
+      "displayValue": "Est savings of 12 KiB"
     }
   ]
 }
