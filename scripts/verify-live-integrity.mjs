@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { comparePublishedBytes } from "./integrity-byte-equivalence.mjs";
 
 const BASE_URL = new URL(process.env.ROBY_BASE_URL ?? "https://safal207.github.io/robys-coffee-house-demo/");
 const MANIFEST_URL = new URL("integrity-manifest.json", BASE_URL);
@@ -12,10 +12,6 @@ const report = {
   checked: [],
   failures: []
 };
-
-function digest(buffer) {
-  return createHash("sha256").update(buffer).digest("hex");
-}
 
 async function fetchBytes(url) {
   const requestUrl = new URL(url);
@@ -48,9 +44,14 @@ if (manifest) {
       const results = await Promise.all(batch.map(async (entry) => {
         try {
           const bytes = await fetchBytes(new URL(entry.path, BASE_URL));
-          const actual = { bytes: bytes.byteLength, sha256: digest(bytes) };
-          const passed = actual.bytes === entry.bytes && actual.sha256 === entry.sha256;
-          return { path: entry.path, passed, expected: { bytes: entry.bytes, sha256: entry.sha256 }, actual };
+          const comparison = comparePublishedBytes(bytes, entry);
+          return {
+            path: entry.path,
+            passed: comparison.passed,
+            expected: { bytes: entry.bytes, sha256: entry.sha256 },
+            actual: comparison.actual,
+            canonicalization: comparison.canonicalization
+          };
         } catch (error) {
           return { path: entry.path, passed: false, error: String(error.message ?? error) };
         }
@@ -81,4 +82,7 @@ if (report.failures.length) {
   throw new Error(`Live integrity verification failed: ${report.failures.length} mismatch(es)`);
 }
 
-console.log(`✅ INTEGRITY-001 live verification passed: ${report.checked.length} files, build ${report.build}.`);
+const normalized = report.checked.filter((item) => item.canonicalization).length;
+console.log(
+  `✅ INTEGRITY-001 live verification passed: ${report.checked.length} files, build ${report.build}, ${normalized} host-normalized page(s).`
+);
