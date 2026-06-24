@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260624-1",
+  "build": "20260624-2",
   "files": [
     {
       "path": "404.html",
@@ -35,18 +35,18 @@
     },
     {
       "path": "data/featured-products.json",
-      "bytes": 3050,
-      "sha256": "053edeea918db508457d47158dede67da06c304af894aaeb988111fe5c4e5fb1"
+      "bytes": 3756,
+      "sha256": "b6fd08a04d6d618f248c783ecfef07212df697a2b211a86f0e4e7dedf4e0db64"
     },
     {
       "path": "featured-strip.css",
-      "bytes": 6144,
-      "sha256": "fbd14ce79c22a8c00b24e1a29301e56d5d905289cd711a2d505f90077afbe870"
+      "bytes": 6520,
+      "sha256": "54cd8065ab43d8ec5aec974916646bbcf84d75349f6ca23d849310bb097702f9"
     },
     {
       "path": "featured-strip.js",
-      "bytes": 7923,
-      "sha256": "da62d369c2de1f3c441e0d10f2fbee3b83fd3e7847b82bd8e0a03609d7aac4f8"
+      "bytes": 8301,
+      "sha256": "64c730a946e87962f86a4b6277fa20891d826cecbe93d9731c89d4301f8afef6"
     },
     {
       "path": "final-qa.css",
@@ -70,8 +70,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 18768,
-      "sha256": "5a96f6064da52c9586cdb3b2ef1f7ff214da9ea608ef4045af878a82bcf1e2ff"
+      "bytes": 19541,
+      "sha256": "78b353c86871954dea22c6b9dde28c1633d39e0c058e50619b910e9e6eeda4f9"
     },
     {
       "path": "manifest.webmanifest",
@@ -131,7 +131,7 @@
     {
       "path": "menu.html",
       "bytes": 6229,
-      "sha256": "c5d87e9f8b2d445767e1e9d6c05bfa4be5c8ad7ed9267e7d25aafc1fc6acff89"
+      "sha256": "019647e676275dd8d2b79363960ce987caec667d55111eee9322a44f4f2d9640"
     },
     {
       "path": "mobile.css",
