@@ -5,6 +5,7 @@ const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
 const STATIC_IMAGES = [
+  "src/robys-hero-poster.jpg",
   "src/products/cards/nutella-card.v3.svg",
   "src/products/cards/san-sebastian-card.v3.svg",
   "src/products/cards/latte-card.v3.svg",
@@ -26,6 +27,10 @@ function localized(value, language = currentLanguage()) {
   if (typeof value === "string") return value;
   if (!value || typeof value !== "object") return "";
   return value[language] || value.tr || value.en || value.ru || "";
+}
+
+function isOverview(product) {
+  return product?.kind === "overview";
 }
 
 function attachImageFallback(image, card) {
@@ -56,23 +61,30 @@ function validProduct(product) {
     && typeof product.id === "string"
     && product.active !== false
     && product.title
-    && Number.isFinite(Number(product.price))
+    && (isOverview(product) || Number.isFinite(Number(product.price)))
     && typeof product.href === "string"
     && product.image
     && typeof product.image.primary === "string"
   );
 }
 
+function cardAriaLabel(product, language = currentLanguage()) {
+  const title = localized(product.title, language);
+  if (isOverview(product)) return title;
+  return `${title}, ${Number(product.price)} ${product.currency || "₺"}`;
+}
+
 function createCard(product, index) {
   const card = document.createElement("a");
   card.className = "featured-card";
+  if (isOverview(product)) card.classList.add("featured-card--overview");
   card.href = product.href;
   card.dataset.productId = product.id;
 
   const image = document.createElement("img");
   image.src = product.image.primary;
-  image.width = 160;
-  image.height = 200;
+  image.width = 240;
+  image.height = 240;
   image.loading = "eager";
   image.decoding = "async";
   image.fetchPriority = index === 0 ? "high" : "auto";
@@ -94,22 +106,23 @@ function createCard(product, index) {
   const title = document.createElement("strong");
   title.dataset.productField = "title";
   title.textContent = localized(product.title);
-  const price = document.createElement("span");
-  price.className = "featured-price";
-  price.textContent = `${Number(product.price)} ${product.currency || "₺"}`;
-  titleWrap.append(title, price);
+  titleWrap.append(title);
+
+  if (!isOverview(product)) {
+    const price = document.createElement("span");
+    price.className = "featured-price";
+    price.textContent = `${Number(product.price)} ${product.currency || "₺"}`;
+    titleWrap.append(price);
+  }
 
   const action = document.createElement("span");
   action.className = "featured-card-action";
   action.setAttribute("aria-hidden", "true");
-  action.textContent = "+";
+  action.textContent = isOverview(product) ? "→" : "+";
 
   bottom.append(titleWrap, action);
   card.append(image, top, bottom);
-  card.setAttribute(
-    "aria-label",
-    `${localized(product.title)}, ${Number(product.price)} ${product.currency || "₺"}`
-  );
+  card.setAttribute("aria-label", cardAriaLabel(product));
 
   return card;
 }
@@ -140,10 +153,7 @@ function updateTranslations(language = currentLanguage()) {
     if (title) title.textContent = localized(product.title, language);
     if (badge) badge.textContent = localized(product.badge, language);
     if (image) image.alt = localized(product.alt, language);
-    card.setAttribute(
-      "aria-label",
-      `${localized(product.title, language)}, ${Number(product.price)} ${product.currency || "₺"}`
-    );
+    card.setAttribute("aria-label", cardAriaLabel(product, language));
   });
 }
 
@@ -202,7 +212,7 @@ function buildPagination() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("data/featured-products.json?v=20260624-3", { cache: "no-store" });
+    const response = await fetch("data/featured-products.json?v=20260624-4", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Expected an array");
