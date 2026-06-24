@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T22:05:00.888Z",
+  "generatedAt": "2026-06-24T13:35:39.365Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 63,
+    "performance": 66,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.7 s",
-      "numericValue": 1702.961,
-      "score": 0.92
+      "displayValue": "1.6 s",
+      "numericValue": 1609.4984999999997,
+      "score": 0.94
     },
     "largest-contentful-paint": {
       "displayValue": "3.3 s",
-      "numericValue": 3258.3142,
-      "score": 0.71
+      "numericValue": 3283.4967000000006,
+      "score": 0.7
     },
     "speed-index": {
-      "displayValue": "4.9 s",
-      "numericValue": 4880.5161546625695,
-      "score": 0.65
+      "displayValue": "4.7 s",
+      "numericValue": 4735.978595814924,
+      "score": 0.68
     },
     "total-blocking-time": {
-      "displayValue": "1,400 ms",
-      "numericValue": 1400.6078,
-      "score": 0.16
+      "displayValue": "1,080 ms",
+      "numericValue": 1077.5000000000005,
+      "score": 0.24
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.8 s",
-      "numericValue": 3772.3844000000004,
-      "score": 0.9
+      "displayValue": "3.4 s",
+      "numericValue": 3351.8991300000007,
+      "score": 0.93
     }
   },
   "opportunities": [
@@ -91,13 +91,13 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.5 s"
+      "displayValue": "4.1 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,260 ms"
+      "displayValue": "3,280 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -127,7 +127,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 305 KiB"
+      "displayValue": "Est savings of 347 KiB"
     },
     {
       "id": "forced-reflow-insight",
@@ -144,20 +144,20 @@
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.15,
-      "displayValue": "420 ms"
+      "score": 0.12,
+      "displayValue": "450 ms"
     },
     {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.16,
-      "displayValue": "1,400 ms"
+      "score": 0.24,
+      "displayValue": "1,080 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
-      "displayValue": "28 resources found"
+      "displayValue": "32 resources found"
     },
     {
       "id": "offscreen-images",
