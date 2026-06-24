@@ -81,7 +81,7 @@ const heroOverlayRules = cssRules(heroCss, ".hero-overlay", "THEME-001");
 const overlayAlphas = heroOverlayRules.flatMap((rule) =>
   Array.from(rule.matchAll(/rgba\([^)]*,\s*(\d*\.?\d+)\)/g), (match) => Number(match[1]))
 );
-assert(heroOverlayRules.length > 0, "THEME-001", "Hero overlay must declare RGBA transparency values");
+assert(overlayAlphas.length > 0, "THEME-001", "Hero overlay must declare RGBA transparency values");
 assert(Math.max(...overlayAlphas) <= 0.78, "THEME-001", `Hero overlay is too dark: max alpha ${Math.max(...overlayAlphas)}`);
 const heroVideoRule = cssRules(heroCss, ".hero-video", "THEME-001")[0];
 const brightness = Number(heroVideoRule.match(/brightness\((\d*\.?\d+)\)/)?.[1] ?? 0);
