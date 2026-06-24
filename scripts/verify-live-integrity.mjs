@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { comparePublishedBytes } from "./integrity-byte-equivalence.mjs";
 
 const BASE_URL = new URL(process.env.ROBY_BASE_URL ?? "https://safal207.github.io/robys-coffee-house-demo/");
@@ -25,6 +25,29 @@ async function fetchBytes(url) {
   return Buffer.from(await response.arrayBuffer());
 }
 
+function byteDiagnostics(localBytes, publishedBytes) {
+  const sharedLength = Math.min(localBytes.length, publishedBytes.length);
+  let firstDifference = 0;
+  while (firstDifference < sharedLength && localBytes[firstDifference] === publishedBytes[firstDifference]) {
+    firstDifference += 1;
+  }
+  if (firstDifference === sharedLength && localBytes.length === publishedBytes.length) return null;
+
+  const start = Math.max(0, firstDifference - 16);
+  const end = Math.min(Math.max(localBytes.length, publishedBytes.length), firstDifference + 17);
+  return {
+    firstDifference,
+    localByte: firstDifference < localBytes.length ? localBytes[firstDifference] : null,
+    publishedByte: firstDifference < publishedBytes.length ? publishedBytes[firstDifference] : null,
+    localLength: localBytes.length,
+    publishedLength: publishedBytes.length,
+    localWindowHex: localBytes.subarray(start, Math.min(end, localBytes.length)).toString("hex"),
+    publishedWindowHex: publishedBytes.subarray(start, Math.min(end, publishedBytes.length)).toString("hex"),
+    localTailHex: localBytes.subarray(Math.max(0, localBytes.length - 32)).toString("hex"),
+    publishedTailHex: publishedBytes.subarray(Math.max(0, publishedBytes.length - 32)).toString("hex")
+  };
+}
+
 let manifest;
 try {
   const manifestBytes = await fetchBytes(MANIFEST_URL);
@@ -45,13 +68,17 @@ if (manifest) {
         try {
           const bytes = await fetchBytes(new URL(entry.path, BASE_URL));
           const comparison = comparePublishedBytes(bytes, entry);
-          return {
+          const result = {
             path: entry.path,
             passed: comparison.passed,
             expected: { bytes: entry.bytes, sha256: entry.sha256 },
             actual: comparison.actual,
             canonicalization: comparison.canonicalization
           };
+          if (!comparison.passed && existsSync(entry.path)) {
+            result.byteDiagnostics = byteDiagnostics(readFileSync(entry.path), bytes);
+          }
+          return result;
         } catch (error) {
           return { path: entry.path, passed: false, error: String(error.message ?? error) };
         }
