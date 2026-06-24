@@ -62,12 +62,20 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Compare screenshots with base branch
+        id: screenshot_compare
+        continue-on-error: true
         working-directory: current
         env:
           VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
           VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
           VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
         run: node scripts/visual-regression.mjs
+
+      - name: Validate reviewed visual change
+        working-directory: current
+        env:
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
+        run: node scripts/verify-reviewed-visual-change.mjs
 
       - name: Audit rapid mobile menu scrolling
         working-directory: current
