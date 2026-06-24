@@ -10,6 +10,9 @@ import { readFileSync } from "node:fs";
 const html = readFileSync("index.html", "utf8");
 const mapCss = readFileSync("map-live.css", "utf8");
 const heroCss = readFileSync("hero-balance.css", "utf8");
+const featuredCss = readFileSync("featured-strip.css", "utf8");
+const featuredRuntime = readFileSync("featured-strip.js", "utf8");
+const featuredProducts = JSON.parse(readFileSync("data/featured-products.json", "utf8"));
 const qaRuntime = readFileSync("qa.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 
@@ -95,6 +98,20 @@ for (const [selector, requiredBackground] of lightSectionContracts) {
 }
 dashboardContract("THEME-001", 5);
 
+const overview = featuredProducts[0];
+assert(overview?.id === "cafe-overview", "FEATURED-001", "Cafe overview must remain the first feed item");
+assert(overview?.kind === "overview", "FEATURED-001", "Cafe overview item must use overview semantics");
+assert(overview?.image?.primary === "src/robys-hero-poster.jpg", "FEATURED-001", "Cafe overview must use the stable local poster asset");
+assert(html.includes("featured-card featured-card--overview"), "FEATURED-001", "Static HTML fallback must include the overview card");
+assert(html.includes('featured-strip.css?v=20260624-2'), "FEATURED-001", "Compact featured CSS cache version is missing");
+assert(html.includes('featured-strip.js?v=20260624-2'), "FEATURED-001", "Overview runtime cache version is missing");
+assert(featuredCss.includes("flex-basis:min(66vw,248px)"), "FEATURED-001", "Mobile featured cards are too wide");
+assert(featuredCss.includes("flex-basis:min(64vw,232px)"), "FEATURED-001", "Narrow-phone featured cards are too wide");
+assert(featuredCss.includes("aspect-ratio:1/1"), "FEATURED-001", "Featured cards must remain compact and square");
+assert(featuredRuntime.includes('product?.kind === "overview"'), "FEATURED-001", "Overview runtime semantics are missing");
+assert(featuredRuntime.includes('action.textContent = isOverview(product) ? "→" : "+"'), "FEATURED-001", "Overview action must not look like an add-to-cart control");
+
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
+console.log("✅ FEATURED-001 gated: mobile feed is compact and starts with the cafe overview.");
