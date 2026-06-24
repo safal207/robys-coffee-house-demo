@@ -40,8 +40,8 @@
     },
     {
       "path": "featured-strip.css",
-      "bytes": 6520,
-      "sha256": "54cd8065ab43d8ec5aec974916646bbcf84d75349f6ca23d849310bb097702f9"
+      "bytes": 6307,
+      "sha256": "e8625a7531a4ee9573f8a912469b21017418074c28c3ae465cada843f34be54f"
     },
     {
       "path": "featured-strip.js",
