@@ -229,6 +229,11 @@
       "sha256": "4bdeaa66add7d73b591a26a5da78558b9e028b5e34ed34a17ab390e1eb945492"
     },
     {
+      "path": "src/products/featured/nutella.v1.svg",
+      "bytes": 10376,
+      "sha256": "68fc48915b906b47a7c526e0c4bf660b48accf2a2593db2747fcdeed4f6957f1"
+    },
+    {
       "path": "src/products/file_00000000d248720a8ca18bad97b2053a.png",
       "bytes": 2067319,
       "sha256": "a33caf70eeee30b85182b98fdebb8986698cecc190579e02ef534387ace9f6cb"
