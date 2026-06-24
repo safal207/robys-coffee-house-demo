@@ -25,6 +25,7 @@ jobs:
   refresh:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,3 +50,39 @@ jobs:
           git add integrity-manifest.json
           git commit -m "chore: refresh integrity manifest"
           git push
+
+      - name: Wait for refreshed GitHub Pages publication
+        run: |
+          local_build="$(node -e 'const m=require("./integrity-manifest.json"); process.stdout.write(m.build)')"
+          local_menu_sha="$(node -e 'const m=require("./integrity-manifest.json"); process.stdout.write(m.files.find((f)=>f.path==="menu.html").sha256)')"
+          for attempt in {1..30}; do
+            page_url="https://safal207.github.io/robys-coffee-house-demo/?refresh-wait=${attempt}"
+            manifest_url="https://safal207.github.io/robys-coffee-house-demo/integrity-manifest.json?refresh-wait=${attempt}"
+            remote_build="$(curl --fail --silent "$page_url" | sed -n 's/.*name="robys-build" content="\([^"]*\)".*/\1/p' | head -1 || true)"
+            curl --fail --silent "$manifest_url" > /tmp/remote-integrity-manifest.json || true
+            remote_manifest_build="$(node -e 'const fs=require("fs"); try { const m=JSON.parse(fs.readFileSync("/tmp/remote-integrity-manifest.json","utf8")); process.stdout.write(m.build || ""); } catch {}')"
+            remote_menu_sha="$(node -e 'const fs=require("fs"); try { const m=JSON.parse(fs.readFileSync("/tmp/remote-integrity-manifest.json","utf8")); process.stdout.write(m.files?.find((f)=>f.path==="menu.html")?.sha256 || ""); } catch {}')"
+            if test -n "$local_build" \
+              && test "$remote_build" = "$local_build" \
+              && test "$remote_manifest_build" = "$local_build" \
+              && test "$remote_menu_sha" = "$local_menu_sha"; then
+              echo "Refreshed page and manifest are published: build=$local_build menu_sha=$local_menu_sha"
+              exit 0
+            fi
+            echo "Waiting for refresh: local_build=$local_build page=$remote_build manifest=$remote_manifest_build local_menu_sha=$local_menu_sha remote_menu_sha=$remote_menu_sha"
+            sleep 10
+          done
+          echo "GitHub Pages did not publish the refreshed manifest in time"
+          exit 1
+
+      - name: Verify refreshed public digests
+        run: node scripts/verify-live-integrity.mjs
+
+      - name: Upload refreshed integrity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refreshed-live-integrity-${{ github.run_id }}
+          path: .artifacts/live-integrity-report.json
+          if-no-files-found: warn
+          retention-days: 30
