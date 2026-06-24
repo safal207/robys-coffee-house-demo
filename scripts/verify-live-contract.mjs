@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
 const workflow = readFileSync(".github/workflows/live-smoke.yml", "utf8");
+const integrityWorkflow = readFileSync(".github/workflows/live-integrity.yml", "utf8");
 const refreshWorkflow = readFileSync(".github/workflows/refresh-integrity.yml", "utf8");
 const runner = readFileSync("scripts/live-smoke.mjs", "utf8");
 const landing = readFileSync("index.html", "utf8");
@@ -26,8 +27,20 @@ assert(workflow.includes("if: always()"), "failure evidence upload changed");
 
 assert(refreshWorkflow.includes('- "menu.html"'), "menu changes must refresh the integrity manifest");
 assert(
-  !refreshWorkflow.includes("[skip ci]"),
-  "the refreshed manifest commit must trigger final push verification"
+  refreshWorkflow.includes("Verify refreshed public digests"),
+  "manifest refresh must own final public digest verification"
+);
+assert(
+  refreshWorkflow.includes("remote_menu_sha") && refreshWorkflow.includes("local_menu_sha"),
+  "refresh publication wait must bind to the exact menu digest"
+);
+assert(
+  integrityWorkflow.includes("INTEGRITY_REFRESH_REQUIRED"),
+  "pre-refresh content pushes must delegate instead of producing false failures"
+);
+assert(
+  integrityWorkflow.includes("refresh-integrity owns final public verification"),
+  "delegation ownership message missing"
 );
 
 const landingBuild = buildMarker(landing, "landing");
@@ -49,5 +62,5 @@ assert(contract?.evidence === "post-merge Chromium + HTTP", "evidence changed");
 assert(contract?.assertions?.length >= 8, "assertions incomplete");
 
 console.log(`✅ LIVE-001 build markers match: ${landingBuild}.`);
-console.log("✅ INTEGRITY-001 refreshes on menu changes and preserves final push verification.");
+console.log("✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.");
 console.log("✅ LIVE-001 workflow and smoke coverage are protected.");
