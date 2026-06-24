@@ -1,5 +1,32 @@
 [
   {
+    "id": "cafe-overview",
+    "kind": "overview",
+    "active": true,
+    "order": 0,
+    "title": {
+      "tr": "Roby's Gazipaşa",
+      "en": "Roby's Gazipaşa",
+      "ru": "Roby's в Газипаше"
+    },
+    "badge": {
+      "tr": "KAFE ATMOSFERİ",
+      "en": "CAFE ATMOSPHERE",
+      "ru": "АТМОСФЕРА КАФЕ"
+    },
+    "href": "#about",
+    "image": {
+      "primary": "src/robys-hero-poster.jpg",
+      "fallback": "src/robys-hero-poster.jpg",
+      "webp": "src/robys-hero-poster.jpg"
+    },
+    "alt": {
+      "tr": "Roby's Coffee House genel görünümü",
+      "en": "Overview of Roby's Coffee House",
+      "ru": "Обзорный вид Roby's Coffee House"
+    }
+  },
+  {
     "id": "nutella-croissant",
     "active": true,
     "order": 1,
