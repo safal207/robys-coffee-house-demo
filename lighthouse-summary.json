@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T13:53:28.209Z",
+  "generatedAt": "2026-06-24T14:06:23.189Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 68,
+    "performance": 97,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.6 s",
-      "numericValue": 1613.6278750000001,
-      "score": 0.94
+      "displayValue": "1.5 s",
+      "numericValue": 1514.2164,
+      "score": 0.95
     },
     "largest-contentful-paint": {
-      "displayValue": "3.2 s",
-      "numericValue": 3155.7813250000004,
-      "score": 0.74
+      "displayValue": "2.5 s",
+      "numericValue": 2492.7704999999996,
+      "score": 0.9
     },
     "speed-index": {
-      "displayValue": "4.7 s",
-      "numericValue": 4659.245972811111,
-      "score": 0.69
+      "displayValue": "1.5 s",
+      "numericValue": 1514.2164,
+      "score": 1
     },
     "total-blocking-time": {
-      "displayValue": "980 ms",
-      "numericValue": 982.474425,
-      "score": 0.28
+      "displayValue": "0 ms",
+      "numericValue": 0,
+      "score": 1
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.3 s",
-      "numericValue": 3270.1011500000004,
-      "score": 0.94
+      "displayValue": "2.5 s",
+      "numericValue": 2515.2705,
+      "score": 0.98
     }
   },
   "opportunities": [
@@ -68,37 +68,19 @@
       "score": 0
     },
     {
-      "id": "offscreen-images",
-      "title": "Defer offscreen images",
-      "displayValue": "Est savings of 3 KiB",
-      "score": 0.5
-    },
-    {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 0 ms",
-      "score": 0.5
+      "displayValue": "Est savings of 310 ms",
+      "score": 0
     },
     {
       "id": "modern-image-formats",
       "title": "Serve images in next-gen formats",
       "displayValue": "Est savings of 13 KiB",
-      "score": 0.5
+      "score": 0
     }
   ],
   "failedAudits": [
-    {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "4.0 s"
-    },
-    {
-      "id": "largest-contentful-paint-element",
-      "title": "Largest Contentful Paint element",
-      "score": 0,
-      "displayValue": "3,160 ms"
-    },
     {
       "id": "label-content-name-mismatch",
       "title": "Elements with visible text labels do not have matching accessible names.",
@@ -110,6 +92,18 @@
       "title": "Touch targets do not have sufficient size or spacing.",
       "score": 0,
       "displayValue": null
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "score": 0,
+      "displayValue": "Est savings of 310 ms"
+    },
+    {
+      "id": "modern-image-formats",
+      "title": "Serve images in next-gen formats",
+      "score": 0,
+      "displayValue": "Est savings of 13 KiB"
     },
     {
       "id": "uses-text-compression",
@@ -130,28 +124,16 @@
       "displayValue": "Est savings of 347 KiB"
     },
     {
-      "id": "forced-reflow-insight",
-      "title": "Forced reflow",
-      "score": 0,
-      "displayValue": null
-    },
-    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
       "displayValue": null
     },
     {
-      "id": "total-blocking-time",
-      "title": "Total Blocking Time",
-      "score": 0.28,
-      "displayValue": "980 ms"
-    },
-    {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.28,
-      "displayValue": "340 ms"
+      "id": "render-blocking-insight",
+      "title": "Render blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 460 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -160,22 +142,16 @@
       "displayValue": "32 resources found"
     },
     {
-      "id": "offscreen-images",
-      "title": "Defer offscreen images",
+      "id": "document-latency-insight",
+      "title": "Document request latency",
       "score": 0.5,
-      "displayValue": "Est savings of 3 KiB"
+      "displayValue": "Est savings of 12 KiB"
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
       "score": 0.5,
-      "displayValue": "Est savings of 0 ms"
-    },
-    {
-      "id": "modern-image-formats",
-      "title": "Serve images in next-gen formats",
-      "score": 0.5,
-      "displayValue": "Est savings of 13 KiB"
+      "displayValue": "Est savings of 6 KiB"
     }
   ]
 }
