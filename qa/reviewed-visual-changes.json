@@ -31,6 +31,37 @@
           "maxDiffPixelRatio": 0.0043
         }
       ]
+    },
+    {
+      "id": "mobile-featured-feed-compact-v2",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/69#issuecomment-4794232857",
+      "contentBindings": {
+        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x5797 vs 320x5566"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x5990 vs 390x5618"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "totalPixels": 345540,
+          "maxDiffPixelRatio": 0.0171
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.0041
+        }
+      ]
     }
   ]
 }
