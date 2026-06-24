@@ -1,49 +1,43 @@
 {
-  "generatedAt": "2026-06-24T13:53:51.890Z",
+  "generatedAt": "2026-06-24T14:06:43.185Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=1b69dade8b578c02d45a4f1c728ecd292021e47b",
-  "commit": "1b69dade8b578c02d45a4f1c728ecd292021e47b",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=e7b8efc49c12f63060208bf302c8d04563e7fdf4",
+  "commit": "e7b8efc49c12f63060208bf302c8d04563e7fdf4",
   "build": "20260624-1",
   "mobile": {
     "categories": {
-      "performance": 28,
+      "performance": 69,
       "accessibility": 95,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "6.5 s",
-        "numericValue": 6529.782
+        "displayValue": "1.2 s",
+        "numericValue": 1191.373
       },
       "largest-contentful-paint": {
-        "displayValue": "7.4 s",
-        "numericValue": 7374.782
+        "displayValue": "1.8 s",
+        "numericValue": 1817.873
       },
       "speed-index": {
-        "displayValue": "8.5 s",
-        "numericValue": 8523.549848713748
+        "displayValue": "4.8 s",
+        "numericValue": 4763.9845295186815
       },
       "total-blocking-time": {
-        "displayValue": "3,800 ms",
-        "numericValue": 3802.999999999999
+        "displayValue": "1,720 ms",
+        "numericValue": 1718
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "11.2 s",
-        "numericValue": 11226.882000000001
+        "displayValue": "3.6 s",
+        "numericValue": 3571.473
       }
     },
     "opportunities": [
-      {
-        "id": "render-blocking-resources",
-        "title": "Eliminate render-blocking resources",
-        "displayValue": "Est savings of 40 ms",
-        "score": 0
-      },
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
@@ -62,15 +56,15 @@
     "metrics": {
       "first-contentful-paint": {
         "displayValue": "0.4 s",
-        "numericValue": 435.13300000000004
+        "numericValue": 437.132
       },
       "largest-contentful-paint": {
         "displayValue": "0.4 s",
-        "numericValue": 440.13300000000004
+        "numericValue": 437.132
       },
       "speed-index": {
         "displayValue": "0.6 s",
-        "numericValue": 596.7665501414355
+        "numericValue": 560.5174153333356
       },
       "total-blocking-time": {
         "displayValue": "0 ms",
@@ -82,7 +76,7 @@
       },
       "interactive": {
         "displayValue": "0.4 s",
-        "numericValue": 440.63300000000004
+        "numericValue": 437.13200000000006
       }
     },
     "opportunities": [
