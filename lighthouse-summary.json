@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T13:35:39.365Z",
+  "generatedAt": "2026-06-24T13:53:28.209Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 66,
+    "performance": 68,
     "accessibility": 95,
     "best-practices": 100,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.6 s",
-      "numericValue": 1609.4984999999997,
+      "numericValue": 1613.6278750000001,
       "score": 0.94
     },
     "largest-contentful-paint": {
-      "displayValue": "3.3 s",
-      "numericValue": 3283.4967000000006,
-      "score": 0.7
+      "displayValue": "3.2 s",
+      "numericValue": 3155.7813250000004,
+      "score": 0.74
     },
     "speed-index": {
       "displayValue": "4.7 s",
-      "numericValue": 4735.978595814924,
-      "score": 0.68
+      "numericValue": 4659.245972811111,
+      "score": 0.69
     },
     "total-blocking-time": {
-      "displayValue": "1,080 ms",
-      "numericValue": 1077.5000000000005,
-      "score": 0.24
+      "displayValue": "980 ms",
+      "numericValue": 982.474425,
+      "score": 0.28
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.4 s",
-      "numericValue": 3351.8991300000007,
-      "score": 0.93
+      "displayValue": "3.3 s",
+      "numericValue": 3270.1011500000004,
+      "score": 0.94
     }
   },
   "opportunities": [
@@ -91,13 +91,13 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.1 s"
+      "displayValue": "4.0 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,280 ms"
+      "displayValue": "3,160 ms"
     },
     {
       "id": "label-content-name-mismatch",
@@ -142,16 +142,16 @@
       "displayValue": null
     },
     {
-      "id": "max-potential-fid",
-      "title": "Max Potential First Input Delay",
-      "score": 0.12,
-      "displayValue": "450 ms"
-    },
-    {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.24,
-      "displayValue": "1,080 ms"
+      "score": 0.28,
+      "displayValue": "980 ms"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.28,
+      "displayValue": "340 ms"
     },
     {
       "id": "uses-long-cache-ttl",
