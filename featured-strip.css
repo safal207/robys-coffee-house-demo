@@ -7,14 +7,7 @@
     radial-gradient(circle at 88% 12%,rgba(184,77,88,.09),transparent 28%),
     linear-gradient(180deg,#fffaf2 0%,#f5ede3 100%);
 }
-.featured-strip::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-}
+.featured-strip::before{display:none}
 .featured-strip>.container{position:relative;z-index:1}
 .featured-strip-header{
   display:flex;
@@ -182,19 +175,36 @@
   .featured-strip-copy h2{font-size:clamp(2rem,10vw,3rem);line-height:1}
   .featured-strip-copy p:last-child{margin-top:9px;font-size:.86rem;line-height:1.45}
   .featured-controls{display:none}
-  .featured-viewport{padding-inline:18px;scroll-padding-inline:18px}
-  .featured-track{gap:10px;padding-right:18px}
-  .featured-card{flex-basis:min(66vw,248px);aspect-ratio:1/1;border-radius:18px}
+  .featured-viewport{
+    overflow:visible;
+    padding-inline:18px;
+    scroll-snap-type:none;
+    touch-action:auto;
+  }
+  .featured-track{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    padding:0;
+  }
+  .featured-card{
+    width:100%;
+    min-height:188px;
+    flex:none;
+    aspect-ratio:16/10;
+    border-radius:18px;
+    scroll-snap-align:none;
+  }
   .featured-card-top,.featured-card-bottom{padding:14px}
   .featured-card-top small{max-width:100%;font-size:.5rem;letter-spacing:.13em;white-space:nowrap}
   .featured-card-title strong{font-size:clamp(1.2rem,5.6vw,1.55rem);line-height:1.02}
   .featured-price{min-height:28px;padding:6px 9px;font-size:.82rem}
   .featured-card-action{width:38px;height:38px;font-size:1.25rem}
-  .featured-pagination{margin-top:14px}
+  .featured-pagination{display:none}
 }
 
 @media(max-width:390px){
-  .featured-card{flex-basis:min(64vw,232px)}
+  .featured-card{min-height:174px;aspect-ratio:16/10}
 }
 
 @media(prefers-reduced-motion:reduce){

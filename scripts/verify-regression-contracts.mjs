@@ -98,20 +98,25 @@ for (const [selector, requiredBackground] of lightSectionContracts) {
 }
 dashboardContract("THEME-001", 5);
 
-const overview = featuredProducts[0];
+const activeFeatured = featuredProducts.filter((product) => product.active !== false);
+const overview = activeFeatured[0];
+const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bfeatured-card\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi));
+assert(activeFeatured.length === 5, "FEATURED-001", `Expected all 5 featured photos, found ${activeFeatured.length}`);
+assert(staticCards.length === activeFeatured.length, "FEATURED-001", `Static fallback exposes ${staticCards.length} cards for ${activeFeatured.length} feed items`);
+assert(activeFeatured.every((product) => typeof product.image?.primary === "string" && product.image.primary.length > 0), "FEATURED-001", "Every featured item must provide a local image path");
+assert(new Set(activeFeatured.map((product) => product.image.primary)).size === activeFeatured.length, "FEATURED-001", "Featured feed images must not silently duplicate one another");
 assert(overview?.id === "cafe-overview", "FEATURED-001", "Cafe overview must remain the first feed item");
 assert(overview?.kind === "overview", "FEATURED-001", "Cafe overview item must use overview semantics");
 assert(overview?.image?.primary === "src/robys-hero-poster.jpg", "FEATURED-001", "Cafe overview must use the stable local poster asset");
 assert(html.includes("featured-card featured-card--overview"), "FEATURED-001", "Static HTML fallback must include the overview card");
-assert(html.includes('featured-strip.css?v=20260624-2'), "FEATURED-001", "Compact featured CSS cache version is missing");
-assert(html.includes('featured-strip.js?v=20260624-2'), "FEATURED-001", "Overview runtime cache version is missing");
-assert(featuredCss.includes("flex-basis:min(66vw,248px)"), "FEATURED-001", "Mobile featured cards are too wide");
-assert(featuredCss.includes("flex-basis:min(64vw,232px)"), "FEATURED-001", "Narrow-phone featured cards are too wide");
-assert(featuredCss.includes("aspect-ratio:1/1"), "FEATURED-001", "Featured cards must remain compact and square");
+assert(featuredCss.includes("overflow:visible"), "FEATURED-001", "Mobile feed must not hide photos behind horizontal overflow");
+assert(featuredCss.includes("grid-template-columns:1fr"), "FEATURED-001", "Mobile feed must stack vertically in one column");
+assert(featuredCss.includes("aspect-ratio:16/10"), "FEATURED-001", "Vertical feed cards must stay compact");
+assert(featuredCss.includes(".featured-pagination{display:none}"), "FEATURED-001", "Horizontal pagination must be hidden in vertical mode");
 assert(featuredRuntime.includes('product?.kind === "overview"'), "FEATURED-001", "Overview runtime semantics are missing");
 assert(featuredRuntime.includes('action.textContent = isOverview(product) ? "→" : "+"'), "FEATURED-001", "Overview action must not look like an add-to-cart control");
 
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: mobile feed is compact and starts with the cafe overview.");
+console.log("✅ FEATURED-001 gated: all 5 photos are visible in a vertical mobile feed.");
