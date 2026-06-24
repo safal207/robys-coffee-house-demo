@@ -111,7 +111,8 @@ assert(overview?.image?.primary === "src/robys-hero-poster.jpg", "FEATURED-001",
 assert(html.includes("featured-card featured-card--overview"), "FEATURED-001", "Static HTML fallback must include the overview card");
 assert(featuredCss.includes("overflow:visible"), "FEATURED-001", "Mobile feed must not hide photos behind horizontal overflow");
 assert(featuredCss.includes("grid-template-columns:1fr"), "FEATURED-001", "Mobile feed must stack vertically in one column");
-assert(featuredCss.includes("aspect-ratio:16/10"), "FEATURED-001", "Vertical feed cards must stay compact");
+assert(featuredCss.includes("height:clamp(142px,44vw,160px)"), "FEATURED-001", "Mobile photo cards must remain compact");
+assert(featuredCss.includes("aspect-ratio:auto"), "FEATURED-001", "Mobile photo cards must not inherit oversized square proportions");
 assert(featuredCss.includes(".featured-pagination{display:none}"), "FEATURED-001", "Horizontal pagination must be hidden in vertical mode");
 assert(featuredRuntime.includes('product?.kind === "overview"'), "FEATURED-001", "Overview runtime semantics are missing");
 assert(featuredRuntime.includes('action.textContent = isOverview(product) ? "→" : "+"'), "FEATURED-001", "Overview action must not look like an add-to-cart control");
@@ -119,4 +120,4 @@ assert(featuredRuntime.includes('action.textContent = isOverview(product) ? "→
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: all 5 photos are visible in a vertical mobile feed.");
+console.log("✅ FEATURED-001 gated: all 5 photos are visible in a compact vertical mobile feed.");
