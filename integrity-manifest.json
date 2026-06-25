@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260624-2",
+  "build": "20260625-3",
   "files": [
     {
       "path": "404.html",
@@ -39,6 +39,11 @@
       "sha256": "f162fa46f2f578352b13611167117198841faf6457e16e0018beb56121969602"
     },
     {
+      "path": "featured-strip-mobile-fix.css",
+      "bytes": 2426,
+      "sha256": "73adcf2efacca5fdeb4e961aa55f43d8e112247fbc9228e8ef107bca58eaa33f"
+    },
+    {
       "path": "featured-strip.css",
       "bytes": 7593,
       "sha256": "7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf"
@@ -70,8 +75,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 19541,
-      "sha256": "78b353c86871954dea22c6b9dde28c1633d39e0c058e50619b910e9e6eeda4f9"
+      "bytes": 17469,
+      "sha256": "cdf9ae8e97c6656d6be03060b49d4adfd9a033968559177199e6a990efdc44c2"
     },
     {
       "path": "manifest.webmanifest",
