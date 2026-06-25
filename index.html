@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260625-3" />
+  <meta name="robys-build" content="20260625-4" />
   <meta name="description" content="Roby's Coffee House — Gazipaşa'da iyi kahve, tatlılar ve sakin anlar." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
@@ -61,10 +61,10 @@
   <link rel="stylesheet" href="gallery-clean.css?v=perf-20260621-5" />
   <link rel="stylesheet" href="map-live.css?v=map-fix-20260622-1" />
   <link rel="stylesheet" href="menu-preview.css?v=mobile-menu-20260622-1" />
-  <link rel="stylesheet" href="featured-strip.css?v=20260625-3" />
-  <link rel="stylesheet" href="featured-strip-mobile-fix.css?v=20260625-3" />
+  <link rel="stylesheet" href="featured-strip.css?v=20260625-4" />
+  <link rel="stylesheet" href="featured-gallery.css?v=20260625-4" />
   <script defer src="app.js?v=67c0e7d61b1b"></script>
-  <script defer src="featured-strip.js?v=20260625-3"></script>
+  <script defer src="featured-gallery.js?v=cd1bd99f8a5a"></script>
   <script type="module" src="conversion.js?v=perf-20260621-6"></script>
   <script type="module" src="analytics.js?v=perf-20260621-5"></script>
   <script type="module" src="qa.js?v=video-20260621-10"></script>
@@ -103,22 +103,17 @@
             <h2 id="featured-title" data-localized data-tr="Roby's Favorileri" data-en="Roby's Favorites" data-ru="Любимое в Roby's">Roby's Favorileri</h2>
             <p data-localized data-tr="Kahvenizin yanına en sevilen tatları seçin." data-en="Choose a favorite treat for your coffee moment." data-ru="Выберите любимое дополнение к кофе.">Kahvenizin yanına en sevilen tatları seçin.</p>
           </div>
-          <div class="featured-controls" aria-label="Featured products controls">
-            <button class="featured-arrow" type="button" data-featured-prev aria-label="Previous featured product"><span aria-hidden="true">‹</span></button>
-            <button class="featured-arrow" type="button" data-featured-next aria-label="Next featured product"><span aria-hidden="true">›</span></button>
-          </div>
         </header>
 
-        <div class="featured-viewport" data-featured-viewport tabindex="0" aria-label="Roby's featured products">
-          <div class="featured-track">
-            <a class="featured-card featured-card--poster" href="menu.html#hot-coffee" aria-label="Latte, 180 Turkish lira"><img src="src/products/cards/latte-card.v3.svg?v=20260625-3" alt="Latte" width="1200" height="750" loading="eager" decoding="async" fetchpriority="high" /></a>
-            <a class="featured-card featured-card--poster" href="menu.html#desserts" aria-label="San Sebastian Cheesecake, 190 Turkish lira"><img src="src/products/cards/san-sebastian-card.v3.svg?v=20260625-3" alt="San Sebastian Cheesecake" width="1200" height="750" loading="eager" decoding="async" /></a>
-            <a class="featured-card featured-card--poster" href="menu.html#cold-coffee" aria-label="Iced Latte, 150 Turkish lira"><img src="src/products/cards/iced-latte-card.v1.webp?v=20260625-3" alt="Iced Latte" width="768" height="768" loading="eager" decoding="async" /></a>
-            <a class="featured-card featured-card--poster" href="menu.html#food" aria-label="Nutella Croissant, 170 Turkish lira"><img src="src/products/cards/nutella-card.v3.svg?v=20260625-3" alt="Nutella Croissant" width="1200" height="750" loading="lazy" decoding="async" /></a>
-            <a class="featured-card featured-card--poster" href="menu.html#desserts" aria-label="Lotus Cheesecake, 190 Turkish lira"><img src="src/products/cards/lotus-card.v3.svg?v=20260625-3" alt="Lotus Cheesecake" width="1200" height="750" loading="lazy" decoding="async" /></a>
+        <div class="featured-viewport" aria-label="Roby's featured products">
+          <div class="featured-track" data-gallery-ready="false">
+            <a class="featured-card featured-card--poster poster-card" href="menu.html#hot-coffee" aria-label="Latte, 180 Turkish lira"><span class="poster-card-frame"><img src="src/products/gallery-v2/latte.avif?v=20260625-4" alt="Latte" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high" /></span></a>
+            <a class="featured-card featured-card--poster poster-card" href="menu.html#desserts" aria-label="San Sebastian Cheesecake, 190 Turkish lira"><span class="poster-card-frame"><img src="src/products/gallery-v2/san-sebastian.avif?v=20260625-4" alt="San Sebastian Cheesecake" width="1024" height="1024" loading="eager" decoding="async" /></span></a>
+            <a class="featured-card featured-card--poster poster-card" href="menu.html#cold-coffee" aria-label="Iced Latte, 150 Turkish lira"><span class="poster-card-frame"><img src="src/products/gallery-v2/iced-latte.avif?v=20260625-4" alt="Iced Latte" width="1024" height="1024" loading="lazy" decoding="async" /></span></a>
+            <a class="featured-card featured-card--poster poster-card" href="menu.html#food" aria-label="Nutella Croissant, 170 Turkish lira"><span class="poster-card-frame"><img src="src/products/gallery-v2/nutella-croissant.avif?v=20260625-4" alt="Nutella Croissant" width="1024" height="1024" loading="lazy" decoding="async" /></span></a>
+            <a class="featured-card featured-card--poster poster-card" href="menu.html#desserts" aria-label="Lotus Cheesecake, 190 Turkish lira"><span class="poster-card-frame"><img src="src/products/gallery-v2/lotus-cheesecake.avif?v=20260625-4" alt="Lotus Cheesecake" width="1024" height="1024" loading="lazy" decoding="async" /></span></a>
           </div>
         </div>
-        <div class="featured-pagination" data-featured-pagination aria-label="Featured products pagination"></div>
       </div>
     </section>
 
