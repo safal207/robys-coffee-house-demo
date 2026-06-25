@@ -35,8 +35,8 @@
     },
     {
       "path": "data/featured-products.json",
-      "bytes": 4234,
-      "sha256": "afcd2557a9cca91e0db61b44819cd6144af5cb480c44aa49b023f2bb2cd0d09d"
+      "bytes": 4027,
+      "sha256": "f162fa46f2f578352b13611167117198841faf6457e16e0018beb56121969602"
     },
     {
       "path": "featured-strip.css",
