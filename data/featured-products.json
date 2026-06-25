@@ -4,138 +4,94 @@
     "kind": "overview",
     "active": true,
     "order": 0,
-    "title": {
-      "tr": "Roby's Gazipaşa",
-      "en": "Roby's Gazipaşa",
-      "ru": "Roby's в Газипаше"
-    },
-    "badge": {
-      "tr": "KAFE ATMOSFERİ",
-      "en": "CAFE ATMOSPHERE",
-      "ru": "АТМОСФЕРА КАФЕ"
-    },
+    "title": { "tr": "Roby's Gazipaşa", "en": "Roby's Gazipaşa", "ru": "Roby's в Газипаше" },
+    "badge": { "tr": "KAFE ATMOSFERİ", "en": "CAFE ATMOSPHERE", "ru": "АТМОСФЕРА КАФЕ" },
     "href": "#about",
     "image": {
       "primary": "src/robys-hero-poster.jpg",
       "fallback": "src/robys-hero-poster.jpg",
       "webp": "src/robys-hero-poster.jpg"
     },
-    "alt": {
-      "tr": "Roby's Coffee House genel görünümü",
-      "en": "Overview of Roby's Coffee House",
-      "ru": "Обзорный вид Roby's Coffee House"
-    }
+    "alt": { "tr": "Roby's Coffee House genel görünümü", "en": "Overview of Roby's Coffee House", "ru": "Обзорный вид Roby's Coffee House" }
   },
   {
-    "id": "nutella-croissant",
+    "id": "latte",
     "active": true,
     "order": 1,
-    "title": {
-      "tr": "Nutella Croissant",
-      "en": "Nutella Croissant",
-      "ru": "Круассан с Nutella"
-    },
-    "price": 170,
+    "title": { "tr": "Latte", "en": "Latte", "ru": "Латте" },
+    "price": 180,
     "currency": "₺",
-    "badge": {
-      "tr": "Fırın Klasikleri",
-      "en": "Bakery Classics",
-      "ru": "Классика выпечки"
-    },
-    "href": "menu.html#food",
+    "badge": { "tr": "Kahve Favorisi", "en": "Coffee Favorite", "ru": "Кофейный фаворит" },
+    "href": "menu.html#hot-coffee",
     "image": {
-      "primary": "src/products/cards/nutella-card.v3.svg",
-      "fallback": "src/products/cards/nutella-card.v3.svg",
-      "webp": "src/products/cards/nutella-card.v3.svg"
+      "primary": "src/products/cards/latte-poster.v1.avif",
+      "fallback": "src/products/cards/latte-poster.v1.avif",
+      "webp": "src/products/cards/latte-poster.v1.avif"
     },
-    "alt": {
-      "tr": "Nutella dolgulu kruvasan",
-      "en": "Nutella-filled croissant",
-      "ru": "Круассан с начинкой Nutella"
-    }
+    "alt": { "tr": "Roby's latte posteri", "en": "Roby's latte poster", "ru": "Постер Roby's с латте" }
   },
   {
     "id": "san-sebastian",
     "active": true,
     "order": 2,
-    "title": {
-      "tr": "San Sebastian Cheesecake",
-      "en": "San Sebastian Cheesecake",
-      "ru": "Чизкейк Сан-Себастьян"
-    },
+    "title": { "tr": "San Sebastian Cheesecake", "en": "San Sebastian Cheesecake", "ru": "Чизкейк Сан-Себастьян" },
     "price": 190,
     "currency": "₺",
-    "badge": {
-      "tr": "Premium Tatlı",
-      "en": "Premium Dessert",
-      "ru": "Премиальный десерт"
-    },
+    "badge": { "tr": "Premium Tatlı", "en": "Premium Dessert", "ru": "Премиальный десерт" },
     "href": "menu.html#desserts",
     "image": {
-      "primary": "src/products/cards/san-sebastian-card.v3.svg",
-      "fallback": "src/products/cards/san-sebastian-card.v3.svg",
-      "webp": "src/products/cards/san-sebastian-card.v3.svg"
+      "primary": "src/products/cards/san-sebastian-poster.v1.avif",
+      "fallback": "src/products/cards/san-sebastian-poster.v1.avif",
+      "webp": "src/products/cards/san-sebastian-poster.v1.avif"
     },
-    "alt": {
-      "tr": "San Sebastian cheesecake dilimi",
-      "en": "Slice of San Sebastian cheesecake",
-      "ru": "Кусочек чизкейка Сан-Себастьян"
-    }
+    "alt": { "tr": "San Sebastian cheesecake posteri", "en": "San Sebastian cheesecake poster", "ru": "Постер чизкейка Сан-Себастьян" }
   },
   {
-    "id": "latte",
+    "id": "iced-latte",
     "active": true,
     "order": 3,
-    "title": {
-      "tr": "Latte",
-      "en": "Latte",
-      "ru": "Латте"
-    },
-    "price": 180,
+    "title": { "tr": "Iced Latte", "en": "Iced Latte", "ru": "Холодный латте" },
+    "price": 150,
     "currency": "₺",
-    "badge": {
-      "tr": "Kahve Favorisi",
-      "en": "Coffee Favorite",
-      "ru": "Кофейный фаворит"
-    },
-    "href": "menu.html#hot-coffee",
+    "badge": { "tr": "Soğuk Kahve", "en": "Cold Coffee", "ru": "Холодный кофе" },
+    "href": "menu.html#cold-coffee",
     "image": {
-      "primary": "src/products/cards/latte-card.v3.svg",
-      "fallback": "src/products/cards/latte-card.v3.svg",
-      "webp": "src/products/cards/latte-card.v3.svg"
+      "primary": "src/products/cards/iced-latte-card.v1.webp",
+      "fallback": "src/products/cards/iced-latte-card.v1.webp",
+      "webp": "src/products/cards/iced-latte-card.v1.webp"
     },
-    "alt": {
-      "tr": "Latte art ile latte",
-      "en": "Latte with latte art",
-      "ru": "Латте с рисунком на пенке"
-    }
+    "alt": { "tr": "Kubbeli kapaklı Roby's iced latte posteri", "en": "Roby's iced latte poster with a dome lid", "ru": "Постер Roby's с холодным латте под купольной крышкой" }
+  },
+  {
+    "id": "nutella-croissant",
+    "active": true,
+    "order": 4,
+    "title": { "tr": "Nutella Croissant", "en": "Nutella Croissant", "ru": "Круассан с Nutella" },
+    "price": 170,
+    "currency": "₺",
+    "badge": { "tr": "Fırın Klasikleri", "en": "Bakery Classics", "ru": "Классика выпечки" },
+    "href": "menu.html#food",
+    "image": {
+      "primary": "src/products/cards/nutella-poster.v1.avif",
+      "fallback": "src/products/cards/nutella-poster.v1.avif",
+      "webp": "src/products/cards/nutella-poster.v1.avif"
+    },
+    "alt": { "tr": "Nutella dolgulu kruvasan posteri", "en": "Nutella-filled croissant poster", "ru": "Постер круассана с начинкой Nutella" }
   },
   {
     "id": "lotus-cheesecake",
     "active": true,
-    "order": 4,
-    "title": {
-      "tr": "Lotus Cheesecake",
-      "en": "Lotus Cheesecake",
-      "ru": "Чизкейк Lotus"
-    },
+    "order": 5,
+    "title": { "tr": "Lotus Cheesecake", "en": "Lotus Cheesecake", "ru": "Чизкейк Lotus" },
     "price": 190,
     "currency": "₺",
-    "badge": {
-      "tr": "Premium Tatlı",
-      "en": "Premium Dessert",
-      "ru": "Премиальный десерт"
-    },
+    "badge": { "tr": "Premium Tatlı", "en": "Premium Dessert", "ru": "Премиальный десерт" },
     "href": "menu.html#desserts",
     "image": {
-      "primary": "src/products/cards/lotus-card.v3.svg",
-      "fallback": "src/products/cards/lotus-card.v3.svg",
-      "webp": "src/products/cards/lotus-card.v3.svg"
+      "primary": "src/products/cards/lotus-poster.v1.avif",
+      "fallback": "src/products/cards/lotus-poster.v1.avif",
+      "webp": "src/products/cards/lotus-poster.v1.avif"
     },
-    "alt": {
-      "tr": "Lotus cheesecake dilimi",
-      "en": "Slice of Lotus cheesecake",
-      "ru": "Кусочек чизкейка Lotus"
-    }
+    "alt": { "tr": "Lotus cheesecake posteri", "en": "Lotus cheesecake poster", "ru": "Постер чизкейка Lotus" }
   }
 ]
