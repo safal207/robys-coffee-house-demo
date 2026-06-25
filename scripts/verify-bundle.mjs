@@ -1,29 +1,25 @@
 import "./verify-regression-contracts.mjs";
 import { readFileSync } from "node:fs";
 
-const bundle = readFileSync("app.js", "utf8");
+const appBundle = readFileSync("app.js", "utf8");
+const galleryBundle = readFileSync("featured-gallery.js", "utf8");
 const html = readFileSync("index.html", "utf8");
 
-if (!bundle.trim()) {
-  throw new Error("app.js is empty");
+function verifyClassicDeferredBundle(fileName, bundle) {
+  if (!bundle.trim()) throw new Error(`${fileName} is empty`);
+  if (/^\s*(?:import|export)\s/m.test(bundle)) {
+    throw new Error(`${fileName} contains ESM import/export syntax but is loaded as a classic script`);
+  }
+
+  const escaped = fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const script = html.match(new RegExp(`<script\\b[^>]*\\bsrc=["']${escaped}(?:\\?[^"']*)?["'][^>]*><\\/script>`, "i"))?.[0];
+  if (!script) throw new Error(`index.html does not load ${fileName}`);
+  if (/\btype=["']module["']/i.test(script)) throw new Error(`${fileName} must not be loaded as type=module`);
+  if (!/\bdefer(?:\s|>|=)/i.test(script)) throw new Error(`${fileName} must use defer`);
 }
 
-if (/^\s*(?:import|export)\s/m.test(bundle)) {
-  throw new Error("app.js contains ESM import/export syntax but the declared output format is IIFE");
-}
-
-const appScript = html.match(/<script\b[^>]*\bsrc=["']app\.js(?:\?[^"']*)?["'][^>]*><\/script>/i)?.[0];
-if (!appScript) {
-  throw new Error("index.html does not load app.js");
-}
-
-if (/\btype=["']module["']/i.test(appScript)) {
-  throw new Error("The IIFE app.js must not be loaded as type=module");
-}
-
-if (!/\bdefer(?:\s|>|=)/i.test(appScript)) {
-  throw new Error("The classic app.js script must use defer to preserve module-like DOM timing");
-}
+verifyClassicDeferredBundle("app.js", appBundle);
+verifyClassicDeferredBundle("featured-gallery.js", galleryBundle);
 
 const forbiddenLegacyMarkup = [
   '<section id="experience"',
@@ -34,9 +30,13 @@ const forbiddenLegacyMarkup = [
 ];
 
 for (const marker of forbiddenLegacyMarkup) {
-  if (bundle.includes(marker)) {
+  if (appBundle.includes(marker)) {
     throw new Error(`app.js recreates forbidden legacy markup: ${marker}`);
   }
 }
 
-console.log("Verified: app.js is a classic deferred IIFE bundle with no live ESM imports or legacy markup injection.");
+if (!galleryBundle.includes("FEATURED_PRODUCTS")) {
+  throw new Error("featured-gallery.js does not contain the typed product source");
+}
+
+console.log("Verified: app.js and featured-gallery.js are classic deferred bundles with no live ESM imports or legacy gallery injection.");
