@@ -36,7 +36,9 @@
       "id": "mobile-featured-feed-compact-v2",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/69#issuecomment-4794232857",
       "contentBindings": {
-        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94"
+        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94",
+        "src/products/cards/latte-card.v3.svg": "1a2ce5a1006e745fd2a61f49a3b8a2aa6e3880fc",
+        "src/products/cards/nutella-card.v3.svg": "c1175c880c3ff35e7785b2259e3f53f5ffb85e59"
       },
       "expectedFailures": [
         {
@@ -60,6 +62,40 @@
           "viewport": "phone-390",
           "totalPixels": 513240,
           "maxDiffPixelRatio": 0.0041
+        }
+      ]
+    },
+    {
+      "id": "featured-card-reference-crops-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/70",
+      "contentBindings": {
+        "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
+        "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "totalPixels": 1781120,
+          "maxDiffPixelRatio": 0.031
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2191020,
+          "maxDiffPixelRatio": 0.0367
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 4058112,
+          "maxDiffPixelRatio": 0.01
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "totalPixels": 6285600,
+          "maxDiffPixelRatio": 0.0173
         }
       ]
     }
