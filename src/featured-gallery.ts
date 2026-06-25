@@ -15,7 +15,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "latte",
     href: "menu.html#hot-coffee",
-    image: "src/products/gallery-v2/latte.avif?v=20260625-4",
+    image: "src/products/cards/latte-card.v3.svg?v=20260625-5",
     title: { tr: "Latte", en: "Latte", ru: "Латте" },
     price: 180,
     currency: "₺"
@@ -23,7 +23,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "san-sebastian",
     href: "menu.html#desserts",
-    image: "src/products/gallery-v2/san-sebastian.avif?v=20260625-4",
+    image: "src/products/cards/san-sebastian-card.v3.svg?v=20260625-5",
     title: {
       tr: "San Sebastian Cheesecake",
       en: "San Sebastian Cheesecake",
@@ -35,7 +35,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "iced-latte",
     href: "menu.html#cold-coffee",
-    image: "src/products/gallery-v2/iced-latte.avif?v=20260625-4",
+    image: "src/products/gallery-v2/iced-latte.avif?v=20260625-5",
     title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
     price: 150,
     currency: "₺"
@@ -43,7 +43,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "nutella-croissant",
     href: "menu.html#food",
-    image: "src/products/gallery-v2/nutella-croissant.avif?v=20260625-4",
+    image: "src/products/cards/nutella-card.v3.svg?v=20260625-5",
     title: {
       tr: "Nutella Croissant",
       en: "Nutella Croissant",
@@ -55,7 +55,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "lotus-cheesecake",
     href: "menu.html#desserts",
-    image: "src/products/gallery-v2/lotus-cheesecake.avif?v=20260625-4",
+    image: "src/products/cards/lotus-card.v3.svg?v=20260625-5",
     title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
     price: 190,
     currency: "₺"
@@ -99,9 +99,9 @@ function createPosterCard(product: FeaturedProduct, index: number): HTMLAnchorEl
   const image = document.createElement("img");
   image.src = product.image;
   image.alt = product.title[currentGalleryLanguage()];
-  image.width = 1024;
-  image.height = 1024;
-  image.loading = index < 2 ? "eager" : "lazy";
+  image.width = 1200;
+  image.height = 1200;
+  image.loading = index < 3 ? "eager" : "lazy";
   image.decoding = "async";
   if (index === 0) image.fetchPriority = "high";
 
