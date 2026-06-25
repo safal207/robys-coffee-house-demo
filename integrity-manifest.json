@@ -35,18 +35,18 @@
     },
     {
       "path": "data/featured-products.json",
-      "bytes": 3756,
-      "sha256": "b6fd08a04d6d618f248c783ecfef07212df697a2b211a86f0e4e7dedf4e0db64"
+      "bytes": 4234,
+      "sha256": "afcd2557a9cca91e0db61b44819cd6144af5cb480c44aa49b023f2bb2cd0d09d"
     },
     {
       "path": "featured-strip.css",
-      "bytes": 6409,
-      "sha256": "d03c4a5211027201caccfe1990c8fe34a95672bac74167a713308607b77bf159"
+      "bytes": 7593,
+      "sha256": "7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf"
     },
     {
       "path": "featured-strip.js",
-      "bytes": 8301,
-      "sha256": "64c730a946e87962f86a4b6277fa20891d826cecbe93d9731c89d4301f8afef6"
+      "bytes": 8633,
+      "sha256": "9876fc0f8bbc354fe7b330ce3686a25924df65d7942f1a6d35cf59b20ebd17e7"
     },
     {
       "path": "final-qa.css",
@@ -192,6 +192,11 @@
       "path": "src/menu-icons/tea.svg",
       "bytes": 2301,
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
+    },
+    {
+      "path": "src/products/cards/iced-latte-card.v1.webp",
+      "bytes": 12336,
+      "sha256": "9ba78bc08cdf239afb7eb52df25658da082ec7ca5a1bb18dfc1d4bbaefcd85a8"
     },
     {
       "path": "src/products/cards/latte-card.v3.svg",
