@@ -77,17 +77,21 @@ function cardAriaLabel(product, language = currentLanguage()) {
 function createCard(product, index) {
   const card = document.createElement("a");
   card.className = "featured-card";
-  if (isOverview(product)) card.classList.add("featured-card--overview");
+  if (isOverview(product)) {
+    card.classList.add("featured-card--overview");
+  } else {
+    card.classList.add("featured-card--poster");
+  }
   card.href = product.href;
   card.dataset.productId = product.id;
 
   const image = document.createElement("img");
   image.src = product.image.primary;
-  image.width = 240;
-  image.height = 240;
-  image.loading = "eager";
+  image.width = 640;
+  image.height = 640;
+  image.loading = index < 3 ? "eager" : "lazy";
   image.decoding = "async";
-  image.fetchPriority = index === 0 ? "high" : "auto";
+  image.fetchPriority = index === 1 ? "high" : "auto";
   image.alt = localized(product.alt);
   attachImageFallback(image, card);
 
@@ -121,9 +125,16 @@ function createCard(product, index) {
   action.textContent = isOverview(product) ? "→" : "+";
 
   bottom.append(titleWrap, action);
+
+  // Product images are finished advertising posters. Keep their typography,
+  // branding and prices untouched instead of rebuilding them as HTML overlays.
+  if (!isOverview(product)) {
+    top.hidden = true;
+    bottom.hidden = true;
+  }
+
   card.append(image, top, bottom);
   card.setAttribute("aria-label", cardAriaLabel(product));
-
   return card;
 }
 
@@ -212,7 +223,7 @@ function buildPagination() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("data/featured-products.json?v=20260624-4", { cache: "no-store" });
+    const response = await fetch("data/featured-products.json?v=20260625-1", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Expected an array");
