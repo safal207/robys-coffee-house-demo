@@ -43,10 +43,12 @@
 .poster-card-frame{
   position:relative;
   display:grid;
+  box-sizing:border-box;
   width:100%;
   aspect-ratio:1/1;
   place-items:center;
   overflow:hidden;
+  padding:10px;
   border:1px solid rgba(74,52,43,.1);
   border-radius:24px;
   background:#f2ebe3;
@@ -62,7 +64,7 @@
   object-fit:contain!important;
   object-position:center!important;
   border:0!important;
-  border-radius:0!important;
+  border-radius:14px!important;
   background:transparent!important;
   box-shadow:none!important;
   transform:none!important;
@@ -72,7 +74,7 @@
 
 .poster-card-fallback{
   position:absolute;
-  inset:0;
+  inset:10px;
   display:grid;
   align-content:center;
   justify-items:center;
@@ -80,6 +82,7 @@
   padding:28px;
   color:#4b3026;
   text-align:center;
+  border-radius:14px;
   background:
     radial-gradient(circle at 50% 22%,rgba(184,77,88,.12),transparent 38%),
     linear-gradient(145deg,#fffaf4,#eadfd4);
@@ -152,12 +155,17 @@
 
   .featured-track{
     grid-template-columns:minmax(0,1fr)!important;
-    gap:26px!important;
+    gap:22px!important;
   }
 
   .poster-card-frame{
+    padding:12px;
     border-radius:22px;
     box-shadow:0 12px 28px rgba(55,37,28,.14);
+  }
+
+  .poster-card img{
+    border-radius:13px!important;
   }
 
   body.featured-gallery-active .mobile-cta{
@@ -174,11 +182,16 @@
   }
 
   .featured-track{
-    gap:22px!important;
+    gap:20px!important;
   }
 
   .poster-card-frame{
+    padding:9px;
     border-radius:18px;
+  }
+
+  .poster-card img{
+    border-radius:11px!important;
   }
 }
 
