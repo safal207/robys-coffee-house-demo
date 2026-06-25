@@ -36,7 +36,9 @@
       "id": "mobile-featured-feed-compact-v2",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/69#issuecomment-4794232857",
       "contentBindings": {
-        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94"
+        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94",
+        "src/products/cards/latte-card.v3.svg": "1a2ce5a1006e745fd2a61f49a3b8a2aa6e3880fc",
+        "src/products/cards/nutella-card.v3.svg": "c1175c880c3ff35e7785b2259e3f53f5ffb85e59"
       },
       "expectedFailures": [
         {
