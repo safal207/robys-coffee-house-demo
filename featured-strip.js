@@ -5,11 +5,12 @@ const nextButton = document.querySelector("[data-featured-next]");
 const pagination = document.querySelector("[data-featured-pagination]");
 
 const STATIC_IMAGES = [
-  "src/robys-hero-poster.jpg",
-  "src/products/cards/nutella-card.v3.svg",
-  "src/products/cards/san-sebastian-card.v3.svg",
-  "src/products/cards/latte-card.v3.svg",
-  "src/products/cards/lotus-card.v3.svg"
+  "src/robys-hero-poster.jpg?v=20260625-3",
+  "src/products/cards/latte-card.v3.svg?v=20260625-3",
+  "src/products/cards/san-sebastian-card.v3.svg?v=20260625-3",
+  "src/products/cards/iced-latte-card.v1.webp?v=20260625-3",
+  "src/products/cards/nutella-card.v3.svg?v=20260625-3",
+  "src/products/cards/lotus-card.v3.svg?v=20260625-3"
 ];
 
 let cards = [];
@@ -33,12 +34,19 @@ function isOverview(product) {
   return product?.kind === "overview";
 }
 
-function attachImageFallback(image, card) {
+function attachImageFallback(image, card, fallbackSource = "") {
   if (!image || !card) return;
+
   image.addEventListener("error", () => {
+    if (fallbackSource && image.dataset.fallbackApplied !== "true") {
+      image.dataset.fallbackApplied = "true";
+      image.src = fallbackSource;
+      return;
+    }
+
     image.remove();
     card.classList.add("featured-card--image-missing");
-  }, { once: true });
+  });
 }
 
 function prepareStaticFallback() {
@@ -87,13 +95,13 @@ function createCard(product, index) {
 
   const image = document.createElement("img");
   image.src = product.image.primary;
-  image.width = 640;
-  image.height = 640;
+  image.width = 1200;
+  image.height = 750;
   image.loading = index < 3 ? "eager" : "lazy";
   image.decoding = "async";
   image.fetchPriority = index === 1 ? "high" : "auto";
   image.alt = localized(product.alt);
-  attachImageFallback(image, card);
+  attachImageFallback(image, card, product.image.fallback || "");
 
   const top = document.createElement("div");
   top.className = "featured-card-top";
@@ -126,8 +134,8 @@ function createCard(product, index) {
 
   bottom.append(titleWrap, action);
 
-  // Product images are finished advertising posters. Keep their typography,
-  // branding and prices untouched instead of rebuilding them as HTML overlays.
+  // Product assets are complete advertising posters. Never rebuild their
+  // labels, prices or actions as a second HTML layer over the artwork.
   if (!isOverview(product)) {
     top.hidden = true;
     bottom.hidden = true;
@@ -223,7 +231,7 @@ function buildPagination() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("data/featured-products.json?v=20260625-1", { cache: "no-store" });
+    const response = await fetch("data/featured-products.json?v=20260625-3", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Expected an array");
