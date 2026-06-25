@@ -195,8 +195,8 @@
     },
     {
       "path": "src/products/cards/latte-card.v3.svg",
-      "bytes": 6973,
-      "sha256": "fdcaa2cae619f826993207b9e8166db534c40f694ed7e12dd96717c194ea32c6"
+      "bytes": 9837,
+      "sha256": "72559527a547a2b6e190002703ab091804c20f9aee529b2937d604bf59883072"
     },
     {
       "path": "src/products/cards/lotus-card.v3.svg",
@@ -205,8 +205,8 @@
     },
     {
       "path": "src/products/cards/nutella-card.v3.svg",
-      "bytes": 20789,
-      "sha256": "1c10db7a04d48f649e50c56a497c960c47561c688d0b0f00c8655d840a416dc7"
+      "bytes": 17169,
+      "sha256": "d6c1c3ade45f00f5132efcfc34deaf45f5b548bedbda8c2fd33837135e405a29"
     },
     {
       "path": "src/products/cards/san-sebastian-card.v3.svg",
