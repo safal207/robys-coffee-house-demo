@@ -8,9 +8,8 @@
     "badge": { "tr": "KAFE ATMOSFERİ", "en": "CAFE ATMOSPHERE", "ru": "АТМОСФЕРА КАФЕ" },
     "href": "#about",
     "image": {
-      "primary": "src/robys-hero-poster.jpg",
-      "fallback": "src/robys-hero-poster.jpg",
-      "webp": "src/robys-hero-poster.jpg"
+      "primary": "src/robys-hero-poster.jpg?v=20260625-3",
+      "fallback": "src/robys-hero-poster.jpg?v=20260625-3"
     },
     "alt": { "tr": "Roby's Coffee House genel görünümü", "en": "Overview of Roby's Coffee House", "ru": "Обзорный вид Roby's Coffee House" }
   },
@@ -24,9 +23,8 @@
     "badge": { "tr": "Kahve Favorisi", "en": "Coffee Favorite", "ru": "Кофейный фаворит" },
     "href": "menu.html#hot-coffee",
     "image": {
-      "primary": "src/products/cards/latte-poster.v1.avif",
-      "fallback": "src/products/cards/latte-poster.v1.avif",
-      "webp": "src/products/cards/latte-poster.v1.avif"
+      "primary": "src/products/cards/latte-card.v3.svg?v=20260625-3",
+      "fallback": "src/products/cards/latte-card.v3.svg?v=20260625-3"
     },
     "alt": { "tr": "Roby's latte posteri", "en": "Roby's latte poster", "ru": "Постер Roby's с латте" }
   },
@@ -40,9 +38,8 @@
     "badge": { "tr": "Premium Tatlı", "en": "Premium Dessert", "ru": "Премиальный десерт" },
     "href": "menu.html#desserts",
     "image": {
-      "primary": "src/products/cards/san-sebastian-poster.v1.avif",
-      "fallback": "src/products/cards/san-sebastian-poster.v1.avif",
-      "webp": "src/products/cards/san-sebastian-poster.v1.avif"
+      "primary": "src/products/cards/san-sebastian-card.v3.svg?v=20260625-3",
+      "fallback": "src/products/cards/san-sebastian-card.v3.svg?v=20260625-3"
     },
     "alt": { "tr": "San Sebastian cheesecake posteri", "en": "San Sebastian cheesecake poster", "ru": "Постер чизкейка Сан-Себастьян" }
   },
@@ -56,9 +53,8 @@
     "badge": { "tr": "Soğuk Kahve", "en": "Cold Coffee", "ru": "Холодный кофе" },
     "href": "menu.html#cold-coffee",
     "image": {
-      "primary": "src/products/cards/iced-latte-card.v1.webp",
-      "fallback": "src/products/cards/iced-latte-card.v1.webp",
-      "webp": "src/products/cards/iced-latte-card.v1.webp"
+      "primary": "src/products/cards/iced-latte-card.v1.webp?v=20260625-3",
+      "fallback": "src/products/cards/iced-latte-poster.v1.avif?v=20260625-3"
     },
     "alt": { "tr": "Kubbeli kapaklı Roby's iced latte posteri", "en": "Roby's iced latte poster with a dome lid", "ru": "Постер Roby's с холодным латте под купольной крышкой" }
   },
@@ -72,9 +68,8 @@
     "badge": { "tr": "Fırın Klasikleri", "en": "Bakery Classics", "ru": "Классика выпечки" },
     "href": "menu.html#food",
     "image": {
-      "primary": "src/products/cards/nutella-poster.v1.avif",
-      "fallback": "src/products/cards/nutella-poster.v1.avif",
-      "webp": "src/products/cards/nutella-poster.v1.avif"
+      "primary": "src/products/cards/nutella-card.v3.svg?v=20260625-3",
+      "fallback": "src/products/cards/nutella-card.v3.svg?v=20260625-3"
     },
     "alt": { "tr": "Nutella dolgulu kruvasan posteri", "en": "Nutella-filled croissant poster", "ru": "Постер круассана с начинкой Nutella" }
   },
@@ -88,9 +83,8 @@
     "badge": { "tr": "Premium Tatlı", "en": "Premium Dessert", "ru": "Премиальный десерт" },
     "href": "menu.html#desserts",
     "image": {
-      "primary": "src/products/cards/lotus-poster.v1.avif",
-      "fallback": "src/products/cards/lotus-poster.v1.avif",
-      "webp": "src/products/cards/lotus-poster.v1.avif"
+      "primary": "src/products/cards/lotus-card.v3.svg?v=20260625-3",
+      "fallback": "src/products/cards/lotus-card.v3.svg?v=20260625-3"
     },
     "alt": { "tr": "Lotus cheesecake posteri", "en": "Lotus cheesecake poster", "ru": "Постер чизкейка Lotus" }
   }
