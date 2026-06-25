@@ -31,11 +31,7 @@ function dashboardContract(id, minimumAssertions) {
   const contract = dashboard.contracts?.find((item) => item.id === id);
   assert(contract, id, `${id} is missing from qa/regression-dashboard.json`);
   assert(contract.status === "gated", id, `${id} dashboard status must remain gated`);
-  assert(
-    Array.isArray(contract.assertions) && contract.assertions.length >= minimumAssertions,
-    id,
-    `${id} dashboard does not document all regression assertions`
-  );
+  assert(Array.isArray(contract.assertions) && contract.assertions.length >= minimumAssertions, id, `${id} dashboard does not document all regression assertions`);
 }
 
 const mapFrames = Array.from(html.matchAll(/<iframe\b[^>]*>/gi))
@@ -78,19 +74,13 @@ assert(qaRuntime.includes("HERO_BALANCE_STYLES"), "VIDEO-001", "Hero runtime mus
 dashboardContract("VIDEO-001", 5);
 
 const heroOverlayRules = cssRules(heroCss, ".hero-overlay", "THEME-001");
-const overlayAlphas = heroOverlayRules.flatMap((rule) =>
-  Array.from(rule.matchAll(/rgba\([^)]*,\s*(\d*\.?\d+)\)/g), (match) => Number(match[1]))
-);
+const overlayAlphas = heroOverlayRules.flatMap((rule) => Array.from(rule.matchAll(/rgba\([^)]*,\s*(\d*\.?\d+)\)/g), (match) => Number(match[1])));
 assert(overlayAlphas.length > 0, "THEME-001", "Hero overlay must declare RGBA transparency values");
 assert(Math.max(...overlayAlphas) <= 0.78, "THEME-001", `Hero overlay is too dark: max alpha ${Math.max(...overlayAlphas)}`);
 const heroVideoRule = cssRules(heroCss, ".hero-video", "THEME-001")[0];
 const brightness = Number(heroVideoRule.match(/brightness\((\d*\.?\d+)\)/)?.[1] ?? 0);
 assert(brightness >= 1, "THEME-001", `Hero video brightness must be at least 1.0, found ${brightness}`);
-const lightSectionContracts = [
-  [".about", "background:var(--paper)"],
-  [".gallery-section", "background:var(--cream)"],
-  [".visit-section", "background:var(--paper)"]
-];
+const lightSectionContracts = [[".about", "background:var(--paper)"], [".gallery-section", "background:var(--cream)"], [".visit-section", "background:var(--paper)"]];
 for (const [selector, requiredBackground] of lightSectionContracts) {
   const rule = cssRules(heroCss, selector, "THEME-001")[0];
   assert(rule.includes(requiredBackground), "THEME-001", `${selector} must retain ${requiredBackground}`);
@@ -102,11 +92,11 @@ const expectedOrder = ["latte", "san-sebastian", "iced-latte", "nutella-croissan
 const sourceIds = Array.from(featuredSource.matchAll(/\bid:\s*"([^"]+)"/g), (match) => match[1]);
 const sourceImages = Array.from(featuredSource.matchAll(/\bimage:\s*"([^"]+)"/g), (match) => match[1]);
 const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bposter-card\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi));
-
 assert(sourceIds.length === 5, "FEATURED-001", `Expected exactly 5 typed products, found ${sourceIds.length}`);
 assert(JSON.stringify(sourceIds) === JSON.stringify(expectedOrder), "FEATURED-001", `Typed product order changed: ${sourceIds.join(", ")}`);
 assert(sourceImages.length === 5, "FEATURED-001", `Expected 5 typed poster sources, found ${sourceImages.length}`);
-assert(sourceImages.every((path) => /^src\/products\/gallery-v2\/[\w-]+\.avif\?v=/.test(path)), "FEATURED-001", "Every typed poster must use an isolated versioned AVIF source");
+assert(sourceImages.every((path) => /^src\/products\/(?:cards|gallery-v2)\/[\w.-]+\.(?:svg|avif)\?v=/.test(path)), "FEATURED-001", "Every typed item must use a versioned local image source");
+assert(sourceImages.filter((path) => path.endsWith(".avif?v=20260625-5")).length === 1, "FEATURED-001", "Only the verified Iced Latte AVIF may be used");
 assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Typed poster sources must be unique");
 assert(staticCards.length === 5, "FEATURED-001", `Static fallback must expose exactly 5 poster cards, found ${staticCards.length}`);
 assert(!html.includes("featured-card--overview"), "FEATURED-001", "Cafe overview must not return to the product feed");
@@ -126,4 +116,4 @@ assert(featuredRuntime.includes("IntersectionObserver"), "FEATURED-001", "Typed 
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete posters without crop, black cards, duplicate UI, or dock overlap.");
+console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images without crop, black cards, duplicate UI, or dock overlap.");
