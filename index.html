@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260624-2" />
+  <meta name="robys-build" content="20260625-3" />
   <meta name="description" content="Roby's Coffee House — Gazipaşa'da iyi kahve, tatlılar ve sakin anlar." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
@@ -61,9 +61,10 @@
   <link rel="stylesheet" href="gallery-clean.css?v=perf-20260621-5" />
   <link rel="stylesheet" href="map-live.css?v=map-fix-20260622-1" />
   <link rel="stylesheet" href="menu-preview.css?v=mobile-menu-20260622-1" />
-  <link rel="stylesheet" href="featured-strip.css?v=20260624-2" />
+  <link rel="stylesheet" href="featured-strip.css?v=20260625-3" />
+  <link rel="stylesheet" href="featured-strip-mobile-fix.css?v=20260625-3" />
   <script defer src="app.js?v=67c0e7d61b1b"></script>
-  <script defer src="featured-strip.js?v=20260624-2"></script>
+  <script defer src="featured-strip.js?v=20260625-3"></script>
   <script type="module" src="conversion.js?v=perf-20260621-6"></script>
   <script type="module" src="analytics.js?v=perf-20260621-5"></script>
   <script type="module" src="qa.js?v=video-20260621-10"></script>
@@ -110,31 +111,11 @@
 
         <div class="featured-viewport" data-featured-viewport tabindex="0" aria-label="Roby's featured products">
           <div class="featured-track">
-            <a class="featured-card featured-card--overview" href="#about" aria-label="Roby's Gazipaşa">
-              <img src="src/robys-hero-poster.jpg" alt="Overview of Roby's Coffee House" width="240" height="240" loading="eager" decoding="async" fetchpriority="high" />
-              <div class="featured-card-top"><small data-localized data-tr="KAFE ATMOSFERİ" data-en="CAFE ATMOSPHERE" data-ru="АТМОСФЕРА КАФЕ">KAFE ATMOSFERİ</small></div>
-              <div class="featured-card-bottom"><div class="featured-card-title"><strong data-localized data-tr="Roby's Gazipaşa" data-en="Roby's Gazipaşa" data-ru="Roby's в Газипаше">Roby's Gazipaşa</strong></div><span class="featured-card-action" aria-hidden="true">→</span></div>
-            </a>
-            <a class="featured-card" href="menu.html#food" aria-label="Nutella Croissant, 170 Turkish lira">
-              <img src="src/products/cards/nutella-card.v3.svg" alt="Nutella Croissant" width="240" height="240" loading="eager" decoding="async" />
-              <div class="featured-card-top"><small data-localized data-tr="FIRIN KLASİKLERİ" data-en="BAKERY CLASSICS" data-ru="КЛАССИКА ВЫПЕЧКИ">FIRIN KLASİKLERİ</small></div>
-              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Nutella Croissant</strong><span class="featured-price">170 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
-            </a>
-            <a class="featured-card" href="menu.html#desserts" aria-label="San Sebastian Cheesecake, 190 Turkish lira">
-              <img src="src/products/cards/san-sebastian-card.v3.svg" alt="San Sebastian Cheesecake" width="240" height="240" loading="eager" decoding="async" />
-              <div class="featured-card-top"><small data-localized data-tr="PREMİUM TATLI" data-en="PREMIUM DESSERT" data-ru="ПРЕМИАЛЬНЫЙ ДЕСЕРТ">PREMİUM TATLI</small></div>
-              <div class="featured-card-bottom"><div class="featured-card-title"><strong>San Sebastian Cheesecake</strong><span class="featured-price">190 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
-            </a>
-            <a class="featured-card" href="menu.html#hot-coffee" aria-label="Latte, 180 Turkish lira">
-              <img src="src/products/cards/latte-card.v3.svg" alt="Latte" width="240" height="240" loading="eager" decoding="async" />
-              <div class="featured-card-top"><small data-localized data-tr="KAHVE FAVORİSİ" data-en="COFFEE FAVORITE" data-ru="КОФЕЙНЫЙ ФАВОРИТ">KAHVE FAVORİSİ</small></div>
-              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Latte</strong><span class="featured-price">180 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
-            </a>
-            <a class="featured-card" href="menu.html#desserts" aria-label="Lotus Cheesecake, 190 Turkish lira">
-              <img src="src/products/cards/lotus-card.v3.svg" alt="Lotus Cheesecake" width="240" height="240" loading="eager" decoding="async" />
-              <div class="featured-card-top"><small data-localized data-tr="PREMİUM TATLI" data-en="PREMIUM DESSERT" data-ru="ПРЕМИАЛЬНЫЙ ДЕСЕРТ">PREMİUM TATLI</small></div>
-              <div class="featured-card-bottom"><div class="featured-card-title"><strong>Lotus Cheesecake</strong><span class="featured-price">190 ₺</span></div><span class="featured-card-action" aria-hidden="true">+</span></div>
-            </a>
+            <a class="featured-card featured-card--poster" href="menu.html#hot-coffee" aria-label="Latte, 180 Turkish lira"><img src="src/products/cards/latte-card.v3.svg?v=20260625-3" alt="Latte" width="1200" height="750" loading="eager" decoding="async" fetchpriority="high" /></a>
+            <a class="featured-card featured-card--poster" href="menu.html#desserts" aria-label="San Sebastian Cheesecake, 190 Turkish lira"><img src="src/products/cards/san-sebastian-card.v3.svg?v=20260625-3" alt="San Sebastian Cheesecake" width="1200" height="750" loading="eager" decoding="async" /></a>
+            <a class="featured-card featured-card--poster" href="menu.html#cold-coffee" aria-label="Iced Latte, 150 Turkish lira"><img src="src/products/cards/iced-latte-card.v1.webp?v=20260625-3" alt="Iced Latte" width="768" height="768" loading="eager" decoding="async" /></a>
+            <a class="featured-card featured-card--poster" href="menu.html#food" aria-label="Nutella Croissant, 170 Turkish lira"><img src="src/products/cards/nutella-card.v3.svg?v=20260625-3" alt="Nutella Croissant" width="1200" height="750" loading="lazy" decoding="async" /></a>
+            <a class="featured-card featured-card--poster" href="menu.html#desserts" aria-label="Lotus Cheesecake, 190 Turkish lira"><img src="src/products/cards/lotus-card.v3.svg?v=20260625-3" alt="Lotus Cheesecake" width="1200" height="750" loading="lazy" decoding="async" /></a>
           </div>
         </div>
         <div class="featured-pagination" data-featured-pagination aria-label="Featured products pagination"></div>
