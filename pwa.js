@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "sw.js?v=offline-20260627-2";
+const SERVICE_WORKER_URL = "sw.js?v=offline-20260627-3";
 
 function syncConnectivityState() {
   document.documentElement.classList.toggle("is-offline", !navigator.onLine);
