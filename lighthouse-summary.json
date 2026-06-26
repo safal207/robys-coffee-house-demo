@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T21:03:30.128Z",
+  "generatedAt": "2026-06-26T21:16:33.435Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 75,
+    "performance": 63,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.9 s",
-      "numericValue": 1928.2964000000002,
-      "score": 0.86
+      "displayValue": "2.1 s",
+      "numericValue": 2092.2676,
+      "score": 0.81
     },
     "largest-contentful-paint": {
-      "displayValue": "2.8 s",
-      "numericValue": 2759.8705,
-      "score": 0.84
+      "displayValue": "3.0 s",
+      "numericValue": 2981.7676,
+      "score": 0.78
     },
     "speed-index": {
-      "displayValue": "4.7 s",
-      "numericValue": 4705.437156326375,
-      "score": 0.69
+      "displayValue": "5.0 s",
+      "numericValue": 4984.519781237443,
+      "score": 0.64
     },
     "total-blocking-time": {
-      "displayValue": "650 ms",
-      "numericValue": 649.2777000000001,
-      "score": 0.46
+      "displayValue": "1,470 ms",
+      "numericValue": 1472.2992999999997,
+      "score": 0.14
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "3.2 s",
-      "numericValue": 3164.7371200000002,
-      "score": 0.95
+      "displayValue": "4.0 s",
+      "numericValue": 3986.9169,
+      "score": 0.88
     }
   },
   "opportunities": [
@@ -68,15 +68,15 @@
       "score": 0
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 30 ms",
-      "score": 0
-    },
-    {
       "id": "offscreen-images",
       "title": "Defer offscreen images",
-      "displayValue": "Est savings of 72 KiB",
+      "displayValue": "Est savings of 75 KiB",
+      "score": 0.5
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 0 ms",
       "score": 0.5
     },
     {
@@ -97,19 +97,13 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "3.6 s"
+      "displayValue": "4.8 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "2,760 ms"
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "score": 0,
-      "displayValue": "Est savings of 30 ms"
+      "displayValue": "2,980 ms"
     },
     {
       "id": "uses-text-compression",
@@ -121,7 +115,7 @@
       "id": "cache-insight",
       "title": "Use efficient cache lifetimes",
       "score": 0,
-      "displayValue": "Est savings of 766 KiB"
+      "displayValue": "Est savings of 1,809 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -133,19 +127,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 180 ms"
+      "displayValue": "Est savings of 50 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.26,
-      "displayValue": "350 ms"
+      "score": 0.08,
+      "displayValue": "500 ms"
     },
     {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.46,
-      "displayValue": "650 ms"
+      "score": 0.14,
+      "displayValue": "1,470 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -157,7 +151,13 @@
       "id": "offscreen-images",
       "title": "Defer offscreen images",
       "score": 0.5,
-      "displayValue": "Est savings of 72 KiB"
+      "displayValue": "Est savings of 75 KiB"
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "score": 0.5,
+      "displayValue": "Est savings of 0 ms"
     },
     {
       "id": "modern-image-formats",
