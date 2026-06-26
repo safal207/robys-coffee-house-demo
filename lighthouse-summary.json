@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T22:52:09.879Z",
+  "generatedAt": "2026-06-26T23:03:02.983Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 96,
+    "performance": 97,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.7 s",
-      "numericValue": 1660.4529999999995,
+      "numericValue": 1664.1625999999997,
       "score": 0.93
     },
     "largest-contentful-paint": {
-      "displayValue": "2.5 s",
-      "numericValue": 2491.4529999999995,
-      "score": 0.9
+      "displayValue": "2.3 s",
+      "numericValue": 2339.1625999999997,
+      "score": 0.92
     },
     "speed-index": {
       "displayValue": "1.7 s",
-      "numericValue": 1660.4529999999995,
+      "numericValue": 1664.1625999999997,
       "score": 1
     },
     "total-blocking-time": {
-      "displayValue": "120 ms",
-      "numericValue": 120.5,
-      "score": 0.97
+      "displayValue": "0 ms",
+      "numericValue": 0,
+      "score": 1
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,29 +55,23 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.5 s",
-      "numericValue": 2507.8902874999994,
-      "score": 0.98
+      "displayValue": "2.4 s",
+      "numericValue": 2361.6625999999997,
+      "score": 0.99
     }
   },
   "opportunities": [
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 460 ms",
+      "score": 0
+    },
     {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 95 KiB",
       "score": 0
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 240 ms",
-      "score": 0
-    },
-    {
-      "id": "offscreen-images",
-      "title": "Defer offscreen images",
-      "displayValue": "Est savings of 75 KiB",
-      "score": 0.5
     },
     {
       "id": "unminified-javascript",
@@ -100,16 +94,10 @@
   ],
   "failedAudits": [
     {
-      "id": "mainthread-work-breakdown",
-      "title": "Minimize main-thread work",
-      "score": 0,
-      "displayValue": "2.3 s"
-    },
-    {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 240 ms"
+      "displayValue": "Est savings of 460 ms"
     },
     {
       "id": "uses-text-compression",
@@ -124,6 +112,12 @@
       "displayValue": "Est savings of 1,373 KiB"
     },
     {
+      "id": "forced-reflow-insight",
+      "title": "Forced reflow",
+      "score": 0,
+      "displayValue": null
+    },
+    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
@@ -133,19 +127,13 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 390 ms"
+      "displayValue": "Est savings of 610 ms"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
       "displayValue": "35 resources found"
-    },
-    {
-      "id": "offscreen-images",
-      "title": "Defer offscreen images",
-      "score": 0.5,
-      "displayValue": "Est savings of 75 KiB"
     },
     {
       "id": "unminified-javascript",
