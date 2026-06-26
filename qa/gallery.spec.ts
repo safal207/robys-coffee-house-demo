@@ -139,6 +139,48 @@ test("gallery image loading stays below the CLS budget", async ({ page }) => {
   expect(cls).toBeLessThan(0.1);
 });
 
+test("daily social offer fits between the map and footer", async ({ page }) => {
+  await page.goto("/", { waitUntil: "networkidle" });
+
+  const offer = page.locator("#daily-offer");
+  await offer.scrollIntoViewIfNeeded();
+  await expect(offer).toBeVisible();
+  await expect(offer.locator(".social-offer-title")).toHaveText("Bugün Roby's'de");
+  await expect(offer.locator(".social-offer-price")).toHaveText("340 ₺");
+  await expect(offer.locator('a[href="https://www.instagram.com/robyscoffeehouse/"]')).toHaveCount(2);
+
+  const layout = await offer.evaluate((element) => {
+    const card = element.querySelector<HTMLElement>(".social-offer-card");
+    const map = document.querySelector<HTMLElement>("#visit");
+    const footer = document.querySelector<HTMLElement>(".site-footer");
+    const rect = card?.getBoundingClientRect();
+    return {
+      left: rect?.left ?? -1,
+      right: rect?.right ?? Number.POSITIVE_INFINITY,
+      viewportWidth: document.documentElement.clientWidth,
+      followsMap: Boolean(map && (map.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      precedesFooter: Boolean(footer && (element.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING))
+    };
+  });
+
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth + 1);
+  expect(layout.followsMap).toBe(true);
+  expect(layout.precedesFooter).toBe(true);
+
+  await page.locator('[data-lang="ru"]').click();
+  await expect(offer.locator(".social-offer-title")).toHaveText("Сегодня в Roby’s");
+  await expect(offer.locator(".social-offer-social-text")).toHaveText("Отметь нас в Instagram");
+
+  await test.info().attach("daily-social-offer", {
+    body: await offer.screenshot({ animations: "disabled" }),
+    contentType: "image/png"
+  });
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test("Latte video is requested only after the user opens it", async ({ page }) => {
   let videoRequests = 0;
   await page.route("**/latte-story-360.mp4?*", async (route) => {
