@@ -4,7 +4,8 @@ const INDEX_PATH = "index.html";
 let html = readFileSync(INDEX_PATH, "utf8");
 
 if (html.includes('id="community"')) {
-  throw new Error("The community reel section is already installed.");
+  console.log("The community reel section is already installed.");
+  process.exit(0);
 }
 
 html = html.replace(
