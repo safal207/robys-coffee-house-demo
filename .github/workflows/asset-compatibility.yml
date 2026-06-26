@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   convert:
@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -25,12 +27,8 @@ jobs:
           npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
           npx playwright install --with-deps chromium
       - name: Rebuild uncropped gallery posters
-        id: rebuild
-        continue-on-error: true
         run: |
-          mkdir -p gallery-source gallery-compatible gallery-png gallery-diagnostics
-          exec > >(tee gallery-diagnostics/rebuild.log) 2>&1
-          set -x
+          mkdir -p gallery-source gallery-compatible gallery-png src/products/gallery-v3
           sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
             src/products/cards/latte-card.v3.svg > gallery-source/latte.svg
           sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
@@ -48,7 +46,7 @@ jobs:
 
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
           server_pid=$!
-          trap 'cp /tmp/gallery-server.log gallery-diagnostics/server.log 2>/dev/null || true; kill "$server_pid" 2>/dev/null || true' EXIT
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null; then
               break
@@ -71,7 +69,6 @@ jobs:
 
             for (const file of files) {
               const name = path.basename(file, path.extname(file));
-              console.log(`Rendering ${file}`);
               await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain;object-position:center}</style><img id="poster" src="http://127.0.0.1:4173/gallery-source/${file}">`);
               const image = page.locator('#poster');
               await image.evaluate(async element => {
@@ -83,7 +80,26 @@ jobs:
                 if (img.naturalWidth === 0) throw new Error(`Chromium could not decode ${img.src}`);
                 await img.decode();
               });
-              await image.screenshot({ path: `gallery-png/${name}.png`, omitBackground: true, animations: 'disabled' });
+
+              const png = await image.screenshot({ omitBackground: true, animations: 'disabled' });
+              fs.writeFileSync(`gallery-png/${name}.png`, png);
+
+              const webpBase64 = await page.evaluate(async pngBase64 => {
+                const img = new Image();
+                img.src = `data:image/png;base64,${pngBase64}`;
+                await img.decode();
+                const canvas = document.createElement('canvas');
+                canvas.width = 640;
+                canvas.height = 640;
+                const context = canvas.getContext('2d');
+                if (!context) throw new Error('Canvas 2D context is unavailable');
+                context.drawImage(img, 0, 0, 640, 640);
+                return canvas.toDataURL('image/webp', 0.9).split(',')[1];
+              }, png.toString('base64'));
+
+              const webp = Buffer.from(webpBase64, 'base64');
+              fs.writeFileSync(`gallery-compatible/${name}.webp`, webp);
+              fs.writeFileSync(`src/products/gallery-v3/${name}.webp`, webp);
             }
             await browser.close();
           })().catch(error => {
@@ -92,27 +108,24 @@ jobs:
           });
           NODE
 
-          for source in gallery-png/*.png; do
-            name="$(basename "${source%.png}")"
-            ffmpeg -hide_banner -loglevel error \
-              -i "$source" \
-              -frames:v 1 -c:v libwebp -q:v 90 \
-              "gallery-compatible/${name}.webp"
-          done
           file gallery-compatible/*.webp
-      - name: Upload poster rebuild evidence
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Commit generated posters to the PR branch
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/products/gallery-v3/*.webp
+          if git diff --cached --quiet; then
+            echo 'Generated posters are already current.'
+          else
+            git commit -m 'assets: add cross-browser gallery posters [skip ci]'
+            git push origin HEAD:${{ github.head_ref }}
+          fi
+      - uses: actions/upload-artifact@v4
         with:
           name: gallery-compatible-webp
           path: |
-            gallery-compatible
-            gallery-png
-            gallery-source
-            gallery-diagnostics
+            gallery-compatible/*.webp
+            gallery-png/*.png
           if-no-files-found: error
           retention-days: 1
-      - name: Enforce successful poster rebuild
-        if: always()
-        run: |
-          test "${{ steps.rebuild.outcome }}" = "success"
