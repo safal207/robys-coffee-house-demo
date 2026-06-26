@@ -1,0 +1,63 @@
+name: Gallery mobile gate
+
+on:
+  pull_request:
+    paths:
+      - "src/featured-gallery.ts"
+      - "featured-gallery.js"
+      - "featured-gallery.css"
+      - "index.html"
+      - "src/products/cards/**"
+      - "src/products/gallery-v2/**"
+      - "qa/gallery.spec.ts"
+      - "qa/playwright.config.ts"
+      - "scripts/verify-gallery-assets.sh"
+      - ".github/workflows/gallery-mobile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Audit gallery assets and viewport units
+        run: bash scripts/verify-gallery-assets.sh
+
+      - name: Compile TypeScript runtime
+        run: npm run build
+
+      - name: Install Playwright without changing the lockfile
+        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps webkit chromium
+
+      - name: Run mobile gallery matrix
+        run: npx playwright test --config=qa/playwright.config.ts
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-mobile-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
