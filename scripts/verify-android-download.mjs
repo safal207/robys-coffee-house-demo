@@ -2,17 +2,21 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 
 const contract = "ANDROID-APP-001";
-const apkPath = "downloads/robys-coffee-house-v1.1.apk";
 const expectedBytes = 25231;
 const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+const partPaths = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
 }
 
-assert(existsSync(apkPath), `Missing direct APK: ${apkPath}`);
-assert(statSync(apkPath).size === expectedBytes, `APK size changed: ${statSync(apkPath).size}`);
-const apk = readFileSync(apkPath);
+for (const path of partPaths) {
+  assert(existsSync(path), `Missing APK part: ${path}`);
+  assert(statSync(path).size > 0, `APK part is empty: ${path}`);
+}
+const base64 = partPaths.map((path) => readFileSync(path, "utf8")).join("").replace(/\s+/g, "");
+const apk = Buffer.from(base64, "base64");
+assert(apk.length === expectedBytes, `APK size changed: ${apk.length}`);
 assert(apk.subarray(0, 2).toString("ascii") === "PK", "APK must be a ZIP-based Android package");
 assert(createHash("sha256").update(apk).digest("hex") === expectedSha256, "APK checksum changed");
 const archiveText = apk.toString("latin1");
@@ -23,9 +27,11 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 const upgrade = readFileSync("android-download.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
 const sw = readFileSync("sw.js", "utf8");
-assert(upgrade.includes(`const APK_URL = "${apkPath}"`), "Direct APK URL is not wired");
+for (const path of partPaths) assert(upgrade.includes(path), `Runtime does not preload ${path}`);
+assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
+assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a download URL before the user clicks");
 assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
 assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
-assert(sw.includes(`./${apkPath}`), "APK must be available in the offline cache");
-console.log(`✅ ${contract} passed: direct signed APK ${expectedSha256.slice(0, 12)}… is downloadable and cached offline.`);
+for (const path of partPaths) assert(sw.includes(`./${path}`), `Offline cache does not include ${path}`);
+console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is preloaded, verified and downloadable offline.`);
