@@ -5,7 +5,7 @@
       "id": "responsive-owner-gallery-v5",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/79",
       "contentBindings": {
-        "index.html": "4f57d92e0679b8ec00ce2f60229794c1c2533d5d",
+        "index.html": "60d7616eb2f6aac64c95d00e2b7769d24ead4343",
         "src/featured-gallery.ts": "4b6c0bd4eda49db71ecb6d35fd1759a072ee3969",
         "src/products/gallery-v5/responsive.sha256": "b4274735de2090447b08a4208c47206d3d261884"
       },
