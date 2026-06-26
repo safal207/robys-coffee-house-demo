@@ -37,28 +37,25 @@ function dashboardContract(id, minimumAssertions) {
 const mapFrames = Array.from(html.matchAll(/<iframe\b[^>]*>/gi))
   .map((match) => match[0])
   .filter((tag) => /\bclass=["'][^"']*\bmap-live-frame\b[^"']*["']/i.test(tag));
-assert(mapFrames.length === 1, "MAP-001", `Expected exactly one .map-live-frame iframe, found ${mapFrames.length}`);
+assert(mapFrames.length === 1, "MAP-001", `Expected exactly one compatibility .map-live-frame iframe, found ${mapFrames.length}`);
 const iframe = mapFrames[0];
 const mapSrc = iframe.match(/\bsrc=["']([^"']+)["']/i)?.[1] ?? "";
-assert(/^https:\/\/(?:www\.|maps\.)?google\.[^/]+\/maps/i.test(mapSrc), "MAP-001", "Map iframe must use an HTTPS Google Maps URL");
-assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Map iframe URL must include output=embed");
-assert(!/\btabindex=["']-1["']/i.test(iframe), "MAP-001", "Map iframe must remain keyboard reachable; tabindex=-1 is forbidden");
-assert(/\ballowfullscreen(?:\s|>|=)/i.test(iframe), "MAP-001", "Map iframe must allow fullscreen mode");
+assert(/^https:\/\/(?:www\.|maps\.)?google\.[^/]+\/maps/i.test(mapSrc), "MAP-001", "Compatibility iframe must keep an HTTPS Google Maps URL");
+assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Compatibility iframe URL must include output=embed");
+const mapLink = Array.from(html.matchAll(/<a\b[^>]*>/gi), (match) => match[0]).find((tag) => /\bclass=["'][^"']*\bmap-live-link\b[^"']*["']/i.test(tag)) ?? "";
+assert(Boolean(mapLink), "MAP-001", "Static map must expose one .map-live-link anchor");
+assert(/href=["']https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa["']/i.test(mapLink), "MAP-001", "Static map link must target Roby's Coffee House Gazipaşa");
+assert(/target=["']_blank["']/i.test(mapLink) && /rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(mapLink), "MAP-001", "Static map link must open safely");
 const frameRule = cssRules(mapCss, ".map-live-frame", "MAP-001")[0];
-const overlayRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
+const linkRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
 const badgeRule = cssRules(mapCss, ".map-live-badge", "MAP-001")[0];
 const bottomRule = cssRules(mapCss, ".map-live-bottom", "MAP-001")[0];
-assert(frameRule.includes("display:block"), "MAP-001", ".map-live-frame must stay rendered");
-assert(frameRule.includes("pointer-events:auto"), "MAP-001", ".map-live-frame must receive pointer events");
-assert(frameRule.includes("touch-action:auto"), "MAP-001", ".map-live-frame must allow native touch interaction");
-assert(overlayRule.includes("pointer-events:none"), "MAP-001", ".map-live-link must not block the iframe");
-assert(badgeRule.includes("pointer-events:auto"), "MAP-001", ".map-live-badge must remain clickable");
-assert(bottomRule.includes("pointer-events:auto"), "MAP-001", ".map-live-bottom must remain clickable");
-assert(mapCss.includes("@media(hover:none) and (pointer:coarse){"), "MAP-001", "Touch-device map rules are missing");
-assert(mapCss.includes(".map-live-frame{display:block;pointer-events:auto;touch-action:auto}"), "MAP-001", "Touch devices must keep the live map interactive");
-assert(!mapCss.includes(".map-live-frame{display:none}"), "MAP-001", "Touch devices must not replace the live map with a decorative fallback");
-assert(mapCss.includes(".map-live-link{pointer-events:none}"), "MAP-001", "Touch-device overlay must not swallow map gestures");
-assert(mapCss.includes(".map-live-badge,.map-live-bottom{pointer-events:auto}"), "MAP-001", "Touch-device route controls must remain clickable");
+assert(frameRule.includes("display:none"), "MAP-001", "Blocked external map pixels must remain hidden");
+assert(linkRule.includes("pointer-events:auto"), "MAP-001", "Static map card must remain clickable");
+assert(badgeRule.includes("pointer-events:none"), "MAP-001", "Map badge must delegate clicks to the card link");
+assert(bottomRule.includes("pointer-events:none"), "MAP-001", "Map route panel must delegate clicks to the card link");
+assert(mapCss.includes(".map-card-live::before"), "MAP-001", "Static map artwork layer is missing");
+assert(mapCss.includes('content:"Uğur Mumcu Cd."') && mapCss.includes('content:"Gazipaşa Cd."'), "MAP-001", "Static map must retain local street context");
 dashboardContract("MAP-001", 6);
 
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
@@ -121,7 +118,7 @@ assert(featuredSource.includes("window.requestAnimationFrame"), "FEATURED-001", 
 assert(html.includes("script-src 'self';"), "FEATURED-001", "Gallery deployment must keep a strict external-script CSP");
 assert(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*visualViewport/i.test(html), "FEATURED-001", "iOS gallery fallback must not be duplicated as inline JavaScript");
 
-console.log("✅ MAP-001 gated: embedded map stays interactive on desktop and touch devices.");
+console.log("✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
 console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images with iOS-safe dock handling, stable fallback height and no crop.");
