@@ -1,22 +1,24 @@
 name: Stage exact homepage hero video
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/replace-homepage-hero-20260626
-    paths:
-      - .github/workflows/stage-exact-homepage-hero.yml
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 permissions:
   contents: write
 
 jobs:
   replace-hero:
-    if: github.event.head_commit.message == 'chore: stage exact homepage hero'
+    if: github.event.pull_request.head.ref == 'feat/replace-homepage-hero-20260626'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out branch
+      - name: Check out feature branch
         uses: actions/checkout@v4
         with:
           ref: feat/replace-homepage-hero-20260626
@@ -56,9 +58,11 @@ jobs:
           source = path.read_text(encoding='utf-8')
           old = 'src/robys-hero-mobile-lite.mp4?v=20260621-10'
           new = 'src/robys-hero-mobile-lite.mp4?v=20260626-11'
-          if old not in source:
-              raise SystemExit(f'Expected hero source not found: {old}')
-          path.write_text(source.replace(old, new, 1), encoding='utf-8')
+          if old in source:
+              source = source.replace(old, new, 1)
+              path.write_text(source, encoding='utf-8')
+          elif new not in source:
+              raise SystemExit('Expected hero source was not found')
 
       - name: Commit verified media replacement
         shell: bash
@@ -68,5 +72,9 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add src/robys-hero-mobile-lite.mp4 index.html
           git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Exact hero video is already staged.'
+            exit 0
+          fi
           git commit -m 'feat: replace homepage hero with exact Full HD video'
           git push origin HEAD:feat/replace-homepage-hero-20260626
