@@ -13,16 +13,21 @@ await build({
   legalComments: "none"
 });
 
-const gallerySource = readFileSync("src/featured-gallery.ts", "utf8");
-const galleryBundle = ts.transpileModule(gallerySource, {
-  compilerOptions: {
-    target: ts.ScriptTarget.ES2020,
-    module: ts.ModuleKind.None,
-    strict: true,
-    removeComments: false
-  }
-}).outputText;
-writeFileSync("featured-gallery.js", galleryBundle);
+function transpileClassicScript(sourcePath, outputPath) {
+  const source = readFileSync(sourcePath, "utf8");
+  const bundle = ts.transpileModule(source, {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.None,
+      strict: true,
+      removeComments: false
+    }
+  }).outputText;
+  writeFileSync(outputPath, bundle);
+}
+
+transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
+transpileClassicScript("src/social-offer.ts", "social-offer.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -40,8 +45,10 @@ function synchronizeScript(html, fileName, revision) {
 
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
+const socialOfferRevision = revisionFor("social-offer.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
+html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
-console.log(`Built app.js (${appRevision}) and featured-gallery.js (${galleryRevision}).`);
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}) and social-offer.js (${socialOfferRevision}).`);

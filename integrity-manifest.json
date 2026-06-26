@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260626-4",
+  "build": "20260626-5",
   "files": [
     {
       "path": "404.html",
@@ -75,8 +75,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 17196,
-      "sha256": "decec649dc25757be117dc5b8734616d204bc6fcaa6b892391ce86ee6281eb8c"
+      "bytes": 17444,
+      "sha256": "f674f468bd8e229da3f1ba92f8ba358fb8adb97cbdb88e5aa91964be09b3745a"
     },
     {
       "path": "manifest.webmanifest",
@@ -162,6 +162,16 @@
       "path": "sitemap.xml",
       "bytes": 355,
       "sha256": "4fdda6c5f4cc07ea30fb0cf70f2af38394de6ac53107b86c157c79168cebf8f3"
+    },
+    {
+      "path": "social-offer.css",
+      "bytes": 3633,
+      "sha256": "8a3a6ecb4c9f41f4fd2385585a7d15be024a7548e8affaeb0b38a38fa1f0f99a"
+    },
+    {
+      "path": "social-offer.js",
+      "bytes": 3488,
+      "sha256": "e3ddc10b7a062bded45cb730560f5670a1b4450dc5a6c04f3e348631cce661c1"
     },
     {
       "path": "src/.parts/main.04.txt",
