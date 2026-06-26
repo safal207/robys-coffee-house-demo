@@ -139,14 +139,45 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
 }
 
 function setupGalleryDockBehavior(section: HTMLElement): void {
-  if (!("IntersectionObserver" in window)) return;
+  let animationFrame = 0;
+  let previousState: boolean | null = null;
 
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0.12);
-    document.body.classList.toggle("featured-gallery-active", visible);
-  }, { threshold: [0, 0.12, 0.35] });
+  const checkPanel = (): void => {
+    animationFrame = 0;
 
-  observer.observe(section);
+    const visualViewport = window.visualViewport;
+    const viewportTop = visualViewport?.offsetTop ?? 0;
+    const viewportHeight = visualViewport?.height ?? window.innerHeight;
+    const viewportBottom = viewportTop + viewportHeight;
+    const rect = section.getBoundingClientRect();
+    const galleryVisible = rect.top < viewportBottom && rect.bottom > viewportTop;
+
+    if (galleryVisible === previousState) return;
+    previousState = galleryVisible;
+    document.body.classList.toggle("featured-gallery-active", galleryVisible);
+  };
+
+  const scheduleCheck = (): void => {
+    if (animationFrame) return;
+    animationFrame = window.requestAnimationFrame(checkPanel);
+  };
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(scheduleCheck, {
+      rootMargin: "0px",
+      threshold: [0, 0.12, 0.35]
+    });
+    observer.observe(section);
+  }
+
+  window.addEventListener("scroll", scheduleCheck, { passive: true });
+  window.addEventListener("resize", scheduleCheck, { passive: true });
+  window.addEventListener("orientationchange", scheduleCheck, { passive: true });
+  window.addEventListener("pageshow", scheduleCheck, { passive: true });
+  window.visualViewport?.addEventListener("scroll", scheduleCheck, { passive: true });
+  window.visualViewport?.addEventListener("resize", scheduleCheck, { passive: true });
+
+  scheduleCheck();
 }
 
 function initFeaturedGallery(): void {
