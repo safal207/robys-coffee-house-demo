@@ -80,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21486,
-      "sha256": "71cbcb738aa232cc7da5b4e99356b679579baa5882fc62c5d5aa60399db8b5f3"
+      "bytes": 21487,
+      "sha256": "d1885fd25abd6e113dd1fdf1df87f88a1f9b0c41cb00c07bbf92e073b01cfaf4"
     },
     {
       "path": "manifest.webmanifest",
@@ -90,8 +90,8 @@
     },
     {
       "path": "map-live.css",
-      "bytes": 5585,
-      "sha256": "1fa01ea450886de83f86ffe1ffca6f6851e987ad7e6f4035c7463dd037f1a1d4"
+      "bytes": 4694,
+      "sha256": "1c9407a28f7d6ca3d3f80229edbf9ec69f8a8f98c5c1e227251c25c68b04d731"
     },
     {
       "path": "menu-bootstrap.js",
