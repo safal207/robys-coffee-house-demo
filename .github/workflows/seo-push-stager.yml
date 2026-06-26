@@ -1,0 +1,44 @@
+name: One-time SEO push stager
+
+on:
+  push:
+    branches:
+      - feat/seo-social-preview
+
+permissions:
+  contents: write
+
+jobs:
+  stage-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out SEO branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/seo-social-preview
+
+      - name: Apply SEO metadata
+        run: python scripts/stage-seo-preview.py
+
+      - name: Rebuild and verify
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          npm run integrity:generate
+          npm run check
+
+      - name: Commit staged SEO changes
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html menu.html sitemap.xml integrity-manifest.json app.js featured-gallery.js social-offer.js
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'SEO changes are already staged.'
+            exit 0
+          fi
+          git commit -m 'feat: improve local SEO and social previews'
+          git push origin HEAD:feat/seo-social-preview
