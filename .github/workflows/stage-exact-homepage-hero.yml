@@ -1,0 +1,72 @@
+name: Stage exact homepage hero video
+
+on:
+  push:
+    branches:
+      - feat/replace-homepage-hero-20260626
+    paths:
+      - .github/workflows/stage-exact-homepage-hero.yml
+
+permissions:
+  contents: write
+
+jobs:
+  replace-hero:
+    if: github.event.head_commit.message == 'chore: stage exact homepage hero'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/replace-homepage-hero-20260626
+
+      - name: Install media inspector
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Download and verify the exact Full HD video
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://lh3.googleusercontent.com/gps-cs-s/APNQkAEVtziKsuMFJQEwP2oTHQKS5X7ytwBkhtMUKONpoglWIOELyxfAeQEaOK2teNhT6zcnQXmwtaNFNN30e6bmDi6zk4wS7NGwkw3zon7SHptSZ0wg5ktFcyHXnam3f96GMz4FH5VO=m37'
+          curl --location --fail --retry 3 --connect-timeout 20 --user-agent 'Mozilla/5.0' "$url" --output src/robys-hero-mobile-lite.mp4
+
+          actual_sha="$(sha256sum src/robys-hero-mobile-lite.mp4 | awk '{print $1}')"
+          expected_sha='fccdd95aa9ac5c870f8a63ebd6a190d80fd2dcace98e3d69e57a6cade1e542aa'
+          test "$actual_sha" = "$expected_sha"
+
+          codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 src/robys-hero-mobile-lite.mp4)"
+          width="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=noprint_wrappers=1:nokey=1 src/robys-hero-mobile-lite.mp4)"
+          height="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 src/robys-hero-mobile-lite.mp4)"
+          duration="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 src/robys-hero-mobile-lite.mp4)"
+
+          test "$codec" = 'h264'
+          test "$width" = '1080'
+          test "$height" = '1920'
+          awk -v duration="$duration" 'BEGIN { exit !(duration > 11.9 && duration < 12.1) }'
+
+      - name: Bust the hero media cache
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('index.html')
+          source = path.read_text(encoding='utf-8')
+          old = 'src/robys-hero-mobile-lite.mp4?v=20260621-10'
+          new = 'src/robys-hero-mobile-lite.mp4?v=20260626-11'
+          if old not in source:
+              raise SystemExit(f'Expected hero source not found: {old}')
+          path.write_text(source.replace(old, new, 1), encoding='utf-8')
+
+      - name: Commit verified media replacement
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/robys-hero-mobile-lite.mp4 index.html
+          git diff --cached --check
+          git commit -m 'feat: replace homepage hero with exact Full HD video'
+          git push origin HEAD:feat/replace-homepage-hero-20260626
