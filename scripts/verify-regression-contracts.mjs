@@ -48,14 +48,17 @@ const frameRule = cssRules(mapCss, ".map-live-frame", "MAP-001")[0];
 const overlayRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
 const badgeRule = cssRules(mapCss, ".map-live-badge", "MAP-001")[0];
 const bottomRule = cssRules(mapCss, ".map-live-bottom", "MAP-001")[0];
+assert(frameRule.includes("display:block"), "MAP-001", ".map-live-frame must stay rendered");
 assert(frameRule.includes("pointer-events:auto"), "MAP-001", ".map-live-frame must receive pointer events");
+assert(frameRule.includes("touch-action:auto"), "MAP-001", ".map-live-frame must allow native touch interaction");
 assert(overlayRule.includes("pointer-events:none"), "MAP-001", ".map-live-link must not block the iframe");
 assert(badgeRule.includes("pointer-events:auto"), "MAP-001", ".map-live-badge must remain clickable");
 assert(bottomRule.includes("pointer-events:auto"), "MAP-001", ".map-live-bottom must remain clickable");
-assert(mapCss.includes("@media(hover:none) and (pointer:coarse){"), "MAP-001", "Touch-device map fallback media query is missing");
-assert(mapCss.includes(".map-live-frame{display:none}"), "MAP-001", "Touch devices must hide the embedded map frame");
-assert(mapCss.includes(".map-live-link{pointer-events:auto}"), "MAP-001", "Touch-device map card must remain fully clickable");
-assert(mapCss.includes(".map-live-badge,.map-live-bottom{pointer-events:none}"), "MAP-001", "Touch-device child controls must delegate clicks to the full map link");
+assert(mapCss.includes("@media(hover:none) and (pointer:coarse){"), "MAP-001", "Touch-device map rules are missing");
+assert(mapCss.includes(".map-live-frame{display:block;pointer-events:auto;touch-action:auto}"), "MAP-001", "Touch devices must keep the live map interactive");
+assert(!mapCss.includes(".map-live-frame{display:none}"), "MAP-001", "Touch devices must not replace the live map with a decorative fallback");
+assert(mapCss.includes(".map-live-link{pointer-events:none}"), "MAP-001", "Touch-device overlay must not swallow map gestures");
+assert(mapCss.includes(".map-live-badge,.map-live-bottom{pointer-events:auto}"), "MAP-001", "Touch-device route controls must remain clickable");
 dashboardContract("MAP-001", 6);
 
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
@@ -118,7 +121,7 @@ assert(featuredSource.includes("window.requestAnimationFrame"), "FEATURED-001", 
 assert(html.includes("script-src 'self';"), "FEATURED-001", "Gallery deployment must keep a strict external-script CSP");
 assert(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*visualViewport/i.test(html), "FEATURED-001", "iOS gallery fallback must not be duplicated as inline JavaScript");
 
-console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
+console.log("✅ MAP-001 gated: embedded map stays interactive on desktop and touch devices.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
 console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images with iOS-safe dock handling, stable fallback height and no crop.");
