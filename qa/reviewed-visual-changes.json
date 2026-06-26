@@ -153,6 +153,46 @@
           "maxDiffPixelRatio": 0.005
         }
       ]
+    },
+    {
+      "id": "reviewed-full-gallery-v4",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/74",
+      "contentBindings": {
+        "featured-gallery.css": "2f73520206ca458cfbdfde529e1e923724706f46",
+        "src/featured-gallery.ts": "8fde70f8581dcd7ba957dff251bc67243b99b4b1",
+        "scripts/visual-regression.mjs": "c79010abf891b83732e13684504b42025439b545",
+        "src/products/gallery-v4/latte.webp": "c297075617c32180b8469ece3bdb931006122a9c",
+        "src/products/gallery-v4/san-sebastian.webp": "54c83960dd6a6993a24b1aaae10f3ce595117c6f",
+        "src/products/gallery-v4/iced-latte.webp": "0ef2bd91694042303e9eb46063f7c08017887418",
+        "src/products/gallery-v4/nutella-croissant.webp": "cba431652191d40122a153548399590d3d2f2d46",
+        "src/products/gallery-v4/lotus-cheesecake.webp": "0fc36cb5b94d55f63ecd9b83c316a6df0a28c785"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "totalPixels": 2033280,
+          "maxDiffPixelRatio": 0.107
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2603640,
+          "maxDiffPixelRatio": 0.13
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 4716288,
+          "maxDiffPixelRatio": 0.069
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "totalPixels": 6963840,
+          "maxDiffPixelRatio": 0.053
+        }
+      ]
     }
   ]
 }

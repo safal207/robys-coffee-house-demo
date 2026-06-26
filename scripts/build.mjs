@@ -39,7 +39,9 @@ function synchronizeScript(html, fileName, revision) {
 }
 
 const appRevision = revisionFor("app.js");
+const galleryRevision = revisionFor("featured-gallery.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
+html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 writeFileSync("index.html", html);
-console.log(`Built app.js (${appRevision}) and compiled featured-gallery.js from TypeScript.`);
+console.log(`Built app.js (${appRevision}) and featured-gallery.js (${galleryRevision}).`);
