@@ -79,7 +79,18 @@ test("all five full posters render inside their square frames", async ({ page })
     expect(result.imageRect.right).toBeLessThanOrEqual(frame.right + 1);
     expect(result.imageRect.bottom).toBeLessThanOrEqual(frame.bottom + 1);
     await expect(card).not.toHaveClass(/is-error/);
+
+    const productId = await card.getAttribute("data-product-id");
+    await test.info().attach(`gallery-${index + 1}-${productId ?? "unknown"}`, {
+      body: await card.screenshot({ animations: "disabled" }),
+      contentType: "image/png"
+    });
   }
+
+  await test.info().attach("gallery-section", {
+    body: await page.locator(".featured-strip").screenshot({ animations: "disabled" }),
+    contentType: "image/png"
+  });
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
