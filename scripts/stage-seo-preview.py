@@ -116,5 +116,6 @@ menu_html = replace_idempotent(
 menu.write_text(menu_html, encoding="utf-8")
 
 sitemap = Path("sitemap.xml")
-sitemap_text = sitemap.read_text(encoding="utf-8")nsitemap_text = sitemap_text.replace("<lastmod>2026-06-22</lastmod>", "<lastmod>2026-06-27</lastmod>")
+sitemap_text = sitemap.read_text(encoding="utf-8")
+sitemap_text = sitemap_text.replace("<lastmod>2026-06-22</lastmod>", "<lastmod>2026-06-27</lastmod>")
 sitemap.write_text(sitemap_text, encoding="utf-8")
