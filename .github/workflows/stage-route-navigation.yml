@@ -1,0 +1,81 @@
+name: Stage route navigation links
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  stage-route-navigation:
+    if: github.event.pull_request.head.ref == 'fix/open-route-navigation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/open-route-navigation
+
+      - name: Replace place-search links with route navigation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              "https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+              r"google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa": r"google\.com\/maps\/dir\/\?api=1&destination=Roby%27s\+Coffee\+House\+Gazipasa&travelmode=driving",
+              r"https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa": r"https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=Roby%27s\+Coffee\+House\+Gazipasa&travelmode=driving",
+              r"https://www\\.google\\.com/maps/search/\\?api=1&query=": r"https://www\\.google\\.com/maps/dir/\\?api=1&destination=",
+          }
+          allowed = {".html", ".js", ".mjs", ".ts", ".json", ".md", ".yml", ".yaml", ".txt"}
+          ignored = {".git", "node_modules", ".artifacts", "visual-results", "playwright-report"}
+          changed = []
+
+          for path in Path(".").rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in allowed or any(part in ignored for part in path.parts):
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              updated = text
+              for old, new in replacements.items():
+                  updated = updated.replace(old, new)
+              if updated != text:
+                  path.write_text(updated, encoding="utf-8")
+                  changed.append(str(path))
+
+          required = {"index.html", "menu.html", "qa/business-profile.json", "scripts/verify-critical-user-journeys.mjs", "scripts/verify-p1-interface-contracts.mjs", "scripts/verify-regression-contracts.mjs"}
+          missing = sorted(required.difference(changed))
+          if missing:
+              raise SystemExit(f"Expected route-bearing files were not updated: {missing}")
+
+          print("Updated route links:")
+          for item in changed:
+              print(f"- {item}")
+
+      - name: Build and regenerate integrity metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          npm run integrity:generate
+
+      - name: Commit route navigation change
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/stage-route-navigation.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'fix: open map actions in route navigation'
+          git push origin HEAD:fix/open-route-navigation
