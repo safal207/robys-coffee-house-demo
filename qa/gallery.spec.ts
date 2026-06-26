@@ -7,6 +7,15 @@ declare global {
 }
 
 test.beforeEach(async ({ page }) => {
+  // WebKit applies upgrade-insecure-requests before bypassCSP takes effect.
+  // The local QA server is HTTP-only, so remove only that directive from the
+  // document response. The production CSP remains covered by security jobs.
+  await page.route("http://127.0.0.1:4173/", async (route) => {
+    const response = await route.fetch();
+    const html = (await response.text()).replace("upgrade-insecure-requests;", "");
+    await route.fulfill({ response, body: html });
+  });
+
   await page.addInitScript(() => {
     window.__galleryCls = 0;
     new PerformanceObserver((list) => {
