@@ -1,1 +1,0 @@
-IntersectionObserver is backed by passive scroll, resize, orientationchange, pageshow, and visualViewport listeners.
