@@ -117,7 +117,7 @@ assert(previewLinks.length === 6, "NAV-001", `Expected 6 menu preview links, fou
 assert(new Set(previewLinks).size === previewLinks.length, "NAV-001", "Menu preview links must be unique");
 for (const id of previewLinks) assert(categoryIds.includes(id), "NAV-001", `Preview links to unknown category: ${id}`);
 assert(/https:\/\/www\.instagram\.com\/robyscoffeehouse\//i.test(indexHtml), "NAV-001", "Instagram CTA must target @robyscoffeehouse");
-assert(/google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa/i.test(indexHtml), "NAV-001", "Route CTA must target Roby's Coffee House Gazipaşa");
+assert(/google\.com\/maps\/dir\/\?api=1&destination=Roby%27s\+Coffee\+House\+Gazipasa&travelmode=driving/i.test(indexHtml), "NAV-001", "Route CTA must target Roby's Coffee House Gazipaşa");
 contractById("NAV-001");
 
 assert(categoryIds.length > 0, "MENU-001", "Menu must contain categories");

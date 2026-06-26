@@ -44,7 +44,7 @@ assert(/^https:\/\/(?:www\.|maps\.)?google\.[^/]+\/maps/i.test(mapSrc), "MAP-001
 assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Compatibility iframe URL must include output=embed");
 const mapLink = Array.from(html.matchAll(/<a\b[^>]*>/gi), (match) => match[0]).find((tag) => /\bclass=["'][^"']*\bmap-live-link\b[^"']*["']/i.test(tag)) ?? "";
 assert(Boolean(mapLink), "MAP-001", "Static map must expose one .map-live-link anchor");
-assert(/href=["']https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=Roby%27s\+Coffee\+House\+Gazipasa["']/i.test(mapLink), "MAP-001", "Static map link must target Roby's Coffee House Gazipaşa");
+assert(/href=["']https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=Roby%27s\+Coffee\+House\+Gazipasa&travelmode=driving["']/i.test(mapLink), "MAP-001", "Static map link must target Roby's Coffee House Gazipaşa");
 assert(/target=["']_blank["']/i.test(mapLink) && /rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(mapLink), "MAP-001", "Static map link must open safely");
 const frameRule = cssRules(mapCss, ".map-live-frame", "MAP-001")[0];
 const linkRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
