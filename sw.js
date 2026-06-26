@@ -1,4 +1,5 @@
-const CACHE_VERSION = "robys-offline-v1-20260627";
+const CACHE_VERSION = "robys-offline-v2-20260627";
+const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -26,7 +27,7 @@ const CORE_ASSETS = [
   "./icon.svg",
   "./src/android-mark.svg",
   "./src/robys-hero-poster.jpg",
-  "./downloads/robys-coffee-house-v1.1.apk"
+  ...APK_PARTS
 ];
 
 self.addEventListener("install", (event) => {
