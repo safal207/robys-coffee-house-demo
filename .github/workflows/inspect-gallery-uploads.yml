@@ -1,0 +1,46 @@
+name: Inspect gallery uploads
+
+on:
+  pull_request:
+    paths:
+      - "src/products/gallery-v5/*.png"
+      - ".github/workflows/inspect-gallery-uploads.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y imagemagick
+
+      - name: Inspect uploaded PNG files
+        run: |
+          mkdir -p gallery-upload-inspection
+          identify src/products/gallery-v5/*.png | tee gallery-upload-inspection/identify.txt
+          montage src/products/gallery-v5/*.png \
+            -thumbnail 420x420 \
+            -set label '%f' \
+            -background '#171110' \
+            -fill white \
+            -pointsize 16 \
+            -tile 2x \
+            -geometry 440x470+12+12 \
+            gallery-upload-inspection/contact-sheet.png
+
+      - name: Upload inspection evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-upload-inspection
+          path: gallery-upload-inspection
+          retention-days: 2
