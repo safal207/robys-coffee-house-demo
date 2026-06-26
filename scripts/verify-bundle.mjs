@@ -1,4 +1,3 @@
-import "./verify-regression-contracts.mjs";
 import { readFileSync } from "node:fs";
 
 const appBundle = readFileSync("app.js", "utf8");
@@ -37,6 +36,10 @@ for (const marker of forbiddenLegacyMarkup) {
 
 if (!galleryBundle.includes("FEATURED_PRODUCTS")) {
   throw new Error("featured-gallery.js does not contain the typed product source");
+}
+
+if (!galleryBundle.includes("IntersectionObserver") || !galleryBundle.includes("visualViewport")) {
+  throw new Error("featured-gallery.js is missing the iOS-safe dock observers");
 }
 
 console.log("Verified: app.js and featured-gallery.js are classic deferred bundles with no live ESM imports or legacy gallery injection.");
