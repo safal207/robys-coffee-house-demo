@@ -1,9 +1,7 @@
 name: Live gallery visual inspection
 
 on:
-  push:
-    branches:
-      - fix/typed-poster-feed-v2
+  pull_request:
     paths:
       - ".github/workflows/live-gallery-inspection.yml"
 
