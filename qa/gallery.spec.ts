@@ -30,19 +30,20 @@ test.beforeEach(async ({ page }) => {
 test("all five source-quality posters render inside their square frames", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
-  const cards = page.locator(".poster-card");
-  await expect(cards).toHaveCount(5);
-  await expect(cards).toHaveAttribute("data-product-id", [
+  const expectedProductIds = [
     "latte",
     "san-sebastian",
     "croissant",
     "nutella-croissant",
     "lotus-cheesecake"
-  ]);
+  ];
+  const cards = page.locator(".poster-card");
+  await expect(cards).toHaveCount(expectedProductIds.length);
 
-  for (let index = 0; index < 5; index += 1) {
+  for (let index = 0; index < expectedProductIds.length; index += 1) {
     const card = cards.nth(index);
     const image = card.locator("img");
+    await expect(card).toHaveAttribute("data-product-id", expectedProductIds[index]);
     await card.scrollIntoViewIfNeeded();
     await expect(card).toBeVisible();
     await expect(image).toHaveJSProperty("complete", true);
