@@ -1,12 +1,21 @@
 # Gallery v5
 
-Five source-quality mobile posters. Each image must stay 1536 x 1536 pixels, use WebP, remain below 350 KiB, and match the SHA-256 values enforced by scripts/verify-gallery-assets.sh.
+Six source-quality mobile posters derived from the owner-uploaded 1254 x 1254 PNG masters.
+
+Production rules:
+
+- keep the original 1254 x 1254 pixel dimensions;
+- use WebP quality 92 with metadata stripped;
+- keep every file below 140 KiB and all six below 700 KiB total;
+- load only Latte eagerly and lazy-load the other five;
+- use `object-fit: contain` so text and price badges are never cropped;
+- update the SHA-256 contract in `scripts/verify-gallery-assets.sh` whenever an approved poster changes.
 
 Files:
-- latte.webp
-- san-sebastian.webp
-- croissant.webp
-- nutella-croissant.webp
-- lotus-cheesecake.webp
 
-Only the first poster loads eagerly. The other four use lazy loading. CSS must keep object-fit: contain so poster text and prices are never cropped.
+- `latte.webp`
+- `iced-latte.webp`
+- `san-sebastian.webp`
+- `lotus-cheesecake.webp`
+- `croissant.webp`
+- `nutella-croissant.webp`
