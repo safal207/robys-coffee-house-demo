@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260626-1",
+  "build": "20260626-4",
   "files": [
     {
       "path": "404.html",
@@ -40,13 +40,13 @@
     },
     {
       "path": "featured-gallery.css",
-      "bytes": 4041,
-      "sha256": "542b4261a838cb47579d055e68f7f87d2c4dd9427bbcadc65e48d05ff0bc1b81"
+      "bytes": 4349,
+      "sha256": "12ec7abefc736fff05d8515187c94732c0fb91f806ddf851f113246a05ee85c1"
     },
     {
       "path": "featured-gallery.js",
-      "bytes": 5394,
-      "sha256": "9e3ff0f06b0a82a8e67536c4029656700d1c63d4b1836fc549044b715aea2326"
+      "bytes": 6631,
+      "sha256": "6a0b028ba50dbee7ec6db304e01e8b7c3ae0bfd64425e2f3c85678e70d4d5c9e"
     },
     {
       "path": "featured-strip.css",
@@ -75,8 +75,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 17183,
-      "sha256": "64688321f68b824d60d41fc57bc8585e9619d6b4bd4083facfacff1e9244cc7f"
+      "bytes": 17196,
+      "sha256": "decec649dc25757be117dc5b8734616d204bc6fcaa6b892391ce86ee6281eb8c"
     },
     {
       "path": "manifest.webmanifest",
@@ -242,6 +242,31 @@
       "path": "src/products/file_00000000d248720a8ca18bad97b2053a.png",
       "bytes": 2067319,
       "sha256": "a33caf70eeee30b85182b98fdebb8986698cecc190579e02ef534387ace9f6cb"
+    },
+    {
+      "path": "src/products/gallery-v4/iced-latte.webp",
+      "bytes": 39764,
+      "sha256": "fb26d21073c707eb805a7f32f469551358ae51b1a13319f19d5711a2b2cc7d49"
+    },
+    {
+      "path": "src/products/gallery-v4/latte.webp",
+      "bytes": 44802,
+      "sha256": "3da159bdda3186fa028d39246f539ab955acc452a395f7139a21f058889af25f"
+    },
+    {
+      "path": "src/products/gallery-v4/lotus-cheesecake.webp",
+      "bytes": 76704,
+      "sha256": "91fc95f5c68d12303768559c5cf9287cbb09664733afcef93a07e63f7a906088"
+    },
+    {
+      "path": "src/products/gallery-v4/nutella-croissant.webp",
+      "bytes": 64252,
+      "sha256": "fa54e86f07c0057fce8f459e4ec933f4c80cde69242bc1a4bd5f89a3c0cee1d6"
+    },
+    {
+      "path": "src/products/gallery-v4/san-sebastian.webp",
+      "bytes": 51786,
+      "sha256": "6629f82575b022b038c971855ec8a942bc5795de86d0091bd93e1d181848e02b"
     },
     {
       "path": "src/products/latte-premium.svg",
