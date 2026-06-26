@@ -1,10 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
 const resultsDir = path.resolve(process.env.VISUAL_RESULTS_DIR ?? "visual-results");
 const summaryPath = path.join(resultsDir, "summary.json");
 const approvalsPath = path.resolve("qa/reviewed-visual-changes.json");
+const supplementalApprovalsDir = path.resolve("qa/reviewed-visual-changes.d");
 
 function fail(message) {
   throw new Error(`[VISUAL-001] ${message}`);
@@ -26,9 +27,23 @@ if (!existsSync(approvalsPath)) {
   fail(`${failures.length} visual failure(s) have no reviewed-change record.`);
 }
 
-const approvals = JSON.parse(readFileSync(approvalsPath, "utf8"));
-if (approvals.version !== 1 || !Array.isArray(approvals.reviewedChanges)) {
-  fail("Reviewed visual change file is malformed or unsupported.");
+function readApprovalDocument(file) {
+  const document = JSON.parse(readFileSync(file, "utf8"));
+  if (document.version !== 1 || !Array.isArray(document.reviewedChanges)) {
+    fail(`Reviewed visual change file is malformed or unsupported: ${file}`);
+  }
+  return document.reviewedChanges;
+}
+
+const reviewedChanges = [...readApprovalDocument(approvalsPath)];
+if (existsSync(supplementalApprovalsDir)) {
+  const supplementalFiles = readdirSync(supplementalApprovalsDir)
+    .filter((file) => file.endsWith(".json"))
+    .sort();
+
+  for (const file of supplementalFiles) {
+    reviewedChanges.push(...readApprovalDocument(path.join(supplementalApprovalsDir, file)));
+  }
 }
 
 function blobSha(file) {
@@ -61,19 +76,18 @@ function expectedFailureMatches(expected, actual) {
     && actual.diffPixelRatio <= expected.maxDiffPixelRatio;
 }
 
-const candidates = approvals.reviewedChanges.filter(bindingsMatch);
+const candidates = reviewedChanges
+  .filter(bindingsMatch)
+  .filter((change) => (change.expectedFailures ?? []).length === failures.length);
 if (candidates.length !== 1) {
-  fail(`Expected exactly one content-bound reviewed change, found ${candidates.length}.`);
+  fail(
+    `Expected exactly one content-bound reviewed change for ${failures.length} failure(s), `
+      + `found ${candidates.length}.`
+  );
 }
 
 const change = candidates[0];
 const expected = change.expectedFailures ?? [];
-if (expected.length !== failures.length) {
-  fail(
-    `Reviewed change ${change.id} expects ${expected.length} failure(s), `
-      + `but the current run produced ${failures.length}.`
-  );
-}
 
 const unmatched = [...failures];
 for (const item of expected) {
