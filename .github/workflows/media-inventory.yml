@@ -22,7 +22,7 @@ jobs:
             | sort > media-inventory/all-files.txt
           find . -type f \
             ! -path './.git/*' \
-            \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.avif' -o -iname '*.svg' -o -iname '*.gif' \) \
+            \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.avif' -o -iname '*.svg' -o -iname '*.gif' -o -iname '*.b64' -o -iname '*.base64.txt' -o -path './.asset-upload/*' \) \
             -print0 | while IFS= read -r -d '' file; do
               mkdir -p "media-inventory/files/$(dirname "$file")"
               cp "$file" "media-inventory/files/$file"
