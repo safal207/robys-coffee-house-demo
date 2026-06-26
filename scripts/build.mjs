@@ -28,6 +28,7 @@ function transpileClassicScript(sourcePath, outputPath) {
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
+transpileClassicScript("src/community-reel.ts", "community-reel.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -46,9 +47,11 @@ function synchronizeScript(html, fileName, revision) {
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const communityReelRevision = revisionFor("community-reel.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
+html = synchronizeScript(html, "community-reel.js", communityReelRevision);
 writeFileSync("index.html", html);
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}) and social-offer.js (${socialOfferRevision}).`);
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}) and community-reel.js (${communityReelRevision}).`);
