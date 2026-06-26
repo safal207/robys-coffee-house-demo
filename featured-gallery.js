@@ -99,7 +99,7 @@ function createPosterCard(product, index) {
     image.loading = index === 0 ? "eager" : "lazy";
     image.decoding = "async";
     if (index === 0)
-        image.fetchPriority = "high";
+        image.fetchPriority = "low";
     const fallback = createFallback(product);
     image.addEventListener("load", () => {
         card.classList.add("is-loaded");

@@ -120,7 +120,7 @@ function createPosterCard(product: FeaturedProduct, index: number): HTMLAnchorEl
   image.height = 1254;
   image.loading = index === 0 ? "eager" : "lazy";
   image.decoding = "async";
-  if (index === 0) image.fetchPriority = "high";
+  if (index === 0) image.fetchPriority = "low";
 
   const fallback = createFallback(product);
 
