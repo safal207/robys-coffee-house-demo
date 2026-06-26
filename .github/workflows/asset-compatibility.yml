@@ -17,8 +17,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Convert gallery image
         run: |
-          ffmpeg -v error -i src/products/gallery-v2/iced-latte.avif -frames:v 1 -c:v libwebp -quality 90 iced-latte.webp
-          ffmpeg -v error -i src/products/gallery-v2/iced-latte.avif -frames:v 1 iced-latte.png
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 -c:v libwebp -q:v 90 \
+            iced-latte.webp
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 \
+            iced-latte.png
           file iced-latte.webp iced-latte.png
       - uses: actions/upload-artifact@v4
         with:
