@@ -42,6 +42,20 @@ jobs:
       - name: Compile TypeScript runtime
         run: npm run build
 
+      - name: Convert Iced Latte for compatibility inspection
+        run: |
+          ffmpeg -v error -i src/products/gallery-v2/iced-latte.avif -frames:v 1 -c:v libwebp -quality 90 iced-latte-compatible.webp
+          ffmpeg -v error -i src/products/gallery-v2/iced-latte.avif -frames:v 1 iced-latte-compatible.png
+
+      - name: Upload converted Iced Latte
+        uses: actions/upload-artifact@v4
+        with:
+          name: iced-latte-compatible
+          path: |
+            iced-latte-compatible.webp
+            iced-latte-compatible.png
+          retention-days: 1
+
       - name: Install Playwright without changing the lockfile
         run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
 
