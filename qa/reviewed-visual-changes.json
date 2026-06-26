@@ -69,6 +69,7 @@
       "id": "featured-card-reference-crops-v1",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/70",
       "contentBindings": {
+        "featured-strip.js": "ca7f74506bb040ba197bbfac51b5aca16a90af6d",
         "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
         "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b"
       },
