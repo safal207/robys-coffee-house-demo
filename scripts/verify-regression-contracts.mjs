@@ -115,8 +115,8 @@ assert(featuredRuntime.includes("IntersectionObserver"), "FEATURED-001", "Typed 
 assert(featuredSource.includes('window.addEventListener("scroll"'), "FEATURED-001", "Typed runtime must include a passive scroll fallback for iOS momentum scrolling");
 assert(featuredSource.includes("window.visualViewport?.addEventListener"), "FEATURED-001", "Typed runtime must react to iOS visual viewport changes");
 assert(featuredSource.includes("window.requestAnimationFrame"), "FEATURED-001", "Scroll fallback must be animation-frame throttled");
-assert(html.includes("sha256-3IR83eN+NZosIACBCIlmFkI1b/Tm2LbNXdVCZg9uhqs="), "FEATURED-001", "Static deployment must allow the CSP-hashed iOS dock fallback");
-assert(html.includes("visualViewport?.addEventListener('resize'"), "FEATURED-001", "Static deployment must retain the visualViewport fallback before generated assets are refreshed");
+assert(html.includes("script-src 'self';"), "FEATURED-001", "Gallery deployment must keep a strict external-script CSP");
+assert(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*visualViewport/i.test(html), "FEATURED-001", "iOS gallery fallback must not be duplicated as inline JavaScript");
 
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
