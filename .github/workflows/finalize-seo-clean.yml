@@ -1,0 +1,46 @@
+name: Finalize clean SEO branch
+
+on:
+  push:
+    branches:
+      - feat/seo-social-preview-clean
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/seo-social-preview-clean
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Remove staging remnants and regenerate integrity
+        run: |
+          set -euo pipefail
+          rm -f seo-trigger.tmp seo-artifact-request.txt seo-artifact-request-2.txt
+          rm -f scripts/stage-seo-preview.py
+          npm ci
+          npm run build
+          npm run integrity:generate
+
+      - name: Commit clean branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f --ignore-unmatch seo-trigger.tmp seo-artifact-request.txt seo-artifact-request-2.txt scripts/stage-seo-preview.py .github/workflows/seo-push-stager.yml .github/workflows/finalize-seo-clean.yml
+          git add integrity-manifest.json app.js featured-gallery.js social-offer.js
+          git diff --cached --check
+          git commit -m 'chore: finalize clean SEO integrity manifest'
+          git push origin HEAD:feat/seo-social-preview-clean
