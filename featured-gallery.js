@@ -6,7 +6,25 @@ const FEATURED_PRODUCTS = [
         image: "src/products/gallery-v4/latte.webp?v=20260626-4",
         title: { tr: "Latte", en: "Latte", ru: "Латте" },
         price: 180,
-        currency: "₺"
+        currency: "₺",
+        video: {
+            src: "src/media/latte-story-360.mp4?v=20260626-1",
+            openLabel: {
+                tr: "Latte videosunu oynat",
+                en: "Play the Latte video",
+                ru: "Воспроизвести видео Latte"
+            },
+            closeLabel: {
+                tr: "Videoyu kapat",
+                en: "Close video",
+                ru: "Закрыть видео"
+            },
+            caption: {
+                tr: "Latte · Roby's Coffee House",
+                en: "Latte · Roby's Coffee House",
+                ru: "Latte · Roby's Coffee House"
+            }
+        }
     },
     {
         id: "san-sebastian",
@@ -54,7 +72,8 @@ function currentGalleryLanguage() {
     return value === "en" || value === "ru" ? value : "tr";
 }
 function galleryLabel(product, language = currentGalleryLanguage()) {
-    return `${product.title[language]}, ${product.price} ${product.currency}`;
+    const base = `${product.title[language]}, ${product.price} ${product.currency}`;
+    return product.video ? `${base}. ${product.video.openLabel[language]}` : base;
 }
 function createFallback(product) {
     const fallback = document.createElement("span");
@@ -67,12 +86,98 @@ function createFallback(product) {
     fallback.append(title, price);
     return fallback;
 }
+function createPlayBadge(product) {
+    if (!product.video)
+        return null;
+    const badge = document.createElement("span");
+    badge.className = "poster-card-play";
+    badge.dataset.videoLabel = product.id;
+    const icon = document.createElement("span");
+    icon.className = "poster-card-play-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "▶";
+    const label = document.createElement("span");
+    label.className = "poster-card-play-label";
+    label.textContent = product.video.openLabel[currentGalleryLanguage()];
+    badge.append(icon, label);
+    return badge;
+}
+function releaseVideo(video) {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+}
+function openProductVideo(product, returnFocus) {
+    if (!product.video)
+        return;
+    const language = currentGalleryLanguage();
+    const dialog = document.createElement("dialog");
+    dialog.className = "product-video-dialog";
+    dialog.setAttribute("aria-label", product.video.caption[language]);
+    const shell = document.createElement("div");
+    shell.className = "product-video-shell";
+    const close = document.createElement("button");
+    close.className = "product-video-close";
+    close.type = "button";
+    close.setAttribute("aria-label", product.video.closeLabel[language]);
+    close.textContent = "×";
+    const video = document.createElement("video");
+    video.className = "product-video-player";
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = "none";
+    video.poster = product.image;
+    video.setAttribute("aria-label", product.video.caption[language]);
+    const caption = document.createElement("p");
+    caption.className = "product-video-caption";
+    caption.textContent = product.video.caption[language];
+    shell.append(close, video, caption);
+    dialog.append(shell);
+    document.body.append(dialog);
+    let cleaned = false;
+    const cleanup = () => {
+        if (cleaned)
+            return;
+        cleaned = true;
+        releaseVideo(video);
+        document.body.classList.remove("product-video-open");
+        dialog.remove();
+        returnFocus.focus({ preventScroll: true });
+    };
+    const requestClose = () => {
+        if (dialog.open)
+            dialog.close();
+        else
+            cleanup();
+    };
+    close.addEventListener("click", requestClose);
+    dialog.addEventListener("click", (event) => {
+        if (event.target === dialog)
+            requestClose();
+    });
+    dialog.addEventListener("close", cleanup, { once: true });
+    dialog.addEventListener("cancel", () => {
+        window.setTimeout(cleanup, 0);
+    }, { once: true });
+    document.body.classList.add("product-video-open");
+    if (typeof dialog.showModal === "function")
+        dialog.showModal();
+    else
+        dialog.setAttribute("open", "");
+    video.src = product.video.src;
+    video.load();
+    void video.play().catch(() => {
+        // Native controls remain available when autoplay after the click is denied.
+    });
+}
 function createPosterCard(product, index) {
     const card = document.createElement("a");
     card.className = "featured-card featured-card--poster poster-card";
     card.href = product.href;
     card.dataset.productId = product.id;
     card.setAttribute("aria-label", galleryLabel(product));
+    if (product.video)
+        card.classList.add("poster-card--video");
     const frame = document.createElement("span");
     frame.className = "poster-card-frame";
     const image = document.createElement("img");
@@ -85,6 +190,7 @@ function createPosterCard(product, index) {
     if (index === 0)
         image.fetchPriority = "high";
     const fallback = createFallback(product);
+    const playBadge = createPlayBadge(product);
     image.addEventListener("load", () => {
         card.classList.add("is-loaded");
         card.classList.remove("is-error");
@@ -94,7 +200,17 @@ function createPosterCard(product, index) {
         image.remove();
     }, { once: true });
     frame.append(image, fallback);
+    if (playBadge)
+        frame.append(playBadge);
     card.append(frame);
+    if (product.video) {
+        card.addEventListener("click", (event) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+                return;
+            event.preventDefault();
+            openProductVideo(product, card);
+        });
+    }
     return card;
 }
 function updateGalleryLanguage(cards) {
@@ -110,6 +226,9 @@ function updateGalleryLanguage(cards) {
         const fallbackTitle = card.querySelector(`[data-gallery-title="${product.id}"]`);
         if (fallbackTitle)
             fallbackTitle.textContent = product.title[language];
+        const videoLabel = card.querySelector(".poster-card-play-label");
+        if (videoLabel && product.video)
+            videoLabel.textContent = product.video.openLabel[language];
     });
 }
 function setupGalleryDockBehavior(section) {
