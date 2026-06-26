@@ -104,9 +104,7 @@
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/72",
       "contentBindings": {
         "featured-gallery.css": "5cf97fc62a6c8d087887a3f7981f4d3966c4138b",
-        "src/featured-gallery.ts": "12dd35806bc4de35b60a5d02faadd37293ecb486",
-        "featured-gallery.js": "25db2120b9183def45acb7b9aaf695206438bc3a",
-        "index.html": "b486e3b1d1f6a3bcbd67c7bb10b0bff95ba6a4de"
+        "src/featured-gallery.ts": "12dd35806bc4de35b60a5d02faadd37293ecb486"
       },
       "expectedFailures": [
         {
