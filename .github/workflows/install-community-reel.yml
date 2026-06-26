@@ -1,0 +1,50 @@
+name: Install community reel
+
+on:
+  push:
+    branches:
+      - feature/instagram-reel-footer
+    paths:
+      - .github/workflows/install-community-reel.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-reel-footer
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install landing section
+        run: node scripts/install-community-reel.mjs
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build and verify runtime
+        run: npm run check
+
+      - name: Commit installed section
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "Community section is already installed."
+            exit 0
+          fi
+          git commit -m "feat: add Instagram community reel to landing footer"
+          git push origin HEAD:feature/instagram-reel-footer
