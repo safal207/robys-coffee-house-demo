@@ -14,6 +14,11 @@
       "sha256": "8b6cfb298c8df4159e9835788ad3b4a500278cce751117f4064ea071061f5384"
     },
     {
+      "path": "android-app.css",
+      "bytes": 6156,
+      "sha256": "72a6f32af214a9f0e1189718543d48cd42de393ee74738dccde1a357c4e7f657"
+    },
+    {
       "path": "app.js",
       "bytes": 32801,
       "sha256": "67c0e7d61b1bbd8017037c7cdd008688ed300eb2902e73df7815df8087aeb4d5"
@@ -35,8 +40,8 @@
     },
     {
       "path": "conversion.js",
-      "bytes": 6161,
-      "sha256": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965"
+      "bytes": 14441,
+      "sha256": "cd99c404f0920feb0c9c2dbf23e23b4e54146ff06e624a9e31cbad3b7036c318"
     },
     {
       "path": "data/featured-products.json",
@@ -162,16 +167,6 @@
       "path": "robots.txt",
       "bytes": 96,
       "sha256": "605a1b944b1c88224d570600eaa8c8762be12e35645c30ad4b6d9759d1cf1d6c"
-    },
-    {
-      "path": "seo-artifact-request-2.txt",
-      "bytes": 41,
-      "sha256": "7c9482c69002dd08a30db7fa96ecd6465dba9b6ab5e41ecc930252ce11f60ffb"
-    },
-    {
-      "path": "seo-artifact-request.txt",
-      "bytes": 36,
-      "sha256": "90a807e9209b387c3d795c3d52247261d0532f227860723a7f046ccc38250eee"
     },
     {
       "path": "sitemap.xml",
