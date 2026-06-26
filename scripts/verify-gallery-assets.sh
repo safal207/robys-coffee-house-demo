@@ -2,11 +2,11 @@
 set -euo pipefail
 
 assets=(
-  "src/products/cards/latte-card.v3.svg"
-  "src/products/cards/san-sebastian-card.v3.svg"
+  "src/products/gallery-v2/latte.avif"
+  "src/products/gallery-v2/san-sebastian.avif"
   "src/products/gallery-v2/iced-latte.avif"
-  "src/products/cards/nutella-card.v3.svg"
-  "src/products/cards/lotus-card.v3.svg"
+  "src/products/gallery-v2/nutella-croissant.avif"
+  "src/products/gallery-v2/lotus-cheesecake.avif"
 )
 
 max_file_bytes=$((4 * 1024 * 1024))
@@ -35,8 +35,10 @@ if (( total_bytes > max_total_bytes )); then
   exit 1
 fi
 
-printf '\nSVG files containing embedded raster payloads:\n'
-grep -l "base64" src/products/cards/*.svg || true
+if grep -n 'src/products/cards/.*\.svg' src/featured-gallery.ts index.html; then
+  echo "The featured gallery must use uncropped gallery-v2 AVIF posters, not legacy SVG wrappers." >&2
+  exit 1
+fi
 
 if grep -n '100vh' featured-gallery.css src/featured-gallery.ts index.html; then
   echo "Use dynamic viewport units such as 100dvh instead of 100vh in the gallery path." >&2
