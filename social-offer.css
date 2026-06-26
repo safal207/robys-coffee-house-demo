@@ -1,8 +1,8 @@
 .social-offer[hidden]{display:none}
-.social-offer{position:relative;isolation:isolate;padding:26px 0;color:#fff;background:#120d0c;overflow:hidden}
+.social-offer{position:relative;isolation:isolate;padding:34px 0;color:#fff;background:#120d0c;overflow:hidden}
 .social-offer::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 18% 20%,rgba(184,77,88,.15),transparent 28%),radial-gradient(circle at 82% 80%,rgba(184,77,88,.09),transparent 30%)}
-.social-offer-card{display:grid;grid-template-columns:70px minmax(0,1fr) auto;grid-template-areas:"mark copy button" "mark social button";align-items:center;gap:8px 20px;padding:22px 24px;border:1px solid rgba(216,126,137,.2);background:linear-gradient(135deg,rgba(63,39,38,.72),rgba(30,21,20,.88));border-radius:24px;box-shadow:0 22px 56px rgba(0,0,0,.22)}
-.social-offer-mark{grid-area:mark;display:grid;width:62px;height:62px;place-items:center;color:#fff;background:linear-gradient(145deg,#c25a66,#9f3845);border:2px solid rgba(225,139,148,.72);border-radius:50%;box-shadow:0 0 0 5px rgba(184,77,88,.08);font:600 1.55rem var(--display)}
+.social-offer-card{display:grid;grid-template-columns:70px minmax(0,1fr) auto;grid-template-areas:"mark copy button" "mark social button";align-items:center;gap:8px 20px;padding:22px 24px;border:1px solid rgba(216,126,137,.24);background:linear-gradient(135deg,rgba(63,39,38,.78),rgba(30,21,20,.94));border-radius:24px;box-shadow:0 22px 56px rgba(0,0,0,.28)}
+.social-offer-mark{grid-area:mark;display:grid;width:62px;height:62px;place-items:center;overflow:hidden;color:transparent;background:#2b211f url("src/products/gallery-v5/lotus-cheesecake-828.webp?v=20260626-7") center/cover no-repeat;border:2px solid rgba(225,139,148,.72);border-radius:50%;box-shadow:0 0 0 5px rgba(184,77,88,.08),0 14px 32px rgba(0,0,0,.28);font:600 1.55rem var(--display)}
 .social-offer-copy{grid-area:copy;min-width:0}
 .social-offer-title{margin:0 0 3px;font:600 1.45rem var(--display);line-height:1.15;letter-spacing:-.015em}
 .social-offer-deal{margin:0;color:rgba(255,255,255,.82);font-size:.94rem;line-height:1.45}
@@ -17,19 +17,19 @@
 .social-offer-button:focus-visible,.social-offer-social:focus-visible{outline:3px solid rgba(240,154,163,.55);outline-offset:4px}
 
 @media(max-width:680px){
-  .social-offer{padding:18px 0}
-  .social-offer-card{width:calc(100% - 28px);grid-template-columns:58px minmax(0,1fr) auto;gap:7px 13px;padding:17px 16px;border-radius:20px}
-  .social-offer-mark{width:52px;height:52px;font-size:1.3rem}
-  .social-offer-title{font-size:1.15rem}
-  .social-offer-deal{font-size:.8rem}
-  .social-offer-social{gap:8px;font-size:.78rem}
+  .social-offer{padding:22px 0 26px}
+  .social-offer-card{width:calc(100% - 28px);grid-template-columns:76px minmax(0,1fr);grid-template-areas:"mark copy" "mark social" "button button";gap:10px 15px;padding:18px;border-radius:22px}
+  .social-offer-mark{width:68px;height:68px;font-size:0}
+  .social-offer-title{font-size:1.24rem}
+  .social-offer-deal{font-size:.82rem}
+  .social-offer-social{gap:8px;font-size:.8rem}
   .social-offer-instagram-icon{width:18px;height:18px}
-  .social-offer-button{min-height:44px;padding:10px 14px;font-size:.76rem}
+  .social-offer-button{width:100%;min-height:48px;margin-top:6px;padding:11px 14px;font-size:.78rem}
 }
 
 @media(max-width:390px){
-  .social-offer-card{grid-template-columns:54px minmax(0,1fr);grid-template-areas:"mark copy" "mark social" "button button";gap:9px 12px}
-  .social-offer-mark{width:48px;height:48px}
+  .social-offer-card{grid-template-columns:66px minmax(0,1fr);grid-template-areas:"mark copy" "mark social" "button button";gap:9px 12px}
+  .social-offer-mark{width:60px;height:60px}
   .social-offer-button{width:100%;margin-top:4px}
 }
 
