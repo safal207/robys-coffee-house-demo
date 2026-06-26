@@ -27,7 +27,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("all five gallery images render without horizontal overflow", async ({ page }) => {
+test("all five full posters render inside their square frames", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
   const cards = page.locator(".poster-card");
@@ -35,12 +35,49 @@ test("all five gallery images render without horizontal overflow", async ({ page
 
   for (let index = 0; index < 5; index += 1) {
     const card = cards.nth(index);
+    const image = card.locator("img");
     await card.scrollIntoViewIfNeeded();
     await expect(card).toBeVisible();
-    await expect(card.locator("img")).toHaveJSProperty("complete", true);
+    await expect(image).toHaveJSProperty("complete", true);
 
-    const naturalWidth = await card.locator("img").evaluate((image: HTMLImageElement) => image.naturalWidth);
-    expect(naturalWidth).toBeGreaterThan(0);
+    const result = await image.evaluate((element: HTMLImageElement) => {
+      const frame = element.closest<HTMLElement>(".poster-card-frame");
+      const imageRect = element.getBoundingClientRect();
+      const frameRect = frame?.getBoundingClientRect();
+      const style = getComputedStyle(element);
+
+      return {
+        path: new URL(element.currentSrc || element.src).pathname,
+        naturalWidth: element.naturalWidth,
+        naturalHeight: element.naturalHeight,
+        objectFit: style.objectFit,
+        imageRect: {
+          top: imageRect.top,
+          right: imageRect.right,
+          bottom: imageRect.bottom,
+          left: imageRect.left
+        },
+        frameRect: frameRect ? {
+          top: frameRect.top,
+          right: frameRect.right,
+          bottom: frameRect.bottom,
+          left: frameRect.left
+        } : null
+      };
+    });
+
+    expect(result.path).toMatch(/^\/src\/products\/gallery-v2\/[a-z0-9-]+\.avif$/);
+    expect(result.naturalWidth).toBeGreaterThan(0);
+    expect(result.naturalHeight).toBeGreaterThan(0);
+    expect(Math.abs(result.naturalWidth - result.naturalHeight)).toBeLessThanOrEqual(1);
+    expect(result.objectFit).toBe("contain");
+    expect(result.frameRect).not.toBeNull();
+
+    const frame = result.frameRect!;
+    expect(result.imageRect.top).toBeGreaterThanOrEqual(frame.top - 1);
+    expect(result.imageRect.left).toBeGreaterThanOrEqual(frame.left - 1);
+    expect(result.imageRect.right).toBeLessThanOrEqual(frame.right + 1);
+    expect(result.imageRect.bottom).toBeLessThanOrEqual(frame.bottom + 1);
     await expect(card).not.toHaveClass(/is-error/);
   }
 
@@ -64,7 +101,7 @@ test("bottom panel leaves the viewport while the gallery is active", async ({ pa
 });
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
-  await page.route("**/san-sebastian-card.v3.svg?*", (route) => route.abort());
+  await page.route("**/san-sebastian.avif?*", (route) => route.abort());
   await page.goto("/", { waitUntil: "networkidle" });
 
   const failed = page.locator('[data-product-id="san-sebastian"]');
