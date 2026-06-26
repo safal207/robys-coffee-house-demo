@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "STATIC-MAP-MOBILE-CLEANUP-001",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/83",
+      "contentBindings": {
+        "index.html": "0092364b533accc7ad5536983c03dedbdea35a63",
+        "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
+        "community-reel.css": "eda788de58cbc05f15087e5d4a6f428d8dda93fc",
+        "social-offer.css": "b8fdae13202aefc44882043e9d788d343ed4a3d0"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8016 vs 320x6915"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8501 vs 390x7273"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.008
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7520 vs 768x6334"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x5986 vs 1440x6002"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "totalPixels": 1428480,
+          "maxDiffPixelRatio": 0.0082
+        }
+      ]
+    }
+  ]
+}
