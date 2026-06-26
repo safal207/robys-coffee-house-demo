@@ -12,8 +12,8 @@ const page = await context.newPage();
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
-  const downloadLink = page.locator("a.android-download-button[data-apk-download='direct']");
-  await downloadLink.waitFor({ state: "visible" });
+  const downloadLink = page.locator("a.android-download-button[data-apk-download='verified-blob']");
+  await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
 
   const downloadPromise = page.waitForEvent("download");
