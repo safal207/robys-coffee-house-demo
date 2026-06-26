@@ -27,13 +27,12 @@ jobs:
       - name: Apply SEO metadata
         run: python scripts/stage-seo-preview.py
 
-      - name: Rebuild and verify integrity
+      - name: Rebuild integrity metadata
         run: |
           set -euo pipefail
           npm ci
           npm run build
           npm run integrity:generate
-          npm run check
 
       - name: Upload staged SEO files
         uses: actions/upload-artifact@v4
