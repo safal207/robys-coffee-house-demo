@@ -80,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21489,
-      "sha256": "9fa14410039aae24f2abdbb234397389944df7fbf49583d2c1ed4f40ce73b5df"
+      "bytes": 21490,
+      "sha256": "ed106cc94239ac6a5d49becd965ec415a1e7c60ccaed832f93b12a795eec0e27"
     },
     {
       "path": "manifest.webmanifest",
@@ -150,8 +150,8 @@
     },
     {
       "path": "qa.js",
-      "bytes": 5748,
-      "sha256": "ce23ec2f6df004293e662ff350d4fc43c611e4d9c5b26790e87ff7b6514fd3fc"
+      "bytes": 5745,
+      "sha256": "2152235bbf65a846730635faaffe583b09366d417e60d3c169b562028e82bc9c"
     },
     {
       "path": "refresh.html",
@@ -422,6 +422,11 @@
       "path": "src/products/triple-cookie.svg",
       "bytes": 1405,
       "sha256": "472eb8da517f88d6e3dd5cba67ed992ffb254aadee8f1d50075e15dfdb723458"
+    },
+    {
+      "path": "src/robys-ambience-clean.mp4",
+      "bytes": 1227295,
+      "sha256": "e44031bf12a08f0ce12ed39062bb95c8526603fd60c58623a4883a11f22b03d5"
     },
     {
       "path": "src/robys-gallery-croissant.svg",

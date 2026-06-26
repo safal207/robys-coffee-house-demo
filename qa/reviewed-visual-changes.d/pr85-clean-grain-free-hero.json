@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "CLEAN-GRAIN-FREE-HERO-001",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/85",
+      "contentBindings": {
+        "index.html": "07934dfc78d41227ef69fa43cc31e5ed85ff0f8d",
+        "qa.js": "cf36dfbf5899aced8b5fd9a9c53d71985efff09d",
+        "src/robys-ambience-clean.mp4": "ab4e34b34a0fbddb201c213f61087eccc0413280"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2836470,
+          "maxDiffPixelRatio": 0.006
+        }
+      ]
+    }
+  ]
+}
