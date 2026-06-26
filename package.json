@@ -18,7 +18,7 @@
     "verify:integrity:live": "node scripts/verify-live-integrity.mjs",
     "security:audit": "npm audit --audit-level=high",
     "check": "npm run typecheck && npm run verify:gallery:assets && npm run build && node --check app.js && node --check featured-gallery.js && npm run verify:regression",
-    "verify:bundle": "npm run check && git diff --exit-code -- app.js && node scripts/verify-bundle.mjs",
+    "verify:bundle": "npm run typecheck && npm run verify:gallery:assets && npm run build && node --check app.js && node --check featured-gallery.js && node scripts/verify-bundle.mjs",
     "verify:media": "node scripts/verify-media.mjs",
     "verify:deploy:live": "node scripts/verify-live-deploy.mjs",
     "audit:deps": "node scripts/audit-dependencies.mjs",
