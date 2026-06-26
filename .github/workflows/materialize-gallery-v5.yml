@@ -24,10 +24,10 @@ jobs:
           ref: gallery-original-quality-v5
           fetch-depth: 0
 
-      - name: Install ImageMagick
+      - name: Install media tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y imagemagick
+          sudo apt-get install -y imagemagick ffmpeg
 
       - name: Restore uploaded masters and generate WebP files
         run: |
@@ -47,8 +47,8 @@ jobs:
             convert "$input" -strip -quality 92 -define webp:method=6 "src/products/gallery-v5/${name}.webp"
           done
 
+          identify src/products/gallery-v5/*.webp
           sha256sum src/products/gallery-v5/*.webp
-          bash scripts/verify-gallery-assets.sh
 
       - name: Commit real binary files
         run: |
