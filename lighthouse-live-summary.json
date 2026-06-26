@@ -1,70 +1,28 @@
 {
-  "generatedAt": "2026-06-25T19:29:15.628Z",
+  "generatedAt": "2026-06-26T05:09:04.215Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=9c9fccf2c97c1cefba5645aa9e81965fcc704aba",
-  "commit": "9c9fccf2c97c1cefba5645aa9e81965fcc704aba",
-  "build": "20260625-3",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=f84916a8e470355cc6062fad8eb8efb70a5ea347",
+  "commit": "f84916a8e470355cc6062fad8eb8efb70a5ea347",
+  "build": "20260626-1",
   "mobile": {
     "categories": {
-      "performance": 43,
+      "performance": 100,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "3.0 s",
-        "numericValue": 2964.6800000000003
+        "displayValue": "1.0 s",
+        "numericValue": 1020.1324999999999
       },
       "largest-contentful-paint": {
-        "displayValue": "4.5 s",
-        "numericValue": 4468.18
+        "displayValue": "1.3 s",
+        "numericValue": 1320.1325
       },
       "speed-index": {
-        "displayValue": "7.0 s",
-        "numericValue": 6988.892470367016
-      },
-      "total-blocking-time": {
-        "displayValue": "7,490 ms",
-        "numericValue": 7486
-      },
-      "cumulative-layout-shift": {
-        "displayValue": "0",
-        "numericValue": 0
-      },
-      "interactive": {
-        "displayValue": "11.7 s",
-        "numericValue": 11705.78
-      }
-    },
-    "opportunities": [
-      {
-        "id": "server-response-time",
-        "title": "Initial server response time was short",
-        "displayValue": "Root document took 70 ms",
-        "score": 1
-      }
-    ]
-  },
-  "desktop": {
-    "categories": {
-      "performance": 100,
-      "accessibility": 95,
-      "best-practices": 93,
-      "seo": 100
-    },
-    "metrics": {
-      "first-contentful-paint": {
-        "displayValue": "0.5 s",
-        "numericValue": 488.4275
-      },
-      "largest-contentful-paint": {
-        "displayValue": "0.5 s",
-        "numericValue": 493.4275
-      },
-      "speed-index": {
-        "displayValue": "0.7 s",
-        "numericValue": 692.5456835833244
+        "displayValue": "1.5 s",
+        "numericValue": 1520.2176200000035
       },
       "total-blocking-time": {
         "displayValue": "0 ms",
@@ -75,15 +33,63 @@
         "numericValue": 0
       },
       "interactive": {
+        "displayValue": "1.3 s",
+        "numericValue": 1320.1325000000002
+      }
+    },
+    "opportunities": [
+      {
+        "id": "modern-image-formats",
+        "title": "Serve images in next-gen formats",
+        "displayValue": "Est savings of 13 KiB",
+        "score": 0
+      },
+      {
+        "id": "server-response-time",
+        "title": "Initial server response time was short",
+        "displayValue": "Root document took 120 ms",
+        "score": 1
+      }
+    ]
+  },
+  "desktop": {
+    "categories": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 93,
+      "seo": 100
+    },
+    "metrics": {
+      "first-contentful-paint": {
+        "displayValue": "0.4 s",
+        "numericValue": 434.927
+      },
+      "largest-contentful-paint": {
+        "displayValue": "0.4 s",
+        "numericValue": 434.927
+      },
+      "speed-index": {
         "displayValue": "0.5 s",
-        "numericValue": 493.9275
+        "numericValue": 465.8680425833377
+      },
+      "total-blocking-time": {
+        "displayValue": "0 ms",
+        "numericValue": 0
+      },
+      "cumulative-layout-shift": {
+        "displayValue": "0",
+        "numericValue": 0
+      },
+      "interactive": {
+        "displayValue": "0.4 s",
+        "numericValue": 434.927
       }
     },
     "opportunities": [
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 60 ms",
+        "displayValue": "Root document took 0 ms",
         "score": 1
       }
     ]
