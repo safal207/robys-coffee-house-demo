@@ -1,0 +1,58 @@
+name: Export reconstructed community reel
+
+on:
+  push:
+    branches:
+      - feature/instagram-reel-footer
+    paths:
+      - .github/workflows/export-community-video.yml
+  pull_request:
+    branches:
+      - main
+    types: [synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-reel-footer
+          path: current
+
+      - name: Record current tree
+        run: git -C current rev-parse 'HEAD^{tree}' > current-tree-sha.txt
+
+      - name: Checkout complete staged reel
+        uses: actions/checkout@v4
+        with:
+          ref: 71a5563b0e835b16c19779b2ffc9f310900431e5
+          path: staged
+
+      - name: Reconstruct verified MP4
+        working-directory: staged
+        run: node scripts/finalize-community-video.mjs
+
+      - name: Upload verified MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-community-reel
+          path: staged/src/robys-community-reel.mp4
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload current source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-current-source
+          path: |
+            current
+            current-tree-sha.txt
+          if-no-files-found: error
+          retention-days: 1
