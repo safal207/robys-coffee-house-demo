@@ -1,0 +1,35 @@
+name: Asset compatibility
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/asset-compatibility.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert gallery image
+        run: |
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 -c:v libwebp -q:v 90 \
+            iced-latte.webp
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 \
+            iced-latte.png
+          file iced-latte.webp iced-latte.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iced-latte-compatible
+          path: |
+            iced-latte.webp
+            iced-latte.png
+          retention-days: 1

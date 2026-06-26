@@ -69,6 +69,7 @@
       "id": "featured-card-reference-crops-v1",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/70",
       "contentBindings": {
+        "featured-strip.js": "ca7f74506bb040ba197bbfac51b5aca16a90af6d",
         "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
         "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b"
       },
@@ -96,6 +97,60 @@
           "viewport": "desktop-1440",
           "totalPixels": 6285600,
           "maxDiffPixelRatio": 0.0173
+        }
+      ]
+    },
+    {
+      "id": "typed-poster-gallery-v2",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/72",
+      "contentBindings": {
+        "featured-gallery.css": "5cf97fc62a6c8d087887a3f7981f4d3966c4138b",
+        "src/featured-gallery.ts": "12dd35806bc4de35b60a5d02faadd37293ecb486"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6872 vs 320x6354"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x7302 vs 390x6676"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x9909 vs 768x6141"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4365 vs 1440x4836"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "totalPixels": 345540,
+          "maxDiffPixelRatio": 0.015
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.008
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "desktop-1440",
+          "totalPixels": 1031040,
+          "maxDiffPixelRatio": 0.008
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "totalPixels": 1428480,
+          "maxDiffPixelRatio": 0.005
         }
       ]
     }
