@@ -1,131 +1,35 @@
 name: Asset compatibility
 
 on:
-  pull_request:
+  workflow_dispatch:
+  push:
     paths:
       - ".github/workflows/asset-compatibility.yml"
-      - "src/products/cards/**"
-      - "src/products/gallery-v2/iced-latte.avif"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   convert:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install Chromium renderer
+      - name: Convert gallery image
         run: |
-          npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Rebuild uncropped gallery posters
-        run: |
-          mkdir -p gallery-source gallery-compatible gallery-png src/products/gallery-v3
-          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
-            src/products/cards/latte-card.v3.svg > gallery-source/latte.svg
-          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
-            src/products/cards/san-sebastian-card.v3.svg > gallery-source/san-sebastian.svg
-          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
-            src/products/cards/nutella-card.v3.svg > gallery-source/nutella-croissant.svg
-          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
-            src/products/cards/lotus-card.v3.svg > gallery-source/lotus-cheesecake.svg
-          cp src/products/gallery-v2/iced-latte.avif gallery-source/iced-latte.avif
-
-          if grep -R --include='*.svg' 'xMidYMid slice' gallery-source; then
-            echo 'An uncropped source still contains slice behavior.' >&2
-            exit 1
-          fi
-
-          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null; then
-              break
-            fi
-            sleep 0.2
-          done
-          curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null
-
-          node <<'NODE'
-          const fs = require('node:fs');
-          const path = require('node:path');
-          const { chromium } = require('@playwright/test');
-
-          (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
-            const files = fs.readdirSync('gallery-source')
-              .filter(file => /\.(?:svg|avif)$/.test(file))
-              .sort();
-
-            for (const file of files) {
-              const name = path.basename(file, path.extname(file));
-              await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain;object-position:center}</style><img id="poster" src="http://127.0.0.1:4173/gallery-source/${file}">`);
-              const image = page.locator('#poster');
-              await image.evaluate(async element => {
-                const img = element;
-                if (!img.complete) await new Promise((resolve, reject) => {
-                  img.addEventListener('load', resolve, { once: true });
-                  img.addEventListener('error', reject, { once: true });
-                });
-                if (img.naturalWidth === 0) throw new Error(`Chromium could not decode ${img.src}`);
-                await img.decode();
-              });
-
-              const png = await image.screenshot({ omitBackground: true, animations: 'disabled' });
-              fs.writeFileSync(`gallery-png/${name}.png`, png);
-
-              const webpBase64 = await page.evaluate(async pngBase64 => {
-                const img = new Image();
-                img.src = `data:image/png;base64,${pngBase64}`;
-                await img.decode();
-                const canvas = document.createElement('canvas');
-                canvas.width = 640;
-                canvas.height = 640;
-                const context = canvas.getContext('2d');
-                if (!context) throw new Error('Canvas 2D context is unavailable');
-                context.drawImage(img, 0, 0, 640, 640);
-                return canvas.toDataURL('image/webp', 0.9).split(',')[1];
-              }, png.toString('base64'));
-
-              const webp = Buffer.from(webpBase64, 'base64');
-              fs.writeFileSync(`gallery-compatible/${name}.webp`, webp);
-              fs.writeFileSync(`src/products/gallery-v3/${name}.webp`, webp);
-            }
-            await browser.close();
-          })().catch(error => {
-            console.error(error);
-            process.exitCode = 1;
-          });
-          NODE
-
-          file gallery-compatible/*.webp
-      - name: Commit generated posters to the PR branch
-        if: github.event_name == 'pull_request'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/products/gallery-v3/*.webp
-          if git diff --cached --quiet; then
-            echo 'Generated posters are already current.'
-          else
-            git commit -m 'assets: add cross-browser gallery posters [skip ci]'
-            git push origin HEAD:${{ github.head_ref }}
-          fi
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 -c:v libwebp -q:v 90 \
+            iced-latte.webp
+          ffmpeg -hide_banner -loglevel error \
+            -i src/products/gallery-v2/iced-latte.avif \
+            -frames:v 1 \
+            iced-latte.png
+          file iced-latte.webp iced-latte.png
       - uses: actions/upload-artifact@v4
         with:
-          name: gallery-compatible-webp
+          name: iced-latte-compatible
           path: |
-            gallery-compatible/*.webp
-            gallery-png/*.png
-          if-no-files-found: error
+            iced-latte.webp
+            iced-latte.png
           retention-days: 1
