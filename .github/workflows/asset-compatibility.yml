@@ -37,7 +37,7 @@ jobs:
             src/products/cards/lotus-card.v3.svg > gallery-source/lotus-cheesecake.svg
           cp src/products/gallery-v2/iced-latte.avif gallery-source/iced-latte.avif
 
-          if grep -R 'xMidYMid slice' gallery-source; then
+          if grep -R --include='*.svg' 'xMidYMid slice' gallery-source; then
             echo 'An uncropped source still contains slice behavior.' >&2
             exit 1
           fi
@@ -45,6 +45,14 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null; then
+              break
+            fi
+            sleep 0.2
+          done
+          curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null
+
           node <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
