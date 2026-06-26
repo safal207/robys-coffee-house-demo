@@ -80,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21490,
-      "sha256": "ed106cc94239ac6a5d49becd965ec415a1e7c60ccaed832f93b12a795eec0e27"
+      "bytes": 21600,
+      "sha256": "c379000b50026b7659092f3e60ec9c351d3b5bcb0ec018f016201ba1491bf62d"
     },
     {
       "path": "manifest.webmanifest",
@@ -140,8 +140,8 @@
     },
     {
       "path": "menu.html",
-      "bytes": 6229,
-      "sha256": "019647e676275dd8d2b79363960ce987caec667d55111eee9322a44f4f2d9640"
+      "bytes": 6251,
+      "sha256": "846f6fb3cec08beff0919c72e9c174017e236b8e87378370eaee24dedc58b98b"
     },
     {
       "path": "mobile.css",

@@ -13,5 +13,5 @@
   "closes": "00:00",
   "instagramUrl": "https://www.instagram.com/robyscoffeehouse/",
   "instagramHandle": "@robyscoffeehouse",
-  "mapUrl": "https://www.google.com/maps/search/?api=1&query=Roby%27s+Coffee+House+Gazipasa"
+  "mapUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving"
 }

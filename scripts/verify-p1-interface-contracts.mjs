@@ -88,7 +88,7 @@ gate("MOBILE-001");
 
 // CTA-001
 const allHtml = `${indexHtml}\n${menuHtml}`;
-const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/search/\\?api=1&query=");
+const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/dir/\\?api=1&destination=");
 assert(routeUrls.length >= 4, "CTA-001", `Expected route CTAs, found ${routeUrls.length}`);
 assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
 assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
