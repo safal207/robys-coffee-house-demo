@@ -8,7 +8,7 @@
         "conversion.css": "3eace373b7435b2bdf42d13f270126c1dedbf907",
         "qa/footer.spec.ts": "7de30b8bdacd315c6589985008648754f9fff227",
         ".github/workflows/gallery-mobile.yml": "89a45cef37011f3161f6ba9591fed6f6f2d11569",
-        "scripts/verify-reviewed-visual-change.mjs": "e925eb8b1be5ec06a650310f06cfd4bea90ea654"
+        "scripts/verify-reviewed-visual-change.mjs": "1769485efb0a3c5e4048f64ba53205177c074655"
       },
       "expectedFailures": [
         {
