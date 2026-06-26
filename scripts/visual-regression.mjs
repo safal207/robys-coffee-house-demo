@@ -90,6 +90,28 @@ async function stabilize(page) {
     });
     if (poster.decode) await poster.decode().catch(() => {});
 
+    const galleryTrack = document.querySelector(".featured-track");
+    if (galleryTrack) {
+      const deadline = performance.now() + 8000;
+      while (galleryTrack.getAttribute("data-gallery-ready") !== "true" && performance.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    const images = Array.from(document.images);
+    for (const image of images) {
+      image.loading = "eager";
+      image.scrollIntoView({ block: "center", inline: "nearest" });
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (!image.complete) {
+        await new Promise((resolve) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", resolve, { once: true });
+        });
+      }
+      if (image.decode) await image.decode().catch(() => {});
+    }
+
     window.scrollTo(0, 0);
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });
