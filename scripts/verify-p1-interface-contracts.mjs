@@ -92,6 +92,7 @@ const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/dir/\\?api=1&d
 assert(routeUrls.length >= 4, "CTA-001", `Expected route CTAs, found ${routeUrls.length}`);
 assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
 assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
+assert(routeUrls.every((url) => url.endsWith("&travelmode=driving")), "CTA-001", "Route CTAs must open driving navigation");
 const instagramUrls = hrefs(allHtml, "https://www\\.instagram\\.com/");
 assert(instagramUrls.length >= 3, "CTA-001", `Expected Instagram CTAs, found ${instagramUrls.length}`);
 assert(instagramUrls.every((url) => url === "https://www.instagram.com/robyscoffeehouse/"), "CTA-001", "Wrong Instagram destination");
