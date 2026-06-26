@@ -9,7 +9,7 @@
     "verify:instagram-tools": "node scripts/verify-instagram-tools.mjs",
     "verify:gallery:assets": "bash scripts/verify-gallery-assets.sh",
     "verify:social-offer": "node scripts/verify-social-offer.mjs",
-    "verify:regression": "npm run verify:social-offer && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:integrity && npm run verify:adversarial",
+    "verify:regression": "npm run verify:social-offer && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:integrity && npm run verify:adversarial",
     "verify:performance": "node scripts/verify-performance-contract.mjs",
     "verify:live:smoke": "node scripts/live-smoke.mjs",
     "verify:security": "node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs",
