@@ -15,15 +15,23 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "latte",
     href: "menu.html#hot-coffee",
-    image: "src/products/gallery-v5/latte.webp?v=20260626-5",
+    image: "src/products/gallery-v5/latte.webp?v=20260626-6",
     title: { tr: "Latte", en: "Latte", ru: "Латте" },
+    price: 180,
+    currency: "₺"
+  },
+  {
+    id: "iced-latte",
+    href: "menu.html#cold-coffee",
+    image: "src/products/gallery-v5/iced-latte.webp?v=20260626-6",
+    title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
     price: 180,
     currency: "₺"
   },
   {
     id: "san-sebastian",
     href: "menu.html#desserts",
-    image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-5",
+    image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-6",
     title: {
       tr: "San Sebastian Cheesecake",
       en: "San Sebastian Cheesecake",
@@ -33,9 +41,17 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
     currency: "₺"
   },
   {
+    id: "lotus-cheesecake",
+    href: "menu.html#desserts",
+    image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-6",
+    title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
+    price: 190,
+    currency: "₺"
+  },
+  {
     id: "croissant",
     href: "menu.html#food",
-    image: "src/products/gallery-v5/croissant.webp?v=20260626-5",
+    image: "src/products/gallery-v5/croissant.webp?v=20260626-6",
     title: { tr: "Croissant", en: "Croissant", ru: "Круассан" },
     price: 170,
     currency: "₺"
@@ -43,21 +59,13 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "nutella-croissant",
     href: "menu.html#food",
-    image: "src/products/gallery-v5/nutella-croissant.webp?v=20260626-5",
+    image: "src/products/gallery-v5/nutella-croissant.webp?v=20260626-6",
     title: {
       tr: "Nutella Croissant",
       en: "Nutella Croissant",
       ru: "Круассан с Nutella"
     },
     price: 170,
-    currency: "₺"
-  },
-  {
-    id: "lotus-cheesecake",
-    href: "menu.html#desserts",
-    image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-5",
-    title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
-    price: 190,
     currency: "₺"
   }
 ] as const;
@@ -99,8 +107,8 @@ function createPosterCard(product: FeaturedProduct, index: number): HTMLAnchorEl
   const image = document.createElement("img");
   image.src = product.image;
   image.alt = product.title[currentGalleryLanguage()];
-  image.width = 1536;
-  image.height = 1536;
+  image.width = 1254;
+  image.height = 1254;
   image.loading = index === 0 ? "eager" : "lazy";
   image.decoding = "async";
   if (index === 0) image.fetchPriority = "high";
