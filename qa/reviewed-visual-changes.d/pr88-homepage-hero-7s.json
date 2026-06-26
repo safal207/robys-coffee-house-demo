@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "HOMEPAGE-HERO-7S-001",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/88",
+      "contentBindings": {
+        "index.html": "537473ae5cb5222b4cef1828858f8533c2324ada",
+        "qa.js": "61a90eca03b5629da863ce213e756df5b5b07fe5",
+        "src/robys-ambience-clean.mp4": "c20b47161454b597fb806b072536d7f31339b8ae"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2836470,
+          "maxDiffPixelRatio": 0.0052
+        }
+      ]
+    }
+  ]
+}
