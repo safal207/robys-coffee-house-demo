@@ -9,9 +9,9 @@ export default defineConfig({
   reporter: [["list"], ["html", { outputFolder: "../playwright-report", open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:4173",
-    // The production CSP includes upgrade-insecure-requests. WebKit otherwise
-    // rewrites local HTTP assets to HTTPS, where the test server has no TLS.
-    // CSP itself remains covered by the dedicated security workflows.
+    // Browser tests bypass the remaining CSP directives. The test hook removes
+    // only upgrade-insecure-requests because WebKit applies it before bypassCSP
+    // on the local HTTP server. Production CSP is covered by security workflows.
     bypassCSP: true,
     screenshot: "only-on-failure",
     video: "retain-on-failure",
