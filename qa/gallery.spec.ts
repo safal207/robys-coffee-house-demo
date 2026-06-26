@@ -27,15 +27,16 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("all five source-quality posters render inside their square frames", async ({ page }) => {
+test("all six source-quality posters render inside their square frames", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
   const expectedProductIds = [
     "latte",
+    "iced-latte",
     "san-sebastian",
+    "lotus-cheesecake",
     "croissant",
-    "nutella-croissant",
-    "lotus-cheesecake"
+    "nutella-croissant"
   ];
   const cards = page.locator(".poster-card");
   await expect(cards).toHaveCount(expectedProductIds.length);
@@ -76,8 +77,8 @@ test("all five source-quality posters render inside their square frames", async 
     });
 
     expect(result.path).toMatch(/^\/src\/products\/gallery-v5\/[a-z0-9-]+\.webp$/);
-    expect(result.naturalWidth).toBe(1536);
-    expect(result.naturalHeight).toBe(1536);
+    expect(result.naturalWidth).toBe(1254);
+    expect(result.naturalHeight).toBe(1254);
     expect(result.loading).toBe(index === 0 ? "eager" : "lazy");
     expect(result.objectFit).toBe("contain");
     expect(result.frameRect).not.toBeNull();
@@ -139,7 +140,7 @@ test("gallery image loading stays below the CLS budget", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
   const cards = page.locator(".poster-card");
-  for (let index = 0; index < 5; index += 1) {
+  for (let index = 0; index < 6; index += 1) {
     await cards.nth(index).scrollIntoViewIfNeeded();
     await page.waitForTimeout(100);
   }
