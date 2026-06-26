@@ -28,6 +28,9 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
+      - name: Reconstruct and install native reel
+        run: node scripts/finalize-community-video.mjs
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -36,9 +39,6 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci
-
-      - name: Reconstruct and install native reel
-        run: node scripts/finalize-community-video.mjs
 
       - name: Refresh integrity manifest
         run: npm run integrity:generate
