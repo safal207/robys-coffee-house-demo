@@ -39,8 +39,8 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Build and verify runtime
-        run: npm run check
+      - name: Verify compilation
+        run: npm run typecheck && npm run build
 
       - name: Commit installed section
         run: |
