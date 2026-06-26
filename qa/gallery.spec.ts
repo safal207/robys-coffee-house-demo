@@ -27,7 +27,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("all six source-quality posters render inside their square frames", async ({ page }) => {
+test("all six responsive posters render inside their square frames", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
   const expectedProductIds = [
@@ -49,16 +49,22 @@ test("all six source-quality posters render inside their square frames", async (
     await expect(card).toBeVisible();
     await expect(image).toHaveJSProperty("complete", true);
 
-    const result = await image.evaluate((element: HTMLImageElement) => {
+    const result = await image.evaluate(async (element: HTMLImageElement) => {
       const frame = element.closest<HTMLElement>(".poster-card-frame");
       const imageRect = element.getBoundingClientRect();
       const frameRect = frame?.getBoundingClientRect();
       const style = getComputedStyle(element);
+      const probe = new Image();
+      probe.src = element.currentSrc || element.src;
+      await probe.decode();
 
       return {
         path: new URL(element.currentSrc || element.src).pathname,
-        naturalWidth: element.naturalWidth,
-        naturalHeight: element.naturalHeight,
+        fallbackPath: new URL(element.src).pathname,
+        srcset: element.srcset,
+        sizes: element.sizes,
+        selectedPixelWidth: probe.naturalWidth,
+        selectedPixelHeight: probe.naturalHeight,
         loading: element.loading,
         objectFit: style.objectFit,
         imageRect: {
@@ -76,9 +82,13 @@ test("all six source-quality posters render inside their square frames", async (
       };
     });
 
-    expect(result.path).toMatch(/^\/src\/products\/gallery-v5\/[a-z0-9-]+\.webp$/);
-    expect(result.naturalWidth).toBe(1254);
-    expect(result.naturalHeight).toBe(1254);
+    expect(result.path).toMatch(/^\/src\/products\/gallery-v5\/[a-z0-9-]+(?:-828)?\.webp$/);
+    expect(result.fallbackPath).toBe(`/src/products/gallery-v5/${expectedProductIds[index]}-828.webp`);
+    expect(result.srcset).toContain(`${expectedProductIds[index]}-828.webp`);
+    expect(result.srcset).toContain(`${expectedProductIds[index]}.webp`);
+    expect(result.sizes).toBe("(max-width: 680px) calc(100vw - 40px), (max-width: 1100px) 42vw, 360px");
+    expect([828, 1254]).toContain(result.selectedPixelWidth);
+    expect(result.selectedPixelHeight).toBe(result.selectedPixelWidth);
     expect(result.loading).toBe(index === 0 ? "eager" : "lazy");
     expect(result.objectFit).toBe("contain");
     expect(result.frameRect).not.toBeNull();
@@ -122,7 +132,7 @@ test("bottom panel leaves the viewport while the gallery is active", async ({ pa
 });
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
-  await page.route("**/san-sebastian.webp?*", (route) => route.abort());
+  await page.route("**/san-sebastian*.webp?*", (route) => route.abort());
   await page.goto("/", { waitUntil: "networkidle" });
 
   const failed = page.locator('[data-product-id="san-sebastian"]');

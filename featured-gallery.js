@@ -3,7 +3,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "latte",
         href: "menu.html#hot-coffee",
-        image: "src/products/gallery-v5/latte.webp?v=20260626-6",
+        image: "src/products/gallery-v5/latte.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/latte-828.webp?v=20260626-7",
         title: { tr: "Latte", en: "Latte", ru: "Латте" },
         price: 180,
         currency: "₺"
@@ -11,7 +12,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "iced-latte",
         href: "menu.html#cold-coffee",
-        image: "src/products/gallery-v5/iced-latte.webp?v=20260626-6",
+        image: "src/products/gallery-v5/iced-latte.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/iced-latte-828.webp?v=20260626-7",
         title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
         price: 180,
         currency: "₺"
@@ -19,7 +21,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "san-sebastian",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-6",
+        image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/san-sebastian-828.webp?v=20260626-7",
         title: {
             tr: "San Sebastian Cheesecake",
             en: "San Sebastian Cheesecake",
@@ -31,7 +34,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "lotus-cheesecake",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-6",
+        image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/lotus-cheesecake-828.webp?v=20260626-7",
         title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
         price: 190,
         currency: "₺"
@@ -39,7 +43,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "croissant",
         href: "menu.html#food",
-        image: "src/products/gallery-v5/croissant.webp?v=20260626-6",
+        image: "src/products/gallery-v5/croissant.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/croissant-828.webp?v=20260626-7",
         title: { tr: "Croissant", en: "Croissant", ru: "Круассан" },
         price: 170,
         currency: "₺"
@@ -47,7 +52,8 @@ const FEATURED_PRODUCTS = [
     {
         id: "nutella-croissant",
         href: "menu.html#food",
-        image: "src/products/gallery-v5/nutella-croissant.webp?v=20260626-6",
+        image: "src/products/gallery-v5/nutella-croissant.webp?v=20260626-7",
+        imageSmall: "src/products/gallery-v5/nutella-croissant-828.webp?v=20260626-7",
         title: {
             tr: "Nutella Croissant",
             en: "Nutella Croissant",
@@ -84,7 +90,9 @@ function createPosterCard(product, index) {
     const frame = document.createElement("span");
     frame.className = "poster-card-frame";
     const image = document.createElement("img");
-    image.src = product.image;
+    image.src = product.imageSmall;
+    image.srcset = `${product.imageSmall} 828w, ${product.image} 1254w`;
+    image.sizes = "(max-width: 680px) calc(100vw - 40px), (max-width: 1100px) 42vw, 360px";
     image.alt = product.title[currentGalleryLanguage()];
     image.width = 1254;
     image.height = 1254;
