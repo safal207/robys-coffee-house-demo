@@ -66,10 +66,9 @@ test("all five full posters render inside their square frames", async ({ page })
       };
     });
 
-    expect(result.path).toMatch(/^\/src\/products\/gallery-v2\/[a-z0-9-]+\.avif$/);
-    expect(result.naturalWidth).toBeGreaterThan(0);
-    expect(result.naturalHeight).toBeGreaterThan(0);
-    expect(Math.abs(result.naturalWidth - result.naturalHeight)).toBeLessThanOrEqual(1);
+    expect(result.path).toMatch(/^\/src\/products\/gallery-v3\/[a-z0-9-]+\.webp$/);
+    expect(result.naturalWidth).toBe(640);
+    expect(result.naturalHeight).toBe(640);
     expect(result.objectFit).toBe("contain");
     expect(result.frameRect).not.toBeNull();
 
@@ -112,7 +111,7 @@ test("bottom panel leaves the viewport while the gallery is active", async ({ pa
 });
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
-  await page.route("**/san-sebastian.avif?*", (route) => route.abort());
+  await page.route("**/san-sebastian.webp?*", (route) => route.abort());
   await page.goto("/", { waitUntil: "networkidle" });
 
   const failed = page.locator('[data-product-id="san-sebastian"]');
