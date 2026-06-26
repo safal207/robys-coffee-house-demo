@@ -94,7 +94,6 @@ jobs:
         shell: bash
         run: |
           rm -rf .apk-staging
-          rm -f .github/workflows/stage-android-download.yml
 
       - name: Build, refresh integrity and run full checks
         shell: bash
