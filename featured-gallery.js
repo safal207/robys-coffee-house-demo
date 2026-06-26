@@ -3,7 +3,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "latte",
         href: "menu.html#hot-coffee",
-        image: "src/products/gallery-v3/latte.webp?v=20260626-3",
+        image: "src/products/gallery-v4/latte.webp?v=20260626-4",
         title: { tr: "Latte", en: "Latte", ru: "Латте" },
         price: 180,
         currency: "₺"
@@ -11,7 +11,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "san-sebastian",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v3/san-sebastian.webp?v=20260626-3",
+        image: "src/products/gallery-v4/san-sebastian.webp?v=20260626-4",
         title: {
             tr: "San Sebastian Cheesecake",
             en: "San Sebastian Cheesecake",
@@ -23,15 +23,15 @@ const FEATURED_PRODUCTS = [
     {
         id: "iced-latte",
         href: "menu.html#cold-coffee",
-        image: "src/products/gallery-v3/iced-latte.webp?v=20260626-3",
+        image: "src/products/gallery-v4/iced-latte.webp?v=20260626-4",
         title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
-        price: 150,
+        price: 180,
         currency: "₺"
     },
     {
         id: "nutella-croissant",
         href: "menu.html#food",
-        image: "src/products/gallery-v3/nutella-croissant.webp?v=20260626-3",
+        image: "src/products/gallery-v4/nutella-croissant.webp?v=20260626-4",
         title: {
             tr: "Nutella Croissant",
             en: "Nutella Croissant",
@@ -43,7 +43,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "lotus-cheesecake",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v3/lotus-cheesecake.webp?v=20260626-3",
+        image: "src/products/gallery-v4/lotus-cheesecake.webp?v=20260626-4",
         title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
         price: 190,
         currency: "₺"

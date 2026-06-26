@@ -66,7 +66,7 @@ test("all five full posters render inside their square frames", async ({ page })
       };
     });
 
-    expect(result.path).toMatch(/^\/src\/products\/gallery-v3\/[a-z0-9-]+\.webp$/);
+    expect(result.path).toMatch(/^\/src\/products\/gallery-v4\/[a-z0-9-]+\.webp$/);
     expect(result.naturalWidth).toBe(640);
     expect(result.naturalHeight).toBe(640);
     expect(result.objectFit).toBe("contain");

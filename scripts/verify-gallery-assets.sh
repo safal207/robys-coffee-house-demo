@@ -2,11 +2,11 @@
 set -euo pipefail
 
 assets=(
-  "src/products/gallery-v3/latte.webp"
-  "src/products/gallery-v3/san-sebastian.webp"
-  "src/products/gallery-v3/iced-latte.webp"
-  "src/products/gallery-v3/nutella-croissant.webp"
-  "src/products/gallery-v3/lotus-cheesecake.webp"
+  "src/products/gallery-v4/latte.webp"
+  "src/products/gallery-v4/san-sebastian.webp"
+  "src/products/gallery-v4/iced-latte.webp"
+  "src/products/gallery-v4/nutella-croissant.webp"
+  "src/products/gallery-v4/lotus-cheesecake.webp"
 )
 
 max_file_bytes=$((4 * 1024 * 1024))
@@ -36,7 +36,7 @@ if (( total_bytes > max_total_bytes )); then
 fi
 
 if grep -nE 'src/products/(cards/.*\.svg|gallery-v2/.*\.avif)' src/featured-gallery.ts index.html; then
-  echo "The featured gallery must use the reviewed gallery-v3 WebP posters." >&2
+  echo "The featured gallery must use the reviewed gallery-v4 WebP posters." >&2
   exit 1
 fi
 
