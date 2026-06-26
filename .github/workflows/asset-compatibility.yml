@@ -1,10 +1,11 @@
 name: Asset compatibility
 
 on:
-  workflow_dispatch:
-  push:
+  pull_request:
     paths:
       - ".github/workflows/asset-compatibility.yml"
+      - "src/products/gallery-v2/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,24 +13,23 @@ permissions:
 jobs:
   convert:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Convert gallery image
+      - name: Convert gallery posters to WebP
         run: |
-          ffmpeg -hide_banner -loglevel error \
-            -i src/products/gallery-v2/iced-latte.avif \
-            -frames:v 1 -c:v libwebp -q:v 90 \
-            iced-latte.webp
-          ffmpeg -hide_banner -loglevel error \
-            -i src/products/gallery-v2/iced-latte.avif \
-            -frames:v 1 \
-            iced-latte.png
-          file iced-latte.webp iced-latte.png
+          mkdir -p gallery-compatible
+          for source in src/products/gallery-v2/*.avif; do
+            name="$(basename "${source%.avif}")"
+            ffmpeg -hide_banner -loglevel error \
+              -i "$source" \
+              -frames:v 1 -c:v libwebp -q:v 90 \
+              "gallery-compatible/${name}.webp"
+          done
+          file gallery-compatible/*.webp
       - uses: actions/upload-artifact@v4
         with:
-          name: iced-latte-compatible
-          path: |
-            iced-latte.webp
-            iced-latte.png
+          name: gallery-compatible-webp
+          path: gallery-compatible/*.webp
+          if-no-files-found: error
           retention-days: 1
