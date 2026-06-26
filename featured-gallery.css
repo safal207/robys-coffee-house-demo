@@ -43,10 +43,14 @@
 .poster-card-frame{
   position:relative;
   display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
   box-sizing:border-box;
   width:100%;
+  min-width:0;
+  min-height:0;
   aspect-ratio:1/1;
-  place-items:center;
+  place-items:stretch;
   overflow:hidden;
   padding:10px;
   border:1px solid rgba(74,52,43,.1);
@@ -59,8 +63,15 @@
   position:static!important;
   inset:auto!important;
   display:block!important;
+  grid-area:1/1!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
   width:100%!important;
   height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
   object-fit:contain!important;
   object-position:center!important;
   border:0!important;
