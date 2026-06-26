@@ -13,7 +13,7 @@ permissions:
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
 
     steps:
       - name: Checkout
@@ -24,11 +24,37 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y imagemagick
 
-      - name: Inspect uploaded PNG files
+      - name: Inspect and convert owner uploads
         run: |
-          mkdir -p gallery-upload-inspection
+          set -euo pipefail
+          mkdir -p gallery-upload-inspection/full gallery-upload-inspection/mobile
+
           identify src/products/gallery-v5/*.png | tee gallery-upload-inspection/identify.txt
-          montage src/products/gallery-v5/*.png \
+
+          convert_one() {
+            input="$1"
+            output="$2"
+            convert "$input" -strip -quality 92 -define webp:method=6 \
+              "gallery-upload-inspection/full/${output}.webp"
+            convert "$input" -strip -resize 768x768 -quality 90 -define webp:method=6 \
+              "gallery-upload-inspection/mobile/${output}-768.webp"
+          }
+
+          convert_one src/products/gallery-v5/file_0000000019b871f49f012c220e8b9048.png latte
+          convert_one src/products/gallery-v5/file_000000001d2471f4920009e2a71dfbdf.png lotus-cheesecake
+          convert_one src/products/gallery-v5/file_000000006eec71f4bc128885a3c4bb29.png san-sebastian
+          convert_one src/products/gallery-v5/file_00000000968871f4aa70ba2c02861061.png nutella-croissant
+          convert_one src/products/gallery-v5/file_00000000aacc71f4b1ecba06d47b915b.png croissant
+          convert_one src/products/gallery-v5/file_00000000abdc722fb870a11490d0cc23.png iced-latte
+
+          identify gallery-upload-inspection/full/*.webp gallery-upload-inspection/mobile/*.webp \
+            | tee gallery-upload-inspection/converted-identify.txt
+          sha256sum gallery-upload-inspection/full/*.webp gallery-upload-inspection/mobile/*.webp \
+            | tee gallery-upload-inspection/sha256.txt
+          du -b gallery-upload-inspection/full/*.webp gallery-upload-inspection/mobile/*.webp \
+            | sort -k2 | tee gallery-upload-inspection/sizes.txt
+
+          montage gallery-upload-inspection/full/*.webp \
             -thumbnail 420x420 \
             -set label '%f' \
             -background '#171110' \
@@ -36,7 +62,7 @@ jobs:
             -pointsize 16 \
             -tile 2x \
             -geometry 440x470+12+12 \
-            gallery-upload-inspection/contact-sheet.png
+            gallery-upload-inspection/contact-sheet.webp
 
       - name: Upload inspection evidence
         uses: actions/upload-artifact@v4
