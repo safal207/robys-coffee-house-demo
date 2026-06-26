@@ -80,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21597,
-      "sha256": "1ee569cb7582b77de1a6e491409563965e2b061bb2ca61d67ada81a8231ee80d"
+      "bytes": 22725,
+      "sha256": "027eb12cb109c52b44dacfa070265c0ec8ed6563597209c5e296a39ca2d99ebe"
     },
     {
       "path": "manifest.webmanifest",
@@ -140,8 +140,8 @@
     },
     {
       "path": "menu.html",
-      "bytes": 6251,
-      "sha256": "846f6fb3cec08beff0919c72e9c174017e236b8e87378370eaee24dedc58b98b"
+      "bytes": 6476,
+      "sha256": "131abeb96016adefa1f91ee2e0778167e13d9e084c570b200b570f47bd741314"
     },
     {
       "path": "mobile.css",
@@ -164,9 +164,19 @@
       "sha256": "605a1b944b1c88224d570600eaa8c8762be12e35645c30ad4b6d9759d1cf1d6c"
     },
     {
+      "path": "seo-artifact-request-2.txt",
+      "bytes": 41,
+      "sha256": "7c9482c69002dd08a30db7fa96ecd6465dba9b6ab5e41ecc930252ce11f60ffb"
+    },
+    {
+      "path": "seo-artifact-request.txt",
+      "bytes": 36,
+      "sha256": "90a807e9209b387c3d795c3d52247261d0532f227860723a7f046ccc38250eee"
+    },
+    {
       "path": "sitemap.xml",
       "bytes": 355,
-      "sha256": "4fdda6c5f4cc07ea30fb0cf70f2af38394de6ac53107b86c157c79168cebf8f3"
+      "sha256": "c91b10752b6b84c16ab37a6c3d591d4335b715db4b45ac7b57eb381fc584958e"
     },
     {
       "path": "social-offer.css",
