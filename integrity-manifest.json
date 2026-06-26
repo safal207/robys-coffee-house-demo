@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260626-7",
+  "build": "20260626-8",
   "files": [
     {
       "path": "404.html",
@@ -22,6 +22,11 @@
       "path": "bootstrap.js",
       "bytes": 46,
       "sha256": "07e9e867f8ac3af35001da64b63f4b405e3281b52e8cb3956de56d59a6f329b7"
+    },
+    {
+      "path": "community-reel.css",
+      "bytes": 3288,
+      "sha256": "31071b9dd814b0e8d40325bc45a4c6f076d48e237da124115ef7af518c2b5ba4"
     },
     {
       "path": "conversion.css",
@@ -75,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 19063,
-      "sha256": "a6f74f60317ebf93edb0aea57306539bc8a64bcd7cdef56217d1849565231bcc"
+      "bytes": 21486,
+      "sha256": "71cbcb738aa232cc7da5b4e99356b679579baa5882fc62c5d5aa60399db8b5f3"
     },
     {
       "path": "manifest.webmanifest",
