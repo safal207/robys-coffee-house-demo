@@ -27,11 +27,18 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("all five full posters render inside their square frames", async ({ page }) => {
+test("all five source-quality posters render inside their square frames", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
   const cards = page.locator(".poster-card");
   await expect(cards).toHaveCount(5);
+  await expect(cards).toHaveAttribute("data-product-id", [
+    "latte",
+    "san-sebastian",
+    "croissant",
+    "nutella-croissant",
+    "lotus-cheesecake"
+  ]);
 
   for (let index = 0; index < 5; index += 1) {
     const card = cards.nth(index);
@@ -50,6 +57,7 @@ test("all five full posters render inside their square frames", async ({ page })
         path: new URL(element.currentSrc || element.src).pathname,
         naturalWidth: element.naturalWidth,
         naturalHeight: element.naturalHeight,
+        loading: element.loading,
         objectFit: style.objectFit,
         imageRect: {
           top: imageRect.top,
@@ -66,9 +74,10 @@ test("all five full posters render inside their square frames", async ({ page })
       };
     });
 
-    expect(result.path).toMatch(/^\/src\/products\/gallery-v4\/[a-z0-9-]+\.webp$/);
-    expect(result.naturalWidth).toBe(640);
-    expect(result.naturalHeight).toBe(640);
+    expect(result.path).toMatch(/^\/src\/products\/gallery-v5\/[a-z0-9-]+\.webp$/);
+    expect(result.naturalWidth).toBe(1536);
+    expect(result.naturalHeight).toBe(1536);
+    expect(result.loading).toBe(index === 0 ? "eager" : "lazy");
     expect(result.objectFit).toBe("contain");
     expect(result.frameRect).not.toBeNull();
 
