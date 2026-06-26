@@ -111,9 +111,14 @@ assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATUR
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
 assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");
 assert(featuredRuntime.includes("MutationObserver"), "FEATURED-001", "Typed runtime must keep localized accessibility labels in sync");
-assert(featuredRuntime.includes("IntersectionObserver"), "FEATURED-001", "Typed runtime must protect posters from the fixed mobile dock");
+assert(featuredRuntime.includes("IntersectionObserver"), "FEATURED-001", "Typed runtime must use IntersectionObserver as its primary dock signal");
+assert(featuredSource.includes('window.addEventListener("scroll"'), "FEATURED-001", "Typed runtime must include a passive scroll fallback for iOS momentum scrolling");
+assert(featuredSource.includes("window.visualViewport?.addEventListener"), "FEATURED-001", "Typed runtime must react to iOS visual viewport changes");
+assert(featuredSource.includes("window.requestAnimationFrame"), "FEATURED-001", "Scroll fallback must be animation-frame throttled");
+assert(html.includes("sha256-3IR83eN+NZosIACBCIlmFkI1b/Tm2LbNXdVCZg9uhqs="), "FEATURED-001", "Static deployment must allow the CSP-hashed iOS dock fallback");
+assert(html.includes("visualViewport?.addEventListener('resize'"), "FEATURED-001", "Static deployment must retain the visualViewport fallback before generated assets are refreshed");
 
 console.log("✅ MAP-001 gated: desktop map stays interactive and touch devices use a safe clickable fallback.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images without crop, black cards, duplicate UI, or dock overlap.");
+console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images with iOS-safe dock handling, stable fallback height and no crop.");
