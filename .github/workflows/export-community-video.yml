@@ -1,0 +1,33 @@
+name: Export reconstructed community reel
+
+on:
+  push:
+    branches:
+      - feature/instagram-reel-footer
+    paths:
+      - .github/workflows/export-community-video.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete staged reel
+        uses: actions/checkout@v4
+        with:
+          ref: 71a5563b0e835b16c19779b2ffc9f310900431e5
+
+      - name: Reconstruct verified MP4
+        run: node scripts/finalize-community-video.mjs
+
+      - name: Upload verified MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-community-reel
+          path: src/robys-community-reel.mp4
+          if-no-files-found: error
+          retention-days: 1
