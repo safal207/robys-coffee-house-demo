@@ -138,3 +138,40 @@ test("gallery image loading stays below the CLS budget", async ({ page }) => {
   const cls = await page.evaluate(() => window.__galleryCls ?? 0);
   expect(cls).toBeLessThan(0.1);
 });
+
+test("Latte video is requested only after the user opens it", async ({ page }) => {
+  let videoRequests = 0;
+  await page.route("**/latte-story-360.mp4?*", async (route) => {
+    videoRequests += 1;
+    await route.abort();
+  });
+
+  await page.goto("/", { waitUntil: "networkidle" });
+
+  const latte = page.locator('[data-product-id="latte"]');
+  await latte.scrollIntoViewIfNeeded();
+  await expect(latte).toHaveClass(/poster-card--video/);
+  await expect(latte.locator(".poster-card-play")).toBeVisible();
+  expect(videoRequests).toBe(0);
+  await expect(page.locator(".product-video-dialog")).toHaveCount(0);
+
+  await latte.click();
+
+  const dialog = page.locator(".product-video-dialog");
+  const video = dialog.locator("video");
+  await expect(dialog).toBeVisible();
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("src", /src\/media\/latte-story-360\.mp4\?v=20260626-1$/);
+  await expect(page.locator("body")).toHaveClass(/product-video-open/);
+  await expect.poll(() => videoRequests).toBeGreaterThan(0);
+
+  await test.info().attach("latte-video-dialog", {
+    body: await dialog.screenshot({ animations: "disabled" }),
+    contentType: "image/png"
+  });
+
+  await dialog.locator(".product-video-close").click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("body")).not.toHaveClass(/product-video-open/);
+  await expect(latte).toBeFocused();
+});
