@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "responsive-owner-gallery-v5",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/79",
+      "contentBindings": {
+        "index.html": "4f57d92e0679b8ec00ce2f60229794c1c2533d5d",
+        "src/featured-gallery.ts": "4b6c0bd4eda49db71ecb6d35fd1759a072ee3969",
+        "src/products/gallery-v5/responsive.sha256": "b4274735de2090447b08a4208c47206d3d261884"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6571 vs 320x6883"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6875 vs 390x7257"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 4852224,
+          "maxDiffPixelRatio": 0.092
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "totalPixels": 7220160,
+          "maxDiffPixelRatio": 0.07
+        }
+      ]
+    }
+  ]
+}
