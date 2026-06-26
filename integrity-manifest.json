@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260626-5",
+  "build": "20260626-7",
   "files": [
     {
       "path": "404.html",
@@ -25,8 +25,8 @@
     },
     {
       "path": "conversion.css",
-      "bytes": 2940,
-      "sha256": "fa6f159cdadd95f4a3cc793964bce60de94b4047a7718ea15ff9a307c7528030"
+      "bytes": 2973,
+      "sha256": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf"
     },
     {
       "path": "conversion.js",
@@ -45,8 +45,8 @@
     },
     {
       "path": "featured-gallery.js",
-      "bytes": 6631,
-      "sha256": "6a0b028ba50dbee7ec6db304e01e8b7c3ae0bfd64425e2f3c85678e70d4d5c9e"
+      "bytes": 7555,
+      "sha256": "dacaf1bdbacceaca7c1ce6a56fe673fa7c58d78c0a0445e5aee8bfc16c6b5ad7"
     },
     {
       "path": "featured-strip.css",
@@ -75,8 +75,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 17444,
-      "sha256": "f674f468bd8e229da3f1ba92f8ba358fb8adb97cbdb88e5aa91964be09b3745a"
+      "bytes": 19063,
+      "sha256": "a6f74f60317ebf93edb0aea57306539bc8a64bcd7cdef56217d1849565231bcc"
     },
     {
       "path": "manifest.webmanifest",
@@ -277,6 +277,66 @@
       "path": "src/products/gallery-v4/san-sebastian.webp",
       "bytes": 51786,
       "sha256": "6629f82575b022b038c971855ec8a942bc5795de86d0091bd93e1d181848e02b"
+    },
+    {
+      "path": "src/products/gallery-v5/croissant-828.webp",
+      "bytes": 84028,
+      "sha256": "a53a0a5976e4d3cec3f1faa6fe6cac826030cfd32dad6cb403f58796189ac000"
+    },
+    {
+      "path": "src/products/gallery-v5/croissant.webp",
+      "bytes": 104576,
+      "sha256": "43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262"
+    },
+    {
+      "path": "src/products/gallery-v5/iced-latte-828.webp",
+      "bytes": 72290,
+      "sha256": "1fbece31ba0dd3191525c0325552008ed5ddd2a9b862eadc90bf8075dac1cdcf"
+    },
+    {
+      "path": "src/products/gallery-v5/iced-latte.webp",
+      "bytes": 95474,
+      "sha256": "bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15"
+    },
+    {
+      "path": "src/products/gallery-v5/latte-828.webp",
+      "bytes": 59454,
+      "sha256": "26b4031bde763cd17b2f2d8dce2202cac14621106d395afac044662a9b1f733c"
+    },
+    {
+      "path": "src/products/gallery-v5/latte.webp",
+      "bytes": 74432,
+      "sha256": "62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043"
+    },
+    {
+      "path": "src/products/gallery-v5/lotus-cheesecake-828.webp",
+      "bytes": 65248,
+      "sha256": "2c0a180ef8434c2bd369a804f0d6ea06720ef4034a2c4d1ecf4ee697df595a82"
+    },
+    {
+      "path": "src/products/gallery-v5/lotus-cheesecake.webp",
+      "bytes": 84986,
+      "sha256": "383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9"
+    },
+    {
+      "path": "src/products/gallery-v5/nutella-croissant-828.webp",
+      "bytes": 95968,
+      "sha256": "166fe971e74a8891fe2132e1af99c40c1a16c58705c6f11028415d7799068f07"
+    },
+    {
+      "path": "src/products/gallery-v5/nutella-croissant.webp",
+      "bytes": 120740,
+      "sha256": "320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d"
+    },
+    {
+      "path": "src/products/gallery-v5/san-sebastian-828.webp",
+      "bytes": 84966,
+      "sha256": "4bcabf3ed7866c39034c9324e2dd9a187bc84d5d4beced2f540ec31aae2df9c0"
+    },
+    {
+      "path": "src/products/gallery-v5/san-sebastian.webp",
+      "bytes": 117056,
+      "sha256": "911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05"
     },
     {
       "path": "src/products/latte-premium.svg",
