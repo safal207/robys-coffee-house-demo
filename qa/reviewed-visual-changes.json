@@ -227,6 +227,25 @@
           "reason": "dimension mismatch 1440x4836 vs 1440x5014"
         }
       ]
+    },
+    {
+      "id": "latte-click-video-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/77",
+      "contentBindings": {
+        "index.html": "cfd38aea539d16537a3386a8134e94466bfafbbc",
+        "featured-gallery.css": "b657f7cbfff22d1913f4c233e9269af115b9e61d",
+        "featured-gallery.js": "aeb3d100438eb1d05ebd527ead64e448d1087399",
+        "src/featured-gallery.ts": "126b191423699a6463eb9704505314c7aa7baada",
+        "qa/gallery.spec.ts": "80a3e0a5799a14af29f22f7c91ca1e60c3b2afbd"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "totalPixels": 2102720,
+          "maxDiffPixelRatio": 0.006
+        }
+      ]
     }
   ]
 }
