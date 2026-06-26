@@ -10,7 +10,8 @@ const chunkPaths = [
   "scripts/.community-video/part.04",
   "scripts/.community-video/part.050",
   "scripts/.community-video/part.051",
-  "scripts/.community-video/part.060",
+  "scripts/.community-video/part.060a",
+  "scripts/.community-video/part.060b",
   "scripts/.community-video/part.061",
   "scripts/.community-video/part.070",
   "scripts/.community-video/part.071"
