@@ -81,7 +81,7 @@
     {
       "path": "index.html",
       "bytes": 21489,
-      "sha256": "39c4e6790f22c01279e8a3d993daf0855e91011cb6d87079f40eb8b28a5347b2"
+      "sha256": "9fa14410039aae24f2abdbb234397389944df7fbf49583d2c1ed4f40ce73b5df"
     },
     {
       "path": "manifest.webmanifest",
@@ -455,8 +455,8 @@
     },
     {
       "path": "src/robys-hero-mobile-lite.mp4",
-      "bytes": 79620,
-      "sha256": "40833b1a0c199467a2ddfaebe3f531b6f6b17f328c61195f4c6ecb56e88f6e16"
+      "bytes": 79501,
+      "sha256": "342fef1a1fec8b79ca9c2627f2a4931e3ab42f0ca9aa499ccd4830279ea0b29d"
     },
     {
       "path": "src/robys-hero-poster.jpg",
