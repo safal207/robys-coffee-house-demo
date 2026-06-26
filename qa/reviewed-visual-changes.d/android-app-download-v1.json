@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "android-download-section-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/89",
+      "contentBindings": {
+        "conversion.js": "06eebc46e4930827da913a309e04dbe803bf5af5",
+        "android-app.css": "e210369b75c208c7eba6a08e421ee7132e3ab2cf"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6915 vs 320x8005"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x7273 vs 390x8380"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x6334 vs 768x7412"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6002 vs 1440x6850"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x992 vs 1440x991"
+        }
+      ]
+    }
+  ]
+}
