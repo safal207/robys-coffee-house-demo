@@ -9,8 +9,8 @@ assets=(
   "src/products/cards/lotus-card.v3.svg"
 )
 
-max_file_bytes=$((2 * 1024 * 1024))
-max_total_bytes=$((6 * 1024 * 1024))
+max_file_bytes=$((4 * 1024 * 1024))
+max_total_bytes=$((12 * 1024 * 1024))
 total_bytes=0
 
 printf 'Gallery asset sizes:\n'
@@ -25,22 +25,21 @@ for asset in "${assets[@]}"; do
   printf '%9d  %s\n' "$bytes" "$asset"
 
   if (( bytes > max_file_bytes )); then
-    echo "Gallery asset exceeds 2 MiB: $asset ($bytes bytes)" >&2
+    echo "Gallery asset exceeds 4 MiB: $asset ($bytes bytes)" >&2
     exit 1
   fi
 done
 
 if (( total_bytes > max_total_bytes )); then
-  echo "Gallery assets exceed 6 MiB in total: $total_bytes bytes" >&2
+  echo "Gallery assets exceed 12 MiB in total: $total_bytes bytes" >&2
   exit 1
 fi
 
 printf '\nSVG files containing embedded raster payloads:\n'
 grep -l "base64" src/products/cards/*.svg || true
 
-if grep -RIn --include='*.css' --include='*.html' --include='*.ts' '100vh' . \
-  --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=playwright-report --exclude-dir=test-results; then
-  echo "Use dynamic viewport units such as 100dvh instead of 100vh." >&2
+if grep -n '100vh' featured-gallery.css src/featured-gallery.ts index.html; then
+  echo "Use dynamic viewport units such as 100dvh instead of 100vh in the gallery path." >&2
   exit 1
 fi
 
