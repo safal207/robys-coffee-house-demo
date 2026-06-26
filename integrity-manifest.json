@@ -25,8 +25,8 @@
     },
     {
       "path": "community-reel.css",
-      "bytes": 3288,
-      "sha256": "31071b9dd814b0e8d40325bc45a4c6f076d48e237da124115ef7af518c2b5ba4"
+      "bytes": 2970,
+      "sha256": "10f94095c673173efd9457c8314e200452dd6e00fe7c7176c208d47be483902e"
     },
     {
       "path": "conversion.css",
@@ -80,8 +80,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21487,
-      "sha256": "d1885fd25abd6e113dd1fdf1df87f88a1f9b0c41cb00c07bbf92e073b01cfaf4"
+      "bytes": 21489,
+      "sha256": "39c4e6790f22c01279e8a3d993daf0855e91011cb6d87079f40eb8b28a5347b2"
     },
     {
       "path": "manifest.webmanifest",
@@ -90,8 +90,8 @@
     },
     {
       "path": "map-live.css",
-      "bytes": 4694,
-      "sha256": "1c9407a28f7d6ca3d3f80229edbf9ec69f8a8f98c5c1e227251c25c68b04d731"
+      "bytes": 5312,
+      "sha256": "52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157"
     },
     {
       "path": "menu-bootstrap.js",
@@ -170,8 +170,8 @@
     },
     {
       "path": "social-offer.css",
-      "bytes": 3633,
-      "sha256": "8a3a6ecb4c9f41f4fd2385585a7d15be024a7548e8affaeb0b38a38fa1f0f99a"
+      "bytes": 3825,
+      "sha256": "8ab6695d7f64e455ceb5fa8263f8082ede28523eaee533f0fd8711c70640e0c2"
     },
     {
       "path": "social-offer.js",
