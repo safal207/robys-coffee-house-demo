@@ -43,10 +43,11 @@ jobs:
       - name: Refresh integrity manifest
         run: npm run integrity:generate
 
-      - name: Verify application and both videos
-        run: |
-          npm run check
-          npm run verify:media
+      - name: Verify application
+        run: npm run check
+
+      - name: Verify both videos
+        run: npm run verify:media
 
       - name: Remove one-time build helpers
         run: rm -f scripts/finalize-community-video.mjs .github/workflows/build-community-video.yml
