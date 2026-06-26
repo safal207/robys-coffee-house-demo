@@ -76,19 +76,18 @@ function expectedFailureMatches(expected, actual) {
     && actual.diffPixelRatio <= expected.maxDiffPixelRatio;
 }
 
-const candidates = reviewedChanges.filter(bindingsMatch);
+const candidates = reviewedChanges
+  .filter(bindingsMatch)
+  .filter((change) => (change.expectedFailures ?? []).length === failures.length);
 if (candidates.length !== 1) {
-  fail(`Expected exactly one content-bound reviewed change, found ${candidates.length}.`);
+  fail(
+    `Expected exactly one content-bound reviewed change for ${failures.length} failure(s), `
+      + `found ${candidates.length}.`
+  );
 }
 
 const change = candidates[0];
 const expected = change.expectedFailures ?? [];
-if (expected.length !== failures.length) {
-  fail(
-    `Reviewed change ${change.id} expects ${expected.length} failure(s), `
-      + `but the current run produced ${failures.length}.`
-  );
-}
 
 const unmatched = [...failures];
 for (const item of expected) {
