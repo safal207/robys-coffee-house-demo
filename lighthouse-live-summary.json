@@ -1,47 +1,47 @@
 {
-  "generatedAt": "2026-06-26T22:21:49.668Z",
+  "generatedAt": "2026-06-26T22:42:28.331Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=c602f7089c7215d4151e875565875267f79c1a8d",
-  "commit": "c602f7089c7215d4151e875565875267f79c1a8d",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=b0fb833bae525e30393f7d20d1f925da04dca53a",
+  "commit": "b0fb833bae525e30393f7d20d1f925da04dca53a",
   "build": "20260626-8",
   "mobile": {
     "categories": {
-      "performance": 72,
+      "performance": 66,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "1.5 s",
-        "numericValue": 1488.246
+        "displayValue": "1.8 s",
+        "numericValue": 1753.016
       },
       "largest-contentful-paint": {
-        "displayValue": "2.0 s",
-        "numericValue": 1970.246
+        "displayValue": "2.5 s",
+        "numericValue": 2518.016
       },
       "speed-index": {
-        "displayValue": "4.8 s",
-        "numericValue": 4796.649506619434
+        "displayValue": "5.1 s",
+        "numericValue": 5090.097694093571
       },
       "total-blocking-time": {
-        "displayValue": "1,150 ms",
-        "numericValue": 1151
+        "displayValue": "1,580 ms",
+        "numericValue": 1581.5
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "3.2 s",
-        "numericValue": 3212.2960000000003
+        "displayValue": "4.0 s",
+        "numericValue": 3950.566
       }
     },
     "opportunities": [
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 10 ms",
+        "displayValue": "Root document took 20 ms",
         "score": 1
       }
     ]
@@ -55,28 +55,28 @@
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "0.3 s",
-        "numericValue": 268.194
+        "displayValue": "0.2 s",
+        "numericValue": 248.053
       },
       "largest-contentful-paint": {
         "displayValue": "0.3 s",
-        "numericValue": 310.09700000000004
+        "numericValue": 288.053
       },
       "speed-index": {
         "displayValue": "0.5 s",
-        "numericValue": 495.726914046659
+        "numericValue": 463.6585984166732
       },
       "total-blocking-time": {
-        "displayValue": "0 ms",
-        "numericValue": 0
+        "displayValue": "10 ms",
+        "numericValue": 9.5
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "0.3 s",
-        "numericValue": 310.09700000000004
+        "displayValue": "0.4 s",
+        "numericValue": 445.05300000000005
       }
     },
     "opportunities": [
