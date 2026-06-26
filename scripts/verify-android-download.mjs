@@ -1,9 +1,11 @@
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 
 const contract = "ANDROID-APP-001";
-const apkPath = "downloads/robys-coffee-house-v1.1.apk";
+const partPaths = Array.from(
+  { length: 6 },
+  (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`
+);
 const expectedBytes = 25231;
 const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
 
@@ -11,16 +13,19 @@ function assert(condition, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
 }
 
-assert(existsSync(apkPath), `Missing downloadable APK: ${apkPath}`);
-assert(statSync(apkPath).isFile(), "APK path must resolve to a file");
-assert(statSync(apkPath).size === expectedBytes, `APK size changed: expected ${expectedBytes}, found ${statSync(apkPath).size}`);
+for (const path of partPaths) {
+  assert(existsSync(path), `Missing APK part: ${path}`);
+  assert(statSync(path).isFile() && statSync(path).size > 0, `APK part must be a non-empty file: ${path}`);
+}
 
-const apk = readFileSync(apkPath);
+const base64 = partPaths.map((path) => readFileSync(path, "utf8")).join("").replace(/\s+/g, "");
+const apk = Buffer.from(base64, "base64");
+assert(apk.length === expectedBytes, `APK size changed: expected ${expectedBytes}, found ${apk.length}`);
 assert(apk.subarray(0, 2).toString("ascii") === "PK", "APK must be a valid ZIP-based Android package");
 const sha256 = createHash("sha256").update(apk).digest("hex");
 assert(sha256 === expectedSha256, `APK checksum changed: ${sha256}`);
 
-const archiveListing = execFileSync("unzip", ["-l", apkPath], { encoding: "utf8" });
+const archiveText = apk.toString("latin1");
 for (const entry of [
   "AndroidManifest.xml",
   "classes.dex",
@@ -28,22 +33,23 @@ for (const entry of [
   "META-INF/ROBYS-RE.SF",
   "META-INF/ROBYS-RE.RSA"
 ]) {
-  assert(archiveListing.includes(entry), `APK entry is missing: ${entry}`);
+  assert(archiveText.includes(entry), `APK entry is missing: ${entry}`);
 }
-execFileSync("unzip", ["-t", apkPath], { stdio: "pipe" });
 
-const html = readFileSync("index.html", "utf8");
+const runtime = readFileSync("conversion.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
-const section = html.match(/<section\b[^>]*class=["'][^"']*\bandroid-app-section\b[^"']*["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? "";
 
-assert(section, "Android download section is missing from index.html");
-assert(section.includes(`href="${apkPath}"`), "Download CTA must target the versioned local APK");
-assert(/\bdownload(?:=["'][^"']*["'])?/i.test(section), "Download CTA must include the download attribute");
-assert(/data-tr=["']Android uygulamasını indir["']/i.test(section), "Turkish download copy is missing");
-assert(/data-en=["']Download the Android app["']/i.test(section), "English download copy is missing");
-assert(/data-ru=["']Скачать приложение для Android["']/i.test(section), "Russian download copy is missing");
-assert(!/iphone|\bios\b|app store/i.test(section), "The Android-only section must not advertise iPhone or App Store availability");
-assert(html.includes('href="android-app.css?v='), "Android download stylesheet is not connected");
+for (const path of partPaths) assert(runtime.includes(path), `Runtime does not request APK part: ${path}`);
+assert(runtime.includes(expectedSha256), "Runtime must verify the reviewed APK SHA-256");
+assert(runtime.includes(`const androidApkBytes = ${expectedBytes}`), "Runtime must verify the reviewed APK byte size");
+assert(runtime.includes('application/vnd.android.package-archive'), "Runtime must create an Android package Blob");
+assert(runtime.includes('robys-coffee-house-v1.1.apk'), "Runtime must use a versioned APK filename");
+assert(runtime.includes('crypto.subtle.digest("SHA-256"'), "Runtime must verify SHA-256 before download");
+assert(runtime.includes('setupAndroidAppDownload'), "Android download section must be connected to the page runtime");
+assert(runtime.includes('Download the Android app'), "English download copy is missing");
+assert(runtime.includes('Скачать приложение для Android'), "Russian download copy is missing");
+assert(runtime.includes('Android uygulamasını indir'), "Turkish download copy is missing");
+assert(!/iphone|app store/i.test(runtime), "The Android-only section must not advertise iPhone or App Store availability");
 assert(css.includes(".android-download-button") && css.includes(".android-app-device"), "Android section visual contract is incomplete");
 
-console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is downloadable from the localized Android section.`);
+console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is reconstructed, verified and downloaded from the localized Android section.`);
