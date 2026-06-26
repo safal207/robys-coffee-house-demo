@@ -4,7 +4,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/asset-compatibility.yml"
-      - "src/products/gallery-v2/**"
+      - "src/products/cards/**"
+      - "src/products/gallery-v2/iced-latte.avif"
   workflow_dispatch:
 
 permissions:
@@ -23,9 +24,24 @@ jobs:
         run: |
           npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
           npx playwright install --with-deps chromium
-      - name: Render gallery posters to WebP
+      - name: Rebuild uncropped gallery posters
         run: |
-          mkdir -p gallery-compatible gallery-png
+          mkdir -p gallery-source gallery-compatible gallery-png
+          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
+            src/products/cards/latte-card.v3.svg > gallery-source/latte.svg
+          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
+            src/products/cards/san-sebastian-card.v3.svg > gallery-source/san-sebastian.svg
+          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
+            src/products/cards/nutella-card.v3.svg > gallery-source/nutella-croissant.svg
+          sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
+            src/products/cards/lotus-card.v3.svg > gallery-source/lotus-cheesecake.svg
+          cp src/products/gallery-v2/iced-latte.avif gallery-source/iced-latte.avif
+
+          if grep -R 'xMidYMid slice' gallery-source; then
+            echo 'An uncropped source still contains slice behavior.' >&2
+            exit 1
+          fi
+
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
@@ -37,13 +53,13 @@ jobs:
           (async () => {
             const browser = await chromium.launch();
             const page = await browser.newPage({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
-            const files = fs.readdirSync('src/products/gallery-v2')
-              .filter(file => file.endsWith('.avif'))
+            const files = fs.readdirSync('gallery-source')
+              .filter(file => /\.(?:svg|avif)$/.test(file))
               .sort();
 
             for (const file of files) {
-              const name = path.basename(file, '.avif');
-              await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain}</style><img id="poster" src="http://127.0.0.1:4173/src/products/gallery-v2/${file}">`);
+              const name = path.basename(file, path.extname(file));
+              await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain;object-position:center}</style><img id="poster" src="http://127.0.0.1:4173/gallery-source/${file}">`);
               const image = page.locator('#poster');
               await image.evaluate(async element => {
                 const img = element;
@@ -62,6 +78,7 @@ jobs:
             process.exitCode = 1;
           });
           NODE
+
           for source in gallery-png/*.png; do
             name="$(basename "${source%.png}")"
             ffmpeg -hide_banner -loglevel error \
@@ -73,6 +90,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: gallery-compatible-webp
-          path: gallery-compatible/*.webp
+          path: |
+            gallery-compatible/*.webp
+            gallery-png/*.png
           if-no-files-found: error
           retention-days: 1
