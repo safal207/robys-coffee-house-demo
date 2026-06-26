@@ -14,6 +14,11 @@
       "sha256": "8b6cfb298c8df4159e9835788ad3b4a500278cce751117f4064ea071061f5384"
     },
     {
+      "path": "android-app.css",
+      "bytes": 6156,
+      "sha256": "72a6f32af214a9f0e1189718543d48cd42de393ee74738dccde1a357c4e7f657"
+    },
+    {
       "path": "app.js",
       "bytes": 32801,
       "sha256": "67c0e7d61b1bbd8017037c7cdd008688ed300eb2902e73df7815df8087aeb4d5"
@@ -35,8 +40,8 @@
     },
     {
       "path": "conversion.js",
-      "bytes": 6161,
-      "sha256": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965"
+      "bytes": 14441,
+      "sha256": "cd99c404f0920feb0c9c2dbf23e23b4e54146ff06e624a9e31cbad3b7036c318"
     },
     {
       "path": "data/featured-products.json",
@@ -80,8 +85,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21597,
-      "sha256": "1ee569cb7582b77de1a6e491409563965e2b061bb2ca61d67ada81a8231ee80d"
+      "bytes": 22725,
+      "sha256": "027eb12cb109c52b44dacfa070265c0ec8ed6563597209c5e296a39ca2d99ebe"
     },
     {
       "path": "manifest.webmanifest",
@@ -140,8 +145,8 @@
     },
     {
       "path": "menu.html",
-      "bytes": 6251,
-      "sha256": "846f6fb3cec08beff0919c72e9c174017e236b8e87378370eaee24dedc58b98b"
+      "bytes": 6476,
+      "sha256": "131abeb96016adefa1f91ee2e0778167e13d9e084c570b200b570f47bd741314"
     },
     {
       "path": "mobile.css",
@@ -166,7 +171,7 @@
     {
       "path": "sitemap.xml",
       "bytes": 355,
-      "sha256": "4fdda6c5f4cc07ea30fb0cf70f2af38394de6ac53107b86c157c79168cebf8f3"
+      "sha256": "c91b10752b6b84c16ab37a6c3d591d4335b715db4b45ac7b57eb381fc584958e"
     },
     {
       "path": "social-offer.css",
