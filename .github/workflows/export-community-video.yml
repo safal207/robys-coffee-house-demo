@@ -6,6 +6,10 @@ on:
       - feature/instagram-reel-footer
     paths:
       - .github/workflows/export-community-video.yml
+  pull_request:
+    branches:
+      - main
+    types: [synchronize, reopened]
   workflow_dispatch:
 
 permissions:
