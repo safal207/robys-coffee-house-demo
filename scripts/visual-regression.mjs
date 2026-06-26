@@ -155,6 +155,9 @@ async function captureMatrix(browser, baseUrl, destination) {
       }
 
       await stabilize(page);
+      if (capture.fullPage) {
+        await page.addStyleTag({ content: ".mobile-cta{visibility:hidden!important}" });
+      }
       const fileName = captureName(capture, viewport);
       const filePath = path.join(destination, fileName);
 
