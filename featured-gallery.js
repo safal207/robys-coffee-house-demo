@@ -3,7 +3,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "latte",
         href: "menu.html#hot-coffee",
-        image: "src/products/gallery-v4/latte.webp?v=20260626-4",
+        image: "src/products/gallery-v5/latte.webp?v=20260626-5",
         title: { tr: "Latte", en: "Latte", ru: "Латте" },
         price: 180,
         currency: "₺"
@@ -11,7 +11,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "san-sebastian",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v4/san-sebastian.webp?v=20260626-4",
+        image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-5",
         title: {
             tr: "San Sebastian Cheesecake",
             en: "San Sebastian Cheesecake",
@@ -21,17 +21,17 @@ const FEATURED_PRODUCTS = [
         currency: "₺"
     },
     {
-        id: "iced-latte",
-        href: "menu.html#cold-coffee",
-        image: "src/products/gallery-v4/iced-latte.webp?v=20260626-4",
-        title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
-        price: 180,
+        id: "croissant",
+        href: "menu.html#food",
+        image: "src/products/gallery-v5/croissant.webp?v=20260626-5",
+        title: { tr: "Croissant", en: "Croissant", ru: "Круассан" },
+        price: 170,
         currency: "₺"
     },
     {
         id: "nutella-croissant",
         href: "menu.html#food",
-        image: "src/products/gallery-v4/nutella-croissant.webp?v=20260626-4",
+        image: "src/products/gallery-v5/nutella-croissant.webp?v=20260626-5",
         title: {
             tr: "Nutella Croissant",
             en: "Nutella Croissant",
@@ -43,7 +43,7 @@ const FEATURED_PRODUCTS = [
     {
         id: "lotus-cheesecake",
         href: "menu.html#desserts",
-        image: "src/products/gallery-v4/lotus-cheesecake.webp?v=20260626-4",
+        image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-5",
         title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
         price: 190,
         currency: "₺"
@@ -78,9 +78,9 @@ function createPosterCard(product, index) {
     const image = document.createElement("img");
     image.src = product.image;
     image.alt = product.title[currentGalleryLanguage()];
-    image.width = 640;
-    image.height = 640;
-    image.loading = index < 3 ? "eager" : "lazy";
+    image.width = 1536;
+    image.height = 1536;
+    image.loading = index === 0 ? "eager" : "lazy";
     image.decoding = "async";
     if (index === 0)
         image.fetchPriority = "high";
