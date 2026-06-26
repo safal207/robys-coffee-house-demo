@@ -23,18 +23,13 @@ for asset in "${assets[@]}"; do
   fi
 
   bytes=$(wc -c < "$asset")
-  dimensions=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$asset")
-  format=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$asset")
+  riff_magic=$(head -c 4 "$asset")
+  webp_magic=$(dd if="$asset" bs=1 skip=8 count=4 status=none)
   total_bytes=$((total_bytes + bytes))
-  printf '%9d  %-10s  %-8s  %s\n' "$bytes" "$dimensions" "$format" "$asset"
+  printf '%9d  %s\n' "$bytes" "$asset"
 
-  if [[ "$dimensions" != "1254x1254" ]]; then
-    echo "Gallery asset must preserve the uploaded 1254x1254 source dimensions: $asset ($dimensions)" >&2
-    exit 1
-  fi
-
-  if [[ "$format" != "webp" ]]; then
-    echo "Gallery asset must be a real WebP file: $asset ($format)" >&2
+  if [[ "$riff_magic" != "RIFF" || "$webp_magic" != "WEBP" ]]; then
+    echo "Gallery asset is not a real RIFF/WebP file: $asset" >&2
     exit 1
   fi
 
@@ -79,4 +74,4 @@ if grep -n '100vh' featured-gallery.css src/featured-gallery.ts index.html; then
   exit 1
 fi
 
-echo "Owner gallery checks passed ($total_bytes bytes total)."
+echo "Owner gallery checks passed ($total_bytes bytes total). Browser tests verify the exact 1254x1254 dimensions."
