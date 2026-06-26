@@ -15,7 +15,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "latte",
     href: "menu.html#hot-coffee",
-    image: "src/products/cards/latte-card.v3.svg?v=20260625-5",
+    image: "src/products/gallery-v2/latte.avif?v=20260626-2",
     title: { tr: "Latte", en: "Latte", ru: "Латте" },
     price: 180,
     currency: "₺"
@@ -23,7 +23,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "san-sebastian",
     href: "menu.html#desserts",
-    image: "src/products/cards/san-sebastian-card.v3.svg?v=20260625-5",
+    image: "src/products/gallery-v2/san-sebastian.avif?v=20260626-2",
     title: {
       tr: "San Sebastian Cheesecake",
       en: "San Sebastian Cheesecake",
@@ -35,7 +35,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "iced-latte",
     href: "menu.html#cold-coffee",
-    image: "src/products/gallery-v2/iced-latte.avif?v=20260625-5",
+    image: "src/products/gallery-v2/iced-latte.avif?v=20260626-2",
     title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
     price: 150,
     currency: "₺"
@@ -43,7 +43,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "nutella-croissant",
     href: "menu.html#food",
-    image: "src/products/cards/nutella-card.v3.svg?v=20260625-5",
+    image: "src/products/gallery-v2/nutella-croissant.avif?v=20260626-2",
     title: {
       tr: "Nutella Croissant",
       en: "Nutella Croissant",
@@ -55,7 +55,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "lotus-cheesecake",
     href: "menu.html#desserts",
-    image: "src/products/cards/lotus-card.v3.svg?v=20260625-5",
+    image: "src/products/gallery-v2/lotus-cheesecake.avif?v=20260626-2",
     title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
     price: 190,
     currency: "₺"
