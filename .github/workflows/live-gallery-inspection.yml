@@ -1,0 +1,182 @@
+name: Live gallery visual inspection
+
+on:
+  push:
+    branches:
+      - fix/typed-poster-feed-v2
+    paths:
+      - ".github/workflows/live-gallery-inspection.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-live-gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright
+        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Inspect the deployed gallery
+        run: |
+          mkdir -p live-gallery-inspection
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { chromium, webkit } = require('@playwright/test');
+
+          const url = 'https://safal207.github.io/robys-coffee-house-demo/';
+          const cases = [
+            { engine: 'chromium', type: chromium, width: 360, height: 800 },
+            { engine: 'chromium', type: chromium, width: 390, height: 844 },
+            { engine: 'chromium', type: chromium, width: 412, height: 915 },
+            { engine: 'chromium', type: chromium, width: 430, height: 932 },
+            { engine: 'webkit', type: webkit, width: 390, height: 844 }
+          ];
+
+          const results = [];
+
+          (async () => {
+            for (const item of cases) {
+              const browser = await item.type.launch();
+              const context = await browser.newContext({
+                viewport: { width: item.width, height: item.height },
+                deviceScaleFactor: 1,
+                isMobile: true,
+                hasTouch: true,
+                locale: 'tr-TR'
+              });
+              const page = await context.newPage();
+              const consoleErrors = [];
+              const failedRequests = [];
+
+              page.on('console', message => {
+                if (message.type() === 'error') consoleErrors.push(message.text());
+              });
+              page.on('requestfailed', request => {
+                failedRequests.push({ url: request.url(), error: request.failure()?.errorText ?? 'unknown' });
+              });
+
+              await page.goto(url, { waitUntil: 'networkidle', timeout: 90_000 });
+              await page.waitForSelector('.featured-track[data-gallery-ready="true"]', { timeout: 30_000 });
+
+              const cards = page.locator('.poster-card');
+              const count = await cards.count();
+              for (let index = 0; index < count; index += 1) {
+                await cards.nth(index).scrollIntoViewIfNeeded();
+                await page.waitForTimeout(250);
+              }
+
+              const section = page.locator('.featured-strip');
+              await section.scrollIntoViewIfNeeded();
+              await page.waitForTimeout(700);
+
+              const metrics = await page.evaluate(() => {
+                const cardElements = [...document.querySelectorAll('.poster-card')];
+                const cta = document.querySelector('.mobile-cta');
+                const ctaStyle = cta ? getComputedStyle(cta) : null;
+                const section = document.querySelector('.featured-strip');
+                const sectionRect = section?.getBoundingClientRect() ?? null;
+                const ctaRect = cta?.getBoundingClientRect() ?? null;
+
+                return {
+                  build: document.querySelector('meta[name="robys-build"]')?.getAttribute('content') ?? null,
+                  lang: document.documentElement.lang,
+                  galleryReady: document.querySelector('.featured-track')?.getAttribute('data-gallery-ready'),
+                  cardCount: cardElements.length,
+                  order: cardElements.map(card => card.getAttribute('data-product-id')),
+                  horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                  bodyClasses: document.body.className,
+                  cta: cta ? {
+                    opacity: ctaStyle?.opacity,
+                    pointerEvents: ctaStyle?.pointerEvents,
+                    display: ctaStyle?.display,
+                    rect: ctaRect ? { top: ctaRect.top, bottom: ctaRect.bottom, left: ctaRect.left, right: ctaRect.right } : null,
+                    overlapsGallery: Boolean(sectionRect && ctaRect && ctaRect.top < sectionRect.bottom && ctaRect.bottom > sectionRect.top)
+                  } : null,
+                  cards: cardElements.map(card => {
+                    const image = card.querySelector('img');
+                    const frame = card.querySelector('.poster-card-frame');
+                    const cardRect = card.getBoundingClientRect();
+                    const frameRect = frame?.getBoundingClientRect();
+                    const imageRect = image?.getBoundingClientRect();
+                    const style = image ? getComputedStyle(image) : null;
+                    return {
+                      id: card.getAttribute('data-product-id'),
+                      ariaLabel: card.getAttribute('aria-label'),
+                      className: card.className,
+                      image: image ? {
+                        src: image.currentSrc || image.src,
+                        alt: image.alt,
+                        complete: image.complete,
+                        naturalWidth: image.naturalWidth,
+                        naturalHeight: image.naturalHeight,
+                        objectFit: style?.objectFit,
+                        objectPosition: style?.objectPosition,
+                        renderedWidth: imageRect?.width,
+                        renderedHeight: imageRect?.height
+                      } : null,
+                      cardSize: { width: cardRect.width, height: cardRect.height },
+                      frameSize: frameRect ? { width: frameRect.width, height: frameRect.height } : null
+                    };
+                  })
+                };
+              });
+
+              const prefix = `${item.engine}-${item.width}`;
+              await section.screenshot({
+                path: `live-gallery-inspection/${prefix}-gallery.png`,
+                animations: 'disabled'
+              });
+
+              if (item.width === 390) {
+                for (let index = 0; index < count; index += 1) {
+                  const id = (await cards.nth(index).getAttribute('data-product-id')) || `card-${index + 1}`;
+                  await cards.nth(index).screenshot({
+                    path: `live-gallery-inspection/${prefix}-${index + 1}-${id}.png`,
+                    animations: 'disabled'
+                  });
+                }
+              }
+
+              results.push({
+                engine: item.engine,
+                viewport: { width: item.width, height: item.height },
+                metrics,
+                consoleErrors,
+                failedRequests
+              });
+
+              await browser.close();
+            }
+
+            fs.writeFileSync(
+              'live-gallery-inspection/metrics.json',
+              JSON.stringify(results, null, 2)
+            );
+            console.log(JSON.stringify(results, null, 2));
+          })().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+
+      - name: Upload inspection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-gallery-inspection
+          path: live-gallery-inspection
+          if-no-files-found: error
+          retention-days: 3
