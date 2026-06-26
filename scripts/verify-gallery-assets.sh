@@ -7,10 +7,12 @@ assets=(
   "src/products/gallery-v4/iced-latte.webp"
   "src/products/gallery-v4/nutella-croissant.webp"
   "src/products/gallery-v4/lotus-cheesecake.webp"
+  "src/media/latte-story-360.mp4"
 )
 
 max_file_bytes=$((4 * 1024 * 1024))
 max_total_bytes=$((12 * 1024 * 1024))
+max_latte_video_bytes=$((300 * 1024))
 total_bytes=0
 
 printf 'Gallery asset sizes:\n'
@@ -30,6 +32,12 @@ for asset in "${assets[@]}"; do
   fi
 done
 
+latte_video_bytes=$(wc -c < "src/media/latte-story-360.mp4")
+if (( latte_video_bytes > max_latte_video_bytes )); then
+  echo "Latte click video exceeds 300 KiB: $latte_video_bytes bytes" >&2
+  exit 1
+fi
+
 if (( total_bytes > max_total_bytes )); then
   echo "Gallery assets exceed 12 MiB in total: $total_bytes bytes" >&2
   exit 1
@@ -40,9 +48,19 @@ if grep -nE 'src/products/(cards/.*\.svg|gallery-v2/.*\.avif)' src/featured-gall
   exit 1
 fi
 
+if ! grep -q 'src/media/latte-story-360\.mp4' src/featured-gallery.ts; then
+  echo "Typed gallery source must reference the reviewed Latte click video." >&2
+  exit 1
+fi
+
+if ! grep -q 'video\.preload = "none"' src/featured-gallery.ts; then
+  echo "Latte video must remain lazy and use preload=none." >&2
+  exit 1
+fi
+
 if grep -n '100vh' featured-gallery.css src/featured-gallery.ts index.html; then
   echo "Use dynamic viewport units such as 100dvh instead of 100vh in the gallery path." >&2
   exit 1
 fi
 
-echo "Gallery asset and dynamic viewport checks passed ($total_bytes bytes total)."
+echo "Gallery asset, lazy video and dynamic viewport checks passed ($total_bytes bytes total)."
