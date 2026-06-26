@@ -16,11 +16,54 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Convert gallery posters to WebP
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Chromium renderer
         run: |
-          mkdir -p gallery-compatible
-          for source in src/products/gallery-v2/*.avif; do
-            name="$(basename "${source%.avif}")"
+          npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Render gallery posters to WebP
+        run: |
+          mkdir -p gallery-compatible gallery-png
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { chromium } = require('@playwright/test');
+
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
+            const files = fs.readdirSync('src/products/gallery-v2')
+              .filter(file => file.endsWith('.avif'))
+              .sort();
+
+            for (const file of files) {
+              const name = path.basename(file, '.avif');
+              await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain}</style><img id="poster" src="http://127.0.0.1:4173/src/products/gallery-v2/${file}">`);
+              const image = page.locator('#poster');
+              await image.evaluate(async element => {
+                const img = element;
+                if (!img.complete) await new Promise((resolve, reject) => {
+                  img.addEventListener('load', resolve, { once: true });
+                  img.addEventListener('error', reject, { once: true });
+                });
+                if (img.naturalWidth === 0) throw new Error(`Chromium could not decode ${img.src}`);
+                await img.decode();
+              });
+              await image.screenshot({ path: `gallery-png/${name}.png`, omitBackground: true, animations: 'disabled' });
+            }
+            await browser.close();
+          })().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+          for source in gallery-png/*.png; do
+            name="$(basename "${source%.png}")"
             ffmpeg -hide_banner -loglevel error \
               -i "$source" \
               -frames:v 1 -c:v libwebp -q:v 90 \
