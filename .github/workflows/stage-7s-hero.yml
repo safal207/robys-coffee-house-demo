@@ -1,0 +1,106 @@
+name: Stage 7-second homepage hero
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  stage-hero:
+    if: github.event.pull_request.head.ref == 'fix/trim-homepage-hero-7s'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/trim-homepage-hero-7s
+
+      - name: Install media tools
+        run: |
+          command -v ffmpeg >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Build exact seven-second hero from approved source
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_url='https://lh3.googleusercontent.com/gps-cs-s/APNQkAEVtziKsuMFJQEwP2oTHQKS5X7ytwBkhtMUKONpoglWIOELyxfAeQEaOK2teNhT6zcnQXmwtaNFNN30e6bmDi6zk4wS7NGwkw3zon7SHptSZ0wg5ktFcyHXnam3f96GMz4FH5VO=m37'
+          source_file="$RUNNER_TEMP/approved-hero-source.mp4"
+          target='src/robys-ambience-clean.mp4'
+
+          curl --location --fail --retry 3 --connect-timeout 20 --user-agent 'Mozilla/5.0' "$source_url" --output "$source_file"
+          test "$(sha256sum "$source_file" | awk '{print $1}')" = 'fccdd95aa9ac5c870f8a63ebd6a190d80fd2dcace98e3d69e57a6cade1e542aa'
+
+          ffmpeg -y -v error \
+            -i "$source_file" \
+            -t 7 \
+            -an \
+            -vf 'scale=720:1280:flags=lanczos,fps=30' \
+            -c:v libx264 \
+            -preset slow \
+            -crf 22 \
+            -pix_fmt yuv420p \
+            -movflags +faststart \
+            "$target"
+
+          duration="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$target")"
+          bytes="$(stat -c %s "$target")"
+          awk -v d="$duration" 'BEGIN { exit !(d >= 6.95 && d <= 7.05) }'
+          test "$bytes" -ge 500000
+          test "$bytes" -le 1000000
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$target")" = 'h264'
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$target")" = '720'
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "$target")" = '1280'
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nw=1:nk=1 "$target")" = '30/1'
+          test "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$target" | wc -l)" = '0'
+
+      - name: Update hero cache revisions
+        shell: python
+        run: |
+          from pathlib import Path
+
+          index = Path('index.html')
+          html = index.read_text(encoding='utf-8')
+          html = html.replace('src/robys-ambience-clean.mp4?v=20260627-1', 'src/robys-ambience-clean.mp4?v=20260627-2', 1)
+          html = html.replace('qa.js?v=clean-hero-20260627-1', 'qa.js?v=hero-7s-20260627-2', 1)
+          if 'src/robys-ambience-clean.mp4?v=20260627-2' not in html:
+              raise SystemExit('New hero revision was not written to index.html')
+          index.write_text(html, encoding='utf-8')
+
+          qa = Path('qa.js')
+          runtime = qa.read_text(encoding='utf-8')
+          runtime = runtime.replace('src/robys-ambience-clean.mp4?v=20260627-1', 'src/robys-ambience-clean.mp4?v=20260627-2', 1)
+          if 'src/robys-ambience-clean.mp4?v=20260627-2' not in runtime:
+              raise SystemExit('New hero revision was not written to qa.js')
+          qa.write_text(runtime, encoding='utf-8')
+
+      - name: Regenerate integrity metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          npm run integrity:generate
+          npm run verify:media
+
+      - name: Commit seven-second hero
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Seven-second hero is already staged.'
+            exit 0
+          fi
+          git commit -m 'fix: trim homepage hero to seven seconds'
+          git push origin HEAD:fix/trim-homepage-hero-7s
