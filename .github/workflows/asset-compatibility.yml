@@ -25,8 +25,12 @@ jobs:
           npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
           npx playwright install --with-deps chromium
       - name: Rebuild uncropped gallery posters
+        id: rebuild
+        continue-on-error: true
         run: |
-          mkdir -p gallery-source gallery-compatible gallery-png
+          mkdir -p gallery-source gallery-compatible gallery-png gallery-diagnostics
+          exec > >(tee gallery-diagnostics/rebuild.log) 2>&1
+          set -x
           sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
             src/products/cards/latte-card.v3.svg > gallery-source/latte.svg
           sed 's/preserveAspectRatio="xMidYMid slice"/preserveAspectRatio="xMidYMid meet"/g' \
@@ -44,7 +48,7 @@ jobs:
 
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
           server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          trap 'cp /tmp/gallery-server.log gallery-diagnostics/server.log 2>/dev/null || true; kill "$server_pid" 2>/dev/null || true' EXIT
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:4173/gallery-source/latte.svg >/dev/null; then
               break
@@ -67,6 +71,7 @@ jobs:
 
             for (const file of files) {
               const name = path.basename(file, path.extname(file));
+              console.log(`Rendering ${file}`);
               await page.setContent(`<!doctype html><style>*{box-sizing:border-box}html,body{margin:0;width:640px;height:640px;overflow:hidden;background:transparent}img{display:block;width:640px;height:640px;object-fit:contain;object-position:center}</style><img id="poster" src="http://127.0.0.1:4173/gallery-source/${file}">`);
               const image = page.locator('#poster');
               await image.evaluate(async element => {
@@ -95,11 +100,19 @@ jobs:
               "gallery-compatible/${name}.webp"
           done
           file gallery-compatible/*.webp
-      - uses: actions/upload-artifact@v4
+      - name: Upload poster rebuild evidence
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: gallery-compatible-webp
           path: |
-            gallery-compatible/*.webp
-            gallery-png/*.png
+            gallery-compatible
+            gallery-png
+            gallery-source
+            gallery-diagnostics
           if-no-files-found: error
           retention-days: 1
+      - name: Enforce successful poster rebuild
+        if: always()
+        run: |
+          test "${{ steps.rebuild.outcome }}" = "success"
