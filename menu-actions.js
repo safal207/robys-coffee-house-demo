@@ -80,7 +80,27 @@ function track(action) {
   });
 }
 
-async function shareMenu() {
+function isAndroidWebView() {
+  const userAgent = navigator.userAgent || "";
+  return /Android/i.test(userAgent) && (/(?:^|[;\s])wv(?:[;)\s]|$)/i.test(userAgent) || /Version\/4\.0/i.test(userAgent));
+}
+
+function androidShareIntent(payload) {
+  const text = `${payload.text}\n${payload.url}`;
+  return [
+    "intent:#Intent",
+    "action=android.intent.action.SEND",
+    "type=text/plain",
+    `S.android.intent.extra.SUBJECT=${encodeURIComponent(payload.title)}`,
+    `S.android.intent.extra.TEXT=${encodeURIComponent(text)}`,
+    "end"
+  ].join(";");
+}
+
+async function shareMenu(event) {
+  event?.preventDefault();
+  if (shareStatus) shareStatus.textContent = "";
+
   const localized = copy[currentLanguage()];
   const payload = {
     title: document.title,
@@ -89,6 +109,12 @@ async function shareMenu() {
   };
 
   try {
+    if (isAndroidWebView()) {
+      window.location.assign(androidShareIntent(payload));
+      track("menu_share_android_intent");
+      return;
+    }
+
     if (typeof navigator.share === "function") {
       await navigator.share(payload);
       if (shareStatus) shareStatus.textContent = localized.shared;
