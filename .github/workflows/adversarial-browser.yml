@@ -19,7 +19,7 @@ jobs:
   browser-probes:
     name: ADV-001 browser probes
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,7 +29,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Install isolated browser runtime
-        run: npm install --no-save --package-lock=false playwright@1.52.0
+        run: npm install --no-save --package-lock=false playwright@1.53.2
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run browser probes
@@ -37,6 +37,20 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           node scripts/adversarial-browser.mjs 2>&1 | tee .artifacts/adversarial-browser.log
+      - name: Run Android download and offline probes
+        if: ${{ hashFiles('scripts/verify-offline-browser.mjs') != '' }}
+        env:
+          BASE_URL: http://127.0.0.1:4173
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > .artifacts/offline-server.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/index.html > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          set -o pipefail
+          node scripts/verify-offline-browser.mjs 2>&1 | tee .artifacts/offline-android.log
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,5 +59,7 @@ jobs:
           path: |
             .artifacts/adversarial-browser-report.json
             .artifacts/adversarial-browser.log
+            .artifacts/offline-android.log
+            .artifacts/offline-server.log
           if-no-files-found: warn
           retention-days: 30
