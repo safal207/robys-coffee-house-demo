@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-27T00:22:43.996Z",
+  "generatedAt": "2026-06-27T00:26:55.524Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 84,
+    "performance": 67,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "1.9 s",
-      "numericValue": 1860.9745999999996,
+      "numericValue": 1852.0541499999997,
       "score": 0.88
     },
     "largest-contentful-paint": {
       "displayValue": "2.8 s",
-      "numericValue": 2767.21825,
-      "score": 0.84
+      "numericValue": 2787.2165999999997,
+      "score": 0.83
     },
     "speed-index": {
-      "displayValue": "4.4 s",
-      "numericValue": 4442.396287284407,
-      "score": 0.73
+      "displayValue": "3.2 s",
+      "numericValue": 3200.461343529432,
+      "score": 0.92
     },
     "total-blocking-time": {
-      "displayValue": "360 ms",
-      "numericValue": 360.76905000000033,
-      "score": 0.72
+      "displayValue": "1,690 ms",
+      "numericValue": 1693.4999999999993,
+      "score": 0.11
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.8 s",
-      "numericValue": 2825.4336075,
-      "score": 0.97
+      "displayValue": "4.7 s",
+      "numericValue": 4740.4030625,
+      "score": 0.8
     }
   },
   "opportunities": [
@@ -68,15 +68,15 @@
       "score": 0
     },
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 140 ms",
-      "score": 0
-    },
-    {
       "id": "offscreen-images",
       "title": "Defer offscreen images",
-      "displayValue": "Est savings of 64 KiB",
+      "displayValue": "Est savings of 75 KiB",
+      "score": 0.5
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 0 ms",
       "score": 0.5
     },
     {
@@ -103,19 +103,13 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "3.1 s"
+      "displayValue": "5.4 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "2,770 ms"
-    },
-    {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "score": 0,
-      "displayValue": "Est savings of 140 ms"
+      "displayValue": "2,790 ms"
     },
     {
       "id": "uses-text-compression",
@@ -139,13 +133,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 290 ms"
+      "displayValue": "Est savings of 150 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.5,
-      "displayValue": "250 ms"
+      "score": 0.1,
+      "displayValue": "470 ms"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.11,
+      "displayValue": "1,690 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -157,7 +157,13 @@
       "id": "offscreen-images",
       "title": "Defer offscreen images",
       "score": 0.5,
-      "displayValue": "Est savings of 64 KiB"
+      "displayValue": "Est savings of 75 KiB"
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "score": 0.5,
+      "displayValue": "Est savings of 0 ms"
     },
     {
       "id": "unminified-javascript",
@@ -182,12 +188,6 @@
       "title": "Document request latency",
       "score": 0.5,
       "displayValue": "Est savings of 15 KiB"
-    },
-    {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 371 KiB"
     }
   ]
 }
