@@ -27,7 +27,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: fix/android-download-offline-v3
-      - name: Assemble and publish reviewed APK
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Assemble APK and refresh integrity manifest
         run: |
           set -euo pipefail
           mkdir -p downloads
@@ -35,11 +40,12 @@ jobs:
           echo 'f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6  downloads/robys-coffee-house-v1.1.apk' | sha256sum --check --strict
           test "$(stat -c %s downloads/robys-coffee-house-v1.1.apk)" = '25231'
           unzip -t downloads/robys-coffee-house-v1.1.apk
+          npm run integrity:generate
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add downloads/robys-coffee-house-v1.1.apk
+          git add downloads/robys-coffee-house-v1.1.apk integrity-manifest.json
           if git diff --cached --quiet; then
-            echo 'Reviewed APK is already published.'
+            echo 'Reviewed APK and integrity manifest are already published.'
             exit 0
           fi
           git commit -m 'build: publish reviewed Android APK'
