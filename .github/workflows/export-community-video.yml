@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout current branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: feature/instagram-reel-footer
           path: current
@@ -30,7 +30,7 @@ jobs:
         run: git -C current rev-parse 'HEAD^{tree}' > current-tree-sha.txt
 
       - name: Checkout complete staged reel
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: 71a5563b0e835b16c19779b2ffc9f310900431e5
           path: staged
