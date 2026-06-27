@@ -123,7 +123,7 @@ async function shareMenu(event) {
     }
 
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(canonical);
+      await navigator.clipboard.writeText(`${localized.shareText}\n${canonical}`);
       if (shareStatus) shareStatus.textContent = localized.copied;
       track("menu_link_copy");
       return;
