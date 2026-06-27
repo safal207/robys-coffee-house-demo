@@ -1,11 +1,11 @@
 type Language = "tr" | "en" | "ru";
 type Mood = "warm" | "fresh";
-type LocalizedText = Record<Language, string>;
+type RotationLocalizedText = Record<Language, string>;
 
 interface Artwork {
   mood: Mood;
   source: string;
-  alt: LocalizedText;
+  alt: RotationLocalizedText;
 }
 
 interface PairingGallery {
@@ -13,7 +13,7 @@ interface PairingGallery {
   artworks: readonly [Artwork, Artwork];
 }
 
-const localized = (tr: string, en: string, ru: string): LocalizedText => ({ tr, en, ru });
+const localized = (tr: string, en: string, ru: string): RotationLocalizedText => ({ tr, en, ru });
 const artworkSource = (name: string): string => `src/pairings-data/${name}.webp.b64.txt`;
 
 const galleries: Record<string, PairingGallery> = {
