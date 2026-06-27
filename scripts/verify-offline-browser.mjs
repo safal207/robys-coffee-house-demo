@@ -9,13 +9,38 @@ const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
+const browserMessages = [];
+page.on("console", (message) => browserMessages.push(`${message.type()}: ${message.text()}`));
+page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
-  const downloadLink = page.locator("a.android-download-button[data-apk-download='verified-blob']");
-  await downloadLink.waitFor({ state: "visible", timeout: 15000 });
+  const baseLink = page.locator("a.android-download-button");
+  await baseLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
 
+  try {
+    await page.waitForFunction(() => document.querySelector("a.android-download-button")?.dataset.apkDownload === "verified-blob", null, { timeout: 15000 });
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => {
+      const link = document.querySelector("a.android-download-button");
+      return {
+        secureContext: window.isSecureContext,
+        hasCrypto: Boolean(window.crypto),
+        hasSubtle: Boolean(window.crypto?.subtle),
+        link: link ? {
+          href: link.getAttribute("href"),
+          ariaDisabled: link.getAttribute("aria-disabled"),
+          ariaBusy: link.getAttribute("aria-busy"),
+          dataApkDownload: link.getAttribute("data-apk-download")
+        } : null,
+        status: document.querySelector("#android-download-status")?.textContent ?? null
+      };
+    });
+    throw new Error(`APK link was not prepared. Diagnostics: ${JSON.stringify(diagnostics)}. Browser messages: ${JSON.stringify(browserMessages)}`, { cause: error });
+  }
+
+  const downloadLink = page.locator("a.android-download-button[data-apk-download='verified-blob']");
   const downloadPromise = page.waitForEvent("download");
   await downloadLink.click();
   const download = await downloadPromise;
