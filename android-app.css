@@ -12,10 +12,8 @@
 .android-download-button{display:inline-flex;min-height:54px;align-items:center;justify-content:center;gap:12px;padding:14px 22px;color:#fff;background:linear-gradient(135deg,#b84d58,#91333f);border:1px solid rgba(255,255,255,.12);border-radius:999px;box-shadow:0 16px 36px rgba(184,77,88,.28);font-size:.87rem;font-weight:800;text-decoration:none;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
 .android-download-button:hover{transform:translateY(-2px);box-shadow:0 20px 46px rgba(184,77,88,.38);filter:brightness(1.05)}
 .android-download-button:focus-visible{outline:3px solid rgba(236,146,156,.58);outline-offset:4px}
-.android-download-icon{position:relative;width:20px;height:22px;flex:0 0 auto}
-.android-download-icon::before{content:"";position:absolute;top:0;left:9px;width:3px;height:13px;background:currentColor;border-radius:3px}
-.android-download-icon::after{content:"";position:absolute;top:7px;left:4px;width:10px;height:10px;border-right:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg)}
-.android-download-line{position:absolute;right:0;bottom:0;left:0;height:3px;background:currentColor;border-radius:3px}
+.android-download-icon{width:25px;height:25px;flex:0 0 auto;background:url("src/android-mark.svg?v=20260627-2") center/contain no-repeat}
+.android-download-icon::before,.android-download-icon::after,.android-download-line{display:none}
 .android-app-meta{display:inline-flex;align-items:center;gap:9px;color:rgba(255,255,255,.6);font-size:.78rem;font-weight:650}
 .android-app-meta::before{content:"";width:7px;height:7px;background:#98c36b;border-radius:50%;box-shadow:0 0 0 5px rgba(152,195,107,.1)}
 .android-app-note{margin-top:16px;color:rgba(255,255,255,.48);font-size:.75rem;line-height:1.5}
