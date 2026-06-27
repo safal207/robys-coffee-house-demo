@@ -1,12 +1,12 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260626-8",
+  "build": "20260627-9",
   "files": [
     {
       "path": "404.html",
-      "bytes": 993,
-      "sha256": "a6566908f686bf7f88e87b6b1cfcfa19d25e56ed8e36f57eed4f90aa2a9df8b4"
+      "bytes": 1179,
+      "sha256": "7245fd4df1d62cff1796e27ad500eac81ed74ccb9022d852f5c660c409aee1cf"
     },
     {
       "path": "analytics.js",
@@ -15,8 +15,13 @@
     },
     {
       "path": "android-app.css",
-      "bytes": 6156,
-      "sha256": "72a6f32af214a9f0e1189718543d48cd42de393ee74738dccde1a357c4e7f657"
+      "bytes": 6328,
+      "sha256": "7d792c93992af65a026f8b7dd9e82c98f97e259ca0884a1d80d41c2b5256007a"
+    },
+    {
+      "path": "android-download.js",
+      "bytes": 4870,
+      "sha256": "0150bec492ad276561f2cc9c43ddac0ac6cba67796847ac40b02bf41c3c1c36a"
     },
     {
       "path": "app.js",
@@ -85,8 +90,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 22725,
-      "sha256": "027eb12cb109c52b44dacfa070265c0ec8ed6563597209c5e296a39ca2d99ebe"
+      "bytes": 21748,
+      "sha256": "227aac184bbf796f681189b48314cbc5dadb313efe4f81c48a8feb3f081ec6b7"
     },
     {
       "path": "manifest.webmanifest",
@@ -145,13 +150,23 @@
     },
     {
       "path": "menu.html",
-      "bytes": 6476,
-      "sha256": "131abeb96016adefa1f91ee2e0778167e13d9e084c570b200b570f47bd741314"
+      "bytes": 6539,
+      "sha256": "f4afd3d9c45f640eced303597e53092f28cda80435312463141815d0d2ca28b4"
     },
     {
       "path": "mobile.css",
       "bytes": 4009,
       "sha256": "6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52"
+    },
+    {
+      "path": "offline.css",
+      "bytes": 1844,
+      "sha256": "6f09abd661e6f45ca0b594c73ea2f009ca7263cf89e603647554669e6617331f"
+    },
+    {
+      "path": "pwa.js",
+      "bytes": 1405,
+      "sha256": "f01d8a484c007ccba03e4a57702aa79e00ea03a167b5849f75b9ba2be355b9ed"
     },
     {
       "path": "qa.js",
@@ -187,6 +202,11 @@
       "path": "src/.parts/main.04.txt",
       "bytes": 751,
       "sha256": "5b1ced74a40c6428b7212ff3e297d5f508d27a7d3f3b80e5198fb0dc374721de"
+    },
+    {
+      "path": "src/android-mark.svg",
+      "bytes": 609,
+      "sha256": "4ab89e14719b88c91f1ec0747cc3cde247a6147f14053a28f19a15559dc162df"
     },
     {
       "path": "src/menu-icons/cold.svg",
@@ -477,6 +497,11 @@
       "path": "styles.css",
       "bytes": 13414,
       "sha256": "5eae175d75076b0801d5d0524873e189be08da34ce25d7dac456c93fb14aed6a"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2909,
+      "sha256": "0e02e03735ec1a639d1e99213cb5221d3b83bbfc6cd44de02e3275d67ea100ad"
     }
   ]
 }

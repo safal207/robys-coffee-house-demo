@@ -82,7 +82,7 @@ const requiredCsp = [
   "worker-src 'self'",
   "upgrade-insecure-requests",
   "require-trusted-types-for 'script'",
-  "trusted-types 'none'"
+  "trusted-types robys-pwa"
 ];
 
 for (const file of HTML_FILES) {
@@ -118,6 +118,7 @@ for (const file of HTML_FILES) {
 const serviceWorker = read("sw.js");
 const pwaRuntime = read("pwa.js");
 must("CSP-001", pwaRuntime.includes('navigator.serviceWorker.register'), "Offline runtime must register a service worker explicitly");
+must("CSP-001", pwaRuntime.includes("trustedTypes.createPolicy") && pwaRuntime.includes("createScriptURL"), "Service worker URL must use the named Trusted Types policy");
 must("CSP-001", pwaRuntime.includes('{ scope: "./" }'), "Service worker scope must stay local to the site");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
 must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "Service worker must ignore cross-origin fetches");
