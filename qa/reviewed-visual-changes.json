@@ -227,6 +227,37 @@
           "reason": "dimension mismatch 1440x4836 vs 1440x5014"
         }
       ]
+    },
+    {
+      "id": "menu-instagram-booking-share-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/95",
+      "contentBindings": {
+        "menu.html": "ec61e205e8125ca69636b2ac7a14bf82d20ba037",
+        "menu.css": "e3a96ec7c23b78271c619080896fb9bcf37cc094",
+        "menu-actions.js": "74f8d5b0112ba5202c132caa4db5cb4793e0ad6e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x4684 vs 320x5436"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x4412 vs 390x5098"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x4776 vs 768x5406"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x3535 vs 1440x3967"
+        }
+      ]
     }
   ]
 }

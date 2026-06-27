@@ -99,6 +99,11 @@
       "sha256": "52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157"
     },
     {
+      "path": "menu-actions.js",
+      "bytes": 4807,
+      "sha256": "8f4dd2dd79a2828bc8e0bb33ee96461cbbcd1f0e63cf78301d6cf8d0928b0e22"
+    },
+    {
       "path": "menu-bootstrap.js",
       "bytes": 51,
       "sha256": "3d91a9bb64d989465028ed6606da532df03e9b64066f731444254db1caf7fe44"
@@ -140,13 +145,13 @@
     },
     {
       "path": "menu.css",
-      "bytes": 7779,
-      "sha256": "5236cb22a0112ad09dfc79d66ad0981a3c4df0df1e40bc217edea4f294c584ce"
+      "bytes": 9770,
+      "sha256": "b31ae98f7db636eddb701195440d6a25f6fb21c8e5ec0ea725ada779d021fabe"
     },
     {
       "path": "menu.html",
-      "bytes": 6476,
-      "sha256": "131abeb96016adefa1f91ee2e0778167e13d9e084c570b200b570f47bd741314"
+      "bytes": 8500,
+      "sha256": "b61f1623001e281749ca5331d0b92d10ada394afbd2e4891231c026fd3f07101"
     },
     {
       "path": "mobile.css",
