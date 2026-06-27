@@ -18,7 +18,7 @@ concurrency:
 jobs:
   publish-direct-apk:
     name: Stage reviewed Android package
-    if: github.event_name == 'pull_request' && github.head_ref == 'fix/android-download-offline'
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/android-download-offline-v3'
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: fix/android-download-offline
+          ref: fix/android-download-offline-v3
       - name: Assemble and publish reviewed APK
         run: |
           set -euo pipefail
@@ -43,7 +43,7 @@ jobs:
             exit 0
           fi
           git commit -m 'build: publish reviewed Android APK'
-          git push origin HEAD:fix/android-download-offline
+          git push origin HEAD:fix/android-download-offline-v3
 
   browser-probes:
     name: ADV-001 browser probes
@@ -57,6 +57,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Stage reviewed APK for browser click
+        run: |
+          set -euo pipefail
+          mkdir -p downloads
+          cat downloads/android-v1.1/part-*.b64 | base64 --decode > downloads/robys-coffee-house-v1.1.apk
+          echo 'f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6  downloads/robys-coffee-house-v1.1.apk' | sha256sum --check --strict
+          test "$(stat -c %s downloads/robys-coffee-house-v1.1.apk)" = '25231'
+          unzip -t downloads/robys-coffee-house-v1.1.apk
       - name: Install isolated browser runtime
         run: npm install --no-save --package-lock=false playwright@1.53.2
       - name: Install Chromium
@@ -67,7 +75,6 @@ jobs:
           set -o pipefail
           node scripts/adversarial-browser.mjs 2>&1 | tee .artifacts/adversarial-browser.log
       - name: Run Android download and offline probes
-        if: ${{ hashFiles('scripts/verify-offline-browser.mjs') != '' }}
         env:
           BASE_URL: http://127.0.0.1:4173
         run: |
