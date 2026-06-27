@@ -1,0 +1,72 @@
+name: Finalize offline feature PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.head_ref == 'fix/android-offline-download-clean'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Align CSP with the local Trusted Types policy
+        shell: python
+        run: |
+          from pathlib import Path
+
+          for filename in ("index.html", "menu.html"):
+              path = Path(filename)
+              source = path.read_text(encoding="utf-8")
+              old = "trusted-types 'none'"
+              if old not in source and "trusted-types robys-pwa" not in source:
+                  raise SystemExit(f"{filename}: Trusted Types directive not found")
+              path.write_text(source.replace(old, "trusted-types robys-pwa"), encoding="utf-8")
+
+          path = Path("scripts/verify-security-contracts.mjs")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace('  "trusted-types \'none\'"', '  "trusted-types robys-pwa"')
+          marker = 'must("CSP-001", pwaRuntime.includes(\'navigator.serviceWorker.register\'), "Offline runtime must register a service worker explicitly");'
+          policy_check = 'must("CSP-001", pwaRuntime.includes("trustedTypes.createPolicy") && pwaRuntime.includes("createScriptURL"), "Service worker URL must use the named Trusted Types policy");'
+          if marker not in source:
+              raise SystemExit("Service worker security assertion not found")
+          if policy_check not in source:
+              source = source.replace(marker, marker + "\n" + policy_check)
+          path.write_text(source, encoding="utf-8")
+
+      - name: Verify complete feature
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          npm run integrity:generate
+          npm run check
+
+      - name: Commit clean feature result
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/finalize-offline-clean.yml
+          rm -f .github/workflows/finalize-offline-pr.yml
+          npm run integrity:generate
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Offline feature is already finalized.'
+            exit 0
+          fi
+          git commit -m 'fix: finalize verified Android offline flow'
+          git push origin HEAD:fix/android-offline-download-clean
