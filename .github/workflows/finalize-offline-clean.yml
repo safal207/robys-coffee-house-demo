@@ -1,0 +1,341 @@
+name: Finalize clean offline Android feature
+
+on:
+  push:
+    branches:
+      - fix/android-offline-download-clean
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out clean feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/android-offline-download-clean
+          fetch-depth: 0
+
+      - name: Apply verified download and Trusted Types-safe offline runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          android_download = r'''const APK_NAME = "robys-coffee-house-v1.1.apk";
+          const APK_BYTES = 25231;
+          const APK_SHA256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+          const APK_PARTS = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
+
+          let preparedUrl = "";
+          let preparePromise;
+
+          function localizedStatus(key) {
+            const language = document.documentElement.lang || "tr";
+            const copy = {
+              preparing: { tr: "APK hazırlanıyor…", en: "Preparing APK…", ru: "Подготавливаем APK…" },
+              ready: { tr: "İndirmeye hazır", en: "Ready to download", ru: "Готово к скачиванию" },
+              error: { tr: "Tekrar deneyin", en: "Tap to retry", ru: "Нажмите, чтобы повторить" }
+            };
+            return copy[key]?.[language] ?? copy[key]?.tr ?? "";
+          }
+
+          function addAndroidLogo(section) {
+            const pill = section.querySelector(".android-app-screen-pill");
+            if (!pill || pill.querySelector("img")) return;
+            const logo = document.createElement("img");
+            logo.src = "src/android-mark.svg?v=20260627-2";
+            logo.alt = "";
+            logo.width = 48;
+            logo.height = 48;
+            logo.decoding = "async";
+            pill.append(logo);
+          }
+
+          function replaceButton(section) {
+            const current = section.querySelector(".android-download-button");
+            if (!current) return null;
+            if (current.tagName === "A") return current;
+
+            const link = document.createElement("a");
+            for (const { name, value } of Array.from(current.attributes)) {
+              if (name !== "type" && name !== "aria-busy") link.setAttribute(name, value);
+            }
+            link.type = "application/vnd.android.package-archive";
+            link.setAttribute("aria-disabled", "true");
+            link.tabIndex = -1;
+            while (current.firstChild) link.append(current.firstChild);
+            current.replaceWith(link);
+            return link;
+          }
+
+          async function sha256Hex(bytes) {
+            const digest = await crypto.subtle.digest("SHA-256", bytes);
+            return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
+          }
+
+          async function prepareApk(link, status) {
+            if (preparedUrl) return preparedUrl;
+            if (preparePromise) return preparePromise;
+
+            status.textContent = localizedStatus("preparing");
+            link.setAttribute("aria-busy", "true");
+
+            preparePromise = (async () => {
+              const responses = await Promise.all(APK_PARTS.map((path) => fetch(path, { cache: "force-cache" })));
+              if (responses.some((response) => !response.ok)) throw new Error("APK part unavailable");
+              const base64 = (await Promise.all(responses.map((response) => response.text()))).join("").replace(/\s+/g, "");
+              const binary = atob(base64);
+              const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+              if (bytes.byteLength !== APK_BYTES) throw new Error("APK size mismatch");
+              if (await sha256Hex(bytes) !== APK_SHA256) throw new Error("APK checksum mismatch");
+
+              const blob = new Blob([bytes], { type: "application/vnd.android.package-archive" });
+              preparedUrl = URL.createObjectURL(blob);
+              link.href = preparedUrl;
+              link.download = APK_NAME;
+              link.setAttribute("data-apk-download", "verified-blob");
+              link.removeAttribute("aria-disabled");
+              link.removeAttribute("aria-busy");
+              link.tabIndex = 0;
+              status.textContent = localizedStatus("ready");
+              return preparedUrl;
+            })().catch((error) => {
+              preparePromise = undefined;
+              link.removeAttribute("aria-busy");
+              status.textContent = localizedStatus("error");
+              console.warn("Roby's APK preparation failed", error);
+              throw error;
+            });
+
+            return preparePromise;
+          }
+
+          function upgradeAndroidDownload() {
+            const section = document.querySelector("#android-app");
+            if (!section) return false;
+
+            addAndroidLogo(section);
+            const link = replaceButton(section);
+            if (!link) return false;
+            const status = section.querySelector("#android-download-status") || document.createElement("span");
+
+            link.addEventListener("click", (event) => {
+              if (link.getAttribute("aria-disabled") !== "true") return;
+              event.preventDefault();
+              void prepareApk(link, status);
+            });
+
+            void prepareApk(link, status);
+            return true;
+          }
+
+          if (!upgradeAndroidDownload()) {
+            const observer = new MutationObserver(() => {
+              if (upgradeAndroidDownload()) observer.disconnect();
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+          }
+
+          window.addEventListener("pagehide", () => {
+            if (preparedUrl) URL.revokeObjectURL(preparedUrl);
+          }, { once: true });
+          '''
+          Path("android-download.js").write_text(android_download.replace("\n          ", "\n").lstrip(), encoding="utf-8")
+
+          pwa = r'''const SERVICE_WORKER_URL = "sw.js?v=offline-20260627-5";
+          const TRUSTED_TYPES_POLICY = "robys-pwa";
+
+          function syncConnectivityState() {
+            document.documentElement.classList.toggle("is-offline", !navigator.onLine);
+            const status = document.querySelector("[data-connectivity-status]");
+            if (status) status.textContent = navigator.onLine ? "Online" : "Offline";
+          }
+
+          function serviceWorkerUrl() {
+            if (!window.trustedTypes) return SERVICE_WORKER_URL;
+            const policy = window.trustedTypes.createPolicy(TRUSTED_TYPES_POLICY, {
+              createScriptURL(value) {
+                if (value !== SERVICE_WORKER_URL) throw new TypeError("Unexpected service worker URL");
+                return value;
+              }
+            });
+            return policy.createScriptURL(SERVICE_WORKER_URL);
+          }
+
+          syncConnectivityState();
+          window.addEventListener("online", syncConnectivityState);
+          window.addEventListener("offline", syncConnectivityState);
+
+          if ("serviceWorker" in navigator) {
+            window.addEventListener("load", async () => {
+              try {
+                const registration = await navigator.serviceWorker.register(serviceWorkerUrl(), { scope: "./" });
+                await navigator.serviceWorker.ready;
+                document.documentElement.dataset.offlineReady = "true";
+                registration.update().catch(() => {});
+              } catch (error) {
+                document.documentElement.dataset.offlineReady = "false";
+                console.warn("Roby's offline mode could not start", error);
+              }
+            }, { once: true });
+          }
+          '''
+          Path("pwa.js").write_text(pwa.replace("\n          ", "\n").lstrip(), encoding="utf-8")
+
+          for filename in ("index.html", "menu.html"):
+            path = Path(filename)
+            html = path.read_text(encoding="utf-8")
+            old = "trusted-types 'none'"
+            assert old in html, f"{filename}: old Trusted Types policy not found"
+            path.write_text(html.replace(old, "trusted-types robys-pwa"), encoding="utf-8")
+
+          security_path = Path("scripts/verify-security-contracts.mjs")
+          security = security_path.read_text(encoding="utf-8")
+          old = '  "trusted-types \'none\'"'
+          assert old in security, "security contract Trusted Types assertion not found"
+          security = security.replace(old, '  "trusted-types robys-pwa"')
+          marker = 'must("CSP-001", pwaRuntime.includes(\'navigator.serviceWorker.register\'), "Offline runtime must register a service worker explicitly");'
+          assert marker in security, "service worker security marker not found"
+          security = security.replace(marker, marker + '\nmust("CSP-001", pwaRuntime.includes("trustedTypes.createPolicy") && pwaRuntime.includes("createScriptURL"), "Service worker URL must use the named Trusted Types policy");')
+          security_path.write_text(security, encoding="utf-8")
+
+          verify_android = r'''import { createHash } from "node:crypto";
+          import { existsSync, readFileSync, statSync } from "node:fs";
+
+          const contract = "ANDROID-APP-001";
+          const expectedBytes = 25231;
+          const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+          const partPaths = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
+
+          function assert(condition, message) {
+            if (!condition) throw new Error(`[${contract}] ${message}`);
+          }
+
+          for (const path of partPaths) {
+            assert(existsSync(path), `Missing APK part: ${path}`);
+            assert(statSync(path).size > 0, `APK part is empty: ${path}`);
+          }
+          const base64 = partPaths.map((path) => readFileSync(path, "utf8")).join("").replace(/\s+/g, "");
+          const apk = Buffer.from(base64, "base64");
+          assert(apk.length === expectedBytes, `APK size changed: ${apk.length}`);
+          assert(apk.subarray(0, 2).toString("ascii") === "PK", "APK must be a ZIP-based Android package");
+          assert(createHash("sha256").update(apk).digest("hex") === expectedSha256, "APK checksum changed");
+          const archiveText = apk.toString("latin1");
+          for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "META-INF/ROBYS-RE.SF", "META-INF/ROBYS-RE.RSA"]) {
+            assert(archiveText.includes(entry), `APK entry is missing: ${entry}`);
+          }
+
+          const upgrade = readFileSync("android-download.js", "utf8");
+          const css = readFileSync("android-app.css", "utf8");
+          const sw = readFileSync("sw.js", "utf8");
+          for (const path of partPaths) assert(upgrade.includes(path), `Runtime does not preload ${path}`);
+          assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
+          assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a download URL before the user clicks");
+          assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
+          assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
+          assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
+          for (const path of partPaths) assert(sw.includes(`./${path}`), `Offline cache does not include ${path}`);
+          console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is preloaded, verified and downloadable offline.`);
+          '''
+          Path("scripts/verify-android-download.mjs").write_text(verify_android.replace("\n          ", "\n").lstrip(), encoding="utf-8")
+
+          browser_gate = r'''import assert from "node:assert/strict";
+          import { createHash } from "node:crypto";
+          import { readFile } from "node:fs/promises";
+          import { chromium } from "playwright";
+
+          const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
+          const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+
+          async function waitForAttribute(locator, name, expected, timeout = 15000) {
+            const deadline = Date.now() + timeout;
+            while (Date.now() < deadline) {
+              if (await locator.getAttribute(name) === expected) return;
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            throw new Error(`Timed out waiting for ${name}=${expected}`);
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({ acceptDownloads: true });
+          const page = await context.newPage();
+          const browserMessages = [];
+          page.on("console", (message) => browserMessages.push(`${message.type()}: ${message.text()}`));
+          page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
+
+          try {
+            await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
+            const downloadLink = page.locator("a.android-download-button");
+            await downloadLink.waitFor({ state: "visible", timeout: 15000 });
+            await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
+            await waitForAttribute(downloadLink, "data-apk-download", "verified-blob");
+            assert.match(await downloadLink.getAttribute("href"), /^blob:/, "APK link is not a prepared Blob URL");
+
+            const [download] = await Promise.all([
+              page.waitForEvent("download"),
+              downloadLink.click()
+            ]);
+            assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.1.apk");
+            const downloadPath = await download.path();
+            assert.ok(downloadPath, "APK download did not create a file");
+            const apk = await readFile(downloadPath);
+            assert.equal(apk.length, 25231, "Downloaded APK byte size changed");
+            assert.equal(apk.subarray(0, 2).toString("ascii"), "PK", "Downloaded file is not an APK/ZIP");
+            assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
+
+            await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
+            assert.ok(context.serviceWorkers().length > 0, "Service worker was not registered");
+            await page.reload({ waitUntil: "networkidle" });
+
+            await page.goto(`${baseUrl}/menu.html`, { waitUntil: "networkidle" });
+            await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
+            await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
+
+            await context.setOffline(true);
+            await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
+            await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
+            assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
+
+            await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
+            await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
+            await page.locator("#menu-search").fill("latte");
+            assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
+
+            const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
+            assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
+            console.log("✅ Offline browser gate passed: verified APK click, branded 404 fallback and interactive cached menu.");
+          } finally {
+            await context.setOffline(false).catch(() => {});
+            await context.close();
+            await browser.close();
+          }
+          '''
+          Path("scripts/verify-offline-browser.mjs").write_text(browser_gate.replace("\n          ", "\n").lstrip(), encoding="utf-8")
+          PY
+
+      - name: Build and verify static contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          npm run integrity:generate
+          npm run check
+
+      - name: Commit finalized clean feature
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/finalize-offline-clean.yml
+          npm run integrity:generate
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'fix: verify Android click and enable offline menu safely'
+          git push origin HEAD:fix/android-offline-download-clean
