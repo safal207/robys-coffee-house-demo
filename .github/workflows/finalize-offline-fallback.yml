@@ -1,0 +1,46 @@
+name: Finalize offline navigation fallback
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [synchronize]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.head_ref == 'fix/android-offline-download-final'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Verify focused offline contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          node --check sw.js
+          node --check pwa.js
+          node scripts/verify-android-download.mjs
+          node scripts/verify-security-contracts.mjs
+          npm run integrity:generate
+
+      - name: Commit production manifest and remove finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/finalize-offline-fallback.yml
+          npm run integrity:generate
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'fix: finalize offline navigation fallback'
+          git push origin HEAD:fix/android-offline-download-final
