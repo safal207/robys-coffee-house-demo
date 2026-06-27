@@ -1,5 +1,6 @@
 const SERVICE_WORKER_BRIDGE = "sw-register.html";
 const SERVICE_WORKER_ATTEMPT_KEY = "robys-offline-bootstrap";
+// Registration is delegated to sw-register.js, where navigator.serviceWorker.register(..., { scope: "./" }) runs outside the strict Trusted Types page.
 
 function syncConnectivityState() {
   document.documentElement.classList.toggle("is-offline", !navigator.onLine);
