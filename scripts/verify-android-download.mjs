@@ -38,6 +38,7 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 }
 
 const upgrade = readFileSync("android-download.js", "utf8");
+const bootstrap = readFileSync("bootstrap.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
 const sw = readFileSync("sw.js", "utf8");
 assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.1/part-"), "Runtime must construct all six APK part URLs");
@@ -46,6 +47,9 @@ assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
 assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a download URL before the user clicks");
 assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
 assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
+assert(bootstrap.includes(".android-download-button .android-download-icon"), "Android button placeholder selector is missing");
+assert(bootstrap.includes("android-download-logo") && bootstrap.includes("src/android-mark.svg"), "Real Android logo is missing from the download button");
+assert(bootstrap.includes("placeholder.replaceWith(logo)"), "Legacy CSS Android icon is not replaced by the real logo");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
 assert(sw.includes("Array.from({ length: 6 }") && sw.includes("./downloads/android-v1.1/part-"), "Offline cache must construct all six APK part URLs");
-console.log(`✅ ${contract} passed: repaired signed APK ${actualSha256.slice(0, 12)}… is cached, verified and downloadable offline.`);
+console.log(`✅ ${contract} passed: repaired signed APK ${actualSha256.slice(0, 12)}… is cached, verified, downloadable offline and shows the real Android button logo.`);
