@@ -59,6 +59,7 @@ jobs:
           set -euo pipefail
           rm -f .github/workflows/finalize-offline-clean.yml
           rm -f .github/workflows/finalize-offline-pr.yml
+          rm -f .github/workflows/apk-diagnostic.yml
           npm run integrity:generate
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
