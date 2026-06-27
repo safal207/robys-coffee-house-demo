@@ -26,7 +26,7 @@ jobs:
             -frames:v 1 \
             iced-latte.png
           file iced-latte.webp iced-latte.png
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: iced-latte-compatible
           path: |

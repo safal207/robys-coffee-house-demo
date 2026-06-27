@@ -70,7 +70,7 @@ jobs:
         run: npm run build
 
       - name: Upload generated runtime for inspection
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: generated-runtime-${{ github.sha }}
           path: |
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload dependency graph report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dependency-graph-${{ github.sha }}
           path: .artifacts/dependency-graph.json

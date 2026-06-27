@@ -66,7 +66,7 @@ jobs:
 
       - name: Upload converted Iced Latte
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: iced-latte-compatible
           path: |
@@ -86,7 +86,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gallery-mobile-report
           path: |

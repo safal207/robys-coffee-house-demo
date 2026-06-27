@@ -53,7 +53,7 @@ jobs:
           node scripts/verify-offline-browser.mjs 2>&1 | tee .artifacts/offline-android.log
       - name: Upload evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: adversarial-browser-${{ github.run_id }}
           path: |

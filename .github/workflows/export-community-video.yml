@@ -40,7 +40,7 @@ jobs:
         run: node scripts/finalize-community-video.mjs
 
       - name: Upload verified MP4
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: robys-community-reel
           path: staged/src/robys-community-reel.mp4
@@ -48,7 +48,7 @@ jobs:
           retention-days: 1
 
       - name: Upload current source snapshot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: robys-current-source
           path: |
