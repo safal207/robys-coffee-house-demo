@@ -1,0 +1,102 @@
+.pairing-products {
+  position: relative;
+  display: block;
+  min-height: 560px;
+  overflow: hidden;
+  background: #e8ddd0;
+}
+
+.pairing-gallery,
+.pairing-gallery-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.pairing-gallery {
+  overflow: hidden;
+  background: #f4eadf;
+  touch-action: pan-y;
+}
+
+.pairing-gallery:focus-visible {
+  outline: 3px solid rgba(169, 72, 46, 0.5);
+  outline-offset: -6px;
+}
+
+.pairing-artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.012);
+  transition: opacity 560ms ease, transform 900ms ease;
+  pointer-events: none;
+}
+
+.pairing-artwork.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pairing-gallery::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 86px;
+  background: linear-gradient(transparent, rgba(28, 19, 16, 0.18));
+  pointer-events: none;
+}
+
+.pairing-gallery-dots {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 18px;
+  display: flex;
+  gap: 9px;
+  transform: translateX(-50%);
+}
+
+.pairing-gallery-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  background: rgba(36, 28, 27, 0.34);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.pairing-gallery-dot.is-active {
+  width: 27px;
+  background: #fffaf3;
+}
+
+@media (max-width: 900px) {
+  .pairing-products {
+    min-height: 0;
+    aspect-ratio: 1;
+  }
+}
+
+@media (max-width: 680px) {
+  .pairing-products {
+    min-height: 0;
+    aspect-ratio: 1;
+  }
+
+  .pairing-gallery-dots {
+    bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pairing-artwork,
+  .pairing-gallery-dot {
+    transition: none;
+  }
+}
