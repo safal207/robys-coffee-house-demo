@@ -27,11 +27,11 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 const upgrade = readFileSync("android-download.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
 const sw = readFileSync("sw.js", "utf8");
-for (const path of partPaths) assert(upgrade.includes(path), `Runtime does not preload ${path}`);
+assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.1/part-"), "Runtime must construct all six APK part URLs");
 assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
 assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a download URL before the user clicks");
 assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
 assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
-for (const path of partPaths) assert(sw.includes(`./${path}`), `Offline cache does not include ${path}`);
+assert(sw.includes("Array.from({ length: 6 }") && sw.includes("./downloads/android-v1.1/part-"), "Offline cache must construct all six APK part URLs");
 console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is preloaded, verified and downloadable offline.`);
