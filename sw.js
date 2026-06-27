@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v2-20260627";
+const CACHE_VERSION = "robys-offline-v3-20260627";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -24,6 +24,7 @@ const CORE_ASSETS = [
   "./menu-page.js",
   "./menu-data.js",
   "./menu-search-clear.js",
+  "./menu-actions.js",
   "./icon.svg",
   "./src/android-mark.svg",
   "./src/robys-hero-poster.jpg",
@@ -51,6 +52,10 @@ async function cachedResponse(request) {
   return cache.match(request, { ignoreSearch: true });
 }
 
+async function cachedPage(name) {
+  return (await cachedResponse(new Request(new URL(name, self.registration.scope)))) || Response.error();
+}
+
 async function navigationResponse(request) {
   const url = new URL(request.url);
   const isMenu = url.pathname.endsWith("/menu.html");
@@ -58,16 +63,20 @@ async function navigationResponse(request) {
 
   try {
     const network = await fetch(request);
-    if (network.ok && (isMenu || isHome)) {
-      const cache = await caches.open(CACHE_VERSION);
-      cache.put(request, network.clone()).catch(() => {});
+    if (network.ok) {
+      if (isMenu || isHome) {
+        const cache = await caches.open(CACHE_VERSION);
+        cache.put(request, network.clone()).catch(() => {});
+      }
+      return network;
     }
-    return network;
   } catch {
-    if (isMenu) return (await cachedResponse(new Request(new URL("menu.html", self.registration.scope)))) || Response.error();
-    if (isHome) return (await cachedResponse(new Request(new URL("index.html", self.registration.scope)))) || Response.error();
-    return (await cachedResponse(new Request(new URL("404.html", self.registration.scope)))) || Response.error();
+    // Fall through to a deterministic cached page.
   }
+
+  if (isMenu) return cachedPage("menu.html");
+  if (isHome) return cachedPage("index.html");
+  return cachedPage("404.html");
 }
 
 self.addEventListener("fetch", (event) => {
