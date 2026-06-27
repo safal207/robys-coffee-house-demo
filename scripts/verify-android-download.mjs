@@ -16,9 +16,10 @@ for (const path of partPaths) {
 }
 const base64 = partPaths.map((path) => readFileSync(path, "utf8")).join("").replace(/\s+/g, "");
 const apk = Buffer.from(base64, "base64");
-assert(apk.length === expectedBytes, `APK size changed: ${apk.length}`);
+const actualSha256 = createHash("sha256").update(apk).digest("hex");
+assert(apk.length === expectedBytes, `APK size changed: expected ${expectedBytes}, got ${apk.length}; SHA-256 ${actualSha256}`);
 assert(apk.subarray(0, 2).toString("ascii") === "PK", "APK must be a ZIP-based Android package");
-assert(createHash("sha256").update(apk).digest("hex") === expectedSha256, "APK checksum changed");
+assert(actualSha256 === expectedSha256, `APK checksum changed: expected ${expectedSha256}, got ${actualSha256}`);
 const archiveText = apk.toString("latin1");
 for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "META-INF/ROBYS-RE.SF", "META-INF/ROBYS-RE.RSA"]) {
   assert(archiveText.includes(entry), `APK entry is missing: ${entry}`);
@@ -34,4 +35,4 @@ assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not 
 assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
 assert(sw.includes("Array.from({ length: 6 }") && sw.includes("./downloads/android-v1.1/part-"), "Offline cache must construct all six APK part URLs");
-console.log(`✅ ${contract} passed: signed APK ${expectedSha256.slice(0, 12)}… is preloaded, verified and downloadable offline.`);
+console.log(`✅ ${contract} passed: signed APK ${actualSha256.slice(0, 12)}… is preloaded, verified and downloadable offline.`);
