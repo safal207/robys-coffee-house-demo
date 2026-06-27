@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "build": "20260627-9",
+  "build": "20260626-8",
   "files": [
     {
       "path": "404.html",
@@ -90,8 +90,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 21748,
-      "sha256": "227aac184bbf796f681189b48314cbc5dadb313efe4f81c48a8feb3f081ec6b7"
+      "bytes": 22876,
+      "sha256": "a179f05cce93ac72a60f7d00e2f0126767a1616d1727e35990822dfbb68da84a"
     },
     {
       "path": "manifest.webmanifest",
@@ -102,6 +102,11 @@
       "path": "map-live.css",
       "bytes": 5312,
       "sha256": "52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157"
+    },
+    {
+      "path": "menu-actions.js",
+      "bytes": 4807,
+      "sha256": "8f4dd2dd79a2828bc8e0bb33ee96461cbbcd1f0e63cf78301d6cf8d0928b0e22"
     },
     {
       "path": "menu-bootstrap.js",
@@ -145,13 +150,13 @@
     },
     {
       "path": "menu.css",
-      "bytes": 7779,
-      "sha256": "5236cb22a0112ad09dfc79d66ad0981a3c4df0df1e40bc217edea4f294c584ce"
+      "bytes": 9770,
+      "sha256": "b31ae98f7db636eddb701195440d6a25f6fb21c8e5ec0ea725ada779d021fabe"
     },
     {
       "path": "menu.html",
-      "bytes": 6539,
-      "sha256": "f4afd3d9c45f640eced303597e53092f28cda80435312463141815d0d2ca28b4"
+      "bytes": 8563,
+      "sha256": "5925f26b332f9ff6a4ed9dea2c6e7ee862b4912aaaac28f6cdbd541334d1027a"
     },
     {
       "path": "mobile.css",
