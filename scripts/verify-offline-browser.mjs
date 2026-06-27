@@ -4,11 +4,8 @@ import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
-const expectedSha256 = (await readFile(new URL("../downloads/android-v1.1/SHA256.txt", import.meta.url), "utf8")).trim();
-assert.match(expectedSha256, /^[a-f0-9]{64}$/, "Pinned APK checksum is invalid");
-const publishedApk = await readFile(new URL("../downloads/robys-coffee-house-v1.1.apk", import.meta.url));
-assert.equal(publishedApk.length, 25231, "Published APK byte size changed");
-assert.equal(createHash("sha256").update(publishedApk).digest("hex"), expectedSha256, "Published APK checksum changed");
+const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+const expectedBytes = 25231;
 
 async function waitForOfflineRuntime(page) {
   const deadline = Date.now() + 20000;
@@ -40,9 +37,11 @@ page.on("pageerror", (error) => messages.push(`pageerror: ${error.message}`));
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
-  const link = page.locator("a.android-download-button[data-apk-download='direct-apk']");
-  await link.waitFor({ state: "visible", timeout: 15000 });
+  const link = page.locator("a.android-download-button[data-apk-download='verified-blob']");
+  await link.waitFor({ state: "visible", timeout: 30000 });
   await page.locator(".android-download-logo img[src*='android-mark.svg']").waitFor({ state: "visible" });
+  assert.match(await link.getAttribute("href"), /^blob:/, "Verified APK link is not backed by a Blob URL");
+  assert.equal(await link.getAttribute("aria-disabled"), null, "Verified APK link is still disabled");
 
   const downloadPromise = page.waitForEvent("download");
   await link.click();
@@ -51,6 +50,8 @@ try {
   const downloadedPath = await download.path();
   assert.ok(downloadedPath, "APK click did not create a downloaded file");
   const downloadedApk = await readFile(downloadedPath);
+  assert.equal(downloadedApk.length, expectedBytes, "Clicked APK byte size changed");
+  assert.equal(downloadedApk.subarray(0, 2).toString("ascii"), "PK", "Clicked file is not an APK/ZIP");
   assert.equal(createHash("sha256").update(downloadedApk).digest("hex"), expectedSha256, "Clicked APK checksum changed");
 
   await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
