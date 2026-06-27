@@ -20,10 +20,11 @@ jobs:
           mkdir -p .artifacts
           node --input-type=module <<'NODE' | tee .artifacts/apk-diagnostic.txt
           import { createHash } from 'node:crypto';
-          import { readFileSync } from 'node:fs';
+          import { readFileSync, writeFileSync } from 'node:fs';
           const paths = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, '0')}.b64`);
           const encoded = paths.map((path) => readFileSync(path, 'utf8')).join('').replace(/\s+/g, '');
           const apk = Buffer.from(encoded, 'base64');
+          writeFileSync('.artifacts/reconstructed.apk', apk);
           console.log(JSON.stringify({
             bytes: apk.length,
             sha256: createHash('sha256').update(apk).digest('hex'),
@@ -34,5 +35,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: apk-diagnostic-${{ github.run_id }}
-          path: .artifacts/apk-diagnostic.txt
+          path: .artifacts
           retention-days: 1
