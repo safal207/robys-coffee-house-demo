@@ -63,12 +63,12 @@ html{background:var(--cream)}
 .menu-secondary-button{color:var(--dark);background:#fff;border:1px solid var(--line)}
 .menu-secondary-button:hover{border-color:rgba(184,77,88,.48);transform:translateY(-1px)}
 .menu-inline-link{justify-self:center;padding:8px;color:var(--ruby);font-size:.82rem;font-weight:800}
-.menu-share-status{grid-column:1/-1;min-height:1.4em;margin:0;color:var(--ruby);font-size:.78rem;font-weight:700;text-align:right}
+.menu-share-status{grid-column:1/-1;justify-self:stretch;width:100%;min-height:1.4em;margin:0;color:var(--ruby);font-size:.78rem;font-weight:700;text-align:center;overflow-wrap:anywhere}
 .menu-page-cta-copy p{max-width:560px;margin:16px 0 0;color:rgba(255,255,255,.7);line-height:1.55}
 .menu-page-cta-actions{display:grid;min-width:min(100%,360px);gap:10px}
 .menu-page-cta-actions .button{width:100%;justify-content:center}
 .menu-dark-secondary-button{color:#fff;background:transparent;border:1px solid rgba(255,255,255,.28)}
 .menu-dark-secondary-button:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.5)}
 .menu-booking-note{margin:2px 0 0;color:rgba(255,255,255,.58);font-size:.72rem;line-height:1.45;text-align:center}
-@media(max-width:900px){.menu-share-card{grid-template-columns:1fr;gap:26px}.menu-share-status{text-align:left}.menu-page-cta-actions{width:100%}}
+@media(max-width:900px){.menu-share-card{grid-template-columns:1fr;gap:26px}.menu-page-cta-actions{width:100%}}
 @media(max-width:680px){.menu-share-section{padding:0 0 54px}.menu-share-card{padding:26px 20px;border-radius:22px}.menu-share-copy h2{font-size:2.35rem}.menu-share-actions{gap:9px}.menu-page-cta-copy p{font-size:.9rem}}
