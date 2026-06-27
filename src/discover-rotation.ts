@@ -4,7 +4,7 @@ type LocalizedText = Record<Language, string>;
 
 interface Artwork {
   mood: Mood;
-  src: string;
+  source: string;
   alt: LocalizedText;
 }
 
@@ -14,41 +14,42 @@ interface PairingGallery {
 }
 
 const localized = (tr: string, en: string, ru: string): LocalizedText => ({ tr, en, ru });
+const artworkSource = (name: string): string => `src/pairings-data/${name}.webp.b64.txt`;
 
 const galleries: Record<string, PairingGallery> = {
   "01": {
     id: "latte-nutella",
     artworks: [
-      { mood: "warm", src: "src/pairings/latte-nutella-warm.webp", alt: localized("Sıcak Latte ve Nutellalı Kruvasan posteri", "Warm Latte and Nutella Croissant poster", "Тёплый постер: латте и круассан с Nutella") },
-      { mood: "fresh", src: "src/pairings/latte-nutella-fresh.webp", alt: localized("Ferah Latte ve Nutellalı Kruvasan posteri", "Fresh Latte and Nutella Croissant poster", "Свежий постер: латте и круассан с Nutella") }
+      { mood: "warm", source: artworkSource("latte-nutella-warm"), alt: localized("Sıcak Latte ve Nutellalı Kruvasan posteri", "Warm Latte and Nutella Croissant poster", "Тёплый постер: латте и круассан с Nutella") },
+      { mood: "fresh", source: artworkSource("latte-nutella-fresh"), alt: localized("Ferah Latte ve Nutellalı Kruvasan posteri", "Fresh Latte and Nutella Croissant poster", "Свежий постер: латте и круассан с Nutella") }
     ]
   },
   "02": {
     id: "iced-san-sebastian",
     artworks: [
-      { mood: "warm", src: "src/pairings/iced-san-sebastian-warm.webp", alt: localized("Sıcak tonlarda Buzlu Latte ve San Sebastian posteri", "Warm Iced Latte and San Sebastian poster", "Тёплый постер: айс-латте и Сан-Себастьян") },
-      { mood: "fresh", src: "src/pairings/iced-san-sebastian-fresh.webp", alt: localized("Ferah Buzlu Latte ve San Sebastian posteri", "Fresh Iced Latte and San Sebastian poster", "Свежий постер: айс-латте и Сан-Себастьян") }
+      { mood: "warm", source: artworkSource("iced-san-sebastian-warm"), alt: localized("Sıcak tonlarda Buzlu Latte ve San Sebastian posteri", "Warm Iced Latte and San Sebastian poster", "Тёплый постер: айс-латте и Сан-Себастьян") },
+      { mood: "fresh", source: artworkSource("iced-san-sebastian-fresh"), alt: localized("Ferah Buzlu Latte ve San Sebastian posteri", "Fresh Iced Latte and San Sebastian poster", "Свежий постер: айс-латте и Сан-Себастьян") }
     ]
   },
   "03": {
     id: "filter-lotus",
     artworks: [
-      { mood: "warm", src: "src/pairings/filter-lotus-warm.webp", alt: localized("Sıcak Filtre Kahve ve Lotus Cheesecake posteri", "Warm Filter Coffee and Lotus Cheesecake poster", "Тёплый постер: фильтр-кофе и чизкейк Lotus") },
-      { mood: "fresh", src: "src/pairings/filter-lotus-fresh.webp", alt: localized("Ferah Filtre Kahve ve Lotus Cheesecake posteri", "Fresh Filter Coffee and Lotus Cheesecake poster", "Свежий постер: фильтр-кофе и чизкейк Lotus") }
+      { mood: "warm", source: artworkSource("filter-lotus-warm"), alt: localized("Sıcak Filtre Kahve ve Lotus Cheesecake posteri", "Warm Filter Coffee and Lotus Cheesecake poster", "Тёплый постер: фильтр-кофе и чизкейк Lotus") },
+      { mood: "fresh", source: artworkSource("filter-lotus-fresh"), alt: localized("Ferah Filtre Kahve ve Lotus Cheesecake posteri", "Fresh Filter Coffee and Lotus Cheesecake poster", "Свежий постер: фильтр-кофе и чизкейк Lotus") }
     ]
   },
   "04": {
     id: "relax-lotus",
     artworks: [
-      { mood: "warm", src: "src/pairings/relax-lotus-warm.webp", alt: localized("Sıcak Relax Tea ve Lotus Cheesecake posteri", "Warm Relax Tea and Lotus Cheesecake poster", "Тёплый постер: Relax Tea и чизкейк Lotus") },
-      { mood: "fresh", src: "src/pairings/relax-lotus-fresh.webp", alt: localized("Ferah Relax Tea ve Lotus Cheesecake posteri", "Fresh Relax Tea and Lotus Cheesecake poster", "Свежий постер: Relax Tea и чизкейк Lotus") }
+      { mood: "warm", source: artworkSource("relax-lotus-warm"), alt: localized("Sıcak Relax Tea ve Lotus Cheesecake posteri", "Warm Relax Tea and Lotus Cheesecake poster", "Тёплый постер: Relax Tea и чизкейк Lotus") },
+      { mood: "fresh", source: artworkSource("relax-lotus-fresh"), alt: localized("Ferah Relax Tea ve Lotus Cheesecake posteri", "Fresh Relax Tea and Lotus Cheesecake poster", "Свежий постер: Relax Tea и чизкейк Lotus") }
     ]
   },
   "05": {
     id: "cool-lime-macaron",
     artworks: [
-      { mood: "warm", src: "src/pairings/cool-lime-macaron-warm.webp", alt: localized("Sıcak tonlarda Cool Lime ve Makaron posteri", "Warm Cool Lime and Macaron poster", "Тёплый постер: Cool Lime и макарон") },
-      { mood: "fresh", src: "src/pairings/cool-lime-macaron-fresh.webp", alt: localized("Ferah Cool Lime ve Makaron posteri", "Fresh Cool Lime and Macaron poster", "Свежий постер: Cool Lime и макарон") }
+      { mood: "warm", source: artworkSource("cool-lime-macaron-warm"), alt: localized("Sıcak tonlarda Cool Lime ve Makaron posteri", "Warm Cool Lime and Macaron poster", "Тёплый постер: Cool Lime и макарон") },
+      { mood: "fresh", source: artworkSource("cool-lime-macaron-fresh"), alt: localized("Ferah Cool Lime ve Makaron posteri", "Fresh Cool Lime and Macaron poster", "Свежий постер: Cool Lime и макарон") }
     ]
   }
 };
@@ -59,9 +60,34 @@ const labels: Record<Language, { gallery: string; warm: string; fresh: string }>
   ru: { gallery: "Тёплый и свежий образы этого сочетания", warm: "Тёплая атмосфера", fresh: "Свежая атмосфера" }
 };
 
+const sourceCache = new Map<string, Promise<string>>();
+
 function currentLanguage(): Language {
   const value = document.documentElement.lang;
   return value === "en" || value === "ru" ? value : "tr";
+}
+
+function loadArtwork(source: string): Promise<string> {
+  const cached = sourceCache.get(source);
+  if (cached) return cached;
+
+  const request = fetch(source, { credentials: "same-origin" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Artwork request failed: ${response.status}`);
+      return response.text();
+    })
+    .then((payload) => {
+      const base64 = payload.trim();
+      if (!base64 || !/^[A-Za-z0-9+/=]+$/.test(base64)) throw new Error("Artwork payload is invalid");
+      return `data:image/webp;base64,${base64}`;
+    })
+    .catch((error: unknown) => {
+      sourceCache.delete(source);
+      throw error;
+    });
+
+  sourceCache.set(source, request);
+  return request;
 }
 
 class MoodRotator {
@@ -70,6 +96,7 @@ class MoodRotator {
   private activeIndex = 0;
   private timer: number | null = null;
   private pointerStartX: number | null = null;
+  private renderToken = 0;
   private readonly reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   constructor(private readonly root: HTMLElement) {
@@ -97,8 +124,12 @@ class MoodRotator {
     this.reducedMotion.addEventListener("change", () => this.reducedMotion.matches ? this.stop() : this.start());
   }
 
-  show(galleryData: PairingGallery): void {
+  async show(galleryData: PairingGallery, isCurrent: () => boolean): Promise<boolean> {
+    const token = ++this.renderToken;
     this.stop();
+    const sources = await Promise.all(galleryData.artworks.map((artwork) => loadArtwork(artwork.source)));
+    if (token !== this.renderToken || !isCurrent()) return false;
+
     this.activeIndex = 0;
     this.images = [];
     this.dots = [];
@@ -119,10 +150,9 @@ class MoodRotator {
       const image = document.createElement("img");
       image.className = "pairing-artwork";
       image.classList.toggle("is-active", index === 0);
-      image.src = artwork.src;
+      image.src = sources[index];
       image.alt = artwork.alt[language];
       image.decoding = "async";
-      image.loading = index === 0 ? "eager" : "lazy";
       image.setAttribute("aria-hidden", String(index !== 0));
       stage.append(image);
       this.images.push(image);
@@ -145,6 +175,7 @@ class MoodRotator {
     gallery.append(stage, controls);
     this.root.replaceChildren(gallery);
     this.start();
+    return true;
   }
 
   private setIndex(index: number, userInitiated: boolean): void {
@@ -186,19 +217,28 @@ function initialize(): void {
   const rotator = new MoodRotator(root);
   let rendering = false;
 
-  const renderCurrent = (): void => {
+  const renderCurrent = async (): Promise<void> => {
     if (rendering || root.querySelector("[data-pairing-gallery]")) return;
-    const gallery = galleries[number.textContent?.trim() ?? ""];
+    const numberKey = number.textContent?.trim() ?? "";
+    const gallery = galleries[numberKey];
     if (!gallery) return;
     rendering = true;
-    rotator.show(gallery);
-    rendering = false;
+    try {
+      await rotator.show(gallery, () => (number.textContent?.trim() ?? "") === numberKey);
+    } catch (error) {
+      console.warn("Taste Journey artwork could not be loaded.", error);
+    } finally {
+      rendering = false;
+      if (!root.querySelector("[data-pairing-gallery]") && galleries[number.textContent?.trim() ?? ""]) {
+        queueMicrotask(() => void renderCurrent());
+      }
+    }
   };
 
-  const observer = new MutationObserver(renderCurrent);
+  const observer = new MutationObserver(() => void renderCurrent());
   observer.observe(root, { childList: true });
   observer.observe(number, { childList: true, characterData: true, subtree: true });
-  renderCurrent();
+  void renderCurrent();
 }
 
 document.readyState === "loading"
