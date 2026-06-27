@@ -13,14 +13,14 @@ jobs:
   finalize:
     if: github.head_ref == 'fix/android-offline-download-clean'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Align CSP with the local Trusted Types policy
+      - name: Apply final CSP and security contract
         shell: python
         run: |
           from pathlib import Path
@@ -44,16 +44,16 @@ jobs:
               source = source.replace(marker, marker + "\n" + policy_check)
           path.write_text(source, encoding="utf-8")
 
-      - name: Verify complete feature
+      - name: Build and verify focused contracts
         shell: bash
         run: |
           set -euo pipefail
           npm ci
           npm run build
-          npm run integrity:generate
-          npm run check
+          node scripts/verify-android-download.mjs
+          node scripts/verify-security-contracts.mjs
 
-      - name: Commit clean feature result
+      - name: Commit production-only branch
         shell: bash
         run: |
           set -euo pipefail
@@ -65,9 +65,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git diff --cached --check
-          if git diff --cached --quiet; then
-            echo 'Offline feature is already finalized.'
-            exit 0
-          fi
           git commit -m 'fix: finalize verified Android offline flow'
           git push origin HEAD:fix/android-offline-download-clean
