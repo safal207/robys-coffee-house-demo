@@ -17,6 +17,7 @@ function upgradeAndroidDownload() {
     mark.height = 24;
     mark.setAttribute("aria-hidden", "true");
     icon.replaceChildren(mark);
+    icon.className = "android-download-logo";
   }
 
   const current = section.querySelector(".android-download-button");
