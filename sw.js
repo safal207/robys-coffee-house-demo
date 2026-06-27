@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v3-20260627";
+const CACHE_VERSION = "robys-offline-v4-20260627-share";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
