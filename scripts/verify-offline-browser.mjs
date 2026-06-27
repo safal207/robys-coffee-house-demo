@@ -4,7 +4,8 @@ import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
-const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+const expectedSha256 = (await readFile(new URL("../downloads/android-v1.1/SHA256.txt", import.meta.url), "utf8")).trim();
+assert.match(expectedSha256, /^[a-f0-9]{64}$/, "Pinned APK checksum is invalid");
 const publishedApk = await readFile(new URL("../downloads/robys-coffee-house-v1.1.apk", import.meta.url));
 assert.equal(publishedApk.length, 25231, "Published APK byte size changed");
 assert.equal(createHash("sha256").update(publishedApk).digest("hex"), expectedSha256, "Published APK checksum changed");
@@ -66,7 +67,7 @@ try {
   await page.locator("#menu-search").fill("latte");
   assert.ok(await page.locator("#menu-root").innerText(), "Offline menu search produced no content");
 
-  console.log("✅ Android click and offline menu browser contract passed.");
+  console.log(`✅ Android click and offline menu browser contract passed for ${expectedSha256.slice(0, 12)}…`);
 } catch (error) {
   throw new Error(`${error.message}. Browser messages: ${JSON.stringify(messages)}`, { cause: error });
 } finally {
