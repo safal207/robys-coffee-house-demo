@@ -4,12 +4,19 @@ on:
   push:
     branches:
       - fix/android-download-offline
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+      - reopened
 
 permissions:
   contents: write
 
 jobs:
   stage-offline-feature:
+    if: github.ref_name == 'fix/android-download-offline' || github.event.pull_request.head.ref == 'fix/android-download-offline'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
