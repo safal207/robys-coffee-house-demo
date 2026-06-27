@@ -8,6 +8,28 @@ function syncConnectivityState() {
   if (status) status.textContent = navigator.onLine ? "Online" : "Offline";
 }
 
+function decorateAndroidButton() {
+  const icon = document.querySelector(".android-download-icon");
+  if (!icon || icon.querySelector("img")) return Boolean(icon);
+  const logo = document.createElement("img");
+  logo.src = "src/android-mark.svg?v=20260627-2";
+  logo.alt = "";
+  logo.width = 24;
+  logo.height = 24;
+  logo.decoding = "async";
+  logo.setAttribute("aria-hidden", "true");
+  icon.replaceChildren(logo);
+  return true;
+}
+
+function watchAndroidButton() {
+  if (decorateAndroidButton()) return;
+  const observer = new MutationObserver(() => {
+    if (decorateAndroidButton()) observer.disconnect();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+}
+
 function canBootstrapOfflineMode() {
   const path = window.location.pathname;
   return path.endsWith("/menu.html") || path.endsWith("/404.html") || path.endsWith("404.html");
@@ -37,6 +59,7 @@ async function ensureOfflineMode() {
 }
 
 syncConnectivityState();
+watchAndroidButton();
 window.addEventListener("online", syncConnectivityState);
 window.addEventListener("offline", syncConnectivityState);
 window.addEventListener("load", () => void ensureOfflineMode(), { once: true });
