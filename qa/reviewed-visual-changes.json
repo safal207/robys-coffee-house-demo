@@ -1,1 +1,263 @@
-{"version":1,"reviewedChanges":[{"id":"mobile-featured-feed-vertical-v1","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/68#issuecomment-4794027319","contentBindings":{"featured-strip.css":"83e441f86f31825418387f75d3dd60e36292907b"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","reason":"dimension mismatch 320x5079 vs 320x5797"},{"capture":"landing-full","viewport":"phone-390","reason":"dimension mismatch 390x5081 vs 390x5990"},{"capture":"menu-preview","viewport":"phone-390","totalPixels":345540,"maxDiffPixelRatio":0.018},{"capture":"visit-map","viewport":"phone-390","totalPixels":513240,"maxDiffPixelRatio":0.0043}]},{"id":"mobile-featured-feed-compact-v2","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/69#issuecomment-4794232857","contentBindings":{"featured-strip.css":"197647aea614e33385b327fb1215e76fbe463e94","src/products/cards/latte-card.v3.svg":"1a2ce5a1006e745fd2a61f49a3b8a2aa6e3880fc","src/products/cards/nutella-card.v3.svg":"c1175c880c3ff35e7785b2259e3f53f5ffb85e59"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","reason":"dimension mismatch 320x5797 vs 320x5566"},{"capture":"landing-full","viewport":"phone-390","reason":"dimension mismatch 390x5990 vs 390x5618"},{"capture":"menu-preview","viewport":"phone-390","totalPixels":345540,"maxDiffPixelRatio":0.0171},{"capture":"visit-map","viewport":"phone-390","totalPixels":513240,"maxDiffPixelRatio":0.0041}]},{"id":"featured-card-reference-crops-v1","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/70","contentBindings":{"featured-strip.js":"ca7f74506bb040ba197bbfac51b5aca16a90af6d","src/products/cards/latte-card.v3.svg":"bb6c4f46257fed65135ddc4222d997b46353dd04","src/products/cards/nutella-card.v3.svg":"728de66ac28ef5a245244b67a0ff8ae2573ba99b"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","totalPixels":1781120,"maxDiffPixelRatio":0.031},{"capture":"landing-full","viewport":"phone-390","totalPixels":2191020,"maxDiffPixelRatio":0.0367},{"capture":"landing-full","viewport":"tablet-768","totalPixels":4058112,"maxDiffPixelRatio":0.01},{"capture":"landing-full","viewport":"desktop-1440","totalPixels":6285600,"maxDiffPixelRatio":0.0173}]},{"id":"typed-poster-gallery-v2","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/72","contentBindings":{"featured-gallery.css":"5cf97fc62a6c8d087887a3f7981f4d3966c4138b","src/featured-gallery.ts":"12dd35806bc4de35b60a5d02faadd37293ecb486"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","reason":"dimension mismatch 320x6872 vs 320x6354"},{"capture":"landing-full","viewport":"phone-390","reason":"dimension mismatch 390x7302 vs 390x6676"},{"capture":"landing-full","viewport":"tablet-768","reason":"dimension mismatch 768x9909 vs 768x6141"},{"capture":"landing-full","viewport":"desktop-1440","reason":"dimension mismatch 1440x4365 vs 1440x4836"},{"capture":"menu-preview","viewport":"phone-390","totalPixels":345540,"maxDiffPixelRatio":0.015},{"capture":"visit-map","viewport":"phone-390","totalPixels":513240,"maxDiffPixelRatio":0.008},{"capture":"menu-preview","viewport":"desktop-1440","totalPixels":1031040,"maxDiffPixelRatio":0.008},{"capture":"visit-map","viewport":"desktop-1440","totalPixels":1428480,"maxDiffPixelRatio":0.005}]},{"id":"reviewed-full-gallery-v4","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/74","contentBindings":{"index.html":"e7c78b58a99ad27615a3b46d06b11c5b06a20188","featured-gallery.css":"2f73520206ca458cfbdfde529e1e923724706f46","src/featured-gallery.ts":"8fde70f8581dcd7ba957dff251bc67243b99b4b1","scripts/visual-regression.mjs":"c79010abf891b83732e13684504b42025439b545","src/products/gallery-v4/latte.webp":"c297075617c32180b8469ece3bdb931006122a9c","src/products/gallery-v4/san-sebastian.webp":"54c83960dd6a6993a24b1aaae10f3ce595117c6f","src/products/gallery-v4/iced-latte.webp":"0ef2bd91694042303e9eb46063f7c08017887418","src/products/gallery-v4/nutella-croissant.webp":"cba431652191d40122a153548399590d3d2f2d46","src/products/gallery-v4/lotus-cheesecake.webp":"0fc36cb5b94d55f63ecd9b83c316a6df0a28c785"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","totalPixels":2033280,"maxDiffPixelRatio":0.107},{"capture":"landing-full","viewport":"phone-390","totalPixels":2603640,"maxDiffPixelRatio":0.13},{"capture":"landing-full","viewport":"tablet-768","totalPixels":4716288,"maxDiffPixelRatio":0.069},{"capture":"landing-full","viewport":"desktop-1440","totalPixels":6963840,"maxDiffPixelRatio":0.053}]},{"id":"daily-social-offer-v1","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/75","contentBindings":{"index.html":"a486020f5721fb3062703cf83c5de1bb689026ba","social-offer.css":"0ba5181728065c7dfed90f030422eb44f94866b3","social-offer.js":"1d62e8f0a778d837a6c5b1a21e9bb6ce2f5ceb54","src/social-offer.ts":"20c65f5d91e95385aa3772291099d3727ed505f2","qa/gallery.spec.ts":"02eabd431306ff2f1f90c800fd8e06a35556cc3e"},"expectedFailures":[{"capture":"landing-full","viewport":"phone-320","reason":"dimension mismatch 320x6354 vs 320x6571"},{"capture":"landing-full","viewport":"phone-390","reason":"dimension mismatch 390x6676 vs 390x6875"},{"capture":"landing-full","viewport":"tablet-768","reason":"dimension mismatch 768x6141 vs 768x6318"},{"capture":"landing-full","viewport":"desktop-1440","reason":"dimension mismatch 1440x4836 vs 1440x5014"}]},{"id":"menu-instagram-booking-share-v1","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/95","contentBindings":{"menu.html":"ec61e205e8125ca69636b2ac7a14bf82d20ba037","menu.css":"e3a96ec7c23b78271c619080896fb9bcf37cc094","menu-actions.js":"74f8d5b0112ba5202c132caa4db5cb4793e0ad6e"},"expectedFailures":[{"capture":"menu-full","viewport":"phone-320","reason":"dimension mismatch 320x4684 vs 320x5436"},{"capture":"menu-full","viewport":"phone-390","reason":"dimension mismatch 390x4412 vs 390x5098"},{"capture":"menu-full","viewport":"tablet-768","reason":"dimension mismatch 768x4776 vs 768x5406"},{"capture":"menu-full","viewport":"desktop-1440","reason":"dimension mismatch 1440x3535 vs 1440x3967"}]}]}
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "mobile-featured-feed-vertical-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/68#issuecomment-4794027319",
+      "contentBindings": {
+        "featured-strip.css": "83e441f86f31825418387f75d3dd60e36292907b"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x5079 vs 320x5797"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x5081 vs 390x5990"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "totalPixels": 345540,
+          "maxDiffPixelRatio": 0.018
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.0043
+        }
+      ]
+    },
+    {
+      "id": "mobile-featured-feed-compact-v2",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/69#issuecomment-4794232857",
+      "contentBindings": {
+        "featured-strip.css": "197647aea614e33385b327fb1215e76fbe463e94",
+        "src/products/cards/latte-card.v3.svg": "1a2ce5a1006e745fd2a61f49a3b8a2aa6e3880fc",
+        "src/products/cards/nutella-card.v3.svg": "c1175c880c3ff35e7785b2259e3f53f5ffb85e59"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x5797 vs 320x5566"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x5990 vs 390x5618"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "totalPixels": 345540,
+          "maxDiffPixelRatio": 0.0171
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.0041
+        }
+      ]
+    },
+    {
+      "id": "featured-card-reference-crops-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/70",
+      "contentBindings": {
+        "featured-strip.js": "ca7f74506bb040ba197bbfac51b5aca16a90af6d",
+        "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
+        "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "totalPixels": 1781120,
+          "maxDiffPixelRatio": 0.031
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2191020,
+          "maxDiffPixelRatio": 0.0367
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 4058112,
+          "maxDiffPixelRatio": 0.01
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "totalPixels": 6285600,
+          "maxDiffPixelRatio": 0.0173
+        }
+      ]
+    },
+    {
+      "id": "typed-poster-gallery-v2",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/72",
+      "contentBindings": {
+        "featured-gallery.css": "5cf97fc62a6c8d087887a3f7981f4d3966c4138b",
+        "src/featured-gallery.ts": "12dd35806bc4de35b60a5d02faadd37293ecb486"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6872 vs 320x6354"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x7302 vs 390x6676"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x9909 vs 768x6141"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4365 vs 1440x4836"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "totalPixels": 345540,
+          "maxDiffPixelRatio": 0.015
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 513240,
+          "maxDiffPixelRatio": 0.008
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "desktop-1440",
+          "totalPixels": 1031040,
+          "maxDiffPixelRatio": 0.008
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "totalPixels": 1428480,
+          "maxDiffPixelRatio": 0.005
+        }
+      ]
+    },
+    {
+      "id": "reviewed-full-gallery-v4",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/74",
+      "contentBindings": {
+        "index.html": "e7c78b58a99ad27615a3b46d06b11c5b06a20188",
+        "featured-gallery.css": "2f73520206ca458cfbdfde529e1e923724706f46",
+        "src/featured-gallery.ts": "8fde70f8581dcd7ba957dff251bc67243b99b4b1",
+        "scripts/visual-regression.mjs": "c79010abf891b83732e13684504b42025439b545",
+        "src/products/gallery-v4/latte.webp": "c297075617c32180b8469ece3bdb931006122a9c",
+        "src/products/gallery-v4/san-sebastian.webp": "54c83960dd6a6993a24b1aaae10f3ce595117c6f",
+        "src/products/gallery-v4/iced-latte.webp": "0ef2bd91694042303e9eb46063f7c08017887418",
+        "src/products/gallery-v4/nutella-croissant.webp": "cba431652191d40122a153548399590d3d2f2d46",
+        "src/products/gallery-v4/lotus-cheesecake.webp": "0fc36cb5b94d55f63ecd9b83c316a6df0a28c785"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "totalPixels": 2033280,
+          "maxDiffPixelRatio": 0.107
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "totalPixels": 2603640,
+          "maxDiffPixelRatio": 0.13
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 4716288,
+          "maxDiffPixelRatio": 0.069
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "totalPixels": 6963840,
+          "maxDiffPixelRatio": 0.053
+        }
+      ]
+    },
+    {
+      "id": "daily-social-offer-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/75",
+      "contentBindings": {
+        "index.html": "a486020f5721fb3062703cf83c5de1bb689026ba",
+        "social-offer.css": "0ba5181728065c7dfed90f030422eb44f94866b3",
+        "social-offer.js": "1d62e8f0a778d837a6c5b1a21e9bb6ce2f5ceb54",
+        "src/social-offer.ts": "20c65f5d91e95385aa3772291099d3727ed505f2",
+        "qa/gallery.spec.ts": "02eabd431306ff2f1f90c800fd8e06a35556cc3e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6354 vs 320x6571"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6676 vs 390x6875"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x6141 vs 768x6318"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4836 vs 1440x5014"
+        }
+      ]
+    },
+    {
+      "id": "menu-instagram-booking-share-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/95",
+      "contentBindings": {
+        "menu.html": "ec61e205e8125ca69636b2ac7a14bf82d20ba037",
+        "menu.css": "e3a96ec7c23b78271c619080896fb9bcf37cc094",
+        "menu-actions.js": "74f8d5b0112ba5202c132caa4db5cb4793e0ad6e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x4684 vs 320x5436"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x4412 vs 390x5098"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x4776 vs 768x5406"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x3535 vs 1440x3967"
+        }
+      ]
+    }
+  ]
+}
