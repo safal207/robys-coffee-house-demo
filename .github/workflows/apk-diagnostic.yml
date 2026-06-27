@@ -36,4 +36,5 @@ jobs:
         with:
           name: apk-diagnostic-${{ github.run_id }}
           path: .artifacts
+          include-hidden-files: true
           retention-days: 1
