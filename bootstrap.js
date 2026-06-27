@@ -8,8 +8,8 @@ function installAndroidButtonLogo() {
   logo.className = "android-download-logo";
   logo.src = "src/android-mark.svg?v=20260627-2";
   logo.alt = "";
-  logo.width = 25;
-  logo.height = 25;
+  logo.width = 20;
+  logo.height = 22;
   logo.decoding = "async";
   logo.setAttribute("aria-hidden", "true");
   placeholder.replaceWith(logo);
