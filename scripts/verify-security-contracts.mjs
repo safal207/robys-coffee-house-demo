@@ -13,6 +13,9 @@ const RUNTIME_FILES = [
   "menu-search-clear.js",
   "menu-ready.js",
   "menu-bootstrap.js",
+  "android-download.js",
+  "pwa.js",
+  "sw.js",
   "src/app.ts"
 ];
 const HTML_FILES = ["index.html", "menu.html"];
@@ -76,7 +79,7 @@ const requiredCsp = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'none'",
-  "worker-src 'none'",
+  "worker-src 'self'",
   "upgrade-insecure-requests",
   "require-trusted-types-for 'script'",
   "trusted-types 'none'"
@@ -111,6 +114,13 @@ for (const file of HTML_FILES) {
   const eventHandlers = Array.from(html.matchAll(/\son[a-z]+\s*=/gi));
   must("SEC-001", eventHandlers.length === 0, `${file} contains inline event handlers`);
 }
+
+const serviceWorker = read("sw.js");
+const pwaRuntime = read("pwa.js");
+must("CSP-001", pwaRuntime.includes('navigator.serviceWorker.register'), "Offline runtime must register a service worker explicitly");
+must("CSP-001", pwaRuntime.includes('{ scope: "./" }'), "Service worker scope must stay local to the site");
+must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
+must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "Service worker must ignore cross-origin fetches");
 
 const iframe = read("index.html").match(/<iframe\b[^>]*>/i)?.[0] ?? "";
 must("SEC-001", /src=["']https:\/\/maps\.google\.com\/maps/i.test(iframe), "Map iframe origin is outside the allowlist");
