@@ -171,7 +171,7 @@
     {
       "path": "pwa.js",
       "bytes": 1405,
-      "sha256": "f01d8a484c007ccba03e4a57702aa79e00ea03a167b5849f75b9ba2be355b9ed"
+      "sha256": "1676485d93a6629feafa2178aabd31094f93176c3ad4b6274bfec7317a5b2e63"
     },
     {
       "path": "qa.js",
@@ -505,8 +505,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 2909,
-      "sha256": "0e02e03735ec1a639d1e99213cb5221d3b83bbfc6cd44de02e3275d67ea100ad"
+      "bytes": 2907,
+      "sha256": "261a1d59774ec41c1289c3d69e15a6088002a8e2786fdf3ae97c0f668919181e"
     }
   ]
 }
