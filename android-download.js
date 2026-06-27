@@ -1,5 +1,6 @@
 const APK_NAME = "robys-coffee-house-v1.1.apk";
 const APK_BYTES = 25231;
+const PACKED_APK_BYTES = 25927;
 const APK_SHA256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 
@@ -50,6 +51,19 @@ async function sha256Hex(bytes) {
   return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
 }
 
+function repairPackedApk(packed) {
+  if (packed.byteLength !== PACKED_APK_BYTES) {
+    throw new Error(`APK packed size mismatch: ${packed.byteLength}`);
+  }
+
+  const repaired = new Uint8Array(APK_BYTES);
+  repaired.set(packed.subarray(0, 3145), 0);
+  repaired.set(packed.subarray(3145, 16372), 3157);
+  repaired.set(packed.subarray(17242, 25248), 16384);
+  repaired.set(packed.subarray(25248), 24552);
+  return repaired;
+}
+
 async function prepareApk(link, status) {
   if (preparedUrl) return preparedUrl;
   if (preparePromise) return preparePromise;
@@ -62,8 +76,8 @@ async function prepareApk(link, status) {
     if (responses.some((response) => !response.ok)) throw new Error("APK part unavailable");
     const base64 = (await Promise.all(responses.map((response) => response.text()))).join("").replace(/\s+/g, "");
     const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    if (bytes.byteLength !== APK_BYTES) throw new Error("APK size mismatch");
+    const packed = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const bytes = repairPackedApk(packed);
     if (await sha256Hex(bytes) !== APK_SHA256) throw new Error("APK checksum mismatch");
 
     const blob = new Blob([bytes], { type: "application/vnd.android.package-archive" });
