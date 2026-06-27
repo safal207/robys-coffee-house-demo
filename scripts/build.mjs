@@ -28,6 +28,7 @@ function transpileClassicScript(sourcePath, outputPath) {
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
+transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -35,7 +36,7 @@ function revisionFor(path) {
 
 function synchronizeScript(html, fileName, revision) {
   const start = html.indexOf(`src="${fileName}`);
-  if (start < 0) throw new Error(`index.html does not load ${fileName}`);
+  if (start < 0) throw new Error(`HTML does not load ${fileName}`);
   const open = html.lastIndexOf("<" + "script", start);
   const close = html.indexOf("</" + "script>", start);
   if (open < 0 || close < 0) throw new Error(`Cannot locate ${fileName} script element`);
@@ -46,9 +47,15 @@ function synchronizeScript(html, fileName, revision) {
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const discoverRotationRevision = revisionFor("discover-rotation.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}) and social-offer.js (${socialOfferRevision}).`);
+
+let discoverHtml = readFileSync("discover.html", "utf8");
+discoverHtml = synchronizeScript(discoverHtml, "discover-rotation.js", discoverRotationRevision);
+writeFileSync("discover.html", discoverHtml);
+
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}) and discover-rotation.js (${discoverRotationRevision}).`);
