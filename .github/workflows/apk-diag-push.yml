@@ -1,0 +1,32 @@
+name: Isolated APK diagnostic
+
+on:
+  push:
+    branches:
+      - diag/apk-reconstruction
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Calculate APK details
+        run: |
+          mkdir -p artifact
+          node --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const paths = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, '0')}.b64`);
+          const encoded = paths.map((path) => readFileSync(path, 'utf8')).join('').replace(/\s+/g, '');
+          const apk = Buffer.from(encoded, 'base64');
+          writeFileSync('artifact/current.apk', apk);
+          writeFileSync('artifact/details.json', JSON.stringify({ bytes: apk.length, sha256: createHash('sha256').update(apk).digest('hex') }, null, 2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-details-${{ github.run_id }}
+          path: artifact
+          retention-days: 1
