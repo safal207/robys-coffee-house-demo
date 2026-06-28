@@ -11,7 +11,6 @@ concurrency:
 permissions:
   contents: read
   pull-requests: write
-  checks: write
 
 jobs:
   shellcheck:
@@ -54,4 +53,4 @@ jobs:
           filter_mode: added
           level: error
           fail_level: error
-          markdownlint_flags: "**/*.md"
+          markdownlint_flags: "."
