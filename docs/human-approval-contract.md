@@ -16,7 +16,8 @@ A qualifying approval must satisfy all of the following:
 - the reviewer currently has `write`, `maintain`, or `admin` repository permission.
 
 A new commit changes the head SHA and invalidates earlier approvals automatically.
-A dismissed review is not accepted.
+A later `COMMENTED` review does not revoke an approval. A later
+`CHANGES_REQUESTED` review or a dismissed approval does revoke it.
 
 ## Safe activation
 
@@ -25,19 +26,21 @@ accidentally deadlocked.
 
 After a second trusted human reviewer has repository write access:
 
-1. Create the repository Actions variable `REQUIRE_HUMAN_APPROVAL` with value `true`.
-2. Open repository **Settings → Rules → Rulesets** or **Settings → Branches**.
-3. Target the `main` branch.
-4. Require a pull request before merging.
-5. Require at least one approving review.
-6. Dismiss stale approvals when new commits are pushed.
-7. Require conversation resolution.
-8. Require status checks and select at least:
+1. Open **Settings → Secrets and variables → Actions → Variables**.
+2. Create the repository variable `REQUIRE_HUMAN_APPROVAL` with value `true`.
+   Do not create it as an environment-scoped variable.
+3. Open repository **Settings → Rules → Rulesets** or **Settings → Branches**.
+4. Target the `main` branch.
+5. Require a pull request before merging.
+6. Require at least one approving review.
+7. Dismiss stale approvals when new commits are pushed.
+8. Require conversation resolution.
+9. Require status checks and select at least:
    - `Human approval contract / Verify trusted human approval`;
    - `AI review contract / verify`;
    - the stable security, runtime, browser, and review checks used by the repository.
-9. Require the branch to be up to date before merging.
-10. Keep force pushes and branch deletion disabled.
+10. Require the branch to be up to date before merging.
+11. Keep force pushes and branch deletion disabled.
 
 Do not enable a no-bypass approval rule until a second trusted reviewer is available.
 The pull-request author cannot provide the independent approval required by this
