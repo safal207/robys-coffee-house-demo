@@ -1,0 +1,91 @@
+name: AI review contract
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Wait for fresh AI review evidence
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request;
+            const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const bot = 'chatgpt-codex-connector[bot]';
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref: pr.head.sha,
+            });
+            const headTime = Date.parse(
+              commit.commit.committer?.date ?? commit.commit.author?.date,
+            ) - 60_000;
+
+            for (let attempt = 1; attempt <= 30; attempt += 1) {
+              const comments = await github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pr.number, per_page: 100 },
+              );
+              const fresh = (item) => Date.parse(item.created_at) >= headTime;
+              const command = (item, value) =>
+                trusted.has(item.author_association) &&
+                fresh(item) &&
+                (item.body ?? '').trim().toLowerCase() === value;
+
+              const codexRequests = comments.filter((item) =>
+                command(item, '@codex review'),
+              );
+              const hasJules = comments.some((item) =>
+                command(item, '@jules review'),
+              );
+              const hasCodexComment = comments.some((item) => {
+                if (item.user?.login !== bot || !fresh(item)) return false;
+                const reviewed = (item.body ?? '').match(
+                  /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
+                )?.[1]?.toLowerCase();
+                return reviewed && pr.head.sha.toLowerCase().startsWith(reviewed);
+              });
+
+              let hasCodexReaction = false;
+              for (const request of codexRequests) {
+                const reactions = await github.paginate(
+                  github.rest.reactions.listForIssueComment,
+                  { owner, repo, comment_id: request.id, per_page: 100 },
+                );
+                hasCodexReaction ||= reactions.some(
+                  (reaction) =>
+                    reaction.user?.login === bot &&
+                    reaction.content === '+1' &&
+                    fresh(reaction),
+                );
+              }
+
+              if (
+                codexRequests.length > 0 &&
+                hasJules &&
+                (hasCodexComment || hasCodexReaction)
+              ) {
+                core.notice('Fresh Codex and Jules review evidence verified.');
+                return;
+              }
+
+              core.info(`AI review evidence not complete (attempt ${attempt}/30).`);
+              if (attempt < 30) await sleep(20_000);
+            }
+
+            core.setFailed(
+              'Post fresh @codex review and @jules review comments, then wait for Codex evidence on the current head commit.',
+            );
