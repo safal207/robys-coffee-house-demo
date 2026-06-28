@@ -1,0 +1,161 @@
+name: Maintainer attestation updater
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  issue_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  update:
+    name: Update current-head attestation status
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event.issue.pull_request && github.event.issue.state == 'open')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
+      STATUS_CONTEXT: Maintainer merge attestation
+    steps:
+      - name: Evaluate explicit maintainer decision
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN
+              .trim()
+              .toLowerCase();
+            const statusContext = process.env.STATUS_CONTEXT;
+            const commandPattern = /^\/merge-(ready|hold)\s+([0-9a-f]{40})\s*$/i;
+
+            const pr = context.eventName === 'pull_request'
+              ? context.payload.pull_request
+              : (await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: context.payload.issue.number,
+                })).data;
+
+            if (!pr || pr.base.ref !== 'main') {
+              core.notice('Not an open pull request targeting main; no status changed.');
+              return;
+            }
+
+            const setStatus = async (state, description) => {
+              await github.rest.repos.createCommitStatus({
+                owner,
+                repo,
+                sha: pr.head.sha,
+                state,
+                context: statusContext,
+                description: description.slice(0, 140),
+                target_url: pr.html_url,
+              });
+            };
+
+            const verifyMaintainer = async (comment) => {
+              const login = comment?.user?.login;
+              if (!login || login.toLowerCase() !== expectedLogin) return false;
+              if (comment.user?.type === 'Bot' || login.endsWith('[bot]')) return false;
+
+              try {
+                const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner,
+                  repo,
+                  username: login,
+                });
+                return permission.data.permission === 'admin';
+              } catch (error) {
+                core.warning(`Could not verify maintainer permission: ${error.message}`);
+                return false;
+              }
+            };
+
+            const parseCommand = (body) => body?.trim().match(commandPattern) ?? null;
+
+            if (context.eventName === 'pull_request') {
+              if (pr.draft) {
+                await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
+                return;
+              }
+
+              const evidenceAfter = Date.parse(pr.updated_at);
+              const comments = await github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pr.number, per_page: 100 },
+              );
+
+              const candidates = [];
+              for (const comment of comments) {
+                const match = parseCommand(comment.body);
+                if (!match) continue;
+                if (Date.parse(comment.created_at) < evidenceAfter) continue;
+                if (!(await verifyMaintainer(comment))) continue;
+                candidates.push({ comment, decision: match[1].toLowerCase(), sha: match[2].toLowerCase() });
+              }
+
+              candidates.sort((left, right) => Number(left.comment.id) - Number(right.comment.id));
+              const latest = candidates.at(-1);
+
+              if (!latest) {
+                await setStatus(
+                  'failure',
+                  `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+                );
+                return;
+              }
+
+              if (latest.sha !== pr.head.sha.toLowerCase()) {
+                await setStatus('failure', 'Maintainer decision references a stale or different head SHA.');
+                return;
+              }
+
+              if (latest.decision === 'hold') {
+                await setStatus('failure', 'Maintainer placed the current head on hold.');
+                return;
+              }
+
+              await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
+              return;
+            }
+
+            const comment = context.payload.comment;
+            if (!(await verifyMaintainer(comment))) {
+              core.notice('Comment is not from the configured admin maintainer; no status changed.');
+              return;
+            }
+
+            const match = parseCommand(comment?.body);
+            if (context.payload.action === 'deleted') {
+              if (match?.[1]?.toLowerCase() === 'ready') {
+                await setStatus('failure', 'The current-head maintainer attestation was deleted.');
+              }
+              return;
+            }
+
+            if (!match) {
+              core.notice('Maintainer comment is not a merge decision command; no status changed.');
+              return;
+            }
+
+            const decision = match[1].toLowerCase();
+            const referencedSha = match[2].toLowerCase();
+            if (referencedSha !== pr.head.sha.toLowerCase()) {
+              await setStatus('failure', 'Maintainer command references a stale or different head SHA.');
+              return;
+            }
+
+            if (decision === 'hold') {
+              await setStatus('failure', 'Maintainer placed the current head on hold.');
+              return;
+            }
+
+            await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
