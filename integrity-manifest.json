@@ -30,8 +30,8 @@
     },
     {
       "path": "bootstrap.js",
-      "bytes": 46,
-      "sha256": "07e9e867f8ac3af35001da64b63f4b405e3281b52e8cb3956de56d59a6f329b7"
+      "bytes": 780,
+      "sha256": "e5848ef2c06282d53e0ca188af5fe1ebc39e6d870dc9ae6360f6645ac7551af9"
     },
     {
       "path": "community-reel.css",
@@ -52,6 +52,41 @@
       "path": "data/featured-products.json",
       "bytes": 4027,
       "sha256": "f162fa46f2f578352b13611167117198841faf6457e16e0018beb56121969602"
+    },
+    {
+      "path": "discover-copy.js",
+      "bytes": 5736,
+      "sha256": "632cee28c375fedb251c22710e7a463e210fc88c0c3ceb376d1a50911da29d7f"
+    },
+    {
+      "path": "discover-journeys.js",
+      "bytes": 5015,
+      "sha256": "09976c973bfc34cc7cadc167be1f0322fec0b67f7a9c304f1b424f4b27d50335"
+    },
+    {
+      "path": "discover-rotation.css",
+      "bytes": 691,
+      "sha256": "f738cc006918a237d7cb7cb03f804b58c7894b4e0442a0107c60ec724e8c5f3b"
+    },
+    {
+      "path": "discover-rotation.js",
+      "bytes": 6446,
+      "sha256": "c91d5b7105516ba5217ad0323b2b011b15f8c360140b96096e43bdfa8909607e"
+    },
+    {
+      "path": "discover.css",
+      "bytes": 7357,
+      "sha256": "d0f0e3e6c8f06cdc96d181a397e056a76be21cd2c0fc9af41ab0b49a9829116e"
+    },
+    {
+      "path": "discover.html",
+      "bytes": 6188,
+      "sha256": "8726ec515f0c74e6a41c664f2281a5bfc22592c080c9770a19946778dbb7f1c3"
+    },
+    {
+      "path": "discover.js",
+      "bytes": 7209,
+      "sha256": "a2ab6007d2a9e7f274b4eb2619c5984f2ab1756425af94703337dd834a243313"
     },
     {
       "path": "featured-gallery.css",
@@ -105,8 +140,8 @@
     },
     {
       "path": "menu-actions.js",
-      "bytes": 5596,
-      "sha256": "183f9e3827ceee130ddb184be3db3d3389b3c565ec4c5cd31b43b2f3e8764b79"
+      "bytes": 5625,
+      "sha256": "cea0a76fee64bc8b0f189147653ee5539abe4b4e6e3fbecd6e0bdff6a7d9dcb2"
     },
     {
       "path": "menu-bootstrap.js",
@@ -242,6 +277,31 @@
       "path": "src/menu-icons/tea.svg",
       "bytes": 2301,
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
+    },
+    {
+      "path": "src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
+      "bytes": 16496,
+      "sha256": "1611857a7965e2ca76b8af8f4be652db69a9e46a5d0e6a41826ce8c650b5f53d"
+    },
+    {
+      "path": "src/pairings-data/final/filter-lotus.webp.b64.txt",
+      "bytes": 17028,
+      "sha256": "a3cee27505bd9c606d4a484a122328d9e2ae2050f2ee8983a86ef2b956e720e3"
+    },
+    {
+      "path": "src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
+      "bytes": 18632,
+      "sha256": "7030ee6148db107ccc9d86caf76d41d14d039494838a854dee8ac451adcb8150"
+    },
+    {
+      "path": "src/pairings-data/final/latte-nutella.webp.b64.txt",
+      "bytes": 18940,
+      "sha256": "e8e1cc537d483c111d2017323f1bc63393f752f954348a7e47b295ec4aed44bb"
+    },
+    {
+      "path": "src/pairings-data/final/relax-lotus.webp.b64.txt",
+      "bytes": 15364,
+      "sha256": "0a8a432623203148dff204bc826edff0602f4a05b8a34fcf7d5f4291c074f96e"
     },
     {
       "path": "src/products/cards/iced-latte-card.v1.webp",
