@@ -35,61 +35,64 @@ The command must contain exactly one space before the full SHA, with no leading,
 trailing, or multiline whitespace.
 
 Decision comments are append-only. Do not edit or delete an existing decision
-comment. Any mutation of maintainer decision evidence fails the status and
-requires a fresh command, even when a newer decision comment also exists. This is
-an intentional fail-closed rule, not an attempt to reconstruct mutable history.
+comment. A mutation stores a monotonic cursor for that comment ID and requires a
+newer append-only decision before the gate can become green again.
 
-## Event-driven state machine
+## Order-independent state reducer
 
 The workflow publishes the commit status context `Maintainer merge attestation`
-on the pull-request head.
+on the pull-request head. Every trusted event recomputes that status from current
+GitHub state instead of trusting webhook delivery order.
 
-Every opening, head update, reopen, ready-for-review transition, or PR edit sets
-the exact current head to `pending`. This invalidates earlier intent without
-using timestamps, comment snapshots, or stored baselines.
+The reducer reads all existing, unedited decision comments from the configured
+maintainer and sorts them by GitHub comment ID. The newest decision is
+ authoritative:
 
-A trusted new decision comment then changes that current-head status directly:
-
+- no decision → `pending`;
 - exact `/merge-ready <current SHA>` → `success`;
 - exact `/merge-hold <current SHA>` → `failure`;
-- a command containing another SHA → `failure`;
-- no command → no status change;
-- edited or deleted decision evidence → `failure`.
+- latest command containing another SHA → `failure`.
 
-A later fresh `/merge-ready` can release a hold or mutation failure. Because every
-command includes the exact current head SHA, decisions for older commits cannot
-approve a newer head.
+Edited or deleted decision evidence is represented by the separate
+`Maintainer attestation mutation cursor` status. Its description stores the
+largest mutated decision comment ID. When that cursor is greater than or equal
+to the newest surviving decision ID, the main gate is `failure`. A fresh command
+has a larger comment ID and can recover the gate.
 
-All attestation events for one pull request use GitHub Actions concurrency with
-`queue: max`. Pending events are preserved and processed one at a time instead of
-silently replacing an earlier edit, deletion, hold, or ready event.
+This design remains deterministic when GitHub executes queued workflow runs out
+of order. An older `/merge-ready` run re-reads the current comments and mutation
+cursor, so it cannot overwrite a newer hold, deletion, edit, or fresh decision
+with stale event data.
+
+A new head naturally invalidates old intent because the newest surviving command
+contains the previous SHA. Metadata-only PR events simply trigger another
+reduction; they do not invent a new decision or rely on timestamps.
+
+All attestation events for one pull request also use GitHub Actions concurrency
+with `queue: max`, preserving pending events while the current-state reducer
+provides correctness independently of execution order.
 
 ## Trust rules
 
-A new decision command qualifies only when all of these conditions hold:
+A decision qualifies only when these conditions hold:
 
 - the pull request targets `main` and is open;
-- both the comment author and the webhook actor match repository variable
-  `SOLO_MAINTAINER_LOGIN`;
+- the comment author matches repository variable `SOLO_MAINTAINER_LOGIN`;
 - when the variable is absent, the repository owner login is used;
 - login comparison is case-insensitive inside the trusted script;
 - the account is not a bot;
-- the account currently has repository `admin` permission;
-- the command contains the exact full current head SHA.
+- the configured account currently has repository `admin` permission;
+- the comment has never been edited;
+- the command contains a full 40-character SHA.
 
-For a newly created command, the script performs the exact author, actor, bot,
-permission, command-format, and current-head checks before it can publish
-`success` or a command-driven `failure`.
-
-The edited/deleted path is deliberately different: when a maintainer-authored
-decision comment is mutated, the workflow fails closed without allowing the
-mutation to create success and without requiring the editor to match the original
-author. The status records whether the mutation actor was the maintainer or
-another account, and a new append-only `/merge-ready` command is required to
-recover.
+The workflow fails closed when maintainer permission cannot be verified. Mutation
+events for maintainer-authored decision comments are recorded even when another
+account performed the edit or deletion, so another actor cannot preserve stale
+green evidence.
 
 The job condition rejects most unrelated public comments before the write-capable
-step starts.
+step starts. The internal mutation-cursor context is evidence storage and must
+not be selected as the required merge gate.
 
 ## Safe order
 
