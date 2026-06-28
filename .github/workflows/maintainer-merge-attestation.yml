@@ -134,6 +134,8 @@ jobs:
             }
 
             const match = parseCommand(comment?.body);
+            const previousMatch = parseCommand(context.payload.changes?.body?.from);
+
             if (context.payload.action === 'deleted') {
               if (match?.[1]?.toLowerCase() === 'ready') {
                 await setStatus('failure', 'The current-head maintainer attestation was deleted.');
@@ -142,6 +144,13 @@ jobs:
             }
 
             if (!match) {
+              if (
+                context.payload.action === 'edited' &&
+                previousMatch?.[1]?.toLowerCase() === 'ready'
+              ) {
+                await setStatus('failure', 'The maintainer attestation was edited away.');
+                return;
+              }
               core.notice('Maintainer comment is not a merge decision command; no status changed.');
               return;
             }
