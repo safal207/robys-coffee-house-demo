@@ -63,19 +63,6 @@ jobs:
               return;
             }
 
-            if (context.eventName === 'issue_comment') {
-              const commentLogin = context.payload.comment?.user?.login?.toLowerCase();
-              const commentType = context.payload.comment?.user?.type;
-              if (
-                commentLogin !== expectedLogin ||
-                commentType === 'Bot' ||
-                commentLogin?.endsWith('[bot]')
-              ) {
-                core.notice('Comment is not from the configured solo maintainer; no status changed.');
-                return;
-              }
-            }
-
             const createStatus = async (statusContextName, state, description) => {
               return github.rest.repos.createCommitStatus({
                 owner,
@@ -111,9 +98,7 @@ jobs:
             }
 
             const parseCommand = (body) => body?.trim().match(commandPattern) ?? null;
-            const activityTime = (comment) => Date.parse(
-              comment.updated_at ?? comment.created_at,
-            );
+            const activityTime = (comment) => Date.parse(comment.created_at);
 
             const listStatuses = async () => github.paginate(
               github.rest.repos.listCommitStatusesForRef,
@@ -127,6 +112,14 @@ jobs:
               .sort((left, right) => left - right)
               .at(-1);
 
+            const writeBaseline = async (cutoff) => {
+              await createStatus(
+                baselineContext,
+                'success',
+                `cutoff:${cutoff}`,
+              );
+            };
+
             const reevaluateFromCurrentComments = async (evidenceAfter) => {
               const comments = await github.paginate(
                 github.rest.issues.listComments,
@@ -138,21 +131,22 @@ jobs:
                   comment.user?.login?.toLowerCase() === expectedLogin &&
                   comment.user?.type !== 'Bot' &&
                   !comment.user?.login?.endsWith('[bot]') &&
-                  activityTime(comment) >= evidenceAfter
+                  comment.created_at === comment.updated_at &&
+                  activityTime(comment) > evidenceAfter
                 ))
                 .map((comment) => {
                   const match = parseCommand(comment.body);
                   if (!match) return null;
                   return {
                     id: Number(comment.id),
-                    activityAt: activityTime(comment),
+                    createdAt: activityTime(comment),
                     decision: match[1].toLowerCase(),
                     sha: match[2].toLowerCase(),
                   };
                 })
                 .filter(Boolean)
                 .sort((left, right) => (
-                  left.activityAt - right.activityAt || left.id - right.id
+                  left.createdAt - right.createdAt || left.id - right.id
                 ));
 
               const latest = decisions.at(-1);
@@ -187,11 +181,7 @@ jobs:
                 Number.isFinite(storedCutoff) ? storedCutoff : 0,
               );
 
-              await createStatus(
-                baselineContext,
-                'success',
-                `cutoff:${effectiveCutoff}`,
-              );
+              await writeBaseline(effectiveCutoff);
 
               if (pr.draft) {
                 await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
@@ -199,6 +189,44 @@ jobs:
               }
 
               await reevaluateFromCurrentComments(effectiveCutoff);
+              return;
+            }
+
+            const comment = context.payload.comment;
+            const authorLogin = comment?.user?.login?.toLowerCase();
+            const actorLogin = context.payload.sender?.login?.toLowerCase();
+            const action = context.payload.action;
+            const currentMatch = parseCommand(comment?.body);
+            const previousMatch = parseCommand(context.payload.changes?.body?.from);
+
+            if (action === 'edited' || action === 'deleted') {
+              if (
+                authorLogin === expectedLogin &&
+                (currentMatch || previousMatch)
+              ) {
+                const mutationCutoff = Math.max(
+                  Date.now(),
+                  Number.isFinite(storedCutoff) ? storedCutoff : 0,
+                );
+                await writeBaseline(mutationCutoff);
+                await setStatus(
+                  'failure',
+                  actorLogin === expectedLogin
+                    ? 'A decision comment was mutated; post a fresh append-only merge decision.'
+                    : 'A decision comment was mutated by another actor; fresh maintainer evidence is required.',
+                );
+              }
+              return;
+            }
+
+            if (
+              action !== 'created' ||
+              authorLogin !== expectedLogin ||
+              actorLogin !== expectedLogin ||
+              comment?.user?.type === 'Bot' ||
+              authorLogin?.endsWith('[bot]')
+            ) {
+              core.notice('Comment creation is not a trusted maintainer decision event.');
               return;
             }
 
