@@ -6,6 +6,7 @@ on:
   issue_comment:
     types: [created, edited, deleted]
 
+# The workflow writes one commit-status gate and never checks out or executes PR code.
 permissions:
   contents: read
   issues: read
@@ -35,8 +36,6 @@ jobs:
     env:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
-      BASELINE_CONTEXT: Maintainer attestation baseline
-      RUN_ATTEMPT: ${{ github.run_attempt }}
     steps:
       - name: Evaluate explicit maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -48,10 +47,8 @@ jobs:
               .trim()
               .toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
-            const baselineContext = process.env.BASELINE_CONTEXT;
-            const runAttempt = Number(process.env.RUN_ATTEMPT);
             const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
-            const baselinePattern = /^comment-id:(\d+)$/;
+            const parseCommand = (body) => body?.match(commandPattern) ?? null;
 
             const pr = context.eventName === 'pull_request_target'
               ? context.payload.pull_request
@@ -66,21 +63,17 @@ jobs:
               return;
             }
 
-            const createStatus = async (statusContextName, state, description) => {
-              return github.rest.repos.createCommitStatus({
+            const setStatus = async (state, description) => {
+              await github.rest.repos.createCommitStatus({
                 owner,
                 repo,
                 sha: pr.head.sha,
                 state,
-                context: statusContextName,
+                context: statusContext,
                 description: description.slice(0, 140),
                 target_url: pr.html_url,
               });
             };
-
-            const setStatus = (state, description) => (
-              createStatus(statusContext, state, description)
-            );
 
             let permission;
             try {
@@ -100,113 +93,18 @@ jobs:
               return;
             }
 
-            const parseCommand = (body) => body?.match(commandPattern) ?? null;
-            const listComments = () => github.paginate(
-              github.rest.issues.listComments,
-              { owner, repo, issue_number: pr.number, per_page: 100 },
-            );
-            const maxCommentId = (comments) => comments.reduce(
-              (maximum, comment) => Math.max(maximum, Number(comment.id) || 0),
-              0,
-            );
-
-            const listStatuses = async () => github.paginate(
-              github.rest.repos.listCommitStatusesForRef,
-              { owner, repo, ref: pr.head.sha, per_page: 100 },
-            );
-
-            const latestBaselineCommentId = (statuses) => statuses
-              .filter((status) => status.context === baselineContext)
-              .map((status) => Number(status.description?.match(baselinePattern)?.[1]))
-              .filter(Number.isFinite)
-              .sort((left, right) => left - right)
-              .at(-1);
-
-            const writeBaseline = async (commentId) => {
-              await createStatus(
-                baselineContext,
-                'success',
-                `comment-id:${commentId}`,
-              );
-            };
-
-            const reevaluateFromCurrentComments = async (evidenceAfterId) => {
-              const comments = await listComments();
-              const decisions = comments
-                .filter((comment) => (
-                  comment.user?.login?.toLowerCase() === expectedLogin &&
-                  comment.user?.type !== 'Bot' &&
-                  !comment.user?.login?.endsWith('[bot]') &&
-                  comment.created_at === comment.updated_at &&
-                  Number(comment.id) > evidenceAfterId
-                ))
-                .map((comment) => {
-                  const match = parseCommand(comment.body);
-                  if (!match) return null;
-                  return {
-                    id: Number(comment.id),
-                    decision: match[1].toLowerCase(),
-                    sha: match[2].toLowerCase(),
-                  };
-                })
-                .filter(Boolean)
-                .sort((left, right) => left.id - right.id);
-
-              const latest = decisions.at(-1);
-              if (!latest) {
-                await setStatus(
-                  'pending',
-                  `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
-                );
-                return;
-              }
-
-              if (latest.sha !== pr.head.sha.toLowerCase()) {
-                await setStatus('failure', 'Latest maintainer decision references a stale or different head SHA.');
-                return;
-              }
-
-              if (latest.decision === 'hold') {
-                await setStatus('failure', 'Maintainer placed the current head on hold.');
-                return;
-              }
-
-              await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
-            };
-
-            const statuses = await listStatuses();
-            const storedCutoff = latestBaselineCommentId(statuses);
-
             if (context.eventName === 'pull_request_target') {
-              let effectiveCutoff = storedCutoff;
-
-              if (runAttempt === 1) {
-                const comments = await listComments();
-                effectiveCutoff = Math.max(
-                  maxCommentId(comments),
-                  Number.isFinite(storedCutoff) ? storedCutoff : 0,
-                );
-                await writeBaseline(effectiveCutoff);
-              }
-
-              if (!Number.isFinite(effectiveCutoff)) {
-                await setStatus('failure', 'PR-event attestation baseline is missing; rerun the workflow from a fresh PR event.');
-                return;
-              }
-
-              if (pr.draft) {
-                await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
-                return;
-              }
-
-              await reevaluateFromCurrentComments(effectiveCutoff);
+              const description = pr.draft
+                ? 'Draft PR: final maintainer decision is not requested yet.'
+                : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`;
+              await setStatus('pending', description);
               return;
             }
 
             const comment = context.payload.comment;
+            const action = context.payload.action;
             const authorLogin = comment?.user?.login?.toLowerCase();
             const actorLogin = context.payload.sender?.login?.toLowerCase();
-            const action = context.payload.action;
             const currentMatch = parseCommand(comment?.body);
             const previousMatch = parseCommand(context.payload.changes?.body?.from);
 
@@ -215,18 +113,11 @@ jobs:
                 authorLogin === expectedLogin &&
                 (currentMatch || previousMatch)
               ) {
-                const comments = await listComments();
-                const mutationCutoff = Math.max(
-                  Number(comment?.id) || 0,
-                  maxCommentId(comments),
-                  Number.isFinite(storedCutoff) ? storedCutoff : 0,
-                );
-                await writeBaseline(mutationCutoff);
                 await setStatus(
                   'failure',
                   actorLogin === expectedLogin
-                    ? 'A decision comment was mutated; post a fresh append-only merge decision.'
-                    : 'A decision comment was mutated by another actor; fresh maintainer evidence is required.',
+                    ? 'Decision evidence was mutated; post a fresh append-only merge decision.'
+                    : 'Decision evidence was mutated by another actor; fresh maintainer evidence is required.',
                 );
               }
               return;
@@ -243,9 +134,21 @@ jobs:
               return;
             }
 
-            if (!Number.isFinite(storedCutoff)) {
-              await setStatus('failure', 'PR-event attestation baseline is missing; rerun the pull-request workflow.');
+            if (!currentMatch) {
+              core.notice('Trusted maintainer comment is not an exact merge decision command.');
               return;
             }
 
-            await reevaluateFromCurrentComments(storedCutoff);
+            const decision = currentMatch[1].toLowerCase();
+            const referencedSha = currentMatch[2].toLowerCase();
+            if (referencedSha !== pr.head.sha.toLowerCase()) {
+              await setStatus('failure', 'Maintainer decision references a stale or different head SHA.');
+              return;
+            }
+
+            if (decision === 'hold') {
+              await setStatus('failure', 'Maintainer placed the current head on hold.');
+              return;
+            }
+
+            await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
