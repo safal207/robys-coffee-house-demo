@@ -39,11 +39,20 @@ separate `Maintainer attestation baseline` status containing the PR-event
 timestamp. Only decisions at or after that timestamp qualify. The freshness
 boundary therefore does not depend on when the status API happened to finish.
 
+Baseline cutoffs are monotonic: if queued workflow runs execute out of order, the
+largest PR-event timestamp remains authoritative. An older run cannot move the
+freshness boundary backwards. If no baseline exists, the comment path fails
+closed and asks for the pull-request workflow to be rerun.
+
 On every trusted maintainer comment create, edit, or deletion, the workflow
 re-reads all currently existing decision comments after the latest PR-event
 baseline. The most recent qualifying decision wins. This prevents deletion or
 editing of an old comment from overriding a newer `/merge-ready` or
 `/merge-hold` decision.
+
+Public comments do not reach the status-writing script unless their author is an
+owner, member, or collaborator; the script then performs the exact configured
+login and current `admin` permission checks.
 
 ## Safe order
 
