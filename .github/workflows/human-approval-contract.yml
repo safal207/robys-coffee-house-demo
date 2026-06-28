@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      REQUIRE_HUMAN_APPROVAL: ${{ vars.REQUIRE_HUMAN_APPROVAL }}
+      REQUIRE_HUMAN_APPROVAL: ${{ vars.REQUIRE_HUMAN_APPROVAL || 'false' }}
     steps:
       - name: Verify current-head human approval
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -26,7 +26,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
-            const enforce = (process.env.REQUIRE_HUMAN_APPROVAL ?? '')
+            const enforce = process.env.REQUIRE_HUMAN_APPROVAL
               .trim()
               .toLowerCase() === 'true';
 
@@ -45,24 +45,45 @@ jobs:
               { owner, repo, pull_number: pr.number, per_page: 100 },
             );
 
-            const latestByReviewer = new Map();
-            for (const review of reviews) {
+            const orderedReviews = [...reviews].sort((left, right) => {
+              const leftTime = Date.parse(left.submitted_at ?? left.created_at ?? 0);
+              const rightTime = Date.parse(right.submitted_at ?? right.created_at ?? 0);
+              if (leftTime !== rightTime) return leftTime - rightTime;
+              return Number(left.id) - Number(right.id);
+            });
+
+            // COMMENTED does not revoke an approval. A later CHANGES_REQUESTED or
+            // DISMISSED state does. Only APPROVED reviews on the exact current head
+            // are retained.
+            const approvalsByReviewer = new Map();
+            for (const review of orderedReviews) {
               const login = review.user?.login;
               if (!login) continue;
-              latestByReviewer.set(login.toLowerCase(), review);
+              const key = login.toLowerCase();
+
+              if (review.state === 'APPROVED') {
+                if (review.commit_id === pr.head.sha) {
+                  approvalsByReviewer.set(key, review);
+                } else {
+                  approvalsByReviewer.delete(key);
+                }
+                continue;
+              }
+
+              if (review.state === 'CHANGES_REQUESTED' || review.state === 'DISMISSED') {
+                approvalsByReviewer.delete(key);
+              }
             }
 
             const qualifying = [];
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const trustedPermissions = new Set(['admin', 'maintain', 'write']);
 
-            for (const review of latestByReviewer.values()) {
+            for (const review of approvalsByReviewer.values()) {
               const login = review.user?.login;
               if (!login) continue;
               if (login.toLowerCase() === pr.user.login.toLowerCase()) continue;
               if (review.user?.type === 'Bot' || login.endsWith('[bot]')) continue;
-              if (review.state !== 'APPROVED') continue;
-              if (review.commit_id !== pr.head.sha) continue;
               if (!trustedAssociations.has(review.author_association)) continue;
 
               try {
