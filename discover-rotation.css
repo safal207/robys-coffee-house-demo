@@ -1,159 +1,44 @@
 .pairing-products {
   position: relative;
   display: block;
-  min-height: 560px;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #e8ddd0;
 }
 
-.pairing-gallery,
-.pairing-gallery-stage,
-.pairing-artwork,
-.pairing-composition {
+.pairing-poster {
   position: absolute;
   inset: 0;
-}
-
-.pairing-gallery {
-  overflow: hidden;
-  background: #f4eadf;
-  touch-action: pan-y;
-}
-
-.pairing-gallery:focus-visible {
-  outline: 3px solid rgba(169, 72, 46, 0.5);
-  outline-offset: -6px;
-}
-
-.pairing-artwork {
-  opacity: 0;
-  transform: scale(1.012);
-  transition: opacity 560ms ease, transform 900ms ease;
-  pointer-events: none;
-}
-
-.pairing-artwork.is-active {
-  z-index: 1;
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-}
-
-.pairing-composition {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  background: rgba(36, 28, 27, 0.14);
+  place-items: center;
+  margin: 0;
+  background: #f4eadf;
+  animation: pairing-poster-reveal 420ms ease both;
 }
 
-.pairing-composition .product-portrait {
-  min-height: 560px;
+.pairing-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
-.pairing-artwork--warm .product-portrait img {
-  filter: saturate(0.94) sepia(0.1) contrast(1.04) brightness(0.96);
-  transform: scale(1.018);
-}
-
-.pairing-artwork--fresh .product-portrait img {
-  filter: saturate(1.08) brightness(1.055) contrast(0.99);
-  transform: scale(1.008);
-}
-
-.pairing-artwork--warm .product-fallback {
-  background: linear-gradient(145deg, #ead1bd, #ba876e);
-}
-
-.pairing-artwork--fresh .product-fallback {
-  background: linear-gradient(145deg, #f3e8d8, #c9b89d);
-}
-
-.pairing-gallery::before {
-  content: "ROBY'S";
-  position: absolute;
-  z-index: 2;
-  top: 18px;
-  left: 20px;
-  padding: 7px 11px;
-  border: 1px solid rgba(255, 250, 243, 0.45);
-  border-radius: 999px;
-  color: #fffaf3;
-  background: rgba(36, 28, 27, 0.42);
-  backdrop-filter: blur(8px);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  pointer-events: none;
-}
-
-.pairing-gallery::after {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  inset: auto 0 0;
-  height: 86px;
-  background: linear-gradient(transparent, rgba(28, 19, 16, 0.18));
-  pointer-events: none;
-}
-
-.pairing-gallery-dots {
-  position: absolute;
-  z-index: 3;
-  left: 50%;
-  bottom: 18px;
-  display: flex;
-  gap: 9px;
-  transform: translateX(-50%);
-}
-
-.pairing-gallery-dot {
-  width: 9px;
-  height: 9px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 999px;
-  background: rgba(36, 28, 27, 0.34);
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.22);
-  cursor: pointer;
-  transition: width 220ms ease, background 220ms ease;
-}
-
-.pairing-gallery-dot.is-active {
-  width: 27px;
-  background: #fffaf3;
-}
-
-@media (max-width: 900px) {
-  .pairing-products,
-  .pairing-composition .product-portrait {
-    min-height: 420px;
-  }
-}
-
-@media (max-width: 680px) {
-  .pairing-products {
-    min-height: 320px;
-    aspect-ratio: 1 / 1;
+@keyframes pairing-poster-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.008);
   }
 
-  .pairing-composition .product-portrait {
-    min-height: 320px;
-  }
-
-  .pairing-gallery::before {
-    top: 12px;
-    left: 12px;
-  }
-
-  .pairing-gallery-dots {
-    bottom: 14px;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pairing-artwork,
-  .pairing-gallery-dot,
-  .pairing-artwork .product-portrait img {
-    transition: none;
+  .pairing-poster {
+    animation: none;
   }
 }

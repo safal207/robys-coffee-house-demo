@@ -91,6 +91,9 @@ if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
   if (committed !== serialized) {
+    console.error("INTEGRITY-MANIFEST-BEGIN");
+    process.stderr.write(serialized);
+    console.error("INTEGRITY-MANIFEST-END");
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);
