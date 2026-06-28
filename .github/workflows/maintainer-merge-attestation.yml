@@ -97,6 +97,7 @@ jobs:
               return;
             }
 
+            let eventMutationId = 0;
             if (context.eventName === 'issue_comment') {
               const comment = context.payload.comment;
               const action = context.payload.action;
@@ -108,10 +109,11 @@ jobs:
                 author === expectedLogin &&
                 (before || after)
               ) {
+                eventMutationId = Number(comment.id) || 0;
                 await createStatus(
                   mutationContext,
                   'success',
-                  `comment-id:${Number(comment.id)}`,
+                  `comment-id:${eventMutationId}`,
                 );
               }
             }
@@ -127,12 +129,13 @@ jobs:
               ),
             ]);
 
-            const mutationId = statuses
+            const storedMutationId = statuses
               .filter((status) => status.context === mutationContext)
               .map((status) => Number(status.description?.match(cursorPattern)?.[1]))
               .filter(Number.isFinite)
               .sort((a, b) => a - b)
               .at(-1) ?? 0;
+            const mutationId = Math.max(storedMutationId, eventMutationId);
 
             const decisions = comments
               .filter((comment) => (
@@ -152,15 +155,18 @@ jobs:
               .filter(Boolean)
               .sort((a, b) => a.id - b.id);
 
+            if (pr.draft) {
+              await setGate('pending', 'Draft PR: final maintainer decision is not requested yet.');
+              return;
+            }
+
             const latest = decisions.at(-1);
             if (!latest) {
               await setGate(
                 mutationId > 0 ? 'failure' : 'pending',
                 mutationId > 0
                   ? 'Decision evidence was mutated; post a fresh append-only command.'
-                  : pr.draft
-                    ? 'Draft PR: final maintainer decision is not requested yet.'
-                    : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+                  : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
               );
               return;
             }
