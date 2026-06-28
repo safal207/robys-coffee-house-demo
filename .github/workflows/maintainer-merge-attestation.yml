@@ -1,7 +1,7 @@
 name: Maintainer attestation updater
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review, edited]
   issue_comment:
     types: [created, edited, deleted]
@@ -16,7 +16,7 @@ jobs:
   update:
     name: Update current-head attestation status
     if: >-
-      github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request_target' ||
       (
         github.event.issue.pull_request &&
         github.event.issue.state == 'open' &&
@@ -53,7 +53,7 @@ jobs:
             const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
             const baselinePattern = /^comment-id:(\d+)$/;
 
-            const pr = context.eventName === 'pull_request'
+            const pr = context.eventName === 'pull_request_target'
               ? context.payload.pull_request
               : (await github.rest.pulls.get({
                   owner,
@@ -177,7 +177,7 @@ jobs:
             const statuses = await listStatuses();
             const storedCutoff = latestBaselineCommentId(statuses);
 
-            if (context.eventName === 'pull_request') {
+            if (context.eventName === 'pull_request_target') {
               let effectiveCutoff = storedCutoff;
 
               if (runAttempt === 1) {
