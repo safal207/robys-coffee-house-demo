@@ -30,13 +30,14 @@ jobs:
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
       queue: max
-      cancel-in-progress: false
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
       MUTATION_CONTEXT: Maintainer attestation mutation cursor
+      RUN_CONTEXT: Maintainer attestation run cursor
     steps:
       - name: Recompute current-head maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -47,9 +48,13 @@ jobs:
             const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN.trim().toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
             const mutationContext = process.env.MUTATION_CONTEXT;
+            const runContext = process.env.RUN_CONTEXT;
+            const currentRunId = Number(context.runId);
             const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
-            const cursorPattern = /^comment-id:(\d+)$/;
+            const mutationCursorPattern = /^comment-id:(\d+)$/;
+            const runCursorPattern = /^run-id:(\d+)$/;
             const parseCommand = (body) => body?.match(commandPattern) ?? null;
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
             const pr = context.eventName === 'pull_request_target'
               ? context.payload.pull_request
@@ -97,6 +102,9 @@ jobs:
               return;
             }
 
+            await createStatus(runContext, 'success', `run-id:${currentRunId}`);
+            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
+
             let eventMutationId = 0;
             if (context.eventName === 'issue_comment') {
               const comment = context.payload.comment;
@@ -118,70 +126,132 @@ jobs:
               }
             }
 
-            const [comments, statuses] = await Promise.all([
-              github.paginate(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: pr.number, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.repos.listCommitStatusesForRef,
-                { owner, repo, ref: pr.head.sha, per_page: 100 },
-              ),
-            ]);
+            const loadCurrentState = async () => {
+              const [currentPrResponse, comments, statuses] = await Promise.all([
+                github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: pr.number,
+                }),
+                github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr.number, per_page: 100 },
+                ),
+                github.paginate(
+                  github.rest.repos.listCommitStatusesForRef,
+                  { owner, repo, ref: pr.head.sha, per_page: 100 },
+                ),
+              ]);
 
-            const storedMutationId = statuses
-              .filter((status) => status.context === mutationContext)
-              .map((status) => Number(status.description?.match(cursorPattern)?.[1]))
-              .filter(Number.isFinite)
-              .sort((a, b) => a - b)
-              .at(-1) ?? 0;
-            const mutationId = Math.max(storedMutationId, eventMutationId);
+              const storedMutationId = statuses
+                .filter((status) => status.context === mutationContext)
+                .map((status) => Number(status.description?.match(mutationCursorPattern)?.[1]))
+                .filter(Number.isFinite)
+                .sort((a, b) => a - b)
+                .at(-1) ?? 0;
 
-            const decisions = comments
-              .filter((comment) => (
-                comment.user?.login?.toLowerCase() === expectedLogin &&
-                comment.user?.type !== 'Bot' &&
-                !comment.user?.login?.endsWith('[bot]') &&
-                comment.created_at === comment.updated_at
-              ))
-              .map((comment) => {
-                const match = parseCommand(comment.body);
-                return match ? {
-                  id: Number(comment.id),
-                  decision: match[1].toLowerCase(),
-                  sha: match[2].toLowerCase(),
-                } : null;
-              })
-              .filter(Boolean)
-              .sort((a, b) => a.id - b.id);
+              const newestRunId = statuses
+                .filter((status) => status.context === runContext)
+                .map((status) => Number(status.description?.match(runCursorPattern)?.[1]))
+                .filter(Number.isFinite)
+                .sort((a, b) => a - b)
+                .at(-1) ?? currentRunId;
 
-            if (pr.draft) {
-              await setGate('pending', 'Draft PR: final maintainer decision is not requested yet.');
+              const decisions = comments
+                .filter((comment) => (
+                  comment.user?.login?.toLowerCase() === expectedLogin &&
+                  comment.user?.type !== 'Bot' &&
+                  !comment.user?.login?.endsWith('[bot]') &&
+                  comment.created_at === comment.updated_at
+                ))
+                .map((comment) => {
+                  const match = parseCommand(comment.body);
+                  return match ? {
+                    id: Number(comment.id),
+                    decision: match[1].toLowerCase(),
+                    sha: match[2].toLowerCase(),
+                  } : null;
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.id - b.id);
+
+              return {
+                currentPr: currentPrResponse.data,
+                latest: decisions.at(-1),
+                mutationId: Math.max(storedMutationId, eventMutationId),
+                newestRunId,
+              };
+            };
+
+            const reduceState = (snapshot) => {
+              if (snapshot.newestRunId > currentRunId) {
+                return { stale: true };
+              }
+              if (
+                snapshot.currentPr.state !== 'open' ||
+                snapshot.currentPr.base.ref !== 'main' ||
+                snapshot.currentPr.head.sha !== pr.head.sha
+              ) {
+                return { stale: true };
+              }
+              if (snapshot.currentPr.draft) {
+                return {
+                  state: 'pending',
+                  description: 'Draft PR: final maintainer decision is not requested yet.',
+                };
+              }
+
+              const latest = snapshot.latest;
+              if (!latest) {
+                return {
+                  state: snapshot.mutationId > 0 ? 'failure' : 'pending',
+                  description: snapshot.mutationId > 0
+                    ? 'Decision evidence was mutated; post a fresh append-only command.'
+                    : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+                };
+              }
+              if (snapshot.mutationId >= latest.id) {
+                return {
+                  state: 'failure',
+                  description: 'Latest decision evidence was mutated; post a newer command.',
+                };
+              }
+              if (latest.sha !== pr.head.sha.toLowerCase()) {
+                return {
+                  state: 'failure',
+                  description: 'Latest maintainer decision references another head SHA.',
+                };
+              }
+              if (latest.decision === 'hold') {
+                return {
+                  state: 'failure',
+                  description: 'Maintainer placed the current head on hold.',
+                };
+              }
+              return {
+                state: 'success',
+                description: `Explicit current-head decision by ${expectedLogin}.`,
+              };
+            };
+
+            const initialResult = reduceState(await loadCurrentState());
+            if (initialResult.stale) {
+              core.notice('A newer attestation run or pull-request head superseded this run.');
+              return;
+            }
+            if (initialResult.state !== 'success') {
+              await setGate(initialResult.state, initialResult.description);
               return;
             }
 
-            const latest = decisions.at(-1);
-            if (!latest) {
-              await setGate(
-                mutationId > 0 ? 'failure' : 'pending',
-                mutationId > 0
-                  ? 'Decision evidence was mutated; post a fresh append-only command.'
-                  : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
-              );
+            // A ready decision is re-read after a short cancellation window. The
+            // monotonic run cursor prevents an older run from publishing success
+            // after a newer event has started, while the second state read catches
+            // hold/edit/delete evidence that arrived during this run.
+            await sleep(1000);
+            const finalResult = reduceState(await loadCurrentState());
+            if (finalResult.stale) {
+              core.notice('A newer attestation run or pull-request head superseded final success.');
               return;
             }
-
-            if (mutationId >= latest.id) {
-              await setGate('failure', 'Latest decision evidence was mutated; post a newer command.');
-              return;
-            }
-            if (latest.sha !== pr.head.sha.toLowerCase()) {
-              await setGate('failure', 'Latest maintainer decision references another head SHA.');
-              return;
-            }
-            if (latest.decision === 'hold') {
-              await setGate('failure', 'Maintainer placed the current head on hold.');
-              return;
-            }
-
-            await setGate('success', `Explicit current-head decision by ${expectedLogin}.`);
+            await setGate(finalResult.state, finalResult.description);
