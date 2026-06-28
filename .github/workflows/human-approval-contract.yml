@@ -45,12 +45,11 @@ jobs:
               { owner, repo, pull_number: pr.number, per_page: 100 },
             );
 
-            const orderedReviews = [...reviews].sort((left, right) => {
-              const leftTime = Date.parse(left.submitted_at ?? left.created_at ?? 0);
-              const rightTime = Date.parse(right.submitted_at ?? right.created_at ?? 0);
-              if (leftTime !== rightTime) return leftTime - rightTime;
-              return Number(left.id) - Number(right.id);
-            });
+            // GitHub review IDs are monotonic. Sorting by ID avoids relying on
+            // nullable timestamps or API page ordering.
+            const orderedReviews = [...reviews].sort(
+              (left, right) => Number(left.id) - Number(right.id),
+            );
 
             // COMMENTED does not revoke an approval. A later CHANGES_REQUESTED or
             // DISMISSED state does. Only APPROVED reviews on the exact current head
