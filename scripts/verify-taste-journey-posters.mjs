@@ -102,6 +102,7 @@ for (const fileName of expectedFiles) {
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtime = readFileSync("discover-rotation.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
+const html = readFileSync("discover.html", "utf8");
 
 for (const id of expectedIds) {
   if (!source.includes(`posterSource("${id}")`)) fail(`renderer does not map ${id}`);
@@ -115,5 +116,11 @@ for (const forbidden of ["cloneProductCards", "pairing-composition", "pairing-ar
 
 if (!css.includes("object-fit: contain")) fail("posters must render without cropping");
 if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
+if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) {
+  fail("discover.html must provide a visible no-script fallback");
+}
+if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) {
+  fail("the no-script fallback must link to the full menu");
+}
 
-console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters, the full-poster renderer, and its no-script fallback.`);
