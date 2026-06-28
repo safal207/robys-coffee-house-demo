@@ -40,39 +40,86 @@ jobs:
               return;
             }
 
+            const collectCurrentApprovals = (reviews, headSha) => {
+              // GitHub review IDs are monotonic. Sorting by ID avoids relying on
+              // nullable timestamps or API page ordering.
+              const orderedReviews = [...reviews].sort(
+                (left, right) => Number(left.id) - Number(right.id),
+              );
+
+              // COMMENTED does not revoke an approval. A later CHANGES_REQUESTED or
+              // DISMISSED state does. Only APPROVED reviews on the exact current head
+              // are retained.
+              const approvalsByReviewer = new Map();
+              for (const review of orderedReviews) {
+                const login = review.user?.login;
+                if (!login) continue;
+                const key = login.toLowerCase();
+
+                if (review.state === 'APPROVED') {
+                  if (review.commit_id === headSha) {
+                    approvalsByReviewer.set(key, review);
+                  } else {
+                    approvalsByReviewer.delete(key);
+                  }
+                  continue;
+                }
+
+                if (
+                  review.state === 'CHANGES_REQUESTED' ||
+                  review.state === 'DISMISSED'
+                ) {
+                  approvalsByReviewer.delete(key);
+                }
+              }
+              return approvalsByReviewer;
+            };
+
+            const assertContract = (condition, message) => {
+              if (!condition) throw new Error(`Approval contract self-test failed: ${message}`);
+            };
+            const testUser = { login: 'trusted-reviewer', type: 'User' };
+            const testReview = (id, state, commitId) => ({
+              id,
+              state,
+              commit_id: commitId,
+              user: testUser,
+            });
+            const testHead = 'current-head';
+
+            assertContract(
+              collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'COMMENTED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'COMMENTED must not revoke a current-head approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'CHANGES_REQUESTED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'CHANGES_REQUESTED must revoke approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'DISMISSED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'DISMISSED must revoke approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', 'old-head'),
+              ], testHead).has('trusted-reviewer'),
+              'approval for an old head must not qualify',
+            );
+
             const reviews = await github.paginate(
               github.rest.pulls.listReviews,
               { owner, repo, pull_number: pr.number, per_page: 100 },
             );
-
-            // GitHub review IDs are monotonic. Sorting by ID avoids relying on
-            // nullable timestamps or API page ordering.
-            const orderedReviews = [...reviews].sort(
-              (left, right) => Number(left.id) - Number(right.id),
-            );
-
-            // COMMENTED does not revoke an approval. A later CHANGES_REQUESTED or
-            // DISMISSED state does. Only APPROVED reviews on the exact current head
-            // are retained.
-            const approvalsByReviewer = new Map();
-            for (const review of orderedReviews) {
-              const login = review.user?.login;
-              if (!login) continue;
-              const key = login.toLowerCase();
-
-              if (review.state === 'APPROVED') {
-                if (review.commit_id === pr.head.sha) {
-                  approvalsByReviewer.set(key, review);
-                } else {
-                  approvalsByReviewer.delete(key);
-                }
-                continue;
-              }
-
-              if (review.state === 'CHANGES_REQUESTED' || review.state === 'DISMISSED') {
-                approvalsByReviewer.delete(key);
-              }
-            }
+            const approvalsByReviewer = collectCurrentApprovals(reviews, pr.head.sha);
 
             const qualifying = [];
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
@@ -108,6 +155,7 @@ jobs:
                 ],
                 ['Mode', enforce ? 'required' : 'advisory'],
                 ['Current head', pr.head.sha],
+                ['Contract self-tests', 'passed'],
                 ['Qualifying approvals', qualifying.length.toString()],
                 [
                   'Reviewers',
