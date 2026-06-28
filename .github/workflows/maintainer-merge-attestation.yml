@@ -17,7 +17,15 @@ jobs:
     name: Update current-head attestation status
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event.issue.pull_request && github.event.issue.state == 'open')
+      (
+        github.event.issue.pull_request &&
+        github.event.issue.state == 'open' &&
+        (
+          github.event.comment.author_association == 'OWNER' ||
+          github.event.comment.author_association == 'MEMBER' ||
+          github.event.comment.author_association == 'COLLABORATOR'
+        )
+      )
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: false
@@ -114,16 +122,10 @@ jobs:
 
             const latestBaselineCutoff = (statuses) => statuses
               .filter((status) => status.context === baselineContext)
-              .map((status) => ({
-                status,
-                cutoff: Number(status.description?.match(baselinePattern)?.[1]),
-              }))
-              .filter((item) => Number.isFinite(item.cutoff))
-              .sort((left, right) => {
-                const timeDelta = Date.parse(left.status.created_at) - Date.parse(right.status.created_at);
-                return timeDelta || Number(left.status.id) - Number(right.status.id);
-              })
-              .at(-1)?.cutoff;
+              .map((status) => Number(status.description?.match(baselinePattern)?.[1]))
+              .filter(Number.isFinite)
+              .sort((left, right) => left - right)
+              .at(-1);
 
             const reevaluateFromCurrentComments = async (evidenceAfter) => {
               const comments = await github.paginate(
@@ -175,12 +177,20 @@ jobs:
               await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
             };
 
+            const statuses = await listStatuses();
+            const storedCutoff = latestBaselineCutoff(statuses);
+
             if (context.eventName === 'pull_request') {
               const eventCutoff = Date.parse(pr.updated_at);
+              const effectiveCutoff = Math.max(
+                eventCutoff,
+                Number.isFinite(storedCutoff) ? storedCutoff : 0,
+              );
+
               await createStatus(
                 baselineContext,
                 'success',
-                `cutoff:${eventCutoff}`,
+                `cutoff:${effectiveCutoff}`,
               );
 
               if (pr.draft) {
@@ -188,14 +198,13 @@ jobs:
                 return;
               }
 
-              await reevaluateFromCurrentComments(eventCutoff);
+              await reevaluateFromCurrentComments(effectiveCutoff);
               return;
             }
 
-            const statuses = await listStatuses();
-            const baselineCutoff = latestBaselineCutoff(statuses);
-            const fallbackCutoff = Date.parse(pr.created_at);
+            if (!Number.isFinite(storedCutoff)) {
+              await setStatus('failure', 'PR-event attestation baseline is missing; rerun the pull-request workflow.');
+              return;
+            }
 
-            await reevaluateFromCurrentComments(
-              Number.isFinite(baselineCutoff) ? baselineCutoff : fallbackCutoff,
-            );
+            await reevaluateFromCurrentComments(storedCutoff);
