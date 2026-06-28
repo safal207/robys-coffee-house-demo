@@ -222,6 +222,16 @@ jobs:
               return true;
             };
 
+            const setReducedGateIfCurrent = async () => {
+              const current = await loadReducedState();
+              if (current.stale) {
+                core.notice(`Skipped stale reducer gate write from run ${currentRunId}.`);
+                return false;
+              }
+              await setGate(current.state, current.description);
+              return true;
+            };
+
             if (!await setGateIfCurrent(
               'pending',
               `Recomputing maintainer decision in run ${currentRunId}.`,
@@ -252,10 +262,4 @@ jobs:
             }
 
             await sleep(1000);
-            const finalResult = await loadReducedState();
-            if (finalResult.stale) {
-              core.notice('A newer run or pull-request head superseded final publication.');
-              return;
-            }
-
-            await setGateIfCurrent(finalResult.state, finalResult.description);
+            await setReducedGateIfCurrent();
