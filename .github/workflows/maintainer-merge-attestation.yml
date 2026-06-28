@@ -29,7 +29,6 @@ jobs:
       )
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
-      queue: max
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -86,22 +85,6 @@ jobs:
               description,
             );
 
-            try {
-              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
-                owner,
-                repo,
-                username: expectedLogin,
-              });
-              if (permission.data.permission !== 'admin') {
-                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
-                return;
-              }
-            } catch (error) {
-              await setGate('failure', 'Could not verify configured solo maintainer permission.');
-              core.setFailed(`Permission verification failed: ${error.message}`);
-              return;
-            }
-
             await createStatus(runContext, 'success', `run-id:${currentRunId}`);
 
             let eventMutationId = 0;
@@ -127,11 +110,7 @@ jobs:
 
             const loadCurrentState = async () => {
               const [currentPrResponse, comments, statuses] = await Promise.all([
-                github.rest.pulls.get({
-                  owner,
-                  repo,
-                  pull_number: pr.number,
-                }),
+                github.rest.pulls.get({ owner, repo, pull_number: pr.number }),
                 github.paginate(
                   github.rest.issues.listComments,
                   { owner, repo, issue_number: pr.number, per_page: 100 },
@@ -142,19 +121,12 @@ jobs:
                 ),
               ]);
 
-              const storedMutationId = statuses
-                .filter((status) => status.context === mutationContext)
-                .map((status) => Number(status.description?.match(mutationCursorPattern)?.[1]))
+              const cursorMax = (name, pattern) => statuses
+                .filter((status) => status.context === name)
+                .map((status) => Number(status.description?.match(pattern)?.[1]))
                 .filter(Number.isFinite)
                 .sort((a, b) => a - b)
                 .at(-1) ?? 0;
-
-              const newestRunId = statuses
-                .filter((status) => status.context === runContext)
-                .map((status) => Number(status.description?.match(runCursorPattern)?.[1]))
-                .filter(Number.isFinite)
-                .sort((a, b) => a - b)
-                .at(-1) ?? currentRunId;
 
               const decisions = comments
                 .filter((comment) => (
@@ -177,16 +149,20 @@ jobs:
               return {
                 currentPr: currentPrResponse.data,
                 latest: decisions.at(-1),
-                mutationId: Math.max(storedMutationId, eventMutationId),
-                newestRunId,
+                mutationId: Math.max(
+                  cursorMax(mutationContext, mutationCursorPattern),
+                  eventMutationId,
+                ),
+                newestRunId: Math.max(
+                  cursorMax(runContext, runCursorPattern),
+                  currentRunId,
+                ),
               };
             };
 
             const reduceState = (snapshot) => {
-              if (snapshot.newestRunId > currentRunId) {
-                return { stale: true };
-              }
               if (
+                snapshot.newestRunId > currentRunId ||
                 snapshot.currentPr.state !== 'open' ||
                 snapshot.currentPr.base.ref !== 'main' ||
                 snapshot.currentPr.head.sha !== pr.head.sha
@@ -233,29 +209,44 @@ jobs:
               };
             };
 
-            const initialResult = reduceState(await loadCurrentState());
-            if (initialResult.stale) {
-              core.notice('A newer attestation run or pull-request head superseded this run.');
+            const initialSnapshot = await loadCurrentState();
+            if (initialSnapshot.newestRunId > currentRunId) {
+              core.notice('A newer attestation run superseded this run.');
               return;
             }
 
-            // Only the newest observed run may touch the public gate. This avoids
-            // an older out-of-order run regressing a newer final result to pending.
-            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
+            try {
+              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: expectedLogin,
+              });
+              if (permission.data.permission !== 'admin') {
+                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
+                return;
+              }
+            } catch (error) {
+              await setGate('failure', 'Could not verify configured solo maintainer permission.');
+              core.setFailed(`Permission verification failed: ${error.message}`);
+              return;
+            }
 
+            const initialResult = reduceState(initialSnapshot);
+            if (initialResult.stale) {
+              core.notice('A newer run or pull-request head superseded this run.');
+              return;
+            }
+
+            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
             if (initialResult.state !== 'success') {
               await setGate(initialResult.state, initialResult.description);
               return;
             }
 
-            // A ready decision is re-read after a short cancellation window. The
-            // monotonic run cursor prevents an older run from publishing success
-            // after a newer event has started, while the second state read catches
-            // hold/edit/delete evidence that arrived during this run.
             await sleep(1000);
             const finalResult = reduceState(await loadCurrentState());
             if (finalResult.stale) {
-              core.notice('A newer attestation run or pull-request head superseded final success.');
+              core.notice('A newer run or pull-request head superseded final success.');
               return;
             }
             await setGate(finalResult.state, finalResult.description);
