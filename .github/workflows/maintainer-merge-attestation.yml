@@ -17,7 +17,12 @@ jobs:
     name: Update current-head attestation status
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event.issue.pull_request && github.event.issue.state == 'open')
+      (
+        github.event.issue.pull_request &&
+        github.event.issue.state == 'open' &&
+        github.event.comment.user.login == (vars.SOLO_MAINTAINER_LOGIN || github.repository_owner) &&
+        github.event.comment.user.type != 'Bot'
+      )
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: false
@@ -64,11 +69,19 @@ jobs:
               });
             };
 
-            const permission = await github.rest.repos.getCollaboratorPermissionLevel({
-              owner,
-              repo,
-              username: expectedLogin,
-            });
+            let permission;
+            try {
+              permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: expectedLogin,
+              });
+            } catch (error) {
+              await setStatus('failure', 'Could not verify configured solo maintainer permission.');
+              core.setFailed(`Permission verification failed: ${error.message}`);
+              return;
+            }
+
             if (permission.data.permission !== 'admin') {
               await setStatus('failure', 'Configured solo maintainer does not currently have admin permission.');
               return;
