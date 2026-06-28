@@ -1,0 +1,46 @@
+name: DeepSeek review contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/deepseek-review.yml
+      - .github/workflows/deepseek-review-contract.yml
+      - scripts/deepseek-review.py
+      - scripts/test-deepseek-review.py
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Compile reviewer scripts
+        run: python3 -m py_compile scripts/deepseek-review.py scripts/test-deepseek-review.py
+
+      - name: Run offline reviewer contracts
+        run: python3 scripts/test-deepseek-review.py -v
+
+      - name: Parse workflow YAML
+        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deepseek-review.yml'); YAML.parse_file('.github/workflows/deepseek-review-contract.yml')"
+
+      - name: Verify job-scoped cancellation
+        run: |
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/deepseek-review.yml'); raise 'workflow-level concurrency can be cancelled by untrusted comments' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'review', 'concurrency'); raise 'missing trusted job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('deepseek-review-')"
+
+      - name: Verify pinned inference and trust boundaries
+        run: |
+          grep -Fq 'actions/ai-inference@b81b2afb8390ee6839b494a404766bef6493c7d9' .github/workflows/deepseek-review.yml
+          grep -Fq 'max-tokens: 3000' .github/workflows/deepseek-review.yml
+          ! grep -Fq 'max-completion-tokens' .github/workflows/deepseek-review.yml
+          grep -Fq 'default_branch' .github/workflows/deepseek-review.yml
+          grep -Fq 'persist-credentials: false' .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'OWNER'" .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'MEMBER'" .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/deepseek-review.yml
