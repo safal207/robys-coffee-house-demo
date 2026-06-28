@@ -36,6 +36,7 @@ jobs:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
       BASELINE_CONTEXT: Maintainer attestation baseline
+      RUN_ATTEMPT: ${{ github.run_attempt }}
     steps:
       - name: Evaluate explicit maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -48,8 +49,9 @@ jobs:
               .toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
             const baselineContext = process.env.BASELINE_CONTEXT;
-            const commandPattern = /^\/merge-(ready|hold)\s+([0-9a-f]{40})\s*$/i;
-            const baselinePattern = /^cutoff:(\d+)$/;
+            const runAttempt = Number(process.env.RUN_ATTEMPT);
+            const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
+            const baselinePattern = /^comment-id:(\d+)$/;
 
             const pr = context.eventName === 'pull_request'
               ? context.payload.pull_request
@@ -98,57 +100,57 @@ jobs:
               return;
             }
 
-            const parseCommand = (body) => body?.trim().match(commandPattern) ?? null;
-            const activityTime = (comment) => Date.parse(comment.created_at);
+            const parseCommand = (body) => body?.match(commandPattern) ?? null;
+            const listComments = () => github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number: pr.number, per_page: 100 },
+            );
+            const maxCommentId = (comments) => comments.reduce(
+              (maximum, comment) => Math.max(maximum, Number(comment.id) || 0),
+              0,
+            );
 
             const listStatuses = async () => github.paginate(
               github.rest.repos.listCommitStatusesForRef,
               { owner, repo, ref: pr.head.sha, per_page: 100 },
             );
 
-            const latestBaselineCutoff = (statuses) => statuses
+            const latestBaselineCommentId = (statuses) => statuses
               .filter((status) => status.context === baselineContext)
               .map((status) => Number(status.description?.match(baselinePattern)?.[1]))
               .filter(Number.isFinite)
               .sort((left, right) => left - right)
               .at(-1);
 
-            const writeBaseline = async (cutoff) => {
+            const writeBaseline = async (commentId) => {
               await createStatus(
                 baselineContext,
                 'success',
-                `cutoff:${cutoff}`,
+                `comment-id:${commentId}`,
               );
             };
 
-            const reevaluateFromCurrentComments = async (evidenceAfter) => {
-              const comments = await github.paginate(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: pr.number, per_page: 100 },
-              );
-
+            const reevaluateFromCurrentComments = async (evidenceAfterId) => {
+              const comments = await listComments();
               const decisions = comments
                 .filter((comment) => (
                   comment.user?.login?.toLowerCase() === expectedLogin &&
                   comment.user?.type !== 'Bot' &&
                   !comment.user?.login?.endsWith('[bot]') &&
                   comment.created_at === comment.updated_at &&
-                  activityTime(comment) > evidenceAfter
+                  Number(comment.id) > evidenceAfterId
                 ))
                 .map((comment) => {
                   const match = parseCommand(comment.body);
                   if (!match) return null;
                   return {
                     id: Number(comment.id),
-                    createdAt: activityTime(comment),
                     decision: match[1].toLowerCase(),
                     sha: match[2].toLowerCase(),
                   };
                 })
                 .filter(Boolean)
-                .sort((left, right) => (
-                  left.createdAt - right.createdAt || left.id - right.id
-                ));
+                .sort((left, right) => left.id - right.id);
 
               const latest = decisions.at(-1);
               if (!latest) {
@@ -173,16 +175,24 @@ jobs:
             };
 
             const statuses = await listStatuses();
-            const storedCutoff = latestBaselineCutoff(statuses);
+            const storedCutoff = latestBaselineCommentId(statuses);
 
             if (context.eventName === 'pull_request') {
-              const eventCutoff = Date.parse(pr.updated_at);
-              const effectiveCutoff = Math.max(
-                eventCutoff,
-                Number.isFinite(storedCutoff) ? storedCutoff : 0,
-              );
+              let effectiveCutoff = storedCutoff;
 
-              await writeBaseline(effectiveCutoff);
+              if (runAttempt === 1) {
+                const comments = await listComments();
+                effectiveCutoff = Math.max(
+                  maxCommentId(comments),
+                  Number.isFinite(storedCutoff) ? storedCutoff : 0,
+                );
+                await writeBaseline(effectiveCutoff);
+              }
+
+              if (!Number.isFinite(effectiveCutoff)) {
+                await setStatus('failure', 'PR-event attestation baseline is missing; rerun the workflow from a fresh PR event.');
+                return;
+              }
 
               if (pr.draft) {
                 await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
@@ -205,8 +215,10 @@ jobs:
                 authorLogin === expectedLogin &&
                 (currentMatch || previousMatch)
               ) {
+                const comments = await listComments();
                 const mutationCutoff = Math.max(
-                  Date.now(),
+                  Number(comment?.id) || 0,
+                  maxCommentId(comments),
                   Number.isFinite(storedCutoff) ? storedCutoff : 0,
                 );
                 await writeBaseline(mutationCutoff);
