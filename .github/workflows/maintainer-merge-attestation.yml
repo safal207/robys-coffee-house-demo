@@ -152,7 +152,7 @@ jobs:
               const latest = decisions.at(-1);
               if (!latest) {
                 await setStatus(
-                  'failure',
+                  'pending',
                   `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
                 );
                 return;
