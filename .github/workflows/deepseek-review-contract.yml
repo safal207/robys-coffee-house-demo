@@ -30,10 +30,13 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deepseek-review.yml'); YAML.parse_file('.github/workflows/deepseek-review-contract.yml')"
 
-      - name: Verify pinned inference interface
+      - name: Verify pinned inference and trust boundaries
         run: |
           grep -Fq 'actions/ai-inference@b81b2afb8390ee6839b494a404766bef6493c7d9' .github/workflows/deepseek-review.yml
           grep -Fq 'max-tokens: 3000' .github/workflows/deepseek-review.yml
           ! grep -Fq 'max-completion-tokens' .github/workflows/deepseek-review.yml
           grep -Fq 'default_branch' .github/workflows/deepseek-review.yml
           grep -Fq 'persist-credentials: false' .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'OWNER'" .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'MEMBER'" .github/workflows/deepseek-review.yml
+          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/deepseek-review.yml
