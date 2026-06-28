@@ -29,7 +29,8 @@ jobs:
       )
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
-      cancel-in-progress: true
+      # Preserve every edit/delete event so its mutation cursor cannot be lost.
+      queue: max
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
@@ -53,7 +54,6 @@ jobs:
             const mutationCursorPattern = /^comment-id:(\d+)$/;
             const runCursorPattern = /^run-id:(\d+)$/;
             const parseCommand = (body) => body?.match(commandPattern) ?? null;
-            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
             const pr = context.eventName === 'pull_request_target'
               ? context.payload.pull_request
@@ -106,7 +106,7 @@ jobs:
               }
             }
 
-            // Mutation evidence must be durable before this run supersedes older reducers.
+            // Mutation evidence must be durable before this run publishes ordering evidence.
             await createStatus(runContext, 'success', `run-id:${currentRunId}`);
 
             const loadCurrentState = async () => {
@@ -261,5 +261,4 @@ jobs:
               return;
             }
 
-            await sleep(1000);
             await setReducedGateIfCurrent();
