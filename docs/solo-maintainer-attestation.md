@@ -53,6 +53,11 @@ largest PR-event timestamp remains authoritative. An older run cannot move the
 freshness boundary backwards. If no baseline exists, the comment path fails
 closed and asks for the pull-request workflow to be rerun.
 
+All attestation events for one pull request use GitHub Actions concurrency with
+`queue: max`. Up to 100 pending events are preserved and processed one at a time;
+an edit, deletion, hold, or ready event cannot silently replace an older pending
+invalidation event.
+
 On every trusted decision creation, the workflow re-reads all currently existing,
 unedited decision comments after the latest baseline. The most recent qualifying
 decision wins. Editing or deleting a decision comment resets the baseline instead
