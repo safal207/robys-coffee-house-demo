@@ -77,9 +77,19 @@ A new decision command qualifies only when all of these conditions hold:
 - the account currently has repository `admin` permission;
 - the command contains the exact full current head SHA.
 
+For a newly created command, the script performs the exact author, actor, bot,
+permission, command-format, and current-head checks before it can publish
+`success` or a command-driven `failure`.
+
+The edited/deleted path is deliberately different: when a maintainer-authored
+decision comment is mutated, the workflow fails closed without allowing the
+mutation to create success and without requiring the editor to match the original
+author. The status records whether the mutation actor was the maintainer or
+another account, and a new append-only `/merge-ready` command is required to
+recover.
+
 The job condition rejects most unrelated public comments before the write-capable
-step starts. The script then performs the exact author, actor, bot, permission,
-command-format, and current-head checks before changing the status.
+step starts.
 
 ## Safe order
 
