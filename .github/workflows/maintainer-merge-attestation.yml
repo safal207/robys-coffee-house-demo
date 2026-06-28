@@ -85,8 +85,6 @@ jobs:
               description,
             );
 
-            await createStatus(runContext, 'success', `run-id:${currentRunId}`);
-
             let eventMutationId = 0;
             if (context.eventName === 'issue_comment') {
               const comment = context.payload.comment;
@@ -107,6 +105,9 @@ jobs:
                 );
               }
             }
+
+            // Mutation evidence must be durable before this run supersedes older reducers.
+            await createStatus(runContext, 'success', `run-id:${currentRunId}`);
 
             const loadCurrentState = async () => {
               const [currentPrResponse, comments, statuses] = await Promise.all([
@@ -209,9 +210,22 @@ jobs:
               };
             };
 
-            const initialSnapshot = await loadCurrentState();
-            if (initialSnapshot.newestRunId > currentRunId) {
-              core.notice('A newer attestation run superseded this run.');
+            const loadReducedState = async () => reduceState(await loadCurrentState());
+
+            const setGateIfCurrent = async (state, description) => {
+              const current = await loadReducedState();
+              if (current.stale) {
+                core.notice(`Skipped stale ${state} gate write from run ${currentRunId}.`);
+                return false;
+              }
+              await setGate(state, description);
+              return true;
+            };
+
+            if (!await setGateIfCurrent(
+              'pending',
+              `Recomputing maintainer decision in run ${currentRunId}.`,
+            )) {
               return;
             }
 
@@ -222,31 +236,26 @@ jobs:
                 username: expectedLogin,
               });
               if (permission.data.permission !== 'admin') {
-                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
+                await setGateIfCurrent(
+                  'failure',
+                  'Configured solo maintainer does not have admin permission.',
+                );
                 return;
               }
             } catch (error) {
-              await setGate('failure', 'Could not verify configured solo maintainer permission.');
+              await setGateIfCurrent(
+                'failure',
+                'Could not verify configured solo maintainer permission.',
+              );
               core.setFailed(`Permission verification failed: ${error.message}`);
               return;
             }
 
-            const initialResult = reduceState(initialSnapshot);
-            if (initialResult.stale) {
-              core.notice('A newer run or pull-request head superseded this run.');
-              return;
-            }
-
-            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
-            if (initialResult.state !== 'success') {
-              await setGate(initialResult.state, initialResult.description);
-              return;
-            }
-
             await sleep(1000);
-            const finalResult = reduceState(await loadCurrentState());
+            const finalResult = await loadReducedState();
             if (finalResult.stale) {
-              core.notice('A newer run or pull-request head superseded final success.');
+              core.notice('A newer run or pull-request head superseded final publication.');
               return;
             }
-            await setGate(finalResult.state, finalResult.description);
+
+            await setGateIfCurrent(finalResult.state, finalResult.description);
