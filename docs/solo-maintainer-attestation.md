@@ -29,18 +29,21 @@ A command qualifies only when all of the following are true:
 - the pull request targets `main` and is open;
 - the comment author matches repository variable `SOLO_MAINTAINER_LOGIN`;
 - when the variable is absent, the repository owner login is used;
+- login comparison is case-insensitive inside the trusted script;
 - the account is not a bot;
 - the account currently has repository `admin` permission;
 - the command contains the exact full current head SHA.
 
-A command for a stale or different SHA makes the status fail. A new commit,
-reopen, ready-for-review transition, or PR edit creates a new failure baseline and
-requires a fresh post-event decision.
+Each opening, head update, reopen, ready-for-review transition, or PR edit writes a
+separate `Maintainer attestation baseline` status containing the PR-event
+timestamp. Only decisions at or after that timestamp qualify. The freshness
+boundary therefore does not depend on when the status API happened to finish.
 
-On every maintainer comment create, edit, or deletion, the workflow re-reads all
-currently existing decision comments after the latest failure baseline. The most
-recent qualifying decision wins. This prevents deletion or editing of an old
-comment from overriding a newer `/merge-ready` or `/merge-hold` decision.
+On every trusted maintainer comment create, edit, or deletion, the workflow
+re-reads all currently existing decision comments after the latest PR-event
+baseline. The most recent qualifying decision wins. This prevents deletion or
+editing of an old comment from overriding a newer `/merge-ready` or
+`/merge-hold` decision.
 
 ## Safe order
 
@@ -60,6 +63,9 @@ new risk appears. A later fresh `/merge-ready` may release that hold.
 
 When repository rules can be configured, add `Maintainer merge attestation` as a
 required status for `main` while the project remains in solo-maintainer mode.
+The internal `Maintainer attestation baseline` context is evidence storage and
+must not be selected as the merge gate.
+
 Keep `Human approval contract / Verify trusted human approval` advisory until a
 second verified human is available.
 
