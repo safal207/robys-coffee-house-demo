@@ -24,7 +24,10 @@ Decision comments are append-only. Do not edit an existing `/merge-ready` or
 requires a fresh decision comment.
 
 The workflow publishes the commit status context `Maintainer merge attestation`
-on the pull request head.
+on the pull request head. While no current decision exists, that status is
+`pending`: it still blocks a required merge gate but does not falsely report a
+workflow defect. `/merge-hold`, stale SHA evidence, permission failures, and
+mutated decision evidence produce `failure`.
 
 ## Trust rules
 
