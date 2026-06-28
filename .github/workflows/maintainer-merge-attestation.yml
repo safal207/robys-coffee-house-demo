@@ -29,14 +29,15 @@ jobs:
       )
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
+      # Preserve every edit/delete event so its mutation cursor cannot be lost.
       queue: max
-      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
       MUTATION_CONTEXT: Maintainer attestation mutation cursor
+      RUN_CONTEXT: Maintainer attestation run cursor
     steps:
       - name: Recompute current-head maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -47,8 +48,11 @@ jobs:
             const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN.trim().toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
             const mutationContext = process.env.MUTATION_CONTEXT;
+            const runContext = process.env.RUN_CONTEXT;
+            const currentRunId = Number(context.runId);
             const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
-            const cursorPattern = /^comment-id:(\d+)$/;
+            const mutationCursorPattern = /^comment-id:(\d+)$/;
+            const runCursorPattern = /^run-id:(\d+)$/;
             const parseCommand = (body) => body?.match(commandPattern) ?? null;
 
             const pr = context.eventName === 'pull_request_target'
@@ -81,22 +85,6 @@ jobs:
               description,
             );
 
-            try {
-              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
-                owner,
-                repo,
-                username: expectedLogin,
-              });
-              if (permission.data.permission !== 'admin') {
-                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
-                return;
-              }
-            } catch (error) {
-              await setGate('failure', 'Could not verify configured solo maintainer permission.');
-              core.setFailed(`Permission verification failed: ${error.message}`);
-              return;
-            }
-
             let eventMutationId = 0;
             if (context.eventName === 'issue_comment') {
               const comment = context.payload.comment;
@@ -118,70 +106,159 @@ jobs:
               }
             }
 
-            const [comments, statuses] = await Promise.all([
-              github.paginate(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: pr.number, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.repos.listCommitStatusesForRef,
-                { owner, repo, ref: pr.head.sha, per_page: 100 },
-              ),
-            ]);
+            // Mutation evidence must be durable before this run publishes ordering evidence.
+            await createStatus(runContext, 'success', `run-id:${currentRunId}`);
 
-            const storedMutationId = statuses
-              .filter((status) => status.context === mutationContext)
-              .map((status) => Number(status.description?.match(cursorPattern)?.[1]))
-              .filter(Number.isFinite)
-              .sort((a, b) => a - b)
-              .at(-1) ?? 0;
-            const mutationId = Math.max(storedMutationId, eventMutationId);
+            const loadCurrentState = async () => {
+              const [currentPrResponse, comments, statuses] = await Promise.all([
+                github.rest.pulls.get({ owner, repo, pull_number: pr.number }),
+                github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr.number, per_page: 100 },
+                ),
+                github.paginate(
+                  github.rest.repos.listCommitStatusesForRef,
+                  { owner, repo, ref: pr.head.sha, per_page: 100 },
+                ),
+              ]);
 
-            const decisions = comments
-              .filter((comment) => (
-                comment.user?.login?.toLowerCase() === expectedLogin &&
-                comment.user?.type !== 'Bot' &&
-                !comment.user?.login?.endsWith('[bot]') &&
-                comment.created_at === comment.updated_at
-              ))
-              .map((comment) => {
-                const match = parseCommand(comment.body);
-                return match ? {
-                  id: Number(comment.id),
-                  decision: match[1].toLowerCase(),
-                  sha: match[2].toLowerCase(),
-                } : null;
-              })
-              .filter(Boolean)
-              .sort((a, b) => a.id - b.id);
+              const cursorMax = (name, pattern) => statuses
+                .filter((status) => status.context === name)
+                .map((status) => Number(status.description?.match(pattern)?.[1]))
+                .filter(Number.isFinite)
+                .sort((a, b) => a - b)
+                .at(-1) ?? 0;
 
-            if (pr.draft) {
-              await setGate('pending', 'Draft PR: final maintainer decision is not requested yet.');
+              const decisions = comments
+                .filter((comment) => (
+                  comment.user?.login?.toLowerCase() === expectedLogin &&
+                  comment.user?.type !== 'Bot' &&
+                  !comment.user?.login?.endsWith('[bot]') &&
+                  comment.created_at === comment.updated_at
+                ))
+                .map((comment) => {
+                  const match = parseCommand(comment.body);
+                  return match ? {
+                    id: Number(comment.id),
+                    decision: match[1].toLowerCase(),
+                    sha: match[2].toLowerCase(),
+                  } : null;
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.id - b.id);
+
+              return {
+                currentPr: currentPrResponse.data,
+                latest: decisions.at(-1),
+                mutationId: Math.max(
+                  cursorMax(mutationContext, mutationCursorPattern),
+                  eventMutationId,
+                ),
+                newestRunId: Math.max(
+                  cursorMax(runContext, runCursorPattern),
+                  currentRunId,
+                ),
+              };
+            };
+
+            const reduceState = (snapshot) => {
+              if (
+                snapshot.newestRunId > currentRunId ||
+                snapshot.currentPr.state !== 'open' ||
+                snapshot.currentPr.base.ref !== 'main' ||
+                snapshot.currentPr.head.sha !== pr.head.sha
+              ) {
+                return { stale: true };
+              }
+              if (snapshot.currentPr.draft) {
+                return {
+                  state: 'pending',
+                  description: 'Draft PR: final maintainer decision is not requested yet.',
+                };
+              }
+
+              const latest = snapshot.latest;
+              if (!latest) {
+                return {
+                  state: snapshot.mutationId > 0 ? 'failure' : 'pending',
+                  description: snapshot.mutationId > 0
+                    ? 'Decision evidence was mutated; post a fresh append-only command.'
+                    : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+                };
+              }
+              if (snapshot.mutationId >= latest.id) {
+                return {
+                  state: 'failure',
+                  description: 'Latest decision evidence was mutated; post a newer command.',
+                };
+              }
+              if (latest.sha !== pr.head.sha.toLowerCase()) {
+                return {
+                  state: 'failure',
+                  description: 'Latest maintainer decision references another head SHA.',
+                };
+              }
+              if (latest.decision === 'hold') {
+                return {
+                  state: 'failure',
+                  description: 'Maintainer placed the current head on hold.',
+                };
+              }
+              return {
+                state: 'success',
+                description: `Explicit current-head decision by ${expectedLogin}.`,
+              };
+            };
+
+            const loadReducedState = async () => reduceState(await loadCurrentState());
+
+            const setGateIfCurrent = async (state, description) => {
+              const current = await loadReducedState();
+              if (current.stale) {
+                core.notice(`Skipped stale ${state} gate write from run ${currentRunId}.`);
+                return false;
+              }
+              await setGate(state, description);
+              return true;
+            };
+
+            const setReducedGateIfCurrent = async () => {
+              const current = await loadReducedState();
+              if (current.stale) {
+                core.notice(`Skipped stale reducer gate write from run ${currentRunId}.`);
+                return false;
+              }
+              await setGate(current.state, current.description);
+              return true;
+            };
+
+            if (!await setGateIfCurrent(
+              'pending',
+              `Recomputing maintainer decision in run ${currentRunId}.`,
+            )) {
               return;
             }
 
-            const latest = decisions.at(-1);
-            if (!latest) {
-              await setGate(
-                mutationId > 0 ? 'failure' : 'pending',
-                mutationId > 0
-                  ? 'Decision evidence was mutated; post a fresh append-only command.'
-                  : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+            try {
+              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: expectedLogin,
+              });
+              if (permission.data.permission !== 'admin') {
+                await setGateIfCurrent(
+                  'failure',
+                  'Configured solo maintainer does not have admin permission.',
+                );
+                return;
+              }
+            } catch (error) {
+              await setGateIfCurrent(
+                'failure',
+                'Could not verify configured solo maintainer permission.',
               );
+              core.setFailed(`Permission verification failed: ${error.message}`);
               return;
             }
 
-            if (mutationId >= latest.id) {
-              await setGate('failure', 'Latest decision evidence was mutated; post a newer command.');
-              return;
-            }
-            if (latest.sha !== pr.head.sha.toLowerCase()) {
-              await setGate('failure', 'Latest maintainer decision references another head SHA.');
-              return;
-            }
-            if (latest.decision === 'hold') {
-              await setGate('failure', 'Maintainer placed the current head on hold.');
-              return;
-            }
-
-            await setGate('success', `Explicit current-head decision by ${expectedLogin}.`);
+            await setReducedGateIfCurrent();

@@ -59,18 +59,22 @@ largest mutated decision comment ID. When that cursor is greater than or equal
 to the newest surviving decision ID, the main gate is `failure`. A fresh command
 has a larger comment ID and can recover the gate.
 
-This design remains deterministic when GitHub executes queued workflow runs out
-of order. An older `/merge-ready` run re-reads the current comments and mutation
-cursor, so it cannot overwrite a newer hold, deletion, edit, or fresh decision
-with stale event data.
+Every run also publishes its numeric GitHub Actions run ID in the internal
+`Maintainer attestation run cursor` status. Before any public gate write, the
+workflow reads the pull request, comments, mutation cursor, and run cursor again.
+A run exits without writing when a newer run ID or another head has superseded
+it.
+
+Attestation events for one pull request use `queue: max` and do not use
+`cancel-in-progress`. GitHub preserves up to 100 pending runs for the concurrency
+group and executes only one reducer at a time. This prevents an edit/delete run
+from being canceled before its mutation cursor is recorded. The run cursor still
+protects against delayed older runs that begin after a newer run has already
+published ordering evidence.
 
 A new head naturally invalidates old intent because the newest surviving command
 contains the previous SHA. Metadata-only PR events simply trigger another
 reduction; they do not invent a new decision or rely on timestamps.
-
-All attestation events for one pull request also use GitHub Actions concurrency
-with `queue: max`, preserving pending events while the current-state reducer
-provides correctness independently of execution order.
 
 ## Trust rules
 
@@ -91,8 +95,8 @@ account performed the edit or deletion, so another actor cannot preserve stale
 green evidence.
 
 The job condition rejects most unrelated public comments before the write-capable
-step starts. The internal mutation-cursor context is evidence storage and must
-not be selected as the required merge gate.
+step starts. The mutation and run cursor contexts are internal evidence storage
+and must not be selected as required merge gates.
 
 ## Safe order
 
