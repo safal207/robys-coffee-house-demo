@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T13:54:10.536Z",
+  "generatedAt": "2026-06-28T16:17:14.510Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,30 +23,30 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 44,
+    "performance": 46,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.6 s",
-      "numericValue": 2643.7041,
-      "score": 0.62
+      "displayValue": "2.5 s",
+      "numericValue": 2542.1845000000003,
+      "score": 0.66
     },
     "largest-contentful-paint": {
-      "displayValue": "4.9 s",
-      "numericValue": 4853.556149999999,
-      "score": 0.29
+      "displayValue": "4.8 s",
+      "numericValue": 4812.27675,
+      "score": 0.3
     },
     "speed-index": {
-      "displayValue": "5.3 s",
-      "numericValue": 5346.196422129674,
-      "score": 0.57
+      "displayValue": "4.5 s",
+      "numericValue": 4505.66523520456,
+      "score": 0.72
     },
     "total-blocking-time": {
-      "displayValue": "8,340 ms",
-      "numericValue": 8340.14795,
+      "displayValue": "5,940 ms",
+      "numericValue": 5936.907749999998,
       "score": 0
     },
     "cumulative-layout-shift": {
@@ -55,16 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "12.3 s",
-      "numericValue": 12263.15205,
-      "score": 0.15
+      "displayValue": "9.6 s",
+      "numericValue": 9586.542249999999,
+      "score": 0.29
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 570 ms",
+      "displayValue": "Est savings of 470 ms",
       "score": 0
     },
     {
@@ -103,37 +103,37 @@
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
       "score": 0,
-      "displayValue": "8,340 ms"
+      "displayValue": "5,940 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
       "score": 0,
-      "displayValue": "1,730 ms"
+      "displayValue": "1,370 ms"
     },
     {
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "14.0 s"
+      "displayValue": "11.2 s"
     },
     {
       "id": "bootup-time",
       "title": "Reduce JavaScript execution time",
       "score": 0,
-      "displayValue": "4.4 s"
+      "displayValue": "3.8 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "4,850 ms"
+      "displayValue": "4,810 ms"
     },
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 570 ms"
+      "displayValue": "Est savings of 470 ms"
     },
     {
       "id": "unminified-javascript",
@@ -154,6 +154,12 @@
       "displayValue": "Est savings of 1,383 KiB"
     },
     {
+      "id": "forced-reflow-insight",
+      "title": "Forced reflow",
+      "score": 0,
+      "displayValue": null
+    },
+    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
@@ -163,31 +169,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 720 ms"
+      "displayValue": "Est savings of 620 ms"
     },
     {
       "id": "interactive",
       "title": "Time to Interactive",
-      "score": 0.15,
-      "displayValue": "12.3 s"
+      "score": 0.29,
+      "displayValue": "9.6 s"
     },
     {
       "id": "largest-contentful-paint",
       "title": "Largest Contentful Paint",
-      "score": 0.29,
-      "displayValue": "4.9 s"
+      "score": 0.3,
+      "displayValue": "4.8 s"
     },
     {
       "id": "uses-long-cache-ttl",
       "title": "Serve static assets with an efficient cache policy",
       "score": 0.5,
       "displayValue": "38 resources found"
-    },
-    {
-      "id": "offscreen-images",
-      "title": "Defer offscreen images",
-      "score": 0.5,
-      "displayValue": "Est savings of 75 KiB"
     }
   ]
 }
