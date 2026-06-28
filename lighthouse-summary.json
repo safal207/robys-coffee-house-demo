@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T11:04:18.515Z",
+  "generatedAt": "2026-06-28T11:25:17.308Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 85,
+    "performance": 56,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "2.0 s",
-      "numericValue": 1951.7423,
-      "score": 0.85
+      "displayValue": "1.9 s",
+      "numericValue": 1948.1311500000002,
+      "score": 0.86
     },
     "largest-contentful-paint": {
-      "displayValue": "3.9 s",
-      "numericValue": 3937.7394999999997,
-      "score": 0.51
+      "displayValue": "4.2 s",
+      "numericValue": 4160.4851,
+      "score": 0.45
     },
     "speed-index": {
-      "displayValue": "3.1 s",
-      "numericValue": 3090.3628666869686,
-      "score": 0.93
+      "displayValue": "5.0 s",
+      "numericValue": 5006.1938473805685,
+      "score": 0.63
     },
     "total-blocking-time": {
-      "displayValue": "90 ms",
-      "numericValue": 92.00000000000045,
-      "score": 0.98
+      "displayValue": "1,450 ms",
+      "numericValue": 1449.0767500000002,
+      "score": 0.15
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,9 +55,9 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.0 s",
-      "numericValue": 4041.21429,
-      "score": 0.87
+      "displayValue": "4.6 s",
+      "numericValue": 4566.0111050000005,
+      "score": 0.82
     }
   },
   "opportunities": [
@@ -70,7 +70,7 @@
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 790 ms",
+      "displayValue": "Est savings of 720 ms",
       "score": 0
     },
     {
@@ -103,19 +103,19 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "2.2 s"
+      "displayValue": "5.1 s"
     },
     {
       "id": "largest-contentful-paint-element",
       "title": "Largest Contentful Paint element",
       "score": 0,
-      "displayValue": "3,940 ms"
+      "displayValue": "4,160 ms"
     },
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 790 ms"
+      "displayValue": "Est savings of 720 ms"
     },
     {
       "id": "unminified-javascript",
@@ -142,12 +142,6 @@
       "displayValue": "Est savings of 1,383 KiB"
     },
     {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0,
-      "displayValue": "Est savings of 376 KiB"
-    },
-    {
       "id": "network-dependency-tree-insight",
       "title": "Network dependency tree",
       "score": 0,
@@ -157,7 +151,25 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 940 ms"
+      "displayValue": "Est savings of 860 ms"
+    },
+    {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "score": 0.15,
+      "displayValue": "1,450 ms"
+    },
+    {
+      "id": "max-potential-fid",
+      "title": "Max Potential First Input Delay",
+      "score": 0.16,
+      "displayValue": "410 ms"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.45,
+      "displayValue": "4.2 s"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -176,18 +188,6 @@
       "title": "Properly size images",
       "score": 0.5,
       "displayValue": "Est savings of 204 KiB"
-    },
-    {
-      "id": "document-latency-insight",
-      "title": "Document request latency",
-      "score": 0.5,
-      "displayValue": "Est savings of 15 KiB"
-    },
-    {
-      "id": "largest-contentful-paint",
-      "title": "Largest Contentful Paint",
-      "score": 0.51,
-      "displayValue": "3.9 s"
     }
   ]
 }
