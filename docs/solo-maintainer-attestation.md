@@ -60,16 +60,17 @@ to the newest surviving decision ID, the main gate is `failure`. A fresh command
 has a larger comment ID and can recover the gate.
 
 Every run also publishes its numeric GitHub Actions run ID in the internal
-`Maintainer attestation run cursor` status. Before publishing `success`, the
-workflow waits through a short cancellation window and reads the pull request,
-comments, mutation cursor, and run cursor again. A run exits without writing a
-final gate when a newer run ID or another head has superseded it.
+`Maintainer attestation run cursor` status. Before any public gate write, the
+workflow reads the pull request, comments, mutation cursor, and run cursor again.
+A run exits without writing when a newer run ID or another head has superseded
+it.
 
-Attestation events for one pull request use `cancel-in-progress: true`. A newer
-hold, edit, deletion, head update, or metadata event cancels an older reducer run.
-The final state read additionally catches invalidating evidence that arrived while
-the older run was executing, so an already-started ready run cannot publish stale
-success after a newer event has begun processing.
+Attestation events for one pull request use `queue: max` and do not use
+`cancel-in-progress`. GitHub preserves up to 100 pending runs for the concurrency
+group and executes only one reducer at a time. This prevents an edit/delete run
+from being canceled before its mutation cursor is recorded. The run cursor still
+protects against delayed older runs that begin after a newer run has already
+published ordering evidence.
 
 A new head naturally invalidates old intent because the newest surviving command
 contains the previous SHA. Metadata-only PR events simply trigger another
