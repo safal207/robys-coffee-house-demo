@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T08:51:47.176Z",
+  "generatedAt": "2026-06-28T11:04:18.515Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,31 +23,31 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 96,
+    "performance": 85,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "displayValue": "1.9 s",
-      "numericValue": 1859.6640000000002,
-      "score": 0.88
+      "displayValue": "2.0 s",
+      "numericValue": 1951.7423,
+      "score": 0.85
     },
     "largest-contentful-paint": {
-      "displayValue": "2.5 s",
-      "numericValue": 2516.6304,
-      "score": 0.89
+      "displayValue": "3.9 s",
+      "numericValue": 3937.7394999999997,
+      "score": 0.51
     },
     "speed-index": {
-      "displayValue": "1.9 s",
-      "numericValue": 1859.6640000000002,
-      "score": 1
+      "displayValue": "3.1 s",
+      "numericValue": 3090.3628666869686,
+      "score": 0.93
     },
     "total-blocking-time": {
-      "displayValue": "0 ms",
-      "numericValue": 4.5,
-      "score": 1
+      "displayValue": "90 ms",
+      "numericValue": 92.00000000000045,
+      "score": 0.98
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,22 +55,22 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "2.6 s",
-      "numericValue": 2591.7770400000004,
-      "score": 0.98
+      "displayValue": "4.0 s",
+      "numericValue": 4041.21429,
+      "score": 0.87
     }
   },
   "opportunities": [
     {
-      "id": "render-blocking-resources",
-      "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 860 ms",
-      "score": 0
-    },
-    {
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "displayValue": "Est savings of 108 KiB",
+      "score": 0
+    },
+    {
+      "id": "render-blocking-resources",
+      "title": "Eliminate render-blocking resources",
+      "displayValue": "Est savings of 790 ms",
       "score": 0
     },
     {
@@ -100,10 +100,22 @@
   ],
   "failedAudits": [
     {
+      "id": "mainthread-work-breakdown",
+      "title": "Minimize main-thread work",
+      "score": 0,
+      "displayValue": "2.2 s"
+    },
+    {
+      "id": "largest-contentful-paint-element",
+      "title": "Largest Contentful Paint element",
+      "score": 0,
+      "displayValue": "3,940 ms"
+    },
+    {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 860 ms"
+      "displayValue": "Est savings of 790 ms"
     },
     {
       "id": "unminified-javascript",
@@ -130,10 +142,10 @@
       "displayValue": "Est savings of 1,383 KiB"
     },
     {
-      "id": "forced-reflow-insight",
-      "title": "Forced reflow",
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
       "score": 0,
-      "displayValue": null
+      "displayValue": "Est savings of 376 KiB"
     },
     {
       "id": "network-dependency-tree-insight",
@@ -145,13 +157,7 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,000 ms"
-    },
-    {
-      "id": "largest-contentful-paint-element",
-      "title": "Largest Contentful Paint element",
-      "score": 0.5,
-      "displayValue": "2,520 ms"
+      "displayValue": "Est savings of 940 ms"
     },
     {
       "id": "uses-long-cache-ttl",
@@ -178,16 +184,10 @@
       "displayValue": "Est savings of 15 KiB"
     },
     {
-      "id": "image-delivery-insight",
-      "title": "Improve image delivery",
-      "score": 0.5,
-      "displayValue": "Est savings of 376 KiB"
-    },
-    {
-      "id": "first-contentful-paint",
-      "title": "First Contentful Paint",
-      "score": 0.88,
-      "displayValue": "1.9 s"
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "score": 0.51,
+      "displayValue": "3.9 s"
     }
   ]
 }
