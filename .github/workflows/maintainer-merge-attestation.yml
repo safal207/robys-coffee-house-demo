@@ -6,7 +6,7 @@ on:
   issue_comment:
     types: [created, edited, deleted]
 
-# The workflow writes one commit-status gate and never checks out or executes PR code.
+# Writes only commit-status evidence; pull-request code is never checked out or run.
 permissions:
   contents: read
   issues: read
@@ -36,18 +36,19 @@ jobs:
     env:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
+      MUTATION_CONTEXT: Maintainer attestation mutation cursor
     steps:
-      - name: Evaluate explicit maintainer decision
+      - name: Recompute current-head maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN
-              .trim()
-              .toLowerCase();
+            const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN.trim().toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
+            const mutationContext = process.env.MUTATION_CONTEXT;
             const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
+            const cursorPattern = /^comment-id:(\d+)$/;
             const parseCommand = (body) => body?.match(commandPattern) ?? null;
 
             const pr = context.eventName === 'pull_request_target'
@@ -59,96 +60,122 @@ jobs:
                 })).data;
 
             if (!pr || pr.base.ref !== 'main' || pr.state !== 'open') {
-              core.notice('Not an open pull request targeting main; no status changed.');
+              core.notice('Not an open pull request targeting main.');
               return;
             }
 
-            const setStatus = async (state, description) => {
+            const createStatus = async (name, state, description) => {
               await github.rest.repos.createCommitStatus({
                 owner,
                 repo,
                 sha: pr.head.sha,
                 state,
-                context: statusContext,
+                context: name,
                 description: description.slice(0, 140),
                 target_url: pr.html_url,
               });
             };
+            const setGate = (state, description) => createStatus(
+              statusContext,
+              state,
+              description,
+            );
 
-            let permission;
             try {
-              permission = await github.rest.repos.getCollaboratorPermissionLevel({
+              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
                 owner,
                 repo,
                 username: expectedLogin,
               });
+              if (permission.data.permission !== 'admin') {
+                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
+                return;
+              }
             } catch (error) {
-              await setStatus('failure', 'Could not verify configured solo maintainer permission.');
+              await setGate('failure', 'Could not verify configured solo maintainer permission.');
               core.setFailed(`Permission verification failed: ${error.message}`);
               return;
             }
 
-            if (permission.data.permission !== 'admin') {
-              await setStatus('failure', 'Configured solo maintainer does not currently have admin permission.');
-              return;
-            }
-
-            if (context.eventName === 'pull_request_target') {
-              const description = pr.draft
-                ? 'Draft PR: final maintainer decision is not requested yet.'
-                : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`;
-              await setStatus('pending', description);
-              return;
-            }
-
-            const comment = context.payload.comment;
-            const action = context.payload.action;
-            const authorLogin = comment?.user?.login?.toLowerCase();
-            const actorLogin = context.payload.sender?.login?.toLowerCase();
-            const currentMatch = parseCommand(comment?.body);
-            const previousMatch = parseCommand(context.payload.changes?.body?.from);
-
-            if (action === 'edited' || action === 'deleted') {
+            if (context.eventName === 'issue_comment') {
+              const comment = context.payload.comment;
+              const action = context.payload.action;
+              const author = comment?.user?.login?.toLowerCase();
+              const before = parseCommand(context.payload.changes?.body?.from);
+              const after = parseCommand(comment?.body);
               if (
-                authorLogin === expectedLogin &&
-                (currentMatch || previousMatch)
+                (action === 'edited' || action === 'deleted') &&
+                author === expectedLogin &&
+                (before || after)
               ) {
-                await setStatus(
-                  'failure',
-                  actorLogin === expectedLogin
-                    ? 'Decision evidence was mutated; post a fresh append-only merge decision.'
-                    : 'Decision evidence was mutated by another actor; fresh maintainer evidence is required.',
+                await createStatus(
+                  mutationContext,
+                  'success',
+                  `comment-id:${Number(comment.id)}`,
                 );
               }
+            }
+
+            const [comments, statuses] = await Promise.all([
+              github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pr.number, per_page: 100 },
+              ),
+              github.paginate(
+                github.rest.repos.listCommitStatusesForRef,
+                { owner, repo, ref: pr.head.sha, per_page: 100 },
+              ),
+            ]);
+
+            const mutationId = statuses
+              .filter((status) => status.context === mutationContext)
+              .map((status) => Number(status.description?.match(cursorPattern)?.[1]))
+              .filter(Number.isFinite)
+              .sort((a, b) => a - b)
+              .at(-1) ?? 0;
+
+            const decisions = comments
+              .filter((comment) => (
+                comment.user?.login?.toLowerCase() === expectedLogin &&
+                comment.user?.type !== 'Bot' &&
+                !comment.user?.login?.endsWith('[bot]') &&
+                comment.created_at === comment.updated_at
+              ))
+              .map((comment) => {
+                const match = parseCommand(comment.body);
+                return match ? {
+                  id: Number(comment.id),
+                  decision: match[1].toLowerCase(),
+                  sha: match[2].toLowerCase(),
+                } : null;
+              })
+              .filter(Boolean)
+              .sort((a, b) => a.id - b.id);
+
+            const latest = decisions.at(-1);
+            if (!latest) {
+              await setGate(
+                mutationId > 0 ? 'failure' : 'pending',
+                mutationId > 0
+                  ? 'Decision evidence was mutated; post a fresh append-only command.'
+                  : pr.draft
+                    ? 'Draft PR: final maintainer decision is not requested yet.'
+                    : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+              );
               return;
             }
 
-            if (
-              action !== 'created' ||
-              authorLogin !== expectedLogin ||
-              actorLogin !== expectedLogin ||
-              comment?.user?.type === 'Bot' ||
-              authorLogin?.endsWith('[bot]')
-            ) {
-              core.notice('Comment creation is not a trusted maintainer decision event.');
+            if (mutationId >= latest.id) {
+              await setGate('failure', 'Latest decision evidence was mutated; post a newer command.');
+              return;
+            }
+            if (latest.sha !== pr.head.sha.toLowerCase()) {
+              await setGate('failure', 'Latest maintainer decision references another head SHA.');
+              return;
+            }
+            if (latest.decision === 'hold') {
+              await setGate('failure', 'Maintainer placed the current head on hold.');
               return;
             }
 
-            if (!currentMatch) {
-              core.notice('Trusted maintainer comment is not an exact merge decision command.');
-              return;
-            }
-
-            const decision = currentMatch[1].toLowerCase();
-            const referencedSha = currentMatch[2].toLowerCase();
-            if (referencedSha !== pr.head.sha.toLowerCase()) {
-              await setStatus('failure', 'Maintainer decision references a stale or different head SHA.');
-              return;
-            }
-
-            if (decision === 'hold') {
-              await setStatus('failure', 'Maintainer placed the current head on hold.');
-              return;
-            }
-
-            await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
+            await setGate('success', `Explicit current-head decision by ${expectedLogin}.`);
