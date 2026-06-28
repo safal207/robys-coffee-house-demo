@@ -15,32 +15,56 @@ jobs:
     timeout-minutes: 12
     steps:
       - name: Wait for current-head AI review evidence
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
             const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const codexBot = 'chatgpt-codex-connector[bot]';
+            const codexBotLogins = new Set([
+              'chatgpt-codex-connector[bot]',
+              'chatgpt-codex-connector',
+            ]);
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
             // This workflow runs only when the PR is opened or its head changes.
-            // GitHub supplies both the PR-event and comment/reaction timestamps,
-            // so no pre-event clock-skew grace is needed or allowed.
+            // GitHub supplies the PR-event and evidence timestamps, so evidence
+            // must be at or after the current PR update without a clock-skew grace.
             const evidenceAfter = Date.parse(pr.updated_at);
-            const isFresh = (item) => Date.parse(item.created_at) >= evidenceAfter;
+            const timeOf = (item) => Date.parse(
+              item.submitted_at ?? item.created_at,
+            );
+            const isFresh = (item) => timeOf(item) >= evidenceAfter;
             const bodyOf = (item) => (item.body ?? '').trim();
+            const isCodexBot = (user) => (
+              user?.type === 'Bot' && codexBotLogins.has(user.login)
+            );
+            const reviewedCommitOf = (item) => bodyOf(item).match(
+              /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
+            )?.[1]?.toLowerCase();
+            const matchesCurrentHead = (item) => {
+              const reviewed = reviewedCommitOf(item);
+              return Boolean(
+                reviewed && pr.head.sha.toLowerCase().startsWith(reviewed),
+              );
+            };
             const isCommand = (item, value) =>
               trusted.has(item.author_association) &&
               isFresh(item) &&
               bodyOf(item).toLowerCase() === value;
 
             for (let attempt = 1; attempt <= 30; attempt += 1) {
-              const comments = await github.paginate(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: pr.number, per_page: 100 },
-              );
+              const [comments, reviews] = await Promise.all([
+                github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr.number, per_page: 100 },
+                ),
+                github.paginate(
+                  github.rest.pulls.listReviews,
+                  { owner, repo, pull_number: pr.number, per_page: 100 },
+                ),
+              ]);
 
               const codexRequests = comments.filter((item) =>
                 isCommand(item, '@codex review'),
@@ -49,18 +73,20 @@ jobs:
                 isCommand(item, '@jules review'),
               );
 
-              const codexReview = comments.find((item) => {
-                if (item.user?.login !== codexBot || !isFresh(item)) return false;
-                const reviewed = bodyOf(item).match(
-                  /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
-                )?.[1]?.toLowerCase();
-                return Boolean(
-                  reviewed && pr.head.sha.toLowerCase().startsWith(reviewed),
-                );
-              });
+              const codexIssueComment = comments.find((item) => (
+                isCodexBot(item.user) &&
+                isFresh(item) &&
+                matchesCurrentHead(item)
+              ));
+
+              const codexPullReview = reviews.find((item) => (
+                isCodexBot(item.user) &&
+                isFresh(item) &&
+                matchesCurrentHead(item)
+              ));
 
               let codexReaction = false;
-              if (!codexReview) {
+              if (!codexIssueComment && !codexPullReview) {
                 try {
                   for (const request of codexRequests) {
                     const reactions = await github.paginate(
@@ -71,7 +97,7 @@ jobs:
                       reactions.some((reaction) => {
                         const reactionTime = Date.parse(reaction.created_at);
                         return (
-                          reaction.user?.login === codexBot &&
+                          isCodexBot(reaction.user) &&
                           reaction.content === '+1' &&
                           reactionTime >= evidenceAfter &&
                           reactionTime >= Date.parse(request.created_at)
@@ -88,9 +114,17 @@ jobs:
               }
 
               const hasCodexRequest = codexRequests.length > 0;
-              const hasCodexEvidence = Boolean(codexReview || codexReaction);
+              const hasCodexEvidence = Boolean(
+                codexIssueComment || codexPullReview || codexReaction,
+              );
 
               if (hasCodexRequest && hasJulesRequest && hasCodexEvidence) {
+                const evidenceType = codexPullReview
+                  ? 'native pull request review with matching Reviewed commit'
+                  : codexIssueComment
+                    ? 'issue comment with matching Reviewed commit'
+                    : 'bot +1 on fresh request';
+
                 await core.summary
                   .addHeading('AI review contract')
                   .addTable([
@@ -100,10 +134,7 @@ jobs:
                     ],
                     ['Fresh @codex review request', 'yes'],
                     ['Fresh @jules review request', 'yes'],
-                    [
-                      'Official Codex evidence for current head',
-                      codexReview ? 'matching Reviewed commit' : 'bot +1 on fresh request',
-                    ],
+                    ['Official Codex evidence for current head', evidenceType],
                   ])
                   .write();
                 core.notice(
@@ -122,5 +153,5 @@ jobs:
             }
 
             core.setFailed(
-              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to that fresh request or matching the current head SHA.',
+              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through a native review, matching issue comment, or trusted bot reaction.',
             );
