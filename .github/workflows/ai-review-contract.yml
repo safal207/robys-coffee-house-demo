@@ -26,9 +26,9 @@ jobs:
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
             // This workflow runs only when the PR is opened or its head changes.
-            // The event timestamp therefore anchors evidence to the current head
-            // without trusting backdatable Git author/committer dates.
-            const evidenceAfter = Date.parse(pr.updated_at) - 5_000;
+            // GitHub supplies both the PR-event and comment/reaction timestamps,
+            // so no pre-event clock-skew grace is needed or allowed.
+            const evidenceAfter = Date.parse(pr.updated_at);
             const isFresh = (item) => Date.parse(item.created_at) >= evidenceAfter;
             const bodyOf = (item) => (item.body ?? '').trim();
             const isCommand = (item, value) =>
@@ -68,13 +68,15 @@ jobs:
                       { owner, repo, comment_id: request.id, per_page: 100 },
                     );
                     if (
-                      reactions.some(
-                        (reaction) =>
+                      reactions.some((reaction) => {
+                        const reactionTime = Date.parse(reaction.created_at);
+                        return (
                           reaction.user?.login === codexBot &&
                           reaction.content === '+1' &&
-                          Date.parse(reaction.created_at) >=
-                            Date.parse(request.created_at),
-                      )
+                          reactionTime >= evidenceAfter &&
+                          reactionTime >= Date.parse(request.created_at)
+                        );
+                      })
                     ) {
                       codexReaction = true;
                       break;
