@@ -35,8 +35,8 @@ A command qualifies only when all of the following are true:
 
 A command for a stale or different SHA makes the status fail. A new commit,
 reopen, ready-for-review transition, or PR edit triggers a new evaluation and
-requires a fresh post-event decision. Deleting a matching `/merge-ready` comment
-also fails the status.
+requires a fresh post-event decision. Deleting a matching `/merge-ready` comment,
+or editing that command into non-command text, also fails the status.
 
 ## Safe order
 
