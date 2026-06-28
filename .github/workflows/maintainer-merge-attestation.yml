@@ -18,6 +18,9 @@ jobs:
     if: >-
       github.event_name == 'pull_request' ||
       (github.event.issue.pull_request && github.event.issue.state == 'open')
+    concurrency:
+      group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
@@ -44,13 +47,13 @@ jobs:
                   pull_number: context.payload.issue.number,
                 })).data;
 
-            if (!pr || pr.base.ref !== 'main') {
+            if (!pr || pr.base.ref !== 'main' || pr.state !== 'open') {
               core.notice('Not an open pull request targeting main; no status changed.');
               return;
             }
 
             const setStatus = async (state, description) => {
-              await github.rest.repos.createCommitStatus({
+              return github.rest.repos.createCommitStatus({
                 owner,
                 repo,
                 sha: pr.head.sha,
@@ -61,50 +64,69 @@ jobs:
               });
             };
 
-            const verifyMaintainer = async (comment) => {
-              const login = comment?.user?.login;
-              if (!login || login.toLowerCase() !== expectedLogin) return false;
-              if (comment.user?.type === 'Bot' || login.endsWith('[bot]')) return false;
-
-              try {
-                const permission = await github.rest.repos.getCollaboratorPermissionLevel({
-                  owner,
-                  repo,
-                  username: login,
-                });
-                return permission.data.permission === 'admin';
-              } catch (error) {
-                core.warning(`Could not verify maintainer permission: ${error.message}`);
-                return false;
-              }
-            };
+            const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner,
+              repo,
+              username: expectedLogin,
+            });
+            if (permission.data.permission !== 'admin') {
+              await setStatus('failure', 'Configured solo maintainer does not currently have admin permission.');
+              return;
+            }
 
             const parseCommand = (body) => body?.trim().match(commandPattern) ?? null;
+            const activityTime = (comment) => Date.parse(
+              comment.updated_at ?? comment.created_at,
+            );
 
-            if (context.eventName === 'pull_request') {
-              if (pr.draft) {
-                await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
-                return;
-              }
+            const listContextStatuses = async () => {
+              const statuses = await github.paginate(
+                github.rest.repos.listCommitStatusesForRef,
+                { owner, repo, ref: pr.head.sha, per_page: 100 },
+              );
+              return statuses.filter((status) => status.context === statusContext);
+            };
 
-              const evidenceAfter = Date.parse(pr.updated_at);
+            const latestInvalidation = (statuses, notBefore = 0) => statuses
+              .filter((status) => (
+                status.state !== 'success' &&
+                Date.parse(status.created_at) >= notBefore
+              ))
+              .sort((left, right) => {
+                const timeDelta = Date.parse(left.created_at) - Date.parse(right.created_at);
+                return timeDelta || Number(left.id) - Number(right.id);
+              })
+              .at(-1);
+
+            const reevaluateFromCurrentComments = async (evidenceAfter) => {
               const comments = await github.paginate(
                 github.rest.issues.listComments,
                 { owner, repo, issue_number: pr.number, per_page: 100 },
               );
 
-              const candidates = [];
-              for (const comment of comments) {
-                const match = parseCommand(comment.body);
-                if (!match) continue;
-                if (Date.parse(comment.created_at) < evidenceAfter) continue;
-                if (!(await verifyMaintainer(comment))) continue;
-                candidates.push({ comment, decision: match[1].toLowerCase(), sha: match[2].toLowerCase() });
-              }
+              const decisions = comments
+                .filter((comment) => (
+                  comment.user?.login?.toLowerCase() === expectedLogin &&
+                  comment.user?.type !== 'Bot' &&
+                  !comment.user?.login?.endsWith('[bot]') &&
+                  activityTime(comment) >= evidenceAfter
+                ))
+                .map((comment) => {
+                  const match = parseCommand(comment.body);
+                  if (!match) return null;
+                  return {
+                    id: Number(comment.id),
+                    activityAt: activityTime(comment),
+                    decision: match[1].toLowerCase(),
+                    sha: match[2].toLowerCase(),
+                  };
+                })
+                .filter(Boolean)
+                .sort((left, right) => (
+                  left.activityAt - right.activityAt || left.id - right.id
+                ));
 
-              candidates.sort((left, right) => Number(left.comment.id) - Number(right.comment.id));
-              const latest = candidates.at(-1);
-
+              const latest = decisions.at(-1);
               if (!latest) {
                 await setStatus(
                   'failure',
@@ -114,7 +136,7 @@ jobs:
               }
 
               if (latest.sha !== pr.head.sha.toLowerCase()) {
-                await setStatus('failure', 'Maintainer decision references a stale or different head SHA.');
+                await setStatus('failure', 'Latest maintainer decision references a stale or different head SHA.');
                 return;
               }
 
@@ -124,47 +146,35 @@ jobs:
               }
 
               await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
+            };
+
+            if (pr.draft) {
+              await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
               return;
             }
 
-            const comment = context.payload.comment;
-            if (!(await verifyMaintainer(comment))) {
-              core.notice('Comment is not from the configured admin maintainer; no status changed.');
-              return;
-            }
+            const statuses = await listContextStatuses();
 
-            const match = parseCommand(comment?.body);
-            const previousMatch = parseCommand(context.payload.changes?.body?.from);
+            if (context.eventName === 'pull_request') {
+              const eventTime = Date.parse(pr.updated_at);
+              const eventInvalidation = latestInvalidation(statuses, eventTime);
 
-            if (context.payload.action === 'deleted') {
-              if (match?.[1]?.toLowerCase() === 'ready') {
-                await setStatus('failure', 'The current-head maintainer attestation was deleted.');
-              }
-              return;
-            }
-
-            if (!match) {
-              if (
-                context.payload.action === 'edited' &&
-                previousMatch?.[1]?.toLowerCase() === 'ready'
-              ) {
-                await setStatus('failure', 'The maintainer attestation was edited away.');
+              if (!eventInvalidation) {
+                await setStatus(
+                  'failure',
+                  `Fresh /merge-ready ${pr.head.sha} is required after this PR event.`,
+                );
                 return;
               }
-              core.notice('Maintainer comment is not a merge decision command; no status changed.');
+
+              await reevaluateFromCurrentComments(Date.parse(eventInvalidation.created_at));
               return;
             }
 
-            const decision = match[1].toLowerCase();
-            const referencedSha = match[2].toLowerCase();
-            if (referencedSha !== pr.head.sha.toLowerCase()) {
-              await setStatus('failure', 'Maintainer command references a stale or different head SHA.');
+            const baseline = latestInvalidation(statuses);
+            if (!baseline) {
+              await setStatus('failure', 'Attestation baseline is missing; a fresh merge decision is required.');
               return;
             }
 
-            if (decision === 'hold') {
-              await setStatus('failure', 'Maintainer placed the current head on hold.');
-              return;
-            }
-
-            await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
+            await reevaluateFromCurrentComments(Date.parse(baseline.created_at));
