@@ -3,6 +3,8 @@ export const menuCopy = {
     pageTitle: "Tam Menü",
     pageLead: "Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.",
     back: "Kafeye dön",
+    languageSelector: "Dil seçimi",
+    clearSearch: "Aramayı temizle",
     searchLabel: "Menüde ara",
     searchPlaceholder: "Kahve, tatlı veya içecek ara",
     all: "Tümü",
@@ -15,6 +17,8 @@ export const menuCopy = {
     pageTitle: "Full Menu",
     pageLead: "Coffee, cold drinks, teas, desserts and easy bites.",
     back: "Back to café",
+    languageSelector: "Language selector",
+    clearSearch: "Clear search",
     searchLabel: "Search the menu",
     searchPlaceholder: "Search coffee, dessert or drink",
     all: "All",
@@ -27,6 +31,8 @@ export const menuCopy = {
     pageTitle: "Полное меню",
     pageLead: "Кофе, холодные напитки, чай, десерты и лёгкие закуски.",
     back: "Вернуться на сайт",
+    languageSelector: "Выбор языка",
+    clearSearch: "Очистить поиск",
     searchLabel: "Поиск по меню",
     searchPlaceholder: "Найти кофе, десерт или напиток",
     all: "Все",
@@ -71,7 +77,7 @@ export const menuCategories = [
       { name: { tr: "Sıcak Çikolata", en: "Hot Chocolate", ru: "Горячий шоколад" }, price: 200 },
       { name: { tr: "Süt", en: "Milk", ru: "Молоко" }, price: 60 },
       { name: { tr: "Salep", en: "Salep", ru: "Салеп" }, price: 200 },
-      { name: { tr: "Chai Tea Latte", en: "Chai Tea Latte", ru: "Чай-латте" }, price: 200 }
+      { name: { tr: "Chai Tea Latte", en: "Chai Tea Latte", ru: "Çай-латте" }, price: 200 }
     ]
   },
   {

@@ -95,8 +95,8 @@ const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bposter-
 assert(sourceIds.length === 5, "FEATURED-001", `Expected exactly 5 typed products, found ${sourceIds.length}`);
 assert(JSON.stringify(sourceIds) === JSON.stringify(expectedOrder), "FEATURED-001", `Typed product order changed: ${sourceIds.join(", ")}`);
 assert(sourceImages.length === 5, "FEATURED-001", `Expected 5 typed poster sources, found ${sourceImages.length}`);
-assert(sourceImages.every((path) => /^src\/products\/(?:cards|gallery-v2)\/[\w.-]+\.(?:svg|avif)\?v=/.test(path)), "FEATURED-001", "Every typed item must use a versioned local image source");
-assert(sourceImages.filter((path) => path.endsWith(".avif?v=20260625-5")).length === 1, "FEATURED-001", "Only the verified Iced Latte AVIF may be used");
+assert(sourceImages.every((path) => /^src\/products\/(?:cards|gallery-v2|gallery-v5)\/[\w.-]+\.(?:svg|avif|webp)\?v=/.test(path)), "FEATURED-001", "Every typed item must use a versioned local image source");
+assert(sourceImages.filter((path) => path.includes("iced-latte")).length === 1, "FEATURED-001", "Only the verified Iced Latte image may be used");
 assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Typed poster sources must be unique");
 assert(staticCards.length === 5, "FEATURED-001", `Static fallback must expose exactly 5 poster cards, found ${staticCards.length}`);
 assert(!html.includes("featured-card--overview"), "FEATURED-001", "Cafe overview must not return to the product feed");

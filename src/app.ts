@@ -61,6 +61,9 @@ function translateNode(element: HTMLElement) {
   const richKey = element.dataset.i18nRich as CopyKey | undefined;
   if (richKey) appendSafeRichText(element, dictionaries[language][richKey]);
 
+  const ariaKey = element.dataset.i18nAria as CopyKey | undefined;
+  if (ariaKey) element.setAttribute("aria-label", dictionaries[language][ariaKey]);
+
   if (element.matches("[data-localized]")) {
     const localized = element.dataset[language];
     if (localized) element.textContent = localized;
@@ -69,7 +72,7 @@ function translateNode(element: HTMLElement) {
 
 function translateTree(root: ParentNode = document) {
   if (root instanceof HTMLElement) translateNode(root);
-  qa<HTMLElement>("[data-i18n],[data-i18n-rich],[data-localized]", root).forEach(translateNode);
+  qa<HTMLElement>("[data-i18n],[data-i18n-rich],[data-localized],[data-i18n-aria]", root).forEach(translateNode);
 }
 
 function setLanguage(next: Lang) {
@@ -77,6 +80,13 @@ function setLanguage(next: Lang) {
   document.documentElement.lang = next;
   writeStorage("robys-language", next);
   translateTree();
+
+  const toggle = q<HTMLButtonElement>(".menu-toggle");
+  if (toggle) {
+    const isOpen = document.body.classList.contains("menu-open");
+    const key: CopyKey = isOpen ? "closeMenu" : "openMenu";
+    toggle.setAttribute("aria-label", dictionaries[language][key]);
+  }
 
   qa<HTMLButtonElement>(".lang-button").forEach((button) => {
     const active = button.dataset.lang === next;
@@ -89,14 +99,22 @@ function setupNavigation() {
   const toggle = q<HTMLButtonElement>(".menu-toggle");
   const navigation = q<HTMLElement>("#main-navigation");
 
+  const updateToggleLabel = (open: boolean) => {
+    if (!toggle) return;
+    const key: CopyKey = open ? "closeMenu" : "openMenu";
+    toggle.setAttribute("aria-label", dictionaries[language][key]);
+  };
+
   const close = () => {
     document.body.classList.remove("menu-open");
     toggle?.setAttribute("aria-expanded", "false");
+    updateToggleLabel(false);
   };
 
   toggle?.addEventListener("click", () => {
     const open = document.body.classList.toggle("menu-open");
     toggle.setAttribute("aria-expanded", String(open));
+    updateToggleLabel(open);
   });
 
   navigation?.addEventListener("click", (event) => {

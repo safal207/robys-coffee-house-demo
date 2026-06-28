@@ -223,6 +223,16 @@ function translateStaticPage() {
     if (copy[key]) element.textContent = copy[key];
   });
 
+  document.querySelectorAll("[data-menu-aria]").forEach((element) => {
+    const key = element.dataset.menuAria;
+    if (copy[key]) element.setAttribute("aria-label", copy[key]);
+  });
+
+  document.querySelectorAll("[data-menu-aria]").forEach((element) => {
+    const key = element.dataset.menuAria;
+    if (copy[key]) element.setAttribute("aria-label", copy[key]);
+  });
+
   searchInput.setAttribute("aria-label", copy.searchLabel);
   searchInput.placeholder = copy.searchPlaceholder;
   categoryNav.setAttribute("aria-label", copy.categories);

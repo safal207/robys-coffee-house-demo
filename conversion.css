@@ -28,7 +28,7 @@ section[id]{scroll-margin-top:96px}
   .mobile-cta-instagram{color:var(--dark);background:rgba(255,255,255,.96)}
   .mobile-cta-icon{font-size:.9rem;line-height:1}
   body{padding-bottom:0}
-  .site-footer{padding-bottom:calc(98px + env(safe-area-inset-bottom))}
+  .site-footer{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
   body.menu-open .mobile-cta,body.lightbox-open .mobile-cta,body.cart-open .mobile-cta,body.order-modal-open .mobile-cta{opacity:0;pointer-events:none;transform:translateY(calc(100% + 28px))}
 }
 @media(max-width:390px){
