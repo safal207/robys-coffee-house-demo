@@ -17,12 +17,7 @@ jobs:
     name: Update current-head attestation status
     if: >-
       github.event_name == 'pull_request' ||
-      (
-        github.event.issue.pull_request &&
-        github.event.issue.state == 'open' &&
-        github.event.comment.user.login == (vars.SOLO_MAINTAINER_LOGIN || github.repository_owner) &&
-        github.event.comment.user.type != 'Bot'
-      )
+      (github.event.issue.pull_request && github.event.issue.state == 'open')
     concurrency:
       group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: false
@@ -31,6 +26,7 @@ jobs:
     env:
       SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
       STATUS_CONTEXT: Maintainer merge attestation
+      BASELINE_CONTEXT: Maintainer attestation baseline
     steps:
       - name: Evaluate explicit maintainer decision
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -42,7 +38,9 @@ jobs:
               .trim()
               .toLowerCase();
             const statusContext = process.env.STATUS_CONTEXT;
+            const baselineContext = process.env.BASELINE_CONTEXT;
             const commandPattern = /^\/merge-(ready|hold)\s+([0-9a-f]{40})\s*$/i;
+            const baselinePattern = /^cutoff:(\d+)$/;
 
             const pr = context.eventName === 'pull_request'
               ? context.payload.pull_request
@@ -57,17 +55,34 @@ jobs:
               return;
             }
 
-            const setStatus = async (state, description) => {
+            if (context.eventName === 'issue_comment') {
+              const commentLogin = context.payload.comment?.user?.login?.toLowerCase();
+              const commentType = context.payload.comment?.user?.type;
+              if (
+                commentLogin !== expectedLogin ||
+                commentType === 'Bot' ||
+                commentLogin?.endsWith('[bot]')
+              ) {
+                core.notice('Comment is not from the configured solo maintainer; no status changed.');
+                return;
+              }
+            }
+
+            const createStatus = async (statusContextName, state, description) => {
               return github.rest.repos.createCommitStatus({
                 owner,
                 repo,
                 sha: pr.head.sha,
                 state,
-                context: statusContext,
+                context: statusContextName,
                 description: description.slice(0, 140),
                 target_url: pr.html_url,
               });
             };
+
+            const setStatus = (state, description) => (
+              createStatus(statusContext, state, description)
+            );
 
             let permission;
             try {
@@ -92,24 +107,23 @@ jobs:
               comment.updated_at ?? comment.created_at,
             );
 
-            const listContextStatuses = async () => {
-              const statuses = await github.paginate(
-                github.rest.repos.listCommitStatusesForRef,
-                { owner, repo, ref: pr.head.sha, per_page: 100 },
-              );
-              return statuses.filter((status) => status.context === statusContext);
-            };
+            const listStatuses = async () => github.paginate(
+              github.rest.repos.listCommitStatusesForRef,
+              { owner, repo, ref: pr.head.sha, per_page: 100 },
+            );
 
-            const latestInvalidation = (statuses, notBefore = 0) => statuses
-              .filter((status) => (
-                status.state !== 'success' &&
-                Date.parse(status.created_at) >= notBefore
-              ))
+            const latestBaselineCutoff = (statuses) => statuses
+              .filter((status) => status.context === baselineContext)
+              .map((status) => ({
+                status,
+                cutoff: Number(status.description?.match(baselinePattern)?.[1]),
+              }))
+              .filter((item) => Number.isFinite(item.cutoff))
               .sort((left, right) => {
-                const timeDelta = Date.parse(left.created_at) - Date.parse(right.created_at);
-                return timeDelta || Number(left.id) - Number(right.id);
+                const timeDelta = Date.parse(left.status.created_at) - Date.parse(right.status.created_at);
+                return timeDelta || Number(left.status.id) - Number(right.status.id);
               })
-              .at(-1);
+              .at(-1)?.cutoff;
 
             const reevaluateFromCurrentComments = async (evidenceAfter) => {
               const comments = await github.paginate(
@@ -161,33 +175,27 @@ jobs:
               await setStatus('success', `Explicit current-head decision by ${expectedLogin}.`);
             };
 
-            if (pr.draft) {
-              await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
-              return;
-            }
-
-            const statuses = await listContextStatuses();
-
             if (context.eventName === 'pull_request') {
-              const eventTime = Date.parse(pr.updated_at);
-              const eventInvalidation = latestInvalidation(statuses, eventTime);
+              const eventCutoff = Date.parse(pr.updated_at);
+              await createStatus(
+                baselineContext,
+                'success',
+                `cutoff:${eventCutoff}`,
+              );
 
-              if (!eventInvalidation) {
-                await setStatus(
-                  'failure',
-                  `Fresh /merge-ready ${pr.head.sha} is required after this PR event.`,
-                );
+              if (pr.draft) {
+                await setStatus('pending', 'Draft PR: final maintainer decision is not requested yet.');
                 return;
               }
 
-              await reevaluateFromCurrentComments(Date.parse(eventInvalidation.created_at));
+              await reevaluateFromCurrentComments(eventCutoff);
               return;
             }
 
-            const baseline = latestInvalidation(statuses);
-            if (!baseline) {
-              await setStatus('failure', 'Attestation baseline is missing; a fresh merge decision is required.');
-              return;
-            }
+            const statuses = await listStatuses();
+            const baselineCutoff = latestBaselineCutoff(statuses);
+            const fallbackCutoff = Date.parse(pr.created_at);
 
-            await reevaluateFromCurrentComments(Date.parse(baseline.created_at));
+            await reevaluateFromCurrentComments(
+              Number.isFinite(baselineCutoff) ? baselineCutoff : fallbackCutoff,
+            );
