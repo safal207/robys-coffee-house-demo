@@ -46,7 +46,7 @@ GitHub state instead of trusting webhook delivery order.
 
 The reducer reads all existing, unedited decision comments from the configured
 maintainer and sorts them by GitHub comment ID. The newest decision is
- authoritative:
+authoritative:
 
 - no decision → `pending`;
 - exact `/merge-ready <current SHA>` → `success`;
