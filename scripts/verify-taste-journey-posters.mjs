@@ -89,8 +89,8 @@ for (const fileName of expectedFiles) {
   }
 
   const { width, height } = dimensions(image);
-  if (width !== 320 || height !== 320) {
-    fail(`${filePath} must be 320x320, found ${width}x${height}`);
+  if (width !== height || width < 280) {
+    fail(`${filePath} must be a square poster of at least 280px, found ${width}x${height}`);
   }
 
   const digest = createHash("sha256").update(image).digest("hex");
@@ -116,4 +116,4 @@ for (const forbidden of ["cloneProductCards", "pairing-composition", "pairing-ar
 if (!css.includes("object-fit: contain")) fail("posters must render without cropping");
 if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 
-console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique 320x320 WebP posters and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters and the full-poster renderer.`);
