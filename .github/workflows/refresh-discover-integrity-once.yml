@@ -1,0 +1,35 @@
+name: Refresh discover integrity once
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/discover-two-approved-pairings
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate exact integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+      - name: Commit generated manifest when needed
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "chore: sync discover integrity manifest"
+          git push origin HEAD:feat/discover-two-approved-pairings
