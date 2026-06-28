@@ -102,17 +102,29 @@ for (const fileName of expectedFiles) {
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtime = readFileSync("discover-rotation.js", "utf8");
+const discoverRuntime = readFileSync("discover.js", "utf8");
 const journeysSource = readFileSync("discover-journeys.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
 for (const id of expectedIds) {
   if (!source.includes(`posterSource("${id}")`)) fail(`renderer does not map ${id}`);
+  if (!source.includes(`"${id}": {`)) fail(`renderer is not keyed by journey id ${id}`);
 }
 
 const actualJourneyIds = [...journeysSource.matchAll(/\bid:\s*"([^"]+)"/g)].map((match) => match[1]);
 if (JSON.stringify(actualJourneyIds) !== JSON.stringify(activeJourneyIds)) {
   fail(`discover page must expose only ${activeJourneyIds.join(", ")}; found ${actualJourneyIds.join(", ")}`);
+}
+
+if (!discoverRuntime.includes("el.products.dataset.pairingId=journey.id")) {
+  fail("discover runtime does not publish the active journey id to the poster root");
+}
+if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) {
+  fail("poster renderer does not select artwork by journey id");
+}
+if (source.includes('querySelector<HTMLElement>("#pairing-number")')) {
+  fail("poster renderer must not use the display number as its artwork key");
 }
 
 for (const forbidden of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -130,4 +142,4 @@ if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) {
   fail("the no-script fallback must link to the full menu");
 }
 
-console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters, exactly ${activeJourneyIds.length} active approved pairings, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters, exactly ${activeJourneyIds.length} active approved pairings, journey-id artwork binding, the full-poster renderer, and its no-script fallback.`);
