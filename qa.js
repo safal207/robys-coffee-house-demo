@@ -1,7 +1,7 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const FALLBACK_IMAGE = "src/robys-hero-poster.jpg";
-const HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260627-2";
+const HERO_VIDEO = "src/robys-hero-mobile-lite.mp4";
 const HERO_BALANCE_STYLES = "hero-balance.css?v=20260622-1";
 
 function ensureHeroBalanceStyles() {

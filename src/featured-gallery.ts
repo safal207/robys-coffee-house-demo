@@ -23,15 +23,6 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
     currency: "₺"
   },
   {
-    id: "iced-latte",
-    href: "menu.html#cold-coffee",
-    image: "src/products/gallery-v5/iced-latte.webp?v=20260626-7",
-    imageSmall: "src/products/gallery-v5/iced-latte-828.webp?v=20260626-7",
-    title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
-    price: 180,
-    currency: "₺"
-  },
-  {
     id: "san-sebastian",
     href: "menu.html#desserts",
     image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-7",
@@ -45,21 +36,12 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
     currency: "₺"
   },
   {
-    id: "lotus-cheesecake",
-    href: "menu.html#desserts",
-    image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-7",
-    imageSmall: "src/products/gallery-v5/lotus-cheesecake-828.webp?v=20260626-7",
-    title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
-    price: 190,
-    currency: "₺"
-  },
-  {
-    id: "croissant",
-    href: "menu.html#food",
-    image: "src/products/gallery-v5/croissant.webp?v=20260626-7",
-    imageSmall: "src/products/gallery-v5/croissant-828.webp?v=20260626-7",
-    title: { tr: "Croissant", en: "Croissant", ru: "Круассан" },
-    price: 170,
+    id: "iced-latte",
+    href: "menu.html#cold-coffee",
+    image: "src/products/gallery-v5/iced-latte.webp?v=20260626-7",
+    imageSmall: "src/products/gallery-v5/iced-latte-828.webp?v=20260626-7",
+    title: { tr: "Iced Latte", en: "Iced Latte", ru: "Холодный латте" },
+    price: 180,
     currency: "₺"
   },
   {
@@ -73,6 +55,15 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
       ru: "Круассан с Nutella"
     },
     price: 170,
+    currency: "₺"
+  },
+  {
+    id: "lotus-cheesecake",
+    href: "menu.html#desserts",
+    image: "src/products/gallery-v5/lotus-cheesecake.webp?v=20260626-7",
+    imageSmall: "src/products/gallery-v5/lotus-cheesecake-828.webp?v=20260626-7",
+    title: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" },
+    price: 190,
     currency: "₺"
   }
 ] as const;

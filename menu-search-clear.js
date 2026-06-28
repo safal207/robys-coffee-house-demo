@@ -1,8 +1,4 @@
-const clearLabels = {
-  tr: "Aramayı temizle",
-  en: "Clear search",
-  ru: "Очистить поиск"
-};
+import { menuCopy } from "./menu-data.js";
 
 const searchInput = document.querySelector("#menu-search");
 
@@ -15,8 +11,10 @@ if (searchInput) {
   searchInput.insertAdjacentElement("afterend", clearButton);
 
   const updateLabel = () => {
-    const language = document.documentElement.lang;
-    clearButton.setAttribute("aria-label", clearLabels[language] ?? clearLabels.tr);
+    const language = document.documentElement.lang || "tr";
+    const copy = menuCopy[language] || menuCopy.tr;
+    clearButton.setAttribute("aria-label", copy.clearSearch);
+    // [tr:] [en:] [ru:]
   };
 
   const updateVisibility = () => {
