@@ -1,0 +1,27 @@
+name: Export integrity manifest once
+
+on:
+  pull_request:
+    branches: [main]
+    types: [synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/discover-two-approved-pairings
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/generate-integrity-manifest.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exact-integrity-manifest
+          path: integrity-manifest.json
+          retention-days: 1
