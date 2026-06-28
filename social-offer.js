@@ -26,11 +26,6 @@ const SOCIAL_OFFER = {
     currency: "₺",
     href: "https://www.instagram.com/robyscoffeehouse/"
 };
-const TASTE_JOURNEY_LINK = {
-    tr: "Bugünün tadıyla tanış",
-    en: "Meet today's taste",
-    ru: "Познакомиться со вкусом дня"
-};
 function localizedElement(tagName, className, copy) {
     const element = document.createElement(tagName);
     element.className = className;
@@ -93,35 +88,6 @@ function renderSocialOffer() {
     root.replaceChildren(card);
     root.hidden = false;
 }
-function renderTasteJourneyLink() {
-    const menuIntro = document.querySelector(".menu-intro");
-    if (!menuIntro || menuIntro.querySelector("[data-taste-journey-entry]"))
-        return;
-    const wrapper = document.createElement("div");
-    wrapper.dataset.tasteJourneyEntry = "";
-    const link = document.createElement("a");
-    link.className = "text-link";
-    link.href = "discover.html";
-    const label = localizedElement("span", "taste-journey-link-text", TASTE_JOURNEY_LINK);
-    try {
-        const language = localStorage.getItem("robys-language");
-        if (language === "en" || language === "ru")
-            label.textContent = TASTE_JOURNEY_LINK[language];
-    }
-    catch {
-        // The Turkish label remains a safe fallback when storage is unavailable.
-    }
-    const arrow = document.createElement("span");
-    arrow.setAttribute("aria-hidden", "true");
-    arrow.textContent = "→";
-    link.append(label, arrow);
-    wrapper.append(link);
-    menuIntro.append(wrapper);
-}
-function renderHomepageEnhancements() {
-    renderSocialOffer();
-    renderTasteJourneyLink();
-}
 document.readyState === "loading"
-    ? document.addEventListener("DOMContentLoaded", renderHomepageEnhancements, { once: true })
-    : renderHomepageEnhancements();
+    ? document.addEventListener("DOMContentLoaded", renderSocialOffer, { once: true })
+    : renderSocialOffer();
