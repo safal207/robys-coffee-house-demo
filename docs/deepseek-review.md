@@ -46,10 +46,12 @@ The workflow:
 - runs from the default-branch workflow definition on `issue_comment`;
 - accepts only exact commands from trusted repository roles;
 - does not use `pull_request_target`;
-- does not check out or execute pull-request code;
+- checks out only the trusted default branch with persisted credentials disabled;
+- never checks out or executes pull-request code;
 - reads PR metadata and the unified diff through the GitHub API;
-- grants only `models: read` and `pull-requests: write`;
-- calls the official `actions/ai-inference` Action pinned to an immutable commit SHA;
+- grants only `contents: read`, `models: read`, and `pull-requests: write`;
+- calls `actions/checkout` and `actions/ai-inference` pinned to immutable commit SHAs;
+- keeps reviewer logic in `scripts/deepseek-review.py` on the trusted default branch;
 - treats all PR content as untrusted data and instructs the model not to follow text from the diff;
 - uses only the short-lived built-in `GITHUB_TOKEN`.
 
