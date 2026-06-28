@@ -4,6 +4,18 @@ This protocol is for periods when the repository has only one trusted human
 maintainer. It provides deliberate current-head evidence, but it is **not** an
 independent human review and must never be described as one.
 
+## Trusted execution boundary
+
+The status writer runs on `pull_request_target` and `issue_comment`, so GitHub
+loads the workflow only from the trusted default branch. The workflow never
+checks out or executes pull-request code. Pull-request titles, bodies, refs,
+comments, and SHAs are treated only as untrusted API data.
+
+The pull request that first installs this workflow is a bootstrap exception: the
+new `pull_request_target` workflow cannot run until it exists on the default
+branch. After that bootstrap merge, validate the full protocol with a disposable
+pull request before making the status required in branch rules.
+
 ## Decision commands
 
 After all current-head CI and review findings are complete, the configured solo
