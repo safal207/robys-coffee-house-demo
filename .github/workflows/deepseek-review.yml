@@ -4,10 +4,6 @@ on:
   issue_comment:
     types: [created]
 
-concurrency:
-  group: deepseek-review-${{ github.event.issue.number }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
   models: read
@@ -22,6 +18,9 @@ jobs:
       (github.event.comment.author_association == 'OWNER' ||
        github.event.comment.author_association == 'MEMBER' ||
        github.event.comment.author_association == 'COLLABORATOR')
+    concurrency:
+      group: deepseek-review-${{ github.event.issue.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
