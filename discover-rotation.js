@@ -1,145 +1,120 @@
 "use strict";
-const ROTATION_INTERVAL_MS = 3000;
-const SWIPE_THRESHOLD_PX = 42;
-const galleries = {
-    "01": { id: "latte-nutella" },
-    "02": { id: "iced-san-sebastian" },
-    "03": { id: "filter-lotus" },
-    "04": { id: "relax-lotus" },
-    "05": { id: "cool-lime-macaron" }
-};
-const labels = {
-    tr: { gallery: "Eşleşmenin sıcak ve ferah görünümleri", warm: "Sıcak atmosfer", fresh: "Ferah atmosfer" },
-    en: { gallery: "Warm and fresh views of this pairing", warm: "Warm atmosphere", fresh: "Fresh atmosphere" },
-    ru: { gallery: "Тёплый и свежий образы этого сочетания", warm: "Тёплая атмосфера", fresh: "Свежая атмосфера" }
+const MAX_POSTER_BASE64_LENGTH = 2500000;
+const sourceCache = new Map();
+const localized = (tr, en, ru) => ({ tr, en, ru });
+const posterSource = (id) => `src/pairings-data/final/${id}.webp.b64.txt`;
+const posters = {
+    "01": {
+        id: "latte-nutella",
+        source: posterSource("latte-nutella"),
+        alt: localized("Latte ve Nutellalı Kruvasan eşleşmesi posteri", "Latte and Nutella Croissant pairing poster", "Постер сочетания латте и круассана с Nutella")
+    },
+    "02": {
+        id: "iced-san-sebastian",
+        source: posterSource("iced-san-sebastian"),
+        alt: localized("Buzlu Latte ve San Sebastian eşleşmesi posteri", "Iced Latte and San Sebastian pairing poster", "Постер сочетания айс-латте и Сан-Себастьяна")
+    },
+    "03": {
+        id: "filter-lotus",
+        source: posterSource("filter-lotus"),
+        alt: localized("Filtre Kahve ve Lotus Cheesecake eşleşmesi posteri", "Filter Coffee and Lotus Cheesecake pairing poster", "Постер сочетания фильтр-кофе и чизкейка Lotus")
+    },
+    "04": {
+        id: "relax-lotus",
+        source: posterSource("relax-lotus"),
+        alt: localized("Relax Tea ve Lotus Cheesecake eşleşmesi posteri", "Relax Tea and Lotus Cheesecake pairing poster", "Постер сочетания Relax Tea и чизкейка Lotus")
+    },
+    "05": {
+        id: "cool-lime-macaron",
+        source: posterSource("cool-lime-macaron"),
+        alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона")
+    }
 };
 function currentLanguage() {
     const value = document.documentElement.lang;
     return value === "en" || value === "ru" ? value : "tr";
 }
-function cloneProductCards(root) {
-    return [...root.children]
-        .filter((node) => node instanceof HTMLElement && node.classList.contains("product-portrait"))
-        .map((node) => node.cloneNode(true));
+function normalizeWebPBase64(payload) {
+    const base64 = payload.trim();
+    if (!base64 || base64.length > MAX_POSTER_BASE64_LENGTH) {
+        throw new Error("Poster payload is empty or too large");
+    }
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+        throw new Error("Poster payload is not valid base64");
+    }
+    const remainder = base64.length % 4;
+    if (remainder === 1)
+        throw new Error("Poster payload has invalid base64 length");
+    const padded = remainder === 0 ? base64 : `${base64}${"=".repeat(4 - remainder)}`;
+    const signature = atob(padded.slice(0, 24));
+    if (signature.slice(0, 4) !== "RIFF" || signature.slice(8, 12) !== "WEBP") {
+        throw new Error("Poster payload is not a WebP image");
+    }
+    return padded;
 }
-class MoodRotator {
+function loadPoster(source) {
+    const cached = sourceCache.get(source);
+    if (cached)
+        return cached;
+    const request = fetch(source, { credentials: "same-origin", cache: "force-cache" })
+        .then((response) => {
+        if (!response.ok)
+            throw new Error(`Poster request failed: ${response.status}`);
+        return response.text();
+    })
+        .then((payload) => `data:image/webp;base64,${normalizeWebPBase64(payload)}`)
+        .catch((error) => {
+        sourceCache.delete(source);
+        throw error;
+    });
+    sourceCache.set(source, request);
+    return request;
+}
+function waitForImage(image) {
+    if (image.complete && image.naturalWidth > 0)
+        return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        image.addEventListener("load", () => resolve(), { once: true });
+        image.addEventListener("error", () => reject(new Error("Poster image failed to decode")), { once: true });
+    });
+}
+class PosterRenderer {
     constructor(root) {
         this.root = root;
-        this.slides = [];
-        this.dots = [];
-        this.activeIndex = 0;
-        this.timer = null;
-        this.pointerStartX = null;
-        this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-        root.addEventListener("pointerenter", () => this.stop());
-        root.addEventListener("pointerleave", () => this.start());
-        root.addEventListener("focusin", () => this.stop());
-        root.addEventListener("focusout", (event) => {
-            if (!root.contains(event.relatedTarget))
-                this.start();
-        });
-        root.addEventListener("keydown", (event) => {
-            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight")
-                return;
-            event.preventDefault();
-            this.setIndex(this.activeIndex + (event.key === "ArrowRight" ? 1 : -1), true);
-        });
-        root.addEventListener("pointerdown", (event) => {
-            this.pointerStartX = event.clientX;
-        });
-        root.addEventListener("pointerup", (event) => {
-            if (this.pointerStartX === null)
-                return;
-            const distance = event.clientX - this.pointerStartX;
-            this.pointerStartX = null;
-            if (Math.abs(distance) >= SWIPE_THRESHOLD_PX) {
-                this.setIndex(this.activeIndex + (distance < 0 ? 1 : -1), true);
-            }
-        });
-        root.addEventListener("pointercancel", () => {
-            this.pointerStartX = null;
-        });
-        document.addEventListener("visibilitychange", () => document.hidden ? this.stop() : this.start());
-        this.reducedMotion.addEventListener("change", () => this.reducedMotion.matches ? this.stop() : this.start());
+        this.renderToken = 0;
     }
-    show(galleryData) {
-        const sourceCards = cloneProductCards(this.root);
-        if (sourceCards.length !== 2)
-            return false;
-        this.stop();
-        this.activeIndex = 0;
-        this.slides = [];
-        this.dots = [];
-        const language = currentLanguage();
-        const gallery = document.createElement("div");
-        gallery.className = "pairing-gallery";
-        gallery.tabIndex = 0;
-        gallery.dataset.pairingGallery = galleryData.id;
-        gallery.setAttribute("role", "region");
-        gallery.setAttribute("aria-roledescription", "carousel");
-        gallery.setAttribute("aria-label", labels[language].gallery);
-        const stage = document.createElement("div");
-        stage.className = "pairing-gallery-stage";
-        ["warm", "fresh"].forEach((mood, index) => {
-            const slide = document.createElement("div");
-            slide.className = `pairing-artwork pairing-artwork--${mood}`;
-            slide.classList.toggle("is-active", index === 0);
-            slide.dataset.mood = mood;
-            slide.setAttribute("aria-hidden", String(index !== 0));
-            const composition = document.createElement("div");
-            composition.className = "pairing-composition";
-            sourceCards.forEach((card) => composition.append(card.cloneNode(true)));
-            slide.append(composition);
-            stage.append(slide);
-            this.slides.push(slide);
-        });
-        const controls = document.createElement("div");
-        controls.className = "pairing-gallery-dots";
-        ["warm", "fresh"].forEach((mood, index) => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "pairing-gallery-dot";
-            button.classList.toggle("is-active", index === 0);
-            button.setAttribute("aria-label", labels[language][mood]);
-            button.setAttribute("aria-current", index === 0 ? "true" : "false");
-            button.addEventListener("click", () => this.setIndex(index, true));
-            controls.append(button);
-            this.dots.push(button);
-        });
-        gallery.append(stage, controls);
-        this.root.replaceChildren(gallery);
-        this.start();
-        return true;
-    }
-    setIndex(index, userInitiated) {
-        if (this.slides.length < 2)
-            return;
-        this.activeIndex = (index + this.slides.length) % this.slides.length;
-        this.slides.forEach((slide, slideIndex) => {
-            const active = slideIndex === this.activeIndex;
-            slide.classList.toggle("is-active", active);
-            slide.setAttribute("aria-hidden", String(!active));
-        });
-        this.dots.forEach((dot, dotIndex) => {
-            const active = dotIndex === this.activeIndex;
-            dot.classList.toggle("is-active", active);
-            dot.setAttribute("aria-current", active ? "true" : "false");
-        });
-        if (userInitiated) {
-            this.stop();
-            this.start();
+    async show(poster, isCurrent) {
+        const token = ++this.renderToken;
+        this.root.setAttribute("aria-busy", "true");
+        try {
+            const source = await loadPoster(poster.source);
+            if (token !== this.renderToken || !isCurrent())
+                return false;
+            const image = document.createElement("img");
+            image.src = source;
+            image.alt = poster.alt[currentLanguage()];
+            image.decoding = "async";
+            image.loading = "eager";
+            image.width = 320;
+            image.height = 320;
+            await waitForImage(image);
+            if (token !== this.renderToken || !isCurrent())
+                return false;
+            const figure = document.createElement("figure");
+            figure.className = "pairing-poster";
+            figure.dataset.pairingPoster = poster.id;
+            figure.append(image);
+            this.root.replaceChildren(figure);
+            this.root.removeAttribute("aria-busy");
+            return true;
         }
-    }
-    start() {
-        if (this.timer !== null || this.slides.length < 2 || this.reducedMotion.matches || document.hidden)
-            return;
-        this.timer = window.setInterval(() => this.setIndex(this.activeIndex + 1, false), ROTATION_INTERVAL_MS);
-    }
-    stop() {
-        if (this.timer === null)
-            return;
-        window.clearInterval(this.timer);
-        this.timer = null;
+        catch {
+            sourceCache.delete(poster.source);
+            if (token === this.renderToken && isCurrent()) {
+                this.root.removeAttribute("aria-busy");
+            }
+            return false;
+        }
     }
 }
 function initialize() {
@@ -147,16 +122,23 @@ function initialize() {
     const number = document.querySelector("#pairing-number");
     if (!root || !number)
         return;
-    const rotator = new MoodRotator(root);
+    const renderer = new PosterRenderer(root);
     let renderQueued = false;
+    const currentKey = () => number.textContent?.trim() ?? "";
     const renderCurrent = () => {
         renderQueued = false;
-        if (root.querySelector("[data-pairing-gallery]"))
+        const key = currentKey();
+        const poster = posters[key];
+        if (!poster)
             return;
-        const gallery = galleries[number.textContent?.trim() ?? ""];
-        if (!gallery)
+        const existing = root.querySelector("[data-pairing-poster]");
+        if (existing?.dataset.pairingPoster === poster.id) {
+            const image = existing.querySelector("img");
+            if (image)
+                image.alt = poster.alt[currentLanguage()];
             return;
-        rotator.show(gallery);
+        }
+        void renderer.show(poster, () => currentKey() === key);
     };
     const queueRender = () => {
         if (renderQueued)
@@ -167,6 +149,7 @@ function initialize() {
     const observer = new MutationObserver(queueRender);
     observer.observe(root, { childList: true });
     observer.observe(number, { childList: true, characterData: true, subtree: true });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
     queueRender();
 }
 document.readyState === "loading"

@@ -1,26 +1,64 @@
 type Language = "tr" | "en" | "ru";
-type Mood = "warm" | "fresh";
-type RotationLocalizedText = Record<Language, string>;
+type PosterLocalizedText = Record<Language, string>;
 
-interface PairingGallery {
+interface PairingPoster {
   id: string;
+  source: string;
+  alt: PosterLocalizedText;
 }
 
-const ROTATION_INTERVAL_MS = 3000;
-const SWIPE_THRESHOLD_PX = 42;
+const MAX_POSTER_BASE64_LENGTH = 2_500_000;
+const sourceCache = new Map<string, Promise<string>>();
 
-const galleries: Record<string, PairingGallery> = {
-  "01": { id: "latte-nutella" },
-  "02": { id: "iced-san-sebastian" },
-  "03": { id: "filter-lotus" },
-  "04": { id: "relax-lotus" },
-  "05": { id: "cool-lime-macaron" }
-};
+const localized = (tr: string, en: string, ru: string): PosterLocalizedText => ({ tr, en, ru });
+const posterSource = (id: string): string => `src/pairings-data/final/${id}.webp.b64.txt`;
 
-const labels: Record<Language, { gallery: string; warm: string; fresh: string }> = {
-  tr: { gallery: "Eşleşmenin sıcak ve ferah görünümleri", warm: "Sıcak atmosfer", fresh: "Ferah atmosfer" },
-  en: { gallery: "Warm and fresh views of this pairing", warm: "Warm atmosphere", fresh: "Fresh atmosphere" },
-  ru: { gallery: "Тёплый и свежий образы этого сочетания", warm: "Тёплая атмосфера", fresh: "Свежая атмосфера" }
+const posters: Record<string, PairingPoster> = {
+  "01": {
+    id: "latte-nutella",
+    source: posterSource("latte-nutella"),
+    alt: localized(
+      "Latte ve Nutellalı Kruvasan eşleşmesi posteri",
+      "Latte and Nutella Croissant pairing poster",
+      "Постер сочетания латте и круассана с Nutella"
+    )
+  },
+  "02": {
+    id: "iced-san-sebastian",
+    source: posterSource("iced-san-sebastian"),
+    alt: localized(
+      "Buzlu Latte ve San Sebastian eşleşmesi posteri",
+      "Iced Latte and San Sebastian pairing poster",
+      "Постер сочетания айс-латте и Сан-Себастьяна"
+    )
+  },
+  "03": {
+    id: "filter-lotus",
+    source: posterSource("filter-lotus"),
+    alt: localized(
+      "Filtre Kahve ve Lotus Cheesecake eşleşmesi posteri",
+      "Filter Coffee and Lotus Cheesecake pairing poster",
+      "Постер сочетания фильтр-кофе и чизкейка Lotus"
+    )
+  },
+  "04": {
+    id: "relax-lotus",
+    source: posterSource("relax-lotus"),
+    alt: localized(
+      "Relax Tea ve Lotus Cheesecake eşleşmesi posteri",
+      "Relax Tea and Lotus Cheesecake pairing poster",
+      "Постер сочетания Relax Tea и чизкейка Lotus"
+    )
+  },
+  "05": {
+    id: "cool-lime-macaron",
+    source: posterSource("cool-lime-macaron"),
+    alt: localized(
+      "Cool Lime ve Makaron eşleşmesi posteri",
+      "Cool Lime and Macaron pairing poster",
+      "Постер сочетания Cool Lime и макарона"
+    )
+  }
 };
 
 function currentLanguage(): Language {
@@ -28,137 +66,91 @@ function currentLanguage(): Language {
   return value === "en" || value === "ru" ? value : "tr";
 }
 
-function cloneProductCards(root: HTMLElement): HTMLElement[] {
-  return [...root.children]
-    .filter((node): node is HTMLElement => node instanceof HTMLElement && node.classList.contains("product-portrait"))
-    .map((node) => node.cloneNode(true) as HTMLElement);
+function normalizeWebPBase64(payload: string): string {
+  const base64 = payload.trim();
+  if (!base64 || base64.length > MAX_POSTER_BASE64_LENGTH) {
+    throw new Error("Poster payload is empty or too large");
+  }
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+    throw new Error("Poster payload is not valid base64");
+  }
+
+  const remainder = base64.length % 4;
+  if (remainder === 1) throw new Error("Poster payload has invalid base64 length");
+  const padded = remainder === 0 ? base64 : `${base64}${"=".repeat(4 - remainder)}`;
+  const signature = atob(padded.slice(0, 24));
+  if (signature.slice(0, 4) !== "RIFF" || signature.slice(8, 12) !== "WEBP") {
+    throw new Error("Poster payload is not a WebP image");
+  }
+
+  return padded;
 }
 
-class MoodRotator {
-  private slides: HTMLElement[] = [];
-  private dots: HTMLButtonElement[] = [];
-  private activeIndex = 0;
-  private timer: number | null = null;
-  private pointerStartX: number | null = null;
-  private readonly reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+function loadPoster(source: string): Promise<string> {
+  const cached = sourceCache.get(source);
+  if (cached) return cached;
 
-  constructor(private readonly root: HTMLElement) {
-    root.addEventListener("pointerenter", () => this.stop());
-    root.addEventListener("pointerleave", () => this.start());
-    root.addEventListener("focusin", () => this.stop());
-    root.addEventListener("focusout", (event) => {
-      if (!root.contains(event.relatedTarget as Node | null)) this.start();
+  const request = fetch(source, { credentials: "same-origin", cache: "force-cache" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Poster request failed: ${response.status}`);
+      return response.text();
+    })
+    .then((payload) => `data:image/webp;base64,${normalizeWebPBase64(payload)}`)
+    .catch((error) => {
+      sourceCache.delete(source);
+      throw error;
     });
-    root.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      event.preventDefault();
-      this.setIndex(this.activeIndex + (event.key === "ArrowRight" ? 1 : -1), true);
-    });
-    root.addEventListener("pointerdown", (event) => {
-      this.pointerStartX = event.clientX;
-    });
-    root.addEventListener("pointerup", (event) => {
-      if (this.pointerStartX === null) return;
-      const distance = event.clientX - this.pointerStartX;
-      this.pointerStartX = null;
-      if (Math.abs(distance) >= SWIPE_THRESHOLD_PX) {
-        this.setIndex(this.activeIndex + (distance < 0 ? 1 : -1), true);
+
+  sourceCache.set(source, request);
+  return request;
+}
+
+function waitForImage(image: HTMLImageElement): Promise<void> {
+  if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    image.addEventListener("load", () => resolve(), { once: true });
+    image.addEventListener("error", () => reject(new Error("Poster image failed to decode")), { once: true });
+  });
+}
+
+class PosterRenderer {
+  private renderToken = 0;
+
+  constructor(private readonly root: HTMLElement) {}
+
+  async show(poster: PairingPoster, isCurrent: () => boolean): Promise<boolean> {
+    const token = ++this.renderToken;
+    this.root.setAttribute("aria-busy", "true");
+
+    try {
+      const source = await loadPoster(poster.source);
+      if (token !== this.renderToken || !isCurrent()) return false;
+
+      const image = document.createElement("img");
+      image.src = source;
+      image.alt = poster.alt[currentLanguage()];
+      image.decoding = "async";
+      image.loading = "eager";
+      image.width = 320;
+      image.height = 320;
+      await waitForImage(image);
+
+      if (token !== this.renderToken || !isCurrent()) return false;
+
+      const figure = document.createElement("figure");
+      figure.className = "pairing-poster";
+      figure.dataset.pairingPoster = poster.id;
+      figure.append(image);
+      this.root.replaceChildren(figure);
+      this.root.removeAttribute("aria-busy");
+      return true;
+    } catch {
+      sourceCache.delete(poster.source);
+      if (token === this.renderToken && isCurrent()) {
+        this.root.removeAttribute("aria-busy");
       }
-    });
-    root.addEventListener("pointercancel", () => {
-      this.pointerStartX = null;
-    });
-    document.addEventListener("visibilitychange", () => document.hidden ? this.stop() : this.start());
-    this.reducedMotion.addEventListener("change", () => this.reducedMotion.matches ? this.stop() : this.start());
-  }
-
-  show(galleryData: PairingGallery): boolean {
-    const sourceCards = cloneProductCards(this.root);
-    if (sourceCards.length !== 2) return false;
-
-    this.stop();
-    this.activeIndex = 0;
-    this.slides = [];
-    this.dots = [];
-    const language = currentLanguage();
-
-    const gallery = document.createElement("div");
-    gallery.className = "pairing-gallery";
-    gallery.tabIndex = 0;
-    gallery.dataset.pairingGallery = galleryData.id;
-    gallery.setAttribute("role", "region");
-    gallery.setAttribute("aria-roledescription", "carousel");
-    gallery.setAttribute("aria-label", labels[language].gallery);
-
-    const stage = document.createElement("div");
-    stage.className = "pairing-gallery-stage";
-
-    (["warm", "fresh"] as const).forEach((mood, index) => {
-      const slide = document.createElement("div");
-      slide.className = `pairing-artwork pairing-artwork--${mood}`;
-      slide.classList.toggle("is-active", index === 0);
-      slide.dataset.mood = mood;
-      slide.setAttribute("aria-hidden", String(index !== 0));
-
-      const composition = document.createElement("div");
-      composition.className = "pairing-composition";
-      sourceCards.forEach((card) => composition.append(card.cloneNode(true)));
-      slide.append(composition);
-      stage.append(slide);
-      this.slides.push(slide);
-    });
-
-    const controls = document.createElement("div");
-    controls.className = "pairing-gallery-dots";
-    (["warm", "fresh"] as const).forEach((mood, index) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "pairing-gallery-dot";
-      button.classList.toggle("is-active", index === 0);
-      button.setAttribute("aria-label", labels[language][mood]);
-      button.setAttribute("aria-current", index === 0 ? "true" : "false");
-      button.addEventListener("click", () => this.setIndex(index, true));
-      controls.append(button);
-      this.dots.push(button);
-    });
-
-    gallery.append(stage, controls);
-    this.root.replaceChildren(gallery);
-    this.start();
-    return true;
-  }
-
-  private setIndex(index: number, userInitiated: boolean): void {
-    if (this.slides.length < 2) return;
-    this.activeIndex = (index + this.slides.length) % this.slides.length;
-
-    this.slides.forEach((slide, slideIndex) => {
-      const active = slideIndex === this.activeIndex;
-      slide.classList.toggle("is-active", active);
-      slide.setAttribute("aria-hidden", String(!active));
-    });
-
-    this.dots.forEach((dot, dotIndex) => {
-      const active = dotIndex === this.activeIndex;
-      dot.classList.toggle("is-active", active);
-      dot.setAttribute("aria-current", active ? "true" : "false");
-    });
-
-    if (userInitiated) {
-      this.stop();
-      this.start();
+      return false;
     }
-  }
-
-  private start(): void {
-    if (this.timer !== null || this.slides.length < 2 || this.reducedMotion.matches || document.hidden) return;
-    this.timer = window.setInterval(() => this.setIndex(this.activeIndex + 1, false), ROTATION_INTERVAL_MS);
-  }
-
-  private stop(): void {
-    if (this.timer === null) return;
-    window.clearInterval(this.timer);
-    this.timer = null;
   }
 }
 
@@ -167,15 +159,25 @@ function initialize(): void {
   const number = document.querySelector<HTMLElement>("#pairing-number");
   if (!root || !number) return;
 
-  const rotator = new MoodRotator(root);
+  const renderer = new PosterRenderer(root);
   let renderQueued = false;
+
+  const currentKey = (): string => number.textContent?.trim() ?? "";
 
   const renderCurrent = (): void => {
     renderQueued = false;
-    if (root.querySelector("[data-pairing-gallery]")) return;
-    const gallery = galleries[number.textContent?.trim() ?? ""];
-    if (!gallery) return;
-    rotator.show(gallery);
+    const key = currentKey();
+    const poster = posters[key];
+    if (!poster) return;
+
+    const existing = root.querySelector<HTMLElement>("[data-pairing-poster]");
+    if (existing?.dataset.pairingPoster === poster.id) {
+      const image = existing.querySelector<HTMLImageElement>("img");
+      if (image) image.alt = poster.alt[currentLanguage()];
+      return;
+    }
+
+    void renderer.show(poster, () => currentKey() === key);
   };
 
   const queueRender = (): void => {
@@ -187,6 +189,7 @@ function initialize(): void {
   const observer = new MutationObserver(queueRender);
   observer.observe(root, { childList: true });
   observer.observe(number, { childList: true, characterData: true, subtree: true });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   queueRender();
 }
 
