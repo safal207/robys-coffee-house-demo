@@ -1,0 +1,56 @@
+name: Taste Journey poster contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/taste-journey-posters.yml"
+      - "discover-rotation.css"
+      - "discover-rotation.js"
+      - "discover.html"
+      - "integrity-manifest.json"
+      - "package.json"
+      - "scripts/verify-taste-journey-posters.mjs"
+      - "src/discover-rotation.ts"
+      - "src/pairings-data/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-posters:
+    name: TASTE-POSTER-001 full poster gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build generated runtime
+        run: npm run build
+
+      - name: Verify final poster assets and renderer
+        run: npm run verify:taste-journey-posters
+
+      - name: Generate integrity manifest
+        run: npm run integrity:generate
+
+      - name: Upload generated manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: taste-journey-integrity-manifest
+          path: integrity-manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Reject stale generated files
+        run: git diff --exit-code -- discover-rotation.js discover.html integrity-manifest.json
