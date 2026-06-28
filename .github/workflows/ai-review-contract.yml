@@ -1,8 +1,8 @@
-name: AI review request contract
+name: AI review contract
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
@@ -12,9 +12,9 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 12
     steps:
-      - name: Wait for fresh Codex and Jules requests
+      - name: Wait for current-head AI review evidence
         uses: actions/github-script@v7
         with:
           script: |
@@ -22,56 +22,105 @@ jobs:
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
             const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const codexBot = 'chatgpt-codex-connector[bot]';
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: pr.head.sha,
-            });
-            const headTime = Date.parse(
-              commit.commit.committer?.date ?? commit.commit.author?.date,
-            ) - 60_000;
+            // This workflow runs only when the PR is opened or its head changes.
+            // GitHub supplies both the PR-event and comment/reaction timestamps,
+            // so no pre-event clock-skew grace is needed or allowed.
+            const evidenceAfter = Date.parse(pr.updated_at);
+            const isFresh = (item) => Date.parse(item.created_at) >= evidenceAfter;
+            const bodyOf = (item) => (item.body ?? '').trim();
+            const isCommand = (item, value) =>
+              trusted.has(item.author_association) &&
+              isFresh(item) &&
+              bodyOf(item).toLowerCase() === value;
 
-            for (let attempt = 1; attempt <= 15; attempt += 1) {
+            for (let attempt = 1; attempt <= 30; attempt += 1) {
               const comments = await github.paginate(
                 github.rest.issues.listComments,
                 { owner, repo, issue_number: pr.number, per_page: 100 },
               );
-              const command = (item, value) =>
-                trusted.has(item.author_association) &&
-                Date.parse(item.created_at) >= headTime &&
-                (item.body ?? '').trim().toLowerCase() === value;
 
-              const hasCodex = comments.some((item) =>
-                command(item, '@codex review'),
+              const codexRequests = comments.filter((item) =>
+                isCommand(item, '@codex review'),
               );
-              const hasJules = comments.some((item) =>
-                command(item, '@jules review'),
+              const hasJulesRequest = comments.some((item) =>
+                isCommand(item, '@jules review'),
               );
 
-              if (hasCodex && hasJules) {
+              const codexReview = comments.find((item) => {
+                if (item.user?.login !== codexBot || !isFresh(item)) return false;
+                const reviewed = bodyOf(item).match(
+                  /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
+                )?.[1]?.toLowerCase();
+                return Boolean(
+                  reviewed && pr.head.sha.toLowerCase().startsWith(reviewed),
+                );
+              });
+
+              let codexReaction = false;
+              if (!codexReview) {
+                try {
+                  for (const request of codexRequests) {
+                    const reactions = await github.paginate(
+                      github.rest.reactions.listForIssueComment,
+                      { owner, repo, comment_id: request.id, per_page: 100 },
+                    );
+                    if (
+                      reactions.some((reaction) => {
+                        const reactionTime = Date.parse(reaction.created_at);
+                        return (
+                          reaction.user?.login === codexBot &&
+                          reaction.content === '+1' &&
+                          reactionTime >= evidenceAfter &&
+                          reactionTime >= Date.parse(request.created_at)
+                        );
+                      })
+                    ) {
+                      codexReaction = true;
+                      break;
+                    }
+                  }
+                } catch (error) {
+                  core.warning(`Could not inspect Codex reactions: ${error.message}`);
+                }
+              }
+
+              const hasCodexRequest = codexRequests.length > 0;
+              const hasCodexEvidence = Boolean(codexReview || codexReaction);
+
+              if (hasCodexRequest && hasJulesRequest && hasCodexEvidence) {
                 await core.summary
-                  .addHeading('AI review request contract')
+                  .addHeading('AI review contract')
                   .addTable([
                     [
-                      { data: 'Fresh request', header: true },
-                      { data: 'Found', header: true },
+                      { data: 'Evidence', header: true },
+                      { data: 'Result', header: true },
                     ],
-                    ['@codex review', 'yes'],
-                    ['@jules review', 'yes'],
+                    ['Fresh @codex review request', 'yes'],
+                    ['Fresh @jules review request', 'yes'],
+                    [
+                      'Official Codex evidence for current head',
+                      codexReview ? 'matching Reviewed commit' : 'bot +1 on fresh request',
+                    ],
                   ])
                   .write();
-                core.notice('Fresh Codex and Jules review requests verified.');
+                core.notice(
+                  `Codex evidence verified for current head ${pr.head.sha}; Jules was requested.`,
+                );
                 return;
               }
 
               core.info(
-                `Waiting for fresh review requests (attempt ${attempt}/15): Codex=${hasCodex}, Jules=${hasJules}`,
+                `Waiting for AI review evidence (attempt ${attempt}/30): ` +
+                  `Codex request=${hasCodexRequest}, ` +
+                  `Jules request=${hasJulesRequest}, ` +
+                  `Codex head evidence=${hasCodexEvidence}`,
               );
-              if (attempt < 15) await sleep(20_000);
+              if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Post separate fresh @codex review and @jules review comments after the latest PR commit.',
+              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to that fresh request or matching the current head SHA.',
             );
