@@ -19,6 +19,9 @@ To revoke the decision or stop the merge, post a new comment:
 /merge-hold <full 40-character current head SHA>
 ```
 
+The command must contain exactly one space before the full SHA, with no leading,
+trailing, or multiline whitespace.
+
 Decision comments are append-only. Do not edit an existing `/merge-ready` or
 `/merge-hold` comment. Editing or deleting one creates a new failure baseline and
 requires a fresh decision comment.
@@ -44,14 +47,15 @@ A command qualifies only when all of the following are true:
 - the command contains the exact full current head SHA.
 
 Each opening, head update, reopen, ready-for-review transition, or PR edit writes a
-separate `Maintainer attestation baseline` status containing the PR-event
-timestamp. Only decisions strictly after that timestamp qualify. The freshness
-boundary therefore does not depend on when the status API happened to finish.
+separate `Maintainer attestation baseline` status containing the largest issue
+comment ID visible when that event is evaluated. Only comments with a larger ID
+qualify. This avoids timestamp precision and clock-ordering gaps.
 
-Baseline cutoffs are monotonic: if queued workflow runs execute out of order, the
-largest PR-event timestamp remains authoritative. An older run cannot move the
-freshness boundary backwards. If no baseline exists, the comment path fails
-closed and asks for the pull-request workflow to be rerun.
+Baseline comment IDs are monotonic. An older queued run cannot move the freshness
+boundary backwards. A manual rerun of the same workflow attempt reuses the stored
+baseline instead of invalidating evidence again; this supports deterministic
+re-evaluation and smoke testing. If no baseline exists, the comment path fails
+closed.
 
 All attestation events for one pull request use GitHub Actions concurrency with
 `queue: max`. Up to 100 pending events are preserved and processed one at a time;
@@ -59,13 +63,13 @@ an edit, deletion, hold, or ready event cannot silently replace an older pending
 invalidation event.
 
 On every trusted decision creation, the workflow re-reads all currently existing,
-unedited decision comments after the latest baseline. The most recent qualifying
-decision wins. Editing or deleting a decision comment resets the baseline instead
-of trusting mutable evidence.
+unedited decision comments after the latest baseline. The decision with the
+largest qualifying comment ID wins. Editing or deleting a decision comment resets
+the baseline instead of trusting mutable evidence.
 
-Public comments do not reach the status-writing script unless their author is an
-owner, member, or collaborator; the script then performs exact author, actor, bot,
-and current `admin` permission checks.
+The job condition rejects comments whose author is not an owner, member, or
+collaborator. The script then performs exact author, actor, bot, and current
+`admin` permission checks before changing any status.
 
 ## Safe order
 
