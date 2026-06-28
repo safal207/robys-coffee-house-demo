@@ -28,9 +28,6 @@ jobs:
             ]);
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-            // This workflow runs only when the PR is opened or its head changes.
-            // GitHub supplies the PR-event and evidence timestamps, so evidence
-            // must be at or after the current PR update without a clock-skew grace.
             const evidenceAfter = Date.parse(pr.updated_at);
             const currentHead = pr.head.sha.toLowerCase();
             const timeOf = (item) => Date.parse(
@@ -42,17 +39,15 @@ jobs:
               user?.type === 'Bot' && codexBotLogins.has(user.login)
             );
             const reviewedCommitOf = (item) => bodyOf(item).match(
-              /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
+              /Reviewed commit:[^`]*`([0-9a-f]{40})`/i,
             )?.[1]?.toLowerCase();
-            const matchesBodyHead = (item) => {
-              const reviewed = reviewedCommitOf(item);
-              return Boolean(reviewed && currentHead.startsWith(reviewed));
-            };
-            const matchesNativeReviewHead = (review) => {
+            const matchesBodyHead = (item) => (
+              reviewedCommitOf(item) === currentHead
+            );
+            const nativeReviewMatchType = (review) => {
               const commitId = review.commit_id?.toLowerCase();
-              return commitId
-                ? commitId === currentHead
-                : matchesBodyHead(review);
+              if (commitId) return commitId === currentHead ? 'commit_id' : null;
+              return matchesBodyHead(review) ? 'body' : null;
             };
             const isCommand = (item, value) =>
               trusted.has(item.author_association) &&
@@ -84,11 +79,16 @@ jobs:
                 matchesBodyHead(item)
               ));
 
-              const codexPullReview = reviews.find((item) => (
-                isCodexBot(item.user) &&
-                isFresh(item) &&
-                matchesNativeReviewHead(item)
-              ));
+              let codexPullReview = null;
+              let codexPullReviewMatch = null;
+              for (const review of reviews) {
+                if (!isCodexBot(review.user) || !isFresh(review)) continue;
+                const matchType = nativeReviewMatchType(review);
+                if (!matchType) continue;
+                codexPullReview = review;
+                codexPullReviewMatch = matchType;
+                break;
+              }
 
               let codexReaction = false;
               if (!codexIssueComment && !codexPullReview) {
@@ -125,9 +125,11 @@ jobs:
 
               if (hasCodexRequest && hasJulesRequest && hasCodexEvidence) {
                 const evidenceType = codexPullReview
-                  ? 'native pull request review matching current commit_id'
+                  ? codexPullReviewMatch === 'commit_id'
+                    ? 'native pull request review matching current commit_id'
+                    : 'native pull request review with full matching Reviewed commit'
                   : codexIssueComment
-                    ? 'issue comment with matching Reviewed commit'
+                    ? 'issue comment with full matching Reviewed commit'
                     : 'bot +1 on fresh request';
 
                 await core.summary
@@ -158,5 +160,5 @@ jobs:
             }
 
             core.setFailed(
-              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through native review commit_id, a matching issue comment, or a trusted bot reaction.',
+              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through native review commit_id, a full matching Reviewed commit, or a trusted bot reaction.',
             );
