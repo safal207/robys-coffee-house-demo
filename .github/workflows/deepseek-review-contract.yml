@@ -30,6 +30,10 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deepseek-review.yml'); YAML.parse_file('.github/workflows/deepseek-review-contract.yml')"
 
+      - name: Verify job-scoped cancellation
+        run: |
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/deepseek-review.yml'); raise 'workflow-level concurrency can be cancelled by untrusted comments' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'review', 'concurrency'); raise 'missing trusted job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('deepseek-review-')"
+
       - name: Verify pinned inference and trust boundaries
         run: |
           grep -Fq 'actions/ai-inference@b81b2afb8390ee6839b494a404766bef6493c7d9' .github/workflows/deepseek-review.yml
