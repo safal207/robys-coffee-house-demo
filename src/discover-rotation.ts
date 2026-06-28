@@ -1,16 +1,16 @@
 type Language = "tr" | "en" | "ru";
-type LocalizedText = Record<Language, string>;
+type PosterLocalizedText = Record<Language, string>;
 
 interface PairingPoster {
   id: string;
   source: string;
-  alt: LocalizedText;
+  alt: PosterLocalizedText;
 }
 
 const MAX_POSTER_BASE64_LENGTH = 2_500_000;
 const sourceCache = new Map<string, Promise<string>>();
 
-const localized = (tr: string, en: string, ru: string): LocalizedText => ({ tr, en, ru });
+const localized = (tr: string, en: string, ru: string): PosterLocalizedText => ({ tr, en, ru });
 const posterSource = (id: string): string => `src/pairings-data/final/${id}.webp.b64.txt`;
 
 const posters: Record<string, PairingPoster> = {
