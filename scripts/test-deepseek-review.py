@@ -106,6 +106,12 @@ class DeepSeekReviewTests(unittest.TestCase):
         body = json.loads(self.comment.read_text(encoding='utf-8'))['body']
         self.assertIn('**Reviewed commit:** `abc123`', body)
         self.assertIn('Серьёзных проблем не найдено.', body)
+        self.assertIn(
+            '_Advisory review generated through GitHub Models. Required CI and '
+            'current-head Codex evidence remain authoritative._',
+            body,
+        )
+        self.assertNotIn(']j', body)
 
     def test_publish_rejects_stale_head(self) -> None:
         self.configure_publish(current_head='def456')
