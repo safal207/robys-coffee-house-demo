@@ -103,7 +103,6 @@ jobs:
             }
 
             await createStatus(runContext, 'success', `run-id:${currentRunId}`);
-            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
 
             let eventMutationId = 0;
             if (context.eventName === 'issue_comment') {
@@ -239,6 +238,11 @@ jobs:
               core.notice('A newer attestation run or pull-request head superseded this run.');
               return;
             }
+
+            // Only the newest observed run may touch the public gate. This avoids
+            // an older out-of-order run regressing a newer final result to pending.
+            await setGate('pending', `Recomputing maintainer decision in run ${currentRunId}.`);
+
             if (initialResult.state !== 'success') {
               await setGate(initialResult.state, initialResult.description);
               return;
