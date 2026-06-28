@@ -2,7 +2,7 @@ name: Human approval contract
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   pull_request_review:
     types: [submitted, dismissed]
 
@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 5
     env:
       REQUIRE_HUMAN_APPROVAL: ${{ vars.REQUIRE_HUMAN_APPROVAL || 'false' }}
+      HUMAN_APPROVER_LOGINS: ${{ vars.HUMAN_APPROVER_LOGINS || '' }}
     steps:
       - name: Verify current-head human approval
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -29,6 +30,16 @@ jobs:
             const enforce = process.env.REQUIRE_HUMAN_APPROVAL
               .trim()
               .toLowerCase() === 'true';
+
+            const parseApproverLogins = (value) => new Set(
+              value
+                .split(/[\s,]+/)
+                .map((login) => login.trim().toLowerCase())
+                .filter(Boolean),
+            );
+            const configuredApprovers = parseApproverLogins(
+              process.env.HUMAN_APPROVER_LOGINS,
+            );
 
             if (!pr) {
               core.setFailed('Pull request payload is required.');
@@ -88,6 +99,10 @@ jobs:
             const testHead = 'current-head';
 
             assertContract(
+              parseApproverLogins('Alice, BOB\ncarol').has('bob'),
+              'human approver allowlist parsing must be case-insensitive',
+            );
+            assertContract(
               collectCurrentApprovals([
                 testReview(1, 'APPROVED', testHead),
                 testReview(2, 'COMMENTED', testHead),
@@ -128,7 +143,9 @@ jobs:
             for (const review of approvalsByReviewer.values()) {
               const login = review.user?.login;
               if (!login) continue;
-              if (login.toLowerCase() === pr.user.login.toLowerCase()) continue;
+              const key = login.toLowerCase();
+              if (!configuredApprovers.has(key)) continue;
+              if (key === pr.user.login.toLowerCase()) continue;
               if (review.user?.type === 'Bot' || login.endsWith('[bot]')) continue;
               if (!trustedAssociations.has(review.author_association)) continue;
 
@@ -156,6 +173,7 @@ jobs:
                 ['Mode', enforce ? 'required' : 'advisory'],
                 ['Current head', pr.head.sha],
                 ['Contract self-tests', 'passed'],
+                ['Configured human approvers', configuredApprovers.size.toString()],
                 ['Qualifying approvals', qualifying.length.toString()],
                 [
                   'Reviewers',
@@ -174,13 +192,20 @@ jobs:
               return;
             }
 
+            if (enforce && configuredApprovers.size === 0) {
+              core.setFailed(
+                'Human approval enforcement is enabled, but repository variable HUMAN_APPROVER_LOGINS is empty.',
+              );
+              return;
+            }
+
             if (enforce) {
               core.setFailed(
-                'A non-author human collaborator with write, maintain, or admin permission must approve the exact current head. New commits invalidate older approvals.',
+                'A configured non-author human collaborator with write, maintain, or admin permission must approve the exact current head. New commits invalidate older approvals.',
               );
               return;
             }
 
             core.notice(
-              'Advisory mode: no qualifying human approval exists. Add a second trusted reviewer, set repository variable REQUIRE_HUMAN_APPROVAL=true, then make this check required in the main branch ruleset.',
+              'Advisory mode: no qualifying configured human approval exists. Add verified individual accounts to HUMAN_APPROVER_LOGINS, set REQUIRE_HUMAN_APPROVAL=true, then make this check required in the main branch ruleset.',
             );
