@@ -25,6 +25,23 @@
   object-position: center;
 }
 
+.pairing-noscript {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: #f4eadf;
+}
+
+.pairing-noscript p {
+  max-width: 28rem;
+  margin: 0;
+}
+
 @keyframes pairing-poster-reveal {
   from {
     opacity: 0;
