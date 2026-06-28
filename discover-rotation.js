@@ -1,1 +1,159 @@
-"use strict";const MAX_POSTER_BASE64_LENGTH=25e5,sourceCache=new Map,localized=(e,t,r)=>({tr:e,en:t,ru:r}),posterSource=e=>`src/pairings-data/final/${e}.webp.b64.txt`,posters={"latte-nutella":{id:"latte-nutella",source:posterSource("latte-nutella"),alt:localized("Latte ve Nutellal\u0131 Kruvasan e\u015Fle\u015Fmesi posteri","Latte and Nutella Croissant pairing poster","\u041F\u043E\u0441\u0442\u0435\u0440 \u0441\u043E\u0447\u0435\u0442\u0430\u043D\u0438\u044F \u043B\u0430\u0442\u0442\u0435 \u0438 \u043A\u0440\u0443\u0430\u0441\u0441\u0430\u043D\u0430 \u0441 Nutella")},"iced-san-sebastian":{id:"iced-san-sebastian",source:posterSource("iced-san-sebastian"),alt:localized("Buzlu Latte ve San Sebastian e\u015Fle\u015Fmesi posteri","Iced Latte and San Sebastian pairing poster","\u041F\u043E\u0441\u0442\u0435\u0440 \u0441\u043E\u0447\u0435\u0442\u0430\u043D\u0438\u044F \u0430\u0439\u0441-\u043B\u0430\u0442\u0442\u0435 \u0438 \u0421\u0430\u043D-\u0421\u0435\u0431\u0430\u0441\u0442\u044C\u044F\u043D\u0430")},"filter-lotus":{id:"filter-lotus",source:posterSource("filter-lotus"),alt:localized("Filtre Kahve ve Lotus Cheesecake e\u015Fle\u015Fmesi posteri","Filter Coffee and Lotus Cheesecake pairing poster","\u041F\u043E\u0441\u0442\u0435\u0440 \u0441\u043E\u0447\u0435\u0442\u0430\u043D\u0438\u044F \u0444\u0438\u043B\u044C\u0442\u0440-\u043A\u043E\u0444\u0435 \u0438 \u0447\u0438\u0437\u043A\u0435\u0439\u043A\u0430 Lotus")},"relax-lotus":{id:"relax-lotus",source:posterSource("relax-lotus"),alt:localized("Relax Tea ve Lotus Cheesecake e\u015Fle\u015Fmesi posteri","Relax Tea and Lotus Cheesecake pairing poster","\u041F\u043E\u0441\u0442\u0435\u0440 \u0441\u043E\u0447\u0435\u0442\u0430\u043D\u0438\u044F Relax Tea \u0438 \u0447\u0438\u0437\u043A\u0435\u0439\u043A\u0430 Lotus")},"cool-lime-macaron":{id:"cool-lime-macaron",source:posterSource("cool-lime-macaron"),alt:localized("Cool Lime ve Makaron e\u015Fle\u015Fmesi posteri","Cool Lime and Macaron pairing poster","\u041F\u043E\u0441\u0442\u0435\u0440 \u0441\u043E\u0447\u0435\u0442\u0430\u043D\u0438\u044F Cool Lime \u0438 \u043C\u0430\u043A\u0430\u0440\u043E\u043D\u0430")}};function currentLanguage(){const e=document.documentElement.lang;return e==="en"||e==="ru"?e:"tr"}function normalizeWebPBase64(e){const t=e.trim();if(!t||t.length>25e5)throw new Error("Poster payload is empty or too large");if(!/^[A-Za-z0-9+/]+={0,2}$/.test(t))throw new Error("Poster payload is not valid base64");const r=t.length%4;if(r===1)throw new Error("Poster payload has invalid base64 length");const a=r===0?t:`${t}${"=".repeat(4-r)}`,i=atob(a.slice(0,24));if(i.slice(0,4)!=="RIFF"||i.slice(8,12)!=="WEBP")throw new Error("Poster payload is not a WebP image");return a}function loadPoster(e){const t=sourceCache.get(e);if(t)return t;const r=fetch(e,{credentials:"same-origin",cache:"force-cache"}).then(a=>{if(!a.ok)throw new Error(`Poster request failed: ${a.status}`);return a.text()}).then(a=>`data:image/webp;base64,${normalizeWebPBase64(a)}`).catch(a=>{throw sourceCache.delete(e),a});return sourceCache.set(e,r),r}function waitForImage(e){return e.complete&&e.naturalWidth>0?Promise.resolve():new Promise((t,r)=>{e.addEventListener("load",()=>t(),{once:!0}),e.addEventListener("error",()=>r(new Error("Poster image failed to decode")),{once:!0})})}class PosterRenderer{constructor(t){this.root=t,this.renderToken=0}async show(t,r){const a=++this.renderToken;this.root.setAttribute("aria-busy","true");try{const i=await loadPoster(t.source);if(a!==this.renderToken||!r())return!1;const o=document.createElement("img");if(o.src=i,o.alt=t.alt[currentLanguage()],o.decoding="async",o.loading="eager",o.width=320,o.height=320,await waitForImage(o),a!==this.renderToken||!r())return!1;const n=document.createElement("figure");return n.className="pairing-poster",n.dataset.pairingPoster=t.id,n.append(o),this.root.replaceChildren(n),this.root.removeAttribute("aria-busy"),!0}catch{return sourceCache.delete(t.source),a===this.renderToken&&r()&&this.root.removeAttribute("aria-busy"),!1}}}function initialize(){const e=document.querySelector("#pairing-products");if(!e)return;const t=new PosterRenderer(e);let r=!1;const a=()=>e.dataset.pairingId?.trim()??"",i=()=>{r=!1;const l=a(),s=posters[l];if(!s)return;const c=e.querySelector("[data-pairing-poster]");if(c?.dataset.pairingPoster===s.id){const u=c.querySelector("img");u&&(u.alt=s.alt[currentLanguage()]);return}t.show(s,()=>a()===l)},o=()=>{r||(r=!0,queueMicrotask(i))},n=new MutationObserver(o);n.observe(e,{childList:!0,attributes:!0,attributeFilter:["data-pairing-id"]}),n.observe(document.documentElement,{attributes:!0,attributeFilter:["lang"]}),o()}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initialize,{once:!0}):initialize();
+"use strict";
+const MAX_POSTER_BASE64_LENGTH = 2500000;
+const sourceCache = new Map();
+const localized = (tr, en, ru) => ({ tr, en, ru });
+const posterSource = (id) => `src/pairings-data/final/${id}.webp.b64.txt`;
+const posters = {
+    "latte-nutella": {
+        id: "latte-nutella",
+        source: posterSource("latte-nutella"),
+        alt: localized("Latte ve Nutellalı Kruvasan eşleşmesi posteri", "Latte and Nutella Croissant pairing poster", "Постер сочетания латте и круассана с Nutella")
+    },
+    "iced-san-sebastian": {
+        id: "iced-san-sebastian",
+        source: posterSource("iced-san-sebastian"),
+        alt: localized("Buzlu Latte ve San Sebastian eşleşmesi posteri", "Iced Latte and San Sebastian pairing poster", "Постер сочетания айс-латте и Сан-Себастьяна")
+    },
+    "filter-lotus": {
+        id: "filter-lotus",
+        source: posterSource("filter-lotus"),
+        alt: localized("Filtre Kahve ve Lotus Cheesecake eşleşmesi posteri", "Filter Coffee and Lotus Cheesecake pairing poster", "Постер сочетания фильтр-кофе и чизкейка Lotus")
+    },
+    "relax-lotus": {
+        id: "relax-lotus",
+        source: posterSource("relax-lotus"),
+        alt: localized("Relax Tea ve Lotus Cheesecake eşleşmesi posteri", "Relax Tea and Lotus Cheesecake pairing poster", "Постер сочетания Relax Tea и чизкейка Lotus")
+    },
+    "cool-lime-macaron": {
+        id: "cool-lime-macaron",
+        source: posterSource("cool-lime-macaron"),
+        alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона")
+    }
+};
+function currentLanguage() {
+    const value = document.documentElement.lang;
+    return value === "en" || value === "ru" ? value : "tr";
+}
+function normalizeWebPBase64(payload) {
+    const base64 = payload.trim();
+    if (!base64 || base64.length > MAX_POSTER_BASE64_LENGTH) {
+        throw new Error("Poster payload is empty or too large");
+    }
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+        throw new Error("Poster payload is not valid base64");
+    }
+    const remainder = base64.length % 4;
+    if (remainder === 1)
+        throw new Error("Poster payload has invalid base64 length");
+    const padded = remainder === 0 ? base64 : `${base64}${"=".repeat(4 - remainder)}`;
+    const signature = atob(padded.slice(0, 24));
+    if (signature.slice(0, 4) !== "RIFF" || signature.slice(8, 12) !== "WEBP") {
+        throw new Error("Poster payload is not a WebP image");
+    }
+    return padded;
+}
+function loadPoster(source) {
+    const cached = sourceCache.get(source);
+    if (cached)
+        return cached;
+    const request = fetch(source, { credentials: "same-origin", cache: "force-cache" })
+        .then((response) => {
+        if (!response.ok)
+            throw new Error(`Poster request failed: ${response.status}`);
+        return response.text();
+    })
+        .then((payload) => `data:image/webp;base64,${normalizeWebPBase64(payload)}`)
+        .catch((error) => {
+        sourceCache.delete(source);
+        throw error;
+    });
+    sourceCache.set(source, request);
+    return request;
+}
+function waitForImage(image) {
+    if (image.complete && image.naturalWidth > 0)
+        return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        image.addEventListener("load", () => resolve(), { once: true });
+        image.addEventListener("error", () => reject(new Error("Poster image failed to decode")), { once: true });
+    });
+}
+class PosterRenderer {
+    constructor(root) {
+        this.root = root;
+        this.renderToken = 0;
+    }
+    async show(poster, isCurrent) {
+        const token = ++this.renderToken;
+        this.root.setAttribute("aria-busy", "true");
+        try {
+            const source = await loadPoster(poster.source);
+            if (token !== this.renderToken || !isCurrent())
+                return false;
+            const image = document.createElement("img");
+            image.src = source;
+            image.alt = poster.alt[currentLanguage()];
+            image.decoding = "async";
+            image.loading = "eager";
+            image.width = 320;
+            image.height = 320;
+            await waitForImage(image);
+            if (token !== this.renderToken || !isCurrent())
+                return false;
+            const figure = document.createElement("figure");
+            figure.className = "pairing-poster";
+            figure.dataset.pairingPoster = poster.id;
+            figure.append(image);
+            this.root.replaceChildren(figure);
+            this.root.removeAttribute("aria-busy");
+            return true;
+        }
+        catch {
+            sourceCache.delete(poster.source);
+            if (token === this.renderToken && isCurrent()) {
+                this.root.removeAttribute("aria-busy");
+            }
+            return false;
+        }
+    }
+}
+function initialize() {
+    const root = document.querySelector("#pairing-products");
+    if (!root)
+        return;
+    const renderer = new PosterRenderer(root);
+    let renderQueued = false;
+    const currentId = () => root.dataset.pairingId?.trim() ?? "";
+    const renderCurrent = () => {
+        renderQueued = false;
+        const id = currentId();
+        const poster = posters[id];
+        if (!poster)
+            return;
+        const existing = root.querySelector("[data-pairing-poster]");
+        if (existing?.dataset.pairingPoster === poster.id) {
+            const image = existing.querySelector("img");
+            if (image)
+                image.alt = poster.alt[currentLanguage()];
+            return;
+        }
+        void renderer.show(poster, () => currentId() === id);
+    };
+    const queueRender = () => {
+        if (renderQueued)
+            return;
+        renderQueued = true;
+        queueMicrotask(renderCurrent);
+    };
+    const observer = new MutationObserver(queueRender);
+    observer.observe(root, {
+        childList: true,
+        attributes: true,
+        attributeFilter: ["data-pairing-id"]
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+    queueRender();
+}
+document.readyState === "loading"
+    ? document.addEventListener("DOMContentLoaded", initialize, { once: true })
+    : initialize();

@@ -75,8 +75,8 @@
     },
     {
       "path": "discover-rotation.js",
-      "bytes": 4774,
-      "sha256": "d93cecd0f05a4657ce541136adcbaae5550a74a356d50b3de71eb15ee7f3843a"
+      "bytes": 6429,
+      "sha256": "a07b5c355ecece6bd0da9a0e62386ed2cdfd813a8915692af3ea59b6a862e4f1"
     },
     {
       "path": "discover.css",
@@ -86,7 +86,7 @@
     {
       "path": "discover.html",
       "bytes": 6487,
-      "sha256": "e20489668054f86ac3faea038def02c91c870ef3d24127e682664688ed303192"
+      "sha256": "7676891343674e05f2295eef36ff78a33025bfe3b9f853dc3157dd85db751334"
     },
     {
       "path": "discover.js",
