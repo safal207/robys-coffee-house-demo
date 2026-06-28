@@ -1,0 +1,211 @@
+name: Human approval contract
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    name: Verify trusted human approval
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      REQUIRE_HUMAN_APPROVAL: ${{ vars.REQUIRE_HUMAN_APPROVAL || 'false' }}
+      HUMAN_APPROVER_LOGINS: ${{ vars.HUMAN_APPROVER_LOGINS || '' }}
+    steps:
+      - name: Verify current-head human approval
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request;
+            const enforce = process.env.REQUIRE_HUMAN_APPROVAL
+              .trim()
+              .toLowerCase() === 'true';
+
+            const parseApproverLogins = (value) => new Set(
+              value
+                .split(/[\s,]+/)
+                .map((login) => login.trim().toLowerCase())
+                .filter(Boolean),
+            );
+            const configuredApprovers = parseApproverLogins(
+              process.env.HUMAN_APPROVER_LOGINS,
+            );
+
+            if (!pr) {
+              core.setFailed('Pull request payload is required.');
+              return;
+            }
+
+            if (pr.draft) {
+              core.notice('Draft PR: human approval is evaluated again when the PR becomes ready.');
+              return;
+            }
+
+            const collectCurrentApprovals = (reviews, headSha) => {
+              // GitHub review IDs are monotonic. Sorting by ID avoids relying on
+              // nullable timestamps or API page ordering.
+              const orderedReviews = [...reviews].sort(
+                (left, right) => Number(left.id) - Number(right.id),
+              );
+
+              // COMMENTED does not revoke an approval. A later CHANGES_REQUESTED or
+              // DISMISSED state does. Only APPROVED reviews on the exact current head
+              // are retained.
+              const approvalsByReviewer = new Map();
+              for (const review of orderedReviews) {
+                const login = review.user?.login;
+                if (!login) continue;
+                const key = login.toLowerCase();
+
+                if (review.state === 'APPROVED') {
+                  if (review.commit_id === headSha) {
+                    approvalsByReviewer.set(key, review);
+                  } else {
+                    approvalsByReviewer.delete(key);
+                  }
+                  continue;
+                }
+
+                if (
+                  review.state === 'CHANGES_REQUESTED' ||
+                  review.state === 'DISMISSED'
+                ) {
+                  approvalsByReviewer.delete(key);
+                }
+              }
+              return approvalsByReviewer;
+            };
+
+            const assertContract = (condition, message) => {
+              if (!condition) throw new Error(`Approval contract self-test failed: ${message}`);
+            };
+            const testUser = { login: 'trusted-reviewer', type: 'User' };
+            const testReview = (id, state, commitId) => ({
+              id,
+              state,
+              commit_id: commitId,
+              user: testUser,
+            });
+            const testHead = 'current-head';
+
+            assertContract(
+              parseApproverLogins('Alice, BOB\ncarol').has('bob'),
+              'human approver allowlist parsing must be case-insensitive',
+            );
+            assertContract(
+              collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'COMMENTED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'COMMENTED must not revoke a current-head approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'CHANGES_REQUESTED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'CHANGES_REQUESTED must revoke approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', testHead),
+                testReview(2, 'DISMISSED', testHead),
+              ], testHead).has('trusted-reviewer'),
+              'DISMISSED must revoke approval',
+            );
+            assertContract(
+              !collectCurrentApprovals([
+                testReview(1, 'APPROVED', 'old-head'),
+              ], testHead).has('trusted-reviewer'),
+              'approval for an old head must not qualify',
+            );
+
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              { owner, repo, pull_number: pr.number, per_page: 100 },
+            );
+            const approvalsByReviewer = collectCurrentApprovals(reviews, pr.head.sha);
+
+            const qualifying = [];
+            const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const trustedPermissions = new Set(['admin', 'maintain', 'write']);
+
+            for (const review of approvalsByReviewer.values()) {
+              const login = review.user?.login;
+              if (!login) continue;
+              const key = login.toLowerCase();
+              if (!configuredApprovers.has(key)) continue;
+              if (key === pr.user.login.toLowerCase()) continue;
+              if (review.user?.type === 'Bot' || login.endsWith('[bot]')) continue;
+              if (!trustedAssociations.has(review.author_association)) continue;
+
+              try {
+                const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner,
+                  repo,
+                  username: login,
+                });
+                const level = permission.data.permission;
+                if (!trustedPermissions.has(level)) continue;
+                qualifying.push({ login, level, reviewId: review.id });
+              } catch (error) {
+                core.warning(`Could not verify permission for ${login}: ${error.message}`);
+              }
+            }
+
+            await core.summary
+              .addHeading('Human approval contract')
+              .addTable([
+                [
+                  { data: 'Field', header: true },
+                  { data: 'Value', header: true },
+                ],
+                ['Mode', enforce ? 'required' : 'advisory'],
+                ['Current head', pr.head.sha],
+                ['Contract self-tests', 'passed'],
+                ['Configured human approvers', configuredApprovers.size.toString()],
+                ['Qualifying approvals', qualifying.length.toString()],
+                [
+                  'Reviewers',
+                  qualifying.length
+                    ? qualifying.map((item) => `${item.login} (${item.level})`).join(', ')
+                    : 'none',
+                ],
+              ])
+              .write();
+
+            if (qualifying.length > 0) {
+              core.notice(
+                `Trusted human approval verified for current head ${pr.head.sha}: ` +
+                  qualifying.map((item) => item.login).join(', '),
+              );
+              return;
+            }
+
+            if (enforce && configuredApprovers.size === 0) {
+              core.setFailed(
+                'Human approval enforcement is enabled, but repository variable HUMAN_APPROVER_LOGINS is empty.',
+              );
+              return;
+            }
+
+            if (enforce) {
+              core.setFailed(
+                'A configured non-author human collaborator with write, maintain, or admin permission must approve the exact current head. New commits invalidate older approvals.',
+              );
+              return;
+            }
+
+            core.notice(
+              'Advisory mode: no qualifying configured human approval exists. Add verified individual accounts to HUMAN_APPROVER_LOGINS, set REQUIRE_HUMAN_APPROVAL=true, then make this check required in the main branch ruleset.',
+            );
