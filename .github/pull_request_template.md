@@ -34,4 +34,5 @@ DeepSeek evidence is advisory and must show the current reviewed commit SHA.
 - [ ] Official Codex evidence is verified for the current head.
 - [ ] Jules review was requested after the latest head update.
 - [ ] Optional DeepSeek findings are resolved or documented when requested.
+- [ ] Required independent human approval exists for the exact current head when enforcement is enabled.
 - [ ] Actionable findings are resolved or documented.
