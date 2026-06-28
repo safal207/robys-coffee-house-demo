@@ -32,6 +32,7 @@ jobs:
             // GitHub supplies the PR-event and evidence timestamps, so evidence
             // must be at or after the current PR update without a clock-skew grace.
             const evidenceAfter = Date.parse(pr.updated_at);
+            const currentHead = pr.head.sha.toLowerCase();
             const timeOf = (item) => Date.parse(
               item.submitted_at ?? item.created_at,
             );
@@ -43,11 +44,15 @@ jobs:
             const reviewedCommitOf = (item) => bodyOf(item).match(
               /Reviewed commit:[^`]*`([0-9a-f]{7,40})`/i,
             )?.[1]?.toLowerCase();
-            const matchesCurrentHead = (item) => {
+            const matchesBodyHead = (item) => {
               const reviewed = reviewedCommitOf(item);
-              return Boolean(
-                reviewed && pr.head.sha.toLowerCase().startsWith(reviewed),
-              );
+              return Boolean(reviewed && currentHead.startsWith(reviewed));
+            };
+            const matchesNativeReviewHead = (review) => {
+              const commitId = review.commit_id?.toLowerCase();
+              return commitId
+                ? commitId === currentHead
+                : matchesBodyHead(review);
             };
             const isCommand = (item, value) =>
               trusted.has(item.author_association) &&
@@ -76,13 +81,13 @@ jobs:
               const codexIssueComment = comments.find((item) => (
                 isCodexBot(item.user) &&
                 isFresh(item) &&
-                matchesCurrentHead(item)
+                matchesBodyHead(item)
               ));
 
               const codexPullReview = reviews.find((item) => (
                 isCodexBot(item.user) &&
                 isFresh(item) &&
-                matchesCurrentHead(item)
+                matchesNativeReviewHead(item)
               ));
 
               let codexReaction = false;
@@ -120,7 +125,7 @@ jobs:
 
               if (hasCodexRequest && hasJulesRequest && hasCodexEvidence) {
                 const evidenceType = codexPullReview
-                  ? 'native pull request review with matching Reviewed commit'
+                  ? 'native pull request review matching current commit_id'
                   : codexIssueComment
                     ? 'issue comment with matching Reviewed commit'
                     : 'bot +1 on fresh request';
@@ -153,5 +158,5 @@ jobs:
             }
 
             core.setFailed(
-              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through a native review, matching issue comment, or trusted bot reaction.',
+              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through native review commit_id, a matching issue comment, or a trusted bot reaction.',
             );
