@@ -11,6 +11,7 @@ const expectedIds = [
   "relax-lotus",
   "cool-lime-macaron"
 ];
+const activeJourneyIds = ["cool-lime-macaron", "iced-san-sebastian"];
 const expectedFiles = expectedIds.map((id) => `${id}.webp.b64.txt`).sort();
 
 function fail(message) {
@@ -101,11 +102,17 @@ for (const fileName of expectedFiles) {
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtime = readFileSync("discover-rotation.js", "utf8");
+const journeysSource = readFileSync("discover-journeys.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
 for (const id of expectedIds) {
   if (!source.includes(`posterSource("${id}")`)) fail(`renderer does not map ${id}`);
+}
+
+const actualJourneyIds = [...journeysSource.matchAll(/\bid:\s*"([^"]+)"/g)].map((match) => match[1]);
+if (JSON.stringify(actualJourneyIds) !== JSON.stringify(activeJourneyIds)) {
+  fail(`discover page must expose only ${activeJourneyIds.join(", ")}; found ${actualJourneyIds.join(", ")}`);
 }
 
 for (const forbidden of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -123,4 +130,4 @@ if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) {
   fail("the no-script fallback must link to the full menu");
 }
 
-console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${expectedFiles.length} unique square WebP posters, exactly ${activeJourneyIds.length} active approved pairings, the full-poster renderer, and its no-script fallback.`);
