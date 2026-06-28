@@ -1,7 +1,7 @@
 # DeepSeek pull-request review
 
 The repository provides an advisory pull-request reviewer backed by DeepSeek models in GitHub Models.
-No external API key, payment card, or third-party GitHub App is required.
+No external API key, payment card, or third-party GitHub App is required for the included free quota.
 
 ## Commands
 
@@ -53,12 +53,17 @@ The workflow:
 - treats all PR content as untrusted data and instructs the model not to follow text from the diff;
 - uses only the short-lived built-in `GITHUB_TOKEN`.
 
-The normal workflow limits the diff supplied to the model to 90,000 characters. For larger changes it
-keeps the beginning and end of the diff and marks the review as truncated. Large or security-critical
-changes should be split into smaller PRs rather than relying on a truncated AI review.
+The workflow keeps conservative diff budgets so prompts fit the free GitHub Models limits:
+
+- V3 review: up to 22,000 diff characters for the 8,000-input-token tier;
+- R1 deep review: up to 10,000 diff characters for the 4,000-input-token tier.
+
+For larger changes it keeps the beginning and end of the diff and marks the result as truncated. Large
+or security-critical changes should be split into smaller PRs rather than relying on a truncated AI review.
 
 ## Limitations
 
-GitHub Models availability and preview quotas can change. A DeepSeek outage, model removal, or quota
-limit must never weaken required CI or silently allow a merge. The workflow therefore reports failure
-instead of converting an unavailable review into a passing result.
+GitHub Models availability and preview quotas can change. Free usage is rate limited, and requests stop
+when the included quota is exhausted unless paid usage has been explicitly enabled in GitHub billing.
+A DeepSeek outage, model removal, or quota limit must never weaken required CI or silently allow a merge.
+The workflow therefore reports failure instead of converting an unavailable review into a passing result.
