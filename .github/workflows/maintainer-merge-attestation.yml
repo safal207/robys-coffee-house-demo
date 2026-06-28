@@ -1,0 +1,187 @@
+name: Maintainer attestation updater
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, edited]
+  issue_comment:
+    types: [created, edited, deleted]
+
+# Writes only commit-status evidence; pull-request code is never checked out or run.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  update:
+    name: Update current-head attestation status
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (
+        github.event.issue.pull_request &&
+        github.event.issue.state == 'open' &&
+        (
+          github.event.comment.author_association == 'OWNER' ||
+          github.event.comment.author_association == 'MEMBER' ||
+          github.event.comment.author_association == 'COLLABORATOR'
+        )
+      )
+    concurrency:
+      group: maintainer-attestation-${{ github.event.pull_request.number || github.event.issue.number }}
+      queue: max
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SOLO_MAINTAINER_LOGIN: ${{ vars.SOLO_MAINTAINER_LOGIN || github.repository_owner }}
+      STATUS_CONTEXT: Maintainer merge attestation
+      MUTATION_CONTEXT: Maintainer attestation mutation cursor
+    steps:
+      - name: Recompute current-head maintainer decision
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const expectedLogin = process.env.SOLO_MAINTAINER_LOGIN.trim().toLowerCase();
+            const statusContext = process.env.STATUS_CONTEXT;
+            const mutationContext = process.env.MUTATION_CONTEXT;
+            const commandPattern = /^\/merge-(ready|hold) ([0-9a-f]{40})$/i;
+            const cursorPattern = /^comment-id:(\d+)$/;
+            const parseCommand = (body) => body?.match(commandPattern) ?? null;
+
+            const pr = context.eventName === 'pull_request_target'
+              ? context.payload.pull_request
+              : (await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: context.payload.issue.number,
+                })).data;
+
+            if (!pr || pr.base.ref !== 'main' || pr.state !== 'open') {
+              core.notice('Not an open pull request targeting main.');
+              return;
+            }
+
+            const createStatus = async (name, state, description) => {
+              await github.rest.repos.createCommitStatus({
+                owner,
+                repo,
+                sha: pr.head.sha,
+                state,
+                context: name,
+                description: description.slice(0, 140),
+                target_url: pr.html_url,
+              });
+            };
+            const setGate = (state, description) => createStatus(
+              statusContext,
+              state,
+              description,
+            );
+
+            try {
+              const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: expectedLogin,
+              });
+              if (permission.data.permission !== 'admin') {
+                await setGate('failure', 'Configured solo maintainer does not have admin permission.');
+                return;
+              }
+            } catch (error) {
+              await setGate('failure', 'Could not verify configured solo maintainer permission.');
+              core.setFailed(`Permission verification failed: ${error.message}`);
+              return;
+            }
+
+            let eventMutationId = 0;
+            if (context.eventName === 'issue_comment') {
+              const comment = context.payload.comment;
+              const action = context.payload.action;
+              const author = comment?.user?.login?.toLowerCase();
+              const before = parseCommand(context.payload.changes?.body?.from);
+              const after = parseCommand(comment?.body);
+              if (
+                (action === 'edited' || action === 'deleted') &&
+                author === expectedLogin &&
+                (before || after)
+              ) {
+                eventMutationId = Number(comment.id) || 0;
+                await createStatus(
+                  mutationContext,
+                  'success',
+                  `comment-id:${eventMutationId}`,
+                );
+              }
+            }
+
+            const [comments, statuses] = await Promise.all([
+              github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pr.number, per_page: 100 },
+              ),
+              github.paginate(
+                github.rest.repos.listCommitStatusesForRef,
+                { owner, repo, ref: pr.head.sha, per_page: 100 },
+              ),
+            ]);
+
+            const storedMutationId = statuses
+              .filter((status) => status.context === mutationContext)
+              .map((status) => Number(status.description?.match(cursorPattern)?.[1]))
+              .filter(Number.isFinite)
+              .sort((a, b) => a - b)
+              .at(-1) ?? 0;
+            const mutationId = Math.max(storedMutationId, eventMutationId);
+
+            const decisions = comments
+              .filter((comment) => (
+                comment.user?.login?.toLowerCase() === expectedLogin &&
+                comment.user?.type !== 'Bot' &&
+                !comment.user?.login?.endsWith('[bot]') &&
+                comment.created_at === comment.updated_at
+              ))
+              .map((comment) => {
+                const match = parseCommand(comment.body);
+                return match ? {
+                  id: Number(comment.id),
+                  decision: match[1].toLowerCase(),
+                  sha: match[2].toLowerCase(),
+                } : null;
+              })
+              .filter(Boolean)
+              .sort((a, b) => a.id - b.id);
+
+            if (pr.draft) {
+              await setGate('pending', 'Draft PR: final maintainer decision is not requested yet.');
+              return;
+            }
+
+            const latest = decisions.at(-1);
+            if (!latest) {
+              await setGate(
+                mutationId > 0 ? 'failure' : 'pending',
+                mutationId > 0
+                  ? 'Decision evidence was mutated; post a fresh append-only command.'
+                  : `Awaiting /merge-ready ${pr.head.sha} from ${expectedLogin}.`,
+              );
+              return;
+            }
+
+            if (mutationId >= latest.id) {
+              await setGate('failure', 'Latest decision evidence was mutated; post a newer command.');
+              return;
+            }
+            if (latest.sha !== pr.head.sha.toLowerCase()) {
+              await setGate('failure', 'Latest maintainer decision references another head SHA.');
+              return;
+            }
+            if (latest.decision === 'hold') {
+              await setGate('failure', 'Maintainer placed the current head on hold.');
+              return;
+            }
+
+            await setGate('success', `Explicit current-head decision by ${expectedLogin}.`);

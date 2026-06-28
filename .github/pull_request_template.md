@@ -26,6 +26,19 @@ For an optional independent Chinese-model review after the latest head update, a
 Use `/deepseek deep-review` only when a slower reasoning-oriented pass is useful.
 DeepSeek evidence is advisory and must show the current reviewed commit SHA.
 
+## Solo maintainer decision
+
+When no independent human reviewer is available, finish all checks and review
+findings, then post a top-level comment with the full current head SHA:
+
+`/merge-ready <full 40-character current head SHA>`
+
+To revoke the decision, post:
+
+`/merge-hold <full 40-character current head SHA>`
+
+This is explicit maintainer intent, not independent human approval.
+
 ## Checklist
 
 - [ ] Latest CI is green.
@@ -35,4 +48,5 @@ DeepSeek evidence is advisory and must show the current reviewed commit SHA.
 - [ ] Jules review was requested after the latest head update.
 - [ ] Optional DeepSeek findings are resolved or documented when requested.
 - [ ] Required independent human approval exists for the exact current head when enforcement is enabled.
+- [ ] Solo maintainer attestation is green for the exact current head when no independent reviewer is available.
 - [ ] Actionable findings are resolved or documented.
