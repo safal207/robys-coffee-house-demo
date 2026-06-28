@@ -34,9 +34,13 @@ A command qualifies only when all of the following are true:
 - the command contains the exact full current head SHA.
 
 A command for a stale or different SHA makes the status fail. A new commit,
-reopen, ready-for-review transition, or PR edit triggers a new evaluation and
-requires a fresh post-event decision. Deleting a matching `/merge-ready` comment,
-or editing that command into non-command text, also fails the status.
+reopen, ready-for-review transition, or PR edit creates a new failure baseline and
+requires a fresh post-event decision.
+
+On every maintainer comment create, edit, or deletion, the workflow re-reads all
+currently existing decision comments after the latest failure baseline. The most
+recent qualifying decision wins. This prevents deletion or editing of an old
+comment from overriding a newer `/merge-ready` or `/merge-hold` decision.
 
 ## Safe order
 
@@ -50,7 +54,7 @@ or editing that command into non-command text, also fails the status.
 8. Merge with an expected-head SHA guard.
 
 Use `/merge-hold <full current head SHA>` whenever evidence becomes doubtful or a
-new risk appears.
+new risk appears. A later fresh `/merge-ready` may release that hold.
 
 ## Branch-rule activation
 
