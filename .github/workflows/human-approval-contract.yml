@@ -1,0 +1,118 @@
+name: Human approval contract
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    name: Verify trusted human approval
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      REQUIRE_HUMAN_APPROVAL: ${{ vars.REQUIRE_HUMAN_APPROVAL }}
+    steps:
+      - name: Verify current-head human approval
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request;
+            const enforce = (process.env.REQUIRE_HUMAN_APPROVAL ?? '')
+              .trim()
+              .toLowerCase() === 'true';
+
+            if (!pr) {
+              core.setFailed('Pull request payload is required.');
+              return;
+            }
+
+            if (pr.draft) {
+              core.notice('Draft PR: human approval is evaluated again when the PR becomes ready.');
+              return;
+            }
+
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              { owner, repo, pull_number: pr.number, per_page: 100 },
+            );
+
+            const latestByReviewer = new Map();
+            for (const review of reviews) {
+              const login = review.user?.login;
+              if (!login) continue;
+              latestByReviewer.set(login.toLowerCase(), review);
+            }
+
+            const qualifying = [];
+            const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const trustedPermissions = new Set(['admin', 'maintain', 'write']);
+
+            for (const review of latestByReviewer.values()) {
+              const login = review.user?.login;
+              if (!login) continue;
+              if (login.toLowerCase() === pr.user.login.toLowerCase()) continue;
+              if (review.user?.type === 'Bot' || login.endsWith('[bot]')) continue;
+              if (review.state !== 'APPROVED') continue;
+              if (review.commit_id !== pr.head.sha) continue;
+              if (!trustedAssociations.has(review.author_association)) continue;
+
+              try {
+                const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner,
+                  repo,
+                  username: login,
+                });
+                const level = permission.data.permission;
+                if (!trustedPermissions.has(level)) continue;
+                qualifying.push({ login, level, reviewId: review.id });
+              } catch (error) {
+                core.warning(`Could not verify permission for ${login}: ${error.message}`);
+              }
+            }
+
+            await core.summary
+              .addHeading('Human approval contract')
+              .addTable([
+                [
+                  { data: 'Field', header: true },
+                  { data: 'Value', header: true },
+                ],
+                ['Mode', enforce ? 'required' : 'advisory'],
+                ['Current head', pr.head.sha],
+                ['Qualifying approvals', qualifying.length.toString()],
+                [
+                  'Reviewers',
+                  qualifying.length
+                    ? qualifying.map((item) => `${item.login} (${item.level})`).join(', ')
+                    : 'none',
+                ],
+              ])
+              .write();
+
+            if (qualifying.length > 0) {
+              core.notice(
+                `Trusted human approval verified for current head ${pr.head.sha}: ` +
+                  qualifying.map((item) => item.login).join(', '),
+              );
+              return;
+            }
+
+            if (enforce) {
+              core.setFailed(
+                'A non-author human collaborator with write, maintain, or admin permission must approve the exact current head. New commits invalidate older approvals.',
+              );
+              return;
+            }
+
+            core.notice(
+              'Advisory mode: no qualifying human approval exists. Add a second trusted reviewer, set repository variable REQUIRE_HUMAN_APPROVAL=true, then make this check required in the main branch ruleset.',
+            );
