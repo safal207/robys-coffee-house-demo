@@ -44,7 +44,7 @@ Validate a materialized live sidecar against an observed head:
 
     npm run verify:session-state -- path/to/session-state.json --head <sha>
 
-A repository checkout cannot validate an external live sidecar unless that state is explicitly materialized and passed to the command. The normal `npm run check` therefore validates the fixture and protocol tests, while the coordinator validates the real sidecar at its storage boundary.
+A repository checkout cannot validate an external live sidecar unless that state is explicitly materialized and passed to the command. The normal `npm run check` validates the fixture and protocol tests, while the coordinator validates the real sidecar at its storage boundary.
 
 Advance state after a new product commit:
 
