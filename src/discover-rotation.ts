@@ -167,7 +167,11 @@ function initialize(): void {
     renderQueued = false;
     const id = currentId();
     const poster = posters[id];
-    if (!poster) return;
+    if (!poster) {
+      root.querySelector<HTMLElement>("[data-pairing-poster]")?.remove();
+      root.removeAttribute("aria-busy");
+      return;
+    }
 
     const existing = root.querySelector<HTMLElement>("[data-pairing-poster]");
     if (existing?.dataset.pairingPoster === poster.id) {
