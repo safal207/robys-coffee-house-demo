@@ -48,11 +48,19 @@ function installDiscoverInteractionGuard() {
       return originalFetch(input, init);
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const controller = typeof AbortController === "function"
+      ? new AbortController()
+      : null;
+    const timeout = setTimeout(() => {
+      controller?.abort();
+      finishWeatherLoad();
+    }, 8000);
 
     try {
-      const response = await originalFetch(input, { ...init, signal: controller.signal });
+      const response = await originalFetch(
+        input,
+        controller ? { ...init, signal: controller.signal } : init
+      );
       if (!response.ok) {
         clearTimeout(timeout);
         setTimeout(finishWeatherLoad, 0);
