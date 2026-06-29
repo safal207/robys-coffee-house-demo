@@ -1,4 +1,4 @@
-# Session Spine v1
+# Session Spine v2
 
 Session Spine is the authoritative handoff between agents and sessions. It stores machine-checkable state instead of relying on a prose recap.
 
@@ -27,12 +27,21 @@ The runtime validator is therefore the semantic authority before any merge or ir
 2. `verified_for_sha` is null or exactly equal to `head_sha`.
 3. Merge authorization requires an authorized status, no blockers, current-head verification, and passed current-head evidence.
 4. A new product head makes previous successful evidence stale, clears verification, and revokes merge authorization.
-5. Only the coordinator writes canonical state. Other agents contribute evidence references.
-6. Missing CLI flag values fail closed; they never disable exact-head validation or silently substitute operator input.
+5. Missing CLI flag values fail closed; they never disable exact-head validation or silently substitute operator input.
+6. Every mutation declares the exact `sequence` revision it observed.
+7. A changed state increments `sequence` by exactly one.
+8. A stale writer cannot overwrite a newer state.
 
 ## Concurrency model
 
-Version 1 is a single-writer protocol: only one coordinator may update a canonical sidecar. The file updater does not provide compare-and-swap across competing writers. A multi-writer store must add optimistic locking on `sequence` or an equivalent transactional revision before using the protocol concurrently.
+Version 2 supports competing coordinators on one shared filesystem through two layers:
+
+- an exclusive `<state-path>.lock` file serializes writers while a mutation is being prepared;
+- compare-and-swap checks `--expected-sequence` after the lock is acquired and before any write.
+
+If another coordinator currently owns the lock, the writer fails with `SESSION_STATE_BUSY`. After the lock is released, a retry using an old revision fails with `SESSION_STATE_CONFLICT`. Successful writes use a temporary file followed by an atomic rename, so readers see either the old complete document or the new complete document.
+
+The lock is intentionally fail-closed. A process crash can leave a stale lock file; an operator must verify that no writer is active before removing it. Stores that span multiple hosts must place the sidecar and lock on a filesystem whose exclusive create and rename operations are atomic, or implement the same `sequence` CAS in a transactional database/object store.
 
 ## Commands
 
@@ -46,13 +55,27 @@ Validate a materialized live sidecar against an observed head:
 
 A repository checkout cannot validate an external live sidecar unless that state is explicitly materialized and passed to the command. The normal `npm run check` validates the fixture and protocol tests, while the coordinator validates the real sidecar at its storage boundary.
 
-Advance state after a new product commit:
+Advance state after a new product commit using the revision observed by the coordinator:
 
-    npm run session:update-head -- path/to/session-state.json --head <sha>
+    npm run session:update-head -- path/to/session-state.json --head <sha> --expected-sequence <n>
 
-Check for stale state without changing it:
+Use an explicit timestamp when reproducibility is required:
 
-    npm run session:update-head -- path/to/session-state.json --head <sha> --check
+    npm run session:update-head -- path/to/session-state.json --head <sha> --expected-sequence <n> --at <iso-date-time>
+
+Check for a stale head without changing the sidecar. `--expected-sequence` is optional in read-only mode but can assert the exact snapshot:
+
+    npm run session:update-head -- path/to/session-state.json --head <sha> --check --expected-sequence <n>
+
+## Race behavior
+
+Two coordinators that both read sequence `7` cannot both commit:
+
+1. coordinator A acquires the lock and commits sequence `8`;
+2. coordinator B either receives `SESSION_STATE_BUSY` while A holds the lock;
+3. or, after retrying, receives `SESSION_STATE_CONFLICT` because it still expects `7` while the canonical state is `8`.
+
+The second coordinator must reload the canonical state, reconsider its intended transition, and submit a new mutation against the new sequence. Blind automatic retries are forbidden because the meaning of the state may have changed.
 
 ## First fixture
 
