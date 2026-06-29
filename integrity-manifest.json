@@ -570,8 +570,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 2913,
-      "sha256": "4d0660a81d5c0095dc5e88e09f40cd7378ba9b96687e72137df155811972b85c"
+      "bytes": 3219,
+      "sha256": "839337b0dafefa6915f39fb52eb7bdc8c1f91cd9ce926a0743e7220f76096bab"
     }
   ]
 }
