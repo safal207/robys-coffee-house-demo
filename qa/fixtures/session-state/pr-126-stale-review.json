@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../protocol/session-state.schema.json",
+  "schema_version": 1,
+  "session_id": "pr-126",
+  "sequence": 1,
+  "goal": "Prepare PR #126 for merge using evidence tied to its exact current head.",
+  "repository": "safal207/robys-coffee-house-demo",
+  "pull_request": 126,
+  "head_sha": "144ab511642c9b394beeb9a49575a192e8ab5501",
+  "status": "BLOCKED",
+  "completed": [
+    "Only the two owner-approved Taste Journey pairings remain active.",
+    "Poster selection is keyed by immutable journey IDs.",
+    "The service-worker cache was bumped to evict stale runtime files.",
+    "Temporary generator workflows were removed and review threads were resolved."
+  ],
+  "blockers": [
+    "The PR description still requests AI review for stale head 676d79ae8e0fa04aefbd6556bab1bc016f0510ab.",
+    "Current-head checks are not yet represented by passed evidence for 144ab511642c9b394beeb9a49575a192e8ab5501.",
+    "Fresh AI review and exact-head merge attestation are still missing."
+  ],
+  "next_safe_action": "Refresh the PR handoff to head 144ab511642c9b394beeb9a49575a192e8ab5501, then collect current-head CI, AI review and exact-head attestation.",
+  "evidence": [
+    {
+      "id": "pr-126-observation",
+      "kind": "github-pull-request",
+      "ref": "https://github.com/safal207/robys-coffee-house-demo/pull/126",
+      "sha": "144ab511642c9b394beeb9a49575a192e8ab5501",
+      "status": "observed"
+    },
+    {
+      "id": "pr-126-description-review-request",
+      "kind": "pr-description",
+      "ref": "AI review section in PR #126",
+      "sha": "676d79ae8e0fa04aefbd6556bab1bc016f0510ab",
+      "status": "stale"
+    }
+  ],
+  "verified_for_sha": null,
+  "merge_authorized": false,
+  "updated_at": "2026-06-29T03:28:04.000Z"
+}
