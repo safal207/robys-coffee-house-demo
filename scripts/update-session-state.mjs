@@ -1,6 +1,8 @@
-import { readFile } from 'node:fs/promises';
 import { advanceSessionHead, validateSessionState } from './session-state-lib.mjs';
-import { compareAndSwapSessionStateFile } from './session-state-store.mjs';
+import {
+  compareAndSwapSessionStateFile,
+  readLockedSessionStateFile
+} from './session-state-store.mjs';
 
 function requiredFlagValue(args, index, flag) {
   const value = args[index + 1];
@@ -12,9 +14,13 @@ function requiredFlagValue(args, index, flag) {
 
 function parsePositiveInteger(value, flag) {
   if (!/^[1-9]\d*$/.test(value)) {
-    throw new Error(`${flag} must be a positive integer`);
+    throw new Error(`${flag} must be a positive safe integer`);
   }
-  return Number(value);
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(`${flag} must be a positive safe integer`);
+  }
+  return parsed;
 }
 
 function transitionState(currentState, head, updatedAt) {
@@ -80,16 +86,7 @@ async function main() {
   if (!head) throw new Error('Missing head SHA. Pass --head or set SESSION_HEAD_SHA.');
 
   if (check) {
-    const currentState = JSON.parse(await readFile(statePath, 'utf8'));
-    const currentErrors = validateSessionState(currentState);
-    if (currentErrors.length > 0) {
-      throw new Error(['Current state is invalid:', ...currentErrors.map((error) => `  - ${error}`)].join('\n'));
-    }
-    if (expectedSequence !== undefined && currentState.sequence !== expectedSequence) {
-      throw new Error(
-        `Session state sequence conflict: expected=${expectedSequence}, actual=${currentState.sequence}`
-      );
-    }
+    const currentState = await readLockedSessionStateFile(statePath, { expectedSequence });
     const result = advanceSessionHead(currentState, head, updatedAt);
     if (result.changed) {
       console.error(`Session head is stale: state=${currentState.head_sha}, expected=${head}`);
