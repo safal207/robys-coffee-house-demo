@@ -60,8 +60,8 @@
     },
     {
       "path": "discover-journeys-v2.js",
-      "bytes": 2654,
-      "sha256": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5"
+      "bytes": 5450,
+      "sha256": "1dbd8d05c41278e7934a1194ec5dd6388ff79069d58a789c33af0bc46ceea7c8"
     },
     {
       "path": "discover-journeys.js",
@@ -90,8 +90,8 @@
     },
     {
       "path": "discover-weather-guard.js",
-      "bytes": 2283,
-      "sha256": "e7238fbdc2af1b412632c2d48f2db5d225af51c4ebeb6872485d2e05ca11fddd"
+      "bytes": 159,
+      "sha256": "d06424f61b0381a29b4f11025f9bc9ab14517a8af46bd97e4c2b461667f159bd"
     },
     {
       "path": "discover.css",
