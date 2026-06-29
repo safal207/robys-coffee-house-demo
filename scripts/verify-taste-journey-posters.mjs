@@ -59,8 +59,9 @@ for (const fileName of EXPECTED_FILES) {
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtime = readFileSync("discover-rotation-v2.js", "utf8");
 const discoverRuntime = readFileSync("discover-v2.js", "utf8");
-const interactionGuard = readFileSync("discover-weather-guard.js", "utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
+const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
@@ -76,24 +77,20 @@ if (!journeysBlock) fail("could not isolate the exported journeys array");
 const actualIds = [...journeysBlock.matchAll(/^\s{4}id:\s*"([^"]+)"/gm)].map((match) => match[1]);
 if (JSON.stringify(actualIds) !== JSON.stringify(ACTIVE_IDS)) fail(`discover page must expose only ${ACTIVE_IDS.join(", ")}; found ${actualIds.join(", ")}`);
 
-const guardIdsBlock = interactionGuard.match(/const supportedPairingIds = new Set\(\[([\s\S]*?)\]\);/)?.[1];
-if (!guardIdsBlock) fail("weather guard does not declare its supported pairing IDs");
-const guardIds = [...guardIdsBlock.matchAll(/"([^"]+)"/g)].map((match) => match[1]).sort();
-if (JSON.stringify(guardIds) !== JSON.stringify([...ACTIVE_IDS].sort())) fail(`weather guard must allow only ${ACTIVE_IDS.join(", ")}; found ${guardIds.join(", ")}`);
-
+if (!journeysSource.includes('const ACTIVE_PAIRING_IDS = ["cool-lime-macaron", "iced-san-sebastian"];')) fail("journey guard must allow only the two active pairing IDs");
+if (!journeysSource.includes("new Set(ACTIVE_PAIRING_IDS)")) fail("journey guard does not use the active pairing allowlist");
 if (!discoverRuntime.includes('from"./discover-journeys-v2.js"') && !discoverRuntime.includes('from "./discover-journeys-v2.js"')) fail("cache-safe Discover runtime does not import cache-safe journey data");
 if (!discoverRuntime.includes("el.products.dataset.pairingId=journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
-if (!interactionGuard.includes('resolvedUrl.origin !== "https://api.open-meteo.com"')) fail("weather guard does not enforce the exact Open-Meteo origin");
-if (!interactionGuard.includes("queuedActions") || !interactionGuard.includes("stopImmediatePropagation") || !interactionGuard.includes("controller.abort")) fail("weather interaction guard does not prevent late responses from overwriting user actions");
+if (!journeysSource.includes('resolvedUrl.origin !== "https://api.open-meteo.com"')) fail("journey guard does not enforce the exact Open-Meteo origin");
+if (!journeysSource.includes("queuedActions") || !journeysSource.includes("stopImmediatePropagation") || !journeysSource.includes("controller.abort")) fail("journey guard does not protect user actions from late weather responses");
 if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) fail("poster renderer does not select artwork by journey id");
-if (!interactionGuard.includes('poster.style.visibility = supportedPairingIds.has(pairingId) ? "visible" : "hidden";')) fail("unsupported journey ids do not hide stale poster artwork");
-if (!interactionGuard.includes('[data-pairing-poster]')) fail("weather guard does not target pairing poster artwork");
+if (!journeysSource.includes('poster.style.visibility = supportedPairingIds.has(pairingId) ? "visible" : "hidden";')) fail("unsupported journey ids do not hide stale poster artwork");
+if (!journeysSource.includes('[data-pairing-poster]')) fail("journey guard does not target pairing poster artwork");
+if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone guard must remain a no-op compatibility placeholder");
+if (!serviceWorker.includes('"./discover-journeys-v2.js"')) fail("offline cache does not include the module that owns the Discover guard");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
 
-const guardScriptIndex = html.indexOf('src="discover-weather-guard.js');
-const discoverScriptIndex = html.indexOf('src="discover-v2.js"');
-if (guardScriptIndex < 0 || discoverScriptIndex < 0 || guardScriptIndex > discoverScriptIndex) fail("weather interaction guard must load before the Discover runtime");
-if (!html.includes('src="discover-rotation-v2.js')) fail("discover.html must load the cache-safe poster runtime");
+if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js')) fail("discover.html must load cache-safe Discover script paths");
 if (/src="discover(?:-rotation)?\.js(?:\?[^\"]*)?"/.test(html)) fail("discover.html still loads a legacy Discover script path");
 
 for (const token of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -104,4 +101,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, exact weather allowlisting, protected weather interactions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe and offline guard ownership, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
