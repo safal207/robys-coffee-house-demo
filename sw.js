@@ -32,6 +32,8 @@ const CORE_ASSETS = [
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-rotation.js",
+  "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
+  "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
   "./src/android-mark.svg",
   "./src/robys-hero-poster.jpg",
