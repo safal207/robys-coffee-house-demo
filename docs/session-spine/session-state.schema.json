@@ -1,7 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/safal207/robys-coffee-house-demo/docs/session-spine/session-state.schema.json",
-  "title": "Agent Session Spine State",
+  "title": "Agent Session Spine Structural State",
+  "description": "Structural envelope for Session Spine state. Cross-field trust and merge-authorization invariants are enforced by scripts/session-state-lib.mjs and must be checked before acting on a state.",
+  "$comment": "Schema-only validation is not merge authorization. Standard JSON Schema cannot require verified_for_sha to equal head_sha or require passed evidence whose sha equals head_sha, so the runtime coordinator is the semantic authority.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -91,19 +93,5 @@
     },
     "merge_authorized": { "type": "boolean" },
     "updated_at": { "type": "string", "format": "date-time" }
-  },
-  "allOf": [
-    {
-      "if": {
-        "properties": { "merge_authorized": { "const": true } },
-        "required": ["merge_authorized"]
-      },
-      "then": {
-        "properties": {
-          "status": { "enum": ["AUTHORIZED", "DONE"] },
-          "blockers": { "maxItems": 0 }
-        }
-      }
-    }
-  ]
+  }
 }
