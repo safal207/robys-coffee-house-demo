@@ -11,21 +11,70 @@ const STATUS_VALUES = new Set([
 const EVIDENCE_STATUS_VALUES = new Set(['observed', 'passed', 'failed', 'stale']);
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const REPOSITORY_PATTERN = /^[^/\s]+\/[^/\s]+$/;
+const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+const TOP_LEVEL_KEYS = new Set([
+  '$schema',
+  'schema_version',
+  'session_id',
+  'sequence',
+  'goal',
+  'repository',
+  'pull_request',
+  'head_sha',
+  'previous_head_sha',
+  'status',
+  'completed',
+  'blockers',
+  'next_safe_action',
+  'evidence',
+  'verified_for_sha',
+  'merge_authorized',
+  'updated_at'
+]);
+const EVIDENCE_KEYS = new Set(['id', 'kind', 'ref', 'sha', 'status']);
 
+/** Return true when a value is a non-empty string after trimming. */
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+/** Return true when an array contains no duplicate primitive values. */
 function uniqueStrings(values) {
   return new Set(values).size === values.length;
 }
 
+/** Validate a full RFC 3339-style date-time accepted by the published schema. */
+function isIsoDateTime(value) {
+  return isNonEmptyString(value)
+    && DATE_TIME_PATTERN.test(value)
+    && !Number.isNaN(Date.parse(value));
+}
+
+/** Append an error for every property that is not part of the structural contract. */
+function collectUnknownPropertyErrors(value, allowedKeys, prefix, errors) {
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) errors.push(`${prefix}${key} is not allowed`);
+  }
+}
+
+/**
+ * Validate one Session Spine state.
+ *
+ * The JSON Schema defines the structural envelope. This function additionally
+ * enforces semantic cross-field invariants required for safe authorization.
+ *
+ * @param {unknown} state state object to validate
+ * @param {{ expectedHeadSha?: string }} options optional exact observed head
+ * @returns {string[]} accumulated validation errors
+ */
 export function validateSessionState(state, { expectedHeadSha } = {}) {
   const errors = [];
 
   if (!state || typeof state !== 'object' || Array.isArray(state)) {
     return ['state must be a JSON object'];
   }
+
+  collectUnknownPropertyErrors(state, TOP_LEVEL_KEYS, '', errors);
 
   if (state.schema_version !== 1) {
     errors.push('schema_version must equal 1');
@@ -56,11 +105,19 @@ export function validateSessionState(state, { expectedHeadSha } = {}) {
   }
 
   if (expectedHeadSha !== undefined) {
-    if (!SHA_PATTERN.test(expectedHeadSha)) {
+    if (!isNonEmptyString(expectedHeadSha) || !SHA_PATTERN.test(expectedHeadSha)) {
       errors.push('expected head SHA must be a lowercase 40-character commit SHA');
     } else if (state.head_sha !== expectedHeadSha) {
       errors.push(`head_sha is stale: state=${state.head_sha}, expected=${expectedHeadSha}`);
     }
+  }
+
+  if (
+    state.previous_head_sha !== undefined
+    && state.previous_head_sha !== null
+    && (!isNonEmptyString(state.previous_head_sha) || !SHA_PATTERN.test(state.previous_head_sha))
+  ) {
+    errors.push('previous_head_sha must be null or a lowercase 40-character commit SHA');
   }
 
   if (!STATUS_VALUES.has(state.status)) {
@@ -89,6 +146,7 @@ export function validateSessionState(state, { expectedHeadSha } = {}) {
         errors.push(`${prefix} must be an object`);
         return;
       }
+      collectUnknownPropertyErrors(item, EVIDENCE_KEYS, `${prefix}.`, errors);
       if (!isNonEmptyString(item.id)) errors.push(`${prefix}.id must be a non-empty string`);
       if (!isNonEmptyString(item.kind)) errors.push(`${prefix}.kind must be a non-empty string`);
       if (!isNonEmptyString(item.ref)) errors.push(`${prefix}.ref must be a non-empty string`);
@@ -115,8 +173,8 @@ export function validateSessionState(state, { expectedHeadSha } = {}) {
     errors.push('merge_authorized must be a boolean');
   }
 
-  if (!isNonEmptyString(state.updated_at) || Number.isNaN(Date.parse(state.updated_at))) {
-    errors.push('updated_at must be an ISO-8601 timestamp');
+  if (!isIsoDateTime(state.updated_at)) {
+    errors.push('updated_at must be a full ISO-8601 date-time timestamp');
   }
 
   if (state.merge_authorized === true) {
@@ -143,9 +201,21 @@ export function validateSessionState(state, { expectedHeadSha } = {}) {
   return errors;
 }
 
+/**
+ * Move a valid state to a new product head and invalidate all head-bound trust.
+ * Repeating the operation for the same SHA is idempotent.
+ *
+ * @param {object} state current state
+ * @param {string} newHeadSha newly observed exact product head
+ * @param {string} updatedAt full ISO date-time timestamp for the transition
+ * @returns {{ changed: boolean, state: object }} transition result
+ */
 export function advanceSessionHead(state, newHeadSha, updatedAt = new Date().toISOString()) {
   if (!SHA_PATTERN.test(newHeadSha)) {
     throw new Error('new head SHA must be a lowercase 40-character commit SHA');
+  }
+  if (!isIsoDateTime(updatedAt)) {
+    throw new Error('updatedAt must be a full ISO-8601 date-time timestamp');
   }
 
   if (state.head_sha === newHeadSha) {
