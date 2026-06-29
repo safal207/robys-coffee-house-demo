@@ -39,6 +39,9 @@ assert.equal(advanced.state.sequence, 8);
 assert.equal(advanced.state.head_sha, newHead);
 assert.equal(advanced.state.previous_head_sha, oldHead);
 assert.equal(advanced.state.status, 'WAITING_FOR_CURRENT_HEAD_CHECKS');
+assert.deepEqual(advanced.state.blockers, [
+  `Current-head verification required for ${newHead}.`
+]);
 assert.equal(advanced.state.verified_for_sha, null);
 assert.equal(advanced.state.merge_authorized, false);
 assert.equal(advanced.state.evidence[0].status, 'stale');
@@ -57,5 +60,34 @@ const staleErrors = validateSessionState(staleAuthorization);
 assert(staleErrors.includes('verified_for_sha must be null or equal head_sha'));
 assert(staleErrors.includes('merge_authorized=true requires verified_for_sha to equal head_sha'));
 assert(staleErrors.includes('merge_authorized=true requires at least one passed evidence item for head_sha'));
+
+const invalidPreviousHead = {
+  ...authorizedState,
+  previous_head_sha: 'not-a-sha'
+};
+assert(
+  validateSessionState(invalidPreviousHead)
+    .includes('previous_head_sha must be null or a lowercase 40-character commit SHA')
+);
+
+const dateWithoutTime = {
+  ...authorizedState,
+  updated_at: '2026-06-29'
+};
+assert(
+  validateSessionState(dateWithoutTime)
+    .includes('updated_at must be a full ISO-8601 date-time timestamp')
+);
+
+const unknownProperty = {
+  ...authorizedState,
+  invented_authorization: true
+};
+assert(validateSessionState(unknownProperty).includes('invented_authorization is not allowed'));
+
+assert.throws(
+  () => advanceSessionHead(authorizedState, newHead, '2026-06-29'),
+  /updatedAt must be a full ISO-8601 date-time timestamp/
+);
 
 console.log('Session state tests passed.');
