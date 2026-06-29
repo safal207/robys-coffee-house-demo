@@ -60,8 +60,8 @@
     },
     {
       "path": "discover-journeys-v2.js",
-      "bytes": 5450,
-      "sha256": "1dbd8d05c41278e7934a1194ec5dd6388ff79069d58a789c33af0bc46ceea7c8"
+      "bytes": 5611,
+      "sha256": "eda91557419c7828a390c83e2121a7f621a0b89a1c300b35fc1933ea41de7de4"
     },
     {
       "path": "discover-journeys.js",
