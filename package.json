@@ -14,7 +14,7 @@
     "verify:session-state": "node scripts/verify-session-state.mjs",
     "verify:session-state-fixture": "node scripts/verify-session-state.mjs qa/fixtures/session-state/pr-126-stale-review.json",
     "test:session-state": "node scripts/test-session-state.mjs",
-    "test:session-state-store": "node scripts/test-session-state-store.mjs",
+    "test:session-state-store": "node scripts/test-session-state-store.mjs && node scripts/test-session-sequence-safety.mjs",
     "session:update-head": "node scripts/update-session-state.mjs",
     "verify:regression": "npm run verify:social-offer && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial",
     "verify:performance": "node scripts/verify-performance-contract.mjs",
