@@ -1,0 +1,36 @@
+name: Refresh Session Spine v2 generated outputs
+
+on:
+  push:
+    branches: [feat/session-spine-v2-cas]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/session-spine-v2-cas
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run integrity:generate
+      - name: Commit deterministic outputs
+        run: |
+          git add index.html integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Generated outputs are already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(build): refresh generated outputs"
+          git push origin HEAD:feat/session-spine-v2-cas
