@@ -52,7 +52,7 @@ function installDiscoverInteractionGuard() {
       ? new AbortController()
       : null;
     const timeout = setTimeout(() => {
-      controller?.abort();
+      if (controller) controller.abort();
       finishWeatherLoad();
     }, 8000);
 
