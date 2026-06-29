@@ -1,0 +1,51 @@
+name: Sync cache-safe Discover paths once
+
+on:
+  pull_request:
+    branches: [main]
+    types: [synchronize, reopened]
+
+# Write access is used only by the final push step on this same-repository branch.
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-discover-paths-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.head_ref == 'feat/discover-two-approved-pairings' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact PR head without persisted credentials
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git init .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          git fetch --depth=1 origin "refs/heads/${HEAD_REF}"
+          git checkout -B "${HEAD_REF}" FETCH_HEAD
+      - name: Install dependencies
+        run: npm ci
+      - name: Build generated runtime
+        run: npm run build
+      - name: Generate exact integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+      - name: Commit generated state
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git add app.js featured-gallery.js social-offer.js discover-rotation.js discover-rotation-v2.js index.html discover.html integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Generated state is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: sync cache-safe Discover generated state"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${HEAD_REF}"
