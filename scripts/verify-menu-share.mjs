@@ -32,4 +32,4 @@ assert(cacheVersion, "Offline cache version marker is missing or malformed");
 const [cacheGeneration, cacheDate] = cacheVersion.map(Number);
 assert(cacheGeneration >= 4 && cacheDate >= 20260627, "Offline cache version predates the share fix");
 
-console.log("✅ SHARE-001 passed: centered feedback and Android/Web Share fallbacks remain available.");
+console.log(`✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, and cache generation ${cacheGeneration} (${cacheDate}) remain valid.`);
