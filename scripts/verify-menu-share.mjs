@@ -25,6 +25,10 @@ assert(runtime.includes("window.location.assign(androidShareIntent(payload))"), 
 assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API path is missing");
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
-assert(serviceWorker.includes("robys-offline-v4-20260627-share"), "Offline cache version was not bumped for the share fix");
+
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "robys-offline-v(\d+)-(\d{8})-[a-z0-9-]+";/)?.slice(1);
+assert(cacheVersion, "Offline cache version marker is missing or malformed");
+const [cacheGeneration, cacheDate] = cacheVersion.map(Number);
+assert(cacheGeneration >= 4 && cacheDate >= 20260627, "Offline cache version predates the share fix");
 
 console.log("✅ SHARE-001 passed: centered feedback and Android/Web Share fallbacks remain available.");
