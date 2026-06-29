@@ -30,6 +30,10 @@ The runtime validator is therefore the semantic authority before any merge or ir
 5. Only the coordinator writes canonical state. Other agents contribute evidence references.
 6. Missing CLI flag values fail closed; they never disable exact-head validation or silently substitute operator input.
 
+## Concurrency model
+
+Version 1 is a single-writer protocol: only one coordinator may update a canonical sidecar. The file updater does not provide compare-and-swap across competing writers. A multi-writer store must add optimistic locking on `sequence` or an equivalent transactional revision before using the protocol concurrently.
+
 ## Commands
 
 Validate the immutable repository fixture used by CI:
