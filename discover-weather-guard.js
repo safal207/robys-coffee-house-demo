@@ -20,32 +20,37 @@
     queuedActions.push(`#${button.id}`);
   }, true);
 
-  window.fetch = async (input, init) => {
+  window.fetch = async (input, init = {}) => {
     const url = typeof input === "string" ? input : input?.url;
     if (!url?.startsWith("https://api.open-meteo.com/")) {
       return originalFetch(input, init);
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
     try {
-      const response = await originalFetch(input, init);
+      const response = await originalFetch(input, { ...init, signal: controller.signal });
       if (!response.ok) {
+        clearTimeout(timeout);
         setTimeout(finishWeatherLoad, 0);
         return response;
       }
+
       const originalJson = response.json.bind(response);
       response.json = async () => {
         try {
           return await originalJson();
         } finally {
+          clearTimeout(timeout);
           setTimeout(finishWeatherLoad, 0);
         }
       };
       return response;
     } catch (error) {
+      clearTimeout(timeout);
       setTimeout(finishWeatherLoad, 0);
       throw error;
     }
   };
-
-  setTimeout(finishWeatherLoad, 8000);
 })();
