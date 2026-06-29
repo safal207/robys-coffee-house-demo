@@ -14,7 +14,7 @@ const localized = (tr: string, en: string, ru: string): PosterLocalizedText => (
 const posterSource = (id: string): string => `src/pairings-data/final/${id}.webp.b64.txt`;
 
 const posters: Record<string, PairingPoster> = {
-  "01": {
+  "latte-nutella": {
     id: "latte-nutella",
     source: posterSource("latte-nutella"),
     alt: localized(
@@ -23,7 +23,7 @@ const posters: Record<string, PairingPoster> = {
       "Постер сочетания латте и круассана с Nutella"
     )
   },
-  "02": {
+  "iced-san-sebastian": {
     id: "iced-san-sebastian",
     source: posterSource("iced-san-sebastian"),
     alt: localized(
@@ -32,7 +32,7 @@ const posters: Record<string, PairingPoster> = {
       "Постер сочетания айс-латте и Сан-Себастьяна"
     )
   },
-  "03": {
+  "filter-lotus": {
     id: "filter-lotus",
     source: posterSource("filter-lotus"),
     alt: localized(
@@ -41,7 +41,7 @@ const posters: Record<string, PairingPoster> = {
       "Постер сочетания фильтр-кофе и чизкейка Lotus"
     )
   },
-  "04": {
+  "relax-lotus": {
     id: "relax-lotus",
     source: posterSource("relax-lotus"),
     alt: localized(
@@ -50,7 +50,7 @@ const posters: Record<string, PairingPoster> = {
       "Постер сочетания Relax Tea и чизкейка Lotus"
     )
   },
-  "05": {
+  "cool-lime-macaron": {
     id: "cool-lime-macaron",
     source: posterSource("cool-lime-macaron"),
     alt: localized(
@@ -156,18 +156,17 @@ class PosterRenderer {
 
 function initialize(): void {
   const root = document.querySelector<HTMLElement>("#pairing-products");
-  const number = document.querySelector<HTMLElement>("#pairing-number");
-  if (!root || !number) return;
+  if (!root) return;
 
   const renderer = new PosterRenderer(root);
   let renderQueued = false;
 
-  const currentKey = (): string => number.textContent?.trim() ?? "";
+  const currentId = (): string => root.dataset.pairingId?.trim() ?? "";
 
   const renderCurrent = (): void => {
     renderQueued = false;
-    const key = currentKey();
-    const poster = posters[key];
+    const id = currentId();
+    const poster = posters[id];
     if (!poster) return;
 
     const existing = root.querySelector<HTMLElement>("[data-pairing-poster]");
@@ -177,7 +176,7 @@ function initialize(): void {
       return;
     }
 
-    void renderer.show(poster, () => currentKey() === key);
+    void renderer.show(poster, () => currentId() === id);
   };
 
   const queueRender = (): void => {
@@ -187,8 +186,11 @@ function initialize(): void {
   };
 
   const observer = new MutationObserver(queueRender);
-  observer.observe(root, { childList: true });
-  observer.observe(number, { childList: true, characterData: true, subtree: true });
+  observer.observe(root, {
+    childList: true,
+    attributes: true,
+    attributeFilter: ["data-pairing-id"]
+  });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   queueRender();
 }
