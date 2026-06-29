@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/safal207/robys-coffee-house-demo/protocol/session-state.schema.json",
+  "title": "Agent Session Spine State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "session_id",
+    "sequence",
+    "goal",
+    "repository",
+    "pull_request",
+    "head_sha",
+    "status",
+    "completed",
+    "blockers",
+    "next_safe_action",
+    "evidence",
+    "verified_for_sha",
+    "merge_authorized",
+    "updated_at"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schema_version": { "const": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "goal": { "type": "string", "minLength": 1 },
+    "repository": { "type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$" },
+    "pull_request": {
+      "oneOf": [
+        { "type": "integer", "minimum": 1 },
+        { "type": "null" }
+      ]
+    },
+    "head_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "previous_head_sha": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        { "type": "null" }
+      ]
+    },
+    "status": {
+      "enum": [
+        "PLANNED",
+        "IN_PROGRESS",
+        "BLOCKED",
+        "WAITING_FOR_CURRENT_HEAD_CHECKS",
+        "READY_FOR_REVIEW",
+        "AUTHORIZED",
+        "DONE"
+      ]
+    },
+    "completed": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "next_safe_action": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "ref", "sha", "status"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 },
+          "ref": { "type": "string", "minLength": 1 },
+          "sha": {
+            "oneOf": [
+              { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+              { "type": "null" }
+            ]
+          },
+          "status": { "enum": ["observed", "passed", "failed", "stale"] }
+        }
+      }
+    },
+    "verified_for_sha": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        { "type": "null" }
+      ]
+    },
+    "merge_authorized": { "type": "boolean" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "merge_authorized": { "const": true } },
+        "required": ["merge_authorized"]
+      },
+      "then": {
+        "properties": {
+          "status": { "enum": ["AUTHORIZED", "DONE"] },
+          "blockers": { "maxItems": 0 }
+        }
+      }
+    }
+  ]
+}
