@@ -64,9 +64,19 @@
       "sha256": "632cee28c375fedb251c22710e7a463e210fc88c0c3ceb376d1a50911da29d7f"
     },
     {
+      "path": "discover-journeys-v2.js",
+      "bytes": 2654,
+      "sha256": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5"
+    },
+    {
       "path": "discover-journeys.js",
       "bytes": 2654,
       "sha256": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5"
+    },
+    {
+      "path": "discover-rotation-v2.js",
+      "bytes": 6429,
+      "sha256": "a07b5c355ecece6bd0da9a0e62386ed2cdfd813a8915692af3ea59b6a862e4f1"
     },
     {
       "path": "discover-rotation.css",
@@ -79,14 +89,19 @@
       "sha256": "a07b5c355ecece6bd0da9a0e62386ed2cdfd813a8915692af3ea59b6a862e4f1"
     },
     {
+      "path": "discover-v2.js",
+      "bytes": 7253,
+      "sha256": "9133aa975e1b2de8ba7fdbe8a983591b545ebec2a1997bd9bd6eb4c8ea3a5067"
+    },
+    {
       "path": "discover.css",
       "bytes": 7357,
       "sha256": "d0f0e3e6c8f06cdc96d181a397e056a76be21cd2c0fc9af41ab0b49a9829116e"
     },
     {
       "path": "discover.html",
-      "bytes": 6487,
-      "sha256": "7676891343674e05f2295eef36ff78a33025bfe3b9f853dc3157dd85db751334"
+      "bytes": 6467,
+      "sha256": "0030dcbe8963ffad268b0e837b3b064a111f5ada71186b07502683e43bf11ee9"
     },
     {
       "path": "discover.js",
@@ -211,7 +226,7 @@
     {
       "path": "pwa.js",
       "bytes": 1405,
-      "sha256": "1676485d93a6629feafa2178aabd31094f93176c3ad4b6274bfec7317a5b2e63"
+      "sha256": "fc9d2701db3a605991387b20e3e189bc7aeeeb0de0049e3c99e6e1a784ce5c08"
     },
     {
       "path": "qa.js",
@@ -570,8 +585,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3344,
-      "sha256": "2525db2dd965e485ea14a2a9584696c2c7bbca6b3419ac85a1bc791b19e6f43c"
+      "bytes": 3430,
+      "sha256": "7097049a877419017271ca436a3d8161dfde789dbc8eebd806dbc11ff3a6b423"
     }
   ]
 }
