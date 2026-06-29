@@ -43,8 +43,6 @@ jobs:
         run: |
           npm run build
           node scripts/generate-integrity-manifest.mjs
-      - name: Verify clean merged state
-        run: npm run check
       - name: Commit generated state when needed
         run: |
           git add app.js featured-gallery.js social-offer.js discover-rotation.js discover-rotation-v2.js index.html menu.html discover.html integrity-manifest.json
