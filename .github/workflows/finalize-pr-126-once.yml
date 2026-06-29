@@ -1,0 +1,50 @@
+name: Finalize PR 126 once
+
+on:
+  push:
+    branches:
+      - feat/discover-two-approved-pairings
+
+permissions:
+  contents: read
+
+concurrency:
+  group: finalize-pr-126-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    if: github.repository == 'safal207/robys-coffee-house-demo' && !contains(github.event.head_commit.message, '[finalize-pr-126]')
+    permissions:
+      # Required only for the final generated-manifest commit to this exact branch.
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact branch head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Regenerate integrity evidence
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Verify focused contracts
+        run: |
+          node scripts/verify-menu-share.mjs
+          node scripts/verify-taste-journey-posters.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Remove one-time workflow and commit generated evidence
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm .github/workflows/finalize-pr-126-once.yml
+          git add integrity-manifest.json .github/workflows/finalize-pr-126-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: finalize PR 126 generated evidence [finalize-pr-126]"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
