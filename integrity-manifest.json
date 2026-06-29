@@ -4,6 +4,11 @@
   "build": "20260626-8",
   "files": [
     {
+      "path": ".markdownlint.json",
+      "bytes": 120,
+      "sha256": "e686fb24fffb245e95887e36201a47ae835d41ee80662eb50c0d107be081c4d4"
+    },
+    {
       "path": "404.html",
       "bytes": 1179,
       "sha256": "7245fd4df1d62cff1796e27ad500eac81ed74ccb9022d852f5c660c409aee1cf"
@@ -59,9 +64,19 @@
       "sha256": "632cee28c375fedb251c22710e7a463e210fc88c0c3ceb376d1a50911da29d7f"
     },
     {
+      "path": "discover-journeys-v2.js",
+      "bytes": 2654,
+      "sha256": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5"
+    },
+    {
       "path": "discover-journeys.js",
-      "bytes": 5015,
-      "sha256": "09976c973bfc34cc7cadc167be1f0322fec0b67f7a9c304f1b424f4b27d50335"
+      "bytes": 2654,
+      "sha256": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5"
+    },
+    {
+      "path": "discover-rotation-v2.js",
+      "bytes": 6429,
+      "sha256": "a07b5c355ecece6bd0da9a0e62386ed2cdfd813a8915692af3ea59b6a862e4f1"
     },
     {
       "path": "discover-rotation.css",
@@ -70,8 +85,13 @@
     },
     {
       "path": "discover-rotation.js",
-      "bytes": 6446,
-      "sha256": "c91d5b7105516ba5217ad0323b2b011b15f8c360140b96096e43bdfa8909607e"
+      "bytes": 6429,
+      "sha256": "a07b5c355ecece6bd0da9a0e62386ed2cdfd813a8915692af3ea59b6a862e4f1"
+    },
+    {
+      "path": "discover-v2.js",
+      "bytes": 7253,
+      "sha256": "9133aa975e1b2de8ba7fdbe8a983591b545ebec2a1997bd9bd6eb4c8ea3a5067"
     },
     {
       "path": "discover.css",
@@ -80,13 +100,13 @@
     },
     {
       "path": "discover.html",
-      "bytes": 6489,
-      "sha256": "74fc31c24273e1c95cede4829f47d04359122269450bcfd4085050662edf9495"
+      "bytes": 6467,
+      "sha256": "0030dcbe8963ffad268b0e837b3b064a111f5ada71186b07502683e43bf11ee9"
     },
     {
       "path": "discover.js",
-      "bytes": 7209,
-      "sha256": "a2ab6007d2a9e7f274b4eb2619c5984f2ab1756425af94703337dd834a243313"
+      "bytes": 7276,
+      "sha256": "b271068368090ea06aa5b8a923d7b53de30df588eb766eb2bcffd3930df43f90"
     },
     {
       "path": "featured-gallery.css",
@@ -126,7 +146,7 @@
     {
       "path": "index.html",
       "bytes": 22876,
-      "sha256": "a179f05cce93ac72a60f7d00e2f0126767a1616d1727e35990822dfbb68da84a"
+      "sha256": "b3c5e33a6905621c08bbe364fbccdbf2ce06774e2f9e268d0c77896ebc3444f2"
     },
     {
       "path": "manifest.webmanifest",
@@ -206,7 +226,7 @@
     {
       "path": "pwa.js",
       "bytes": 1405,
-      "sha256": "1676485d93a6629feafa2178aabd31094f93176c3ad4b6274bfec7317a5b2e63"
+      "sha256": "fc9d2701db3a605991387b20e3e189bc7aeeeb0de0049e3c99e6e1a784ce5c08"
     },
     {
       "path": "qa.js",
@@ -235,8 +255,8 @@
     },
     {
       "path": "social-offer.js",
-      "bytes": 3488,
-      "sha256": "e3ddc10b7a062bded45cb730560f5670a1b4450dc5a6c04f3e348631cce661c1"
+      "bytes": 4767,
+      "sha256": "2d091095f70c08110d4190837e9b277cd6a909faa6f07e35c0e9de5bf811b755"
     },
     {
       "path": "src/.parts/main.04.txt",
@@ -565,8 +585,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 2913,
-      "sha256": "4d0660a81d5c0095dc5e88e09f40cd7378ba9b96687e72137df155811972b85c"
+      "bytes": 3430,
+      "sha256": "7097049a877419017271ca436a3d8161dfde789dbc8eebd806dbc11ff3a6b423"
     }
   ]
 }

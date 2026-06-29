@@ -1,6 +1,6 @@
 import{menuCategories}from"./menu-data.js";
 import{copy,supportedLanguages}from"./discover-copy.js";
-import{journeys,imageAlt}from"./discover-journeys.js?v=20260629-two-pairings-1";
+import{journeys,imageAlt}from"./discover-journeys-v2.js";
 const S={language:"robys-language",visitDate:"robys-discovery-last-date",visits:"robys-discovery-visits",discovered:"robys-discovery-pairs"};
 const el={time:document.querySelector("#time-context"),weather:document.querySelector("#weather-context"),step:document.querySelector("#relationship-step"),stageTitle:document.querySelector("#relationship-title"),stageBody:document.querySelector("#relationship-description"),products:document.querySelector("#pairing-products"),number:document.querySelector("#pairing-number"),kicker:document.querySelector("#pairing-kicker"),name:document.querySelector("#pairing-name"),reason:document.querySelector("#pairing-reason"),menuLink:document.querySelector("#pairing-menu-link"),next:document.querySelector("#next-pairing"),done:document.querySelector("#mark-discovered"),langs:[...document.querySelectorAll(".lang-button")]};
 const read=k=>{try{return localStorage.getItem(k)}catch{return null}},write=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};

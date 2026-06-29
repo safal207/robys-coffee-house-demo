@@ -1,9 +1,10 @@
-const CACHE_VERSION = "robys-offline-v4-20260627-share";
+const CACHE_VERSION = "robys-offline-v6-20260629-discover-paths";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./menu.html",
+  "./discover.html",
   "./404.html",
   "./offline.css",
   "./pwa.js",
@@ -16,6 +17,8 @@ const CORE_ASSETS = [
   "./menu.css",
   "./menu-stability.css",
   "./menu-security.css",
+  "./discover.css",
+  "./discover-rotation.css",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",
@@ -25,6 +28,15 @@ const CORE_ASSETS = [
   "./menu-data.js",
   "./menu-search-clear.js",
   "./menu-actions.js",
+  "./discover.js",
+  "./discover-v2.js",
+  "./discover-copy.js",
+  "./discover-journeys.js",
+  "./discover-journeys-v2.js",
+  "./discover-rotation.js",
+  "./discover-rotation-v2.js",
+  "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
+  "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
   "./src/android-mark.svg",
   "./src/robys-hero-poster.jpg",
@@ -59,12 +71,13 @@ async function cachedPage(name) {
 async function navigationResponse(request) {
   const url = new URL(request.url);
   const isMenu = url.pathname.endsWith("/menu.html");
+  const isDiscover = url.pathname.endsWith("/discover.html");
   const isHome = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
 
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isHome) {
+      if (isMenu || isDiscover || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -75,6 +88,7 @@ async function navigationResponse(request) {
   }
 
   if (isMenu) return cachedPage("menu.html");
+  if (isDiscover) return cachedPage("discover.html");
   if (isHome) return cachedPage("index.html");
   return cachedPage("404.html");
 }
