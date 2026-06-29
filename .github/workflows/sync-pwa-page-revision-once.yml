@@ -1,37 +1,60 @@
-name: Sync PWA page revision once
+name: Reconcile Taste Journey with main once
 
 on:
-  pull_request:
-    branches: [main]
-    types: [synchronize, reopened]
+  push:
+    branches:
+      - feat/discover-two-approved-pairings
 
-# Write access is used only by the final push step on this same-repository branch.
+# Write access is used only by the final same-branch push after local verification.
 permissions:
   contents: write
 
 concurrency:
-  group: sync-pwa-page-revision-${{ github.event.pull_request.number }}
+  group: reconcile-taste-journey-main-once
   cancel-in-progress: false
 
 jobs:
-  sync:
-    if: github.head_ref == 'feat/discover-two-approved-pairings' && github.event.pull_request.head.repo.full_name == github.repository
+  reconcile:
+    if: ${{ !contains(github.event.head_commit.message, 'merge: reconcile Taste Journey with main') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: Checkout exact PR head without persisted credentials
+      - name: Checkout branch without persisted credentials
         env:
-          HEAD_REF: ${{ github.head_ref }}
+          BRANCH: feat/discover-two-approved-pairings
           REPOSITORY: ${{ github.repository }}
         run: |
           git init .
           git remote add origin "https://github.com/${REPOSITORY}.git"
-          git fetch --depth=1 origin "refs/heads/${HEAD_REF}"
-          git checkout -B "${HEAD_REF}" FETCH_HEAD
-      - name: Align public PWA script URLs
+          git fetch --depth=100 origin main "refs/heads/${BRANCH}"
+          git checkout -B "${BRANCH}" "origin/${BRANCH}"
+      - name: Merge current main and resolve generated-state conflicts
         run: |
+          set -euo pipefail
+          git merge --no-ff --no-commit origin/main || true
+          conflicts=$(git diff --name-only --diff-filter=U)
+          unexpected=$(printf '%s\n' "$conflicts" | grep -vE '^(package\.json|integrity-manifest\.json)$' || true)
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected merge conflicts:"
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          if printf '%s\n' "$conflicts" | grep -qx 'package.json'; then
+            git checkout --theirs package.json
+          fi
+          if printf '%s\n' "$conflicts" | grep -qx 'integrity-manifest.json'; then
+            git checkout --theirs integrity-manifest.json
+          fi
           node <<'NODE'
           const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const checks = 'node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js';
+          for (const key of ['check', 'verify:bundle']) {
+            if (!pkg.scripts[key].includes('discover-v2.js')) {
+              pkg.scripts[key] = pkg.scripts[key].replace('node --check discover-rotation.js', `node --check discover-rotation.js && ${checks}`);
+            }
+          }
+          fs.writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`);
           const pwa = fs.readFileSync('pwa.js', 'utf8');
           const revision = pwa.match(/SERVICE_WORKER_URL = "sw\.js\?v=([^"]+)"/)?.[1];
           if (!revision) throw new Error('Missing service-worker revision');
@@ -40,23 +63,26 @@ jobs:
             fs.writeFileSync(file, html.replace(/pwa\.js\?v=[^"]+/g, `pwa.js?v=${revision}`));
           }
           NODE
-      - name: Verify and generate integrity manifest
+          git rm .github/workflows/sync-pwa-page-revision-once.yml
+          git add package.json integrity-manifest.json index.html menu.html
+      - name: Build and verify merged tree
         run: |
           npm ci
+          npm run build
+          npm run verify:taste-journey-posters
           npm run verify:menu-share
+          npm run verify:session-state-fixture
+          npm run test:session-state
           node scripts/generate-integrity-manifest.mjs
-      - name: Commit exact generated state
+          git add app.js featured-gallery.js social-offer.js discover-rotation.js discover-rotation-v2.js index.html menu.html discover.html integrity-manifest.json package.json
+          test -z "$(git diff --name-only --diff-filter=U)"
+      - name: Commit and push reconciled branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
+          BRANCH: feat/discover-two-approved-pairings
           REPOSITORY: ${{ github.repository }}
         run: |
-          git add index.html menu.html integrity-manifest.json
-          if git diff --cached --quiet; then
-            echo "PWA page revisions are already current."
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "fix: refresh PWA registration on public pages"
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${HEAD_REF}"
+          git commit -m "merge: reconcile Taste Journey with main"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${BRANCH}"
