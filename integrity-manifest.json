@@ -100,8 +100,8 @@
     },
     {
       "path": "discover.html",
-      "bytes": 6538,
-      "sha256": "464d978138255e668f058421f30cbea0a4e9a15a362f3546a6b88a18e61fe6db"
+      "bytes": 6523,
+      "sha256": "ec3cc34dc838f425ad08de4ba162e8e0319d3e2563d70e7d6d153b47c113d57a"
     },
     {
       "path": "discover.js",
