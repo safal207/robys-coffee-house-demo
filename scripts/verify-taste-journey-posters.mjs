@@ -57,9 +57,9 @@ for (const fileName of EXPECTED_FILES) {
 }
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
-const runtime = readFileSync("discover-rotation.js", "utf8");
-const discoverRuntime = readFileSync("discover.js", "utf8");
-const journeysSource = readFileSync("discover-journeys.js", "utf8");
+const runtime = readFileSync("discover-rotation-v2.js", "utf8");
+const discoverRuntime = readFileSync("discover-v2.js", "utf8");
+const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
@@ -75,9 +75,12 @@ if (!journeysBlock) fail("could not isolate the exported journeys array");
 const actualIds = [...journeysBlock.matchAll(/^\s{4}id:\s*"([^"]+)"/gm)].map((match) => match[1]);
 if (JSON.stringify(actualIds) !== JSON.stringify(ACTIVE_IDS)) fail(`discover page must expose only ${ACTIVE_IDS.join(", ")}; found ${actualIds.join(", ")}`);
 
+if (!discoverRuntime.includes('from"./discover-journeys-v2.js"')) fail("cache-safe Discover runtime does not import cache-safe journey data");
 if (!discoverRuntime.includes("el.products.dataset.pairingId=journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
 if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) fail("poster renderer does not select artwork by journey id");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
+if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js')) fail("discover.html must load cache-safe Discover script paths");
+if (html.includes('src="discover.js?') || html.includes('src="discover-rotation.js?')) fail("discover.html still loads query-only legacy script paths");
 
 for (const token of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
   if (source.includes(token) || runtime.includes(token) || css.includes(token)) fail(`legacy split-screen token remains: ${token}`);
@@ -87,4 +90,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, source/runtime journey-id artwork parity, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, source/runtime journey-id artwork parity, the full-poster renderer, and its no-script fallback.`);
