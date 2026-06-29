@@ -76,12 +76,20 @@ if (!journeysBlock) fail("could not isolate the exported journeys array");
 const actualIds = [...journeysBlock.matchAll(/^\s{4}id:\s*"([^"]+)"/gm)].map((match) => match[1]);
 if (JSON.stringify(actualIds) !== JSON.stringify(ACTIVE_IDS)) fail(`discover page must expose only ${ACTIVE_IDS.join(", ")}; found ${actualIds.join(", ")}`);
 
+const guardIdsBlock = interactionGuard.match(/const supportedPairingIds = new Set\(\[([\s\S]*?)\]\);/)?.[1];
+if (!guardIdsBlock) fail("weather guard does not declare its supported pairing IDs");
+const guardIds = [...guardIdsBlock.matchAll(/"([^"]+)"/g)].map((match) => match[1]).sort();
+if (JSON.stringify(guardIds) !== JSON.stringify([...ACTIVE_IDS].sort())) fail(`weather guard must allow only ${ACTIVE_IDS.join(", ")}; found ${guardIds.join(", ")}`);
+
 if (!discoverRuntime.includes('from"./discover-journeys-v2.js"') && !discoverRuntime.includes('from "./discover-journeys-v2.js"')) fail("cache-safe Discover runtime does not import cache-safe journey data");
-if (!discoverRuntime.includes("pairingId") || !discoverRuntime.includes("journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
-if (!interactionGuard.includes("queuedActions") || !interactionGuard.includes("stopImmediatePropagation") || !interactionGuard.includes("api.open-meteo.com") || !interactionGuard.includes("controller.abort")) fail("weather interaction guard does not prevent late responses from overwriting user actions");
+if (!discoverRuntime.includes("el.products.dataset.pairingId=journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
+if (!interactionGuard.includes('resolvedUrl.origin !== "https://api.open-meteo.com"')) fail("weather guard does not enforce the exact Open-Meteo origin");
+if (!interactionGuard.includes("queuedActions") || !interactionGuard.includes("stopImmediatePropagation") || !interactionGuard.includes("controller.abort")) fail("weather interaction guard does not prevent late responses from overwriting user actions");
 if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) fail("poster renderer does not select artwork by journey id");
-if (!interactionGuard.includes("supportedPairingIds") || !interactionGuard.includes("poster.style.visibility") || !interactionGuard.includes("[data-pairing-poster]")) fail("unsupported journey ids do not hide stale poster artwork");
+if (!interactionGuard.includes('poster.style.visibility = supportedPairingIds.has(pairingId) ? "visible" : "hidden";')) fail("unsupported journey ids do not hide stale poster artwork");
+if (!interactionGuard.includes('[data-pairing-poster]')) fail("weather guard does not target pairing poster artwork");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
+
 const guardScriptIndex = html.indexOf('src="discover-weather-guard.js');
 const discoverScriptIndex = html.indexOf('src="discover-v2.js"');
 if (guardScriptIndex < 0 || discoverScriptIndex < 0 || guardScriptIndex > discoverScriptIndex) fail("weather interaction guard must load before the Discover runtime");
@@ -96,4 +104,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, protected weather interactions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, exact weather allowlisting, protected weather interactions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, the full-poster renderer, and its no-script fallback.`);
