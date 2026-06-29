@@ -59,6 +59,7 @@ for (const fileName of EXPECTED_FILES) {
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtime = readFileSync("discover-rotation-v2.js", "utf8");
 const discoverRuntime = readFileSync("discover-v2.js", "utf8");
+const interactionGuard = readFileSync("discover-weather-guard.js", "utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
@@ -77,11 +78,14 @@ if (JSON.stringify(actualIds) !== JSON.stringify(ACTIVE_IDS)) fail(`discover pag
 
 if (!discoverRuntime.includes('from"./discover-journeys-v2.js"') && !discoverRuntime.includes('from "./discover-journeys-v2.js"')) fail("cache-safe Discover runtime does not import cache-safe journey data");
 if (!discoverRuntime.includes("pairingId") || !discoverRuntime.includes("journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
-if (!discoverRuntime.includes("userInteracted") || !discoverRuntime.includes("if (userInteracted) return")) fail("late weather responses can still overwrite a user-selected pairing");
+if (!interactionGuard.includes("queuedActions") || !interactionGuard.includes("stopImmediatePropagation") || !interactionGuard.includes("api.open-meteo.com") || !interactionGuard.includes("controller.abort")) fail("weather interaction guard does not prevent late responses from overwriting user actions");
 if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) fail("poster renderer does not select artwork by journey id");
 if (!source.includes("[data-pairing-poster]") || !source.includes("?.remove()") || !runtime.includes("[data-pairing-poster]") || !runtime.includes("?.remove()")) fail("poster renderer does not clear stale artwork for an unknown journey id");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
-if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js')) fail("discover.html must load cache-safe Discover script paths");
+const guardScriptIndex = html.indexOf('src="discover-weather-guard.js');
+const discoverScriptIndex = html.indexOf('src="discover-v2.js"');
+if (guardScriptIndex < 0 || discoverScriptIndex < 0 || guardScriptIndex > discoverScriptIndex) fail("weather interaction guard must load before the Discover runtime");
+if (!html.includes('src="discover-rotation-v2.js')) fail("discover.html must load the cache-safe poster runtime");
 if (/src="discover(?:-rotation)?\.js(?:\?[^\"]*)?"/.test(html)) fail("discover.html still loads a legacy Discover script path");
 
 for (const token of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -92,4 +96,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, protected weather selection, source/runtime journey-id artwork parity, stale-poster clearing, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, protected weather interactions, source/runtime journey-id artwork parity, stale-poster clearing, the full-poster renderer, and its no-script fallback.`);
