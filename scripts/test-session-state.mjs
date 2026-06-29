@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { advanceSessionHead, validateSessionState } from './session-state-lib.mjs';
 
 const oldHead = '1111111111111111111111111111111111111111';
 const newHead = '2222222222222222222222222222222222222222';
 const now = '2026-06-29T06:00:00.000Z';
+const fixturePath = 'qa/fixtures/session-state/pr-126-stale-review.json';
 
 const authorizedState = {
   schema_version: 1,
@@ -89,5 +91,29 @@ assert.throws(
   () => advanceSessionHead(authorizedState, newHead, '2026-06-29'),
   /updatedAt must be a full ISO-8601 date-time timestamp/
 );
+
+const missingVerifyHead = spawnSync(
+  process.execPath,
+  ['scripts/verify-session-state.mjs', fixturePath, '--head'],
+  { encoding: 'utf8' }
+);
+assert.equal(missingVerifyHead.status, 1);
+assert.match(missingVerifyHead.stderr, /Missing value for --head/);
+
+const missingUpdateAt = spawnSync(
+  process.execPath,
+  ['scripts/update-session-state.mjs', fixturePath, '--head', newHead, '--at'],
+  { encoding: 'utf8' }
+);
+assert.equal(missingUpdateAt.status, 1);
+assert.match(missingUpdateAt.stderr, /Missing value for --at/);
+
+const missingStatePath = spawnSync(
+  process.execPath,
+  ['scripts/verify-session-state.mjs'],
+  { encoding: 'utf8' }
+);
+assert.equal(missingStatePath.status, 1);
+assert.match(missingStatePath.stderr, /Missing state path/);
 
 console.log('Session state tests passed.');
