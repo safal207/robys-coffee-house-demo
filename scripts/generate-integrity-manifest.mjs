@@ -20,6 +20,7 @@ const excludedDirectories = new Set([
 ]);
 const excludedRootFiles = new Set([
   OUTPUT,
+  ".markdownlint.json",
   "lighthouse-live-summary.json",
   "lighthouse-summary.json",
   "package.json",
