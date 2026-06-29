@@ -221,6 +221,9 @@ export function advanceSessionHead(state, newHeadSha, updatedAt = new Date().toI
   if (state.head_sha === newHeadSha) {
     return { changed: false, state };
   }
+  if (state.sequence === Number.MAX_SAFE_INTEGER) {
+    throw new Error('sequence cannot advance beyond Number.MAX_SAFE_INTEGER');
+  }
 
   const previousHeadSha = state.head_sha;
   const staleEvidence = Array.isArray(state.evidence)
