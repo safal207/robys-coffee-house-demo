@@ -84,8 +84,8 @@ export function validateSessionState(state, { expectedHeadSha } = {}) {
     errors.push('session_id must be a non-empty string');
   }
 
-  if (!Number.isInteger(state.sequence) || state.sequence < 1) {
-    errors.push('sequence must be an integer greater than or equal to 1');
+  if (!Number.isSafeInteger(state.sequence) || state.sequence < 1) {
+    errors.push('sequence must be a safe integer greater than or equal to 1');
   }
 
   if (!isNonEmptyString(state.goal)) {
@@ -241,7 +241,7 @@ export function advanceSessionHead(state, newHeadSha, updatedAt = new Date().toI
     changed: true,
     state: {
       ...state,
-      sequence: Number.isInteger(state.sequence) ? state.sequence + 1 : 1,
+      sequence: Number.isSafeInteger(state.sequence) ? state.sequence + 1 : 1,
       head_sha: newHeadSha,
       status: 'WAITING_FOR_CURRENT_HEAD_CHECKS',
       blockers,
