@@ -1,12 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { basename, dirname, join } from 'node:path';
 import { open, readFile, rename, stat, unlink } from 'node:fs/promises';
+import { validateSessionState } from './session-state-lib.mjs';
 
 export class SessionStateConflictError extends Error {
   constructor(expectedSequence, actualSequence) {
     super(`Session state sequence conflict: expected=${expectedSequence}, actual=${actualSequence}`);
     this.name = 'SessionStateConflictError';
     this.code = 'SESSION_STATE_CONFLICT';
+    this.expectedSequence = expectedSequence;
+    this.actualSequence = actualSequence;
   }
 }
 
@@ -15,6 +18,7 @@ export class SessionStateBusyError extends Error {
     super(`Session state is locked by another coordinator: ${lockPath}`);
     this.name = 'SessionStateBusyError';
     this.code = 'SESSION_STATE_BUSY';
+    this.lockPath = lockPath;
   }
 }
 
@@ -27,6 +31,13 @@ async function removeIfPresent(path) {
   }
 }
 
+function assertValidState(state, label) {
+  const errors = validateSessionState(state);
+  if (errors.length > 0) {
+    throw new Error([`${label} state is invalid:`, ...errors.map((error) => `  - ${error}`)].join('\n'));
+  }
+}
+
 /**
  * Update a Session Spine sidecar with an exclusive lock and sequence CAS.
  * A changed state must increment sequence by exactly one.
@@ -35,8 +46,11 @@ export async function compareAndSwapSessionStateFile(
   statePath,
   { expectedSequence, update }
 ) {
-  if (!Number.isInteger(expectedSequence) || expectedSequence < 1) {
-    throw new Error('expectedSequence must be a positive integer');
+  if (typeof statePath !== 'string' || statePath.trim().length === 0) {
+    throw new Error('statePath must be a non-empty string');
+  }
+  if (!Number.isSafeInteger(expectedSequence) || expectedSequence < 1) {
+    throw new Error('expectedSequence must be a positive safe integer');
   }
   if (typeof update !== 'function') throw new Error('update must be a function');
 
@@ -54,14 +68,23 @@ export async function compareAndSwapSessionStateFile(
     }
 
     const currentState = JSON.parse(await readFile(statePath, 'utf8'));
+    assertValidState(currentState, 'Current');
     if (currentState.sequence !== expectedSequence) {
       throw new SessionStateConflictError(expectedSequence, currentState.sequence);
     }
 
     const result = await update(currentState);
-    if (!result || typeof result.changed !== 'boolean' || !result.state) {
+    if (
+      !result
+      || typeof result !== 'object'
+      || typeof result.changed !== 'boolean'
+      || !result.state
+      || typeof result.state !== 'object'
+      || Array.isArray(result.state)
+    ) {
       throw new Error('update must return { changed, state }');
     }
+    assertValidState(result.state, 'Updated');
 
     if (!result.changed) {
       if (result.state.sequence !== expectedSequence) {
