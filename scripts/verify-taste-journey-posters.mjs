@@ -80,7 +80,7 @@ if (!discoverRuntime.includes('from"./discover-journeys-v2.js"') && !discoverRun
 if (!discoverRuntime.includes("pairingId") || !discoverRuntime.includes("journey.id")) fail("discover runtime does not publish the active journey id to the poster root");
 if (!interactionGuard.includes("queuedActions") || !interactionGuard.includes("stopImmediatePropagation") || !interactionGuard.includes("api.open-meteo.com") || !interactionGuard.includes("controller.abort")) fail("weather interaction guard does not prevent late responses from overwriting user actions");
 if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pairingId")) fail("poster renderer does not select artwork by journey id");
-if (!source.includes("[data-pairing-poster]") || !source.includes("?.remove()") || !runtime.includes("[data-pairing-poster]") || !runtime.includes("?.remove()")) fail("poster renderer does not clear stale artwork for an unknown journey id");
+if (!interactionGuard.includes("supportedPairingIds") || !interactionGuard.includes("poster.style.visibility") || !interactionGuard.includes("[data-pairing-poster]")) fail("unsupported journey ids do not hide stale poster artwork");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
 const guardScriptIndex = html.indexOf('src="discover-weather-guard.js');
 const discoverScriptIndex = html.indexOf('src="discover-v2.js"');
@@ -96,4 +96,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, protected weather interactions, source/runtime journey-id artwork parity, stale-poster clearing, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe script paths, protected weather interactions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, the full-poster renderer, and its no-script fallback.`);
