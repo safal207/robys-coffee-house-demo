@@ -1,10 +1,21 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  access,
+  chmod,
+  mkdtemp,
+  readFile,
+  rm,
+  stat,
+  writeFile
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { advanceSessionHead } from './session-state-lib.mjs';
-import { compareAndSwapSessionStateFile } from './session-state-store.mjs';
+import {
+  compareAndSwapSessionStateFile,
+  readLockedSessionStateFile
+} from './session-state-store.mjs';
 
 const oldHead = '1111111111111111111111111111111111111111';
 const newHead = '2222222222222222222222222222222222222222';
@@ -46,6 +57,7 @@ async function resetState() {
 
 try {
   await resetState();
+  await chmod(statePath, 0o664);
   const committed = await compareAndSwapSessionStateFile(statePath, {
     expectedSequence: 7,
     update: (state) => advanceSessionHead(state, newHead, now)
@@ -53,6 +65,7 @@ try {
   assert.equal(committed.changed, true);
   assert.equal(committed.state.sequence, 8);
   assert.equal(committed.state.head_sha, newHead);
+  assert.equal((await stat(statePath)).mode & 0o777, 0o664);
 
   const stored = JSON.parse(await readFile(statePath, 'utf8'));
   assert.equal(stored.sequence, 8);
@@ -66,6 +79,19 @@ try {
     (error) => error.code === 'SESSION_STATE_CONFLICT'
   );
   assert.equal(JSON.parse(await readFile(statePath, 'utf8')).head_sha, newHead);
+
+  await resetState();
+  await assert.rejects(
+    compareAndSwapSessionStateFile(statePath, {
+      expectedSequence: 7,
+      update: (state) => {
+        state.goal = 'This mutation must never become canonical.';
+        return { changed: false, state };
+      }
+    }),
+    /unchanged update must preserve canonical state/
+  );
+  assert.deepEqual(JSON.parse(await readFile(statePath, 'utf8')), authorizedState);
 
   await resetState();
   let releaseFirstWriter;
@@ -94,6 +120,18 @@ try {
     }),
     (error) => error.code === 'SESSION_STATE_BUSY'
   );
+  await assert.rejects(
+    readLockedSessionStateFile(statePath, { expectedSequence: 7 }),
+    (error) => error.code === 'SESSION_STATE_BUSY'
+  );
+
+  const busyCheck = spawnSync(
+    process.execPath,
+    ['scripts/update-session-state.mjs', statePath, '--head', oldHead, '--check'],
+    { encoding: 'utf8' }
+  );
+  assert.equal(busyCheck.status, 1);
+  assert.match(busyCheck.stderr, /locked by another coordinator/);
 
   releaseFirstWriter();
   await firstWriter;
@@ -105,6 +143,11 @@ try {
     }),
     (error) => error.code === 'SESSION_STATE_CONFLICT'
   );
+  await assert.rejects(
+    readLockedSessionStateFile(statePath, { expectedSequence: 7 }),
+    (error) => error.code === 'SESSION_STATE_CONFLICT'
+  );
+  assert.equal((await readLockedSessionStateFile(statePath, { expectedSequence: 8 })).head_sha, newHead);
 
   await assert.rejects(access(`${statePath}.lock`), (error) => error.code === 'ENOENT');
 
