@@ -32,11 +32,6 @@
           "capture": "landing-full",
           "viewport": "tablet-768",
           "reason": "dimension mismatch 768x7438 vs 768x7483"
-        },
-        {
-          "capture": "landing-full",
-          "viewport": "desktop-1440",
-          "maxDiffPixelRatio": 0.0068
         }
       ]
     }
