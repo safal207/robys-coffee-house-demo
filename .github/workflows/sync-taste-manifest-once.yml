@@ -1,0 +1,60 @@
+name: Sync Taste Journey manifest once
+
+on:
+  push:
+    branches:
+      - feat/taste-journey-two-pairings-clean
+    paths:
+      - .github/workflows/sync-taste-manifest-once.yml
+
+# This one-shot job does not execute repository scripts. It applies one fixed,
+# reviewed manifest update on the owner's exact same-repository branch.
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor == 'safal207'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out exact push
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Apply reviewed manifest values
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("integrity-manifest.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          matches = [entry for entry in data["files"] if entry["path"] == "discover-journeys-v2.js"]
+          if len(matches) != 1:
+              raise SystemExit("expected exactly one discover-journeys-v2.js manifest entry")
+
+          entry = matches[0]
+          entry["bytes"] = 5611
+          entry["sha256"] = "eda91557419c7828a390c83e2121a7f621a0b89a1c300b35fc1933ea41de7de4"
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Commit exact manifest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ github.ref_name }}
+        run: |
+          git add integrity-manifest.json
+          git diff --cached --exit-code && {
+            echo "Manifest already current."
+            exit 0
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: sync Taste Journey integrity manifest"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${HEAD_REF}"
