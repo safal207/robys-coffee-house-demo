@@ -85,8 +85,8 @@
     },
     {
       "path": "discover-v2.js",
-      "bytes": 7253,
-      "sha256": "9133aa975e1b2de8ba7fdbe8a983591b545ebec2a1997bd9bd6eb4c8ea3a5067"
+      "bytes": 7372,
+      "sha256": "44511bee9169a2cd4d41bda8b40aec0d17c93bb00a42aafdea84ad51e2619059"
     },
     {
       "path": "discover-weather-guard.js",
