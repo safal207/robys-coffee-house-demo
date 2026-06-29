@@ -1,0 +1,55 @@
+name: Sync PWA page revision once
+
+on:
+  pull_request:
+    branches: [main]
+    types: [synchronize, reopened]
+
+# Write access is used only by the final push step on this same-repository branch.
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-pwa-page-revision-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.head_ref == 'feat/discover-two-approved-pairings' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact PR head without persisted credentials
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git init .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          git fetch --depth=1 origin "refs/heads/${HEAD_REF}"
+          git checkout -B "${HEAD_REF}" FETCH_HEAD
+      - name: Align public PWA script URLs
+        run: |
+          revision=$(sed -n 's/^const SERVICE_WORKER_URL = "sw.js?v=\([^"]*\)";$/\1/p' pwa.js)
+          test -n "$revision"
+          sed -i -E "s#pwa\.js\?v=[^"]+#pwa.js?v=${revision}#g" index.html menu.html
+      - name: Verify and generate integrity manifest
+        run: |
+          npm ci
+          npm run verify:menu-share
+          node scripts/generate-integrity-manifest.mjs
+      - name: Commit exact generated state
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git add index.html menu.html integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "PWA page revisions are already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix: refresh PWA registration on public pages"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${HEAD_REF}"
