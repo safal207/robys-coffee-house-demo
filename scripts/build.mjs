@@ -29,6 +29,7 @@ function transpileClassicScript(sourcePath, outputPath) {
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
+transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v2.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -47,7 +48,7 @@ function synchronizeScript(html, fileName, revision) {
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
-const discoverRotationRevision = revisionFor("discover-rotation.js");
+const discoverRotationRevision = revisionFor("discover-rotation-v2.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -55,7 +56,7 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
-discoverHtml = synchronizeScript(discoverHtml, "discover-rotation.js", discoverRotationRevision);
+discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v2.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}) and discover-rotation.js (${discoverRotationRevision}).`);
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js and discover-rotation-v2.js (${discoverRotationRevision}).`);
