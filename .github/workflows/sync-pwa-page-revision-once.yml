@@ -30,9 +30,16 @@ jobs:
           git checkout -B "${HEAD_REF}" FETCH_HEAD
       - name: Align public PWA script URLs
         run: |
-          revision=$(sed -n 's/^const SERVICE_WORKER_URL = "sw.js?v=\([^"]*\)";$/\1/p' pwa.js)
-          test -n "$revision"
-          sed -i -E "s#pwa\.js\?v=[^"]+#pwa.js?v=${revision}#g" index.html menu.html
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pwa = fs.readFileSync('pwa.js', 'utf8');
+          const revision = pwa.match(/SERVICE_WORKER_URL = "sw\.js\?v=([^"]+)"/)?.[1];
+          if (!revision) throw new Error('Missing service-worker revision');
+          for (const file of ['index.html', 'menu.html']) {
+            const html = fs.readFileSync(file, 'utf8');
+            fs.writeFileSync(file, html.replace(/pwa\.js\?v=[^"]+/g, `pwa.js?v=${revision}`));
+          }
+          NODE
       - name: Verify and generate integrity manifest
         run: |
           npm ci
