@@ -63,9 +63,11 @@ const journeysSource = readFileSync("discover-journeys.js", "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
-for (const id of EXPECTED_IDS) {
-  if (!source.includes(`posterSource("${id}")`)) fail(`renderer does not map ${id}`);
-  if (!source.includes(`"${id}": {`)) fail(`renderer is not keyed by journey id ${id}`);
+for (const [label, text] of [["source", source], ["runtime", runtime]]) {
+  for (const id of EXPECTED_IDS) {
+    if (!text.includes(`posterSource("${id}")`)) fail(`${label} renderer does not map ${id}`);
+    if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
+  }
 }
 
 const journeysBlock = journeysSource.match(/export const journeys\s*=\s*\[([\s\S]*?)\n\];\s*\n\s*export const imageAlt/)?.[1];
@@ -85,4 +87,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, journey-id artwork binding, the full-poster renderer, and its no-script fallback.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, source/runtime journey-id artwork parity, the full-poster renderer, and its no-script fallback.`);
