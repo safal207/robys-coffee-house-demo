@@ -87,10 +87,13 @@ if (!source.includes("root.dataset.pairingId") || !runtime.includes("dataset.pai
 if (!journeysSource.includes('poster.style.visibility = supportedPairingIds.has(pairingId) ? "visible" : "hidden";')) fail("unsupported journey ids do not hide stale poster artwork");
 if (!journeysSource.includes('[data-pairing-poster]')) fail("journey guard does not target pairing poster artwork");
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone guard must remain a no-op compatibility placeholder");
-if (!serviceWorker.includes('"./discover-journeys-v2.js"')) fail("offline cache does not include the module that owns the Discover guard");
-if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
 
-if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js')) fail("discover.html must load cache-safe Discover script paths");
+for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v2.js"]) {
+  if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
+}
+
+if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
+if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js"')) fail("discover.html must load exact cache-safe Discover script paths without query strings");
 if (/src="discover(?:-rotation)?\.js(?:\?[^\"]*)?"/.test(html)) fail("discover.html still loads a legacy Discover script path");
 
 for (const token of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -101,4 +104,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, cache-safe and offline guard ownership, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, all offline v2 assets, exact cache-safe script paths, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
