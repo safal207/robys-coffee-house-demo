@@ -1,52 +1,15 @@
-name: Sync final Discover manifest once
+name: Retired one-shot Discover sync
 
 on:
-  pull_request:
-    branches: [main]
-    types: [synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: sync-final-discover-manifest-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  sync:
-    if: github.head_ref == 'feat/taste-journey-two-pairings-clean' && github.event.pull_request.head.repo.full_name == github.repository
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 1
     steps:
-      - name: Checkout exact branch
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          ref: feat/taste-journey-two-pairings-clean
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-      - name: Build and generate exact manifest
-        run: |
-          npm run build
-          node scripts/generate-integrity-manifest.mjs
-          npm run verify:taste-journey-posters
-      - name: Commit generated state
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          git add app.js featured-gallery.js social-offer.js discover-rotation.js discover-rotation-v2.js index.html discover.html integrity-manifest.json
-          if git diff --cached --quiet; then
-            echo "Generated state is already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: sync final Discover manifest"
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:${HEAD_REF}"
+      - name: Confirm retirement
+        run: echo "The one-shot Discover sync is retired; this workflow performs no repository mutation."
