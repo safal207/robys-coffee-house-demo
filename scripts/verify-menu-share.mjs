@@ -26,6 +26,7 @@ assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
 
+// Accept future cache revisions while preventing rollback before the original share-cache fix.
 const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "robys-offline-v(\d+)-(\d{8})-[a-z0-9-]+";/)?.slice(1);
 assert(cacheVersion, "Offline cache version marker is missing or malformed");
 const [cacheGeneration, cacheDate] = cacheVersion.map(Number);
