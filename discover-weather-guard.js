@@ -1,10 +1,7 @@
 (() => {
   const queuedActions = [];
   const supportedPairingIds = new Set([
-    "latte-nutella",
     "iced-san-sebastian",
-    "filter-lotus",
-    "relax-lotus",
     "cool-lime-macaron"
   ]);
   let weatherPending = true;
@@ -37,8 +34,15 @@
   }, true);
 
   window.fetch = async (input, init = {}) => {
-    const url = typeof input === "string" ? input : input?.url;
-    if (!url?.startsWith("https://api.open-meteo.com/")) {
+    const resolvedUrl = typeof input === "string"
+      ? new URL(input, window.location.href)
+      : input instanceof URL
+        ? input
+        : input instanceof Request
+          ? new URL(input.url)
+          : null;
+
+    if (!resolvedUrl || resolvedUrl.origin !== "https://api.open-meteo.com") {
       return originalFetch(input, init);
     }
 
