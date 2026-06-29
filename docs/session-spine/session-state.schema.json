@@ -27,7 +27,11 @@
     "$schema": { "type": "string", "minLength": 1 },
     "schema_version": { "const": 1 },
     "session_id": { "type": "string", "minLength": 1 },
-    "sequence": { "type": "integer", "minimum": 1 },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
     "goal": { "type": "string", "minLength": 1 },
     "repository": { "type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$" },
     "pull_request": {
