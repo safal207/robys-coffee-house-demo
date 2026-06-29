@@ -12,7 +12,7 @@ Keep canonical live state separately, such as in a dedicated state branch, a wor
 
 `docs/session-spine/session-state.schema.json` validates the structural envelope: required fields, primitive types, allowed values, SHA shapes, and unknown properties.
 
-Schema-only validation is not authorization. Cross-field trust rules are enforced by `scripts/session-state-lib.mjs`, including:
+Schema-only validation is not authorization. Cross-field trust rules are enforced by `validateSessionState()` in `scripts/session-state-lib.mjs`, including:
 
 - `verified_for_sha` must equal `head_sha`;
 - authorized states must contain passed evidence for the current head;
