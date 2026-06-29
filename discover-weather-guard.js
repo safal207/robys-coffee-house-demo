@@ -1,5 +1,12 @@
 (() => {
   const queuedActions = [];
+  const supportedPairingIds = new Set([
+    "latte-nutella",
+    "iced-san-sebastian",
+    "filter-lotus",
+    "relax-lotus",
+    "cool-lime-macaron"
+  ]);
   let weatherPending = true;
   const originalFetch = window.fetch.bind(window);
 
@@ -9,6 +16,15 @@
     for (const selector of queuedActions.splice(0)) {
       document.querySelector(selector)?.click();
     }
+  }
+
+  function synchronizePosterVisibility() {
+    const root = document.querySelector("#pairing-products");
+    const poster = root?.querySelector("[data-pairing-poster]");
+    if (!root || !poster) return;
+    const pairingId = root.dataset.pairingId?.trim() ?? "";
+    poster.style.visibility = supportedPairingIds.has(pairingId) ? "visible" : "hidden";
+    if (poster.style.visibility === "hidden") root.removeAttribute("aria-busy");
   }
 
   document.addEventListener("click", (event) => {
@@ -53,4 +69,7 @@
       throw error;
     }
   };
+
+  setInterval(synchronizePosterVisibility, 200);
+  synchronizePosterVisibility();
 })();
