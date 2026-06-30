@@ -34,11 +34,19 @@ jobs:
         run: |
           ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/deepseek-review.yml'); raise 'workflow-level concurrency can be cancelled by untrusted comments' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'review', 'concurrency'); raise 'missing trusted job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('deepseek-review-')"
 
-      - name: Verify pinned inference and trust boundaries
+      - name: Verify official API and trust boundaries
         run: |
-          grep -Fq 'actions/ai-inference@b81b2afb8390ee6839b494a404766bef6493c7d9' .github/workflows/deepseek-review.yml
-          grep -Fq 'max-tokens: 3000' .github/workflows/deepseek-review.yml
-          ! grep -Fq 'max-completion-tokens' .github/workflows/deepseek-review.yml
+          grep -Fq 'DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}' .github/workflows/deepseek-review.yml
+          grep -Fq 'python3 scripts/deepseek-review.py infer' .github/workflows/deepseek-review.yml
+          grep -Fq 'Publish or update reviewer result' .github/workflows/deepseek-review.yml
+          grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
+          grep -Fq '<!-- deepseek-pr-review -->' scripts/deepseek-review.py
+          grep -Fq 'https://api.deepseek.com/chat/completions' scripts/deepseek-review.py
+          grep -Fq "'deepseek-v4-flash'" scripts/deepseek-review.py
+          grep -Fq "'deepseek-v4-pro'" scripts/deepseek-review.py
+          ! grep -Fq 'actions/ai-inference@' .github/workflows/deepseek-review.yml
+          ! grep -Fq 'models: read' .github/workflows/deepseek-review.yml
+          ! grep -Fq 'pull_request_target' .github/workflows/deepseek-review.yml
           grep -Fq 'default_branch' .github/workflows/deepseek-review.yml
           grep -Fq 'persist-credentials: false' .github/workflows/deepseek-review.yml
           grep -Fq "author_association == 'OWNER'" .github/workflows/deepseek-review.yml
