@@ -12,6 +12,11 @@ const EXPECTED_IDS = [
   "cool-lime-macaron"
 ];
 const ACTIVE_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
+const ACCESSIBLE_PRICE_ALTS = [
+  "Cool Lime ve Makaron eşleşmesi posteri, fiyat 290 Türk lirası",
+  "Cool Lime and Macaron pairing poster, price 290 Turkish lira",
+  "Постер сочетания Cool Lime и макарона, цена 290 турецких лир"
+];
 const BASE64_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`);
 const DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
 const EXPECTED_FILES = [...BASE64_FILES, ...DIRECT_FILES].sort();
@@ -86,6 +91,9 @@ for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
     if (!text.includes(expectedSource)) fail(`${label} renderer does not map ${id} to ${expectedSource}`);
     if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
   }
+  for (const altText of ACCESSIBLE_PRICE_ALTS) {
+    if (!text.includes(`"${altText}"`)) fail(`${label} renderer does not expose the 290 TRY price in all localized alt text`);
+  }
   if (!text.includes('source.endsWith(".webp")')) fail(`${label} renderer does not support direct WebP poster sources`);
 }
 
@@ -135,4 +143,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, the revisioned v3 renderer cache key (${revision}), exact offline precache parity, failed-decode recovery, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, localized accessible pricing, exactly ${ACTIVE_IDS.length} active approved pairings, the revisioned v3 renderer cache key (${revision}), exact offline precache parity, failed-decode recovery, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
