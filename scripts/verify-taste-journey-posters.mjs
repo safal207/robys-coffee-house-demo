@@ -28,6 +28,7 @@ const DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
 const EXPECTED_FILES = [...BASE64_FILES, ...DIRECT_FILES].sort();
 const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
 const read24LE = (buffer, offset) => buffer[offset] | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16);
+const revisionFor = (buffer) => createHash("sha256").update(buffer).digest("hex").slice(0, 12);
 
 function dimensions(buffer) {
   const chunk = buffer.toString("ascii", 12, 16);
@@ -80,13 +81,15 @@ for (const fileName of DIRECT_FILES) {
 }
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
-const runtime = readFileSync("discover-rotation-v3.js", "utf8");
+const runtimeBuffer = readFileSync("discover-rotation-v3.js");
+const runtime = runtimeBuffer.toString("utf8");
 const discoverRuntime = readFileSync("discover-v2.js", "utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const buildScript = readFileSync(path.join("scripts", "build.mjs"), "utf8");
-const css = readFileSync("discover-rotation.css", "utf8");
+const cssBuffer = readFileSync("discover-rotation.css");
+const css = cssBuffer.toString("utf8");
 const html = readFileSync("discover.html", "utf8");
 
 for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
@@ -136,15 +139,22 @@ for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "src/pairings-
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
 
-const revisionMatch = html.match(/src="discover-rotation-v3\.js\?v=([a-f0-9]{12})"/);
-if (!revisionMatch) fail("discover.html must load the v3 poster renderer with a 12-character SHA revision");
-const revision = revisionMatch[1];
-if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${revision}"`)) fail("service worker does not precache the exact v3 renderer revision used by discover.html");
-if (!serviceWorker.includes(`robys-offline-v8-20260630-rotation-${revision}`)) fail("service-worker cache version does not include the active v3 renderer revision");
-if (!serviceWorker.includes('url.pathname.endsWith("/discover-rotation-v3.js")') || !serviceWorker.includes("return cache.match(request);")) fail("service worker does not use exact query matching for the revisioned v3 renderer");
+const scriptRevision = revisionFor(runtimeBuffer);
+const cssRevision = revisionFor(cssBuffer);
+const scriptRevisionMatch = html.match(/src="discover-rotation-v3\.js\?v=([a-f0-9]{12})"/);
+const cssRevisionMatch = html.match(/href="discover-rotation\.css\?v=([a-f0-9]{12})"/);
+if (!scriptRevisionMatch) fail("discover.html must load the v3 poster renderer with a 12-character SHA revision");
+if (!cssRevisionMatch) fail("discover.html must load the poster stylesheet with a 12-character SHA revision");
+if (scriptRevisionMatch[1] !== scriptRevision) fail(`discover.html v3 renderer revision is stale: expected ${scriptRevision}, found ${scriptRevisionMatch[1]}`);
+if (cssRevisionMatch[1] !== cssRevision) fail(`discover.html poster CSS revision is stale: expected ${cssRevision}, found ${cssRevisionMatch[1]}`);
+if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker does not precache the exact v3 renderer revision used by discover.html");
+if (!serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`)) fail("service worker does not precache the exact poster CSS revision used by discover.html");
+if (!serviceWorker.includes(`robys-offline-v9-20260630-discover-${scriptRevision}-${cssRevision}`)) fail("service-worker cache version does not include the active JS and CSS revisions");
+if (!serviceWorker.includes('url.pathname.endsWith("/discover-rotation-v3.js")') || !serviceWorker.includes('url.pathname.endsWith("/discover-rotation.css")') || !serviceWorker.includes("return cache.match(request);")) fail("service worker does not use exact query matching for both revisioned JS and CSS");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the v3 poster renderer from the typed source");
 if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not refresh the v3 renderer revision in discover.html");
-if (!buildScript.includes("synchronizeServiceWorker(serviceWorker, discoverRotationRevision)")) fail("build does not synchronize the v3 renderer revision into the service worker");
+if (!buildScript.includes('synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision)')) fail("build does not refresh the poster CSS revision in discover.html");
+if (!buildScript.includes("synchronizeServiceWorker(") || !buildScript.includes("discoverRotationCssRevision")) fail("build does not synchronize both JS and CSS revisions into the service worker");
 
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
 if (!html.includes('src="discover-v2.js"')) fail("discover.html must load the v2 journey runtime");
@@ -160,4 +170,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, descriptive localized alt text, semantic localized DOM pricing, exactly ${ACTIVE_IDS.length} active approved pairings, the revisioned v3 renderer cache key (${revision}), exact offline precache parity, failed-decode recovery, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, descriptive localized alt text, semantic localized DOM pricing, exactly ${ACTIVE_IDS.length} active approved pairings, synchronized JS ${scriptRevision} and CSS ${cssRevision} cache keys, exact offline precache parity, failed-decode recovery, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
