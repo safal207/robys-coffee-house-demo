@@ -26,7 +26,7 @@ const posters = {
     },
     "cool-lime-macaron": {
         id: "cool-lime-macaron",
-        source: posterSource("cool-lime-macaron"),
+        source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
         alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона")
     }
 };
@@ -53,6 +53,8 @@ function normalizeWebPBase64(payload) {
     return padded;
 }
 function loadPoster(source) {
+    if (source.endsWith(".webp"))
+        return Promise.resolve(source);
     const cached = sourceCache.get(source);
     if (cached)
         return cached;
