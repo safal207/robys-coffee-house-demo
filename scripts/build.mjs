@@ -51,10 +51,21 @@ function synchronizeScript(html, fileName, revision) {
   return html.slice(0, open) + tag + html.slice(close + 9);
 }
 
-function synchronizePhysicalScript(html, fileName) {
-  const { open, close } = locateScript(html, fileName);
-  const tag = "<" + `script defer src="${fileName}">` + "</" + "script>";
-  return html.slice(0, open) + tag + html.slice(close + 9);
+function synchronizeServiceWorker(serviceWorker, revision) {
+  const version = `robys-offline-v8-20260630-rotation-${revision}`;
+  const nextVersion = serviceWorker.replace(
+    /const CACHE_VERSION = "robys-offline-v8-20260630-rotation-[^"]+";/,
+    `const CACHE_VERSION = "${version}";`
+  );
+  const nextAsset = nextVersion.replace(
+    /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/,
+    `"./discover-rotation-v3.js?v=${revision}"`
+  );
+
+  if (nextAsset === serviceWorker) {
+    throw new Error("Service worker does not contain the v3 renderer cache entry");
+  }
+  return nextAsset;
 }
 
 const appRevision = revisionFor("app.js");
@@ -68,9 +79,11 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
-// The v3 pathname is itself the cache key. Keep it query-free so an older
-// query-insensitive service worker cannot shadow the current renderer.
-discoverHtml = synchronizePhysicalScript(discoverHtml, "discover-rotation-v3.js");
+discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}, physical v3 path).`);
+let serviceWorker = readFileSync("sw.js", "utf8");
+serviceWorker = synchronizeServiceWorker(serviceWorker, discoverRotationRevision);
+writeFileSync("sw.js", serviceWorker);
+
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}, revisioned exact cache key).`);
