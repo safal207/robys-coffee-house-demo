@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -13,21 +14,47 @@ from typing import Any
 
 PROMPT_PATH = Path('/tmp/deepseek-review-prompt.txt')
 COMMENT_PATH = Path('/tmp/deepseek-review-comment.json')
+DEFAULT_ERROR_PATH = Path('/tmp/deepseek-review-error.json')
 API_URL = 'https://api.deepseek.com/chat/completions'
 COMMENT_MARKER = '<!-- deepseek-pr-review -->'
+RETRY_DELAYS_SECONDS = (2, 5)
+
+
+class ReviewError(RuntimeError):
+    """Expected reviewer failure with a stable machine-readable reason code."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 def required_env(name: str) -> str:
     value = os.environ.get(name, '').strip()
     if not value:
-        raise RuntimeError(f'Missing required environment variable: {name}')
+        raise ReviewError('MISSING_CONFIGURATION', f'Missing required environment variable: {name}')
     return value
 
 
+def error_path() -> Path:
+    value = os.environ.get('ERROR_FILE', '').strip()
+    return Path(value) if value else DEFAULT_ERROR_PATH
+
+
+def record_error(code: str, detail: str) -> None:
+    safe_detail = ' '.join(detail.replace('`', "'").split())[:500]
+    error_path().write_text(
+        json.dumps({'code': code, 'detail': safe_detail}, ensure_ascii=False),
+        encoding='utf-8',
+    )
+
+
 def read_json_env(name: str) -> dict[str, Any]:
-    value = json.loads(Path(required_env(name)).read_text(encoding='utf-8'))
+    try:
+        value = json.loads(Path(required_env(name)).read_text(encoding='utf-8'))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ReviewError('INVALID_INPUT', f'Could not read {name}: {error}') from error
     if not isinstance(value, dict):
-        raise RuntimeError(f'{name} must contain a JSON object')
+        raise ReviewError('INVALID_INPUT', f'{name} must contain a JSON object')
     return value
 
 
@@ -48,7 +75,7 @@ def prepare() -> None:
     diff = Path(required_env('DIFF_FILE')).read_text(encoding='utf-8', errors='replace')
     command = required_env('COMMAND')
     if command not in {'/deepseek review', '/deepseek deep-review'}:
-        raise RuntimeError(f'Unsupported command: {command}')
+        raise ReviewError('UNSUPPORTED_COMMAND', f'Unsupported command: {command}')
 
     deep_review = command == '/deepseek deep-review'
     model = 'deepseek-v4-pro' if deep_review else 'deepseek-v4-flash'
@@ -108,6 +135,16 @@ Diff truncated: {'yes' if truncated else 'no'}
     append_output('truncated', str(truncated).lower())
 
 
+def api_error_code(status: int) -> str:
+    if status in {401, 403}:
+        return 'AUTH_REJECTED'
+    if status == 429:
+        return 'RATE_LIMITED'
+    if 500 <= status <= 599:
+        return 'PROVIDER_UNAVAILABLE'
+    return 'BAD_REQUEST'
+
+
 def infer() -> None:
     api_key = required_env('DEEPSEEK_API_KEY')
     model = required_env('MODEL')
@@ -130,9 +167,9 @@ def infer() -> None:
         ],
         'stream': False,
         'max_tokens': 3000,
+        'thinking': {'type': 'enabled' if mode == 'deep-review' else 'disabled'},
     }
     if mode == 'deep-review':
-        payload['thinking'] = {'type': 'enabled'}
         payload['reasoning_effort'] = 'high'
 
     request = urllib.request.Request(
@@ -145,21 +182,42 @@ def infer() -> None:
         method='POST',
     )
 
-    try:
-        with urllib.request.urlopen(request, timeout=180) as response:
-            result = json.loads(response.read().decode('utf-8'))
-    except urllib.error.HTTPError as error:
-        detail = error.read().decode('utf-8', errors='replace')[:4000]
-        raise RuntimeError(f'DeepSeek API returned HTTP {error.code}: {detail}') from error
-    except urllib.error.URLError as error:
-        raise RuntimeError(f'DeepSeek API request failed: {error.reason}') from error
+    result: dict[str, Any] | None = None
+    for attempt in range(1, len(RETRY_DELAYS_SECONDS) + 2):
+        try:
+            with urllib.request.urlopen(request, timeout=180) as response:
+                result = json.loads(response.read().decode('utf-8'))
+            break
+        except urllib.error.HTTPError as error:
+            code = api_error_code(error.code)
+            retryable = code in {'RATE_LIMITED', 'PROVIDER_UNAVAILABLE'}
+            if retryable and attempt <= len(RETRY_DELAYS_SECONDS):
+                time.sleep(RETRY_DELAYS_SECONDS[attempt - 1])
+                continue
+            raise ReviewError(code, f'DeepSeek API returned HTTP {error.code}') from error
+        except urllib.error.URLError as error:
+            if attempt <= len(RETRY_DELAYS_SECONDS):
+                time.sleep(RETRY_DELAYS_SECONDS[attempt - 1])
+                continue
+            raise ReviewError('NETWORK_FAILURE', f'DeepSeek API request failed: {error.reason}') from error
+        except json.JSONDecodeError as error:
+            raise ReviewError('INVALID_RESPONSE', 'DeepSeek API returned invalid JSON') from error
+
+    if result is None:
+        raise ReviewError('PROVIDER_UNAVAILABLE', 'DeepSeek API did not return a result')
 
     try:
-        content = result['choices'][0]['message']['content'].strip()
+        choice = result['choices'][0]
+        message = choice['message']
+        content = message['content'].strip()
+        finish_reason = choice.get('finish_reason', 'stop')
     except (KeyError, IndexError, TypeError, AttributeError) as error:
-        raise RuntimeError('DeepSeek API response did not contain review text') from error
+        raise ReviewError('INVALID_RESPONSE', 'DeepSeek API response did not contain review text') from error
+
+    if finish_reason != 'stop':
+        raise ReviewError('INCOMPLETE_RESPONSE', f'DeepSeek stopped with finish_reason={finish_reason}')
     if not content:
-        raise RuntimeError('DeepSeek returned an empty response')
+        raise ReviewError('EMPTY_RESPONSE', 'DeepSeek returned an empty response')
 
     response_path.write_text(content, encoding='utf-8')
 
@@ -167,7 +225,7 @@ def infer() -> None:
 def publish() -> None:
     response = Path(required_env('RESPONSE_FILE')).read_text(encoding='utf-8').strip()
     if not response:
-        raise RuntimeError('DeepSeek returned an empty response')
+        raise ReviewError('EMPTY_RESPONSE', 'DeepSeek returned an empty response')
     if len(response) > 55_000:
         response = response[:55_000] + '\n\n[Response truncated by workflow]'
 
@@ -175,8 +233,9 @@ def publish() -> None:
     expected_head = required_env('HEAD_SHA')
     current_head = str(current_pr['head']['sha'])
     if current_head != expected_head:
-        raise RuntimeError(
-            f'PR head changed while review was running: {expected_head} -> {current_head}'
+        raise ReviewError(
+            'STALE_HEAD',
+            f'PR head changed while review was running: {expected_head} -> {current_head}',
         )
 
     body = f'''{COMMENT_MARKER}
@@ -196,11 +255,24 @@ _Advisory review generated through the official DeepSeek API. Required CI and cu
 
 
 def failure() -> None:
+    code = 'UNKNOWN_FAILURE'
+    detail = 'Inspect the workflow run for the exact failure.'
+    path = error_path()
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding='utf-8'))
+            code = str(data.get('code', code))
+            detail = str(data.get('detail', detail))
+        except (OSError, json.JSONDecodeError):
+            pass
+
     write_comment(
         f'{COMMENT_MARKER}\n'
         '### DeepSeek PR Review\n\n'
-        'The advisory review could not be completed. No merge evidence was produced. '
-        f"Inspect the [workflow run]({required_env('RUN_URL')}) for the exact failure."
+        f'**Status:** failed  \n**Reason code:** `{code}`\n\n'
+        f'{detail}\n\n'
+        'No merge evidence was produced. '
+        f"Inspect the [workflow run]({required_env('RUN_URL')}) for diagnostics."
     )
 
 
@@ -216,8 +288,13 @@ def main() -> int:
         return 2
     try:
         actions[sys.argv[1]]()
-    except Exception as error:  # CLI boundary must make failures visible to Actions.
-        print(f'DeepSeek reviewer error: {error}', file=sys.stderr)
+    except ReviewError as error:
+        record_error(error.code, str(error))
+        print(f'DeepSeek reviewer error [{error.code}]: {error}', file=sys.stderr)
+        return 1
+    except Exception as error:  # CLI boundary must make unexpected failures visible to Actions.
+        record_error('UNEXPECTED_ERROR', str(error))
+        print(f'DeepSeek reviewer error [UNEXPECTED_ERROR]: {error}', file=sys.stderr)
         return 1
     return 0
 
