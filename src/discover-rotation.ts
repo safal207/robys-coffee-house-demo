@@ -54,9 +54,9 @@ const posters: Record<string, PairingPoster> = {
     id: "cool-lime-macaron",
     source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
     alt: localized(
-      "Cool Lime ve Makaron eşleşmesi posteri",
-      "Cool Lime and Macaron pairing poster",
-      "Постер сочетания Cool Lime и макарона"
+      "Cool Lime ve Makaron eşleşmesi posteri, fiyat 290 Türk lirası",
+      "Cool Lime and Macaron pairing poster, price 290 Turkish lira",
+      "Постер сочетания Cool Lime и макарона, цена 290 турецких лир"
     )
   }
 };
