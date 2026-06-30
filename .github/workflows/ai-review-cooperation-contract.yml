@@ -94,18 +94,29 @@ jobs:
 
       - name: Verify causal trust and policy taxonomy
         run: |
-          grep -Fq '<!-- ai-review-cooperation -->' scripts/ai-review-cooperation.py
-          grep -Fq 'BOT_LOGINS' scripts/ai-review-cooperation.py
-          grep -Fq "login_of(item) == 'github-actions[bot]'" scripts/ai-review-cooperation.py
-          grep -Fq 'REQUIRED_CHECKS' scripts/ai-review-cooperation.py
-          grep -Fq 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH' scripts/ai-review-cooperation.py
-          grep -Fq 'NO_CURRENT_HEAD_EVIDENCE' scripts/ai-review-cooperation.py
-          grep -Fq 'FIX_THEN_RERUN' scripts/ai-review-cooperation.py
-          grep -Fq "level='E4' if actionable else 'E5'" scripts/ai-review-cooperation.py
-          grep -Fq 'flowchart TD' scripts/ai-review-cooperation.py
-          grep -Fq 'STALE_HEAD' docs/ai-review-cooperation-policy.md
-          grep -Fq 'PERMISSION_ERROR' docs/ai-review-cooperation-policy.md
-          grep -Fq 'not a majority vote' scripts/ai-review-cooperation.py
+          python3 - <<'PY'
+          from pathlib import Path
+
+          script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
+          policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
+          required_script_tokens = [
+              '<!-- ai-review-cooperation -->',
+              'BOT_LOGINS',
+              "login_of(item) == 'github-actions[bot]'",
+              'REQUIRED_CHECKS',
+              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH',
+              'NO_CURRENT_HEAD_EVIDENCE',
+              'FIX_THEN_RERUN',
+              "'E4' if actionable else 'E5'",
+              'flowchart TD',
+              'not a majority vote',
+          ]
+          required_policy_tokens = ['STALE_HEAD', 'PERMISSION_ERROR']
+          missing = [token for token in required_script_tokens if token not in script]
+          missing += [token for token in required_policy_tokens if token not in policy]
+          if missing:
+              raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
+          PY
 
       - name: Verify job-scoped cancellation
         run: |
