@@ -60,7 +60,7 @@ assert(
 );
 assert(
   serviceWorker.includes(
-    `robys-offline-v9-20260630-discover-${scriptRevision}-${cssRevision}`
+    `robys-offline-v10-20260701-posters-${scriptRevision}-${cssRevision}`
   ),
   "service-worker cache version does not include both active JS and CSS revisions"
 );
