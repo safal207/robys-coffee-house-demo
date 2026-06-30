@@ -26,7 +26,7 @@ const posters: Record<string, PairingPoster> = {
   },
   "iced-san-sebastian": {
     id: "iced-san-sebastian",
-    source: posterSource("iced-san-sebastian"),
+    source: "src/pairings-data/approved/iced-san-sebastian-hq.png",
     alt: localized(
       "Buzlu Latte ve San Sebastian eşleşmesi posteri",
       "Iced Latte and San Sebastian pairing poster",
@@ -89,7 +89,7 @@ function normalizeWebPBase64(payload: string): string {
 }
 
 function loadPoster(source: string): Promise<string> {
-  if (source.endsWith(".webp")) return Promise.resolve(source);
+  if (/\.(?:png|webp)$/i.test(source)) return Promise.resolve(source);
 
   const cached = sourceCache.get(source);
   if (cached) return cached;

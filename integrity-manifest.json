@@ -70,13 +70,13 @@
     },
     {
       "path": "discover-rotation-v2.js",
-      "bytes": 7306,
-      "sha256": "9c9044d1b5a4a400e88e3ac845154d17a7263081d867a9a40be9f85d8d74a99d"
+      "bytes": 7333,
+      "sha256": "58d387ca0c010140478aacc0dfa7459605aca878509fe7811cde09027d44f704"
     },
     {
       "path": "discover-rotation-v3.js",
-      "bytes": 7306,
-      "sha256": "9c9044d1b5a4a400e88e3ac845154d17a7263081d867a9a40be9f85d8d74a99d"
+      "bytes": 7333,
+      "sha256": "58d387ca0c010140478aacc0dfa7459605aca878509fe7811cde09027d44f704"
     },
     {
       "path": "discover-rotation.css",
@@ -85,8 +85,8 @@
     },
     {
       "path": "discover-rotation.js",
-      "bytes": 7306,
-      "sha256": "9c9044d1b5a4a400e88e3ac845154d17a7263081d867a9a40be9f85d8d74a99d"
+      "bytes": 7333,
+      "sha256": "58d387ca0c010140478aacc0dfa7459605aca878509fe7811cde09027d44f704"
     },
     {
       "path": "discover-v2.js",
@@ -106,7 +106,7 @@
     {
       "path": "discover.html",
       "bytes": 6538,
-      "sha256": "4e456c2171f4c1a5ccdafe43044e96028c50c25da2ab84e2404a9f3ee4c132dd"
+      "sha256": "70fe9bda85979dcb9c1bd953f39777764b93912335afe16aca9503acb5c47986"
     },
     {
       "path": "discover.js",
@@ -302,6 +302,11 @@
       "path": "src/menu-icons/tea.svg",
       "bytes": 2301,
       "sha256": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f"
+    },
+    {
+      "path": "src/pairings-data/approved/iced-san-sebastian-hq.png",
+      "bytes": 2198571,
+      "sha256": "6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329"
     },
     {
       "path": "src/pairings-data/final/cool-lime-macaron-hq.webp",
@@ -595,8 +600,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3814,
-      "sha256": "7362a49330a88dbbff1c869b645a695cfc416cd509d3d66d042b18f10e79dcc8"
+      "bytes": 3874,
+      "sha256": "e0182b5d998724fea792471ab975c86c8123586da9413941570e4267204e43b9"
     }
   ]
 }

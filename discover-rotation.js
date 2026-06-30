@@ -11,7 +11,7 @@ const posters = {
     },
     "iced-san-sebastian": {
         id: "iced-san-sebastian",
-        source: posterSource("iced-san-sebastian"),
+        source: "src/pairings-data/approved/iced-san-sebastian-hq.png",
         alt: localized("Buzlu Latte ve San Sebastian eşleşmesi posteri", "Iced Latte and San Sebastian pairing poster", "Постер сочетания айс-латте и Сан-Себастьяна")
     },
     "filter-lotus": {
@@ -54,7 +54,7 @@ function normalizeWebPBase64(payload) {
     return padded;
 }
 function loadPoster(source) {
-    if (source.endsWith(".webp"))
+    if (/\.(?:png|webp)$/i.test(source))
         return Promise.resolve(source);
     const cached = sourceCache.get(source);
     if (cached)
