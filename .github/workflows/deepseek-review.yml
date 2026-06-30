@@ -6,7 +6,8 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  issues: write
+  pull-requests: read
 
 jobs:
   review:
@@ -26,7 +27,13 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
-      ERROR_FILE: /tmp/deepseek-review-error.json
+      PR_JSON_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-pr.json
+      DIFF_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-pr.diff
+      CURRENT_PR_JSON_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-current-pr.json
+      PROMPT_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-prompt.txt
+      RESPONSE_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-response.txt
+      COMMENT_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-comment.json
+      ERROR_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-error.json
 
     steps:
       - name: Checkout trusted reviewer code
@@ -37,16 +44,14 @@ jobs:
 
       - name: Fetch current PR input
         run: |
-          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > /tmp/deepseek-pr.json
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
           gh api -H 'Accept: application/vnd.github.v3.diff' \
-            "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > /tmp/deepseek-pr.diff
+            "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${DIFF_FILE}"
 
       - name: Prepare current-head review input
         id: prepare
         env:
           COMMAND: ${{ github.event.comment.body }}
-          PR_JSON_FILE: /tmp/deepseek-pr.json
-          DIFF_FILE: /tmp/deepseek-pr.diff
         run: python3 scripts/deepseek-review.py prepare
 
       - name: Run DeepSeek API review
@@ -54,16 +59,13 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           MODEL: ${{ steps.prepare.outputs.model }}
           MODE: ${{ steps.prepare.outputs.mode }}
-          RESPONSE_FILE: /tmp/deepseek-review-response.txt
         run: python3 scripts/deepseek-review.py infer
 
       - name: Re-read PR head
-        run: gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > /tmp/deepseek-current-pr.json
+        run: gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${CURRENT_PR_JSON_FILE}"
 
       - name: Build current-head review comment
         env:
-          RESPONSE_FILE: /tmp/deepseek-review-response.txt
-          CURRENT_PR_JSON_FILE: /tmp/deepseek-current-pr.json
           HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
           MODEL: ${{ steps.prepare.outputs.model }}
           MODE: ${{ steps.prepare.outputs.mode }}
@@ -73,13 +75,23 @@ jobs:
       - name: Build failure comment
         if: failure()
         env:
+          HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: python3 scripts/deepseek-review.py failure
 
       - name: Publish or update reviewer result
         if: always()
+        env:
+          EXPECTED_HEAD: ${{ steps.prepare.outputs.head_sha }}
         run: |
-          test -f /tmp/deepseek-review-comment.json
+          test -f "${COMMENT_FILE}"
+          if [ -n "${EXPECTED_HEAD}" ]; then
+            current_head="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+            if [ "${current_head}" != "${EXPECTED_HEAD}" ]; then
+              echo "PR head changed before publishing: ${EXPECTED_HEAD} -> ${current_head}" >&2
+              exit 1
+            fi
+          fi
           existing_id="$(
             gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- deepseek-pr-review -->"))) | .id' \
@@ -87,8 +99,8 @@ jobs:
           )"
           if [ -n "${existing_id}" ]; then
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
-              --input /tmp/deepseek-review-comment.json
+              --input "${COMMENT_FILE}"
           else
             gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --input /tmp/deepseek-review-comment.json
+              --input "${COMMENT_FILE}"
           fi
