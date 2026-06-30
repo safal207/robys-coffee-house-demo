@@ -106,7 +106,7 @@
     {
       "path": "discover.html",
       "bytes": 6538,
-      "sha256": "ac890b63285e7a65f8376c86715b9e4bdb6360f784c764502d68eefc79332427"
+      "sha256": "4e456c2171f4c1a5ccdafe43044e96028c50c25da2ab84e2404a9f3ee4c132dd"
     },
     {
       "path": "discover.js",
@@ -175,8 +175,8 @@
     },
     {
       "path": "menu-data.js",
-      "bytes": 13228,
-      "sha256": "343f65a7330cb753eda4bb703987e0923b37c16653f83c81d316d337ac666de5"
+      "bytes": 13781,
+      "sha256": "89105106dd74641fabc9c5fe29d2c7f4678e23d8ca71e0f959350750aebf0a18"
     },
     {
       "path": "menu-page.js",
@@ -595,8 +595,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3672,
-      "sha256": "8e95fec2a13ba1998abe352e0c445cbd24e011f5acd09ff65877d67358c4579f"
+      "bytes": 3814,
+      "sha256": "7362a49330a88dbbff1c869b645a695cfc416cd509d3d66d042b18f10e79dcc8"
     }
   ]
 }
