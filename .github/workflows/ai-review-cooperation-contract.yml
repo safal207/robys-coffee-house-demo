@@ -31,7 +31,11 @@ jobs:
           scripts/test-ai-review-cooperation.py
 
       - name: Run offline cooperation contracts
-        run: python3 scripts/test-ai-review-cooperation.py -v
+        run: |
+          if ! python3 scripts/test-ai-review-cooperation.py -v > "${RUNNER_TEMP}/cooperation-tests.log" 2>&1; then
+            tail -n 100 "${RUNNER_TEMP}/cooperation-tests.log"
+            exit 1
+          fi
 
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
