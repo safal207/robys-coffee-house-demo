@@ -27,13 +27,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
-      PR_JSON_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-pr.json
-      DIFF_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-pr.diff
-      CURRENT_PR_JSON_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-current-pr.json
-      PROMPT_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-prompt.txt
-      RESPONSE_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-response.txt
-      COMMENT_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-comment.json
-      ERROR_FILE: ${{ runner.temp }}/deepseek-${{ github.run_id }}-${{ github.run_attempt }}-error.json
 
     steps:
       - name: Checkout trusted reviewer code
@@ -41,6 +34,19 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+
+      - name: Configure reviewer temp paths
+        run: |
+          prefix="${RUNNER_TEMP}/deepseek-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          {
+            echo "PR_JSON_FILE=${prefix}-pr.json"
+            echo "DIFF_FILE=${prefix}-pr.diff"
+            echo "CURRENT_PR_JSON_FILE=${prefix}-current-pr.json"
+            echo "PROMPT_FILE=${prefix}-prompt.txt"
+            echo "RESPONSE_FILE=${prefix}-response.txt"
+            echo "COMMENT_FILE=${prefix}-comment.json"
+            echo "ERROR_FILE=${prefix}-error.json"
+          } >> "${GITHUB_ENV}"
 
       - name: Fetch current PR input
         run: |
