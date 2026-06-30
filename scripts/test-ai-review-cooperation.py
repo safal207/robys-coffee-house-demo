@@ -27,21 +27,17 @@ def user(login: str) -> dict[str, str]:
     return {'login': login}
 
 
-def comment(body: str, login: str = 'safal207', created_at: str = AFTER) -> dict[str, object]:
-    return {'body': body, 'user': user(login), 'created_at': created_at}
-
-
-def review_comment(
+def comment(
     body: str,
-    login: str,
-    commit_id: str = HEAD,
+    login: str = 'safal207',
     created_at: str = AFTER,
+    association: str = 'OWNER',
 ) -> dict[str, object]:
     return {
         'body': body,
         'user': user(login),
-        'commit_id': commit_id,
         'created_at': created_at,
+        'author_association': association,
     }
 
 
@@ -59,6 +55,42 @@ def review(
     }
 
 
+def thread_comment(
+    body: str,
+    login: str,
+    commit_id: str = HEAD,
+    created_at: str = AFTER,
+    path: str = 'example.py',
+    line: int = 10,
+) -> dict[str, object]:
+    return {
+        'body': body,
+        'author': user(login),
+        'createdAt': created_at,
+        'commit': {'oid': commit_id},
+        'path': path,
+        'line': line,
+    }
+
+
+def threads(*comments: dict[str, object], resolved: bool = False) -> dict[str, object]:
+    nodes = []
+    if comments:
+        nodes.append(
+            {
+                'isResolved': resolved,
+                'comments': {'nodes': list(comments)},
+            }
+        )
+    return {
+        'data': {
+            'repository': {
+                'pullRequest': {'reviewThreads': {'nodes': nodes}}
+            }
+        }
+    }
+
+
 def base_inputs() -> dict[str, object]:
     return {
         'pr': {'head': {'sha': HEAD}},
@@ -66,20 +98,25 @@ def base_inputs() -> dict[str, object]:
         'comments': [],
         'reviews': [],
         'review_comments': [],
-        'threads_data': {
-            'data': {
-                'repository': {
-                    'pullRequest': {'reviewThreads': {'nodes': []}}
-                }
-            }
-        },
+        'threads_data': threads(),
         'checks': {'check_runs': []},
         'files': [],
     }
 
 
-def success_check(name: str) -> dict[str, str]:
-    return {'name': name, 'status': 'completed', 'conclusion': 'success'}
+def check(
+    name: str,
+    *,
+    identifier: int = 1,
+    status: str = 'completed',
+    conclusion: str | None = 'success',
+) -> dict[str, object]:
+    return {
+        'id': identifier,
+        'name': name,
+        'status': status,
+        'conclusion': conclusion,
+    }
 
 
 class CooperationReportTests(unittest.TestCase):
@@ -93,21 +130,34 @@ class CooperationReportTests(unittest.TestCase):
             comment(
                 'Review failed due to provider error.',
                 login='coderabbitai[bot]',
+                association='NONE',
             ),
         ]
+        finding = thread_comment(
+            'P2 Disable thinking for normal reviews.',
+            login='chatgpt-codex-connector',
+            path='scripts/deepseek-review.py',
+            line=172,
+        )
+        data['threads_data'] = threads(finding)
         data['review_comments'] = [
-            review_comment(
-                'P2 Disable thinking for normal reviews.',
-                login='chatgpt-codex-connector',
-            )
+            {
+                'body': finding['body'],
+                'user': user('chatgpt-codex-connector'),
+                'commit_id': HEAD,
+                'created_at': AFTER,
+                'path': finding['path'],
+                'line': finding['line'],
+            }
         ]
-        data['checks'] = {'check_runs': [success_check('Security contract')]}
+        data['checks'] = {'check_runs': [check('Security contract')]}
         data['files'] = [{'filename': '.github/workflows/deepseek-review.yml'}]
 
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **FIX_THEN_RERUN**', report)
         self.assertIn('| Codex | yes | E4 | findings | P2×1 |', report)
+        self.assertIn('Unique root causes: **1**', report)
         self.assertIn('`NO_ACK`', report)
         self.assertIn('`PROVIDER_UNAVAILABLE`', report)
         self.assertIn('`BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`', report)
@@ -124,19 +174,18 @@ class CooperationReportTests(unittest.TestCase):
             comment(
                 f'''<!-- deepseek-pr-review -->\nReviewed commit: `{HEAD}`\nСерьёзных проблем не найдено.''',
                 login='github-actions[bot]',
+                association='NONE',
             ),
         ]
         data['reviews'] = [
+            review('No findings.', login='chatgpt-codex-connector'),
             review('No findings.', login='jules[bot]'),
-        ]
-        data['review_comments'] = [
-            review_comment('No findings.', login='chatgpt-codex-connector'),
-            review_comment('No findings.', login='coderabbitai[bot]'),
+            review('No findings.', login='coderabbitai[bot]'),
         ]
         data['checks'] = {
             'check_runs': [
-                success_check('Security contract'),
-                success_check('Visual regression'),
+                check('Security contract', identifier=10),
+                check('Visual regression', identifier=11),
             ]
         }
 
@@ -149,16 +198,10 @@ class CooperationReportTests(unittest.TestCase):
     def test_required_ci_failure_blocks(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
-        data['review_comments'] = [
-            review_comment('No findings.', login='chatgpt-codex-connector')
-        ]
+        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
         data['checks'] = {
             'check_runs': [
-                {
-                    'name': 'Security contract',
-                    'status': 'completed',
-                    'conclusion': 'failure',
-                }
+                check('Security contract', conclusion='failure')
             ]
         }
 
@@ -167,17 +210,34 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('**Overall conclusion:** **BLOCK**', report)
         self.assertIn('Failed checks: Security contract', report)
 
+    def test_latest_check_run_wins_by_name(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@codex review')]
+        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['checks'] = {
+            'check_runs': [
+                check('Security contract', identifier=1, conclusion='failure'),
+                check('Security contract', identifier=2, conclusion='success'),
+            ]
+        }
+
+        report = MODULE.build_report(**data)
+
+        self.assertNotIn('**Overall conclusion:** **BLOCK**', report)
+        self.assertIn('Passed: **1**', report)
+        self.assertIn('Failed: **0**', report)
+
     def test_stale_codex_review_does_not_count(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
-        data['review_comments'] = [
-            review_comment(
+        data['reviews'] = [
+            review(
                 'No findings.',
                 login='chatgpt-codex-connector',
                 commit_id=OLD_HEAD,
             )
         ]
-        data['checks'] = {'check_runs': [success_check('Security contract')]}
+        data['checks'] = {'check_runs': [check('Security contract')]}
 
         report = MODULE.build_report(**data)
 
@@ -187,45 +247,33 @@ class CooperationReportTests(unittest.TestCase):
     def test_request_before_head_is_not_fresh(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review', created_at=BEFORE)]
-        data['checks'] = {'check_runs': [success_check('Security contract')]}
+        data['checks'] = {'check_runs': [check('Security contract')]}
 
         report = MODULE.build_report(**data)
 
         self.assertIn('| Codex | no | E0 | not requested | none | `NO_REQUEST` |', report)
         self.assertIn(MODULE.COMMENT_MARKER, report)
 
+    def test_untrusted_request_is_ignored(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            comment('@codex review', login='outsider', association='NONE')
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | no | E0 | not requested | none | `NO_REQUEST` |', report)
+
     def test_resolved_thread_is_not_counted_as_finding(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
-        data['review_comments'] = [
-            review_comment('No findings.', login='chatgpt-codex-connector')
-        ]
-        data['threads_data'] = {
-            'data': {
-                'repository': {
-                    'pullRequest': {
-                        'reviewThreads': {
-                            'nodes': [
-                                {
-                                    'isResolved': True,
-                                    'comments': {
-                                        'nodes': [
-                                            {
-                                                'body': 'P1 old issue',
-                                                'author': {'login': 'chatgpt-codex-connector'},
-                                                'createdAt': AFTER,
-                                                'commit': {'oid': HEAD},
-                                            }
-                                        ]
-                                    },
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-        data['checks'] = {'check_runs': [success_check('Security contract')]}
+        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['threads_data'] = threads(
+            thread_comment('P1 old issue', login='chatgpt-codex-connector'),
+            resolved=True,
+        )
+        data['checks'] = {'check_runs': [check('Security contract')]}
 
         report = MODULE.build_report(**data)
 
