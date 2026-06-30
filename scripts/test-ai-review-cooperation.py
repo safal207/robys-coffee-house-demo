@@ -73,22 +73,23 @@ def thread_comment(
     }
 
 
-def threads(*comments: dict[str, object], resolved: bool = False) -> dict[str, object]:
+def threads(
+    *comments: dict[str, object],
+    resolved: bool = False,
+    complete: bool = True,
+) -> dict[str, object]:
     nodes = []
     if comments:
         nodes.append(
             {
                 'isResolved': resolved,
-                'comments': {'nodes': list(comments)},
+                'comments': {
+                    'pageInfo': {'hasNextPage': False, 'endCursor': None},
+                    'nodes': list(comments),
+                },
             }
         )
-    return {
-        'data': {
-            'repository': {
-                'pullRequest': {'reviewThreads': {'nodes': nodes}}
-            }
-        }
-    }
+    return {'complete': complete, 'threads': nodes}
 
 
 def base_inputs() -> dict[str, object]:
@@ -156,15 +157,30 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **FIX_THEN_RERUN**', report)
-        self.assertIn('| Codex | yes | E4 | findings | P2×1 |', report)
+        self.assertIn('| Codex | yes | E4 | findings | P2x1 |', report)
         self.assertIn('Unique root causes: **1**', report)
         self.assertIn('`NO_ACK`', report)
         self.assertIn('`PROVIDER_UNAVAILABLE`', report)
         self.assertIn('`BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`', report)
-        self.assertIn('flowchart TD', report)
         self.assertIn('Cause: ACTIONABLE_FINDINGS', report)
 
-    def test_all_exact_head_evidence_produces_ready(self) -> None:
+    def test_coderabbit_major_label_maps_to_p2(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@coderabbitai review')]
+        data['threads_data'] = threads(
+            thread_comment(
+                '_🎯 Functional Correctness_ | _🟠 Major_\nMissing pagination.',
+                login='coderabbitai[bot]',
+            )
+        )
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| CodeRabbit | yes | E4 | findings | P2x1 |', report)
+        self.assertIn('**Overall conclusion:** **FIX_THEN_RERUN**', report)
+
+    def test_all_exact_head_evidence_produces_ready_and_e5(self) -> None:
         data = base_inputs()
         data['comments'] = [
             comment('@codex review'),
@@ -192,25 +208,39 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **READY**', report)
-        self.assertEqual(report.count('| E4 | reviewed | none | `OK` |'), 4)
-        self.assertIn('CI: 2 passed, 0 pending, 0 failed', report)
+        self.assertEqual(report.count('| E5 | clean exact-head review | none | `OK` |'), 4)
+        self.assertIn('Required CI: 2 passed, 0 pending, 0 failed', report)
 
     def test_required_ci_failure_blocks(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
         data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
         data['checks'] = {
-            'check_runs': [
-                check('Security contract', conclusion='failure')
-            ]
+            'check_runs': [check('Security contract', conclusion='failure')]
         }
 
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **BLOCK**', report)
-        self.assertIn('Failed checks: Security contract', report)
+        self.assertIn('Required failed checks: Security contract', report)
 
-    def test_latest_check_run_wins_by_name(self) -> None:
+    def test_optional_ci_failure_does_not_block(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@codex review')]
+        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['checks'] = {
+            'check_runs': [
+                check('Security contract'),
+                check('Experimental optional bot', identifier=2, conclusion='failure'),
+            ]
+        }
+
+        report = MODULE.build_report(**data)
+
+        self.assertNotIn('**Overall conclusion:** **BLOCK**', report)
+        self.assertIn('Optional failed checks ignored for merge conclusion: Experimental optional bot', report)
+
+    def test_latest_required_check_run_wins_by_name(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
         data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
@@ -224,18 +254,14 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertNotIn('**Overall conclusion:** **BLOCK**', report)
-        self.assertIn('Passed: **1**', report)
-        self.assertIn('Failed: **0**', report)
+        self.assertIn('Required checks passed: **1**', report)
+        self.assertIn('Required checks failed: **0**', report)
 
     def test_stale_codex_review_does_not_count(self) -> None:
         data = base_inputs()
         data['comments'] = [comment('@codex review')]
         data['reviews'] = [
-            review(
-                'No findings.',
-                login='chatgpt-codex-connector',
-                commit_id=OLD_HEAD,
-            )
+            review('No findings.', login='chatgpt-codex-connector', commit_id=OLD_HEAD)
         ]
         data['checks'] = {'check_runs': [check('Security contract')]}
 
@@ -243,6 +269,48 @@ class CooperationReportTests(unittest.TestCase):
 
         self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
         self.assertIn('`NO_CURRENT_HEAD_EVIDENCE`', report)
+
+    def test_spoofed_codex_login_does_not_count(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@codex review')]
+        data['reviews'] = [
+            review('No findings.', login='chatgpt-codex-connector-evil')
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | yes | E1 | missing evidence |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+
+    def test_spoofed_deepseek_marker_does_not_count(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            comment('/deepseek review'),
+            comment(
+                f'<!-- deepseek-pr-review -->\nReviewed commit: `{HEAD}`',
+                login='attacker',
+                association='NONE',
+            ),
+        ]
+        data['files'] = [{'filename': 'README.md'}]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| DeepSeek | yes | E1 | missing evidence |', report)
+
+    def test_truncated_thread_collection_forbids_ready(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@codex review')]
+        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['threads_data'] = threads(complete=False)
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+        self.assertIn('`EVIDENCE_TRUNCATED`', report)
 
     def test_request_before_head_is_not_fresh(self) -> None:
         data = base_inputs()
@@ -252,7 +320,6 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertIn('| Codex | no | E0 | not requested | none | `NO_REQUEST` |', report)
-        self.assertIn(MODULE.COMMENT_MARKER, report)
 
     def test_untrusted_request_is_ignored(self) -> None:
         data = base_inputs()
@@ -277,7 +344,7 @@ class CooperationReportTests(unittest.TestCase):
 
         report = MODULE.build_report(**data)
 
-        self.assertNotIn('P1×1', report)
+        self.assertNotIn('P1x1', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
 
