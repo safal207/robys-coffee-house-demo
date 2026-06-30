@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,7 @@ SPEC = importlib.util.spec_from_file_location('ai_review_cooperation', SCRIPT)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError(f'Cannot load {SCRIPT}')
 MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 HEAD = 'a' * 40
