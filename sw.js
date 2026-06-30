@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v8-20260630-rotation-9c9044d1b5a4";
+const CACHE_VERSION = "robys-offline-v9-20260630-discover-9c9044d1b5a4-b36803591177";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -18,7 +18,7 @@ const CORE_ASSETS = [
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
-  "./discover-rotation.css",
+  "./discover-rotation.css?v=b36803591177",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",
@@ -64,7 +64,10 @@ self.addEventListener("activate", (event) => {
 async function cachedResponse(request) {
   const cache = await caches.open(CACHE_VERSION);
   const url = new URL(request.url);
-  if (url.pathname.endsWith("/discover-rotation-v3.js")) {
+  const requiresExactRevision =
+    url.pathname.endsWith("/discover-rotation-v3.js") ||
+    url.pathname.endsWith("/discover-rotation.css");
+  if (requiresExactRevision) {
     return cache.match(request);
   }
   return cache.match(request, { ignoreSearch: true });
