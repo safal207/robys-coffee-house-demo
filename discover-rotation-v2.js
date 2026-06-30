@@ -73,8 +73,11 @@ function loadPoster(source) {
     return request;
 }
 function waitForImage(image) {
-    if (image.complete && image.naturalWidth > 0)
-        return Promise.resolve();
+    if (image.complete) {
+        return image.naturalWidth > 0
+            ? Promise.resolve()
+            : Promise.reject(new Error("Poster image failed to decode"));
+    }
     return new Promise((resolve, reject) => {
         image.addEventListener("load", () => resolve(), { once: true });
         image.addEventListener("error", () => reject(new Error("Poster image failed to decode")), { once: true });
