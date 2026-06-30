@@ -67,7 +67,14 @@ function verifyWebP(buffer, filePath, minimumSize = 280) {
 
 function verifyApprovedPng(buffer, filePath) {
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  if (buffer.length < 24 || !buffer.subarray(0, 8).equals(signature)) fail(`${filePath} is not PNG`);
+  if (buffer.length < 33 || !buffer.subarray(0, 8).equals(signature)) fail(`${filePath} is not PNG`);
+
+  const ihdrLength = buffer.readUInt32BE(8);
+  const ihdrType = buffer.subarray(12, 16).toString("ascii");
+  if (ihdrLength !== 13 || ihdrType !== "IHDR") {
+    fail(`${filePath} does not contain a valid PNG IHDR chunk`);
+  }
+
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
   if (width !== height || width < 1024) fail(`${filePath} must be a square Retina poster of at least 1024px, found ${width}x${height}`);
