@@ -7,16 +7,48 @@ import json
 import os
 import re
 import sys
+import tempfile
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
 DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
-DEFAULT_COMMENT_PATH = Path('/tmp/ai-review-cooperation-comment.json')
+_FALLBACK_DIR = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-'))
+DEFAULT_COMMENT_PATH = _FALLBACK_DIR / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
-SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
+BOT_LOGINS = {
+    'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
+    'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
+    'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
+}
+REQUIRED_CHECKS = {
+    'Human approval contract',
+    'Security contract',
+    'Verify generated runtime',
+    'Reviewdog static review',
+    'CodeQL security analysis',
+    'Adversarial browser contract',
+    'Visual regression',
+    'OWASP ZAP baseline',
+    'Lighthouse performance contract',
+    'iOS WebKit route gate',
+    'AI review contract',
+    'DeepSeek review contract',
+    'AI review cooperation contract',
+    'Export reconstructed community reel',
+    'Taste Journey poster contract',
+    'Gallery mobile gate',
+}
+EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
+LABEL_SEVERITIES = (
+    ('P0', re.compile(r'_[^_\n]*\bblocker\b[^_\n]*_', re.IGNORECASE)),
+    ('P1', re.compile(r'_[^_\n]*\bcritical\b[^_\n]*_', re.IGNORECASE)),
+    ('P2', re.compile(r'_[^_\n]*\bmajor\b[^_\n]*_', re.IGNORECASE)),
+    ('P3', re.compile(r'_[^_\n]*\bminor\b[^_\n]*_', re.IGNORECASE)),
+)
 REVIEWED_COMMIT_RE = re.compile(r'Reviewed commit:[^`]*`([0-9a-f]{40})`', re.IGNORECASE)
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
@@ -32,6 +64,14 @@ class BotResult:
     action: str
     findings: dict[str, int]
     finding_keys: set[str] = field(default_factory=set)
+
+
+@dataclass
+class CheckSummary:
+    passed: int
+    pending: int
+    failed_names: list[str]
+    optional_failed_names: list[str]
 
 
 def required_env(name: str) -> str:
@@ -96,25 +136,28 @@ def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     return reviewed_commit_of(item) == head_sha.lower()
 
 
+def severities_of(body: str) -> set[str]:
+    severities = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
+    for severity, pattern in LABEL_SEVERITIES:
+        if pattern.search(body):
+            severities.add(severity)
+    return severities
+
+
 def normalized_finding_text(item: dict[str, Any], severity: str) -> str:
     text = MARKDOWN_RE.sub(' ', body_of(item).lower())
     text = re.sub(r'useful\?.*$', '', text, flags=re.DOTALL)
     text = re.sub(r'\s+', ' ', text).strip()
-    marker = f'p{severity}'
-    position = text.find(marker)
-    if position >= 0:
-        text = text[position:position + 260]
     path = str(item.get('path') or '')
     line = str(item.get('line') or item.get('original_line') or item.get('originalLine') or '')
-    return f'P{severity}|{path}|{line}|{text}'
+    return f'{severity}|{path}|{line}|{text[:320]}'
 
 
 def finding_summary(items: Iterable[dict[str, Any]]) -> tuple[dict[str, int], set[str]]:
     unique: dict[str, str] = {}
     for item in items:
-        for value in SEVERITY_RE.findall(body_of(item)):
-            severity = f'P{value}'
-            key = normalized_finding_text(item, value)
+        for severity in severities_of(body_of(item)):
+            key = normalized_finding_text(item, severity)
             unique.setdefault(key, severity)
     counts = {f'P{i}': 0 for i in range(4)}
     for severity in unique.values():
@@ -134,18 +177,29 @@ def combined_findings(bots: Iterable[BotResult]) -> dict[str, int]:
     return counts
 
 
-def flatten_threads(data: dict[str, Any]) -> tuple[bool, list[dict[str, Any]]]:
-    try:
-        nodes = data['data']['repository']['pullRequest']['reviewThreads']['nodes']
-    except (KeyError, TypeError):
-        return False, []
+def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, Any]]]:
+    if isinstance(data.get('threads'), list):
+        nodes = data['threads']
+        complete = bool(data.get('complete', False))
+    else:
+        try:
+            connection = data['data']['repository']['pullRequest']['reviewThreads']
+            nodes = connection.get('nodes') or []
+            page_info = connection.get('pageInfo') or {}
+            complete = not bool(page_info.get('hasNextPage', False))
+        except (KeyError, TypeError):
+            return False, False, []
+
     comments: list[dict[str, Any]] = []
-    for thread in nodes or []:
+    for thread in nodes:
         if thread.get('isResolved'):
             continue
-        for comment in (thread.get('comments') or {}).get('nodes') or []:
-            comments.append(comment)
-    return True, comments
+        comment_connection = thread.get('comments') or {}
+        comment_page = comment_connection.get('pageInfo') or {}
+        if comment_page.get('hasNextPage'):
+            complete = False
+        comments.extend(comment_connection.get('nodes') or [])
+    return True, complete, comments
 
 
 def fresh_requests(
@@ -164,14 +218,14 @@ def fresh_requests(
 
 def bot_items(
     items: Iterable[dict[str, Any]],
-    login_needles: tuple[str, ...],
+    allowed_logins: set[str],
     head_time: datetime,
 ) -> list[dict[str, Any]]:
+    allowed = {login.lower() for login in allowed_logins}
     return [
         item
         for item in items
-        if any(needle in login_of(item) for needle in login_needles)
-        and is_after_head(item, head_time)
+        if login_of(item) in allowed and is_after_head(item, head_time)
     ]
 
 
@@ -189,8 +243,8 @@ def result_from_exact_evidence(
         return BotResult(
             name=name,
             requested=requested,
-            level='E4',
-            state='findings' if actionable else 'reviewed',
+            level='E4' if actionable else 'E5',
+            state='findings' if actionable else 'clean exact-head review',
             reason='ACTIONABLE_FINDINGS' if actionable else 'OK',
             action='Resolve findings and rerun on the new head.' if actionable else 'No action.',
             findings=findings,
@@ -233,11 +287,7 @@ def classify_bots(
     all_review_items = reviews + inline_items
 
     codex_requests = fresh_requests(comments, '@codex review', head_time)
-    codex_items = bot_items(
-        comments + all_review_items,
-        ('chatgpt-codex-connector',),
-        head_time,
-    )
+    codex_items = bot_items(comments + all_review_items, BOT_LOGINS['Codex'], head_time)
     codex_exact = [item for item in codex_items if current_head_evidence(item, head_sha)]
     codex = result_from_exact_evidence(
         name='Codex',
@@ -248,7 +298,7 @@ def classify_bots(
     )
 
     jules_requests = fresh_requests(comments, '@jules review', head_time)
-    jules_items = bot_items(comments + all_review_items, ('jules',), head_time)
+    jules_items = bot_items(comments + all_review_items, BOT_LOGINS['Jules'], head_time)
     jules_exact = [item for item in jules_items if current_head_evidence(item, head_sha)]
     jules = result_from_exact_evidence(
         name='Jules',
@@ -259,7 +309,7 @@ def classify_bots(
     )
 
     rabbit_requests = fresh_requests(comments, '@coderabbitai review', head_time)
-    rabbit_items = bot_items(comments + all_review_items, ('coderabbit',), head_time)
+    rabbit_items = bot_items(comments + all_review_items, BOT_LOGINS['CodeRabbit'], head_time)
     rabbit_exact = [
         item
         for item in rabbit_items
@@ -302,7 +352,9 @@ def classify_bots(
     deepseek_items = [
         item
         for item in comments
-        if DEEPSEEK_MARKER in body_of(item) and is_after_head(item, head_time)
+        if login_of(item) == 'github-actions[bot]'
+        and DEEPSEEK_MARKER in body_of(item)
+        and is_after_head(item, head_time)
     ]
     deepseek_exact = [item for item in deepseek_items if current_head_evidence(item, head_sha)]
     deepseek = result_from_exact_evidence(
@@ -332,7 +384,7 @@ def classify_bots(
     return [codex, jules, rabbit, deepseek]
 
 
-def classify_checks(checks: dict[str, Any]) -> tuple[int, int, int, list[str]]:
+def classify_checks(checks: dict[str, Any]) -> CheckSummary:
     latest_by_name: dict[str, dict[str, Any]] = {}
     for check in checks.get('check_runs') or []:
         name = str(check.get('name') or 'unnamed check')
@@ -347,31 +399,39 @@ def classify_checks(checks: dict[str, Any]) -> tuple[int, int, int, list[str]]:
     passed = 0
     pending = 0
     failed_names: list[str] = []
+    optional_failed_names: list[str] = []
     for name, check in sorted(latest_by_name.items()):
         status = check.get('status')
         conclusion = check.get('conclusion')
+        required = name in REQUIRED_CHECKS
+        if not required:
+            if status == 'completed' and conclusion not in {'success', 'neutral', 'skipped'}:
+                optional_failed_names.append(name)
+            continue
         if status != 'completed':
             pending += 1
         elif conclusion in {'success', 'neutral', 'skipped'}:
             passed += 1
         else:
             failed_names.append(name)
-    return passed, pending, len(failed_names), failed_names
+    return CheckSummary(passed, pending, failed_names, optional_failed_names)
 
 
 def overall_conclusion(
     bots: list[BotResult],
     *,
-    ci_pending: int,
-    ci_failed: int,
+    checks: CheckSummary,
+    evidence_complete: bool,
 ) -> tuple[str, str]:
     combined = combined_findings(bots)
     codex = next(bot for bot in bots if bot.name == 'Codex')
-    if ci_failed or combined['P0'] or combined['P1']:
+    if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
         return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
-    if ci_pending or codex.level not in {'E4', 'E5'}:
+    if not evidence_complete:
+        return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
+    if checks.pending or codex.level not in {'E4', 'E5'}:
         return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Codex evidence is still incomplete.'
     advisory_gaps = [
         bot.name
@@ -387,7 +447,7 @@ def overall_conclusion(
 
 
 def findings_text(findings: dict[str, int]) -> str:
-    values = [f'{name}×{count}' for name, count in findings.items() if count]
+    values = [f'{name}x{count}' for name, count in findings.items() if count]
     return ', '.join(values) if values else 'none'
 
 
@@ -395,16 +455,18 @@ def mermaid_graph(
     bots: list[BotResult],
     *,
     head_sha: str,
-    ci_passed: int,
-    ci_pending: int,
-    ci_failed: int,
+    checks: CheckSummary,
+    evidence_complete: bool,
     conclusion: str,
 ) -> str:
+    evidence = 'complete' if evidence_complete else 'truncated'
     lines = [
         'flowchart TD',
         f'  H["Current head {head_sha[:12]}"]',
-        f'  CI["CI: {ci_passed} passed, {ci_pending} pending, {ci_failed} failed"]',
+        f'  CI["Required CI: {checks.passed} passed, {checks.pending} pending, {len(checks.failed_names)} failed"]',
+        f'  DATA["Evidence pages: {evidence}"]',
         '  H --> CI',
+        '  H --> DATA',
     ]
     for index, bot in enumerate(bots, start=1):
         request = 'yes' if bot.requested else 'no'
@@ -421,7 +483,7 @@ def mermaid_graph(
             ]
         )
     lines.append(f'  D["Conclusion: {conclusion}"]')
-    lines.append('  CI --> D')
+    lines.extend(['  CI --> D', '  DATA --> D'])
     for index in range(1, len(bots) + 1):
         lines.append(f'  A{index} --> D')
     return '\n'.join(lines)
@@ -447,7 +509,7 @@ def build_report(
         )
     )
     changed_paths = {str(item.get('filename') or '') for item in files}
-    threads_available, threads = flatten_threads(threads_data)
+    threads_available, evidence_complete, threads = flatten_threads(threads_data)
     bots = classify_bots(
         pr=pr,
         comments=comments,
@@ -458,11 +520,11 @@ def build_report(
         changed_paths=changed_paths,
         head_time=head_time,
     )
-    ci_passed, ci_pending, ci_failed, failed_names = classify_checks(checks)
+    check_summary = classify_checks(checks)
     conclusion, conclusion_detail = overall_conclusion(
         bots,
-        ci_pending=ci_pending,
-        ci_failed=ci_failed,
+        checks=check_summary,
+        evidence_complete=evidence_complete,
     )
     unique_findings = combined_findings(bots)
 
@@ -479,12 +541,17 @@ def build_report(
     graph = mermaid_graph(
         bots,
         head_sha=head_sha,
-        ci_passed=ci_passed,
-        ci_pending=ci_pending,
-        ci_failed=ci_failed,
+        checks=check_summary,
+        evidence_complete=evidence_complete,
         conclusion=conclusion,
     )
-    failed_detail = ', '.join(failed_names) if failed_names else 'none'
+    failed_detail = ', '.join(check_summary.failed_names) if check_summary.failed_names else 'none'
+    optional_detail = (
+        ', '.join(check_summary.optional_failed_names)
+        if check_summary.optional_failed_names
+        else 'none'
+    )
+    evidence_text = 'complete' if evidence_complete else 'truncated (`EVIDENCE_TRUNCATED`)'
 
     return f'''{COMMENT_MARKER}
 ## AI reviewer cooperation report
@@ -502,12 +569,14 @@ def build_report(
 Unique root causes: **{sum(unique_findings.values())}** — {findings_text(unique_findings)}.
 Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
-### CI summary
+### CI and collection summary
 
-- Passed: **{ci_passed}**
-- Pending: **{ci_pending}**
-- Failed: **{ci_failed}**
-- Failed checks: {failed_detail}
+- Required checks passed: **{check_summary.passed}**
+- Required checks pending: **{check_summary.pending}**
+- Required checks failed: **{len(check_summary.failed_names)}**
+- Required failed checks: {failed_detail}
+- Optional failed checks ignored for merge conclusion: {optional_detail}
+- Evidence pagination: **{evidence_text}**
 
 ### Causal graph
 
@@ -517,7 +586,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, untrusted, resolved, or acknowledgement-only responses never count as review evidence.
+The conclusion is causal, not a majority vote: required executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
