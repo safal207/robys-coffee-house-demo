@@ -5,6 +5,7 @@ interface PairingPoster {
   id: string;
   source: string;
   alt: PosterLocalizedText;
+  price?: PosterLocalizedText;
 }
 
 const MAX_POSTER_BASE64_LENGTH = 2_500_000;
@@ -54,10 +55,11 @@ const posters: Record<string, PairingPoster> = {
     id: "cool-lime-macaron",
     source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
     alt: localized(
-      "Cool Lime ve Makaron eşleşmesi posteri, fiyat 290 Türk lirası",
-      "Cool Lime and Macaron pairing poster, price 290 Turkish lira",
-      "Постер сочетания Cool Lime и макарона, цена 290 турецких лир"
-    )
+      "Cool Lime ve Makaron eşleşmesi posteri",
+      "Cool Lime and Macaron pairing poster",
+      "Постер сочетания Cool Lime и макарона"
+    ),
+    price: localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")
   }
 };
 
@@ -148,6 +150,16 @@ class PosterRenderer {
       figure.className = "pairing-poster";
       figure.dataset.pairingPoster = poster.id;
       figure.append(image);
+
+      if (poster.price) {
+        const caption = document.createElement("figcaption");
+        caption.id = `pairing-poster-price-${poster.id}`;
+        caption.className = "pairing-poster-price";
+        caption.textContent = poster.price[currentLanguage()];
+        image.setAttribute("aria-describedby", caption.id);
+        figure.append(caption);
+      }
+
       this.root.replaceChildren(figure);
       this.root.removeAttribute("aria-busy");
       return true;
@@ -180,6 +192,8 @@ function initialize(): void {
     if (existing?.dataset.pairingPoster === poster.id) {
       const image = existing.querySelector<HTMLImageElement>("img");
       if (image) image.alt = poster.alt[currentLanguage()];
+      const caption = existing.querySelector<HTMLElement>(".pairing-poster-price");
+      if (caption && poster.price) caption.textContent = poster.price[currentLanguage()];
       return;
     }
 

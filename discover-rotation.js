@@ -27,7 +27,8 @@ const posters = {
     "cool-lime-macaron": {
         id: "cool-lime-macaron",
         source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
-        alt: localized("Cool Lime ve Makaron eşleşmesi posteri, fiyat 290 Türk lirası", "Cool Lime and Macaron pairing poster, price 290 Turkish lira", "Постер сочетания Cool Lime и макарона, цена 290 турецких лир")
+        alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона"),
+        price: localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")
     }
 };
 function currentLanguage() {
@@ -109,6 +110,14 @@ class PosterRenderer {
             figure.className = "pairing-poster";
             figure.dataset.pairingPoster = poster.id;
             figure.append(image);
+            if (poster.price) {
+                const caption = document.createElement("figcaption");
+                caption.id = `pairing-poster-price-${poster.id}`;
+                caption.className = "pairing-poster-price";
+                caption.textContent = poster.price[currentLanguage()];
+                image.setAttribute("aria-describedby", caption.id);
+                figure.append(caption);
+            }
             this.root.replaceChildren(figure);
             this.root.removeAttribute("aria-busy");
             return true;
@@ -140,6 +149,9 @@ function initialize() {
             const image = existing.querySelector("img");
             if (image)
                 image.alt = poster.alt[currentLanguage()];
+            const caption = existing.querySelector(".pairing-poster-price");
+            if (caption && poster.price)
+                caption.textContent = poster.price[currentLanguage()];
             return;
         }
         void renderer.show(poster, () => currentId() === id);
