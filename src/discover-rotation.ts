@@ -52,7 +52,7 @@ const posters: Record<string, PairingPoster> = {
   },
   "cool-lime-macaron": {
     id: "cool-lime-macaron",
-    source: posterSource("cool-lime-macaron"),
+    source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
     alt: localized(
       "Cool Lime ve Makaron eşleşmesi posteri",
       "Cool Lime and Macaron pairing poster",
@@ -87,6 +87,8 @@ function normalizeWebPBase64(payload: string): string {
 }
 
 function loadPoster(source: string): Promise<string> {
+  if (source.endsWith(".webp")) return Promise.resolve(source);
+
   const cached = sourceCache.get(source);
   if (cached) return cached;
 
