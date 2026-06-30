@@ -12,7 +12,9 @@ const EXPECTED_IDS = [
   "cool-lime-macaron"
 ];
 const ACTIVE_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
-const EXPECTED_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`).sort();
+const BASE64_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`);
+const DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
+const EXPECTED_FILES = [...BASE64_FILES, ...DIRECT_FILES].sort();
 const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
 const read24LE = (buffer, offset) => buffer[offset] | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16);
 
@@ -35,25 +37,35 @@ function dimensions(buffer) {
   fail(`unsupported WebP chunk ${JSON.stringify(chunk)}`);
 }
 
+const seen = new Map();
+function verifyWebP(image, filePath, minimumSize = 280) {
+  if (image.length < 30 || image.toString("ascii", 0, 4) !== "RIFF" || image.toString("ascii", 8, 12) !== "WEBP") fail(`${filePath} does not decode to WebP`);
+  const declaredLength = image.readUInt32LE(4) + 8;
+  if (declaredLength !== image.length) fail(`${filePath} is truncated: RIFF declares ${declaredLength} bytes, decoded ${image.length}`);
+  const { width, height } = dimensions(image);
+  if (width !== height || width < minimumSize) fail(`${filePath} must be a square poster of at least ${minimumSize}px, found ${width}x${height}`);
+  const digest = createHash("sha256").update(image).digest("hex");
+  if (seen.has(digest)) fail(`${filePath} duplicates ${seen.get(digest)}`);
+  seen.set(digest, filePath);
+  return { width, height };
+}
+
 const rootEntries = readdirSync(ROOT).sort();
 if (rootEntries.length !== 1 || rootEntries[0] !== "final") fail(`pairing assets must live only in ${FINAL}; found ${rootEntries.join(", ")}`);
 const actualFiles = readdirSync(FINAL).sort();
 if (JSON.stringify(actualFiles) !== JSON.stringify(EXPECTED_FILES)) fail(`expected ${EXPECTED_FILES.join(", ")}; found ${actualFiles.join(", ")}`);
 
-const seen = new Map();
-for (const fileName of EXPECTED_FILES) {
+for (const fileName of BASE64_FILES) {
   const filePath = path.join(FINAL, fileName);
   const base64 = readFileSync(filePath, "utf8").trim();
   if (!base64 || /\s/.test(base64) || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) fail(`${filePath} is not a single valid base64 payload`);
-  const image = Buffer.from(base64, "base64");
-  if (image.length < 30 || image.toString("ascii", 0, 4) !== "RIFF" || image.toString("ascii", 8, 12) !== "WEBP") fail(`${filePath} does not decode to WebP`);
-  const declaredLength = image.readUInt32LE(4) + 8;
-  if (declaredLength !== image.length) fail(`${filePath} is truncated: RIFF declares ${declaredLength} bytes, decoded ${image.length}`);
-  const { width, height } = dimensions(image);
-  if (width !== height || width < 280) fail(`${filePath} must be a square poster of at least 280px, found ${width}x${height}`);
-  const digest = createHash("sha256").update(image).digest("hex");
-  if (seen.has(digest)) fail(`${filePath} duplicates ${seen.get(digest)}`);
-  seen.set(digest, filePath);
+  verifyWebP(Buffer.from(base64, "base64"), filePath);
+}
+
+for (const fileName of DIRECT_FILES) {
+  const filePath = path.join(FINAL, fileName);
+  const { width, height } = verifyWebP(readFileSync(filePath), filePath, 1024);
+  if (width !== 1024 || height !== 1024) fail(`${filePath} must be exactly 1024x1024 for Retina delivery, found ${width}x${height}`);
 }
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
@@ -67,9 +79,13 @@ const html = readFileSync("discover.html", "utf8");
 
 for (const [label, text] of [["source", source], ["runtime", runtime]]) {
   for (const id of EXPECTED_IDS) {
-    if (!text.includes(`posterSource("${id}")`)) fail(`${label} renderer does not map ${id}`);
+    const expectedSource = id === "cool-lime-macaron"
+      ? 'source: "src/pairings-data/final/cool-lime-macaron-hq.webp"'
+      : `posterSource("${id}")`;
+    if (!text.includes(expectedSource)) fail(`${label} renderer does not map ${id} to ${expectedSource}`);
     if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
   }
+  if (!text.includes('source.endsWith(".webp")')) fail(`${label} renderer does not support direct WebP poster sources`);
 }
 
 const journeysBlock = journeysSource.match(/export const journeys\s*=\s*\[([\s\S]*?)\n\];\s*\n\s*export const imageAlt/)?.[1];
@@ -88,7 +104,7 @@ if (!journeysSource.includes('poster.style.visibility = supportedPairingIds.has(
 if (!journeysSource.includes('[data-pairing-poster]')) fail("journey guard does not target pairing poster artwork");
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone guard must remain a no-op compatibility placeholder");
 
-for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v2.js"]) {
+for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v2.js", "src/pairings-data/final/cool-lime-macaron-hq.webp"]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
 
@@ -104,4 +120,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${EXPECTED_FILES.length} unique square WebP posters, exactly ${ACTIVE_IDS.length} active approved pairings, all offline v2 assets, exact cache-safe script paths, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, all offline v2 assets, exact cache-safe script paths, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
