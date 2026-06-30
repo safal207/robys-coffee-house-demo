@@ -41,6 +41,10 @@ jobs:
           grep -Fq 'python3 scripts/deepseek-review.py infer' .github/workflows/deepseek-review.yml
           grep -Fq 'Publish or update reviewer result' .github/workflows/deepseek-review.yml
           grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
+          grep -Fq 'EXPECTED_HEAD:' .github/workflows/deepseek-review.yml
+          grep -Fq 'PR head changed before publishing' .github/workflows/deepseek-review.yml
+          grep -Fq 'runner.temp' .github/workflows/deepseek-review.yml
+          ! grep -Fq '/tmp/deepseek-review-' scripts/deepseek-review.py
           grep -Fq '<!-- deepseek-pr-review -->' scripts/deepseek-review.py
           grep -Fq 'https://api.deepseek.com/chat/completions' scripts/deepseek-review.py
           grep -Fq "'deepseek-v4-flash'" scripts/deepseek-review.py
@@ -53,3 +57,14 @@ jobs:
           grep -Fq "author_association == 'OWNER'" .github/workflows/deepseek-review.yml
           grep -Fq "author_association == 'MEMBER'" .github/workflows/deepseek-review.yml
           grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/deepseek-review.yml
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/deepseek-review.yml')
+          permissions = workflow.fetch('permissions')
+          expected = {
+            'contents' => 'read',
+            'issues' => 'write',
+            'pull-requests' => 'read',
+          }
+          raise "unexpected permissions: #{permissions.inspect}" unless permissions == expected
+          RUBY
