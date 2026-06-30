@@ -104,7 +104,7 @@ jobs:
                       reactions.some((reaction) => {
                         const reactionTime = Date.parse(reaction.created_at);
                         return (
-                          officialAiBotLogins.has(reaction.user?.login) &&
+                          isOfficialAiBot(reaction.user) &&
                           reaction.content === '+1' &&
                           reactionTime >= evidenceAfter &&
                           reactionTime >= Date.parse(request.created_at)
