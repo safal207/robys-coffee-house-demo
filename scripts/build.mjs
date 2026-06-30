@@ -58,12 +58,13 @@ function synchronizeStylesheet(html, fileName, revision) {
 }
 
 function synchronizeServiceWorker(serviceWorker, scriptRevision, cssRevision) {
-  const versionPattern = /const CACHE_VERSION = "robys-offline-v10-20260701-posters-[^"]+";/;
+  const versionPattern = /const CACHE_VERSION = "(robys-offline-[^"]+?)(?:-[a-f0-9]{12}){2}";/;
+  const versionMatch = serviceWorker.match(versionPattern);
   const scriptAssetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
   const cssAssetPattern = /"\.\/discover-rotation\.css(?:\?v=[a-f0-9]{12})?"/;
 
-  if (!versionPattern.test(serviceWorker)) {
-    throw new Error("Service worker does not contain the v10 poster cache version marker");
+  if (!versionMatch) {
+    throw new Error("Service worker does not contain a revisioned Roby's cache version marker");
   }
   if (!scriptAssetPattern.test(serviceWorker)) {
     throw new Error("Service worker does not contain the v3 renderer cache entry");
@@ -72,10 +73,11 @@ function synchronizeServiceWorker(serviceWorker, scriptRevision, cssRevision) {
     throw new Error("Service worker does not contain the poster stylesheet cache entry");
   }
 
+  const cacheVersionPrefix = versionMatch[1];
   return serviceWorker
     .replace(
       versionPattern,
-      `const CACHE_VERSION = "robys-offline-v10-20260701-posters-${scriptRevision}-${cssRevision}";`
+      `const CACHE_VERSION = "${cacheVersionPrefix}-${scriptRevision}-${cssRevision}";`
     )
     .replace(scriptAssetPattern, `"./discover-rotation-v3.js?v=${scriptRevision}"`)
     .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
