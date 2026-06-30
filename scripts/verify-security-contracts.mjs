@@ -96,7 +96,7 @@ for (const file of HTML_FILES) {
   must("CSP-001", !/(?:^|\s)\*(?:\s|;|$)/.test(csp), `${file} CSP contains a wildcard source`);
   must("CSP-001", /<meta\b[^>]*name=["']referrer["'][^>]*content=["']strict-origin-when-cross-origin["']/i.test(html), `${file} referrer policy is missing`);
 
-  const scripts = Array.from(html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi));
+  const scripts = Array.from(html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi));
   for (const script of scripts) {
     const attrs = script[1];
     const executableInline = !/\bsrc=["']/i.test(attrs) && !/\btype=["']application\/ld\+json["']/i.test(attrs);
