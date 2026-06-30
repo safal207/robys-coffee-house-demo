@@ -6,15 +6,24 @@ from __future__ import annotations
 import json
 import os
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
 
-PROMPT_PATH = Path('/tmp/deepseek-review-prompt.txt')
-COMMENT_PATH = Path('/tmp/deepseek-review-comment.json')
-DEFAULT_ERROR_PATH = Path('/tmp/deepseek-review-error.json')
+_FALLBACK_DIR = Path(tempfile.mkdtemp(prefix='deepseek-review-'))
+
+
+def configured_path(env_name: str, filename: str) -> Path:
+    value = os.environ.get(env_name, '').strip()
+    return Path(value) if value else _FALLBACK_DIR / filename
+
+
+PROMPT_PATH = configured_path('PROMPT_FILE', 'prompt.txt')
+COMMENT_PATH = configured_path('COMMENT_FILE', 'comment.json')
+DEFAULT_ERROR_PATH = configured_path('ERROR_FILE', 'error.json')
 API_URL = 'https://api.deepseek.com/chat/completions'
 COMMENT_MARKER = '<!-- deepseek-pr-review -->'
 RETRY_DELAYS_SECONDS = (2, 5)
@@ -266,9 +275,12 @@ def failure() -> None:
         except (OSError, json.JSONDecodeError):
             pass
 
+    head_sha = os.environ.get('HEAD_SHA', '').strip()
+    reviewed_line = f'**Reviewed commit:** `{head_sha}`  \n' if head_sha else ''
     write_comment(
         f'{COMMENT_MARKER}\n'
         '### DeepSeek PR Review\n\n'
+        f'{reviewed_line}'
         f'**Status:** failed  \n**Reason code:** `{code}`\n\n'
         f'{detail}\n\n'
         'No merge evidence was produced. '
@@ -292,7 +304,7 @@ def main() -> int:
         record_error(error.code, str(error))
         print(f'DeepSeek reviewer error [{error.code}]: {error}', file=sys.stderr)
         return 1
-    except Exception as error:  # CLI boundary must make unexpected failures visible to Actions.
+    except Exception as error:
         record_error('UNEXPECTED_ERROR', str(error))
         print(f'DeepSeek reviewer error [UNEXPECTED_ERROR]: {error}', file=sys.stderr)
         return 1
