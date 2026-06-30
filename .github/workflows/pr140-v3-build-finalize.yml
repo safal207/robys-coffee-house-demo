@@ -36,11 +36,14 @@ jobs:
       - name: Regenerate canonical integrity manifest
         run: npm run integrity:generate
 
-      - name: Verify generated evidence
-        run: |
-          npm run typecheck
-          node --check discover-rotation-v3.js
-          npm run verify:integrity
+      - name: Typecheck typed sources
+        run: npm run typecheck
+
+      - name: Parse active v3 renderer
+        run: node --check discover-rotation-v3.js
+
+      - name: Verify integrity evidence
+        run: npm run verify:integrity
 
       - name: Remove one-shot workflow
         run: git rm .github/workflows/pr140-v3-build-finalize.yml
