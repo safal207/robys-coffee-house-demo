@@ -1,9 +1,70 @@
-const text=(tr,en,ru)=>({tr,en,ru});
-export const journeys=[
-{id:"latte-nutella",contexts:["morning:mild","morning:cool","morning:rain","day:cool"],primary:{name:"Caffè Latte",category:"hot-coffee",image:"src/products/gallery-v5/latte-828.webp",emoji:"☕"},companion:{name:"Nutella Croissant",category:"food",image:"src/products/gallery-v5/nutella-croissant-828.webp",emoji:"🥐"},title:text("Latte ve Nutellalı Kruvasan","Latte and Nutella Croissant","Латте и круассан с Nutella"),reason:text("Yumuşak sütlü kahve, sıcak kruvasanın fındıklı çikolata tadını dengeler. Tanıdık, rahat ve sabaha acele ettirmeyen bir buluşma.","Soft milky coffee balances the hazelnut-chocolate warmth of the croissant. Familiar, comforting and unhurried.","Мягкий молочный кофе уравновешивает тёплый орехово-шоколадный вкус круассана. Знакомая и спокойная встреча без спешки.")},
-{id:"iced-san-sebastian",contexts:["morning:hot","day:hot","evening:hot"],primary:{name:"Iced Caffè Latte",category:"cold-coffee",image:"src/products/gallery-v5/iced-latte-828.webp",emoji:"🧊"},companion:{name:"San Sebastian Cheesecake",category:"desserts",image:"src/products/gallery-v5/san-sebastian-828.webp",emoji:"🍰"},title:text("Buzlu Latte ve San Sebastian","Iced Latte and San Sebastian","Айс-латте и Сан-Себастьян"),reason:text("Serin kahve ferahlık verir; yoğun ve kremamsı cheesecake tadı yavaşlatır. Sıcak bir günde hafif başlayan, derinleşen bir tanışma.","The chilled coffee refreshes while the dense, creamy cheesecake slows the moment down. Light at first, deeper with every bite.","Холодный кофе освежает, а плотный сливочный чизкейк замедляет момент. Лёгкое начало, которое раскрывается глубже.")},
-{id:"filter-lotus",contexts:["day:mild","evening:mild","day:rain"],primary:{name:"Filter Coffee",category:"brew-hot",emoji:"☕"},companion:{name:"Lotus Cheesecake",category:"desserts",image:"src/products/gallery-v5/lotus-cheesecake-828.webp",emoji:"🍰"},title:text("Filtre Kahve ve Lotus Cheesecake","Filter Coffee and Lotus Cheesecake","Фильтр-кофе и чизкейк Lotus"),reason:text("Filtre kahvenin temiz karakteri, Lotus'un karamelize baharatlarını daha belirgin yapar. Basit görünen ama ikinci yudumda açılan bir ikili.","The clean character of filter coffee makes Lotus's caramelised spice stand out. A simple-looking pair that opens up on the second sip.","Чистый вкус фильтр-кофе ярче раскрывает карамельные пряности Lotus. Простая на вид пара, которая открывается со второго глотка.")},
-{id:"relax-lotus",contexts:["evening:cool","evening:rain","late:cool","late:rain"],primary:{name:"Relax Tea / Lavender Rooibos",category:"herbal-tea",emoji:"🌿"},companion:{name:"Lotus Cheesecake",category:"desserts",image:"src/products/gallery-v5/lotus-cheesecake-828.webp",emoji:"🍰"},title:text("Relax Tea ve Lotus Cheesecake","Relax Tea and Lotus Cheesecake","Relax Tea и чизкейк Lotus"),reason:text("Lavanta ve rooibos akşamı yumuşatır; Lotus sıcak karamel notası ekler. Günün sonunda sessizce arkadaşlığa geçen bir eşleşme.","Lavender and rooibos soften the evening; Lotus adds a warm caramel note. A pairing that quietly turns into friendship.","Лаванда и ройбуш смягчают вечер, а Lotus добавляет тёплую карамельную ноту. Сочетание, которое тихо переходит в дружбу.")},
-{id:"cool-lime-macaron",contexts:["day:hot","evening:hot"],primary:{name:"Cool Lime",category:"refreshers",emoji:"🍹"},companion:{name:"Macaron",category:"desserts",emoji:"◎"},title:text("Cool Lime ve Makaron","Cool Lime and Macaron","Cool Lime и макарон"),reason:text("Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Menünün daha renkli tarafıyla hafif bir ilk flört.","Bright lime freshness is balanced by a small sweet macaron. A light first flirt with the menu's more colourful side.","Яркая свежесть лайма уравновешивается маленьким сладким макароном. Лёгкий первый флирт с более яркой стороной меню.")}
+const text = (tr, en, ru) => ({ tr, en, ru });
+
+const allContexts = [
+  "morning:hot", "morning:mild", "morning:cool", "morning:rain", "morning:unavailable",
+  "day:hot", "day:mild", "day:cool", "day:rain", "day:unavailable",
+  "evening:hot", "evening:mild", "evening:cool", "evening:rain", "evening:unavailable",
+  "late:hot", "late:mild", "late:cool", "late:rain", "late:unavailable"
 ];
-export const imageAlt={"Caffè Latte":text("Roby's latte","Roby's latte","Латте Roby's"),"Iced Caffè Latte":text("Roby's buzlu latte","Roby's iced latte","Айс-латте Roby's"),"Nutella Croissant":text("Nutellalı kruvasan","Nutella croissant","Круассан с Nutella"),"San Sebastian Cheesecake":text("San Sebastian cheesecake","San Sebastian cheesecake","Чизкейк Сан-Себастьян"),"Lotus Cheesecake":text("Lotus cheesecake","Lotus cheesecake","Чизкейк Lotus")};
+
+export const journeys = [
+  {
+    id: "cool-lime-macaron",
+    contexts: allContexts,
+    primary: {
+      name: "Cool Lime",
+      category: "refreshers",
+      emoji: "🍹"
+    },
+    companion: {
+      name: "Macaron",
+      category: "desserts",
+      emoji: "◎"
+    },
+    title: text(
+      "Cool Lime + Makaron",
+      "Cool Lime + Macaron",
+      "Cool Lime + макарон"
+    ),
+    reason: text(
+      "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+      "Bright lime freshness is balanced by a small sweet macaron. For now, this is Taste Journey's light and vivid choice.",
+      "Яркая свежесть лайма уравновешивается маленьким сладким макароном. Пока это лёгкий и яркий выбор Taste Journey."
+    )
+  },
+  {
+    id: "iced-san-sebastian",
+    contexts: allContexts,
+    primary: {
+      name: "Iced Caffè Latte",
+      category: "cold-coffee",
+      image: "src/products/gallery-v5/iced-latte-828.webp",
+      emoji: "🧊"
+    },
+    companion: {
+      name: "San Sebastian Cheesecake",
+      category: "desserts",
+      image: "src/products/gallery-v5/san-sebastian-828.webp",
+      emoji: "🍰"
+    },
+    title: text(
+      "Buzlu Latte + San Sebastian",
+      "Iced Latte + San Sebastian Cheesecake",
+      "Айс-латте + чизкейк Сан-Себастьян"
+    ),
+    reason: text(
+      "Serin kahve ferahlık verir; yoğun ve kremamsı cheesecake tadı yavaşlatır. Şimdilik Taste Journey'nin daha derin seçimi.",
+      "The chilled coffee refreshes while the dense, creamy cheesecake slows the moment down. For now, this is Taste Journey's richer choice.",
+      "Холодный кофе освежает, а плотный сливочный чизкейк замедляет момент. Пока это более насыщенный выбор Taste Journey."
+    )
+  }
+];
+
+export const imageAlt = {
+  "Iced Caffè Latte": text("Roby's buzlu latte", "Roby's iced latte", "Айс-латте Roby's"),
+  "San Sebastian Cheesecake": text(
+    "San Sebastian cheesecake",
+    "San Sebastian cheesecake",
+    "Чизкейк Сан-Себастьян"
+  )
+};
