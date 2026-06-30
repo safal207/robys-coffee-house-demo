@@ -62,7 +62,9 @@ jobs:
           grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'runner.temp' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'GITHUB_ENV' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'runner.temp' .github/workflows/ai-review-cooperation.yml
           ! grep -Fq 'contents: write' .github/workflows/ai-review-cooperation.yml
           ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
           ruby <<'RUBY'
