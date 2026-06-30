@@ -6,6 +6,7 @@ const ROOT = path.join("src", "pairings-data");
 const FINAL = path.join(ROOT, "final");
 const APPROVED = path.join(ROOT, "approved");
 const APPROVED_ICED_POSTER = path.join(APPROVED, "iced-san-sebastian-hq.png");
+const APPROVED_ICED_MANIFEST_PATH = "src/pairings-data/approved/iced-san-sebastian-hq.png";
 const EXPECTED_IDS = [
   "latte-nutella",
   "iced-san-sebastian",
@@ -27,6 +28,14 @@ const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
 const revisionFor = (buffer) => createHash("sha256").update(buffer).digest("hex").slice(0, 12);
 const digestFor = (buffer) => createHash("sha256").update(buffer).digest("hex");
 const read24LE = (buffer, offset) => buffer[offset] | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16);
+
+const integrityManifest = JSON.parse(readFileSync("integrity-manifest.json", "utf8"));
+const approvedManifestEntry = integrityManifest.files?.find(
+  (file) => file.path === APPROVED_ICED_MANIFEST_PATH
+);
+if (!approvedManifestEntry) {
+  fail(`integrity-manifest.json does not protect ${APPROVED_ICED_MANIFEST_PATH}`);
+}
 
 function webPDimensions(buffer) {
   const chunk = buffer.toString("ascii", 12, 16);
@@ -62,7 +71,16 @@ function verifyApprovedPng(buffer, filePath) {
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
   if (width !== height || width < 1024) fail(`${filePath} must be a square Retina poster of at least 1024px, found ${width}x${height}`);
-  return { width, height, bytes: buffer.length, digest: digestFor(buffer) };
+
+  const digest = digestFor(buffer);
+  if (buffer.length !== approvedManifestEntry.bytes) {
+    fail(`${filePath} byte length differs from integrity manifest: expected ${approvedManifestEntry.bytes}, found ${buffer.length}`);
+  }
+  if (digest !== approvedManifestEntry.sha256) {
+    fail(`${filePath} SHA-256 differs from integrity manifest: expected ${approvedManifestEntry.sha256}, found ${digest}`);
+  }
+
+  return { width, height, bytes: buffer.length, digest };
 }
 
 const rootEntries = readdirSync(ROOT).sort();
