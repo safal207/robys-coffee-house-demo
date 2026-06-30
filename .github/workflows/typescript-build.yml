@@ -76,10 +76,20 @@ jobs:
           path: |
             app.js
             index.html
+            discover-rotation.js
+            discover-rotation-v2.js
+            discover-rotation-v3.js
+            discover.html
+            sw.js
           retention-days: 3
 
       - name: Verify JavaScript syntax
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check discover-rotation.js
+          node --check discover-rotation-v2.js
+          node --check discover-rotation-v3.js
+          node --check sw.js
 
       - name: Verify IIFE and deferred loading contract
         run: node scripts/verify-bundle.mjs
@@ -99,4 +109,12 @@ jobs:
           retention-days: 7
 
       - name: Reject stale generated files
-        run: git diff --exit-code -- app.js index.html
+        run: >-
+          git diff --exit-code --
+          app.js
+          index.html
+          discover-rotation.js
+          discover-rotation-v2.js
+          discover-rotation-v3.js
+          discover.html
+          sw.js
