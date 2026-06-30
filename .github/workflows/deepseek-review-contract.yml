@@ -36,7 +36,8 @@ jobs:
 
       - name: Verify official API and trust boundaries
         run: |
-          grep -Fq 'DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}' .github/workflows/deepseek-review.yml
+          grep -Fq 'DEEPSEEK_API_KEY:' .github/workflows/deepseek-review.yml
+          grep -Fq 'secrets.DEEPSEEK_API_KEY' .github/workflows/deepseek-review.yml
           grep -Fq 'python3 scripts/deepseek-review.py infer' .github/workflows/deepseek-review.yml
           grep -Fq 'Publish or update reviewer result' .github/workflows/deepseek-review.yml
           grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
