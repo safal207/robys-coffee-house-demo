@@ -43,7 +43,9 @@ jobs:
           grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
           grep -Fq 'EXPECTED_HEAD:' .github/workflows/deepseek-review.yml
           grep -Fq 'PR head changed before publishing' .github/workflows/deepseek-review.yml
-          grep -Fq 'runner.temp' .github/workflows/deepseek-review.yml
+          grep -Fq 'RUNNER_TEMP' .github/workflows/deepseek-review.yml
+          grep -Fq 'GITHUB_ENV' .github/workflows/deepseek-review.yml
+          ! grep -Fq 'runner.temp' .github/workflows/deepseek-review.yml
           ! grep -Fq '/tmp/deepseek-review-' scripts/deepseek-review.py
           grep -Fq '<!-- deepseek-pr-review -->' scripts/deepseek-review.py
           grep -Fq 'https://api.deepseek.com/chat/completions' scripts/deepseek-review.py
