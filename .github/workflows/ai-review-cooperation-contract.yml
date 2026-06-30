@@ -1,0 +1,123 @@
+name: AI review cooperation contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ai-review-cooperation.yml
+      - .github/workflows/ai-review-cooperation-contract.yml
+      - scripts/ai-review-cooperation.py
+      - scripts/fetch-review-threads.py
+      - scripts/test-ai-review-cooperation.py
+      - docs/ai-review-cooperation-policy.md
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Compile cooperation scripts
+        run: >-
+          python3 -m py_compile
+          scripts/ai-review-cooperation.py
+          scripts/fetch-review-threads.py
+          scripts/test-ai-review-cooperation.py
+
+      - name: Run offline cooperation contracts
+        id: offline-tests
+        continue-on-error: true
+        run: python3 scripts/test-ai-review-cooperation.py -v > "${RUNNER_TEMP}/cooperation-tests.log" 2>&1
+
+      - name: Upload failed cooperation test log
+        if: steps.offline-tests.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cooperation-test-failure-${{ github.run_id }}
+          path: ${{ runner.temp }}/cooperation-tests.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Surface failed cooperation contracts
+        if: steps.offline-tests.outcome == 'failure'
+        run: |
+          tail -n 100 "${RUNNER_TEMP}/cooperation-tests.log"
+          exit 1
+
+      - name: Parse workflow YAML
+        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
+
+      - name: Verify least privilege and trusted command
+        run: |
+          grep -Fq "github.event.comment.body == '/ai-cooperation report'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'OWNER'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'MEMBER'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'GITHUB_ENV' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'runner.temp' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'contents: write' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
+          permissions = workflow.dig('jobs', 'report', 'permissions')
+          expected = {
+            'checks' => 'read',
+            'contents' => 'read',
+            'issues' => 'write',
+            'pull-requests' => 'read',
+          }
+          raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          RUBY
+
+      - name: Verify complete evidence collection
+        run: |
+          grep -Fq 'check-runs?per_page=100' .github/workflows/ai-review-cooperation.yml
+          grep -Fq -- '--paginate' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'scripts/fetch-review-threads.py' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'while True:' scripts/fetch-review-threads.py
+          grep -Fq 'hasNextPage' scripts/fetch-review-threads.py
+          grep -Fq 'COMMENTS_QUERY' scripts/fetch-review-threads.py
+          grep -Fq 'EVIDENCE_TRUNCATED' scripts/ai-review-cooperation.py
+          grep -Fq 'PR head changed before publishing' .github/workflows/ai-review-cooperation.yml
+
+      - name: Verify causal trust and policy taxonomy
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
+          policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
+          required_script_tokens = [
+              '<!-- ai-review-cooperation -->',
+              'BOT_LOGINS',
+              "login_of(item) == 'github-actions[bot]'",
+              'REQUIRED_CHECKS',
+              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH',
+              'NO_CURRENT_HEAD_EVIDENCE',
+              'FIX_THEN_RERUN',
+              "'E4' if actionable else 'E5'",
+              'flowchart TD',
+              'not a majority vote',
+          ]
+          required_policy_tokens = ['STALE_HEAD', 'PERMISSION_ERROR']
+          missing = [token for token in required_script_tokens if token not in script]
+          missing += [token for token in required_policy_tokens if token not in policy]
+          if missing:
+              raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
+          PY
+
+      - name: Verify job-scoped cancellation
+        run: |
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('ai-review-cooperation-')"
