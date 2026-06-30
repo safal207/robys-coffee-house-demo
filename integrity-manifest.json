@@ -70,13 +70,13 @@
     },
     {
       "path": "discover-rotation-v2.js",
-      "bytes": 6613,
-      "sha256": "162f0d64cfbb26223f223a60415fce048e6858bc3da77f00b66f6ffcff6b8c24"
+      "bytes": 6700,
+      "sha256": "f1d811b3a1361661c6c00b62d49b681002db185f1d0fa567af8dae6545ad827f"
     },
     {
       "path": "discover-rotation-v3.js",
-      "bytes": 6613,
-      "sha256": "162f0d64cfbb26223f223a60415fce048e6858bc3da77f00b66f6ffcff6b8c24"
+      "bytes": 6700,
+      "sha256": "f1d811b3a1361661c6c00b62d49b681002db185f1d0fa567af8dae6545ad827f"
     },
     {
       "path": "discover-rotation.css",
@@ -85,8 +85,8 @@
     },
     {
       "path": "discover-rotation.js",
-      "bytes": 6613,
-      "sha256": "162f0d64cfbb26223f223a60415fce048e6858bc3da77f00b66f6ffcff6b8c24"
+      "bytes": 6700,
+      "sha256": "f1d811b3a1361661c6c00b62d49b681002db185f1d0fa567af8dae6545ad827f"
     },
     {
       "path": "discover-v2.js",
@@ -106,7 +106,7 @@
     {
       "path": "discover.html",
       "bytes": 6538,
-      "sha256": "d328b74aba6d13c98ee65a397c23f3f4a18fcdbe68b7d91d5f6a49ba1a44a0c4"
+      "sha256": "25487a220b2d026e79919e43da2a19cac154826d792aca87e64178570baf26ef"
     },
     {
       "path": "discover.js",
@@ -596,7 +596,7 @@
     {
       "path": "sw.js",
       "bytes": 3672,
-      "sha256": "442e72e2c248c7cbc17a769a77f1de76e438fb7bb03b2e52a1b6ea5daa6d439a"
+      "sha256": "f8024301bcad1222c26c85d9beaa380d1a9d5b211c5c7205a1338edb5d26052d"
     }
   ]
 }
