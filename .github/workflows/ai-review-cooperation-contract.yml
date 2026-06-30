@@ -1,0 +1,60 @@
+name: AI review cooperation contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ai-review-cooperation.yml
+      - .github/workflows/ai-review-cooperation-contract.yml
+      - scripts/ai-review-cooperation.py
+      - scripts/test-ai-review-cooperation.py
+      - docs/ai-review-cooperation-policy.md
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Compile cooperation scripts
+        run: python3 -m py_compile scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py
+
+      - name: Run offline cooperation contracts
+        run: python3 scripts/test-ai-review-cooperation.py -v
+
+      - name: Parse workflow YAML
+        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
+
+      - name: Verify least privilege and trusted command
+        run: |
+          grep -Fq "github.event.comment.body == '/ai-cooperation report'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'OWNER'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'MEMBER'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'checks: read' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'issues: write' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'contents: write' .github/workflows/ai-review-cooperation.yml
+          ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
+
+      - name: Verify causal evidence and policy taxonomy
+        run: |
+          grep -Fq '<!-- ai-review-cooperation -->' scripts/ai-review-cooperation.py
+          grep -Fq 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH' scripts/ai-review-cooperation.py
+          grep -Fq 'NO_CURRENT_HEAD_EVIDENCE' scripts/ai-review-cooperation.py
+          grep -Fq 'FIX_THEN_RERUN' scripts/ai-review-cooperation.py
+          grep -Fq 'flowchart TD' scripts/ai-review-cooperation.py
+          grep -Fq 'STALE_HEAD' docs/ai-review-cooperation-policy.md
+          grep -Fq 'PERMISSION_ERROR' docs/ai-review-cooperation-policy.md
+          grep -Fq 'not a majority vote' scripts/ai-review-cooperation.py
+
+      - name: Verify job-scoped cancellation
+        run: |
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('ai-review-cooperation-')"
