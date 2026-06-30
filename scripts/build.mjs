@@ -30,6 +30,7 @@ transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v2.js");
+transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -59,7 +60,7 @@ function synchronizePhysicalScript(html, fileName) {
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
-const discoverRotationRevision = revisionFor("discover-rotation-v2.js");
+const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -67,9 +68,9 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
-// The v2 pathname is itself the cache key. Keep it query-free so old workers
-// cannot collapse it onto a legacy query-insensitive entry.
-discoverHtml = synchronizePhysicalScript(discoverHtml, "discover-rotation-v2.js");
+// The v3 pathname is itself the cache key. Keep it query-free so an older
+// query-insensitive service worker cannot shadow the current renderer.
+discoverHtml = synchronizePhysicalScript(discoverHtml, "discover-rotation-v3.js");
 writeFileSync("discover.html", discoverHtml);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js and discover-rotation-v2.js (${discoverRotationRevision}, physical v2 path).`);
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}, physical v3 path).`);
