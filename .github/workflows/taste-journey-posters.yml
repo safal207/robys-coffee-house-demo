@@ -6,12 +6,16 @@ on:
       - ".github/workflows/taste-journey-posters.yml"
       - "discover-rotation.css"
       - "discover-rotation.js"
+      - "discover-rotation-v2.js"
+      - "discover-rotation-v3.js"
       - "discover.html"
       - "integrity-manifest.json"
       - "package.json"
+      - "scripts/build.mjs"
       - "scripts/verify-taste-journey-posters.mjs"
       - "src/discover-rotation.ts"
       - "src/pairings-data/**"
+      - "sw.js"
   workflow_dispatch:
 
 permissions:
@@ -53,4 +57,11 @@ jobs:
           retention-days: 7
 
       - name: Reject stale generated files
-        run: git diff --exit-code -- discover-rotation.js discover.html integrity-manifest.json
+        run: >-
+          git diff --exit-code --
+          discover-rotation.js
+          discover-rotation-v2.js
+          discover-rotation-v3.js
+          discover.html
+          sw.js
+          integrity-manifest.json
