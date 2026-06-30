@@ -63,6 +63,10 @@ self.addEventListener("activate", (event) => {
 
 async function cachedResponse(request) {
   const cache = await caches.open(CACHE_VERSION);
+  const url = new URL(request.url);
+  if (url.pathname.endsWith("/discover-rotation-v3.js")) {
+    return cache.match(request);
+  }
   return cache.match(request, { ignoreSearch: true });
 }
 
