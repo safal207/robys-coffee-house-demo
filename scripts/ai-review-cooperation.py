@@ -16,8 +16,7 @@ from typing import Any
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
 DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
-_FALLBACK_DIR = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-'))
-DEFAULT_COMMENT_PATH = _FALLBACK_DIR / 'comment.json'
+DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
     'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
@@ -25,30 +24,17 @@ BOT_LOGINS = {
     'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
 }
 REQUIRED_CHECKS = {
-    'Human approval contract',
-    'Security contract',
-    'Verify generated runtime',
-    'Reviewdog static review',
-    'CodeQL security analysis',
-    'Adversarial browser contract',
-    'Visual regression',
-    'OWASP ZAP baseline',
-    'Lighthouse performance contract',
-    'iOS WebKit route gate',
-    'AI review contract',
-    'DeepSeek review contract',
-    'AI review cooperation contract',
-    'Export reconstructed community reel',
-    'Taste Journey poster contract',
-    'Gallery mobile gate',
+    'Human approval contract', 'Security contract', 'Verify generated runtime',
+    'Reviewdog static review', 'CodeQL security analysis',
+    'Adversarial browser contract', 'Visual regression', 'OWASP ZAP baseline',
+    'Lighthouse performance contract', 'iOS WebKit route gate',
+    'AI review contract', 'DeepSeek review contract',
+    'AI review cooperation contract', 'Export reconstructed community reel',
+    'Taste Journey poster contract', 'Gallery mobile gate',
 }
 EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
-LABEL_SEVERITIES = (
-    ('P0', re.compile(r'_[^_\n]*\bblocker\b[^_\n]*_', re.IGNORECASE)),
-    ('P1', re.compile(r'_[^_\n]*\bcritical\b[^_\n]*_', re.IGNORECASE)),
-    ('P2', re.compile(r'_[^_\n]*\bmajor\b[^_\n]*_', re.IGNORECASE)),
-    ('P3', re.compile(r'_[^_\n]*\bminor\b[^_\n]*_', re.IGNORECASE)),
-)
+LABEL_TO_SEVERITY = {'blocker': 'P0', 'critical': 'P1', 'major': 'P2', 'minor': 'P3'}
+ITALIC_SEGMENT_RE = re.compile(r'_([^_\n]+)_')
 REVIEWED_COMMIT_RE = re.compile(r'Reviewed commit:[^`]*`([0-9a-f]{40})`', re.IGNORECASE)
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
@@ -97,9 +83,7 @@ def body_of(item: dict[str, Any]) -> str:
 
 def login_of(item: dict[str, Any]) -> str:
     user = item.get('user') or item.get('author') or {}
-    if isinstance(user, dict):
-        return str(user.get('login') or '').lower()
-    return ''
+    return str(user.get('login') or '').lower() if isinstance(user, dict) else ''
 
 
 def association_of(item: dict[str, Any]) -> str:
@@ -107,14 +91,7 @@ def association_of(item: dict[str, Any]) -> str:
 
 
 def time_of(item: dict[str, Any]) -> datetime:
-    return parse_time(
-        str(
-            item.get('submitted_at')
-            or item.get('created_at')
-            or item.get('createdAt')
-            or ''
-        )
-    )
+    return parse_time(str(item.get('submitted_at') or item.get('created_at') or item.get('createdAt') or ''))
 
 
 def is_after_head(item: dict[str, Any], head_time: datetime) -> bool:
@@ -137,11 +114,13 @@ def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
 
 
 def severities_of(body: str) -> set[str]:
-    severities = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
-    for severity, pattern in LABEL_SEVERITIES:
-        if pattern.search(body):
-            severities.add(severity)
-    return severities
+    result = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
+    for segment in ITALIC_SEGMENT_RE.findall(body):
+        normalized = segment.lower()
+        for label, severity in LABEL_TO_SEVERITY.items():
+            if re.search(rf'\b{label}\b', normalized):
+                result.add(severity)
+    return result
 
 
 def normalized_finding_text(item: dict[str, Any], severity: str) -> str:
@@ -157,8 +136,7 @@ def finding_summary(items: Iterable[dict[str, Any]]) -> tuple[dict[str, int], se
     unique: dict[str, str] = {}
     for item in items:
         for severity in severities_of(body_of(item)):
-            key = normalized_finding_text(item, severity)
-            unique.setdefault(key, severity)
+            unique.setdefault(normalized_finding_text(item, severity), severity)
     counts = {f'P{i}': 0 for i in range(4)}
     for severity in unique.values():
         counts[severity] += 1
@@ -185,244 +163,144 @@ def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, An
         try:
             connection = data['data']['repository']['pullRequest']['reviewThreads']
             nodes = connection.get('nodes') or []
-            page_info = connection.get('pageInfo') or {}
-            complete = not bool(page_info.get('hasNextPage', False))
+            complete = not bool((connection.get('pageInfo') or {}).get('hasNextPage'))
         except (KeyError, TypeError):
             return False, False, []
-
     comments: list[dict[str, Any]] = []
     for thread in nodes:
         if thread.get('isResolved'):
             continue
-        comment_connection = thread.get('comments') or {}
-        comment_page = comment_connection.get('pageInfo') or {}
-        if comment_page.get('hasNextPage'):
+        connection = thread.get('comments') or {}
+        if (connection.get('pageInfo') or {}).get('hasNextPage'):
             complete = False
-        comments.extend(comment_connection.get('nodes') or [])
+        comments.extend(connection.get('nodes') or [])
     return True, complete, comments
 
 
-def fresh_requests(
-    comments: list[dict[str, Any]],
-    command: str,
-    head_time: datetime,
-) -> list[dict[str, Any]]:
-    return [
-        item
-        for item in comments
-        if body_of(item).strip().lower() == command.lower()
-        and association_of(item) in TRUSTED_ASSOCIATIONS
-        and is_after_head(item, head_time)
-    ]
+def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: datetime) -> list[dict[str, Any]]:
+    return [item for item in comments if body_of(item).strip().lower() == command.lower()
+            and association_of(item) in TRUSTED_ASSOCIATIONS and is_after_head(item, head_time)]
 
 
-def bot_items(
-    items: Iterable[dict[str, Any]],
-    allowed_logins: set[str],
-    head_time: datetime,
-) -> list[dict[str, Any]]:
+def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str], head_time: datetime) -> list[dict[str, Any]]:
     allowed = {login.lower() for login in allowed_logins}
-    return [
-        item
-        for item in items
-        if login_of(item) in allowed and is_after_head(item, head_time)
-    ]
+    return [item for item in items if login_of(item) in allowed and is_after_head(item, head_time)]
 
 
-def result_from_exact_evidence(
-    *,
-    name: str,
-    requested: bool,
-    exact_items: list[dict[str, Any]],
-    no_evidence_reason: str,
-    no_evidence_action: str,
-) -> BotResult:
-    findings, finding_keys = finding_summary(exact_items)
+def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[dict[str, Any]],
+                               no_evidence_reason: str, no_evidence_action: str) -> BotResult:
+    findings, keys = finding_summary(exact_items)
     if exact_items:
-        actionable = bool(finding_keys)
-        return BotResult(
-            name=name,
-            requested=requested,
-            level='E4' if actionable else 'E5',
-            state='findings' if actionable else 'clean exact-head review',
-            reason='ACTIONABLE_FINDINGS' if actionable else 'OK',
-            action='Resolve findings and rerun on the new head.' if actionable else 'No action.',
-            findings=findings,
-            finding_keys=finding_keys,
-        )
+        actionable = bool(keys)
+        return BotResult(name, requested, 'E4' if actionable else 'E5',
+                         'findings' if actionable else 'clean exact-head review',
+                         'ACTIONABLE_FINDINGS' if actionable else 'OK',
+                         'Resolve findings and rerun on the new head.' if actionable else 'No action.',
+                         findings, keys)
     if requested:
-        return BotResult(
-            name=name,
-            requested=True,
-            level='E1',
-            state='missing evidence',
-            reason=no_evidence_reason,
-            action=no_evidence_action,
-            findings=findings,
-        )
-    return BotResult(
-        name=name,
-        requested=False,
-        level='E0',
-        state='not requested',
-        reason='NO_REQUEST',
-        action='Post the canonical review command.',
-        findings=findings,
-    )
+        return BotResult(name, True, 'E1', 'missing evidence', no_evidence_reason,
+                         no_evidence_action, findings)
+    return BotResult(name, False, 'E0', 'not requested', 'NO_REQUEST',
+                     'Post the canonical review command.', findings)
 
 
-def classify_bots(
-    *,
-    pr: dict[str, Any],
-    comments: list[dict[str, Any]],
-    reviews: list[dict[str, Any]],
-    review_comments: list[dict[str, Any]],
-    threads: list[dict[str, Any]],
-    threads_available: bool,
-    changed_paths: set[str],
-    head_time: datetime,
-) -> list[BotResult]:
+def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
+                  reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
+                  threads: list[dict[str, Any]], threads_available: bool,
+                  changed_paths: set[str], head_time: datetime) -> list[BotResult]:
     head_sha = str(pr['head']['sha']).lower()
-    inline_items = threads if threads_available else review_comments
-    all_review_items = reviews + inline_items
+    all_items = reviews + (threads if threads_available else review_comments)
 
-    codex_requests = fresh_requests(comments, '@codex review', head_time)
-    codex_items = bot_items(comments + all_review_items, BOT_LOGINS['Codex'], head_time)
-    codex_exact = [item for item in codex_items if current_head_evidence(item, head_sha)]
+    codex_req = fresh_requests(comments, '@codex review', head_time)
+    codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
     codex = result_from_exact_evidence(
-        name='Codex',
-        requested=bool(codex_requests),
-        exact_items=codex_exact,
+        name='Codex', requested=bool(codex_req),
+        exact_items=[item for item in codex_items if current_head_evidence(item, head_sha)],
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait up to 10 minutes, then retry once with @codex review.',
-    )
+        no_evidence_action='Wait up to 10 minutes, then retry once with @codex review.')
 
-    jules_requests = fresh_requests(comments, '@jules review', head_time)
-    jules_items = bot_items(comments + all_review_items, BOT_LOGINS['Jules'], head_time)
-    jules_exact = [item for item in jules_items if current_head_evidence(item, head_sha)]
+    jules_req = fresh_requests(comments, '@jules review', head_time)
+    jules_items = bot_items(comments + all_items, BOT_LOGINS['Jules'], head_time)
     jules = result_from_exact_evidence(
-        name='Jules',
-        requested=bool(jules_requests),
-        exact_items=jules_exact,
+        name='Jules', requested=bool(jules_req),
+        exact_items=[item for item in jules_items if current_head_evidence(item, head_sha)],
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
-        no_evidence_action='Retry once after 15 minutes; keep the gap advisory.',
-    )
+        no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
 
-    rabbit_requests = fresh_requests(comments, '@coderabbitai review', head_time)
-    rabbit_items = bot_items(comments + all_review_items, BOT_LOGINS['CodeRabbit'], head_time)
-    rabbit_exact = [
-        item
-        for item in rabbit_items
-        if current_head_evidence(item, head_sha)
-        and 'review in progress' not in body_of(item).lower()
-        and 'currently processing' not in body_of(item).lower()
-        and 'review failed' not in body_of(item).lower()
-    ]
+    rabbit_req = fresh_requests(comments, '@coderabbitai review', head_time)
+    rabbit_items = bot_items(comments + all_items, BOT_LOGINS['CodeRabbit'], head_time)
+    rabbit_exact = [item for item in rabbit_items if current_head_evidence(item, head_sha)
+                    and 'review in progress' not in body_of(item).lower()
+                    and 'currently processing' not in body_of(item).lower()
+                    and 'review failed' not in body_of(item).lower()]
     rabbit = result_from_exact_evidence(
-        name='CodeRabbit',
-        requested=bool(rabbit_requests),
-        exact_items=rabbit_exact,
-        no_evidence_reason='NO_ACK',
-        no_evidence_action='Retry once after 15 minutes.',
-    )
+        name='CodeRabbit', requested=bool(rabbit_req), exact_items=rabbit_exact,
+        no_evidence_reason='NO_ACK', no_evidence_action='Retry once after 15 minutes.')
     latest_rabbit = max(rabbit_items, key=time_of, default=None)
     if not rabbit_exact and latest_rabbit:
         text = body_of(latest_rabbit).lower()
         if 'failed to replace' in text or 'insufficient permissions' in text:
-            rabbit.level = 'E2'
-            rabbit.state = 'permission failure'
-            rabbit.reason = 'PERMISSION_ERROR'
+            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'permission failure', 'PERMISSION_ERROR'
             rabbit.action = 'Fix comment ownership/permissions, then retry once.'
         elif 'review failed' in text or 'failure by coderabbit' in text:
-            rabbit.level = 'E2'
-            rabbit.state = 'provider failure'
-            rabbit.reason = 'PROVIDER_UNAVAILABLE'
+            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'provider failure', 'PROVIDER_UNAVAILABLE'
             rabbit.action = 'Retry once; keep the outage advisory if CI remains healthy.'
         elif 'review in progress' in text or 'currently processing' in text:
-            rabbit.level = 'E2'
-            rabbit.state = 'in progress'
-            rabbit.reason = 'ACK_ONLY'
+            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'in progress', 'ACK_ONLY'
             rabbit.action = 'Wait to the 15-minute timeout before one retry.'
 
-    deepseek_requests = [
-        item
-        for command in ('/deepseek review', '/deepseek deep-review')
-        for item in fresh_requests(comments, command, head_time)
-    ]
-    deepseek_items = [
-        item
-        for item in comments
-        if login_of(item) == 'github-actions[bot]'
-        and DEEPSEEK_MARKER in body_of(item)
-        and is_after_head(item, head_time)
-    ]
-    deepseek_exact = [item for item in deepseek_items if current_head_evidence(item, head_sha)]
+    deep_req = [item for command in ('/deepseek review', '/deepseek deep-review')
+                for item in fresh_requests(comments, command, head_time)]
+    deep_items = [item for item in comments if login_of(item) == 'github-actions[bot]'
+                  and DEEPSEEK_MARKER in body_of(item) and is_after_head(item, head_time)]
+    deep_exact = [item for item in deep_items if current_head_evidence(item, head_sha)]
     deepseek = result_from_exact_evidence(
-        name='DeepSeek',
-        requested=bool(deepseek_requests),
-        exact_items=deepseek_exact,
+        name='DeepSeek', requested=bool(deep_req), exact_items=deep_exact,
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Inspect the DeepSeek workflow result and retry once.',
-    )
-    latest_deepseek = max(deepseek_items, key=time_of, default=None)
-    if latest_deepseek and 'status:** failed' in body_of(latest_deepseek).lower():
-        match = REASON_CODE_RE.search(body_of(latest_deepseek))
-        deepseek.level = 'E4' if current_head_evidence(latest_deepseek, head_sha) else 'E3'
-        deepseek.state = 'failed'
+        no_evidence_action='Inspect the DeepSeek workflow result and retry once.')
+    latest_deep = max(deep_items, key=time_of, default=None)
+    if latest_deep and 'status:** failed' in body_of(latest_deep).lower():
+        match = REASON_CODE_RE.search(body_of(latest_deep))
+        deepseek.level, deepseek.state = 'E2', 'failed'
         deepseek.reason = match.group(1).upper() if match else 'PROVIDER_UNAVAILABLE'
         deepseek.action = 'Apply the reason-code policy, then rerun on the same head.'
-    elif (
-        deepseek_requests
-        and not deepseek_exact
-        and '.github/workflows/deepseek-review.yml' in changed_paths
-    ):
-        deepseek.level = 'E1'
-        deepseek.state = 'bootstrap pending'
+        deepseek.findings = {f'P{i}': 0 for i in range(4)}
+        deepseek.finding_keys.clear()
+    elif deep_req and not deep_exact and '.github/workflows/deepseek-review.yml' in changed_paths:
+        deepseek.level, deepseek.state = 'E1', 'bootstrap pending'
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
-
     return [codex, jules, rabbit, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
-    latest_by_name: dict[str, dict[str, Any]] = {}
+    latest: dict[str, dict[str, Any]] = {}
     for check in checks.get('check_runs') or []:
         name = str(check.get('name') or 'unnamed check')
         if name == 'AI review cooperation report':
             continue
-        previous = latest_by_name.get(name)
-        current_rank = int(check.get('id') or 0)
-        previous_rank = int(previous.get('id') or 0) if previous else -1
-        if previous is None or current_rank >= previous_rank:
-            latest_by_name[name] = check
-
-    passed = 0
-    pending = 0
-    failed_names: list[str] = []
-    optional_failed_names: list[str] = []
-    for name, check in sorted(latest_by_name.items()):
-        status = check.get('status')
-        conclusion = check.get('conclusion')
-        required = name in REQUIRED_CHECKS
-        if not required:
+        if name not in latest or int(check.get('id') or 0) >= int(latest[name].get('id') or 0):
+            latest[name] = check
+    passed = pending = 0
+    failed: list[str] = []
+    optional_failed: list[str] = []
+    for name, check in sorted(latest.items()):
+        status, conclusion = check.get('status'), check.get('conclusion')
+        if name not in REQUIRED_CHECKS:
             if status == 'completed' and conclusion not in {'success', 'neutral', 'skipped'}:
-                optional_failed_names.append(name)
+                optional_failed.append(name)
             continue
         if status != 'completed':
             pending += 1
         elif conclusion in {'success', 'neutral', 'skipped'}:
             passed += 1
         else:
-            failed_names.append(name)
-    return CheckSummary(passed, pending, failed_names, optional_failed_names)
+            failed.append(name)
+    return CheckSummary(passed, pending, failed, optional_failed)
 
 
-def overall_conclusion(
-    bots: list[BotResult],
-    *,
-    checks: CheckSummary,
-    evidence_complete: bool,
-) -> tuple[str, str]:
+def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
+                       evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
     codex = next(bot for bot in bots if bot.name == 'Codex')
     if checks.failed_names or combined['P0'] or combined['P1']:
@@ -433,16 +311,9 @@ def overall_conclusion(
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
     if checks.pending or codex.level not in {'E4', 'E5'}:
         return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Codex evidence is still incomplete.'
-    advisory_gaps = [
-        bot.name
-        for bot in bots
-        if bot.name != 'Codex' and bot.level not in {'E4', 'E5'}
-    ]
-    if advisory_gaps:
-        return (
-            'READY_WITH_ADVISORY_GAPS',
-            'Required evidence is green; advisory gaps: ' + ', '.join(advisory_gaps) + '.',
-        )
+    gaps = [bot.name for bot in bots if bot.name != 'Codex' and bot.level not in {'E4', 'E5'}]
+    if gaps:
+        return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
     return 'READY', 'Required CI and exact-head reviewer evidence are complete.'
 
 
@@ -451,114 +322,53 @@ def findings_text(findings: dict[str, int]) -> str:
     return ', '.join(values) if values else 'none'
 
 
-def mermaid_graph(
-    bots: list[BotResult],
-    *,
-    head_sha: str,
-    checks: CheckSummary,
-    evidence_complete: bool,
-    conclusion: str,
-) -> str:
-    evidence = 'complete' if evidence_complete else 'truncated'
-    lines = [
-        'flowchart TD',
-        f'  H["Current head {head_sha[:12]}"]',
-        f'  CI["Required CI: {checks.passed} passed, {checks.pending} pending, {len(checks.failed_names)} failed"]',
-        f'  DATA["Evidence pages: {evidence}"]',
-        '  H --> CI',
-        '  H --> DATA',
-    ]
-    for index, bot in enumerate(bots, start=1):
-        request = 'yes' if bot.requested else 'no'
-        lines.extend(
-            [
-                f'  R{index}["{bot.name} request: {request}"]',
-                f'  E{index}["{bot.level}: {bot.state}"]',
-                f'  C{index}["Cause: {bot.reason}"]',
-                f'  A{index}["Action: {bot.action}"]',
-                f'  H --> R{index}',
-                f'  R{index} --> E{index}',
-                f'  E{index} --> C{index}',
-                f'  C{index} --> A{index}',
-            ]
-        )
-    lines.append(f'  D["Conclusion: {conclusion}"]')
-    lines.extend(['  CI --> D', '  DATA --> D'])
-    for index in range(1, len(bots) + 1):
-        lines.append(f'  A{index} --> D')
+def mermaid_graph(bots: list[BotResult], *, head_sha: str, checks: CheckSummary,
+                  evidence_complete: bool, conclusion: str) -> str:
+    lines = ['flowchart TD', f'  H["Current head {head_sha[:12]}"]',
+             f'  CI["Required CI: {checks.passed} passed, {checks.pending} pending, {len(checks.failed_names)} failed"]',
+             f'  DATA["Evidence pages: {"complete" if evidence_complete else "truncated"}"]',
+             '  H --> CI', '  H --> DATA']
+    for index, bot in enumerate(bots, 1):
+        lines += [f'  R{index}["{bot.name} request: {"yes" if bot.requested else "no"}"]',
+                  f'  E{index}["{bot.level}: {bot.state}"]', f'  C{index}["Cause: {bot.reason}"]',
+                  f'  A{index}["Action: {bot.action}"]', f'  H --> R{index}', f'  R{index} --> E{index}',
+                  f'  E{index} --> C{index}', f'  C{index} --> A{index}']
+    lines += [f'  D["Conclusion: {conclusion}"]', '  CI --> D', '  DATA --> D']
+    lines += [f'  A{index} --> D' for index in range(1, len(bots) + 1)]
     return '\n'.join(lines)
 
 
-def build_report(
-    *,
-    pr: dict[str, Any],
-    head_commit: dict[str, Any],
-    comments: list[dict[str, Any]],
-    reviews: list[dict[str, Any]],
-    review_comments: list[dict[str, Any]],
-    threads_data: dict[str, Any],
-    checks: dict[str, Any],
-    files: list[dict[str, Any]],
-) -> str:
+def build_report(*, pr: dict[str, Any], head_commit: dict[str, Any], comments: list[dict[str, Any]],
+                 reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
+                 threads_data: dict[str, Any], checks: dict[str, Any], files: list[dict[str, Any]]) -> str:
     head_sha = str(pr['head']['sha']).lower()
-    head_time = parse_time(
-        str(
-            ((head_commit.get('commit') or {}).get('committer') or {}).get('date')
-            or ((head_commit.get('commit') or {}).get('author') or {}).get('date')
-            or ''
-        )
-    )
-    changed_paths = {str(item.get('filename') or '') for item in files}
-    threads_available, evidence_complete, threads = flatten_threads(threads_data)
-    bots = classify_bots(
-        pr=pr,
-        comments=comments,
-        reviews=reviews,
-        review_comments=review_comments,
-        threads=threads,
-        threads_available=threads_available,
-        changed_paths=changed_paths,
-        head_time=head_time,
-    )
+    commit = head_commit.get('commit') or {}
+    head_time = parse_time(str((commit.get('committer') or {}).get('date')
+                               or (commit.get('author') or {}).get('date') or ''))
+    available, complete, threads = flatten_threads(threads_data)
+    bots = classify_bots(pr=pr, comments=comments, reviews=reviews, review_comments=review_comments,
+                         threads=threads, threads_available=available,
+                         changed_paths={str(item.get('filename') or '') for item in files},
+                         head_time=head_time)
     check_summary = classify_checks(checks)
-    conclusion, conclusion_detail = overall_conclusion(
-        bots,
-        checks=check_summary,
-        evidence_complete=evidence_complete,
-    )
-    unique_findings = combined_findings(bots)
-
-    table = [
-        '| Reviewer | Request | Evidence | State | Findings | Cause | Next action |',
-        '|---|---:|---|---|---|---|---|',
-    ]
+    conclusion, why = overall_conclusion(bots, checks=check_summary, evidence_complete=complete)
+    unique = combined_findings(bots)
+    table = ['| Reviewer | Request | Evidence | State | Findings | Cause | Next action |',
+             '|---|---:|---|---|---|---|---|']
     for bot in bots:
-        table.append(
-            f'| {bot.name} | {"yes" if bot.requested else "no"} | {bot.level} | '
-            f'{bot.state} | {findings_text(bot.findings)} | `{bot.reason}` | {bot.action} |'
-        )
-
-    graph = mermaid_graph(
-        bots,
-        head_sha=head_sha,
-        checks=check_summary,
-        evidence_complete=evidence_complete,
-        conclusion=conclusion,
-    )
-    failed_detail = ', '.join(check_summary.failed_names) if check_summary.failed_names else 'none'
-    optional_detail = (
-        ', '.join(check_summary.optional_failed_names)
-        if check_summary.optional_failed_names
-        else 'none'
-    )
-    evidence_text = 'complete' if evidence_complete else 'truncated (`EVIDENCE_TRUNCATED`)'
-
+        table.append(f'| {bot.name} | {"yes" if bot.requested else "no"} | {bot.level} | {bot.state} | '
+                     f'{findings_text(bot.findings)} | `{bot.reason}` | {bot.action} |')
+    graph = mermaid_graph(bots, head_sha=head_sha, checks=check_summary,
+                          evidence_complete=complete, conclusion=conclusion)
+    failed = ', '.join(check_summary.failed_names) or 'none'
+    optional = ', '.join(check_summary.optional_failed_names) or 'none'
+    evidence = 'complete' if complete else 'truncated (`EVIDENCE_TRUNCATED`)'
     return f'''{COMMENT_MARKER}
 ## AI reviewer cooperation report
 
 **Current head:** `{head_sha}`  
 **Overall conclusion:** **{conclusion}**  
-**Why:** {conclusion_detail}
+**Why:** {why}
 
 ### Evidence summary
 
@@ -566,7 +376,7 @@ def build_report(
 
 ### Causal findings
 
-Unique root causes: **{sum(unique_findings.values())}** — {findings_text(unique_findings)}.
+Unique root causes: **{sum(unique.values())}** — {findings_text(unique)}.
 Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### CI and collection summary
@@ -574,9 +384,9 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 - Required checks passed: **{check_summary.passed}**
 - Required checks pending: **{check_summary.pending}**
 - Required checks failed: **{len(check_summary.failed_names)}**
-- Required failed checks: {failed_detail}
-- Optional failed checks ignored for merge conclusion: {optional_detail}
-- Evidence pagination: **{evidence_text}**
+- Required failed checks: {failed}
+- Optional failed checks ignored for merge conclusion: {optional}
+- Evidence pagination: **{evidence}**
 
 ### Causal graph
 
@@ -586,7 +396,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
@@ -596,21 +406,13 @@ def main() -> int:
     if len(sys.argv) != 2 or sys.argv[1] != 'report':
         print('Usage: ai-review-cooperation.py report', file=sys.stderr)
         return 2
-    body = build_report(
-        pr=read_json_env('PR_JSON_FILE'),
-        head_commit=read_json_env('HEAD_COMMIT_FILE'),
-        comments=read_json_env('COMMENTS_FILE'),
-        reviews=read_json_env('REVIEWS_FILE'),
-        review_comments=read_json_env('REVIEW_COMMENTS_FILE'),
-        threads_data=read_json_env('THREADS_FILE'),
-        checks=read_json_env('CHECKS_FILE'),
-        files=read_json_env('FILES_FILE'),
-    )
-    output_path = Path(os.environ.get('COMMENT_FILE', '').strip() or DEFAULT_COMMENT_PATH)
-    output_path.write_text(
-        json.dumps({'body': body}, ensure_ascii=False),
-        encoding='utf-8',
-    )
+    body = build_report(pr=read_json_env('PR_JSON_FILE'), head_commit=read_json_env('HEAD_COMMIT_FILE'),
+                        comments=read_json_env('COMMENTS_FILE'), reviews=read_json_env('REVIEWS_FILE'),
+                        review_comments=read_json_env('REVIEW_COMMENTS_FILE'),
+                        threads_data=read_json_env('THREADS_FILE'), checks=read_json_env('CHECKS_FILE'),
+                        files=read_json_env('FILES_FILE'))
+    output = Path(os.environ.get('COMMENT_FILE', '').strip() or DEFAULT_COMMENT_PATH)
+    output.write_text(json.dumps({'body': body}, ensure_ascii=False), encoding='utf-8')
     return 0
 
 
