@@ -69,15 +69,16 @@ for (const fileName of DIRECT_FILES) {
 }
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
-const runtime = readFileSync("discover-rotation-v2.js", "utf8");
+const runtime = readFileSync("discover-rotation-v3.js", "utf8");
 const discoverRuntime = readFileSync("discover-v2.js", "utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
+const buildScript = readFileSync(path.join("scripts", "build.mjs"), "utf8");
 const css = readFileSync("discover-rotation.css", "utf8");
 const html = readFileSync("discover.html", "utf8");
 
-for (const [label, text] of [["source", source], ["runtime", runtime]]) {
+for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
   for (const id of EXPECTED_IDS) {
     const expectedSource = id === "cool-lime-macaron"
       ? 'source: "src/pairings-data/final/cool-lime-macaron-hq.webp"'
@@ -104,12 +105,15 @@ if (!journeysSource.includes('poster.style.visibility = supportedPairingIds.has(
 if (!journeysSource.includes('[data-pairing-poster]')) fail("journey guard does not target pairing poster artwork");
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone guard must remain a no-op compatibility placeholder");
 
-for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v2.js", "src/pairings-data/final/cool-lime-macaron-hq.webp"]) {
+for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/pairings-data/final/cool-lime-macaron-hq.webp"]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
 
+if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the v3 poster renderer from the typed source");
+if (!buildScript.includes('synchronizePhysicalScript(discoverHtml, "discover-rotation-v3.js")')) fail("build does not preserve the physical v3 cache key in discover.html");
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
-if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v2.js"')) fail("discover.html must load exact cache-safe Discover script paths without query strings");
+if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v3.js"')) fail("discover.html must load the v2 journey runtime and exact v3 poster renderer path without query strings");
+if (html.includes('src="discover-rotation-v2.js"')) fail("discover.html must not load the stale v2 poster renderer cache key");
 if (/src="discover(?:-rotation)?\.js(?:\?[^\"]*)?"/.test(html)) fail("discover.html still loads a legacy Discover script path");
 
 for (const token of ["cloneProductCards", "pairing-composition", "pairing-artwork--warm", "pairing-artwork--fresh"]) {
@@ -120,4 +124,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, all offline v2 assets, exact cache-safe script paths, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, the physical v3 renderer cache key, all required offline assets, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
