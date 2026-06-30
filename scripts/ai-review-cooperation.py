@@ -7,16 +7,19 @@ import json
 import os
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
+DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
 DEFAULT_COMMENT_PATH = Path('/tmp/ai-review-cooperation-comment.json')
+TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
 REVIEWED_COMMIT_RE = re.compile(r'Reviewed commit:[^`]*`([0-9a-f]{40})`', re.IGNORECASE)
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
+MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
 
 
 @dataclass
@@ -28,6 +31,7 @@ class BotResult:
     reason: str
     action: str
     findings: dict[str, int]
+    finding_keys: set[str] = field(default_factory=set)
 
 
 def required_env(name: str) -> str:
@@ -56,6 +60,10 @@ def login_of(item: dict[str, Any]) -> str:
     if isinstance(user, dict):
         return str(user.get('login') or '').lower()
     return ''
+
+
+def association_of(item: dict[str, Any]) -> str:
+    return str(item.get('author_association') or item.get('authorAssociation') or '').upper()
 
 
 def time_of(item: dict[str, Any]) -> datetime:
@@ -88,30 +96,56 @@ def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     return reviewed_commit_of(item) == head_sha.lower()
 
 
-def severity_counts(items: Iterable[dict[str, Any]]) -> dict[str, int]:
-    counts = {f'P{i}': 0 for i in range(4)}
+def normalized_finding_text(item: dict[str, Any], severity: str) -> str:
+    text = MARKDOWN_RE.sub(' ', body_of(item).lower())
+    text = re.sub(r'useful\?.*$', '', text, flags=re.DOTALL)
+    text = re.sub(r'\s+', ' ', text).strip()
+    marker = f'p{severity}'
+    position = text.find(marker)
+    if position >= 0:
+        text = text[position:position + 260]
+    path = str(item.get('path') or '')
+    line = str(item.get('line') or item.get('original_line') or '')
+    return f'{severity}|{path}|{line}|{text}'
+
+
+def finding_summary(items: Iterable[dict[str, Any]]) -> tuple[dict[str, int], set[str]]:
+    unique: dict[str, str] = {}
     for item in items:
         for value in SEVERITY_RE.findall(body_of(item)):
-            counts[f'P{value}'] += 1
+            severity = f'P{value}'
+            key = normalized_finding_text(item, value)
+            unique.setdefault(key, severity)
+    counts = {f'P{i}': 0 for i in range(4)}
+    for severity in unique.values():
+        counts[severity] += 1
+    return counts, set(unique)
+
+
+def combined_findings(bots: Iterable[BotResult]) -> dict[str, int]:
+    unique: dict[str, str] = {}
+    for bot in bots:
+        for key in bot.finding_keys:
+            unique.setdefault(key, key.split('|', 1)[0])
+    counts = {f'P{i}': 0 for i in range(4)}
+    for severity in unique.values():
+        if severity in counts:
+            counts[severity] += 1
     return counts
 
 
-def merge_counts(*values: dict[str, int]) -> dict[str, int]:
-    return {f'P{i}': sum(value.get(f'P{i}', 0) for value in values) for i in range(4)}
-
-
-def flatten_threads(data: dict[str, Any]) -> list[dict[str, Any]]:
+def flatten_threads(data: dict[str, Any]) -> tuple[bool, list[dict[str, Any]]]:
     try:
         nodes = data['data']['repository']['pullRequest']['reviewThreads']['nodes']
     except (KeyError, TypeError):
-        return []
+        return False, []
     comments: list[dict[str, Any]] = []
     for thread in nodes or []:
         if thread.get('isResolved'):
             continue
         for comment in (thread.get('comments') or {}).get('nodes') or []:
             comments.append(comment)
-    return comments
+    return True, comments
 
 
 def fresh_requests(
@@ -122,7 +156,9 @@ def fresh_requests(
     return [
         item
         for item in comments
-        if body_of(item).strip().lower() == command.lower() and is_after_head(item, head_time)
+        if body_of(item).strip().lower() == command.lower()
+        and association_of(item) in TRUSTED_ASSOCIATIONS
+        and is_after_head(item, head_time)
     ]
 
 
@@ -147,9 +183,9 @@ def result_from_exact_evidence(
     no_evidence_reason: str,
     no_evidence_action: str,
 ) -> BotResult:
-    findings = severity_counts(exact_items)
+    findings, finding_keys = finding_summary(exact_items)
     if exact_items:
-        actionable = sum(findings.values()) > 0
+        actionable = bool(finding_keys)
         return BotResult(
             name=name,
             requested=requested,
@@ -158,6 +194,7 @@ def result_from_exact_evidence(
             reason='ACTIONABLE_FINDINGS' if actionable else 'OK',
             action='Resolve findings and rerun on the new head.' if actionable else 'No action.',
             findings=findings,
+            finding_keys=finding_keys,
         )
     if requested:
         return BotResult(
@@ -187,11 +224,13 @@ def classify_bots(
     reviews: list[dict[str, Any]],
     review_comments: list[dict[str, Any]],
     threads: list[dict[str, Any]],
+    threads_available: bool,
     changed_paths: set[str],
     head_time: datetime,
 ) -> list[BotResult]:
     head_sha = str(pr['head']['sha']).lower()
-    all_review_items = reviews + review_comments + threads
+    inline_items = threads if threads_available else review_comments
+    all_review_items = reviews + inline_items
 
     codex_requests = fresh_requests(comments, '@codex review', head_time)
     codex_items = bot_items(
@@ -263,8 +302,7 @@ def classify_bots(
     deepseek_items = [
         item
         for item in comments
-        if COMMENT_MARKER.replace('ai-review-cooperation', 'deepseek-pr-review') in body_of(item)
-        and is_after_head(item, head_time)
+        if DEEPSEEK_MARKER in body_of(item) and is_after_head(item, head_time)
     ]
     deepseek_exact = [item for item in deepseek_items if current_head_evidence(item, head_sha)]
     deepseek = result_from_exact_evidence(
@@ -277,7 +315,7 @@ def classify_bots(
     latest_deepseek = max(deepseek_items, key=time_of, default=None)
     if latest_deepseek and 'status:** failed' in body_of(latest_deepseek).lower():
         match = REASON_CODE_RE.search(body_of(latest_deepseek))
-        deepseek.level = 'E3' if not deepseek_exact else 'E4'
+        deepseek.level = 'E4' if current_head_evidence(latest_deepseek, head_sha) else 'E3'
         deepseek.state = 'failed'
         deepseek.reason = match.group(1).upper() if match else 'PROVIDER_UNAVAILABLE'
         deepseek.action = 'Apply the reason-code policy, then rerun on the same head.'
@@ -295,13 +333,21 @@ def classify_bots(
 
 
 def classify_checks(checks: dict[str, Any]) -> tuple[int, int, int, list[str]]:
-    passed = 0
-    pending = 0
-    failed_names: list[str] = []
+    latest_by_name: dict[str, dict[str, Any]] = {}
     for check in checks.get('check_runs') or []:
         name = str(check.get('name') or 'unnamed check')
         if name == 'AI review cooperation report':
             continue
+        previous = latest_by_name.get(name)
+        current_rank = int(check.get('id') or 0)
+        previous_rank = int(previous.get('id') or 0) if previous else -1
+        if previous is None or current_rank >= previous_rank:
+            latest_by_name[name] = check
+
+    passed = 0
+    pending = 0
+    failed_names: list[str] = []
+    for name, check in sorted(latest_by_name.items()):
         status = check.get('status')
         conclusion = check.get('conclusion')
         if status != 'completed':
@@ -319,12 +365,12 @@ def overall_conclusion(
     ci_pending: int,
     ci_failed: int,
 ) -> tuple[str, str]:
-    combined = merge_counts(*(bot.findings for bot in bots))
+    combined = combined_findings(bots)
     codex = next(bot for bot in bots if bot.name == 'Codex')
     if ci_failed or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
-        return 'FIX_THEN_RERUN', 'Resolve every P2 finding and request fresh exact-head reviews.'
+        return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
     if ci_pending or codex.level not in {'E4', 'E5'}:
         return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Codex evidence is still incomplete.'
     advisory_gaps = [
@@ -401,13 +447,14 @@ def build_report(
         )
     )
     changed_paths = {str(item.get('filename') or '') for item in files}
-    threads = flatten_threads(threads_data)
+    threads_available, threads = flatten_threads(threads_data)
     bots = classify_bots(
         pr=pr,
         comments=comments,
         reviews=reviews,
         review_comments=review_comments,
         threads=threads,
+        threads_available=threads_available,
         changed_paths=changed_paths,
         head_time=head_time,
     )
@@ -417,6 +464,7 @@ def build_report(
         ci_pending=ci_pending,
         ci_failed=ci_failed,
     )
+    unique_findings = combined_findings(bots)
 
     table = [
         '| Reviewer | Request | Evidence | State | Findings | Cause | Next action |',
@@ -449,6 +497,11 @@ def build_report(
 
 {chr(10).join(table)}
 
+### Causal findings
+
+Unique root causes: **{sum(unique_findings.values())}** — {findings_text(unique_findings)}.
+Duplicate REST/GraphQL copies of the same inline finding are counted once.
+
 ### CI summary
 
 - Passed: **{ci_passed}**
@@ -464,7 +517,7 @@ def build_report(
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: executable CI and exact-head evidence dominate; duplicate bot findings are collapsed by root cause; stale or acknowledgement-only responses never count as review evidence.
+The conclusion is causal, not a majority vote: executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, untrusted, resolved, or acknowledgement-only responses never count as review evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
