@@ -30,6 +30,7 @@ transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v2.js");
+transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js");
 
 function revisionFor(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
@@ -50,16 +51,41 @@ function synchronizeScript(html, fileName, revision) {
   return html.slice(0, open) + tag + html.slice(close + 9);
 }
 
-function synchronizePhysicalScript(html, fileName) {
-  const { open, close } = locateScript(html, fileName);
-  const tag = "<" + `script defer src="${fileName}">` + "</" + "script>";
-  return html.slice(0, open) + tag + html.slice(close + 9);
+function synchronizeStylesheet(html, fileName, revision) {
+  const pattern = new RegExp(`href="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
+  if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
+  return html.replace(pattern, `href="${fileName}?v=${revision}"`);
+}
+
+function synchronizeServiceWorker(serviceWorker, scriptRevision, cssRevision) {
+  const versionPattern = /const CACHE_VERSION = "robys-offline-v9-20260630-discover-[^"]+";/;
+  const scriptAssetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
+  const cssAssetPattern = /"\.\/discover-rotation\.css(?:\?v=[a-f0-9]{12})?"/;
+
+  if (!versionPattern.test(serviceWorker)) {
+    throw new Error("Service worker does not contain the v9 discover cache version marker");
+  }
+  if (!scriptAssetPattern.test(serviceWorker)) {
+    throw new Error("Service worker does not contain the v3 renderer cache entry");
+  }
+  if (!cssAssetPattern.test(serviceWorker)) {
+    throw new Error("Service worker does not contain the poster stylesheet cache entry");
+  }
+
+  return serviceWorker
+    .replace(
+      versionPattern,
+      `const CACHE_VERSION = "robys-offline-v9-20260630-discover-${scriptRevision}-${cssRevision}";`
+    )
+    .replace(scriptAssetPattern, `"./discover-rotation-v3.js?v=${scriptRevision}"`)
+    .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
 }
 
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
-const discoverRotationRevision = revisionFor("discover-rotation-v2.js");
+const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
+const discoverRotationCssRevision = revisionFor("discover-rotation.css");
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -67,9 +93,16 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
-// The v2 pathname is itself the cache key. Keep it query-free so old workers
-// cannot collapse it onto a legacy query-insensitive entry.
-discoverHtml = synchronizePhysicalScript(discoverHtml, "discover-rotation-v2.js");
+discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
+discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js and discover-rotation-v2.js (${discoverRotationRevision}, physical v2 path).`);
+let serviceWorker = readFileSync("sw.js", "utf8");
+serviceWorker = synchronizeServiceWorker(
+  serviceWorker,
+  discoverRotationRevision,
+  discoverRotationCssRevision
+);
+writeFileSync("sw.js", serviceWorker);
+
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}), plus discover-rotation.css (${discoverRotationCssRevision}) with exact synchronized cache keys.`);

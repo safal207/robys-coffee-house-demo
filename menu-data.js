@@ -39,6 +39,23 @@ export const menuCopy = {
 
 export const menuCategories = [
   {
+    id: "pairing-offers",
+    icon: "✨",
+    name: { tr: "Taste Journey Eşleşmeleri", en: "Taste Journey Pairings", ru: "Сочетания Taste Journey" },
+    items: [
+      {
+        id: "cool-lime-macaron-pairing",
+        name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
+        description: {
+          tr: "Taste Journey eşleşme teklifi",
+          en: "Taste Journey pairing offer",
+          ru: "Предложение Taste Journey"
+        },
+        price: 290
+      }
+    ]
+  },
+  {
     id: "hot-coffee",
     icon: "☕",
     name: { tr: "Sıcak Kahveler", en: "Hot Coffee", ru: "Горячий кофе" },

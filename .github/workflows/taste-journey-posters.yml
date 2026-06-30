@@ -6,12 +6,19 @@ on:
       - ".github/workflows/taste-journey-posters.yml"
       - "discover-rotation.css"
       - "discover-rotation.js"
+      - "discover-rotation-v2.js"
+      - "discover-rotation-v3.js"
       - "discover.html"
       - "integrity-manifest.json"
+      - "menu-data.js"
       - "package.json"
+      - "qa/menu-content-baseline.json"
+      - "scripts/build.mjs"
+      - "scripts/verify-pr140-release-blockers.mjs"
       - "scripts/verify-taste-journey-posters.mjs"
       - "src/discover-rotation.ts"
       - "src/pairings-data/**"
+      - "sw.js"
   workflow_dispatch:
 
 permissions:
@@ -40,6 +47,12 @@ jobs:
       - name: Verify final poster assets and renderer
         run: npm run verify:taste-journey-posters
 
+      - name: Verify PR 140 release blockers
+        run: npm run verify:pr140-blockers
+
+      - name: Verify menu offer source of truth
+        run: npm run verify:menu-content
+
       - name: Generate integrity manifest
         run: npm run integrity:generate
 
@@ -53,4 +66,11 @@ jobs:
           retention-days: 7
 
       - name: Reject stale generated files
-        run: git diff --exit-code -- discover-rotation.js discover.html integrity-manifest.json
+        run: >-
+          git diff --exit-code --
+          discover-rotation.js
+          discover-rotation-v2.js
+          discover-rotation-v3.js
+          discover.html
+          sw.js
+          integrity-manifest.json

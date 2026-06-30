@@ -5,6 +5,7 @@ interface PairingPoster {
   id: string;
   source: string;
   alt: PosterLocalizedText;
+  price?: PosterLocalizedText;
 }
 
 const MAX_POSTER_BASE64_LENGTH = 2_500_000;
@@ -52,12 +53,13 @@ const posters: Record<string, PairingPoster> = {
   },
   "cool-lime-macaron": {
     id: "cool-lime-macaron",
-    source: posterSource("cool-lime-macaron"),
+    source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
     alt: localized(
       "Cool Lime ve Makaron eşleşmesi posteri",
       "Cool Lime and Macaron pairing poster",
       "Постер сочетания Cool Lime и макарона"
-    )
+    ),
+    price: localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")
   }
 };
 
@@ -87,6 +89,8 @@ function normalizeWebPBase64(payload: string): string {
 }
 
 function loadPoster(source: string): Promise<string> {
+  if (source.endsWith(".webp")) return Promise.resolve(source);
+
   const cached = sourceCache.get(source);
   if (cached) return cached;
 
@@ -106,7 +110,12 @@ function loadPoster(source: string): Promise<string> {
 }
 
 function waitForImage(image: HTMLImageElement): Promise<void> {
-  if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+  if (image.complete) {
+    return image.naturalWidth > 0
+      ? Promise.resolve()
+      : Promise.reject(new Error("Poster image failed to decode"));
+  }
+
   return new Promise((resolve, reject) => {
     image.addEventListener("load", () => resolve(), { once: true });
     image.addEventListener("error", () => reject(new Error("Poster image failed to decode")), { once: true });
@@ -141,6 +150,16 @@ class PosterRenderer {
       figure.className = "pairing-poster";
       figure.dataset.pairingPoster = poster.id;
       figure.append(image);
+
+      if (poster.price) {
+        const caption = document.createElement("figcaption");
+        caption.id = `pairing-poster-price-${poster.id}`;
+        caption.className = "pairing-poster-price";
+        caption.textContent = poster.price[currentLanguage()];
+        image.setAttribute("aria-describedby", caption.id);
+        figure.append(caption);
+      }
+
       this.root.replaceChildren(figure);
       this.root.removeAttribute("aria-busy");
       return true;
@@ -173,6 +192,8 @@ function initialize(): void {
     if (existing?.dataset.pairingPoster === poster.id) {
       const image = existing.querySelector<HTMLImageElement>("img");
       if (image) image.alt = poster.alt[currentLanguage()];
+      const caption = existing.querySelector<HTMLElement>(".pairing-poster-price");
+      if (caption && poster.price) caption.textContent = poster.price[currentLanguage()];
       return;
     }
 
