@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr140-cool-lime-macaron-pairing-offer-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/140",
+      "contentBindings": {
+        "menu-data.js": "993c4ed8a9618c475773284cebd7c65897fcd5cb"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x5436 vs 320x5641"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x5098 vs 390x5304"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x5406 vs 768x5629"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x3967 vs 1440x4000"
+        }
+      ]
+    }
+  ]
+}
