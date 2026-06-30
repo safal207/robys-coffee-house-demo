@@ -22,9 +22,11 @@ jobs:
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
             const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const codexBotLogins = new Set([
+            const officialAiBotLogins = new Set([
               'chatgpt-codex-connector[bot]',
               'chatgpt-codex-connector',
+              'coderabbitai[bot]',
+              'coderabbitai',
             ]);
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -35,8 +37,8 @@ jobs:
             );
             const isFresh = (item) => timeOf(item) >= evidenceAfter;
             const bodyOf = (item) => (item.body ?? '').trim();
-            const isCodexBot = (user) => (
-              user?.type === 'Bot' && codexBotLogins.has(user.login)
+            const isOfficialAiBot = (user) => (
+              user?.type === 'Bot' && officialAiBotLogins.has(user.login)
             );
             const reviewedCommitOf = (item) => bodyOf(item).match(
               /Reviewed commit:[^`]*`([0-9a-f]{40})`/i,
@@ -73,25 +75,25 @@ jobs:
                 isCommand(item, '@jules review'),
               );
 
-              const codexIssueComment = comments.find((item) => (
-                isCodexBot(item.user) &&
+              const aiIssueComment = comments.find((item) => (
+                isOfficialAiBot(item.user) &&
                 isFresh(item) &&
                 matchesBodyHead(item)
               ));
 
-              let codexPullReview = null;
-              let codexPullReviewMatch = null;
+              let aiPullReview = null;
+              let aiPullReviewMatch = null;
               for (const review of reviews) {
-                if (!isCodexBot(review.user) || !isFresh(review)) continue;
+                if (!isOfficialAiBot(review.user) || !isFresh(review)) continue;
                 const matchType = nativeReviewMatchType(review);
                 if (!matchType) continue;
-                codexPullReview = review;
-                codexPullReviewMatch = matchType;
+                aiPullReview = review;
+                aiPullReviewMatch = matchType;
                 break;
               }
 
               let codexReaction = false;
-              if (!codexIssueComment && !codexPullReview) {
+              if (!aiIssueComment && !aiPullReview) {
                 try {
                   for (const request of codexRequests) {
                     const reactions = await github.paginate(
@@ -102,7 +104,7 @@ jobs:
                       reactions.some((reaction) => {
                         const reactionTime = Date.parse(reaction.created_at);
                         return (
-                          isCodexBot(reaction.user) &&
+                          officialAiBotLogins.has(reaction.user?.login) &&
                           reaction.content === '+1' &&
                           reactionTime >= evidenceAfter &&
                           reactionTime >= Date.parse(request.created_at)
@@ -114,23 +116,23 @@ jobs:
                     }
                   }
                 } catch (error) {
-                  core.warning(`Could not inspect Codex reactions: ${error.message}`);
+                  core.warning(`Could not inspect AI review reactions: ${error.message}`);
                 }
               }
 
               const hasCodexRequest = codexRequests.length > 0;
-              const hasCodexEvidence = Boolean(
-                codexIssueComment || codexPullReview || codexReaction,
+              const hasAiEvidence = Boolean(
+                aiIssueComment || aiPullReview || codexReaction,
               );
 
-              if (hasCodexRequest && hasJulesRequest && hasCodexEvidence) {
-                const evidenceType = codexPullReview
-                  ? codexPullReviewMatch === 'commit_id'
-                    ? 'native pull request review matching current commit_id'
-                    : 'native pull request review with full matching Reviewed commit'
-                  : codexIssueComment
-                    ? 'issue comment with full matching Reviewed commit'
-                    : 'bot +1 on fresh request';
+              if (hasCodexRequest && hasJulesRequest && hasAiEvidence) {
+                const evidenceType = aiPullReview
+                  ? aiPullReviewMatch === 'commit_id'
+                    ? `native ${aiPullReview.user.login} review matching current commit_id`
+                    : `native ${aiPullReview.user.login} review with full matching Reviewed commit`
+                  : aiIssueComment
+                    ? `${aiIssueComment.user.login} issue comment with full matching Reviewed commit`
+                    : 'official AI bot +1 on fresh request';
 
                 await core.summary
                   .addHeading('AI review contract')
@@ -141,11 +143,11 @@ jobs:
                     ],
                     ['Fresh @codex review request', 'yes'],
                     ['Fresh @jules review request', 'yes'],
-                    ['Official Codex evidence for current head', evidenceType],
+                    ['Official independent AI evidence for current head', evidenceType],
                   ])
                   .write();
                 core.notice(
-                  `Codex evidence verified for current head ${pr.head.sha}; Jules was requested.`,
+                  `Independent AI evidence verified for current head ${pr.head.sha}; Jules was requested.`,
                 );
                 return;
               }
@@ -154,11 +156,11 @@ jobs:
                 `Waiting for AI review evidence (attempt ${attempt}/30): ` +
                   `Codex request=${hasCodexRequest}, ` +
                   `Jules request=${hasJulesRequest}, ` +
-                  `Codex head evidence=${hasCodexEvidence}`,
+                  `current-head AI evidence=${hasAiEvidence}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official Codex evidence tied to the current head through native review commit_id, a full matching Reviewed commit, or a trusted bot reaction.',
+              'After the latest PR open or head update, post fresh @codex review and @jules review comments, then wait for official independent AI evidence tied to the current head through native review commit_id, a full matching Reviewed commit, or a trusted bot reaction.',
             );
