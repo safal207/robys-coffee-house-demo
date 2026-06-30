@@ -6,7 +6,9 @@ on:
       - .github/workflows/deepseek-review.yml
       - .github/workflows/deepseek-review-contract.yml
       - scripts/deepseek-review.py
+      - scripts/deepseek-infer-strict.py
       - scripts/test-deepseek-review.py
+      - scripts/test-deepseek-guards.py
 
 permissions:
   contents: read
@@ -22,10 +24,17 @@ jobs:
           persist-credentials: false
 
       - name: Compile reviewer scripts
-        run: python3 -m py_compile scripts/deepseek-review.py scripts/test-deepseek-review.py
+        run: >-
+          python3 -m py_compile
+          scripts/deepseek-review.py
+          scripts/deepseek-infer-strict.py
+          scripts/test-deepseek-review.py
+          scripts/test-deepseek-guards.py
 
       - name: Run offline reviewer contracts
-        run: python3 scripts/test-deepseek-review.py -v
+        run: |
+          python3 scripts/test-deepseek-review.py -v
+          python3 scripts/test-deepseek-guards.py -v
 
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deepseek-review.yml'); YAML.parse_file('.github/workflows/deepseek-review-contract.yml')"
@@ -38,7 +47,9 @@ jobs:
         run: |
           grep -Fq 'DEEPSEEK_API_KEY:' .github/workflows/deepseek-review.yml
           grep -Fq 'secrets.DEEPSEEK_API_KEY' .github/workflows/deepseek-review.yml
-          grep -Fq 'python3 scripts/deepseek-review.py infer' .github/workflows/deepseek-review.yml
+          grep -Fq 'python3 scripts/deepseek-infer-strict.py' .github/workflows/deepseek-review.yml
+          grep -Fq 'finish_reason' scripts/deepseek-infer-strict.py
+          grep -Fq 'test_secret_is_header_only_not_request_body' scripts/test-deepseek-guards.py
           grep -Fq 'Publish or update reviewer result' .github/workflows/deepseek-review.yml
           grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
           grep -Fq 'EXPECTED_HEAD:' .github/workflows/deepseek-review.yml
