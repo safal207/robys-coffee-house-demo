@@ -4,11 +4,7 @@ on:
   issue_comment:
     types: [created]
 
-permissions:
-  checks: read
-  contents: read
-  issues: write
-  pull-requests: read
+permissions: {}
 
 jobs:
   report:
@@ -18,6 +14,11 @@ jobs:
       (github.event.comment.author_association == 'OWNER' ||
        github.event.comment.author_association == 'MEMBER' ||
        github.event.comment.author_association == 'COLLABORATOR')
+    permissions:
+      checks: read
+      contents: read
+      issues: write
+      pull-requests: read
     concurrency:
       group: ai-review-cooperation-${{ github.event.issue.number }}
       cancel-in-progress: true
@@ -27,6 +28,15 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
+      PR_JSON_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-pr.json
+      HEAD_COMMIT_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-head.json
+      COMMENTS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-comments.json
+      REVIEWS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-reviews.json
+      REVIEW_COMMENTS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-review-comments.json
+      THREADS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-threads.json
+      CHECKS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-checks.json
+      FILES_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-files.json
+      COMMENT_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-comment.json
 
     steps:
       - name: Checkout trusted reporter code
@@ -35,56 +45,43 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
 
-      - name: Collect exact-head evidence
+      - name: Collect exact-head REST evidence
         run: |
-          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > /tmp/cooperation-pr.json
-          HEAD_SHA="$(jq -r '.head.sha' /tmp/cooperation-pr.json)"
-          gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" > /tmp/cooperation-head-commit.json
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" > "${HEAD_COMMIT_FILE}"
           gh api --paginate --slurp \
             "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
-            | jq 'add' > /tmp/cooperation-comments.json
+            | jq 'add // []' > "${COMMENTS_FILE}"
           gh api --paginate --slurp \
             "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" \
-            | jq 'add' > /tmp/cooperation-reviews.json
+            | jq 'add // []' > "${REVIEWS_FILE}"
           gh api --paginate --slurp \
             "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" \
-            | jq 'add' > /tmp/cooperation-review-comments.json
+            | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
           gh api --paginate --slurp \
             "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
-            | jq 'add' > /tmp/cooperation-files.json
-          gh api -H 'Accept: application/vnd.github+json' \
+            | jq 'add // []' > "${FILES_FILE}"
+          gh api --paginate -H 'Accept: application/vnd.github+json' \
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
-            > /tmp/cooperation-checks.json
-          OWNER="${REPOSITORY%%/*}"
-          NAME="${REPOSITORY#*/}"
-          gh api graphql \
-            -f owner="${OWNER}" \
-            -f name="${NAME}" \
-            -F number="${PR_NUMBER}" \
-            -f query='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){reviewThreads(first:100){nodes{isResolved comments(first:100){nodes{body createdAt author{login} commit{oid}}}}}}}}' \
-            > /tmp/cooperation-threads.json
+            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
+            > "${CHECKS_FILE}"
+
+      - name: Collect complete GraphQL review evidence
+        run: python3 scripts/fetch-review-threads.py
 
       - name: Build causal cooperation report
-        env:
-          PR_JSON_FILE: /tmp/cooperation-pr.json
-          HEAD_COMMIT_FILE: /tmp/cooperation-head-commit.json
-          COMMENTS_FILE: /tmp/cooperation-comments.json
-          REVIEWS_FILE: /tmp/cooperation-reviews.json
-          REVIEW_COMMENTS_FILE: /tmp/cooperation-review-comments.json
-          THREADS_FILE: /tmp/cooperation-threads.json
-          CHECKS_FILE: /tmp/cooperation-checks.json
-          FILES_FILE: /tmp/cooperation-files.json
-          COMMENT_FILE: /tmp/ai-review-cooperation-comment.json
         run: python3 scripts/ai-review-cooperation.py report
-
-      - name: Reject stale report
-        run: |
-          EXPECTED_HEAD="$(jq -r '.head.sha' /tmp/cooperation-pr.json)"
-          CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
-          test "${CURRENT_HEAD}" = "${EXPECTED_HEAD}"
 
       - name: Publish or update cooperation report
         run: |
+          EXPECTED_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          if [ "${CURRENT_HEAD}" != "${EXPECTED_HEAD}" ]; then
+            echo "PR head changed before publishing: ${EXPECTED_HEAD} -> ${CURRENT_HEAD}" >&2
+            exit 1
+          fi
+          test -f "${COMMENT_FILE}"
           existing_id="$(
             gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id' \
@@ -92,8 +89,8 @@ jobs:
           )"
           if [ -n "${existing_id}" ]; then
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
-              --input /tmp/ai-review-cooperation-comment.json
+              --input "${COMMENT_FILE}"
           else
             gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --input /tmp/ai-review-cooperation-comment.json
+              --input "${COMMENT_FILE}"
           fi
