@@ -1,11 +1,12 @@
 {
-  "version": 1,
-  "verifiedAt": "2026-06-23",
-  "source": "Photographed printed menu and real-device screenshots supplied for the Roby's Coffee House demo",
+  "version": 2,
+  "verifiedAt": "2026-06-30",
+  "source": "Photographed printed menu, real-device screenshots, and the approved Cool Lime + Macaron Taste Journey offer artwork supplied for the Roby's Coffee House demo",
   "languages": ["tr", "en", "ru"],
-  "categoryCount": 7,
-  "itemCount": 61,
+  "categoryCount": 8,
+  "itemCount": 62,
   "categories": {
+    "pairing-offers": 1,
     "hot-coffee": 15,
     "brew-hot": 7,
     "cold-coffee": 8,
@@ -15,6 +16,7 @@
     "food": 5
   },
   "prices": {
+    "pairing-offers::Cool Lime + Makaron": 290,
     "hot-coffee::Espresso": 110,
     "hot-coffee::Americano": 160,
     "hot-coffee::Espresso Macchiato": 170,
