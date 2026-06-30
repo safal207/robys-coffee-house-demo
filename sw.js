@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v8-20260630-rotation-f1d811b3a136";
+const CACHE_VERSION = "robys-offline-v8-20260630-rotation-9c9044d1b5a4";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -35,7 +35,7 @@ const CORE_ASSETS = [
   "./discover-journeys-v2.js",
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
-  "./discover-rotation-v3.js?v=f1d811b3a136",
+  "./discover-rotation-v3.js?v=9c9044d1b5a4",
   "./src/pairings-data/final/cool-lime-macaron-hq.webp",
   "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
