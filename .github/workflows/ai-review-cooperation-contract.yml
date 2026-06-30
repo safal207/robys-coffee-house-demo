@@ -6,6 +6,7 @@ on:
       - .github/workflows/ai-review-cooperation.yml
       - .github/workflows/ai-review-cooperation-contract.yml
       - scripts/ai-review-cooperation.py
+      - scripts/fetch-review-threads.py
       - scripts/test-ai-review-cooperation.py
       - docs/ai-review-cooperation-policy.md
 
@@ -23,7 +24,11 @@ jobs:
           persist-credentials: false
 
       - name: Compile cooperation scripts
-        run: python3 -m py_compile scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py
+        run: >-
+          python3 -m py_compile
+          scripts/ai-review-cooperation.py
+          scripts/fetch-review-threads.py
+          scripts/test-ai-review-cooperation.py
 
       - name: Run offline cooperation contracts
         run: python3 scripts/test-ai-review-cooperation.py -v
@@ -39,17 +44,44 @@ jobs:
           grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'checks: read' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'issues: write' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'runner.temp' .github/workflows/ai-review-cooperation.yml
           ! grep -Fq 'contents: write' .github/workflows/ai-review-cooperation.yml
           ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
+          permissions = workflow.dig('jobs', 'report', 'permissions')
+          expected = {
+            'checks' => 'read',
+            'contents' => 'read',
+            'issues' => 'write',
+            'pull-requests' => 'read',
+          }
+          raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          RUBY
 
-      - name: Verify causal evidence and policy taxonomy
+      - name: Verify complete evidence collection
+        run: |
+          grep -Fq 'check-runs?per_page=100' .github/workflows/ai-review-cooperation.yml
+          grep -Fq -- '--paginate' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'scripts/fetch-review-threads.py' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'while True:' scripts/fetch-review-threads.py
+          grep -Fq 'hasNextPage' scripts/fetch-review-threads.py
+          grep -Fq 'COMMENTS_QUERY' scripts/fetch-review-threads.py
+          grep -Fq 'EVIDENCE_TRUNCATED' scripts/ai-review-cooperation.py
+          grep -Fq 'PR head changed before publishing' .github/workflows/ai-review-cooperation.yml
+
+      - name: Verify causal trust and policy taxonomy
         run: |
           grep -Fq '<!-- ai-review-cooperation -->' scripts/ai-review-cooperation.py
+          grep -Fq 'BOT_LOGINS' scripts/ai-review-cooperation.py
+          grep -Fq "login_of(item) == 'github-actions[bot]'" scripts/ai-review-cooperation.py
+          grep -Fq 'REQUIRED_CHECKS' scripts/ai-review-cooperation.py
           grep -Fq 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH' scripts/ai-review-cooperation.py
           grep -Fq 'NO_CURRENT_HEAD_EVIDENCE' scripts/ai-review-cooperation.py
           grep -Fq 'FIX_THEN_RERUN' scripts/ai-review-cooperation.py
+          grep -Fq "level='E4' if actionable else 'E5'" scripts/ai-review-cooperation.py
           grep -Fq 'flowchart TD' scripts/ai-review-cooperation.py
           grep -Fq 'STALE_HEAD' docs/ai-review-cooperation-policy.md
           grep -Fq 'PERMISSION_ERROR' docs/ai-review-cooperation-policy.md
