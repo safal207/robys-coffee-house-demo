@@ -105,8 +105,8 @@ def normalized_finding_text(item: dict[str, Any], severity: str) -> str:
     if position >= 0:
         text = text[position:position + 260]
     path = str(item.get('path') or '')
-    line = str(item.get('line') or item.get('original_line') or '')
-    return f'{severity}|{path}|{line}|{text}'
+    line = str(item.get('line') or item.get('original_line') or item.get('originalLine') or '')
+    return f'P{severity}|{path}|{line}|{text}'
 
 
 def finding_summary(items: Iterable[dict[str, Any]]) -> tuple[dict[str, int], set[str]]:
