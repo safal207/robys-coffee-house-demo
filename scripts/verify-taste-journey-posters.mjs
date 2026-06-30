@@ -89,6 +89,9 @@ for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
   if (!text.includes('source.endsWith(".webp")')) fail(`${label} renderer does not support direct WebP poster sources`);
 }
 
+if (!source.includes("if (image.complete)") || !source.includes("Promise.reject(new Error(\"Poster image failed to decode\"))")) fail("typed renderer does not reject an already-completed failed image decode");
+if (!runtime.includes("if (image.complete)") || !runtime.includes('Promise.reject(new Error("Poster image failed to decode"))')) fail("generated v3 renderer does not reject an already-completed failed image decode");
+
 const journeysBlock = journeysSource.match(/export const journeys\s*=\s*\[([\s\S]*?)\n\];\s*\n\s*export const imageAlt/)?.[1];
 if (!journeysBlock) fail("could not isolate the exported journeys array");
 const actualIds = [...journeysBlock.matchAll(/^\s{4}id:\s*"([^"]+)"/gm)].map((match) => match[1]);
@@ -105,14 +108,22 @@ if (!journeysSource.includes('poster.style.visibility = supportedPairingIds.has(
 if (!journeysSource.includes('[data-pairing-poster]')) fail("journey guard does not target pairing poster artwork");
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone guard must remain a no-op compatibility placeholder");
 
-for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/pairings-data/final/cool-lime-macaron-hq.webp"]) {
+for (const asset of ["discover-v2.js", "discover-journeys-v2.js", "src/pairings-data/final/cool-lime-macaron-hq.webp"]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
 
+const revisionMatch = html.match(/src="discover-rotation-v3\.js\?v=([a-f0-9]{12})"/);
+if (!revisionMatch) fail("discover.html must load the v3 poster renderer with a 12-character SHA revision");
+const revision = revisionMatch[1];
+if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${revision}"`)) fail("service worker does not precache the exact v3 renderer revision used by discover.html");
+if (!serviceWorker.includes(`robys-offline-v8-20260630-rotation-${revision}`)) fail("service-worker cache version does not include the active v3 renderer revision");
+if (!serviceWorker.includes('url.pathname.endsWith("/discover-rotation-v3.js")') || !serviceWorker.includes("return cache.match(request);")) fail("service worker does not use exact query matching for the revisioned v3 renderer");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the v3 poster renderer from the typed source");
-if (!buildScript.includes('synchronizePhysicalScript(discoverHtml, "discover-rotation-v3.js")')) fail("build does not preserve the physical v3 cache key in discover.html");
+if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not refresh the v3 renderer revision in discover.html");
+if (!buildScript.includes("synchronizeServiceWorker(serviceWorker, discoverRotationRevision)")) fail("build does not synchronize the v3 renderer revision into the service worker");
+
 if (source.includes("pairing-number") || runtime.includes("pairing-number")) fail("poster renderer must not access the decorative pairing number");
-if (!html.includes('src="discover-v2.js"') || !html.includes('src="discover-rotation-v3.js"')) fail("discover.html must load the v2 journey runtime and exact v3 poster renderer path without query strings");
+if (!html.includes('src="discover-v2.js"')) fail("discover.html must load the v2 journey runtime");
 if (html.includes('src="discover-rotation-v2.js"')) fail("discover.html must not load the stale v2 poster renderer cache key");
 if (/src="discover(?:-rotation)?\.js(?:\?[^\"]*)?"/.test(html)) fail("discover.html still loads a legacy Discover script path");
 
@@ -124,4 +135,4 @@ if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor final artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("discover.html must provide a visible no-script fallback");
 if (!/<noscript>[\s\S]*href="menu\.html"[\s\S]*<\/noscript>/.test(html)) fail("the no-script fallback must link to the full menu");
 
-console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, the physical v3 renderer cache key, all required offline assets, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
+console.log(`✅ TASTE-POSTER-001 verified ${BASE64_FILES.length} base64 posters plus ${DIRECT_FILES.length} direct 1024px Retina poster, exactly ${ACTIVE_IDS.length} active approved pairings, the revisioned v3 renderer cache key (${revision}), exact offline precache parity, failed-decode recovery, exact weather allowlisting, protected user actions, source/runtime journey-id artwork parity, unsupported-ID poster hiding, and the full-poster renderer.`);
