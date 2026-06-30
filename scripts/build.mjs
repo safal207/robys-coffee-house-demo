@@ -52,20 +52,22 @@ function synchronizeScript(html, fileName, revision) {
 }
 
 function synchronizeServiceWorker(serviceWorker, revision) {
-  const version = `robys-offline-v8-20260630-rotation-${revision}`;
-  const nextVersion = serviceWorker.replace(
-    /const CACHE_VERSION = "robys-offline-v8-20260630-rotation-[^"]+";/,
-    `const CACHE_VERSION = "${version}";`
-  );
-  const nextAsset = nextVersion.replace(
-    /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/,
-    `"./discover-rotation-v3.js?v=${revision}"`
-  );
+  const versionPattern = /const CACHE_VERSION = "robys-offline-v8-20260630-rotation-[^"]+";/;
+  const assetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
 
-  if (nextAsset === serviceWorker) {
+  if (!versionPattern.test(serviceWorker)) {
+    throw new Error("Service worker does not contain the v8 cache version marker");
+  }
+  if (!assetPattern.test(serviceWorker)) {
     throw new Error("Service worker does not contain the v3 renderer cache entry");
   }
-  return nextAsset;
+
+  return serviceWorker
+    .replace(
+      versionPattern,
+      `const CACHE_VERSION = "robys-offline-v8-20260630-rotation-${revision}";`
+    )
+    .replace(assetPattern, `"./discover-rotation-v3.js?v=${revision}"`);
 }
 
 const appRevision = revisionFor("app.js");
