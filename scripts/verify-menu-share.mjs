@@ -1,8 +1,10 @@
 import { readFileSync } from "node:fs";
 
+const indexHtml = readFileSync("index.html", "utf8");
 const html = readFileSync("menu.html", "utf8");
 const css = readFileSync("menu.css", "utf8");
 const runtime = readFileSync("menu-actions.js", "utf8");
+const pwaRuntime = readFileSync("pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 
 function assert(condition, message) {
@@ -25,6 +27,18 @@ assert(runtime.includes("window.location.assign(androidShareIntent(payload))"), 
 assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API path is missing");
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
-assert(serviceWorker.includes("robys-offline-v4-20260627-share"), "Offline cache version was not bumped for the share fix");
 
-console.log("✅ SHARE-001 passed: centered feedback and Android/Web Share fallbacks remain available.");
+// Accept future cache revisions while preventing rollback before the original share-cache fix.
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "robys-offline-v(\d+)-(\d{8})-[a-z0-9-]+";/)?.slice(1);
+assert(cacheVersion, "Offline cache version marker is missing or malformed");
+const [cacheGeneration, cacheDate] = cacheVersion.map(Number);
+assert(cacheGeneration >= 4 && cacheDate >= 20260627, "Offline cache version predates the share fix");
+
+// Public entry pages must request the same PWA revision that registers the service worker.
+const pwaRevision = pwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js\?v=([^"]+)";/)?.[1];
+assert(pwaRevision, "Service-worker registration revision is missing");
+for (const [pageName, pageHtml] of [["index.html", indexHtml], ["menu.html", html]]) {
+  assert(pageHtml.includes(`src="pwa.js?v=${pwaRevision}"`), `${pageName} does not load the current PWA registration revision`);
+}
+
+console.log(`✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and PWA revision ${pwaRevision} remain valid.`);

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "taste-journey-entry-source-parity-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/134#issuecomment-4831931448",
+      "contentBindings": {
+        "src/social-offer.ts": "81918979378467f14b5b615794bc799d7283f830"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8031 vs 320x8068"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8406 vs 390x8443"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x886 vs 390x924"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x1315 vs 390x1316"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7438 vs 768x7483"
+        }
+      ]
+    }
+  ]
+}
