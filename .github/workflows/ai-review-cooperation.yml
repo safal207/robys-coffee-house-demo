@@ -28,15 +28,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
-      PR_JSON_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-pr.json
-      HEAD_COMMIT_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-head.json
-      COMMENTS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-comments.json
-      REVIEWS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-reviews.json
-      REVIEW_COMMENTS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-review-comments.json
-      THREADS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-threads.json
-      CHECKS_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-checks.json
-      FILES_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-files.json
-      COMMENT_FILE: ${{ runner.temp }}/cooperation-${{ github.run_id }}-${{ github.run_attempt }}-comment.json
 
     steps:
       - name: Checkout trusted reporter code
@@ -44,6 +35,21 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+
+      - name: Configure cooperation temp paths
+        run: |
+          prefix="${RUNNER_TEMP}/cooperation-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          {
+            echo "PR_JSON_FILE=${prefix}-pr.json"
+            echo "HEAD_COMMIT_FILE=${prefix}-head.json"
+            echo "COMMENTS_FILE=${prefix}-comments.json"
+            echo "REVIEWS_FILE=${prefix}-reviews.json"
+            echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
+            echo "THREADS_FILE=${prefix}-threads.json"
+            echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "FILES_FILE=${prefix}-files.json"
+            echo "COMMENT_FILE=${prefix}-comment.json"
+          } >> "${GITHUB_ENV}"
 
       - name: Collect exact-head REST evidence
         run: |
