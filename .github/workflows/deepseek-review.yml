@@ -26,6 +26,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
+      ERROR_FILE: /tmp/deepseek-review-error.json
 
     steps:
       - name: Checkout trusted reviewer code
