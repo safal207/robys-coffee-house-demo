@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v6-20260629-discover-paths";
+const CACHE_VERSION = "robys-offline-v7-20260630-cool-lime-hq";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -35,6 +35,7 @@ const CORE_ASSETS = [
   "./discover-journeys-v2.js",
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
+  "./src/pairings-data/final/cool-lime-macaron-hq.webp",
   "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
