@@ -1,0 +1,33 @@
+name: PR 140 v3 canonical manifest
+
+on:
+  push:
+    branches:
+      - feat/cool-lime-macaron-hq-poster
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate canonical manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Remove one-shot workflow
+        run: git rm .github/workflows/pr140-v3-canonical-manifest.yml
+
+      - name: Commit canonical manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "chore: canonicalize v3 renderer integrity manifest"
+          git push
