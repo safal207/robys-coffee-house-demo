@@ -128,6 +128,7 @@ const features = manifest.featureFiles.flatMap((file) => {
 
 unique(features.map((feature) => feature.id), "feature id");
 const featureIds = new Set(features.map((feature) => feature.id));
+const featureById = new Map(features.map((feature) => [feature.id, feature]));
 const requirementIds = [];
 
 for (const milestone of manifest.milestones) {
@@ -247,6 +248,25 @@ for (const feature of features) {
     if (dependency === feature.id) fail(`${feature.id} cannot depend on itself`);
   }
 }
+
+const visiting = new Set();
+const visited = new Set();
+function visitDependency(featureId, trail) {
+  if (visiting.has(featureId)) {
+    const cycleStart = trail.indexOf(featureId);
+    fail(`feature dependency cycle: ${[...trail.slice(cycleStart), featureId].join(" -> ")}`);
+  }
+  if (visited.has(featureId)) return;
+
+  visiting.add(featureId);
+  const nextTrail = [...trail, featureId];
+  for (const dependency of featureById.get(featureId).dependsOn || []) {
+    visitDependency(dependency, nextTrail);
+  }
+  visiting.delete(featureId);
+  visited.add(featureId);
+}
+for (const featureId of featureIds) visitDependency(featureId, []);
 
 unique(requirementIds, "requirement id");
 
