@@ -114,6 +114,8 @@ jobs:
 
       - name: Verify seven AI-style review lenses
         working-directory: current
+        env:
+          AI_STYLE_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/ai-style-matrix
         run: npm run verify:ai-style-matrix
 
       - name: Recheck live social network destination
