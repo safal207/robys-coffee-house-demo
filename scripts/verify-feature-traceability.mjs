@@ -52,18 +52,50 @@ function exactTokenExists(contents, token) {
   return new RegExp(`(^|[^A-Za-z0-9_$-])${escaped}([^A-Za-z0-9_$-]|$)`, "m").test(contents);
 }
 
-function attributeFragmentExists(contents, fragment) {
-  if (contents.includes(fragment)) return true;
+function parseAttributeFragment(fragment) {
   const match = /^\[\s*([^\s~|^$*=\]]+)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\]\s]+)))?\s*\]$/.exec(fragment);
-  if (!match) return false;
+  if (!match) return null;
+  return {
+    name: match[1],
+    value: match[2] ?? match[3] ?? match[4]
+  };
+}
 
-  const attribute = escapeRegExp(match[1]);
-  const value = match[2] ?? match[3] ?? match[4];
-  if (value === undefined) {
+function htmlAttributeFragmentExists(contents, fragment) {
+  const expected = parseAttributeFragment(fragment);
+  if (!expected) return false;
+
+  const expectedName = expected.name.toLowerCase();
+  const startTagPattern = /<[A-Za-z][^<>]*>/g;
+  const attributePattern = /(?:^|\s)([^\s"'<>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+
+  for (const tagMatch of contents.matchAll(startTagPattern)) {
+    const tag = tagMatch[0];
+    const attributeText = tag
+      .replace(/^<[A-Za-z][^\s/>]*/, "")
+      .replace(/\/?>$/, "");
+
+    for (const attributeMatch of attributeText.matchAll(attributePattern)) {
+      if (attributeMatch[1].toLowerCase() !== expectedName) continue;
+      if (expected.value === undefined) return true;
+      const actualValue = attributeMatch[2] ?? attributeMatch[3] ?? attributeMatch[4];
+      if (actualValue === expected.value) return true;
+    }
+  }
+
+  return false;
+}
+
+function sourceAttributeFragmentExists(contents, fragment) {
+  const expected = parseAttributeFragment(fragment);
+  if (!expected) return false;
+
+  const attribute = escapeRegExp(expected.name);
+  if (expected.value === undefined) {
     return new RegExp(`(^|[^A-Za-z0-9_:-])${attribute}(?=\\s*=|\\s|>|/|$)`, "m").test(contents);
   }
 
-  const escapedValue = escapeRegExp(value);
+  const escapedValue = escapeRegExp(expected.value);
   return new RegExp(
     `(^|[^A-Za-z0-9_:-])${attribute}\\s*=\\s*(?:"${escapedValue}"|'${escapedValue}'|${escapedValue}(?=\\s|>|/|$))`,
     "m"
@@ -108,7 +140,10 @@ function fragmentExists(contents, fragment, file) {
   const searchable = stripComments(contents, extension);
 
   if (fragment.startsWith("[") && fragment.endsWith("]")) {
-    return attributeFragmentExists(searchable, fragment);
+    if ([".html", ".htm"].includes(extension)) {
+      return htmlAttributeFragmentExists(searchable, fragment);
+    }
+    return sourceAttributeFragmentExists(searchable, fragment);
   }
 
   if (fragment.startsWith(".")) {
