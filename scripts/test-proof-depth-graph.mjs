@@ -20,6 +20,16 @@ function runFixture(mutator) {
   }
 }
 
+function runPathArgument(argumentFactory) {
+  const root = mkdtempSync(path.join(tmpdir(), "pdg-path-001-"));
+  try {
+    writeFileSync(path.join(root, "graph.json"), JSON.stringify(BASE, null, 2));
+    return spawnSync(process.execPath, [SCRIPT, argumentFactory(root)], { cwd: root, encoding: "utf8" });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function expectSuccess(label, mutator) {
   const result = runFixture(mutator);
   if (result.status !== 0) throw new Error(`${label} should pass:\n${result.stderr || result.stdout}`);
@@ -27,6 +37,14 @@ function expectSuccess(label, mutator) {
 
 function expectFailure(label, expectedText, mutator) {
   const result = runFixture(mutator);
+  const output = `${result.stdout}\n${result.stderr}`;
+  if (result.status === 0 || !output.includes(expectedText)) {
+    throw new Error(`${label} should fail with ${expectedText}:\n${output}`);
+  }
+}
+
+function expectPathFailure(label, expectedText, argumentFactory) {
+  const result = runPathArgument(argumentFactory);
   const output = `${result.stdout}\n${result.stderr}`;
   if (result.status === 0 || !output.includes(expectedText)) {
     throw new Error(`${label} should fail with ${expectedText}:\n${output}`);
@@ -56,5 +74,7 @@ expectFailure("missing proof seal", "has no proof seal", (graph) => {
 expectFailure("back edge", "proof stage skip", (graph) => {
   graph.edges.push({ from: "DECISION-PROOF-SEAL", to: "CLAIM-READY", relation: "advises", authority: "advisory" });
 });
+expectPathFailure("absolute graph path", "graph path must be repository-relative", (root) => path.join(root, "graph.json"));
+expectPathFailure("graph path escape", "graph path escapes repository root", () => "../outside-graph.json");
 
-console.log("✅ PDG-001 mutation tests passed: depth, reachability, independence, freshness, inferred authority and proof seal.");
+console.log("✅ PDG-001 mutation tests passed: depth, reachability, independence, freshness, inferred authority, proof seal and graph path containment.");
