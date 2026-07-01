@@ -3,6 +3,10 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const MANIFEST_PATH = "qa/feature-traceability-matrix.json";
+const NON_FILE_EVIDENCE = [
+  "external:", "pr:", "commit:", "build:", "cache:",
+  "branch:", "defect:", "matrix:", "manual:"
+];
 
 function fail(message) {
   throw new Error(`TRACE-001: ${message}`);
@@ -32,26 +36,33 @@ function parseTransition(value, featureId) {
   return { from: match[1], event: match[2], to: match[3] };
 }
 
-function evidenceFile(value) {
-  const ignoredPrefixes = [
-    "external:",
-    "pr:",
-    "commit:",
-    "build:",
-    "cache:",
-    "branch:",
-    "defect:",
-    "matrix:",
-    "manual:"
-  ];
-  if (ignoredPrefixes.some((prefix) => value.startsWith(prefix))) return null;
-  const file = value.split("#", 1)[0];
-  return file || null;
+function parseEvidence(value) {
+  if (NON_FILE_EVIDENCE.some((prefix) => value.startsWith(prefix))) return null;
+  const marker = value.indexOf("#");
+  if (marker < 0) return { file: value, fragment: null };
+  return { file: value.slice(0, marker), fragment: value.slice(marker + 1) };
+}
+
+function fragmentToken(fragment) {
+  if (fragment.startsWith(".")) return fragment.slice(1);
+  if (fragment.startsWith("#")) return fragment.slice(1);
+  if (fragment.startsWith("[") && fragment.endsWith("]")) {
+    return fragment.slice(1, -1).split("=")[0];
+  }
+  return fragment;
+}
+
+function getAtPath(value, dottedPath) {
+  return dottedPath.split(".").reduce((current, key) => current?.[key], value);
 }
 
 const manifest = readJson(MANIFEST_PATH);
 if (manifest.contract !== "TRACE-001") fail("unexpected contract");
 if (manifest.version !== 1) fail("unsupported version");
+if (!Array.isArray(manifest.scope?.layers) || manifest.scope.layers.length === 0) {
+  fail("scope.layers must not be empty");
+}
+unique(manifest.scope.layers, "scope layer");
 if (!Array.isArray(manifest.featureFiles) || manifest.featureFiles.length === 0) {
   fail("featureFiles must not be empty");
 }
@@ -103,9 +114,9 @@ for (const feature of features) {
     fail(`${feature.id} has invalid operational state ${feature.current?.operational}`);
   }
 
-  const layerKeys = ["uiUx", "api", "backend"];
+  const layerKeys = manifest.scope.layers;
   if (!feature.layers || JSON.stringify(Object.keys(feature.layers).sort()) !== JSON.stringify([...layerKeys].sort())) {
-    fail(`${feature.id} must declare uiUx, api and backend`);
+    fail(`${feature.id} must declare ${layerKeys.join(", ")}`);
   }
   for (const layer of layerKeys) {
     if (!manifest.allowed.layer.includes(feature.layers[layer])) {
@@ -132,12 +143,26 @@ for (const feature of features) {
   if (!Array.isArray(model.transitions) || model.transitions.length === 0) {
     fail(`${feature.id} has no transitions`);
   }
-  for (const transitionText of model.transitions) {
+  const transitions = model.transitions.map((transitionText) => {
     const transition = parseTransition(transitionText, feature.id);
     if (!stateSet.has(transition.from) || !stateSet.has(transition.to)) {
       fail(`${feature.id} transition references an unknown state: ${transitionText}`);
     }
+    return transition;
+  });
+  const reachable = new Set([model.initial]);
+  let expanded = true;
+  while (expanded) {
+    expanded = false;
+    for (const transition of transitions) {
+      if (reachable.has(transition.from) && !reachable.has(transition.to)) {
+        reachable.add(transition.to);
+        expanded = true;
+      }
+    }
   }
+  const unreachable = model.states.filter((state) => !reachable.has(state));
+  if (unreachable.length) fail(`${feature.id} has unreachable states: ${unreachable.join(", ")}`);
 
   if (!Array.isArray(feature.history) || feature.history.length === 0) fail(`${feature.id} has no history`);
   let previousDate = "";
@@ -156,9 +181,18 @@ for (const feature of features) {
 
   if (!Array.isArray(feature.evidence) || feature.evidence.length === 0) fail(`${feature.id} has no evidence`);
   for (const evidence of feature.evidence) {
-    const file = evidenceFile(evidence);
-    if (file && !existsSync(path.join(ROOT, file))) {
-      fail(`${feature.id} evidence file does not exist: ${file}`);
+    if (typeof evidence !== "string" || !evidence) fail(`${feature.id} has invalid evidence`);
+    const parsed = parseEvidence(evidence);
+    if (!parsed) continue;
+    if (!parsed.file) fail(`${feature.id} has invalid evidence file: ${evidence}`);
+    const absolutePath = path.join(ROOT, parsed.file);
+    if (!existsSync(absolutePath)) fail(`${feature.id} evidence file does not exist: ${parsed.file}`);
+    if (parsed.fragment) {
+      const token = fragmentToken(parsed.fragment).trim();
+      const contents = readFileSync(absolutePath, "utf8");
+      if (!token || !contents.includes(token)) {
+        fail(`${feature.id} evidence fragment does not exist: ${evidence}`);
+      }
     }
   }
 
@@ -166,6 +200,9 @@ for (const feature of features) {
   if (!Array.isArray(feature.risks) || feature.risks.length === 0) fail(`${feature.id} has no risks`);
   if (!feature.nextGate) fail(`${feature.id} has no next gate`);
 
+  if (feature.dependsOn !== undefined && !Array.isArray(feature.dependsOn)) {
+    fail(`${feature.id} has invalid dependsOn`);
+  }
   for (const dependency of feature.dependsOn || []) {
     if (!featureIds.has(dependency)) fail(`${feature.id} depends on unknown ${dependency}`);
     if (dependency === feature.id) fail(`${feature.id} cannot depend on itself`);
@@ -174,14 +211,13 @@ for (const feature of features) {
 
 unique(requirementIds, "requirement id");
 
-if (!features.some((feature) => feature.layers.api === "external")) {
-  fail("matrix must trace at least one external API");
-}
-if (!features.some((feature) => feature.layers.backend === "planned")) {
-  fail("matrix must make the backend roadmap explicit");
-}
-if (!features.some((feature) => feature.current.operational === "degraded")) {
-  fail("matrix must preserve known degraded states");
+if (!Array.isArray(manifest.invariants)) fail("invariants must be an array");
+for (const invariant of manifest.invariants) {
+  if (!invariant?.path || typeof invariant.min !== "number" || !invariant.message) {
+    fail("invalid manifest invariant");
+  }
+  const matches = features.filter((feature) => getAtPath(feature, invariant.path) === invariant.equals).length;
+  if (matches < invariant.min) fail(invariant.message);
 }
 
 const counts = features.reduce((result, feature) => {
