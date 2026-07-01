@@ -9,6 +9,7 @@ const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), "verify-f
 function validFixture() {
   return {
     evidenceText: "const existingSymbol = true;\n",
+    extraFeatures: [],
     manifest: {
       version: 1,
       contract: "TRACE-001",
@@ -58,7 +59,10 @@ function runFixture(mutator) {
     mutator?.(fixture);
     mkdirSync(path.join(root, "qa/traceability"), { recursive: true });
     writeFileSync(path.join(root, "qa/feature-traceability-matrix.json"), JSON.stringify(fixture.manifest, null, 2));
-    writeFileSync(path.join(root, "qa/traceability/fixture.json"), JSON.stringify({ features: [fixture.feature] }, null, 2));
+    writeFileSync(
+      path.join(root, "qa/traceability/fixture.json"),
+      JSON.stringify({ features: [fixture.feature, ...fixture.extraFeatures] }, null, 2)
+    );
     writeFileSync(path.join(root, "fixture.txt"), fixture.evidenceText);
     return spawnSync(process.execPath, [SCRIPT], { cwd: root, encoding: "utf8" });
   } finally {
@@ -106,6 +110,15 @@ expectFailure("unreachable state", "unreachable states", ({ feature }) => {
 expectFailure("malformed dependsOn", "invalid dependsOn", ({ feature }) => {
   feature.dependsOn = "FEAT-API-001";
 });
+expectFailure("dependency cycle", "feature dependency cycle", (fixture) => {
+  const second = structuredClone(fixture.feature);
+  second.id = "FEAT-API-002";
+  second.name = "Second fixture";
+  second.requirements = ["REQ-API-002-01 second fixture requirement"];
+  second.dependsOn = ["FEAT-API-001"];
+  fixture.feature.dependsOn = ["FEAT-API-002"];
+  fixture.extraFeatures.push(second);
+});
 expectFailure("invariant without equals", "invalid manifest invariant", ({ manifest }) => {
   delete manifest.invariants[0].equals;
 });
@@ -113,4 +126,4 @@ expectFailure("non-positive invariant minimum", "invalid manifest invariant", ({
   manifest.invariants[0].min = 0;
 });
 
-console.log("✅ TRACE-001 mutation tests passed: exact fragments, root containment, reachability, dependsOn, invariants.");
+console.log("✅ TRACE-001 mutation tests passed: exact fragments, root containment, reachability, dependency graph, invariants.");
