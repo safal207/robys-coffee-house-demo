@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "contract": "AI-STYLE-001",
+  "description": "Deterministic review lenses inspired by distinct AI-agent working styles. These are QA perspectives, not claims that external proprietary models executed the checks.",
+  "requiredCoverage": [
+    "release-integrity",
+    "localization",
+    "adversarial",
+    "end-to-end",
+    "visual",
+    "product",
+    "accessibility",
+    "security",
+    "resilience",
+    "evidence"
+  ],
+  "lenses": [
+    {
+      "id": "max",
+      "label": "MAX strict release lens",
+      "mission": "Assume the release is unsafe until every retry, gate and evidence chain proves otherwise.",
+      "coverage": ["release-integrity", "resilience", "evidence"],
+      "assertions": [
+        "A first browser failure may trigger one bounded recheck, never an unlimited retry loop.",
+        "A repeated failure remains a hard release blocker.",
+        "The required visual status-check name remains stable.",
+        "First and repeated attempts remain available as evidence.",
+        "Generated integrity evidence must be current for the exact head."
+      ]
+    },
+    {
+      "id": "qwen",
+      "label": "Qwen structured edge-case lens",
+      "mission": "Check structured completeness across languages, compact screens and data boundaries.",
+      "coverage": ["localization", "resilience", "evidence"],
+      "assertions": [
+        "TR, EN and RU language controls remain present on customer routes.",
+        "The matrix covers 320, 360, 390 and 412 pixel phone widths.",
+        "Search clears back to the complete menu result set.",
+        "Unknown profiles and invalid retry settings fail fast.",
+        "Every matrix result records profile, route, attempts and final status."
+      ]
+    },
+    {
+      "id": "grok",
+      "label": "Grok hostile-user lens",
+      "mission": "Try weird, impatient and misleading actions that a polite happy-path test would miss.",
+      "coverage": ["adversarial", "security", "resilience"],
+      "assertions": [
+        "Lookalike or malformed Instagram profile URLs are rejected.",
+        "Repeated pairing actions cannot collapse Taste Journey into one stuck state.",
+        "Broken images, duplicate ids and horizontal overflow block the scenario.",
+        "External-network failure cannot hide a broken local social contract.",
+        "Unsafe output directories and invalid environment values are rejected before execution."
+      ]
+    },
+    {
+      "id": "manus",
+      "label": "Manus autonomous journey lens",
+      "mission": "Complete the user task from entry to outcome and verify recovery when a step changes state.",
+      "coverage": ["end-to-end", "product", "evidence"],
+      "assertions": [
+        "Landing, menu and Taste Journey each expose a deterministic ready selector.",
+        "Menu search, clear and language-switch flows complete end to end.",
+        "Taste Journey changes pairing before and after marking an item discovered.",
+        "Primary actions remain visible, named and inside the viewport.",
+        "A machine-readable summary is produced for every route and device profile."
+      ]
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini multimodal visual lens",
+      "mission": "Judge composition, images, responsive layout and visual evidence together.",
+      "coverage": ["visual", "accessibility", "evidence"],
+      "assertions": [
+        "Landing, menu and Taste Journey receive full-page visual captures.",
+        "Social offer, menu sharing and pairing card receive dedicated captures.",
+        "Phone, tablet, laptop and desktop visual profiles are represented.",
+        "Dynamic media, animation and external pixels are stabilized before comparison.",
+        "Visible images decode successfully and broken images fail the matrix."
+      ]
+    },
+    {
+      "id": "gpt",
+      "label": "GPT product-system lens",
+      "mission": "Connect interface behavior to customer intent, business truth and system consistency.",
+      "coverage": ["product", "end-to-end", "release-integrity"],
+      "assertions": [
+        "Menu discovery, directions and Instagram remain reachable through primary actions.",
+        "The canonical Roby's Instagram profile is consistent across landing, menu and typed offer source.",
+        "The menu keeps more than ten rendered products before filtering.",
+        "Language state changes the document language on menu and Taste Journey.",
+        "A UX fix must update its cache revision so returning visitors receive it."
+      ]
+    },
+    {
+      "id": "claude",
+      "label": "Claude careful safety lens",
+      "mission": "Prefer explicit semantics, conservative failure and inspectable evidence over clever shortcuts.",
+      "coverage": ["accessibility", "security", "evidence"],
+      "assertions": [
+        "Keyboard focus reaches a visible control with a focus-specific visual state change.",
+        "Primary controls expose accessible names and safe external-link attributes.",
+        "Every page keeps one main landmark, a visible h1 and a non-empty title.",
+        "Network-derived diagnostics are sanitized before persistence.",
+        "Review evidence is tied to the current pull-request head rather than a stale commit."
+      ]
+    }
+  ]
+}
