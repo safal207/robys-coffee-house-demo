@@ -6,11 +6,28 @@ const resultsDir = path.resolve(process.env.SOCIAL_NETWORK_RESULTS_DIR ?? "visua
 const attemptsLimit = Number(process.env.SOCIAL_NETWORK_ATTEMPTS ?? 3);
 const timeoutMs = Number(process.env.SOCIAL_NETWORK_TIMEOUT_MS ?? 10000);
 
-mkdirSync(resultsDir, { recursive: true });
-
 function fail(message) {
   throw new Error(`[SOCIAL-NETWORK-001] ${message}`);
 }
+
+function assertSafeResultsDir(directory) {
+  const relative = path.relative(process.cwd(), directory);
+  const insideVisualResults = relative === "visual-results"
+    || relative.startsWith(`visual-results${path.sep}`);
+  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative) || !insideVisualResults) {
+    fail(`Refusing to write outside visual-results: ${directory}`);
+  }
+}
+
+if (!Number.isInteger(attemptsLimit) || attemptsLimit < 1 || attemptsLimit > 5) {
+  fail(`SOCIAL_NETWORK_ATTEMPTS must be an integer between 1 and 5; got ${process.env.SOCIAL_NETWORK_ATTEMPTS ?? attemptsLimit}`);
+}
+if (!Number.isFinite(timeoutMs) || timeoutMs < 1000 || timeoutMs > 60000) {
+  fail(`SOCIAL_NETWORK_TIMEOUT_MS must be between 1000 and 60000; got ${process.env.SOCIAL_NETWORK_TIMEOUT_MS ?? timeoutMs}`);
+}
+
+assertSafeResultsDir(resultsDir);
+mkdirSync(resultsDir, { recursive: true });
 
 function normalize(value) {
   const url = new URL(value);
@@ -18,6 +35,13 @@ function normalize(value) {
   url.search = "";
   if (!url.pathname.endsWith("/")) url.pathname += "/";
   return url.href;
+}
+
+function safeDiagnostic(error) {
+  return String(error instanceof Error ? error.message : error)
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/[^\x20-\x7E]/g, "?")
+    .slice(0, 240);
 }
 
 const sources = [
@@ -28,7 +52,7 @@ const sources = [
 const references = [];
 
 for (const [file, content] of sources) {
-  for (const match of content.matchAll(/https:\/\/www\.instagram\.com\/robyscoffeehouse\/?/g)) {
+  for (const match of content.matchAll(/https:\/\/www\.instagram\.com\/[^\s"'<>)]+/g)) {
     references.push({ file, value: match[0] });
   }
 }
@@ -75,7 +99,7 @@ for (let attempt = 1; attempt <= attemptsLimit; attempt += 1) {
   } catch (error) {
     probeAttempts.push({
       attempt,
-      error: error instanceof Error ? error.message : String(error),
+      error: safeDiagnostic(error),
       accepted: false
     });
   } finally {
@@ -99,7 +123,7 @@ const summary = {
     attempts: probeAttempts
   }
 };
-writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
+writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, { encoding: "utf8", flag: "w" });
 
 if (hardFailure) fail(hardFailure);
 if (!reachable) {
