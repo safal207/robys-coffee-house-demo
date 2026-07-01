@@ -18,7 +18,7 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: ${{ github.event.pull_request.head.sha || ithub.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -65,7 +65,7 @@ jobs:
               return !replies.some((reply) => {
                 const body = (reply.body ?? '').replaceAll('`', '');
                 const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`$, 'im').test(body);
+                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
                 const maintainer = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(reply.author_association);
                 return disposition && exactHead && maintainer;
               });
