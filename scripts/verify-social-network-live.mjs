@@ -73,6 +73,15 @@ for (const reference of references) {
   }
 }
 
+const localSummary = {
+  generatedAt: new Date().toISOString(),
+  canonical,
+  localReferences: references,
+  ignoredInstagramContentLinks: instagramReferences.length - references.length,
+  probeConfiguration: { attemptsLimit, timeoutMs }
+};
+writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(localSummary, null, 2)}\n`, { encoding: "utf8", flag: "w" });
+
 const probeAttempts = [];
 let reachable = false;
 let hardFailure = null;
@@ -104,11 +113,7 @@ for (let attempt = 1; attempt <= attemptsLimit; attempt += 1) {
       break;
     }
   } catch (error) {
-    probeAttempts.push({
-      attempt,
-      error: safeDiagnostic(error),
-      accepted: false
-    });
+    probeAttempts.push({ attempt, error: safeDiagnostic(error), accepted: false });
   } finally {
     clearTimeout(timeout);
   }
@@ -118,25 +123,11 @@ for (let attempt = 1; attempt <= attemptsLimit; attempt += 1) {
   }
 }
 
-const summary = {
-  generatedAt: new Date().toISOString(),
-  canonical,
-  localReferences: references,
-  ignoredInstagramContentLinks: instagramReferences.length - references.length,
-  liveProbe: {
-    attemptsLimit,
-    timeoutMs,
-    reachable,
-    hardFailure,
-    attempts: probeAttempts
-  }
-};
-writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, { encoding: "utf8", flag: "w" });
-
 if (hardFailure) fail(hardFailure);
 if (!reachable) {
+  const diagnostics = probeAttempts.map((entry) => entry.status ?? entry.error ?? "unknown").join(" | ");
   console.warn(
-    `⚠️ SOCIAL-NETWORK-001: local Instagram contracts are valid, but the external network did not return a conclusive response after ${attemptsLimit} attempts. Evidence was saved without blocking the release.`
+    `⚠️ SOCIAL-NETWORK-001: local Instagram contracts are valid, but the external network did not return a conclusive response after ${attemptsLimit} attempts (${diagnostics}). The external outage does not hide local URL failures.`
   );
 } else {
   const final = probeAttempts.at(-1);
