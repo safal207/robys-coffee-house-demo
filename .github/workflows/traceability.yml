@@ -5,22 +5,21 @@ on:
   pull_request_review_comment:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pull-requests: read
-
 jobs:
   traceability:
     if: github.event_name != 'pull_request_review_comment'
     name: TRACE-001 feature matrix
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout exact head
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || ithub.sha }}
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -42,6 +41,8 @@ jobs:
     name: REVIEW-LEDGER exact-head findings
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: read
 
     steps:
       - name: Require dispositions for exact-head bot findings
@@ -53,41 +54,21 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const head = context.payload.pull_request.head.sha.toLowerCase();
             const [comments, reviews] = await Promise.all([
-              github.paginate(
-                github.rest.pulls.listReviewComments,
-                { owner, repo, pull_number: prNumber, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.pulls.listReviews,
-                { owner, repo, pull_number: prNumber, per_page: 100 },
-              ),
+              github.paginate(github.rest.pulls.listReviewComments, { owner, repo, pull_number: prNumber, per_page: 100 }),
+              github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: prNumber, per_page: 100 }),
             ]);
-            const reviewHeads = new Map(
-              reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
-            );
-            const bots = new Set([
-              'chatgpt-codex-connector',
-              'chatgpt-codex-connector[bot]',
-              'coderabbitai',
-              'coderabbitai[bot]',
-            ]);
-            const findings = comments.filter((item) => (
-              !item.in_reply_to_id &&
-              bots.has(item.user?.login) &&
-              reviewHeads.get(item.pull_request_review_id) === head
-            ));
+            const reviewHeads = new Map(reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]));
+            const bots = new Set(['chatgpt-codex-connector', 'chatgpt-codex-connector[bot]', 'coderabbitai', 'coderabbitai[bot]']);
+            const findings = comments.filter((item) => !item.in_reply_to_id && bots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head);
             const missing = findings.filter((finding) => {
               const replies = comments.filter((item) => item.in_reply_to_id === finding.id);
               return !replies.some((reply) => {
                 const body = (reply.body ?? '').replaceAll('`', '');
                 const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`$, 'im').test(body);
                 const maintainer = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(reply.author_association);
                 return disposition && exactHead && maintainer;
               });
             });
-            if (missing.length > 0) {
-              core.setFailed(`Missing exact-head dispositions for ${missing.length} bot finding(s).`);
-            } else {
-              core.notice(`Review ledger complete for ${findings.length} exact-head bot finding(s).`);
-            }
+            if (missing.length > 0) core.setFailed(`Missing exact-head dispositions for ${missing.length} bot finding(s).`);
+            else core.notice(`Review ledger complete for ${findings.length} exact-head bot finding(s).`);
