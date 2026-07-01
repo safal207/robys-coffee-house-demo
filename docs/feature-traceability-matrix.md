@@ -28,19 +28,19 @@ There is **no first-party application backend today**. The matrix deliberately r
 | Feature | Lifecycle / operation | UI/UX | API | Backend | Next gate |
 |---|---|---|---|---|---|
 | `FEAT-UI-001` Landing and language | released / available | released | client-only | not-built | Preserve mobile cold-load coverage |
-| `FEAT-UI-002` Reveal and sticky CTA | implemented / **degraded** | implemented | client-only | n/a | Add first-scroll temporal test and remove the flash |
+| `FEAT-UI-002` Reveal and sticky CTA | implemented / **degraded** | implemented | client-only | not-applicable | Add first-scroll temporal test and remove the flash |
 | `FEAT-UI-003` Menu catalog/search | released / available | released | client-only | not-built | Define content versioning before live data |
 | `FEAT-UI-004` Share/reservation handoff | released / fallback | released | external | not-built | Keep Instagram as explicit manual confirmation |
 | `FEAT-UI-005` Taste Journey | released / available | released | client-only | not-built | Version local state before expansion or sync |
 | `FEAT-UI-006` Daily offer | released / available | released | client-only | not-built | Add a CMS only when update workflow requires it |
 | `FEAT-API-001` Weather context | released / fallback | released | external | not-built | Proxy only if weather becomes business-critical |
 | `FEAT-PLATFORM-001` PWA/offline | released / fallback | implemented | client-only | not-built | Verify cache revisions against HTML references |
-| `FEAT-PLATFORM-002` Analytics queue | implemented / **degraded** | n/a | client-only | not-built | Define collector acknowledgement or call it best-effort |
-| `FEAT-QA-001` UI/UX matrix | released / available | released | n/a | n/a | Add a cold-load temporal scenario for the first-scroll flash |
+| `FEAT-PLATFORM-002` Analytics queue | implemented / **degraded** | not-applicable | client-only | not-built | Define collector acknowledgement or call it best-effort |
+| `FEAT-QA-001` UI/UX matrix | released / available | released | not-applicable | not-applicable | Add a cold-load temporal scenario for the first-scroll flash |
 | `FEAT-QA-002` Traceability governance | implemented / available | verified | verified | verified | Keep the check in regression and bundle gates |
-| `FEAT-BE-001` Backend boundary | planned / unavailable | n/a | planned | planned | Create an ADR only for an approved workflow |
-| `FEAT-BE-002` Menu/offer API or CMS | planned / unavailable | released static UI | planned | planned | Require parity and static fallback contracts |
-| `FEAT-BE-003` Reservation lifecycle | planned / unavailable | released external handoff | planned | planned | Define ownership, capacity and privacy first |
+| `FEAT-BE-001` Backend boundary | planned / unavailable | not-applicable | planned | planned | Create an ADR only for an approved workflow |
+| `FEAT-BE-002` Menu/offer API or CMS | planned / unavailable | released | planned | planned | Require parity and static fallback contracts |
+| `FEAT-BE-003` Reservation lifecycle | planned / unavailable | released | planned | planned | Define ownership, capacity and privacy first |
 
 ## How to read the matrix
 
@@ -82,7 +82,7 @@ Transitions use this form:
 from-state --event-or-condition--> to-state
 ```
 
-A state model must have a declared initial state, at least two states and transitions that reference only declared states.
+A state model must have a declared initial state, at least two states and transitions that reference only declared states. Every state must be reachable from the declared initial state.
 
 ### Time and evidence
 
@@ -92,13 +92,13 @@ Each feature contains ordered history entries:
 ["2026-07-01", "implemented", "pr:#148"]
 ```
 
-History records repository/product milestones, not production telemetry. Evidence may point to a file and selector/symbol, a commit, a PR, a build marker, an external dependency or a known defect.
+History records repository/product milestones, not production telemetry. Evidence may point to a file and selector/symbol, a commit, a PR, a build marker, an external dependency or a known defect. File fragments are executable assertions: the referenced selector, attribute or symbol must exist in that file.
 
 ## Known temporal defect: first-scroll flash
 
 `FEAT-UI-002` records the current Roby's issue:
 
-1. `setupReveal()` adds the initial hidden state.
+1. The reveal runtime adds the initial hidden state.
 2. `IntersectionObserver` makes the menu content visible only on first intersection.
 3. The mobile fixed CTA may create a blurred compositing layer at the same time.
 4. The observer then unobserves the content, so repeated scrolling no longer reproduces the defect.
@@ -121,6 +121,18 @@ For every product change:
 A new first-party API must additionally define method/path, versioning, request and response schemas, error envelope, authentication/authorization, idempotency for writes, rate limits, timeout/retry policy and UI fallback.
 
 A new backend workflow must additionally define ownership, persistence, migrations, audit, observability, degraded/unavailable states, rollback and data-retention/privacy rules.
+
+## Bot-review disposition protocol
+
+Bot review is evidence, not decoration. For each exact head:
+
+1. Collect native Codex and CodeRabbit reviews tied to the current commit SHA.
+2. Classify every actionable finding as `accepted`, `rejected-with-evidence` or `superseded`.
+3. Treat bot-resolved threads as unresolved until code or a technical disposition proves otherwise.
+4. Push fixes only after the classification is complete; any push invalidates the previous review evidence.
+5. Re-run mutation tests and all exact-head checks.
+6. Request fresh bot reviews on the new head before returning the PR to Ready for review.
+7. Allow maintainer merge attestation only when no current-head finding lacks a disposition.
 
 ## Definition of done by layer
 
