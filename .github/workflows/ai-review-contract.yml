@@ -44,6 +44,11 @@ jobs:
             );
             const isFresh = (item) => timeOf(item) >= evidenceAfter;
             const bodyOf = (item) => (item.body ?? '').trim();
+            const commandLinesOf = (item) => bodyOf(item)
+              .toLowerCase()
+              .split(/\r?\n/)
+              .map((line) => line.trim())
+              .filter(Boolean);
             const isOfficialAiBot = (user) => (
               user?.type === 'Bot' && officialAiBotLogins.has(user.login)
             );
@@ -64,7 +69,7 @@ jobs:
             const isCommand = (item, value) =>
               trusted.has(item.author_association) &&
               isFresh(item) &&
-              bodyOf(item).toLowerCase() === value;
+              commandLinesOf(item).includes(value);
 
             for (let attempt = 1; attempt <= 30; attempt += 1) {
               const [comments, reviews] = await Promise.all([
@@ -87,6 +92,10 @@ jobs:
               const codeRabbitRequests = comments.filter((item) =>
                 isCommand(item, '@coderabbitai review'),
               );
+              const aiReactionRequests = [
+                ...codexRequests,
+                ...codeRabbitRequests,
+              ];
               const latestCodeRabbitRequestAt = codeRabbitRequests.reduce(
                 (latest, request) => Math.max(latest, Date.parse(request.created_at)),
                 0,
@@ -123,10 +132,10 @@ jobs:
                 break;
               }
 
-              let codexReaction = false;
+              let aiReaction = false;
               if (!aiIssueComment && !aiPullReview && !codeRabbitStatusComment) {
                 try {
-                  for (const request of codexRequests) {
+                  for (const request of aiReactionRequests) {
                     const reactions = await github.paginate(
                       github.rest.reactions.listForIssueComment,
                       { owner, repo, comment_id: request.id, per_page: 100 },
@@ -142,7 +151,7 @@ jobs:
                         );
                       })
                     ) {
-                      codexReaction = true;
+                      aiReaction = true;
                       break;
                     }
                   }
@@ -154,7 +163,7 @@ jobs:
               const hasCodexRequest = codexRequests.length > 0;
               const hasCodeRabbitRequest = codeRabbitRequests.length > 0;
               const hasAiEvidence = Boolean(
-                aiIssueComment || aiPullReview || codeRabbitStatusComment || codexReaction,
+                aiIssueComment || aiPullReview || codeRabbitStatusComment || aiReaction,
               );
 
               if (
@@ -203,5 +212,5 @@ jobs:
             }
 
             core.setFailed(
-              'After the latest PR open or head update, post fresh @codex review, @jules review and @coderabbitai review comments, then wait for official independent AI evidence tied to the current head through native review commit_id, a full matching Reviewed commit, a fresh CodeRabbit no-unreviewed-commits status, or a trusted bot reaction.',
+              'After the latest PR open or head update, post fresh @codex review, @jules review and @coderabbitai review commands (one per line), then wait for official independent AI evidence tied to the current head through native review commit_id, a full matching Reviewed commit, a fresh CodeRabbit no-unreviewed-commits status, or a trusted bot reaction.',
             );
