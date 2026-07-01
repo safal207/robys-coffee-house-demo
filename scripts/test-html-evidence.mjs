@@ -42,6 +42,7 @@ expectSuccess("exact attribute", 'fixture.html#[data-mode="expected"]', '<div da
 expectSuccess("boolean attribute", "fixture.html#[data-instagram-booking]", '<button data-instagram-booking></button>');
 expectSuccess("case-insensitive markup", "fixture.html#menu-root", '<MAIN ID="menu-root"></MAIN>');
 
+expectFailure("empty fragment", "fixture.html#", '<main id="menu-root"></main>');
 expectFailure("natural id only in text", "fixture.html#menu-root", '<p>menu-root</p>');
 expectFailure("natural id only in script", "fixture.html#menu-root", '<script>const id = "menu-root";</script>');
 expectFailure("wrong exact attribute value", 'fixture.html#[data-mode="expected"]', '<div data-mode="wrong"></div>');
@@ -53,4 +54,4 @@ for (const tag of ["script", "style", "template", "textarea"]) {
   expectFailure(`${tag} fake id tag`, "fixture.html#menu-root", `<${tag}><main id="menu-root"></main></${tag}>`);
 }
 
-console.log("✅ TRACE-HTML-001 mutation tests passed: natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.");
+console.log("✅ TRACE-HTML-001 mutation tests passed: empty fragments fail; natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.");
