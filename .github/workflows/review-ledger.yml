@@ -44,6 +44,9 @@ jobs:
               'chatgpt-codex-connector[bot]',
               'coderabbitai',
               'coderabbitai[bot]',
+              'jules',
+              'jules[bot]',
+              'google-labs-jules[bot]',
               'github-advanced-security',
               'github-advanced-security[bot]',
             ]);
