@@ -56,7 +56,7 @@ function runFixture(mutator) {
   const root = mkdtempSync(path.join(tmpdir(), "trace-001-"));
   try {
     const fixture = validFixture();
-    mutator?.(fixture);
+    mutator?.(fixture, root);
     mkdirSync(path.join(root, "qa/traceability"), { recursive: true });
     writeFileSync(path.join(root, "qa/feature-traceability-matrix.json"), JSON.stringify(fixture.manifest, null, 2));
     writeFileSync(
@@ -104,6 +104,9 @@ expectFailure("wrong attribute value", "evidence fragment does not exist", (fixt
 expectFailure("evidence path escape", "evidence escapes repository root", ({ feature }) => {
   feature.evidence = ["../outside.txt#existingSymbol"];
 });
+expectFailure("absolute evidence path", "evidence path must be repository-relative", (fixture, root) => {
+  fixture.feature.evidence = [`${path.join(root, "fixture.txt")}#existingSymbol`];
+});
 expectFailure("unreachable state", "unreachable states", ({ feature }) => {
   feature.stateModel.states.push("orphaned");
 });
@@ -126,4 +129,4 @@ expectFailure("non-positive invariant minimum", "invalid manifest invariant", ({
   manifest.invariants[0].min = 0;
 });
 
-console.log("✅ TRACE-001 mutation tests passed: exact fragments, root containment, reachability, dependency graph, invariants.");
+console.log("✅ TRACE-001 mutation tests passed: exact fragments, relative paths, reachability, dependency graph, invariants.");
