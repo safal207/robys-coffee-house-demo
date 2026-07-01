@@ -263,9 +263,7 @@
         "Share APIs vary by browser/security context"
       ],
       "nextGate": "Keep explicit external handoff until FEAT-BE-003 owns confirmation.",
-      "dependsOn": [
-        "FEAT-BE-003"
-      ]
+      "dependsOn": []
     },
     {
       "id": "FEAT-UI-005",
@@ -388,9 +386,7 @@
         "No date schedule/stock guard/admin"
       ],
       "nextGate": "Move content to FEAT-BE-002 only when owner workflow justifies it.",
-      "dependsOn": [
-        "FEAT-BE-002"
-      ]
+      "dependsOn": []
     }
   ]
 }
