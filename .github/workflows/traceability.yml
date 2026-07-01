@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
           cache: npm
@@ -30,3 +30,6 @@ jobs:
 
       - name: Validate feature, state and layer traceability
         run: npm run verify:traceability
+
+      - name: Run TRACE-001 mutation tests
+        run: npm run test:traceability
