@@ -11,6 +11,7 @@ const baselineDir = path.resolve(process.env.VISUAL_BASELINE_DIR ?? path.join(pr
 const resultsDir = path.resolve(process.env.VISUAL_RESULTS_DIR ?? path.join(process.cwd(), "visual-results"));
 const currentPort = Number(process.env.VISUAL_CURRENT_PORT ?? 4173);
 const baselinePort = Number(process.env.VISUAL_BASELINE_PORT ?? 4174);
+const fixedNow = Date.parse("2026-07-01T12:00:00+03:00");
 
 const output = {
   baseline: path.join(resultsDir, "baseline"),
@@ -51,6 +52,41 @@ async function waitForServer(url, attempts = 40) {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw lastError;
+}
+
+async function configureVisualContext(context) {
+  await context.addInitScript((timestamp) => {
+    const NativeDate = Date;
+    class FixedDate extends NativeDate {
+      constructor(...args) {
+        super(...(args.length ? args : [timestamp]));
+      }
+      static now() {
+        return timestamp;
+      }
+    }
+    Object.setPrototypeOf(FixedDate, NativeDate);
+    globalThis.Date = FixedDate;
+    try {
+      localStorage.clear();
+    } catch {
+      // Storage may be unavailable on the initial blank document.
+    }
+  }, fixedNow);
+
+  await context.route("https://api.open-meteo.com/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        current: {
+          temperature_2m: 30,
+          precipitation: 0,
+          weather_code: 0
+        }
+      })
+    });
+  });
 }
 
 async function stabilize(page) {
@@ -143,6 +179,7 @@ async function captureMatrix(browser, baseUrl, destination) {
       serviceWorkers: "block",
       bypassCSP: true
     });
+    await configureVisualContext(context);
     const page = await context.newPage();
 
     for (const capture of config.captures.filter((item) => item.viewports.includes(viewport.id))) {
