@@ -7,6 +7,8 @@ const FINAL = path.join(ROOT, "final");
 const APPROVED = path.join(ROOT, "approved");
 const APPROVED_ICED_POSTER = path.join(APPROVED, "iced-san-sebastian-hq.png");
 const APPROVED_ICED_MANIFEST_PATH = "src/pairings-data/approved/iced-san-sebastian-hq.png";
+const APPROVED_ICED_WIDTH = 1254;
+const APPROVED_ICED_HEIGHT = 1254;
 const EXPECTED_IDS = [
   "latte-nutella",
   "iced-san-sebastian",
@@ -77,7 +79,9 @@ function verifyApprovedPng(buffer, filePath) {
 
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
-  if (width !== height || width < 1024) fail(`${filePath} must be a square Retina poster of at least 1024px, found ${width}x${height}`);
+  if (width !== APPROVED_ICED_WIDTH || height !== APPROVED_ICED_HEIGHT) {
+    fail(`${filePath} must be exactly ${APPROVED_ICED_WIDTH}x${APPROVED_ICED_HEIGHT}, found ${width}x${height}`);
+  }
 
   const digest = digestFor(buffer);
   if (buffer.length !== approvedManifestEntry.bytes) {
