@@ -33,17 +33,28 @@ function statusFor(stage) {
 }
 
 function escapeMermaid(value) {
-  return value.replaceAll('"', "'").replaceAll("\n", " ");
+  return String(value).replaceAll('"', "'").replace(/[\r\n]+/g, " ");
+}
+
+function escapeHtmlInline(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;")
+    .replaceAll("`", "&#96;")
+    .replace(/[\r\n]+/g, " ");
 }
 
 const resolved = stages.map((stage) => ({ ...stage, status: statusFor(stage) }));
 const firstIncomplete = resolved.find((stage) => stage.status !== "success");
 const verdict = firstIncomplete ? "HOLD" : "READY";
-const head = process.env.PDG_HEAD || process.env.GITHUB_SHA || "local";
-const branch = process.env.PDG_BRANCH || process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "local";
-const blocker = process.env.PDG_BLOCKER || (firstIncomplete
+const head = escapeHtmlInline(process.env.PDG_HEAD || process.env.GITHUB_SHA || "local");
+const branch = escapeHtmlInline(process.env.PDG_BRANCH || process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "local");
+const blocker = escapeHtmlInline(process.env.PDG_BLOCKER || (firstIncomplete
   ? `${firstIncomplete.depth} ${firstIncomplete.label} is ${firstIncomplete.status}`
-  : "none");
+  : "none"));
 
 const graphNodes = resolved.map((stage, index) => {
   const id = `N${index}`;
@@ -59,9 +70,9 @@ const rows = resolved.map((stage) => (
 const markdown = `# CI/CD Proof Status — PDG-001
 
 **Verdict:** ${verdict === "READY" ? "✅ READY" : "🟡 HOLD"}  
-**Exact head:** \`${head}\`  
-**Branch:** \`${branch}\`  
-**Current blocker:** ${blocker}
+**Exact head:** <code>${head}</code>  
+**Branch:** <code>${branch}</code>  
+**Current blocker:** <span>${blocker}</span>
 
 \`\`\`mermaid
 flowchart LR
