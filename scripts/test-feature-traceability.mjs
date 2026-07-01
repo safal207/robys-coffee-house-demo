@@ -82,6 +82,10 @@ function expectFailure(label, expectedText, mutator) {
 }
 
 expectSuccess("valid baseline");
+expectSuccess("exact attribute value", (fixture) => {
+  fixture.feature.evidence = ["fixture.txt#[data-mode=\"expected\"]"];
+  fixture.evidenceText = "<div data-mode=\"expected\"></div>\n";
+});
 expectFailure("stale evidence fragment", "evidence fragment does not exist", ({ feature }) => {
   feature.evidence = ["fixture.txt#missingSymbol"];
 });
@@ -89,11 +93,24 @@ expectFailure("substring-only evidence fragment", "evidence fragment does not ex
   fixture.feature.evidence = ["fixture.txt#track"];
   fixture.evidenceText = "const tracking = true;\n";
 });
+expectFailure("wrong attribute value", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.txt#[data-mode=\"expected\"]"];
+  fixture.evidenceText = "<div data-mode=\"wrong\"></div>\n";
+});
+expectFailure("evidence path escape", "evidence escapes repository root", ({ feature }) => {
+  feature.evidence = ["../outside.txt#existingSymbol"];
+});
 expectFailure("unreachable state", "unreachable states", ({ feature }) => {
   feature.stateModel.states.push("orphaned");
 });
 expectFailure("malformed dependsOn", "invalid dependsOn", ({ feature }) => {
   feature.dependsOn = "FEAT-API-001";
 });
+expectFailure("invariant without equals", "invalid manifest invariant", ({ manifest }) => {
+  delete manifest.invariants[0].equals;
+});
+expectFailure("non-positive invariant minimum", "invalid manifest invariant", ({ manifest }) => {
+  manifest.invariants[0].min = 0;
+});
 
-console.log("✅ TRACE-001 mutation tests passed: baseline, exact evidence fragment, reachability, dependsOn.");
+console.log("✅ TRACE-001 mutation tests passed: exact fragments, root containment, reachability, dependsOn, invariants.");
