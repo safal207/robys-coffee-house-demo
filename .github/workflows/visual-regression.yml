@@ -112,6 +112,10 @@ jobs:
           UI_UX_ATTEMPTS: 2
         run: node scripts/ui-ux-matrix.mjs
 
+      - name: Verify seven AI-style review lenses
+        working-directory: current
+        run: npm run verify:ai-style-matrix
+
       - name: Recheck live social network destination
         working-directory: current
         env:
