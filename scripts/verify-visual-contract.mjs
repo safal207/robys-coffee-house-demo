@@ -23,10 +23,14 @@ const expectedViewports = [
 ];
 const viewportIds = config.viewports.map((viewport) => viewport.id);
 assert(new Set(viewportIds).size === viewportIds.length, "Viewport ids must be unique");
-assert(
-  JSON.stringify(config.viewports) === JSON.stringify(expectedViewports),
-  "Viewport matrix must match the approved phone, tablet, laptop and desktop coverage"
-);
+assert(config.viewports.length === expectedViewports.length, "Viewport matrix length mismatch");
+config.viewports.forEach((viewport, index) => {
+  const expected = expectedViewports[index];
+  assert(
+    viewport.id === expected.id && viewport.width === expected.width && viewport.height === expected.height,
+    `Viewport ${index + 1} must be ${expected.id} ${expected.width}x${expected.height}`
+  );
+});
 for (const viewport of config.viewports) {
   assert(Number.isInteger(viewport.width) && viewport.width > 0, `Invalid width for ${viewport.id}`);
   assert(Number.isInteger(viewport.height) && viewport.height > 0, `Invalid height for ${viewport.id}`);
