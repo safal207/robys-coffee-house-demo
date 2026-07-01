@@ -42,6 +42,26 @@
       "not-applicable"
     ]
   },
+  "invariants": [
+    {
+      "path": "layers.api",
+      "equals": "external",
+      "min": 1,
+      "message": "matrix must trace at least one external API"
+    },
+    {
+      "path": "layers.backend",
+      "equals": "planned",
+      "min": 1,
+      "message": "matrix must make the backend roadmap explicit"
+    },
+    {
+      "path": "current.operational",
+      "equals": "degraded",
+      "min": 1,
+      "message": "matrix must preserve currently known degraded states"
+    }
+  ],
   "milestones": [
     {
       "id": "M-20260619",
