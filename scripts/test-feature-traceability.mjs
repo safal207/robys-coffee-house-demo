@@ -64,6 +64,8 @@ function runFixture(mutator) {
       JSON.stringify({ features: [fixture.feature, ...fixture.extraFeatures] }, null, 2)
     );
     writeFileSync(path.join(root, "fixture.txt"), fixture.evidenceText);
+    writeFileSync(path.join(root, "fixture.html"), fixture.evidenceText);
+    writeFileSync(path.join(root, "fixture.css"), fixture.evidenceText);
     return spawnSync(process.execPath, [SCRIPT], { cwd: root, encoding: "utf8" });
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -87,8 +89,20 @@ function expectFailure(label, expectedText, mutator) {
 
 expectSuccess("valid baseline");
 expectSuccess("exact attribute value", (fixture) => {
-  fixture.feature.evidence = ["fixture.txt#[data-mode=\"expected\"]"];
+  fixture.feature.evidence = ["fixture.html#[data-mode=\"expected\"]"];
   fixture.evidenceText = "<div data-mode=\"expected\"></div>\n";
+});
+expectSuccess("HTML class selector", (fixture) => {
+  fixture.feature.evidence = ["fixture.html#.hero"];
+  fixture.evidenceText = "<div class=\"card hero featured\"></div>\n";
+});
+expectSuccess("HTML id selector", (fixture) => {
+  fixture.feature.evidence = ["fixture.html##menu-root"];
+  fixture.evidenceText = "<main id=\"menu-root\"></main>\n";
+});
+expectSuccess("CSS class selector", (fixture) => {
+  fixture.feature.evidence = ["fixture.css#.hero"];
+  fixture.evidenceText = ".hero { display: block; }\n";
 });
 expectFailure("stale evidence fragment", "evidence fragment does not exist", ({ feature }) => {
   feature.evidence = ["fixture.txt#missingSymbol"];
@@ -98,8 +112,20 @@ expectFailure("substring-only evidence fragment", "evidence fragment does not ex
   fixture.evidenceText = "const tracking = true;\n";
 });
 expectFailure("wrong attribute value", "evidence fragment does not exist", (fixture) => {
-  fixture.feature.evidence = ["fixture.txt#[data-mode=\"expected\"]"];
+  fixture.feature.evidence = ["fixture.html#[data-mode=\"expected\"]"];
   fixture.evidenceText = "<div data-mode=\"wrong\"></div>\n";
+});
+expectFailure("class name outside HTML class attribute", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.html#.hero"];
+  fixture.evidenceText = "<!-- .hero --><script>const hero = true;</script><p>hero</p>\n";
+});
+expectFailure("id name outside HTML id attribute", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.html##menu-root"];
+  fixture.evidenceText = "<!-- #menu-root --><script>const value = 'menu-root';</script>\n";
+});
+expectFailure("selector present only in CSS comment", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.css#.hero"];
+  fixture.evidenceText = "/* .hero { display: block; } */\n";
 });
 expectFailure("evidence path escape", "evidence escapes repository root", ({ feature }) => {
   feature.evidence = ["../outside.txt#existingSymbol"];
@@ -129,4 +155,4 @@ expectFailure("non-positive invariant minimum", "invalid manifest invariant", ({
   manifest.invariants[0].min = 0;
 });
 
-console.log("✅ TRACE-001 mutation tests passed: exact fragments, relative paths, reachability, dependency graph, invariants.");
+console.log("✅ TRACE-001 mutation tests passed: semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.");
