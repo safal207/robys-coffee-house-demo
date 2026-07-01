@@ -72,7 +72,7 @@ assert(workflow.includes("scripts/visual-regression.mjs"), "Visual workflow must
 assert(workflow.includes("scripts/ui-ux-matrix.mjs"), "Visual workflow must execute the UI/UX matrix");
 assert(workflow.includes("scripts/verify-social-network-live.mjs"), "Visual workflow must recheck the live social destination");
 assert(workflow.includes("playwright install --with-deps chromium"), "Visual workflow must install deterministic Chromium");
-assert(workflow.includes("upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2"), "Visual workflow must pin the artifact uploader");
+assert(workflow.includes("upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b"), "Visual workflow must pin the artifact uploader");
 assert(workflow.includes("if: always()"), "Visual artifacts must be uploaded even when comparison fails");
 
 for (const requiredToken of ["pixelmatch", "PNG.sync.read", "deviceScaleFactor: 1", "reducedMotion: \"reduce\"", "hero-video", "map-live-frame", "summary.json"]) {
