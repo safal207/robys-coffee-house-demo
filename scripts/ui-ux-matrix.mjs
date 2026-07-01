@@ -28,16 +28,9 @@ const profiles = requestedProfile
   ? config.profiles.filter((profile) => profile.id === requestedProfile)
   : config.profiles;
 
-if (!Number.isInteger(port) || port < 1024 || port > 65535) {
-  throw new Error(`[UI-UX-001] UI_UX_PORT must be an integer between 1024 and 65535, found ${port}`);
-}
-if (profiles.length === 0) {
-  throw new Error(`[UI-UX-001] Unknown profile: ${requestedProfile}`);
-}
-if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 3) {
-  throw new Error(`[UI-UX-001] UI_UX_ATTEMPTS must be between 1 and 3, found ${maxAttempts}`);
-}
-
+assert(Number.isInteger(port) && port >= 1024 && port <= 65535, `[UI-UX-001] Invalid UI_UX_PORT: ${port}`);
+assert(profiles.length > 0, `[UI-UX-001] Unknown profile: ${requestedProfile}`);
+assert(Number.isInteger(maxAttempts) && maxAttempts >= 1 && maxAttempts <= 3, `[UI-UX-001] Invalid UI_UX_ATTEMPTS: ${maxAttempts}`);
 assertSafeResultsDir(resultsDir);
 rmSync(resultsDir, { recursive: true, force: true });
 mkdirSync(resultsDir, { recursive: true });
@@ -48,18 +41,16 @@ function startServer() {
     stdio: ["ignore", "pipe", "pipe"]
   });
   let diagnostics = "";
-  server.stderr.on("data", (chunk) => {
-    diagnostics += chunk.toString();
-  });
+  server.stderr.on("data", (chunk) => { diagnostics += chunk.toString(); });
   server.on("exit", (code) => {
     if (code && code !== 0) console.error(`UI/UX server exited with ${code}: ${diagnostics}`);
   });
   return server;
 }
 
-async function waitForServer(url, attempts = 40) {
+async function waitForServer(url) {
   let lastError;
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+  for (let attempt = 1; attempt <= 40; attempt += 1) {
     try {
       const response = await fetch(url, { cache: "no-store" });
       if (response.ok) return;
@@ -90,47 +81,28 @@ async function createContext(browser, profile) {
   await context.addInitScript((timestamp) => {
     const NativeDate = Date;
     class FixedDate extends NativeDate {
-      constructor(...args) {
-        super(...(args.length ? args : [timestamp]));
-      }
-      static now() {
-        return timestamp;
-      }
+      constructor(...args) { super(...(args.length ? args : [timestamp])); }
+      static now() { return timestamp; }
     }
     Object.setPrototypeOf(FixedDate, NativeDate);
     globalThis.Date = FixedDate;
-    try {
-      localStorage.clear();
-    } catch {
-      // Storage may be unavailable on the initial blank document.
-    }
+    try { localStorage.clear(); } catch { /* Initial blank document. */ }
   }, fixedNow);
 
-  await context.route("https://api.open-meteo.com/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        current: {
-          temperature_2m: 30,
-          precipitation: 0,
-          weather_code: 0
-        }
-      })
-    });
-  });
-
+  await context.route("https://api.open-meteo.com/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ current: { temperature_2m: 30, precipitation: 0, weather_code: 0 } })
+  }));
   return context;
 }
 
 async function stabilize(page) {
-  await page.addStyleTag({
-    content: `
-      *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-      html{scroll-behavior:auto!important}
-      .hero-video,.map-live-frame{visibility:hidden!important}
-    `
-  });
+  await page.addStyleTag({ content: `
+    *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    html{scroll-behavior:auto!important}
+    .hero-video,.map-live-frame{visibility:hidden!important}
+  ` });
 
   await page.evaluate(async ({ imageTimeoutMs }) => {
     const withTimeout = (promise, label) => Promise.race([
@@ -159,7 +131,6 @@ async function stabilize(page) {
     window.scrollTo(0, 0);
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   }, { imageTimeoutMs: 5000 });
-
   await page.waitForTimeout(100);
 }
 
@@ -169,10 +140,6 @@ async function assertPageStructure(page, profile, route) {
     const h1 = document.querySelector("h1");
     const h1Rect = h1?.getBoundingClientRect();
     const ids = Array.from(document.querySelectorAll("[id]"), (element) => element.id).filter(Boolean);
-    const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
-    const brokenImages = Array.from(document.images)
-      .filter((image) => image.complete && image.naturalWidth === 0)
-      .map((image) => image.currentSrc || image.src || image.alt || "unknown-image");
     return {
       title: document.title.trim(),
       mainCount: document.querySelectorAll("main").length,
@@ -180,18 +147,16 @@ async function assertPageStructure(page, profile, route) {
       h1Visible: Boolean(h1Rect && h1Rect.width > 0 && h1Rect.height > 0),
       scrollWidth: root?.scrollWidth ?? 0,
       clientWidth: root?.clientWidth ?? 0,
-      duplicateIds,
-      brokenImages
+      duplicateIds: [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))],
+      brokenImages: Array.from(document.images)
+        .filter((image) => image.complete && image.naturalWidth === 0)
+        .map((image) => image.currentSrc || image.src || image.alt || "unknown-image")
     };
   });
-
-  assert(metrics.title.length > 0, `${route.id}: document title is empty`);
+  assert(metrics.title, `${route.id}: document title is empty`);
   assert(metrics.mainCount === 1, `${route.id}: expected one main landmark, found ${metrics.mainCount}`);
-  assert(metrics.h1Text.length > 0 && metrics.h1Visible, `${route.id}: visible h1 is missing`);
-  assert(
-    metrics.scrollWidth <= metrics.clientWidth + 1,
-    `${route.id}: horizontal overflow ${metrics.scrollWidth}px > ${metrics.clientWidth}px at ${profile.width}px`
-  );
+  assert(metrics.h1Text && metrics.h1Visible, `${route.id}: visible h1 is missing`);
+  assert(metrics.scrollWidth <= metrics.clientWidth + 1, `${route.id}: horizontal overflow ${metrics.scrollWidth}px > ${metrics.clientWidth}px at ${profile.width}px`);
   assert(metrics.duplicateIds.length === 0, `${route.id}: duplicate ids ${metrics.duplicateIds.join(", ")}`);
   assert(metrics.brokenImages.length === 0, `${route.id}: broken images ${metrics.brokenImages.join(", ")}`);
 }
@@ -200,35 +165,22 @@ async function assertPrimaryTargets(page, profile, route, warnings) {
   let visibleTargets = 0;
   for (const selector of route.primarySelectors) {
     const targets = page.locator(selector);
-    const count = await targets.count();
-    for (let index = 0; index < count; index += 1) {
+    for (let index = 0; index < await targets.count(); index += 1) {
       const target = targets.nth(index);
       if (!(await target.isVisible())) continue;
       visibleTargets += 1;
       await target.scrollIntoViewIfNeeded();
       const box = await target.boundingBox();
       assert(box, `${route.id}: ${selector}[${index}] has no layout box`);
-      assert(
-        box.x >= -1 && box.x + box.width <= profile.width + 1,
-        `${route.id}: ${selector}[${index}] escapes the ${profile.width}px viewport`
-      );
-      const accessibleName = (
-        (await target.getAttribute("aria-label"))
-        ?? (await target.innerText().catch(() => ""))
-      ).trim();
-      assert(accessibleName.length > 0, `${route.id}: ${selector}[${index}] has no accessible name`);
-
+      assert(box.x >= -1 && box.x + box.width <= profile.width + 1, `${route.id}: ${selector}[${index}] escapes the viewport`);
+      const name = ((await target.getAttribute("aria-label")) ?? (await target.innerText().catch(() => ""))).trim();
+      assert(name, `${route.id}: ${selector}[${index}] has no accessible name`);
       if (profile.hasTouch) {
         const minimum = config.minimumTouchTarget ?? 24;
         const recommended = config.recommendedTouchTarget ?? 40;
-        assert(
-          box.width >= minimum && box.height >= minimum,
-          `${route.id}: ${selector}[${index}] touch target is ${box.width.toFixed(1)}x${box.height.toFixed(1)}px, below ${minimum}px`
-        );
+        assert(box.width >= minimum && box.height >= minimum, `${route.id}: ${selector}[${index}] touch target is ${box.width.toFixed(1)}x${box.height.toFixed(1)}px, below ${minimum}px`);
         if (box.width < recommended || box.height < recommended) {
-          warnings.push(
-            `${selector}[${index}] is ${box.width.toFixed(1)}x${box.height.toFixed(1)}px; recommended touch target is ${recommended}px`
-          );
+          warnings.push(`${selector}[${index}] is ${box.width.toFixed(1)}x${box.height.toFixed(1)}px; recommended ${recommended}px`);
         }
       }
     }
@@ -239,8 +191,7 @@ async function assertPrimaryTargets(page, profile, route, warnings) {
 async function assertKeyboardFocus(page, route) {
   await page.evaluate(() => {
     window.scrollTo(0, 0);
-    const active = document.activeElement;
-    if (active instanceof HTMLElement) active.blur();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   });
 
   let focused;
@@ -250,28 +201,40 @@ async function assertKeyboardFocus(page, route) {
       const element = document.activeElement;
       if (!(element instanceof HTMLElement) || element === document.body) return null;
       const rect = element.getBoundingClientRect();
-      const style = getComputedStyle(element);
-      const outlineWidth = Number.parseFloat(style.outlineWidth);
+      const visible = rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+      if (!visible) return { visible: false };
+
+      const snapshot = () => {
+        const style = getComputedStyle(element);
+        return {
+          outline: `${style.outlineStyle}|${style.outlineWidth}|${style.outlineColor}|${style.outlineOffset}`,
+          boxShadow: style.boxShadow,
+          background: style.backgroundColor,
+          border: `${style.borderTopColor}|${style.borderRightColor}|${style.borderBottomColor}|${style.borderLeftColor}`,
+          color: style.color,
+          decoration: `${style.textDecorationLine}|${style.textDecorationColor}|${style.textDecorationThickness}`
+        };
+      };
+
+      const focusVisible = element.matches(":focus-visible");
+      const focusedStyle = snapshot();
+      element.blur();
+      const unfocusedStyle = snapshot();
+      const cueChanged = Object.keys(focusedStyle).some((key) => focusedStyle[key] !== unfocusedStyle[key]);
       return {
         tag: element.tagName,
         text: (element.getAttribute("aria-label") || element.textContent || "").trim(),
-        visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight,
-        focusVisible: element.matches(":focus-visible"),
-        hasFocusIndicator:
-          (style.outlineStyle !== "none" && Number.isFinite(outlineWidth) && outlineWidth > 0)
-          || style.boxShadow !== "none"
-          || style.textDecorationLine.includes("underline")
+        visible,
+        focusVisible,
+        cueChanged
       };
     });
     if (focused?.visible) break;
   }
 
   assert(focused?.visible, `${route.id}: keyboard focus never reached a visible control`);
-  assert(focused.text.length > 0, `${route.id}: focused ${focused.tag} has no accessible text`);
-  assert(
-    focused.focusVisible && focused.hasFocusIndicator,
-    `${route.id}: focused ${focused.tag} has no visible focus indicator`
-  );
+  assert(focused.text, `${route.id}: focused ${focused.tag} has no accessible text`);
+  assert(focused.focusVisible && focused.cueChanged, `${route.id}: focused ${focused.tag} has no focus-specific visual change`);
 }
 
 function normalizeInstagram(href) {
@@ -287,81 +250,57 @@ function normalizeInstagram(href) {
 }
 
 async function assertSocialNetworkUx(page, routeId) {
-  if (routeId === "landing") {
-    await page.locator("#daily-offer:not([hidden])").waitFor({ state: "visible", timeout: 10000 });
-  }
-
+  if (routeId === "landing") await page.locator("#daily-offer:not([hidden])").waitFor({ state: "visible", timeout: 10000 });
   const selector = routeId === "landing"
     ? '#daily-offer a[href*="instagram.com"]'
-    : routeId === "menu"
-      ? 'a[href*="instagram.com/robyscoffeehouse"]'
-      : null;
+    : routeId === "menu" ? 'a[href*="instagram.com/robyscoffeehouse"]' : null;
   if (!selector) return;
-
   const links = page.locator(selector);
   const count = await links.count();
-  const minimum = routeId === "landing" ? 2 : 3;
-  assert(count >= minimum, `${routeId}: expected at least ${minimum} Instagram actions, found ${count}`);
-
+  assert(count >= (routeId === "landing" ? 2 : 3), `${routeId}: insufficient Instagram actions (${count})`);
   for (let index = 0; index < count; index += 1) {
     const link = links.nth(index);
     const href = await link.getAttribute("href");
-    const target = await link.getAttribute("target");
     const rel = (await link.getAttribute("rel") ?? "").split(/\s+/);
     const name = ((await link.getAttribute("aria-label")) ?? (await link.innerText())).trim();
     assert(normalizeInstagram(href) === canonicalInstagram, `${routeId}: Instagram action ${index + 1} points to ${href}`);
-    assert(target === "_blank", `${routeId}: Instagram action ${index + 1} must open in a new tab`);
+    assert(await link.getAttribute("target") === "_blank", `${routeId}: Instagram action ${index + 1} must open in a new tab`);
     assert(rel.includes("noopener") && rel.includes("noreferrer"), `${routeId}: Instagram action ${index + 1} lacks safe rel tokens`);
-    assert(name.length > 0, `${routeId}: Instagram action ${index + 1} has no accessible name`);
+    assert(name, `${routeId}: Instagram action ${index + 1} has no accessible name`);
   }
 }
 
 async function exerciseMenu(page) {
-  const items = page.locator(".full-menu-item");
-  const initialCount = await items.count();
+  const initialCount = await page.locator(".full-menu-item").count();
   assert(initialCount > 10, `menu: only ${initialCount} products rendered`);
-
   const search = page.locator("#menu-search");
   await search.fill("Latte");
   await page.waitForTimeout(100);
-  const filteredCount = await page.locator(".full-menu-item:visible").count();
-  assert(filteredCount > 0 && filteredCount < initialCount, `menu: search returned ${filteredCount} of ${initialCount} items`);
-
+  const filtered = await page.locator(".full-menu-item:visible").count();
+  assert(filtered > 0 && filtered < initialCount, `menu: search returned ${filtered} of ${initialCount}`);
   await search.fill("");
   await page.waitForTimeout(100);
-  const restoredCount = await page.locator(".full-menu-item:visible").count();
-  assert(restoredCount === initialCount, `menu: clearing search restored ${restoredCount} of ${initialCount} items`);
-
+  assert(await page.locator(".full-menu-item:visible").count() === initialCount, "menu: clearing search did not restore all items");
   await page.locator('.lang-button[data-lang="ru"]').click();
-  assert(await page.evaluate(() => document.documentElement.lang === "ru"), "menu: RU language switch did not update document language");
+  assert(await page.evaluate(() => document.documentElement.lang === "ru"), "menu: RU language switch failed");
 }
 
 async function exerciseDiscover(page) {
   const pairing = page.locator("#pairing-products");
   const firstId = await pairing.getAttribute("data-pairing-id");
   assert(firstId, "discover: initial pairing id is missing");
-
   await page.locator("#next-pairing").click();
-  await page.waitForFunction(
-    (previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous,
-    firstId
-  );
+  await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, firstId);
   const secondId = await pairing.getAttribute("data-pairing-id");
   assert(secondId && secondId !== firstId, "discover: another-pairing action did not change the pairing");
-
   const mark = page.locator("#mark-discovered");
   if (!(await mark.isDisabled())) await mark.click();
   const beforeRecheck = await pairing.getAttribute("data-pairing-id");
   await page.locator("#next-pairing").click();
-  await page.waitForFunction(
-    (previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous,
-    beforeRecheck
-  );
-  const afterRecheck = await pairing.getAttribute("data-pairing-id");
-  assert(afterRecheck && afterRecheck !== beforeRecheck, "discover: rotation collapsed after marking a pairing discovered");
-
+  await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, beforeRecheck);
+  assert(await pairing.getAttribute("data-pairing-id") !== beforeRecheck, "discover: rotation collapsed after discovery");
   await page.locator('.lang-button[data-lang="ru"]').click();
-  assert(await page.evaluate(() => document.documentElement.lang === "ru"), "discover: RU language switch did not update document language");
+  assert(await page.evaluate(() => document.documentElement.lang === "ru"), "discover: RU language switch failed");
 }
 
 async function runAttempt(browser, baseUrl, profile, route, attempt) {
@@ -370,7 +309,6 @@ async function runAttempt(browser, baseUrl, profile, route, attempt) {
   const warnings = [];
   const pageErrors = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
-
   try {
     const url = new URL(route.path, baseUrl);
     url.searchParams.set("ui-ux", `${profile.id}-${route.id}-${attempt}`);
@@ -388,12 +326,7 @@ async function runAttempt(browser, baseUrl, profile, route, attempt) {
   } catch (error) {
     const screenshot = path.join(resultsDir, `${profile.id}__${route.id}__attempt-${attempt}.png`);
     await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" }).catch(() => {});
-    return {
-      passed: false,
-      warnings,
-      error: error instanceof Error ? error.message : String(error),
-      screenshot: path.basename(screenshot)
-    };
+    return { passed: false, warnings, error: error instanceof Error ? error.message : String(error), screenshot: path.basename(screenshot) };
   } finally {
     await context.close();
   }
@@ -402,24 +335,20 @@ async function runAttempt(browser, baseUrl, profile, route, attempt) {
 const server = startServer();
 let browser;
 const results = [];
-
 try {
   const baseUrl = `http://127.0.0.1:${port}/`;
   await waitForServer(baseUrl);
   browser = await chromium.launch({ headless: true });
-
   for (const profile of profiles) {
     for (const route of config.routes) {
       const attempts = [];
       let finalResult;
       for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-        const attemptResult = await runAttempt(browser, baseUrl, profile, route, attempt);
-        attempts.push(attemptResult);
-        finalResult = attemptResult;
-        if (attemptResult.passed) break;
-        console.warn(`⚠️ UI-UX-001 ${profile.id}/${route.id} failed attempt ${attempt}: ${attemptResult.error}`);
+        finalResult = await runAttempt(browser, baseUrl, profile, route, attempt);
+        attempts.push(finalResult);
+        if (finalResult.passed) break;
+        console.warn(`⚠️ UI-UX-001 ${profile.id}/${route.id} failed attempt ${attempt}: ${finalResult.error}`);
       }
-
       const result = {
         profile: profile.id,
         width: profile.width,
@@ -433,42 +362,23 @@ try {
         attemptResults: attempts
       };
       results.push(result);
-
-      if (result.passed) {
-        const suffix = result.flaky ? " after automatic recheck" : "";
-        console.log(`✅ UI-UX-001 ${profile.id}/${route.id}${suffix}`);
-      } else {
-        console.error(`❌ UI-UX-001 ${profile.id}/${route.id} confirmed after ${attempts.length} attempt(s)`);
-      }
+      console.log(`${result.passed ? "✅" : "❌"} UI-UX-001 ${profile.id}/${route.id}${result.flaky ? " after automatic recheck" : ""}`);
     }
   }
 
   const failures = results.filter((result) => !result.passed);
   const flaky = results.filter((result) => result.flaky);
-  const warnings = results.reduce((total, result) => total + result.warnings.length, 0);
-  const summary = {
+  const recommendations = results.reduce((total, result) => total + result.warnings.length, 0);
+  writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify({
     generatedAt: new Date().toISOString(),
-    matrix: {
-      profiles: profiles.length,
-      routes: config.routes.length,
-      scenarios: results.length,
-      maximumAttempts: maxAttempts
-    },
+    matrix: { profiles: profiles.length, routes: config.routes.length, scenarios: results.length, maximumAttempts: maxAttempts },
     failures: failures.length,
     flakyRechecks: flaky.length,
-    recommendations: warnings,
+    recommendations,
     results
-  };
-  writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
-
-  if (failures.length) {
-    throw new Error(`[UI-UX-001] ${failures.length} of ${results.length} scenarios failed after automatic recheck. Inspect the UI/UX artifact.`);
-  }
-
-  console.log(
-    `✅ UI-UX-001 passed ${results.length} scenarios across ${profiles.length} profiles and ${config.routes.length} routes; `
-      + `${flaky.length} recovered on recheck, ${warnings} touch-target recommendation(s).`
-  );
+  }, null, 2)}\n`);
+  if (failures.length) throw new Error(`[UI-UX-001] ${failures.length} of ${results.length} scenarios failed after automatic recheck.`);
+  console.log(`✅ UI-UX-001 passed ${results.length} scenarios; ${flaky.length} recovered on recheck, ${recommendations} recommendation(s).`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
