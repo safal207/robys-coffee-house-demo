@@ -114,8 +114,13 @@ jobs:
               core.setFailed(`PDG-001 depth D4 incomplete: no exact-head cooperation report for ${head}.`);
               return;
             }
-            if (!/\*\*Overall conclusion:\*\*\s*\*\*READY\*\*/i.test(report.body ?? '')) {
-              core.setFailed(`PDG-001 depth D4 incomplete: cooperation report is not READY for ${head}.`);
+            const conclusion = /\*\*Overall conclusion:\*\*\s*\*\*(READY|READY_WITH_ADVISORY_GAPS)\*\*/i.exec(report.body ?? '')?.[1];
+            if (!conclusion) {
+              core.setFailed(`PDG-001 depth D4 incomplete: cooperation report is not ready for ${head}.`);
+              return;
+            }
+            if (conclusion === 'READY_WITH_ADVISORY_GAPS' && !/advisory gaps:\s*Jules\./i.test(report.body ?? '')) {
+              core.setFailed(`PDG-001 depth D4 incomplete: the cooperation report has non-Jules advisory gaps for ${head}.`);
               return;
             }
             for (const reviewer of ['Codex', 'CodeRabbit', 'DeepSeek']) {
