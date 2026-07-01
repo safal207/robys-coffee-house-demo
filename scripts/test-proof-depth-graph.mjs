@@ -41,7 +41,7 @@ expectFailure("orphan proof node", "outside a complete proof path", (graph) => {
   graph.nodes.push({ id: "ARTIFACT-ORPHAN", kind: "artifact", depth: 1, label: "orphan", origin: "observed" });
 });
 expectFailure("insufficient reviewer independence", "independent reviewers", (graph) => {
-  graph.nodes.find((node) => node.id === "REVIEW-JULES").independenceKey = "coderabbit";
+  graph.nodes.find((node) => node.id === "REVIEW-DEEPSEEK").independenceKey = "coderabbit";
   graph.nodes.find((node) => node.id === "REVIEW-CODEX").independenceKey = "coderabbit";
 });
 expectFailure("stale binding", "must be exact-head bound", (graph) => {
