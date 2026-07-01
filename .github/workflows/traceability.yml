@@ -52,9 +52,18 @@ jobs:
             const repo = context.repo.repo;
             const prNumber = context.payload.pull_request.number;
             const head = context.payload.pull_request.head.sha.toLowerCase();
-            const comments = await github.paginate(
-              github.rest.pulls.listReviewComments,
-              { owner, repo, pull_number: prNumber, per_page: 100 },
+            const [comments, reviews] = await Promise.all([
+              github.paginate(
+                github.rest.pulls.listReviewComments,
+                { owner, repo, pull_number: prNumber, per_page: 100 },
+              ),
+              github.paginate(
+                github.rest.pulls.listReviews,
+                { owner, repo, pull_number: prNumber, per_page: 100 },
+              ),
+            ]);
+            const reviewHeads = new Map(
+              reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
             );
             const bots = new Set([
               'chatgpt-codex-connector',
@@ -65,7 +74,7 @@ jobs:
             const findings = comments.filter((item) => (
               !item.in_reply_to_id &&
               bots.has(item.user?.login) &&
-              item.commit_id?.toLowerCase() === head
+              reviewHeads.get(item.pull_request_review_id) === head
             ));
             const missing = findings.filter((finding) => {
               const replies = comments.filter((item) => item.in_reply_to_id === finding.id);
