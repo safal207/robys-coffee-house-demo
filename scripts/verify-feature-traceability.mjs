@@ -80,6 +80,9 @@ function fragmentExists(contents, fragment) {
 }
 
 function resolveEvidencePath(file, featureId) {
+  if (path.isAbsolute(file)) {
+    fail(`${featureId} evidence path must be repository-relative: ${file}`);
+  }
   const absolutePath = path.resolve(ROOT, file);
   const relativePath = path.relative(ROOT, absolutePath);
   if (
