@@ -106,10 +106,12 @@
       "evidence": [
         "qa/feature-traceability-matrix.json",
         "scripts/verify-feature-traceability.mjs",
-        "docs/feature-traceability-matrix.md"
+        "docs/feature-traceability-matrix.md",
+        ".github/workflows/traceability.yml"
       ],
       "tests": [
-        "npm run verify:traceability"
+        "npm run verify:traceability",
+        "TRACE-001 feature matrix"
       ],
       "history": [
         [
@@ -122,7 +124,7 @@
         "Can become ceremonial without PR enforcement",
         "Dates are repository milestones, not production telemetry"
       ],
-      "nextGate": "Keep TRACE-001 in required regression/bundle gates and require feature IDs in PR descriptions.",
+      "nextGate": "Make TRACE-001 a required status and require feature IDs in PR descriptions.",
       "dependsOn": []
     }
   ]
