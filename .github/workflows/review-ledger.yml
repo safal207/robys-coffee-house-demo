@@ -9,6 +9,10 @@ on:
   issue_comment:
     types: [created, edited, deleted]
 
+concurrency:
+  group: review-ledger-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
@@ -17,13 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: read
-      issues: read
-      pull-requests: read
+      contents: read # Read repository metadata for the current PR head.
+      issues: read # Read DeepSeek, cooperation-report and Proof-Seal issue comments.
+      pull-requests: read # Read exact-head reviews, inline findings and dispositions.
 
     steps:
       - name: Require PDG-001 depth D6 for the exact head
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const owner = context.repo.owner;
