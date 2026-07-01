@@ -149,6 +149,7 @@ function parseAttributeFragment(fragment) {
 }
 
 function htmlFragmentExists(contents, fragment) {
+  if (!fragment) return false;
   const sanitized = stripNonDomHtml(contents);
   const attributes = extractStartTags(sanitized).flatMap(parseAttributes);
 
@@ -186,7 +187,7 @@ for (const featureFile of manifest.featureFiles) {
     for (const evidence of feature.evidence || []) {
       if (typeof evidence !== "string") continue;
       const parsed = parseEvidence(evidence);
-      if (!parsed?.fragment || !HTML_EXTENSIONS.has(path.extname(parsed.file).toLowerCase())) continue;
+      if (parsed === null || parsed.fragment === null || !HTML_EXTENSIONS.has(path.extname(parsed.file).toLowerCase())) continue;
       const absolutePath = resolveRepositoryPath(parsed.file);
       if (!existsSync(absolutePath)) fail(`${feature.id} evidence file does not exist: ${parsed.file}`);
       const contents = readFileSync(absolutePath, "utf8");
