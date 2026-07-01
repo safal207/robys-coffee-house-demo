@@ -42,8 +42,7 @@
       "evidence": [
         "index.html#.hero",
         "index.html#.language-switcher",
-        "app.js#setupMenu",
-        "app.js#setLanguage",
+        "app.js",
         "conversion.js#setupHeaderAndProgress"
       ],
       "tests": [
@@ -99,6 +98,7 @@
         "transitions": [
           "not-observed --setupReveal--> hidden-initial",
           "hidden-initial --intersection--> visible",
+          "not-observed --setupMobileCta--> cta-hidden",
           "cta-hidden --hero-leaves--> cta-visible",
           "cta-visible --visit-or-footer--> cta-hidden"
         ]
@@ -106,7 +106,7 @@
       "evidence": [
         "styles.css#.reveal-item",
         "styles.css#.menu-section",
-        "app.js#setupReveal",
+        "app.js",
         "conversion.css#.mobile-cta",
         "conversion.js#setupMobileCta"
       ],
