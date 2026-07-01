@@ -17,6 +17,7 @@ const socialSource = readFileSync("src/social-offer.ts", "utf8");
 const requiredLenses = ["max", "qwen", "grok", "manus", "gemini", "gpt", "claude"];
 const expectedCoverage = new Set(matrix.requiredCoverage ?? []);
 const results = [];
+const canonicalInstagramLiteral = /["']https:\/\/www\.instagram\.com\/robyscoffeehouse\/["']/;
 
 function fail(message) {
   throw new Error(`[AI-STYLE-001] ${message}`);
@@ -40,8 +41,8 @@ function hasLanguages(html) {
   return ["tr", "en", "ru"].every((language) => languages.has(language));
 }
 
-function capture(id) {
-  return visual.captures.find((item) => item.id === id);
+function hasCanonicalInstagramLiteral(content) {
+  return canonicalInstagramLiteral.test(content);
 }
 
 assert(matrix.version === 1, "matrix version must remain 1");
@@ -64,10 +65,8 @@ for (const lens of matrix.lenses) {
 }
 assert([...expectedCoverage].every((area) => observedCoverage.has(area)), `coverage is incomplete: ${[...expectedCoverage].filter((area) => !observedCoverage.has(area)).join(", ")}`);
 
-const uiProfiles = new Map(uiUx.profiles.map((profile) => [profile.id, profile]));
 const uiRoutes = new Map(uiUx.routes.map((route) => [route.id, route]));
 const visualIds = new Set(visual.captures.map((item) => item.id));
-const canonicalInstagram = "https://www.instagram.com/robyscoffeehouse/";
 
 record("max", [
   ["UI/UX retries are bounded to two attempts", uiUx.maxAttempts === 2 && workflow.includes("UI_UX_ATTEMPTS: 2")],
@@ -95,7 +94,7 @@ record("grok", [
 
 record("manus", [
   ["landing, menu and discover routes exist", ["landing", "menu", "discover"].every((id) => uiRoutes.has(id))],
-  ["every route has a deterministic ready selector", [...uiRoutes.values()].every((route) => typeof route.ready === "string" && route.ready.startsWith("." ) || typeof route.ready === "string" && route.ready.startsWith("#"))],
+  ["every route has a deterministic ready selector", [...uiRoutes.values()].every((route) => typeof route.ready === "string" && (route.ready.startsWith(".") || route.ready.startsWith("#")))],
   ["menu end-to-end behavior is exercised", uiRunner.includes("exerciseMenu") && uiRunner.includes("clearing search did not restore all items")],
   ["Taste Journey end-to-end behavior is exercised", uiRunner.includes("exerciseDiscover") && uiRunner.includes("another-pairing action did not change the pairing")],
   ["machine-readable scenario evidence is written", uiRunner.includes('writeFileSync(path.join(resultsDir, "summary.json")')]
@@ -110,9 +109,9 @@ record("gemini", [
 ]);
 
 record("gpt", [
-  ["canonical Instagram profile exists in landing", indexHtml.includes(canonicalInstagram)],
-  ["canonical Instagram profile exists in menu", menuHtml.includes(canonicalInstagram)],
-  ["canonical Instagram profile exists in typed social source", socialSource.includes(canonicalInstagram)],
+  ["canonical Instagram profile exists in landing", hasCanonicalInstagramLiteral(indexHtml)],
+  ["canonical Instagram profile exists in menu", hasCanonicalInstagramLiteral(menuHtml)],
+  ["canonical Instagram profile exists in typed social source", hasCanonicalInstagramLiteral(socialSource)],
   ["menu route renders a substantial product set before filtering", uiRunner.includes("initialCount > 10")],
   ["changed UI styles use content-revisioned URLs", /social-offer\.css\?v=[0-9a-f]{12}/i.test(indexHtml) && /discover\.css\?v=[0-9a-f]{12}/i.test(discoverHtml)]
 ]);
@@ -133,9 +132,15 @@ const report = {
   uiUxScenarios: uiUx.profiles.length * uiUx.routes.length,
   visualCaptures: visual.captures.reduce((total, item) => total + item.viewports.length, 0)
 };
-const outputDir = path.resolve("visual-results/ai-style-matrix");
-mkdirSync(outputDir, { recursive: true });
-writeFileSync(path.join(outputDir, "summary.json"), `${JSON.stringify(report, null, 2)}\n`);
+
+const outputValue = process.env.AI_STYLE_RESULTS_DIR?.trim();
+if (outputValue) {
+  const outputDir = path.resolve(outputValue);
+  const relative = path.relative(process.cwd(), outputDir);
+  assert(relative === "visual-results" || relative.startsWith(`visual-results${path.sep}`), `refusing to write outside visual-results: ${outputDir}`);
+  mkdirSync(outputDir, { recursive: true });
+  writeFileSync(path.join(outputDir, "summary.json"), `${JSON.stringify(report, null, 2)}\n`);
+}
 
 for (const result of results) {
   console.log(`✅ AI-STYLE-001 ${result.id}: ${result.checks} checks passed`);
