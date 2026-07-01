@@ -37,6 +37,12 @@ function normalize(value) {
   return url.href;
 }
 
+function isProfileDestination(value) {
+  const url = new URL(value);
+  const firstSegment = url.pathname.split("/").filter(Boolean)[0]?.toLowerCase() ?? "";
+  return !new Set(["p", "reel", "reels", "stories", "tv", "explore", "accounts"]).has(firstSegment);
+}
+
 function safeDiagnostic(error) {
   return String(error instanceof Error ? error.message : error)
     .replace(/[\r\n\t]+/g, " ")
@@ -49,20 +55,21 @@ const sources = [
   ["menu.html", readFileSync("menu.html", "utf8")],
   ["src/social-offer.ts", readFileSync("src/social-offer.ts", "utf8")]
 ];
-const references = [];
+const instagramReferences = [];
 
 for (const [file, content] of sources) {
   for (const match of content.matchAll(/https:\/\/www\.instagram\.com\/[^\s"'<>)]+/g)) {
-    references.push({ file, value: match[0] });
+    instagramReferences.push({ file, value: match[0] });
   }
 }
 
+const references = instagramReferences.filter((reference) => isProfileDestination(reference.value));
 if (references.length < 5) {
-  fail(`expected at least five Roby's Instagram references across the homepage, menu and typed offer; found ${references.length}`);
+  fail(`expected at least five Roby's Instagram profile references across the homepage, menu and typed offer; found ${references.length}`);
 }
 for (const reference of references) {
   if (normalize(reference.value) !== canonical) {
-    fail(`${reference.file} points to a non-canonical Instagram destination: ${reference.value}`);
+    fail(`${reference.file} points to a non-canonical Instagram profile destination: ${reference.value}`);
   }
 }
 
@@ -115,6 +122,7 @@ const summary = {
   generatedAt: new Date().toISOString(),
   canonical,
   localReferences: references,
+  ignoredInstagramContentLinks: instagramReferences.length - references.length,
   liveProbe: {
     attemptsLimit,
     timeoutMs,
@@ -133,6 +141,6 @@ if (!reachable) {
 } else {
   const final = probeAttempts.at(-1);
   console.log(
-    `✅ SOCIAL-NETWORK-001 verified ${references.length} canonical Instagram references and reached the social destination on attempt ${final.attempt} with status ${final.status}.`
+    `✅ SOCIAL-NETWORK-001 verified ${references.length} canonical Instagram profile references and reached the social destination on attempt ${final.attempt} with status ${final.status}.`
   );
 }
