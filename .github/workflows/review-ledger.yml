@@ -1,0 +1,68 @@
+name: Bot review disposition contract
+
+on:
+  pull_request:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
+
+permissions: {}
+
+jobs:
+  review-ledger:
+    name: REVIEW-LEDGER exact-head findings
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+
+    steps:
+      - name: Require dispositions for exact-head bot findings
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+            const head = context.payload.pull_request.head.sha.toLowerCase();
+            const [comments, reviews] = await Promise.all([
+              github.paginate(
+                github.rest.pulls.listReviewComments,
+                { owner, repo, pull_number: prNumber, per_page: 100 },
+              ),
+              github.paginate(
+                github.rest.pulls.listReviews,
+                { owner, repo, pull_number: prNumber, per_page: 100 },
+              ),
+            ]);
+            const reviewHeads = new Map(
+              reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
+            );
+            const bots = new Set([
+              'chatgpt-codex-connector',
+              'chatgpt-codex-connector[bot]',
+              'coderabbitai',
+              'coderabbitai[bot]',
+            ]);
+            const findings = comments.filter((item) => (
+              !item.in_reply_to_id &&
+              bots.has(item.user?.login) &&
+              reviewHeads.get(item.pull_request_review_id) === head
+            ));
+            const missing = findings.filter((finding) => {
+              const replies = comments.filter((item) => item.in_reply_to_id === finding.id);
+              return !replies.some((reply) => {
+                const body = (reply.body ?? '').replaceAll('`', '');
+                const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
+                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+                const maintainer = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(reply.author_association);
+                return disposition && exactHead && maintainer;
+              });
+            });
+            if (missing.length > 0) {
+              const locations = missing.map((item) => `${item.path}:${item.line ?? item.original_line ?? '-'}`);
+              core.setFailed(`Missing exact-head dispositions for ${missing.length} bot finding(s): ${locations.join(', ')}`);
+            } else {
+              core.notice(`Review ledger complete for ${findings.length} exact-head bot finding(s).`);
+            }
