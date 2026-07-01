@@ -58,7 +58,7 @@ const sources = [
 const instagramReferences = [];
 
 for (const [file, content] of sources) {
-  for (const match of content.matchAll(/https:\/\/www\.instagram\.com\/[^\s"'<>)]+/g)) {
+  for (const match of content.matchAll(/https?:\/\/(?:www\.)?instagram\.com\/[^\s"'<>)]+/gi)) {
     instagramReferences.push({ file, value: match[0] });
   }
 }
@@ -73,16 +73,8 @@ for (const reference of references) {
   }
 }
 
-const localSummary = {
-  generatedAt: new Date().toISOString(),
-  canonical,
-  localReferences: references,
-  ignoredInstagramContentLinks: instagramReferences.length - references.length,
-  probeConfiguration: { attemptsLimit, timeoutMs }
-};
-writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(localSummary, null, 2)}\n`, { encoding: "utf8", flag: "w" });
-
 const probeAttempts = [];
+const persistedAttempts = [];
 let reachable = false;
 let hardFailure = null;
 
@@ -105,15 +97,19 @@ for (let attempt = 1; attempt <= attemptsLimit; attempt += 1) {
     probeAttempts.push({ attempt, status: response.status, accepted });
 
     if (response.status === 404 || response.status === 410) {
+      persistedAttempts.push({ attempt, outcome: "profile-missing" });
       hardFailure = `Instagram returned ${response.status}; the public profile destination appears missing`;
       break;
     }
     if (accepted) {
+      persistedAttempts.push({ attempt, outcome: "reachable" });
       reachable = true;
       break;
     }
+    persistedAttempts.push({ attempt, outcome: "http-inconclusive" });
   } catch (error) {
     probeAttempts.push({ attempt, error: safeDiagnostic(error), accepted: false });
+    persistedAttempts.push({ attempt, outcome: "network-error" });
   } finally {
     clearTimeout(timeout);
   }
@@ -122,6 +118,18 @@ for (let attempt = 1; attempt <= attemptsLimit; attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
   }
 }
+
+const summary = {
+  generatedAt: new Date().toISOString(),
+  canonical,
+  localReferences: references,
+  ignoredInstagramContentLinks: instagramReferences.length - references.length,
+  probeConfiguration: { attemptsLimit, timeoutMs },
+  probeAttempts: persistedAttempts,
+  reachable,
+  hardFailure: Boolean(hardFailure)
+};
+writeFileSync(path.join(resultsDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, { encoding: "utf8", flag: "w" });
 
 if (hardFailure) fail(hardFailure);
 if (!reachable) {
