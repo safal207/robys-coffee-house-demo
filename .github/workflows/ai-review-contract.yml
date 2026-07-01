@@ -87,6 +87,10 @@ jobs:
               const codeRabbitRequests = comments.filter((item) =>
                 isCommand(item, '@coderabbitai review'),
               );
+              const aiReactionRequests = [
+                ...codexRequests,
+                ...codeRabbitRequests,
+              ];
               const latestCodeRabbitRequestAt = codeRabbitRequests.reduce(
                 (latest, request) => Math.max(latest, Date.parse(request.created_at)),
                 0,
@@ -123,10 +127,10 @@ jobs:
                 break;
               }
 
-              let codexReaction = false;
+              let aiReaction = false;
               if (!aiIssueComment && !aiPullReview && !codeRabbitStatusComment) {
                 try {
-                  for (const request of codexRequests) {
+                  for (const request of aiReactionRequests) {
                     const reactions = await github.paginate(
                       github.rest.reactions.listForIssueComment,
                       { owner, repo, comment_id: request.id, per_page: 100 },
@@ -142,7 +146,7 @@ jobs:
                         );
                       })
                     ) {
-                      codexReaction = true;
+                      aiReaction = true;
                       break;
                     }
                   }
@@ -154,7 +158,7 @@ jobs:
               const hasCodexRequest = codexRequests.length > 0;
               const hasCodeRabbitRequest = codeRabbitRequests.length > 0;
               const hasAiEvidence = Boolean(
-                aiIssueComment || aiPullReview || codeRabbitStatusComment || codexReaction,
+                aiIssueComment || aiPullReview || codeRabbitStatusComment || aiReaction,
               );
 
               if (
