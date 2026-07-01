@@ -51,22 +51,37 @@ function synchronizeScript(html, fileName, revision) {
   return html.slice(0, open) + tag + html.slice(close + 9);
 }
 
+function synchronizeModuleScript(html, fileName, revision) {
+  const pattern = new RegExp(`src="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
+  if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
+  return html.replace(pattern, `src="${fileName}?v=${revision}"`);
+}
+
 function synchronizeStylesheet(html, fileName, revision) {
   const pattern = new RegExp(`href="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
   return html.replace(pattern, `href="${fileName}?v=${revision}"`);
 }
 
-function synchronizeServiceWorker(serviceWorker, scriptRevision, cssRevision) {
-  const versionPattern = /const CACHE_VERSION = "(robys-offline-[^"]+?)(?:-[a-f0-9]{12}){2}";/;
+function synchronizeServiceWorker(
+  serviceWorker,
+  discoverRuntimeRevision,
+  posterScriptRevision,
+  cssRevision
+) {
+  const versionPattern = /const CACHE_VERSION = "(robys-offline-[^"]+?)(?:-[a-f0-9]{12}){2,3}";/;
   const versionMatch = serviceWorker.match(versionPattern);
-  const scriptAssetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
+  const discoverRuntimeAssetPattern = /"\.\/discover-v2\.js(?:\?v=[a-f0-9]{12})?"/;
+  const posterScriptAssetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
   const cssAssetPattern = /"\.\/discover-rotation\.css(?:\?v=[a-f0-9]{12})?"/;
 
   if (!versionMatch) {
     throw new Error("Service worker does not contain a revisioned Roby's cache version marker");
   }
-  if (!scriptAssetPattern.test(serviceWorker)) {
+  if (!discoverRuntimeAssetPattern.test(serviceWorker)) {
+    throw new Error("Service worker does not contain the Discover runtime cache entry");
+  }
+  if (!posterScriptAssetPattern.test(serviceWorker)) {
     throw new Error("Service worker does not contain the v3 renderer cache entry");
   }
   if (!cssAssetPattern.test(serviceWorker)) {
@@ -77,15 +92,17 @@ function synchronizeServiceWorker(serviceWorker, scriptRevision, cssRevision) {
   return serviceWorker
     .replace(
       versionPattern,
-      `const CACHE_VERSION = "${cacheVersionPrefix}-${scriptRevision}-${cssRevision}";`
+      `const CACHE_VERSION = "${cacheVersionPrefix}-${discoverRuntimeRevision}-${posterScriptRevision}-${cssRevision}";`
     )
-    .replace(scriptAssetPattern, `"./discover-rotation-v3.js?v=${scriptRevision}"`)
+    .replace(discoverRuntimeAssetPattern, `"./discover-v2.js?v=${discoverRuntimeRevision}"`)
+    .replace(posterScriptAssetPattern, `"./discover-rotation-v3.js?v=${posterScriptRevision}"`)
     .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
 }
 
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
 let html = readFileSync("index.html", "utf8");
@@ -95,6 +112,7 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
+discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
@@ -102,9 +120,10 @@ writeFileSync("discover.html", discoverHtml);
 let serviceWorker = readFileSync("sw.js", "utf8");
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
+  discoverRuntimeRevision,
   discoverRotationRevision,
   discoverRotationCssRevision
 );
 writeFileSync("sw.js", serviceWorker);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}), plus discover-rotation.css (${discoverRotationCssRevision}) with exact synchronized cache keys.`);
+console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}), plus discover-rotation.css (${discoverRotationCssRevision}) with exact synchronized cache keys.`);
