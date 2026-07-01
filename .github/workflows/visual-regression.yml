@@ -152,7 +152,7 @@ jobs:
 
       - name: Upload visual and UI UX evidence
         if: always()
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2 # v4.6.2
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
         with:
           name: visual-ui-ux-${{ github.run_id }}
           path: current/visual-results
