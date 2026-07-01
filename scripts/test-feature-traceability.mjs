@@ -92,6 +92,10 @@ expectSuccess("exact attribute value", (fixture) => {
   fixture.feature.evidence = ["fixture.html#[data-mode=\"expected\"]"];
   fixture.evidenceText = "<div data-mode=\"expected\"></div>\n";
 });
+expectSuccess("HTML boolean attribute", (fixture) => {
+  fixture.feature.evidence = ["fixture.html#[data-instagram-booking]"];
+  fixture.evidenceText = "<button data-instagram-booking>Book</button>\n";
+});
 expectSuccess("HTML class selector", (fixture) => {
   fixture.feature.evidence = ["fixture.html#.hero"];
   fixture.evidenceText = "<div class=\"card hero featured\"></div>\n";
@@ -114,6 +118,14 @@ expectFailure("substring-only evidence fragment", "evidence fragment does not ex
 expectFailure("wrong attribute value", "evidence fragment does not exist", (fixture) => {
   fixture.feature.evidence = ["fixture.html#[data-mode=\"expected\"]"];
   fixture.evidenceText = "<div data-mode=\"wrong\"></div>\n";
+});
+expectFailure("attribute selector outside HTML start tag", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.html#[data-instagram-booking]"];
+  fixture.evidenceText = [
+    "<!-- <button data-instagram-booking>comment</button> -->",
+    "<script>const selector = '[data-instagram-booking]';</script>",
+    "<p>[data-instagram-booking]</p>"
+  ].join("\n");
 });
 expectFailure("class name outside HTML class attribute", "evidence fragment does not exist", (fixture) => {
   fixture.feature.evidence = ["fixture.html#.hero"];
@@ -155,4 +167,4 @@ expectFailure("non-positive invariant minimum", "invalid manifest invariant", ({
   manifest.invariants[0].min = 0;
 });
 
-console.log("✅ TRACE-001 mutation tests passed: semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.");
+console.log("✅ TRACE-001 mutation tests passed: real HTML attributes, semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.");
