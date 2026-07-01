@@ -8,6 +8,7 @@ const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), "verify-f
 
 function validFixture() {
   return {
+    evidenceText: "const existingSymbol = true;\n",
     manifest: {
       version: 1,
       contract: "TRACE-001",
@@ -58,7 +59,7 @@ function runFixture(mutator) {
     mkdirSync(path.join(root, "qa/traceability"), { recursive: true });
     writeFileSync(path.join(root, "qa/feature-traceability-matrix.json"), JSON.stringify(fixture.manifest, null, 2));
     writeFileSync(path.join(root, "qa/traceability/fixture.json"), JSON.stringify({ features: [fixture.feature] }, null, 2));
-    writeFileSync(path.join(root, "fixture.txt"), "const existingSymbol = true;\n");
+    writeFileSync(path.join(root, "fixture.txt"), fixture.evidenceText);
     return spawnSync(process.execPath, [SCRIPT], { cwd: root, encoding: "utf8" });
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -84,6 +85,10 @@ expectSuccess("valid baseline");
 expectFailure("stale evidence fragment", "evidence fragment does not exist", ({ feature }) => {
   feature.evidence = ["fixture.txt#missingSymbol"];
 });
+expectFailure("substring-only evidence fragment", "evidence fragment does not exist", (fixture) => {
+  fixture.feature.evidence = ["fixture.txt#track"];
+  fixture.evidenceText = "const tracking = true;\n";
+});
 expectFailure("unreachable state", "unreachable states", ({ feature }) => {
   feature.stateModel.states.push("orphaned");
 });
@@ -91,4 +96,4 @@ expectFailure("malformed dependsOn", "invalid dependsOn", ({ feature }) => {
   feature.dependsOn = "FEAT-API-001";
 });
 
-console.log("✅ TRACE-001 mutation tests passed: baseline, evidence fragment, reachability, dependsOn.");
+console.log("✅ TRACE-001 mutation tests passed: baseline, exact evidence fragment, reachability, dependsOn.");
