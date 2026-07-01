@@ -39,9 +39,14 @@ for (const language of ["tr", "en", "ru"]) {
 const html = readFileSync("discover.html", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const buildScript = readFileSync("scripts/build.mjs", "utf8");
+const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const scriptRevision = revisionFor("discover-rotation-v3.js");
 const cssRevision = revisionFor("discover-rotation.css");
 
+assert(
+  html.includes(`src="discover-v2.js?v=${discoverRuntimeRevision}"`),
+  `discover.html runtime revision does not match discover-v2.js (${discoverRuntimeRevision})`
+);
 assert(
   html.includes(`href="discover-rotation.css?v=${cssRevision}"`),
   `discover.html CSS revision does not match discover-rotation.css (${cssRevision})`
@@ -51,24 +56,36 @@ assert(
   `discover.html JS revision does not match discover-rotation-v3.js (${scriptRevision})`
 );
 assert(
+  serviceWorker.includes(`"./discover-v2.js?v=${discoverRuntimeRevision}"`),
+  "service worker does not precache the exact Discover runtime revision loaded by discover.html"
+);
+assert(
   serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`),
   "service worker does not precache the exact CSS revision loaded by discover.html"
 );
 assert(
   serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`),
-  "service worker does not precache the exact JS revision loaded by discover.html"
+  "service worker does not precache the exact poster JS revision loaded by discover.html"
 );
 assert(
   serviceWorker.includes(
-    `robys-offline-v10-20260701-posters-${scriptRevision}-${cssRevision}`
+    `robys-offline-v10-20260701-posters-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`
   ),
-  "service-worker cache version does not include both active JS and CSS revisions"
+  "service-worker cache version does not include the Discover runtime, poster JS and CSS revisions"
 );
 assert(
-  serviceWorker.includes('url.pathname.endsWith("/discover-rotation-v3.js")') &&
+  serviceWorker.includes('url.pathname.endsWith("/discover-v2.js")') &&
+    serviceWorker.includes('url.pathname.endsWith("/discover-rotation-v3.js")') &&
     serviceWorker.includes('url.pathname.endsWith("/discover-rotation.css")') &&
     serviceWorker.includes("return cache.match(request);"),
-  "service worker does not exact-match both revisioned JS and CSS requests"
+  "service worker does not exact-match all revisioned Discover runtime and poster requests"
+);
+assert(
+  buildScript.includes("function synchronizeModuleScript") &&
+    buildScript.includes('revisionFor("discover-v2.js")') &&
+    buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-v2.js"') &&
+    buildScript.includes("discoverRuntimeRevision"),
+  "build script does not own and synchronize the Discover interaction runtime revision"
 );
 assert(
   buildScript.includes("function synchronizeStylesheet") &&
@@ -79,5 +96,5 @@ assert(
 );
 
 console.log(
-  `✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on JS ${scriptRevision} and CSS ${cssRevision}.`
+  `✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime ${discoverRuntimeRevision}, poster JS ${scriptRevision} and CSS ${cssRevision}.`
 );
