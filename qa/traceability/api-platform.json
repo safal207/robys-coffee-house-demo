@@ -98,7 +98,8 @@
           "registering --error--> registration-failed",
           "ready-online --offline--> ready-offline",
           "ready-offline --online--> ready-online",
-          "ready-online --update--> updating"
+          "ready-online --update--> updating",
+          "updating --activated--> ready-online"
         ]
       },
       "evidence": [
