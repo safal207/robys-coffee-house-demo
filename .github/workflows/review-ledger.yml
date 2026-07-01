@@ -6,6 +6,8 @@ on:
     types: [submitted, edited, dismissed]
   pull_request_review_comment:
     types: [created, edited, deleted]
+  issue_comment:
+    types: [created, edited, deleted]
 
 permissions: {}
 
@@ -15,18 +17,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      contents: read
+      issues: read
       pull-requests: read
 
     steps:
-      - name: Require dispositions for exact-head bot findings
+      - name: Require PDG-001 depth D6 for the exact head
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prNumber = context.payload.pull_request.number;
-            const head = context.payload.pull_request.head.sha.toLowerCase();
-            const [comments, reviews] = await Promise.all([
+            const payloadPr = context.payload.pull_request;
+            const issuePr = context.payload.issue?.pull_request;
+            const prNumber = payloadPr?.number ?? (issuePr ? context.payload.issue.number : null);
+            if (!prNumber) {
+              core.notice('Event is not associated with a pull request.');
+              return;
+            }
+
+            const pr = (await github.rest.pulls.get({ owner, repo, pull_number: prNumber })).data;
+            const head = pr.head.sha.toLowerCase();
+            const [reviewComments, reviews, issueComments] = await Promise.all([
               github.paginate(
                 github.rest.pulls.listReviewComments,
                 { owner, repo, pull_number: prNumber, per_page: 100 },
@@ -35,7 +47,12 @@ jobs:
                 github.rest.pulls.listReviews,
                 { owner, repo, pull_number: prNumber, per_page: 100 },
               ),
+              github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: prNumber, per_page: 100 },
+              ),
             ]);
+
             const reviewHeads = new Map(
               reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
             );
@@ -50,13 +67,16 @@ jobs:
               'github-advanced-security',
               'github-advanced-security[bot]',
             ]);
-            const findings = comments.filter((item) => (
+            const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
+            const timeOf = (item) => Date.parse(item.submitted_at ?? item.created_at ?? item.updated_at ?? 0);
+
+            const findings = reviewComments.filter((item) => (
               !item.in_reply_to_id &&
               bots.has(item.user?.login) &&
               reviewHeads.get(item.pull_request_review_id) === head
             ));
             const missing = findings.filter((finding) => {
-              const replies = comments.filter((item) => item.in_reply_to_id === finding.id);
+              const replies = reviewComments.filter((item) => item.in_reply_to_id === finding.id);
               return !replies.some((reply) => {
                 const body = (reply.body ?? '').replaceAll('`', '');
                 const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
@@ -65,9 +85,54 @@ jobs:
                 return disposition && exactHead && maintainer;
               });
             });
+
+            const exactBotEvidence = [
+              ...reviews.filter((item) => bots.has(item.user?.login) && item.commit_id?.toLowerCase() === head),
+              ...reviewComments.filter((item) => (
+                bots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head
+              )),
+              ...issueComments.filter((item) => bots.has(item.user?.login) && exactHeadBody(item.body)),
+            ];
+            const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
+
+            const reports = issueComments.filter((item) => (
+              (item.body ?? '').includes('<!-- ai-review-cooperation -->') && exactHeadBody(item.body)
+            ));
+            const report = reports.sort((left, right) => timeOf(right) - timeOf(left))[0];
+            if (!report) {
+              core.setFailed(`PDG-001 depth D4 incomplete: no exact-head cooperation report for ${head}.`);
+              return;
+            }
+            if (!/\*\*Overall conclusion:\*\*\s*\*\*READY\*\*/i.test(report.body ?? '')) {
+              core.setFailed(`PDG-001 depth D4 incomplete: cooperation report is not READY for ${head}.`);
+              return;
+            }
+            if (latestBotEvidenceAt > timeOf(report)) {
+              core.setFailed(`PDG-001 evidence changed after the latest cooperation report for ${head}.`);
+              return;
+            }
             if (missing.length > 0) {
               const locations = missing.map((item) => `${item.path}:${item.line ?? item.original_line ?? '-'}`);
-              core.setFailed(`Missing exact-head dispositions for ${missing.length} bot finding(s): ${locations.join(', ')}`);
-            } else {
-              core.notice(`Review ledger complete for ${findings.length} exact-head bot finding(s).`);
+              core.setFailed(`PDG-001 depth D5 incomplete: missing dispositions for ${missing.length} finding(s): ${locations.join(', ')}`);
+              return;
             }
+
+            const seals = issueComments.filter((item) => {
+              const body = (item.body ?? '').replaceAll('`', '');
+              const trusted = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(item.author_association);
+              const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+              const depth = /^Depth:\s*D6\s*$/im.test(body);
+              return trusted && contract && exactHead && depth;
+            });
+            const seal = seals.sort((left, right) => timeOf(right) - timeOf(left))[0];
+            if (!seal) {
+              core.setFailed(`PDG-001 depth D6 incomplete: no maintainer proof seal for ${head}.`);
+              return;
+            }
+            if (timeOf(seal) <= Math.max(timeOf(report), latestBotEvidenceAt)) {
+              core.setFailed(`PDG-001 proof seal is stale for ${head}; seal again after the latest evidence.`);
+              return;
+            }
+
+            core.notice(`PDG-001 depth D6 sealed for ${head}: ${findings.length} exact-head finding(s), all dispositioned.`);
