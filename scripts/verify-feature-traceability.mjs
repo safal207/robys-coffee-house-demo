@@ -70,13 +70,62 @@ function attributeFragmentExists(contents, fragment) {
   ).test(contents);
 }
 
-function fragmentExists(contents, fragment) {
-  if (fragment.startsWith("[") && fragment.endsWith("]")) {
-    return attributeFragmentExists(contents, fragment);
+function stripComments(contents, extension) {
+  if ([".html", ".htm"].includes(extension)) {
+    return contents.replace(/<!--[\s\S]*?-->/g, "");
   }
-  if (fragment.startsWith(".")) return exactTokenExists(contents, fragment.slice(1));
-  if (fragment.startsWith("#")) return exactTokenExists(contents, fragment.slice(1));
-  return exactTokenExists(contents, fragment);
+  if (extension === ".css") {
+    return contents.replace(/\/\*[\s\S]*?\*\//g, "");
+  }
+  if ([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"].includes(extension)) {
+    return contents
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+  }
+  return contents;
+}
+
+function htmlClassExists(contents, className) {
+  const attributePattern = /\bclass\s*=\s*(["'])([\s\S]*?)\1/g;
+  for (const match of contents.matchAll(attributePattern)) {
+    if (match[2].split(/\s+/).includes(className)) return true;
+  }
+  return false;
+}
+
+function htmlIdExists(contents, id) {
+  const escaped = escapeRegExp(id);
+  return new RegExp(`\\bid\\s*=\\s*(?:"${escaped}"|'${escaped}')`, "m").test(contents);
+}
+
+function selectorTokenExists(contents, prefix, token) {
+  const escaped = escapeRegExp(token);
+  return new RegExp(`${escapeRegExp(prefix)}${escaped}(?![A-Za-z0-9_-])`, "m").test(contents);
+}
+
+function fragmentExists(contents, fragment, file) {
+  const extension = path.extname(file).toLowerCase();
+  const searchable = stripComments(contents, extension);
+
+  if (fragment.startsWith("[") && fragment.endsWith("]")) {
+    return attributeFragmentExists(searchable, fragment);
+  }
+
+  if (fragment.startsWith(".")) {
+    const className = fragment.slice(1);
+    if (!className) return false;
+    if ([".html", ".htm"].includes(extension)) return htmlClassExists(searchable, className);
+    return selectorTokenExists(searchable, ".", className);
+  }
+
+  if (fragment.startsWith("#")) {
+    const id = fragment.slice(1);
+    if (!id) return false;
+    if ([".html", ".htm"].includes(extension)) return htmlIdExists(searchable, id);
+    return selectorTokenExists(searchable, "#", id);
+  }
+
+  return exactTokenExists(searchable, fragment);
 }
 
 function resolveEvidencePath(file, featureId) {
@@ -233,7 +282,7 @@ for (const feature of features) {
     if (!existsSync(absolutePath)) fail(`${feature.id} evidence file does not exist: ${parsed.file}`);
     if (parsed.fragment) {
       const contents = readFileSync(absolutePath, "utf8");
-      if (!fragmentExists(contents, parsed.fragment)) {
+      if (!fragmentExists(contents, parsed.fragment, parsed.file)) {
         fail(`${feature.id} evidence fragment does not exist: ${evidence}`);
       }
     }
