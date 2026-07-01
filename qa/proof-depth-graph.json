@@ -71,13 +71,13 @@
       "freshness": "exact-head"
     },
     {
-      "id": "REVIEW-JULES",
+      "id": "REVIEW-DEEPSEEK",
       "kind": "independent-review",
       "depth": 4,
-      "label": "Jules exact-head review",
+      "label": "DeepSeek exact-head review",
       "origin": "observed",
-      "provider": "Jules",
-      "independenceKey": "jules",
+      "provider": "DeepSeek",
+      "independenceKey": "deepseek",
       "freshness": "exact-head"
     },
     {
@@ -105,10 +105,10 @@
     { "from": "CHECK-TRACE", "to": "CHALLENGE-MUTATION", "relation": "challenged-by", "authority": "binding" },
     { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODEX", "relation": "reviewed-by", "authority": "binding" },
     { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODERABBIT", "relation": "reviewed-by", "authority": "binding" },
-    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-JULES", "relation": "reviewed-by", "authority": "binding" },
+    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-DEEPSEEK", "relation": "reviewed-by", "authority": "binding" },
     { "from": "REVIEW-CODEX", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
     { "from": "REVIEW-CODERABBIT", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
-    { "from": "REVIEW-JULES", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
+    { "from": "REVIEW-DEEPSEEK", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
     { "from": "DISPOSITION-LEDGER", "to": "DECISION-PROOF-SEAL", "relation": "sealed-by", "authority": "binding" }
   ]
 }
