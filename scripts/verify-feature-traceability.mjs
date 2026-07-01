@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const ROOT = process.cwd();
+const ROOT = path.resolve(process.cwd());
 const MANIFEST_PATH = "qa/feature-traceability-matrix.json";
 const NON_FILE_EVIDENCE = [
   "external:", "pr:", "commit:", "build:", "cache:",
@@ -43,25 +43,53 @@ function parseEvidence(value) {
   return { file: value.slice(0, marker), fragment: value.slice(marker + 1) };
 }
 
-function fragmentToken(fragment) {
-  if (fragment.startsWith(".")) return fragment.slice(1);
-  if (fragment.startsWith("#")) return fragment.slice(1);
-  if (fragment.startsWith("[") && fragment.endsWith("]")) {
-    return fragment.slice(1, -1).split("=")[0];
-  }
-  return fragment;
-}
-
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function fragmentExists(contents, fragment) {
-  const token = fragmentToken(fragment).trim();
-  if (!token) return false;
+function exactTokenExists(contents, token) {
   const escaped = escapeRegExp(token);
-  const exactToken = new RegExp(`(^|[^A-Za-z0-9_$-])${escaped}([^A-Za-z0-9_$-]|$)`, "m");
-  return exactToken.test(contents);
+  return new RegExp(`(^|[^A-Za-z0-9_$-])${escaped}([^A-Za-z0-9_$-]|$)`, "m").test(contents);
+}
+
+function attributeFragmentExists(contents, fragment) {
+  if (contents.includes(fragment)) return true;
+  const match = /^\[\s*([^\s~|^$*=\]]+)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\]\s]+)))?\s*\]$/.exec(fragment);
+  if (!match) return false;
+
+  const attribute = escapeRegExp(match[1]);
+  const value = match[2] ?? match[3] ?? match[4];
+  if (value === undefined) {
+    return new RegExp(`(^|[^A-Za-z0-9_:-])${attribute}(?=\\s*=|\\s|>|/|$)`, "m").test(contents);
+  }
+
+  const escapedValue = escapeRegExp(value);
+  return new RegExp(
+    `(^|[^A-Za-z0-9_:-])${attribute}\\s*=\\s*(?:"${escapedValue}"|'${escapedValue}'|${escapedValue}(?=\\s|>|/|$))`,
+    "m"
+  ).test(contents);
+}
+
+function fragmentExists(contents, fragment) {
+  if (fragment.startsWith("[") && fragment.endsWith("]")) {
+    return attributeFragmentExists(contents, fragment);
+  }
+  if (fragment.startsWith(".")) return exactTokenExists(contents, fragment.slice(1));
+  if (fragment.startsWith("#")) return exactTokenExists(contents, fragment.slice(1));
+  return exactTokenExists(contents, fragment);
+}
+
+function resolveEvidencePath(file, featureId) {
+  const absolutePath = path.resolve(ROOT, file);
+  const relativePath = path.relative(ROOT, absolutePath);
+  if (
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath)
+  ) {
+    fail(`${featureId} evidence escapes repository root: ${file}`);
+  }
+  return absolutePath;
 }
 
 function getAtPath(value, dottedPath) {
@@ -197,7 +225,7 @@ for (const feature of features) {
     const parsed = parseEvidence(evidence);
     if (!parsed) continue;
     if (!parsed.file) fail(`${feature.id} has invalid evidence file: ${evidence}`);
-    const absolutePath = path.join(ROOT, parsed.file);
+    const absolutePath = resolveEvidencePath(parsed.file, feature.id);
     if (!existsSync(absolutePath)) fail(`${feature.id} evidence file does not exist: ${parsed.file}`);
     if (parsed.fragment) {
       const contents = readFileSync(absolutePath, "utf8");
@@ -224,7 +252,14 @@ unique(requirementIds, "requirement id");
 
 if (!Array.isArray(manifest.invariants)) fail("invariants must be an array");
 for (const invariant of manifest.invariants) {
-  if (!invariant?.path || typeof invariant.min !== "number" || !invariant.message) {
+  if (
+    !invariant?.path ||
+    !Object.hasOwn(invariant, "equals") ||
+    !Number.isInteger(invariant.min) ||
+    invariant.min <= 0 ||
+    typeof invariant.message !== "string" ||
+    !invariant.message.trim()
+  ) {
     fail("invalid manifest invariant");
   }
   const matches = features.filter((feature) => getAtPath(feature, invariant.path) === invariant.equals).length;
