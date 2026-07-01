@@ -1,0 +1,200 @@
+{
+  "features": [
+    {
+      "id": "FEAT-BE-001",
+      "name": "First-party application backend boundary",
+      "domain": "backend-foundation",
+      "owner": "backend",
+      "current": {
+        "lifecycle": "planned",
+        "operational": "unavailable"
+      },
+      "layers": {
+        "uiUx": "not-applicable",
+        "api": "planned",
+        "backend": "planned"
+      },
+      "requirements": [
+        "REQ-BE-001-01 /api/v1 routes use request IDs and error envelope",
+        "REQ-BE-001-02 writes define auth, authorization, idempotency and audit",
+        "REQ-BE-001-03 health states cover healthy/degraded/unavailable/maintenance"
+      ],
+      "stateModel": {
+        "initial": "absent",
+        "states": [
+          "absent",
+          "designed",
+          "implemented",
+          "shadow",
+          "live",
+          "degraded",
+          "unavailable",
+          "retired"
+        ],
+        "transitions": [
+          "absent --ADR-approved--> designed",
+          "designed --complete--> implemented",
+          "implemented --shadow--> shadow",
+          "shadow --gate-pass--> live",
+          "live --dependency-issue--> degraded",
+          "degraded --recover--> live",
+          "live --retire--> retired"
+        ]
+      },
+      "evidence": [
+        "README.md#Deploy"
+      ],
+      "tests": [
+        "architecture gate (planned)"
+      ],
+      "history": [
+        [
+          "2026-07-01",
+          "planned",
+          "matrix:TRACE-001"
+        ]
+      ],
+      "risks": [
+        "Premature backend adds cost",
+        "Without boundary future endpoints may be ad hoc"
+      ],
+      "nextGate": "Create ADR only when FEAT-BE-002 or FEAT-BE-003 is approved.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-BE-002",
+      "name": "Menu and campaign content API/CMS",
+      "domain": "content-backend",
+      "owner": "backend",
+      "current": {
+        "lifecycle": "planned",
+        "operational": "unavailable"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "planned",
+        "backend": "planned"
+      },
+      "requirements": [
+        "REQ-BE-002-01 menu returns version/generatedAt/currency/locales",
+        "REQ-BE-002-02 offers return start/end/timezone/active/fallback",
+        "REQ-BE-002-03 UI keeps last verified static data on invalid/unavailable API"
+      ],
+      "stateModel": {
+        "initial": "static-bundled",
+        "states": [
+          "static-bundled",
+          "api-designed",
+          "dual-read",
+          "api-primary",
+          "static-fallback",
+          "retired"
+        ],
+        "transitions": [
+          "static-bundled --contract--> api-designed",
+          "api-designed --shadow--> dual-read",
+          "dual-read --parity-pass--> api-primary",
+          "api-primary --failure--> static-fallback",
+          "static-fallback --recovery--> api-primary"
+        ]
+      },
+      "evidence": [
+        "menu-data.js",
+        "social-offer.js#SOCIAL_OFFER"
+      ],
+      "tests": [
+        "contract test (planned)",
+        "consumer contract (planned)"
+      ],
+      "history": [
+        [
+          "2026-07-01",
+          "planned",
+          "matrix:TRACE-001"
+        ]
+      ],
+      "risks": [
+        "Live data can diverge from approved poster prices",
+        "CMS adds permission/audit/rollback duties"
+      ],
+      "nextGate": "Implement only when update frequency or owner workflow justifies it.",
+      "dependsOn": [
+        "FEAT-BE-001",
+        "FEAT-UI-003",
+        "FEAT-UI-006"
+      ]
+    },
+    {
+      "id": "FEAT-BE-003",
+      "name": "Reservation request and confirmation lifecycle",
+      "domain": "reservation-backend",
+      "owner": "backend",
+      "current": {
+        "lifecycle": "planned",
+        "operational": "unavailable"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "planned",
+        "backend": "planned"
+      },
+      "requirements": [
+        "REQ-BE-003-01 create is idempotent and returns requested, not false confirmed",
+        "REQ-BE-003-02 requested -> awaiting-cafe -> confirmed/declined; cancellation explicit",
+        "REQ-BE-003-03 personal data minimized/protected/retained by policy"
+      ],
+      "stateModel": {
+        "initial": "external-instagram",
+        "states": [
+          "external-instagram",
+          "requested",
+          "awaiting-cafe",
+          "confirmed",
+          "declined",
+          "cancelled",
+          "expired",
+          "service-unavailable"
+        ],
+        "transitions": [
+          "external-instagram --feature-enabled--> requested",
+          "requested --accepted--> awaiting-cafe",
+          "awaiting-cafe --confirm--> confirmed",
+          "awaiting-cafe --decline--> declined",
+          "requested --cancel--> cancelled",
+          "awaiting-cafe --timeout--> expired",
+          "requested --dependency-failure--> service-unavailable"
+        ]
+      },
+      "evidence": [
+        "menu.html#[data-instagram-booking]",
+        "menu-actions.js#track"
+      ],
+      "tests": [
+        "state transition test (planned)",
+        "idempotency test (planned)",
+        "privacy review (planned)"
+      ],
+      "history": [
+        [
+          "2026-06-27",
+          "planned",
+          "build:instagram-share-20260627-1"
+        ],
+        [
+          "2026-07-01",
+          "planned",
+          "matrix:TRACE-001"
+        ]
+      ],
+      "risks": [
+        "False confirmation harms customers",
+        "Capacity/notifications/PII need operational owner"
+      ],
+      "nextGate": "Keep Instagram source of truth until staffing/capacity/privacy ownership exists.",
+      "dependsOn": [
+        "FEAT-BE-001",
+        "FEAT-UI-004"
+      ]
+    }
+  ]
+}
