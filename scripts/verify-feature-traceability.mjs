@@ -52,6 +52,18 @@ function fragmentToken(fragment) {
   return fragment;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function fragmentExists(contents, fragment) {
+  const token = fragmentToken(fragment).trim();
+  if (!token) return false;
+  const escaped = escapeRegExp(token);
+  const exactToken = new RegExp(`(^|[^A-Za-z0-9_$-])${escaped}([^A-Za-z0-9_$-]|$)`, "m");
+  return exactToken.test(contents);
+}
+
 function getAtPath(value, dottedPath) {
   return dottedPath.split(".").reduce((current, key) => current?.[key], value);
 }
@@ -188,9 +200,8 @@ for (const feature of features) {
     const absolutePath = path.join(ROOT, parsed.file);
     if (!existsSync(absolutePath)) fail(`${feature.id} evidence file does not exist: ${parsed.file}`);
     if (parsed.fragment) {
-      const token = fragmentToken(parsed.fragment).trim();
       const contents = readFileSync(absolutePath, "utf8");
-      if (!token || !contents.includes(token)) {
+      if (!fragmentExists(contents, parsed.fragment)) {
         fail(`${feature.id} evidence fragment does not exist: ${evidence}`);
       }
     }
