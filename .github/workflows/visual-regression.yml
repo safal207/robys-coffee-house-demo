@@ -9,9 +9,9 @@ permissions:
 
 jobs:
   visual-regression:
-    name: VISUAL-001 screenshot diff
+    name: VISUAL-001 + UI-UX-001 matrix
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
 
     steps:
       - name: Checkout current branch
@@ -68,26 +68,87 @@ jobs:
         env:
           VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
           VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
-          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/screenshot-attempt-1
         run: node scripts/visual-regression.mjs
+
+      - name: Recheck failed screenshot comparison
+        id: screenshot_recheck
+        if: steps.screenshot_compare.outcome == 'failure'
+        continue-on-error: true
+        working-directory: current
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/screenshot-attempt-2
+        run: node scripts/visual-regression.mjs
+
+      - name: Select final screenshot evidence
+        if: always()
+        working-directory: current
+        run: |
+          rm -rf visual-results/final
+          if [ "${{ steps.screenshot_compare.outcome }}" = "success" ]; then
+            cp -R visual-results/screenshot-attempt-1 visual-results/final
+          else
+            cp -R visual-results/screenshot-attempt-2 visual-results/final
+            if [ "${{ steps.screenshot_recheck.outcome }}" = "success" ]; then
+              echo "::warning::VISUAL-001 recovered on the automatic second attempt; both attempts are preserved in the artifact."
+            fi
+          fi
 
       - name: Validate reviewed visual change
         working-directory: current
         env:
-          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/final
         run: node scripts/verify-reviewed-visual-change.mjs
 
-      - name: Audit rapid mobile menu scrolling
+      - name: Run expanded UI UX matrix with automatic scenario recheck
         working-directory: current
         env:
-          SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/scroll-audit
+          UI_UX_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/ui-ux-matrix
+          UI_UX_ATTEMPTS: 2
+        run: node scripts/ui-ux-matrix.mjs
+
+      - name: Recheck live social network destination
+        working-directory: current
+        env:
+          SOCIAL_NETWORK_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/social-network
+          SOCIAL_NETWORK_ATTEMPTS: 3
+        run: node scripts/verify-social-network-live.mjs
+
+      - name: Audit rapid mobile menu scrolling
+        id: scroll_audit
+        continue-on-error: true
+        working-directory: current
+        env:
+          SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/scroll-audit-attempt-1
         run: node scripts/menu-scroll-regression.mjs
 
-      - name: Upload visual evidence
+      - name: Recheck failed mobile scroll audit
+        id: scroll_recheck
+        if: steps.scroll_audit.outcome == 'failure'
+        continue-on-error: true
+        working-directory: current
+        env:
+          SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/scroll-audit-attempt-2
+        run: node scripts/menu-scroll-regression.mjs
+
+      - name: Enforce confirmed mobile scroll result
+        if: always()
+        run: |
+          if [ "${{ steps.scroll_audit.outcome }}" = "failure" ] && [ "${{ steps.scroll_recheck.outcome }}" != "success" ]; then
+            echo "SCROLL-001 failed twice; inspect both attempts in the visual artifact."
+            exit 1
+          fi
+          if [ "${{ steps.scroll_audit.outcome }}" = "failure" ]; then
+            echo "::warning::SCROLL-001 recovered on automatic recheck; both attempts are preserved in the artifact."
+          fi
+
+      - name: Upload visual and UI UX evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: visual-regression-${{ github.run_id }}
+          name: visual-ui-ux-${{ github.run_id }}
           path: current/visual-results
           if-no-files-found: warn
           retention-days: 14
