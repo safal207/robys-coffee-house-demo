@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "contract": "TRACE-001",
+  "updatedAt": "2026-07-01",
+  "scope": {
+    "product": "Roby's Coffee House web",
+    "layers": [
+      "uiUx",
+      "api",
+      "backend"
+    ],
+    "rule": "Each feature traces requirements, states, implementation evidence, verification and dated history."
+  },
+  "allowed": {
+    "lifecycle": [
+      "idea",
+      "planned",
+      "in-progress",
+      "implemented",
+      "verified",
+      "released",
+      "blocked",
+      "deprecated",
+      "retired"
+    ],
+    "layer": [
+      "not-applicable",
+      "not-built",
+      "planned",
+      "in-progress",
+      "implemented",
+      "external",
+      "client-only",
+      "verified",
+      "released"
+    ],
+    "operational": [
+      "available",
+      "degraded",
+      "unavailable",
+      "fallback",
+      "not-applicable"
+    ]
+  },
+  "milestones": [
+    {
+      "id": "M-20260619",
+      "at": "2026-06-19",
+      "ref": "commit:3c0ff34b2165a921cf47282e2879367e626d08f7",
+      "change": "Premium reveal introduced",
+      "features": [
+        "FEAT-UI-002"
+      ]
+    },
+    {
+      "id": "M-20260622",
+      "at": "2026-06-22",
+      "ref": "build:security-20260622-1",
+      "change": "Secure static baseline",
+      "features": [
+        "FEAT-UI-001",
+        "FEAT-UI-003",
+        "FEAT-PLATFORM-001"
+      ]
+    },
+    {
+      "id": "M-20260627",
+      "at": "2026-06-27",
+      "ref": "build:instagram-share-20260627-1",
+      "change": "Menu share and Instagram booking handoff",
+      "features": [
+        "FEAT-UI-004",
+        "FEAT-PLATFORM-002"
+      ]
+    },
+    {
+      "id": "M-20260629",
+      "at": "2026-06-29",
+      "ref": "pr:#146",
+      "change": "Taste Journey rotation and offline revision",
+      "features": [
+        "FEAT-UI-005",
+        "FEAT-API-001",
+        "FEAT-PLATFORM-001"
+      ]
+    },
+    {
+      "id": "M-20260630",
+      "at": "2026-06-30",
+      "ref": "pr:#147",
+      "change": "Expanded UI/UX device matrix opened",
+      "features": [
+        "FEAT-QA-001"
+      ]
+    },
+    {
+      "id": "M-20260701",
+      "at": "2026-07-01",
+      "ref": "pr:#148",
+      "change": "UI/UX matrix released and TRACE-001 cross-layer governance introduced",
+      "features": [
+        "FEAT-QA-001",
+        "FEAT-QA-002",
+        "FEAT-BE-001",
+        "FEAT-BE-002",
+        "FEAT-BE-003"
+      ]
+    }
+  ],
+  "featureFiles": [
+    "qa/traceability/ui-ux.json",
+    "qa/traceability/api-platform.json",
+    "qa/traceability/quality.json",
+    "qa/traceability/backend.json"
+  ]
+}
