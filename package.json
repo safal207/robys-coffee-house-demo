@@ -18,6 +18,7 @@
     "test:discover-rotation": "node scripts/test-discover-pairing-rotation.mjs",
     "test:traceability": "node scripts/test-feature-traceability.mjs",
     "test:proof-depth": "node scripts/test-proof-depth-graph.mjs",
+    "render:ci-proof": "node scripts/render-ci-proof-summary.mjs",
     "session:update-head": "node scripts/update-session-state.mjs",
     "verify:ai-style-matrix": "node scripts/verify-ai-style-review-matrix.mjs",
     "verify:traceability": "node scripts/verify-feature-traceability.mjs",
