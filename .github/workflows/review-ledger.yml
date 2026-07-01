@@ -44,6 +44,8 @@ jobs:
               'chatgpt-codex-connector[bot]',
               'coderabbitai',
               'coderabbitai[bot]',
+              'github-advanced-security',
+              'github-advanced-security[bot]',
             ]);
             const findings = comments.filter((item) => (
               !item.in_reply_to_id &&
