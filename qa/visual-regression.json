@@ -1,11 +1,13 @@
 {
-  "version": 1,
+  "version": 2,
   "pixelThreshold": 0.12,
   "defaultMaxDiffPixelRatio": 0.003,
   "viewports": [
     { "id": "phone-320", "width": 320, "height": 900 },
+    { "id": "phone-360-short", "width": 360, "height": 640 },
     { "id": "phone-390", "width": 390, "height": 1000 },
     { "id": "tablet-768", "width": 768, "height": 1024 },
+    { "id": "laptop-1366", "width": 1366, "height": 768 },
     { "id": "desktop-1440", "width": 1440, "height": 1100 }
   ],
   "captures": [
@@ -25,31 +27,63 @@
       "maxDiffPixelRatio": 0.004
     },
     {
+      "id": "discover-full",
+      "path": "discover.html",
+      "fullPage": true,
+      "waitFor": "#pairing-card",
+      "viewports": ["phone-320", "phone-390", "tablet-768", "desktop-1440"],
+      "maxDiffPixelRatio": 0.004
+    },
+    {
       "id": "hero",
       "path": "index.html",
       "selector": ".hero",
-      "viewports": ["phone-390", "desktop-1440"],
+      "viewports": ["phone-360-short", "phone-390", "laptop-1366", "desktop-1440"],
       "maxDiffPixelRatio": 0.003
     },
     {
       "id": "menu-preview",
       "path": "index.html",
       "selector": ".menu-section",
-      "viewports": ["phone-390", "desktop-1440"],
+      "viewports": ["phone-390", "laptop-1366", "desktop-1440"],
       "maxDiffPixelRatio": 0.003
     },
     {
       "id": "visit-map",
       "path": "index.html",
       "selector": ".visit-section",
-      "viewports": ["phone-390", "desktop-1440"],
+      "viewports": ["phone-390", "laptop-1366", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "path": "index.html",
+      "selector": "#daily-offer",
+      "waitFor": "#daily-offer:not([hidden])",
+      "viewports": ["phone-320", "phone-360-short", "phone-390", "tablet-768", "laptop-1366", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "path": "menu.html",
+      "selector": ".menu-share-card",
+      "waitFor": ".full-menu-item",
+      "viewports": ["phone-320", "phone-360-short", "phone-390", "tablet-768", "laptop-1366", "desktop-1440"],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "path": "discover.html",
+      "selector": "#pairing-card",
+      "waitFor": "#pairing-card",
+      "viewports": ["phone-320", "phone-360-short", "phone-390", "tablet-768", "laptop-1366", "desktop-1440"],
       "maxDiffPixelRatio": 0.003
     },
     {
       "id": "mobile-cta",
       "path": "index.html",
       "selector": ".mobile-cta",
-      "viewports": ["phone-320", "phone-390"],
+      "viewports": ["phone-320", "phone-360-short", "phone-390"],
       "maxDiffPixelRatio": 0.002
     }
   ]
