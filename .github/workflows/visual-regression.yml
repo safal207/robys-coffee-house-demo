@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   visual-regression:
-    name: VISUAL-001 + UI-UX-001 matrix
+    name: VISUAL-001 screenshot diff
     runs-on: ubuntu-latest
     timeout-minutes: 35
 
