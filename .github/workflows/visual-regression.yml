@@ -85,13 +85,16 @@ jobs:
       - name: Select final screenshot evidence
         if: always()
         working-directory: current
+        env:
+          COMPARE_OUTCOME: ${{ steps.screenshot_compare.outcome }}
+          RECHECK_OUTCOME: ${{ steps.screenshot_recheck.outcome }}
         run: |
           rm -rf visual-results/final
-          if [ "${{ steps.screenshot_compare.outcome }}" = "success" ]; then
+          if [ "$COMPARE_OUTCOME" = "success" ]; then
             cp -R visual-results/screenshot-attempt-1 visual-results/final
           else
             cp -R visual-results/screenshot-attempt-2 visual-results/final
-            if [ "${{ steps.screenshot_recheck.outcome }}" = "success" ]; then
+            if [ "$RECHECK_OUTCOME" = "success" ]; then
               echo "::warning::VISUAL-001 recovered on the automatic second attempt; both attempts are preserved in the artifact."
             fi
           fi
@@ -135,18 +138,21 @@ jobs:
 
       - name: Enforce confirmed mobile scroll result
         if: always()
+        env:
+          SCROLL_OUTCOME: ${{ steps.scroll_audit.outcome }}
+          SCROLL_RECHECK_OUTCOME: ${{ steps.scroll_recheck.outcome }}
         run: |
-          if [ "${{ steps.scroll_audit.outcome }}" = "failure" ] && [ "${{ steps.scroll_recheck.outcome }}" != "success" ]; then
+          if [ "$SCROLL_OUTCOME" = "failure" ] && [ "$SCROLL_RECHECK_OUTCOME" != "success" ]; then
             echo "SCROLL-001 failed twice; inspect both attempts in the visual artifact."
             exit 1
           fi
-          if [ "${{ steps.scroll_audit.outcome }}" = "failure" ]; then
+          if [ "$SCROLL_OUTCOME" = "failure" ]; then
             echo "::warning::SCROLL-001 recovered on automatic recheck; both attempts are preserved in the artifact."
           fi
 
       - name: Upload visual and UI UX evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2 # v4.6.2
         with:
           name: visual-ui-ux-${{ github.run_id }}
           path: current/visual-results
