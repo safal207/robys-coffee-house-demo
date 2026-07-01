@@ -90,8 +90,8 @@
     },
     {
       "path": "discover-v2.js",
-      "bytes": 7372,
-      "sha256": "44511bee9169a2cd4d41bda8b40aec0d17c93bb00a42aafdea84ad51e2619059"
+      "bytes": 7408,
+      "sha256": "10750cdfa32c98d6095316a86baf04588baea8b8171c174a9de0751363f685e5"
     },
     {
       "path": "discover-weather-guard.js",
@@ -105,8 +105,8 @@
     },
     {
       "path": "discover.html",
-      "bytes": 6538,
-      "sha256": "70fe9bda85979dcb9c1bd953f39777764b93912335afe16aca9503acb5c47986"
+      "bytes": 6553,
+      "sha256": "11b9e3ff4676a1927a1d7e6dcf86a18503d40d5cb7e486bd19b4de70d5a327a3"
     },
     {
       "path": "discover.js",
@@ -600,8 +600,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3874,
-      "sha256": "e0182b5d998724fea792471ab975c86c8123586da9413941570e4267204e43b9"
+      "bytes": 3950,
+      "sha256": "5707b31cc31d6c84f4baf49765f0e50be094f2680bf0f87059e8653fd7064419"
     }
   ]
 }

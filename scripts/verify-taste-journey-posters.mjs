@@ -119,7 +119,8 @@ const approvedImage = verifyApprovedPng(readFileSync(APPROVED_ICED_POSTER), APPR
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtimeBuffer = readFileSync("discover-rotation-v3.js");
 const runtime = runtimeBuffer.toString("utf8");
-const discoverRuntime = readFileSync("discover-v2.js", "utf8");
+const discoverRuntimeBuffer = readFileSync("discover-v2.js");
+const discoverRuntime = discoverRuntimeBuffer.toString("utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
@@ -162,7 +163,6 @@ if (!journeysSource.includes('resolvedUrl.origin !== "https://api.open-meteo.com
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone weather guard must remain a no-op placeholder");
 
 for (const asset of [
-  "discover-v2.js",
   "discover-journeys-v2.js",
   "src/pairings-data/final/cool-lime-macaron-hq.webp",
   "src/pairings-data/approved/iced-san-sebastian-hq.png"
@@ -170,15 +170,20 @@ for (const asset of [
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
 
+const discoverRuntimeRevision = revisionFor(discoverRuntimeBuffer);
 const scriptRevision = revisionFor(runtimeBuffer);
 const cssRevision = revisionFor(cssBuffer);
+const discoverRuntimeRevisionMatch = html.match(/src="discover-v2\.js\?v=([a-f0-9]{12})"/);
 const scriptRevisionMatch = html.match(/src="discover-rotation-v3\.js\?v=([a-f0-9]{12})"/);
 const cssRevisionMatch = html.match(/href="discover-rotation\.css\?v=([a-f0-9]{12})"/);
+if (!discoverRuntimeRevisionMatch || discoverRuntimeRevisionMatch[1] !== discoverRuntimeRevision) fail(`discover.html runtime revision must be ${discoverRuntimeRevision}`);
 if (!scriptRevisionMatch || scriptRevisionMatch[1] !== scriptRevision) fail(`discover.html JS revision must be ${scriptRevision}`);
 if (!cssRevisionMatch || cssRevisionMatch[1] !== cssRevision) fail(`discover.html CSS revision must be ${cssRevision}`);
-if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker JS revision is stale");
+if (!serviceWorker.includes(`"./discover-v2.js?v=${discoverRuntimeRevision}"`)) fail("service worker Discover runtime revision is stale");
+if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker poster JS revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`)) fail("service worker CSS revision is stale");
-if (!serviceWorker.includes(`robys-offline-v10-20260701-posters-${scriptRevision}-${cssRevision}`)) fail("service-worker cache version does not include current poster revisions");
+if (!serviceWorker.includes(`robys-offline-v10-20260701-posters-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`)) fail("service-worker cache version does not include current Discover runtime and poster revisions");
+if (!buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision)')) fail("build does not synchronize the Discover interaction runtime revision");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the active renderer");
 if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not synchronize the renderer revision");
 if (!buildScript.includes('synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision)')) fail("build does not synchronize the stylesheet revision");
