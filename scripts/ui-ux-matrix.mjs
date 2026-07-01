@@ -11,10 +11,26 @@ const maxAttempts = Number(process.env.UI_UX_ATTEMPTS ?? config.maxAttempts ?? 2
 const canonicalInstagram = "https://www.instagram.com/robyscoffeehouse/";
 const fixedNow = Date.parse("2026-07-01T12:00:00+03:00");
 
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+function assertSafeResultsDir(directory) {
+  const relative = path.relative(process.cwd(), directory);
+  const insideVisualResults = relative === "visual-results"
+    || relative.startsWith(`visual-results${path.sep}`);
+  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative) || !insideVisualResults) {
+    throw new Error(`[UI-UX-001] Refusing to delete unsafe results directory: ${directory}`);
+  }
+}
+
 const profiles = requestedProfile
   ? config.profiles.filter((profile) => profile.id === requestedProfile)
   : config.profiles;
 
+if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+  throw new Error(`[UI-UX-001] UI_UX_PORT must be an integer between 1024 and 65535, found ${port}`);
+}
 if (profiles.length === 0) {
   throw new Error(`[UI-UX-001] Unknown profile: ${requestedProfile}`);
 }
@@ -22,12 +38,9 @@ if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 3) {
   throw new Error(`[UI-UX-001] UI_UX_ATTEMPTS must be between 1 and 3, found ${maxAttempts}`);
 }
 
+assertSafeResultsDir(resultsDir);
 rmSync(resultsDir, { recursive: true, force: true });
 mkdirSync(resultsDir, { recursive: true });
-
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
-}
 
 function startServer() {
   const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "127.0.0.1"], {
@@ -119,24 +132,33 @@ async function stabilize(page) {
     `
   });
 
-  await page.evaluate(async () => {
+  await page.evaluate(async ({ imageTimeoutMs }) => {
+    const withTimeout = (promise, label) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(label)), imageTimeoutMs))
+    ]);
     const year = document.querySelector("#current-year");
     if (year) year.textContent = "2026";
     document.querySelectorAll("video").forEach((video) => video.pause());
     if (document.fonts?.ready) await document.fonts.ready;
     for (const image of Array.from(document.images)) {
       image.loading = "eager";
+      const label = image.currentSrc || image.src || image.alt || "unknown-image";
       if (!image.complete) {
-        await new Promise((resolve) => {
+        await withTimeout(new Promise((resolve) => {
           image.addEventListener("load", resolve, { once: true });
           image.addEventListener("error", resolve, { once: true });
+        }), `Timed out waiting for image: ${label}`);
+      }
+      if (image.decode) {
+        await withTimeout(image.decode(), `Timed out decoding image: ${label}`).catch((error) => {
+          if (!image.complete || image.naturalWidth === 0) throw error;
         });
       }
-      if (image.decode) await image.decode().catch(() => {});
     }
     window.scrollTo(0, 0);
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+  }, { imageTimeoutMs: 5000 });
 
   await page.waitForTimeout(100);
 }
@@ -228,10 +250,17 @@ async function assertKeyboardFocus(page, route) {
       const element = document.activeElement;
       if (!(element instanceof HTMLElement) || element === document.body) return null;
       const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const outlineWidth = Number.parseFloat(style.outlineWidth);
       return {
         tag: element.tagName,
         text: (element.getAttribute("aria-label") || element.textContent || "").trim(),
-        visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight
+        visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight,
+        focusVisible: element.matches(":focus-visible"),
+        hasFocusIndicator:
+          (style.outlineStyle !== "none" && Number.isFinite(outlineWidth) && outlineWidth > 0)
+          || style.boxShadow !== "none"
+          || style.textDecorationLine.includes("underline")
       };
     });
     if (focused?.visible) break;
@@ -239,6 +268,10 @@ async function assertKeyboardFocus(page, route) {
 
   assert(focused?.visible, `${route.id}: keyboard focus never reached a visible control`);
   assert(focused.text.length > 0, `${route.id}: focused ${focused.tag} has no accessible text`);
+  assert(
+    focused.focusVisible && focused.hasFocusIndicator,
+    `${route.id}: focused ${focused.tag} has no visible focus indicator`
+  );
 }
 
 function normalizeInstagram(href) {
