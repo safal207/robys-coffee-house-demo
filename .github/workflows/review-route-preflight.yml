@@ -64,7 +64,14 @@ jobs:
                 per_page: 100,
               },
             );
-            const paths = files.map((file) => file.filename);
+            const pathSet = new Set();
+            for (const file of files) {
+              pathSet.add(file.filename);
+              if (file.status === 'renamed' && file.previous_filename) {
+                pathSet.add(file.previous_filename);
+              }
+            }
+            const paths = [...pathSet];
             if (paths.length === 0) {
               core.setFailed('RRM preflight requires at least one changed path.');
               return;
