@@ -43,7 +43,8 @@
       "reason": "Deploy, release, credentials, permissions and migration paths require human-authorized depth.",
       "patterns": [
         "^\\.github/workflows/(?:deploy|release|publish)[^/]*\\.ya?ml$",
-        "^(?:infra|migrations?)/",
+        "^infra/",
+        "(^|/)migrations?/",
         "(^|/)(?:secrets?|credentials?|permissions?)(?:/|\\.|$)"
       ]
     },
