@@ -3,6 +3,7 @@
   "version": 1,
   "allowedStatuses": [
     "AVAILABLE",
+    "PARTIAL",
     "PAUSED",
     "QUOTA_EXHAUSTED",
     "NO_BALANCE",
@@ -85,10 +86,13 @@
       "binding": true,
       "advisory": false,
       "eligibleDepths": [
+        "L2",
         "L3",
         "L4"
       ],
       "roles": [
+        "risk_critic",
+        "evidence_verifier",
         "operator",
         "authorization_owner"
       ],
