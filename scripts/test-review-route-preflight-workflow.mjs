@@ -9,7 +9,9 @@ const required = [
   "repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}",
   "persist-credentials: false",
   "github.paginate(",
-  "github.rest.pulls.listFiles"
+  "github.rest.pulls.listFiles",
+  "file.status === 'renamed'",
+  "file.previous_filename"
 ];
 
 for (const token of required) {
@@ -18,4 +20,4 @@ for (const token of required) {
   }
 }
 
-console.log("✅ RRM-WORKFLOW-001 passed: concurrency, fork-safe checkout and authoritative PR file API are present.");
+console.log("✅ RRM-WORKFLOW-001 passed: concurrency, fork-safe checkout, authoritative PR file API and both rename paths are present.");
