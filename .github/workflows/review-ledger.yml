@@ -68,6 +68,7 @@ jobs:
               'github-advanced-security',
               'github-advanced-security[bot]',
             ]);
+            const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
             const timeOf = (item) => Date.parse(item.submitted_at ?? item.created_at ?? item.updated_at ?? 0);
             const isDeepSeekEvidence = (item) => (
@@ -87,7 +88,7 @@ jobs:
                 const body = (reply.body ?? '').replaceAll('`', '');
                 const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
                 const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
-                const maintainer = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(reply.author_association);
+                const maintainer = trustedAssociations.has(reply.author_association);
                 return disposition && exactHead && maintainer;
               });
             });
@@ -111,11 +112,13 @@ jobs:
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
             const reports = issueComments.filter((item) => (
-              (item.body ?? '').includes('<!-- ai-review-cooperation -->') && exactHeadBody(item.body)
+              (item.user?.login === 'github-actions[bot]' || trustedAssociations.has(item.author_association)) &&
+              (item.body ?? '').includes('<!-- ai-review-cooperation -->') &&
+              exactHeadBody(item.body)
             ));
             const report = reports.sort((left, right) => timeOf(right) - timeOf(left))[0];
             if (!report) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no exact-head cooperation report for ${head}.`);
+              core.setFailed(`PDG-001 depth D4 incomplete: no trusted exact-head cooperation report for ${head}.`);
               return;
             }
             const conclusion = /\*\*Overall conclusion:\*\*\s*\*\*(READY|READY_WITH_ADVISORY_GAPS)\*\*/i.exec(report.body ?? '')?.[1];
@@ -146,7 +149,7 @@ jobs:
 
             const seals = issueComments.filter((item) => {
               const body = (item.body ?? '').replaceAll('`', '');
-              const trusted = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(item.author_association);
+              const trusted = trustedAssociations.has(item.author_association);
               const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
               const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
               const depth = /^Depth:\s*D6\s*$/im.test(body);
