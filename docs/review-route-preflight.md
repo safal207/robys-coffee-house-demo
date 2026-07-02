@@ -1,6 +1,6 @@
 # Review Route Preflight
 
-`RRM-DEPTH-001` and `RRM-ROSTER-001` are the first Review Route Memory contracts.
+`RRM-001` and `RRM-002` are the first Review Route Memory backlog items. Their machine-readable contracts are `RRM-DEPTH-001` and `RRM-ROSTER-001`.
 
 They answer two questions before a review route is selected:
 
@@ -23,7 +23,7 @@ changed paths + explicit risk signals
 | L3 | Workflow, security, QA or governance | complete PDG proof path |
 | L4 | Deploy, credentials, permissions or irreversible action | PDG plus a binding human |
 
-Unknown paths fail closed to **L3**. Explicit risk signals may only raise the selected depth; they cannot lower a path floor.
+Unknown paths fail closed to **L3**. Explicit risk signals may only raise the selected depth; they cannot lower a path floor. Migration directories are L4 even when nested under product paths such as `src/migrations/`.
 
 ## Runtime roster
 
@@ -42,6 +42,10 @@ UNKNOWN
 Only `AVAILABLE` binding reviewers count toward capacity. Advisory reviewers are reported separately and cannot satisfy or block the binding requirement.
 
 An unavailable binding route returns `ESCALATE` rather than remaining pending forever. Runtime availability is not a model-quality score.
+
+## Pull request path evidence
+
+For pull requests, the workflow reads the authoritative paginated file list from the GitHub Pull Files API. It does not infer the PR delta with a two-dot Git comparison, so unrelated base-branch movement cannot raise the selected depth. The exact head repository is checked out explicitly, including fork repositories, with a read-only token and no persisted credentials.
 
 ## Authority boundary
 
