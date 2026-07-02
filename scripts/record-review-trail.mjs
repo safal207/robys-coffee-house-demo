@@ -1,8 +1,12 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { digestSnapshot, verifyReviewTrail } from "./verify-review-trail.mjs";
+import {
+  digestSnapshot,
+  repositoryEvidencePath,
+  verifyReviewTrail
+} from "./verify-review-trail.mjs";
 
 const HEAD_PATTERN = /^[0-9a-f]{40}$/;
 
@@ -31,20 +35,6 @@ function readJson(filePath, label) {
 
 function assertObject(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object`);
-}
-
-function repositoryPath(ref, root) {
-  if (typeof ref !== "string" || !ref.startsWith("repo:")) fail(`invalid repository evidence ref ${ref}`);
-  const relativePath = ref.slice("repo:".length).replaceAll("\\", "/");
-  const absolutePath = path.resolve(root, relativePath);
-  const relative = path.relative(root, absolutePath);
-  if (!relativePath || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
-    fail(`repository evidence escapes root: ${relativePath}`);
-  }
-  if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) {
-    fail(`repository evidence does not exist: ${relativePath}`);
-  }
-  return { relativePath, absolutePath };
 }
 
 function digestFile(filePath) {
@@ -106,13 +96,13 @@ function normalizeEvidence(items, head, root) {
     };
 
     if (item.kind === "repository") {
-      const { relativePath, absolutePath } = repositoryPath(item.ref, root);
+      const { relativePath, absolutePath, bytes } = repositoryEvidencePath(item.ref, root);
       return {
         ...base,
         digest: digestFile(absolutePath),
         snapshot: {
           path: relativePath,
-          bytes: statSync(absolutePath).size
+          bytes
         }
       };
     }
@@ -160,8 +150,11 @@ export function recordReviewTrail(source, options = {}) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = path.resolve(args.get("--root") || process.cwd());
-  const sourcePath = path.resolve(root, args.get("--source"));
-  const outputPath = path.resolve(root, args.get("--output"));
+  const sourceArg = args.get("--source");
+  const outputArg = args.get("--output");
+  if (!sourceArg || !outputArg) fail("expected --source and --output arguments");
+  const sourcePath = path.resolve(root, sourceArg);
+  const outputPath = path.resolve(root, outputArg);
   const source = readJson(sourcePath, "review trail source");
   const trail = recordReviewTrail(source, { root });
   writeFileSync(outputPath, `${JSON.stringify(trail, null, 2)}\n`);
