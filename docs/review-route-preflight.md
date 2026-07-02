@@ -45,7 +45,7 @@ An unavailable binding route returns `ESCALATE` rather than remaining pending fo
 
 ## Pull request path evidence
 
-For pull requests, the workflow reads the authoritative paginated file list from the GitHub Pull Files API. It does not infer the PR delta with a two-dot Git comparison, so unrelated base-branch movement cannot raise the selected depth. The exact head repository is checked out explicitly, including fork repositories, with a read-only token and no persisted credentials.
+For pull requests, the workflow reads the authoritative paginated file list from the GitHub Pull Files API. It does not infer the PR delta with a two-dot Git comparison, so unrelated base-branch movement cannot raise the selected depth. For renamed files, both `filename` and `previous_filename` are classified so moving a sensitive file to a benign path cannot lower the review floor. The exact head repository is checked out explicitly, including fork repositories, with a read-only token and no persisted credentials.
 
 ## Authority boundary
 
