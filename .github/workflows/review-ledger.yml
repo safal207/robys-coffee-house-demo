@@ -70,32 +70,46 @@ jobs:
             ]);
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
-            const timeOf = (item) => Date.parse(item.submitted_at ?? item.created_at ?? item.updated_at ?? 0);
-            const isDeepSeekEvidence = (item) => (
-              item.user?.login === 'github-actions[bot]' &&
-              (item.body ?? '').includes('<!-- deepseek-pr-review -->') &&
-              exactHeadBody(item.body)
+            const timeOf = (item) => Math.max(
+              0,
+              ...[item.submitted_at, item.created_at, item.updated_at]
+                .map((value) => Date.parse(value ?? 0))
+                .filter(Number.isFinite),
             );
+            const isDeepSeekEvidence = (item) => {
+              const body = item.body ?? '';
+              return (
+                item.user?.login === 'github-actions[bot]' &&
+                body.includes('<!-- deepseek-pr-review -->') &&
+                exactHeadBody(body) &&
+                body.includes('**Model:**') &&
+                !/^\*\*Status:\*\*\s*failed\s*$/im.test(body)
+              );
+            };
+            const isDispositionReply = (reply) => {
+              const body = (reply.body ?? '').replaceAll('`', '');
+              const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+              const maintainer = trustedAssociations.has(reply.author_association);
+              return disposition && exactHead && maintainer;
+            };
 
             const findings = reviewComments.filter((item) => (
               !item.in_reply_to_id &&
               reviewBots.has(item.user?.login) &&
               reviewHeads.get(item.pull_request_review_id) === head
             ));
-            const missing = findings.filter((finding) => {
-              const replies = reviewComments.filter((item) => item.in_reply_to_id === finding.id);
-              return !replies.some((reply) => {
-                const body = (reply.body ?? '').replaceAll('`', '');
-                const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-                const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
-                const maintainer = trustedAssociations.has(reply.author_association);
-                return disposition && exactHead && maintainer;
-              });
-            });
+            const dispositionReplies = findings.flatMap((finding) => (
+              reviewComments.filter((item) => item.in_reply_to_id === finding.id && isDispositionReply(item))
+            ));
+            const missing = findings.filter((finding) => !reviewComments.some((item) => (
+              item.in_reply_to_id === finding.id && isDispositionReply(item)
+            )));
+            const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
             const deepSeekEvidence = issueComments.filter(isDeepSeekEvidence);
             if (deepSeekEvidence.length === 0) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no exact-head DeepSeek evidence for ${head}.`);
+              core.setFailed(`PDG-001 depth D4 incomplete: no successful exact-head DeepSeek evidence for ${head}.`);
               return;
             }
 
@@ -160,8 +174,9 @@ jobs:
               core.setFailed(`PDG-001 depth D6 incomplete: no maintainer proof seal for ${head}.`);
               return;
             }
-            if (timeOf(seal) <= Math.max(timeOf(report), latestBotEvidenceAt)) {
-              core.setFailed(`PDG-001 proof seal is stale for ${head}; seal again after the latest evidence.`);
+            const latestPrerequisiteAt = Math.max(timeOf(report), latestBotEvidenceAt, latestDispositionAt);
+            if (timeOf(seal) <= latestPrerequisiteAt) {
+              core.setFailed(`PDG-001 proof seal is stale for ${head}; seal again after the latest evidence and dispositions.`);
               return;
             }
 
