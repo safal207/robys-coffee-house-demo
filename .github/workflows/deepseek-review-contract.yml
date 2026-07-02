@@ -50,8 +50,9 @@ jobs:
           grep -Fq 'python3 scripts/deepseek-infer-strict.py' .github/workflows/deepseek-review.yml
           grep -Fq 'finish_reason' scripts/deepseek-infer-strict.py
           grep -Fq 'test_secret_is_header_only_not_request_body' scripts/test-deepseek-guards.py
-          grep -Fq 'Publish or update reviewer result' .github/workflows/deepseek-review.yml
-          grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
+          grep -Fq 'Publish reviewer result' .github/workflows/deepseek-review.yml
+          grep -Fq -- '--method POST' .github/workflows/deepseek-review.yml
+          ! grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
           grep -Fq 'EXPECTED_HEAD:' .github/workflows/deepseek-review.yml
           grep -Fq 'PR head changed before publishing' .github/workflows/deepseek-review.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/deepseek-review.yml
