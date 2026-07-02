@@ -55,6 +55,8 @@ jobs:
           ! grep -Fq -- '--method PATCH' .github/workflows/deepseek-review.yml
           grep -Fq 'EXPECTED_HEAD:' .github/workflows/deepseek-review.yml
           grep -Fq 'PR head changed before publishing' .github/workflows/deepseek-review.yml
+          grep -Fq '.head.repo.full_name' .github/workflows/deepseek-review.yml
+          grep -Fq 'test "${head_repo}" = "${REPOSITORY}"' .github/workflows/deepseek-review.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/deepseek-review.yml
           grep -Fq 'GITHUB_ENV' .github/workflows/deepseek-review.yml
           ! grep -Fq 'runner.temp' .github/workflows/deepseek-review.yml
