@@ -90,7 +90,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: python3 scripts/deepseek-review.py failure
 
-      - name: Publish or update reviewer result
+      - name: Publish reviewer result
         if: always()
         env:
           EXPECTED_HEAD: ${{ steps.prepare.outputs.head_sha }}
@@ -103,15 +103,5 @@ jobs:
               exit 1
             fi
           fi
-          existing_id="$(
-            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- deepseek-pr-review -->"))) | .id' \
-              | tail -n 1
-          )"
-          if [ -n "${existing_id}" ]; then
-            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
-              --input "${COMMENT_FILE}"
-          else
-            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --input "${COMMENT_FILE}"
-          fi
+          gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --input "${COMMENT_FILE}"
