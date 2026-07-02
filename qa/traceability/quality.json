@@ -1,0 +1,131 @@
+{
+  "features": [
+    {
+      "id": "FEAT-QA-001",
+      "name": "UI/UX and visual regression matrix",
+      "domain": "quality",
+      "owner": "qa",
+      "current": {
+        "lifecycle": "released",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "not-applicable",
+        "backend": "not-applicable"
+      },
+      "requirements": [
+        "REQ-QA-001-01 phone 320/360/390/412 plus tablet/laptop/desktop",
+        "REQ-QA-001-02 one bounded recheck; repeated failure blocks",
+        "REQ-QA-001-03 cold-load temporal scenarios distinguish first render"
+      ],
+      "stateModel": {
+        "initial": "defined",
+        "states": [
+          "defined",
+          "first-attempt",
+          "recheck-once",
+          "passed",
+          "failed",
+          "evidence-published"
+        ],
+        "transitions": [
+          "defined --workflow--> first-attempt",
+          "first-attempt --failure--> recheck-once",
+          "first-attempt --success--> passed",
+          "recheck-once --success--> passed",
+          "recheck-once --failure--> failed",
+          "passed --upload--> evidence-published",
+          "failed --upload--> evidence-published"
+        ]
+      },
+      "evidence": [
+        "qa/ui-ux-matrix.json",
+        "qa/visual-regression.json",
+        "qa/ai-style-review-matrix.json",
+        "scripts/ui-ux-matrix.mjs"
+      ],
+      "tests": [
+        "npm run verify:ai-style-matrix",
+        "VISUAL-001 screenshot diff"
+      ],
+      "history": [
+        [
+          "2026-06-30",
+          "in-progress",
+          "pr:#147"
+        ],
+        [
+          "2026-07-01",
+          "released",
+          "merge:df660ae89233be4c40895d838ea5b656aeee6abc"
+        ]
+      ],
+      "risks": [
+        "Settled screenshots may miss a one-frame flash",
+        "External live probes can be observational rather than authoritative"
+      ],
+      "nextGate": "Add FEAT-UI-002 cold-load temporal capture without weakening the bounded-recheck policy.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-QA-002",
+      "name": "Cross-layer feature/state traceability",
+      "domain": "quality-governance",
+      "owner": "qa",
+      "current": {
+        "lifecycle": "implemented",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "verified",
+        "api": "verified",
+        "backend": "verified"
+      },
+      "requirements": [
+        "REQ-QA-002-01 every feature declares all three layer statuses",
+        "REQ-QA-002-02 every feature has states/history/evidence/tests/risks/next gate",
+        "REQ-QA-002-03 validator rejects duplicate IDs, invalid transitions and broken file evidence"
+      ],
+      "stateModel": {
+        "initial": "drafted",
+        "states": [
+          "drafted",
+          "validated",
+          "reviewed",
+          "released",
+          "stale"
+        ],
+        "transitions": [
+          "drafted --verify--> validated",
+          "validated --review--> reviewed",
+          "reviewed --merge--> released",
+          "released --untraced-change--> stale"
+        ]
+      },
+      "evidence": [
+        "qa/feature-traceability-matrix.json",
+        "scripts/verify-feature-traceability.mjs",
+        "docs/feature-traceability-matrix.md",
+        ".github/workflows/traceability.yml"
+      ],
+      "tests": [
+        "npm run verify:traceability",
+        "TRACE-001 feature matrix"
+      ],
+      "history": [
+        [
+          "2026-07-01",
+          "implemented",
+          "pr:#148"
+        ]
+      ],
+      "risks": [
+        "Can become ceremonial without PR enforcement",
+        "Dates are repository milestones, not production telemetry"
+      ],
+      "nextGate": "Make TRACE-001 a required status and require feature IDs in PR descriptions.",
+      "dependsOn": []
+    }
+  ]
+}

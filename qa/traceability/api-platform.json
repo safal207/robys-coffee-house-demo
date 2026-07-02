@@ -1,0 +1,193 @@
+{
+  "features": [
+    {
+      "id": "FEAT-API-001",
+      "name": "Gazipaşa weather context",
+      "domain": "external-context",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "fallback"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "external",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-API-001-01 network/payload failure preserves pairing with unavailable fallback",
+        "REQ-API-001-02 late response cannot overwrite after user interaction",
+        "REQ-API-001-03 fixed location/timezone and credentials omitted"
+      ],
+      "stateModel": {
+        "initial": "idle",
+        "states": [
+          "idle",
+          "loading",
+          "hot",
+          "rain",
+          "cool",
+          "mild",
+          "unavailable",
+          "ignored-after-interaction"
+        ],
+        "transitions": [
+          "idle --loadWeather--> loading",
+          "loading --temperature>=27--> hot",
+          "loading --rain-or-code>=51--> rain",
+          "loading --temperature<=17--> cool",
+          "loading --finite-temperature--> mild",
+          "loading --error--> unavailable",
+          "loading --user-interacted--> ignored-after-interaction"
+        ]
+      },
+      "evidence": [
+        "discover.html#weather-context",
+        "discover-v2.js#loadWeather",
+        "external:https://api.open-meteo.com/v1/forecast"
+      ],
+      "tests": [
+        "npm run verify:adversarial"
+      ],
+      "history": [
+        [
+          "2026-06-29",
+          "released",
+          "build:20260629-two-pairings-2"
+        ]
+      ],
+      "risks": [
+        "Third-party SLA/schema outside repository control",
+        "No proxy cache/rate-limit telemetry"
+      ],
+      "nextGate": "Proxy only if weather becomes business-critical; preserve explicit fallback.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-PLATFORM-001",
+      "name": "PWA registration, offline cache and navigation fallback",
+      "domain": "platform",
+      "owner": "platform-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "fallback"
+      },
+      "layers": {
+        "uiUx": "implemented",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-PLATFORM-001-01 core routes work from cache after network failure",
+        "REQ-PLATFORM-001-02 behavior-sensitive revisions change with assets",
+        "REQ-PLATFORM-001-03 old caches are removed on activate"
+      ],
+      "stateModel": {
+        "initial": "unsupported",
+        "states": [
+          "unsupported",
+          "registering",
+          "ready-online",
+          "ready-offline",
+          "registration-failed",
+          "updating"
+        ],
+        "transitions": [
+          "unsupported --supported--> registering",
+          "registering --ready--> ready-online",
+          "registering --error--> registration-failed",
+          "ready-online --offline--> ready-offline",
+          "ready-offline --online--> ready-online",
+          "ready-online --update--> updating",
+          "updating --activated--> ready-online"
+        ]
+      },
+      "evidence": [
+        "pwa.js#SERVICE_WORKER_URL",
+        "pwa.js#syncConnectivityState",
+        "sw.js#CACHE_VERSION",
+        "sw.js#navigationResponse"
+      ],
+      "tests": [
+        "npm run verify:integrity",
+        "npm run verify:live:smoke"
+      ],
+      "history": [
+        [
+          "2026-06-29",
+          "released",
+          "build:offline-20260629-7"
+        ],
+        [
+          "2026-07-01",
+          "released",
+          "cache:robys-offline-v10-20260701-posters-10750cdfa32c-58d387ca0c01-96b566c9731e"
+        ]
+      ],
+      "risks": [
+        "Stale cache can preserve corrected defects",
+        "Install fails if any core asset is missing"
+      ],
+      "nextGate": "Verify HTML query revisions against service-worker core assets.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-PLATFORM-002",
+      "name": "Client analytics event queue",
+      "domain": "observability",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "implemented",
+        "operational": "degraded"
+      },
+      "layers": {
+        "uiUx": "not-applicable",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-PLATFORM-002-01 action/language/path/placement only; no personal data",
+        "REQ-PLATFORM-002-02 analytics never blocks customer action",
+        "REQ-PLATFORM-002-03 future collector defines consent/retention/delivery"
+      ],
+      "stateModel": {
+        "initial": "idle",
+        "states": [
+          "idle",
+          "queued-client-side",
+          "collector-unknown",
+          "delivered",
+          "dropped"
+        ],
+        "transitions": [
+          "idle --track--> queued-client-side",
+          "queued-client-side --no-contract--> collector-unknown",
+          "queued-client-side --future-ack--> delivered",
+          "queued-client-side --future-timeout--> dropped"
+        ]
+      },
+      "evidence": [
+        "menu-actions.js#track",
+        "analytics.js"
+      ],
+      "tests": [
+        "node --check analytics.js"
+      ],
+      "history": [
+        [
+          "2026-06-27",
+          "implemented",
+          "build:instagram-share-20260627-1"
+        ]
+      ],
+      "risks": [
+        "Queued does not prove delivered",
+        "No collector acknowledgement or consent state"
+      ],
+      "nextGate": "Define a collector contract or label metrics best-effort only.",
+      "dependsOn": [
+        "FEAT-BE-001"
+      ]
+    }
+  ]
+}

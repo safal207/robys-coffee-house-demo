@@ -1,0 +1,102 @@
+{
+  "contract": "PDG-001",
+  "version": 1,
+  "name": "Proof Depth Graph",
+  "policy": {
+    "minimumDecisionDepth": 6,
+    "minimumIndependentReviewers": 2,
+    "requiredKinds": [
+      "claim",
+      "artifact",
+      "executable-check",
+      "mutation-challenge",
+      "independent-review",
+      "disposition",
+      "decision"
+    ],
+    "bindingFreshness": "exact-head",
+    "sealMustPostdateEvidence": true,
+    "inferredEdgesAreAdvisoryOnly": true
+  },
+  "nodes": [
+    {
+      "id": "CLAIM-READY",
+      "kind": "claim",
+      "depth": 0,
+      "label": "The current PR head is ready for review",
+      "origin": "asserted"
+    },
+    {
+      "id": "ARTIFACT-TRACE",
+      "kind": "artifact",
+      "depth": 1,
+      "label": "Traceability and proof manifests exist",
+      "origin": "observed",
+      "ref": "qa/feature-traceability-matrix.json"
+    },
+    {
+      "id": "CHECK-TRACE",
+      "kind": "executable-check",
+      "depth": 2,
+      "label": "Executable validators pass",
+      "origin": "observed",
+      "ref": "npm run verify:traceability"
+    },
+    {
+      "id": "CHALLENGE-MUTATION",
+      "kind": "mutation-challenge",
+      "depth": 3,
+      "label": "Broken evidence and graph mutations fail",
+      "origin": "observed",
+      "ref": "npm run test:traceability"
+    },
+    {
+      "id": "REVIEW-CODEX",
+      "kind": "independent-review",
+      "depth": 4,
+      "label": "Codex exact-head review",
+      "origin": "observed",
+      "provider": "Codex",
+      "independenceKey": "codex",
+      "freshness": "exact-head"
+    },
+    {
+      "id": "REVIEW-CODERABBIT",
+      "kind": "independent-review",
+      "depth": 4,
+      "label": "CodeRabbit exact-head review",
+      "origin": "observed",
+      "provider": "CodeRabbit",
+      "independenceKey": "coderabbit",
+      "freshness": "exact-head"
+    },
+    {
+      "id": "DISPOSITION-LEDGER",
+      "kind": "disposition",
+      "depth": 5,
+      "label": "Every current-head finding has an explicit disposition",
+      "origin": "observed",
+      "freshness": "exact-head",
+      "ref": ".github/workflows/review-ledger.yml"
+    },
+    {
+      "id": "DECISION-PROOF-SEAL",
+      "kind": "decision",
+      "depth": 6,
+      "label": "Maintainer seals a replayable verified episode",
+      "origin": "asserted",
+      "freshness": "exact-head",
+      "ref": "Proof-Depth-Seal: PDG-001"
+    }
+  ],
+  "edges": [
+    { "from": "CLAIM-READY", "to": "ARTIFACT-TRACE", "relation": "supported-by", "authority": "binding" },
+    { "from": "ARTIFACT-TRACE", "to": "CHECK-TRACE", "relation": "verified-by", "authority": "binding" },
+    { "from": "CHECK-TRACE", "to": "CHALLENGE-MUTATION", "relation": "challenged-by", "authority": "binding" },
+    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODEX", "relation": "reviewed-by", "authority": "binding" },
+    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODERABBIT", "relation": "reviewed-by", "authority": "binding" },
+    { "from": "REVIEW-CODEX", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
+    { "from": "REVIEW-CODERABBIT", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
+    { "from": "DISPOSITION-LEDGER", "to": "DECISION-PROOF-SEAL", "relation": "sealed-by", "authority": "binding" }
+  ]
+}

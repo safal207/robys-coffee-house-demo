@@ -1,0 +1,62 @@
+name: Feature traceability contract
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  traceability:
+    name: TRACE-001 and PDG-001 proof contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate proof-depth graph
+        id: pdg_validate
+        run: npm run verify:proof-depth
+
+      - name: Run PDG-001 mutation tests
+        id: pdg_mutation
+        run: npm run test:proof-depth
+
+      - name: Validate feature, state and layer traceability
+        id: trace_validate
+        run: npm run verify:traceability
+
+      - name: Run TRACE-001 mutation tests
+        id: trace_mutation
+        run: npm run test:traceability
+
+      - name: Publish CI/CD proof graph
+        if: always()
+        env:
+          PDG_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          PDG_BRANCH: ${{ github.head_ref || github.ref_name }}
+          PDG_D0: success
+          PDG_D1: success
+          PDG_D2: ${{ (steps.pdg_validate.outcome == 'success' && steps.trace_validate.outcome == 'success') && 'success' || 'failure' }}
+          PDG_D3: ${{ (steps.pdg_mutation.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'success' || 'failure' }}
+          PDG_D4: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'pending' || 'blocked' }}
+          PDG_D5: waiting
+          PDG_D6: waiting
+          PDG_BLOCKER: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'Waiting for Codex and CodeRabbit exact-head evidence' || 'Executable proof checks failed before independent review' }}
+        run: node scripts/render-ci-proof-summary.mjs

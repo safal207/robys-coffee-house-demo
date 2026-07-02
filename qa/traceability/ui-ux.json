@@ -1,0 +1,392 @@
+{
+  "features": [
+    {
+      "id": "FEAT-UI-001",
+      "name": "Landing, navigation and language switching",
+      "domain": "customer-web",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-UI-001-01 primary directions and menu actions are visible",
+        "REQ-UI-001-02 TR/EN/RU update copy and document language without reload",
+        "REQ-UI-001-03 storage failure keeps the page usable"
+      ],
+      "stateModel": {
+        "initial": "booting",
+        "states": [
+          "booting",
+          "ready",
+          "language-changing",
+          "menu-open",
+          "scrolled",
+          "offline"
+        ],
+        "transitions": [
+          "booting --DOMContentLoaded--> ready",
+          "ready --language-selected--> language-changing",
+          "language-changing --copy-applied--> ready",
+          "ready --menu-toggle--> menu-open",
+          "menu-open --close--> ready",
+          "ready --scroll-past-hero--> scrolled",
+          "ready --offline--> offline"
+        ]
+      },
+      "evidence": [
+        "index.html#.hero",
+        "index.html#.language-switcher",
+        "app.js",
+        "conversion.js#setupHeaderAndProgress"
+      ],
+      "tests": [
+        "npm run verify:regression"
+      ],
+      "history": [
+        [
+          "2026-06-22",
+          "released",
+          "build:security-20260622-1"
+        ],
+        [
+          "2026-06-26",
+          "released",
+          "build:20260626-8"
+        ]
+      ],
+      "risks": [
+        "Language transition blurs main briefly",
+        "No server-side locale/content source"
+      ],
+      "nextGate": "Preserve mobile cold-load coverage and add temporal assertions for first-render transitions.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-UI-002",
+      "name": "Scroll reveal and mobile sticky CTA",
+      "domain": "motion-conversion",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "implemented",
+        "operational": "degraded"
+      },
+      "layers": {
+        "uiUx": "implemented",
+        "api": "client-only",
+        "backend": "not-applicable"
+      },
+      "requirements": [
+        "REQ-UI-002-01 content never stays hidden if JS/observer fails",
+        "REQ-UI-002-02 first scroll into menu has no one-frame flash",
+        "REQ-UI-002-03 reduced motion is stable"
+      ],
+      "stateModel": {
+        "initial": "not-observed",
+        "states": [
+          "not-observed",
+          "hidden-initial",
+          "visible",
+          "cta-hidden",
+          "cta-visible"
+        ],
+        "transitions": [
+          "not-observed --setupReveal--> hidden-initial",
+          "hidden-initial --intersection--> visible",
+          "not-observed --setupMobileCta--> cta-hidden",
+          "cta-hidden --hero-leaves--> cta-visible",
+          "cta-visible --visit-or-footer--> cta-hidden"
+        ]
+      },
+      "evidence": [
+        "styles.css#.reveal-item",
+        "styles.css#.menu-section",
+        "app.js",
+        "conversion.css#.mobile-cta",
+        "conversion.js#setupMobileCta"
+      ],
+      "tests": [
+        "manual:cold-load-first-scroll (missing)"
+      ],
+      "history": [
+        [
+          "2026-06-19",
+          "implemented",
+          "commit:3c0ff34b2165a921cf47282e2879367e626d08f7"
+        ],
+        [
+          "2026-07-01",
+          "implemented",
+          "defect:first-scroll-menu-flash"
+        ]
+      ],
+      "risks": [
+        "Known Android first-scroll flash",
+        "Defect disappears after observer unobserves the node"
+      ],
+      "nextGate": "Add temporal cold-load capture; disable menu reveal on narrow mobile if reproduced.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-UI-003",
+      "name": "Full menu catalog, categories, search and localization",
+      "domain": "menu",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-UI-003-01 bundled canonical products and prices render",
+        "REQ-UI-003-02 localized search exposes results and empty state",
+        "REQ-UI-003-03 category selection updates URL hash and remains keyboard operable"
+      ],
+      "stateModel": {
+        "initial": "loading",
+        "states": [
+          "loading",
+          "ready-all",
+          "category-filtered",
+          "search-filtered",
+          "empty",
+          "language-changed"
+        ],
+        "transitions": [
+          "loading --module-init--> ready-all",
+          "ready-all --category--> category-filtered",
+          "ready-all --search--> search-filtered",
+          "search-filtered --zero-results--> empty",
+          "empty --clear--> ready-all",
+          "ready-all --language--> language-changed",
+          "language-changed --rerender--> ready-all"
+        ]
+      },
+      "evidence": [
+        "menu.html#menu-root",
+        "menu.html#menu-search",
+        "menu-page.js#renderMenu",
+        "menu-page.js#setLanguage",
+        "menu-data.js"
+      ],
+      "tests": [
+        "npm run verify:menu-content",
+        "npm run verify:menu-share"
+      ],
+      "history": [
+        [
+          "2026-06-22",
+          "released",
+          "build:menu-20260622-1"
+        ],
+        [
+          "2026-06-27",
+          "released",
+          "build:instagram-share-20260627-1"
+        ]
+      ],
+      "risks": [
+        "Prices/availability need code release",
+        "No source version shown to customers"
+      ],
+      "nextGate": "Define a versioned read-only content contract before live availability.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-UI-004",
+      "name": "Menu share and reservation handoff",
+      "domain": "conversion",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "fallback"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "external",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-UI-004-01 fallback order is Android intent -> Web Share -> clipboard -> prompt",
+        "REQ-UI-004-02 share cancellation is not reported as failure",
+        "REQ-UI-004-03 Instagram reply is required for reservation confirmation"
+      ],
+      "stateModel": {
+        "initial": "idle",
+        "states": [
+          "idle",
+          "android-intent",
+          "native-share",
+          "clipboard-copy",
+          "prompt-fallback",
+          "shared",
+          "cancelled",
+          "external-booking"
+        ],
+        "transitions": [
+          "idle --android-webview--> android-intent",
+          "idle --navigator.share--> native-share",
+          "idle --clipboard--> clipboard-copy",
+          "idle --no-api--> prompt-fallback",
+          "native-share --resolved--> shared",
+          "native-share --AbortError--> cancelled",
+          "idle --booking-click--> external-booking"
+        ]
+      },
+      "evidence": [
+        "menu.html#menu-share-button",
+        "menu.html#[data-instagram-booking]",
+        "menu-actions.js#shareMenu",
+        "menu-actions.js#androidShareIntent"
+      ],
+      "tests": [
+        "npm run verify:menu-share"
+      ],
+      "history": [
+        [
+          "2026-06-27",
+          "released",
+          "build:instagram-share-20260627-1"
+        ]
+      ],
+      "risks": [
+        "Reservation cannot be traced after Instagram opens",
+        "Share APIs vary by browser/security context"
+      ],
+      "nextGate": "Keep explicit external handoff until FEAT-BE-003 owns confirmation.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-UI-005",
+      "name": "Taste Journey pairing and relationship progression",
+      "domain": "discovery",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-UI-005-01 deterministic pairing renders before weather resolves",
+        "REQ-UI-005-02 rotation works before/after discovered state",
+        "REQ-UI-005-03 visits/discovered pairs stay local and storage failure is safe"
+      ],
+      "stateModel": {
+        "initial": "initializing",
+        "states": [
+          "initializing",
+          "local-context-ready",
+          "pairing-visible",
+          "pairing-rotated",
+          "marked-discovered",
+          "weather-reconciled"
+        ],
+        "transitions": [
+          "initializing --read-local--> local-context-ready",
+          "local-context-ready --choose--> pairing-visible",
+          "pairing-visible --next--> pairing-rotated",
+          "pairing-visible --mark--> marked-discovered",
+          "pairing-visible --weather-before-interaction--> weather-reconciled"
+        ]
+      },
+      "evidence": [
+        "discover.html#pairing-card",
+        "discover-v2.js#choose",
+        "discover-v2.js#renderJourney",
+        "discover-v2.js#registerVisit",
+        "discover-journeys-v2.js"
+      ],
+      "tests": [
+        "npm run test:discover-rotation",
+        "npm run verify:taste-journey-posters"
+      ],
+      "history": [
+        [
+          "2026-06-29",
+          "released",
+          "pr:#134"
+        ],
+        [
+          "2026-06-30",
+          "released",
+          "pr:#146"
+        ]
+      ],
+      "risks": [
+        "Local storage reset loses progression",
+        "Two active pairings create a small pool"
+      ],
+      "nextGate": "Version local state schema before more journeys or backend sync.",
+      "dependsOn": []
+    },
+    {
+      "id": "FEAT-UI-006",
+      "name": "Daily social offer and Taste Journey entry",
+      "domain": "campaigns",
+      "owner": "product-web",
+      "current": {
+        "lifecycle": "released",
+        "operational": "available"
+      },
+      "layers": {
+        "uiUx": "released",
+        "api": "client-only",
+        "backend": "not-built"
+      },
+      "requirements": [
+        "REQ-UI-006-01 inactive offer removes its container",
+        "REQ-UI-006-02 product/price/destination stay consistent in TR/EN/RU",
+        "REQ-UI-006-03 external links use safe target/rel"
+      ],
+      "stateModel": {
+        "initial": "uninitialized",
+        "states": [
+          "uninitialized",
+          "active-rendered",
+          "inactive-removed",
+          "external-opened"
+        ],
+        "transitions": [
+          "uninitialized --active--> active-rendered",
+          "uninitialized --inactive--> inactive-removed",
+          "active-rendered --instagram-click--> external-opened"
+        ]
+      },
+      "evidence": [
+        "index.html#daily-offer",
+        "social-offer.js#SOCIAL_OFFER",
+        "social-offer.js#renderSocialOffer",
+        "social-offer.js#renderTasteJourneyLink"
+      ],
+      "tests": [
+        "npm run verify:social-offer"
+      ],
+      "history": [
+        [
+          "2026-06-26",
+          "released",
+          "build:20260626-2"
+        ]
+      ],
+      "risks": [
+        "Offer stale until deployment",
+        "No date schedule/stock guard/admin"
+      ],
+      "nextGate": "Move content to FEAT-BE-002 only when owner workflow justifies it.",
+      "dependsOn": []
+    }
+  ]
+}
