@@ -77,7 +77,7 @@ expectFailure("inferred binding authority", "inferred knowledge cannot grant bin
 expectFailure("missing proof seal", "has no binding proof seal", (graph) => {
   graph.edges.find((edge) => edge.relation === "sealed-by").relation = "resolved-by";
 });
-expectFailure("advisory proof seal", "has no binding proof seal", (graph) => {
+expectFailure("advisory proof seal", "lacks binding proof stage decision", (graph) => {
   graph.edges.find((edge) => edge.relation === "sealed-by").authority = "advisory";
 });
 expectFailure("back edge", "proof stage skip", (graph) => {
