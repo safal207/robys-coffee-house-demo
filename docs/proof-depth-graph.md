@@ -25,14 +25,12 @@ flowchart LR
   V --> M["D3 mutation test"]
   M --> X["D4 Codex"]
   M --> R["D4 CodeRabbit"]
-  M --> D["D4 DeepSeek"]
   X --> L["D5 disposition ledger"]
   R --> L
-  D --> L
   L --> S["D6 Proof Seal"]
 ```
 
-The binding reviewers are **Codex, CodeRabbit and DeepSeek**. Jules is not part of the PDG-001 readiness path.
+The binding reviewers are **Codex and CodeRabbit**. DeepSeek and Jules are not part of the PDG-001 readiness path. They may be tested later as optional advisory reviewers without changing READY/BLOCK authority.
 
 The executable graph is `qa/proof-depth-graph.json`.
 
@@ -52,9 +50,9 @@ Depth: D6
 A seal is valid only when:
 
 1. it names the current PR head;
-2. Codex, CodeRabbit and DeepSeek have current-head evidence;
+2. Codex and CodeRabbit have current-head evidence;
 3. all current-head findings have explicit dispositions;
 4. required CI and mutation tests pass;
-5. the seal was posted after the latest evidence.
+5. the seal was posted after the latest evidence and dispositions.
 
 A new commit or later finding invalidates the seal. Inferred graph edges remain advisory and cannot grant readiness authority.
