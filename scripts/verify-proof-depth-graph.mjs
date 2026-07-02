@@ -54,8 +54,8 @@ if (graph.contract !== "PDG-001") fail("unexpected contract");
 if (graph.version !== 1) fail("unsupported version");
 if (!graph.policy || !Number.isInteger(graph.policy.minimumDecisionDepth)) fail("invalid policy");
 if (graph.policy.minimumDecisionDepth !== 6) fail("minimumDecisionDepth must be 6");
-if (!Number.isInteger(graph.policy.minimumIndependentReviewers) || graph.policy.minimumIndependentReviewers < 2) {
-  fail("minimumIndependentReviewers must be at least 2");
+if (graph.policy.minimumIndependentReviewers !== 3) {
+  fail("minimumIndependentReviewers must be exactly 3");
 }
 if (graph.policy.bindingFreshness !== "exact-head") fail("bindingFreshness must be exact-head");
 if (graph.policy.sealMustPostdateEvidence !== true) fail("sealMustPostdateEvidence must be true");
@@ -91,6 +91,8 @@ for (const node of graph.nodes) {
 unique(graph.edges.map((edge) => `${edge.from}|${edge.to}|${edge.relation}`), "edge");
 const outgoing = new Map(graph.nodes.map((node) => [node.id, []]));
 const incoming = new Map(graph.nodes.map((node) => [node.id, []]));
+const bindingOutgoing = new Map(graph.nodes.map((node) => [node.id, []]));
+const bindingIncoming = new Map(graph.nodes.map((node) => [node.id, []]));
 for (const edge of graph.edges) {
   const source = nodes.get(edge.from);
   const target = nodes.get(edge.to);
@@ -107,6 +109,10 @@ for (const edge of graph.edges) {
   }
   outgoing.get(edge.from).push(edge);
   incoming.get(edge.to).push(edge);
+  if (edge.authority === "binding") {
+    bindingOutgoing.get(edge.from).push(edge);
+    bindingIncoming.get(edge.to).push(edge);
+  }
 }
 
 const visiting = new Set();
@@ -125,12 +131,12 @@ const claims = graph.nodes.filter((node) => node.kind === "claim");
 const decisions = graph.nodes.filter((node) => node.kind === "decision");
 if (claims.length === 0 || decisions.length === 0) fail("graph requires at least one claim and one decision");
 
-function descendants(startId) {
+function descendants(startId, edgesBySource = bindingOutgoing) {
   const seen = new Set([startId]);
   const queue = [startId];
   while (queue.length) {
     const current = queue.shift();
-    for (const edge of outgoing.get(current)) {
+    for (const edge of edgesBySource.get(current)) {
       if (!seen.has(edge.to)) {
         seen.add(edge.to);
         queue.push(edge.to);
@@ -140,12 +146,12 @@ function descendants(startId) {
   return seen;
 }
 
-function ancestors(startId) {
+function ancestors(startId, edgesByTarget = bindingIncoming) {
   const seen = new Set([startId]);
   const queue = [startId];
   while (queue.length) {
     const current = queue.shift();
-    for (const edge of incoming.get(current)) {
+    for (const edge of edgesByTarget.get(current)) {
       if (!seen.has(edge.from)) {
         seen.add(edge.from);
         queue.push(edge.from);
@@ -159,13 +165,13 @@ for (const claim of claims) {
   const reachable = descendants(claim.id);
   const reachableKinds = new Set([...reachable].map((id) => nodes.get(id).kind));
   for (const kind of graph.policy.requiredKinds) {
-    if (!reachableKinds.has(kind)) fail(`${claim.id} lacks proof stage ${kind}`);
+    if (!reachableKinds.has(kind)) fail(`${claim.id} lacks binding proof stage ${kind}`);
   }
-  if (!decisions.some((decision) => reachable.has(decision.id))) fail(`${claim.id} cannot reach a decision`);
+  if (!decisions.some((decision) => reachable.has(decision.id))) fail(`${claim.id} cannot reach a binding decision`);
   const reviewers = graph.nodes.filter((node) => reachable.has(node.id) && node.kind === "independent-review");
   const independence = new Set(reviewers.map((node) => node.independenceKey));
   if (independence.size < graph.policy.minimumIndependentReviewers) {
-    fail(`${claim.id} has only ${independence.size} independent reviewers`);
+    fail(`${claim.id} has only ${independence.size} independent reviewers on binding paths`);
   }
 }
 
@@ -173,17 +179,17 @@ for (const decision of decisions) {
   if (decision.depth < graph.policy.minimumDecisionDepth) fail(`${decision.id} is too shallow`);
   const evidence = ancestors(decision.id);
   for (const claim of claims) {
-    if (!evidence.has(claim.id)) fail(`${decision.id} is not backed by ${claim.id}`);
+    if (!evidence.has(claim.id)) fail(`${decision.id} is not binding-backed by ${claim.id}`);
   }
-  if (!incoming.get(decision.id).some((edge) => edge.relation === "sealed-by")) {
-    fail(`${decision.id} has no proof seal`);
+  if (!bindingIncoming.get(decision.id).some((edge) => edge.relation === "sealed-by")) {
+    fail(`${decision.id} has no binding proof seal`);
   }
 }
 
 for (const node of graph.nodes) {
   const fromClaim = claims.some((claim) => descendants(claim.id).has(node.id));
   const toDecision = decisions.some((decision) => ancestors(decision.id).has(node.id));
-  if (!fromClaim || !toDecision) fail(`${node.id} is outside a complete proof path`);
+  if (!fromClaim || !toDecision) fail(`${node.id} is outside a complete binding proof path`);
 }
 
-console.log(`✅ PDG-001 valid: ${graph.nodes.length} nodes, ${graph.edges.length} edges, depth D${graph.policy.minimumDecisionDepth}, ${graph.policy.minimumIndependentReviewers} independent reviewers.`);
+console.log(`✅ PDG-001 valid: ${graph.nodes.length} nodes, ${graph.edges.length} edges, depth D${graph.policy.minimumDecisionDepth}, ${graph.policy.minimumIndependentReviewers} independent reviewers on binding paths.`);
