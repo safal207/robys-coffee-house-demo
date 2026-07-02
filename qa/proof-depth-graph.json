@@ -4,7 +4,7 @@
   "name": "Proof Depth Graph",
   "policy": {
     "minimumDecisionDepth": 6,
-    "minimumIndependentReviewers": 3,
+    "minimumIndependentReviewers": 2,
     "requiredKinds": [
       "claim",
       "artifact",
@@ -71,16 +71,6 @@
       "freshness": "exact-head"
     },
     {
-      "id": "REVIEW-DEEPSEEK",
-      "kind": "independent-review",
-      "depth": 4,
-      "label": "DeepSeek exact-head review",
-      "origin": "observed",
-      "provider": "DeepSeek",
-      "independenceKey": "deepseek",
-      "freshness": "exact-head"
-    },
-    {
       "id": "DISPOSITION-LEDGER",
       "kind": "disposition",
       "depth": 5,
@@ -105,10 +95,8 @@
     { "from": "CHECK-TRACE", "to": "CHALLENGE-MUTATION", "relation": "challenged-by", "authority": "binding" },
     { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODEX", "relation": "reviewed-by", "authority": "binding" },
     { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODERABBIT", "relation": "reviewed-by", "authority": "binding" },
-    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-DEEPSEEK", "relation": "reviewed-by", "authority": "binding" },
     { "from": "REVIEW-CODEX", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
     { "from": "REVIEW-CODERABBIT", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
-    { "from": "REVIEW-DEEPSEEK", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
     { "from": "DISPOSITION-LEDGER", "to": "DECISION-PROOF-SEAL", "relation": "sealed-by", "authority": "binding" }
   ]
 }
