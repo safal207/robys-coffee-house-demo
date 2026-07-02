@@ -96,7 +96,7 @@ function isOutsideRoot(root, target) {
   return relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
 }
 
-function repositoryEvidencePath(ref, root) {
+export function repositoryEvidencePath(ref, root) {
   if (typeof ref !== "string" || !ref.startsWith("repo:")) {
     fail(`repository evidence ref must start with repo: ${ref}`);
   }
@@ -205,7 +205,7 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
   for (const [index, item] of evidence.entries()) {
     const keys = ["id", "kind", "ref", "head", "observedAt", "authority", "digest", "snapshot"];
     assertExactKeys(item, keys, keys, `evidence[${index}]`);
-    if (!ID_PATTERN.test(item.id)) fail(`evidence[${index}].id is invalid`);
+    if (typeof item.id !== "string" || !ID_PATTERN.test(item.id)) fail(`evidence[${index}].id is invalid`);
     evidenceIds.add(item.id);
     if (!EVIDENCE_KINDS.has(item.kind)) fail(`${item.id} has invalid kind ${item.kind}`);
     assertString(item.ref, `${item.id}.ref`, 3);
@@ -214,7 +214,7 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
     latestObservedAt = Math.max(latestObservedAt, observedAt);
     if (!EVIDENCE_AUTHORITIES.has(item.authority)) fail(`${item.id} has invalid authority ${item.authority}`);
     if (item.authority === "binding") bindingEvidenceCount += 1;
-    if (!DIGEST_PATTERN.test(item.digest)) fail(`${item.id} has invalid digest`);
+    if (typeof item.digest !== "string" || !DIGEST_PATTERN.test(item.digest)) fail(`${item.id} has invalid digest`);
 
     if (item.kind === "repository") {
       const repositoryFile = repositoryEvidencePath(item.ref, root);
@@ -251,7 +251,7 @@ function validateFindings(findings, evidenceIds) {
     for (const [index, finding] of findings[category].entries()) {
       const keys = ["id", "source", "summary", "evidenceIds"];
       assertExactKeys(finding, keys, keys, `findings.${category}[${index}]`);
-      if (!ID_PATTERN.test(finding.id)) fail(`finding id is invalid: ${finding.id}`);
+      if (typeof finding.id !== "string" || !ID_PATTERN.test(finding.id)) fail(`finding id is invalid: ${finding.id}`);
       allIds.push(finding.id);
       assertString(finding.source, `${finding.id}.source`, 2);
       assertString(finding.summary, `${finding.id}.summary`, 8);
@@ -299,9 +299,13 @@ function validateOutcome(trail, recordedAt) {
   if (trail.episodeStatus === "ABORTED" && !new Set(["CLOSED_UNMERGED", "BLOCKED"]).has(trail.outcome.status)) {
     fail("aborted trail must end closed-unmerged or blocked");
   }
-  if (trail.route.decision === "ESCALATE" && trail.outcome.status === "MERGED") {
-    if (!trail.outcome.governanceException) fail("merged escalation requires a governance exception");
-    if (trail.repeatability.shouldRepeatRoute !== false) fail("an escalated route cannot be marked repeatable");
+  if (trail.route.decision === "ESCALATE") {
+    if (trail.outcome.status === "MERGED" && !trail.outcome.governanceException) {
+      fail("merged escalation requires a governance exception");
+    }
+    if (trail.repeatability.shouldRepeatRoute !== false) {
+      fail("an escalated route cannot be marked repeatable");
+    }
   }
   if (trail.route.governanceExceptionRequired && trail.outcome.status === "MERGED" && !trail.outcome.governanceException) {
     fail("selected exception route requires a governance exception in the outcome");
@@ -372,7 +376,9 @@ export function verifyReviewTrail(trail, options = {}) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = path.resolve(args.get("--root") || process.cwd());
-  const trail = readJson(path.resolve(root, args.get("--trail")), "review trail");
+  const trailPath = args.get("--trail");
+  if (!trailPath) fail("missing required --trail argument");
+  const trail = readJson(path.resolve(root, trailPath), "review trail");
   const schemaPath = args.get("--schema") || "qa/review-trail.schema.json";
   const result = verifyReviewTrail(trail, { root, schemaPath });
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
