@@ -38,7 +38,6 @@ jobs:
             const updatedTimeOf = (item) => Date.parse(
               item.updated_at ?? item.submitted_at ?? item.created_at ?? 0,
             );
-            const isFresh = (item) => timeOf(item) >= evidenceAfter;
             const bodyOf = (item) => (item.body ?? '').trim();
             const commandLinesOf = (item) => bodyOf(item)
               .toLowerCase()
@@ -47,8 +46,12 @@ jobs:
               .filter(Boolean);
             const isCommand = (item, value) => (
               trusted.has(item.author_association) &&
-              isFresh(item) &&
+              timeOf(item) >= evidenceAfter &&
               commandLinesOf(item).includes(value)
+            );
+            const latestRequestAt = (requests) => requests.reduce(
+              (latest, request) => Math.max(latest, timeOf(request)),
+              0,
             );
             const nativeReviewMatchesHead = (review) => (
               review.commit_id?.toLowerCase() === currentHead
@@ -57,22 +60,6 @@ jobs:
               `(^|[^0-9a-f])${currentHead}([^0-9a-f]|$)`,
               'i',
             ).test(body ?? '');
-            const isCodexReview = (review) => (
-              codexLogins.has(review.user?.login) &&
-              isFresh(review) &&
-              nativeReviewMatchesHead(review)
-            );
-            const isCodeRabbitReview = (review) => (
-              codeRabbitLogins.has(review.user?.login) &&
-              isFresh(review) &&
-              nativeReviewMatchesHead(review)
-            );
-            const isDeepSeekEvidence = (comment) => (
-              comment.user?.login === 'github-actions[bot]' &&
-              isFresh(comment) &&
-              bodyOf(comment).includes('<!-- deepseek-pr-review -->') &&
-              bodyNamesHead(comment.body)
-            );
 
             for (let attempt = 1; attempt <= 30; attempt += 1) {
               const [comments, reviews] = await Promise.all([
@@ -89,30 +76,47 @@ jobs:
               const codexRequests = comments.filter((item) => isCommand(item, '@codex review'));
               const codeRabbitRequests = comments.filter((item) => isCommand(item, '@coderabbitai review'));
               const deepSeekRequests = comments.filter((item) => isCommand(item, '/deepseek review'));
-              const latestCodeRabbitRequestAt = codeRabbitRequests.reduce(
-                (latest, request) => Math.max(latest, Date.parse(request.created_at)),
-                0,
-              );
+              const latestCodexRequestAt = latestRequestAt(codexRequests);
+              const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
+              const latestDeepSeekRequestAt = latestRequestAt(deepSeekRequests);
 
-              const codexReview = reviews.find(isCodexReview);
-              const codeRabbitReview = reviews.find(isCodeRabbitReview);
+              const codexReview = reviews.find((review) => (
+                codexLogins.has(review.user?.login) &&
+                nativeReviewMatchesHead(review) &&
+                timeOf(review) >= latestCodexRequestAt
+              ));
+              const currentHeadCodeRabbitReview = reviews.find((review) => (
+                codeRabbitLogins.has(review.user?.login) &&
+                nativeReviewMatchesHead(review)
+              ));
+              const codeRabbitReview = reviews.find((review) => (
+                codeRabbitLogins.has(review.user?.login) &&
+                nativeReviewMatchesHead(review) &&
+                timeOf(review) >= latestCodeRabbitRequestAt
+              ));
               const codeRabbitStatusComment = comments.find((item) => {
                 const body = bodyOf(item);
                 const statusTime = updatedTimeOf(item);
                 return (
-                  codeRabbitRequests.length > 0 &&
+                  Boolean(currentHeadCodeRabbitReview) &&
+                  latestCodeRabbitRequestAt > 0 &&
                   codeRabbitLogins.has(item.user?.login) &&
-                  statusTime >= evidenceAfter &&
                   statusTime >= latestCodeRabbitRequestAt &&
                   body.includes('<!-- This is an auto-generated comment: summarize by coderabbit.ai -->') &&
                   body.includes('No new commits to review since the last review.')
                 );
               });
-              const deepSeekEvidence = comments.find(isDeepSeekEvidence);
+              const deepSeekEvidence = comments.find((comment) => (
+                comment.user?.login === 'github-actions[bot]' &&
+                latestDeepSeekRequestAt > 0 &&
+                timeOf(comment) >= latestDeepSeekRequestAt &&
+                bodyOf(comment).includes('<!-- deepseek-pr-review -->') &&
+                bodyNamesHead(comment.body)
+              ));
 
-              const hasCodexRequest = codexRequests.length > 0;
-              const hasCodeRabbitRequest = codeRabbitRequests.length > 0;
-              const hasDeepSeekRequest = deepSeekRequests.length > 0;
+              const hasCodexRequest = latestCodexRequestAt > 0;
+              const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
+              const hasDeepSeekRequest = latestDeepSeekRequestAt > 0;
               const hasCodexEvidence = Boolean(codexReview);
               const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
               const hasDeepSeekEvidence = Boolean(deepSeekEvidence);
@@ -131,7 +135,7 @@ jobs:
                     [
                       { data: 'Reviewer', header: true },
                       { data: 'Fresh request', header: true },
-                      { data: 'Exact-head evidence', header: true },
+                      { data: 'Exact-head evidence after request', header: true },
                     ],
                     ['Codex', 'yes', 'yes'],
                     ['CodeRabbit', 'yes', 'yes'],
@@ -139,13 +143,13 @@ jobs:
                   ])
                   .write();
                 core.notice(
-                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex, CodeRabbit and DeepSeek complete.`,
+                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex, CodeRabbit and DeepSeek complete after their latest requests.`,
                 );
                 return;
               }
 
               core.info(
-                `Waiting for exact-head AI evidence (attempt ${attempt}/30): ` +
+                `Waiting for latest-request exact-head AI evidence (attempt ${attempt}/30): ` +
                   `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
                   `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}, ` +
                   `DeepSeek=${hasDeepSeekRequest}/${hasDeepSeekEvidence}`,
@@ -154,5 +158,5 @@ jobs:
             }
 
             core.setFailed(
-              'Post fresh @codex review, @coderabbitai review and /deepseek review commands after the latest head update, then wait for exact-head evidence from all three reviewers.',
+              'Post fresh @codex review, @coderabbitai review and /deepseek review commands after the latest head update, then require exact-head evidence newer than each latest request.',
             );
