@@ -1,6 +1,8 @@
 name: DeepSeek PR review
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   issue_comment:
     types: [created]
 
@@ -12,21 +14,24 @@ permissions:
 jobs:
   review:
     if: >-
-      github.event.issue.pull_request != null &&
-      (github.event.comment.body == '/deepseek review' ||
-       github.event.comment.body == '/deepseek deep-review') &&
-      (github.event.comment.author_association == 'OWNER' ||
-       github.event.comment.author_association == 'MEMBER' ||
-       github.event.comment.author_association == 'COLLABORATOR')
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       (github.event.comment.body == '/deepseek review' ||
+        github.event.comment.body == '/deepseek deep-review') &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'))
     concurrency:
-      group: deepseek-review-${{ github.event.issue.number }}
+      group: deepseek-review-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
-      PR_NUMBER: ${{ github.event.issue.number }}
+      PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
 
     steps:
       - name: Checkout trusted reviewer code
@@ -57,7 +62,7 @@ jobs:
       - name: Prepare current-head review input
         id: prepare
         env:
-          COMMAND: ${{ github.event.comment.body }}
+          COMMAND: ${{ github.event_name == 'issue_comment' && github.event.comment.body || '/deepseek review' }}
         run: python3 scripts/deepseek-review.py prepare
 
       - name: Run DeepSeek API review
@@ -98,11 +103,12 @@ jobs:
               exit 1
             fi
           fi
-          existing_id="$(
+          existing_id="$ (
             gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- deepseek-pr-review -->"))) | .id' \
               | tail -n 1
           )"
+          existing_id="${existing_id# }"
           if [ -n "${existing_id}" ]; then
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
               --input "${COMMENT_FILE}"
