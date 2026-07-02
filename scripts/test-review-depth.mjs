@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -41,10 +41,23 @@ function expectFailure(label, expectedText, files, signals = {}, mutator) {
   }
 }
 
+function expectImportSafe() {
+  const result = spawnSync(
+    process.execPath,
+    ["--input-type=module", "--eval", `import(${JSON.stringify(pathToFileURL(SCRIPT).href)})`],
+    { encoding: "utf8" }
+  );
+  if (result.status !== 0 || result.stderr.trim()) {
+    throw new Error(`module import should be side-effect free:\n${result.stderr || result.stdout}`);
+  }
+}
+
+expectImportSafe();
 expectDepth("documentation-only", "L1", ["README.md", "docs/product-copy.md"]);
 expectDepth("product runtime", "L2", ["src/order-flow.ts", "menu.html"]);
 expectDepth("workflow governance", "L3", [".github/workflows/review-route-preflight.yml"]);
 expectDepth("deploy sensitivity", "L4", [".github/workflows/deploy-production.yml"]);
+expectDepth("nested migration sensitivity", "L4", ["src/migrations/add-order-index.ts"]);
 expectDepth("unknown file fails closed", "L3", ["custom.asset"]);
 expectDepth("security signal raises depth", "L4", ["README.md"], { securityImpact: "high" });
 expectFailure("path traversal", "escapes repository root", ["../secret.txt"]);
@@ -55,5 +68,8 @@ expectFailure("deploy floor mutation", "non-negotiable floor deploy-sensitive", 
 expectFailure("fallback floor mutation", "non-negotiable floor fallback", ["README.md"], {}, (policy) => {
   policy.pathRules.find((rule) => rule.id === "fallback").level = "L1";
 });
+expectFailure("security signal floor mutation", "signal floor securityImpact.high", ["README.md"], {}, (policy) => {
+  policy.signalFloors.securityImpact.high = "L1";
+});
 
-console.log("✅ RRM-DEPTH-001 mutation tests passed: L1-L4 routing, signal floors, path containment and non-negotiable policy floors.");
+console.log("✅ RRM-DEPTH-001 mutation tests passed: import safety, L1-L4 routing, nested migrations, signal floors, path containment and non-negotiable policy floors.");
