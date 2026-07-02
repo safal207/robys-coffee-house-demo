@@ -1,0 +1,132 @@
+{
+  "repository": "safal207/robys-coffee-house-demo",
+  "prNumber": 152,
+  "head": "c11f1721673bbdcda5ed7b8b00e069bc54b4ac4b",
+  "taskType": "review-route-selector",
+  "episodeStatus": "COMPLETED",
+  "depthResult": {
+    "contract": "RRM-DEPTH-001",
+    "depth": "L3"
+  },
+  "routeResult": {
+    "contract": "RRM-ROUTE-001",
+    "head": "c11f1721673bbdcda5ed7b8b00e069bc54b4ac4b",
+    "depth": "L3",
+    "decision": "ESCALATE",
+    "authority": "route-selection-only",
+    "selectionMode": "automatic",
+    "proposedRouteId": "route-l3-standard",
+    "reasons": [
+      "PARTIAL_ROUTE_ACTORS_coderabbit",
+      "QUOTA_EXHAUSTED_codex",
+      "NO_ELIGIBLE_L3_ROUTE"
+    ]
+  },
+  "evidence": [
+    {
+      "id": "rrm-preflight",
+      "kind": "github",
+      "ref": "github:actions/run/28589670503",
+      "observedAt": "2026-07-02T12:22:30Z",
+      "authority": "binding",
+      "snapshot": {
+        "workflow": "Review route preflight",
+        "head": "c11f1721673bbdcda5ed7b8b00e069bc54b4ac4b",
+        "conclusion": "success",
+        "depth": "L3",
+        "routeDecision": "ESCALATE"
+      }
+    },
+    {
+      "id": "codex-runtime",
+      "kind": "github",
+      "ref": "github:comment/4865640892",
+      "observedAt": "2026-07-02T12:24:58Z",
+      "authority": "supporting",
+      "snapshot": {
+        "actor": "codex",
+        "status": "QUOTA_EXHAUSTED",
+        "contentReviewCompleted": false
+      }
+    },
+    {
+      "id": "coderabbit-runtime",
+      "kind": "github",
+      "ref": "github:comment/4865613584",
+      "observedAt": "2026-07-02T12:31:00Z",
+      "authority": "supporting",
+      "snapshot": {
+        "actor": "coderabbit",
+        "status": "PARTIAL",
+        "selectedFiles": 12,
+        "reviewedFiles": 0,
+        "contentReviewCompleted": false
+      }
+    },
+    {
+      "id": "governance-resolution",
+      "kind": "manual",
+      "ref": "manual:GE-003",
+      "observedAt": "2026-07-02T12:35:30Z",
+      "authority": "binding",
+      "snapshot": {
+        "exception": "GE-003",
+        "selectorOutcome": "ESCALATE",
+        "resolution": "ACCEPTED_RISK",
+        "independentAiContentReview": false,
+        "proofDepth": "D6"
+      }
+    },
+    {
+      "id": "merge-outcome",
+      "kind": "github",
+      "ref": "github:pull/152",
+      "observedAt": "2026-07-02T12:36:13Z",
+      "authority": "binding",
+      "snapshot": {
+        "merged": true,
+        "head": "c11f1721673bbdcda5ed7b8b00e069bc54b4ac4b",
+        "mergeSha": "b218b6938c01524bfa3fb3d0d690fc1d8476d373"
+      }
+    }
+  ],
+  "findings": {
+    "accepted": [
+      {
+        "id": "fail-closed-escalation",
+        "source": "RRM-003",
+        "summary": "The selector refused to invent an eligible L3 route when both external review actors were unavailable.",
+        "evidenceIds": [
+          "rrm-preflight",
+          "codex-runtime",
+          "coderabbit-runtime"
+        ]
+      }
+    ],
+    "rejected": [],
+    "advisory": [
+      {
+        "id": "runtime-evidence-ingestion",
+        "source": "maintainer",
+        "summary": "Future automation should ingest reviewer quota and partial-analysis responses directly into roster evidence.",
+        "evidenceIds": [
+          "codex-runtime",
+          "coderabbit-runtime",
+          "governance-resolution"
+        ]
+      }
+    ]
+  },
+  "outcome": {
+    "status": "MERGED",
+    "mergeSha": "b218b6938c01524bfa3fb3d0d690fc1d8476d373",
+    "completedAt": "2026-07-02T12:36:13Z",
+    "governanceException": "GE-003"
+  },
+  "repeatability": {
+    "shouldRepeatRoute": false,
+    "needsMoreRuns": true,
+    "reason": "No review route was selected; repeatability must be evaluated after successful non-escalated episodes."
+  },
+  "recordedAt": "2026-07-02T12:37:00Z"
+}

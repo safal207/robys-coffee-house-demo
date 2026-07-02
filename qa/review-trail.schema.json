@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://robys.example/contracts/review-trail.v1.schema.json",
+  "title": "RRM Cognitive Review Trail",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "schemaVersion",
+    "trailId",
+    "repository",
+    "prNumber",
+    "head",
+    "taskType",
+    "episodeStatus",
+    "depth",
+    "route",
+    "evidence",
+    "findings",
+    "outcome",
+    "repeatability",
+    "recordedAt"
+  ],
+  "properties": {
+    "contract": { "const": "RRM-TRAIL-001" },
+    "schemaVersion": { "const": 1 },
+    "trailId": { "type": "string", "pattern": "^PR-[1-9][0-9]*@[0-9a-f]{12}$" },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "prNumber": { "type": "integer", "minimum": 1 },
+    "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "taskType": { "type": "string", "minLength": 3 },
+    "episodeStatus": { "enum": ["IN_PROGRESS", "COMPLETED", "ABORTED"] },
+    "depth": { "enum": ["L1", "L2", "L3", "L4"] },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "authority",
+        "selectionMode",
+        "routeId",
+        "proposedRouteId",
+        "routeKey",
+        "governanceExceptionRequired",
+        "reasons",
+        "stages"
+      ],
+      "properties": {
+        "decision": { "enum": ["SELECTED", "ESCALATE"] },
+        "authority": { "const": "route-selection-only" },
+        "selectionMode": { "enum": ["automatic", "override"] },
+        "routeId": { "type": ["string", "null"] },
+        "proposedRouteId": { "type": ["string", "null"] },
+        "routeKey": { "type": ["string", "null"] },
+        "governanceExceptionRequired": { "type": "boolean" },
+        "reasons": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sequence", "id", "kind", "actor", "role"],
+            "properties": {
+              "sequence": { "type": "integer", "minimum": 1 },
+              "id": { "type": "string", "minLength": 1 },
+              "kind": { "enum": ["check", "review", "decision", "gate"] },
+              "actor": { "type": "string", "minLength": 1 },
+              "role": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "ref", "head", "observedAt", "authority", "digest", "snapshot"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$" },
+          "kind": { "enum": ["repository", "github", "manual"] },
+          "ref": { "type": "string", "minLength": 3 },
+          "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+          "observedAt": { "type": "string", "format": "date-time" },
+          "authority": { "enum": ["supporting", "binding"] },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "snapshot": {}
+        }
+      }
+    },
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted", "rejected", "advisory"],
+      "properties": {
+        "accepted": { "$ref": "#/$defs/findingList" },
+        "rejected": { "$ref": "#/$defs/findingList" },
+        "advisory": { "$ref": "#/$defs/findingList" }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "mergeSha", "completedAt", "governanceException"],
+      "properties": {
+        "status": { "enum": ["PENDING", "MERGED", "CLOSED_UNMERGED", "BLOCKED"] },
+        "mergeSha": { "type": ["string", "null"] },
+        "completedAt": { "type": ["string", "null"] },
+        "governanceException": { "type": ["string", "null"] }
+      }
+    },
+    "repeatability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shouldRepeatRoute", "needsMoreRuns", "reason"],
+      "properties": {
+        "shouldRepeatRoute": { "type": ["boolean", "null"] },
+        "needsMoreRuns": { "type": "boolean" },
+        "reason": { "type": "string", "minLength": 12 }
+      }
+    },
+    "recordedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "findingList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "summary", "evidenceIds"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$" },
+          "source": { "type": "string", "minLength": 2 },
+          "summary": { "type": "string", "minLength": 8 },
+          "evidenceIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}
