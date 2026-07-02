@@ -11,8 +11,10 @@ if (ready.decision !== "READY") {
 }
 
 const weakened = structuredClone(roster);
-const codex = weakened.reviewers.find((reviewer) => reviewer.id === "codex");
-codex.eligibleDepths = codex.eligibleDepths.filter((depth) => depth !== "L2");
+for (const actorId of ["codex", "human-maintainer"]) {
+  const actor = weakened.reviewers.find((reviewer) => reviewer.id === actorId);
+  actor.eligibleDepths = actor.eligibleDepths.filter((depth) => depth !== "L2");
+}
 
 try {
   probeReviewerRoster(weakened, "L2", {});

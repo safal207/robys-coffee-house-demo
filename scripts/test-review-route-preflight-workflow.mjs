@@ -11,7 +11,12 @@ const required = [
   "github.paginate(",
   "github.rest.pulls.listFiles",
   "file.status === 'renamed'",
-  "file.previous_filename"
+  "file.previous_filename",
+  "override_json:",
+  "Select review route",
+  "scripts/select-review-route.mjs",
+  "--head \"${REVIEW_HEAD}\"",
+  "--route-result review-route-result.json"
 ];
 
 for (const token of required) {
@@ -20,4 +25,8 @@ for (const token of required) {
   }
 }
 
-console.log("✅ RRM-WORKFLOW-001 passed: concurrency, fork-safe checkout, authoritative PR file API and both rename paths are present.");
+if (workflow.includes("pull_request_target:")) {
+  throw new Error("RRM-WORKFLOW-001: untrusted pull request code must not run through pull_request_target");
+}
+
+console.log("✅ RRM-WORKFLOW-001 passed: exact-head path evidence, route selection, audited manual input and read-only PR execution are present.");

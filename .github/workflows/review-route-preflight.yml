@@ -13,6 +13,10 @@ on:
         description: Optional RRM depth signals as JSON
         required: false
         default: '{}'
+      override_json:
+        description: Optional audited manual route selection JSON
+        required: false
+        default: ''
 
 concurrency:
   group: review-route-preflight-${{ github.event.pull_request.number || github.ref }}
@@ -22,7 +26,7 @@ permissions: {}
 
 jobs:
   preflight:
-    name: RRM-001 depth and RRM-002 roster
+    name: RRM-001 depth, RRM-002 roster and RRM-003 route
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -130,8 +134,25 @@ jobs:
             --statuses-json "$(cat reviewer-statuses.json)" \
             --output reviewer-roster-result.json
 
+      - name: Select review route
+        env:
+          REVIEW_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          OVERRIDE_JSON: ${{ inputs.override_json || '' }}
+        run: |
+          args=()
+          if [ -n "${OVERRIDE_JSON}" ]; then
+            args+=(--override-json "${OVERRIDE_JSON}")
+          fi
+          node scripts/select-review-route.mjs \
+            --depth-result review-depth-result.json \
+            --roster-result reviewer-roster-result.json \
+            --head "${REVIEW_HEAD}" \
+            --output review-route-result.json \
+            "${args[@]}"
+
       - name: Publish preflight summary
         run: |
           node scripts/render-review-route-preflight-summary.mjs \
             --depth-result review-depth-result.json \
-            --roster-result reviewer-roster-result.json
+            --roster-result reviewer-roster-result.json \
+            --route-result review-route-result.json

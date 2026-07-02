@@ -46,6 +46,14 @@ expectDecision("two binding reviewers", "READY", "L3", {
   coderabbit: "AVAILABLE",
   codex: "AVAILABLE"
 });
+expectDecision("partial reviewer is not available", "ESCALATE", "L2", {
+  coderabbit: "PARTIAL",
+  codex: "AVAILABLE"
+}, (payload) => {
+  if (payload.availableBindingReviewers.includes("coderabbit")) throw new Error("partial reviewer counted as available");
+  if (!payload.partialReviewers.includes("coderabbit")) throw new Error("partial reviewer was not reported");
+  if (!payload.runtimeWarnings.includes("PARTIAL_REVIEWER_coderabbit")) throw new Error("partial warning missing");
+});
 expectDecision("advisory cannot fill binding capacity", "ESCALATE", "L3", {
   coderabbit: "AVAILABLE",
   deepseek: "AVAILABLE"
@@ -59,13 +67,13 @@ expectDecision("L4 requires a human", "ESCALATE", "L4", {
 }, (payload) => {
   if (!payload.reasons.includes("HUMAN_REVIEWER_REQUIRED")) throw new Error("missing human escalation reason");
 });
-expectDecision("human substitution is explicit capacity", "READY", "L4", {
+expectDecision("human capacity is explicit", "READY", "L4", {
   coderabbit: "AVAILABLE",
   "human-maintainer": "AVAILABLE"
 });
 expectDecision("unknown runtime state escalates", "ESCALATE", "L2", {});
-expectFailure("invalid runtime status", "invalid runtime status", "L2", { codex: "BROKEN" });
-expectFailure("unknown reviewer status", "unknown reviewer", "L2", { stranger: "AVAILABLE" });
+expectFailure("invalid runtime status", "invalid runtime status", "L2", { codex: "INVALID" });
+expectFailure("unknown reviewer status", "unknown reviewer", "L2", { unregistered: "AVAILABLE" });
 expectFailure("advisory authority mutation", "deepseek must remain advisory-only", "L3", {}, (roster) => {
   const deepseek = roster.reviewers.find((reviewer) => reviewer.id === "deepseek");
   deepseek.binding = true;
@@ -75,4 +83,4 @@ expectFailure("binding floor mutation", "L3 minimumAvailable must remain 2", "L3
   roster.bindingRequirements.L3.minimumAvailable = 1;
 });
 
-console.log("✅ RRM-ROSTER-001 mutation tests passed: capacity, human authorization, advisory isolation and runtime-state fail-closed behavior.");
+console.log("✅ RRM-ROSTER-001 mutation tests passed: partial state, capacity, human authorization and advisory isolation.");
