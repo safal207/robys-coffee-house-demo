@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -91,19 +91,44 @@ function digestFile(filePath) {
   return `sha256:${createHash("sha256").update(readFileSync(filePath)).digest("hex")}`;
 }
 
+function isOutsideRoot(root, target) {
+  const relative = path.relative(root, target);
+  return relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
+}
+
 function repositoryEvidencePath(ref, root) {
-  if (!ref.startsWith("repo:")) fail(`repository evidence ref must start with repo: ${ref}`);
+  if (typeof ref !== "string" || !ref.startsWith("repo:")) {
+    fail(`repository evidence ref must start with repo: ${ref}`);
+  }
   const relativePath = ref.slice("repo:".length).replaceAll("\\", "/");
-  if (!relativePath || path.posix.isAbsolute(relativePath)) fail(`repository evidence path is invalid: ${relativePath}`);
-  const absolutePath = path.resolve(root, relativePath);
-  const relative = path.relative(root, absolutePath);
-  if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+  if (!relativePath || path.posix.isAbsolute(relativePath)) {
+    fail(`repository evidence path is invalid: ${relativePath}`);
+  }
+
+  const lexicalRoot = path.resolve(root);
+  const lexicalTarget = path.resolve(lexicalRoot, relativePath);
+  if (isOutsideRoot(lexicalRoot, lexicalTarget)) {
     fail(`repository evidence escapes root: ${relativePath}`);
   }
-  if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) {
+  if (!existsSync(lexicalTarget)) {
     fail(`repository evidence does not exist: ${relativePath}`);
   }
-  return { relativePath, absolutePath };
+
+  const realRoot = realpathSync(lexicalRoot);
+  const realTarget = realpathSync(lexicalTarget);
+  if (isOutsideRoot(realRoot, realTarget)) {
+    fail(`repository evidence resolves outside root: ${relativePath}`);
+  }
+  const targetStat = statSync(realTarget);
+  if (!targetStat.isFile()) {
+    fail(`repository evidence is not a file: ${relativePath}`);
+  }
+
+  return {
+    relativePath,
+    absolutePath: realTarget,
+    bytes: targetStat.size
+  };
 }
 
 function validateSchemaContract(schema) {
@@ -140,12 +165,22 @@ function validateRoute(route) {
     assertString(route.routeId, "route.routeId");
     assertString(route.routeKey, "route.routeKey");
     if (route.proposedRouteId !== null) fail("selected route proposedRouteId must be null");
+    if (route.reasons.length !== 0) fail("selected route cannot contain escalation reasons");
     if (route.stages.length === 0) fail("selected route must contain ordered stages");
+    if (route.selectionMode === "override" && route.governanceExceptionRequired !== true) {
+      fail("selected override route must require a governance exception");
+    }
+    if (route.selectionMode === "automatic" && route.governanceExceptionRequired !== false) {
+      fail("selected automatic route cannot require a governance exception");
+    }
   } else {
     if (route.routeId !== null || route.routeKey !== null) fail("escalated route cannot claim a selected route");
     assertString(route.proposedRouteId, "route.proposedRouteId");
     if (route.reasons.length === 0) fail("escalated route must explain its reasons");
     if (route.stages.length !== 0) fail("escalated route cannot claim executed stages");
+    if (route.governanceExceptionRequired !== false) {
+      fail("escalated route cannot claim a selected-route governance exception");
+    }
   }
 
   unique(route.stages.map((stage) => stage.id), "route stage id");
@@ -164,6 +199,7 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
   if (!Array.isArray(evidence) || evidence.length === 0) fail("evidence must contain at least one item");
   unique(evidence.map((item) => item.id), "evidence id");
   const evidenceIds = new Set();
+  let bindingEvidenceCount = 0;
   let latestObservedAt = 0;
 
   for (const [index, item] of evidence.entries()) {
@@ -177,11 +213,24 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
     const observedAt = assertDateTime(item.observedAt, `${item.id}.observedAt`);
     latestObservedAt = Math.max(latestObservedAt, observedAt);
     if (!EVIDENCE_AUTHORITIES.has(item.authority)) fail(`${item.id} has invalid authority ${item.authority}`);
+    if (item.authority === "binding") bindingEvidenceCount += 1;
     if (!DIGEST_PATTERN.test(item.digest)) fail(`${item.id} has invalid digest`);
 
     if (item.kind === "repository") {
-      const { absolutePath } = repositoryEvidencePath(item.ref, root);
-      if (item.digest !== digestFile(absolutePath)) fail(`${item.id} repository digest mismatch`);
+      const repositoryFile = repositoryEvidencePath(item.ref, root);
+      assertExactKeys(item.snapshot, ["path", "bytes"], ["path", "bytes"], `${item.id}.snapshot`);
+      if (item.snapshot.path !== repositoryFile.relativePath) {
+        fail(`${item.id} repository snapshot path mismatch`);
+      }
+      if (!Number.isInteger(item.snapshot.bytes) || item.snapshot.bytes < 0) {
+        fail(`${item.id} repository snapshot bytes are invalid`);
+      }
+      if (item.snapshot.bytes !== repositoryFile.bytes) {
+        fail(`${item.id} repository snapshot bytes mismatch`);
+      }
+      if (item.digest !== digestFile(repositoryFile.absolutePath)) {
+        fail(`${item.id} repository digest mismatch`);
+      }
     } else {
       if (item.kind === "github" && !GITHUB_REF_PATTERN.test(item.ref)) fail(`${item.id} has invalid GitHub ref`);
       if (item.kind === "manual" && !MANUAL_REF_PATTERN.test(item.ref)) fail(`${item.id} has invalid manual ref`);
@@ -190,7 +239,7 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
   }
 
   if (latestObservedAt > recordedAt) fail("trail was recorded before its latest evidence");
-  return evidenceIds;
+  return { evidenceIds, bindingEvidenceCount };
 }
 
 function validateFindings(findings, evidenceIds) {
@@ -285,7 +334,15 @@ export function verifyReviewTrail(trail, options = {}) {
   const recordedAt = assertDateTime(trail.recordedAt, "recordedAt");
 
   validateRoute(trail.route);
-  const evidenceIds = validateEvidence(trail.evidence, trail.head, recordedAt, root);
+  const { evidenceIds, bindingEvidenceCount } = validateEvidence(
+    trail.evidence,
+    trail.head,
+    recordedAt,
+    root
+  );
+  if (trail.episodeStatus !== "IN_PROGRESS" && bindingEvidenceCount < 1) {
+    fail("terminal trail requires at least one binding evidence item");
+  }
   validateFindings(trail.findings, evidenceIds);
 
   const repeatabilityKeys = ["shouldRepeatRoute", "needsMoreRuns", "reason"];
@@ -307,6 +364,7 @@ export function verifyReviewTrail(trail, options = {}) {
     routeDecision: trail.route.decision,
     outcome: trail.outcome.status,
     evidenceCount: trail.evidence.length,
+    bindingEvidenceCount,
     findingCount: Object.values(trail.findings).reduce((total, list) => total + list.length, 0)
   };
 }
