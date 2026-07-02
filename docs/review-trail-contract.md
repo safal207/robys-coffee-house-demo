@@ -18,12 +18,14 @@ It cannot approve a pull request, authorize merge, execute a side effect or weak
 
 ## Files
 
-- `qa/review-trail.schema.json` — closed JSON Schema contract;
+- `qa/review-trail.schema.json` — closed JSON Schema shape;
 - `scripts/record-review-trail.mjs` — deterministic source-to-trail recorder;
 - `scripts/verify-review-trail.mjs` — structural and semantic verifier;
 - `scripts/test-review-trail.mjs` — mutation and replay tests;
 - `qa/fixtures/review-trails/` — source evidence fixtures;
 - `reports/review-trails/` — committed replayable trails.
+
+The JSON Schema defines the serialized shape. The verifier enforces cross-field, filesystem and governance semantics that cannot be trusted to shape validation alone.
 
 ## Exact-head evidence
 
@@ -37,9 +39,17 @@ Every evidence item contains:
 - SHA-256 digest;
 - replayable snapshot metadata.
 
-All evidence heads must equal the trail head. A trail recorded before its latest evidence is invalid.
+All evidence heads must equal the trail head. A trail recorded before its latest evidence is invalid. Every terminal trail requires at least one binding evidence item; a list containing only supporting observations cannot prove a completed outcome.
 
-Repository references use `repo:<path>`. The verifier requires the path to remain inside the repository, requires the file to exist and recomputes its digest. GitHub and manual references preserve a local snapshot whose canonical JSON digest is rechecked offline.
+Repository references use `repo:<path>`. The verifier:
+
+- checks lexical containment inside the repository;
+- resolves the real target and rejects a symlink escape;
+- requires the target to be a regular file;
+- recomputes the file digest;
+- verifies that snapshot `path` and `bytes` match the actual file.
+
+GitHub and manual references preserve a local snapshot whose canonical JSON digest is rechecked offline.
 
 ## Route semantics
 
@@ -47,9 +57,12 @@ A `SELECTED` route must contain:
 
 - route ID and stable route key;
 - ordered stages with contiguous sequence numbers;
+- no escalation reasons;
 - route-selection-only authority.
 
-An `ESCALATE` result cannot claim a selected route, route key or executed stages. It must retain the proposed route and explicit reasons.
+An automatic selected route cannot claim a governance exception. A selected override route must explicitly retain `governanceExceptionRequired: true`.
+
+An `ESCALATE` result cannot claim a selected route, route key, selected-route exception flag or executed stages. It must retain the proposed route and explicit reasons.
 
 ## Episode and outcome
 
@@ -84,6 +97,21 @@ Every finding must reference existing evidence IDs. Finding IDs are unique acros
 - route repeatability set to `false` with `needsMoreRuns: true`.
 
 The CI contract rebuilds this trail from the source fixture and compares it byte-for-byte with the committed artifact.
+
+## Mutation coverage
+
+The contract rejects:
+
+- stale evidence heads;
+- mutated external snapshots;
+- repository path traversal and symlink escapes;
+- falsified repository snapshot path or byte count;
+- terminal trails without binding evidence;
+- findings referencing unknown evidence;
+- selected routes with escalation reasons;
+- override routes missing their governance-exception flag;
+- automatic routes claiming an exception;
+- sequence gaps, impossible outcomes and ungoverned merged escalations.
 
 ## Local verification
 
