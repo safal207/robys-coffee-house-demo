@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const REQUIRED_LEVELS = ["L1", "L2", "L3", "L4"];
 const REQUIRED_FLOORS = {
@@ -8,6 +9,13 @@ const REQUIRED_FLOORS = {
   "workflow-governance": "L3",
   "deploy-sensitive": "L4",
   fallback: "L3"
+};
+const REQUIRED_SIGNAL_FLOORS = {
+  risk: { high: "L3", critical: "L4" },
+  uncertainty: { high: "L3", critical: "L4" },
+  irreversibility: { medium: "L3", high: "L4", critical: "L4" },
+  securityImpact: { medium: "L3", high: "L4", critical: "L4" },
+  evidenceGap: { high: "L3", critical: "L4" }
 };
 
 function fail(message) {
@@ -114,6 +122,14 @@ function validatePolicy(policy) {
       if (!levelMap.has(levelId)) fail(`${signal}.${value} uses unknown level ${levelId}`);
     }
   }
+  for (const [signal, floors] of Object.entries(REQUIRED_SIGNAL_FLOORS)) {
+    for (const [value, minimumLevelId] of Object.entries(floors)) {
+      const actualLevelId = policy.signalFloors[signal]?.[value];
+      if (!levelMap.has(actualLevelId) || levelMap.get(actualLevelId).rank < levelMap.get(minimumLevelId).rank) {
+        fail(`signal floor ${signal}.${value} cannot be lower than ${minimumLevelId}`);
+      }
+    }
+  }
 
   return { levelMap };
 }
@@ -200,9 +216,11 @@ function main() {
   process.stdout.write(rendered);
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error.message);
-  process.exitCode = 1;
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    main();
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
 }
