@@ -55,12 +55,18 @@ expectSuccess("valid proof graph");
 expectFailure("stage skipping", "proof stage skip", (graph) => {
   graph.edges.find((edge) => edge.from === "CHECK-TRACE" && edge.to === "CHALLENGE-MUTATION").to = "REVIEW-CODEX";
 });
-expectFailure("orphan proof node", "outside a complete proof path", (graph) => {
+expectFailure("orphan proof node", "outside a complete binding proof path", (graph) => {
   graph.nodes.push({ id: "ARTIFACT-ORPHAN", kind: "artifact", depth: 1, label: "orphan", origin: "observed" });
+});
+expectFailure("reviewer policy reduction", "minimumIndependentReviewers must be exactly 3", (graph) => {
+  graph.policy.minimumIndependentReviewers = 2;
 });
 expectFailure("insufficient reviewer independence", "independent reviewers", (graph) => {
   graph.nodes.find((node) => node.id === "REVIEW-DEEPSEEK").independenceKey = "coderabbit";
   graph.nodes.find((node) => node.id === "REVIEW-CODEX").independenceKey = "coderabbit";
+});
+expectFailure("advisory-only completion", "lacks binding proof stage disposition", (graph) => {
+  for (const edge of graph.edges.filter((item) => item.to === "DISPOSITION-LEDGER")) edge.authority = "advisory";
 });
 expectFailure("stale binding", "must be exact-head bound", (graph) => {
   delete graph.nodes.find((node) => node.id === "REVIEW-CODEX").freshness;
@@ -68,8 +74,11 @@ expectFailure("stale binding", "must be exact-head bound", (graph) => {
 expectFailure("inferred binding authority", "inferred knowledge cannot grant binding authority", (graph) => {
   graph.nodes.find((node) => node.id === "DISPOSITION-LEDGER").origin = "inferred";
 });
-expectFailure("missing proof seal", "has no proof seal", (graph) => {
+expectFailure("missing proof seal", "has no binding proof seal", (graph) => {
   graph.edges.find((edge) => edge.relation === "sealed-by").relation = "resolved-by";
+});
+expectFailure("advisory proof seal", "has no binding proof seal", (graph) => {
+  graph.edges.find((edge) => edge.relation === "sealed-by").authority = "advisory";
 });
 expectFailure("back edge", "proof stage skip", (graph) => {
   graph.edges.push({ from: "DECISION-PROOF-SEAL", to: "CLAIM-READY", relation: "advises", authority: "advisory" });
@@ -77,4 +86,4 @@ expectFailure("back edge", "proof stage skip", (graph) => {
 expectPathFailure("absolute graph path", "graph path must be repository-relative", (root) => path.join(root, "graph.json"));
 expectPathFailure("graph path escape", "graph path escapes repository root", () => "../outside-graph.json");
 
-console.log("✅ PDG-001 mutation tests passed: depth, reachability, independence, freshness, inferred authority, proof seal and graph path containment.");
+console.log("✅ PDG-001 mutation tests passed: three-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
