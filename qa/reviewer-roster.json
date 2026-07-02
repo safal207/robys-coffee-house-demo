@@ -1,0 +1,114 @@
+{
+  "contract": "RRM-ROSTER-001",
+  "version": 1,
+  "allowedStatuses": [
+    "AVAILABLE",
+    "PAUSED",
+    "QUOTA_EXHAUSTED",
+    "NO_BALANCE",
+    "NOT_CONFIGURED",
+    "TIMED_OUT",
+    "UNKNOWN"
+  ],
+  "bindingRequirements": {
+    "L1": {
+      "minimumAvailable": 1,
+      "requiresHuman": false
+    },
+    "L2": {
+      "minimumAvailable": 2,
+      "requiresHuman": false
+    },
+    "L3": {
+      "minimumAvailable": 2,
+      "requiresHuman": false
+    },
+    "L4": {
+      "minimumAvailable": 2,
+      "requiresHuman": true
+    }
+  },
+  "nonNegotiablePolicy": {
+    "minimumBindingByDepth": {
+      "L1": 1,
+      "L2": 2,
+      "L3": 2,
+      "L4": 2
+    },
+    "humanRequiredDepths": [
+      "L4"
+    ],
+    "advisoryReviewers": [
+      "deepseek"
+    ]
+  },
+  "reviewers": [
+    {
+      "id": "coderabbit",
+      "label": "CodeRabbit",
+      "kind": "ai",
+      "binding": true,
+      "advisory": false,
+      "eligibleDepths": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "roles": [
+        "draft_reviewer",
+        "risk_critic"
+      ],
+      "defaultStatus": "UNKNOWN"
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "kind": "ai",
+      "binding": true,
+      "advisory": false,
+      "eligibleDepths": [
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "roles": [
+        "evidence_verifier",
+        "risk_critic"
+      ],
+      "defaultStatus": "UNKNOWN"
+    },
+    {
+      "id": "human-maintainer",
+      "label": "Human maintainer",
+      "kind": "human",
+      "binding": true,
+      "advisory": false,
+      "eligibleDepths": [
+        "L3",
+        "L4"
+      ],
+      "roles": [
+        "operator",
+        "authorization_owner"
+      ],
+      "defaultStatus": "UNKNOWN"
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek",
+      "kind": "ai",
+      "binding": false,
+      "advisory": true,
+      "eligibleDepths": [
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "roles": [
+        "advisory_reviewer"
+      ],
+      "defaultStatus": "UNKNOWN"
+    }
+  ]
+}

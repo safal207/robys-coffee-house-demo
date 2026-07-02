@@ -1,0 +1,126 @@
+{
+  "contract": "RRM-DEPTH-001",
+  "version": 1,
+  "defaultLevel": "L3",
+  "levels": [
+    {
+      "id": "L1",
+      "rank": 1,
+      "label": "Low-risk reversible change",
+      "minimumBindingReviewers": 1
+    },
+    {
+      "id": "L2",
+      "rank": 2,
+      "label": "Product or runtime behavior change",
+      "minimumBindingReviewers": 2
+    },
+    {
+      "id": "L3",
+      "rank": 3,
+      "label": "Workflow, security or governance change",
+      "minimumBindingReviewers": 2
+    },
+    {
+      "id": "L4",
+      "rank": 4,
+      "label": "Sensitive or potentially irreversible action",
+      "minimumBindingReviewers": 2
+    }
+  ],
+  "nonNegotiableFloors": {
+    "documentation-only": "L1",
+    "product-runtime": "L2",
+    "workflow-governance": "L3",
+    "deploy-sensitive": "L4",
+    "fallback": "L3"
+  },
+  "pathRules": [
+    {
+      "id": "deploy-sensitive",
+      "priority": 400,
+      "level": "L4",
+      "reason": "Deploy, release, credentials, permissions and migration paths require human-authorized depth.",
+      "patterns": [
+        "^\\.github/workflows/(?:deploy|release|publish)[^/]*\\.ya?ml$",
+        "^infra/",
+        "(^|/)migrations?/",
+        "(^|/)(?:secrets?|credentials?|permissions?)(?:/|\\.|$)"
+      ]
+    },
+    {
+      "id": "workflow-governance",
+      "priority": 300,
+      "level": "L3",
+      "reason": "Workflow, security, QA and governance contracts require the full proof path.",
+      "patterns": [
+        "^\\.github/workflows/",
+        "^qa/",
+        "^scripts/(?:verify|test|render|scan|audit|update|evaluate|probe)-",
+        "^package(?:-lock)?\\.json$",
+        "^docs/(?:proof|governance|security|architecture)"
+      ]
+    },
+    {
+      "id": "product-runtime",
+      "priority": 200,
+      "level": "L2",
+      "reason": "Customer-visible or runtime behavior requires mutation coverage and two reviewers.",
+      "patterns": [
+        "^src/",
+        "^(?:app|pwa|sw|android-download)\\.(?:js|mjs|cjs|ts)$",
+        "\\.(?:js|mjs|cjs|ts|tsx|jsx|html|css)$"
+      ]
+    },
+    {
+      "id": "documentation-only",
+      "priority": 100,
+      "level": "L1",
+      "reason": "Documentation and plain-text changes are reversible and low risk.",
+      "patterns": [
+        "^docs/",
+        "\\.(?:md|txt)$"
+      ]
+    },
+    {
+      "id": "fallback",
+      "priority": 0,
+      "level": "L3",
+      "reason": "Unknown change classes fail closed to governance depth.",
+      "patterns": [
+        ".*"
+      ]
+    }
+  ],
+  "allowedSignalValues": [
+    "none",
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ],
+  "signalFloors": {
+    "risk": {
+      "high": "L3",
+      "critical": "L4"
+    },
+    "uncertainty": {
+      "high": "L3",
+      "critical": "L4"
+    },
+    "irreversibility": {
+      "medium": "L3",
+      "high": "L4",
+      "critical": "L4"
+    },
+    "securityImpact": {
+      "medium": "L3",
+      "high": "L4",
+      "critical": "L4"
+    },
+    "evidenceGap": {
+      "high": "L3",
+      "critical": "L4"
+    }
+  }
+}

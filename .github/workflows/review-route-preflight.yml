@@ -1,0 +1,137 @@
+name: Review route preflight
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      changed_files_json:
+        description: JSON array of repository-relative changed paths
+        required: false
+        default: '["docs/review-route-preflight.md"]'
+      signals_json:
+        description: Optional RRM depth signals as JSON
+        required: false
+        default: '{}'
+
+concurrency:
+  group: review-route-preflight-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  preflight:
+    name: RRM-001 depth and RRM-002 roster
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # Read and execute the exact PR head with a read-only token.
+      pull-requests: read # Read the authoritative paginated PR file list.
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Validate RRM policies
+        run: npm run verify:review-routing
+
+      - name: Run RRM mutation tests
+        run: npm run test:review-routing
+
+      - name: Collect pull request changed paths
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                per_page: 100,
+              },
+            );
+            const pathSet = new Set();
+            for (const file of files) {
+              pathSet.add(file.filename);
+              if (file.status === 'renamed' && file.previous_filename) {
+                pathSet.add(file.previous_filename);
+              }
+            }
+            const paths = [...pathSet];
+            if (paths.length === 0) {
+              core.setFailed('RRM preflight requires at least one changed path.');
+              return;
+            }
+            require('node:fs').writeFileSync(
+              'review-changed-files.json',
+              `${JSON.stringify(paths)}\n`,
+            );
+
+      - name: Collect manual changed paths
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          MANUAL_FILES_JSON: ${{ inputs.changed_files_json || '["docs/review-route-preflight.md"]' }}
+        run: |
+          node <<'NODE'
+          const { writeFileSync } = require('node:fs');
+          const files = JSON.parse(process.env.MANUAL_FILES_JSON);
+          if (!Array.isArray(files) || files.length === 0) {
+            throw new Error('RRM preflight requires at least one changed path.');
+          }
+          writeFileSync('review-changed-files.json', `${JSON.stringify(files)}\n`);
+          NODE
+
+      - name: Evaluate review depth
+        env:
+          SIGNALS_JSON: ${{ inputs.signals_json || '{}' }}
+        run: |
+          node scripts/evaluate-review-depth.mjs \
+            --files-json "$(cat review-changed-files.json)" \
+            --signals-json "${SIGNALS_JSON}" \
+            --output review-depth-result.json
+
+      - name: Build runtime roster input
+        env:
+          CODERABBIT_STATUS: ${{ vars.CODERABBIT_REVIEWER_STATUS || 'UNKNOWN' }}
+          CODEX_STATUS: ${{ vars.CODEX_REVIEWER_STATUS || 'UNKNOWN' }}
+          HUMAN_STATUS: ${{ vars.HUMAN_REVIEWER_STATUS || 'UNKNOWN' }}
+          DEEPSEEK_STATUS: ${{ vars.DEEPSEEK_REVIEWER_STATUS || 'UNKNOWN' }}
+        run: |
+          node <<'NODE'
+          const { writeFileSync } = require('node:fs');
+          const statuses = {
+            coderabbit: process.env.CODERABBIT_STATUS,
+            codex: process.env.CODEX_STATUS,
+            'human-maintainer': process.env.HUMAN_STATUS,
+            deepseek: process.env.DEEPSEEK_STATUS,
+          };
+          writeFileSync('reviewer-statuses.json', `${JSON.stringify(statuses)}\n`);
+          NODE
+
+      - name: Probe reviewer runtime readiness
+        run: |
+          depth="$(node -e "const fs=require('node:fs');process.stdout.write(JSON.parse(fs.readFileSync('review-depth-result.json','utf8')).depth)")"
+          node scripts/probe-reviewer-roster.mjs \
+            --depth "${depth}" \
+            --statuses-json "$(cat reviewer-statuses.json)" \
+            --output reviewer-roster-result.json
+
+      - name: Publish preflight summary
+        run: |
+          node scripts/render-review-route-preflight-summary.mjs \
+            --depth-result review-depth-result.json \
+            --roster-result reviewer-roster-result.json
