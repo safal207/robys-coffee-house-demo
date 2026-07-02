@@ -103,15 +103,11 @@ jobs:
               exit 1
             fi
           fi
-          existing_id="$ (
-            :
-          )"
-          existing_id="$ (
+          existing_id="$(
             gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- deepseek-pr-review -->"))) | .id' \
               | tail -n 1
           )"
-          existing_id="${existing_id# }"
           if [ -n "${existing_id}" ]; then
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
               --input "${COMMENT_FILE}"
