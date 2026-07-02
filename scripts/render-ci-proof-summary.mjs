@@ -21,7 +21,7 @@ const stages = [
   { depth: "D1", label: "Artifacts", detail: "Manifests, code and state graphs", defaultStatus: "success" },
   { depth: "D2", label: "Executable checks", detail: "TRACE-001 and PDG-001 validators", defaultStatus: "success" },
   { depth: "D3", label: "Mutation challenge", detail: "Broken evidence must fail", defaultStatus: "success" },
-  { depth: "D4", label: "Independent AI review", detail: "Codex + CodeRabbit + DeepSeek", defaultStatus: "waiting" },
+  { depth: "D4", label: "Independent AI review", detail: "Codex + CodeRabbit", defaultStatus: "waiting" },
   { depth: "D5", label: "Disposition ledger", detail: "Every current-head finding classified", defaultStatus: "waiting" },
   { depth: "D6", label: "Proof Seal", detail: "Maintainer exact-head Verified Episode", defaultStatus: "waiting" }
 ];
