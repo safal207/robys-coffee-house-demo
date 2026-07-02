@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 const LEVELS = ["L1", "L2", "L3", "L4"];
 const REQUIRED_STATUSES = [
@@ -116,8 +117,16 @@ function validateRoster(roster) {
       fail(`${reviewerId} must remain advisory-only`);
     }
   }
-  for (const depth of roster.nonNegotiablePolicy.humanRequiredDepths) {
-    if (!roster.reviewers.some((reviewer) => reviewer.kind === "human" && reviewer.binding && reviewer.eligibleDepths.includes(depth))) {
+
+  for (const depth of LEVELS) {
+    const eligibleBinding = roster.reviewers.filter(
+      (reviewer) => reviewer.binding && reviewer.eligibleDepths.includes(depth)
+    );
+    const requirement = roster.bindingRequirements[depth];
+    if (eligibleBinding.length < requirement.minimumAvailable) {
+      fail(`${depth} has only ${eligibleBinding.length} eligible binding reviewers for minimum ${requirement.minimumAvailable}`);
+    }
+    if (requirement.requiresHuman && !eligibleBinding.some((reviewer) => reviewer.kind === "human")) {
       fail(`${depth} requires an eligible binding human reviewer`);
     }
   }
@@ -199,9 +208,11 @@ function main() {
   process.stdout.write(rendered);
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error.message);
-  process.exitCode = 1;
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    main();
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
 }
