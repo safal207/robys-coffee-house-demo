@@ -58,12 +58,11 @@ expectFailure("stage skipping", "proof stage skip", (graph) => {
 expectFailure("orphan proof node", "outside a complete binding proof path", (graph) => {
   graph.nodes.push({ id: "ARTIFACT-ORPHAN", kind: "artifact", depth: 1, label: "orphan", origin: "observed" });
 });
-expectFailure("reviewer policy reduction", "minimumIndependentReviewers must be exactly 3", (graph) => {
-  graph.policy.minimumIndependentReviewers = 2;
+expectFailure("reviewer policy reduction", "minimumIndependentReviewers must be exactly 2", (graph) => {
+  graph.policy.minimumIndependentReviewers = 1;
 });
 expectFailure("insufficient reviewer independence", "independent reviewers", (graph) => {
-  graph.nodes.find((node) => node.id === "REVIEW-DEEPSEEK").independenceKey = "coderabbit";
-  graph.nodes.find((node) => node.id === "REVIEW-CODEX").independenceKey = "coderabbit";
+  graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").independenceKey = "codex";
 });
 expectFailure("advisory-only completion", "lacks binding proof stage disposition", (graph) => {
   for (const edge of graph.edges.filter((item) => item.to === "DISPOSITION-LEDGER")) edge.authority = "advisory";
@@ -86,4 +85,4 @@ expectFailure("back edge", "proof stage skip", (graph) => {
 expectPathFailure("absolute graph path", "graph path must be repository-relative", (root) => path.join(root, "graph.json"));
 expectPathFailure("graph path escape", "graph path escapes repository root", () => "../outside-graph.json");
 
-console.log("✅ PDG-001 mutation tests passed: three-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
+console.log("✅ PDG-001 mutation tests passed: two-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
