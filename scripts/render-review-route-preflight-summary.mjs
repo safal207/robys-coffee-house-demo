@@ -32,8 +32,8 @@ function escapeCell(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll("|", "&#124;")
-    .replace(/[
-]+/g, " ");
+    .replaceAll("\r", " ")
+    .replaceAll("\n", " ");
 }
 
 const args = parseArgs(process.argv.slice(2));
