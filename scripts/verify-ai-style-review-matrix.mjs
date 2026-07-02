@@ -121,7 +121,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to the current head", aiWorkflow.includes("currentHead") && aiWorkflow.includes("Reviewed commit")]
+  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("currentHead") && aiWorkflow.includes("commit_id") && aiWorkflow.includes("bodyNamesHead") && aiWorkflow.includes("latestCodexRequestAt") && aiWorkflow.includes("latestDeepSeekRequestAt")]
 ]);
 
 const report = {
