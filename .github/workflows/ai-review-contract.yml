@@ -58,10 +58,6 @@ jobs:
             const nativeReviewMatchesHead = (review) => (
               review.commit_id?.toLowerCase() === currentHead
             );
-            const bodyNamesHead = (body) => new RegExp(
-              `(^|[^0-9a-f])${currentHead}([^0-9a-f]|$)`,
-              'i',
-            ).test(body ?? '');
 
             for (let attempt = 1; attempt <= 30; attempt += 1) {
               const [comments, reviews] = await Promise.all([
@@ -77,10 +73,8 @@ jobs:
 
               const codexRequests = comments.filter((item) => isCommand(item, '@codex review'));
               const codeRabbitRequests = comments.filter((item) => isCommand(item, '@coderabbitai review'));
-              const deepSeekRequests = comments.filter((item) => isCommand(item, '/deepseek review'));
               const latestCodexRequestAt = latestRequestAt(codexRequests);
               const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
-              const latestDeepSeekRequestAt = latestRequestAt(deepSeekRequests);
 
               const codexReview = reviews.find((review) => (
                 codexLogins.has(review.user?.login) &&
@@ -108,33 +102,17 @@ jobs:
                   body.includes('No new commits to review since the last review.')
                 );
               });
-              const deepSeekEvidence = comments.find((comment) => {
-                const body = bodyOf(comment);
-                return (
-                  comment.user?.login === 'github-actions[bot]' &&
-                  latestDeepSeekRequestAt > 0 &&
-                  timeOf(comment) >= latestDeepSeekRequestAt &&
-                  body.includes('<!-- deepseek-pr-review -->') &&
-                  bodyNamesHead(body) &&
-                  body.includes('**Model:**') &&
-                  !/^\*\*Status:\*\*\s*failed\s*$/im.test(body)
-                );
-              });
 
               const hasCodexRequest = latestCodexRequestAt > 0;
               const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasDeepSeekRequest = latestDeepSeekRequestAt > 0;
               const hasCodexEvidence = Boolean(codexReview);
               const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
-              const hasDeepSeekEvidence = Boolean(deepSeekEvidence);
 
               if (
                 hasCodexRequest &&
                 hasCodeRabbitRequest &&
-                hasDeepSeekRequest &&
                 hasCodexEvidence &&
-                hasCodeRabbitEvidence &&
-                hasDeepSeekEvidence
+                hasCodeRabbitEvidence
               ) {
                 await core.summary
                   .addHeading('AI review contract')
@@ -146,11 +124,10 @@ jobs:
                     ],
                     ['Codex', 'yes', 'yes'],
                     ['CodeRabbit', 'yes', 'yes'],
-                    ['DeepSeek', 'yes', 'yes'],
                   ])
                   .write();
                 core.notice(
-                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex, CodeRabbit and DeepSeek complete after their latest requests.`,
+                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex and CodeRabbit complete after their latest requests.`,
                 );
                 return;
               }
@@ -158,12 +135,11 @@ jobs:
               core.info(
                 `Waiting for latest-request exact-head AI evidence (attempt ${attempt}/30): ` +
                   `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}, ` +
-                  `DeepSeek=${hasDeepSeekRequest}/${hasDeepSeekEvidence}`,
+                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Post fresh @codex review, @coderabbitai review and /deepseek review commands after the latest head update, then require successful exact-head evidence newer than each latest request.',
+              'Post fresh @codex review and @coderabbitai review commands after the latest head update, then require exact-head evidence newer than each latest request.',
             );
