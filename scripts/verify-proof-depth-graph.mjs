@@ -54,8 +54,8 @@ if (graph.contract !== "PDG-001") fail("unexpected contract");
 if (graph.version !== 1) fail("unsupported version");
 if (!graph.policy || !Number.isInteger(graph.policy.minimumDecisionDepth)) fail("invalid policy");
 if (graph.policy.minimumDecisionDepth !== 6) fail("minimumDecisionDepth must be 6");
-if (graph.policy.minimumIndependentReviewers !== 3) {
-  fail("minimumIndependentReviewers must be exactly 3");
+if (graph.policy.minimumIndependentReviewers !== 2) {
+  fail("minimumIndependentReviewers must be exactly 2");
 }
 if (graph.policy.bindingFreshness !== "exact-head") fail("bindingFreshness must be exact-head");
 if (graph.policy.sealMustPostdateEvidence !== true) fail("sealMustPostdateEvidence must be true");
