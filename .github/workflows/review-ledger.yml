@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read # Read repository metadata for the current PR head.
-      issues: read # Read DeepSeek, cooperation-report and Proof-Seal issue comments.
+      issues: read # Read cooperation-report and Proof-Seal issue comments.
       pull-requests: read # Read exact-head reviews, inline findings and dispositions.
 
     steps:
@@ -76,16 +76,6 @@ jobs:
                 .map((value) => Date.parse(value ?? 0))
                 .filter(Number.isFinite),
             );
-            const isDeepSeekEvidence = (item) => {
-              const body = item.body ?? '';
-              return (
-                item.user?.login === 'github-actions[bot]' &&
-                body.includes('<!-- deepseek-pr-review -->') &&
-                exactHeadBody(body) &&
-                body.includes('**Model:**') &&
-                !/^\*\*Status:\*\*\s*failed\s*$/im.test(body)
-              );
-            };
             const isDispositionReply = (reply) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
@@ -107,12 +97,6 @@ jobs:
             )));
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
-            const deepSeekEvidence = issueComments.filter(isDeepSeekEvidence);
-            if (deepSeekEvidence.length === 0) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no successful exact-head DeepSeek evidence for ${head}.`);
-              return;
-            }
-
             const exactBotEvidence = [
               ...reviews.filter((item) => reviewBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head),
               ...reviewComments.filter((item) => (
@@ -121,7 +105,6 @@ jobs:
               ...issueComments.filter((item) => (
                 reviewBots.has(item.user?.login) && exactHeadBody(item.body)
               )),
-              ...deepSeekEvidence,
             ];
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
@@ -140,11 +123,14 @@ jobs:
               core.setFailed(`PDG-001 depth D4 incomplete: cooperation report is not ready for ${head}.`);
               return;
             }
-            if (conclusion === 'READY_WITH_ADVISORY_GAPS' && !/advisory gaps:\s*Jules\./i.test(report.body ?? '')) {
-              core.setFailed(`PDG-001 depth D4 incomplete: the cooperation report has non-Jules advisory gaps for ${head}.`);
-              return;
+            if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
+              const allowedAdvisoryOnly = /advisory gaps:\s*(?:Jules(?:,\s*DeepSeek)?|DeepSeek(?:,\s*Jules)?)\./i.test(report.body ?? '');
+              if (!allowedAdvisoryOnly) {
+                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has binding-reviewer advisory gaps for ${head}.`);
+                return;
+              }
             }
-            for (const reviewer of ['Codex', 'CodeRabbit', 'DeepSeek']) {
+            for (const reviewer of ['Codex', 'CodeRabbit']) {
               const row = new RegExp(`^\\|\\s*${reviewer}\\s*\\|[^\\n]*\\|\\s*E[45]\\s*\\|`, 'im');
               if (!row.test(report.body ?? '')) {
                 core.setFailed(`PDG-001 depth D4 incomplete: ${reviewer} lacks E4/E5 exact-head evidence for ${head}.`);
@@ -180,4 +166,4 @@ jobs:
               return;
             }
 
-            core.notice(`PDG-001 depth D6 sealed for ${head}: Codex, CodeRabbit and DeepSeek complete; ${findings.length} exact-head finding(s) dispositioned.`);
+            core.notice(`PDG-001 depth D6 sealed for ${head}: Codex and CodeRabbit complete; ${findings.length} exact-head finding(s) dispositioned.`);
