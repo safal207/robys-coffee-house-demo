@@ -51,6 +51,8 @@ jobs:
       - name: Fetch current PR input
         run: |
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          head_repo="$(jq -r '.head.repo.full_name' "${PR_JSON_FILE}")"
+          test "${head_repo}" = "${REPOSITORY}"
           gh api -H 'Accept: application/vnd.github.v3.diff' \
             "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${DIFF_FILE}"
 
