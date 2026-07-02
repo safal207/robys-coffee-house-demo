@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 const LEVELS = ["L1", "L2", "L3", "L4"];
 const REQUIRED_STATUSES = [
   "AVAILABLE",
+  "PARTIAL",
   "PAUSED",
   "QUOTA_EXHAUSTED",
   "NO_BALANCE",
@@ -164,6 +165,7 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
   const requirement = roster.bindingRequirements[depth];
   const availableBinding = reviewers.filter((reviewer) => reviewer.countsTowardBinding);
   const availableAdvisory = reviewers.filter((reviewer) => reviewer.availableAdvisory);
+  const partialReviewers = reviewers.filter((reviewer) => reviewer.status === "PARTIAL");
   const humanSatisfied = !requirement.requiresHuman || availableBinding.some((reviewer) => reviewer.kind === "human");
   const capacitySatisfied = availableBinding.length >= requirement.minimumAvailable;
   const decision = capacitySatisfied && humanSatisfied ? "READY" : "ESCALATE";
@@ -180,6 +182,8 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     requiredBindingReviewers: requirement.minimumAvailable,
     availableBindingReviewers: availableBinding.map((reviewer) => reviewer.id),
     availableAdvisoryReviewers: availableAdvisory.map((reviewer) => reviewer.id),
+    partialReviewers: partialReviewers.map((reviewer) => reviewer.id),
+    runtimeWarnings: partialReviewers.map((reviewer) => `PARTIAL_REVIEWER_${reviewer.id}`),
     requiresHuman: requirement.requiresHuman,
     humanSatisfied,
     reasons,
