@@ -1,4 +1,11 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { recordReviewTrail } from "./record-review-trail.mjs";
@@ -25,7 +32,12 @@ if (`${JSON.stringify(generated, null, 2)}\n` !== readFileSync(EXPECTED_PATH, "u
   throw new Error("committed PR-152 trail does not match deterministic recorder output");
 }
 const result = verifyReviewTrail(EXPECTED, { root: ROOT, schema: SCHEMA });
-if (!result.valid || result.outcome !== "MERGED" || result.routeDecision !== "ESCALATE") {
+if (
+  !result.valid
+  || result.outcome !== "MERGED"
+  || result.routeDecision !== "ESCALATE"
+  || result.bindingEvidenceCount < 1
+) {
   throw new Error(`unexpected valid trail result: ${JSON.stringify(result)}`);
 }
 
@@ -38,6 +50,12 @@ expectFailure("stale evidence head", "bound to a stale head", () => {
 expectFailure("snapshot digest mutation", "snapshot digest mismatch", () => {
   const changed = structuredClone(EXPECTED);
   changed.evidence.find((item) => item.id === "codex-runtime").snapshot.status = "AVAILABLE";
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+expectFailure("terminal trail without binding evidence", "requires at least one binding evidence", () => {
+  const changed = structuredClone(EXPECTED);
+  for (const evidence of changed.evidence) evidence.authority = "supporting";
   verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
@@ -95,10 +113,61 @@ expectFailure("repository path escape", "escapes root", () => {
       authority: "supporting"
     });
     writeFileSync(path.join(directory, "outside.json"), "{}\n");
-    recordReviewTrail(changed, { root: directory, schemaPath: path.join(ROOT, "qa/review-trail.schema.json") });
+    recordReviewTrail(changed, {
+      root: directory,
+      schemaPath: path.join(ROOT, "qa/review-trail.schema.json")
+    });
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+});
+
+expectFailure("repository symlink escape", "resolves outside root", () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "rrm-trail-link-"));
+  const repositoryRoot = path.join(directory, "repository");
+  try {
+    mkdirSync(repositoryRoot);
+    const outsidePath = path.join(directory, "outside.json");
+    writeFileSync(outsidePath, "{}\n");
+    symlinkSync(outsidePath, path.join(repositoryRoot, "linked.json"));
+    const changed = structuredClone(SOURCE);
+    changed.evidence.push({
+      id: "symlink-repository-file",
+      kind: "repository",
+      ref: "repo:linked.json",
+      observedAt: "2026-07-02T12:30:00Z",
+      authority: "supporting"
+    });
+    recordReviewTrail(changed, {
+      root: repositoryRoot,
+      schemaPath: path.join(ROOT, "qa/review-trail.schema.json")
+    });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+const repositorySource = structuredClone(SOURCE);
+repositorySource.evidence.push({
+  id: "repository-package",
+  kind: "repository",
+  ref: "repo:package.json",
+  observedAt: "2026-07-02T12:30:00Z",
+  authority: "supporting"
+});
+const repositoryTrail = recordReviewTrail(repositorySource, { root: ROOT });
+verifyReviewTrail(repositoryTrail, { root: ROOT, schema: SCHEMA });
+
+expectFailure("repository snapshot path mutation", "snapshot path mismatch", () => {
+  const changed = structuredClone(repositoryTrail);
+  changed.evidence.find((item) => item.id === "repository-package").snapshot.path = "other.json";
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+expectFailure("repository snapshot byte mutation", "snapshot bytes mismatch", () => {
+  const changed = structuredClone(repositoryTrail);
+  changed.evidence.find((item) => item.id === "repository-package").snapshot.bytes += 1;
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
 const selected = structuredClone(EXPECTED);
@@ -126,4 +195,23 @@ expectFailure("route sequence gap", "sequence must be contiguous", () => {
   verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
-console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, exact-head evidence, terminal outcomes, escalation governance and route ordering.");
+expectFailure("selected route escalation reasons", "cannot contain escalation reasons", () => {
+  const changed = structuredClone(selected);
+  changed.route.reasons = ["SHOULD_NOT_EXIST"];
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+expectFailure("override route without exception flag", "must require a governance exception", () => {
+  const changed = structuredClone(selected);
+  changed.route.selectionMode = "override";
+  changed.route.governanceExceptionRequired = false;
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+expectFailure("automatic route with exception flag", "cannot require a governance exception", () => {
+  const changed = structuredClone(selected);
+  changed.route.governanceExceptionRequired = true;
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, real-path containment, exact repository snapshots, binding evidence, route governance and terminal outcomes.");
