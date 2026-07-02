@@ -79,8 +79,8 @@ jobs:
           permissions = workflow.fetch('permissions')
           expected = {
             'contents' => 'read',
-            'issues' => 'write',
-            'pull-requests' => 'read',
+            'issues' => 'read',
+            'pull-requests' => 'write',
           }
           raise "unexpected permissions: #{permissions.inspect}" unless permissions == expected
           RUBY
