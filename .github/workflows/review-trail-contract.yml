@@ -1,0 +1,80 @@
+name: Cognitive review trail contract
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: review-trail-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  trail-contract:
+    name: RRM-004 exact-head trail
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify committed review trail
+        run: npm run verify:review-trail
+
+      - name: Run trail mutation tests
+        run: npm run test:review-trail
+
+      - name: Rebuild trail from source evidence
+        run: |
+          mkdir -p trail-artifact
+          node scripts/record-review-trail.mjs \
+            --source qa/fixtures/review-trails/pr-152-source.json \
+            --output trail-artifact/PR-152@c11f1721673b.json
+          cmp \
+            trail-artifact/PR-152@c11f1721673b.json \
+            reports/review-trails/PR-152@c11f1721673b.json
+
+      - name: Publish trail summary
+        run: |
+          node <<'NODE'
+          const { appendFileSync, readFileSync } = require('node:fs');
+          const trail = JSON.parse(readFileSync('reports/review-trails/PR-152@c11f1721673b.json', 'utf8'));
+          const summary = [
+            '# Cognitive Review Trail — RRM-004',
+            '',
+            `**Trail:** ${trail.trailId}  `,
+            `**Head:** \`${trail.head}\`  `,
+            `**Depth:** ${trail.depth}  `,
+            `**Route decision:** ${trail.route.decision}  `,
+            `**Outcome:** ${trail.outcome.status}  `,
+            `**Evidence items:** ${trail.evidence.length}  `,
+            `**Needs more runs:** ${trail.repeatability.needsMoreRuns ? 'yes' : 'no'}`,
+            '',
+            '> Trail evidence records what happened. It does not grant review, merge or action authority.',
+          ].join('\n');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
+          NODE
+
+      - name: Upload rebuilt trail
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
+        with:
+          name: cognitive-review-trail-${{ github.event.pull_request.head.sha || github.sha }}
+          path: trail-artifact/PR-152@c11f1721673b.json
+          if-no-files-found: error
+          retention-days: 30
