@@ -41,11 +41,15 @@ function setupClicks() {
         const parsedUrl = new URL(href, window.location.href);
         const host = (parsedUrl.hostname || "").toLowerCase();
         const path = parsedUrl.pathname || "";
+        const isHttp = parsedUrl.protocol === "https:" || parsedUrl.protocol === "http:";
+        const isGoogleHost = host === "google.com" || host.endsWith(".google.com");
+        const isInstagramHost = host === "instagram.com" || host.endsWith(".instagram.com");
+        const isMapsPath = path === "/maps" || path.startsWith("/maps/");
 
-        if ((host === "google.com" || host.endsWith(".google.com")) && path.startsWith("/maps")) {
+        if (isHttp && isGoogleHost && isMapsPath) {
           track("route_click", { placement: placementFor(link) });
         }
-        if (host === "instagram.com" || host.endsWith(".instagram.com")) {
+        if (isHttp && isInstagramHost) {
           track("instagram_click", { placement: placementFor(link) });
         }
       } catch (_) {
