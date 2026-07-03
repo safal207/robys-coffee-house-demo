@@ -234,6 +234,10 @@ function validateEvidence(evidence, trailHead, recordedAt, root) {
     } else {
       if (item.kind === "github" && !GITHUB_REF_PATTERN.test(item.ref)) fail(`${item.id} has invalid GitHub ref`);
       if (item.kind === "manual" && !MANUAL_REF_PATTERN.test(item.ref)) fail(`${item.id} has invalid manual ref`);
+      assertObject(item.snapshot, `${item.id}.snapshot`);
+      if ("head" in item.snapshot && item.snapshot.head !== trailHead) {
+        fail(`${item.id} snapshot is bound to a stale head`);
+      }
       if (item.digest !== digestSnapshot(item.snapshot)) fail(`${item.id} snapshot digest mismatch`);
     }
   }
