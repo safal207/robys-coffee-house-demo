@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
-const source = readFileSync("analytics.js", "utf8");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const source = readFileSync(join(scriptDir, "..", "analytics.js"), "utf8");
 const windowListeners = new Map();
 const documentListeners = new Map();
 
