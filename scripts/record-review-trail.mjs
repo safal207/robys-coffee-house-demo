@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -35,6 +35,47 @@ function readJson(filePath, label) {
 
 function assertObject(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object`);
+}
+
+function isOutsideRoot(root, target) {
+  const relative = path.relative(root, target);
+  return relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
+}
+
+export function resolveContainedPath(root, userPath, options = {}) {
+  const label = options.label || "path";
+  const mustExist = options.mustExist === true;
+  const lexicalRoot = path.resolve(root);
+  const lexicalTarget = path.resolve(lexicalRoot, userPath);
+  if (isOutsideRoot(lexicalRoot, lexicalTarget)) {
+    fail(`${label} escapes root`);
+  }
+
+  const realRoot = realpathSync(lexicalRoot);
+  if (existsSync(lexicalTarget)) {
+    const realTarget = realpathSync(lexicalTarget);
+    if (isOutsideRoot(realRoot, realTarget)) {
+      fail(`${label} resolves outside root`);
+    }
+    if (!statSync(realTarget).isFile()) {
+      fail(`${label} must be a regular file`);
+    }
+    return realTarget;
+  }
+
+  if (mustExist) {
+    fail(`${label} does not exist`);
+  }
+
+  const lexicalParent = path.dirname(lexicalTarget);
+  if (!existsSync(lexicalParent)) {
+    fail(`${label} parent does not exist`);
+  }
+  const realParent = realpathSync(lexicalParent);
+  if (isOutsideRoot(realRoot, realParent)) {
+    fail(`${label} parent resolves outside root`);
+  }
+  return path.join(realParent, path.basename(lexicalTarget));
 }
 
 function digestFile(filePath) {
@@ -153,8 +194,8 @@ function main() {
   const sourceArg = args.get("--source");
   const outputArg = args.get("--output");
   if (!sourceArg || !outputArg) fail("expected --source and --output arguments");
-  const sourcePath = path.resolve(root, sourceArg);
-  const outputPath = path.resolve(root, outputArg);
+  const sourcePath = resolveContainedPath(root, sourceArg, { label: "source path", mustExist: true });
+  const outputPath = resolveContainedPath(root, outputArg, { label: "output path" });
   const source = readJson(sourcePath, "review trail source");
   const trail = recordReviewTrail(source, { root });
   writeFileSync(outputPath, `${JSON.stringify(trail, null, 2)}\n`);
