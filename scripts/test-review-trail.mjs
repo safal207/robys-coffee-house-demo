@@ -9,7 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { recordReviewTrail } from "./record-review-trail.mjs";
-import { verifyReviewTrail } from "./verify-review-trail.mjs";
+import { digestSnapshot, verifyReviewTrail } from "./verify-review-trail.mjs";
 
 const ROOT = process.cwd();
 const SOURCE = JSON.parse(readFileSync("qa/fixtures/review-trails/pr-152-source.json", "utf8"));
@@ -41,9 +41,23 @@ if (
   throw new Error(`unexpected valid trail result: ${JSON.stringify(result)}`);
 }
 
+expectFailure("route result without head", "must be bound to source head", () => {
+  const changed = structuredClone(SOURCE);
+  delete changed.routeResult.head;
+  recordReviewTrail(changed, { root: ROOT });
+});
+
 expectFailure("stale evidence head", "bound to a stale head", () => {
   const changed = structuredClone(EXPECTED);
   changed.evidence[0].head = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
+});
+
+expectFailure("stale embedded snapshot head", "snapshot is bound to a stale head", () => {
+  const changed = structuredClone(EXPECTED);
+  const evidence = changed.evidence.find((item) => item.id === "rrm-preflight");
+  evidence.snapshot.head = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  evidence.digest = digestSnapshot(evidence.snapshot);
   verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
@@ -214,4 +228,4 @@ expectFailure("automatic route with exception flag", "cannot require a governanc
   verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
-console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, real-path containment, exact repository snapshots, binding evidence, route governance and terminal outcomes.");
+console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, exact-head snapshots and routes, real-path containment, exact repository snapshots, binding evidence, route governance and terminal outcomes.");
