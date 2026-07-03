@@ -1,0 +1,29 @@
+name: Analytics destination boundaries
+
+on:
+  pull_request:
+    paths:
+      - analytics.js
+      - scripts/verify-analytics-destination-boundaries.mjs
+      - .github/workflows/analytics-destination-boundaries.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.4.1
+
+      - name: Verify analytics destination boundaries
+        run: node scripts/verify-analytics-destination-boundaries.mjs
