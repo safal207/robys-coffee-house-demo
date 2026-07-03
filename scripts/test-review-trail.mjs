@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { recordReviewTrail } from "./record-review-trail.mjs";
+import { recordReviewTrail, resolveContainedPath } from "./record-review-trail.mjs";
 import { digestSnapshot, verifyReviewTrail } from "./verify-review-trail.mjs";
 
 const ROOT = process.cwd();
@@ -113,6 +113,46 @@ expectFailure("weakened schema", "schema contract changed", () => {
   const changedSchema = structuredClone(SCHEMA);
   changedSchema.properties.contract.const = "RRM-TRAIL-000";
   verifyReviewTrail(EXPECTED, { root: ROOT, schema: changedSchema });
+});
+
+expectFailure("recorder output path escape", "output path escapes root", () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "rrm-trail-output-"));
+  try {
+    resolveContainedPath(directory, "../outside.json", { label: "output path" });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+expectFailure("recorder source symlink escape", "source path resolves outside root", () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "rrm-trail-source-link-"));
+  const repositoryRoot = path.join(directory, "repository");
+  try {
+    mkdirSync(repositoryRoot);
+    const outsidePath = path.join(directory, "outside.json");
+    writeFileSync(outsidePath, "{}\n");
+    symlinkSync(outsidePath, path.join(repositoryRoot, "source.json"));
+    resolveContainedPath(repositoryRoot, "source.json", {
+      label: "source path",
+      mustExist: true
+    });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+expectFailure("recorder output parent symlink escape", "output path parent resolves outside root", () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "rrm-trail-output-link-"));
+  const repositoryRoot = path.join(directory, "repository");
+  const outsideDirectory = path.join(directory, "outside");
+  try {
+    mkdirSync(repositoryRoot);
+    mkdirSync(outsideDirectory);
+    symlinkSync(outsideDirectory, path.join(repositoryRoot, "linked"));
+    resolveContainedPath(repositoryRoot, "linked/trail.json", { label: "output path" });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 expectFailure("repository path escape", "escapes root", () => {
@@ -228,4 +268,4 @@ expectFailure("automatic route with exception flag", "cannot require a governanc
   verifyReviewTrail(changed, { root: ROOT, schema: SCHEMA });
 });
 
-console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, exact-head snapshots and routes, real-path containment, exact repository snapshots, binding evidence, route governance and terminal outcomes.");
+console.log("✅ RRM-TRAIL-001 mutation tests passed: deterministic recording, exact-head snapshots and routes, CLI and repository real-path containment, exact repository snapshots, binding evidence, route governance and terminal outcomes.");
