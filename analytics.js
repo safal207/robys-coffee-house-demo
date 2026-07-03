@@ -37,8 +37,24 @@ function setupClicks() {
     const link = event.target.closest("a");
     if (link) {
       const href = link.href || "";
-      if (href.includes("google.com/maps")) track("route_click", { placement: placementFor(link) });
-      if (href.includes("instagram.com")) track("instagram_click", { placement: placementFor(link) });
+      try {
+        const parsedUrl = new URL(href, window.location.href);
+        const host = (parsedUrl.hostname || "").toLowerCase();
+        const path = parsedUrl.pathname || "";
+        const isHttp = parsedUrl.protocol === "https:" || parsedUrl.protocol === "http:";
+        const isGoogleHost = host === "google.com" || host.endsWith(".google.com");
+        const isInstagramHost = host === "instagram.com" || host.endsWith(".instagram.com");
+        const isMapsPath = path === "/maps" || path.startsWith("/maps/");
+
+        if (isHttp && isGoogleHost && isMapsPath) {
+          track("route_click", { placement: placementFor(link) });
+        }
+        if (isHttp && isInstagramHost) {
+          track("instagram_click", { placement: placementFor(link) });
+        }
+      } catch (_) {
+        // Ignore invalid URLs.
+      }
     }
 
     const languageButton = event.target.closest(".lang-button");
