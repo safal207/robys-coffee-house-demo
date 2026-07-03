@@ -122,7 +122,7 @@ export function recordReviewTrail(source, options = {}) {
   if (!HEAD_PATTERN.test(source.head || "")) fail("source head must be an exact lowercase SHA");
   if (!Number.isInteger(source.prNumber) || source.prNumber < 1) fail("source prNumber must be positive");
   if (source.depthResult?.contract !== "RRM-DEPTH-001") fail("source depthResult has unexpected contract");
-  if (source.routeResult?.head && source.routeResult.head !== source.head) fail("source routeResult is bound to another head");
+  if (source.routeResult?.head !== source.head) fail("source routeResult must be bound to source head");
   if (source.routeResult?.depth !== source.depthResult.depth) fail("source route and depth disagree");
 
   const trail = {
