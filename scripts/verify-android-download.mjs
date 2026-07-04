@@ -1,3 +1,4 @@
+import "./test-brand-wordmark.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 
