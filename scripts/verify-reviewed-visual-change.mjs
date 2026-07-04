@@ -76,27 +76,65 @@ function expectedFailureMatches(expected, actual) {
     && actual.diffPixelRatio <= expected.maxDiffPixelRatio;
 }
 
-function expectedFailureSetMatches(change) {
-  const expected = change.expectedFailures ?? [];
-  if (expected.length !== failures.length) return false;
+function findCompleteFailureMatch(expected, actual) {
+  if (expected.length !== actual.length) return null;
 
-  const unmatched = [...failures];
-  for (const item of expected) {
-    const index = unmatched.findIndex((failure) => expectedFailureMatches(item, failure));
-    if (index < 0) return false;
-    unmatched.splice(index, 1);
+  const used = new Array(actual.length).fill(false);
+  const assignment = new Array(expected.length).fill(-1);
+
+  function tryMatch(expectedIndex) {
+    if (expectedIndex === expected.length) return true;
+
+    for (let actualIndex = 0; actualIndex < actual.length; actualIndex += 1) {
+      if (used[actualIndex]) continue;
+      if (!expectedFailureMatches(expected[expectedIndex], actual[actualIndex])) continue;
+
+      used[actualIndex] = true;
+      assignment[expectedIndex] = actualIndex;
+      if (tryMatch(expectedIndex + 1)) return true;
+      assignment[expectedIndex] = -1;
+      used[actualIndex] = false;
+    }
+
+    return false;
   }
 
-  return unmatched.length === 0;
+  return tryMatch(0) ? assignment : null;
 }
 
-const candidates = reviewedChanges
-  .filter(bindingsMatch)
-  .filter(expectedFailureSetMatches);
+function expectedFailureSetMatches(change) {
+  return findCompleteFailureMatch(change.expectedFailures ?? [], failures) !== null;
+}
+
+function describeActual(failure) {
+  const metric = Number.isFinite(failure.diffPixelRatio)
+    ? `diff=${failure.diffPixelRatio}`
+    : `reason=${failure.reason ?? "unknown"}`;
+  return `${failure.id}/${failure.viewport}(${metric})`;
+}
+
+function describeExpected(expected) {
+  const metric = typeof expected.reason === "string"
+    ? `reason=${expected.reason}`
+    : Number.isFinite(expected.totalPixels)
+      ? `pixels=${expected.totalPixels}`
+      : `maxDiff=${expected.maxDiffPixelRatio}`;
+  return `${expected.capture}/${expected.viewport}(${metric})`;
+}
+
+const boundChanges = reviewedChanges.filter(bindingsMatch);
+const candidates = boundChanges.filter(expectedFailureSetMatches);
 if (candidates.length !== 1) {
+  const actualDetails = failures.map(describeActual).join(", ");
+  const approvalDetails = boundChanges.length > 0
+    ? boundChanges
+      .map((change) => `${change.id}: ${(change.expectedFailures ?? []).map(describeExpected).join(", ") || "no expected failures"}`)
+      .join(" | ")
+    : "no content-bound approvals";
+
   fail(
-    `Expected exactly one content-bound reviewed change matching all ${failures.length} failure(s), `
-      + `found ${candidates.length}.`
+    `Expected exactly one content-bound reviewed change matching all ${failures.length} failure(s), found ${candidates.length}. `
+      + `Actual failures: ${actualDetails}. Bound approvals: ${approvalDetails}.`
   );
 }
 
