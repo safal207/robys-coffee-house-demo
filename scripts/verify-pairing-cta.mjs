@@ -1,3 +1,4 @@
+import "./verify-pairing-cta-static.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
