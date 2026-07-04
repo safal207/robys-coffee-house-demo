@@ -76,34 +76,32 @@ function expectedFailureMatches(expected, actual) {
     && actual.diffPixelRatio <= expected.maxDiffPixelRatio;
 }
 
+function expectedFailureSetMatches(change) {
+  const expected = change.expectedFailures ?? [];
+  if (expected.length !== failures.length) return false;
+
+  const unmatched = [...failures];
+  for (const item of expected) {
+    const index = unmatched.findIndex((failure) => expectedFailureMatches(item, failure));
+    if (index < 0) return false;
+    unmatched.splice(index, 1);
+  }
+
+  return unmatched.length === 0;
+}
+
 const candidates = reviewedChanges
   .filter(bindingsMatch)
-  .filter((change) => (change.expectedFailures ?? []).length === failures.length);
+  .filter(expectedFailureSetMatches);
 if (candidates.length !== 1) {
   fail(
-    `Expected exactly one content-bound reviewed change for ${failures.length} failure(s), `
+    `Expected exactly one content-bound reviewed change matching all ${failures.length} failure(s), `
       + `found ${candidates.length}.`
   );
 }
 
 const change = candidates[0];
 const expected = change.expectedFailures ?? [];
-
-const unmatched = [...failures];
-for (const item of expected) {
-  const index = unmatched.findIndex((failure) => expectedFailureMatches(item, failure));
-  if (index < 0) {
-    fail(
-      `Reviewed change ${change.id} does not match ${item.capture}/${item.viewport}. `
-        + `Inspect ${summaryPath}.`
-    );
-  }
-  unmatched.splice(index, 1);
-}
-
-if (unmatched.length > 0) {
-  fail(`Reviewed change ${change.id} left ${unmatched.length} unexpected failure(s).`);
-}
 
 console.log(`✅ VISUAL-001 reviewed change accepted: ${change.id}`);
 console.log(`   Evidence: ${change.reviewUrl}`);
