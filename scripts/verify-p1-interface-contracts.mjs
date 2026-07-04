@@ -54,7 +54,8 @@ for (const breakpoint of [980, 680, 390]) {
 assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero viewport handling changed");
 assert(conversionCss.includes("grid-template-columns:1fr 1fr"), "MOBILE-001", "Mobile CTA must keep two columns");
 assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-area support changed");
-assert(conversionCss.includes("padding-bottom:calc(70px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
+assert(conversionCss.includes("body{padding-bottom:0}"), "MOBILE-001", "Body must not reserve stale fixed-dock spacing");
+assert(conversionCss.includes(".site-footer{padding-bottom:calc(98px + env(safe-area-inset-bottom))}"), "MOBILE-001", "Footer must reserve safe-area space for the fixed CTA dock");
 assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
