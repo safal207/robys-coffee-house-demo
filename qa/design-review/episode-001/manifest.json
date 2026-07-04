@@ -17,20 +17,29 @@
     "observedIdentity": {
       "wordmark": "ROBY'S COFFEE HOUSE",
       "tagline": "Fresh Coffee Point",
-      "symbolDescription": "large red circular ring with an asymmetric white negative-space opening"
+      "symbolDescription": "large red circular ring with an asymmetric white negative-space opening",
+      "accentObservation": "the O in ROBY'S is rendered in red on the photographed takeaway cup"
     },
     "realWorldEvidence": [
       {
         "evidenceId": "ROBYS-CUP-PHOTO-001",
+        "context": "coffee-cup",
         "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
-        "observation": "A close-up takeaway cup shows the operational wordmark, tagline, red ring symbol, and robyscoffeehouse handle.",
-        "authoritativeMasterAsset": false
+        "sourceImage": "https://ak-d.tripcdn.com/images/1mi5x424x98sif4bpE0AD_W_640_0_R5_Q80.jpg?proc=source%2Ftrip",
+        "retrievedOn": "2026-07-04",
+        "observation": "A close-up takeaway cup shows the operational wordmark, tagline, red ring symbol, red O accent, and robyscoffeehouse handle.",
+        "authoritativeMasterAsset": false,
+        "licenseStatus": "third-party-public-reference-only-not-cleared-for-republication"
       },
       {
         "evidenceId": "ROBYS-STOREFRONT-PHOTO-001",
+        "context": "storefront-signage",
         "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
-        "observation": "The storefront glass shows the same circular identity in live use.",
-        "authoritativeMasterAsset": false
+        "sourceImage": "https://ak-d.tripcdn.com/images/1mi46424x98sgqkwnE7C8_W_640_0_R5_Q80.jpg?proc=source%2Ftrip",
+        "retrievedOn": "2026-07-04",
+        "observation": "The storefront glass shows the same circular identity and coffee-house wording in live use.",
+        "authoritativeMasterAsset": false,
+        "licenseStatus": "third-party-public-reference-only-not-cleared-for-republication"
       }
     ],
     "repositoryPlaceholders": [
@@ -43,7 +52,8 @@
         "sha256": "fe3b147e8ba2668769b61acd33eed5f0bf04190d25026aa8500faa9031527462",
         "byteLength": 761
       }
-    ]
+    ],
+    "authoritativeSourceArtifacts": []
   },
   "blindProtocol": {
     "candidateLabels": ["candidate-amber", "candidate-cobalt", "candidate-ivory"],
@@ -81,7 +91,7 @@
     "revealed": false
   },
   "blockingReasons": [
-    "The official master logo file has not been obtained from the owner or official brand source.",
+    "The official master logo file has not been obtained from the owner or an official brand source.",
     "Three frozen anonymized candidate packages are not attached.",
     "Equal-context mockups are not attached for every required context.",
     "The randomized source-role mapping has not been sealed.",
