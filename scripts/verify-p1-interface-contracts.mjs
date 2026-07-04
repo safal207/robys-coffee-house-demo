@@ -54,7 +54,8 @@ for (const breakpoint of [980, 680, 390]) {
 assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero viewport handling changed");
 assert(conversionCss.includes("grid-template-columns:1fr 1fr"), "MOBILE-001", "Mobile CTA must keep two columns");
 assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-area support changed");
-assert(conversionCss.includes("padding-bottom:calc(70px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
+assert(conversionCss.includes("body{padding-bottom:0}"), "MOBILE-001", "Body must not reserve stale fixed-dock spacing");
+assert(conversionCss.includes(".site-footer{padding-bottom:calc(98px + env(safe-area-inset-bottom))}"), "MOBILE-001", "Footer must reserve safe-area space for the fixed CTA dock");
 assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
@@ -94,8 +95,13 @@ assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
 assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
 assert(routeUrls.every((url) => url.endsWith("&travelmode=driving")), "CTA-001", "Route CTAs must open driving navigation");
 const instagramUrls = hrefs(allHtml, "https://www\\.instagram\\.com/");
+const instagramProfile = "https://www.instagram.com/robyscoffeehouse/";
+const curatedInstagramReel = "https://www.instagram.com/reel/C0qYxxmIY9t/";
+const allowedInstagramUrls = new Set([instagramProfile, curatedInstagramReel]);
 assert(instagramUrls.length >= 3, "CTA-001", `Expected Instagram CTAs, found ${instagramUrls.length}`);
-assert(instagramUrls.every((url) => url === "https://www.instagram.com/robyscoffeehouse/"), "CTA-001", "Wrong Instagram destination");
+assert(instagramUrls.filter((url) => url === instagramProfile).length >= 3, "CTA-001", "Official profile CTAs disappeared");
+assert(instagramUrls.filter((url) => url === curatedInstagramReel).length === 1, "CTA-001", "Curated Reel route changed");
+assert(instagramUrls.every((url) => allowedInstagramUrls.has(url)), "CTA-001", "Unapproved Instagram destination");
 for (const tag of Array.from(allHtml.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0])) {
   assert(/rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(tag), "CTA-001", "Unsafe external link");
 }
@@ -143,7 +149,7 @@ const criticalFiles = [
   "menu-search-clear.js",
   "hero-balance.css",
   "src/robys-hero-poster.jpg",
-  "src/robys-hero-mobile-lite.mp4",
+  "src/robys-ambience-clean.mp4",
   "src/menu-icons/hot.svg",
   "src/menu-icons/cold.svg",
   "src/menu-icons/tea.svg",
@@ -155,7 +161,7 @@ criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
 assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
-assert(qaRuntime.includes('HERO_VIDEO = "src/robys-hero-mobile-lite.mp4'), "ASSET-001", "Hero asset changed");
+assert(qaRuntime.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4'), "ASSET-001", "Hero asset changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
 gate("ASSET-001");

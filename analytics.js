@@ -1,6 +1,7 @@
 const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const eventBuffer = [];
+let visitAttributionPromise = null;
 
 function placementFor(node) {
   if (node.closest(".mobile-cta")) return "mobile_dock";
@@ -26,18 +27,59 @@ function track(action, details = {}) {
   document.dispatchEvent(new CustomEvent("robys:analytics", { detail: payload }));
 }
 
+function loadVisitAttribution() {
+  if (window.robysVisitAttribution) {
+    return Promise.resolve(window.robysVisitAttribution);
+  }
+  if (visitAttributionPromise) return visitAttributionPromise;
+
+  visitAttributionPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "visit-attribution.js?v=20260704-1";
+    script.async = true;
+    script.addEventListener("load", () => {
+      if (window.robysVisitAttribution) resolve(window.robysVisitAttribution);
+      else reject(new Error("Visit attribution API unavailable"));
+    }, { once: true });
+    script.addEventListener("error", () => {
+      visitAttributionPromise = null;
+      reject(new Error("Visit attribution runtime failed to load"));
+    }, { once: true });
+    document.head.append(script);
+  });
+
+  return visitAttributionPromise;
+}
+
 window.robysAnalytics = {
   track,
   events: () => [...eventBuffer],
   clear: () => { eventBuffer.length = 0; }
 };
+window.robysLoadVisitAttribution = loadVisitAttribution;
 
 function setupClicks() {
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a");
     if (link) {
       const href = link.href || "";
-      if (href.includes("google.com/maps")) track("route_click", { placement: placementFor(link) });
+      if (href.includes("google.com/maps")) {
+        const placement = placementFor(link);
+        track("route_click", { placement });
+        void loadVisitAttribution()
+          .then((api) => {
+            const result = api.recordVisitIntent(placement);
+            track("visit_intent_created", {
+              placement,
+              campaign_token: result.intent.campaignToken,
+              measurement_plan_ref: api.contract.measurementPlanRef,
+              persisted: result.persisted
+            });
+          })
+          .catch(() => {
+            track("visit_intent_unavailable", { placement });
+          });
+      }
       if (href.includes("instagram.com")) track("instagram_click", { placement: placementFor(link) });
     }
 

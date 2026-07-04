@@ -1,0 +1,10 @@
+[
+  {
+    "orderId": "ord_robys_0001",
+    "orderedAt": "2026-07-04T16:30:00+03:00",
+    "campaignToken": "rv_0thnis0abcdefghijklm",
+    "grossRevenue": "300.00",
+    "currency": "TRY",
+    "variableCost": "140.00"
+  }
+]

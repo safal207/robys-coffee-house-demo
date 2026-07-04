@@ -1,0 +1,41 @@
+name: Prepare lazy attribution manifest
+
+on:
+  push:
+    branches: [feat/visit-attribution-v0]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --check analytics.js
+      - run: node --check visit-attribution.js
+      - run: node --check scripts/build-baseline-from-pos.mjs
+      - run: npm run verify:visit-attribution
+      - run: npm run test:visit-attribution
+      - run: npm run test:visit-baseline
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run integrity:generate
+      - run: npm run check
+      - name: Commit generated manifest
+        if: github.event_name == 'push'
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then exit 0; fi
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add integrity-manifest.json
+          git commit -m "chore: regenerate integrity manifest [skip ci]"
+          git push
