@@ -20,6 +20,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Test AI review evidence classifier
+        run: node scripts/test-classify-ai-review-evidence.cjs
+
       - name: Wait for current-head AI review evidence
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
