@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "robys-compact-wordmark-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/164#pullrequestreview-4630105278",
+      "contentBindings": {
+        "styles.css": "ac45df2e2a84e090428984d76987713ead9e28ed",
+        "menu.css": "d0cbf568d4113d99b6c53ebb573f91d382a52a6e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.01
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.0102
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.006
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.0032
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "maxDiffPixelRatio": 0.0035
+        },
+        {
+          "capture": "hero",
+          "viewport": "laptop-1366",
+          "maxDiffPixelRatio": 0.0038
+        }
+      ]
+    }
+  ]
+}
