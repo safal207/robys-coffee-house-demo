@@ -59,18 +59,20 @@ const runCase = async ({ association = "OWNER", reviews = [] }) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ai-review-auth-"));
   const resultPath = path.join(directory, "result.json");
 
-  await classify({
-    github,
-    context,
-    core,
-    pollAttempts: 1,
-    pollIntervalMs: 0,
-    resultPath,
-    headCommittedAt: HEAD_AT,
-  });
-  const result = JSON.parse(fs.readFileSync(resultPath, "utf8"));
-  fs.rmSync(directory, { recursive: true, force: true });
-  return result;
+  try {
+    await classify({
+      github,
+      context,
+      core,
+      pollAttempts: 1,
+      pollIntervalMs: 0,
+      resultPath,
+      headCommittedAt: HEAD_AT,
+    });
+    return JSON.parse(fs.readFileSync(resultPath, "utf8"));
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 };
 
 (async () => {
