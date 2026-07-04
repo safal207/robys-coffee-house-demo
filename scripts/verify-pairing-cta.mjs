@@ -64,20 +64,17 @@ function verifyAnalyticsBehavior() {
   clickHandler({ target: cta });
 
   assert.equal(window.dataLayer.length, 1, "one CTA click must emit exactly one analytics payload");
-  assert.deepEqual(
-    window.dataLayer[0],
-    {
-      event: "robys_action",
-      action: "pairing_click",
-      language: "en",
-      path: "/index.html",
-      placement: "hero"
-    },
-    "pairing CTA analytics payload changed"
-  );
+  const payload = window.dataLayer[0];
+  assert.equal(payload.event, "robys_action");
+  assert.equal(payload.action, "pairing_click");
+  assert.equal(payload.language, "en");
+  assert.equal(payload.path, "/index.html");
+  assert.equal(payload.placement, "hero");
+  assert.equal(Object.keys(payload).length, 5, "pairing CTA payload contains unexpected fields");
+
   assert.equal(dispatchedEvents.length, 1, "one CTA click must dispatch exactly one analytics event");
   assert.equal(dispatchedEvents[0].type, "robys:analytics");
-  assert.deepEqual(dispatchedEvents[0].detail, window.dataLayer[0]);
+  assert.equal(dispatchedEvents[0].detail, payload, "dataLayer and CustomEvent must share the same payload");
 }
 
 verifyAnalyticsBehavior();
