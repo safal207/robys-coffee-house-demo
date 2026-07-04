@@ -23,6 +23,10 @@ for (const marker of [
   'document.createElement("dialog")',
   "window.robysVisitAttribution",
   "buildBaselineBundle",
+  "normalizePosOrder",
+  "contains missing or unknown fields",
+  "OFFSET_DATE_TIME_RE",
+  "MONEY_RE",
   "campaign_token: intent.campaignToken"
 ]) {
   assert(source.includes(marker), `Missing required contract marker: ${marker}`);
