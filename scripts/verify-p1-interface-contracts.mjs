@@ -149,7 +149,7 @@ const criticalFiles = [
   "menu-search-clear.js",
   "hero-balance.css",
   "src/robys-hero-poster.jpg",
-  "src/robys-hero-mobile-lite.mp4",
+  "src/robys-ambience-clean.mp4",
   "src/menu-icons/hot.svg",
   "src/menu-icons/cold.svg",
   "src/menu-icons/tea.svg",
@@ -161,7 +161,7 @@ criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
 assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
-assert(qaRuntime.includes('HERO_VIDEO = "src/robys-hero-mobile-lite.mp4'), "ASSET-001", "Hero asset changed");
+assert(qaRuntime.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4'), "ASSET-001", "Hero asset changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
 gate("ASSET-001");
