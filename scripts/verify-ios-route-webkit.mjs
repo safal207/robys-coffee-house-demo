@@ -32,7 +32,13 @@ async function verifyPage(pathname, minimumRouteLinks) {
   const localUrl = new URL(pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
 
-  const routeLinks = page.locator(`a[href^="${routePrefix}"]`);
+  if (pathname === "index.html") {
+  const heroPrimary = page.locator(".hero-actions .button-primary");
+  assert.equal(await heroPrimary.getAttribute("href"), "menu.html#pairing-offers", "hero primary CTA must route to pairing offers");
+  assert.equal(await heroPrimary.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
+}
+
+const routeLinks = page.locator(`a[href^="${routePrefix}"]`);
   const count = await routeLinks.count();
   assert.ok(count >= minimumRouteLinks, `${pathname}: expected at least ${minimumRouteLinks} route links, found ${count}`);
 
@@ -76,7 +82,7 @@ async function verifyPage(pathname, minimumRouteLinks) {
 }
 
 try {
-  await verifyPage("index.html", 4);
+  await verifyPage("index.html", 3);
   await verifyPage("menu.html", 1);
 
   await writeFile(
@@ -85,7 +91,7 @@ try {
     "utf8"
   );
 
-  console.log("✅ iOS WebKit route gate passed: every route CTA opens a non-blank Google Maps driving route.");
+  console.log("✅ iOS WebKit route gate passed: hero opens pairing offers and every retained route CTA opens a non-blank Google Maps driving route.");
 } finally {
   await context.close();
   await browser.close();
