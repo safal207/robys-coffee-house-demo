@@ -76,34 +76,37 @@ function expectedFailureMatches(expected, actual) {
     && actual.diffPixelRatio <= expected.maxDiffPixelRatio;
 }
 
-function findCompleteFailureMatch(expected, actual) {
-  if (expected.length !== actual.length) return null;
-
-  const used = new Array(actual.length).fill(false);
-  const assignment = new Array(expected.length).fill(-1);
-
-  function tryMatch(expectedIndex) {
-    if (expectedIndex === expected.length) return true;
-
-    for (let actualIndex = 0; actualIndex < actual.length; actualIndex += 1) {
-      if (used[actualIndex]) continue;
-      if (!expectedFailureMatches(expected[expectedIndex], actual[actualIndex])) continue;
-
-      used[actualIndex] = true;
-      assignment[expectedIndex] = actualIndex;
-      if (tryMatch(expectedIndex + 1)) return true;
-      assignment[expectedIndex] = -1;
-      used[actualIndex] = false;
-    }
-
-    return false;
-  }
-
-  return tryMatch(0) ? assignment : null;
+function failureKey(capture, viewport) {
+  return `${capture}\u0000${viewport}`;
 }
 
+function indexFailures(items, captureField, label) {
+  const indexed = new Map();
+  for (const item of items) {
+    const key = failureKey(item[captureField], item.viewport);
+    if (indexed.has(key)) {
+      fail(`${label} contains duplicate capture/viewport key: ${item[captureField]}/${item.viewport}`);
+    }
+    indexed.set(key, item);
+  }
+  return indexed;
+}
+
+const actualFailuresByKey = indexFailures(failures, "id", "Visual summary");
+
 function expectedFailureSetMatches(change) {
-  return findCompleteFailureMatch(change.expectedFailures ?? [], failures) !== null;
+  const expected = change.expectedFailures ?? [];
+  if (expected.length !== failures.length) return false;
+
+  const expectedByKey = indexFailures(expected, "capture", `Reviewed change ${change.id}`);
+  if (expectedByKey.size !== actualFailuresByKey.size) return false;
+
+  for (const [key, expectedFailure] of expectedByKey) {
+    const actualFailure = actualFailuresByKey.get(key);
+    if (!actualFailure || !expectedFailureMatches(expectedFailure, actualFailure)) return false;
+  }
+
+  return true;
 }
 
 function describeActual(failure) {
