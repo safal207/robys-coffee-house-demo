@@ -15,6 +15,9 @@ const VISIT_ATTRIBUTION = Object.freeze({
 const VISIT_TOKEN_RE = /^rv_[a-z0-9]{20}$/;
 const VISIT_EVENT_RE = /^wev_[a-z0-9]{16}$/;
 const RANDOM_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
+const POS_ORDER_ID_RE = /^ord_[a-z0-9][a-z0-9_-]{2,63}$/;
+const MONEY_RE = /^(?:0|[1-9][0-9]*)(?:\.[0-9]{1,2})?$/;
+const OFFSET_DATE_TIME_RE = /(?:Z|[+-][0-9]{2}:[0-9]{2})$/;
 
 function placementFor(node) {
   if (node.closest(".mobile-cta")) return "mobile_dock";
@@ -215,6 +218,53 @@ function baselineRunId() {
   return `ATTRRUN-ROBYS-BASELINE-${new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14)}`;
 }
 
+function normalizePosOrder(order, index) {
+  if (!order || typeof order !== "object" || Array.isArray(order)) {
+    throw new TypeError(`posOrders[${index}] must be an object`);
+  }
+  const fields = [
+    "campaignToken",
+    "currency",
+    "grossRevenue",
+    "orderId",
+    "orderedAt",
+    "variableCost"
+  ];
+  if (Object.keys(order).sort().join(",") !== fields.join(",")) {
+    throw new TypeError(`posOrders[${index}] contains missing or unknown fields`);
+  }
+  if (!POS_ORDER_ID_RE.test(order.orderId)) {
+    throw new TypeError(`posOrders[${index}].orderId is invalid`);
+  }
+  if (
+    typeof order.orderedAt !== "string" ||
+    !OFFSET_DATE_TIME_RE.test(order.orderedAt) ||
+    !Number.isFinite(Date.parse(order.orderedAt))
+  ) {
+    throw new TypeError(`posOrders[${index}].orderedAt must be an RFC3339 date-time with offset`);
+  }
+  if (!VISIT_TOKEN_RE.test(order.campaignToken)) {
+    throw new TypeError(`posOrders[${index}].campaignToken is invalid`);
+  }
+  if (order.currency !== VISIT_ATTRIBUTION.currency) {
+    throw new TypeError(`posOrders[${index}].currency must be TRY`);
+  }
+  if (typeof order.grossRevenue !== "string" || !MONEY_RE.test(order.grossRevenue)) {
+    throw new TypeError(`posOrders[${index}].grossRevenue is invalid`);
+  }
+  if (typeof order.variableCost !== "string" || !MONEY_RE.test(order.variableCost)) {
+    throw new TypeError(`posOrders[${index}].variableCost is invalid`);
+  }
+  return {
+    orderId: order.orderId,
+    orderedAt: order.orderedAt,
+    campaignToken: order.campaignToken,
+    grossRevenue: order.grossRevenue,
+    currency: order.currency,
+    variableCost: order.variableCost
+  };
+}
+
 function buildBaselineBundle(posOrders = []) {
   if (!Array.isArray(posOrders)) throw new TypeError("posOrders must be an array");
   return {
@@ -226,7 +276,7 @@ function buildBaselineBundle(posOrders = []) {
     currency: VISIT_ATTRIBUTION.currency,
     attributionWindowHours: VISIT_ATTRIBUTION.attributionWindowHours,
     webEvents: readVisitIntents(),
-    posOrders: posOrders.map((order) => ({ ...order }))
+    posOrders: posOrders.map(normalizePosOrder)
   };
 }
 
