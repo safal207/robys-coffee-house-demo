@@ -7,6 +7,18 @@ const routePrefix = "https://www.google.com/maps/dir/";
 const expectedDestination = "Roby's Coffee House Gazipasa";
 const evidenceDir = "qa-artifacts";
 
+const expectedRouteSelectors = {
+  "index.html": [
+    `.visit-section .visit-actions a[href^="${routePrefix}"]`,
+    `.visit-section .map-live-link[href^="${routePrefix}"]`,
+    `.mobile-cta .mobile-cta-route[href^="${routePrefix}"]`
+  ],
+  "menu.html": [
+    `.menu-share-actions .menu-inline-link[href^="${routePrefix}"]`,
+    `.menu-page-cta-actions .menu-dark-secondary-button[href^="${routePrefix}"]`
+  ]
+};
+
 await mkdir(evidenceDir, { recursive: true });
 
 const browser = await webkit.launch({ headless: true });
@@ -27,14 +39,27 @@ await context.route(`${routePrefix}**`, async (route) => {
 
 const evidence = [];
 
-async function verifyPage(pathname, minimumRouteLinks) {
+async function verifyPage(pathname) {
   const page = await context.newPage();
   const localUrl = new URL(pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
 
+  if (pathname === "index.html") {
+    const heroPrimary = page.locator(".hero-actions .button-primary");
+    assert.equal(await heroPrimary.getAttribute("href"), "menu.html#pairing-offers", "hero primary CTA must route to pairing offers");
+    assert.equal(await heroPrimary.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
+  }
+
+  const selectors = expectedRouteSelectors[pathname];
+  assert.ok(selectors, `${pathname}: no exact route selector contract is defined`);
+
+  for (const selector of selectors) {
+    assert.equal(await page.locator(selector).count(), 1, `${pathname}: expected exactly one route CTA for ${selector}`);
+  }
+
   const routeLinks = page.locator(`a[href^="${routePrefix}"]`);
   const count = await routeLinks.count();
-  assert.ok(count >= minimumRouteLinks, `${pathname}: expected at least ${minimumRouteLinks} route links, found ${count}`);
+  assert.equal(count, selectors.length, `${pathname}: expected exactly ${selectors.length} intended route CTAs, found ${count}`);
 
   const pageEvidence = { pathname, routeLinks: [] };
 
@@ -76,8 +101,8 @@ async function verifyPage(pathname, minimumRouteLinks) {
 }
 
 try {
-  await verifyPage("index.html", 4);
-  await verifyPage("menu.html", 1);
+  await verifyPage("index.html");
+  await verifyPage("menu.html");
 
   await writeFile(
     `${evidenceDir}/ios-route-webkit.json`,
@@ -85,7 +110,7 @@ try {
     "utf8"
   );
 
-  console.log("✅ iOS WebKit route gate passed: every route CTA opens a non-blank Google Maps driving route.");
+  console.log("✅ iOS WebKit route gate passed: hero opens pairing offers and every named route CTA opens a non-blank Google Maps driving route.");
 } finally {
   await context.close();
   await browser.close();

@@ -1,0 +1,1 @@
+{"version":1,"reviewedChanges":[{"id":"hero-pairing-cta-v1","reviewUrl":"https://github.com/safal207/robys-coffee-house-demo/pull/165","contentBindings":{"index.html":"8fd2fcd499f434ec21785817dae6f0160464ec1e"},"expectedFailures":[{"capture":"hero","viewport":"laptop-1366","maxDiffPixelRatio":0.0075},{"capture":"hero","viewport":"desktop-1440","maxDiffPixelRatio":0.0049}]}]}

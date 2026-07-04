@@ -1,4 +1,3 @@
-const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const eventBuffer = [];
 
@@ -37,6 +36,8 @@ function setupClicks() {
     const link = event.target.closest("a");
     if (link) {
       const href = link.href || "";
+      const analyticsAction = link.dataset.analyticsAction;
+      if (analyticsAction) track(analyticsAction, { placement: placementFor(link) });
       if (href.includes("google.com/maps")) track("route_click", { placement: placementFor(link) });
       if (href.includes("instagram.com")) track("instagram_click", { placement: placementFor(link) });
     }
