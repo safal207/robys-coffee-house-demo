@@ -7,13 +7,11 @@ const index = readFileSync("index.html", "utf8");
 const menuData = readFileSync("menu-data.js", "utf8");
 const menuRuntime = readFileSync("menu-page.js", "utf8");
 
-assert.match(analytics, /const pairingCtaCopy = \{[\s\S]*tr: "Bugünün Eşleşmesini Gör"[\s\S]*en: "See Today's Pairing"[\s\S]*ru: "Смотреть сочетание дня"/);
-assert.match(analytics, /cta\.href = "menu\.html#pairing-offers"/);
-assert.match(analytics, /cta\.removeAttribute\("target"\)/);
-assert.match(analytics, /cta\.removeAttribute\("rel"\)/);
-assert.match(analytics, /cta\.dataset\.analyticsAction = "pairing_click"/);
-assert.match(analytics, /track\(analyticsAction, \{ placement: placementFor\(link\) \}\)/);
-assert.match(analytics, /new MutationObserver\(updateHeroPairingCta\)/);
+assert.match(analytics, /const analyticsAction = link\.dataset\.analyticsAction/);
+assert.match(analytics, /if \(analyticsAction\) track\(analyticsAction, \{ placement: placementFor\(link\) \}\)/);
+assert.equal(analytics.includes("pairingCtaCopy"), false, "analytics must not own pairing CTA copy");
+assert.equal(analytics.includes("updateHeroPairingCta"), false, "analytics must not rewrite pairing CTA markup");
+assert.equal(analytics.includes("MutationObserver"), false, "analytics must not duplicate app localization");
 
 const heroActions = index.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1] ?? "";
 assert.match(heroActions, /class="button button-primary"/);
@@ -28,4 +26,4 @@ assert.match(menuRuntime, /document\.querySelector\("\.full-menu-wrap"\)\?\.scro
 assert.match(index, /<section class="section visit-section" id="visit">[\s\S]*google\.com\/maps\/dir\//);
 assert.match(index, /<nav class="mobile-cta"[\s\S]*google\.com\/maps\/dir\//);
 
-console.log("✅ PAIRING-CTA-001: hero routes to the first pairing category, stays localized, emits pairing_click, and preserves route actions lower in the journey.");
+console.log("✅ PAIRING-CTA-001: static hero routes to the first pairing category, app owns localization, analytics emits pairing_click, and route actions remain lower in the journey.");
