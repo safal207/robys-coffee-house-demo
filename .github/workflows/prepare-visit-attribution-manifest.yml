@@ -1,4 +1,4 @@
-name: Prepare visit attribution manifest
+name: Diagnose final regression tail
 
 on:
   push:
@@ -7,40 +7,29 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  prepare:
-    if: github.actor != 'github-actions[bot]'
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - run: npm ci
-      - run: node --check analytics.js
-      - run: node --check scripts/build-baseline-from-pos.mjs
-      - run: npm run verify:visit-attribution
-      - run: npm run test:visit-attribution
-      - run: npm run test:visit-baseline
-      - run: npm run typecheck
       - run: npm run build
       - run: npm run integrity:generate
-      - run: npm run check
-
-      - name: Commit generated manifest
-        if: github.event_name == 'push'
-        run: |
-          if git diff --quiet -- integrity-manifest.json; then
-            echo "Integrity manifest is already current."
-            exit 0
-          fi
-          git config user.name github-actions
-          git config user.email actions@github.com
-          git add integrity-manifest.json
-          git commit -m "chore: regenerate integrity manifest [skip ci]"
-          git push
+      - name: Aggregated regression contracts
+        run: node scripts/verify-regression-contracts.mjs
+      - name: Menu content
+        run: npm run verify:menu-content
+      - name: Instagram tools
+        run: npm run verify:instagram-tools
+      - name: Menu share
+        run: npm run verify:menu-share
+      - name: Integrity
+        run: npm run verify:integrity
+      - name: Adversarial
+        run: npm run verify:adversarial
