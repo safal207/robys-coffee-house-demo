@@ -1,4 +1,4 @@
-name: Diagnose final contract modules
+name: Diagnose aggregate assertion
 on:
   push:
     branches: [feat/visit-attribution-v0]
@@ -10,19 +10,9 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Module one
-        run: node scripts/verify-visual-contract.mjs
-      - name: Module two
-        run: node scripts/verify-performance-contract.mjs
-      - name: Module three
-        run: node scripts/verify-live-contract.mjs
-      - name: Module four
-        run: node scripts/verify-security-contracts.mjs
-      - name: Aggregate
-        run: node scripts/verify-regression-contracts.mjs
+      - shell: bash
+        run: |
+          set -o pipefail
+          git clone -q --depth=1 --branch feat/visit-attribution-v0 https://github.com/safal207/robys-coffee-house-demo.git repo
+          cd repo
+          node scripts/verify-regression-contracts.mjs 2>&1 | tail -n 12
