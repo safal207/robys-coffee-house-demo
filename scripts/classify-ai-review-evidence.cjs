@@ -29,13 +29,20 @@ module.exports = async ({
   ]);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const evidenceAfter = Date.parse(pr.updated_at);
+  const parseTime = (value) => {
+    const parsed = Date.parse(value ?? "");
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const evidenceAfter = parseTime(pr.updated_at);
   const currentHead = pr.head.sha.toLowerCase();
   const timeOf = (item) => Math.max(
-    0,
-    ...[item.submitted_at, item.created_at, item.updated_at]
-      .map((value) => Date.parse(value ?? 0))
-      .filter(Number.isFinite),
+    parseTime(item.submitted_at),
+    parseTime(item.created_at),
+    parseTime(item.updated_at),
+  );
+  const commandCreatedAt = (item) => parseTime(item.created_at);
+  const reviewSubmittedAt = (item) => (
+    parseTime(item.submitted_at) || parseTime(item.created_at)
   );
   const toIso = (timestamp) => (
     timestamp > 0 ? new Date(timestamp).toISOString() : null
@@ -48,11 +55,11 @@ module.exports = async ({
     .filter(Boolean);
   const isCommand = (item, value) => (
     trusted.has(item.author_association) &&
-    timeOf(item) >= evidenceAfter &&
+    commandCreatedAt(item) >= evidenceAfter &&
     commandLinesOf(item).includes(value)
   );
   const latestRequestAt = (requests) => requests.reduce(
-    (latest, request) => Math.max(latest, timeOf(request)),
+    (latest, request) => Math.max(latest, commandCreatedAt(request)),
     0,
   );
   const nativeReviewMatchesHead = (review) => (
@@ -170,7 +177,7 @@ module.exports = async ({
     const codexReview = reviews.find((review) => (
       codexLogins.has(review.user?.login) &&
       nativeReviewMatchesHead(review) &&
-      timeOf(review) >= latestCodexRequestAt
+      reviewSubmittedAt(review) >= latestCodexRequestAt
     ));
     const currentHeadCodeRabbitReview = reviews.find((review) => (
       codeRabbitLogins.has(review.user?.login) &&
@@ -179,7 +186,7 @@ module.exports = async ({
     const codeRabbitReview = reviews.find((review) => (
       codeRabbitLogins.has(review.user?.login) &&
       nativeReviewMatchesHead(review) &&
-      timeOf(review) >= latestCodeRabbitRequestAt
+      reviewSubmittedAt(review) >= latestCodeRabbitRequestAt
     ));
     const codeRabbitStatusComment = comments.find((item) => {
       const body = bodyOf(item);
@@ -215,9 +222,9 @@ module.exports = async ({
       codeRabbitReview,
       currentHeadCodeRabbitReview,
       codeRabbitStatusComment,
-      codexEvidenceAt: timeOf(codexReview ?? {}),
+      codexEvidenceAt: reviewSubmittedAt(codexReview ?? {}),
       codeRabbitEvidenceAt: Math.max(
-        timeOf(codeRabbitReview ?? {}),
+        reviewSubmittedAt(codeRabbitReview ?? {}),
         timeOf(codeRabbitStatusComment ?? {}),
       ),
     };
