@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "robys-attribution-input.v0",
+  "runId": "ATTRRUN-ROBYS-BASELINE-3400FAC61160473F",
+  "mode": "BASELINE",
+  "productRef": "PROD-ROBYS-WEB",
+  "measurementPlanRef": "MPLAN-ROBYS-MENU-TO-VISIT-001",
+  "currency": "TRY",
+  "attributionWindowHours": 24,
+  "webEvents": [
+    {
+      "eventId": "wev_is0abcdefghijklm",
+      "eventName": "visit_intent_created",
+      "occurredAt": "2026-07-04T13:00:00.000Z",
+      "campaignToken": "rv_0thnis0abcdefghijklm"
+    }
+  ],
+  "posOrders": [
+    {
+      "orderId": "ord_robys_0001",
+      "orderedAt": "2026-07-04T16:30:00+03:00",
+      "campaignToken": "rv_0thnis0abcdefghijklm",
+      "grossRevenue": "300.00",
+      "currency": "TRY",
+      "variableCost": "140.00"
+    }
+  ]
+}
