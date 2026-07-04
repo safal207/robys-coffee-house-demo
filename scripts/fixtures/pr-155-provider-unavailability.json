@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pullRequest": 155,
+    "exactHeadSha": "2a68d21270ac88c38f1a92d327945a753d58b029",
+    "observation": "Fresh Codex and CodeRabbit review requests were detected for all 30 polling attempts, but neither provider emitted matching native exact-head review evidence."
+  },
+  "classification": "PROVIDER_EVIDENCE_UNAVAILABLE",
+  "exactHeadSha": "2a68d21270ac88c38f1a92d327945a753d58b029",
+  "providers": {
+    "codex": {
+      "requestDetected": true,
+      "evidenceDetected": false
+    },
+    "codeRabbit": {
+      "requestDetected": true,
+      "evidenceDetected": false
+    }
+  },
+  "authority": {
+    "merge": false,
+    "deploy": false,
+    "routePromotion": false
+  }
+}
