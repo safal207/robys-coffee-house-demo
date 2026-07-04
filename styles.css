@@ -132,7 +132,7 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
 .map-label span{color:var(--muted);font-size:.76rem}
 
 .reveal-item{opacity:0;transform:translateY(28px);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1),box-shadow .3s;transition-delay:var(--reveal-delay,0ms)}
-.reveal-item.is-visible{opacity:1;transform:none}
+.reveal-item.is-visible{opacity:1;transform:translateY(0)}
 .feature-card.is-visible:hover{transform:translateY(-5px);box-shadow:0 20px 48px rgba(36,28,27,.1)}
 .menu-card.is-visible:hover{transform:translateY(-4px);box-shadow:0 20px 54px rgba(0,0,0,.18);border-color:rgba(255,255,255,.22)}
 .map-card.is-visible:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
