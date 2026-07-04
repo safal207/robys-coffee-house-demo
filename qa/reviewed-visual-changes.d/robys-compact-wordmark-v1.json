@@ -6,7 +6,11 @@
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/164#pullrequestreview-4630105278",
       "contentBindings": {
         "styles.css": "3cd3aeff172fd80c1dd7328d60d4b39e03fe97a3",
-        "menu.css": "d0cbf568d4113d99b6c53ebb573f91d382a52a6e"
+        "menu.css": "d0cbf568d4113d99b6c53ebb573f91d382a52a6e",
+        "index.html": "d5841bc5e39767e94be33b4f2ac2223951ab720d",
+        "menu.html": "e4ab52ece3809cadb1b31b6fa15cce4414077de8",
+        "discover-weather-guard.js": "e6291a219153a17c88d950dff541723ddb88e2ff",
+        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
       },
       "expectedFailures": [
         {
