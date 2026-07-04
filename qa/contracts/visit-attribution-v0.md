@@ -9,13 +9,18 @@ This contract connects website route intent to a checkout record without collect
 ## Visitor flow
 
 1. The visitor activates a Google Maps route link on the Roby's website.
-2. The website creates a privacy-safe `campaign_token` matching `^rv_[a-z0-9]{20}$`.
+2. The website creates a privacy-safe `campaignToken` matching `^rv_[a-z0-9]{20}$`.
 3. The route opens normally in a new tab.
 4. The current page displays the full visit code.
 5. The visitor shows the code at checkout.
-6. The cashier records the exact full token in the POS custom field or order note named `campaign_token`.
+6. The cashier records the exact full token in the POS custom field or order note named `campaignToken`.
 
-The token is random and contains no name, email, phone number, device fingerprint, or precise location.
+The token contains no name, email, phone number, device fingerprint, or location. It consists of:
+
+- seven base-36 characters encoding the UTC route-intent second;
+- thirteen cryptographically random base-36 characters.
+
+This lets the offline POS adapter reconstruct the original `visit_intent_created` event from the token alone. The café does not need access to the visitor's browser storage or a tracking server.
 
 ## Required POS export fields
 
@@ -25,10 +30,12 @@ Each exported order must contain exactly the business fields required by LS Attr
 |---|---|---|
 | `orderId` | string | Stable unique order identifier; deduplicate by this field. |
 | `orderedAt` | RFC3339 date-time | Must include timezone offset. |
-| `campaignToken` | string | Exact full `rv_...` token shown by the visitor. |
+| `campaignToken` | string | Exact full self-describing `rv_...` token shown by the visitor. |
 | `grossRevenue` | decimal string | TRY amount, non-negative, maximum two decimal places. |
 | `currency` | string | Must be `TRY`. |
 | `variableCost` | decimal string | Direct variable cost for the order, maximum two decimal places. |
+
+Unknown fields are rejected by the adapter so personal data cannot silently enter the measurement bundle.
 
 ## Manual bridge
 
@@ -36,13 +43,23 @@ Until the POS supports a dedicated custom field, the cashier may enter the full 
 
 Do not shorten, hash, normalize, or partially copy the token. A missing or malformed token must remain unmatched rather than being guessed.
 
-## Baseline bundle
+## Build the baseline bundle
 
-The browser exposes:
+From an exported POS JSON array:
 
-```js
-window.robysVisitAttribution.buildBaselineBundle(posOrders)
+```bash
+node scripts/build-baseline-from-pos.mjs \
+  qa/fixtures/visit-attribution/pos-orders.sample.json \
+  baseline-bundle.json
 ```
+
+The adapter:
+
+1. validates exact POS fields and canonical money;
+2. deduplicates identical orders and rejects conflicting duplicates;
+3. decodes the route-intent timestamp from every token;
+4. reconstructs deterministic web events;
+5. emits an LS-compatible baseline bundle with a content-derived run id.
 
 The returned object is bound to:
 
@@ -53,7 +70,7 @@ The returned object is bound to:
 - currency `TRY`;
 - attribution window `24` hours.
 
-The bundle can be passed directly to the LS Attribution Reference Runtime V0.
+The browser also exposes `window.robysVisitAttribution.buildBaselineBundle(posOrders)` for local QA, but the POS-only adapter is the durable café-side bridge.
 
 ## Privacy boundary
 
@@ -66,4 +83,4 @@ Forbidden in the website event and POS attribution export:
 - precise location;
 - free-form customer profile data.
 
-Only the random campaign token and order economics are required.
+Only the random campaign token, its embedded route-intent second, and order economics are required.
