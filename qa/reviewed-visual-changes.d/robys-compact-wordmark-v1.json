@@ -3,9 +3,10 @@
   "reviewedChanges": [
     {
       "id": "robys-compact-wordmark-v1",
-      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/164#pullrequestreview-4630105278",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/164#issuecomment-4883856475",
       "contentBindings": {
         "styles.css": "3cd3aeff172fd80c1dd7328d60d4b39e03fe97a3",
+        "final-qa.css": "fcdda1c9a2db0c58f2cba697244aeb0b94271d91",
         "menu.css": "d0cbf568d4113d99b6c53ebb573f91d382a52a6e",
         "index.html": "d5841bc5e39767e94be33b4f2ac2223951ab720d",
         "menu.html": "e4ab52ece3809cadb1b31b6fa15cce4414077de8",
