@@ -14,132 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
       - name: Wait for current-head AI review evidence
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const pr = context.payload.pull_request;
-            const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const codexLogins = new Set([
-              'chatgpt-codex-connector[bot]',
-              'chatgpt-codex-connector',
-            ]);
-            const codeRabbitLogins = new Set([
-              'coderabbitai[bot]',
-              'coderabbitai',
-            ]);
-            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const classify = require('./scripts/classify-ai-review-evidence.cjs');
+            await classify({ github, context, core });
 
-            const evidenceAfter = Date.parse(pr.updated_at);
-            const currentHead = pr.head.sha.toLowerCase();
-            const timeOf = (item) => Math.max(
-              0,
-              ...[item.submitted_at, item.created_at, item.updated_at]
-                .map((value) => Date.parse(value ?? 0))
-                .filter(Number.isFinite),
-            );
-            const bodyOf = (item) => (item.body ?? '').trim();
-            const commandLinesOf = (item) => bodyOf(item)
-              .toLowerCase()
-              .split(/\r?\n/)
-              .map((line) => line.trim())
-              .filter(Boolean);
-            const isCommand = (item, value) => (
-              trusted.has(item.author_association) &&
-              timeOf(item) >= evidenceAfter &&
-              commandLinesOf(item).includes(value)
-            );
-            const latestRequestAt = (requests) => requests.reduce(
-              (latest, request) => Math.max(latest, timeOf(request)),
-              0,
-            );
-            const nativeReviewMatchesHead = (review) => (
-              review.commit_id?.toLowerCase() === currentHead
-            );
-
-            for (let attempt = 1; attempt <= 30; attempt += 1) {
-              const [comments, reviews] = await Promise.all([
-                github.paginate(
-                  github.rest.issues.listComments,
-                  { owner, repo, issue_number: pr.number, per_page: 100 },
-                ),
-                github.paginate(
-                  github.rest.pulls.listReviews,
-                  { owner, repo, pull_number: pr.number, per_page: 100 },
-                ),
-              ]);
-
-              const codexRequests = comments.filter((item) => isCommand(item, '@codex review'));
-              const codeRabbitRequests = comments.filter((item) => isCommand(item, '@coderabbitai review'));
-              const latestCodexRequestAt = latestRequestAt(codexRequests);
-              const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
-
-              const codexReview = reviews.find((review) => (
-                codexLogins.has(review.user?.login) &&
-                nativeReviewMatchesHead(review) &&
-                timeOf(review) >= latestCodexRequestAt
-              ));
-              const currentHeadCodeRabbitReview = reviews.find((review) => (
-                codeRabbitLogins.has(review.user?.login) &&
-                nativeReviewMatchesHead(review)
-              ));
-              const codeRabbitReview = reviews.find((review) => (
-                codeRabbitLogins.has(review.user?.login) &&
-                nativeReviewMatchesHead(review) &&
-                timeOf(review) >= latestCodeRabbitRequestAt
-              ));
-              const codeRabbitStatusComment = comments.find((item) => {
-                const body = bodyOf(item);
-                const statusTime = timeOf(item);
-                return (
-                  Boolean(currentHeadCodeRabbitReview) &&
-                  latestCodeRabbitRequestAt > 0 &&
-                  codeRabbitLogins.has(item.user?.login) &&
-                  statusTime >= latestCodeRabbitRequestAt &&
-                  body.includes('<!-- This is an auto-generated comment: summarize by coderabbit.ai -->') &&
-                  body.includes('No new commits to review since the last review.')
-                );
-              });
-
-              const hasCodexRequest = latestCodexRequestAt > 0;
-              const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasCodexEvidence = Boolean(codexReview);
-              const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
-
-              if (
-                hasCodexRequest &&
-                hasCodeRabbitRequest &&
-                hasCodexEvidence &&
-                hasCodeRabbitEvidence
-              ) {
-                await core.summary
-                  .addHeading('AI review contract')
-                  .addTable([
-                    [
-                      { data: 'Reviewer', header: true },
-                      { data: 'Fresh request', header: true },
-                      { data: 'Exact-head evidence after request', header: true },
-                    ],
-                    ['Codex', 'yes', 'yes'],
-                    ['CodeRabbit', 'yes', 'yes'],
-                  ])
-                  .write();
-                core.notice(
-                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex and CodeRabbit complete after their latest requests.`,
-                );
-                return;
-              }
-
-              core.info(
-                `Waiting for latest-request exact-head AI evidence (attempt ${attempt}/30): ` +
-                  `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
-              );
-              if (attempt < 30) await sleep(20_000);
-            }
-
-            core.setFailed(
-              'Post fresh @codex review and @coderabbitai review commands after the latest head update, then require exact-head evidence newer than each latest request.',
-            );
+      - name: Upload AI review contract evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ai-review-contract-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
+          path: ai-review-contract-result.json
+          if-no-files-found: error
+          retention-days: 30
