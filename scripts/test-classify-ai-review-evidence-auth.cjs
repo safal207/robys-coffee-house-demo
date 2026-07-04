@@ -6,7 +6,7 @@ const path = require("node:path");
 const classify = require("./classify-ai-review-evidence.cjs");
 
 const HEAD = "a".repeat(40);
-const UPDATED_AT = "2026-07-04T00:00:00.000Z";
+const HEAD_AT = "2026-07-04T00:00:00.000Z";
 const REQUEST_AT = "2026-07-04T00:01:00.000Z";
 const REVIEW_AT = "2026-07-04T00:02:00.000Z";
 
@@ -39,7 +39,7 @@ const runCase = async ({ association = "OWNER", reviews = [] }) => {
     payload: {
       pull_request: {
         number: 157,
-        updated_at: UPDATED_AT,
+        updated_at: "2026-07-04T00:10:00.000Z",
         head: { sha: HEAD },
       },
     },
@@ -66,6 +66,7 @@ const runCase = async ({ association = "OWNER", reviews = [] }) => {
     pollAttempts: 1,
     pollIntervalMs: 0,
     resultPath,
+    headCommittedAt: HEAD_AT,
   });
   const result = JSON.parse(fs.readFileSync(resultPath, "utf8"));
   fs.rmSync(directory, { recursive: true, force: true });
