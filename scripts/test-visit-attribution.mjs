@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { webcrypto } from "node:crypto";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { webcrypto } from "node:crypto";
 
 const source = readFileSync("analytics.js", "utf8");
 const storage = new Map();
@@ -22,71 +22,38 @@ class ElementStub {
     this.id = "";
     this.type = "";
   }
-
-  setAttribute(name, value) {
-    this.attributes.set(name, String(value));
-  }
-
-  addEventListener(type, callback) {
-    this.listeners.set(type, callback);
-  }
-
-  append(...children) {
-    this.children.push(...children);
-  }
-
-  remove() {
-    this.removed = true;
-  }
-
+  setAttribute(name, value) { this.attributes.set(name, String(value)); }
+  addEventListener(type, callback) { this.listeners.set(type, callback); }
+  append(...children) { this.children.push(...children); }
+  remove() { this.removed = true; }
   close() {
     this.open = false;
     this.listeners.get("close")?.();
   }
-
-  showModal() {
-    this.open = true;
-  }
-
-  closest() {
-    return null;
-  }
+  showModal() { this.open = true; }
+  closest() { return null; }
 }
 
 const document = {
   documentElement: { lang: "en" },
   body: {
-    append(node) {
-      appended.push(node);
-    }
+    append(node) { appended.push(node); }
   },
   querySelector(selector) {
     if (!selector.startsWith("#")) return null;
     const id = selector.slice(1);
-    return [...appended]
-      .reverse()
-      .find((node) => node.id === id && !node.removed) || null;
+    return [...appended].reverse().find((node) => node.id === id && !node.removed) || null;
   },
-  querySelectorAll() {
-    return [];
-  },
-  createElement(tagName) {
-    return new ElementStub(tagName);
-  },
-  createRange() {
-    return { selectNodeContents() {} };
-  },
-  addEventListener(type, callback) {
-    documentListeners.set(type, callback);
-  },
+  querySelectorAll() { return []; },
+  createElement(tagName) { return new ElementStub(tagName); },
+  createRange() { return { selectNodeContents() {} }; },
+  addEventListener(type, callback) { documentListeners.set(type, callback); },
   dispatchEvent() {}
 };
 
 const windowObject = {
   dataLayer: [],
-  addEventListener(type, callback) {
-    windowListeners.set(type, callback);
-  },
+  addEventListener(type, callback) { windowListeners.set(type, callback); },
   getSelection() {
     return { removeAllRanges() {}, addRange() {} };
   }
@@ -98,25 +65,13 @@ const context = vm.createContext({
   document,
   location: { pathname: "/" },
   localStorage: {
-    getItem(key) {
-      return storage.has(key) ? storage.get(key) : null;
-    },
-    setItem(key, value) {
-      storage.set(key, String(value));
-    }
+    getItem(key) { return storage.has(key) ? storage.get(key) : null; },
+    setItem(key, value) { storage.set(key, String(value)); }
   },
   navigator: { clipboard: { async writeText() {} } },
   crypto: webcrypto,
-  CustomEvent: class CustomEvent {
-    constructor(type, init) {
-      this.type = type;
-      this.detail = init?.detail;
-    }
-  },
-  IntersectionObserver: class IntersectionObserver {
-    observe() {}
-    unobserve() {}
-  },
+  CustomEvent: class CustomEvent { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
+  IntersectionObserver: class IntersectionObserver { observe() {} unobserve() {} },
   Uint8Array,
   Date,
   JSON,
@@ -188,6 +143,49 @@ assert.throws(
   /posOrders must be an array/
 );
 
+assert.throws(
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([
+    {
+      orderId: "ord_002",
+      orderedAt: "2026-07-04T12:00:00+03:00",
+      campaignToken: events[0].campaignToken,
+      grossRevenue: "300.00",
+      currency: "TRY",
+      variableCost: "140.00",
+      customerName: "not-allowed"
+    }
+  ]),
+  /missing or unknown fields/
+);
+
+assert.throws(
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([
+    {
+      orderId: "ord_003",
+      orderedAt: "2026-07-04T12:00:00",
+      campaignToken: events[0].campaignToken,
+      grossRevenue: "300.00",
+      currency: "TRY",
+      variableCost: "140.00"
+    }
+  ]),
+  /date-time with offset/
+);
+
+assert.throws(
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([
+    {
+      orderId: "ord_004",
+      orderedAt: "2026-07-04T12:00:00+03:00",
+      campaignToken: "invalid",
+      grossRevenue: "300.00",
+      currency: "TRY",
+      variableCost: "140.00"
+    }
+  ]),
+  /campaignToken is invalid/
+);
+
 storage.set("robys:visit-intents:v0", "not-json");
 assert.equal(windowObject.robysVisitAttribution.events().length, 0);
 assert.equal(windowObject.robysVisitAttribution.clear(), true);
@@ -197,6 +195,4 @@ const actions = windowObject.dataLayer.map((entry) => entry.action);
 assert.ok(actions.includes("visit_intent_created"));
 assert.ok(actions.includes("route_click"));
 
-console.log(
-  "✅ VISIT-ATTRIBUTION-002 passed: route intent creates a bounded token event and exact baseline bundle."
-);
+console.log("✅ VISIT-ATTRIBUTION-002 passed: route intent creates a bounded token event and exact baseline bundle.");
