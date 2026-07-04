@@ -1,6 +1,20 @@
 const fs = require("node:fs");
 
-module.exports = async ({ github, context, core }) => {
+module.exports = async ({
+  github,
+  context,
+  core,
+  pollAttempts = 30,
+  pollIntervalMs = 20_000,
+  resultPath = "ai-review-contract-result.json",
+}) => {
+  if (!Number.isInteger(pollAttempts) || pollAttempts < 1) {
+    throw new Error("pollAttempts must be a positive integer");
+  }
+  if (!Number.isInteger(pollIntervalMs) || pollIntervalMs < 0) {
+    throw new Error("pollIntervalMs must be a non-negative integer");
+  }
+
   const owner = context.repo.owner;
   const repo = context.repo.repo;
   const pr = context.payload.pull_request;
@@ -17,7 +31,6 @@ module.exports = async ({ github, context, core }) => {
 
   const evidenceAfter = Date.parse(pr.updated_at);
   const currentHead = pr.head.sha.toLowerCase();
-  const resultPath = "ai-review-contract-result.json";
   const timeOf = (item) => Math.max(
     0,
     ...[item.submitted_at, item.created_at, item.updated_at]
@@ -71,7 +84,9 @@ module.exports = async ({ github, context, core }) => {
       pullRequest: pr.number,
       evidenceAfter: toIso(evidenceAfter),
       attemptCount: observation.attempt,
-      pollingWindowSeconds: 600,
+      pollingWindowSeconds: Math.ceil(
+        (pollAttempts * pollIntervalMs) / 1000,
+      ),
       providers: {
         codex: {
           requestDetected: observation.hasCodexRequest,
@@ -131,7 +146,7 @@ module.exports = async ({ github, context, core }) => {
 
   let lastObservation = null;
 
-  for (let attempt = 1; attempt <= 30; attempt += 1) {
+  for (let attempt = 1; attempt <= pollAttempts; attempt += 1) {
     const [comments, reviews] = await Promise.all([
       github.paginate(
         github.rest.issues.listComments,
@@ -223,11 +238,12 @@ module.exports = async ({ github, context, core }) => {
     }
 
     core.info(
-      `Waiting for latest-request exact-head AI evidence (attempt ${attempt}/30): ` +
+      `Waiting for latest-request exact-head AI evidence ` +
+        `(attempt ${attempt}/${pollAttempts}): ` +
         `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
         `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
     );
-    if (attempt < 30) await sleep(20_000);
+    if (attempt < pollAttempts) await sleep(pollIntervalMs);
   }
 
   const classification = (
