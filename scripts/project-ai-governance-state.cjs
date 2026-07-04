@@ -2,6 +2,7 @@ const fs = require("node:fs");
 
 const SHA_RE = /^[0-9a-f]{40}$/;
 const PROVIDER_STATES = new Set([
+  "IN_PROGRESS",
   "VERIFIED",
   "REQUEST_MISSING",
   "PROVIDER_EVIDENCE_UNAVAILABLE",
@@ -124,6 +125,18 @@ const projectGovernanceState = ({ provider, ledger }) => {
       provider,
       ledger,
       reason: "REVIEW_FINDINGS_PRESENT requires a positive unresolvedFindings count.",
+    });
+  }
+
+  if (provider.classification === "IN_PROGRESS") {
+    return baseResult({
+      head,
+      classification: "PROVIDER_EVIDENCE_UNAVAILABLE",
+      provider,
+      ledger,
+      reasons: [
+        "Provider evidence generation is still in progress or failed before completion.",
+      ],
     });
   }
 
