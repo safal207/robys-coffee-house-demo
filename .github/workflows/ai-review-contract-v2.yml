@@ -1,0 +1,38 @@
+name: AI review contract v2
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Check out trusted base SHA
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted-base
+          persist-credentials: false
+
+      - name: Wait for current-head AI review evidence
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const classify = require('./trusted-base/scripts/classify-ai-review-evidence.cjs');
+            await classify({ github, context, core });
+
+      - name: Upload AI review contract evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ai-review-contract-v2-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
+          path: ai-review-contract-result.json
+          if-no-files-found: error
+          retention-days: 30
