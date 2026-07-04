@@ -7,6 +7,7 @@ module.exports = async ({
   pollAttempts = 30,
   pollIntervalMs = 20_000,
   resultPath = "ai-review-contract-result.json",
+  headCommittedAt = null,
 }) => {
   if (!Number.isInteger(pollAttempts) || pollAttempts < 1) {
     throw new Error("pollAttempts must be a positive integer");
@@ -33,14 +34,28 @@ module.exports = async ({
     const parsed = Date.parse(value ?? "");
     return Number.isFinite(parsed) ? parsed : 0;
   };
-  const evidenceAfter = parseTime(pr.updated_at);
   const currentHead = pr.head.sha.toLowerCase();
+  let evidenceAfter = parseTime(headCommittedAt);
+  if (!evidenceAfter) {
+    const headCommit = await github.rest.repos.getCommit({
+      owner,
+      repo,
+      ref: currentHead,
+    });
+    evidenceAfter = parseTime(headCommit.data.commit.committer?.date) ||
+      parseTime(headCommit.data.commit.author?.date);
+  }
+  if (!evidenceAfter) {
+    throw new Error(`Cannot resolve commit timestamp for ${currentHead}`);
+  }
+
   const timeOf = (item) => Math.max(
     parseTime(item.submitted_at),
     parseTime(item.created_at),
     parseTime(item.updated_at),
   );
-  const commandCreatedAt = (item) => parseTime(item.created_at);
+  const commentCreatedAt = (item) => parseTime(item.created_at);
+  const commandCreatedAt = commentCreatedAt;
   const reviewSubmittedAt = (item) => (
     parseTime(item.submitted_at) || parseTime(item.created_at)
   );
@@ -89,7 +104,7 @@ module.exports = async ({
       classification,
       exactHeadSha: currentHead,
       pullRequest: pr.number,
-      evidenceAfter: toIso(evidenceAfter),
+      headCommittedAt: toIso(evidenceAfter),
       attemptCount: observation.attempt,
       pollingWindowSeconds: Math.ceil(
         (pollAttempts * pollIntervalMs) / 1000,
@@ -125,9 +140,10 @@ module.exports = async ({
 
   const writeSummary = async (observation, classification) => {
     await core.summary
-      .addHeading("AI review contract")
+      .addHeading("AI review contract v2")
       .addRaw(`Classification: \`${classification}\`\n\n`)
       .addRaw(`Exact head: \`${currentHead}\`\n\n`)
+      .addRaw(`Head committed at: \`${toIso(evidenceAfter)}\`\n\n`)
       .addTable([
         [
           { data: "Reviewer", header: true },
@@ -190,12 +206,12 @@ module.exports = async ({
     ));
     const codeRabbitStatusComment = comments.find((item) => {
       const body = bodyOf(item);
-      const statusTime = timeOf(item);
+      const statusCreatedAt = commentCreatedAt(item);
       return (
         Boolean(currentHeadCodeRabbitReview) &&
         latestCodeRabbitRequestAt > 0 &&
         codeRabbitLogins.has(item.user?.login) &&
-        statusTime >= latestCodeRabbitRequestAt &&
+        statusCreatedAt >= latestCodeRabbitRequestAt &&
         body.includes(
           "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->",
         ) &&
@@ -225,7 +241,7 @@ module.exports = async ({
       codexEvidenceAt: reviewSubmittedAt(codexReview ?? {}),
       codeRabbitEvidenceAt: Math.max(
         reviewSubmittedAt(codeRabbitReview ?? {}),
-        timeOf(codeRabbitStatusComment ?? {}),
+        commentCreatedAt(codeRabbitStatusComment ?? {}),
       ),
     };
 
