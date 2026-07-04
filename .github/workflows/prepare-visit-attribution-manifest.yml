@@ -10,10 +10,9 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          show-progress: false
       - shell: bash
         run: |
           set -o pipefail
+          git clone -q --depth=1 --branch feat/visit-attribution-v0 https://github.com/safal207/robys-coffee-house-demo.git repo
+          cd repo
           node scripts/verify-p1-interface-contracts.mjs 2>&1 | tail -n 12
