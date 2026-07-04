@@ -105,6 +105,33 @@ const cases = [
     expected: "INVALID_EVIDENCE",
     ready: false,
   },
+  {
+    name: "schema mismatch is invalid",
+    input: {
+      provider: { ...provider("VERIFIED"), schemaVersion: 2 },
+      ledger: ledger("NO_OPEN_FINDINGS"),
+    },
+    expected: "INVALID_EVIDENCE",
+    ready: false,
+  },
+  {
+    name: "clean ledger cannot hide unresolved findings",
+    input: {
+      provider: provider("VERIFIED"),
+      ledger: ledger("NO_OPEN_FINDINGS", 1),
+    },
+    expected: "INVALID_EVIDENCE",
+    ready: false,
+  },
+  {
+    name: "findings state requires a positive count",
+    input: {
+      provider: provider("VERIFIED"),
+      ledger: ledger("REVIEW_FINDINGS_PRESENT", 0),
+    },
+    expected: "INVALID_EVIDENCE",
+    ready: false,
+  },
 ];
 
 for (const testCase of cases) {
