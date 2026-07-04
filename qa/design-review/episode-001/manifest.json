@@ -11,9 +11,32 @@
   "baseline": {
     "repository": "safal207/robys-coffee-house-demo",
     "ref": "main@79e8211e003275e64385a222cf06d76ab379044b",
-    "sourceArtifacts": [
+    "officialIdentityStatus": "REAL_WORLD_EVIDENCE_FOUND_MASTER_ASSET_REQUIRED",
+    "officialMasterAssetPresent": false,
+    "officialInstagramHandle": "robyscoffeehouse",
+    "observedIdentity": {
+      "wordmark": "ROBY'S COFFEE HOUSE",
+      "tagline": "Fresh Coffee Point",
+      "symbolDescription": "large red circular ring with an asymmetric white negative-space opening"
+    },
+    "realWorldEvidence": [
       {
-        "artifactId": "ROBYS-CURRENT-ICON-SOURCE",
+        "evidenceId": "ROBYS-CUP-PHOTO-001",
+        "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
+        "observation": "A close-up takeaway cup shows the operational wordmark, tagline, red ring symbol, and robyscoffeehouse handle.",
+        "authoritativeMasterAsset": false
+      },
+      {
+        "evidenceId": "ROBYS-STOREFRONT-PHOTO-001",
+        "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
+        "observation": "The storefront glass shows the same circular identity in live use.",
+        "authoritativeMasterAsset": false
+      }
+    ],
+    "repositoryPlaceholders": [
+      {
+        "artifactId": "ROBYS-SITE-ICON-PLACEHOLDER",
+        "role": "non-authoritative-site-placeholder",
         "path": "icon.svg",
         "format": "image/svg+xml",
         "gitBlobSha": "40b1c1fed7d2d153cf0e8dcebde8c3a61850d7e9",
@@ -58,6 +81,7 @@
     "revealed": false
   },
   "blockingReasons": [
+    "The official master logo file has not been obtained from the owner or official brand source.",
     "Three frozen anonymized candidate packages are not attached.",
     "Equal-context mockups are not attached for every required context.",
     "The randomized source-role mapping has not been sealed.",
