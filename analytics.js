@@ -1,12 +1,5 @@
-const q = (selector, root = document) => root.querySelector(selector);
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const eventBuffer = [];
-
-const pairingCtaCopy = {
-  tr: "Bugünün Eşleşmesini Gör",
-  en: "See Today's Pairing",
-  ru: "Смотреть сочетание дня"
-};
 
 function placementFor(node) {
   if (node.closest(".mobile-cta")) return "mobile_dock";
@@ -37,30 +30,6 @@ window.robysAnalytics = {
   events: () => [...eventBuffer],
   clear: () => { eventBuffer.length = 0; }
 };
-
-function updateHeroPairingCta() {
-  const cta = q(".hero-actions .button-primary");
-  if (!cta) return;
-
-  cta.href = "menu.html#pairing-offers";
-  cta.removeAttribute("target");
-  cta.removeAttribute("rel");
-  cta.removeAttribute("data-i18n");
-  cta.dataset.localized = "";
-  cta.dataset.tr = pairingCtaCopy.tr;
-  cta.dataset.en = pairingCtaCopy.en;
-  cta.dataset.ru = pairingCtaCopy.ru;
-  cta.dataset.analyticsAction = "pairing_click";
-
-  const language = document.documentElement.lang || "tr";
-  cta.textContent = pairingCtaCopy[language] || pairingCtaCopy.tr;
-}
-
-updateHeroPairingCta();
-new MutationObserver(updateHeroPairingCta).observe(document.documentElement, {
-  attributes: true,
-  attributeFilter: ["lang"]
-});
 
 function setupClicks() {
   document.addEventListener("click", (event) => {
