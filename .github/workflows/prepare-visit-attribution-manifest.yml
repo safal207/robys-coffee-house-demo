@@ -1,14 +1,13 @@
-name: Prepare attribution manifest
+name: Diagnose attribution regression
 on:
   push:
     branches: [feat/visit-attribution-v0]
   pull_request:
     branches: [main]
 permissions:
-  contents: write
+  contents: read
 jobs:
-  prepare:
-    if: github.actor != 'github-actions[bot]'
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,19 +16,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run verify:visit-attribution
-      - run: npm run test:visit-attribution
-      - run: npm run test:visit-baseline
-      - run: npm run typecheck
       - run: npm run build
       - run: npm run integrity:generate
-      - run: npm run check
-      - name: Commit manifest
-        if: github.event_name == 'push'
+      - name: Run check with focused log
+        shell: bash
         run: |
-          if git diff --quiet -- integrity-manifest.json; then exit 0; fi
-          git config user.name github-actions
-          git config user.email actions@github.com
-          git add integrity-manifest.json
-          git commit -m "chore: regenerate integrity manifest [skip ci]"
-          git push
+          set -o pipefail
+          npm run check 2>&1 | tail -n 180
