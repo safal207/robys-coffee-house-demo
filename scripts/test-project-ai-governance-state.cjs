@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const {
   projectGovernanceState,
@@ -6,6 +8,12 @@ const {
 
 const HEAD = "a".repeat(40);
 const OTHER_HEAD = "b".repeat(40);
+const PR_155_FIXTURE = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "fixtures", "pr-155-provider-unavailability.json"),
+    "utf8",
+  ),
+);
 
 const provider = (classification, exactHeadSha = HEAD) => ({
   schemaVersion: 1,
@@ -56,6 +64,28 @@ const cases = [
     input: {
       provider: provider("PROVIDER_EVIDENCE_UNAVAILABLE"),
       ledger: ledger("NO_OPEN_FINDINGS"),
+    },
+    expected: "PROVIDER_EVIDENCE_UNAVAILABLE",
+    ready: false,
+  },
+  {
+    name: "in-progress provider evidence remains fail closed",
+    input: {
+      provider: provider("IN_PROGRESS"),
+      ledger: ledger("NO_OPEN_FINDINGS"),
+    },
+    expected: "PROVIDER_EVIDENCE_UNAVAILABLE",
+    ready: false,
+  },
+  {
+    name: "PR #155 provider-unavailability regression fixture",
+    input: {
+      provider: PR_155_FIXTURE,
+      ledger: ledger(
+        "NO_OPEN_FINDINGS",
+        0,
+        PR_155_FIXTURE.exactHeadSha,
+      ),
     },
     expected: "PROVIDER_EVIDENCE_UNAVAILABLE",
     ready: false,
@@ -133,6 +163,8 @@ const cases = [
     ready: false,
   },
 ];
+
+assert.ok(cases.length > 0, "test suite must contain at least one case");
 
 for (const testCase of cases) {
   const result = projectGovernanceState(testCase.input);
