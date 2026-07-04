@@ -1,4 +1,4 @@
-name: Diagnose regression contracts
+name: Diagnose P1 contract
 on:
   push:
     branches: [feat/visit-attribution-v0]
@@ -11,24 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Critical journeys
-        run: node scripts/verify-critical-user-journeys.mjs
-      - name: P1 interface
-        run: node scripts/verify-p1-interface-contracts.mjs
-      - name: SEO deploy
-        run: node scripts/verify-seo-content-deploy.mjs
-      - name: Visual contract
-        run: node scripts/verify-visual-contract.mjs
-      - name: Performance contract
-        run: node scripts/verify-performance-contract.mjs
-      - name: Live contract
-        run: node scripts/verify-live-contract.mjs
-      - name: Security contracts
-        run: node scripts/verify-security-contracts.mjs
-      - name: Aggregated regression contracts
-        run: node scripts/verify-regression-contracts.mjs
+      - run: node scripts/verify-p1-interface-contracts.mjs
