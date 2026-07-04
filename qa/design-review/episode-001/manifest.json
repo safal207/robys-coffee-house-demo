@@ -1,0 +1,108 @@
+{
+  "contract": "ROBYS-DESIGN-REVIEW-001",
+  "version": 1,
+  "episodeId": "DESIGN-REVIEW-EPISODE-001",
+  "issueRef": "safal207/robys-coffee-house-demo#162",
+  "subject": "Roby's logo blind review",
+  "authority": "review-experiment-only",
+  "status": "ARTIFACTS_REQUIRED",
+  "reviewReady": false,
+  "productionMutationAuthorized": false,
+  "baseline": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "ref": "main@79e8211e003275e64385a222cf06d76ab379044b",
+    "officialIdentityStatus": "REAL_WORLD_EVIDENCE_FOUND_MASTER_ASSET_REQUIRED",
+    "officialMasterAssetPresent": false,
+    "officialInstagramHandle": "robyscoffeehouse",
+    "observedIdentity": {
+      "wordmark": "ROBY'S COFFEE HOUSE",
+      "tagline": "Fresh Coffee Point",
+      "symbolDescription": "large red circular ring with an asymmetric white negative-space opening",
+      "accentObservation": "the O in ROBY'S is rendered in red on the photographed takeaway cup"
+    },
+    "realWorldEvidence": [
+      {
+        "evidenceId": "ROBYS-CUP-PHOTO-001",
+        "context": "coffee-cup",
+        "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
+        "sourceImage": "https://ak-d.tripcdn.com/images/1mi5x424x98sif4bpE0AD_W_640_0_R5_Q80.jpg?proc=source%2Ftrip",
+        "retrievedOn": "2026-07-04",
+        "observation": "A close-up takeaway cup shows the operational wordmark, tagline, red ring symbol, red O accent, and robyscoffeehouse handle.",
+        "authoritativeMasterAsset": false,
+        "licenseStatus": "third-party-public-reference-only-not-cleared-for-republication"
+      },
+      {
+        "evidenceId": "ROBYS-STOREFRONT-PHOTO-001",
+        "context": "storefront-signage",
+        "sourcePage": "https://in.trip.com/moments/detail/gazipasa-121865-143640758",
+        "sourceImage": "https://ak-d.tripcdn.com/images/1mi46424x98sgqkwnE7C8_W_640_0_R5_Q80.jpg?proc=source%2Ftrip",
+        "retrievedOn": "2026-07-04",
+        "observation": "The storefront glass shows the same circular identity and coffee-house wording in live use.",
+        "authoritativeMasterAsset": false,
+        "licenseStatus": "third-party-public-reference-only-not-cleared-for-republication"
+      }
+    ],
+    "repositoryPlaceholders": [
+      {
+        "artifactId": "ROBYS-SITE-ICON-PLACEHOLDER",
+        "role": "non-authoritative-site-placeholder",
+        "path": "icon.svg",
+        "format": "image/svg+xml",
+        "gitBlobSha": "40b1c1fed7d2d153cf0e8dcebde8c3a61850d7e9",
+        "sha256": "fe3b147e8ba2668769b61acd33eed5f0bf04190d25026aa8500faa9031527462",
+        "byteLength": 761
+      }
+    ],
+    "authoritativeSourceArtifacts": []
+  },
+  "blindProtocol": {
+    "candidateLabels": ["candidate-amber", "candidate-cobalt", "candidate-ivory"],
+    "sourceRoleMappingVisibleToReviewers": false,
+    "mappingDigest": null,
+    "mappingRevealAllowedAfterFindingsFrozen": true,
+    "reviewerConflictDisclosureRequired": true
+  },
+  "requiredContexts": [
+    "master-mark",
+    "desktop-header",
+    "mobile-header",
+    "favicon-16",
+    "favicon-32",
+    "social-avatar",
+    "coffee-cup",
+    "storefront-signage",
+    "menu",
+    "light-background",
+    "dark-background",
+    "monochrome-print"
+  ],
+  "criteria": [
+    { "id": "recognition", "weight": 20 },
+    { "id": "small-size-legibility", "weight": 20 },
+    { "id": "brand-fit", "weight": 20 },
+    { "id": "category-distinctiveness", "weight": 15 },
+    { "id": "cross-surface-adaptability", "weight": 15 },
+    { "id": "production-readiness", "weight": 10 }
+  ],
+  "candidatePackages": [],
+  "controlledDefect": {
+    "declaredBeforeReview": false,
+    "sealedKeyDigest": null,
+    "revealed": false
+  },
+  "blockingReasons": [
+    "The official master logo file has not been obtained from the owner or an official brand source.",
+    "Three frozen anonymized candidate packages are not attached.",
+    "Equal-context mockups are not attached for every required context.",
+    "The randomized source-role mapping has not been sealed.",
+    "The controlled-defect key has not been sealed."
+  ],
+  "allowedDecisionStates": [
+    "ACCEPT",
+    "ACCEPT_WITH_CONDITIONS",
+    "REVISE",
+    "REJECT",
+    "INCONCLUSIVE"
+  ],
+  "currentDecision": "INCONCLUSIVE"
+}
