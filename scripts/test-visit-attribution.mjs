@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
+import { webcrypto } from "node:crypto";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { webcrypto } from "node:crypto";
 
-const source = readFileSync("analytics.js", "utf8");
+const analyticsSource = readFileSync("analytics.js", "utf8");
+const runtimeSource = readFileSync("visit-attribution.js", "utf8");
 const storage = new Map();
 const windowListeners = new Map();
 const documentListeners = new Map();
 const appended = [];
+let scriptLoads = 0;
+let context;
 
 class ElementStub {
   constructor(tagName) {
@@ -21,7 +24,10 @@ class ElementStub {
     this.className = "";
     this.id = "";
     this.type = "";
+    this.src = "";
+    this.async = false;
   }
+
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
   addEventListener(type, callback) { this.listeners.set(type, callback); }
   append(...children) { this.children.push(...children); }
@@ -36,6 +42,15 @@ class ElementStub {
 
 const document = {
   documentElement: { lang: "en" },
+  head: {
+    append(node) {
+      assert.equal(node.tagName, "script");
+      assert.equal(node.src, "visit-attribution.js?v=20260704-1");
+      scriptLoads += 1;
+      vm.runInContext(runtimeSource, context, { filename: "visit-attribution.js" });
+      node.listeners.get("load")?.();
+    }
+  },
   body: { append(node) { appended.push(node); } },
   querySelector(selector) {
     if (!selector.startsWith("#")) return null;
@@ -55,7 +70,7 @@ const windowObject = {
   getSelection() { return { removeAllRanges() {}, addRange() {} }; }
 };
 
-const context = vm.createContext({
+context = vm.createContext({
   console,
   window: windowObject,
   document,
@@ -66,7 +81,12 @@ const context = vm.createContext({
   },
   navigator: { clipboard: { async writeText() {} } },
   crypto: webcrypto,
-  CustomEvent: class CustomEvent { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
+  CustomEvent: class CustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  },
   IntersectionObserver: class IntersectionObserver { observe() {} unobserve() {} },
   Uint8Array,
   Date,
@@ -78,14 +98,16 @@ const context = vm.createContext({
   TypeError,
   Error,
   Math,
+  Promise,
   setTimeout,
   clearTimeout
 });
 context.globalThis = context;
-vm.runInContext(source, context, { filename: "analytics.js" });
+vm.runInContext(analyticsSource, context, { filename: "analytics.js" });
 
-assert.ok(windowObject.robysVisitAttribution, "Public attribution API must exist");
-assert.equal(windowObject.robysVisitAttribution.events().length, 0);
+assert.equal(scriptLoads, 0, "Attribution runtime must not load on initial evaluation");
+assert.equal(windowObject.robysVisitAttribution, undefined);
+assert.equal(typeof windowObject.robysLoadVisitAttribution, "function");
 
 windowListeners.get("pointerdown")();
 const link = {
@@ -98,7 +120,11 @@ const link = {
 };
 const target = { closest(selector) { return selector === "a" ? link : null; } };
 documentListeners.get("click")({ target });
+await Promise.resolve();
+await Promise.resolve();
 
+assert.equal(scriptLoads, 1, "First route click must load the runtime exactly once");
+assert.ok(windowObject.robysVisitAttribution, "Public attribution API must exist after route intent");
 const events = windowObject.robysVisitAttribution.events();
 assert.equal(events.length, 1);
 assert.match(events[0].eventId, /^wev_[a-z0-9]{16}$/);
@@ -110,6 +136,9 @@ assert.equal(events[0].eventId, `wev_${events[0].campaignToken.slice(-16)}`);
 assert.equal(appended.length, 1);
 assert.equal(appended[0].tagName, "dialog");
 assert.equal(appended[0].open, true);
+
+await windowObject.robysLoadVisitAttribution();
+assert.equal(scriptLoads, 1, "Resolved runtime must be reused without another request");
 
 const bundle = windowObject.robysVisitAttribution.buildBaselineBundle([
   {
@@ -154,7 +183,7 @@ assert.equal(windowObject.robysVisitAttribution.clear(), true);
 assert.equal(windowObject.robysVisitAttribution.events().length, 0);
 
 const actions = windowObject.dataLayer.map((entry) => entry.action);
-assert.ok(actions.includes("visit_intent_created"));
 assert.ok(actions.includes("route_click"));
+assert.ok(actions.includes("visit_intent_created"));
 
-console.log("✅ VISIT-ATTRIBUTION-002 passed: route intent creates a self-describing token and exact baseline bundle.");
+console.log("✅ VISIT-ATTRIBUTION-002 passed: attribution stays off the initial path and loads once on route intent.");
