@@ -2,6 +2,8 @@ name: Prepare attribution manifest
 on:
   push:
     branches: [feat/visit-attribution-v0]
+  pull_request:
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -23,6 +25,7 @@ jobs:
       - run: npm run integrity:generate
       - run: npm run check
       - name: Commit manifest
+        if: github.event_name == 'push'
         run: |
           if git diff --quiet -- integrity-manifest.json; then exit 0; fi
           git config user.name github-actions
