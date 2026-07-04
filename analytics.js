@@ -15,6 +15,8 @@ const VISIT_ATTRIBUTION = Object.freeze({
 const VISIT_TOKEN_RE = /^rv_[a-z0-9]{20}$/;
 const VISIT_EVENT_RE = /^wev_[a-z0-9]{16}$/;
 const RANDOM_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
+const TOKEN_TIMESTAMP_WIDTH = 7;
+const TOKEN_RANDOM_WIDTH = 13;
 const POS_ORDER_ID_RE = /^ord_[a-z0-9][a-z0-9_-]{2,63}$/;
 const MONEY_RE = /^(?:0|[1-9][0-9]*)(?:\.[0-9]{1,2})?$/;
 const OFFSET_DATE_TIME_RE = /(?:Z|[+-][0-9]{2}:[0-9]{2})$/;
@@ -61,14 +63,68 @@ function randomChars(length) {
   return result;
 }
 
+function encodeCampaignTimestamp(nowMs = Date.now()) {
+  const seconds = Math.floor(nowMs / 1000);
+  if (!Number.isSafeInteger(seconds) || seconds < 0) {
+    throw new Error("Campaign timestamp is outside the supported range");
+  }
+  const encoded = seconds.toString(36).padStart(TOKEN_TIMESTAMP_WIDTH, "0");
+  if (encoded.length !== TOKEN_TIMESTAMP_WIDTH) {
+    throw new Error("Campaign timestamp is outside the supported width");
+  }
+  return encoded;
+}
+
+function campaignTokenForNow(nowMs = Date.now()) {
+  return `rv_${encodeCampaignTimestamp(nowMs)}${randomChars(TOKEN_RANDOM_WIDTH)}`;
+}
+
+function timestampFromCampaignToken(token) {
+  if (!VISIT_TOKEN_RE.test(token)) {
+    throw new TypeError("campaignToken is invalid");
+  }
+  const encoded = token.slice(3, 3 + TOKEN_TIMESTAMP_WIDTH);
+  const seconds = Number.parseInt(encoded, 36);
+  if (
+    !Number.isSafeInteger(seconds) ||
+    seconds < 0 ||
+    seconds.toString(36).padStart(TOKEN_TIMESTAMP_WIDTH, "0") !== encoded
+  ) {
+    throw new TypeError("campaignToken timestamp is invalid");
+  }
+  const timestamp = seconds * 1000;
+  if (!Number.isFinite(Date.parse(new Date(timestamp).toISOString()))) {
+    throw new TypeError("campaignToken timestamp is invalid");
+  }
+  return timestamp;
+}
+
+function eventIdForCampaignToken(token) {
+  timestampFromCampaignToken(token);
+  return `wev_${token.slice(-16)}`;
+}
+
+function visitIntentFromCampaignToken(token) {
+  const timestamp = timestampFromCampaignToken(token);
+  return {
+    eventId: eventIdForCampaignToken(token),
+    eventName: "visit_intent_created",
+    occurredAt: new Date(timestamp).toISOString(),
+    campaignToken: token
+  };
+}
+
 function isVisitIntentRecord(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   if (Object.keys(value).sort().join(",") !== "campaignToken,eventId,eventName,occurredAt") return false;
   if (!VISIT_EVENT_RE.test(value.eventId)) return false;
   if (value.eventName !== "visit_intent_created") return false;
-  if (!VISIT_TOKEN_RE.test(value.campaignToken)) return false;
-  const occurredAt = Date.parse(value.occurredAt);
-  return Number.isFinite(occurredAt);
+  try {
+    const canonical = visitIntentFromCampaignToken(value.campaignToken);
+    return value.eventId === canonical.eventId && value.occurredAt === canonical.occurredAt;
+  } catch {
+    return false;
+  }
 }
 
 function readVisitIntents(now = Date.now()) {
@@ -77,7 +133,10 @@ function readVisitIntents(now = Date.now()) {
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter(isVisitIntentRecord)
-      .filter((item) => now - Date.parse(item.occurredAt) <= VISIT_ATTRIBUTION.retentionMs)
+      .filter((item) => {
+        const age = now - Date.parse(item.occurredAt);
+        return age >= 0 && age <= VISIT_ATTRIBUTION.retentionMs;
+      })
       .slice(-VISIT_ATTRIBUTION.maxEvents);
   } catch {
     return [];
@@ -96,13 +155,8 @@ function writeVisitIntents(events) {
   }
 }
 
-function createVisitIntent() {
-  return {
-    eventId: `wev_${randomChars(16)}`,
-    eventName: "visit_intent_created",
-    occurredAt: new Date().toISOString(),
-    campaignToken: `rv_${randomChars(20)}`
-  };
+function createVisitIntent(nowMs = Date.now()) {
+  return visitIntentFromCampaignToken(campaignTokenForNow(nowMs));
 }
 
 function localizedVisitCopy() {
@@ -243,9 +297,7 @@ function normalizePosOrder(order, index) {
   ) {
     throw new TypeError(`posOrders[${index}].orderedAt must be an RFC3339 date-time with offset`);
   }
-  if (!VISIT_TOKEN_RE.test(order.campaignToken)) {
-    throw new TypeError(`posOrders[${index}].campaignToken is invalid`);
-  }
+  timestampFromCampaignToken(order.campaignToken);
   if (order.currency !== VISIT_ATTRIBUTION.currency) {
     throw new TypeError(`posOrders[${index}].currency must be TRY`);
   }
@@ -294,6 +346,7 @@ window.robysVisitAttribution = {
     return events.length ? { ...events[events.length - 1] } : null;
   },
   buildBaselineBundle,
+  decodeCampaignToken: (token) => ({ ...visitIntentFromCampaignToken(token) }),
   showLatest: () => {
     const latest = window.robysVisitAttribution.latest();
     if (latest) showVisitPass(latest);
