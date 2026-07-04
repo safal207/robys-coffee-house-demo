@@ -1,4 +1,4 @@
-name: Diagnose P1 assertion
+name: Diagnose Instagram URLs
 on:
   push:
     branches: [feat/visit-attribution-v0]
@@ -12,7 +12,11 @@ jobs:
     steps:
       - shell: bash
         run: |
-          set -o pipefail
           git clone -q --depth=1 --branch feat/visit-attribution-v0 https://github.com/safal207/robys-coffee-house-demo.git repo
           cd repo
-          node scripts/verify-p1-interface-contracts.mjs 2>&1 | tail -n 12
+          node --input-type=module - <<'NODE'
+          import { readFileSync } from "node:fs";
+          const html = `${readFileSync("index.html", "utf8")}\n${readFileSync("menu.html", "utf8")}`;
+          const urls = Array.from(html.matchAll(/href=["'](https:\/\/www\.instagram\.com\/[^"']+)["']/gi), match => match[1]);
+          console.log(JSON.stringify(urls, null, 2));
+          NODE
