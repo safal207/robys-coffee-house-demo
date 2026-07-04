@@ -117,8 +117,16 @@ const sitemap = readFileSync("sitemap.xml", "utf8");
 assert(sitemap.includes(`<loc>${profile.siteUrl}</loc>`), "DEPLOY-001", "Landing missing from sitemap");
 assert(sitemap.includes(`<loc>${profile.menuUrl}</loc>`), "DEPLOY-001", "Menu missing from sitemap");
 const notFound = readFileSync("404.html", "utf8");
-assert(notFound.includes('name="robots" content="noindex,follow"'), "DEPLOY-001", "404 page must remain noindex");
-assert(notFound.includes(`href="${profile.siteUrl}"`), "DEPLOY-001", "404 recovery URL changed");
+const notFoundRobots = Array.from(notFound.matchAll(/<meta\b[^>]*>/gi), (match) => attributes(match[0]))
+  .filter((item) => item.name === "robots")
+  .map((item) => item.content)
+  .filter((value) => typeof value === "string");
+assert(
+  notFoundRobots.length === 1 && notFoundRobots[0].split(",").map((value) => value.trim().toLowerCase()).includes("noindex"),
+  "DEPLOY-001",
+  "404 page must remain noindex"
+);
+assert(notFound.includes('href="index.html"'), "DEPLOY-001", "404 recovery URL changed");
 
 for (const [id, minimum] of [["SEO-001", 8], ["CONTENT-001", 7], ["DEPLOY-001", 7]]) dashboardGate(id, minimum);
 
