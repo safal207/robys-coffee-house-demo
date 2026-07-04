@@ -6,9 +6,10 @@ const path = require("node:path");
 const classify = require("./classify-ai-review-evidence.cjs");
 
 const HEAD = "a".repeat(40);
-const UPDATED_AT = "2026-07-04T00:00:00.000Z";
+const HEAD_AT = "2026-07-04T00:00:00.000Z";
 const REQUEST_AT = "2026-07-04T00:01:00.000Z";
 const REVIEW_AT = "2026-07-04T00:02:00.000Z";
+const PR_UPDATED_AT = "2026-07-04T00:10:00.000Z";
 
 const request = (body) => ({
   body,
@@ -69,7 +70,7 @@ const runCase = async ({ comments, reviews }) => {
     payload: {
       pull_request: {
         number: 157,
-        updated_at: UPDATED_AT,
+        updated_at: PR_UPDATED_AT,
         head: { sha: HEAD },
       },
     },
@@ -85,6 +86,7 @@ const runCase = async ({ comments, reviews }) => {
     pollAttempts: 1,
     pollIntervalMs: 0,
     resultPath,
+    headCommittedAt: HEAD_AT,
   });
 
   const result = JSON.parse(fs.readFileSync(resultPath, "utf8"));
@@ -184,7 +186,41 @@ const runCase = async ({ comments, reviews }) => {
     assert.equal(result.classification, "PROVIDER_EVIDENCE_UNAVAILABLE");
   }
 
-  process.stdout.write("AI review evidence classifier: 6 cases passed\n");
+  {
+    const comments = [
+      request("@codex review"),
+      request("@coderabbitai review"),
+    ];
+    const reviews = [review("chatgpt-codex-connector[bot]")];
+    const { result } = await runCase({ comments, reviews });
+    assert.equal(result.classification, "PROVIDER_EVIDENCE_UNAVAILABLE");
+    assert.equal(result.providers.codex.evidenceDetected, true);
+    assert.equal(result.providers.codeRabbit.evidenceDetected, false);
+  }
+
+  {
+    const staleStatusAt = "2026-07-04T00:00:30.000Z";
+    const comments = [
+      request("@codex review"),
+      request("@coderabbitai review"),
+      {
+        body: "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\nNo new commits to review since the last review.",
+        user: { login: "coderabbitai[bot]" },
+        created_at: staleStatusAt,
+        updated_at: REVIEW_AT,
+      },
+    ];
+    const reviews = [
+      review("chatgpt-codex-connector[bot]"),
+      review("coderabbitai[bot]", HEAD, staleStatusAt, REVIEW_AT),
+    ];
+    const { result } = await runCase({ comments, reviews });
+    assert.equal(result.classification, "PROVIDER_EVIDENCE_UNAVAILABLE");
+    assert.equal(result.providers.codex.evidenceDetected, true);
+    assert.equal(result.providers.codeRabbit.evidenceDetected, false);
+  }
+
+  process.stdout.write("AI review evidence classifier: 8 cases passed\n");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
