@@ -1,0 +1,36 @@
+name: AI governance projection tests
+
+on:
+  pull_request:
+    paths:
+      - scripts/project-ai-governance-state.cjs
+      - scripts/test-project-ai-governance-state.cjs
+      - scripts/fixtures/pr-155-provider-unavailability.json
+      - .github/workflows/ai-governance-projection-tests.yml
+
+concurrency:
+  group: ai-governance-projection-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Deterministic governance projection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Run governance projection cases
+        run: node scripts/test-project-ai-governance-state.cjs
