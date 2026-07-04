@@ -25,11 +25,14 @@ button{font:inherit}
 
 .site-header{position:absolute;inset:0 0 auto;z-index:30;padding-top:max(12px,env(safe-area-inset-top));color:#fff;background:linear-gradient(180deg,rgba(20,15,15,.72),transparent)}
 .header-inner{display:grid;min-height:76px;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
-.brand{display:inline-flex;width:max-content;align-items:center;gap:10px}
-.brand-mark{display:grid;width:42px;height:42px;place-items:center;color:#fff;background:var(--ruby);border-radius:50%;font:700 1.25rem var(--display)}
-.brand-copy{display:flex;flex-direction:column;line-height:.95}
-.brand-copy strong{font:600 1.08rem var(--display);letter-spacing:.08em}
-.brand-copy small{margin-top:5px;font-size:.48rem;letter-spacing:.22em}
+.brand{display:inline-flex;width:max-content;align-items:center;gap:0;color:#fff}
+.brand-mark{display:none!important}
+.brand-copy{position:relative;display:flex!important;width:170px;flex-direction:column;align-items:center;line-height:1}
+.brand-copy strong{position:relative;display:block;width:34px;height:34px;margin:0 auto;border:8px solid #d32636;border-radius:50%;font-size:0!important;letter-spacing:0!important}
+.brand-copy strong::before,.brand-copy strong::after{position:absolute;top:50%;color:#fff;font:700 2.15rem/1 var(--display);letter-spacing:.01em;white-space:nowrap;transform:translateY(-51%)}
+.brand-copy strong::before{right:calc(100% + 4px);content:"R"}
+.brand-copy strong::after{left:calc(100% + 4px);content:"BY'S"}
+.brand-copy small{display:block!important;width:100%;margin-top:7px!important;color:#fff;font:500 .56rem/1 var(--sans)!important;letter-spacing:.28em!important;text-align:center;white-space:nowrap}
 .main-nav{display:flex;align-items:center;gap:24px;font-size:.8rem;font-weight:600}
 .main-nav a{padding:10px 0;transition:opacity .2s}
 .main-nav a:hover{opacity:.7}
@@ -129,7 +132,7 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
 .map-label span{color:var(--muted);font-size:.76rem}
 
 .reveal-item{opacity:0;transform:translateY(28px);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1),box-shadow .3s;transition-delay:var(--reveal-delay,0ms)}
-.reveal-item.is-visible{opacity:1;transform:translateY(0)}
+.reveal-item.is-visible{opacity:1;transform:none}
 .feature-card.is-visible:hover{transform:translateY(-5px);box-shadow:0 20px 48px rgba(36,28,27,.1)}
 .menu-card.is-visible:hover{transform:translateY(-4px);box-shadow:0 20px 54px rgba(0,0,0,.18);border-color:rgba(255,255,255,.22)}
 .map-card.is-visible:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
@@ -147,10 +150,18 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
 
 .site-footer{padding:28px 0 calc(28px + env(safe-area-inset-bottom));color:rgba(255,255,255,.68);background:#15100f}
 .footer-inner{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px}
+.site-footer .brand-copy{width:145px}
+.site-footer .brand-copy strong{width:28px;height:28px;border-width:7px}
+.site-footer .brand-copy strong::before,.site-footer .brand-copy strong::after{font-size:1.82rem}
+.site-footer .brand-copy small{font-size:.48rem!important;letter-spacing:.24em!important}
 .footer-inner p{margin:0;text-align:center;font-size:.78rem}
 .back-top{display:grid;width:44px;height:44px;place-items:center;border:1px solid rgba(255,255,255,.2);border-radius:50%}
 
 @media(max-width:680px){
+  .brand-copy{display:flex!important;width:140px}
+  .brand-copy strong{width:28px;height:28px;border-width:7px}
+  .brand-copy strong::before,.brand-copy strong::after{font-size:1.82rem}
+  .brand-copy small{display:block!important;font-size:.48rem!important;letter-spacing:.23em!important}
   .lightbox{grid-template-columns:1fr;padding:14px}
   .lightbox-figure{max-width:94vw;max-height:86vh}
   .lightbox-image{max-height:74vh}
@@ -159,6 +170,13 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
   .lightbox-next{right:18px}
   .lightbox-close{top:14px;right:14px}
   .gallery-card.gallery-interactive::after{opacity:1;transform:none}
+}
+
+@media(max-width:390px){
+  .brand-copy{display:flex!important;width:118px}
+  .brand-copy strong{width:24px;height:24px;border-width:6px}
+  .brand-copy strong::before,.brand-copy strong::after{font-size:1.5rem}
+  .brand-copy small{display:block!important;font-size:.4rem!important;letter-spacing:.18em!important}
 }
 
 @media(prefers-reduced-motion:reduce){
