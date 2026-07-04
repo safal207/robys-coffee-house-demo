@@ -6,14 +6,21 @@
 
 This contract connects website route intent to a checkout record without collecting personal data. It does not authorize an offer experiment, a profit claim, or a `SCALE` decision.
 
+## Performance boundary
+
+The initial page loads only the compact analytics loader. The same-origin runtime `visit-attribution.js` is requested only after a Google Maps route intent.
+
+This keeps cryptography, local evidence storage, dialog rendering, and POS validation off the initial Lighthouse path while preserving the strict `script-src 'self'` CSP. The loader is cached after its first successful request and reused for later route intents.
+
 ## Visitor flow
 
 1. The visitor activates a Google Maps route link on the Roby's website.
-2. The website creates a privacy-safe `campaignToken` matching `^rv_[a-z0-9]{20}$`.
-3. The route opens normally in a new tab.
-4. The current page displays the full visit code.
-5. The visitor shows the code at checkout.
-6. The cashier records the exact full token in the POS custom field or order note named `campaignToken`.
+2. The website lazy-loads the local attribution runtime.
+3. The runtime creates a privacy-safe `campaignToken` matching `^rv_[a-z0-9]{20}$`.
+4. The route opens normally in a new tab.
+5. The current page displays the full visit code.
+6. The visitor shows the code at checkout.
+7. The cashier records the exact full token in the POS custom field or order note named `campaignToken`.
 
 The token contains no name, email, phone number, device fingerprint, or location. It consists of:
 
@@ -70,7 +77,7 @@ The returned object is bound to:
 - currency `TRY`;
 - attribution window `24` hours.
 
-The browser also exposes `window.robysVisitAttribution.buildBaselineBundle(posOrders)` for local QA, but the POS-only adapter is the durable café-side bridge.
+After the first route intent, the browser exposes `window.robysVisitAttribution.buildBaselineBundle(posOrders)` for local QA. The POS-only adapter remains the durable café-side bridge.
 
 ## Privacy boundary
 
