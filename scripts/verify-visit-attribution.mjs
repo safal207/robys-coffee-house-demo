@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
-const source = readFileSync("analytics.js", "utf8");
+const loader = readFileSync("analytics.js", "utf8");
+const runtime = readFileSync("visit-attribution.js", "utf8");
 const adapter = readFileSync("scripts/build-baseline-from-pos.mjs", "utf8");
 const contract = readFileSync("qa/contracts/visit-attribution-v0.md", "utf8");
 const sample = JSON.parse(readFileSync("qa/fixtures/visit-attribution/pos-orders.sample.json", "utf8"));
@@ -8,6 +9,19 @@ const expected = JSON.parse(readFileSync("qa/fixtures/visit-attribution/baseline
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[VISIT-ATTRIBUTION-001] ${message}`);
+}
+
+for (const marker of [
+  'document.createElement("script")',
+  'script.src = "visit-attribution.js?v=20260704-1"',
+  "document.head.append(script)",
+  "window.robysLoadVisitAttribution",
+  "api.recordVisitIntent(placement)",
+  'track("route_click"',
+  'track("visit_intent_created"',
+  'track("visit_intent_unavailable"'
+]) {
+  assert(loader.includes(marker), `Missing required lazy-loader marker: ${marker}`);
 }
 
 for (const marker of [
@@ -27,14 +41,14 @@ for (const marker of [
   "eventIdForCampaignToken",
   'document.createElement("dialog")',
   "window.robysVisitAttribution",
+  "recordVisitIntent",
   "buildBaselineBundle",
   "normalizePosOrder",
   "contains missing or unknown fields",
   "OFFSET_DATE_TIME_RE",
-  "MONEY_RE",
-  "campaign_token: intent.campaignToken"
+  "MONEY_RE"
 ]) {
-  assert(source.includes(marker), `Missing required website contract marker: ${marker}`);
+  assert(runtime.includes(marker), `Missing required runtime marker: ${marker}`);
 }
 
 for (const marker of [
@@ -50,13 +64,15 @@ for (const marker of [
   assert(adapter.includes(marker), `Missing required POS adapter marker: ${marker}`);
 }
 
-assert(source.includes("/^rv_[a-z0-9]{20}$/"), "Campaign-token format must remain exact");
-assert(source.includes("retentionMs: 8 * 24 * 60 * 60 * 1000"), "Baseline retention must remain bounded");
-assert(source.includes("maxEvents: 200"), "Visit-intent queue must remain bounded");
-assert(!source.includes("Math.random"), "Campaign tokens must never use Math.random");
-assert(!source.includes("innerHTML"), "Trusted Types boundary forbids innerHTML");
-assert(!source.includes("device_fingerprint"), "Runtime must not collect device fingerprints");
-assert(!source.includes("precise_location"), "Runtime must not collect precise location");
+assert(!loader.includes("globalThis.crypto.getRandomValues"), "Crypto runtime must stay off the initial analytics path");
+assert(!loader.includes("robys:visit-intents:v0"), "Storage runtime must stay off the initial analytics path");
+assert(runtime.includes("/^rv_[a-z0-9]{20}$/"), "Campaign-token format must remain exact");
+assert(runtime.includes("retentionMs: 8 * 24 * 60 * 60 * 1000"), "Baseline retention must remain bounded");
+assert(runtime.includes("maxEvents: 200"), "Visit-intent queue must remain bounded");
+assert(!runtime.includes("Math.random"), "Campaign tokens must never use Math.random");
+assert(!runtime.includes("innerHTML"), "Trusted Types boundary forbids innerHTML");
+assert(!runtime.includes("device_fingerprint"), "Runtime must not collect device fingerprints");
+assert(!runtime.includes("precise_location"), "Runtime must not collect precise location");
 
 for (const field of ["orderId", "orderedAt", "campaignToken", "grossRevenue", "currency", "variableCost"]) {
   assert(contract.includes(`\`${field}\``), `POS contract is missing ${field}`);
@@ -73,5 +89,5 @@ assert(expected.mode === "BASELINE", "Expected bundle must remain baseline-only"
 assert(expected.attributionWindowHours === 24, "Expected bundle must remain bound to 24 hours");
 
 console.log(
-  "✅ VISIT-ATTRIBUTION-001 gated: self-describing tokens, privacy-safe POS bridge, and LS baseline bundle are present."
+  "✅ VISIT-ATTRIBUTION-001 gated: lazy website runtime, self-describing tokens, POS bridge, and LS baseline bundle are present."
 );
