@@ -1,4 +1,4 @@
-name: Diagnose P1 contract
+name: Diagnose P1 assertion
 on:
   push:
     branches: [feat/visit-attribution-v0]
@@ -11,4 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node scripts/verify-p1-interface-contracts.mjs
+        with:
+          show-progress: false
+      - shell: bash
+        run: |
+          set -o pipefail
+          node scripts/verify-p1-interface-contracts.mjs 2>&1 | tail -n 12
