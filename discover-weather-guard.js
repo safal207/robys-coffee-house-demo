@@ -3,4 +3,4 @@
 const wordmarkStylesheet = document.createElement("link");
 wordmarkStylesheet.rel = "stylesheet";
 wordmarkStylesheet.href = "wordmark-responsive.css?v=20260704-1";
-document.head.append(wordmarkStylesheet);
+document.head.appendChild(wordmarkStylesheet);
