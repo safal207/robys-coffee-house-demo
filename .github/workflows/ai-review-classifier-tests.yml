@@ -1,27 +1,16 @@
-name: AI review classifier tests
+name: AI review classifier tests (retired)
 
 on:
-  pull_request:
-    paths:
-      - scripts/classify-ai-review-evidence.cjs
-      - scripts/test-classify-ai-review-evidence.cjs
-      - scripts/test-classify-ai-review-evidence-auth.cjs
-      - .github/workflows/ai-review-classifier-tests.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  retired:
+    name: Retired workflow marker
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out exact PR head
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-
-      - name: Run classifier cases
-        run: |
-          node scripts/test-classify-ai-review-evidence.cjs
-          node scripts/test-classify-ai-review-evidence-auth.cjs
+      - name: Explain replacement
+        run: echo "Replaced by ai-review-classifier-cases.yml"
