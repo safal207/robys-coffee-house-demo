@@ -16,10 +16,23 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: npm run integrity:generate
-      - name: Run check with focused log
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run check 2>&1 | tail -n 180
+      - name: Build and syntax
+        run: npm run typecheck && npm run verify:gallery:assets && npm run build && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check analytics.js && node --check scripts/build-baseline-from-pos.mjs && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js
+      - name: Session contracts
+        run: npm run verify:session-state-fixture && npm run test:session-state
+      - name: Proof depth
+        run: npm run verify:proof-depth && npm run test:proof-depth
+      - name: Review routing
+        run: npm run verify:review-routing && npm run test:review-routing
+      - name: Traceability
+        run: npm run verify:traceability && npm run test:traceability
+      - name: Visit attribution
+        run: npm run verify:visit-attribution && npm run test:visit-attribution && npm run test:visit-baseline
+      - name: AI review matrix
+        run: npm run verify:ai-style-matrix
+      - name: Product contracts
+        run: npm run verify:social-offer && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share
+      - name: Integrity
+        run: npm run integrity:generate && npm run verify:integrity
+      - name: Adversarial
+        run: npm run verify:adversarial
