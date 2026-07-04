@@ -28,10 +28,12 @@ const baseResult = ({ head, classification, provider, ledger, reasons }) => ({
   reasons,
   inputs: {
     provider: {
+      schemaVersion: provider?.schemaVersion ?? null,
       classification: provider?.classification ?? null,
       exactHeadSha: provider?.exactHeadSha ?? null,
     },
     reviewLedger: {
+      schemaVersion: ledger?.schemaVersion ?? null,
       classification: ledger?.classification ?? null,
       exactHeadSha: ledger?.exactHeadSha ?? null,
       unresolvedFindings: Number.isInteger(ledger?.unresolvedFindings)
@@ -42,18 +44,34 @@ const baseResult = ({ head, classification, provider, ledger, reasons }) => ({
   authority: noAuthority(),
 });
 
+const invalid = ({ head, provider, ledger, reason }) => baseResult({
+  head,
+  classification: "INVALID_EVIDENCE",
+  provider,
+  ledger,
+  reasons: [reason],
+});
+
 const projectGovernanceState = ({ provider, ledger }) => {
   const providerHead = normalizeSha(provider?.exactHeadSha);
   const ledgerHead = normalizeSha(ledger?.exactHeadSha);
   const head = providerHead || ledgerHead;
 
-  if (!SHA_RE.test(providerHead) || !SHA_RE.test(ledgerHead)) {
-    return baseResult({
+  if (provider?.schemaVersion !== 1 || ledger?.schemaVersion !== 1) {
+    return invalid({
       head,
-      classification: "INVALID_EVIDENCE",
       provider,
       ledger,
-      reasons: ["Both inputs must contain a valid 40-character exact head SHA."],
+      reason: "Both inputs must use schemaVersion 1.",
+    });
+  }
+
+  if (!SHA_RE.test(providerHead) || !SHA_RE.test(ledgerHead)) {
+    return invalid({
+      head,
+      provider,
+      ledger,
+      reason: "Both inputs must contain a valid 40-character exact head SHA.",
     });
   }
 
@@ -68,22 +86,44 @@ const projectGovernanceState = ({ provider, ledger }) => {
   }
 
   if (!PROVIDER_STATES.has(provider?.classification)) {
-    return baseResult({
+    return invalid({
       head,
-      classification: "INVALID_EVIDENCE",
       provider,
       ledger,
-      reasons: ["Provider classification is unknown."],
+      reason: "Provider classification is unknown.",
     });
   }
 
   if (!LEDGER_STATES.has(ledger?.classification)) {
-    return baseResult({
+    return invalid({
       head,
-      classification: "INVALID_EVIDENCE",
       provider,
       ledger,
-      reasons: ["Review-ledger classification is unknown."],
+      reason: "Review-ledger classification is unknown.",
+    });
+  }
+
+  if (
+    ledger.classification === "NO_OPEN_FINDINGS" &&
+    ledger.unresolvedFindings !== 0
+  ) {
+    return invalid({
+      head,
+      provider,
+      ledger,
+      reason: "NO_OPEN_FINDINGS requires unresolvedFindings to equal 0.",
+    });
+  }
+
+  if (
+    ledger.classification === "REVIEW_FINDINGS_PRESENT" &&
+    (!Number.isInteger(ledger.unresolvedFindings) || ledger.unresolvedFindings < 1)
+  ) {
+    return invalid({
+      head,
+      provider,
+      ledger,
+      reason: "REVIEW_FINDINGS_PRESENT requires a positive unresolvedFindings count.",
     });
   }
 
