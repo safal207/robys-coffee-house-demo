@@ -35,6 +35,7 @@ function atRuleBlock(css, prelude) {
 
 export function verifyBrandWordmark() {
   const styles = readFileSync(resolve(root, "styles.css"), "utf8");
+  const finalQa = readFileSync(resolve(root, "final-qa.css"), "utf8");
   const menuStyles = readFileSync(resolve(root, "menu.css"), "utf8");
   const responsiveStyles = readFileSync(resolve(root, "wordmark-responsive.css"), "utf8");
   const discoverGuard = readFileSync(resolve(root, "discover-weather-guard.js"), "utf8");
@@ -50,9 +51,23 @@ export function verifyBrandWordmark() {
   assert.match(cssRule(styles, ".brand-copy strong::after"), /(?:^|;)content:"BY'S";content:"BY'S"\/""(?:;|$)/);
   assert.match(cssRule(styles, ".brand-copy small"), /(?:^|;)display:block!important(?:;|$)/);
 
-  const compactMedia = atRuleBlock(styles, "@media(max-width:390px)");
-  assert.match(cssRule(compactMedia, ".brand-copy"), /(?:^|;)display:flex!important(?:;|$)/);
-  assert.match(cssRule(compactMedia, ".brand-copy"), /(?:^|;)width:118px(?:;|$)/);
+  const desktopLockup = cssRule(finalQa, ".site-header .brand-copy");
+  assert.match(desktopLockup, /(?:^|;)width:132px(?:;|$)/);
+  assert.match(desktopLockup, /(?:^|;)align-items:flex-start(?:;|$)/);
+  assert.equal(cssRule(finalQa, ".site-header .brand-copy strong"), "margin-right:0;margin-left:25px");
+  const desktopSubtitle = cssRule(finalQa, ".site-header .brand-copy small");
+  assert.match(desktopSubtitle, /(?:^|;)margin-top:4px!important(?:;|$)/);
+  assert.match(desktopSubtitle, /(?:^|;)letter-spacing:.20em!important(?:;|$)/);
+  assert.match(desktopSubtitle, /(?:^|;)text-indent:.20em(?:;|$)/);
+
+  const mobileLockup = atRuleBlock(finalQa, "@media(max-width:680px)");
+  assert.match(cssRule(mobileLockup, ".site-header .brand-copy"), /(?:^|;)width:106px(?:;|$)/);
+  assert.equal(cssRule(mobileLockup, ".site-header .brand-copy strong"), "margin-left:22px");
+
+  const compactLockup = atRuleBlock(finalQa, "@media(max-width:390px)");
+  assert.match(cssRule(compactLockup, ".site-header .brand-copy"), /(?:^|;)width:90px(?:;|$)/);
+  assert.equal(cssRule(compactLockup, ".site-header .brand-copy strong"), "margin-left:19px");
+  assert.match(cssRule(compactLockup, ".site-header .brand-copy small"), /(?:^|;)letter-spacing:.11em!important(?:;|$)/);
 
   assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)width:54px(?:;|$)/);
   assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)height:54px(?:;|$)/);
