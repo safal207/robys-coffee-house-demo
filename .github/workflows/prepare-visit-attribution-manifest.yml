@@ -1,18 +1,46 @@
-name: Diagnose aggregate assertion
+name: Prepare visit attribution manifest
+
 on:
   push:
     branches: [feat/visit-attribution-v0]
   pull_request:
     branches: [main]
+
 permissions:
-  contents: read
+  contents: write
+
 jobs:
-  diagnose:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: node --check analytics.js
+      - run: node --check scripts/build-baseline-from-pos.mjs
+      - run: npm run verify:visit-attribution
+      - run: npm run test:visit-attribution
+      - run: npm run test:visit-baseline
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run integrity:generate
+      - run: npm run check
+
+      - name: Commit generated manifest
+        if: github.event_name == 'push'
         run: |
-          set -o pipefail
-          git clone -q --depth=1 --branch feat/visit-attribution-v0 https://github.com/safal207/robys-coffee-house-demo.git repo
-          cd repo
-          node scripts/verify-regression-contracts.mjs 2>&1 | tail -n 12
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add integrity-manifest.json
+          git commit -m "chore: regenerate integrity manifest [skip ci]"
+          git push
