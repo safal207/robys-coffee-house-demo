@@ -17,10 +17,16 @@ const request = (body) => ({
   updated_at: REQUEST_AT,
 });
 
-const review = (login, commitId = HEAD) => ({
+const review = (
+  login,
+  commitId = HEAD,
+  submittedAt = REVIEW_AT,
+  updatedAt = REVIEW_AT,
+) => ({
   user: { login },
   commit_id: commitId,
-  submitted_at: REVIEW_AT,
+  submitted_at: submittedAt,
+  updated_at: updatedAt,
 });
 
 const makeCore = () => {
@@ -136,7 +142,49 @@ const runCase = async ({ comments, reviews }) => {
     assert.equal(result.providers.codeRabbit.evidenceDetected, false);
   }
 
-  process.stdout.write("AI review evidence classifier: 4 cases passed\n");
+  {
+    const staleCreatedAt = "2026-07-03T23:59:00.000Z";
+    const comments = [
+      {
+        ...request("@codex review"),
+        created_at: staleCreatedAt,
+        updated_at: REQUEST_AT,
+      },
+      {
+        ...request("@coderabbitai review"),
+        created_at: staleCreatedAt,
+        updated_at: REQUEST_AT,
+      },
+    ];
+    const { result } = await runCase({ comments, reviews: [] });
+    assert.equal(result.classification, "REQUEST_MISSING");
+  }
+
+  {
+    const comments = [
+      request("@codex review"),
+      request("@coderabbitai review"),
+    ];
+    const staleSubmittedAt = "2026-07-04T00:00:30.000Z";
+    const reviews = [
+      review(
+        "chatgpt-codex-connector[bot]",
+        HEAD,
+        staleSubmittedAt,
+        REVIEW_AT,
+      ),
+      review(
+        "coderabbitai[bot]",
+        HEAD,
+        staleSubmittedAt,
+        REVIEW_AT,
+      ),
+    ];
+    const { result } = await runCase({ comments, reviews });
+    assert.equal(result.classification, "PROVIDER_EVIDENCE_UNAVAILABLE");
+  }
+
+  process.stdout.write("AI review evidence classifier: 6 cases passed\n");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
