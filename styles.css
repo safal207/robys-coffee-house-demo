@@ -30,8 +30,8 @@ button{font:inherit}
 .brand-copy{position:relative;display:flex!important;width:170px;flex-direction:column;align-items:center;line-height:1}
 .brand-copy strong{position:relative;display:block;width:34px;height:34px;margin:0 auto;border:8px solid #d32636;border-radius:50%;font-size:0!important;letter-spacing:0!important}
 .brand-copy strong::before,.brand-copy strong::after{position:absolute;top:50%;color:#fff;font:700 2.15rem/1 var(--display);letter-spacing:.01em;white-space:nowrap;transform:translateY(-51%)}
-.brand-copy strong::before{right:calc(100% + 4px);content:"R"}
-.brand-copy strong::after{left:calc(100% + 4px);content:"BY'S"}
+.brand-copy strong::before{right:calc(100% + 4px);content:"R" / ""}
+.brand-copy strong::after{left:calc(100% + 4px);content:"BY'S" / ""}
 .brand-copy small{display:block!important;width:100%;margin-top:7px!important;color:#fff;font:500 .56rem/1 var(--sans)!important;letter-spacing:.28em!important;text-align:center;white-space:nowrap}
 .main-nav{display:flex;align-items:center;gap:24px;font-size:.8rem;font-weight:600}
 .main-nav a{padding:10px 0;transition:opacity .2s}
@@ -176,7 +176,7 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
   .brand-copy{display:flex!important;width:118px}
   .brand-copy strong{width:24px;height:24px;border-width:6px}
   .brand-copy strong::before,.brand-copy strong::after{font-size:1.5rem}
-  .brand-copy small{display:block!important;font-size:.4rem!important;letter-spacing:.18em!important}
+  .brand-copy small{display:block!important;font-size:clamp(.48rem,1.4vw,.56rem)!important;letter-spacing:.18em!important}
 }
 
 @media(prefers-reduced-motion:reduce){
