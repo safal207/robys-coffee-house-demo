@@ -1,0 +1,62 @@
+name: Apply pairing CTA post-merge hardening
+
+on:
+  push:
+    branches:
+      - fix/pairing-cta-post-merge-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout follow-up branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: fix/pairing-cta-post-merge-hardening
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch reviewed source branch
+        run: git fetch origin feat/hero-pairing-cta
+
+      - name: Apply only post-merge hardening files
+        run: |
+          for file in \
+            sw.js \
+            scripts/verify-pairing-cta-static.mjs \
+            scripts/verify-pairing-cta.mjs \
+            scripts/verify-reviewed-visual-change.mjs
+          do
+            git show origin/feat/hero-pairing-cta:"$file" > "$file"
+          done
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Refresh integrity evidence
+        run: npm run integrity:generate
+
+      - name: Commit exact follow-up patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            sw.js \
+            scripts/verify-pairing-cta-static.mjs \
+            scripts/verify-pairing-cta.mjs \
+            scripts/verify-reviewed-visual-change.mjs \
+            integrity-manifest.json
+          git commit -m "fix: harden merged pairing CTA contracts"
+          git push origin HEAD:fix/pairing-cta-post-merge-hardening
