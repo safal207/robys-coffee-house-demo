@@ -14,6 +14,6 @@ assert.match(primaryCta, /data-ru="Смотреть сочетание дня"/)
 assert.equal(primaryCta.includes("target="), false);
 assert.equal(primaryCta.includes("rel="), false);
 assert.equal(primaryCta.includes("data-i18n="), false);
-assert.match(index, /src="analytics\.js\?v=pairing-cta-20260704-1"/);
+assert.match(index, /src="analytics\.js\?v=pairing-cta-20260704-2"/);
 
 console.log("PASS: static pairing CTA and cache revision are bound");
