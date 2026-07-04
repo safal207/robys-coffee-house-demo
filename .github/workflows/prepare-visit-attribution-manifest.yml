@@ -1,4 +1,4 @@
-name: Diagnose final regression tail
+name: Diagnose aggregated regression imports
 
 on:
   push:
@@ -19,17 +19,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: npm run integrity:generate
+      - name: Critical journeys
+        run: node scripts/verify-critical-user-journeys.mjs
+      - name: P1 interface
+        run: node scripts/verify-p1-interface-contracts.mjs
+      - name: SEO deploy
+        run: node scripts/verify-seo-content-deploy.mjs
+      - name: Visual contract
+        run: node scripts/verify-visual-contract.mjs
+      - name: Performance contract
+        run: node scripts/verify-performance-contract.mjs
+      - name: Live contract
+        run: node scripts/verify-live-contract.mjs
+      - name: Security contracts
+        run: node scripts/verify-security-contracts.mjs
       - name: Aggregated regression contracts
         run: node scripts/verify-regression-contracts.mjs
-      - name: Menu content
-        run: npm run verify:menu-content
-      - name: Instagram tools
-        run: npm run verify:instagram-tools
-      - name: Menu share
-        run: npm run verify:menu-share
-      - name: Integrity
-        run: npm run verify:integrity
-      - name: Adversarial
-        run: npm run verify:adversarial
