@@ -36,9 +36,7 @@ class ElementStub {
 
 const document = {
   documentElement: { lang: "en" },
-  body: {
-    append(node) { appended.push(node); }
-  },
+  body: { append(node) { appended.push(node); } },
   querySelector(selector) {
     if (!selector.startsWith("#")) return null;
     const id = selector.slice(1);
@@ -54,9 +52,7 @@ const document = {
 const windowObject = {
   dataLayer: [],
   addEventListener(type, callback) { windowListeners.set(type, callback); },
-  getSelection() {
-    return { removeAllRanges() {}, addRange() {} };
-  }
+  getSelection() { return { removeAllRanges() {}, addRange() {} }; }
 };
 
 const context = vm.createContext({
@@ -100,12 +96,7 @@ const link = {
     return null;
   }
 };
-const target = {
-  closest(selector) {
-    if (selector === "a") return link;
-    return null;
-  }
-};
+const target = { closest(selector) { return selector === "a" ? link : null; } };
 documentListeners.get("click")({ target });
 
 const events = windowObject.robysVisitAttribution.events();
@@ -114,6 +105,8 @@ assert.match(events[0].eventId, /^wev_[a-z0-9]{16}$/);
 assert.match(events[0].campaignToken, /^rv_[a-z0-9]{20}$/);
 assert.equal(events[0].eventName, "visit_intent_created");
 assert.ok(Number.isFinite(Date.parse(events[0].occurredAt)));
+assert.deepEqual(windowObject.robysVisitAttribution.decodeCampaignToken(events[0].campaignToken), events[0]);
+assert.equal(events[0].eventId, `wev_${events[0].campaignToken.slice(-16)}`);
 assert.equal(appended.length, 1);
 assert.equal(appended[0].tagName, "dialog");
 assert.equal(appended[0].open, true);
@@ -121,7 +114,7 @@ assert.equal(appended[0].open, true);
 const bundle = windowObject.robysVisitAttribution.buildBaselineBundle([
   {
     orderId: "ord_001",
-    orderedAt: "2026-07-04T12:00:00+03:00",
+    orderedAt: new Date(Date.parse(events[0].occurredAt) + 30 * 60 * 1000).toISOString(),
     campaignToken: events[0].campaignToken,
     grossRevenue: "300.00",
     currency: "TRY",
@@ -138,54 +131,23 @@ assert.equal(bundle.webEvents.length, 1);
 assert.equal(bundle.posOrders.length, 1);
 assert.match(bundle.runId, /^ATTRRUN-ROBYS-BASELINE-[0-9]{14}$/);
 
+assert.throws(() => windowObject.robysVisitAttribution.buildBaselineBundle({}), /posOrders must be an array/);
 assert.throws(
-  () => windowObject.robysVisitAttribution.buildBaselineBundle({}),
-  /posOrders must be an array/
-);
-
-assert.throws(
-  () => windowObject.robysVisitAttribution.buildBaselineBundle([
-    {
-      orderId: "ord_002",
-      orderedAt: "2026-07-04T12:00:00+03:00",
-      campaignToken: events[0].campaignToken,
-      grossRevenue: "300.00",
-      currency: "TRY",
-      variableCost: "140.00",
-      customerName: "not-allowed"
-    }
-  ]),
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([{ ...bundle.posOrders[0], customerName: "not-allowed" }]),
   /missing or unknown fields/
 );
-
 assert.throws(
-  () => windowObject.robysVisitAttribution.buildBaselineBundle([
-    {
-      orderId: "ord_003",
-      orderedAt: "2026-07-04T12:00:00",
-      campaignToken: events[0].campaignToken,
-      grossRevenue: "300.00",
-      currency: "TRY",
-      variableCost: "140.00"
-    }
-  ]),
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([{ ...bundle.posOrders[0], orderedAt: "2026-07-04T12:00:00" }]),
   /date-time with offset/
 );
-
 assert.throws(
-  () => windowObject.robysVisitAttribution.buildBaselineBundle([
-    {
-      orderId: "ord_004",
-      orderedAt: "2026-07-04T12:00:00+03:00",
-      campaignToken: "invalid",
-      grossRevenue: "300.00",
-      currency: "TRY",
-      variableCost: "140.00"
-    }
-  ]),
+  () => windowObject.robysVisitAttribution.buildBaselineBundle([{ ...bundle.posOrders[0], campaignToken: "invalid" }]),
   /campaignToken is invalid/
 );
 
+const tampered = { ...events[0], occurredAt: new Date(Date.parse(events[0].occurredAt) + 1000).toISOString() };
+storage.set("robys:visit-intents:v0", JSON.stringify([tampered]));
+assert.equal(windowObject.robysVisitAttribution.events().length, 0);
 storage.set("robys:visit-intents:v0", "not-json");
 assert.equal(windowObject.robysVisitAttribution.events().length, 0);
 assert.equal(windowObject.robysVisitAttribution.clear(), true);
@@ -195,4 +157,4 @@ const actions = windowObject.dataLayer.map((entry) => entry.action);
 assert.ok(actions.includes("visit_intent_created"));
 assert.ok(actions.includes("route_click"));
 
-console.log("✅ VISIT-ATTRIBUTION-002 passed: route intent creates a bounded token event and exact baseline bundle.");
+console.log("✅ VISIT-ATTRIBUTION-002 passed: route intent creates a self-describing token and exact baseline bundle.");
