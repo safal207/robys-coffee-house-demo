@@ -36,6 +36,6 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:3px s
   .menu-icon{width:48px;height:48px}
   .site-header .brand-copy{display:flex!important;width:90px}
   .site-header .brand-copy strong{margin-left:19px}
-  .site-header .brand-copy small{font-size:.43rem!important;letter-spacing:.11em!important;text-indent:.11em}
+  .site-header .brand-copy small{font-size:.46rem!important;letter-spacing:.11em!important;text-indent:.11em}
 }
 @media(prefers-reduced-motion:reduce){.menu-icon{transition:none}}
