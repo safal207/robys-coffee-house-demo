@@ -1,0 +1,54 @@
+name: Refresh pairing CTA v2 generated evidence
+
+on:
+  push:
+    branches:
+      - feat/hero-pairing-cta
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: feat/hero-pairing-cta
+          persist-credentials: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Update cache revision and generated evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+          old = 'analytics.js?v=pairing-cta-20260704-1'
+          new = 'analytics.js?v=pairing-cta-20260704-2'
+          if old not in html:
+              raise SystemExit("Expected pairing CTA analytics revision was not found")
+          path.write_text(html.replace(old, new, 1), encoding="utf-8")
+          PY
+          npm run build
+          npm run integrity:generate
+
+      - name: Commit exact generated result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html app.js featured-gallery.js social-offer.js integrity-manifest.json
+          git commit -m "chore: refresh pairing CTA v2 generated evidence"
+          git push origin HEAD:feat/hero-pairing-cta
