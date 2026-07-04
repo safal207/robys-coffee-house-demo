@@ -88,17 +88,20 @@ for (const [selector, requiredBackground] of lightSectionContracts) {
 }
 dashboardContract("THEME-001", 5);
 
-const expectedOrder = ["latte", "san-sebastian", "iced-latte", "nutella-croissant", "lotus-cheesecake"];
+const expectedOrder = ["latte", "iced-latte", "san-sebastian", "lotus-cheesecake", "croissant", "nutella-croissant"];
 const sourceIds = Array.from(featuredSource.matchAll(/\bid:\s*"([^"]+)"/g), (match) => match[1]);
 const sourceImages = Array.from(featuredSource.matchAll(/\bimage:\s*"([^"]+)"/g), (match) => match[1]);
+const sourceSmallImages = Array.from(featuredSource.matchAll(/\bimageSmall:\s*"([^"]+)"/g), (match) => match[1]);
 const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bposter-card\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi));
-assert(sourceIds.length === 5, "FEATURED-001", `Expected exactly 5 typed products, found ${sourceIds.length}`);
+assert(sourceIds.length === expectedOrder.length, "FEATURED-001", `Expected exactly ${expectedOrder.length} typed products, found ${sourceIds.length}`);
 assert(JSON.stringify(sourceIds) === JSON.stringify(expectedOrder), "FEATURED-001", `Typed product order changed: ${sourceIds.join(", ")}`);
-assert(sourceImages.length === 5, "FEATURED-001", `Expected 5 typed poster sources, found ${sourceImages.length}`);
-assert(sourceImages.every((path) => /^src\/products\/(?:cards|gallery-v2)\/[\w.-]+\.(?:svg|avif)\?v=/.test(path)), "FEATURED-001", "Every typed item must use a versioned local image source");
-assert(sourceImages.filter((path) => path.endsWith(".avif?v=20260625-5")).length === 1, "FEATURED-001", "Only the verified Iced Latte AVIF may be used");
-assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Typed poster sources must be unique");
-assert(staticCards.length === 5, "FEATURED-001", `Static fallback must expose exactly 5 poster cards, found ${staticCards.length}`);
+assert(sourceImages.length === expectedOrder.length, "FEATURED-001", `Expected ${expectedOrder.length} full poster sources, found ${sourceImages.length}`);
+assert(sourceSmallImages.length === expectedOrder.length, "FEATURED-001", `Expected ${expectedOrder.length} compact poster sources, found ${sourceSmallImages.length}`);
+assert(sourceImages.every((path) => /^src\/products\/gallery-v5\/[\w.-]+\.webp\?v=20260626-7$/.test(path)), "FEATURED-001", "Every full poster must use the verified gallery-v5 WebP set");
+assert(sourceSmallImages.every((path) => /^src\/products\/gallery-v5\/[\w.-]+-828\.webp\?v=20260626-7$/.test(path)), "FEATURED-001", "Every compact poster must use the verified gallery-v5 828px WebP set");
+assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Full poster sources must be unique");
+assert(new Set(sourceSmallImages).size === sourceSmallImages.length, "FEATURED-001", "Compact poster sources must be unique");
+assert(staticCards.length === expectedOrder.length, "FEATURED-001", `Static fallback must expose exactly ${expectedOrder.length} poster cards, found ${staticCards.length}`);
 assert(!html.includes("featured-card--overview"), "FEATURED-001", "Cafe overview must not return to the product feed");
 assert(html.includes('src="featured-gallery.js?v='), "FEATURED-001", "Typed gallery runtime is not loaded");
 assert(html.includes('href="featured-gallery.css?v='), "FEATURED-001", "Typed gallery stylesheet is not loaded");
@@ -121,4 +124,4 @@ assert(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*visualViewport/i.test(html), "FEATUR
 console.log("✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 5 complete images with iOS-safe dock handling, stable fallback height and no crop.");
+console.log(`✅ FEATURED-001 gated: the TypeScript gallery renders ${expectedOrder.length} complete WebP product images with iOS-safe dock handling, stable fallback height and no crop.`);
