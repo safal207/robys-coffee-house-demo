@@ -22,7 +22,7 @@ jobs:
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
             const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const codexLogins = new Set([
+            const nativeCodexLogins = new Set([
               'chatgpt-codex-connector[bot]',
               'chatgpt-codex-connector',
             ]);
@@ -81,25 +81,30 @@ jobs:
               const latestCodexRequestAt = latestRequestAt(codexRequests);
               const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
 
-              const codexReview = reviews.find((review) => (
-                codexLogins.has(review.user?.login) &&
+              const nativeCodexReview = reviews.find((review) => (
+                nativeCodexLogins.has(review.user?.login) &&
                 nativeReviewMatchesHead(review) &&
+                latestCodexRequestAt > 0 &&
                 timeOf(review) >= latestCodexRequestAt
               ));
-              const codexProxyReview = reviews.find((review) => {
+              const maintainerAiAdvisory = reviews.find((review) => {
                 const body = bodyOf(review);
                 return (
                   trusted.has(review.author_association) &&
                   nativeReviewMatchesHead(review) &&
                   timeOf(review) >= evidenceAfter &&
-                  body.includes('<!-- codex-proxy-review -->') &&
+                  body.includes('<!-- external-ai-advisory-attestation -->') &&
                   body.toLowerCase().includes(`head: ${currentHead}`) &&
+                  body.includes('Provider: OpenAI ChatGPT') &&
+                  body.includes('Provenance: owner-attested session') &&
+                  body.includes('Independence: not verified') &&
                   body.includes('Result: READY')
                 );
               });
               const codeRabbitReview = reviews.find((review) => (
                 codeRabbitLogins.has(review.user?.login) &&
                 nativeReviewMatchesHead(review) &&
+                latestCodeRabbitRequestAt > 0 &&
                 timeOf(review) >= latestCodeRabbitRequestAt
               ));
               const codeRabbitStatusComment = comments.find((item) => {
@@ -117,43 +122,52 @@ jobs:
                 );
               });
 
-              const hasCodexRequest = latestCodexRequestAt > 0 || Boolean(codexProxyReview);
-              const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasCodexEvidence = Boolean(codexReview || codexProxyReview);
-              const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
+              const hasIndependentBotRequest = latestCodeRabbitRequestAt > 0;
+              const hasIndependentBotEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
+              const hasSecondaryAiAdvisory = Boolean(nativeCodexReview || maintainerAiAdvisory);
+              const advisoryProvenance = nativeCodexReview
+                ? 'native Codex bot review'
+                : maintainerAiAdvisory
+                  ? 'owner-attested ChatGPT session (not independent)'
+                  : 'missing';
 
               if (
-                hasCodexRequest &&
-                hasCodeRabbitRequest &&
-                hasCodexEvidence &&
-                hasCodeRabbitEvidence
+                hasIndependentBotRequest &&
+                hasIndependentBotEvidence &&
+                hasSecondaryAiAdvisory
               ) {
                 await core.summary
                   .addHeading('AI review contract')
                   .addTable([
                     [
-                      { data: 'Reviewer', header: true },
-                      { data: 'Fresh request or exact-head proxy', header: true },
-                      { data: 'Exact-head evidence', header: true },
+                      { data: 'Evidence', header: true },
+                      { data: 'Identity', header: true },
+                      { data: 'Independent', header: true },
+                      { data: 'Exact head', header: true },
                     ],
-                    ['Codex', 'yes', 'yes'],
-                    ['CodeRabbit', 'yes', 'yes'],
+                    ['Primary review', 'CodeRabbit bot verified', 'yes', 'yes'],
+                    [
+                      'Secondary advisory',
+                      advisoryProvenance,
+                      nativeCodexReview ? 'yes' : 'no',
+                      'yes',
+                    ],
                   ])
                   .write();
                 core.notice(
-                  `Exact-head AI evidence verified for ${pr.head.sha}: Codex and CodeRabbit complete.`,
+                  `Exact-head AI evidence verified for ${pr.head.sha}: independent CodeRabbit review plus ${advisoryProvenance}.`,
                 );
                 return;
               }
 
               core.info(
                 `Waiting for exact-head AI evidence (attempt ${attempt}/30): ` +
-                  `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
+                  `CodeRabbit=${hasIndependentBotRequest}/${hasIndependentBotEvidence}, ` +
+                  `secondaryAdvisory=${hasSecondaryAiAdvisory} (${advisoryProvenance})`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Require exact-head Codex evidence (native bot review or marked proxy review) and a fresh exact-head CodeRabbit request plus native review or clean status summary.',
+              'Require a fresh exact-head CodeRabbit request plus bot-authored review or clean status summary, and a separately labelled exact-head secondary AI advisory. Owner-attested advisories are accepted only as non-independent evidence and must never impersonate Codex.',
             );
