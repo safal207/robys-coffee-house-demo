@@ -92,24 +92,11 @@ jobs:
                 latestCodeRabbitRequestAt > 0 &&
                 timeOf(review) >= latestCodeRabbitRequestAt
               ));
-              const codeRabbitStatusComment = comments.find((item) => {
-                const body = bodyOf(item);
-                return (
-                  latestCodeRabbitRequestAt > 0 &&
-                  codeRabbitLogins.has(item.user?.login) &&
-                  timeOf(item) >= latestCodeRabbitRequestAt &&
-                  body.includes('<!-- This is an auto-generated comment: summarize by coderabbit.ai -->') &&
-                  (
-                    body.includes('No actionable comments were generated in the recent review.') ||
-                    body.includes('No new commits to review since the last review.')
-                  )
-                );
-              });
 
               const hasCodexRequest = latestCodexRequestAt > 0;
               const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
               const hasCodexEvidence = Boolean(codexReview);
-              const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
+              const hasCodeRabbitEvidence = Boolean(codeRabbitReview);
 
               if (
                 hasCodexRequest &&
@@ -124,20 +111,20 @@ jobs:
                       { data: 'Reviewer', header: true },
                       { data: 'Bot identity verified', header: true },
                       { data: 'Fresh exact-head request', header: true },
-                      { data: 'Exact-head evidence', header: true },
+                      { data: 'Exact-head review object', header: true },
                     ],
                     ['Codex', 'yes', 'yes', 'yes'],
                     ['CodeRabbit', 'yes', 'yes', 'yes'],
                   ])
                   .write();
                 core.notice(
-                  `Native exact-head AI evidence verified for ${pr.head.sha}: Codex and CodeRabbit complete.`,
+                  `Native exact-head review objects verified for ${pr.head.sha}: Codex and CodeRabbit complete.`,
                 );
                 return;
               }
 
               core.info(
-                `Waiting for native exact-head AI evidence (attempt ${attempt}/30): ` +
+                `Waiting for native exact-head AI review objects (attempt ${attempt}/30): ` +
                   `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
                   `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
               );
@@ -145,5 +132,5 @@ jobs:
             }
 
             core.setFailed(
-              'Require fresh exact-head @codex review and @coderabbitai review commands, followed by bot-authored exact-head evidence from both configured reviewer identities.',
+              'Require fresh exact-head @codex review and @coderabbitai review commands, followed by bot-authored review objects from both configured reviewer identities bound to the current commit.',
             );
