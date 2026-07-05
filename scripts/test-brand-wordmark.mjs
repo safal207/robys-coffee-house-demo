@@ -62,12 +62,31 @@ function verifyDiscoverWordmarkStylesheet(discoverGuard) {
   assert.equal(appended[0].href, "wordmark-responsive.css?v=20260704-1");
 }
 
+function verifyOfflineWordmarkDelivery(serviceWorker) {
+  assert.match(
+    serviceWorker,
+    /const CACHE_VERSION = "robys-offline-[^"]+?(?:-[a-f0-9]{12}){3}";/,
+    "service-worker cache marker must remain compatible with canonical build revisioning"
+  );
+  assert.match(
+    serviceWorker,
+    /"\.\/wordmark-responsive\.css\?v=20260704-1"/,
+    "wordmark stylesheet must be precached with its exact revision"
+  );
+  assert.match(
+    serviceWorker,
+    /url\.pathname\.endsWith\("\/wordmark-responsive\.css"\)/,
+    "wordmark stylesheet must use exact-revision cache matching"
+  );
+}
+
 export function verifyBrandWordmark() {
   const styles = readFileSync(resolve(root, "styles.css"), "utf8");
   const finalQa = readFileSync(resolve(root, "final-qa.css"), "utf8");
   const menuStyles = readFileSync(resolve(root, "menu.css"), "utf8");
   const responsiveStyles = readFileSync(resolve(root, "wordmark-responsive.css"), "utf8");
   const discoverGuard = readFileSync(resolve(root, "discover-weather-guard.js"), "utf8");
+  const serviceWorker = readFileSync(resolve(root, "sw.js"), "utf8");
   const index = readFileSync(resolve(root, "index.html"), "utf8");
   const menu = readFileSync(resolve(root, "menu.html"), "utf8");
 
@@ -103,6 +122,7 @@ export function verifyBrandWordmark() {
   assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)border:12pxsolid#d32636(?:;|$)/);
 
   verifyDiscoverWordmarkStylesheet(discoverGuard);
+  verifyOfflineWordmarkDelivery(serviceWorker);
 
   const subtitleMedia = atRuleBlock(responsiveStyles, "@media(max-width:680px)");
   assert.equal(cssRule(subtitleMedia, ".discover-header .brand-copy small"), "display:none!important");
