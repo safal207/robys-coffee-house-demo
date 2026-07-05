@@ -22,7 +22,7 @@ jobs:
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
             const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const nativeCodexLogins = new Set([
+            const codexLogins = new Set([
               'chatgpt-codex-connector[bot]',
               'chatgpt-codex-connector',
             ]);
@@ -46,20 +46,21 @@ jobs:
               .split(/\r?\n/)
               .map((line) => line.trim())
               .filter(Boolean);
+            const requestMentionsHead = (request) => (
+              bodyOf(request).toLowerCase().includes(currentHead)
+            );
             const isCommand = (item, value) => (
               trusted.has(item.author_association) &&
               timeOf(item) >= evidenceAfter &&
-              commandLinesOf(item).includes(value)
+              commandLinesOf(item).includes(value) &&
+              requestMentionsHead(item)
             );
             const latestRequestAt = (requests) => requests.reduce(
               (latest, request) => Math.max(latest, timeOf(request)),
               0,
             );
-            const nativeReviewMatchesHead = (review) => (
+            const reviewMatchesHead = (review) => (
               review.commit_id?.toLowerCase() === currentHead
-            );
-            const requestMentionsHead = (request) => (
-              bodyOf(request).toLowerCase().includes(currentHead)
             );
 
             for (let attempt = 1; attempt <= 30; attempt += 1) {
@@ -75,45 +76,28 @@ jobs:
               ]);
 
               const codexRequests = comments.filter((item) => isCommand(item, '@codex review'));
-              const codeRabbitRequests = comments.filter((item) => (
-                isCommand(item, '@coderabbitai review') && requestMentionsHead(item)
-              ));
+              const codeRabbitRequests = comments.filter((item) => isCommand(item, '@coderabbitai review'));
               const latestCodexRequestAt = latestRequestAt(codexRequests);
               const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
 
-              const nativeCodexReview = reviews.find((review) => (
-                nativeCodexLogins.has(review.user?.login) &&
-                nativeReviewMatchesHead(review) &&
+              const codexReview = reviews.find((review) => (
+                codexLogins.has(review.user?.login) &&
+                reviewMatchesHead(review) &&
                 latestCodexRequestAt > 0 &&
                 timeOf(review) >= latestCodexRequestAt
               ));
-              const maintainerAiAdvisory = reviews.find((review) => {
-                const body = bodyOf(review);
-                return (
-                  trusted.has(review.author_association) &&
-                  nativeReviewMatchesHead(review) &&
-                  timeOf(review) >= evidenceAfter &&
-                  body.includes('<!-- external-ai-advisory-attestation -->') &&
-                  body.toLowerCase().includes(`head: ${currentHead}`) &&
-                  body.includes('Provider: OpenAI ChatGPT') &&
-                  body.includes('Provenance: owner-attested session') &&
-                  body.includes('Independence: not verified') &&
-                  body.includes('Result: READY')
-                );
-              });
               const codeRabbitReview = reviews.find((review) => (
                 codeRabbitLogins.has(review.user?.login) &&
-                nativeReviewMatchesHead(review) &&
+                reviewMatchesHead(review) &&
                 latestCodeRabbitRequestAt > 0 &&
                 timeOf(review) >= latestCodeRabbitRequestAt
               ));
               const codeRabbitStatusComment = comments.find((item) => {
                 const body = bodyOf(item);
-                const statusTime = timeOf(item);
                 return (
                   latestCodeRabbitRequestAt > 0 &&
                   codeRabbitLogins.has(item.user?.login) &&
-                  statusTime >= latestCodeRabbitRequestAt &&
+                  timeOf(item) >= latestCodeRabbitRequestAt &&
                   body.includes('<!-- This is an auto-generated comment: summarize by coderabbit.ai -->') &&
                   (
                     body.includes('No actionable comments were generated in the recent review.') ||
@@ -122,52 +106,44 @@ jobs:
                 );
               });
 
-              const hasIndependentBotRequest = latestCodeRabbitRequestAt > 0;
-              const hasIndependentBotEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
-              const hasSecondaryAiAdvisory = Boolean(nativeCodexReview || maintainerAiAdvisory);
-              const advisoryProvenance = nativeCodexReview
-                ? 'native Codex bot review'
-                : maintainerAiAdvisory
-                  ? 'owner-attested ChatGPT session (not independent)'
-                  : 'missing';
+              const hasCodexRequest = latestCodexRequestAt > 0;
+              const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
+              const hasCodexEvidence = Boolean(codexReview);
+              const hasCodeRabbitEvidence = Boolean(codeRabbitReview || codeRabbitStatusComment);
 
               if (
-                hasIndependentBotRequest &&
-                hasIndependentBotEvidence &&
-                hasSecondaryAiAdvisory
+                hasCodexRequest &&
+                hasCodeRabbitRequest &&
+                hasCodexEvidence &&
+                hasCodeRabbitEvidence
               ) {
                 await core.summary
                   .addHeading('AI review contract')
                   .addTable([
                     [
-                      { data: 'Evidence', header: true },
-                      { data: 'Identity', header: true },
-                      { data: 'Independent', header: true },
-                      { data: 'Exact head', header: true },
+                      { data: 'Reviewer', header: true },
+                      { data: 'Bot identity verified', header: true },
+                      { data: 'Fresh exact-head request', header: true },
+                      { data: 'Exact-head evidence', header: true },
                     ],
-                    ['Primary review', 'CodeRabbit bot verified', 'yes', 'yes'],
-                    [
-                      'Secondary advisory',
-                      advisoryProvenance,
-                      nativeCodexReview ? 'yes' : 'no',
-                      'yes',
-                    ],
+                    ['Codex', 'yes', 'yes', 'yes'],
+                    ['CodeRabbit', 'yes', 'yes', 'yes'],
                   ])
                   .write();
                 core.notice(
-                  `Exact-head AI evidence verified for ${pr.head.sha}: independent CodeRabbit review plus ${advisoryProvenance}.`,
+                  `Native exact-head AI evidence verified for ${pr.head.sha}: Codex and CodeRabbit complete.`,
                 );
                 return;
               }
 
               core.info(
-                `Waiting for exact-head AI evidence (attempt ${attempt}/30): ` +
-                  `CodeRabbit=${hasIndependentBotRequest}/${hasIndependentBotEvidence}, ` +
-                  `secondaryAdvisory=${hasSecondaryAiAdvisory} (${advisoryProvenance})`,
+                `Waiting for native exact-head AI evidence (attempt ${attempt}/30): ` +
+                  `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
+                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Require a fresh exact-head CodeRabbit request plus bot-authored review or clean status summary, and a separately labelled exact-head secondary AI advisory. Owner-attested advisories are accepted only as non-independent evidence and must never impersonate Codex.',
+              'Require fresh exact-head @codex review and @coderabbitai review commands, followed by bot-authored exact-head evidence from both configured reviewer identities.',
             );
