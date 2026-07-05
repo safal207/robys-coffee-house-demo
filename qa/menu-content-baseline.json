@@ -1,12 +1,12 @@
 {
-  "version": 2,
-  "verifiedAt": "2026-06-30",
-  "source": "Photographed printed menu, real-device screenshots, and the approved Cool Lime + Macaron Taste Journey offer artwork supplied for the Roby's Coffee House demo",
+  "version": 3,
+  "verifiedAt": "2026-07-05",
+  "source": "Photographed printed menu, real-device screenshots, and the approved Cool Lime + Macaron and Iced Latte + San Sebastian Taste Journey artwork supplied for the Roby's Coffee House demo",
   "languages": ["tr", "en", "ru"],
   "categoryCount": 8,
-  "itemCount": 62,
+  "itemCount": 63,
   "categories": {
-    "pairing-offers": 1,
+    "pairing-offers": 2,
     "hot-coffee": 15,
     "brew-hot": 7,
     "cold-coffee": 8,
@@ -17,6 +17,7 @@
   },
   "prices": {
     "pairing-offers::Cool Lime + Makaron": 290,
+    "pairing-offers::Buzlu Latte + San Sebastian": 370,
     "hot-coffee::Espresso": 110,
     "hot-coffee::Americano": 160,
     "hot-coffee::Espresso Macchiato": 170,
