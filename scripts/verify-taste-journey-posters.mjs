@@ -142,7 +142,7 @@ for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
     if (!text.includes(expectedSources[id])) fail(`${label} renderer does not map ${id} to ${expectedSources[id]}`);
     if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
   }
-  if (!text.includes('/\.(?:png|webp)$/i.test(source)')) fail(`${label} renderer does not support direct PNG and WebP poster sources`);
+  if (!text.includes('/\\.(?:png|webp)$/i.test(source)')) fail(`${label} renderer does not support direct PNG and WebP poster sources`);
   for (const altText of DESCRIPTIVE_ALTS) if (!text.includes(`"${altText}"`)) fail(`${label} renderer lost descriptive localized alt text`);
   for (const priceText of ACCESSIBLE_PRICES) if (!text.includes(`"${priceText}"`)) fail(`${label} renderer lost localized semantic pricing`);
   if (!text.includes('caption.className = "pairing-poster-price"')) fail(`${label} renderer does not create the semantic price caption`);
