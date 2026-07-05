@@ -1,5 +1,6 @@
 name: Apply reviewed logo delivery patch
 
+# Second push intentionally triggers this branch-local one-time applicator.
 on:
   push:
     branches:
