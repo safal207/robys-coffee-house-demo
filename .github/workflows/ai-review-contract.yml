@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize]
 
 permissions:
+  # Required to read this exact workflow run's immutable created_at freshness anchor.
   actions: read
   contents: read
   issues: read
