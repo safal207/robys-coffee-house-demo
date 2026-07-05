@@ -11,11 +11,8 @@ const root = resolve(dirname(modulePath), "..");
 function cssRule(css, selector) {
   const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
   const rules = [...withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
-  const matchingRules = rules.filter(([, selectorList]) =>
-    selectorList.split(",").map((candidate) => candidate.trim()).includes(selector)
-  );
-  const exactRule = matchingRules.find(([, selectorList]) => selectorList.trim() === selector) ?? matchingRules[0];
-  assert(exactRule, `Missing CSS rule: ${selector}`);
+  const exactRule = rules.find(([, selectorList]) => selectorList.trim() === selector);
+  assert(exactRule, `Missing standalone CSS rule: ${selector}`);
   return exactRule[2].replace(/\s+/g, "");
 }
 
