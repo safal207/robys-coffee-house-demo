@@ -8,14 +8,15 @@ import { runInNewContext } from "node:vm";
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function cssRule(css, selector) {
-  const match = css.match(new RegExp(`(?:^|})\\s*${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
-  assert(match, `Missing standalone CSS rule: ${selector}`);
-  return match[1].replace(/\s+/g, "");
+  const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const rules = [...withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const matchingRules = rules.filter(([, selectorList]) =>
+    selectorList.split(",").map((candidate) => candidate.trim()).includes(selector)
+  );
+  const exactRule = matchingRules.find(([, selectorList]) => selectorList.trim() === selector) ?? matchingRules[0];
+  assert(exactRule, `Missing CSS rule: ${selector}`);
+  return exactRule[2].replace(/\s+/g, "");
 }
 
 function atRuleBlock(css, prelude) {
