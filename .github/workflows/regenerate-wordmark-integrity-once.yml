@@ -1,4 +1,4 @@
-name: Generate wordmark integrity artifact once
+name: Generate wordmark integrity artifact once v2
 
 on:
   pull_request:
