@@ -52,20 +52,25 @@ jobs:
               const parsed = Date.parse(value);
               return Number.isFinite(parsed) ? parsed : 0;
             };
+            const updatedTimeOf = (item) => {
+              const parsed = Date.parse(item.updated_at ?? 0);
+              return Number.isFinite(parsed) ? parsed : 0;
+            };
             const bodyOf = (item) => (item.body ?? '').trim();
             const commandLinesOf = (item) => bodyOf(item)
               .toLowerCase()
               .split(/\r?\n/)
               .map((line) => line.trim())
               .filter(Boolean);
-            const requestMentionsHead = (request) => (
-              bodyOf(request).toLowerCase().includes(currentHead)
-            );
+            const exactHeadInBody = (item) => new RegExp(
+              `(^|[^0-9a-f])${currentHead}([^0-9a-f]|$)`,
+              'i',
+            ).test(bodyOf(item));
             const isCommand = (item, value) => (
               trusted.has(item.author_association) &&
               immutableTimeOf(item) >= headUpdateAnchor &&
               commandLinesOf(item).includes(value) &&
-              requestMentionsHead(item)
+              exactHeadInBody(item)
             );
             const latestRequestAt = (requests) => requests.reduce(
               (latest, request) => Math.max(latest, immutableTimeOf(request)),
@@ -102,6 +107,21 @@ jobs:
                 latestCodeRabbitRequestAt > 0 &&
                 immutableTimeOf(review) >= latestCodeRabbitRequestAt
               ));
+              const codeRabbitCleanSummary = comments.find((comment) => {
+                const body = bodyOf(comment);
+                return (
+                  codeRabbitLogins.has(comment.user?.login) &&
+                  latestCodeRabbitRequestAt > 0 &&
+                  updatedTimeOf(comment) >= latestCodeRabbitRequestAt &&
+                  exactHeadInBody(comment) &&
+                  body.includes(
+                    '<!-- This is an auto-generated comment: summarize by coderabbit.ai -->',
+                  ) &&
+                  body.includes(
+                    'No actionable comments were generated in the recent review.',
+                  )
+                );
+              });
               const nativeCodexReview = reviews.find((review) => (
                 codexLogins.has(review.user?.login) &&
                 reviewMatchesHead(review) &&
@@ -110,7 +130,14 @@ jobs:
               ));
 
               const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasIndependentEvidence = Boolean(codeRabbitReview);
+              const hasIndependentEvidence = Boolean(
+                codeRabbitReview || codeRabbitCleanSummary,
+              );
+              const codeRabbitEvidenceType = codeRabbitReview
+                ? 'native exact-head PR review object'
+                : codeRabbitCleanSummary
+                  ? 'bot-owned post-request exact-head clean summary'
+                  : 'missing';
               const codexCapability = nativeCodexReview
                 ? 'native exact-head review available'
                 : latestCodexRequestAt > 0
@@ -130,7 +157,7 @@ jobs:
                     [
                       'Independent reviewer',
                       'yes',
-                      'CodeRabbit bot PR review object',
+                      `CodeRabbit bot: ${codeRabbitEvidenceType}`,
                       'yes',
                     ],
                     [
@@ -142,28 +169,30 @@ jobs:
                   ])
                   .addRaw(
                     `\nFreshness anchor: workflow run ${context.runId} created at ` +
-                      `${workflowRun.data.created_at}. Edited timestamps are not accepted.\n`,
+                      `${workflowRun.data.created_at}. Request timestamps are immutable. ` +
+                      'The mutable updated_at field is accepted only for the exact CodeRabbit ' +
+                      'bot-owned generated summary whose body contains the full current SHA.\n',
                   )
                   .addRaw(
                     '\nMaintainer-authored comments and reviews never satisfy the independent reviewer gate.\n',
                   )
                   .write();
                 core.notice(
-                  `Independent exact-head CodeRabbit review verified for ${pr.head.sha}. ` +
-                  `Codex capability: ${codexCapability}.`,
+                  `Independent exact-head CodeRabbit evidence verified for ${pr.head.sha}: ` +
+                  `${codeRabbitEvidenceType}. Codex capability: ${codexCapability}.`,
                 );
                 return;
               }
 
               core.info(
-                `Waiting for independent exact-head AI review (attempt ${attempt}/30): ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasIndependentEvidence}; ` +
-                  `Codex=${codexCapability}; ` +
+                `Waiting for independent exact-head AI evidence (attempt ${attempt}/30): ` +
+                  `CodeRabbit=${hasCodeRabbitRequest}/${hasIndependentEvidence} ` +
+                  `(${codeRabbitEvidenceType}); Codex=${codexCapability}; ` +
                   `headUpdateAnchor=${workflowRun.data.created_at}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Require a fresh trusted @coderabbitai review command naming the full current SHA and created after this pull_request head-update workflow run began, followed by a CodeRabbit-authored pull-request review object bound to that exact commit. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
+              'Require a fresh trusted @coderabbitai review command naming the full current SHA and created after this pull_request head-update workflow run began, followed by either (a) a CodeRabbit-authored PR review object bound to that exact commit, or (b) the CodeRabbit bot-owned generated clean summary updated after the request, containing the full exact SHA and the canonical no-actionable-comments result. Maintainer-authored and unbound status evidence never count. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
             );
