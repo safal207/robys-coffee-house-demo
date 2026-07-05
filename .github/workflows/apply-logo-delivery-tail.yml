@@ -1,0 +1,54 @@
+name: Apply reviewed logo delivery patch
+
+on:
+  push:
+    branches:
+      - fix/close-logo-delivery-tail
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout fresh main-based branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: fix/close-logo-delivery-tail
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch reviewed wordmark branch
+        run: git fetch origin feat/robys-logo-header
+
+      - name: Apply wordmark diff without stale approval
+        run: |
+          git merge --squash origin/feat/robys-logo-header
+          rm -f qa/reviewed-visual-changes.d/robys-compact-wordmark-v1.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify wordmark and refresh generated evidence
+        run: |
+          node scripts/test-brand-wordmark.mjs
+          npm run build
+          npm run integrity:generate
+
+      - name: Commit clean main-based logo patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: close compact wordmark delivery tail"
+          git push origin HEAD:fix/close-logo-delivery-tail
