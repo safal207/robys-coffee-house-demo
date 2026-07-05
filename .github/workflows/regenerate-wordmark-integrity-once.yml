@@ -1,9 +1,7 @@
 name: Regenerate wordmark integrity once
 
 on:
-  push:
-    branches:
-      - fix/close-logo-delivery-tail-v2
+  pull_request:
     paths:
       - .github/workflows/regenerate-wordmark-integrity-once.yml
 
@@ -16,7 +14,7 @@ concurrency:
 
 jobs:
   regenerate:
-    if: github.actor != 'github-actions[bot]'
+    if: github.head_ref == 'fix/close-logo-delivery-tail-v2' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
