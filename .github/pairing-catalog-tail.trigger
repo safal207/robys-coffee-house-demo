@@ -1,1 +1,0 @@
-trigger pairing catalog applicator
