@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runInNewContext } from "node:vm";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
@@ -31,6 +32,33 @@ function atRuleBlock(css, prelude) {
   }
 
   assert.fail(`Missing closing brace for ${prelude}`);
+}
+
+function verifyDiscoverWordmarkStylesheet(discoverGuard) {
+  const appended = [];
+  const document = {
+    getElementById(id) {
+      return appended.find((element) => element.id === id) ?? null;
+    },
+    createElement(tagName) {
+      assert.equal(tagName, "link");
+      return {};
+    },
+    head: {
+      appendChild(element) {
+        appended.push(element);
+      }
+    }
+  };
+
+  const execute = () => runInNewContext(`(() => {\n${discoverGuard}\n})()`, { document });
+  execute();
+  execute();
+
+  assert.equal(appended.length, 1, "wordmark stylesheet injection must be idempotent");
+  assert.equal(appended[0].id, "robys-wordmark-responsive");
+  assert.equal(appended[0].rel, "stylesheet");
+  assert.equal(appended[0].href, "wordmark-responsive.css?v=20260704-1");
 }
 
 export function verifyBrandWordmark() {
@@ -73,10 +101,7 @@ export function verifyBrandWordmark() {
   assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)height:54px(?:;|$)/);
   assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)border:12pxsolid#d32636(?:;|$)/);
 
-  assert.match(
-    discoverGuard.replace(/\s+/g, " "),
-    /const wordmarkStylesheet = document\.createElement\("link"\); wordmarkStylesheet\.rel = "stylesheet"; wordmarkStylesheet\.href = "wordmark-responsive\.css\?v=20260704-1"; document\.head\.appendChild\(wordmarkStylesheet\);/
-  );
+  verifyDiscoverWordmarkStylesheet(discoverGuard);
 
   const subtitleMedia = atRuleBlock(responsiveStyles, "@media(max-width:680px)");
   assert.equal(cssRule(subtitleMedia, ".discover-header .brand-copy small"), "display:none!important");
