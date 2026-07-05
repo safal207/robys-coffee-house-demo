@@ -1,4 +1,4 @@
-name: Diagnose wordmark contract once
+name: Generate wordmark integrity artifact once
 
 on:
   pull_request:
@@ -9,11 +9,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: diagnose-wordmark-contract-once
+  group: generate-wordmark-integrity-artifact-once
   cancel-in-progress: false
 
 jobs:
-  diagnose:
+  generate:
     if: github.head_ref == 'fix/close-logo-delivery-tail-v2'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -27,18 +27,19 @@ jobs:
 
       - name: Verify exact wordmark behavior
         run: |
-          set -o pipefail
-          {
-            node --check discover-weather-guard.js
-            node --check scripts/test-brand-wordmark.mjs
-            node scripts/test-brand-wordmark.mjs
-          } 2>&1 | tee wordmark-test.log
+          node --check discover-weather-guard.js
+          node --check scripts/test-brand-wordmark.mjs
+          node scripts/test-brand-wordmark.mjs
 
-      - name: Upload focused result log
-        if: always()
+      - name: Generate and verify integrity manifest
+        run: |
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Upload generated integrity manifest
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: wordmark-test-result
-          path: wordmark-test.log
+          name: generated-wordmark-integrity
+          path: integrity-manifest.json
           if-no-files-found: error
           retention-days: 1
