@@ -1,4 +1,4 @@
-name: Regenerate wordmark integrity once
+name: Diagnose wordmark contract once
 
 on:
   pull_request:
@@ -6,15 +6,15 @@ on:
       - .github/workflows/regenerate-wordmark-integrity-once.yml
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: regenerate-wordmark-integrity-once
+  group: diagnose-wordmark-contract-once
   cancel-in-progress: false
 
 jobs:
-  regenerate:
-    if: github.head_ref == 'fix/close-logo-delivery-tail-v2' && github.actor != 'github-actions[bot]'
+  diagnose:
+    if: github.head_ref == 'fix/close-logo-delivery-tail-v2'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -27,26 +27,18 @@ jobs:
 
       - name: Verify exact wordmark behavior
         run: |
-          node --check discover-weather-guard.js
-          node --check scripts/test-brand-wordmark.mjs
-          node scripts/test-brand-wordmark.mjs
+          set -o pipefail
+          {
+            node --check discover-weather-guard.js
+            node --check scripts/test-brand-wordmark.mjs
+            node scripts/test-brand-wordmark.mjs
+          } 2>&1 | tee wordmark-test.log
 
-      - name: Regenerate integrity manifest
-        run: |
-          node scripts/generate-integrity-manifest.mjs
-          node scripts/generate-integrity-manifest.mjs --check
-
-      - name: Commit generated manifest
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add integrity-manifest.json
-          if git diff --cached --quiet; then
-            echo "Integrity manifest is already current"
-            exit 0
-          fi
-          git commit -m "chore: regenerate wordmark integrity manifest"
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push origin HEAD:fix/close-logo-delivery-tail-v2
+      - name: Upload focused result log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wordmark-test-result
+          path: wordmark-test.log
+          if-no-files-found: error
+          retention-days: 1
