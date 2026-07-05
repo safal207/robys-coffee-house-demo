@@ -46,6 +46,7 @@ export const menuCategories = [
       {
         id: "cool-lime-macaron-pairing",
         journeyId: "cool-lime-macaron",
+        pricingMode: "approved-offer",
         name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
         description: {
           tr: "Taste Journey eşleşme teklifi",
@@ -57,6 +58,7 @@ export const menuCategories = [
       {
         id: "iced-san-sebastian-pairing",
         journeyId: "iced-san-sebastian",
+        pricingMode: "menu-total",
         name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
         description: {
           tr: "Taste Journey eşleşme teklifi · güncel menü toplamı",
