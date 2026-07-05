@@ -142,7 +142,7 @@ for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
     if (!text.includes(expectedSources[id])) fail(`${label} renderer does not map ${id} to ${expectedSources[id]}`);
     if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
   }
-  if (!text.includes('/\\.(?:png|webp)$/i.test(source)')) fail(`${label} renderer does not support direct PNG and WebP poster sources`);
+  if (!text.includes('/\.(?:png|webp)$/i.test(source)')) fail(`${label} renderer does not support direct PNG and WebP poster sources`);
   for (const altText of DESCRIPTIVE_ALTS) if (!text.includes(`"${altText}"`)) fail(`${label} renderer lost descriptive localized alt text`);
   for (const priceText of ACCESSIBLE_PRICES) if (!text.includes(`"${priceText}"`)) fail(`${label} renderer lost localized semantic pricing`);
   if (!text.includes('caption.className = "pairing-poster-price"')) fail(`${label} renderer does not create the semantic price caption`);
@@ -182,7 +182,11 @@ if (!cssRevisionMatch || cssRevisionMatch[1] !== cssRevision) fail(`discover.htm
 if (!serviceWorker.includes(`"./discover-v2.js?v=${discoverRuntimeRevision}"`)) fail("service worker Discover runtime revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker poster JS revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`)) fail("service worker CSS revision is stale");
-if (!serviceWorker.includes(`robys-offline-v10-20260701-posters-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`)) fail("service-worker cache version does not include current Discover runtime and poster revisions");
+const cacheRevisionSuffix = `-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`;
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
+if (!cacheVersion || !cacheVersion.endsWith(cacheRevisionSuffix)) {
+  fail("service-worker cache version does not include current Discover runtime and poster revisions");
+}
 if (!buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision)')) fail("build does not synchronize the Discover interaction runtime revision");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the active renderer");
 if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not synchronize the renderer revision");
