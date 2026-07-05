@@ -1,0 +1,54 @@
+name: Regenerate wordmark integrity once
+
+on:
+  push:
+    branches:
+      - fix/close-logo-delivery-tail-v2
+    paths:
+      - .github/workflows/regenerate-wordmark-integrity-once.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: regenerate-wordmark-integrity-once
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout feature branch without credentials
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: fix/close-logo-delivery-tail-v2
+          persist-credentials: false
+
+      - name: Verify exact wordmark behavior
+        run: |
+          node --check discover-weather-guard.js
+          node --check scripts/test-brand-wordmark.mjs
+          node scripts/test-brand-wordmark.mjs
+
+      - name: Regenerate integrity manifest
+        run: |
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Commit generated manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Integrity manifest is already current"
+            exit 0
+          fi
+          git commit -m "chore: regenerate wordmark integrity manifest"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:fix/close-logo-delivery-tail-v2
