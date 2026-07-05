@@ -5,9 +5,11 @@ on:
     types: [opened, synchronize]
 
 permissions:
-  # Required to read this exact workflow run's immutable created_at freshness anchor.
+  # actions: read is required for the immutable workflow-run freshness anchor.
   actions: read
+  # issues: read is required for the exact-head review request comment.
   issues: read
+  # pull-requests: read is required for native PR review evidence.
   pull-requests: read
 
 jobs:
@@ -15,184 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Wait for current-head independent AI review evidence
+      - name: Check out exact head verifier
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Wait for native exact-head CodeRabbit review
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const pr = context.payload.pull_request;
-            const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-            const codexLogins = new Set([
-              'chatgpt-codex-connector[bot]',
-              'chatgpt-codex-connector',
-            ]);
-            const codeRabbitLogins = new Set([
-              'coderabbitai[bot]',
-              'coderabbitai',
-            ]);
-            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-            const currentHead = pr.head.sha.toLowerCase();
-            const workflowRun = await github.rest.actions.getWorkflowRun({
-              owner,
-              repo,
-              run_id: context.runId,
-            });
-            const headUpdateAnchor = Date.parse(workflowRun.data.created_at ?? 0);
-            if (!Number.isFinite(headUpdateAnchor) || headUpdateAnchor <= 0) {
-              core.setFailed(
-                'Unable to determine the immutable workflow-run creation time for the current pull_request head update.',
-              );
-              return;
-            }
-
-            const immutableTimeOf = (item) => {
-              const value = item.submitted_at ?? item.created_at ?? 0;
-              const parsed = Date.parse(value);
-              return Number.isFinite(parsed) ? parsed : 0;
-            };
-            const updatedTimeOf = (item) => {
-              const parsed = Date.parse(item.updated_at ?? 0);
-              return Number.isFinite(parsed) ? parsed : 0;
-            };
-            const bodyOf = (item) => (item.body ?? '').trim();
-            const commandLinesOf = (item) => bodyOf(item)
-              .toLowerCase()
-              .split(/\r?\n/)
-              .map((line) => line.trim())
-              .filter(Boolean);
-            const exactHeadInBody = (item) => new RegExp(
-              `(^|[^0-9a-f])${currentHead}([^0-9a-f]|$)`,
-              'i',
-            ).test(bodyOf(item));
-            const isCommand = (item, value) => (
-              trusted.has(item.author_association) &&
-              immutableTimeOf(item) >= headUpdateAnchor &&
-              commandLinesOf(item).includes(value) &&
-              exactHeadInBody(item)
-            );
-            const latestRequestAt = (requests) => requests.reduce(
-              (latest, request) => Math.max(latest, immutableTimeOf(request)),
-              0,
-            );
-            const reviewMatchesHead = (review) => (
-              review.commit_id?.toLowerCase() === currentHead
-            );
-
-            for (let attempt = 1; attempt <= 30; attempt += 1) {
-              const [comments, reviews] = await Promise.all([
-                github.paginate(
-                  github.rest.issues.listComments,
-                  { owner, repo, issue_number: pr.number, per_page: 100 },
-                ),
-                github.paginate(
-                  github.rest.pulls.listReviews,
-                  { owner, repo, pull_number: pr.number, per_page: 100 },
-                ),
-              ]);
-
-              const codeRabbitRequests = comments.filter((item) => (
-                isCommand(item, '@coderabbitai review')
-              ));
-              const codexRequests = comments.filter((item) => (
-                isCommand(item, '@codex review')
-              ));
-              const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
-              const latestCodexRequestAt = latestRequestAt(codexRequests);
-
-              const codeRabbitReview = reviews.find((review) => (
-                codeRabbitLogins.has(review.user?.login) &&
-                reviewMatchesHead(review) &&
-                latestCodeRabbitRequestAt > 0 &&
-                immutableTimeOf(review) >= latestCodeRabbitRequestAt
-              ));
-              const codeRabbitCleanSummary = comments.find((comment) => {
-                const body = bodyOf(comment);
-                return (
-                  codeRabbitLogins.has(comment.user?.login) &&
-                  latestCodeRabbitRequestAt > 0 &&
-                  updatedTimeOf(comment) >= latestCodeRabbitRequestAt &&
-                  exactHeadInBody(comment) &&
-                  body.includes(
-                    '<!-- This is an auto-generated comment: summarize by coderabbit.ai -->',
-                  ) &&
-                  body.includes(
-                    'No actionable comments were generated in the recent review.',
-                  )
-                );
-              });
-              const nativeCodexReview = reviews.find((review) => (
-                codexLogins.has(review.user?.login) &&
-                reviewMatchesHead(review) &&
-                latestCodexRequestAt > 0 &&
-                immutableTimeOf(review) >= latestCodexRequestAt
-              ));
-
-              const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasIndependentEvidence = Boolean(
-                codeRabbitReview || codeRabbitCleanSummary,
-              );
-              const codeRabbitEvidenceType = codeRabbitReview
-                ? 'native exact-head PR review object'
-                : codeRabbitCleanSummary
-                  ? 'bot-owned post-request exact-head clean summary'
-                  : 'missing';
-              const codexCapability = nativeCodexReview
-                ? 'native exact-head review available'
-                : latestCodexRequestAt > 0
-                  ? 'requested; native review unavailable on this connector surface'
-                  : 'not requested; non-gating';
-
-              if (hasCodeRabbitRequest && hasIndependentEvidence) {
-                await core.summary
-                  .addHeading('AI review contract')
-                  .addTable([
-                    [
-                      { data: 'Lane', header: true },
-                      { data: 'Required', header: true },
-                      { data: 'Identity/evidence', header: true },
-                      { data: 'Exact head', header: true },
-                    ],
-                    [
-                      'Independent reviewer',
-                      'yes',
-                      `CodeRabbit bot: ${codeRabbitEvidenceType}`,
-                      'yes',
-                    ],
-                    [
-                      'Supplemental Codex lane',
-                      'no',
-                      codexCapability,
-                      nativeCodexReview ? 'yes' : 'not counted',
-                    ],
-                  ])
-                  .addRaw(
-                    `\nFreshness anchor: workflow run ${context.runId} created at ` +
-                      `${workflowRun.data.created_at}. Request timestamps are immutable. ` +
-                      'The mutable updated_at field is accepted only for the exact CodeRabbit ' +
-                      'bot-owned generated summary whose body contains the full current SHA.\n',
-                  )
-                  .addRaw(
-                    '\nMaintainer-authored comments and reviews never satisfy the independent reviewer gate.\n',
-                  )
-                  .write();
-                core.notice(
-                  `Independent exact-head CodeRabbit evidence verified for ${pr.head.sha}: ` +
-                  `${codeRabbitEvidenceType}. Codex capability: ${codexCapability}.`,
-                );
-                return;
-              }
-
-              core.info(
-                `Waiting for independent exact-head AI evidence (attempt ${attempt}/30): ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasIndependentEvidence} ` +
-                  `(${codeRabbitEvidenceType}); Codex=${codexCapability}; ` +
-                  `headUpdateAnchor=${workflowRun.data.created_at}`,
-              );
-              if (attempt < 30) await sleep(20_000);
-            }
-
-            core.setFailed(
-              'Require a fresh trusted @coderabbitai review command naming the full current SHA and created after this pull_request head-update workflow run began, followed by either (a) a CodeRabbit-authored PR review object bound to that exact commit, or (b) the CodeRabbit bot-owned generated clean summary updated after the request, containing the full exact SHA and the canonical no-actionable-comments result. Maintainer-authored and unbound status evidence never count. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
-            );
+            const verify = require('./scripts/verify-ai-review-contract.cjs');
+            await verify({ github, context, core });
