@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Wait for current-head AI review evidence
+      - name: Wait for current-head independent AI review evidence
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
@@ -32,8 +32,17 @@ jobs:
             ]);
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-            const evidenceAfter = Date.parse(pr.updated_at);
             const currentHead = pr.head.sha.toLowerCase();
+            const headCommit = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref: currentHead,
+            });
+            const headCommittedAt = Date.parse(
+              headCommit.data.commit.committer?.date ??
+              headCommit.data.commit.author?.date ??
+              0,
+            );
             const timeOf = (item) => Math.max(
               0,
               ...[item.submitted_at, item.created_at, item.updated_at]
@@ -51,7 +60,7 @@ jobs:
             );
             const isCommand = (item, value) => (
               trusted.has(item.author_association) &&
-              timeOf(item) >= evidenceAfter &&
+              timeOf(item) >= headCommittedAt &&
               commandLinesOf(item).includes(value) &&
               requestMentionsHead(item)
             );
@@ -75,62 +84,78 @@ jobs:
                 ),
               ]);
 
-              const codexRequests = comments.filter((item) => isCommand(item, '@codex review'));
-              const codeRabbitRequests = comments.filter((item) => isCommand(item, '@coderabbitai review'));
-              const latestCodexRequestAt = latestRequestAt(codexRequests);
-              const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
-
-              const codexReview = reviews.find((review) => (
-                codexLogins.has(review.user?.login) &&
-                reviewMatchesHead(review) &&
-                latestCodexRequestAt > 0 &&
-                timeOf(review) >= latestCodexRequestAt
+              const codeRabbitRequests = comments.filter((item) => (
+                isCommand(item, '@coderabbitai review')
               ));
+              const codexRequests = comments.filter((item) => (
+                isCommand(item, '@codex review')
+              ));
+              const latestCodeRabbitRequestAt = latestRequestAt(codeRabbitRequests);
+              const latestCodexRequestAt = latestRequestAt(codexRequests);
+
               const codeRabbitReview = reviews.find((review) => (
                 codeRabbitLogins.has(review.user?.login) &&
                 reviewMatchesHead(review) &&
                 latestCodeRabbitRequestAt > 0 &&
                 timeOf(review) >= latestCodeRabbitRequestAt
               ));
+              const nativeCodexReview = reviews.find((review) => (
+                codexLogins.has(review.user?.login) &&
+                reviewMatchesHead(review) &&
+                latestCodexRequestAt > 0 &&
+                timeOf(review) >= latestCodexRequestAt
+              ));
 
-              const hasCodexRequest = latestCodexRequestAt > 0;
               const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
-              const hasCodexEvidence = Boolean(codexReview);
-              const hasCodeRabbitEvidence = Boolean(codeRabbitReview);
+              const hasIndependentEvidence = Boolean(codeRabbitReview);
+              const codexCapability = nativeCodexReview
+                ? 'native exact-head review available'
+                : latestCodexRequestAt > 0
+                  ? 'requested; native review unavailable on this connector surface'
+                  : 'not requested; non-gating';
 
-              if (
-                hasCodexRequest &&
-                hasCodeRabbitRequest &&
-                hasCodexEvidence &&
-                hasCodeRabbitEvidence
-              ) {
+              if (hasCodeRabbitRequest && hasIndependentEvidence) {
                 await core.summary
                   .addHeading('AI review contract')
                   .addTable([
                     [
-                      { data: 'Reviewer', header: true },
-                      { data: 'Bot identity verified', header: true },
-                      { data: 'Fresh exact-head request', header: true },
-                      { data: 'Exact-head review object', header: true },
+                      { data: 'Lane', header: true },
+                      { data: 'Required', header: true },
+                      { data: 'Identity/evidence', header: true },
+                      { data: 'Exact head', header: true },
                     ],
-                    ['Codex', 'yes', 'yes', 'yes'],
-                    ['CodeRabbit', 'yes', 'yes', 'yes'],
+                    [
+                      'Independent reviewer',
+                      'yes',
+                      'CodeRabbit bot PR review object',
+                      'yes',
+                    ],
+                    [
+                      'Supplemental Codex lane',
+                      'no',
+                      codexCapability,
+                      nativeCodexReview ? 'yes' : 'not counted',
+                    ],
                   ])
+                  .addRaw(
+                    '\nMaintainer-authored comments and reviews never satisfy the independent reviewer gate.\n',
+                  )
                   .write();
                 core.notice(
-                  `Native exact-head review objects verified for ${pr.head.sha}: Codex and CodeRabbit complete.`,
+                  `Independent exact-head CodeRabbit review verified for ${pr.head.sha}. ` +
+                  `Codex capability: ${codexCapability}.`,
                 );
                 return;
               }
 
               core.info(
-                `Waiting for native exact-head AI review objects (attempt ${attempt}/30): ` +
-                  `Codex=${hasCodexRequest}/${hasCodexEvidence}, ` +
-                  `CodeRabbit=${hasCodeRabbitRequest}/${hasCodeRabbitEvidence}`,
+                `Waiting for independent exact-head AI review (attempt ${attempt}/30): ` +
+                  `CodeRabbit=${hasCodeRabbitRequest}/${hasIndependentEvidence}; ` +
+                  `Codex=${codexCapability}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Require fresh exact-head @codex review and @coderabbitai review commands, followed by bot-authored review objects from both configured reviewer identities bound to the current commit.',
+              'Require a fresh trusted @coderabbitai review command naming the full current SHA, followed by a CodeRabbit-authored pull-request review object bound to that exact commit. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
             );
