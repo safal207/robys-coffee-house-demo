@@ -13,8 +13,8 @@ function escapeRegExp(value) {
 }
 
 function cssRule(css, selector) {
-  const match = css.match(new RegExp(`${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
-  assert(match, `Missing CSS rule: ${selector}`);
+  const match = css.match(new RegExp(`(?:^|})\\s*${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
+  assert(match, `Missing standalone CSS rule: ${selector}`);
   return match[1].replace(/\s+/g, "");
 }
 
