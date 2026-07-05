@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v10-20260701-posters-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v11-20260705-wordmark-20260704-1";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -20,6 +20,7 @@ const CORE_ASSETS = [
   "./menu-security.css",
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
+  "./wordmark-responsive.css?v=20260704-1",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",
@@ -69,7 +70,8 @@ async function cachedResponse(request) {
   const requiresExactRevision =
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
-    url.pathname.endsWith("/discover-rotation.css");
+    url.pathname.endsWith("/discover-rotation.css") ||
+    url.pathname.endsWith("/wordmark-responsive.css");
   if (requiresExactRevision) {
     return cache.match(request);
   }
