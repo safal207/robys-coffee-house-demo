@@ -86,15 +86,47 @@ export function verifyBrandWordmark() {
   const serviceWorker = readFileSync(resolve(root, "sw.js"), "utf8");
   const index = readFileSync(resolve(root, "index.html"), "utf8");
   const menu = readFileSync(resolve(root, "menu.html"), "utf8");
+  const discover = readFileSync(resolve(root, "discover.html"), "utf8");
+  const brandReference = readFileSync(resolve(root, "docs/brand-reference-policy.md"), "utf8");
 
   assert.match(index, /<span class="brand-mark">R<\/span><span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
   assert.match(menu, /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
 
+  assert.doesNotMatch(index, /brand--inverse/, "Home must render the black master wordmark, not the inverse variant");
+  assert.doesNotMatch(menu, /brand--inverse/, "Menu must render the black master wordmark, not the inverse variant");
+  assert.doesNotMatch(discover, /brand--inverse/, "Discover must render the black master wordmark, not the inverse variant");
+
+  const rootTokens = cssRule(styles, ":root");
+  assert.match(rootTokens, /(?:^|;)--brand-wordmark-ink:#111111(?:;|$)/);
+  assert.match(rootTokens, /(?:^|;)--brand-wordmark-red:#d32636(?:;|$)/);
+  assert.match(rootTokens, /(?:^|;)--brand-wordmark-paper:#ffffff(?:;|$)/);
+
+  const brandRule = cssRule(styles, ".brand");
+  const brandCopyRule = cssRule(styles, ".brand-copy");
+  const sharedGlyphRule = cssRule(styles, ".brand-copy strong::before,.brand-copy strong::after");
+  const subtitleRule = cssRule(styles, ".brand-copy small");
+  const inverseRule = cssRule(styles, ".brand--inverse");
+  const inverseCopyRule = cssRule(styles, ".brand--inverse .brand-copy");
+
+  assert.match(brandRule, /(?:^|;)color:var\(--brand-wordmark-ink\)(?:;|$)/);
+  assert.match(brandRule, /(?:^|;)background:var\(--brand-wordmark-paper\)(?:;|$)/);
+  assert.match(brandCopyRule, /(?:^|;)color:var\(--brand-wordmark-ink\)(?:;|$)/);
   assert.equal(cssRule(styles, ".brand-mark"), "display:none!important");
-  assert.match(cssRule(styles, ".brand-copy strong"), /(?:^|;)border:8pxsolid#d32636(?:;|$)/);
+  assert.match(cssRule(styles, ".brand-copy strong"), /(?:^|;)border:8pxsolidvar\(--brand-wordmark-red\)(?:;|$)/);
+  assert.match(sharedGlyphRule, /(?:^|;)color:currentColor(?:;|$)/);
   assert.match(cssRule(styles, ".brand-copy strong::before"), /(?:^|;)content:"R";content:"R"\/""(?:;|$)/);
   assert.match(cssRule(styles, ".brand-copy strong::after"), /(?:^|;)content:"BY'S";content:"BY'S"\/""(?:;|$)/);
-  assert.match(cssRule(styles, ".brand-copy small"), /(?:^|;)display:block!important(?:;|$)/);
+  assert.match(subtitleRule, /(?:^|;)display:block!important(?:;|$)/);
+  assert.match(subtitleRule, /(?:^|;)color:currentColor(?:;|$)/);
+  assert.match(inverseRule, /(?:^|;)color:var\(--brand-wordmark-inverse\)(?:;|$)/);
+  assert.match(inverseCopyRule, /(?:^|;)color:var\(--brand-wordmark-inverse\)(?:;|$)/);
+
+  const wordmarkRules = [brandRule, brandCopyRule, sharedGlyphRule, subtitleRule, inverseRule, inverseCopyRule].join(";");
+  assert.doesNotMatch(wordmarkRules, /filter:|invert\(|brightness\(/, "Wordmark recoloring filters are forbidden");
+
+  assert.match(brandReference, /primary master variant uses black or near-black/);
+  assert.match(brandReference, /The `O` is a red ring/);
+  assert.match(brandReference, /side by side on desktop and mobile/);
 
   const desktopLockup = cssRule(finalQa, ".site-header .brand-copy");
   assert.match(desktopLockup, /(?:^|;)width:132px(?:;|$)/);
@@ -127,7 +159,7 @@ export function verifyBrandWordmark() {
   const hiddenMedia = atRuleBlock(responsiveStyles, "@media(max-width:340px)");
   assert.equal(cssRule(hiddenMedia, ".discover-header .brand-copy"), "display:none!important");
 
-  console.log("PASS: compact Roby's wordmark contract");
+  console.log("PASS: production-referenced Roby's wordmark contract");
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === modulePath) {
