@@ -1,0 +1,51 @@
+name: Diagnose wordmark build once
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/diagnose-wordmark-build-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'fix/close-logo-delivery-tail-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: fix/close-logo-delivery-tail-v2
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Capture build result
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build-result.log
+
+      - name: Upload build result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wordmark-build-result
+          path: build-result.log
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Preserve build conclusion
+        if: steps.build.outcome == 'failure'
+        run: exit 1
