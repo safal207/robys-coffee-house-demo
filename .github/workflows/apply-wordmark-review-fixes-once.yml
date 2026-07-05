@@ -1,0 +1,268 @@
+name: Apply wordmark review fixes once
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/apply-wordmark-review-fixes-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'fix/close-logo-delivery-tail-v2' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: fix/close-logo-delivery-tail-v2
+          persist-credentials: true
+
+      - name: Apply idempotent and offline-safe wordmark architecture
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("styles.css")
+          source = path.read_text(encoding="utf-8")
+          root_anchor = '  --sans:"Montserrat",Arial,sans-serif;\n}'
+          root_replacement = '''  --sans:"Montserrat",Arial,sans-serif;
+  --header-wordmark-width:132px;
+  --header-wordmark-offset:25px;
+  --header-wordmark-subtitle-size:.54rem;
+  --header-wordmark-subtitle-tracking:.20em;
+  --header-wordmark-subtitle-margin:4px;
+}'''
+          if root_anchor not in source:
+              raise SystemExit("Root variable anchor not found")
+          source = source.replace(root_anchor, root_replacement, 1)
+
+          mobile_anchor = '@media(max-width:680px){\n  .brand-copy'
+          mobile_replacement = '''@media(max-width:680px){
+  :root{
+    --header-wordmark-width:106px;
+    --header-wordmark-offset:22px;
+    --header-wordmark-subtitle-size:.46rem;
+    --header-wordmark-subtitle-tracking:.14em;
+    --header-wordmark-subtitle-margin:3px;
+  }
+  .brand-copy'''
+          if mobile_anchor not in source:
+              raise SystemExit("Mobile variable anchor not found")
+          source = source.replace(mobile_anchor, mobile_replacement, 1)
+
+          compact_anchor = '@media(max-width:390px){\n  .brand-copy'
+          compact_replacement = '''@media(max-width:390px){
+  :root{
+    --header-wordmark-width:90px;
+    --header-wordmark-offset:19px;
+    --header-wordmark-subtitle-size:.46rem;
+    --header-wordmark-subtitle-tracking:.11em;
+    --header-wordmark-subtitle-margin:3px;
+  }
+  .brand-copy'''
+          if compact_anchor not in source:
+              raise SystemExit("Compact variable anchor not found")
+          source = source.replace(compact_anchor, compact_replacement, 1)
+          path.write_text(source, encoding="utf-8")
+          PY
+
+          cat > discover-weather-guard.js <<'EOF'
+          // Compatibility placeholder: the Discover interaction guard is bundled into
+          // discover-journeys-v2.js, which is already part of the service-worker precache.
+          const WORDMARK_STYLESHEET_ID = "robys-wordmark-responsive";
+          const WORDMARK_STYLESHEET_HREF = "wordmark-responsive.css?v=20260704-1";
+
+          if (!document.getElementById(WORDMARK_STYLESHEET_ID)) {
+            const wordmarkStylesheet = document.createElement("link");
+            wordmarkStylesheet.id = WORDMARK_STYLESHEET_ID;
+            wordmarkStylesheet.rel = "stylesheet";
+            wordmarkStylesheet.href = WORDMARK_STYLESHEET_HREF;
+            document.head.appendChild(wordmarkStylesheet);
+          }
+          EOF
+
+          cat > final-qa.css <<'EOF'
+          a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:3px solid rgba(215,137,145,.95);outline-offset:4px}
+
+          .gallery-card.image-fallback{background:linear-gradient(145deg,#2b2220,#4a3534)}
+          .gallery-card.image-fallback::before{content:"ROBY'S";position:absolute;inset:auto auto 18px 18px;z-index:1;color:rgba(255,255,255,.72);font:600 1rem var(--display);letter-spacing:.14em}
+          .gallery-card.image-fallback img{filter:saturate(.7) brightness(.68);transform:scale(1.02)}
+
+          .menu-icon{width:78px;height:78px;overflow:hidden;border:0;background-color:transparent;background-position:center;background-repeat:no-repeat;background-size:cover;border-radius:50%;box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 0 1px rgba(215,171,91,.28);font-size:0;color:transparent;transition:transform .25s,box-shadow .25s}
+          .menu-card:nth-child(1) .menu-icon{background-image:url("src/menu-icons/hot.svg")}
+          .menu-card:nth-child(2) .menu-icon{background-image:url("src/menu-icons/cold.svg")}
+          .menu-card:nth-child(3) .menu-icon{background-image:url("src/menu-icons/tea.svg")}
+          .menu-card:nth-child(4) .menu-icon{background-image:url("src/menu-icons/refreshers.svg")}
+          .menu-card:nth-child(5) .menu-icon{background-image:url("src/menu-icons/dessert.svg")}
+          .menu-card:nth-child(6) .menu-icon{background-image:url("src/menu-icons/food.svg")}
+          .menu-card:hover .menu-icon{transform:translateY(-2px) scale(1.03);box-shadow:0 18px 42px rgba(0,0,0,.35),0 0 0 1px rgba(236,195,115,.46)}
+
+          /* Header-specific alignment consumes responsive tokens defined in styles.css. */
+          .site-header .brand-copy{width:var(--header-wordmark-width);align-items:flex-start}
+          .site-header .brand-copy strong{margin-right:0;margin-left:var(--header-wordmark-offset)}
+          .site-header .brand-copy small{width:100%;margin-top:var(--header-wordmark-subtitle-margin)!important;font-size:var(--header-wordmark-subtitle-size)!important;letter-spacing:var(--header-wordmark-subtitle-tracking)!important;text-align:center;text-indent:var(--header-wordmark-subtitle-tracking)}
+
+          [inert]{pointer-events:none;user-select:none}
+          .lightbox button:focus-visible{outline-color:#fff}
+
+          @media(max-width:680px){
+            .mobile-cta a:focus-visible{outline-offset:2px}
+            .menu-icon{width:54px;height:54px;box-shadow:0 10px 24px rgba(0,0,0,.26),0 0 0 1px rgba(215,171,91,.3)}
+          }
+
+          @media(max-width:390px){.menu-icon{width:48px;height:48px}}
+          @media(prefers-reduced-motion:reduce){.menu-icon{transition:none}}
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("sw.js")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace(
+              'const CACHE_VERSION = "robys-offline-v10-20260701-posters-10750cdfa32c-58d387ca0c01-96b566c9731e";',
+              'const CACHE_VERSION = "robys-offline-v11-20260705-wordmark-20260704-1";',
+              1,
+          )
+          asset_anchor = '  "./discover-rotation.css?v=96b566c9731e",'
+          if asset_anchor not in source:
+              raise SystemExit("Service-worker asset anchor not found")
+          source = source.replace(asset_anchor, asset_anchor + '\n  "./wordmark-responsive.css?v=20260704-1",', 1)
+          exact_anchor = '    url.pathname.endsWith("/discover-rotation.css");'
+          if exact_anchor not in source:
+              raise SystemExit("Service-worker exact-revision anchor not found")
+          source = source.replace(
+              exact_anchor,
+              '    url.pathname.endsWith("/discover-rotation.css") ||\n    url.pathname.endsWith("/wordmark-responsive.css");',
+              1,
+          )
+          path.write_text(source, encoding="utf-8")
+          PY
+
+          cat > scripts/test-brand-wordmark.mjs <<'EOF'
+          #!/usr/bin/env node
+          import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          import { dirname, resolve } from "node:path";
+          import { fileURLToPath } from "node:url";
+          import vm from "node:vm";
+
+          const modulePath = fileURLToPath(import.meta.url);
+          const root = resolve(dirname(modulePath), "..");
+
+          function escapeRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          }
+
+          function cssRule(css, selector) {
+            const match = css.match(new RegExp(`${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
+            assert(match, `Missing CSS rule: ${selector}`);
+            return match[1].replace(/\s+/g, "");
+          }
+
+          function atRuleBlock(css, prelude) {
+            const start = css.indexOf(prelude);
+            assert.notEqual(start, -1, `Missing at-rule: ${prelude}`);
+            const open = css.indexOf("{", start + prelude.length);
+            assert.notEqual(open, -1, `Missing opening brace for ${prelude}`);
+            let depth = 0;
+            for (let index = open; index < css.length; index += 1) {
+              if (css[index] === "{") depth += 1;
+              if (css[index] === "}") depth -= 1;
+              if (depth === 0) return css.slice(open + 1, index);
+            }
+            assert.fail(`Missing closing brace for ${prelude}`);
+          }
+
+          function verifyLoaderBehavior(source) {
+            const children = [];
+            const document = {
+              createElement(tagName) { return { tagName: tagName.toUpperCase() }; },
+              getElementById(id) { return children.find((node) => node.id === id) ?? null; },
+              head: { appendChild(node) { children.push(node); return node; } }
+            };
+            vm.runInNewContext(source, { document });
+            vm.runInNewContext(source, { document });
+            assert.equal(children.length, 1, "wordmark stylesheet loader must be idempotent");
+            assert.equal(children[0].tagName, "LINK");
+            assert.equal(children[0].id, "robys-wordmark-responsive");
+            assert.equal(children[0].rel, "stylesheet");
+            assert.equal(children[0].href, "wordmark-responsive.css?v=20260704-1");
+          }
+
+          export function verifyBrandWordmark() {
+            const styles = readFileSync(resolve(root, "styles.css"), "utf8");
+            const finalQa = readFileSync(resolve(root, "final-qa.css"), "utf8");
+            const menuStyles = readFileSync(resolve(root, "menu.css"), "utf8");
+            const responsiveStyles = readFileSync(resolve(root, "wordmark-responsive.css"), "utf8");
+            const discoverGuard = readFileSync(resolve(root, "discover-weather-guard.js"), "utf8");
+            const serviceWorker = readFileSync(resolve(root, "sw.js"), "utf8");
+            const index = readFileSync(resolve(root, "index.html"), "utf8");
+            const menu = readFileSync(resolve(root, "menu.html"), "utf8");
+
+            assert.match(index, /<span class="brand-mark">R<\/span><span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
+            assert.match(menu, /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
+
+            assert.equal(cssRule(styles, ".brand-mark"), "display:none!important");
+            assert.match(cssRule(styles, ".brand-copy strong"), /(?:^|;)border:8pxsolid#d32636(?:;|$)/);
+            assert.match(cssRule(styles, ".brand-copy strong::before"), /(?:^|;)content:"R";content:"R"\/""(?:;|$)/);
+            assert.match(cssRule(styles, ".brand-copy strong::after"), /(?:^|;)content:"BY'S";content:"BY'S"\/""(?:;|$)/);
+
+            const desktopVars = cssRule(styles, ":root");
+            assert.match(desktopVars, /--header-wordmark-width:132px/);
+            assert.match(desktopVars, /--header-wordmark-offset:25px/);
+            assert.match(cssRule(finalQa, ".site-header .brand-copy"), /width:var\(--header-wordmark-width\)/);
+            assert.match(cssRule(finalQa, ".site-header .brand-copy strong"), /margin-left:var\(--header-wordmark-offset\)/);
+            assert.match(cssRule(finalQa, ".site-header .brand-copy small"), /letter-spacing:var\(--header-wordmark-subtitle-tracking\)!important/);
+
+            const mobileVars = cssRule(atRuleBlock(styles, "@media(max-width:680px)"), ":root");
+            assert.match(mobileVars, /--header-wordmark-width:106px/);
+            assert.match(mobileVars, /--header-wordmark-offset:22px/);
+            const compactVars = cssRule(atRuleBlock(styles, "@media(max-width:390px)"), ":root");
+            assert.match(compactVars, /--header-wordmark-width:90px/);
+            assert.match(compactVars, /--header-wordmark-offset:19px/);
+            assert.match(compactVars, /--header-wordmark-subtitle-tracking:.11em/);
+
+            assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)width:54px(?:;|$)/);
+            assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)height:54px(?:;|$)/);
+            assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)border:12pxsolid#d32636(?:;|$)/);
+
+            verifyLoaderBehavior(discoverGuard);
+            assert.match(serviceWorker, /"\.\/wordmark-responsive\.css\?v=20260704-1"/);
+            assert.match(serviceWorker, /url\.pathname\.endsWith\("\/wordmark-responsive\.css"\)/);
+
+            const subtitleMedia = atRuleBlock(responsiveStyles, "@media(max-width:680px)");
+            assert.equal(cssRule(subtitleMedia, ".discover-header .brand-copy small"), "display:none!important");
+            const hiddenMedia = atRuleBlock(responsiveStyles, "@media(max-width:340px)");
+            assert.equal(cssRule(hiddenMedia, ".discover-header .brand-copy"), "display:none!important");
+
+            console.log("PASS: compact Roby's wordmark contract");
+          }
+
+          if (process.argv[1] && resolve(process.argv[1]) === modulePath) verifyBrandWordmark();
+          EOF
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate and generate integrity
+        run: |
+          node scripts/test-brand-wordmark.mjs
+          npm run integrity:generate
+
+      - name: Commit exact correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles.css final-qa.css discover-weather-guard.js scripts/test-brand-wordmark.mjs sw.js integrity-manifest.json
+          git commit -m "fix: make wordmark loading single-source and offline-safe"
+          git push origin HEAD:fix/close-logo-delivery-tail-v2
