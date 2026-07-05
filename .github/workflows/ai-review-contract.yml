@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize]
 
 permissions:
+  actions: read
   contents: read
   issues: read
   pull-requests: read
@@ -33,22 +34,24 @@ jobs:
             const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
             const currentHead = pr.head.sha.toLowerCase();
-            const headCommit = await github.rest.repos.getCommit({
+            const workflowRun = await github.rest.actions.getWorkflowRun({
               owner,
               repo,
-              ref: currentHead,
+              run_id: context.runId,
             });
-            const headCommittedAt = Date.parse(
-              headCommit.data.commit.committer?.date ??
-              headCommit.data.commit.author?.date ??
-              0,
-            );
-            const timeOf = (item) => Math.max(
-              0,
-              ...[item.submitted_at, item.created_at, item.updated_at]
-                .map((value) => Date.parse(value ?? 0))
-                .filter(Number.isFinite),
-            );
+            const headUpdateAnchor = Date.parse(workflowRun.data.created_at ?? 0);
+            if (!Number.isFinite(headUpdateAnchor) || headUpdateAnchor <= 0) {
+              core.setFailed(
+                'Unable to determine the immutable workflow-run creation time for the current pull_request head update.',
+              );
+              return;
+            }
+
+            const immutableTimeOf = (item) => {
+              const value = item.submitted_at ?? item.created_at ?? 0;
+              const parsed = Date.parse(value);
+              return Number.isFinite(parsed) ? parsed : 0;
+            };
             const bodyOf = (item) => (item.body ?? '').trim();
             const commandLinesOf = (item) => bodyOf(item)
               .toLowerCase()
@@ -60,12 +63,12 @@ jobs:
             );
             const isCommand = (item, value) => (
               trusted.has(item.author_association) &&
-              timeOf(item) >= headCommittedAt &&
+              immutableTimeOf(item) >= headUpdateAnchor &&
               commandLinesOf(item).includes(value) &&
               requestMentionsHead(item)
             );
             const latestRequestAt = (requests) => requests.reduce(
-              (latest, request) => Math.max(latest, timeOf(request)),
+              (latest, request) => Math.max(latest, immutableTimeOf(request)),
               0,
             );
             const reviewMatchesHead = (review) => (
@@ -97,13 +100,13 @@ jobs:
                 codeRabbitLogins.has(review.user?.login) &&
                 reviewMatchesHead(review) &&
                 latestCodeRabbitRequestAt > 0 &&
-                timeOf(review) >= latestCodeRabbitRequestAt
+                immutableTimeOf(review) >= latestCodeRabbitRequestAt
               ));
               const nativeCodexReview = reviews.find((review) => (
                 codexLogins.has(review.user?.login) &&
                 reviewMatchesHead(review) &&
                 latestCodexRequestAt > 0 &&
-                timeOf(review) >= latestCodexRequestAt
+                immutableTimeOf(review) >= latestCodexRequestAt
               ));
 
               const hasCodeRabbitRequest = latestCodeRabbitRequestAt > 0;
@@ -138,6 +141,10 @@ jobs:
                     ],
                   ])
                   .addRaw(
+                    `\nFreshness anchor: workflow run ${context.runId} created at ` +
+                      `${workflowRun.data.created_at}. Edited timestamps are not accepted.\n`,
+                  )
+                  .addRaw(
                     '\nMaintainer-authored comments and reviews never satisfy the independent reviewer gate.\n',
                   )
                   .write();
@@ -151,11 +158,12 @@ jobs:
               core.info(
                 `Waiting for independent exact-head AI review (attempt ${attempt}/30): ` +
                   `CodeRabbit=${hasCodeRabbitRequest}/${hasIndependentEvidence}; ` +
-                  `Codex=${codexCapability}`,
+                  `Codex=${codexCapability}; ` +
+                  `headUpdateAnchor=${workflowRun.data.created_at}`,
               );
               if (attempt < 30) await sleep(20_000);
             }
 
             core.setFailed(
-              'Require a fresh trusted @coderabbitai review command naming the full current SHA, followed by a CodeRabbit-authored pull-request review object bound to that exact commit. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
+              'Require a fresh trusted @coderabbitai review command naming the full current SHA and created after this pull_request head-update workflow run began, followed by a CodeRabbit-authored pull-request review object bound to that exact commit. Codex evidence is supplemental only when a native bot-authored exact-head review is actually available.',
             );
