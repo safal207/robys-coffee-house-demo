@@ -42,31 +42,46 @@ export const menuCategories = [
     id: "pairing-offers",
     icon: "✨",
     name: { tr: "Taste Journey Eşleşmeleri", en: "Taste Journey Pairings", ru: "Сочетания Taste Journey" },
+    lead: { tr: "Anınız için seçilmiş içecek ve tatlı eşleşmeleri.", en: "Drink and dessert pairings selected for your moment.", ru: "Идеальные сочетания напитков и десертов для вашего момента." },
     items: [
-      {
-        id: "cool-lime-macaron-pairing",
-        journeyId: "cool-lime-macaron",
-        pricingMode: "approved-offer",
-        name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
-        description: {
-          tr: "Taste Journey eşleşme teklifi",
-          en: "Taste Journey pairing offer",
-          ru: "Предложение Taste Journey"
-        },
-        price: 290
-      },
-      {
-        id: "iced-san-sebastian-pairing",
-        journeyId: "iced-san-sebastian",
-        pricingMode: "menu-total",
-        name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
-        description: {
-          tr: "Taste Journey eşleşme teklifi · güncel menü toplamı",
-          en: "Taste Journey pairing offer · current menu total",
-          ru: "Предложение Taste Journey · сумма текущих цен меню"
-        },
-        price: 370
-      }
+
+{
+  id: "cool-lime-macaron-pairing",
+  journeyId: "cool-lime-macaron",
+  pricingMode: "approved-offer",
+  name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
+  description: {
+    tr: "Ferah lime ve yumuşak fıstıklı makaron.",
+    en: "Bright lime and a delicate pistachio macaron.",
+    ru: "Освежающий лайм и нежный фисташковый макарон."
+  },
+  image: "src/pairings-data/final/cool-lime-macaron-hq.webp",
+  imageAlt: {
+    tr: "Buzlu Cool Lime ve fıstıklı makaron",
+    en: "Iced Cool Lime with a pistachio macaron",
+    ru: "Cool Lime со льдом и фисташковый макарон"
+  },
+  price: 290
+},
+
+{
+  id: "iced-san-sebastian-pairing",
+  journeyId: "iced-san-sebastian",
+  pricingMode: "menu-total",
+  name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
+  description: {
+    tr: "Klasik buzlu latte ve kremamsı San Sebastian.",
+    en: "Classic iced latte with creamy San Sebastian cheesecake.",
+    ru: "Классический айс-латте и кремовый чизкейк Сан-Себастьян."
+  },
+  image: "src/pairings-data/approved/iced-san-sebastian-hq.png",
+  imageAlt: {
+    tr: "Buzlu latte ve San Sebastian cheesecake",
+    en: "Iced latte with San Sebastian cheesecake",
+    ru: "Айс-латте и чизкейк Сан-Себастьян"
+  },
+  price: 370
+}
     ]
   },
   {

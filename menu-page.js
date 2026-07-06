@@ -57,8 +57,9 @@ function formatPrice(price) {
 }
 
 function createItem(item) {
-  const row = document.createElement("div");
-  row.className = "full-menu-item";
+  const visual = Boolean(item.image);
+  const row = document.createElement(visual ? "article" : "div");
+  row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
 
   const copy = document.createElement("div");
   copy.className = "full-menu-item-copy";
@@ -73,14 +74,33 @@ function createItem(item) {
     copy.append(description);
   }
 
-  const dots = document.createElement("span");
-  dots.className = "full-menu-dots";
-  dots.setAttribute("aria-hidden", "true");
-
   const price = document.createElement("strong");
   price.className = "full-menu-price";
   price.textContent = formatPrice(item.price);
 
+  if (visual) {
+    const media = document.createElement("div");
+    media.className = "full-menu-item-media";
+
+    const image = document.createElement("img");
+    image.src = item.image;
+    image.alt = localized(item.imageAlt ?? item.name);
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.width = 1024;
+    image.height = 1024;
+    media.append(image);
+
+    const details = document.createElement("div");
+    details.className = "full-menu-item-details";
+    details.append(copy, price);
+    row.append(media, details);
+    return row;
+  }
+
+  const dots = document.createElement("span");
+  dots.className = "full-menu-dots";
+  dots.setAttribute("aria-hidden", "true");
   row.append(copy, dots, price);
   return row;
 }
@@ -133,6 +153,7 @@ function filteredItems(items) {
 function createCategory(category) {
   const section = document.createElement("section");
   section.className = "full-menu-panel";
+  section.classList.toggle("full-menu-panel--featured", category.id === "pairing-offers");
   section.id = category.id;
 
   const header = document.createElement("header");
@@ -143,10 +164,22 @@ function createCategory(category) {
   icon.setAttribute("aria-hidden", "true");
   icon.textContent = category.icon;
 
-  const title = document.createElement("h2");
-  title.textContent = localized(category.name);
-  header.append(icon, title);
-  section.append(header);
+
+const heading = document.createElement("div");
+heading.className = "full-menu-panel-heading";
+
+const title = document.createElement("h2");
+title.textContent = localized(category.name);
+heading.append(title);
+
+if (category.lead) {
+  const lead = document.createElement("p");
+  lead.textContent = localized(category.lead);
+  heading.append(lead);
+}
+
+header.append(icon, heading);
+section.append(header);
 
   if (category.items) {
     const items = filteredItems(category.items);
