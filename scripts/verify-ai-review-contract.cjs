@@ -118,7 +118,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
 
       codeRabbitStatus = statuses.find(
         (status) =>
-          status.context === "coderabbitai" &&
+          status.context === "CodeRabbit" &&
           status.state === "success" &&
           CODERABBIT_LOGINS.has(status.creator?.login) &&
           codeRabbitRequestAt > 0 &&
@@ -162,7 +162,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
 
   core.setFailed(
     "Require a fresh trusted exact-head CodeRabbit request and later native exact-head evidence: " +
-      "either a submitted active PR review object or a trusted successful coderabbitai commit status. " +
+      "either a submitted active PR review object or a trusted successful CodeRabbit commit status. " +
       "Pending, dismissed, summary-comment, generated-comment, and stale evidence never counts.",
   );
 };
