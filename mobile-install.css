@@ -1,7 +1,7 @@
 /* Roby's cross-platform install experience */
 .mobile-app-section .android-app-actions{align-items:flex-start}
 .mobile-install-action{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
-.ios-install-button{display:inline-flex;min-height:54px;align-items:center;justify-content:center;gap:11px;padding:14px 22px;color:#fff;background:linear-gradient(135deg,#b84d58,#91333f);border:1px solid rgba(255,255,255,.14);border-radius:999px;box-shadow:0 16px 36px rgba(184,77,88,.28);font:800 .87rem/1.2 inherit;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+.ios-install-button{display:inline-flex;min-height:54px;align-items:center;justify-content:center;gap:11px;padding:14px 22px;color:#fff;background:linear-gradient(135deg,#b84d58,#91333f);border:1px solid rgba(255,255,255,.14);border-radius:999px;box-shadow:0 16px 36px rgba(184,77,88,.28);font-family:inherit;font-size:.87rem;font-weight:800;line-height:1.2;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
 .ios-install-button:hover{transform:translateY(-2px);box-shadow:0 20px 46px rgba(184,77,88,.38);filter:brightness(1.05)}
 .ios-install-button:focus-visible{outline:3px solid rgba(236,146,156,.58);outline-offset:4px}
 .ios-install-icon{font:600 1.35rem/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
