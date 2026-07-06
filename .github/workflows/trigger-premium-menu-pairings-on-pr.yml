@@ -1,0 +1,60 @@
+name: Trigger premium menu pairings on draft PR
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'feat/premium-menu-pairing-cards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout feature branch without persisted credentials
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: feat/premium-menu-pairing-cards
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Extract and run approved transformation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/apply-premium-menu-pairings-once.yml')
+          lines = workflow.read_text(encoding='utf-8').splitlines()
+          start = next(index for index, line in enumerate(lines) if line.strip() == "python3 - <<'PY'")
+          end = next(index for index in range(start + 1, len(lines)) if lines[index].strip() == 'PY')
+          script = '\n'.join(line[10:] if line.startswith('          ') else line for line in lines[start + 1:end]) + '\n'
+          Path('/tmp/apply-premium-menu.py').write_text(script, encoding='utf-8')
+          PY
+          python3 /tmp/apply-premium-menu.py
+
+      - name: Regenerate and validate integrity evidence
+        run: |
+          node scripts/generate-integrity-manifest.mjs
+          node --check menu-page.js
+          node scripts/verify-pairing-catalog-parity.mjs
+          node scripts/verify-pairing-cta.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Remove temporary workflows
+        run: |
+          rm .github/workflows/apply-premium-menu-pairings-once.yml
+          rm .github/workflows/trigger-premium-menu-pairings-on-pr.yml
+
+      - name: Commit and push final branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html menu.css menu-data.js menu-page.js integrity-manifest.json .github/workflows/apply-premium-menu-pairings-once.yml .github/workflows/trigger-premium-menu-pairings-on-pr.yml
+          git commit -m "feat: add premium menu pairing cards"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:feat/premium-menu-pairing-cards
