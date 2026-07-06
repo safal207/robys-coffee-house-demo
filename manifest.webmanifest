@@ -1,7 +1,6 @@
 {
   "name": "Roby's Coffee House",
   "short_name": "Roby's",
-  "description": "Roby's Coffee House menu, pairings, directions and coffee moments in Gazipaşa.",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",
