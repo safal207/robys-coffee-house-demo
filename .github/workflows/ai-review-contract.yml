@@ -28,28 +28,39 @@ jobs:
               return Number.isFinite(parsed) ? parsed : 0;
             };
 
-            const run = await github.rest.actions.getWorkflowRun({
-              owner,
-              repo,
-              run_id: context.runId,
-            });
-            const headUpdateAnchor = Date.parse(run.data.created_at ?? 0);
-            if (!Number.isFinite(headUpdateAnchor) || headUpdateAnchor <= 0) {
-              core.setFailed('Unable to determine the immutable current-head workflow anchor.');
-              return;
-            }
-
+            let headUpdateAnchor = 0;
             for (let attempt = 1; attempt <= 45; attempt += 1) {
-              const reviews = await github.paginate(
-                github.rest.pulls.listReviews,
-                { owner, repo, pull_number: pr.number, per_page: 100 },
-              );
-              const exactHeadReview = reviews.find((review) => (
-                codeRabbitLogins.has(review.user?.login) &&
-                review.commit_id?.toLowerCase() === currentHead &&
-                review.state !== 'DISMISSED' &&
-                immutableTimeOf(review) >= headUpdateAnchor
-              ));
+              let exactHeadReview;
+              try {
+                if (headUpdateAnchor <= 0) {
+                  const run = await github.rest.actions.getWorkflowRun({
+                    owner,
+                    repo,
+                    run_id: context.runId,
+                  });
+                  headUpdateAnchor = Date.parse(run.data.created_at ?? 0);
+                  if (!Number.isFinite(headUpdateAnchor) || headUpdateAnchor <= 0) {
+                    headUpdateAnchor = 0;
+                    throw new Error('workflow run did not provide a valid immutable creation time');
+                  }
+                }
+
+                const reviews = await github.paginate(
+                  github.rest.pulls.listReviews,
+                  { owner, repo, pull_number: pr.number, per_page: 100 },
+                );
+                exactHeadReview = reviews.find((review) => (
+                  codeRabbitLogins.has(review.user?.login) &&
+                  review.commit_id?.toLowerCase() === currentHead &&
+                  review.state !== 'DISMISSED' &&
+                  immutableTimeOf(review) >= headUpdateAnchor
+                ));
+              } catch (error) {
+                core.warning(
+                  `Transient GitHub API error while checking review evidence ` +
+                  `(attempt ${attempt}/45): ${error.message}`,
+                );
+              }
 
               if (exactHeadReview) {
                 core.notice(`Verified active native CodeRabbit PR review for exact head ${pr.head.sha}.`);
