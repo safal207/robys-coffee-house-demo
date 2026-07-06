@@ -122,7 +122,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           status.state === "success" &&
           CODERABBIT_LOGINS.has(status.creator?.login) &&
           codeRabbitRequestAt > 0 &&
-          timeOf(status) >= codeRabbitRequestAt,
+          timeOf(status) >= headUpdateAnchor,
       );
 
       nativeCodexReview = reviews.find(
