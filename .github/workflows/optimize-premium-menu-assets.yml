@@ -1,0 +1,88 @@
+name: Optimize premium menu delivery
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    if: github.head_ref == 'feat/premium-menu-pairing-cards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout feature branch without persisted credentials
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: feat/premium-menu-pairing-cards
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Materialize compact pairing WebP assets
+        run: |
+          base64 --decode src/pairings-data/final/cool-lime-macaron.webp.b64.txt > src/pairings-data/final/cool-lime-macaron-card.webp
+          base64 --decode src/pairings-data/final/iced-san-sebastian.webp.b64.txt > src/pairings-data/final/iced-san-sebastian-card.webp
+          test -s src/pairings-data/final/cool-lime-macaron-card.webp
+          test -s src/pairings-data/final/iced-san-sebastian-card.webp
+          file src/pairings-data/final/cool-lime-macaron-card.webp | grep -F 'Web/P image'
+          file src/pairings-data/final/iced-san-sebastian-card.webp | grep -F 'Web/P image'
+          test "$(stat -c%s src/pairings-data/final/cool-lime-macaron-card.webp)" -lt 200000
+          test "$(stat -c%s src/pairings-data/final/iced-san-sebastian-card.webp)" -lt 200000
+
+      - name: Bind compact assets and refresh offline delivery
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              'menu-data.js': {
+                  'src/pairings-data/final/cool-lime-macaron-hq.webp': 'src/pairings-data/final/cool-lime-macaron-card.webp',
+                  'src/pairings-data/approved/iced-san-sebastian-hq.png': 'src/pairings-data/final/iced-san-sebastian-card.webp',
+              },
+              'sw.js': {
+                  'const CACHE_VERSION = "robys-offline-v12-20260705-brand-master-10750cdfa32c-58d387ca0c01-96b566c9731e";': 'const CACHE_VERSION = "robys-offline-v13-20260707-premium-menu-pairings";',
+                  './src/pairings-data/final/cool-lime-macaron-hq.webp': './src/pairings-data/final/cool-lime-macaron-card.webp',
+                  './src/pairings-data/approved/iced-san-sebastian-hq.png': './src/pairings-data/final/iced-san-sebastian-card.webp',
+              },
+              'pwa.js': {
+                  'const SERVICE_WORKER_URL = "sw.js?v=offline-20260629-7";': 'const SERVICE_WORKER_URL = "sw.js?v=offline-20260707-8";',
+              },
+              'menu.html': {
+                  '<script defer src="pwa.js?v=offline-20260629-7"></script>': '<script defer src="pwa.js?v=offline-20260707-8"></script>',
+              },
+          }
+
+          for path, mapping in replacements.items():
+              file_path = Path(path)
+              source = file_path.read_text(encoding='utf-8')
+              for old, new in mapping.items():
+                  if source.count(old) != 1:
+                      raise SystemExit(f'Expected exactly one {old!r} in {path}')
+                  source = source.replace(old, new, 1)
+              file_path.write_text(source, encoding='utf-8')
+          PY
+
+      - name: Regenerate and validate integrity evidence
+        run: |
+          node scripts/generate-integrity-manifest.mjs
+          node --check menu-page.js
+          node scripts/verify-pairing-catalog-parity.mjs
+          node scripts/verify-pairing-cta.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/optimize-premium-menu-assets.yml
+
+      - name: Commit and push optimized branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "perf: optimize premium pairing assets and cache"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:feat/premium-menu-pairing-cards
