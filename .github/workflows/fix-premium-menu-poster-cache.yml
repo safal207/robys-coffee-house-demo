@@ -21,20 +21,37 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Preserve HQ Discover assets beside compact menu cards
+      - name: Move compact cards outside the closed poster registry
         run: |
+          mkdir -p src/products/cards
+          cp src/pairings-data/final/cool-lime-macaron-card.webp src/products/cards/pairing-cool-lime-macaron.webp
+          cp src/pairings-data/final/iced-san-sebastian-card.webp src/products/cards/pairing-iced-san-sebastian.webp
+          rm src/pairings-data/final/cool-lime-macaron-card.webp
+          rm src/pairings-data/final/iced-san-sebastian-card.webp
+          test -s src/products/cards/pairing-cool-lime-macaron.webp
+          test -s src/products/cards/pairing-iced-san-sebastian.webp
+
           python3 - <<'PY'
           from pathlib import Path
 
-          path = Path('sw.js')
-          source = path.read_text(encoding='utf-8')
-          anchor = '  "./src/pairings-data/final/cool-lime-macaron-card.webp",\n  "./src/pairings-data/final/iced-san-sebastian-card.webp",'
-          replacement = '  "./src/pairings-data/final/cool-lime-macaron-hq.webp",\n  "./src/pairings-data/approved/iced-san-sebastian-hq.png",\n' + anchor
-          if source.count(anchor) != 1:
-              raise SystemExit('Expected compact pairing cache entries exactly once')
-          if '"./src/pairings-data/final/cool-lime-macaron-hq.webp"' in source:
-              raise SystemExit('HQ pairing cache entries are already restored')
-          path.write_text(source.replace(anchor, replacement, 1), encoding='utf-8')
+          replacements = {
+              'menu-data.js': {
+                  'src/pairings-data/final/cool-lime-macaron-card.webp': 'src/products/cards/pairing-cool-lime-macaron.webp',
+                  'src/pairings-data/final/iced-san-sebastian-card.webp': 'src/products/cards/pairing-iced-san-sebastian.webp',
+              },
+              'sw.js': {
+                  '  "./src/pairings-data/final/cool-lime-macaron-card.webp",\n  "./src/pairings-data/final/iced-san-sebastian-card.webp",': '  "./src/pairings-data/final/cool-lime-macaron-hq.webp",\n  "./src/pairings-data/approved/iced-san-sebastian-hq.png",\n  "./src/products/cards/pairing-cool-lime-macaron.webp",\n  "./src/products/cards/pairing-iced-san-sebastian.webp",',
+              },
+          }
+
+          for path, mapping in replacements.items():
+              file_path = Path(path)
+              source = file_path.read_text(encoding='utf-8')
+              for old, new in mapping.items():
+                  if source.count(old) != 1:
+                      raise SystemExit(f'Expected exactly one {old!r} in {path}')
+                  source = source.replace(old, new, 1)
+              file_path.write_text(source, encoding='utf-8')
           PY
 
       - name: Validate build, posters and generated evidence
@@ -46,6 +63,9 @@ jobs:
           npm run verify:integrity
           node scripts/verify-pairing-catalog-parity.mjs
           node scripts/verify-pairing-cta.mjs
+          node --check menu-page.js
+          node --check pwa.js
+          node --check sw.js
 
       - name: Remove one-time workflow
         run: rm .github/workflows/fix-premium-menu-poster-cache.yml
@@ -57,6 +77,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "fix: retain HQ poster assets in offline cache"
+          git commit -m "fix: keep menu cards outside poster registry"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push origin HEAD:feat/premium-menu-pairing-cards
