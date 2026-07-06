@@ -86,7 +86,7 @@ function serviceWorkerUrl() {
       return value;
     }
   });
-  return policy.createScriptURL(value = SERVICE_WORKER_URL);
+  return policy.createScriptURL(SERVICE_WORKER_URL);
 }
 
 function ensureHeadElement(selector, create) {
