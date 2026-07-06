@@ -122,7 +122,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           status.state === "success" &&
           CODERABBIT_LOGINS.has(status.creator?.login) &&
           codeRabbitRequestAt > 0 &&
-          timeOf(status) >= headUpdateAnchor,
+          timeOf(status) >= codeRabbitRequestAt,
       );
 
       nativeCodexReview = reviews.find(
@@ -161,7 +161,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require a fresh trusted exact-head CodeRabbit request and native exact-head evidence: " +
+    "Require a fresh trusted exact-head CodeRabbit request and later native exact-head evidence: " +
       "either a submitted active PR review object or a trusted successful CodeRabbit commit status. " +
       "Pending, dismissed, summary-comment, generated-comment, and stale evidence never counts.",
   );
