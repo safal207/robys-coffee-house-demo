@@ -1,0 +1,60 @@
+name: Synchronize premium menu PWA revision
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.head_ref == 'feat/premium-menu-pairing-cards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout feature branch without persisted credentials
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: feat/premium-menu-pairing-cards
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Synchronize shared PWA revision on the landing page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          source = path.read_text(encoding='utf-8')
+          old = '<script defer src="pwa.js?v=offline-20260629-7"></script>'
+          new = '<script defer src="pwa.js?v=offline-20260707-8"></script>'
+          if source.count(old) != 1:
+              raise SystemExit('Expected exactly one stale landing-page PWA revision')
+          path.write_text(source.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Validate canonical build and integrity
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+          node scripts/generate-integrity-manifest.mjs
+          npm run verify:integrity
+          npm run verify:taste-journey-posters
+          node scripts/verify-pairing-catalog-parity.mjs
+          node scripts/verify-pairing-cta.mjs
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/sync-premium-menu-pwa-revision.yml
+
+      - name: Commit and push synchronized revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: synchronize shared PWA revision"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:feat/premium-menu-pairing-cards
