@@ -35,6 +35,15 @@ jobs:
               const parsed = Date.parse(item.submitted_at ?? item.created_at ?? 0);
               return Number.isFinite(parsed) ? parsed : 0;
             };
+            const submittedTimeOf = (review) => {
+              const parsed = Date.parse(review.submitted_at ?? 0);
+              return Number.isFinite(parsed) ? parsed : 0;
+            };
+            const isSubmittedActiveReview = (review) => (
+              Boolean(review.submitted_at) &&
+              review.state !== 'PENDING' &&
+              review.state !== 'DISMISSED'
+            );
             const bodyOf = (item) => (item.body ?? '').trim();
             const commandLinesOf = (item) => bodyOf(item)
               .toLowerCase()
@@ -98,16 +107,16 @@ jobs:
                 codeRabbitReview = reviews.find((review) => (
                   codeRabbitLogins.has(review.user?.login) &&
                   review.commit_id?.toLowerCase() === currentHead &&
-                  review.state !== 'DISMISSED' &&
+                  isSubmittedActiveReview(review) &&
                   latestCodeRabbitRequestAt > 0 &&
-                  immutableTimeOf(review) >= latestCodeRabbitRequestAt
+                  submittedTimeOf(review) >= latestCodeRabbitRequestAt
                 ));
                 nativeCodexReview = reviews.find((review) => (
                   codexLogins.has(review.user?.login) &&
                   review.commit_id?.toLowerCase() === currentHead &&
-                  review.state !== 'DISMISSED' &&
+                  isSubmittedActiveReview(review) &&
                   latestCodexRequestAt > 0 &&
-                  immutableTimeOf(review) >= latestCodexRequestAt
+                  submittedTimeOf(review) >= latestCodexRequestAt
                 ));
               } catch (error) {
                 core.warning(
@@ -135,5 +144,5 @@ jobs:
             }
 
             core.setFailed(
-              'Require a fresh trusted @coderabbitai review request containing the full current SHA, followed by an active CodeRabbit-authored pull-request review object whose commit_id equals that SHA. Dismissed reviews, issue summaries, generated comments, and stale reviews never count.',
+              'Require a fresh trusted @coderabbitai review request containing the full current SHA, followed by a submitted active CodeRabbit-authored pull-request review object whose commit_id equals that SHA. Pending, dismissed, issue-summary, generated-comment, and stale evidence never counts.',
             );
