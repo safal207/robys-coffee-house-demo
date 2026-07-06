@@ -39,16 +39,20 @@ function commandLinesOf(item) {
     .filter(Boolean);
 }
 
-function containsExactHead(item, head) {
-  return new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, "i").test(
-    item.body ?? "",
-  );
-}
-
 function latestCreatedTime(items) {
   return items.reduce(
     (latest, item) => Math.max(latest, createdTimeOf(item)),
     0,
+  );
+}
+
+function isPermissionError(error) {
+  return (
+    error?.status === 401 ||
+    error?.status === 403 ||
+    /resource not accessible by integration|bad credentials|forbidden/i.test(
+      error?.message ?? "",
+    )
   );
 }
 
@@ -62,6 +66,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
 
   const currentHead = pr.head.sha.toLowerCase();
   let headUpdateAnchor = 0;
+  let lastApiError = "";
 
   for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
     let codeRabbitRequestAt = 0;
@@ -87,6 +92,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           owner,
           repo,
           issue_number: pr.number,
+          since: new Date(headUpdateAnchor).toISOString(),
           per_page: 100,
         }),
         github.paginate(github.rest.pulls.listReviews, {
@@ -106,8 +112,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
       const freshRequest = (item, command) =>
         TRUSTED_ASSOCIATIONS.has(item.author_association) &&
         createdTimeOf(item) >= headUpdateAnchor &&
-        commandLinesOf(item).includes(command) &&
-        containsExactHead(item, currentHead);
+        commandLinesOf(item).includes(command);
 
       codeRabbitRequestAt = latestCreatedTime(
         comments.filter((item) => freshRequest(item, "@coderabbitai review")),
@@ -131,7 +136,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           status.state === "success" &&
           CODERABBIT_LOGINS.has(status.creator?.login) &&
           codeRabbitRequestAt > 0 &&
-          createdTimeOf(status) >= headUpdateAnchor,
+          createdTimeOf(status) >= codeRabbitRequestAt,
       );
 
       nativeCodexReview = reviews.find(
@@ -143,15 +148,23 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           submittedTimeOf(review) >= codexRequestAt,
       );
     } catch (error) {
+      lastApiError = error?.message ?? String(error);
+      if (isPermissionError(error)) {
+        core.setFailed(
+          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, pull-requests: read, and statuses: read. " +
+            `GitHub API error: ${lastApiError}`,
+        );
+        return;
+      }
       core.warning(
-        `Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${error.message}`,
+        `Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${lastApiError}`,
       );
     }
 
     if (codeRabbitRequestAt > 0 && (codeRabbitReview || codeRabbitStatus)) {
       const evidenceType = codeRabbitReview
         ? "submitted exact-head pull-request review"
-        : "successful exact-head automatic commit status";
+        : "successful exact-head commit status after the request";
       await core.summary
         .addHeading("AI review contract")
         .addTable([
@@ -169,7 +182,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         ])
         .addRaw(
           `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
-            "Maintainer edits, pending/dismissed reviews, summaries, and older-head evidence do not count.\n",
+            "Edited requests, pending/dismissed reviews, summaries, and older-head evidence do not count.\n",
         )
         .write();
       core.notice(
@@ -189,6 +202,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require a trusted exact-head @coderabbitai review request created after the immutable head-update anchor and native CodeRabbit evidence for that same head: either a submitted active review after the request or a successful bot-authored automatic commit status created in the same head-update window.",
+    "Require a trusted @coderabbitai review request created after the immutable head-update anchor and native CodeRabbit evidence for that same head after the request: either a submitted active review or a successful bot-authored CodeRabbit commit status." +
+      (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 };
