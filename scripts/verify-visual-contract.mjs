@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { verifyBrandWordmark } from "./test-brand-wordmark.mjs";
 
 const config = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
@@ -92,4 +93,5 @@ assert(contract.evidence === "CI screenshot diff", "Dashboard evidence must rema
 assert(contract.devices?.includes("mobile") && contract.devices?.includes("desktop"), "Dashboard must cover mobile and desktop");
 assert(Array.isArray(contract.assertions) && contract.assertions.length >= 7, "Dashboard assertions are incomplete");
 
+verifyBrandWordmark();
 console.log("✅ VISUAL-001 configuration is wired, bounded and protected.");

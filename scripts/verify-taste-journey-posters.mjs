@@ -182,7 +182,11 @@ if (!cssRevisionMatch || cssRevisionMatch[1] !== cssRevision) fail(`discover.htm
 if (!serviceWorker.includes(`"./discover-v2.js?v=${discoverRuntimeRevision}"`)) fail("service worker Discover runtime revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker poster JS revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`)) fail("service worker CSS revision is stale");
-if (!serviceWorker.includes(`robys-offline-v10-20260701-posters-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`)) fail("service-worker cache version does not include current Discover runtime and poster revisions");
+const cacheRevisionSuffix = `-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`;
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
+if (!cacheVersion || !cacheVersion.endsWith(cacheRevisionSuffix)) {
+  fail("service-worker cache version does not include current Discover runtime and poster revisions");
+}
 if (!buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision)')) fail("build does not synchronize the Discover interaction runtime revision");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the active renderer");
 if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not synchronize the renderer revision");
