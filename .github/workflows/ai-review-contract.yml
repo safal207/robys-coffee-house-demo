@@ -7,7 +7,7 @@ on:
 permissions:
   # Required for the immutable workflow-run freshness anchor.
   actions: read
-  # Required to check out the verifier from the exact PR head.
+  # Required to check out the trusted verifier from the immutable PR base.
   contents: read
   # Required for trusted exact-head review request comments.
   issues: read
@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 17
     steps:
-      - name: Check out exact-head verifier
+      - name: Check out trusted base verifier
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
