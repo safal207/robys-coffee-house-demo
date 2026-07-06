@@ -7,7 +7,7 @@ on:
 permissions:
   # Required for the immutable workflow-run freshness anchor.
   actions: read
-  # Required to check out the trusted verifier merged by bootstrap PR #174.
+  # Required to check out the trusted verifier merged by trust patch PR #175.
   contents: read
   # Required for trusted exact-head review request comments.
   issues: read
@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 17
     steps:
-      - name: Check out trusted bootstrap verifier
+      - name: Check out trusted timestamp verifier
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 1396437546d6a6f806f3ae5ae422862086c9283f
+          ref: 577dfd5eebe75038ee067830e6b0c70815fcc837
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
