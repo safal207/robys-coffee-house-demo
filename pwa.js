@@ -1,74 +1,24 @@
-const SERVICE_WORKER_URL = "sw.js?v=offline-20260707-ios-install-1";
+const SERVICE_WORKER_URL = "sw.js?v=offline-20260707-ios-install-2";
+const MOBILE_INSTALL_COPY_URL = "mobile-install-copy.json?v=ios-install-20260707-1";
 const TRUSTED_TYPES_POLICY = "robys-pwa";
 
-const mobileInstallCopy = {
-  tr: {
-    titlePrimary: "Roby's cebinizde.",
-    titleAccent: "Her zaman yanınızda.",
-    description: "Menüye, eşleşmelere ve yol tarifine tek dokunuşla ulaşın.",
-    iosButton: "iPhone'a ekle",
-    iosMeta: "iPhone · Web uygulaması",
-    noteIos: "Safari'de Paylaş düğmesine dokunun ve Ana Ekrana Ekle'yi seçin.",
-    noteAndroid: "Android uygulamasını doğrudan bu siteden indirebilirsiniz.",
-    noteDesktop: "iPhone'a ana ekrandan ekleyin veya Android uygulamasını indirin.",
-    installed: "Roby's bu cihazda zaten uygulama olarak açık.",
-    dialogKicker: "ROBY'S MOBILE",
-    dialogTitle: "iPhone'a ekleyin",
-    dialogLead: "Roby's'i uygulama gibi açmak için Safari'nin paylaşım menüsünü kullanın.",
-    step1Title: "Paylaş'a dokunun",
-    step1Text: "Safari'nin alt kısmındaki paylaşım simgesini açın.",
-    step2Title: "Ana Ekrana Ekle",
-    step2Text: "Açılan menüde Ana Ekrana Ekle seçeneğini seçin.",
-    step3Title: "Ekle'ye dokunun",
-    step3Text: "Sağ üstteki Ekle düğmesine dokunun. Roby's simgesi ana ekranınıza gelir.",
-    close: "Anladım",
-    closeLabel: "Kapat"
-  },
-  en: {
-    titlePrimary: "Roby's in your pocket.",
-    titleAccent: "Always close by.",
-    description: "Open the menu, pairings and directions with one tap.",
-    iosButton: "Add to iPhone",
-    iosMeta: "iPhone · Web app",
-    noteIos: "Tap Share in Safari, then choose Add to Home Screen.",
-    noteAndroid: "Download the Android app directly from this website.",
-    noteDesktop: "Add Roby's to an iPhone home screen or download the Android app.",
-    installed: "Roby's is already open as an app on this device.",
-    dialogKicker: "ROBY'S MOBILE",
-    dialogTitle: "Add to iPhone",
-    dialogLead: "Use Safari's share menu to open Roby's like an app.",
-    step1Title: "Tap Share",
-    step1Text: "Open the share menu at the bottom of Safari.",
-    step2Title: "Add to Home Screen",
-    step2Text: "Choose Add to Home Screen in the menu.",
-    step3Title: "Tap Add",
-    step3Text: "Tap Add in the top-right corner. The Roby's icon will appear on your home screen.",
-    close: "Got it",
-    closeLabel: "Close"
-  },
-  ru: {
-    titlePrimary: "Roby's в вашем телефоне.",
-    titleAccent: "Всегда рядом.",
-    description: "Открывайте меню, сочетания и маршрут одним касанием.",
-    iosButton: "Добавить на iPhone",
-    iosMeta: "iPhone · Веб-приложение",
-    noteIos: "В Safari нажмите «Поделиться», затем выберите «На экран Домой».",
-    noteAndroid: "Приложение для Android можно скачать прямо с этого сайта.",
-    noteDesktop: "Добавьте Roby's на экран iPhone или скачайте приложение для Android.",
-    installed: "Roby's уже открыт как приложение на этом устройстве.",
-    dialogKicker: "ROBY'S В ТЕЛЕФОНЕ",
-    dialogTitle: "Добавьте на iPhone",
-    dialogLead: "Используйте меню Safari, чтобы открывать Roby's как отдельное приложение.",
-    step1Title: "Нажмите «Поделиться»",
-    step1Text: "Откройте меню «Поделиться» в нижней части Safari.",
-    step2Title: "Выберите «На экран Домой»",
-    step2Text: "Найдите этот пункт в открывшемся меню.",
-    step3Title: "Нажмите «Добавить»",
-    step3Text: "Нажмите «Добавить» справа вверху. Иконка Roby's появится на главном экране.",
-    close: "Понятно",
-    closeLabel: "Закрыть"
-  }
-};
+let mobileInstallCopy = {};
+let mobileInstallCopyPromise;
+
+function loadMobileInstallCopy() {
+  if (mobileInstallCopyPromise) return mobileInstallCopyPromise;
+  mobileInstallCopyPromise = fetch(MOBILE_INSTALL_COPY_URL, { cache: "force-cache" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Mobile install copy unavailable: ${response.status}`);
+      return response.json();
+    })
+    .then((copy) => {
+      if (!copy?.tr || !copy?.en || !copy?.ru) throw new TypeError("Mobile install copy is incomplete");
+      mobileInstallCopy = copy;
+      return copy;
+    });
+  return mobileInstallCopyPromise;
+}
 
 function currentLanguage() {
   const language = document.documentElement.lang;
@@ -165,6 +115,7 @@ function bindMobileAriaLabel(element, key) {
 
 function syncMobileInstallCopy(root = document) {
   const copy = mobileInstallCopy[currentLanguage()];
+  if (!copy) return;
   root.querySelectorAll("[data-mobile-install-copy]").forEach((element) => {
     const value = copy[element.dataset.mobileInstallCopy];
     if (value) element.textContent = value;
@@ -320,10 +271,18 @@ function enhanceMobileInstallSection() {
   return true;
 }
 
-function setupMobileInstallExperience() {
+async function setupMobileInstallExperience() {
   ensureMobileInstallAssets();
-  if (enhanceMobileInstallSection()) return;
+  if (!document.querySelector("#visit")) return;
 
+  try {
+    await loadMobileInstallCopy();
+  } catch (error) {
+    console.warn("Roby's mobile install copy could not load", error);
+    return;
+  }
+
+  if (enhanceMobileInstallSection()) return;
   const observer = new MutationObserver(() => {
     if (enhanceMobileInstallSection()) observer.disconnect();
   });
@@ -336,8 +295,8 @@ window.addEventListener("offline", syncConnectivityState);
 ensureMobileInstallAssets();
 
 document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", setupMobileInstallExperience, { once: true })
-  : setupMobileInstallExperience();
+  ? document.addEventListener("DOMContentLoaded", () => void setupMobileInstallExperience(), { once: true })
+  : void setupMobileInstallExperience();
 
 new MutationObserver(() => syncMobileInstallCopy()).observe(document.documentElement, {
   attributes: true,
