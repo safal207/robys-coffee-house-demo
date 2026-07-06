@@ -11,7 +11,8 @@ const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 
 function parseTime(value) {
-  const parsed = Date.parse(value ?? 0);
+  if (typeof value !== "string" || value.trim() === "") return 0;
+  const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
