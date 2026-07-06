@@ -1,0 +1,46 @@
+name: Temporary PR 167 main synchronization
+
+on:
+  push:
+    branches:
+      - sync/pr-167-main-20260706
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out synchronization branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Restore the reviewed PR 167 product diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin \
+            refs/heads/backup/pr-167-pre-main-sync-20260706:refs/remotes/origin/backup/pr-167-pre-main-sync-20260706
+          git checkout origin/backup/pr-167-pre-main-sync-20260706 -- \
+            menu-data.js \
+            qa/menu-content-baseline.json \
+            qa/reviewed-visual-changes.d/pairing-catalog-parity-v1.json \
+            qa/reviewed-visual-changes.d/pairing-catalog-pricing-v2.json \
+            scripts/verify-pairing-catalog-parity.mjs \
+            scripts/verify-pairing-cta.mjs
+          node scripts/generate-integrity-manifest.mjs
+          rm .github/workflows/temp-sync-pr167.yml
+
+      - name: Commit canonical synchronized state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git diff --cached --check
+          git commit -m "chore: synchronize PR #167 with trusted main"
+          git push origin HEAD:sync/pr-167-main-20260706
