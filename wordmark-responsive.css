@@ -1,0 +1,7 @@
+@media(max-width:680px){
+  .discover-header .brand-copy small{display:none!important}
+}
+
+@media(max-width:340px){
+  .discover-header .brand-copy{display:none!important}
+}

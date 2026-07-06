@@ -7,6 +7,8 @@ const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const workflow = readFileSync(".github/workflows/visual-regression.yml", "utf8");
 const aiWorkflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
+const aiVerifier = readFileSync("scripts/verify-ai-review-contract.cjs", "utf8");
+const aiContract = `${aiWorkflow}\n${aiVerifier}`;
 const uiRunner = readFileSync("scripts/ui-ux-matrix.mjs", "utf8");
 const socialVerifier = readFileSync("scripts/verify-social-network-live.mjs", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
@@ -121,7 +123,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("currentHead") && aiWorkflow.includes("commit_id") && aiWorkflow.includes("latestCodexRequestAt") && aiWorkflow.includes("latestCodeRabbitRequestAt")]
+  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("codeRabbitRequestAt") && aiContract.includes("codexRequestAt")]
 ]);
 
 const report = {

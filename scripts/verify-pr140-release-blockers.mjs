@@ -67,10 +67,10 @@ assert(
   serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`),
   "service worker does not precache the exact poster JS revision loaded by discover.html"
 );
+const cacheRevisionSuffix = `-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`;
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
 assert(
-  serviceWorker.includes(
-    `robys-offline-v10-20260701-posters-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`
-  ),
+  cacheVersion?.endsWith(cacheRevisionSuffix),
   "service-worker cache version does not include the Discover runtime, poster JS and CSS revisions"
 );
 assert(
