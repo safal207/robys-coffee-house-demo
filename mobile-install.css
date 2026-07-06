@@ -12,8 +12,9 @@
 .mobile-app-section[data-installed="true"] .ios-install-action{display:none}
 .mobile-install-dialog{width:min(92vw,520px);max-height:min(82vh,720px);overflow:auto;padding:0;color:#281d1b;background:#fffaf5;border:0;border-radius:28px;box-shadow:0 34px 90px rgba(0,0,0,.34)}
 .mobile-install-dialog::backdrop{background:rgba(19,13,12,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
-.mobile-install-dialog-inner{position:relative;padding:34px}
-.mobile-install-dialog-close{position:absolute;top:16px;right:16px;display:grid;width:42px;height:42px;place-items:center;color:#332421;background:#f2e8e1;border:0;border-radius:50%;font-size:1.35rem;cursor:pointer}
+.mobile-install-dialog-inner{position:relative;padding:max(34px,env(safe-area-inset-top,0px)) max(34px,env(safe-area-inset-right,0px)) max(34px,env(safe-area-inset-bottom,0px)) max(34px,env(safe-area-inset-left,0px))}
+.mobile-install-dialog-close{position:absolute;top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));display:grid;width:42px;height:42px;place-items:center;color:#332421;background:#f2e8e1;border:0;border-radius:50%;font-size:1.35rem;cursor:pointer}
+.mobile-install-dialog-close:focus-visible,.mobile-install-dialog-done:focus-visible{outline:3px solid rgba(158,61,73,.5);outline-offset:3px}
 .mobile-install-dialog-kicker{margin:0 52px 9px 0;color:#9b3e49;font-size:.72rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
 .mobile-install-dialog h2{margin:0 48px 10px 0;font-size:clamp(2rem,8vw,3.2rem);line-height:1;letter-spacing:-.04em}
 .mobile-install-dialog-lead{margin:0 0 25px;color:#725f59;line-height:1.65}
@@ -24,5 +25,5 @@
 .mobile-install-step span{display:block;color:#78655f;font-size:.85rem;line-height:1.48}
 .mobile-install-dialog-done{width:100%;min-height:50px;margin-top:20px;color:#fff;background:#9e3d49;border:0;border-radius:999px;font-weight:800;cursor:pointer}
 @media(max-width:820px){.mobile-app-section .android-app-actions{justify-content:center}.mobile-install-action{justify-content:center}}
-@media(max-width:520px){.mobile-install-action{width:100%;align-items:stretch;flex-direction:column}.ios-install-button,.mobile-install-action .android-download-button{width:100%;min-height:52px}.ios-install-meta,.mobile-install-action .android-app-meta{justify-content:center}.mobile-install-dialog-inner{padding:29px 20px 22px}.mobile-install-dialog h2{margin-right:42px}.mobile-install-step{grid-template-columns:38px minmax(0,1fr);gap:11px;padding:14px}.mobile-install-step::before{width:34px;height:34px}}
+@media(max-width:520px){.mobile-install-action{width:100%;align-items:stretch;flex-direction:column}.ios-install-button,.mobile-install-action .android-download-button{width:100%;min-height:52px}.ios-install-meta,.mobile-install-action .android-app-meta{justify-content:center}.mobile-install-dialog-inner{padding:max(29px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(22px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}.mobile-install-dialog h2{margin-right:42px}.mobile-install-step{grid-template-columns:38px minmax(0,1fr);gap:11px;padding:14px}.mobile-install-step::before{width:34px;height:34px}}
 @media(prefers-reduced-motion:reduce){.ios-install-button{transition:none}.ios-install-button:hover{transform:none}}
