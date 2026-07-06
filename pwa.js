@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "sw.js?v=offline-20260629-7";
+const SERVICE_WORKER_URL = "sw.js?v=offline-20260707-8";
 const TRUSTED_TYPES_POLICY = "robys-pwa";
 
 function syncConnectivityState() {

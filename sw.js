@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v12-20260705-brand-master-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v13-20260707-premium-menu-pairings";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -38,8 +38,8 @@ const CORE_ASSETS = [
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
   "./discover-rotation-v3.js?v=58d387ca0c01",
-  "./src/pairings-data/final/cool-lime-macaron-hq.webp",
-  "./src/pairings-data/approved/iced-san-sebastian-hq.png",
+  "./src/pairings-data/final/cool-lime-macaron-card.webp",
+  "./src/pairings-data/final/iced-san-sebastian-card.webp",
   "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
