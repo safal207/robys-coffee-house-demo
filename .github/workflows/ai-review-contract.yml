@@ -13,9 +13,9 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 17
     steps:
-      - name: Wait for native exact-head CodeRabbit review
+      - name: Wait for active native exact-head CodeRabbit review
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
@@ -39,7 +39,7 @@ jobs:
               return;
             }
 
-            for (let attempt = 1; attempt <= 30; attempt += 1) {
+            for (let attempt = 1; attempt <= 45; attempt += 1) {
               const reviews = await github.paginate(
                 github.rest.pulls.listReviews,
                 { owner, repo, pull_number: pr.number, per_page: 100 },
@@ -47,23 +47,24 @@ jobs:
               const exactHeadReview = reviews.find((review) => (
                 codeRabbitLogins.has(review.user?.login) &&
                 review.commit_id?.toLowerCase() === currentHead &&
+                review.state !== 'DISMISSED' &&
                 immutableTimeOf(review) >= headUpdateAnchor
               ));
 
               if (exactHeadReview) {
-                core.notice(`Verified native CodeRabbit PR review for exact head ${pr.head.sha}.`);
+                core.notice(`Verified active native CodeRabbit PR review for exact head ${pr.head.sha}.`);
                 return;
               }
 
               core.info(
-                `Waiting for native exact-head CodeRabbit review ` +
-                `(${attempt}/30); head=${pr.head.sha}`,
+                `Waiting for active native exact-head CodeRabbit review ` +
+                `(${attempt}/45); head=${pr.head.sha}`,
               );
-              if (attempt < 30) {
+              if (attempt < 45) {
                 await new Promise((resolve) => setTimeout(resolve, 20_000));
               }
             }
 
             core.setFailed(
-              'Require a CodeRabbit-authored pull-request review object whose commit_id equals the current head and whose immutable submission time follows this current-head workflow run. Issue comments and generated summaries never count.',
+              'Require an active CodeRabbit-authored pull-request review object whose commit_id equals the current head and whose immutable submission time follows this current-head workflow run. Dismissed reviews, issue comments, and generated summaries never count.',
             );
