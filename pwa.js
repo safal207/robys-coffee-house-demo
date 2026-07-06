@@ -21,7 +21,8 @@ const mobileInstallCopy = {
     step2Text: "Açılan menüde Ana Ekrana Ekle seçeneğini seçin.",
     step3Title: "Ekle'ye dokunun",
     step3Text: "Sağ üstteki Ekle düğmesine dokunun. Roby's simgesi ana ekranınıza gelir.",
-    close: "Anladım"
+    close: "Anladım",
+    closeLabel: "Kapat"
   },
   en: {
     titlePrimary: "Roby's in your pocket.",
@@ -42,7 +43,8 @@ const mobileInstallCopy = {
     step2Text: "Choose Add to Home Screen in the menu.",
     step3Title: "Tap Add",
     step3Text: "Tap Add in the top-right corner. The Roby's icon will appear on your home screen.",
-    close: "Got it"
+    close: "Got it",
+    closeLabel: "Close"
   },
   ru: {
     titlePrimary: "Roby's в вашем телефоне.",
@@ -63,7 +65,8 @@ const mobileInstallCopy = {
     step2Text: "Найдите этот пункт в открывшемся меню.",
     step3Title: "Нажмите «Добавить»",
     step3Text: "Нажмите «Добавить» справа вверху. Иконка Roby's появится на главном экране.",
-    close: "Понятно"
+    close: "Понятно",
+    closeLabel: "Закрыть"
   }
 };
 
@@ -155,11 +158,20 @@ function bindMobileCopy(element, key) {
   element.dataset.mobileInstallCopy = key;
 }
 
+function bindMobileAriaLabel(element, key) {
+  if (!element) return;
+  element.dataset.mobileInstallAriaLabel = key;
+}
+
 function syncMobileInstallCopy(root = document) {
   const copy = mobileInstallCopy[currentLanguage()];
   root.querySelectorAll("[data-mobile-install-copy]").forEach((element) => {
     const value = copy[element.dataset.mobileInstallCopy];
     if (value) element.textContent = value;
+  });
+  root.querySelectorAll("[data-mobile-install-aria-label]").forEach((element) => {
+    const value = copy[element.dataset.mobileInstallAriaLabel];
+    if (value) element.setAttribute("aria-label", value);
   });
 }
 
@@ -178,7 +190,7 @@ function createInstallDialog() {
   const closeIcon = document.createElement("button");
   closeIcon.className = "mobile-install-dialog-close";
   closeIcon.type = "button";
-  closeIcon.setAttribute("aria-label", "Close");
+  bindMobileAriaLabel(closeIcon, "closeLabel");
   closeIcon.textContent = "×";
 
   const kicker = document.createElement("p");
