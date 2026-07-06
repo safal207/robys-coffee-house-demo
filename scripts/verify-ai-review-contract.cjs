@@ -47,12 +47,12 @@ function latestCreatedTime(items) {
 }
 
 function isPermissionError(error) {
-  return (
-    error?.status === 401 ||
-    error?.status === 403 ||
-    /resource not accessible by integration|bad credentials|forbidden/i.test(
-      error?.message ?? "",
-    )
+  const message = error?.message ?? "";
+  if (error?.status === 401) return true;
+  if (error?.status !== 403) return false;
+  if (/rate limit|secondary rate|abuse detection/i.test(message)) return false;
+  return /resource not accessible by integration|bad credentials|insufficient permission|forbidden/i.test(
+    message,
   );
 }
 
