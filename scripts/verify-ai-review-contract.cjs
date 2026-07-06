@@ -6,19 +6,21 @@ const CODEX_LOGINS = new Set([
   "chatgpt-codex-connector[bot]",
   "chatgpt-codex-connector",
 ]);
+const CODERABBIT_STATUS_CONTEXT = "CodeRabbit";
 const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 
-function timeOf(item) {
-  const parsed = Date.parse(
-    item.submitted_at ?? item.updated_at ?? item.created_at ?? 0,
-  );
+function parseTime(value) {
+  const parsed = Date.parse(value ?? 0);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function createdTimeOf(item) {
+  return parseTime(item.created_at);
+}
+
 function submittedTimeOf(review) {
-  const parsed = Date.parse(review.submitted_at ?? 0);
-  return Number.isFinite(parsed) ? parsed : 0;
+  return parseTime(review.submitted_at);
 }
 
 function isSubmittedActiveReview(review) {
@@ -37,21 +39,31 @@ function commandLinesOf(item) {
     .filter(Boolean);
 }
 
-function containsExactHead(item, head) {
-  return new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, "i").test(
-    item.body ?? "",
+function latestCreatedTime(items) {
+  return items.reduce(
+    (latest, item) => Math.max(latest, createdTimeOf(item)),
+    0,
   );
 }
 
-function latestTime(items) {
-  return items.reduce((latest, item) => Math.max(latest, timeOf(item)), 0);
+function isPermissionError(error) {
+  const message = error?.message ?? "";
+  if (error?.status === 401) return true;
+  if (error?.status !== 403) return false;
+  return !/rate limit|secondary rate|abuse detection/i.test(message);
 }
 
 module.exports = async function verifyAiReviewContract({ github, context, core }) {
   const { owner, repo } = context.repo;
   const pr = context.payload.pull_request;
+  if (!pr?.head?.sha) {
+    core.setFailed("AI review verifier requires a pull_request event with a head SHA.");
+    return;
+  }
+
   const currentHead = pr.head.sha.toLowerCase();
   let headUpdateAnchor = 0;
+  let lastApiError = "";
 
   for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
     let codeRabbitRequestAt = 0;
@@ -66,10 +78,9 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           repo,
           run_id: context.runId,
         });
-        headUpdateAnchor = Date.parse(run.data.created_at ?? 0);
-        if (!Number.isFinite(headUpdateAnchor) || headUpdateAnchor <= 0) {
-          headUpdateAnchor = 0;
-          throw new Error("workflow run has no immutable creation time");
+        headUpdateAnchor = parseTime(run.data.created_at);
+        if (headUpdateAnchor <= 0) {
+          throw new Error("workflow run has no immutable creation timestamp");
         }
       }
 
@@ -78,6 +89,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           owner,
           repo,
           issue_number: pr.number,
+          since: new Date(headUpdateAnchor).toISOString(),
           per_page: 100,
         }),
         github.paginate(github.rest.pulls.listReviews, {
@@ -96,14 +108,13 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
 
       const freshRequest = (item, command) =>
         TRUSTED_ASSOCIATIONS.has(item.author_association) &&
-        timeOf(item) >= headUpdateAnchor &&
-        commandLinesOf(item).includes(command) &&
-        containsExactHead(item, currentHead);
+        createdTimeOf(item) >= headUpdateAnchor &&
+        commandLinesOf(item).includes(command);
 
-      codeRabbitRequestAt = latestTime(
+      codeRabbitRequestAt = latestCreatedTime(
         comments.filter((item) => freshRequest(item, "@coderabbitai review")),
       );
-      const codexRequestAt = latestTime(
+      const codexRequestAt = latestCreatedTime(
         comments.filter((item) => freshRequest(item, "@codex review")),
       );
 
@@ -118,11 +129,11 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
 
       codeRabbitStatus = statuses.find(
         (status) =>
-          status.context === "CodeRabbit" &&
+          status.context === CODERABBIT_STATUS_CONTEXT &&
           status.state === "success" &&
           CODERABBIT_LOGINS.has(status.creator?.login) &&
           codeRabbitRequestAt > 0 &&
-          timeOf(status) >= headUpdateAnchor,
+          createdTimeOf(status) >= codeRabbitRequestAt,
       );
 
       nativeCodexReview = reviews.find(
@@ -134,18 +145,45 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           submittedTimeOf(review) >= codexRequestAt,
       );
     } catch (error) {
+      lastApiError = error?.message ?? String(error);
+      if (isPermissionError(error)) {
+        core.setFailed(
+          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, pull-requests: read, and statuses: read. " +
+            `GitHub API error: ${lastApiError}`,
+        );
+        return;
+      }
       core.warning(
-        `Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${error.message}`,
+        `Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${lastApiError}`,
       );
     }
 
     if (codeRabbitRequestAt > 0 && (codeRabbitReview || codeRabbitStatus)) {
       const evidenceType = codeRabbitReview
-        ? "submitted pull-request review object"
-        : "trusted exact-head commit status";
+        ? "submitted exact-head pull-request review"
+        : "successful exact-head commit status after the request";
+      await core.summary
+        .addHeading("AI review contract")
+        .addTable([
+          [
+            { data: "Lane", header: true },
+            { data: "Evidence", header: true },
+            { data: "Exact head", header: true },
+          ],
+          ["CodeRabbit (required)", evidenceType, "yes"],
+          [
+            "Codex (supplemental)",
+            nativeCodexReview ? "native submitted review" : "not counted",
+            nativeCodexReview ? "yes" : "n/a",
+          ],
+        ])
+        .addRaw(
+          `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
+            "Edited requests, pending/dismissed reviews, summaries, and older-head evidence do not count.\n",
+        )
+        .write();
       core.notice(
-        `Verified native CodeRabbit evidence for ${pr.head.sha}: ${evidenceType}. ` +
-          `Codex native evidence: ${Boolean(nativeCodexReview)}.`,
+        `Verified native CodeRabbit evidence for ${pr.head.sha}: ${evidenceType}.`,
       );
       return;
     }
@@ -161,8 +199,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require a fresh trusted exact-head CodeRabbit request and later native exact-head evidence: " +
-      "either a submitted active PR review object or a trusted successful CodeRabbit commit status. " +
-      "Pending, dismissed, summary-comment, generated-comment, and stale evidence never counts.",
+    "Require a trusted @coderabbitai review request created after the immutable head-update anchor and native CodeRabbit evidence for that same head after the request: either a submitted active review or a successful bot-authored CodeRabbit commit status." +
+      (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 };
