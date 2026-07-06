@@ -72,7 +72,11 @@ function loadMobileInstallRuntime() {
     script.src = trustedScriptUrl(MOBILE_INSTALL_RUNTIME_URL);
     script.async = true;
     script.addEventListener("load", resolve, { once: true });
-    script.addEventListener("error", () => reject(new Error("Roby's mobile install runtime could not load")), { once: true });
+    script.addEventListener("error", () => {
+      script.remove();
+      mobileInstallRuntimePromise = undefined;
+      reject(new Error("Roby's mobile install runtime could not load"));
+    }, { once: true });
     document.head.append(script);
   });
   return mobileInstallRuntimePromise;
@@ -82,20 +86,26 @@ function setupMobileInstallLoader() {
   const visit = document.querySelector("#visit");
   if (!visit) return;
 
-  const load = () => {
-    void loadMobileInstallRuntime().catch((error) => console.warn(error));
+  const retry = () => {
+    window.addEventListener("online", load, { once: true });
+    document.addEventListener("pointerdown", load, { once: true, passive: true });
   };
 
+  const load = () => loadMobileInstallRuntime().catch((error) => {
+    console.warn(error);
+    retry();
+    throw error;
+  });
+
   if (!("IntersectionObserver" in window)) {
-    window.addEventListener("scroll", load, { once: true, passive: true });
-    document.addEventListener("pointerdown", load, { once: true, passive: true });
+    window.addEventListener("scroll", () => void load(), { once: true, passive: true });
+    document.addEventListener("pointerdown", () => void load(), { once: true, passive: true });
     return;
   }
 
   const observer = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
-    observer.disconnect();
-    load();
+    void load().then(() => observer.disconnect()).catch(() => {});
   }, { rootMargin: "1400px 0px", threshold: 0 });
   observer.observe(visit);
 }
