@@ -7,30 +7,56 @@ on:
 permissions:
   # Required for the immutable workflow-run freshness anchor.
   actions: read
+  # Required for trusted exact-head review request comments.
+  issues: read
   # Required for native pull-request review evidence.
   pull-requests: read
 
 jobs:
   verify:
+    name: Verify exact-head independent review
     runs-on: ubuntu-latest
     timeout-minutes: 17
     steps:
-      - name: Wait for active native exact-head CodeRabbit review
+      - name: Wait for requested active native exact-head CodeRabbit review
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
             const currentHead = pr.head.sha.toLowerCase();
+            const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const codeRabbitLogins = new Set(['coderabbitai[bot]', 'coderabbitai']);
+            const codexLogins = new Set([
+              'chatgpt-codex-connector[bot]',
+              'chatgpt-codex-connector',
+            ]);
             const immutableTimeOf = (item) => {
               const parsed = Date.parse(item.submitted_at ?? item.created_at ?? 0);
               return Number.isFinite(parsed) ? parsed : 0;
             };
+            const bodyOf = (item) => (item.body ?? '').trim();
+            const commandLinesOf = (item) => bodyOf(item)
+              .toLowerCase()
+              .split(/\r?\n/)
+              .map((line) => line.trim())
+              .filter(Boolean);
+            const exactHeadInBody = (item) => new RegExp(
+              `(^|[^0-9a-f])${currentHead}([^0-9a-f]|$)`,
+              'i',
+            ).test(bodyOf(item));
+            const latestRequestAt = (requests) => requests.reduce(
+              (latest, request) => Math.max(latest, immutableTimeOf(request)),
+              0,
+            );
 
             let headUpdateAnchor = 0;
             for (let attempt = 1; attempt <= 45; attempt += 1) {
-              let exactHeadReview;
+              let latestCodeRabbitRequestAt = 0;
+              let latestCodexRequestAt = 0;
+              let codeRabbitReview;
+              let nativeCodexReview;
+
               try {
                 if (headUpdateAnchor <= 0) {
                   const run = await github.rest.actions.getWorkflowRun({
@@ -45,15 +71,43 @@ jobs:
                   }
                 }
 
-                const reviews = await github.paginate(
-                  github.rest.pulls.listReviews,
-                  { owner, repo, pull_number: pr.number, per_page: 100 },
+                const [comments, reviews] = await Promise.all([
+                  github.paginate(
+                    github.rest.issues.listComments,
+                    { owner, repo, issue_number: pr.number, per_page: 100 },
+                  ),
+                  github.paginate(
+                    github.rest.pulls.listReviews,
+                    { owner, repo, pull_number: pr.number, per_page: 100 },
+                  ),
+                ]);
+
+                const isFreshRequest = (item, command) => (
+                  trusted.has(item.author_association) &&
+                  immutableTimeOf(item) >= headUpdateAnchor &&
+                  commandLinesOf(item).includes(command) &&
+                  exactHeadInBody(item)
                 );
-                exactHeadReview = reviews.find((review) => (
+                latestCodeRabbitRequestAt = latestRequestAt(
+                  comments.filter((item) => isFreshRequest(item, '@coderabbitai review')),
+                );
+                latestCodexRequestAt = latestRequestAt(
+                  comments.filter((item) => isFreshRequest(item, '@codex review')),
+                );
+
+                codeRabbitReview = reviews.find((review) => (
                   codeRabbitLogins.has(review.user?.login) &&
                   review.commit_id?.toLowerCase() === currentHead &&
                   review.state !== 'DISMISSED' &&
-                  immutableTimeOf(review) >= headUpdateAnchor
+                  latestCodeRabbitRequestAt > 0 &&
+                  immutableTimeOf(review) >= latestCodeRabbitRequestAt
+                ));
+                nativeCodexReview = reviews.find((review) => (
+                  codexLogins.has(review.user?.login) &&
+                  review.commit_id?.toLowerCase() === currentHead &&
+                  review.state !== 'DISMISSED' &&
+                  latestCodexRequestAt > 0 &&
+                  immutableTimeOf(review) >= latestCodexRequestAt
                 ));
               } catch (error) {
                 core.warning(
@@ -62,14 +116,18 @@ jobs:
                 );
               }
 
-              if (exactHeadReview) {
-                core.notice(`Verified active native CodeRabbit PR review for exact head ${pr.head.sha}.`);
+              if (latestCodeRabbitRequestAt > 0 && codeRabbitReview) {
+                core.notice(
+                  `Verified requested active native CodeRabbit review for exact head ${pr.head.sha}. ` +
+                  `Codex native exact-head evidence: ${Boolean(nativeCodexReview)}.`,
+                );
                 return;
               }
 
               core.info(
-                `Waiting for active native exact-head CodeRabbit review ` +
-                `(${attempt}/45); head=${pr.head.sha}`,
+                `Waiting for requested active native exact-head CodeRabbit review ` +
+                `(${attempt}/45); request=${latestCodeRabbitRequestAt > 0}; ` +
+                `review=${Boolean(codeRabbitReview)}; head=${pr.head.sha}`,
               );
               if (attempt < 45) {
                 await new Promise((resolve) => setTimeout(resolve, 20_000));
@@ -77,5 +135,5 @@ jobs:
             }
 
             core.setFailed(
-              'Require an active CodeRabbit-authored pull-request review object whose commit_id equals the current head and whose immutable submission time follows this current-head workflow run. Dismissed reviews, issue comments, and generated summaries never count.',
+              'Require a fresh trusted @coderabbitai review request containing the full current SHA, followed by an active CodeRabbit-authored pull-request review object whose commit_id equals that SHA. Dismissed reviews, issue summaries, generated comments, and stale reviews never count.',
             );
