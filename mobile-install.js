@@ -1,4 +1,6 @@
 const MOBILE_INSTALL_COPY_URL = "mobile-install-copy.json?v=ios-install-20260707-1";
+const MOBILE_INSTALL_OBSERVER_TIMEOUT_MS = 10000;
+const MOBILE_INSTALL_MAX_ATTEMPTS = 50;
 
 let mobileInstallCopy = {};
 let mobileInstallCopyPromise;
@@ -14,6 +16,10 @@ function loadMobileInstallCopy() {
       if (!copy?.tr || !copy?.en || !copy?.ru) throw new TypeError("Mobile install copy is incomplete");
       mobileInstallCopy = copy;
       return copy;
+    })
+    .catch((error) => {
+      mobileInstallCopyPromise = undefined;
+      throw error;
     });
   return mobileInstallCopyPromise;
 }
@@ -134,12 +140,13 @@ function createInstallDialog() {
 function createIosInstallAction() {
   const action = document.createElement("div");
   action.className = "mobile-install-action ios-install-action";
+  const dialog = createInstallDialog();
 
   const button = document.createElement("button");
   button.className = "ios-install-button";
   button.type = "button";
   button.setAttribute("aria-haspopup", "dialog");
-  button.setAttribute("aria-controls", "ios-install-dialog");
+  button.setAttribute("aria-controls", dialog.id);
 
   const icon = document.createElement("span");
   icon.className = "ios-install-icon";
@@ -155,7 +162,6 @@ function createIosInstallAction() {
   bindMobileCopy(meta, "iosMeta");
 
   button.addEventListener("click", () => {
-    const dialog = createInstallDialog();
     syncMobileInstallCopy(dialog);
     if (typeof dialog.showModal === "function") dialog.showModal();
     else dialog.setAttribute("open", "");
@@ -213,14 +219,23 @@ async function setupMobileInstallExperience() {
     await loadMobileInstallCopy();
   } catch (error) {
     console.warn("Roby's mobile install copy could not load", error);
+    window.addEventListener("online", () => void setupMobileInstallExperience(), { once: true });
+    document.addEventListener("pointerdown", () => void setupMobileInstallExperience(), { once: true, passive: true });
     return;
   }
 
   if (enhanceMobileInstallSection()) return;
+  let attempts = 0;
+  let timeoutId;
   const observer = new MutationObserver(() => {
-    if (enhanceMobileInstallSection()) observer.disconnect();
+    attempts += 1;
+    if (enhanceMobileInstallSection() || attempts >= MOBILE_INSTALL_MAX_ATTEMPTS) {
+      observer.disconnect();
+      window.clearTimeout(timeoutId);
+    }
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
+  timeoutId = window.setTimeout(() => observer.disconnect(), MOBILE_INSTALL_OBSERVER_TIMEOUT_MS);
 }
 
 new MutationObserver(() => syncMobileInstallCopy()).observe(document.documentElement, {
