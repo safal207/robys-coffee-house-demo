@@ -86,7 +86,7 @@ const manifest = {
   build,
   files
 };
-const serialized = `${JSON.stringify(manifest)}\n`;
+const serialized = JSON.stringify(manifest);
 
 if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
