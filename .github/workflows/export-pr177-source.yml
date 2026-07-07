@@ -1,0 +1,40 @@
+name: Export PR177 source
+
+on:
+  push:
+    branches:
+      - export-pr177-source
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr177-source-${{ github.sha }}
+          path: |
+            .
+            !.git/**
+          include-hidden-files: true
+          retention-days: 1
+      - name: Publish run id
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 177,
+              body: `<!-- pr177-source-export -->\nSource export run: ${context.runId}\nSource export head: ${context.sha}`,
+            });
