@@ -50,13 +50,13 @@ jobs:
           npm run build
           npm run verify:security
           npm run verify:adversarial
-      - name: Commit and push governance fix
+      - name: Commit and push non-workflow governance files
         id: push
         shell: bash
         run: |
           set -euo pipefail
-          git add .github/workflows/ai-review-cooperation.yml .github/workflows/review-ledger.yml docs/proof-depth-graph.md qa/proof-depth-graph.json scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py scripts/test-proof-depth-graph.mjs scripts/verify-proof-depth-graph.mjs
-          git commit -m "fix: align reviewer governance with CodeRabbit policy"
+          git add docs/proof-depth-graph.md qa/proof-depth-graph.json scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py scripts/test-proof-depth-graph.mjs scripts/verify-proof-depth-graph.mjs
+          git commit -m "fix: align reviewer governance model with CodeRabbit policy"
           sha="$(git rev-parse HEAD)"
           git push origin "HEAD:${TARGET_BRANCH}"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
