@@ -23,14 +23,12 @@ flowchart LR
   C["D0 claim"] --> A["D1 artifact"]
   A --> V["D2 executable check"]
   V --> M["D3 mutation test"]
-  M --> X["D4 Codex"]
   M --> R["D4 CodeRabbit"]
-  X --> L["D5 disposition ledger"]
-  R --> L
+  R --> L["D5 disposition ledger"]
   L --> S["D6 Proof Seal"]
 ```
 
-The binding reviewers are **Codex and CodeRabbit**. DeepSeek and Jules are not part of the PDG-001 readiness path. They may be tested later as optional advisory reviewers without changing READY/BLOCK authority.
+The binding reviewer is **CodeRabbit**. Codex, DeepSeek and Jules are supplemental lanes: their evidence and findings remain visible and must be dispositioned when present, but provider absence does not block `READY_WITH_ADVISORY_GAPS`.
 
 The executable graph is `qa/proof-depth-graph.json`.
 
@@ -50,8 +48,8 @@ Depth: D6
 A seal is valid only when:
 
 1. it names the current PR head;
-2. Codex and CodeRabbit have current-head evidence;
-3. all current-head findings have explicit dispositions;
+2. CodeRabbit has current-head E4/E5 evidence;
+3. all current-head findings from any available reviewer have explicit dispositions;
 4. required CI and mutation tests pass;
 5. the seal was posted after the latest evidence and dispositions.
 

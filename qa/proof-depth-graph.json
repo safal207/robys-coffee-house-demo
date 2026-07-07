@@ -4,7 +4,7 @@
   "name": "Proof Depth Graph",
   "policy": {
     "minimumDecisionDepth": 6,
-    "minimumIndependentReviewers": 2,
+    "minimumIndependentReviewers": 1,
     "requiredKinds": [
       "claim",
       "artifact",
@@ -51,16 +51,6 @@
       "ref": "npm run test:traceability"
     },
     {
-      "id": "REVIEW-CODEX",
-      "kind": "independent-review",
-      "depth": 4,
-      "label": "Codex exact-head review",
-      "origin": "observed",
-      "provider": "Codex",
-      "independenceKey": "codex",
-      "freshness": "exact-head"
-    },
-    {
       "id": "REVIEW-CODERABBIT",
       "kind": "independent-review",
       "depth": 4,
@@ -90,13 +80,41 @@
     }
   ],
   "edges": [
-    { "from": "CLAIM-READY", "to": "ARTIFACT-TRACE", "relation": "supported-by", "authority": "binding" },
-    { "from": "ARTIFACT-TRACE", "to": "CHECK-TRACE", "relation": "verified-by", "authority": "binding" },
-    { "from": "CHECK-TRACE", "to": "CHALLENGE-MUTATION", "relation": "challenged-by", "authority": "binding" },
-    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODEX", "relation": "reviewed-by", "authority": "binding" },
-    { "from": "CHALLENGE-MUTATION", "to": "REVIEW-CODERABBIT", "relation": "reviewed-by", "authority": "binding" },
-    { "from": "REVIEW-CODEX", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
-    { "from": "REVIEW-CODERABBIT", "to": "DISPOSITION-LEDGER", "relation": "resolved-by", "authority": "binding" },
-    { "from": "DISPOSITION-LEDGER", "to": "DECISION-PROOF-SEAL", "relation": "sealed-by", "authority": "binding" }
+    {
+      "from": "CLAIM-READY",
+      "to": "ARTIFACT-TRACE",
+      "relation": "supported-by",
+      "authority": "binding"
+    },
+    {
+      "from": "ARTIFACT-TRACE",
+      "to": "CHECK-TRACE",
+      "relation": "verified-by",
+      "authority": "binding"
+    },
+    {
+      "from": "CHECK-TRACE",
+      "to": "CHALLENGE-MUTATION",
+      "relation": "challenged-by",
+      "authority": "binding"
+    },
+    {
+      "from": "CHALLENGE-MUTATION",
+      "to": "REVIEW-CODERABBIT",
+      "relation": "reviewed-by",
+      "authority": "binding"
+    },
+    {
+      "from": "REVIEW-CODERABBIT",
+      "to": "DISPOSITION-LEDGER",
+      "relation": "resolved-by",
+      "authority": "binding"
+    },
+    {
+      "from": "DISPOSITION-LEDGER",
+      "to": "DECISION-PROOF-SEAL",
+      "relation": "sealed-by",
+      "authority": "binding"
+    }
   ]
 }
