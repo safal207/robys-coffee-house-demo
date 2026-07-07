@@ -1,16 +1,17 @@
 {
   "name": "Roby's Coffee House",
   "short_name": "Roby's",
-  "description": "Good coffee and calm moments in Gazipaşa.",
-  "start_url": "./?brand=napkin",
+  "lang": "tr",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f1ec",
-  "theme_color": "#312b2a",
-  "lang": "tr",
+  "orientation": "portrait-primary",
+  "background_color": "#181110",
+  "theme_color": "#241c1b",
+  "categories": ["food", "lifestyle"],
   "icons": [
     {
-      "src": "icon.svg?v=napkin-20260619-1",
+      "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

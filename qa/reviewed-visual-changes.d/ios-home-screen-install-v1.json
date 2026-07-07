@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "ios-home-screen-install-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/178#pullrequestreview-4640467815",
+      "contentBindings": {
+        "pwa.js": "5f0ff4855594ecaa3f795152be9e2e4966ce102c",
+        "mobile-install.js": "c4312c8590f26df826c2fcc3a9746737a57a0e6d",
+        "mobile-install.css": "ad72860ecfbf5b0d35482deb4ccb32d130662e48"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8084 vs 320x8134"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x270 vs 320x271"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.013
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8465 vs 390x8557"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x1316 vs 390x1315"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7503 vs 768x7571"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "maxDiffPixelRatio": 0.0041
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1366x907 vs 1366x908"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6912 vs 1440x6980"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "maxDiffPixelRatio": 0.0081
+        }
+      ]
+    }
+  ]
+}
