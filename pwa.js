@@ -46,7 +46,7 @@ function ensureMobileInstallAssets() {
   ensureHeadElement('link[rel="apple-touch-icon"]', () => {
     const link = document.createElement("link");
     link.rel = "apple-touch-icon";
-    link.href = "apple-touch-icon.png?v=ios-install-20260707-1";
+    link.href = "icon.svg?v=ios-install-20260707-1";
     return link;
   });
 

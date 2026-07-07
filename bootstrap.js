@@ -1,5 +1,14 @@
 document.documentElement.classList.add("js");
 
+function installAppleTouchIcon() {
+  if (document.head.querySelector('link[rel="apple-touch-icon"]')) return;
+
+  const link = document.createElement("link");
+  link.rel = "apple-touch-icon";
+  link.href = "apple-touch-icon.png?v=ios-install-20260707-1";
+  document.head.append(link);
+}
+
 function installAndroidButtonLogo() {
   const placeholder = document.querySelector("#android-app .android-download-button .android-download-icon");
   if (!placeholder) return false;
@@ -15,6 +24,8 @@ function installAndroidButtonLogo() {
   placeholder.replaceWith(logo);
   return true;
 }
+
+installAppleTouchIcon();
 
 if (!installAndroidButtonLogo()) {
   const observer = new MutationObserver(() => {
