@@ -1,6 +1,8 @@
 name: Refine premium menu crops
 
 on:
+  push:
+    branches: [feat/premium-menu-pairing-cards]
   pull_request:
     types: [synchronize]
     branches: [main]
@@ -10,7 +12,7 @@ permissions:
 
 jobs:
   refine:
-    if: github.head_ref == 'feat/premium-menu-pairing-cards'
+    if: github.event_name == 'push' || github.head_ref == 'feat/premium-menu-pairing-cards'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -80,8 +82,10 @@ jobs:
           node scripts/verify-pairing-cta.mjs
           node --check menu-page.js
 
-      - name: Remove one-time workflow
-        run: rm .github/workflows/refine-premium-menu-crops.yml
+      - name: Remove temporary files
+        run: |
+          rm .github/workflows/refine-premium-menu-crops.yml
+          rm -f docs/tmp-pr177-refine-trigger.md
 
       - name: Commit and push final crop refinement
         env:
