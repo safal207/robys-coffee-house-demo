@@ -1,1 +1,1 @@
-Trigger current source snapshot export.
+Trigger current source snapshot export, second pass.
