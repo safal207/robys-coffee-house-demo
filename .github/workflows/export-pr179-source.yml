@@ -1,0 +1,35 @@
+name: Export PR179 source
+
+on:
+  push:
+    branches: [restore-pr179-renderer]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/reviewer-policy-alignment
+          persist-credentials: false
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr179-source-${{ github.sha }}
+          path: |
+            .
+            !.git/**
+          include-hidden-files: true
+          retention-days: 1
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 179,
+              body: `<!-- pr179-source-export -->\nSource run: ${context.runId}\nPR head: ${{ github.event.repository.default_branch }}`,
+            });
