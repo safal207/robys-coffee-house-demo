@@ -1,0 +1,120 @@
+name: Integrate PR177 with main
+
+on:
+  push:
+    branches:
+      - integrate-pr177-main
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_PR_HEAD: 5ea7feaa1966e4b4c83fa942a8b71f27a2cc02f6
+      EXPECTED_MAIN_HEAD: 247b20cf51410a7f39bd141dfc1dfda5fa42ef96
+      TARGET_BRANCH: feat/premium-menu-pairing-cards
+    steps:
+      - name: Check out PR branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/premium-menu-pairing-cards
+          fetch-depth: 0
+      - name: Merge current main with reviewed resolutions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Roby's integration bot"
+          git config user.email "integration@users.noreply.github.com"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_PR_HEAD"
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$EXPECTED_MAIN_HEAD"
+
+          set +e
+          git merge --no-ff --no-commit origin/main
+          merge_rc=$?
+          set -e
+          test "$merge_rc" -ne 0
+
+          actual="$(git diff --name-only --diff-filter=U | sort)"
+          expected="$(printf '%s\n' 404.html index.html integrity-manifest.json menu.html pwa.js sw.js | sort)"
+          test "$actual" = "$expected"
+
+          git checkout --theirs 404.html index.html pwa.js integrity-manifest.json
+          git checkout --ours menu.html
+          git checkout --theirs sw.js
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          menu = Path("menu.html")
+          text = menu.read_text()
+          text, count = re.subn(
+              r'pwa\.js\?v=[^"\']+',
+              'pwa.js?v=offline-20260707-ios-install-3',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("menu.html PWA revision replacement failed")
+          menu.write_text(text)
+
+          sw = Path("sw.js")
+          text = sw.read_text()
+          anchor = '  "./src/pairings-data/approved/iced-san-sebastian-hq.png",\n'
+          additions = (
+              '  "./src/products/cards/pairing-cool-lime-macaron.webp",\n'
+              '  "./src/products/cards/pairing-iced-san-sebastian.webp",\n'
+          )
+          for item in additions:
+              if item.strip() not in text:
+                  text = text.replace(anchor, anchor + item, 1)
+                  anchor = item
+          for required in additions:
+              if required.strip() not in text:
+                  raise SystemExit(f"missing service-worker asset: {required.strip()}")
+          sw.write_text(text)
+          PY
+
+          git add 404.html index.html menu.html pwa.js sw.js integrity-manifest.json
+          node scripts/generate-integrity-manifest.mjs
+          git add integrity-manifest.json
+          test -z "$(git diff --name-only --diff-filter=U)"
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate integrated tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          npm run build
+          node --check pwa.js
+          node --check sw.js
+          npm run verify:integrity
+          npm run verify:pairing-cta
+          npm run verify:menu-content
+          npm run verify:security
+          npm run verify:adversarial
+      - name: Commit and push integration
+        id: push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git commit -m "merge: integrate iPhone install flow into premium menu PR"
+          merged_sha="$(git rev-parse HEAD)"
+          git push origin "HEAD:${TARGET_BRANCH}"
+          echo "sha=$merged_sha" >> "$GITHUB_OUTPUT"
+      - name: Publish integration result
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 176,
+              body: `<!-- pr177-integration-result -->\nPR177 integration commit: ${{ steps.push.outputs.sha }}\nWorkflow run: ${context.runId}`,
+            });
