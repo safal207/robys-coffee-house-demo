@@ -48,7 +48,7 @@ Depth: D6
 A seal is valid only when:
 
 1. it names the current PR head;
-2. CodeRabbit has current-head E4/E5 evidence;
+2. CodeRabbit has current-head evidence at cooperation evidence level E4 or E5;
 3. all current-head findings from any available reviewer have explicit dispositions;
 4. required CI and mutation tests pass;
 5. the seal was posted after the latest evidence and dispositions.
