@@ -56,7 +56,7 @@ function formatPrice(price) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} ₺`;
 }
 
-function createItem(item) {
+function createItem(item, { priority = false } = {}) {
   const visual = Boolean(item.image);
   const row = document.createElement(visual ? "article" : "div");
   row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
@@ -85,8 +85,9 @@ function createItem(item) {
     const image = document.createElement("img");
     image.src = item.image;
     image.alt = localized(item.imageAlt ?? item.name);
-    image.loading = "lazy";
+    image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
+    if (priority) image.fetchPriority = "high";
     image.width = 1024;
     image.height = 1024;
     media.append(image);
@@ -164,29 +165,31 @@ function createCategory(category) {
   icon.setAttribute("aria-hidden", "true");
   icon.textContent = category.icon;
 
+  const heading = document.createElement("div");
+  heading.className = "full-menu-panel-heading";
 
-const heading = document.createElement("div");
-heading.className = "full-menu-panel-heading";
+  const title = document.createElement("h2");
+  title.textContent = localized(category.name);
+  heading.append(title);
 
-const title = document.createElement("h2");
-title.textContent = localized(category.name);
-heading.append(title);
+  if (category.lead) {
+    const lead = document.createElement("p");
+    lead.textContent = localized(category.lead);
+    heading.append(lead);
+  }
 
-if (category.lead) {
-  const lead = document.createElement("p");
-  lead.textContent = localized(category.lead);
-  heading.append(lead);
-}
-
-header.append(icon, heading);
-section.append(header);
+  header.append(icon, heading);
+  section.append(header);
 
   if (category.items) {
     const items = filteredItems(category.items);
     if (!items.length) return null;
     const list = document.createElement("div");
     list.className = "full-menu-list";
-    items.forEach((item) => list.append(createItem(item)));
+    items.forEach((item, index) => {
+      const priority = category.id === "pairing-offers" && index === 0;
+      list.append(createItem(item, { priority }));
+    });
     section.append(list);
   } else {
     let renderedGroups = 0;
