@@ -5,7 +5,10 @@ on:
     paths:
       - .github/workflows/ai-review-cooperation.yml
       - .github/workflows/ai-review-cooperation-contract.yml
+      - .github/workflows/review-ledger.yml
+      - .github/workflows/traceability.yml
       - scripts/ai-review-cooperation.py
+      - scripts/render-ci-proof-summary.mjs
       - scripts/fetch-review-threads.py
       - scripts/test-ai-review-cooperation.py
       - docs/ai-review-cooperation-policy.md
@@ -52,7 +55,7 @@ jobs:
           exit 1
 
       - name: Parse workflow YAML
-        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
+        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
       - name: Verify least privilege and trusted command
         run: |
@@ -119,6 +122,31 @@ jobs:
           missing += [token for token in required_policy_tokens if token not in policy]
           if missing:
               raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
+          PY
+
+      - name: Verify review-ledger anti-spoof boundary
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
+          required = [
+              "const codeRabbitEvidence = [",
+              "if (codeRabbitEvidence.length === 0)",
+              "no native CodeRabbit exact-head evidence",
+              "item.user?.login === 'github-actions[bot]'",
+          ]
+          missing = [token for token in required if token not in ledger]
+          reports_block = ledger.split('const reports = issueComments.filter', 1)[1].split('const report =', 1)[0]
+          if 'trustedAssociations' in reports_block:
+              missing.append('bot-only cooperation report trust boundary')
+          if missing:
+              raise SystemExit('Missing review-ledger anti-spoof invariants: ' + ', '.join(missing))
+
+          summary = Path('scripts/render-ci-proof-summary.mjs').read_text(encoding='utf-8')
+          traceability = Path('.github/workflows/traceability.yml').read_text(encoding='utf-8')
+          if 'Codex + CodeRabbit' in summary or 'Codex and CodeRabbit exact-head evidence' in traceability:
+              raise SystemExit('Stale binding-reviewer label remains in CI summary')
           PY
 
       - name: Verify job-scoped cancellation
