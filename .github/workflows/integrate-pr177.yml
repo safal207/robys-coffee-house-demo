@@ -1,120 +1,113 @@
-name: Integrate PR177 with main
+name: Optimize PR177 menu runtime
 
 on:
   push:
-    branches:
-      - integrate-pr177-main
+    branches: [integrate-pr177-main]
 
 permissions:
   contents: write
   issues: write
 
 jobs:
-  integrate:
+  optimize:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      EXPECTED_PR_HEAD: 5ea7feaa1966e4b4c83fa942a8b71f27a2cc02f6
-      EXPECTED_MAIN_HEAD: 247b20cf51410a7f39bd141dfc1dfda5fa42ef96
+      EXPECTED_HEAD: 445feb47bdf8dd532cd549fabfbd06301e0fae15
       TARGET_BRANCH: feat/premium-menu-pairing-cards
     steps:
-      - name: Check out PR branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: feat/premium-menu-pairing-cards
           fetch-depth: 0
-      - name: Merge current main with reviewed resolutions
+      - name: Add menu-only offline runtime
         shell: bash
         run: |
           set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           git config user.name "Roby's integration bot"
           git config user.email "integration@users.noreply.github.com"
-          test "$(git rev-parse HEAD)" = "$EXPECTED_PR_HEAD"
-          git fetch origin main
-          test "$(git rev-parse origin/main)" = "$EXPECTED_MAIN_HEAD"
-
-          set +e
-          git merge --no-ff --no-commit origin/main
-          merge_rc=$?
-          set -e
-          test "$merge_rc" -ne 0
-
-          actual="$(git diff --name-only --diff-filter=U | sort)"
-          expected="$(printf '%s\n' 404.html index.html integrity-manifest.json menu.html pwa.js sw.js | sort)"
-          test "$actual" = "$expected"
-
-          git checkout --theirs 404.html index.html pwa.js integrity-manifest.json
-          git checkout --ours menu.html
-          git checkout --theirs sw.js
-
+          cat > menu-pwa.js <<'EOF'
+          const SERVICE_WORKER_URL = "sw.js?v=offline-20260707-ios-install-3";
+          function syncConnectivityState() {
+            document.documentElement.classList.toggle("is-offline", !navigator.onLine);
+          }
+          function trustedScriptUrl(value) {
+            if (!window.trustedTypes) return value;
+            const policy = window.trustedTypes.createPolicy("robys-menu-pwa", {
+              createScriptURL(candidate) {
+                if (candidate !== SERVICE_WORKER_URL) throw new TypeError("Unexpected script URL");
+                return candidate;
+              }
+            });
+            return policy.createScriptURL(value);
+          }
+          syncConnectivityState();
+          window.addEventListener("online", syncConnectivityState);
+          window.addEventListener("offline", syncConnectivityState);
+          if ("serviceWorker" in navigator) {
+            window.addEventListener("load", async () => {
+              try {
+                const registration = await navigator.serviceWorker.register(trustedScriptUrl(SERVICE_WORKER_URL), { scope: "./" });
+                await navigator.serviceWorker.ready;
+                document.documentElement.dataset.offlineReady = "true";
+                registration.update().catch(() => {});
+              } catch (error) {
+                document.documentElement.dataset.offlineReady = "false";
+                console.warn("Roby's offline mode could not start", error);
+              }
+            }, { once: true });
+          }
+          EOF
           python - <<'PY'
           from pathlib import Path
-          import re
-
           menu = Path("menu.html")
           text = menu.read_text()
-          text, count = re.subn(
-              r'pwa\.js\?v=[^"\']+',
-              'pwa.js?v=offline-20260707-ios-install-3',
-              text,
-              count=1,
-          )
-          if count != 1:
-              raise SystemExit("menu.html PWA revision replacement failed")
-          menu.write_text(text)
-
+          old = "pwa.js?v=offline-20260707-ios-install-3"
+          if text.count(old) != 1:
+              raise SystemExit("unexpected menu PWA reference")
+          menu.write_text(text.replace(old, "menu-pwa.js?v=offline-20260707-menu-1", 1))
           sw = Path("sw.js")
           text = sw.read_text()
-          anchor = '  "./src/pairings-data/approved/iced-san-sebastian-hq.png",\n'
-          additions = (
-              '  "./src/products/cards/pairing-cool-lime-macaron.webp",\n'
-              '  "./src/products/cards/pairing-iced-san-sebastian.webp",\n'
-          )
-          for item in additions:
-              if item.strip() not in text:
-                  text = text.replace(anchor, anchor + item, 1)
-                  anchor = item
-          for required in additions:
-              if required.strip() not in text:
-                  raise SystemExit(f"missing service-worker asset: {required.strip()}")
+          anchor = '  "./menu-page.js",\n'
+          entry = '  "./menu-pwa.js",\n'
+          if entry not in text:
+              if anchor not in text:
+                  raise SystemExit("service-worker anchor missing")
+              text = text.replace(anchor, anchor + entry, 1)
           sw.write_text(text)
           PY
-
-          git add 404.html index.html menu.html pwa.js sw.js integrity-manifest.json
           node scripts/generate-integrity-manifest.mjs
-          git add integrity-manifest.json
-          test -z "$(git diff --name-only --diff-filter=U)"
-      - name: Install dependencies
-        run: npm ci
-      - name: Validate integrated tree
-        shell: bash
+      - run: npm ci
+      - name: Validate optimized tree
         run: |
-          set -euo pipefail
           npm run typecheck
           npm run build
+          node --check menu-pwa.js
           node --check pwa.js
           node --check sw.js
           npm run verify:integrity
+          npm run verify:performance
           npm run verify:pairing-cta
           npm run verify:menu-content
           npm run verify:security
           npm run verify:adversarial
-      - name: Commit and push integration
+      - name: Commit and push
         id: push
         shell: bash
         run: |
           set -euo pipefail
-          git commit -m "merge: integrate iPhone install flow into premium menu PR"
-          merged_sha="$(git rev-parse HEAD)"
+          git add menu-pwa.js menu.html sw.js integrity-manifest.json
+          git commit -m "perf: keep mobile install runtime off menu page"
+          sha="$(git rev-parse HEAD)"
           git push origin "HEAD:${TARGET_BRANCH}"
-          echo "sha=$merged_sha" >> "$GITHUB_OUTPUT"
-      - name: Publish integration result
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: 176,
-              body: `<!-- pr177-integration-result -->\nPR177 integration commit: ${{ steps.push.outputs.sha }}\nWorkflow run: ${context.runId}`,
+              body: `<!-- pr177-menu-pwa-result -->\nPR177 optimized head: ${{ steps.push.outputs.sha }}\nWorkflow run: ${context.runId}`,
             });
