@@ -31,6 +31,7 @@ const CORE_ASSETS = [
   "./menu-bootstrap.js",
   "./menu-ready.js",
   "./menu-page.js",
+  "./menu-pwa.js",
   "./menu-data.js",
   "./menu-search-clear.js",
   "./menu-actions.js",
