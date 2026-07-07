@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v13-20260707-premium-menu-pairings-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v16-20260707-ios-install-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -6,10 +6,14 @@ const CORE_ASSETS = [
   "./menu.html",
   "./discover.html",
   "./404.html",
+  "./manifest.webmanifest",
+  "./mobile-install-copy.json",
+  "./mobile-install.js",
   "./offline.css",
   "./pwa.js",
   "./android-download.js",
   "./android-app.css",
+  "./mobile-install.css",
   "./styles.css",
   "./mobile.css",
   "./conversion.css",
@@ -40,11 +44,10 @@ const CORE_ASSETS = [
   "./discover-rotation-v3.js?v=58d387ca0c01",
   "./src/pairings-data/final/cool-lime-macaron-hq.webp",
   "./src/pairings-data/approved/iced-san-sebastian-hq.png",
-  "./src/products/cards/pairing-cool-lime-macaron.webp",
-  "./src/products/cards/pairing-iced-san-sebastian.webp",
   "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
+  "./apple-touch-icon.png",
   "./src/android-mark.svg",
   "./src/robys-hero-poster.jpg",
   ...APK_PARTS

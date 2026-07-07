@@ -1,5 +1,17 @@
 document.documentElement.classList.add("js");
 
+const ANDROID_LOGO_OBSERVER_TIMEOUT_MS = 10_000;
+const ANDROID_LOGO_MAX_ATTEMPTS = 100;
+
+function installAppleTouchIcon() {
+  if (document.head.querySelector('link[rel="apple-touch-icon"]')) return;
+
+  const link = document.createElement("link");
+  link.rel = "apple-touch-icon";
+  link.href = "apple-touch-icon.png?v=ios-install-20260707-1";
+  document.head.append(link);
+}
+
 function installAndroidButtonLogo() {
   const placeholder = document.querySelector("#android-app .android-download-button .android-download-icon");
   if (!placeholder) return false;
@@ -16,9 +28,18 @@ function installAndroidButtonLogo() {
   return true;
 }
 
+installAppleTouchIcon();
+
 if (!installAndroidButtonLogo()) {
+  let attempts = 0;
+  let timeoutId;
   const observer = new MutationObserver(() => {
-    if (installAndroidButtonLogo()) observer.disconnect();
+    attempts += 1;
+    if (installAndroidButtonLogo() || attempts >= ANDROID_LOGO_MAX_ATTEMPTS) {
+      observer.disconnect();
+      window.clearTimeout(timeoutId);
+    }
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
+  timeoutId = window.setTimeout(() => observer.disconnect(), ANDROID_LOGO_OBSERVER_TIMEOUT_MS);
 }
