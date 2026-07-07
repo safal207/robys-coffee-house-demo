@@ -102,6 +102,30 @@ jobs:
             )));
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
+            const codeRabbitEvidence = [
+              ...reviews.filter((item) => (
+                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
+                item.commit_id?.toLowerCase() === head
+              )),
+              ...reviewComments.filter((item) => (
+                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
+                reviewHeads.get(item.pull_request_review_id) === head
+              )),
+              ...issueComments.filter((item) => (
+                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
+                exactHeadBody(item.body)
+              )),
+              ...statuses.filter((item) => (
+                item.context === 'CodeRabbit' &&
+                item.state === 'success' &&
+                (item.creator?.login === 'coderabbitai' || item.creator?.login === 'coderabbitai[bot]')
+              )),
+            ];
+            if (codeRabbitEvidence.length === 0) {
+              core.setFailed(`PDG-001 depth D4 incomplete: no native CodeRabbit exact-head evidence for ${head}.`);
+              return;
+            }
+
             const exactBotEvidence = [
               ...reviews.filter((item) => reviewBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head),
               ...reviewComments.filter((item) => (
@@ -119,7 +143,7 @@ jobs:
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
             const reports = issueComments.filter((item) => (
-              (item.user?.login === 'github-actions[bot]' || trustedAssociations.has(item.author_association)) &&
+              item.user?.login === 'github-actions[bot]' &&
               (item.body ?? '').includes('<!-- ai-review-cooperation -->') &&
               exactHeadBody(item.body)
             ));
