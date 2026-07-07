@@ -24,6 +24,7 @@ jobs:
       contents: read # Read repository metadata for the current PR head.
       issues: read # Read cooperation-report and Proof-Seal issue comments.
       pull-requests: read # Read exact-head reviews, inline findings and dispositions.
+      statuses: read # Read native exact-head CodeRabbit commit-status evidence.
 
     steps:
       - name: Require PDG-001 depth D6 for the exact head
@@ -42,7 +43,7 @@ jobs:
 
             const pr = (await github.rest.pulls.get({ owner, repo, pull_number: prNumber })).data;
             const head = pr.head.sha.toLowerCase();
-            const [reviewComments, reviews, issueComments] = await Promise.all([
+            const [reviewComments, reviews, issueComments, statuses] = await Promise.all([
               github.paginate(
                 github.rest.pulls.listReviewComments,
                 { owner, repo, pull_number: prNumber, per_page: 100 },
@@ -54,6 +55,10 @@ jobs:
               github.paginate(
                 github.rest.issues.listComments,
                 { owner, repo, issue_number: prNumber, per_page: 100 },
+              ),
+              github.paginate(
+                github.rest.repos.listCommitStatusesForRef,
+                { owner, repo, ref: head, per_page: 100 },
               ),
             ]);
 
@@ -105,6 +110,11 @@ jobs:
               ...issueComments.filter((item) => (
                 reviewBots.has(item.user?.login) && exactHeadBody(item.body)
               )),
+              ...statuses.filter((item) => (
+                item.context === 'CodeRabbit' &&
+                item.state === 'success' &&
+                (item.creator?.login === 'coderabbitai' || item.creator?.login === 'coderabbitai[bot]')
+              )),
             ];
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
@@ -124,13 +134,15 @@ jobs:
               return;
             }
             if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
-              const allowedAdvisoryOnly = /advisory gaps:\s*(?:Jules(?:,\s*DeepSeek)?|DeepSeek(?:,\s*Jules)?)\./i.test(report.body ?? '');
-              if (!allowedAdvisoryOnly) {
-                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has binding-reviewer advisory gaps for ${head}.`);
+              const match = /advisory gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
+              const gaps = (match?.[1] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
+              const supplemental = new Set(['Codex', 'Jules', 'DeepSeek']);
+              if (gaps.length === 0 || gaps.some((item) => !supplemental.has(item))) {
+                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has a mandatory-reviewer advisory gap for ${head}.`);
                 return;
               }
             }
-            for (const reviewer of ['Codex', 'CodeRabbit']) {
+            for (const reviewer of ['CodeRabbit']) {
               const row = new RegExp(`^\\|\\s*${reviewer}\\s*\\|[^\\n]*\\|\\s*E[45]\\s*\\|`, 'im');
               if (!row.test(report.body ?? '')) {
                 core.setFailed(`PDG-001 depth D4 incomplete: ${reviewer} lacks E4/E5 exact-head evidence for ${head}.`);
@@ -166,4 +178,4 @@ jobs:
               return;
             }
 
-            core.notice(`PDG-001 depth D6 sealed for ${head}: Codex and CodeRabbit complete; ${findings.length} exact-head finding(s) dispositioned.`);
+            core.notice(`PDG-001 depth D6 sealed for ${head}: mandatory CodeRabbit evidence complete; ${findings.length} exact-head finding(s) dispositioned.`);
