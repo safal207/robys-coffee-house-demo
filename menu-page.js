@@ -60,6 +60,7 @@ function createItem(item, { priority = false } = {}) {
   const visual = Boolean(item.image);
   const row = document.createElement(visual ? "article" : "div");
   row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
+  if (visual) row.dataset.pairing = item.journeyId ?? item.id;
 
   const copy = document.createElement("div");
   copy.className = "full-menu-item-copy";
