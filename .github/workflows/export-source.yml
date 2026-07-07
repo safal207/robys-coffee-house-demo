@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  statuses: write
+  issues: write
 
 jobs:
   export:
@@ -29,11 +29,9 @@ jobs:
       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
-            await github.rest.repos.createCommitStatus({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.sha,
-              state: "success",
-              context: "Source snapshot run",
-              description: `run-id:${context.runId}`,
+              issue_number: 176,
+              body: `<!-- source-snapshot-export -->\nSource snapshot run: ${context.runId}\nSource snapshot head: ${context.sha}`,
             });
