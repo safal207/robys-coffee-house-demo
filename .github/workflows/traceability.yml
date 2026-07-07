@@ -58,5 +58,5 @@ jobs:
           PDG_D4: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'pending' || 'blocked' }}
           PDG_D5: waiting
           PDG_D6: waiting
-          PDG_BLOCKER: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'Waiting for Codex and CodeRabbit exact-head evidence' || 'Executable proof checks failed before independent review' }}
+          PDG_BLOCKER: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'Waiting for mandatory CodeRabbit exact-head evidence' || 'Executable proof checks failed before independent review' }}
         run: node scripts/render-ci-proof-summary.mjs

@@ -19,6 +19,7 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
+      statuses: read
     concurrency:
       group: ai-review-cooperation-${{ github.event.issue.number }}
       cancel-in-progress: true
@@ -47,6 +48,7 @@ jobs:
             echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
             echo "THREADS_FILE=${prefix}-threads.json"
             echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
             echo "COMMENT_FILE=${prefix}-comment.json"
           } >> "${GITHUB_ENV}"
@@ -72,6 +74,9 @@ jobs:
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
             | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
             > "${CHECKS_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
+            | jq 'add // []' > "${STATUSES_FILE}"
 
       - name: Collect complete GraphQL review evidence
         run: python3 scripts/fetch-review-threads.py

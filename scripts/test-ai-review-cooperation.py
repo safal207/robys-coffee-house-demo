@@ -101,6 +101,7 @@ def base_inputs() -> dict[str, object]:
         'review_comments': [],
         'threads_data': threads(),
         'checks': {'check_runs': []},
+        'statuses': [],
         'files': [],
     }
 
@@ -334,8 +335,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_resolved_thread_is_not_counted_as_finding(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = [comment('@coderabbitai review')]
+        data['reviews'] = [review('No findings.', login='coderabbitai[bot]')]
         data['threads_data'] = threads(
             thread_comment('P1 old issue', login='chatgpt-codex-connector'),
             resolved=True,
@@ -346,6 +347,39 @@ class CooperationReportTests(unittest.TestCase):
 
         self.assertNotIn('P1x1', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
+
+    def test_late_coderabbit_status_satisfies_mandatory_lane(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@coderabbitai review')]
+        data['statuses'] = [{
+            'context': 'CodeRabbit',
+            'state': 'success',
+            'creator': user('coderabbitai[bot]'),
+            'created_at': '2026-06-30T00:02:00Z',
+        }]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| CodeRabbit | yes | E5 | clean exact-head review |', report)
+        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
+        self.assertIn('advisory gaps: Codex, Jules, DeepSeek.', report)
+
+    def test_coderabbit_status_before_request_is_stale(self) -> None:
+        data = base_inputs()
+        data['comments'] = [comment('@coderabbitai review')]
+        data['statuses'] = [{
+            'context': 'CodeRabbit',
+            'state': 'success',
+            'creator': user('coderabbitai[bot]'),
+            'created_at': BEFORE,
+        }]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| CodeRabbit | yes | E1 | missing evidence |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
 
 
 if __name__ == '__main__':

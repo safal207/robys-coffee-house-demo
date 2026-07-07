@@ -207,7 +207,8 @@ def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[
 def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
                   threads: list[dict[str, Any]], threads_available: bool,
-                  changed_paths: set[str], head_time: datetime) -> list[BotResult]:
+                  statuses: list[dict[str, Any]], changed_paths: set[str],
+                  head_time: datetime) -> list[BotResult]:
     head_sha = str(pr['head']['sha']).lower()
     all_items = reviews + (threads if threads_available else review_comments)
 
@@ -228,11 +229,19 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
 
     rabbit_req = fresh_requests(comments, '@coderabbitai review', head_time)
+    rabbit_request_at = max((time_of(item) for item in rabbit_req), default=head_time)
     rabbit_items = bot_items(comments + all_items, BOT_LOGINS['CodeRabbit'], head_time)
-    rabbit_exact = [item for item in rabbit_items if current_head_evidence(item, head_sha)
-                    and 'review in progress' not in body_of(item).lower()
-                    and 'currently processing' not in body_of(item).lower()
-                    and 'review failed' not in body_of(item).lower()]
+    rabbit_reviews = [item for item in rabbit_items if current_head_evidence(item, head_sha)
+                      and time_of(item) >= rabbit_request_at
+                      and 'review in progress' not in body_of(item).lower()
+                      and 'currently processing' not in body_of(item).lower()
+                      and 'review failed' not in body_of(item).lower()]
+    rabbit_statuses = [item for item in statuses
+                       if str(item.get('context') or '') == 'CodeRabbit'
+                       and str(item.get('state') or '') == 'success'
+                       and login_of({'user': item.get('creator') or {}}) in BOT_LOGINS['CodeRabbit']
+                       and time_of(item) >= rabbit_request_at]
+    rabbit_exact = rabbit_reviews + rabbit_statuses if rabbit_req else []
     rabbit = result_from_exact_evidence(
         name='CodeRabbit', requested=bool(rabbit_req), exact_items=rabbit_exact,
         no_evidence_reason='NO_ACK', no_evidence_action='Retry once after 15 minutes.')
@@ -302,16 +311,16 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
                        evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
-    codex = next(bot for bot in bots if bot.name == 'Codex')
+    coderabbit = next(bot for bot in bots if bot.name == 'CodeRabbit')
     if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
         return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
-    if checks.pending or codex.level not in {'E4', 'E5'}:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Codex evidence is still incomplete.'
-    gaps = [bot.name for bot in bots if bot.name != 'Codex' and bot.level not in {'E4', 'E5'}]
+    if checks.pending or coderabbit.level not in {'E4', 'E5'}:
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head CodeRabbit evidence is still incomplete.'
+    gaps = [bot.name for bot in bots if bot.name != 'CodeRabbit' and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
     return 'READY', 'Required CI and exact-head reviewer evidence are complete.'
@@ -340,14 +349,15 @@ def mermaid_graph(bots: list[BotResult], *, head_sha: str, checks: CheckSummary,
 
 def build_report(*, pr: dict[str, Any], head_commit: dict[str, Any], comments: list[dict[str, Any]],
                  reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
-                 threads_data: dict[str, Any], checks: dict[str, Any], files: list[dict[str, Any]]) -> str:
+                 threads_data: dict[str, Any], checks: dict[str, Any],
+                 statuses: list[dict[str, Any]], files: list[dict[str, Any]]) -> str:
     head_sha = str(pr['head']['sha']).lower()
     commit = head_commit.get('commit') or {}
     head_time = parse_time(str((commit.get('committer') or {}).get('date')
                                or (commit.get('author') or {}).get('date') or ''))
     available, complete, threads = flatten_threads(threads_data)
     bots = classify_bots(pr=pr, comments=comments, reviews=reviews, review_comments=review_comments,
-                         threads=threads, threads_available=available,
+                         threads=threads, threads_available=available, statuses=statuses,
                          changed_paths={str(item.get('filename') or '') for item in files},
                          head_time=head_time)
     check_summary = classify_checks(checks)
@@ -410,7 +420,7 @@ def main() -> int:
                         comments=read_json_env('COMMENTS_FILE'), reviews=read_json_env('REVIEWS_FILE'),
                         review_comments=read_json_env('REVIEW_COMMENTS_FILE'),
                         threads_data=read_json_env('THREADS_FILE'), checks=read_json_env('CHECKS_FILE'),
-                        files=read_json_env('FILES_FILE'))
+                        statuses=read_json_env('STATUSES_FILE'), files=read_json_env('FILES_FILE'))
     output = Path(os.environ.get('COMMENT_FILE', '').strip() or DEFAULT_COMMENT_PATH)
     output.write_text(json.dumps({'body': body}, ensure_ascii=False), encoding='utf-8')
     return 0

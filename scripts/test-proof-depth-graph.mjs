@@ -53,22 +53,22 @@ function expectPathFailure(label, expectedText, argumentFactory) {
 
 expectSuccess("valid proof graph");
 expectFailure("stage skipping", "proof stage skip", (graph) => {
-  graph.edges.find((edge) => edge.from === "CHECK-TRACE" && edge.to === "CHALLENGE-MUTATION").to = "REVIEW-CODEX";
+  graph.edges.find((edge) => edge.from === "CHECK-TRACE" && edge.to === "CHALLENGE-MUTATION").to = "REVIEW-CODERABBIT";
 });
 expectFailure("orphan proof node", "outside a complete binding proof path", (graph) => {
   graph.nodes.push({ id: "ARTIFACT-ORPHAN", kind: "artifact", depth: 1, label: "orphan", origin: "observed" });
 });
-expectFailure("reviewer policy reduction", "minimumIndependentReviewers must be exactly 2", (graph) => {
-  graph.policy.minimumIndependentReviewers = 1;
+expectFailure("reviewer policy removal", "minimumIndependentReviewers must be exactly 1", (graph) => {
+  graph.policy.minimumIndependentReviewers = 0;
 });
-expectFailure("insufficient reviewer independence", "independent reviewers", (graph) => {
-  graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").independenceKey = "codex";
+expectFailure("missing mandatory reviewer path", "lacks binding proof stage independent-review", (graph) => {
+  graph.edges.find((edge) => edge.to === "REVIEW-CODERABBIT").authority = "advisory";
 });
 expectFailure("advisory-only completion", "lacks binding proof stage disposition", (graph) => {
   for (const edge of graph.edges.filter((item) => item.to === "DISPOSITION-LEDGER")) edge.authority = "advisory";
 });
 expectFailure("stale binding", "must be exact-head bound", (graph) => {
-  delete graph.nodes.find((node) => node.id === "REVIEW-CODEX").freshness;
+  delete graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").freshness;
 });
 expectFailure("inferred binding authority", "inferred knowledge cannot grant binding authority", (graph) => {
   graph.nodes.find((node) => node.id === "DISPOSITION-LEDGER").origin = "inferred";
@@ -85,4 +85,4 @@ expectFailure("back edge", "proof stage skip", (graph) => {
 expectPathFailure("absolute graph path", "graph path must be repository-relative", (root) => path.join(root, "graph.json"));
 expectPathFailure("graph path escape", "graph path escapes repository root", () => "../outside-graph.json");
 
-console.log("✅ PDG-001 mutation tests passed: two-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
+console.log("✅ PDG-001 mutation tests passed: mandatory-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
