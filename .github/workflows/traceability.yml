@@ -54,7 +54,7 @@ jobs:
           PDG_D0: success
           PDG_D1: success
           PDG_D2: ${{ (steps.pdg_validate.outcome == 'success' && steps.trace_validate.outcome == 'success') && 'success' || 'failure' }}
-          PDG_D3: ${{ (steps.pdg_mutation.outcome == 'success' && steps.trace_mutation.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'success' || 'failure' }}
+          PDG_D3: ${{ (steps.pdg_mutation.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'success' || 'failure' }}
           PDG_D4: ${{ (steps.pdg_validate.outcome == 'success' && steps.pdg_mutation.outcome == 'success' && steps.trace_validate.outcome == 'success' && steps.trace_mutation.outcome == 'success') && 'pending' || 'blocked' }}
           PDG_D5: waiting
           PDG_D6: waiting
