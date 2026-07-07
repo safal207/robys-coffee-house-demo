@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T21:40:16.046Z",
+  "generatedAt": "2026-07-07T22:53:10.886Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -23,7 +23,7 @@
     "locale": "en-US"
   },
   "categories": {
-    "performance": 61,
+    "performance": 60,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
@@ -31,23 +31,23 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "2.3 s",
-      "numericValue": 2292.0887249999996,
+      "numericValue": 2264.062275,
       "score": 0.75
     },
     "largest-contentful-paint": {
       "displayValue": "4.3 s",
-      "numericValue": 4273.5836,
+      "numericValue": 4274.7724,
       "score": 0.42
     },
     "speed-index": {
-      "displayValue": "4.8 s",
-      "numericValue": 4809.978245190054,
-      "score": 0.67
+      "displayValue": "4.9 s",
+      "numericValue": 4855.934988674056,
+      "score": 0.66
     },
     "total-blocking-time": {
-      "displayValue": "760 ms",
-      "numericValue": 755.0051249999997,
-      "score": 0.39
+      "displayValue": "820 ms",
+      "numericValue": 820.7898749999999,
+      "score": 0.35
     },
     "cumulative-layout-shift": {
       "displayValue": "0",
@@ -55,16 +55,16 @@
       "score": 1
     },
     "interactive": {
-      "displayValue": "4.5 s",
-      "numericValue": 4526.3668800000005,
-      "score": 0.82
+      "displayValue": "4.6 s",
+      "numericValue": 4571.36792,
+      "score": 0.81
     }
   },
   "opportunities": [
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,100 ms",
+      "displayValue": "Est savings of 1,090 ms",
       "score": 0
     },
     {
@@ -103,7 +103,7 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "4.3 s"
+      "displayValue": "4.4 s"
     },
     {
       "id": "largest-contentful-paint-element",
@@ -115,7 +115,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,100 ms"
+      "displayValue": "Est savings of 1,090 ms"
     },
     {
       "id": "unminified-javascript",
@@ -145,19 +145,19 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,250 ms"
+      "displayValue": "Est savings of 1,240 ms"
     },
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.38,
-      "displayValue": "290 ms"
+      "score": 0.28,
+      "displayValue": "330 ms"
     },
     {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "score": 0.39,
-      "displayValue": "760 ms"
+      "score": 0.35,
+      "displayValue": "820 ms"
     },
     {
       "id": "largest-contentful-paint",
