@@ -1,1 +1,1 @@
-Trigger reviewer policy alignment with machine status.
+Trigger split reviewer policy alignment publication.
