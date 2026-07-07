@@ -1,0 +1,45 @@
+name: Restore PR179 renderer
+
+on:
+  push:
+    branches: [restore-pr179-renderer]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/reviewer-policy-alignment
+          fetch-depth: 0
+      - name: Restore compatible renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "4c4ce2ad80c18ff97600e1b7e3d504e5de938549"
+          git config user.name "Roby's governance bot"
+          git config user.email "governance@users.noreply.github.com"
+          git fetch origin main
+          git show origin/main:scripts/render-ci-proof-summary.mjs > scripts/render-ci-proof-summary.mjs
+          sed -i 's/Codex + CodeRabbit/CodeRabbit binding; supplemental lanes advisory/' scripts/render-ci-proof-summary.mjs
+          node scripts/test-ci-proof-summary.mjs
+          node scripts/test-proof-depth-graph.mjs
+          git add scripts/render-ci-proof-summary.mjs
+          git commit -m "fix: restore compatible proof summary renderer"
+          git push origin HEAD:fix/reviewer-policy-alignment
+      - name: Publish result
+        if: always()
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 179,
+              body: `<!-- renderer-restore -->\nRenderer restore run: ${context.runId}\nResult: ${{ job.status }}`,
+            });
