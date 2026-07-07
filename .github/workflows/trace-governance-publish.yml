@@ -1,0 +1,34 @@
+name: Trace governance publication
+
+on:
+  push:
+    branches: [integrate-pr177-main]
+
+permissions:
+  actions: read
+  issues: write
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const response = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'integrate-pr177.yml',
+              branch: 'integrate-pr177-main',
+              per_page: 5,
+            });
+            const lines = response.data.workflow_runs.map((run) =>
+              `- ${run.id}: ${run.status}/${run.conclusion ?? 'none'} @ ${run.head_sha}`
+            );
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 176,
+              body: `<!-- governance-publication-trace -->\n${lines.join('\n')}`,
+            });
