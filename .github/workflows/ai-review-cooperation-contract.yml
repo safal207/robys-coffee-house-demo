@@ -77,6 +77,7 @@ jobs:
             'contents' => 'read',
             'issues' => 'write',
             'pull-requests' => 'read',
+            'statuses' => 'read',
           }
           raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
           RUBY
@@ -84,6 +85,8 @@ jobs:
       - name: Verify complete evidence collection
         run: |
           grep -Fq 'check-runs?per_page=100' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'statuses?per_page=100' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'STATUSES_FILE' .github/workflows/ai-review-cooperation.yml
           grep -Fq -- '--paginate' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'scripts/fetch-review-threads.py' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'while True:' scripts/fetch-review-threads.py
