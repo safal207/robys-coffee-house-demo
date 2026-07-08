@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260626-8" />
-  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />
+  <meta name="robys-build" content="20260708-menu-worlds-1" />
+  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: Signature vitrin, Morning, Sweet, Fresh ve Kids Roby's dünyaları." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />
-  <meta property="og:title" content="Roby's Coffee House Menü | Gazipaşa Kahve & Tatlı" />
-  <meta property="og:description" content="Kahveler, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Roby's Gazipaşa menüsünü Türkçe, English veya Русский inceleyin." />
+  <meta property="og:title" content="Roby's Coffee House Menü | Roby's Worlds" />
+  <meta property="og:description" content="Signature vitrininden başlayın; Morning, Sweet, Fresh ve Kids Roby's dünyalarında seçim yapın." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />
   <meta property="og:site_name" content="Roby's Coffee House" />
@@ -19,17 +19,17 @@
   <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />
   <meta property="og:image:alt" content="Roby's Coffee House in Gazipaşa" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Roby's Coffee House Menü | Gazipaşa" />
-  <meta name="twitter:description" content="Kahve, soğuk içecek, cheesecake, kruvasan ve sandviç seçeneklerini keşfedin." />
+  <meta name="twitter:title" content="Roby's Coffee House Menü | Roby's Worlds" />
+  <meta name="twitter:description" content="Signature, Morning, Sweet, Fresh ve Kids Roby's seçeneklerini keşfedin." />
   <meta name="twitter:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />
   <meta name="twitter:image:alt" content="Roby's Coffee House in Gazipaşa" />
-  <title>Roby's Coffee House Menü | Gazipaşa</title>
+  <title>Roby's Coffee House Menü | Roby's Worlds</title>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Menu",
     "@id": "https://safal207.github.io/robys-coffee-house-demo/menu.html#menu",
-    "name": "Roby's Coffee House Menu",
+    "name": "Roby's Coffee House Worlds Menu",
     "url": "https://safal207.github.io/robys-coffee-house-demo/menu.html",
     "image": "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg",
     "inLanguage": ["tr", "en", "ru"],
@@ -42,7 +42,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />
   <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />
-  <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />
+  <link rel="stylesheet" href="menu-worlds.css?v=20260708-1" />
   <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />
   <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />
   <script defer src="menu-pwa.js?v=offline-20260707-menu-1"></script>
@@ -78,8 +78,8 @@
     </a>
     <div class="menu-page-hero-copy">
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
-      <h1 data-menu-copy="pageTitle">Tam Menü</h1>
-      <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
+      <h1 data-menu-copy="pageTitle">Roby's Dünyaları</h1>
+      <p data-menu-copy="pageLead">Önce vitrinden ilham alın, sonra ruh hâlinize uygun Roby's dünyasına geçin.</p>
     </div>
   </div>
 </section>
@@ -88,7 +88,7 @@
       <div class="container menu-controls-inner">
         <div class="menu-search">
           <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
-          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
+          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı, dünya veya etiket ara" />
         </div>
         <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
       </div>
@@ -97,9 +97,9 @@
     <section class="full-menu-wrap">
       <div class="container">
         <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
-        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
+        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun seçim bulunamadı.</p>
         <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
-        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar örnek menü yapısı içindir ve işletme tarafından güncellenebilir.</p>
       </div>
     </section>
 
@@ -108,8 +108,8 @@
         <div class="menu-share-card">
           <div class="menu-share-copy">
             <p class="eyebrow" data-menu-action-copy="shareEyebrow">MENÜYÜ PAYLAŞ</p>
-            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Menüyü arkadaşlarınla paylaş</h2>
-            <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>
+            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Roby's dünyalarını paylaş</h2>
+            <p data-menu-action-copy="shareLead">Signature vitrinini ve kahve dünyalarını tek dokunuşla gönder.</p>
           </div>
           <div class="menu-share-actions">
             <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>
@@ -124,13 +124,14 @@
     <section class="menu-page-cta">
       <div class="container menu-page-cta-inner">
         <div class="menu-page-cta-copy">
-          <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>
-          <p data-menu-action-copy="bookingLead">Masa ayırtmak için Instagram üzerinden bize yazın.</p>
+          <h2>ROBY'S<br /><em>CLUB</em></h2>
+          <p data-menu-action-copy="bookingLead">Seçimi bitirdiniz mi? Şimdi sipariş yolunu seçin.</p>
         </div>
         <div class="menu-page-cta-actions">
-          <a class="button button-primary" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-instagram-booking data-menu-action-copy="bookingButton">Instagram'dan yaz · Masa ayırt</a>
-          <a class="button menu-dark-secondary-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>
-          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.</p>
+          <a class="button button-primary" href="https://wa.me/?text=Roby%27s%20Coffee%20House%20takeaway%20order" target="_blank" rel="noopener noreferrer" data-whatsapp-order data-menu-action-copy="takeawayButton">WhatsApp ile paket sipariş</a>
+          <a class="button menu-dark-secondary-button" href="#menu-root" data-waiter-order data-menu-action-copy="waiterButton">Garsona göster</a>
+          <span class="menu-club-benefit" data-menu-action-copy="clubBenefit">Roby's Club 🎉 · 5. ziyarette işletme ikramı</span>
+          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Kulüp mekaniği işletme onayıyla netleştirilir.</p>
         </div>
       </div>
     </section>
@@ -144,7 +145,6 @@
   </footer>
 
   <script type="module" src="menu-bootstrap.js?v=cls-20260622-1"></script>
-  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>
-  <script type="module" src="menu-actions.js?v=20260627-1"></script>
+  <script type="module" src="menu-actions.js?v=20260708-worlds-1"></script>
 </body>
 </html>
