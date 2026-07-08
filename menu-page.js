@@ -7,6 +7,7 @@ const categoryNav = document.querySelector("#menu-category-nav");
 const menuRoot = document.querySelector("#menu-root");
 const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
@@ -56,6 +57,10 @@ function formatPrice(price) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} ₺`;
 }
 
+function scrollToMenuTarget(target) {
+  target?.scrollIntoView({ behavior: reducedMotionQuery.matches ? "auto" : "smooth", block: "start" });
+}
+
 function activateCategory(categoryId) {
   if (categoryId !== "all" && !menuCategories.some((category) => category.id === categoryId)) return;
   activeCategory = categoryId;
@@ -64,7 +69,7 @@ function activateCategory(categoryId) {
   renderMenu();
   window.requestAnimationFrame(() => {
     const target = categoryId === "all" ? document.querySelector(".full-menu-wrap") : document.getElementById(categoryId);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToMenuTarget(target);
   });
 }
 
@@ -346,6 +351,17 @@ searchInput.addEventListener("input", (event) => {
   searchTerm = event.target.value;
   renderMenu();
 });
+
+document.querySelectorAll("[data-waiter-order]").forEach((element) => {
+  element.addEventListener("click", (event) => {
+    event.preventDefault();
+    const target = document.querySelector(".full-menu-wrap") ?? menuRoot;
+    scrollToMenuTarget(target);
+  });
+});
+
+const currentYear = document.querySelector("#current-year");
+if (currentYear) currentYear.textContent = String(new Date().getFullYear());
 
 translateStaticPage();
 renderCategoryNav();
