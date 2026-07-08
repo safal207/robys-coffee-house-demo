@@ -35,6 +35,26 @@ function posterKicker(lang) {
   }[lang] ?? "PAIR OF THE DAY";
 }
 
+function createTitle(main, accent) {
+  const title = document.createElement("div");
+  title.className = "pairing-poster-title";
+
+  const titleMain = document.createElement("span");
+  titleMain.className = "pairing-poster-title-main";
+  titleMain.textContent = main;
+
+  const plus = document.createElement("span");
+  plus.className = "pairing-poster-title-plus";
+  plus.textContent = "+";
+
+  const titleAccent = document.createElement("span");
+  titleAccent.className = "pairing-poster-title-accent";
+  titleAccent.textContent = accent;
+
+  title.append(titleMain, plus, titleAccent);
+  return title;
+}
+
 function enhancePairingCards() {
   const lang = currentLanguage();
   document.querySelectorAll(".full-menu-panel--featured .full-menu-item--visual").forEach((card) => {
@@ -59,16 +79,6 @@ function enhancePairingCards() {
     kicker.className = "pairing-poster-kicker";
     kicker.textContent = posterKicker(lang);
 
-    const title = document.createElement("div");
-    title.className = "pairing-poster-title";
-    title.innerHTML = `
-      <span class="pairing-poster-title-main"></span>
-      <span class="pairing-poster-title-plus">+</span>
-      <span class="pairing-poster-title-accent"></span>
-    `;
-    title.querySelector(".pairing-poster-title-main").textContent = main;
-    title.querySelector(".pairing-poster-title-accent").textContent = accent;
-
     const priceBadge = document.createElement("div");
     priceBadge.className = "pairing-poster-price";
     const priceValue = document.createElement("strong");
@@ -89,7 +99,7 @@ function enhancePairingCards() {
       bottom.append(item);
     });
 
-    overlay.append(kicker, title, priceBadge, bottom);
+    overlay.append(kicker, createTitle(main, accent), priceBadge, bottom);
     media.append(overlay);
   });
 }
