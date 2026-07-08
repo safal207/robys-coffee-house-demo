@@ -1,280 +1,307 @@
 export const menuCopy = {
   tr: {
-    pageTitle: "Tam Menü",
-    pageLead: "Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.",
+    pageTitle: "Roby's Dünyaları",
+    pageLead: "Önce vitrinden ilham alın, sonra ruh hâlinize uygun Roby's dünyasına geçin.",
     back: "Kafeye dön",
     searchLabel: "Menüde ara",
-    searchPlaceholder: "Kahve, tatlı veya içecek ara",
+    searchPlaceholder: "Kahve, tatlı, dünya veya etiket ara",
     all: "Tümü",
-    noResults: "Aramanıza uygun ürün bulunamadı.",
-    priceNote: "Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.",
+    noResults: "Aramanıza uygun seçim bulunamadı.",
+    priceNote: "Fiyatlar örnek menü yapısı içindir ve işletme tarafından güncellenebilir.",
     route: "Yol tarifi al",
-    categories: "Menü kategorileri"
+    categories: "Roby's dünyaları"
   },
   en: {
-    pageTitle: "Full Menu",
-    pageLead: "Coffee, cold drinks, teas, desserts and easy bites.",
+    pageTitle: "Roby's Worlds",
+    pageLead: "Start with the signature showcase, then move into the Roby's world that fits your mood.",
     back: "Back to café",
     searchLabel: "Search the menu",
-    searchPlaceholder: "Search coffee, dessert or drink",
+    searchPlaceholder: "Search coffee, dessert, world or badge",
     all: "All",
-    noResults: "No menu items match your search.",
-    priceNote: "Prices are based on the photographed printed menu and may change.",
+    noResults: "No menu choices match your search.",
+    priceNote: "Prices are part of the sample menu structure and may be updated by the café.",
     route: "Get directions",
-    categories: "Menu categories"
+    categories: "Roby's worlds"
   },
   ru: {
-    pageTitle: "Полное меню",
-    pageLead: "Кофе, холодные напитки, чай, десерты и лёгкие закуски.",
+    pageTitle: "Миры Roby's",
+    pageLead: "Сначала витрина хитов, затем — мир под ваше настроение: утро, сладкое, прохлада или детский выбор.",
     back: "Вернуться на сайт",
     searchLabel: "Поиск по меню",
-    searchPlaceholder: "Найти кофе, десерт или напиток",
+    searchPlaceholder: "Найти кофе, десерт, мир или бейдж",
     all: "Все",
     noResults: "По вашему запросу ничего не найдено.",
-    priceNote: "Цены перенесены с сфотографированного печатного меню и могут измениться.",
+    priceNote: "Цены указаны для структуры меню и могут быть обновлены заведением.",
     route: "Построить маршрут",
-    categories: "Категории меню"
+    categories: "Миры Roby's"
   }
+};
+
+const badges = {
+  favorite: { tr: "❤️ Favorite", en: "❤️ Favorite", ru: "❤️ Favorite" },
+  hit: { tr: "🔥 Haftanın hiti", en: "🔥 Hit of the week", ru: "🔥 Хит недели" },
+  takeaway: { tr: "🥡 Paket servis", en: "🥡 Takeaway", ru: "🥡 с собой" },
+  family: { tr: "👨‍👩‍👧‍👦 Aile seçimi", en: "👨‍👩‍👧‍👦 Family choice", ru: "👨‍👩‍👧‍👦 выбор семей" }
 };
 
 export const menuCategories = [
   {
-    id: "pairing-offers",
+    id: "robys-signature",
+    type: "entry",
     icon: "✨",
-    name: { tr: "Taste Journey Eşleşmeleri", en: "Taste Journey Pairings", ru: "Сочетания Taste Journey" },
-    lead: { tr: "Anınız için seçilmiş içecek ve tatlı eşleşmeleri.", en: "Drink and dessert pairings selected for your moment.", ru: "Идеальные сочетания напитков и десертов для вашего момента." },
+    accent: "#d32636",
+    name: { tr: "Roby's Signature", en: "Roby's Signature", ru: "Roby's Signature" },
+    lead: {
+      tr: "Vitrin: dört hit seçim. Her kart sizi doğru dünyaya götürür.",
+      en: "The showcase: four hit choices. Each card leads into the right world.",
+      ru: "Витрина: 4 хита, которые сразу ведут в нужный мир."
+    },
     items: [
-
-{
-  id: "cool-lime-macaron-pairing",
-  journeyId: "cool-lime-macaron",
-  pricingMode: "approved-offer",
-  name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
-  description: {
-    tr: "Ferah lime ve yumuşak fıstıklı makaron.",
-    en: "Bright lime and a delicate pistachio macaron.",
-    ru: "Освежающий лайм и нежный фисташковый макарон."
-  },
-  image: "src/products/cards/pairing-cool-lime-macaron.webp",
-  imageAlt: {
-    tr: "Buzlu Cool Lime ve fıstıklı makaron",
-    en: "Iced Cool Lime with a pistachio macaron",
-    ru: "Cool Lime со льдом и фисташковый макарон"
-  },
-  price: 290
-},
-
-{
-  id: "iced-san-sebastian-pairing",
-  journeyId: "iced-san-sebastian",
-  pricingMode: "menu-total",
-  name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
-  description: {
-    tr: "Klasik buzlu latte ve kremamsı San Sebastian.",
-    en: "Classic iced latte with creamy San Sebastian cheesecake.",
-    ru: "Классический айс-латте и кремовый чизкейк Сан-Себастьян."
-  },
-  image: "src/products/cards/pairing-iced-san-sebastian.webp",
-  imageAlt: {
-    tr: "Buzlu latte ve San Sebastian cheesecake",
-    en: "Iced latte with San Sebastian cheesecake",
-    ru: "Айс-латте и чизкейк Сан-Себастьян"
-  },
-  price: 370
-}
-    ]
-  },
-  {
-    id: "hot-coffee",
-    icon: "☕",
-    name: { tr: "Sıcak Kahveler", en: "Hot Coffee", ru: "Горячий кофе" },
-    items: [
-      { name: { tr: "Espresso", en: "Espresso", ru: "Эспрессо" }, price: 110 },
-      { name: { tr: "Americano", en: "Americano", ru: "Американо" }, price: 160 },
-      { name: { tr: "Espresso Macchiato", en: "Espresso Macchiato", ru: "Эспрессо макиато" }, price: 170 },
-      { name: { tr: "Cortado", en: "Cortado", ru: "Кортадо" }, price: 170 },
-      { name: { tr: "Flat White", en: "Flat White", ru: "Флэт уайт" }, price: 170 },
-      { name: { tr: "Cappuccino", en: "Cappuccino", ru: "Капучино" }, price: 180 },
-      { name: { tr: "Caramel Cappuccino", en: "Caramel Cappuccino", ru: "Карамельный капучино" }, price: 200 },
-      { name: { tr: "Caffè Latte", en: "Caffè Latte", ru: "Кафе латте" }, price: 180 },
-      { name: { tr: "Chocolate Cookie Latte", en: "Chocolate Cookie Latte", ru: "Латте «Шоколадное печенье»" }, price: 200 },
-      { name: { tr: "Cinnamon Latte", en: "Cinnamon Latte", ru: "Латте с корицей" }, price: 200 },
-      { name: { tr: "Caramel Latte", en: "Caramel Latte", ru: "Карамельный латте" }, price: 200 },
-      { name: { tr: "Vanilla Latte", en: "Vanilla Latte", ru: "Ванильный латте" }, price: 200 },
-      { name: { tr: "Fındıklı Latte", en: "Hazelnut Latte", ru: "Ореховый латте" }, price: 200 },
-      { name: { tr: "Caffè Mocca", en: "Caffè Mocha", ru: "Кафе мокка" }, price: 200 },
-      { name: { tr: "White Chocolate Mocca", en: "White Chocolate Mocha", ru: "Мокка с белым шоколадом" }, price: 200 }
-    ]
-  },
-  {
-    id: "brew-hot",
-    icon: "🫖",
-    name: { tr: "Demleme ve Sıcak İçecekler", en: "Brewed & Hot Drinks", ru: "Заварной кофе и горячие напитки" },
-    items: [
-      { name: { tr: "Filtre Kahve", en: "Filter Coffee", ru: "Фильтр-кофе" }, price: 160 },
-      { name: { tr: "Türk Kahvesi", en: "Turkish Coffee", ru: "Кофе по-турецки" }, price: 90 },
-      { name: { tr: "Siyah Çay", en: "Black Tea", ru: "Чёрный чай" }, price: 50 },
-      { name: { tr: "Sıcak Çikolata", en: "Hot Chocolate", ru: "Горячий шоколад" }, price: 200 },
-      { name: { tr: "Süt", en: "Milk", ru: "Молоко" }, price: 60 },
-      { name: { tr: "Salep", en: "Salep", ru: "Салеп" }, price: 200 },
-      { name: { tr: "Chai Tea Latte", en: "Chai Tea Latte", ru: "Чай-латте" }, price: 200 }
-    ]
-  },
-  {
-    id: "cold-coffee",
-    icon: "🧊",
-    name: { tr: "Soğuk Kahveler", en: "Cold Coffee", ru: "Холодный кофе" },
-    items: [
-      { name: { tr: "Buzlu Filtre Kahve", en: "Iced Filter Coffee", ru: "Холодный фильтр-кофе" }, price: 170 },
-      { name: { tr: "Buzlu Americano", en: "Iced Americano", ru: "Айс американо" }, price: 170 },
-      { name: { tr: "Buzlu Caffè Latte", en: "Iced Caffè Latte", ru: "Айс латте" }, price: 180 },
       {
-        name: { tr: "Aromalı Buzlu Caffè Latte", en: "Flavoured Iced Caffè Latte", ru: "Айс латте со вкусом" },
-        description: {
-          tr: "Karamel · Vanilya · Chocolate Cookie · Fındık · Tarçın",
-          en: "Caramel · Vanilla · Chocolate Cookie · Hazelnut · Cinnamon",
-          ru: "Карамель · Ваниль · Шоколадное печенье · Фундук · Корица"
+        id: "signature-cappuccino-san-sebastian",
+        journeyId: "signature-san-sebastian",
+        targetCategory: "sweet-robys",
+        name: {
+          tr: "Cappuccino + San Sebastian",
+          en: "Cappuccino + San Sebastian",
+          ru: "Cappuccino + Сан-Себастьян"
         },
-        price: 200
+        description: {
+          tr: "Kadifemsi köpük ve hafif yanık cheesecake kabuğu. Uzatmaya değer bir mola.",
+          en: "Velvety foam and the torched edge of cheesecake. A pause worth stretching.",
+          ru: "Бархатная пенка и подпалённая корочка чизкейка. Пауза, которую стоит растянуть."
+        },
+        badges: [badges.favorite],
+        image: "src/products/cards/pairing-iced-san-sebastian.webp",
+        imageAlt: {
+          tr: "Cappuccino ve San Sebastian cheesecake",
+          en: "Cappuccino and San Sebastian cheesecake",
+          ru: "Капучино и чизкейк Сан-Себастьян"
+        },
+        price: 320
       },
-      { name: { tr: "Buzlu Mocca", en: "Iced Mocha", ru: "Айс мокка" }, price: 200 },
-      { name: { tr: "White Chocolate Mocca", en: "White Chocolate Mocha", ru: "Мокка с белым шоколадом" }, price: 200 },
       {
-        name: { tr: "Caffè Latte Frappe", en: "Caffè Latte Frappe", ru: "Кафе латте фраппе" },
-        description: {
-          tr: "Karamel · Vanilya · Chocolate Cookie · Tarçın · Fındık · Çikolata · White Chocolate",
-          en: "Caramel · Vanilla · Chocolate Cookie · Cinnamon · Hazelnut · Chocolate · White Chocolate",
-          ru: "Карамель · Ваниль · Шоколадное печенье · Корица · Фундук · Шоколад · Белый шоколад"
+        id: "signature-flat-white-croissant",
+        journeyId: "signature-croissant",
+        targetCategory: "morning-robys",
+        name: {
+          tr: "Flat White + Kruvasan",
+          en: "Flat White + Croissant",
+          ru: "Флэт уайт + круассан"
         },
+        description: {
+          tr: "Çıtır katlar ve net kahve. Acele etmeyen sabahlar için.",
+          en: "Crisp layers and a clean cup. Built for mornings without hurry.",
+          ru: "Хрустящие слои и собранный кофе — утро без спешки."
+        },
+        badges: [badges.hit],
+        image: "src/products/gallery-v5/croissant-828.webp",
+        imageAlt: {
+          tr: "Kruvasan ve kahve",
+          en: "Croissant and coffee",
+          ru: "Круассан и кофе"
+        },
+        price: 260
+      },
+      {
+        id: "signature-mint-lemonade",
+        journeyId: "signature-fresh",
+        targetCategory: "fresh-robys",
+        name: {
+          tr: "Naneli ev limonatası",
+          en: "Homemade mint lemonade",
+          ru: "Домашний лимонад с мятой"
+        },
+        description: {
+          tr: "Nane ve hafif ekşilik — beklediğinizden hızlı ferahlatır.",
+          en: "Mint and a light tang — refreshing faster than you expect.",
+          ru: "Мята и лёгкая кислинка — освежает быстрее, чем ждёшь."
+        },
+        badges: [badges.hit],
+        image: "src/products/cards/pairing-cool-lime-macaron.webp",
+        imageAlt: {
+          tr: "Buzlu ferahlatıcı içecek",
+          en: "Iced refreshing drink",
+          ru: "Освежающий напиток со льдом"
+        },
+        price: 280
+      },
+      {
+        id: "signature-mini-pancakes-juice",
+        targetCategory: "kids-robys",
+        name: {
+          tr: "Mini Pancakes + Meyve suyu",
+          en: "Mini Pancakes + Juice",
+          ru: "Mini Pancakes + сок"
+        },
+        description: {
+          tr: "Pankek kulesi ve meyve suyu — çocuk meşgul, siz kahvenizi sakince bitirirsiniz.",
+          en: "A stack of pancakes and juice — the child is busy, you finish your coffee in peace.",
+          ru: "Стопка панкейков и сок — ребёнок занят, вы спокойно допиваете кофе."
+        },
+        badges: [badges.takeaway],
+        price: 240
+      }
+    ]
+  },
+  {
+    id: "morning-robys",
+    type: "world",
+    icon: "🟠",
+    accent: "#F2A93B",
+    name: { tr: "Morning Roby's", en: "Morning Roby's", ru: "Morning Roby's" },
+    lead: {
+      tr: "Acele etmeyi sevmeyenler için.",
+      en: "For people who do not like to rush.",
+      ru: "Для тех, кто не любит спешить."
+    },
+    items: [
+      {
+        name: { tr: "Flat White + Kruvasan", en: "Flat White + Croissant", ru: "Флэт уайт + круассан" },
+        description: {
+          tr: "Çıtır kabuk ve yumuşak kahve — telaşsız bir başlangıç.",
+          en: "A crisp crust and a calm coffee — a start without rush.",
+          ru: "Хрустящая корочка и мягкий кофе — начало без спешки."
+        },
+        badges: [badges.hit],
+        price: 260
+      },
+      {
+        name: { tr: "Omlet + Tost", en: "Omelette + Toast", ru: "Омлет + тост" },
+        description: {
+          tr: "Sade, doyurucu ve gerçekten sabah gibi.",
+          en: "Simple, filling and properly morning.",
+          ru: "Просто, сытно, по-настоящему утренне."
+        },
+        price: 340
+      },
+      {
+        name: { tr: "Latte + Syrniki", en: "Latte + Syrniki", ru: "Латте + сырники" },
+        description: {
+          tr: "Sıcak ve tanıdık — her gün isteyebileceğiniz şey.",
+          en: "Warm and familiar — the thing you want every day.",
+          ru: "Тёплое и знакомое — то, что хочется каждый день."
+        },
+        price: 300
+      }
+    ]
+  },
+  {
+    id: "sweet-robys",
+    type: "world",
+    icon: "🟤",
+    accent: "#A8703F",
+    name: { tr: "Sweet Roby's", en: "Sweet Roby's", ru: "Sweet Roby's" },
+    lead: {
+      tr: "Buna değen küçük bir zaaf.",
+      en: "A small weakness that is worth it.",
+      ru: "Маленькая слабость, которая того стоит."
+    },
+    items: [
+      {
+        name: { tr: "Cappuccino + San Sebastian", en: "Cappuccino + San Sebastian", ru: "Cappuccino + Сан-Себастьян" },
+        description: {
+          tr: "Kadifemsi köpük ve hafif yanık cheesecake kabuğu. Uzatmaya değer bir mola.",
+          en: "Velvety foam and the torched edge of cheesecake. A pause worth stretching.",
+          ru: "Бархатная пенка и подпалённая корочка чизкейка. Пауза, которую стоит растянуть."
+        },
+        badges: [badges.favorite],
+        price: 320
+      },
+      {
+        name: { tr: "Espresso + Tiramisu", en: "Espresso + Tiramisu", ru: "Эспрессо + тирамису" },
+        description: {
+          tr: "Tatlıya güçlü bir kontrast — her zaman çalışan klasik.",
+          en: "A strong contrast to sweetness — a classic that always works.",
+          ru: "Крепкий контраст сладкому — классика, которая работает всегда."
+        },
+        price: 310
+      },
+      {
+        name: { tr: "Çay + Çikolatalı fondan", en: "Tea + Chocolate fondant", ru: "Чай + шоколадный фондан" },
+        description: {
+          tr: "İçindeki sıcak merkez — son kaşığa kadar beklenen tatlı.",
+          en: "A warm centre inside — the dessert you wait for until the last spoon.",
+          ru: "Тёплый центр внутри — десерт, который ждёшь до последней ложки."
+        },
+        price: 290
+      }
+    ]
+  },
+  {
+    id: "fresh-robys",
+    type: "world",
+    icon: "🟢",
+    accent: "#4CB99A",
+    name: { tr: "Fresh Roby's", en: "Fresh Roby's", ru: "Fresh Roby's" },
+    lead: {
+      tr: "Her an için bir yudum serinlik.",
+      en: "A sip of coolness at any time.",
+      ru: "Глоток прохлады в любое время."
+    },
+    items: [
+      {
+        name: { tr: "Naneli ev limonatası", en: "Homemade mint lemonade", ru: "Домашний лимонад с мятой" },
+        description: {
+          tr: "Nane ve hafif ekşilik — beklediğinizden hızlı ferahlatır.",
+          en: "Mint and a light tang — refreshing faster than you expect.",
+          ru: "Мята и лёгкая кислинка — освежает быстрее, чем ждёшь."
+        },
+        badges: [badges.hit],
+        price: 280
+      },
+      {
+        name: { tr: "Buzlu Latte + Muffin", en: "Iced Latte + Muffin", ru: "Айс-латте + маффин" },
+        description: {
+          tr: "Soğuk kahve ve yanında tatlı bir şey — sıcak gün dengesi.",
+          en: "Cold coffee and something sweet beside it — balance for a hot day.",
+          ru: "Холодный кофе и что-то сладкое рядом — баланс на жаркий день."
+        },
+        price: 300
+      },
+      {
+        name: { tr: "Orman meyveli smoothie", en: "Berry smoothie", ru: "Ягодный смузи" },
+        description: {
+          tr: "Hızlı, parlak, fazla şekersiz.",
+          en: "Fast, bright and not over-sugared.",
+          ru: "Быстро, ярко, без лишнего сахара."
+        },
+        badges: [badges.takeaway],
+        price: 260
+      }
+    ]
+  },
+  {
+    id: "kids-robys",
+    type: "world",
+    icon: "🔵",
+    accent: "#5DADE2",
+    name: { tr: "Kids Roby's", en: "Kids Roby's", ru: "Kids Roby's" },
+    lead: {
+      tr: "Lezzetli ve sade; yetişkinlere biraz sessizlik.",
+      en: "Tasty and simple; a little quiet for adults.",
+      ru: "Вкусно и просто, взрослым — тишина."
+    },
+    items: [
+      {
+        name: { tr: "Mini Pancakes + Meyve suyu", en: "Mini Pancakes + Juice", ru: "Mini Pancakes + сок" },
+        description: {
+          tr: "Pankek kulesi ve meyve suyu — çocuk meşgul, siz kahvenizi sakince bitirirsiniz.",
+          en: "A stack of pancakes and juice — the child is busy, you finish your coffee in peace.",
+          ru: "Стопка панкейков и сок — ребёнок занят, вы спокойно допиваете кофе."
+        },
+        badges: [badges.takeaway],
+        price: 240
+      },
+      {
+        name: { tr: "Milkshake + Kurabiye", en: "Milkshake + Cookie", ru: "Молочный коктейль + печенье" },
+        description: {
+          tr: "Sürprizsiz basit bir keyif — çocuklar ilk seferde sever.",
+          en: "A simple treat with no surprises — kids like it from the first try.",
+          ru: "Простое лакомство без сюрпризов — детям нравится с первого раза."
+        },
+        badges: [badges.family],
         price: 220
-      },
-      {
-        name: { tr: "Milkshake", en: "Milkshake", ru: "Милкшейк" },
-        description: {
-          tr: "Vanilya · Çilek · Mango · Çikolata",
-          en: "Vanilla · Strawberry · Mango · Chocolate",
-          ru: "Ваниль · Клубника · Манго · Шоколад"
-        },
-        price: 220
-      }
-    ]
-  },
-  {
-    id: "refreshers",
-    icon: "🍹",
-    name: { tr: "Refreshers ve Frozens", en: "Refreshers & Frozens", ru: "Освежающие напитки и фрозены" },
-    groups: [
-      {
-        label: { tr: "Refreshers", en: "Refreshers", ru: "Освежающие напитки" },
-        items: [
-          { name: { tr: "Cool Lime", en: "Cool Lime", ru: "Cool Lime" }, price: 190 },
-          { name: { tr: "Berry Hibiskus", en: "Berry Hibiscus", ru: "Ягодный гибискус" }, price: 190 },
-          { name: { tr: "Mango Passionfruit", en: "Mango Passionfruit", ru: "Манго-маракуйя" }, price: 190 },
-          { name: { tr: "Berry Lemonade", en: "Berry Lemonade", ru: "Ягодный лимонад" }, price: 190 },
-          { name: { tr: "Pineapple Berry", en: "Pineapple Berry", ru: "Ананас с ягодами" }, price: 190 },
-          { name: { tr: "Summer Pine", en: "Summer Pine", ru: "Summer Pine" }, price: 190 }
-        ]
-      },
-      {
-        label: { tr: "Frozens", en: "Frozens", ru: "Фрозены" },
-        items: [
-          { name: { tr: "Tropical Mango", en: "Tropical Mango", ru: "Тропический манго" }, price: 220 },
-          { name: { tr: "Strawberry & Lime", en: "Strawberry & Lime", ru: "Клубника и лайм" }, price: 220 },
-          { name: { tr: "Yuzu Popcorn", en: "Yuzu Popcorn", ru: "Юдзу-попкорн" }, price: 220 }
-        ]
-      }
-    ]
-  },
-  {
-    id: "herbal-tea",
-    icon: "🌿",
-    name: { tr: "Bitki Çayları", en: "Herbal Tea", ru: "Травяной чай" },
-    items: [
-      {
-        name: { tr: "Beauty Tea / Çiçeksi Beyaz Çay", en: "Beauty Tea / Floral White Tea", ru: "Beauty Tea / Цветочный белый чай" },
-        description: {
-          tr: "Beyaz çay, gül yaprakları, yasemin, vanilya",
-          en: "White tea, rose petals, jasmine, vanilla",
-          ru: "Белый чай, лепестки розы, жасмин, ваниль"
-        },
-        price: 130
-      },
-      {
-        name: { tr: "Tahiti Tea / Hibiskuslu Limonotu", en: "Tahiti Tea / Hibiscus Lemongrass", ru: "Tahiti Tea / Гибискус и лемонграсс" },
-        description: {
-          tr: "Honeybush, hibiskus, limon otu, elma, kuşburnu, aspir, ananas, tarçın, portakal kabuğu, çilek, limon",
-          en: "Honeybush, hibiscus, lemongrass, apple, rosehip, safflower, pineapple, cinnamon, orange peel, strawberry, lemon",
-          ru: "Ханибуш, гибискус, лемонграсс, яблоко, шиповник, сафлор, ананас, корица, апельсиновая цедра, клубника, лимон"
-        },
-        price: 130
-      },
-      {
-        name: { tr: "Maroc Tea / Naneli Yeşil Çay", en: "Maroc Tea / Mint Green Tea", ru: "Maroc Tea / Зелёный чай с мятой" },
-        description: {
-          tr: "Yeşil çay, siyah çay, nane, papatya, bergamot, gül",
-          en: "Green tea, black tea, mint, chamomile, bergamot, rose",
-          ru: "Зелёный и чёрный чай, мята, ромашка, бергамот, роза"
-        },
-        price: 130
-      },
-      {
-        name: { tr: "Relax Tea / Lavantalı Rooibos Çay", en: "Relax Tea / Lavender Rooibos", ru: "Relax Tea / Ройбуш с лавандой" },
-        description: {
-          tr: "Rooibos, papatya, lavanta, nergis çiçeği, aroma, elma, vanilya",
-          en: "Rooibos, chamomile, lavender, narcissus flower, flavouring, apple, vanilla",
-          ru: "Ройбуш, ромашка, лаванда, нарцисс, ароматизатор, яблоко, ваниль"
-        },
-        price: 130
-      },
-      {
-        name: { tr: "Balance Tea / Detoks Yeşil Çay", en: "Balance Tea / Detox Green Tea", ru: "Balance Tea / Детокс-зелёный чай" },
-        description: {
-          tr: "Yeşil çay, limon otu, yerba mate, portakal kabuğu",
-          en: "Green tea, lemongrass, yerba mate, orange peel",
-          ru: "Зелёный чай, лемонграсс, йерба мате, апельсиновая цедра"
-        },
-        price: 130
-      }
-    ]
-  },
-  {
-    id: "desserts",
-    icon: "🍰",
-    name: { tr: "Tatlılar", en: "Desserts", ru: "Десерты" },
-    items: [
-      { name: { tr: "San Sebastian", en: "San Sebastian Cheesecake", ru: "Чизкейк Сан-Себастьян" }, price: 190 },
-      { name: { tr: "Lotus Cheesecake", en: "Lotus Cheesecake", ru: "Чизкейк Lotus" }, price: 190 },
-      { name: { tr: "Frambuazlı Cheesecake", en: "Raspberry Cheesecake", ru: "Малиновый чизкейк" }, price: 190 },
-      { name: { tr: "Çikolatalı Pasta", en: "Chocolate Cake", ru: "Шоколадный торт" }, price: 190 },
-      { name: { tr: "Bademli Turta", en: "Almond Tart", ru: "Миндальный тарт" }, price: 180 },
-      { name: { tr: "Rulo Pasta", en: "Cake Roll", ru: "Бисквитный рулет" }, price: 170 },
-      { name: { tr: "Mozaik Pasta", en: "Mosaic Cake", ru: "Мозаичный торт" }, price: 170 },
-      { name: { tr: "Tiramisu", en: "Tiramisu", ru: "Тирамису" }, price: 170 },
-      { name: { tr: "Brownie", en: "Brownie", ru: "Брауни" }, price: 150 },
-      { name: { tr: "Tuzlu Kurabiye", en: "Savoury Cookie", ru: "Солёное печенье" }, price: 130 },
-      { name: { tr: "Cookie", en: "Cookie", ru: "Печенье" }, price: 100 },
-      { name: { tr: "Makaron", en: "Macaron", ru: "Макарон" }, price: 30 }
-    ]
-  },
-  {
-    id: "food",
-    icon: "🥐",
-    name: { tr: "Kruvasan ve Sandviçler", en: "Croissants & Sandwiches", ru: "Круассаны и сэндвичи" },
-    groups: [
-      {
-        label: { tr: "Kruvasan", en: "Croissants", ru: "Круассаны" },
-        items: [
-          { name: { tr: "Üç Peynirli Kruvasan", en: "Three-Cheese Croissant", ru: "Круассан с тремя сырами" }, price: 170 },
-          { name: { tr: "Nutellalı Kruvasan", en: "Nutella Croissant", ru: "Круассан с Nutella" }, price: 170 }
-        ]
-      },
-      {
-        label: { tr: "Sandviçler", en: "Sandwiches", ru: "Сэндвичи" },
-        items: [
-          { name: { tr: "Beyaz Peynirli Baget Sandviç", en: "White Cheese Baguette Sandwich", ru: "Багет с белым сыром" }, price: 180 },
-          { name: { tr: "Dana Kontrfile Baget Sandviç", en: "Beef Sirloin Baguette Sandwich", ru: "Багет с говяжьим контрфиле" }, price: 230 },
-          { name: { tr: "Susamlı Simit", en: "Sesame Simit", ru: "Симит с кунжутом" }, price: 35 }
-        ]
       }
     ]
   }
