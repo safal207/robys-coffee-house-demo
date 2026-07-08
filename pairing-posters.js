@@ -62,7 +62,8 @@ function enhancePairingCards() {
     const name = card.querySelector(".full-menu-item-copy strong")?.textContent?.trim() ?? "";
     const price = card.querySelector(".full-menu-price")?.textContent?.trim() ?? "";
     const pairingId = card.dataset.pairing ?? "";
-    if (!media || !name || !price) return;
+    const renderKey = `${lang}|${name}|${price}|${pairingId}`;
+    if (!media || !name || !price || card.dataset.posterReady === renderKey) return;
 
     card.classList.add("pairing-poster-card");
     media.querySelector(".pairing-poster-overlay")?.remove();
@@ -101,12 +102,23 @@ function enhancePairingCards() {
 
     overlay.append(kicker, createTitle(main, accent), priceBadge, bottom);
     media.append(overlay);
+    card.dataset.posterReady = renderKey;
   });
 }
 
 const menuRoot = document.querySelector("#menu-root");
 if (menuRoot) {
-  const observer = new MutationObserver(() => enhancePairingCards());
+  let scheduled = false;
+  const scheduleEnhance = () => {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(() => {
+      scheduled = false;
+      enhancePairingCards();
+    });
+  };
+
+  const observer = new MutationObserver(scheduleEnhance);
   observer.observe(menuRoot, { childList: true, subtree: true });
-  enhancePairingCards();
+  scheduleEnhance();
 }
