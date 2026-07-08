@@ -19,12 +19,6 @@ jobs:
       (github.event.comment.author_association == 'OWNER' ||
        github.event.comment.author_association == 'MEMBER' ||
        github.event.comment.author_association == 'COLLABORATOR')
-    permissions:
-      checks: read
-      contents: read
-      issues: write
-      pull-requests: read
-      statuses: read
     concurrency:
       group: ai-review-cooperation-${{ github.event.issue.number }}
       cancel-in-progress: true
