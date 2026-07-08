@@ -57,13 +57,14 @@ function formatPrice(price) {
 }
 
 function activateCategory(categoryId) {
-  if (!menuCategories.some((category) => category.id === categoryId)) return;
+  if (categoryId !== "all" && !menuCategories.some((category) => category.id === categoryId)) return;
   activeCategory = categoryId;
   syncCategoryHash(categoryId);
   renderCategoryNav();
   renderMenu();
   window.requestAnimationFrame(() => {
-    document.getElementById(categoryId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const target = categoryId === "all" ? document.querySelector(".full-menu-wrap") : document.getElementById(categoryId);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 
