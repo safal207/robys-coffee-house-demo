@@ -8,6 +8,7 @@ const menuRoot = document.querySelector("#menu-root");
 const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const visibleMenuCategories = menuCategories.filter((category) => !category.hidden);
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
@@ -24,7 +25,7 @@ function readStoredLanguage() {
 
 function readInitialCategory() {
   const requested = window.location.hash.slice(1);
-  return menuCategories.some((category) => category.id === requested) ? requested : "all";
+  return visibleMenuCategories.some((category) => category.id === requested) ? requested : "all";
 }
 
 function storeLanguage(next) {
@@ -62,7 +63,7 @@ function scrollToMenuTarget(target) {
 }
 
 function activateCategory(categoryId) {
-  if (categoryId !== "all" && !menuCategories.some((category) => category.id === categoryId)) return;
+  if (categoryId !== "all" && !visibleMenuCategories.some((category) => category.id === categoryId)) return;
   activeCategory = categoryId;
   syncCategoryHash(categoryId);
   renderCategoryNav();
@@ -270,7 +271,7 @@ function renderCategoryNav() {
   categoryNav.replaceChildren();
   const options = [
     { id: "all", label: menuCopy[language].all },
-    ...menuCategories.map((category) => ({
+    ...visibleMenuCategories.map((category) => ({
       id: category.id,
       label: localized(category.name),
       accent: category.accent,
@@ -297,7 +298,7 @@ function renderCategoryNav() {
 
 function renderMenu() {
   menuRoot.replaceChildren();
-  const categories = menuCategories.filter((category) => {
+  const categories = visibleMenuCategories.filter((category) => {
     const matchesCategory = activeCategory === "all" || activeCategory === category.id;
     return matchesCategory && matchesSearch(category);
   });
