@@ -1,7 +1,7 @@
 {
   "version": 1,
   "contract": "TRACE-001",
-  "updatedAt": "2026-07-01",
+  "updatedAt": "2026-07-08",
   "scope": {
     "product": "Roby's Coffee House web",
     "layers": [
@@ -124,6 +124,16 @@
         "FEAT-BE-001",
         "FEAT-BE-002",
         "FEAT-BE-003"
+      ]
+    },
+    {
+      "id": "M-20260708",
+      "at": "2026-07-08",
+      "ref": "pr:#186",
+      "change": "Menu worlds IA with WhatsApp takeaway and waiter handoff traceability",
+      "features": [
+        "FEAT-UI-003",
+        "FEAT-UI-004"
       ]
     }
   ],
