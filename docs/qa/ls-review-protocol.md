@@ -31,6 +31,110 @@ Risk: <what can break>
 Recommendation: <smallest safe fix>
 ```
 
+## Dependency graph rule
+
+LS must review every PR as a dependency graph, not as a flat file checklist.
+
+For every changed file, LS identifies:
+
+1. direct artifact changed;
+2. runtime or product area affected;
+3. downstream dependencies;
+4. regression risks;
+5. required checks;
+6. LS finding IDs if risk is non-zero.
+
+Graph template:
+
+```text
+Changed files -> Affected areas -> Downstream dependencies -> Risks -> Required checks -> Verdict
+```
+
+Example:
+
+```text
+pairing-posters.js
+  -> menu rendering
+  -> MutationObserver / language switch / DOM overlay
+  -> risk: render loop or stale translated overlay
+  -> checks: page load, language switch, console, DOM churn
+  -> LS-001 if reproduced
+```
+
+```text
+menu.html
+  -> asset loading
+  -> CSS/JS load order, CSP, service worker cache
+  -> risk: missing asset, blocked script, stale cache
+  -> checks: page load, network, console, cache impact
+  -> LS-002 if reproduced
+```
+
+```text
+menu-data.js
+  -> menu content
+  -> prices, translations, category navigation, search
+  -> risk: accidental price/product/copy change
+  -> checks: price diff, search, language switch
+  -> LS-003 if reproduced
+```
+
+## Roby's core graph
+
+```text
+menu.html
+  -> menu-bootstrap.js
+  -> menu-page.js
+  -> menu-data.js
+  -> menu.css
+  -> menu-stability.css
+  -> menu-security.css
+  -> menu-actions.js
+  -> service worker / PWA cache
+```
+
+```text
+menu-page.js
+  -> menu-data.js
+  -> category chips
+  -> search
+  -> language switch
+  -> rendered menu DOM
+```
+
+```text
+visual CSS files
+  -> layout
+  -> mobile viewport
+  -> card crop
+  -> readability
+  -> scroll behavior
+```
+
+```text
+service worker / manifest / integrity files
+  -> offline behavior
+  -> asset freshness
+  -> install experience
+  -> cache invalidation
+```
+
+## Graph coverage report
+
+Each LS review should include a short graph coverage section:
+
+```text
+LS Graph Coverage:
+- menu.html -> asset loading -> checked
+- pairing-posters.js -> render loop risk -> checked
+- pairing-posters.css -> mobile layout risk -> checked
+- menu-data.js -> not changed
+
+Coverage verdict: complete | partial | insufficient
+```
+
+If graph coverage is `partial` or `insufficient`, LS cannot approve unless the missing area is explicitly accepted by the human reviewer.
+
 ## Mandatory checks
 
 ### Runtime safety
@@ -79,6 +183,23 @@ Recommendation: <smallest safe fix>
 [ ] Offline/PWA impact considered
 [ ] Rollback path described
 [ ] Human visual decision requested when taste is subjective
+```
+
+## LS comment template
+
+```text
+LS Verdict: APPROVE | COMMENT | REQUEST_CHANGES
+
+LS Graph Coverage:
+- <changed file> -> <affected area> -> <required check> -> pass/fail
+
+Findings:
+- LS-001 — <title> | severity | status
+
+Decision:
+- blocking findings: <count>
+- advisory findings: <count>
+- human decisions required: <count>
 ```
 
 ## Post-merge review rule
