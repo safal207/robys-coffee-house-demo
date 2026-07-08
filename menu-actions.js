@@ -1,14 +1,16 @@
 const copy = {
   tr: {
     shareEyebrow: "MENÜYÜ PAYLAŞ",
-    shareTitle: "Menüyü arkadaşlarınla paylaş",
-    shareLead: "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+    shareTitle: "Roby's dünyalarını paylaş",
+    shareLead: "Signature vitrinini ve kahve dünyalarını tek dokunuşla gönder.",
     shareButton: "Menüyü paylaş",
     instagramLink: "Instagram",
     mapsLink: "Google Maps ↗",
-    bookingLead: "Masa ayırtmak için Instagram üzerinden bize yazın.",
-    bookingButton: "Instagram'dan yaz · Masa ayırt",
-    bookingNote: "Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.",
+    bookingLead: "Seçimi bitirdiniz mi? Şimdi sipariş yolunu seçin.",
+    takeawayButton: "WhatsApp ile paket sipariş",
+    waiterButton: "Garsona göster",
+    clubBenefit: "Roby's Club 🎉 · 5. ziyarette işletme ikramı",
+    bookingNote: "Kulüp mekaniği işletme onayıyla netleştirilir.",
     shareText: "Roby's Coffee House Gazipaşa menüsüne göz at.",
     shared: "Paylaşım menüsü açıldı.",
     copied: "Menü bağlantısı kopyalandı.",
@@ -16,14 +18,16 @@ const copy = {
   },
   en: {
     shareEyebrow: "SHARE THE MENU",
-    shareTitle: "Share the menu with friends",
-    shareLead: "Send Roby's menu in one tap or open our social pages.",
+    shareTitle: "Share Roby's worlds",
+    shareLead: "Send the signature showcase and coffee worlds in one tap.",
     shareButton: "Share menu",
     instagramLink: "Instagram",
     mapsLink: "Google Maps ↗",
-    bookingLead: "Message us on Instagram to request a table.",
-    bookingButton: "Message on Instagram · Request a table",
-    bookingNote: "Your reservation is confirmed only after the café replies on Instagram.",
+    bookingLead: "Finished choosing? Pick how you want to order.",
+    takeawayButton: "Order takeaway in WhatsApp",
+    waiterButton: "Show to waiter",
+    clubBenefit: "Roby's Club 🎉 · Treat from the café on the 5th visit",
+    bookingNote: "Club mechanics should be confirmed by the business.",
     shareText: "Take a look at the Roby's Coffee House Gazipaşa menu.",
     shared: "Share options opened.",
     copied: "Menu link copied.",
@@ -31,14 +35,16 @@ const copy = {
   },
   ru: {
     shareEyebrow: "ПОДЕЛИТЬСЯ МЕНЮ",
-    shareTitle: "Отправьте меню друзьям",
-    shareLead: "Поделитесь меню Roby's одним касанием или откройте наши страницы.",
+    shareTitle: "Отправьте миры Roby's",
+    shareLead: "Витрина Signature и миры меню — одним касанием.",
     shareButton: "Поделиться меню",
     instagramLink: "Instagram",
     mapsLink: "Google Карты ↗",
-    bookingLead: "Чтобы забронировать столик, напишите нам в Instagram.",
-    bookingButton: "Написать в Instagram · Забронировать столик",
-    bookingNote: "Бронь считается подтверждённой после ответа кафе в Instagram.",
+    bookingLead: "Выбор сделан? Теперь выберите сценарий заказа.",
+    takeawayButton: "Заказать с собой в WhatsApp",
+    waiterButton: "Показать официанту",
+    clubBenefit: "Roby's Club 🎉 · на 5-й визит угощение за счёт заведения",
+    bookingNote: "Механику клуба нужно подтвердить у заведения перед запуском.",
     shareText: "Посмотрите меню Roby's Coffee House в Газипаше.",
     shared: "Открыто меню «Поделиться».",
     copied: "Ссылка на меню скопирована.",
@@ -65,7 +71,8 @@ function applyCopy() {
   });
 
   shareButton?.setAttribute("aria-label", localized.shareButton);
-  document.querySelector("[data-instagram-booking]")?.setAttribute("aria-label", localized.bookingButton);
+  document.querySelector("[data-whatsapp-order]")?.setAttribute("aria-label", localized.takeawayButton);
+  document.querySelector("[data-waiter-order]")?.setAttribute("aria-label", localized.waiterButton);
   if (shareStatus) shareStatus.textContent = "";
 }
 
@@ -138,7 +145,8 @@ async function shareMenu(event) {
 }
 
 shareButton?.addEventListener("click", shareMenu);
-document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => track("instagram_booking_click"));
+document.querySelector("[data-whatsapp-order]")?.addEventListener("click", () => track("whatsapp_takeaway_click"));
+document.querySelector("[data-waiter-order]")?.addEventListener("click", () => track("waiter_show_click"));
 
 document.querySelectorAll(".lang-button").forEach((button) => {
   button.addEventListener("click", () => window.requestAnimationFrame(applyCopy));
