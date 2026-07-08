@@ -56,11 +56,52 @@ function formatPrice(price) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} ₺`;
 }
 
+function activateCategory(categoryId) {
+  if (!menuCategories.some((category) => category.id === categoryId)) return;
+  activeCategory = categoryId;
+  syncCategoryHash(categoryId);
+  renderCategoryNav();
+  renderMenu();
+  window.requestAnimationFrame(() => {
+    document.getElementById(categoryId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+function createBadges(item) {
+  if (!item.badges?.length) return null;
+  const list = document.createElement("div");
+  list.className = "full-menu-badges";
+  item.badges.forEach((badge) => {
+    const chip = document.createElement("span");
+    chip.className = "full-menu-badge";
+    chip.textContent = localized(badge);
+    list.append(chip);
+  });
+  return list;
+}
+
+function wireTarget(row, item) {
+  if (!item.targetCategory) return;
+  row.classList.add("full-menu-item--actionable");
+  row.dataset.targetCategory = item.targetCategory;
+  row.setAttribute("role", "button");
+  row.tabIndex = 0;
+
+  const openTarget = () => activateCategory(item.targetCategory);
+  row.addEventListener("click", openTarget);
+  row.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openTarget();
+  });
+}
+
 function createItem(item, { priority = false } = {}) {
   const visual = Boolean(item.image);
   const row = document.createElement(visual ? "article" : "div");
   row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
   if (visual) row.dataset.pairing = item.journeyId ?? item.id;
+  wireTarget(row, item);
 
   const copy = document.createElement("div");
   copy.className = "full-menu-item-copy";
@@ -74,6 +115,9 @@ function createItem(item, { priority = false } = {}) {
     description.textContent = localized(item.description);
     copy.append(description);
   }
+
+  const badges = createBadges(item);
+  if (badges) copy.append(badges);
 
   const price = document.createElement("strong");
   price.className = "full-menu-price";
@@ -127,14 +171,20 @@ function categoryItems(category) {
   return category.groups.flatMap((group) => group.items);
 }
 
+function badgeText(item) {
+  return item.badges?.flatMap((badge) => Object.values(badge)) ?? [];
+}
+
 function matchesSearch(category) {
   if (!searchTerm) return true;
   const query = normalize(searchTerm);
   const haystack = [
     ...Object.values(category.name),
+    ...(category.lead ? Object.values(category.lead) : []),
     ...categoryItems(category).flatMap((item) => [
       ...Object.values(item.name),
-      ...(item.description ? Object.values(item.description) : [])
+      ...(item.description ? Object.values(item.description) : []),
+      ...badgeText(item)
     ])
   ].join(" ");
   return normalize(haystack).includes(query);
@@ -146,7 +196,8 @@ function filteredItems(items) {
   return items.filter((item) => {
     const haystack = [
       ...Object.values(item.name),
-      ...(item.description ? Object.values(item.description) : [])
+      ...(item.description ? Object.values(item.description) : []),
+      ...badgeText(item)
     ].join(" ");
     return normalize(haystack).includes(query);
   });
@@ -155,7 +206,10 @@ function filteredItems(items) {
 function createCategory(category) {
   const section = document.createElement("section");
   section.className = "full-menu-panel";
-  section.classList.toggle("full-menu-panel--featured", category.id === "pairing-offers");
+  section.classList.toggle("full-menu-panel--featured", category.type === "entry");
+  section.classList.toggle("full-menu-panel--world", category.type === "world");
+  if (category.accent) section.style.setProperty("--world-accent", category.accent);
+  if (category.type) section.dataset.menuLayer = category.type;
   section.id = category.id;
 
   const header = document.createElement("header");
@@ -188,7 +242,7 @@ function createCategory(category) {
     const list = document.createElement("div");
     list.className = "full-menu-list";
     items.forEach((item, index) => {
-      const priority = category.id === "pairing-offers" && index === 0;
+      const priority = category.type === "entry" && index === 0;
       list.append(createItem(item, { priority }));
     });
     section.append(list);
@@ -210,23 +264,26 @@ function renderCategoryNav() {
   categoryNav.replaceChildren();
   const options = [
     { id: "all", label: menuCopy[language].all },
-    ...menuCategories.map((category) => ({ id: category.id, label: localized(category.name) }))
+    ...menuCategories.map((category) => ({
+      id: category.id,
+      label: localized(category.name),
+      accent: category.accent,
+      type: category.type
+    }))
   ];
 
   options.forEach((option) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "menu-category-chip";
+    if (option.accent) button.style.setProperty("--world-accent", option.accent);
+    if (option.type) button.dataset.menuLayer = option.type;
     button.textContent = option.label;
     const active = option.id === activeCategory;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
-      activeCategory = option.id;
-      syncCategoryHash(option.id);
-      renderCategoryNav();
-      renderMenu();
-      document.querySelector(".full-menu-wrap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      activateCategory(option.id);
     });
     categoryNav.append(button);
   });
@@ -284,18 +341,11 @@ languageButtons.forEach((button) => {
   button.addEventListener("click", () => setLanguage(button.dataset.lang));
 });
 
-searchInput.addEventListener("input", () => {
-  searchTerm = searchInput.value;
+searchInput.addEventListener("input", (event) => {
+  searchTerm = event.target.value;
   renderMenu();
 });
 
-document.querySelector("#current-year").textContent = String(new Date().getFullYear());
 translateStaticPage();
 renderCategoryNav();
 renderMenu();
-
-if (activeCategory !== "all") {
-  window.requestAnimationFrame(() => {
-    document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
-  });
-}
