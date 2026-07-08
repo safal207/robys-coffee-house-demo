@@ -1,16 +1,22 @@
-.map-card-live{position:relative;isolation:isolate;overflow:hidden;background:#261d1b;border:1px solid rgba(47,39,37,.12);box-shadow:0 24px 64px rgba(36,28,27,.16)}
-.map-card-live::before{content:"";position:absolute;inset:-16%;z-index:0;opacity:.72;background:linear-gradient(37deg,transparent 0 45%,rgba(217,198,187,.17) 45.5% 48%,transparent 48.5% 100%),linear-gradient(-28deg,transparent 0 39%,rgba(217,198,187,.14) 39.5% 42%,transparent 42.5% 100%),linear-gradient(78deg,transparent 0 58%,rgba(217,198,187,.1) 58.5% 60%,transparent 60.5% 100%),repeating-linear-gradient(90deg,transparent 0 88px,rgba(255,255,255,.045) 89px 91px),repeating-linear-gradient(0deg,transparent 0 78px,rgba(255,255,255,.04) 79px 81px);transform:rotate(5deg) scale(1.12)}
+.map-card-live{position:relative;isolation:isolate;overflow:hidden;background:#2a211f;border:1px solid rgba(47,39,37,.12);box-shadow:0 24px 64px rgba(36,28,27,.16)}
+.map-card-live::before{content:"";position:absolute;inset:0;z-index:0;opacity:.98;background:linear-gradient(180deg,rgba(255,253,249,.04),rgba(14,10,9,.58) 68%,rgba(14,10,9,.82)),radial-gradient(circle at 56% 48%,rgba(255,253,249,.34),transparent 0 5px,rgba(255,253,249,.18) 6px 7px,transparent 8px),linear-gradient(145deg,transparent 0 16%,rgba(255,255,255,.22) 16.2% 17.2%,transparent 17.4% 100%),linear-gradient(28deg,transparent 0 38%,rgba(255,255,255,.18) 38.2% 39.2%,transparent 39.4% 100%),linear-gradient(-35deg,transparent 0 58%,rgba(255,255,255,.16) 58.2% 59%,transparent 59.2% 100%),radial-gradient(circle at 16% 22%,rgba(184,77,88,.2),transparent 26%),radial-gradient(circle at 74% 72%,rgba(217,198,187,.18),transparent 28%),linear-gradient(90deg,#312725 0 14%,#40312e 14% 29%,#59443b 29% 43%,#6c5145 43% 55%,#8a6651 55% 66%,#4d3a35 66% 78%,#322827 78% 100%);transform:scale(1.02)}
+.map-card-live::after{content:"ГДЕ МЫ НАХОДИМСЯ";position:absolute;top:24px;right:22px;z-index:2;max-width:190px;color:rgba(255,253,249,.92);font:600 clamp(1.45rem,3.2vw,2.2rem)/.92 var(--display);letter-spacing:-.04em;text-align:right;text-shadow:0 8px 28px rgba(0,0,0,.42);pointer-events:none}
 .map-live-frame{display:none}
-.map-live-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 50% 43%,rgba(184,77,88,.2),transparent 24%),linear-gradient(180deg,rgba(14,10,9,.08),rgba(14,10,9,.18) 54%,rgba(14,10,9,.62))}
-.map-live-shade::before,.map-live-shade::after{position:absolute;color:rgba(255,255,255,.56);font-size:.72rem;font-weight:600;letter-spacing:.02em;text-shadow:0 2px 8px rgba(0,0,0,.55)}
-.map-live-shade::before{content:"Uğur Mumcu Cd.";top:34%;left:18%;transform:rotate(48deg)}
-.map-live-shade::after{content:"Gazipaşa Cd.";top:56%;right:12%;transform:rotate(34deg)}
+.map-live-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(14,10,9,.02),rgba(14,10,9,.2) 54%,rgba(14,10,9,.62))}
+.map-live-shade::before,.map-live-shade::after{position:absolute;z-index:2;color:rgba(255,253,249,.86);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-shadow:0 2px 10px rgba(0,0,0,.55);text-transform:uppercase}
+.map-live-shade::before{content:"Uğur Mumcu Cd. · 1 dk";top:37%;left:12%;padding:8px 11px;border:1px solid rgba(255,253,249,.26);background:rgba(24,18,17,.56);border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform:rotate(-7deg)}
+.map-live-shade::after{content:"Gazipaşa merkezi · 4 dk";right:8%;bottom:34%;padding:8px 11px;border:1px solid rgba(255,253,249,.24);background:rgba(24,18,17,.52);border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform:rotate(5deg)}
 .map-live-link{position:absolute;inset:0;z-index:2;display:block;color:#fff;pointer-events:auto;cursor:pointer}
-.map-live-badge{position:absolute;top:20px;left:20px;display:inline-flex;min-height:40px;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(255,255,255,.24);background:rgba(24,18,17,.78);border-radius:999px;box-shadow:0 10px 28px rgba(24,18,17,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.72rem;font-weight:700;letter-spacing:.04em;pointer-events:none}
+.map-live-link::before,.map-live-link::after{position:absolute;z-index:3;color:rgba(255,253,249,.88);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-shadow:0 2px 10px rgba(0,0,0,.55);text-transform:uppercase;pointer-events:none}
+.map-live-link::before{content:"Sahil yolu · 8 dk";left:10%;bottom:25%;padding:8px 11px;border:1px solid rgba(255,253,249,.25);background:rgba(24,18,17,.5);border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform:rotate(4deg)}
+.map-live-link::after{content:"Park yeri · 2 dk";right:10%;top:46%;padding:8px 11px;border:1px solid rgba(255,253,249,.24);background:rgba(24,18,17,.54);border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform:rotate(-5deg)}
+.map-live-badge{position:absolute;top:22px;left:20px;display:inline-flex;min-height:40px;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(255,253,249,.22);background:rgba(24,18,17,.78);border-radius:999px;box-shadow:0 10px 28px rgba(24,18,17,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:0;font-weight:700;letter-spacing:.04em;pointer-events:none}
 .map-live-badge::before{content:"";width:8px;height:8px;background:#e5969e;border-radius:50%;box-shadow:0 0 0 4px rgba(229,150,158,.1)}
-.map-card-live .map-pin{position:absolute;top:47%;left:50%;z-index:3;box-shadow:0 18px 40px rgba(184,77,88,.34),0 0 0 10px rgba(184,77,88,.1);transform:translate(-50%,-58%) rotate(-45deg);pointer-events:none}
+.map-live-badge::after{content:"KOLAY ROTA";font-size:.72rem}
+.map-card-live .map-pin{position:absolute;top:52%;left:52%;z-index:4;width:88px;height:88px;background:linear-gradient(135deg,var(--ruby),#8f3440);box-shadow:0 22px 48px rgba(184,77,88,.36),0 0 0 12px rgba(184,77,88,.12),0 0 0 1px rgba(255,255,255,.5);transform:translate(-50%,-58%) rotate(-45deg);pointer-events:none}
 .map-card-live .map-pin span{transform:rotate(45deg)}
-.map-live-bottom{position:absolute;right:20px;bottom:20px;left:20px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;color:var(--dark);background:rgba(255,253,249,.96);border:1px solid rgba(255,255,255,.82);border-radius:20px;box-shadow:0 18px 46px rgba(24,18,17,.24);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none}
+.map-card-live .map-pin::after{content:"ROBY'S";position:absolute;top:calc(100% + 14px);left:50%;width:max-content;padding:8px 12px;color:#fff;background:rgba(24,18,17,.76);border:1px solid rgba(255,255,255,.18);border-radius:999px;box-shadow:0 12px 28px rgba(0,0,0,.2);font:700 .66rem var(--sans);letter-spacing:.12em;transform:translateX(-50%) rotate(45deg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.map-live-bottom{position:absolute;right:20px;bottom:20px;left:20px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;color:var(--dark);background:rgba(255,253,249,.96);border:1px solid rgba(255,255,255,.82);border-radius:20px;box-shadow:0 18px 46px rgba(24,18,17,.24);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none}
 .map-live-place{display:flex;min-width:0;flex-direction:column}
 .map-live-place strong{font:600 1.18rem var(--display);letter-spacing:.08em}
 .map-live-place>span{overflow:hidden;margin-top:2px;color:var(--muted);font-size:0;text-overflow:ellipsis;white-space:nowrap}
@@ -18,7 +24,7 @@
 .map-live-action{display:inline-flex;min-height:42px;flex:0 0 auto;align-items:center;gap:8px;padding:10px 15px;color:#fff;background:linear-gradient(135deg,var(--ruby),#9d3946);border-radius:999px;box-shadow:0 10px 24px rgba(184,77,88,.24);font-size:.75rem;font-weight:700}
 .map-live-action::before{content:"⌖";font-size:1rem;line-height:1}
 .map-live-action::after{content:"↗";font-size:.92rem}
-.map-card-live:hover::before{opacity:.84;transform:rotate(5deg) scale(1.15)}
+.map-card-live:hover::before{opacity:1;transform:scale(1.045)}
 .map-card-live:hover .map-live-action{transform:translateY(-1px);box-shadow:0 14px 28px rgba(184,77,88,.3)}
 .map-card-live::before,.map-live-action{transition:opacity .3s ease,transform .3s ease,box-shadow .25s ease}
 .map-card-live.is-visible .map-live-badge{animation:mapBadgeIn .55s .08s cubic-bezier(.16,1,.3,1) both}
@@ -29,11 +35,14 @@
 @keyframes mapPanelIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 @media(max-width:680px){
-  .map-card-live{min-height:440px}
+  .map-card-live{min-height:520px}
+  .map-card-live::after{top:78px;right:16px;max-width:170px;font-size:clamp(1.7rem,10vw,2.55rem)}
   .map-live-badge{top:16px;left:16px}
-  .map-card-live .map-pin{top:44%;width:72px;height:72px}
-  .map-live-shade::before{top:31%;left:10%;font-size:.64rem}
-  .map-live-shade::after{top:54%;right:7%;font-size:.64rem}
+  .map-card-live .map-pin{top:50%;left:54%;width:78px;height:78px}
+  .map-live-shade::before{top:36%;left:7%;font-size:.6rem}
+  .map-live-shade::after{right:6%;bottom:37%;font-size:.6rem}
+  .map-live-link::before{left:7%;bottom:30%;font-size:.6rem}
+  .map-live-link::after{right:6%;top:44%;font-size:.6rem}
   .map-live-bottom{right:14px;bottom:14px;left:14px;padding:13px 14px;border-radius:18px}
   .map-live-place strong{font-size:1.02rem}
   .map-live-place>span::before{font-size:.72rem}
@@ -41,8 +50,10 @@
 }
 
 @media(max-width:390px){
+  .map-card-live::after{top:70px;right:14px;max-width:145px;font-size:2rem}
   .map-live-bottom{align-items:flex-start;flex-direction:column}
   .map-live-action{width:100%;justify-content:center}
+  .map-live-shade::before,.map-live-shade::after,.map-live-link::before,.map-live-link::after{font-size:.56rem;padding:7px 9px}
 }
 
 @media(prefers-reduced-motion:reduce){
