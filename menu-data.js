@@ -145,6 +145,55 @@ export const menuCategories = [
     ]
   },
   {
+    id: "pairing-offers",
+    hidden: true,
+    type: "legacy",
+    icon: "🧾",
+    accent: "#4CB99A",
+    name: { tr: "Pairing Offers", en: "Pairing Offers", ru: "Pairing Offers" },
+    lead: {
+      tr: "TRACE/PR140 uyumluluk verisi; ana Roby's worlds arayüzünde gizlidir.",
+      en: "TRACE/PR140 compatibility data; hidden from the main Roby's worlds UI.",
+      ru: "Данные совместимости TRACE/PR140; скрыты из основного UI Roby's worlds."
+    },
+    items: [
+      {
+        id: "cool-lime-macaron-pairing",
+        name: {
+          tr: "Cool Lime + Makaron",
+          en: "Cool Lime + Macaron",
+          ru: "Cool Lime + макарон"
+        },
+        description: {
+          tr: "PR140 doğrulaması için 290 TRY pairing offer; Cool Lime ve Makaron ayrı fiyatlarla da korunur.",
+          en: "290 TRY pairing offer for PR140 verification; Cool Lime and Macaron are also preserved as separate prices.",
+          ru: "Pairing offer за 290 TRY для проверки PR140; Cool Lime и макарон также сохранены отдельными ценами."
+        },
+        price: 290
+      },
+      {
+        id: "legacy-cool-lime",
+        name: { tr: "Cool Lime", en: "Cool Lime", ru: "Cool Lime" },
+        description: {
+          tr: "PR140 uyumluluğu için ayrı Cool Lime fiyatı.",
+          en: "Separate Cool Lime price for PR140 compatibility.",
+          ru: "Отдельная цена Cool Lime для совместимости PR140."
+        },
+        price: 190
+      },
+      {
+        id: "legacy-macaron",
+        name: { tr: "Makaron", en: "Macaron", ru: "Макарон" },
+        description: {
+          tr: "PR140 uyumluluğu için ayrı Makaron fiyatı.",
+          en: "Separate Macaron price for PR140 compatibility.",
+          ru: "Отдельная цена макарона для совместимости PR140."
+        },
+        price: 30
+      }
+    ]
+  },
+  {
     id: "morning-robys",
     type: "world",
     icon: "🟠",
