@@ -1,0 +1,38 @@
+{
+  "id": "HTO-20260709-003",
+  "time_utc": "2026-07-09T15:20:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#188",
+  "head_sha": "16ebcbf2c1c234756681c9e78550b2e2abce21fa",
+  "actor": "orientation-center",
+  "project_graph": {
+    "invariant": ["Readable source, traceability, security, PWA behavior, and reviewed Lighthouse baseline must stay aligned."],
+    "forbidden_moves": ["Do not hide evidence debt with unreadable runtime changes."]
+  },
+  "transition_graph": {
+    "candidate": {"type": "baseline-refresh", "description": "Restore readable runtime and refresh Lighthouse baseline from reviewed CI evidence."},
+    "expected_effect": ["Security, TRACE, Adversarial, Lighthouse, and AI review checks stay green."]
+  },
+  "real_graph": {
+    "evidence_before": {"green": ["Security green", "TRACE green", "Adversarial green"], "red": ["stale Lighthouse baseline"], "missing": []},
+    "evidence_after": {"green": ["Security green", "TRACE green", "Adversarial green", "Lighthouse green", "AI review green"], "red": [], "missing": []}
+  },
+  "orientation_center": {
+    "decision": "allow",
+    "reason": "The transition preserves higher-priority invariants and has direct CI evidence.",
+    "next_allowed_move": "Keep the PR review-ready and avoid unrelated mutations."
+  },
+  "observer_graph": {"pattern": ["Baseline refresh is safe when hard assertions stay green."], "anomaly": [], "risk": ["Future baseline updates need artifact evidence."]},
+  "tuner_graph": {"rule_update": ["Baseline refresh requires CI evidence and preserved hard assertions."], "threshold_update": ["Acceptance requires green source-governance and performance checks."]},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 2, "reason": "Preserves target invariants."},
+      "side_effect_safety": {"value": 2, "reason": "No unrelated flow is mutated."},
+      "evidence_path": {"value": 2, "reason": "Direct CI proof exists."},
+      "exact_head_confidence": {"value": 2, "reason": "Evidence is tied to the clean head."},
+      "reversibility": {"value": 2, "reason": "Change is isolated and reviewable."}
+    },
+    "hard_blockers": [],
+    "total": 10
+  }
+}
