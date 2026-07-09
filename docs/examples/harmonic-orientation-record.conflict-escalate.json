@@ -1,0 +1,38 @@
+{
+  "id": "HTO-20260709-005",
+  "time_utc": "2026-07-09T15:40:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#000",
+  "head_sha": "example-conflict-head",
+  "actor": "orientation-center",
+  "project_graph": {
+    "invariant": ["Preserve exact-head governance evidence.", "Avoid blocking urgent documentation-only review flow."],
+    "forbidden_moves": ["Do not silently choose between conflicting valid invariants."]
+  },
+  "transition_graph": {
+    "candidate": {"type": "escalation", "description": "Ask a human to choose between two valid project priorities."},
+    "expected_effect": ["Human decision resolves invariant priority order."]
+  },
+  "real_graph": {
+    "evidence_before": {"green": ["both invariants are valid"], "red": [], "missing": ["human priority decision"]},
+    "evidence_after": {"green": [], "red": [], "missing": ["awaiting human priority decision"]}
+  },
+  "orientation_center": {
+    "decision": "escalate",
+    "reason": "Two valid invariants conflict and require human priority selection.",
+    "next_allowed_move": "Request explicit human decision."
+  },
+  "observer_graph": {"pattern": ["Not every conflict is a validator failure."], "anomaly": [], "risk": ["Automated choice could encode the wrong priority."]},
+  "tuner_graph": {"rule_update": ["Escalate when valid invariants conflict."], "threshold_update": ["Human priority decision required for tie-breaking."]},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 1, "reason": "Two invariants are partially aligned but conflicting."},
+      "side_effect_safety": {"value": 1, "reason": "Side effects depend on human priority."},
+      "evidence_path": {"value": 1, "reason": "Evidence exists but does not choose priority."},
+      "exact_head_confidence": {"value": 2, "reason": "The conflict is attached to the current head."},
+      "reversibility": {"value": 2, "reason": "Escalation is non-mutating."}
+    },
+    "hard_blockers": [],
+    "total": 7
+  }
+}
