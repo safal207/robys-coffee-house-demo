@@ -1,35 +1,36 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-06-21T12:43:08Z",
+  "recorded_at": "2026-07-09T14:54:58Z",
   "source": {
-    "workflow_run_id": 27904621910,
-    "head_sha": "b19ac84b9affb4c9dba4a9f8219adcba6f1fafab",
-    "runs_per_profile": 3,
+    "workflow_run_id": 29027076325,
+    "head_sha": "fd69d6ace37c5595e9d55eac56202905fa59b93d",
+    "runs_per_profile": 6,
     "lighthouse_version": "12.6.1",
-    "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36"
+    "chrome_user_agent": "HeadlessChrome/149-150 Linux x86_64",
+    "reason": "Reviewed PWA/offline runtime baseline after service-worker control and Trusted Types fixes. Hard assertions passed; only total_js_bytes exceeded the previous stale regression baseline."
   },
   "mobile": {
-    "performance": 1,
-    "lcp": 1746.0334500000004,
-    "tbt": 5,
-    "cls": 0.001001076659093564,
-    "fcp": 1145.6312749999997,
-    "speed_index": 1145.6312749999997,
-    "total_js_bytes": 21021,
-    "hero_file_bytes": 79620,
-    "hero_transfer_bytes": 79974,
-    "hero_request_duration": 7182.999999989988
+    "performance": 0.99,
+    "lcp": 1802.9058750000002,
+    "tbt": 16.5,
+    "cls": 0,
+    "fcp": 1372.2292000000002,
+    "speed_index": 1372.2292000000002,
+    "total_js_bytes": 22552,
+    "hero_file_bytes": 79501,
+    "hero_transfer_bytes": null,
+    "hero_request_duration": null
   },
   "desktop": {
-    "performance": 1,
-    "lcp": 459.98599999999993,
+    "performance": 0.995,
+    "lcp": 414.697725,
     "tbt": 0,
     "cls": 0,
-    "fcp": 396.662,
-    "speed_index": 514.322302666667,
-    "total_js_bytes": 21021,
-    "hero_file_bytes": 79620,
-    "hero_transfer_bytes": 79974,
-    "hero_request_duration": 6413.999999997031
+    "fcp": 368.34665,
+    "speed_index": 532.9669591249972,
+    "total_js_bytes": 22552,
+    "hero_file_bytes": 79501,
+    "hero_transfer_bytes": null,
+    "hero_request_duration": null
   }
 }
