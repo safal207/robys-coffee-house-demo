@@ -25,10 +25,20 @@ async function waitForServiceWorker(context, timeout = 30000) {
   ]);
 }
 
+async function waitForControlledPage(page, label, timeout = 30000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    if (await page.evaluate(() => Boolean(navigator.serviceWorker?.controller))) return;
+    await page.reload({ waitUntil: "networkidle" });
+    if (await page.evaluate(() => Boolean(navigator.serviceWorker?.controller))) return;
+  }
+  throw new Error(`Timed out waiting for a service-worker controlled page during ${label}`);
+}
+
 async function noteOfflineReadySignal(page, label) {
   const signaled = await waitForAttribute(page.locator("html"), "data-offline-ready", "true", 5000);
   if (signaled) return;
-  console.warn(`Offline ready DOM signal was not observed during ${label}; continuing with service-worker and offline behavior checks.`);
+  console.warn(`Offline ready DOM signal was not observed during ${label}; continuing with service-worker control and offline behavior checks.`);
 }
 
 const browser = await chromium.launch({ headless: true });
@@ -43,7 +53,7 @@ try {
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
-  await waitForAttribute(downloadLink, "data-apk-download", "verified-blob");
+  assert.equal(await waitForAttribute(downloadLink, "data-apk-download", "verified-blob"), true, "APK link did not become a verified Blob URL");
   assert.match(await downloadLink.getAttribute("href"), /^blob:/, "APK link is not a prepared Blob URL");
 
   const [download] = await Promise.all([
@@ -62,11 +72,12 @@ try {
   assert.match(worker.url(), /\/sw\.js(?:\?|$)/, "Unexpected service worker script URL");
   await noteOfflineReadySignal(page, "home page bootstrap");
   assert.ok(context.serviceWorkers().length > 0, "Service worker was not registered");
-  await page.reload({ waitUntil: "networkidle" });
+  await waitForControlledPage(page, "home page bootstrap");
 
   await page.goto(`${baseUrl}/menu.html`, { waitUntil: "networkidle" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
   await noteOfflineReadySignal(page, "menu page bootstrap");
+  await waitForControlledPage(page, "menu page bootstrap");
 
   await context.setOffline(true);
   await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
