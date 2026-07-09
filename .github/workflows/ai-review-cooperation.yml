@@ -86,22 +86,38 @@ jobs:
 
       - name: Publish or update cooperation report
         run: |
+          set -euo pipefail
+
           EXPECTED_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
           CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
           if [ "${CURRENT_HEAD}" != "${EXPECTED_HEAD}" ]; then
             echo "PR head changed before publishing: ${EXPECTED_HEAD} -> ${CURRENT_HEAD}" >&2
             exit 1
           fi
-          test -f "${COMMENT_FILE}"
-          existing_id="$(
+
+          test -s "${COMMENT_FILE}"
+          jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
+          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
+          echo "Cooperation report body bytes: ${body_bytes}"
+          if [ "${body_bytes}" -gt 65000 ]; then
+            echo "Cooperation report body is too large for a GitHub issue comment: ${body_bytes} bytes" >&2
+            exit 1
+          fi
+
+          existing_id="$({
             gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id' \
-              | tail -n 1
-          )"
+              || true
+          } | tail -n 1)"
+
           if [ -n "${existing_id}" ]; then
+            echo "Updating existing cooperation report comment ${existing_id}"
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
+              -H 'Accept: application/vnd.github+json' \
               --input "${COMMENT_FILE}"
           else
+            echo "Creating new cooperation report comment"
             gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -H 'Accept: application/vnd.github+json' \
               --input "${COMMENT_FILE}"
           fi
