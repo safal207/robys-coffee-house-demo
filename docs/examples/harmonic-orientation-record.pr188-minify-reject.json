@@ -1,0 +1,100 @@
+{
+  "id": "HTO-20260709-001",
+  "time_utc": "2026-07-09T14:55:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#188",
+  "head_sha": "fd69d6ace37c5595e9d55eac56202905fa59b93d",
+  "actor": "assistant",
+  "project_graph": {
+    "invariant": [
+      "Lighthouse should reflect a reviewed performance baseline.",
+      "Security and traceability contracts must remain valid."
+    ],
+    "forbidden_moves": [
+      "Do not sacrifice readable source evidence just to shrink JavaScript transfer size."
+    ]
+  },
+  "transition_graph": {
+    "candidate": {
+      "type": "commit",
+      "description": "Minify PWA runtime files to reduce Lighthouse total_js_bytes."
+    },
+    "expected_effect": [
+      "Lighthouse total_js_bytes should drop below the regression threshold."
+    ]
+  },
+  "real_graph": {
+    "evidence_before": {
+      "green": [
+        "Adversarial browser contract green after offline/Trusted Types fixes."
+      ],
+      "red": [
+        "Lighthouse performance contract red on total_js_bytes."
+      ],
+      "missing": []
+    },
+    "evidence_after": {
+      "green": [
+        "Runtime checks remained mostly healthy."
+      ],
+      "red": [
+        "Security contract failed because source-shape expectations were broken.",
+        "Feature traceability failed because evidence fragments disappeared.",
+        "Lighthouse still failed."
+      ],
+      "missing": []
+    }
+  },
+  "orientation_center": {
+    "decision": "reject",
+    "reason": "The transition tried to fix one metric but broke higher-priority source-governance invariants.",
+    "next_allowed_move": "Restore readable runtime and solve Lighthouse through evidence-backed baseline refresh."
+  },
+  "observer_graph": {
+    "pattern": [
+      "A red metric can tempt a local fix that harms global governance."
+    ],
+    "anomaly": [
+      "Minification did not solve the actual Lighthouse governance issue."
+    ],
+    "risk": [
+      "Future metric fixes may bypass traceability unless checked first."
+    ]
+  },
+  "tuner_graph": {
+    "rule_update": [
+      "Reject source-shape changes when evidence contracts depend on exact tokens unless the contracts are intentionally updated too."
+    ],
+    "threshold_update": [
+      "A baseline refresh must cite CI artifact evidence and preserve hard assertions."
+    ]
+  },
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {
+        "value": 1,
+        "reason": "It aimed at Lighthouse, but not at the broader governance invariant."
+      },
+      "side_effect_safety": {
+        "value": 0,
+        "reason": "It broke Security and TRACE source-shape expectations."
+      },
+      "evidence_path": {
+        "value": 1,
+        "reason": "Lighthouse could check it, but source-governance impact was not safely covered."
+      },
+      "exact_head_confidence": {
+        "value": 2,
+        "reason": "CI ran on the exact head."
+      },
+      "reversibility": {
+        "value": 2,
+        "reason": "It was easy to revert."
+      }
+    },
+    "hard_blockers": [
+      "transition_hides_evidence_debt"
+    ],
+    "total": 6
+  }
+}
