@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const DECISIONS = new Set(["allow", "reject", "hold", "escalate"]);
 const REQUIRED_TOP_LEVEL_FIELDS = [
@@ -113,7 +114,7 @@ function validateEvidenceShape(record, errors, warnings) {
   }
 }
 
-function validateRecord(record, source) {
+export function validateRecord(record, source = "<memory>") {
   const errors = [];
   const warnings = [];
 
@@ -191,7 +192,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
