@@ -1,0 +1,25 @@
+{
+  "id": "HTO-INVALID-002",
+  "time_utc": "2026-07-09T15:55:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#000",
+  "head_sha": "invalid-hard-blocker-head",
+  "actor": "test",
+  "project_graph": {"invariant": ["Hard blockers must prevent allow."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "merge-command", "description": "Invalid allow with hard blocker fixture."}, "expected_effect": []},
+  "real_graph": {"evidence_before": {"green": [], "red": [], "missing": ["trusted exact-head evidence"]}, "evidence_after": {"green": [], "red": [], "missing": []}},
+  "orientation_center": {"decision": "allow", "reason": "Fixture intentionally violates hard blocker rule.", "next_allowed_move": "None."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 2, "reason": "ok"},
+      "side_effect_safety": {"value": 2, "reason": "ok"},
+      "evidence_path": {"value": 2, "reason": "ok"},
+      "exact_head_confidence": {"value": 2, "reason": "ok"},
+      "reversibility": {"value": 2, "reason": "ok"}
+    },
+    "hard_blockers": ["trusted_exact_head_evidence_required_but_missing"],
+    "total": 10
+  }
+}
