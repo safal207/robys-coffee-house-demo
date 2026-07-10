@@ -147,7 +147,7 @@ where we were -> what transition we considered -> what evidence existed -> what 
   repo: "safal207/robys-coffee-house-demo"
   pr: "#186"
   head_sha: "a38213b50786662066fbeeb09e2d0ec36a42d14e"
-  actor: "orientation-center"
+  actor: "bot"
 
   project_graph:
     invariant:
