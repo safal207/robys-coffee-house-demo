@@ -4,6 +4,15 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const DECISIONS = new Set(["allow", "reject", "hold", "escalate"]);
+const HARD_BLOCKERS = new Set([
+  "trusted_exact_head_evidence_required_but_missing",
+  "bot_identity_untrusted_or_unknown",
+  "seal_order_wrong",
+  "merge_readiness_command_premature",
+  "baseline_refresh_lacks_source_artifact_or_run_id",
+  "transition_mutates_unrelated_repair_flows",
+  "transition_hides_evidence_debt",
+]);
 const REQUIRED_TOP_LEVEL_FIELDS = [
   "id",
   "time_utc",
@@ -16,6 +25,7 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "orientation_center",
   "observer_graph",
   "tuner_graph",
+  "scorecard",
 ];
 
 const SCORE_DIMENSIONS = [
@@ -26,12 +36,19 @@ const SCORE_DIMENSIONS = [
   "reversibility",
 ];
 
-function asArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
 function pushError(errors, message) {
   errors.push(message);
+}
+
+function asArray(value, errors, fieldName) {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    pushError(errors, `${fieldName} must be an array when present.`);
+    return [];
+  }
+  return value;
 }
 
 function validateRequiredFields(record, errors) {
@@ -52,14 +69,19 @@ function validateDecision(record, errors) {
   }
 }
 
-function validateScorecard(record, errors, warnings) {
-  if (!record.scorecard) {
-    warnings.push("No scorecard provided. Structural validation only.");
+function validateScorecard(record, errors) {
+  if (!record.scorecard || typeof record.scorecard !== "object" || Array.isArray(record.scorecard)) {
+    pushError(errors, "scorecard must be an object.");
     return null;
   }
 
   const scorecard = record.scorecard;
-  const scores = scorecard.scores ?? {};
+  const scores = scorecard.scores;
+  if (!scores || typeof scores !== "object" || Array.isArray(scores)) {
+    pushError(errors, "scorecard.scores must be an object.");
+    return null;
+  }
+
   let computedTotal = 0;
 
   for (const dimension of SCORE_DIMENSIONS) {
@@ -71,19 +93,21 @@ function validateScorecard(record, errors, warnings) {
     computedTotal += value;
   }
 
-  if (typeof scorecard.total === "number" && scorecard.total !== computedTotal) {
-    pushError(errors, `Scorecard total mismatch: declared ${scorecard.total}, computed ${computedTotal}.`);
+  if (!Number.isInteger(scorecard.total) || scorecard.total !== computedTotal) {
+    pushError(errors, `Scorecard total mismatch: declared ${JSON.stringify(scorecard.total)}, computed ${computedTotal}.`);
   }
 
-  const hardBlockers = asArray(scorecard.hard_blockers).filter(Boolean);
+  const hardBlockers = asArray(scorecard.hard_blockers, errors, "scorecard.hard_blockers").filter(Boolean);
+  for (const blocker of hardBlockers) {
+    if (typeof blocker !== "string" || !HARD_BLOCKERS.has(blocker)) {
+      pushError(errors, `Unknown hard blocker: ${JSON.stringify(blocker)}.`);
+    }
+  }
+
   const decision = record.orientation_center?.decision;
 
   if (hardBlockers.length > 0 && decision === "allow") {
     pushError(errors, "Hard blockers are present, but decision is allow.");
-  }
-
-  if (computedTotal >= 8 && hardBlockers.length === 0 && !["allow", "escalate"].includes(decision)) {
-    warnings.push(`Score is ${computedTotal} with no hard blockers; expected allow unless escalation is required.`);
   }
 
   if (computedTotal >= 5 && computedTotal <= 7 && !["hold", "reject", "escalate"].includes(decision)) {
@@ -100,10 +124,15 @@ function validateScorecard(record, errors, warnings) {
   };
 }
 
-function validateEvidenceShape(record, errors, warnings) {
+function validateEvidenceShape(record, errors) {
   const evidenceBefore = record.real_graph?.evidence_before;
-  if (!evidenceBefore) {
-    warnings.push("Missing real_graph.evidence_before; evidence state is less auditable.");
+  if (evidenceBefore == null) {
+    pushError(errors, "real_graph.evidence_before is required.");
+    return;
+  }
+
+  if (typeof evidenceBefore !== "object" || Array.isArray(evidenceBefore)) {
+    pushError(errors, "real_graph.evidence_before must be an object when present.");
     return;
   }
 
@@ -129,8 +158,8 @@ export function validateRecord(record, source = "<memory>") {
 
   validateRequiredFields(record, errors);
   validateDecision(record, errors);
-  validateEvidenceShape(record, errors, warnings);
-  const scoreSummary = validateScorecard(record, errors, warnings);
+  validateEvidenceShape(record, errors);
+  const scoreSummary = validateScorecard(record, errors);
 
   return {
     source,
