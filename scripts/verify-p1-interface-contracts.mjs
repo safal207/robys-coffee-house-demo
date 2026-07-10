@@ -26,13 +26,6 @@ function gate(id) {
   assert(item.devices?.includes("mobile"), id, "Mobile coverage is required");
 }
 
-function fileExists(reference, id) {
-  const clean = decodeURIComponent(reference.split(/[?#]/)[0]);
-  const fullPath = path.resolve(process.cwd(), clean);
-  assert(existsSync(fullPath), id, `Missing file: ${clean}`);
-  assert(statSync(fullPath).isFile() && statSync(fullPath).size > 0, id, `Invalid file: ${clean}`);
-}
-
 function decodeHtmlAttribute(value) {
   return value
     .replace(/&amp;/gi, "&")
@@ -40,8 +33,37 @@ function decodeHtmlAttribute(value) {
     .replace(/&#x0*26;/gi, "&");
 }
 
-function referencePath(value) {
-  return decodeURIComponent(decodeHtmlAttribute(value).split(/[?#]/)[0]);
+function safeDecodeURIComponent(value, context) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    throw new Error(`Invalid URL encoding in ${context}: ${value}`);
+  }
+}
+
+function fetchReference(value, context) {
+  const withoutFragment = decodeHtmlAttribute(value).split("#")[0];
+  return safeDecodeURIComponent(withoutFragment, context);
+}
+
+function referencePath(value, context) {
+  return fetchReference(value, context).split("?")[0];
+}
+
+function heroVideoSource(html, id) {
+  const videoBlocks = Array.from(html.matchAll(/<video\b[^>]*>[\s\S]*?<\/video>/gi), (match) => match[0]);
+  const heroBlocks = videoBlocks.filter((block) => /^<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["']/i.test(block));
+  assert(heroBlocks.length === 1, id, `Expected exactly one hero video block, found ${heroBlocks.length}`);
+  const sources = Array.from(heroBlocks[0].matchAll(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi), (match) => match[1]);
+  assert(sources.length === 1, id, `Expected exactly one source inside the hero video, found ${sources.length}`);
+  return sources[0];
+}
+
+function fileExists(reference, id) {
+  const clean = referencePath(reference, `${id} file reference`);
+  const fullPath = path.resolve(process.cwd(), clean);
+  assert(existsSync(fullPath), id, `Missing file: ${clean}`);
+  assert(statSync(fullPath).isFile() && statSync(fullPath).size > 0, id, `Invalid file: ${clean}`);
 }
 
 function hrefs(html, prefix) {
@@ -141,8 +163,9 @@ assert(menuRuntime.includes('aria-pressed'), "A11Y-001", "Dynamic pressed state 
 gate("A11Y-001");
 
 // ASSET-001
-const activeHeroSource = indexHtml.match(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
-const activeHeroPath = referencePath(activeHeroSource);
+const activeHeroSource = heroVideoSource(indexHtml, "ASSET-001");
+const activeHeroFetch = fetchReference(activeHeroSource, "index.html hero source");
+const activeHeroPath = referencePath(activeHeroSource, "index.html hero source");
 assert(activeHeroPath === "src/robys-ambience-clean.mp4", "ASSET-001", `Unexpected active hero video: ${activeHeroPath || "missing"}`);
 const criticalFiles = [
   "icon.svg",
@@ -176,7 +199,10 @@ const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
 assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
 const runtimeHeroSource = qaRuntime.match(/\bHERO_VIDEO\s*=\s*["']([^"']+)["']/)?.[1] ?? "";
-const runtimeHeroPath = referencePath(runtimeHeroSource);
+assert(runtimeHeroSource, "ASSET-001", "HERO_VIDEO is missing from qa.js");
+const runtimeHeroFetch = fetchReference(runtimeHeroSource, "qa.js HERO_VIDEO");
+const runtimeHeroPath = referencePath(runtimeHeroSource, "qa.js HERO_VIDEO");
+assert(runtimeHeroFetch === activeHeroFetch, "ASSET-001", `Hero fetch URL drift: index.html=${activeHeroFetch}, qa.js=${runtimeHeroFetch}`);
 assert(runtimeHeroPath === activeHeroPath, "ASSET-001", `Hero runtime and HTML source differ: ${runtimeHeroPath || "missing"}`);
 assert(mediaVerifier.includes("ACTIVE_HERO_VIDEO") && mediaVerifier.includes("MAX_FILE_BYTES=1024*1024"), "ASSET-001", "Active hero video byte budget changed");
 assert(mediaVerifier.includes("MAX_DURATION_SECONDS=8") && mediaVerifier.includes("MAX_PIXEL_AREA=1280*720"), "ASSET-001", "Hero duration or resolution budget changed");
