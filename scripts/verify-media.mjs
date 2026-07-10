@@ -10,7 +10,9 @@ const MAX_EDGE_PIXELS=1280;
 const MAX_PIXEL_AREA=1280*720;
 
 function decodeHtmlAttribute(value){return value.replace(/&amp;/gi,'&').replace(/&#0*38;/gi,'&').replace(/&#x0*26;/gi,'&')}
-function cleanReference(reference){return decodeURIComponent(decodeHtmlAttribute(reference).split(/[?#]/)[0])}
+function safeDecodeURIComponent(value,context){try{return decodeURIComponent(value)}catch{throw new Error(`Invalid URL encoding in ${context}: ${value}`)}}
+function fetchReference(reference,context){return safeDecodeURIComponent(decodeHtmlAttribute(reference).split('#')[0],context)}
+function fileReference(reference,context){return fetchReference(reference,context).split('?')[0]}
 function walk(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
 function repoPath(p){return relative(ROOT,p).split(sep).join('/')}
 function boxesOf(buffer){
@@ -27,19 +29,26 @@ function boxesOf(buffer){
 }
 
 const indexHtml=readFileSync(join(ROOT,'index.html'),'utf8');
-const activeSource=indexHtml.match(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1];
-if(!activeSource)throw new Error('Active .hero-video MP4 source is missing from index.html');
-const ACTIVE_HERO_VIDEO=cleanReference(activeSource);
+const videoBlocks=Array.from(indexHtml.matchAll(/<video\b[^>]*>[\s\S]*?<\/video>/gi),match=>match[0]);
+const heroBlocks=videoBlocks.filter(block=>/^<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["']/i.test(block));
+if(heroBlocks.length!==1)throw new Error(`Expected exactly one .hero-video block; found ${heroBlocks.length}`);
+const heroSources=Array.from(heroBlocks[0].matchAll(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi),match=>match[1]);
+if(heroSources.length!==1)throw new Error(`Expected exactly one source inside .hero-video; found ${heroSources.length}`);
+const activeSource=heroSources[0];
+const ACTIVE_HERO_FETCH=fetchReference(activeSource,'index.html hero source');
+const ACTIVE_HERO_VIDEO=fileReference(activeSource,'index.html hero source');
 if(!ACTIVE_HERO_VIDEO.toLowerCase().endsWith('.mp4'))throw new Error(`Active hero source must be an MP4: ${ACTIVE_HERO_VIDEO}`);
 
 const qaRuntime=readFileSync(join(ROOT,'qa.js'),'utf8');
 const runtimeSource=qaRuntime.match(/\bHERO_VIDEO\s*=\s*["']([^"']+)["']/)?.[1];
 if(!runtimeSource)throw new Error('HERO_VIDEO is missing from qa.js');
-const runtimeHeroVideo=cleanReference(runtimeSource);
+const runtimeHeroFetch=fetchReference(runtimeSource,'qa.js HERO_VIDEO');
+const runtimeHeroVideo=fileReference(runtimeSource,'qa.js HERO_VIDEO');
+if(runtimeHeroFetch!==ACTIVE_HERO_FETCH)throw new Error(`Hero fetch URL drift: index.html=${ACTIVE_HERO_FETCH}, qa.js=${runtimeHeroFetch}`);
 if(runtimeHeroVideo!==ACTIVE_HERO_VIDEO)throw new Error(`Hero source drift: index.html=${ACTIVE_HERO_VIDEO}, qa.js=${runtimeHeroVideo}`);
 
-const requestedVideo=process.argv[2]??process.env.HERO_VIDEO_PATH??ACTIVE_HERO_VIDEO;
-const HERO_VIDEO=cleanReference(requestedVideo);
+const requestedVideo=process.argv[2]??process.env.HERO_VIDEO_PATH??ACTIVE_HERO_FETCH;
+const HERO_VIDEO=fileReference(requestedVideo,'requested hero video');
 const sourceFiles=walk(join(ROOT,'src')).map(repoPath);
 const forbidden=sourceFiles.filter(p=>p==='src/hero-video-data.bin'||p==='src/hero-video.ts'||p.startsWith('src/hero-video-hex/')||p.startsWith('src/hero-video-parts/')||/hero-video.*\.(?:bin|hex|b64)$/i.test(p));
 if(statSync(join(ROOT,'hero-video.js'),{throwIfNoEntry:false}))forbidden.push('hero-video.js');
@@ -72,4 +81,4 @@ if(duration>MAX_DURATION_SECONDS)throw new Error(`${HERO_VIDEO} exceeds ${MAX_DU
 const reportedSize=Number(metadata.format?.size);
 if(!Number.isSafeInteger(reportedSize)||reportedSize<=0)throw new Error(`${HERO_VIDEO} ffprobe did not report a valid format.size`);
 if(reportedSize!==bytes.length)throw new Error(`${HERO_VIDEO} ffprobe size mismatch: ${reportedSize} != ${bytes.length}`);
-console.log(JSON.stringify({file:repoPath(absoluteVideo),activeHeroVideo:ACTIVE_HERO_VIDEO,bytes:bytes.length,maxBytes:MAX_FILE_BYTES,duration,maxDurationSeconds:MAX_DURATION_SECONDS,codec:stream.codec_name,width:stream.width,height:stream.height,maxEdgePixels:MAX_EDGE_PIXELS,maxPixelArea:MAX_PIXEL_AREA,videoStreams:1,audioStreams:0,boxes:{ftyp:true,moov:true,mdat:true,mdatPayloadBytes}},null,2));
+console.log(JSON.stringify({file:repoPath(absoluteVideo),activeHeroFetch:ACTIVE_HERO_FETCH,activeHeroVideo:ACTIVE_HERO_VIDEO,bytes:bytes.length,maxBytes:MAX_FILE_BYTES,duration,maxDurationSeconds:MAX_DURATION_SECONDS,codec:stream.codec_name,width:stream.width,height:stream.height,maxEdgePixels:MAX_EDGE_PIXELS,maxPixelArea:MAX_PIXEL_AREA,videoStreams:1,audioStreams:0,boxes:{ftyp:true,moov:true,mdat:true,mdatPayloadBytes}},null,2));
