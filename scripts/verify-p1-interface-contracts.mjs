@@ -33,8 +33,19 @@ function fileExists(reference, id) {
   assert(statSync(fullPath).isFile() && statSync(fullPath).size > 0, id, `Invalid file: ${clean}`);
 }
 
+function decodeHtmlAttribute(value) {
+  return value
+    .replace(/&amp;/gi, "&")
+    .replace(/&#0*38;/gi, "&")
+    .replace(/&#x0*26;/gi, "&");
+}
+
+function referencePath(value) {
+  return decodeURIComponent(decodeHtmlAttribute(value).split(/[?#]/)[0]);
+}
+
 function hrefs(html, prefix) {
-  return Array.from(html.matchAll(new RegExp(`href=["'](${prefix}[^"']+)["']`, "gi")), (match) => match[1]);
+  return Array.from(html.matchAll(new RegExp(`href=["'](${prefix}[^"']+)["']`, "gi")), (match) => decodeHtmlAttribute(match[1]));
 }
 
 function cssRule(css, selector, id) {
@@ -54,7 +65,8 @@ for (const breakpoint of [980, 680, 390]) {
 assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero viewport handling changed");
 assert(conversionCss.includes("grid-template-columns:1fr 1fr"), "MOBILE-001", "Mobile CTA must keep two columns");
 assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-area support changed");
-assert(conversionCss.includes("padding-bottom:calc(70px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
+assert(conversionCss.includes("body{padding-bottom:0}"), "MOBILE-001", "Obsolete body CTA clearance must remain removed");
+assert(conversionCss.includes(".site-footer{padding-bottom:calc(98px + env(safe-area-inset-bottom))}"), "MOBILE-001", "Footer must reserve fixed CTA clearance");
 assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
@@ -88,14 +100,19 @@ gate("MOBILE-001");
 
 // CTA-001
 const allHtml = `${indexHtml}\n${menuHtml}`;
-const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/dir/\\?api=1&destination=");
+const routeUrls = hrefs(allHtml, "https://www\\.google\\.com/maps/dir/\\?api=1&(?:amp;)?destination=");
 assert(routeUrls.length >= 4, "CTA-001", `Expected route CTAs, found ${routeUrls.length}`);
 assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
 assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
 assert(routeUrls.every((url) => url.endsWith("&travelmode=driving")), "CTA-001", "Route CTAs must open driving navigation");
 const instagramUrls = hrefs(allHtml, "https://www\\.instagram\\.com/");
-assert(instagramUrls.length >= 3, "CTA-001", `Expected Instagram CTAs, found ${instagramUrls.length}`);
-assert(instagramUrls.every((url) => url === "https://www.instagram.com/robyscoffeehouse/"), "CTA-001", "Wrong Instagram destination");
+const instagramProfile = "https://www.instagram.com/robyscoffeehouse/";
+const approvedReelUrl = "https://www.instagram.com/reel/C0qYxxmIY9t/";
+const instagramProfileUrls = instagramUrls.filter((url) => url === instagramProfile);
+const instagramReelUrls = instagramUrls.filter((url) => url.startsWith("https://www.instagram.com/reel/"));
+assert(instagramProfileUrls.length >= 3, "CTA-001", `Expected Instagram profile CTAs, found ${instagramProfileUrls.length}`);
+assert(instagramReelUrls.length === 1 && instagramReelUrls[0] === approvedReelUrl, "CTA-001", "Expected exactly one approved Instagram Reel CTA");
+assert(instagramUrls.every((url) => url === instagramProfile || url === approvedReelUrl), "CTA-001", "Wrong Instagram destination");
 for (const tag of Array.from(allHtml.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0])) {
   assert(/rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(tag), "CTA-001", "Unsafe external link");
 }
@@ -124,6 +141,9 @@ assert(menuRuntime.includes('aria-pressed'), "A11Y-001", "Dynamic pressed state 
 gate("A11Y-001");
 
 // ASSET-001
+const activeHeroSource = indexHtml.match(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
+const activeHeroPath = referencePath(activeHeroSource);
+assert(activeHeroPath === "src/robys-ambience-clean.mp4", "ASSET-001", `Unexpected active hero video: ${activeHeroPath || "missing"}`);
 const criticalFiles = [
   "icon.svg",
   "styles.css",
@@ -143,7 +163,7 @@ const criticalFiles = [
   "menu-search-clear.js",
   "hero-balance.css",
   "src/robys-hero-poster.jpg",
-  "src/robys-hero-mobile-lite.mp4",
+  activeHeroPath,
   "src/menu-icons/hot.svg",
   "src/menu-icons/cold.svg",
   "src/menu-icons/tea.svg",
@@ -155,7 +175,11 @@ criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
 assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
-assert(qaRuntime.includes('HERO_VIDEO = "src/robys-hero-mobile-lite.mp4'), "ASSET-001", "Hero asset changed");
+const runtimeHeroSource = qaRuntime.match(/\bHERO_VIDEO\s*=\s*["']([^"']+)["']/)?.[1] ?? "";
+const runtimeHeroPath = referencePath(runtimeHeroSource);
+assert(runtimeHeroPath === activeHeroPath, "ASSET-001", `Hero runtime and HTML source differ: ${runtimeHeroPath || "missing"}`);
+assert(mediaVerifier.includes("ACTIVE_HERO_VIDEO") && mediaVerifier.includes("MAX_FILE_BYTES=1024*1024"), "ASSET-001", "Active hero video byte budget changed");
+assert(mediaVerifier.includes("MAX_DURATION_SECONDS=8") && mediaVerifier.includes("MAX_PIXEL_AREA=1280*720"), "ASSET-001", "Hero duration or resolution budget changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
 gate("ASSET-001");
