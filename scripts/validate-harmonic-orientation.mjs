@@ -30,6 +30,14 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "tuner_graph",
   "scorecard",
 ];
+const OBJECT_TOP_LEVEL_FIELDS = new Set([
+  "project_graph",
+  "transition_graph",
+  "real_graph",
+  "orientation_center",
+  "observer_graph",
+  "tuner_graph",
+]);
 const SCORE_DIMENSIONS = [
   "project_invariant_alignment",
   "side_effect_safety",
@@ -37,10 +45,16 @@ const SCORE_DIMENSIONS = [
   "exact_head_confidence",
   "reversibility",
 ];
+const EVIDENCE_BUCKETS = ["green", "red", "missing"];
 
 /** Add one deterministic validation error. */
 function pushError(errors, message) {
   errors.push(message);
+}
+
+/** Return true for a non-null, non-array object with at least one key. */
+function isNonEmptyObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0;
 }
 
 /** Return an array or report a structural type error. */
@@ -56,10 +70,16 @@ function asArray(value, errors, fieldName) {
   return value;
 }
 
-/** Validate the required top-level canonical record fields. */
+/** Validate required top-level fields and object-shaped graph containers. */
 function validateRequiredFields(record, errors) {
   for (const field of REQUIRED_TOP_LEVEL_FIELDS) {
-    if (!(field in record)) pushError(errors, `Missing required top-level field: ${field}`);
+    if (!(field in record)) {
+      pushError(errors, `Missing required top-level field: ${field}`);
+      continue;
+    }
+    if (OBJECT_TOP_LEVEL_FIELDS.has(field) && !isNonEmptyObject(record[field])) {
+      pushError(errors, `${field} must be a non-empty object.`);
+    }
   }
 }
 
@@ -74,18 +94,20 @@ function validateDecision(record, errors) {
   }
 }
 
-/** Validate one evidence object without throwing on malformed input. */
-function validateEvidenceObject(value, errors, fieldName, required = false) {
+/** Validate one canonical evidence object and all required buckets. */
+function validateEvidenceObject(value, errors, fieldName) {
   if (value == null) {
-    if (required) pushError(errors, `${fieldName} is required.`);
+    pushError(errors, `${fieldName} is required.`);
     return;
   }
   if (typeof value !== "object" || Array.isArray(value)) {
     pushError(errors, `${fieldName} must be an object when present.`);
     return;
   }
-  for (const bucket of ["green", "red", "missing"]) {
-    if (bucket in value && !Array.isArray(value[bucket])) {
+  for (const bucket of EVIDENCE_BUCKETS) {
+    if (!(bucket in value)) {
+      pushError(errors, `${fieldName}.${bucket} is required.`);
+    } else if (!Array.isArray(value[bucket])) {
       pushError(errors, `${fieldName}.${bucket} must be an array when present.`);
     }
   }
@@ -93,7 +115,7 @@ function validateEvidenceObject(value, errors, fieldName, required = false) {
 
 /** Validate before/after evidence containers. */
 function validateEvidenceShape(record, errors) {
-  validateEvidenceObject(record.real_graph?.evidence_before, errors, "real_graph.evidence_before", true);
+  validateEvidenceObject(record.real_graph?.evidence_before, errors, "real_graph.evidence_before");
   validateEvidenceObject(record.real_graph?.evidence_after, errors, "real_graph.evidence_after");
 }
 
@@ -120,7 +142,7 @@ function expectedHardBlockers(record) {
   return expected;
 }
 
-/** Validate scores, blocker enum, omitted blockers, and blocker precedence. */
+/** Validate scores, blocker enum, omitted blockers, precedence, and decision ranges. */
 function validateScorecard(record, errors) {
   if (!record.scorecard || typeof record.scorecard !== "object" || Array.isArray(record.scorecard)) {
     pushError(errors, "scorecard must be an object.");
@@ -178,11 +200,11 @@ function validateScorecard(record, errors) {
     pushError(errors, "Hold-class hard blocker requires decision hold.");
   }
 
-  if (knownBlockers.length === 0 && computedTotal >= 5 && computedTotal <= 7 && !["hold", "reject", "escalate"].includes(decision)) {
-    pushError(errors, `Score is ${computedTotal}; expected hold/reject/escalate, got ${decision}.`);
+  if (knownBlockers.length === 0 && computedTotal >= 8 && decision !== "allow") {
+    pushError(errors, `Score is ${computedTotal}; expected allow, got ${decision}.`);
   }
-  if (knownBlockers.length === 0 && computedTotal <= 4 && !["reject", "hold", "escalate"].includes(decision)) {
-    pushError(errors, `Score is ${computedTotal}; expected reject/hold/escalate, got ${decision}.`);
+  if (knownBlockers.length === 0 && computedTotal <= 7 && decision === "allow") {
+    pushError(errors, `Score is ${computedTotal}; allow requires score 8..10 and zero hard blockers.`);
   }
 
   return { computed_total: computedTotal, hard_blockers: knownBlockers };
