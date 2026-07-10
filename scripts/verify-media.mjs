@@ -9,6 +9,7 @@ const MAX_DURATION_SECONDS=8;
 const MAX_EDGE_PIXELS=1280;
 const MAX_PIXEL_AREA=1280*720;
 
+// Fetch URL equality and filesystem path validation are intentionally separate contracts.
 function decodeHtmlAttribute(value){return value.replace(/&amp;/gi,'&').replace(/&#0*38;/gi,'&').replace(/&#x0*26;/gi,'&')}
 function safeDecodeURIComponent(value,context){try{return decodeURIComponent(value)}catch{throw new Error(`Invalid URL encoding in ${context}: ${value}`)}}
 function fetchReference(reference,context){return safeDecodeURIComponent(decodeHtmlAttribute(reference).split('#')[0],context)}
