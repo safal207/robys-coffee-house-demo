@@ -71,6 +71,7 @@ function addBinding(context, name, declaration, initializer, scope, immutable) {
     scope,
     immutable,
     mutated: false,
+    writes: initializer ? [initializer] : [],
     depth: scopeDepth(scope)
   };
   const records = context.records.get(name) ?? [];
@@ -105,10 +106,12 @@ function rootIdentifier(node) {
   return ts.isIdentifier(current) ? current : null;
 }
 
-function markMutation(node, context) {
+function markMutation(node, context, value = null) {
   const identifier = rootIdentifier(node);
   const record = nearestBinding(identifier, context);
-  if (record && !record.ambiguous) record.mutated = true;
+  if (!record || record.ambiguous) return;
+  record.mutated = true;
+  if (ts.isIdentifier(node) && value) record.writes.push(value);
 }
 
 function isKnownMutationCall(node, context) {
@@ -169,7 +172,11 @@ function bindings(sourceFile) {
       && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
       && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment
     ) {
-      markMutation(node.left, context);
+      markMutation(
+        node.left,
+        context,
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken ? node.right : null
+      );
       return;
     }
 
@@ -410,10 +417,12 @@ function possiblyCallableReference(node, expectedName, context, seen = new Set()
         )
       ));
     }
-    if (!record.initializer || seen.has(record)) return false;
+    if (seen.has(record)) return false;
     const next = new Set(seen);
     next.add(record);
-    return possiblyCallableReference(record.initializer, expectedName, context, next);
+    return record.writes.some((value) => (
+      possiblyCallableReference(value, expectedName, context, next)
+    ));
   }
   if (
     ts.isCallExpression(node)
@@ -507,7 +516,65 @@ function isReflectInvocation(node, context) {
   );
 }
 
+function possibleStringValues(node, context, seen = new Set()) {
+  if (!node) return new Set();
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return new Set([node.text]);
+  }
+  if (!ts.isIdentifier(node)) return new Set();
+  const record = nearestBinding(node, context);
+  if (!record || record.ambiguous || seen.has(record)) return new Set();
+  const next = new Set(seen);
+  next.add(record);
+  const values = new Set();
+  for (const write of record.writes) {
+    for (const value of possibleStringValues(write, context, next)) values.add(value);
+  }
+  return values;
+}
+
+function possiblyUnregisterReference(node, context, seen = new Set()) {
+  if (!node) return false;
+  if (ts.isParenthesizedExpression(node)) {
+    return possiblyUnregisterReference(node.expression, context, seen);
+  }
+  if (
+    ts.isBinaryExpression(node)
+    && node.operatorToken.kind === ts.SyntaxKind.CommaToken
+  ) return possiblyUnregisterReference(node.right, context, seen);
+  if (ts.isIdentifier(node)) {
+    if (node.text === "unregister") return true;
+    const record = nearestBinding(node, context);
+    if (!record || record.ambiguous || seen.has(record)) return false;
+    const next = new Set(seen);
+    next.add(record);
+    return record.writes.some((value) => (
+      possiblyUnregisterReference(value, context, next)
+    ));
+  }
+  if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+    const memberName = name(node, context);
+    if (memberName === "unregister") return true;
+    if (
+      ts.isElementAccessExpression(node)
+      && possibleStringValues(node.argumentExpression, context).has("unregister")
+    ) return true;
+    if (["call", "apply", "bind"].includes(memberName)) {
+      return possiblyUnregisterReference(node.expression, context, seen);
+    }
+    return false;
+  }
+  if (ts.isCallExpression(node)) {
+    if (isReflectInvocation(node.expression, context)) {
+      return possiblyUnregisterReference(node.arguments[0], context, seen);
+    }
+    return possiblyUnregisterReference(node.expression, context, seen);
+  }
+  return false;
+}
+
 function isUnregisterReference(node, context) {
+  if (possiblyUnregisterReference(node, context)) return true;
   const resolved = resolve(node, context);
   if (!resolved) return false;
   if (ts.isParenthesizedExpression(resolved)) return isUnregisterReference(resolved.expression, context);
@@ -555,6 +622,10 @@ function regressionTests() {
     [hasUnregisterCall("call.js", "registration.unregister.call(registration);"), "unregister.call invocations must be rejected"],
     [hasUnregisterCall("apply.js", 'registration["unregister"].apply(registration, []);'), "unregister.apply invocations must be rejected"],
     [hasUnregisterCall("bind.js", "const stop = registration.unregister.bind(registration); stop();"), "bound unregister invocations must be rejected"],
+    [hasUnregisterCall("mutable-alias.js", "let stop = registration.unregister; stop();"), "mutable unregister aliases must be rejected"],
+    [hasUnregisterCall("reassigned-alias.js", "let stop = registration.register; stop = registration.unregister; stop();"), "reassigned unregister aliases must be rejected"],
+    [hasUnregisterCall("mutable-member.js", 'let method = "register"; method = "unregister"; registration[method]();'), "mutable unregister member names must be rejected"],
+    [!hasUnregisterCall("safe-mutable-alias.js", "let start = registration.register; start();"), "safe mutable aliases must not be rejected"],
     [hasUnregisterCall("sequence.js", "(0, registration.unregister)();"), "comma-sequence unregister invocations must be rejected"],
     [hasUnregisterCall("reflect-apply.js", "Reflect.apply(registration.unregister, registration, []);"), "Reflect.apply unregister invocations must be rejected"],
     [hasUnregisterCall("reflect-call.js", "Reflect.call(registration.unregister, registration);"), "Reflect.call unregister invocations must be rejected"],
@@ -586,6 +657,6 @@ if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must c
 if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
 if (landing.ambiguousEventCalls !== 0 || menu.ambiguousEventCalls !== 0) fail("PWA event-listener aliases and event names must be provably immutable");
 if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
-if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, bind, sequence, or Reflect invocation form");
+if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, mutable, reassigned, bare, call, apply, bind, sequence, or Reflect invocation form");
 
 console.log("✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.");
