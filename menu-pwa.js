@@ -4,7 +4,7 @@ function syncConnectivityState() {
 }
 function trustedScriptUrl(value) {
   if (!window.trustedTypes) return value;
-  const policy = window.trustedTypes.createPolicy("robys-pwa", {
+  const policy = window.trustedTypes.createPolicy("robys-menu-pwa", {
     createScriptURL(candidate) {
       if (candidate !== SERVICE_WORKER_URL) throw new TypeError("Unexpected script URL");
       return candidate;
