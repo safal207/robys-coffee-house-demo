@@ -83,6 +83,15 @@ hard_blocker_policy:
     - merge_readiness_command_premature
     - transition_mutates_unrelated_repair_flows
     - transition_hides_evidence_debt
+  inferred_required_blockers:
+    - missing_trusted_exact_head_evidence_requires_trusted_exact_head_evidence_required_but_missing
+    - missing_or_untrusted_bot_identity_requires_bot_identity_untrusted_or_unknown
+    - baseline_refresh_without_artifact_or_run_evidence_requires_baseline_refresh_lacks_source_artifact_or_run_id
+  validation:
+    - blocker_value_must_be_in_enum
+    - blocker_container_must_be_array
+    - inferred_required_blocker_must_be_explicitly_listed
+    - omitted_required_blocker_invalidates_record
   precedence:
     - any_hard_blocker_forbids_allow
     - any_reject_class_blocker_requires_reject
@@ -100,6 +109,7 @@ machine_use_cases:
   - validate_orientation_record_json
   - score_transition_before_commit
   - detect_missing_exact_head_evidence
+  - detect_omitted_required_hard_blocker
   - require_artifact_for_baseline_refresh
   - generate_observer_note_from_failed_transition
   - update_tuner_rules_from_repeated_patterns
