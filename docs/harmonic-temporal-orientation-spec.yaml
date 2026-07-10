@@ -4,182 +4,25 @@ name: Harmonic Temporal Orientation System
 kind: project_navigation_model
 status: draft
 
-purpose: >-
-  Guide project work from intent to candidate transition to real evidence,
-  while preserving higher-priority invariants and learning from each decision.
-
 core_rule: >-
-  Never accept a transition because it makes one check green; accept it only
-  when it preserves the project graph and reality verifies it.
-
-flow:
-  - project_invariant
-  - transition_candidate
-  - real_evidence
-  - orientation_decision
-  - observer_note
-  - tuner_rule
+  Accept a transition only when it preserves project invariants and real
+  evidence verifies it.
 
 graphs:
   project_graph:
-    role: defines_goals_constraints_and_forbidden_moves
-    questions:
-      - What are we protecting?
-      - What must not be broken?
-      - What would make this transition unsafe even if CI is green?
-    outputs:
-      - invariants
-      - forbidden_moves
-      - success_definition
-
+    role: define_goals_constraints_and_forbidden_moves
   transition_graph:
-    role: defines_candidate_actions_and_state_changes
-    transition_types:
-      - commit
-      - rerun
-      - bot_request
-      - baseline_refresh
-      - seal
-      - merge_command
-      - revert
-      - escalation
-      - documentation
-    questions:
-      - What transition are we considering?
-      - Which invariant should it advance?
-      - What evidence should prove it worked?
-    outputs:
-      - candidate_transition
-      - expected_effect
-      - expected_evidence
-
+    role: define_candidate_actions_and_expected_effects
   real_graph:
-    role: records_verified_facts_and_missing_evidence
-    evidence_types:
-      - ci_check
-      - workflow_run
-      - workflow_artifact
-      - exact_head_sha
-      - trusted_bot_comment
-      - review_result
-      - ledger_result
-      - branch_protection_state
-    questions:
-      - What is factually true right now?
-      - Which evidence is exact-head?
-      - Which evidence is missing?
-    outputs:
-      - green_evidence
-      - red_evidence
-      - missing_evidence
-
+    role: record_green_red_and_missing_evidence
   orientation_center:
-    role: decides_next_allowed_move
-    inputs:
-      - project_graph.invariants
-      - transition_graph.candidate_transition
-      - real_graph.green_evidence
-      - real_graph.red_evidence
-      - real_graph.missing_evidence
-    decisions:
-      allow:
-        meaning: transition_preserves_invariants_and_has_evidence_path
-      reject:
-        meaning: transition_breaks_a_higher_priority_invariant_or_hides_debt
-      hold:
-        meaning: required_evidence_is_missing_or_not_exact_head
-      escalate:
-        meaning: valid_invariants_conflict_and_need_human_decision
-    outputs:
-      - decision
-      - reason
-      - next_allowed_move
-
+    role: select_allow_reject_hold_or_escalate
   trajectory_graph:
-    role: tracks_system_state_over_time
-    time_model:
-      state_sequence: t0_to_tN
-      orientation_recalculation: every_meaningful_transition
-    questions:
-      - Where were we?
-      - What changed?
-      - What did reality confirm or reject?
-      - What rule was learned?
-    outputs:
-      - trajectory_state
-      - transition_history
-      - learned_rules
-
+    role: record_state_changes_over_time
   observer_graph:
-    role: watches_patterns_anomalies_and_drift_without_directly_deciding
-    observes:
-      - false_transitions
-      - repeated_mistakes
-      - evidence_debt
-      - ci_drift
-      - decision_drift
-      - invariant_confusion
-    outputs:
-      - observer_note
-      - pattern
-      - anomaly
-      - risk
-
+    role: detect_patterns_anomalies_and_risks
   tuner_graph:
-    role: updates_decision_rules_and_thresholds
-    metaphor: harmonic_tuning_fork
-    tunes:
-      - decision_rules
-      - transition_permissions
-      - evidence_thresholds
-      - baseline_policy
-      - human_escalation_boundaries
-    outputs:
-      - tuner_rule
-      - threshold_update
-      - guardrail
-
-scorecard:
-  dimensions:
-    project_invariant_alignment:
-      scale: 0_to_2
-      zero: invariant_unclear_or_contradicted
-      one: transition_partially_supports_invariant
-      two: transition_clearly_preserves_or_advances_invariant
-    side_effect_safety:
-      scale: 0_to_2
-      zero: breaks_another_protected_invariant
-      one: side_effects_unknown_or_not_checked
-      two: no_known_higher_priority_invariant_harmed
-    evidence_path:
-      scale: 0_to_2
-      zero: no_direct_proof_path
-      one: indirect_or_partial_evidence
-      two: direct_ci_bot_artifact_or_exact_head_proof
-    exact_head_confidence:
-      scale: 0_to_2
-      zero: stale_or_not_tied_to_current_head
-      one: probably_current_but_not_explicit
-      two: tied_to_exact_current_head_sha
-    reversibility:
-      scale: 0_to_2
-      zero: hard_to_unwind_or_contaminates_unrelated_work
-      one: revert_possible_but_costly
-      two: easy_to_revert_isolated_or_documentation_only
-  decision_thresholds:
-    allow: 8_to_10_unless_hard_blocker_exists
-    hold: 5_to_7_or_missing_evidence
-    reject: 0_to_4_or_broken_invariant
-    escalate: conflicting_valid_invariants
-
-hard_blockers:
-  - trusted_exact_head_evidence_required_but_missing
-  - bot_identity_untrusted_or_unknown
-  - seal_order_wrong
-  - merge_readiness_command_premature
-  - baseline_refresh_lacks_source_artifact_or_run_id
-  - transition_mutates_unrelated_repair_flows
-  - transition_hides_evidence_debt
+    role: update_rules_thresholds_and_guardrails
 
 orientation_record_schema:
   required_fields:
@@ -194,31 +37,67 @@ orientation_record_schema:
     - orientation_center
     - observer_graph
     - tuner_graph
-  orientation_center_decision_values:
+    - scorecard
+  actor_values:
+    - human
+    - assistant
+    - ci
+    - bot
+  decision_values:
     - allow
     - reject
     - hold
     - escalate
 
-example_rules:
-  - id: HTO-RULE-001
-    name: readable_source_governance
-    rule: >-
-      Do not reshape readable source when governance evidence depends on exact
-      source tokens unless the evidence contracts are intentionally updated too.
-  - id: HTO-RULE-002
-    name: d6_exact_head_prerequisite
-    rule: >-
-      Do not post D6 seal until trusted exact-head bot evidence exists.
-  - id: HTO-RULE-003
-    name: baseline_refresh_evidence
-    rule: >-
-      A baseline refresh must cite source artifact or workflow evidence and
-      preserve hard assertions.
+scorecard:
+  required: true
+  dimensions:
+    - project_invariant_alignment
+    - side_effect_safety
+    - evidence_path
+    - exact_head_confidence
+    - reversibility
+  dimension_scale:
+    minimum: 0
+    maximum: 2
+  total:
+    minimum: 0
+    maximum: 10
+    must_equal_dimension_sum: true
+
+hard_blocker_policy:
+  enum:
+    - trusted_exact_head_evidence_required_but_missing
+    - bot_identity_untrusted_or_unknown
+    - seal_order_wrong
+    - merge_readiness_command_premature
+    - baseline_refresh_lacks_source_artifact_or_run_id
+    - transition_mutates_unrelated_repair_flows
+    - transition_hides_evidence_debt
+  hold_class:
+    - trusted_exact_head_evidence_required_but_missing
+    - bot_identity_untrusted_or_unknown
+    - baseline_refresh_lacks_source_artifact_or_run_id
+  reject_class:
+    - seal_order_wrong
+    - merge_readiness_command_premature
+    - transition_mutates_unrelated_repair_flows
+    - transition_hides_evidence_debt
+  precedence:
+    - any_hard_blocker_forbids_allow
+    - any_reject_class_blocker_requires_reject
+    - otherwise_any_hold_class_blocker_requires_hold
+    - escalate_requires_zero_hard_blockers
+    - score_thresholds_apply_after_blocker_classification
+
+score_policy:
+  allow: score_8_to_10_and_no_hard_blocker
+  hold: missing_prerequisite_evidence_or_hold_class_blocker
+  reject: unsafe_transition_or_reject_class_blocker
+  escalate: conflicting_valid_invariants_and_no_hard_blocker
 
 machine_use_cases:
-  - validate_orientation_record_yaml
-  - gate_merge_ready_comments
+  - validate_orientation_record_json
   - score_transition_before_commit
   - detect_missing_exact_head_evidence
   - require_artifact_for_baseline_refresh
