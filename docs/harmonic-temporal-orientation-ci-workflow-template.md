@@ -4,13 +4,20 @@
 
 ## Purpose
 
-The validator currently runs through:
+HTO validation is intentionally isolated from the repository-wide `npm run check` command in the first iteration.
+
+Run it directly with Node:
 
 ```bash
-npm run verify:harmonic-orientation
+node scripts/validate-harmonic-orientation.mjs \
+  docs/examples/harmonic-orientation-record.pr188-minify-reject.json \
+  docs/examples/harmonic-orientation-record.pr188-baseline-allow.json \
+  docs/examples/harmonic-orientation-record.pr186-d6-hold.json \
+  docs/examples/harmonic-orientation-record.conflict-escalate.json
+node scripts/test-harmonic-orientation.mjs
 ```
 
-This template shows how to expose it as a dedicated CI check.
+This template shows how to expose those commands as a dedicated CI check.
 
 The workflow should be added manually as:
 
@@ -30,7 +37,7 @@ on:
       - "docs/harmonic-temporal-orientation-*.yaml"
       - "docs/examples/harmonic-orientation-record.*.json"
       - "scripts/validate-harmonic-orientation.mjs"
-      - "package.json"
+      - "scripts/test-harmonic-orientation.mjs"
       - ".github/workflows/harmonic-orientation.yml"
   workflow_dispatch:
 
@@ -48,20 +55,30 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Validate bundled orientation examples
-        run: npm run verify:harmonic-orientation
+        run: >-
+          node scripts/validate-harmonic-orientation.mjs
+          docs/examples/harmonic-orientation-record.pr188-minify-reject.json
+          docs/examples/harmonic-orientation-record.pr188-baseline-allow.json
+          docs/examples/harmonic-orientation-record.pr186-d6-hold.json
+          docs/examples/harmonic-orientation-record.conflict-escalate.json
+
+      - name: Run validator fixture tests
+        run: node scripts/test-harmonic-orientation.mjs
 
       - name: Validate script syntax
-        run: node --check scripts/validate-harmonic-orientation.mjs
+        run: |
+          node --check scripts/validate-harmonic-orientation.mjs
+          node --check scripts/test-harmonic-orientation.mjs
 ```
+
+No dependency install or lockfile is required because the validator and its tests use only Node.js built-ins.
 
 ## Expected output
 
-The validator prints JSON results.
-
-A valid record should return:
+The validator prints JSON results. A valid record should return an entry such as:
 
 ```json
 {
@@ -78,4 +95,4 @@ A valid record should return:
 
 ## Safety rule
 
-Do not make this workflow a required branch-protection check until the validator is stable and has at least one allow, hold, and reject fixture.
+Do not make this workflow a required branch-protection check until the validator is stable and its allow, hold, reject, escalate, and invalid fixtures are consistently green.
