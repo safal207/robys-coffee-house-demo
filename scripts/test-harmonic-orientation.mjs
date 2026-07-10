@@ -19,6 +19,9 @@ const INVALID_FIXTURES = [
   { path: "docs/examples/harmonic-orientation-record.invalid-missing-scorecard.json", expectedError: "Missing required top-level field: scorecard" },
   { path: "docs/examples/harmonic-orientation-record.invalid-escalate-hard-blocker.json", expectedError: "Hard blockers are present, but decision is escalate" },
   { path: "docs/examples/harmonic-orientation-record.invalid-missing-required-hard-blocker.json", expectedError: "Missing required hard blocker" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-low-score-allow.json", expectedError: "allow requires score 8..10" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-high-score-hold.json", expectedError: "expected allow" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-top-level-object-type.json", expectedError: "project_graph must be a non-empty object" },
 ];
 
 /** Read one JSON fixture. */
@@ -26,9 +29,23 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, "utf8"));
 }
 
+/** Clone a JSON-compatible record for mutation tests. */
+function cloneRecord(record) {
+  return JSON.parse(JSON.stringify(record));
+}
+
 /** Throw a readable test failure when a condition is false. */
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+/** Require one validation result to fail for the intended reason. */
+function assertValidationError(result, source, expectedError) {
+  assert(result.ok === false, `Expected invalid record to fail: ${source}`);
+  assert(
+    result.errors.some((error) => error.includes(expectedError)),
+    `Unexpected validation errors for ${source}: ${JSON.stringify(result.errors)}`,
+  );
 }
 
 /** Validate one fixture through the exported in-memory API. */
@@ -45,23 +62,45 @@ async function testValidFixtures() {
   }
 }
 
-/** Require all negative fixtures to fail for their intended reason. */
+/** Require all file-backed negative fixtures to fail for their intended reason. */
 async function testInvalidFixtures() {
   for (const fixture of INVALID_FIXTURES) {
-    const result = await validateFixture(fixture.path);
-    assert(result.ok === false, `Expected invalid fixture to fail: ${fixture.path}`);
-    assert(
-      result.errors.some((error) => error.includes(fixture.expectedError)),
-      `Unexpected validation errors for ${fixture.path}: ${JSON.stringify(result.errors)}`,
-    );
+    assertValidationError(await validateFixture(fixture.path), fixture.path, fixture.expectedError);
   }
+}
+
+/** Require canonical evidence snapshots and every evidence bucket. */
+async function testEvidenceCompleteness() {
+  const base = await readJson("docs/examples/harmonic-orientation-record.conflict-escalate.json");
+
+  const missingAfter = cloneRecord(base);
+  delete missingAfter.real_graph.evidence_after;
+  assertValidationError(
+    validateRecord(missingAfter, "mutation:missing-evidence-after"),
+    "mutation:missing-evidence-after",
+    "real_graph.evidence_after is required",
+  );
+
+  const missingBucket = cloneRecord(base);
+  delete missingBucket.real_graph.evidence_after.missing;
+  assertValidationError(
+    validateRecord(missingBucket, "mutation:missing-evidence-bucket"),
+    "mutation:missing-evidence-bucket",
+    "real_graph.evidence_after.missing is required",
+  );
 }
 
 /** Run the complete positive and negative fixture contract. */
 async function main() {
   await testValidFixtures();
   await testInvalidFixtures();
-  console.log(JSON.stringify({ ok: true, valid: VALID_FIXTURES.length, invalid: INVALID_FIXTURES.length }, null, 2));
+  await testEvidenceCompleteness();
+  console.log(JSON.stringify({
+    ok: true,
+    valid: VALID_FIXTURES.length,
+    invalid: INVALID_FIXTURES.length,
+    mutations: 2,
+  }, null, 2));
 }
 
 main().catch((error) => {
