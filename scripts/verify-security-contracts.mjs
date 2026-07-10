@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import "./verify-pwa-security-ast.mjs";
 
 const RUNTIME_FILES = [
   "index.html",
@@ -40,10 +41,6 @@ function attribute(tag, name) {
   const doubleQuoted = tag.match(new RegExp(`\\b${name}="([^"]*)"`, "i"))?.[1];
   if (doubleQuoted !== undefined) return doubleQuoted;
   return tag.match(new RegExp(`\\b${name}='([^']*)'`, "i"))?.[1] ?? "";
-}
-
-function compactSource(source) {
-  return source.replace(/\s+/g, "");
 }
 
 const runtime = RUNTIME_FILES.map((file) => ({ file, content: read(file) }));
@@ -119,21 +116,8 @@ for (const file of HTML_FILES) {
 }
 
 const serviceWorker = read("sw.js");
-const pwaRuntime = read("pwa.js");
 const menuPwaRuntime = read("menu-pwa.js");
-const appSource = read("src/app.ts");
-const compactPwaRuntime = compactSource(pwaRuntime);
-const compactMenuPwaRuntime = compactSource(menuPwaRuntime);
-const loadListenerPattern = /(?:window\s*\.\s*)?addEventListener\s*\(\s*["']load["']/i;
-const trustedRegistrationPattern = /globalThis\.trustedTypes.*createPolicy\(P,\{createScriptURL:.*\.createScriptURL\(x\).*navigator\.serviceWorker\.register\(u\(SERVICE_WORKER_URL\),\{scope:["']\.\/["']\}\)/;
-const retryablePointerPattern = /addEventListener\(["']pointerdown["'],t,\{passive:1\}\)/;
-must("CSP-001", trustedRegistrationPattern.test(compactPwaRuntime), "Landing runtime must preserve the Trusted Types to service-worker registration chain");
-must("CSP-001", trustedRegistrationPattern.test(compactMenuPwaRuntime), "Menu runtime must preserve the Trusted Types to service-worker registration chain");
-must("CSP-001", !loadListenerPattern.test(pwaRuntime), "Landing offline runtime must not wait for the full load event before registration");
-must("CSP-001", retryablePointerPattern.test(compactPwaRuntime), "Install runtime pointer trigger must stay persistent and retryable");
 must("CSP-001", !menuPwaRuntime.includes("robys-menu-pwa"), "Menu offline runtime must not create a policy rejected by CSP");
-must("CSP-001", !loadListenerPattern.test(menuPwaRuntime), "Menu offline runtime must not wait for the full load event before registration");
-must("CSP-001", !/\bunregister\s*\(/.test(appSource), "Landing runtime must not unregister the active offline service worker");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
 must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "Service worker must ignore cross-origin fetches");
 
@@ -156,7 +140,8 @@ for (const required of [
   ".github/CODEOWNERS",
   "SECURITY.md",
   "docs/threat-model.md",
-  "scripts/scan-secrets.mjs"
+  "scripts/scan-secrets.mjs",
+  "scripts/verify-pwa-security-ast.mjs"
 ]) must("CI-TRUST-001", existsSync(required), `Security control is missing: ${required}`);
 
 const securityWorkflow = read(".github/workflows/security.yml");
