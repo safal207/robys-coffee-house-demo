@@ -51,6 +51,7 @@ orientation_record_schema:
     - assistant
     - ci
     - bot
+    - orientation-center
   decision_values:
     - allow
     - reject
