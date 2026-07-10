@@ -117,9 +117,16 @@ for (const file of HTML_FILES) {
 
 const serviceWorker = read("sw.js");
 const pwaRuntime = read("pwa.js");
+const menuPwaRuntime = read("menu-pwa.js");
+const appSource = read("src/app.ts");
 must("CSP-001", pwaRuntime.includes('navigator.serviceWorker.register'), "Offline runtime must register a service worker explicitly");
 must("CSP-001", pwaRuntime.includes("trustedTypes.createPolicy") && pwaRuntime.includes("createScriptURL"), "Service worker URL must use the named Trusted Types policy");
 must("CSP-001", pwaRuntime.includes('{ scope: "./" }'), "Service worker scope must stay local to the site");
+must("CSP-001", !pwaRuntime.includes('window.addEventListener("load"'), "Landing offline runtime must not wait for third-party frames before registration");
+must("CSP-001", menuPwaRuntime.includes('TRUSTED_TYPES_POLICY = "robys-pwa"'), "Menu offline runtime must use the CSP-allowed Trusted Types policy");
+must("CSP-001", !menuPwaRuntime.includes("robys-menu-pwa"), "Menu offline runtime must not create a policy rejected by CSP");
+must("CSP-001", !menuPwaRuntime.includes('window.addEventListener("load"'), "Menu offline runtime must not wait for the full load event before registration");
+must("CSP-001", !appSource.includes("registration.unregister()"), "Landing runtime must not unregister the active offline service worker");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
 must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "Service worker must ignore cross-origin fetches");
 
