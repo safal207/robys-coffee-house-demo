@@ -12,7 +12,6 @@ const RUNTIME_FILES = [
   "menu-page.js",
   "menu-search-clear.js",
   "menu-ready.js",
-  "menu-bootstrap.js",
   "android-download.js",
   "pwa.js",
   "sw.js",
@@ -30,6 +29,13 @@ function record(id, condition, message) {
 
 function must(id, condition, message) {
   record(id, condition, message);
+}
+
+try {
+  await import("./verify-pwa-security-ast.mjs");
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  must("CSP-001", false, `PWA security AST contract failed: ${message}`);
 }
 
 function read(file) {
@@ -116,10 +122,8 @@ for (const file of HTML_FILES) {
 }
 
 const serviceWorker = read("sw.js");
-const pwaRuntime = read("pwa.js");
-must("CSP-001", pwaRuntime.includes('navigator.serviceWorker.register'), "Offline runtime must register a service worker explicitly");
-must("CSP-001", pwaRuntime.includes("trustedTypes.createPolicy") && pwaRuntime.includes("createScriptURL"), "Service worker URL must use the named Trusted Types policy");
-must("CSP-001", pwaRuntime.includes('{ scope: "./" }'), "Service worker scope must stay local to the site");
+const menuPwaRuntime = read("menu-pwa.js");
+must("CSP-001", !menuPwaRuntime.includes("robys-menu-pwa"), "Menu offline runtime must not create a policy rejected by CSP");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
 must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "Service worker must ignore cross-origin fetches");
 
@@ -142,7 +146,8 @@ for (const required of [
   ".github/CODEOWNERS",
   "SECURITY.md",
   "docs/threat-model.md",
-  "scripts/scan-secrets.mjs"
+  "scripts/scan-secrets.mjs",
+  "scripts/verify-pwa-security-ast.mjs"
 ]) must("CI-TRUST-001", existsSync(required), `Security control is missing: ${required}`);
 
 const securityWorkflow = read(".github/workflows/security.yml");

@@ -15,7 +15,28 @@ async function waitForAttribute(locator, name, expected, timeout = 15000) {
   throw new Error(`Timed out waiting for ${name}=${expected}`);
 }
 
-const browser = await chromium.launch({ headless: true });
+async function waitForServiceWorker(context, timeout = 30000) {
+  const existing = context.serviceWorkers()[0];
+  if (existing) return existing;
+  return context.waitForEvent("serviceworker", { timeout });
+}
+
+async function waitForControlledPage(page, label, timeout = 15000) {
+  await page.waitForFunction(
+    () => Boolean(navigator.serviceWorker?.controller),
+    undefined,
+    { timeout }
+  ).catch((error) => {
+    throw new Error(`Timed out waiting for service-worker control during ${label}`, { cause: error });
+  });
+}
+
+const browser = await chromium.launch({
+  headless: true,
+  ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH
+    ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH }
+    : {})
+});
 const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
 const browserMessages = [];
@@ -23,7 +44,7 @@ page.on("console", (message) => browserMessages.push(`${message.type()}: ${messa
 page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
 
 try {
-  await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
@@ -43,12 +64,15 @@ try {
   assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
 
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
-  assert.ok(context.serviceWorkers().length > 0, "Service worker was not registered");
-  await page.reload({ waitUntil: "networkidle" });
+  const worker = await waitForServiceWorker(context);
+  assert.match(worker.url(), /\/sw\.js(?:\?|$)/, "Unexpected service worker script URL");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await waitForControlledPage(page, "home page reload");
 
-  await page.goto(`${baseUrl}/menu.html`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
+  await waitForControlledPage(page, "menu page bootstrap");
 
   await context.setOffline(true);
   await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });

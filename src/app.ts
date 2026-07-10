@@ -139,16 +139,6 @@ function removeLegacyRuntimeSections() {
   ].forEach((selector) => qa<HTMLElement>(selector).forEach((element) => element.remove()));
 }
 
-async function clearLegacyServiceWorker() {
-  if (!("serviceWorker" in navigator)) return;
-  try {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(registrations.map((registration) => registration.unregister()));
-  } catch {
-    // The static site works without a service worker.
-  }
-}
-
 function init() {
   removeLegacyRuntimeSections();
 
@@ -159,8 +149,6 @@ function init() {
   setupLanguageButtons();
   setupDynamicTranslations();
   setLanguage(language);
-
-  window.addEventListener("load", () => void clearLegacyServiceWorker(), { once: true });
 }
 
 document.readyState === "loading"

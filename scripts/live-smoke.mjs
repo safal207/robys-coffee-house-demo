@@ -62,7 +62,7 @@ async function verifyBrowser(browser) {
     deviceScaleFactor: 1,
     locale: "tr-TR",
     timezoneId: "Europe/Istanbul",
-    serviceWorkers: "block"
+    serviceWorkers: "allow"
   });
   const page = await context.newPage();
   const sameOriginFailures = [];
@@ -87,6 +87,7 @@ async function verifyBrowser(browser) {
     landingUrl.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
     await page.goto(landingUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.locator(".hero h1").waitFor({ state: "visible", timeout: 15000 });
+    await page.locator('html[data-offline-ready="true"]').waitFor({ state: "attached", timeout: 15000 });
 
     const publishedBuild = await page.locator('meta[name="robys-build"]').getAttribute("content");
     if (publishedBuild !== expectedBuild) throw new Error(`Browser received build ${publishedBuild ?? "missing"}`);
@@ -139,7 +140,7 @@ async function verifyBrowser(browser) {
     if (pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(" | ")}`);
     if (sameOriginFailures.length) throw new Error(`Same-origin browser failures: ${sameOriginFailures.join(" | ")}`);
 
-    return { initialItems, videoState, language: "en", sameOriginFailures: 0, pageErrors: 0 };
+    return { initialItems, videoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
   } finally {
     await context.close();
   }
