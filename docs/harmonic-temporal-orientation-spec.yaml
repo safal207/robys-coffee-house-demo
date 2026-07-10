@@ -25,6 +25,7 @@ graphs:
     role: update_rules_thresholds_and_guardrails
 
 orientation_record_schema:
+  serialization: canonical_json
   required_fields:
     - id
     - time_utc
@@ -38,6 +39,13 @@ orientation_record_schema:
     - observer_graph
     - tuner_graph
     - scorecard
+  required_non_empty_objects:
+    - project_graph
+    - transition_graph
+    - real_graph
+    - orientation_center
+    - observer_graph
+    - tuner_graph
   actor_values:
     - human
     - assistant
@@ -48,6 +56,16 @@ orientation_record_schema:
     - reject
     - hold
     - escalate
+
+real_graph_schema:
+  required_snapshots:
+    - evidence_before
+    - evidence_after
+  required_buckets:
+    - green
+    - red
+    - missing
+  bucket_type: array
 
 scorecard:
   required: true
@@ -94,19 +112,31 @@ hard_blocker_policy:
     - omitted_required_blocker_invalidates_record
   precedence:
     - any_hard_blocker_forbids_allow
+    - any_hard_blocker_forbids_escalate
     - any_reject_class_blocker_requires_reject
     - otherwise_any_hold_class_blocker_requires_hold
-    - escalate_requires_zero_hard_blockers
-    - score_thresholds_apply_after_blocker_classification
+    - score_policy_applies_only_when_no_hard_blocker_exists
 
 score_policy:
-  allow: score_8_to_10_and_no_hard_blocker
-  hold: missing_prerequisite_evidence_or_hold_class_blocker
-  reject: unsafe_transition_or_reject_class_blocker
-  escalate: conflicting_valid_invariants_and_no_hard_blocker
+  zero_blockers:
+    score_8_to_10:
+      required_decision: allow
+    score_0_to_7:
+      forbidden_decision: allow
+      permitted_decisions:
+        - hold
+        - reject
+        - escalate
+  semantic_selection:
+    hold: missing_or_incomplete_evidence
+    reject: unsafe_or_invariant_breaking_transition
+    escalate: conflicting_valid_invariants
 
 machine_use_cases:
   - validate_orientation_record_json
+  - validate_required_graph_objects
+  - validate_complete_evidence_snapshots
+  - enforce_score_decision_ranges
   - score_transition_before_commit
   - detect_missing_exact_head_evidence
   - detect_omitted_required_hard_blocker
