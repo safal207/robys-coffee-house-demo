@@ -211,9 +211,25 @@ function analyzeRuntime(file, source) {
   return { registerCalls, validRegisterCalls, pointerCalls, retryablePointerCalls, loadCalls };
 }
 
+function isReflectInvocation(node, context) {
+  const resolved = resolve(node, context);
+  return Boolean(
+    resolved
+    && (ts.isPropertyAccessExpression(resolved) || ts.isElementAccessExpression(resolved))
+    && ts.isIdentifier(resolved.expression)
+    && resolved.expression.text === "Reflect"
+    && ["apply", "call"].includes(name(resolved, context))
+  );
+}
+
 function isUnregisterReference(node, context) {
   const resolved = resolve(node, context);
   if (!resolved) return false;
+  if (ts.isParenthesizedExpression(resolved)) return isUnregisterReference(resolved.expression, context);
+  if (
+    ts.isBinaryExpression(resolved)
+    && resolved.operatorToken.kind === ts.SyntaxKind.CommaToken
+  ) return isUnregisterReference(resolved.right, context);
   if (ts.isIdentifier(resolved)) return resolved.text === "unregister";
   if (ts.isPropertyAccessExpression(resolved) || ts.isElementAccessExpression(resolved)) {
     const memberName = name(resolved, context);
@@ -221,7 +237,12 @@ function isUnregisterReference(node, context) {
     if (["call", "apply", "bind"].includes(memberName)) return isUnregisterReference(resolved.expression, context);
     return false;
   }
-  if (ts.isCallExpression(resolved)) return isUnregisterReference(resolved.expression, context);
+  if (ts.isCallExpression(resolved)) {
+    if (isReflectInvocation(resolved.expression, context)) {
+      return isUnregisterReference(resolved.arguments[0], context);
+    }
+    return isUnregisterReference(resolved.expression, context);
+  }
   return false;
 }
 
@@ -231,6 +252,10 @@ function hasUnregisterCall(file, source) {
   let found = false;
   walk(sourceFile, (node) => {
     if (found || !ts.isCallExpression(node)) return;
+    if (isReflectInvocation(node.expression, context)) {
+      if (isUnregisterReference(node.arguments[0], context)) found = true;
+      return;
+    }
     if (isUnregisterReference(node.expression, context)) found = true;
   });
   return found;
@@ -245,6 +270,11 @@ function regressionTests() {
     [hasUnregisterCall("call.js", "registration.unregister.call(registration);"), "unregister.call invocations must be rejected"],
     [hasUnregisterCall("apply.js", 'registration["unregister"].apply(registration, []);'), "unregister.apply invocations must be rejected"],
     [hasUnregisterCall("bind.js", "const stop = registration.unregister.bind(registration); stop();"), "bound unregister invocations must be rejected"],
+    [hasUnregisterCall("sequence.js", "(0, registration.unregister)();"), "comma-sequence unregister invocations must be rejected"],
+    [hasUnregisterCall("reflect-apply.js", "Reflect.apply(registration.unregister, registration, []);"), "Reflect.apply unregister invocations must be rejected"],
+    [hasUnregisterCall("reflect-call.js", "Reflect.call(registration.unregister, registration);"), "Reflect.call unregister invocations must be rejected"],
+    [!hasUnregisterCall("safe-sequence.js", "(0, registration.register)();"), "safe comma-sequence calls must not be rejected"],
+    [!hasUnregisterCall("safe-reflect.js", "Reflect.apply(registration.register, registration, []);"), "safe Reflect.apply calls must not be rejected"],
     [analyzeRuntime("lure-load.js", 'const lure = "addEventListener(\\"load\\", fn)";').loadCalls === 0, "strings must not look like load listeners"],
     [analyzeRuntime("real-load.js", "globalThis.addEventListener ('load', fn);").loadCalls === 1, "formatted load listeners must be detected"],
     [analyzeRuntime("onload.js", "window.onload = fn;").loadCalls === 1, "onload assignments must be detected"],
@@ -265,6 +295,6 @@ if (landing.registerCalls !== 1 || landing.validRegisterCalls !== 1) fail("Landi
 if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must contain one valid Trusted Types service-worker registration chain");
 if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
 if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
-if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, or bind form");
+if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, bind, sequence, or Reflect invocation form");
 
 console.log("✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.");
