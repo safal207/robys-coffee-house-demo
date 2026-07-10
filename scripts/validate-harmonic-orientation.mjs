@@ -4,15 +4,18 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const DECISIONS = new Set(["allow", "reject", "hold", "escalate"]);
-const HARD_BLOCKERS = new Set([
+const HOLD_BLOCKERS = new Set([
   "trusted_exact_head_evidence_required_but_missing",
   "bot_identity_untrusted_or_unknown",
+  "baseline_refresh_lacks_source_artifact_or_run_id",
+]);
+const REJECT_BLOCKERS = new Set([
   "seal_order_wrong",
   "merge_readiness_command_premature",
-  "baseline_refresh_lacks_source_artifact_or_run_id",
   "transition_mutates_unrelated_repair_flows",
   "transition_hides_evidence_debt",
 ]);
+const HARD_BLOCKERS = new Set([...HOLD_BLOCKERS, ...REJECT_BLOCKERS]);
 const REQUIRED_TOP_LEVEL_FIELDS = [
   "id",
   "time_utc",
@@ -42,6 +45,7 @@ function pushError(errors, message) {
 
 function asArray(value, errors, fieldName) {
   if (value === undefined) {
+    pushError(errors, `${fieldName} is required.`);
     return [];
   }
   if (!Array.isArray(value)) {
@@ -105,16 +109,26 @@ function validateScorecard(record, errors) {
   }
 
   const decision = record.orientation_center?.decision;
+  const hasRejectBlocker = hardBlockers.some((blocker) => REJECT_BLOCKERS.has(blocker));
+  const hasHoldBlocker = hardBlockers.some((blocker) => HOLD_BLOCKERS.has(blocker));
 
   if (hardBlockers.length > 0 && decision === "allow") {
     pushError(errors, "Hard blockers are present, but decision is allow.");
   }
+  if (hardBlockers.length > 0 && decision === "escalate") {
+    pushError(errors, "Hard blockers are present, but decision is escalate; classify them as hold or reject first.");
+  }
+  if (hasRejectBlocker && decision !== "reject") {
+    pushError(errors, "Reject-class hard blocker requires decision reject.");
+  } else if (!hasRejectBlocker && hasHoldBlocker && decision !== "hold") {
+    pushError(errors, "Hold-class hard blocker requires decision hold.");
+  }
 
-  if (computedTotal >= 5 && computedTotal <= 7 && !["hold", "reject", "escalate"].includes(decision)) {
+  if (hardBlockers.length === 0 && computedTotal >= 5 && computedTotal <= 7 && !["hold", "reject", "escalate"].includes(decision)) {
     pushError(errors, `Score is ${computedTotal}; expected hold/reject/escalate, got ${decision}.`);
   }
 
-  if (computedTotal <= 4 && !["reject", "hold", "escalate"].includes(decision)) {
+  if (hardBlockers.length === 0 && computedTotal <= 4 && !["reject", "hold", "escalate"].includes(decision)) {
     pushError(errors, `Score is ${computedTotal}; expected reject/hold/escalate, got ${decision}.`);
   }
 
