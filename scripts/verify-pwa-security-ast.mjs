@@ -62,12 +62,28 @@ function isInside(node, scope) {
   return false;
 }
 
-function addBinding(context, name, declaration, initializer, scope, immutable) {
+function bindingAccess(initializer, path) {
+  if (!initializer) return null;
+  return path.reduce((current, segment) => {
+    if (
+      typeof segment === "number"
+      && ts.isArrayLiteralExpression(current)
+      && current.elements[segment]
+      && !ts.isOmittedExpression(current.elements[segment])
+    ) return current.elements[segment];
+    return typeof segment === "number"
+      ? ts.factory.createElementAccessExpression(current, ts.factory.createNumericLiteral(segment))
+      : ts.factory.createElementAccessExpression(current, ts.factory.createStringLiteral(segment));
+  }, initializer);
+}
+
+function addBinding(context, name, declaration, initializer, scope, immutable, callable = null) {
   if (!scope) return;
   const record = {
     name,
     declaration,
     initializer,
+    callable,
     scope,
     immutable,
     mutated: false,
@@ -77,6 +93,78 @@ function addBinding(context, name, declaration, initializer, scope, immutable) {
   const records = context.records.get(name) ?? [];
   records.push(record);
   context.records.set(name, records);
+}
+
+function bindingKey(node) {
+  if (!node) return null;
+  if (ts.isIdentifier(node) || ts.isStringLiteral(node) || ts.isNumericLiteral(node)) return node.text;
+  return null;
+}
+
+function registerBindingName(
+  context,
+  nameNode,
+  declaration,
+  initializer,
+  scope,
+  immutable,
+  path = []
+) {
+  if (ts.isIdentifier(nameNode)) {
+    addBinding(
+      context,
+      nameNode.text,
+      declaration,
+      bindingAccess(initializer, path),
+      scope,
+      immutable
+    );
+    return;
+  }
+
+  if (ts.isObjectBindingPattern(nameNode)) {
+    for (const element of nameNode.elements) {
+      if (element.dotDotDotToken) {
+        registerBindingName(context, element.name, declaration, null, scope, false);
+        continue;
+      }
+      const key = bindingKey(element.propertyName)
+        ?? (ts.isIdentifier(element.name) ? element.name.text : null);
+      if (key === null) {
+        registerBindingName(context, element.name, declaration, null, scope, false);
+        continue;
+      }
+      registerBindingName(
+        context,
+        element.name,
+        declaration,
+        initializer,
+        scope,
+        immutable,
+        [...path, key]
+      );
+    }
+    return;
+  }
+
+  if (ts.isArrayBindingPattern(nameNode)) {
+    nameNode.elements.forEach((element, index) => {
+      if (ts.isOmittedExpression(element)) return;
+      if (element.dotDotDotToken) {
+        registerBindingName(context, element.name, declaration, null, scope, false);
+        return;
+      }
+      registerBindingName(
+        context,
+        element.name,
+        declaration,
+        initializer,
+        scope,
+        immutable,
+        [...path, index]
+      );
+    });
+  }
 }
 
 function nearestBinding(node, context) {
@@ -109,9 +197,13 @@ function rootIdentifier(node) {
 function markMutation(node, context, value = null) {
   const identifier = rootIdentifier(node);
   const record = nearestBinding(identifier, context);
-  if (!record || record.ambiguous) return;
+  if (!record || record.ambiguous) return false;
+  const changed = !record.mutated;
   record.mutated = true;
-  if (ts.isIdentifier(node) && value) record.writes.push(value);
+  if (ts.isIdentifier(node) && value && !record.writes.includes(value)) {
+    record.writes.push(value);
+  }
+  return changed;
 }
 
 function isKnownMutationCall(node, context) {
@@ -127,17 +219,111 @@ function isKnownMutationCall(node, context) {
   );
 }
 
+function resolveCallable(node, context) {
+  if (!node) return null;
+  if (
+    ts.isFunctionDeclaration(node)
+    || ts.isFunctionExpression(node)
+    || ts.isArrowFunction(node)
+  ) return node;
+  if (ts.isIdentifier(node)) {
+    const record = nearestBinding(node, context);
+    if (!record || record.ambiguous) return null;
+    if (record.callable) return record.callable;
+    if (
+      record.initializer
+      && (
+        ts.isFunctionExpression(record.initializer)
+        || ts.isArrowFunction(record.initializer)
+      )
+    ) return record.initializer;
+    return null;
+  }
+  const resolved = resolve(node, context);
+  return resolved
+    && (
+      ts.isFunctionDeclaration(resolved)
+      || ts.isFunctionExpression(resolved)
+      || ts.isArrowFunction(resolved)
+    )
+    ? resolved
+    : null;
+}
+
+function bindingRecords(nameNode, context, records = []) {
+  if (ts.isIdentifier(nameNode)) {
+    const record = nearestBinding(nameNode, context);
+    if (record && !record.ambiguous && !records.includes(record)) records.push(record);
+    return records;
+  }
+  if (ts.isObjectBindingPattern(nameNode) || ts.isArrayBindingPattern(nameNode)) {
+    for (const element of nameNode.elements) {
+      if (ts.isOmittedExpression(element)) continue;
+      bindingRecords(element.name, context, records);
+    }
+  }
+  return records;
+}
+
+function parameterMayMutate(parameter, context) {
+  const records = bindingRecords(parameter.name, context);
+  return records.length === 0 || records.some((record) => record.mutated);
+}
+
+function localBindingForCallee(node, context) {
+  let current = node;
+  while (current && ts.isParenthesizedExpression(current)) current = current.expression;
+  if (!current || !ts.isIdentifier(current)) return null;
+  const record = nearestBinding(current, context);
+  return record && !record.ambiguous ? record : null;
+}
+
+function propagateCallMutations(sourceFile, context) {
+  let changed = false;
+  do {
+    changed = false;
+    walk(sourceFile, (node) => {
+      if (!ts.isCallExpression(node) || isKnownMutationCall(node, context)) return;
+      const target = resolveCallable(node.expression, context);
+      if (!target) {
+        if (!localBindingForCallee(node.expression, context)) return;
+        for (const argument of node.arguments) {
+          changed = markMutation(argument, context) || changed;
+        }
+        return;
+      }
+
+      let argumentIndex = 0;
+      for (const parameter of target.parameters) {
+        if (parameter.dotDotDotToken) {
+          if (parameterMayMutate(parameter, context)) {
+            for (; argumentIndex < node.arguments.length; argumentIndex += 1) {
+              changed = markMutation(node.arguments[argumentIndex], context) || changed;
+            }
+          }
+          break;
+        }
+        const argument = node.arguments[argumentIndex];
+        argumentIndex += 1;
+        if (argument && parameterMayMutate(parameter, context)) {
+          changed = markMutation(argument, context) || changed;
+        }
+      }
+    });
+  } while (changed);
+}
+
 function bindings(sourceFile) {
   const context = { records: new Map(), sourceFile };
 
   walk(sourceFile, (node) => {
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+    if (ts.isVariableDeclaration(node)) {
       const list = node.parent;
       const immutable = ts.isVariableDeclarationList(list)
         && (list.flags & ts.NodeFlags.Const) !== 0;
-      addBinding(
+      registerBindingName(
         context,
-        node.name.text,
+        node.name,
         node,
         node.initializer ?? null,
         enclosingScope(list),
@@ -146,18 +332,33 @@ function bindings(sourceFile) {
       return;
     }
 
-    if (ts.isParameter(node) && ts.isIdentifier(node.name)) {
-      addBinding(context, node.name.text, node, null, enclosingScope(node.parent), false);
+    if (ts.isParameter(node)) {
+      registerBindingName(
+        context,
+        node.name,
+        node,
+        null,
+        enclosingScope(node.parent),
+        false
+      );
       return;
     }
 
     if (ts.isFunctionDeclaration(node) && node.name) {
-      addBinding(context, node.name.text, node, null, enclosingScope(node.parent), false);
+      addBinding(
+        context,
+        node.name.text,
+        node,
+        null,
+        enclosingScope(node.parent),
+        false,
+        node
+      );
       return;
     }
 
     if (ts.isFunctionExpression(node) && node.name) {
-      addBinding(context, node.name.text, node, null, node, false);
+      addBinding(context, node.name.text, node, null, node, false, node);
       return;
     }
 
@@ -198,6 +399,7 @@ function bindings(sourceFile) {
     }
   });
 
+  propagateCallMutations(sourceFile, context);
   return context;
 }
 
@@ -619,6 +821,8 @@ function regressionTests() {
     [hasUnregisterCall("computed.js", 'registration["unregister"]();'), "computed unregister access must be rejected"],
     [hasUnregisterCall("aliased.js", 'const method = "unregister"; registration[method]();'), "aliased computed unregister access must be rejected"],
     [hasUnregisterCall("bare.js", 'const { unregister } = registration; unregister ();'), "destructured bare unregister calls must be rejected"],
+    [hasUnregisterCall("renamed-destructure.js", "const { unregister: stop } = registration; stop();"), "renamed destructured unregister aliases must be rejected"],
+    [hasUnregisterCall("array-destructure.js", "const [stop] = [registration.unregister]; stop();"), "array destructured unregister aliases must be rejected"],
     [hasUnregisterCall("call.js", "registration.unregister.call(registration);"), "unregister.call invocations must be rejected"],
     [hasUnregisterCall("apply.js", 'registration["unregister"].apply(registration, []);'), "unregister.apply invocations must be rejected"],
     [hasUnregisterCall("bind.js", "const stop = registration.unregister.bind(registration); stop();"), "bound unregister invocations must be rejected"],
@@ -634,6 +838,8 @@ function regressionTests() {
     [analyzeRuntime("mutated-event.js", 'let event = "pointerdown"; event = "load"; addEventListener(event, fn, { passive: true });').ambiguousEventCalls === 1, "mutated event aliases must fail closed"],
     [analyzeRuntime("shadowed-event.js", 'const event = "pointerdown"; { const event = "load"; addEventListener(event, fn); }').loadCalls === 1, "shadowed event aliases must resolve lexically"],
     [analyzeRuntime("mutated-options.js", 'const options = { passive: true }; options.once = true; addEventListener("pointerdown", fn, options);').retryablePointerCalls === 0, "mutated listener options must fail closed"],
+    [analyzeRuntime("helper-mutated-options.js", 'function setOnce(value) { value.once = true; } const options = { passive: true }; setOnce(options); addEventListener("pointerdown", fn, options);').retryablePointerCalls === 0, "helper-mutated listener options must fail closed"],
+    [analyzeRuntime("clean-helper-options.js", 'function inspect(value) { return value.passive; } const options = { passive: true }; inspect(options); addEventListener("pointerdown", fn, options);').retryablePointerCalls === 1, "read-only helpers must preserve listener options"],
     [analyzeRuntime("mutable-callee.js", 'let on = addEventListener; on("load", fn);').ambiguousEventCalls === 1, "mutable listener aliases must fail closed"],
     [analyzeRuntime("shadowed-callee.js", 'const on = addEventListener; { const on = fn; on("load", fn); }').ambiguousEventCalls === 0, "shadowed callee aliases must not resolve to outer bindings"],
     [analyzeRuntime("lure-load.js", 'const lure = "addEventListener(\\"load\\", fn)";').loadCalls === 0, "strings must not look like load listeners"],
@@ -657,6 +863,6 @@ if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must c
 if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
 if (landing.ambiguousEventCalls !== 0 || menu.ambiguousEventCalls !== 0) fail("PWA event-listener aliases and event names must be provably immutable");
 if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
-if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, mutable, reassigned, bare, call, apply, bind, sequence, or Reflect invocation form");
+if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, bind, sequence, or Reflect invocation form");
 
 console.log("✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.");
