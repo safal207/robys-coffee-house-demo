@@ -10,55 +10,33 @@ const VALID_FIXTURES = [
 ];
 
 const INVALID_FIXTURES = [
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-score-mismatch.json",
-    expectedError: "Scorecard total mismatch",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-allow-hard-blocker.json",
-    expectedError: "Hard blockers are present, but decision is allow",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-unknown-hard-blocker.json",
-    expectedError: "Unknown hard blocker",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-hard-blocker-type.json",
-    expectedError: "scorecard.hard_blockers must be an array",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-total-type.json",
-    expectedError: "Scorecard total mismatch",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-evidence-type.json",
-    expectedError: "real_graph.evidence_before must be an object",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-missing-scorecard.json",
-    expectedError: "Missing required top-level field: scorecard",
-  },
-  {
-    path: "docs/examples/harmonic-orientation-record.invalid-escalate-hard-blocker.json",
-    expectedError: "Hard blockers are present, but decision is escalate",
-  },
+  { path: "docs/examples/harmonic-orientation-record.invalid-score-mismatch.json", expectedError: "Scorecard total mismatch" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-allow-hard-blocker.json", expectedError: "Hard blockers are present, but decision is allow" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-unknown-hard-blocker.json", expectedError: "Unknown hard blocker" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-hard-blocker-type.json", expectedError: "scorecard.hard_blockers must be an array" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-total-type.json", expectedError: "Scorecard total mismatch" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-evidence-type.json", expectedError: "real_graph.evidence_before must be an object" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-missing-scorecard.json", expectedError: "Missing required top-level field: scorecard" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-escalate-hard-blocker.json", expectedError: "Hard blockers are present, but decision is escalate" },
+  { path: "docs/examples/harmonic-orientation-record.invalid-missing-required-hard-blocker.json", expectedError: "Missing required hard blocker" },
 ];
 
+/** Read one JSON fixture. */
 async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, "utf8"));
 }
 
+/** Throw a readable test failure when a condition is false. */
 function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
+  if (!condition) throw new Error(message);
 }
 
+/** Validate one fixture through the exported in-memory API. */
 async function validateFixture(filePath) {
-  const record = await readJson(filePath);
-  return validateRecord(record, filePath);
+  return validateRecord(await readJson(filePath), filePath);
 }
 
+/** Require all positive fixtures to pass with the expected decision. */
 async function testValidFixtures() {
   for (const fixture of VALID_FIXTURES) {
     const result = await validateFixture(fixture.path);
@@ -67,11 +45,11 @@ async function testValidFixtures() {
   }
 }
 
+/** Require all negative fixtures to fail for their intended reason. */
 async function testInvalidFixtures() {
   for (const fixture of INVALID_FIXTURES) {
     const result = await validateFixture(fixture.path);
     assert(result.ok === false, `Expected invalid fixture to fail: ${fixture.path}`);
-    assert(result.errors.length > 0, `Invalid fixture should include errors: ${fixture.path}`);
     assert(
       result.errors.some((error) => error.includes(fixture.expectedError)),
       `Unexpected validation errors for ${fixture.path}: ${JSON.stringify(result.errors)}`,
@@ -79,6 +57,7 @@ async function testInvalidFixtures() {
   }
 }
 
+/** Run the complete positive and negative fixture contract. */
 async function main() {
   await testValidFixtures();
   await testInvalidFixtures();
