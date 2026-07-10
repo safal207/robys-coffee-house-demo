@@ -146,6 +146,27 @@ function isRegister(node, context) {
   );
 }
 
+function isCallableReference(node, expectedName, context) {
+  const resolved = resolve(node, context);
+  if (!resolved) return false;
+  if (name(resolved, context) === expectedName) return true;
+  if (
+    ts.isCallExpression(resolved)
+    && (ts.isPropertyAccessExpression(resolved.expression) || ts.isElementAccessExpression(resolved.expression))
+    && name(resolved.expression, context) === "bind"
+  ) return isCallableReference(resolved.expression.expression, expectedName, context);
+  return false;
+}
+
+function isOnloadAssignment(node, context) {
+  return Boolean(
+    ts.isBinaryExpression(node)
+    && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    && (ts.isPropertyAccessExpression(node.left) || ts.isElementAccessExpression(node.left))
+    && name(node.left, context) === "onload"
+  );
+}
+
 function analyzeRuntime(file, source) {
   const sourceFile = parse(file, source);
   const context = bindings(sourceFile);
@@ -156,6 +177,7 @@ function analyzeRuntime(file, source) {
   let loadCalls = 0;
 
   walk(sourceFile, (node) => {
+    if (isOnloadAssignment(node, context)) loadCalls += 1;
     if (!ts.isCallExpression(node)) return;
     if (isRegister(node, context)) {
       registerCalls += 1;
@@ -174,7 +196,7 @@ function analyzeRuntime(file, source) {
       ) validRegisterCalls += 1;
     }
 
-    if (name(node.expression, context) !== "addEventListener") return;
+    if (!isCallableReference(node.expression, "addEventListener", context)) return;
     const event = literal(node.arguments[0], context);
     if (event === "load") loadCalls += 1;
     if (event !== "pointerdown") return;
@@ -189,15 +211,27 @@ function analyzeRuntime(file, source) {
   return { registerCalls, validRegisterCalls, pointerCalls, retryablePointerCalls, loadCalls };
 }
 
+function isUnregisterReference(node, context) {
+  const resolved = resolve(node, context);
+  if (!resolved) return false;
+  if (ts.isIdentifier(resolved)) return resolved.text === "unregister";
+  if (ts.isPropertyAccessExpression(resolved) || ts.isElementAccessExpression(resolved)) {
+    const memberName = name(resolved, context);
+    if (memberName === "unregister") return true;
+    if (["call", "apply", "bind"].includes(memberName)) return isUnregisterReference(resolved.expression, context);
+    return false;
+  }
+  if (ts.isCallExpression(resolved)) return isUnregisterReference(resolved.expression, context);
+  return false;
+}
+
 function hasUnregisterCall(file, source) {
   const sourceFile = parse(file, source);
   const context = bindings(sourceFile);
   let found = false;
   walk(sourceFile, (node) => {
     if (found || !ts.isCallExpression(node)) return;
-    const callee = node.expression;
-    if (ts.isIdentifier(callee) && callee.text === "unregister") found = true;
-    if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && name(callee, context) === "unregister") found = true;
+    if (isUnregisterReference(node.expression, context)) found = true;
   });
   return found;
 }
@@ -208,8 +242,14 @@ function regressionTests() {
     [hasUnregisterCall("computed.js", 'registration["unregister"]();'), "computed unregister access must be rejected"],
     [hasUnregisterCall("aliased.js", 'const method = "unregister"; registration[method]();'), "aliased computed unregister access must be rejected"],
     [hasUnregisterCall("bare.js", 'const { unregister } = registration; unregister ();'), "destructured bare unregister calls must be rejected"],
-    [analyzeRuntime("lure-load.js", 'const lure = "addEventListener(\\\"load\\\", fn)";').loadCalls === 0, "strings must not look like load listeners"],
+    [hasUnregisterCall("call.js", "registration.unregister.call(registration);"), "unregister.call invocations must be rejected"],
+    [hasUnregisterCall("apply.js", 'registration["unregister"].apply(registration, []);'), "unregister.apply invocations must be rejected"],
+    [hasUnregisterCall("bind.js", "const stop = registration.unregister.bind(registration); stop();"), "bound unregister invocations must be rejected"],
+    [analyzeRuntime("lure-load.js", 'const lure = "addEventListener(\\"load\\", fn)";').loadCalls === 0, "strings must not look like load listeners"],
     [analyzeRuntime("real-load.js", "globalThis.addEventListener ('load', fn);").loadCalls === 1, "formatted load listeners must be detected"],
+    [analyzeRuntime("onload.js", "window.onload = fn;").loadCalls === 1, "onload assignments must be detected"],
+    [analyzeRuntime("aliased-load.js", "const on = addEventListener; on('load', fn);").loadCalls === 1, "aliased load listeners must be detected"],
+    [analyzeRuntime("bound-load.js", "const on = addEventListener.bind(globalThis); on('load', fn);").loadCalls === 1, "bound load listeners must be detected"],
     [analyzeRuntime("retryable.js", 'addEventListener("pointerdown", fn, { passive: true });').retryablePointerCalls === 1, "persistent pointer listeners must pass"],
     [analyzeRuntime("one-shot.js", 'const options = { passive: true, once: true }; addEventListener("pointerdown", fn, options);').retryablePointerCalls === 0, "aliased once:true options must be rejected"]
   ];
@@ -225,6 +265,6 @@ if (landing.registerCalls !== 1 || landing.validRegisterCalls !== 1) fail("Landi
 if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must contain one valid Trusted Types service-worker registration chain");
 if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
 if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
-if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, or bare form");
+if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, or bind form");
 
 console.log("✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.");
