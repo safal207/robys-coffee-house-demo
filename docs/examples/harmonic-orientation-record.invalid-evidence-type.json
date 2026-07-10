@@ -1,0 +1,24 @@
+{
+  "id": "HTO-INVALID-006",
+  "time_utc": "2026-07-10T04:23:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#189",
+  "head_sha": "invalid-evidence-type-head",
+  "project_graph": {"invariant": ["Evidence state is a structured object."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "documentation", "description": "Invalid evidence type fixture."}, "expected_effect": []},
+  "real_graph": {"evidence_before": "invalid", "evidence_after": {"green": [], "red": [], "missing": []}},
+  "orientation_center": {"decision": "hold", "reason": "Fixture intentionally uses invalid evidence shape.", "next_allowed_move": "Correct the evidence object."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 1},
+      "side_effect_safety": {"value": 1},
+      "evidence_path": {"value": 1},
+      "exact_head_confidence": {"value": 1},
+      "reversibility": {"value": 1}
+    },
+    "hard_blockers": [],
+    "total": 5
+  }
+}
