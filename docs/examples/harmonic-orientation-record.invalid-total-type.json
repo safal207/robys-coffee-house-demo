@@ -1,0 +1,24 @@
+{
+  "id": "HTO-INVALID-005",
+  "time_utc": "2026-07-10T04:22:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#189",
+  "head_sha": "invalid-total-type-head",
+  "project_graph": {"invariant": ["Score totals are integers."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "documentation", "description": "Invalid total type fixture."}, "expected_effect": []},
+  "real_graph": {"evidence_before": {"green": [], "red": [], "missing": []}, "evidence_after": {"green": [], "red": [], "missing": []}},
+  "orientation_center": {"decision": "allow", "reason": "Fixture intentionally uses a string total.", "next_allowed_move": "Correct the total type."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 2},
+      "side_effect_safety": {"value": 2},
+      "evidence_path": {"value": 2},
+      "exact_head_confidence": {"value": 2},
+      "reversibility": {"value": 2}
+    },
+    "hard_blockers": [],
+    "total": "10"
+  }
+}
