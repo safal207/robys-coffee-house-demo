@@ -47,14 +47,14 @@ Current branch state.
 
 ```text
 No runtime changes.
-No CI changes.
+No CI enforcement changes.
 No PR protocol mutation.
-Only docs and examples.
+Only docs, examples, validator, and tests.
 ```
 
 ### Phase 1: Manual orientation records
 
-Before risky transitions, paste a short orientation record into the PR conversation or decision log.
+Before risky transitions, create a canonical orientation record in the PR conversation or decision log.
 
 Recommended for:
 
@@ -70,12 +70,12 @@ exact-head bot evidence checks
 
 Use the scorecard before applying a transition that can affect multiple invariants.
 
-Recommended threshold:
+Recommended policy:
 
 ```text
-8-10: allow unless hard blocker exists
-5-7: hold and collect more evidence
-0-4: reject or redesign
+8-10: allow unless a hard blocker exists
+5-7: hold, reject, or escalate according to evidence and invariant conflict
+0-4: hold when prerequisite evidence is missing; otherwise reject or escalate
 ```
 
 ### Phase 3: Lightweight CI reporting
@@ -115,39 +115,66 @@ No baseline refresh without source artifact/run ID.
 
 ---
 
-## 4. Minimal machine-readable orientation shape
+## 4. Canonical machine-readable orientation shape
 
-Future tools can emit this JSON shape.
+The validator accepts the following top-level contract. This is not a future adapter shape; it is the current canonical record structure.
 
 ```json
 {
-  "schema": "harmonic-temporal-orientation/v1",
+  "id": "HTO-YYYYMMDD-001",
+  "time_utc": "YYYY-MM-DDTHH:MM:SSZ",
   "repo": "owner/repo",
-  "pr": 0,
-  "head_sha": "",
-  "transition": {
-    "type": "commit",
-    "description": ""
+  "pr": "#000",
+  "head_sha": "<exact-head-sha>",
+  "actor": "human",
+  "project_graph": {
+    "invariant": ["What must remain true?"],
+    "forbidden_moves": ["What must not happen?"]
   },
-  "project_invariants": [],
-  "hard_blockers": [],
-  "evidence": {
-    "green": [],
-    "red": [],
-    "missing": []
+  "transition_graph": {
+    "candidate": {
+      "type": "commit",
+      "description": "What transition is being considered?"
+    },
+    "expected_effect": ["What should improve?"]
   },
-  "score": {
-    "project_invariant_alignment": 0,
-    "side_effect_safety": 0,
-    "evidence_path": 0,
-    "exact_head_confidence": 0,
-    "reversibility": 0,
+  "real_graph": {
+    "evidence_before": {
+      "green": [],
+      "red": [],
+      "missing": []
+    },
+    "evidence_after": {
+      "green": [],
+      "red": [],
+      "missing": []
+    }
+  },
+  "orientation_center": {
+    "decision": "hold",
+    "reason": "Why this decision was selected",
+    "next_allowed_move": "What may happen next"
+  },
+  "observer_graph": {
+    "pattern": [],
+    "anomaly": [],
+    "risk": []
+  },
+  "tuner_graph": {
+    "rule_update": [],
+    "threshold_update": []
+  },
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 0, "reason": ""},
+      "side_effect_safety": {"value": 0, "reason": ""},
+      "evidence_path": {"value": 0, "reason": ""},
+      "exact_head_confidence": {"value": 0, "reason": ""},
+      "reversibility": {"value": 0, "reason": ""}
+    },
+    "hard_blockers": [],
     "total": 0
-  },
-  "decision": "hold",
-  "next_allowed_move": "",
-  "observer_notes": [],
-  "tuner_rules": []
+  }
 }
 ```
 
@@ -187,15 +214,9 @@ These are good candidates for eventual automation because they are objective.
 
 ## 7. Non-goals for first implementation
 
-Do not start by building a blocking AI judge.
+The first implementation does not build a blocking AI judge, mutate active repair PRs, replace human protocol decisions, or treat the scorecard as truth.
 
-Do not start by mutating active repair PRs.
-
-Do not replace human protocol decisions.
-
-Do not treat the scorecard as truth.
-
-The first implementation should be:
+It should remain:
 
 ```text
 observable
@@ -209,25 +230,36 @@ small
 
 ## 8. First useful automation candidate
 
-The safest first automation is a script that reads a filled scorecard and validates only structural completeness.
+The first automation is the validator already included in this branch. It reads canonical JSON records and checks structural completeness, score totals, decision values, evidence shape, blocker enum, and blocker precedence.
 
-Example command shape:
+Validate the bundled valid records:
 
-```text
-node scripts/verify-orientation-scorecard.mjs docs/orientation-records/*.json
+```bash
+node scripts/validate-harmonic-orientation.mjs \
+  docs/examples/harmonic-orientation-record.pr188-minify-reject.json \
+  docs/examples/harmonic-orientation-record.pr188-baseline-allow.json \
+  docs/examples/harmonic-orientation-record.pr186-d6-hold.json \
+  docs/examples/harmonic-orientation-record.conflict-escalate.json
 ```
 
-Initial checks:
+Run the positive and negative fixture contract:
+
+```bash
+node scripts/test-harmonic-orientation.mjs
+```
+
+Initial checks include:
 
 ```text
-schema is known
-head_sha is present when required
-decision is allow/reject/hold/escalate
+required top-level graph fields are present
+orientation_center.decision is allow/reject/hold/escalate
 score total matches dimension values
-hard blockers are listed when decision is hold/reject
+hard blockers use the canonical enum
+hard blockers force hold or reject before escalation
+malformed evidence and blocker types fail structurally
 ```
 
-This does not decide for the team. It only ensures the decision record is complete.
+The validator does not decide for the team. It ensures that the recorded judgment is complete and internally consistent.
 
 ---
 
