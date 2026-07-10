@@ -104,7 +104,7 @@
       },
       "evidence": [
         "pwa.js#SERVICE_WORKER_URL",
-        "pwa.js#syncConnectivityState",
+        "pwa.js#offlineReady",
         "sw.js#CACHE_VERSION",
         "sw.js#navigationResponse"
       ],
