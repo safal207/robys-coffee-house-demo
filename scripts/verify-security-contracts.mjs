@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
-import "./verify-pwa-security-ast.mjs";
 
 const RUNTIME_FILES = [
   "index.html",
@@ -30,6 +29,13 @@ function record(id, condition, message) {
 
 function must(id, condition, message) {
   record(id, condition, message);
+}
+
+try {
+  await import("./verify-pwa-security-ast.mjs");
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  must("CSP-001", false, `PWA security AST contract failed: ${message}`);
 }
 
 function read(file) {
@@ -124,7 +130,7 @@ must("CSP-001", serviceWorker.includes('url.origin !== self.location.origin'), "
 const iframe = read("index.html").match(/<iframe\b[^>]*>/i)?.[0] ?? "";
 must("SEC-001", /src=["']https:\/\/maps\.google\.com\/maps/i.test(iframe), "Map iframe origin is outside the allowlist");
 must("SEC-001", /title=["'][^"']+["']/i.test(iframe), "Map iframe is missing a title");
-must("SEC-001", /referrerpolicy=["'][^"']+["']/i.test(iframe), "Map iframe is missing a referrer policy");
+must("SEC-001", /referrerpolicy=["'][^"']+ ["']/i.test(iframe), "Map iframe is missing a referrer policy");
 must("SEC-001", /loading=["']lazy["']/i.test(iframe), "Map iframe must remain lazy-loaded");
 
 for (const { file, content } of runtime) {
