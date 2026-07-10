@@ -15,14 +15,204 @@ function walk(node, visit) {
   ts.forEachChild(node, (child) => walk(child, visit));
 }
 
+function isFunctionScope(node) {
+  return Boolean(
+    node
+    && (
+      ts.isFunctionDeclaration(node)
+      || ts.isFunctionExpression(node)
+      || ts.isArrowFunction(node)
+      || ts.isMethodDeclaration(node)
+      || ts.isGetAccessorDeclaration(node)
+      || ts.isSetAccessorDeclaration(node)
+      || ts.isConstructorDeclaration(node)
+    )
+  );
+}
+
+function isLexicalScope(node) {
+  return Boolean(
+    node
+    && (
+      ts.isSourceFile(node)
+      || ts.isBlock(node)
+      || ts.isCaseBlock(node)
+      || ts.isModuleBlock(node)
+      || isFunctionScope(node)
+    )
+  );
+}
+
+function enclosingScope(node) {
+  let current = node;
+  while (current && !isLexicalScope(current)) current = current.parent;
+  return current ?? null;
+}
+
+function scopeDepth(node) {
+  let depth = 0;
+  for (let current = node; current; current = current.parent) depth += 1;
+  return depth;
+}
+
+function isInside(node, scope) {
+  for (let current = node; current; current = current.parent) {
+    if (current === scope) return true;
+  }
+  return false;
+}
+
+function addBinding(context, name, declaration, initializer, scope, immutable) {
+  if (!scope) return;
+  const record = {
+    name,
+    declaration,
+    initializer,
+    scope,
+    immutable,
+    mutated: false,
+    depth: scopeDepth(scope)
+  };
+  const records = context.records.get(name) ?? [];
+  records.push(record);
+  context.records.set(name, records);
+}
+
+function nearestBinding(node, context) {
+  if (!node || !ts.isIdentifier(node)) return null;
+  const candidates = (context.records.get(node.text) ?? [])
+    .filter((record) => isInside(node, record.scope));
+  if (!candidates.length) return null;
+  const deepest = Math.max(...candidates.map((record) => record.depth));
+  const matches = candidates.filter((record) => record.depth === deepest);
+  return matches.length === 1 ? matches[0] : { ambiguous: true };
+}
+
+function rootIdentifier(node) {
+  let current = node;
+  while (
+    current
+    && (
+      ts.isParenthesizedExpression(current)
+      || ts.isAsExpression(current)
+      || ts.isTypeAssertionExpression(current)
+      || ts.isNonNullExpression(current)
+    )
+  ) current = current.expression;
+  if (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+    return rootIdentifier(current.expression);
+  }
+  return ts.isIdentifier(current) ? current : null;
+}
+
+function markMutation(node, context) {
+  const identifier = rootIdentifier(node);
+  const record = nearestBinding(identifier, context);
+  if (record && !record.ambiguous) record.mutated = true;
+}
+
+function isKnownMutationCall(node, context) {
+  if (!ts.isCallExpression(node)) return false;
+  const expression = node.expression;
+  if (!ts.isPropertyAccessExpression(expression) && !ts.isElementAccessExpression(expression)) return false;
+  if (!ts.isIdentifier(expression.expression)) return false;
+  const owner = expression.expression.text;
+  const member = name(expression, context);
+  return (
+    (owner === "Object" && ["assign", "defineProperty", "defineProperties"].includes(member))
+    || (owner === "Reflect" && ["set", "defineProperty", "deleteProperty"].includes(member))
+  );
+}
+
 function bindings(sourceFile) {
-  const initializers = new Map();
+  const context = { records: new Map(), sourceFile };
+
   walk(sourceFile, (node) => {
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
-      initializers.set(node.name.text, node.initializer);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      const list = node.parent;
+      const immutable = ts.isVariableDeclarationList(list)
+        && (list.flags & ts.NodeFlags.Const) !== 0;
+      addBinding(
+        context,
+        node.name.text,
+        node,
+        node.initializer ?? null,
+        enclosingScope(list),
+        immutable
+      );
+      return;
+    }
+
+    if (ts.isParameter(node) && ts.isIdentifier(node.name)) {
+      addBinding(context, node.name.text, node, null, enclosingScope(node.parent), false);
+      return;
+    }
+
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      addBinding(context, node.name.text, node, null, enclosingScope(node.parent), false);
+      return;
+    }
+
+    if (ts.isFunctionExpression(node) && node.name) {
+      addBinding(context, node.name.text, node, null, node, false);
+      return;
+    }
+
+    if (ts.isClassDeclaration(node) && node.name) {
+      addBinding(context, node.name.text, node, null, enclosingScope(node.parent), false);
     }
   });
-  return { initializers };
+
+  walk(sourceFile, (node) => {
+    if (
+      ts.isBinaryExpression(node)
+      && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
+      && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment
+    ) {
+      markMutation(node.left, context);
+      return;
+    }
+
+    if (
+      (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
+      && [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator)
+    ) {
+      markMutation(node.operand, context);
+      return;
+    }
+
+    if (ts.isDeleteExpression(node)) {
+      markMutation(node.expression, context);
+      return;
+    }
+
+    if (isKnownMutationCall(node, context) && node.arguments[0]) {
+      markMutation(node.arguments[0], context);
+    }
+  });
+
+  return context;
+}
+
+function safeBinding(node, context) {
+  const record = nearestBinding(node, context);
+  if (
+    !record
+    || record.ambiguous
+    || !record.immutable
+    || record.mutated
+    || !record.initializer
+  ) return null;
+  return record;
+}
+
+function constantLiteral(identifierName, context) {
+  const records = (context.records.get(identifierName) ?? [])
+    .filter((record) => record.scope === context.sourceFile);
+  if (records.length !== 1) return undefined;
+  const [record] = records;
+  if (!record.immutable || record.mutated || !record.initializer) return undefined;
+  return literal(record.initializer, context, new Set([record]));
 }
 
 function literal(node, context, seen = new Set()) {
@@ -31,21 +221,66 @@ function literal(node, context, seen = new Set()) {
   if (ts.isNumericLiteral(node)) return Number(node.text);
   if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
   if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
-  if (!ts.isIdentifier(node) || seen.has(node.text)) return undefined;
-  const initializer = context.initializers.get(node.text);
-  if (!initializer) return undefined;
+  if (!ts.isIdentifier(node)) return undefined;
+  const record = safeBinding(node, context);
+  if (!record || seen.has(record)) return undefined;
   const next = new Set(seen);
-  next.add(node.text);
-  return literal(initializer, context, next);
+  next.add(record);
+  return literal(record.initializer, context, next);
+}
+
+function stringValues(node, context, seen = new Set()) {
+  if (!node) return null;
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return new Set([node.text]);
+  }
+  if (!ts.isIdentifier(node)) return null;
+  const record = nearestBinding(node, context);
+  if (
+    !record
+    || record.ambiguous
+    || !record.immutable
+    || record.mutated
+    || seen.has(record)
+  ) return null;
+  const next = new Set(seen);
+  next.add(record);
+  if (record.initializer) return stringValues(record.initializer, context, next);
+
+  const declarationList = record.declaration.parent;
+  const forOf = declarationList?.parent;
+  if (
+    ts.isVariableDeclarationList(declarationList)
+    && ts.isForOfStatement(forOf)
+    && forOf.initializer === declarationList
+  ) {
+    const iterable = resolve(forOf.expression, context);
+    if (!iterable || !ts.isArrayLiteralExpression(iterable)) return null;
+    const values = new Set();
+    for (const element of iterable.elements) {
+      const value = literal(element, context, next);
+      if (typeof value !== "string") return null;
+      values.add(value);
+    }
+    return values;
+  }
+  return null;
 }
 
 function resolve(node, context, seen = new Set()) {
-  if (!node || !ts.isIdentifier(node) || seen.has(node.text)) return node;
-  const initializer = context.initializers.get(node.text);
-  if (!initializer) return node;
+  if (!node || !ts.isIdentifier(node)) return node;
+  const record = nearestBinding(node, context);
+  if (!record) return node;
+  if (
+    record.ambiguous
+    || !record.immutable
+    || record.mutated
+    || !record.initializer
+    || seen.has(record)
+  ) return null;
   const next = new Set(seen);
-  next.add(node.text);
-  return resolve(initializer, context, next);
+  next.add(record);
+  return resolve(record.initializer, context, next);
 }
 
 function name(node, context) {
@@ -158,6 +393,36 @@ function isCallableReference(node, expectedName, context) {
   return false;
 }
 
+function possiblyCallableReference(node, expectedName, context, seen = new Set()) {
+  if (!node) return false;
+  if (ts.isIdentifier(node)) {
+    const record = nearestBinding(node, context);
+    if (!record) return node.text === expectedName;
+    if (record.ambiguous) {
+      return (context.records.get(node.text) ?? []).some((candidate) => (
+        candidate.initializer
+        && !seen.has(candidate)
+        && possiblyCallableReference(
+          candidate.initializer,
+          expectedName,
+          context,
+          new Set([...seen, candidate])
+        )
+      ));
+    }
+    if (!record.initializer || seen.has(record)) return false;
+    const next = new Set(seen);
+    next.add(record);
+    return possiblyCallableReference(record.initializer, expectedName, context, next);
+  }
+  if (
+    ts.isCallExpression(node)
+    && (ts.isPropertyAccessExpression(node.expression) || ts.isElementAccessExpression(node.expression))
+    && name(node.expression, context) === "bind"
+  ) return possiblyCallableReference(node.expression.expression, expectedName, context, seen);
+  return name(node, context) === expectedName;
+}
+
 function isOnloadAssignment(node, context) {
   return Boolean(
     ts.isBinaryExpression(node)
@@ -175,6 +440,7 @@ function analyzeRuntime(file, source) {
   let pointerCalls = 0;
   let retryablePointerCalls = 0;
   let loadCalls = 0;
+  let ambiguousEventCalls = 0;
 
   walk(sourceFile, (node) => {
     if (isOnloadAssignment(node, context)) loadCalls += 1;
@@ -183,7 +449,7 @@ function analyzeRuntime(file, source) {
       registerCalls += 1;
       const wrappedUrl = node.arguments[0];
       const options = object(node.arguments[1], context);
-      const expectedUrl = literal(ts.factory.createIdentifier("SERVICE_WORKER_URL"), context);
+      const expectedUrl = constantLiteral("SERVICE_WORKER_URL", context);
       if (
         ts.isCallExpression(wrappedUrl)
         && isTrustedUrlWrapper(wrappedUrl.expression, context)
@@ -196,10 +462,22 @@ function analyzeRuntime(file, source) {
       ) validRegisterCalls += 1;
     }
 
-    if (!isCallableReference(node.expression, "addEventListener", context)) return;
-    const event = literal(node.arguments[0], context);
-    if (event === "load") loadCalls += 1;
-    if (event !== "pointerdown") return;
+    const exactEventListener = isCallableReference(node.expression, "addEventListener", context);
+    if (!exactEventListener) {
+      if (possiblyCallableReference(node.expression, "addEventListener", context)) ambiguousEventCalls += 1;
+      return;
+    }
+    const events = stringValues(node.arguments[0], context);
+    if (!events || events.size === 0) {
+      ambiguousEventCalls += 1;
+      return;
+    }
+    if (events.has("load")) loadCalls += 1;
+    if (!events.has("pointerdown")) return;
+    if (events.size !== 1) {
+      ambiguousEventCalls += 1;
+      return;
+    }
     pointerCalls += 1;
     const options = object(node.arguments[2], context);
     if (!options || options.properties.some(ts.isSpreadAssignment)) return;
@@ -208,7 +486,14 @@ function analyzeRuntime(file, source) {
     if (once !== true && once !== 1 && (passive === true || passive === 1)) retryablePointerCalls += 1;
   });
 
-  return { registerCalls, validRegisterCalls, pointerCalls, retryablePointerCalls, loadCalls };
+  return {
+    registerCalls,
+    validRegisterCalls,
+    pointerCalls,
+    retryablePointerCalls,
+    loadCalls,
+    ambiguousEventCalls
+  };
 }
 
 function isReflectInvocation(node, context) {
@@ -275,6 +560,11 @@ function regressionTests() {
     [hasUnregisterCall("reflect-call.js", "Reflect.call(registration.unregister, registration);"), "Reflect.call unregister invocations must be rejected"],
     [!hasUnregisterCall("safe-sequence.js", "(0, registration.register)();"), "safe comma-sequence calls must not be rejected"],
     [!hasUnregisterCall("safe-reflect.js", "Reflect.apply(registration.register, registration, []);"), "safe Reflect.apply calls must not be rejected"],
+    [analyzeRuntime("mutated-event.js", 'let event = "pointerdown"; event = "load"; addEventListener(event, fn, { passive: true });').ambiguousEventCalls === 1, "mutated event aliases must fail closed"],
+    [analyzeRuntime("shadowed-event.js", 'const event = "pointerdown"; { const event = "load"; addEventListener(event, fn); }').loadCalls === 1, "shadowed event aliases must resolve lexically"],
+    [analyzeRuntime("mutated-options.js", 'const options = { passive: true }; options.once = true; addEventListener("pointerdown", fn, options);').retryablePointerCalls === 0, "mutated listener options must fail closed"],
+    [analyzeRuntime("mutable-callee.js", 'let on = addEventListener; on("load", fn);').ambiguousEventCalls === 1, "mutable listener aliases must fail closed"],
+    [analyzeRuntime("shadowed-callee.js", 'const on = addEventListener; { const on = fn; on("load", fn); }').ambiguousEventCalls === 0, "shadowed callee aliases must not resolve to outer bindings"],
     [analyzeRuntime("lure-load.js", 'const lure = "addEventListener(\\"load\\", fn)";').loadCalls === 0, "strings must not look like load listeners"],
     [analyzeRuntime("real-load.js", "globalThis.addEventListener ('load', fn);").loadCalls === 1, "formatted load listeners must be detected"],
     [analyzeRuntime("onload.js", "window.onload = fn;").loadCalls === 1, "onload assignments must be detected"],
@@ -294,6 +584,7 @@ const app = readFileSync("src/app.ts", "utf8");
 if (landing.registerCalls !== 1 || landing.validRegisterCalls !== 1) fail("Landing must contain one valid Trusted Types service-worker registration chain");
 if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must contain one valid Trusted Types service-worker registration chain");
 if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
+if (landing.ambiguousEventCalls !== 0 || menu.ambiguousEventCalls !== 0) fail("PWA event-listener aliases and event names must be provably immutable");
 if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
 if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, bind, sequence, or Reflect invocation form");
 
