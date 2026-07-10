@@ -1,5 +1,18 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
+import {
+  ACTIVE_HERO_PATH,
+  MIN_FILE_BYTES,
+  MAX_FILE_BYTES,
+  MAX_DURATION_SECONDS,
+  MAX_EDGE_PIXELS,
+  MAX_PIXEL_AREA,
+  decodeHtmlAttribute,
+  extractSingleHeroVideoSource,
+  fetchReference,
+  fileReference,
+} from "./media-contract-config.mjs";
 
 const indexHtml = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
@@ -9,7 +22,6 @@ const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
 const menuRuntime = readFileSync("menu-page.js", "utf8");
-const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 
@@ -26,41 +38,17 @@ function gate(id) {
   assert(item.devices?.includes("mobile"), id, "Mobile coverage is required");
 }
 
-function decodeHtmlAttribute(value) {
-  return value
-    .replace(/&amp;/gi, "&")
-    .replace(/&#0*38;/gi, "&")
-    .replace(/&#x0*26;/gi, "&");
-}
-
-function safeDecodeURIComponent(value, context) {
+function heroVideoSource(html, id) {
   try {
-    return decodeURIComponent(value);
-  } catch {
-    throw new Error(`Invalid URL encoding in ${context}: ${value}`);
+    return extractSingleHeroVideoSource(html, id);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`[${id}] ${message}`);
   }
 }
 
-function fetchReference(value, context) {
-  const withoutFragment = decodeHtmlAttribute(value).split("#")[0];
-  return safeDecodeURIComponent(withoutFragment, context);
-}
-
-function referencePath(value, context) {
-  return fetchReference(value, context).split("?")[0];
-}
-
-function heroVideoSource(html, id) {
-  const videoBlocks = Array.from(html.matchAll(/<video\b[^>]*>[\s\S]*?<\/video>/gi), (match) => match[0]);
-  const heroBlocks = videoBlocks.filter((block) => /^<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["']/i.test(block));
-  assert(heroBlocks.length === 1, id, `Expected exactly one hero video block, found ${heroBlocks.length}`);
-  const sources = Array.from(heroBlocks[0].matchAll(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi), (match) => match[1]);
-  assert(sources.length === 1, id, `Expected exactly one source inside the hero video, found ${sources.length}`);
-  return sources[0];
-}
-
 function fileExists(reference, id) {
-  const clean = referencePath(reference, `${id} file reference`);
+  const clean = fileReference(reference, `${id} file reference`);
   const fullPath = path.resolve(process.cwd(), clean);
   assert(existsSync(fullPath), id, `Missing file: ${clean}`);
   assert(statSync(fullPath).isFile() && statSync(fullPath).size > 0, id, `Invalid file: ${clean}`);
@@ -76,6 +64,14 @@ function cssRule(css, selector, id) {
   assert(match, id, `Missing CSS rule for ${selector}`);
   return match[1].replace(/\s+/g, "").toLowerCase();
 }
+
+// Shared-parser regressions: hyphenated class names must not masquerade as the hero token.
+const heroTokenFixture = [
+  '<video class="not-hero-video"><source src="bad-a.mp4"></video>',
+  '<video class="hero-video--fallback"><source src="bad-b.mp4"></video>',
+  '<video class="hero-video featured"><source src="good.mp4?v=1"></video>',
+].join("");
+assert(heroVideoSource(heroTokenFixture, "ASSET-001") === "good.mp4?v=1", "ASSET-001", "Hero class token matching is not exact");
 
 // MOBILE-001
 for (const [name, html] of [["index.html", indexHtml], ["menu.html", menuHtml]]) {
@@ -165,8 +161,8 @@ gate("A11Y-001");
 // ASSET-001
 const activeHeroSource = heroVideoSource(indexHtml, "ASSET-001");
 const activeHeroFetch = fetchReference(activeHeroSource, "index.html hero source");
-const activeHeroPath = referencePath(activeHeroSource, "index.html hero source");
-assert(activeHeroPath === "src/robys-ambience-clean.mp4", "ASSET-001", `Unexpected active hero video: ${activeHeroPath || "missing"}`);
+const activeHeroPath = fileReference(activeHeroSource, "index.html hero source");
+assert(activeHeroPath === ACTIVE_HERO_PATH, "ASSET-001", `Unexpected active hero video: ${activeHeroPath || "missing"}`);
 const criticalFiles = [
   "icon.svg",
   "styles.css",
@@ -201,13 +197,15 @@ assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSE
 const runtimeHeroSource = qaRuntime.match(/\bHERO_VIDEO\s*=\s*["']([^"']+)["']/)?.[1] ?? "";
 assert(runtimeHeroSource, "ASSET-001", "HERO_VIDEO is missing from qa.js");
 const runtimeHeroFetch = fetchReference(runtimeHeroSource, "qa.js HERO_VIDEO");
-const runtimeHeroPath = referencePath(runtimeHeroSource, "qa.js HERO_VIDEO");
+const runtimeHeroPath = fileReference(runtimeHeroSource, "qa.js HERO_VIDEO");
 assert(runtimeHeroFetch === activeHeroFetch, "ASSET-001", `Hero fetch URL drift: index.html=${activeHeroFetch}, qa.js=${runtimeHeroFetch}`);
 assert(runtimeHeroPath === activeHeroPath, "ASSET-001", `Hero runtime and HTML source differ: ${runtimeHeroPath || "missing"}`);
-assert(mediaVerifier.includes("ACTIVE_HERO_VIDEO") && mediaVerifier.includes("MAX_FILE_BYTES=1024*1024"), "ASSET-001", "Active hero video byte budget changed");
-assert(mediaVerifier.includes("MAX_DURATION_SECONDS=8") && mediaVerifier.includes("MAX_PIXEL_AREA=1280*720"), "ASSET-001", "Hero duration or resolution budget changed");
-assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
+assert(MIN_FILE_BYTES === 20_000 && MAX_FILE_BYTES === 1024 * 1024, "ASSET-001", "Hero byte budgets changed");
+assert(MAX_DURATION_SECONDS === 8, "ASSET-001", "Hero duration budget changed");
+assert(MAX_EDGE_PIXELS === 1280 && MAX_PIXEL_AREA === 1280 * 720, "ASSET-001", "Hero resolution budget changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
+const overrideProbe = spawnSync(process.execPath, ["scripts/verify-media.mjs", "src/not-the-active-hero.mp4"], { encoding: "utf8" });
+assert(overrideProbe.status !== 0 && overrideProbe.stderr.includes("Hero override must target the active hero video"), "ASSET-001", "Non-active media override was not rejected");
 gate("ASSET-001");
 
 console.log("✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.");
