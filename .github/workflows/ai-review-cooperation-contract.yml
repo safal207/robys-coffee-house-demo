@@ -113,8 +113,8 @@ jobs:
           concurrency = workflow.dig('jobs', 'report', 'concurrency')
           raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
           actual = concurrency['group'].to_s.gsub(/\s+/, '')
-          expected = <<~'EXPR'.gsub(/\s+/, '')
-            ai-review-cooperation-${{
+          expected = <<~'EXPR'
+            ai-review-cooperation-__EXPR_OPEN__
               ((github.event_name == 'issue_comment' &&
                 github.event.issue.pull_request != null &&
                 github.event.comment.body == '/ai-cooperation report' &&
@@ -131,6 +131,7 @@ jobs:
               github.run_id
             }}
           EXPR
+          expected = expected.sub('__EXPR_OPEN__', '$' + '{{').gsub(/\s+/, '')
           raise "concurrency trust partition drifted:\n#{concurrency['group']}" unless actual == expected
           RUBY
 
@@ -275,7 +276,7 @@ jobs:
           missing = required.reject { |token| run.include?(token) }
           raise "incomplete diagnostic publisher: #{missing.join(', ')}" unless missing.empty?
 
-          forbidden = ['toJson(github)', '${{ github.token }}', 'GH_TOKEN:', 'cat <<']
+          forbidden = ['toJson(github)', '$' + '{{ github.token }}', 'GH_TOKEN:', 'cat <<']
           leaked = forbidden.select { |token| run.include?(token) }
           raise "diagnostic publisher exposes sensitive or malformed context: #{leaked.join(', ')}" unless leaked.empty?
 
