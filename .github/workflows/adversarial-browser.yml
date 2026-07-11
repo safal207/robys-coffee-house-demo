@@ -126,8 +126,9 @@ jobs:
           fi
           changed_files="$(cat .artifacts/offline-scope-changed-files.txt)"
 
-          # Root web/PWA assets are runtime; nested docs/process files are deliberately excluded.
-          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
+          # Root web/PWA assets and the runtime build entrypoint are in scope;
+          # nested docs/process files remain deliberately excluded.
+          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
 
           for required_path in \
             manifest.webmanifest \
@@ -135,6 +136,9 @@ jobs:
             icon.svg \
             apple-touch-icon.png \
             mobile-install-copy.json \
+            package.json \
+            package-lock.json \
+            scripts/build.mjs \
             downloads/robys-coffee-house.apk \
             assets/runtime-image.webp \
             src/nested/runtime-data.bin; do
