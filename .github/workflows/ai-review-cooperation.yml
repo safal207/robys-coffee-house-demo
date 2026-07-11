@@ -166,26 +166,40 @@ jobs:
           PUBLISH_OUTCOME: ${{ steps.publish_report.outcome }}
         run: |
           set -euo pipefail
-          body="$(cat <<EOF
-          <!-- ai-review-cooperation-diagnostic -->
-          ## AI cooperation reporter failed
+          printf -v body '%s\n' \
+            '<!-- ai-review-cooperation-diagnostic -->' \
+            '## AI cooperation reporter failed / AI işbirliği raporlayıcısı başarısız / Сбой репортера AI-взаимодействия' \
+            '' \
+            "The trusted reporter did not publish a cooperation report for PR #${PR_NUMBER}." \
+            "Güvenilir raporlayıcı PR #${PR_NUMBER} için işbirliği raporunu yayımlamadı." \
+            "Доверенный репортер не опубликовал отчет о взаимодействии для PR #${PR_NUMBER}." \
+            '' \
+            '| Stage / Aşama / Этап | Outcome / Sonuç / Результат |' \
+            '|---|---|' \
+            "| authorize / yetkilendirme / авторизация | ${AUTHORIZE_OUTCOME:-unknown} |" \
+            "| checkout / kaynak kodu alma / получение кода | ${CHECKOUT_OUTCOME:-unknown} |" \
+            "| configure / yapılandırma / настройка | ${CONFIGURE_OUTCOME:-unknown} |" \
+            "| REST evidence / REST kanıtı / REST-доказательства | ${REST_OUTCOME:-unknown} |" \
+            "| GraphQL evidence / GraphQL kanıtı / GraphQL-доказательства | ${GRAPHQL_OUTCOME:-unknown} |" \
+            "| build report / rapor oluşturma / построение отчета | ${BUILD_OUTCOME:-unknown} |" \
+            "| publish report / raporu yayımlama / публикация отчета | ${PUBLISH_OUTCOME:-unknown} |" \
+            '' \
+            "Run / Çalıştırma / Запуск: ${RUN_URL}"
 
-          The trusted reporter did not publish a cooperation report for PR #${PR_NUMBER}.
-
-          | Stage | Outcome |
-          |---|---|
-          | authorize | ${AUTHORIZE_OUTCOME:-unknown} |
-          | checkout | ${CHECKOUT_OUTCOME:-unknown} |
-          | configure | ${CONFIGURE_OUTCOME:-unknown} |
-          | REST evidence | ${REST_OUTCOME:-unknown} |
-          | GraphQL evidence | ${GRAPHQL_OUTCOME:-unknown} |
-          | build report | ${BUILD_OUTCOME:-unknown} |
-          | publish report | ${PUBLISH_OUTCOME:-unknown} |
-
-          Run: ${RUN_URL}
-          EOF
+          diagnostic_payload="${RUNNER_TEMP}/cooperation-diagnostic.json"
+          jq -n --arg body "${body}" '{body: $body}' > "${diagnostic_payload}"
+          existing_diagnostic_id="$(
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation-diagnostic -->"))) | .id' \
+              | tail -n 1
           )"
-          jq -n --arg body "${body}" '{body: $body}' > "${RUNNER_TEMP}/cooperation-diagnostic.json"
-          gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-            -H 'Accept: application/vnd.github+json' \
-            --input "${RUNNER_TEMP}/cooperation-diagnostic.json"
+
+          if [ -n "${existing_diagnostic_id}" ]; then
+            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_diagnostic_id}" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${diagnostic_payload}"
+          else
+            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${diagnostic_payload}"
+          fi
