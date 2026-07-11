@@ -10,10 +10,7 @@ jobs:
   report:
     if: >-
       github.event.issue.pull_request != null &&
-      github.event.comment.body == '/ai-cooperation report' &&
-      (github.event.comment.author_association == 'OWNER' ||
-       github.event.comment.author_association == 'MEMBER' ||
-       github.event.comment.author_association == 'COLLABORATOR')
+      github.event.comment.body == '/ai-cooperation report'
     permissions:
       checks: read
       contents: read
@@ -28,9 +25,32 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
+      REPOSITORY_OWNER: ${{ github.repository_owner }}
       PR_NUMBER: ${{ github.event.issue.number }}
+      COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+      COMMENT_ASSOCIATION: ${{ github.event.comment.author_association }}
 
     steps:
+      - name: Authorize cooperation command
+        run: |
+          set -euo pipefail
+          echo "Cooperation command actor: ${COMMENT_AUTHOR}"
+          echo "GitHub author association: ${COMMENT_ASSOCIATION:-NONE}"
+          echo "Repository owner: ${REPOSITORY_OWNER}"
+
+          case "${COMMENT_ASSOCIATION:-NONE}" in
+            OWNER|MEMBER|COLLABORATOR)
+              echo "Authorized by trusted repository association."
+              ;;
+            *)
+              if [ "${COMMENT_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
+                echo "Unauthorized cooperation-report command actor: ${COMMENT_AUTHOR}" >&2
+                exit 1
+              fi
+              echo "Authorized by exact repository-owner identity."
+              ;;
+          esac
+
       - name: Checkout trusted reporter code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
