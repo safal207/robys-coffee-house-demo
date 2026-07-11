@@ -3,6 +3,11 @@ name: One-shot active hero optimizer
 on:
   push:
     branches: [perf/optimize-active-hero]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+      - .github/workflows/optimize-active-hero.yml
 
 permissions:
   contents: write
@@ -13,7 +18,9 @@ concurrency:
 
 jobs:
   optimize:
-    if: github.repository == 'safal207/robys-coffee-house-demo'
+    if: >-
+      github.repository == 'safal207/robys-coffee-house-demo' &&
+      (github.event_name == 'push' || github.head_ref == 'perf/optimize-active-hero')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
