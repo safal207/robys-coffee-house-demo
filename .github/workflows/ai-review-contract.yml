@@ -22,6 +22,9 @@ jobs:
   verify:
     name: Verify exact-head independent review
     runs-on: ubuntu-latest
+    concurrency:
+      group: ai-review-contract-${{ github.repository }}-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+      cancel-in-progress: true
     timeout-minutes: 22
     env:
       GH_TOKEN: ${{ github.token }}
@@ -94,7 +97,7 @@ jobs:
             echo "same_repository=true" >> "${GITHUB_OUTPUT}"
           else
             echo "same_repository=false" >> "${GITHUB_OUTPUT}"
-            echo "Fork PR detected (${HEAD_REPOSITORY}); trusted comment publishing is disabled." 
+            echo "Fork PR detected (${HEAD_REPOSITORY}); trusted comment publishing is disabled."
           fi
 
           gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" > "${HEAD_COMMIT_FILE}"
@@ -227,8 +230,9 @@ jobs:
       - name: Record fork publication boundary
         if: steps.rest_evidence.outputs.same_repository == 'false'
         run: |
-          echo "Cooperation evidence is merge-ready, but trusted comment publishing is unsupported for fork PRs."
-          echo "The review ledger remains fail-closed because no trusted cooperation report can be created."
+          echo "Cooperation evidence is merge-ready, but trusted comment publishing is unsupported for fork PRs." >&2
+          echo "The review ledger remains fail-closed because no trusted cooperation report can be created." >&2
+          exit 1
 
       - name: Upload cooperation evidence
         if: always()
@@ -236,14 +240,22 @@ jobs:
         with:
           name: ai-cooperation-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            ${{ env.PR_JSON_FILE }}
+            ${{ env.HEAD_COMMIT_FILE }}
+            ${{ env.COMMENTS_FILE }}
+            ${{ env.REVIEWS_FILE }}
+            ${{ env.REVIEW_COMMENTS_FILE }}
+            ${{ env.THREADS_FILE }}
             ${{ env.RAW_CHECKS_FILE }}
             ${{ env.CHECKS_FILE }}
+            ${{ env.STATUSES_FILE }}
+            ${{ env.FILES_FILE }}
             ${{ env.COMMENT_FILE }}
           if-no-files-found: warn
           retention-days: 3
 
       - name: Publish cooperation failure diagnostic
-        if: ${{ failure() && steps.verify.outcome == 'success' && steps.rest_evidence.outputs.same_repository == 'true' }}
+        if: ${{ failure() && steps.verify.outcome == 'success' && github.event.pull_request.head.repo.full_name == github.repository }}
         continue-on-error: true
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
