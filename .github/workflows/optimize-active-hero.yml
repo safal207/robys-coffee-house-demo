@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   optimize:
-    if: github.actor == github.repository_owner
+    if: github.repository == 'safal207/robys-coffee-house-demo'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -81,7 +81,7 @@ jobs:
           node scripts/generate-integrity-manifest.mjs --check
           node scripts/verify-integrity-manifest.mjs
 
-          echo "Original and optimized hero evidence:"
+          echo "Optimized hero evidence:"
           jq . "${RUNNER_TEMP}/hero-metadata.json"
           stat -c 'optimized_bytes=%s' "$input"
 
