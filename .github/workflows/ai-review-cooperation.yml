@@ -36,6 +36,7 @@ jobs:
 
     steps:
       - name: Authorize cooperation command
+        id: authorize
         run: |
           set -euo pipefail
           echo "Cooperation command actor: ${COMMENT_AUTHOR}"
@@ -56,12 +57,14 @@ jobs:
           esac
 
       - name: Checkout trusted reporter code
+        id: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
 
       - name: Configure cooperation temp paths
+        id: configure
         run: |
           prefix="${RUNNER_TEMP}/cooperation-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           {
@@ -78,6 +81,7 @@ jobs:
           } >> "${GITHUB_ENV}"
 
       - name: Collect exact-head REST evidence
+        id: rest_evidence
         run: |
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
           HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
@@ -103,12 +107,15 @@ jobs:
             | jq 'add // []' > "${STATUSES_FILE}"
 
       - name: Collect complete GraphQL review evidence
+        id: graphql_evidence
         run: python3 scripts/fetch-review-threads.py
 
       - name: Build causal cooperation report
+        id: build_report
         run: python3 scripts/ai-review-cooperation.py report
 
       - name: Publish or update cooperation report
+        id: publish_report
         run: |
           set -euo pipefail
 
@@ -145,3 +152,40 @@ jobs:
               -H 'Accept: application/vnd.github+json' \
               --input "${COMMENT_FILE}"
           fi
+
+      - name: Publish reporter failure diagnostic
+        if: ${{ failure() }}
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AUTHORIZE_OUTCOME: ${{ steps.authorize.outcome }}
+          CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          CONFIGURE_OUTCOME: ${{ steps.configure.outcome }}
+          REST_OUTCOME: ${{ steps.rest_evidence.outcome }}
+          GRAPHQL_OUTCOME: ${{ steps.graphql_evidence.outcome }}
+          BUILD_OUTCOME: ${{ steps.build_report.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish_report.outcome }}
+        run: |
+          set -euo pipefail
+          body="$(cat <<EOF
+          <!-- ai-review-cooperation-diagnostic -->
+          ## AI cooperation reporter failed
+
+          The trusted reporter did not publish a cooperation report for PR #${PR_NUMBER}.
+
+          | Stage | Outcome |
+          |---|---|
+          | authorize | ${AUTHORIZE_OUTCOME:-unknown} |
+          | checkout | ${CHECKOUT_OUTCOME:-unknown} |
+          | configure | ${CONFIGURE_OUTCOME:-unknown} |
+          | REST evidence | ${REST_OUTCOME:-unknown} |
+          | GraphQL evidence | ${GRAPHQL_OUTCOME:-unknown} |
+          | build report | ${BUILD_OUTCOME:-unknown} |
+          | publish report | ${PUBLISH_OUTCOME:-unknown} |
+
+          Run: ${RUN_URL}
+          EOF
+          )"
+          jq -n --arg body "${body}" '{body: $body}' > "${RUNNER_TEMP}/cooperation-diagnostic.json"
+          gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            -H 'Accept: application/vnd.github+json' \
+            --input "${RUNNER_TEMP}/cooperation-diagnostic.json"
