@@ -67,7 +67,8 @@ jobs:
             echo "REVIEWS_FILE=${prefix}-reviews.json"
             echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
             echo "THREADS_FILE=${prefix}-threads.json"
-            echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "RAW_CHECKS_FILE=${prefix}-checks-raw.json"
+            echo "CHECKS_FILE=${prefix}-checks-normalized.json"
             echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
             echo "COMMENT_FILE=${prefix}-comment.json"
@@ -100,10 +101,58 @@ jobs:
           gh api --paginate -H 'Accept: application/vnd.github+json' \
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
             | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
-            > "${CHECKS_FILE}"
+            > "${RAW_CHECKS_FILE}"
           gh api --paginate --slurp \
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
             | jq 'add // []' > "${STATUSES_FILE}"
+
+      - name: Normalize current AI gate after verifier success
+        id: normalize_self
+        run: |
+          set -euo pipefail
+          run_fragment="/actions/runs/${GITHUB_RUN_ID}"
+          current_matches="$(
+            jq --arg fragment "${run_fragment}" '
+              [.check_runs[]
+               | select(
+                   (((.details_url // .html_url // "") | contains($fragment))) and
+                   (.status != "completed")
+                 )]
+              | length
+            ' "${RAW_CHECKS_FILE}"
+          )"
+          if [ "${current_matches}" != "1" ]; then
+            echo "Expected exactly one in-progress check for current run ${GITHUB_RUN_ID}; found ${current_matches}." >&2
+            jq -r --arg fragment "${run_fragment}" '
+              .check_runs[]
+              | select(((.details_url // .html_url // "") | contains($fragment)))
+              | "name=\(.name) status=\(.status) conclusion=\(.conclusion // "null") url=\(.details_url // .html_url // "")"
+            ' "${RAW_CHECKS_FILE}" >&2
+            exit 1
+          fi
+
+          jq --arg fragment "${run_fragment}" '
+            .check_runs |= map(
+              if (((.details_url // .html_url // "") | contains($fragment)) and .status != "completed")
+              then .status = "completed" | .conclusion = "success"
+              else .
+              end
+            )
+          ' "${RAW_CHECKS_FILE}" > "${CHECKS_FILE}"
+
+          normalized_count="$(
+            jq --arg fragment "${run_fragment}" '
+              [.check_runs[]
+               | select(
+                   (((.details_url // .html_url // "") | contains($fragment))) and
+                   .status == "completed" and
+                   .conclusion == "success"
+                 )]
+              | length
+            ' "${CHECKS_FILE}"
+          )"
+          test "${normalized_count}" = "1"
+          echo "Normalized the single current-run check after successful exact-head verifier evidence."
 
       - name: Collect complete GraphQL review evidence
         id: graphql_evidence
@@ -162,13 +211,27 @@ jobs:
               --input "${COMMENT_FILE}"
           fi
 
+      - name: Upload cooperation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ai-cooperation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.RAW_CHECKS_FILE }}
+            ${{ env.CHECKS_FILE }}
+            ${{ env.COMMENT_FILE }}
+          if-no-files-found: warn
+          retention-days: 3
+
       - name: Publish cooperation failure diagnostic
         if: ${{ failure() && steps.verify.outcome == 'success' }}
+        continue-on-error: true
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           REPORTER_CHECKOUT_OUTCOME: ${{ steps.reporter_checkout.outcome }}
           CONFIGURE_OUTCOME: ${{ steps.configure.outcome }}
           REST_OUTCOME: ${{ steps.rest_evidence.outcome }}
+          NORMALIZE_OUTCOME: ${{ steps.normalize_self.outcome }}
           GRAPHQL_OUTCOME: ${{ steps.graphql_evidence.outcome }}
           BUILD_OUTCOME: ${{ steps.build_report.outcome }}
           VALIDATE_OUTCOME: ${{ steps.validate_report.outcome }}
@@ -186,6 +249,7 @@ jobs:
             "| trusted reporter checkout | ${REPORTER_CHECKOUT_OUTCOME:-unknown} |" \
             "| configure | ${CONFIGURE_OUTCOME:-unknown} |" \
             "| REST evidence | ${REST_OUTCOME:-unknown} |" \
+            "| normalize current check | ${NORMALIZE_OUTCOME:-unknown} |" \
             "| GraphQL evidence | ${GRAPHQL_OUTCOME:-unknown} |" \
             "| build report | ${BUILD_OUTCOME:-unknown} |" \
             "| validate conclusion | ${VALIDATE_OUTCOME:-unknown} |" \
