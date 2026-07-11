@@ -115,11 +115,15 @@ jobs:
             done
           }
 
-          git diff --name-status -M "$merge_base" "$HEAD_SHA" -- \
+          if ! git diff --name-status -M "$merge_base" "$HEAD_SHA" -- \
             | collect_changed_paths \
             | sed '/^$/d' \
             | sort -u \
-            > .artifacts/offline-scope-changed-files.txt
+            > .artifacts/offline-scope-changed-files.txt; then
+            echo "run_offline=true" >> "$GITHUB_OUTPUT"
+            echo "Changed-file diff failed: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            exit 0
+          fi
           changed_files="$(cat .artifacts/offline-scope-changed-files.txt)"
 
           # Root web/PWA assets are runtime; nested docs/process files are deliberately excluded.
