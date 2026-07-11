@@ -128,7 +128,7 @@ jobs:
 
           # Root web/PWA assets and the runtime build entrypoint are in scope;
           # nested docs/process files remain deliberately excluded.
-          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
+          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|data/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
 
           for required_path in \
             manifest.webmanifest \
@@ -141,6 +141,7 @@ jobs:
             scripts/build.mjs \
             downloads/robys-coffee-house.apk \
             assets/runtime-image.webp \
+            data/featured-products.json \
             src/nested/runtime-data.bin; do
             printf '%s\n' "$required_path" | grep -Eq "$scope_pattern" || {
               echo "Scope regression: required path was not selected: $required_path" >&2
