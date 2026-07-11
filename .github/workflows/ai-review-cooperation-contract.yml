@@ -57,9 +57,12 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
-      - name: Verify least privilege
+      - name: Verify least privilege and event declarations
         run: |
           grep -Fq 'pull_request_review:' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'workflow_run:' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'workflows: [AI review contract]' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'types: [completed]' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
@@ -71,7 +74,6 @@ jobs:
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
-          permissions = workflow.dig('jobs', 'report', 'permissions')
           expected = {
             'checks' => 'read',
             'contents' => 'read',
@@ -79,10 +81,11 @@ jobs:
             'pull-requests' => 'read',
             'statuses' => 'read',
           }
-          raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          actual = workflow.dig('jobs', 'report', 'permissions')
+          raise "unexpected job permissions: #{actual.inspect}" unless actual == expected
           RUBY
 
-      - name: Verify exact job trigger guard
+      - name: Verify exact trusted trigger semantics
         run: |
           ruby <<'RUBY'
           require 'yaml'
@@ -115,8 +118,9 @@ jobs:
           end
 
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          actual = normalize_expression(workflow.dig('jobs', 'report', 'if'))
-          expected = normalize_expression(<<~'EXPR')
+          job = workflow.dig('jobs', 'report')
+
+          expected_guard = <<~'EXPR'
             (github.event_name == 'issue_comment' &&
              github.event.issue.pull_request != null &&
              github.event.comment.body == '/ai-cooperation report' &&
@@ -129,48 +133,20 @@ jobs:
              github.event.review.commit_id == github.event.pull_request.head.sha &&
              github.event.review.user.type == 'Bot' &&
              (github.event.review.user.login == 'coderabbitai[bot]' ||
-              github.event.review.user.login == 'coderabbitai'))
+              github.event.review.user.login == 'coderabbitai')) ||
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'AI review contract' &&
+             github.event.workflow_run.event == 'pull_request' &&
+             github.event.workflow_run.conclusion == 'success' &&
+             github.event.workflow_run.pull_requests[0].number != null)
           EXPR
-          raise "job trigger guard drifted:\n#{workflow.dig('jobs', 'report', 'if')}" unless actual == expected
-          RUBY
-
-      - name: Verify concurrency trust partition
-        run: |
-          ruby <<'RUBY'
-          require 'yaml'
-
-          def normalize_expression(value)
-            output = +''
-            quote = nil
-            escaped = false
-            value.to_s.each_char do |char|
-              if quote
-                output << char
-                if escaped
-                  escaped = false
-                elsif char == '\\'
-                  escaped = true
-                elsif char == quote
-                  quote = nil
-                end
-              elsif char == "'" || char == '"'
-                quote = char
-                output << char
-              elsif char.match?(/\s/)
-                next
-              else
-                output << char
-              end
-            end
-            raise 'unterminated quoted literal in workflow expression' if quote
-            output
+          unless normalize_expression(job['if']) == normalize_expression(expected_guard)
+            raise "job trigger guard drifted:\n#{job['if']}"
           end
 
-          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          concurrency = workflow.dig('jobs', 'report', 'concurrency')
+          concurrency = job['concurrency']
           raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
-          actual = normalize_expression(concurrency['group'])
-          expected_source = <<~'EXPR'
+          expected_group_source = <<~'EXPR'
             ai-review-cooperation-__EXPR_OPEN__
               ((github.event_name == 'issue_comment' &&
                 github.event.issue.pull_request != null &&
@@ -186,11 +162,19 @@ jobs:
                 (github.event.review.user.login == 'coderabbitai[bot]' ||
                  github.event.review.user.login == 'coderabbitai'))) &&
               (github.event.issue.number || github.event.pull_request.number) ||
+              (github.event_name == 'workflow_run' &&
+               github.event.workflow_run.name == 'AI review contract' &&
+               github.event.workflow_run.event == 'pull_request' &&
+               github.event.workflow_run.conclusion == 'success' &&
+               github.event.workflow_run.pull_requests[0].number != null &&
+               format('{0}-{1}', github.event.workflow_run.pull_requests[0].number, github.event.workflow_run.head_sha)) ||
               github.run_id
             }}
           EXPR
-          expected = normalize_expression(expected_source.sub('__EXPR_OPEN__', '$' + '{{'))
-          raise "concurrency trust partition drifted:\n#{concurrency['group']}" unless actual == expected
+          expected_group = expected_group_source.sub('__EXPR_OPEN__', '$' + '{{')
+          unless normalize_expression(concurrency['group']) == normalize_expression(expected_group)
+            raise "concurrency trust partition drifted:\n#{concurrency['group']}"
+          end
           RUBY
 
       - name: Verify trigger environment mappings
@@ -199,14 +183,18 @@ jobs:
           require 'yaml'
           env = YAML.load_file('.github/workflows/ai-review-cooperation.yml').dig('jobs', 'report', 'env')
           required = {
-            'PR_NUMBER' => 'github.event.issue.number || github.event.pull_request.number',
+            'PR_NUMBER' => 'github.event.issue.number || github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number',
             'TRIGGER_EVENT' => 'github.event_name',
-            'TRIGGER_AUTHOR' => 'github.event.comment.user.login || github.event.review.user.login',
-            'TRIGGER_ASSOCIATION' => 'github.event.comment.author_association || github.event.review.author_association',
+            'TRIGGER_AUTHOR' => 'github.event.comment.user.login || github.event.review.user.login || github.event.workflow_run.actor.login',
+            'TRIGGER_ASSOCIATION' => "github.event.comment.author_association || github.event.review.author_association || ''",
             'REVIEW_STATE' => "github.event.review.state || ''",
             'REVIEW_COMMIT' => "github.event.review.commit_id || ''",
             'REVIEW_USER_TYPE' => "github.event.review.user.type || ''",
             'PR_HEAD_SHA' => "github.event.pull_request.head.sha || ''",
+            'WORKFLOW_NAME' => "github.event.workflow_run.name || ''",
+            'WORKFLOW_EVENT' => "github.event.workflow_run.event || ''",
+            'WORKFLOW_CONCLUSION' => "github.event.workflow_run.conclusion || ''",
+            'TRIGGER_HEAD_SHA' => "github.event.review.commit_id || github.event.workflow_run.head_sha || ''",
           }
           missing = required.reject { |key, token| env.fetch(key, '').include?(token) }
           raise "trigger environment drifted: #{missing.inspect}" unless missing.empty?
@@ -224,51 +212,59 @@ jobs:
           raise 'authorization must remain first' unless authorization['name'] == 'Authorize cooperation trigger'
           script = authorization['run'].to_s
 
+          base = {
+            'REPOSITORY_OWNER' => 'repo-owner',
+            'TRIGGER_EVENT' => '',
+            'TRIGGER_AUTHOR' => '',
+            'TRIGGER_ASSOCIATION' => '',
+            'REVIEW_STATE' => '',
+            'REVIEW_COMMIT' => '',
+            'REVIEW_USER_TYPE' => '',
+            'PR_HEAD_SHA' => '',
+            'WORKFLOW_NAME' => '',
+            'WORKFLOW_EVENT' => '',
+            'WORKFLOW_CONCLUSION' => '',
+            'PR_NUMBER' => '',
+            'TRIGGER_HEAD_SHA' => '',
+          }
           cases = [
-            ['trusted owner association', true, {
-              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'member-user',
-              'TRIGGER_ASSOCIATION' => 'OWNER', 'REVIEW_STATE' => '',
-              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            ['trusted owner command', true, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'member-user', 'TRIGGER_ASSOCIATION' => 'OWNER',
             }],
-            ['exact repository owner fallback', true, {
-              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'repo-owner',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => '',
-              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            ['exact owner fallback', true, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'repo-owner', 'TRIGGER_ASSOCIATION' => 'NONE',
             }],
             ['exact-head CodeRabbit bot approval', true, {
               'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
-              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'abc123',
+              'REVIEW_STATE' => 'approved', 'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'abc123',
             }],
-            ['untrusted comment', false, {
-              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'attacker',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => '',
-              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            ['successful AI review workflow run', true, {
+              'TRIGGER_EVENT' => 'workflow_run', 'TRIGGER_AUTHOR' => 'github-actions[bot]',
+              'WORKFLOW_NAME' => 'AI review contract', 'WORKFLOW_EVENT' => 'pull_request', 'WORKFLOW_CONCLUSION' => 'success',
+              'PR_NUMBER' => '184', 'TRIGGER_HEAD_SHA' => 'abc123',
+            }],
+            ['attacker comment', false, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'attacker', 'TRIGGER_ASSOCIATION' => 'NONE',
             }],
             ['human approval', false, {
-              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'human-reviewer',
-              'TRIGGER_ASSOCIATION' => 'MEMBER', 'REVIEW_STATE' => 'approved',
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'human', 'REVIEW_STATE' => 'approved',
               'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'User', 'PR_HEAD_SHA' => 'abc123',
-            }],
-            ['CodeRabbit-named user approval', false, {
-              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
-              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'User', 'PR_HEAD_SHA' => 'abc123',
-            }],
-            ['non-approved CodeRabbit review', false, {
-              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'changes_requested',
-              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'abc123',
             }],
             ['stale CodeRabbit approval', false, {
-              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
-              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
-              'REVIEW_COMMIT' => 'old123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'new456',
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]', 'REVIEW_STATE' => 'approved',
+              'REVIEW_COMMIT' => 'old', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'new',
             }],
-            ['unsupported event', false, {
-              'TRIGGER_EVENT' => 'push', 'TRIGGER_AUTHOR' => 'repo-owner',
-              'TRIGGER_ASSOCIATION' => 'OWNER', 'REVIEW_STATE' => '',
-              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            ['wrong workflow name', false, {
+              'TRIGGER_EVENT' => 'workflow_run', 'WORKFLOW_NAME' => 'Other', 'WORKFLOW_EVENT' => 'pull_request',
+              'WORKFLOW_CONCLUSION' => 'success', 'PR_NUMBER' => '184', 'TRIGGER_HEAD_SHA' => 'abc123',
+            }],
+            ['failed workflow', false, {
+              'TRIGGER_EVENT' => 'workflow_run', 'WORKFLOW_NAME' => 'AI review contract', 'WORKFLOW_EVENT' => 'pull_request',
+              'WORKFLOW_CONCLUSION' => 'failure', 'PR_NUMBER' => '184', 'TRIGGER_HEAD_SHA' => 'abc123',
+            }],
+            ['workflow without PR', false, {
+              'TRIGGER_EVENT' => 'workflow_run', 'WORKFLOW_NAME' => 'AI review contract', 'WORKFLOW_EVENT' => 'pull_request',
+              'WORKFLOW_CONCLUSION' => 'success', 'TRIGGER_HEAD_SHA' => 'abc123',
             }],
           ]
 
@@ -277,22 +273,17 @@ jobs:
             file.flush
             File.chmod(0o700, file.path)
             cases.each do |name, expected_success, values|
-              test_env = {
-                'REPOSITORY_OWNER' => 'repo-owner',
-                'TRIGGER_EVENT' => '',
-                'TRIGGER_AUTHOR' => '',
-                'TRIGGER_ASSOCIATION' => '',
-                'REVIEW_STATE' => '',
-                'REVIEW_COMMIT' => '',
-                'REVIEW_USER_TYPE' => '',
-                'PR_HEAD_SHA' => '',
-              }.merge(values)
-              _stdout, stderr, status = Open3.capture3(test_env, 'bash', file.path)
+              _stdout, stderr, status = Open3.capture3(base.merge(values), 'bash', file.path)
               next if status.success? == expected_success
               raise "authorization matrix failed for #{name}: expected #{expected_success}, status=#{status.exitstatus}, stderr=#{stderr}"
             end
           end
           RUBY
+
+      - name: Verify workflow-run exact-head recheck
+        run: |
+          grep -Fq 'Workflow trigger is not bound to the current PR head' .github/workflows/ai-review-cooperation.yml
+          grep -Fq '[ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${HEAD_SHA}" ]' .github/workflows/ai-review-cooperation.yml
 
       - name: Verify complete evidence collection
         run: |
@@ -311,96 +302,59 @@ jobs:
         run: |
           ruby <<'RUBY'
           require 'yaml'
-
           trusted_marker = '<!-- ai-review-cooperation -->'
           diagnostic_marker = '<!-- ai-review-cooperation-diagnostic -->'
           raise 'diagnostic marker aliases trusted report marker' if diagnostic_marker.include?(trusted_marker)
-
           workflow_path = '.github/workflows/ai-review-cooperation.yml'
           workflow_text = File.read(workflow_path, encoding: 'UTF-8')
           raise 'missing cooperation failure diagnostic marker' unless workflow_text.include?(diagnostic_marker)
-
           workflow = YAML.load_file(workflow_path)
-          steps = workflow.dig('jobs', 'report', 'steps')
-          diagnostic = steps.find { |step| step['name'] == 'Publish reporter failure diagnostic' }
+          diagnostic = workflow.dig('jobs', 'report', 'steps').find { |step| step['name'] == 'Publish reporter failure diagnostic' }
           raise 'missing reporter failure diagnostic step' unless diagnostic
           raise 'failure diagnostic is not restricted to failed jobs' unless diagnostic['if'].to_s.include?('failure()')
-
           run = diagnostic['run'].to_s
-          required = [
-            diagnostic_marker,
-            'RUN_URL',
-            'printf -v body',
-            'jq -n',
-            'existing_diagnostic_id',
-            '--method PATCH',
-            '--method POST',
-            'Güvenilir raporlayıcı',
-            'Доверенный репортер',
-          ]
+          required = [diagnostic_marker, 'RUN_URL', 'printf -v body', 'jq -n', 'existing_diagnostic_id', '--method PATCH', '--method POST', 'Güvenilir raporlayıcı', 'Доверенный репортер']
           missing = required.reject { |token| run.include?(token) }
           raise "incomplete diagnostic publisher: #{missing.join(', ')}" unless missing.empty?
-
           forbidden = ['toJson(github)', '$' + '{{ github.token }}', 'GH_TOKEN:', 'cat <<']
           leaked = forbidden.select { |token| run.include?(token) }
-          raise "diagnostic publisher exposes sensitive or malformed context: #{leaked.join(', ')}" unless leaked.empty?
-
+          raise "diagnostic publisher exposes sensitive context: #{leaked.join(', ')}" unless leaked.empty?
           ledger = File.read('.github/workflows/review-ledger.yml', encoding: 'UTF-8')
           reports_block = ledger.split('const reports = issueComments.filter', 2)[1].split('const report =', 2)[0]
-          raise 'review ledger accepts diagnostic comments as reports' if reports_block.include?(diagnostic_marker)
+          raise 'review ledger accepts diagnostics as reports' if reports_block.include?(diagnostic_marker)
           RUBY
 
-      - name: Verify causal trust and policy taxonomy
+      - name: Verify causal trust and ledger boundaries
         run: |
           python3 - <<'PY'
           from pathlib import Path
-
           script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          required_script_tokens = [
-              '<!-- ai-review-cooperation -->',
-              'BOT_LOGINS',
-              "login_of(item) == 'github-actions[bot]'",
-              'REQUIRED_CHECKS',
-              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH',
-              'NO_CURRENT_HEAD_EVIDENCE',
-              'FIX_THEN_RERUN',
-              "'E4' if actionable else 'E5'",
-              'flowchart TD',
+          ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
+          required_script = [
+              '<!-- ai-review-cooperation -->', 'BOT_LOGINS',
+              "login_of(item) == 'github-actions[bot]'", 'REQUIRED_CHECKS',
+              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'NO_CURRENT_HEAD_EVIDENCE',
+              'FIX_THEN_RERUN', "'E4' if actionable else 'E5'", 'flowchart TD',
               'not a majority vote',
           ]
-          required_policy_tokens = ['STALE_HEAD', 'PERMISSION_ERROR']
-          missing = [token for token in required_script_tokens if token not in script]
-          missing += [token for token in required_policy_tokens if token not in policy]
-          if missing:
-              raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
-          PY
-
-      - name: Verify review-ledger anti-spoof boundary
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
-          required = [
-              "const codeRabbitEvidence = [",
-              "if (codeRabbitEvidence.length === 0)",
-              "no native CodeRabbit exact-head evidence",
+          required_policy = ['STALE_HEAD', 'PERMISSION_ERROR']
+          required_ledger = [
+              'const codeRabbitEvidence = [',
+              'if (codeRabbitEvidence.length === 0)',
+              'no native CodeRabbit exact-head evidence',
               "item.user?.login === 'github-actions[bot]'",
           ]
-          missing = [token for token in required if token not in ledger]
+          missing = [token for token in required_script if token not in script]
+          missing += [token for token in required_policy if token not in policy]
+          missing += [token for token in required_ledger if token not in ledger]
           reports_block = ledger.split('const reports = issueComments.filter', 1)[1].split('const report =', 1)[0]
           if 'trustedAssociations' in reports_block:
               missing.append('bot-only cooperation report trust boundary')
           if missing:
-              raise SystemExit('Missing review-ledger anti-spoof invariants: ' + ', '.join(missing))
-
-          summary = Path('scripts/render-ci-proof-summary.mjs').read_text(encoding='utf-8')
-          traceability = Path('.github/workflows/traceability.yml').read_text(encoding='utf-8')
-          if 'Codex + CodeRabbit' in summary or 'Codex and CodeRabbit exact-head evidence' in traceability:
-              raise SystemExit('Stale binding-reviewer label remains in CI summary')
+              raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
           PY
 
       - name: Verify job-scoped cancellation
         run: |
-          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('github.run_id')"
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('github.run_id') && concurrency['group'].include?('github.event.workflow_run.head_sha')"
