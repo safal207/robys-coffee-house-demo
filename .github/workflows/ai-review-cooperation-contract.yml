@@ -98,6 +98,48 @@ jobs:
           grep -Fq 'EVIDENCE_TRUNCATED' scripts/ai-review-cooperation.py
           grep -Fq 'PR head changed before publishing' .github/workflows/ai-review-cooperation.yml
 
+      - name: Verify failure diagnostics cannot spoof evidence
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          trusted_marker = '<!-- ai-review-cooperation -->'
+          diagnostic_marker = '<!-- ai-review-cooperation-diagnostic -->'
+          if trusted_marker in diagnostic_marker:
+              raise SystemExit('Diagnostic marker aliases the trusted report marker')
+
+          workflow_path = Path('.github/workflows/ai-review-cooperation.yml')
+          workflow_text = workflow_path.read_text(encoding='utf-8')
+          if diagnostic_marker not in workflow_text:
+              raise SystemExit('Missing cooperation failure diagnostic marker')
+          if 'if: ${{ failure() }}' not in workflow_text:
+              raise SystemExit('Failure diagnostic is not restricted to failed jobs')
+
+          workflow = yaml.safe_load(workflow_text)
+          steps = workflow['jobs']['report']['steps']
+          diagnostic = next(
+              (step for step in steps if step.get('name') == 'Publish reporter failure diagnostic'),
+              None,
+          )
+          if diagnostic is None:
+              raise SystemExit('Missing reporter failure diagnostic step')
+          run = diagnostic.get('run', '')
+          required = [diagnostic_marker, 'RUN_URL', 'jq -n', 'issues/${PR_NUMBER}/comments']
+          missing = [token for token in required if token not in run]
+          if missing:
+              raise SystemExit('Incomplete diagnostic publisher: ' + ', '.join(missing))
+          forbidden = ['toJson(github)', '${{ github.token }}', 'GH_TOKEN:']
+          leaked = [token for token in forbidden if token in run]
+          if leaked:
+              raise SystemExit('Diagnostic publisher exposes sensitive context: ' + ', '.join(leaked))
+
+          ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
+          reports_block = ledger.split('const reports = issueComments.filter', 1)[1].split('const report =', 1)[0]
+          if diagnostic_marker in reports_block:
+              raise SystemExit('Review ledger accepts diagnostic comments as reports')
+          PY
+
       - name: Verify causal trust and policy taxonomy
         run: |
           python3 - <<'PY'
