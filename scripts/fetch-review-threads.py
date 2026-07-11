@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Fetch every pull-request review thread and comment through GitHub GraphQL."""
+"""Fetch complete PR review threads and derive workflow-level check evidence."""
 
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -43,12 +43,28 @@ query($id:ID!,$after:String){
 }
 '''
 
+RUN_URL = re.compile(r'/actions/runs/([1-9][0-9]*)(?:/|$)')
+
 
 def required_env(name: str) -> str:
     value = os.environ.get(name, '').strip()
     if not value:
         raise RuntimeError(f'Missing required environment variable: {name}')
     return value
+
+
+def run_json(command: list[str]) -> dict[str, Any] | list[Any]:
+    result = subprocess.run(
+        command,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+    )
+    payload = json.loads(result.stdout)
+    if isinstance(payload, dict) and payload.get('errors'):
+        raise RuntimeError(f'GitHub returned errors: {payload["errors"]}')
+    return payload
 
 
 def graphql(query: str, variables: dict[str, str | int | None]) -> dict[str, Any]:
@@ -58,16 +74,16 @@ def graphql(query: str, variables: dict[str, str | int | None]) -> dict[str, Any
             continue
         flag = '-F' if isinstance(value, int) else '-f'
         command.extend([flag, f'{name}={value}'])
-    result = subprocess.run(
-        command,
-        check=True,
-        capture_output=True,
-        text=True,
-        encoding='utf-8',
-    )
-    payload = json.loads(result.stdout)
-    if payload.get('errors'):
-        raise RuntimeError(f'GitHub GraphQL returned errors: {payload["errors"]}')
+    payload = run_json(command)
+    if not isinstance(payload, dict):
+        raise RuntimeError('GitHub GraphQL returned a non-object payload')
+    return payload
+
+
+def rest(path: str) -> dict[str, Any]:
+    payload = run_json(['gh', 'api', path])
+    if not isinstance(payload, dict):
+        raise RuntimeError(f'GitHub REST returned a non-object payload for {path}')
     return payload
 
 
@@ -106,6 +122,104 @@ def fetch_all(owner: str, name: str, number: int) -> dict[str, Any]:
     return {'complete': True, 'threads': threads}
 
 
+def run_id_of(check: dict[str, Any]) -> int | None:
+    app = check.get('app') or {}
+    if not isinstance(app, dict) or app.get('slug') != 'github-actions':
+        return None
+    url = str(check.get('details_url') or check.get('html_url') or '')
+    match = RUN_URL.search(url)
+    return int(match.group(1)) if match else None
+
+
+def normalize_workflow_checks(repository: str, expected_head: str) -> None:
+    """Preserve raw check runs and derive one exact-head entry per Actions workflow."""
+    checks_value = os.environ.get('CHECKS_FILE', '').strip()
+    if not checks_value:
+        return
+
+    checks_path = Path(checks_value)
+    raw_bytes = checks_path.read_bytes()
+    raw_payload = json.loads(raw_bytes.decode('utf-8'))
+    if not isinstance(raw_payload, dict):
+        raise RuntimeError('Check evidence must be a JSON object')
+    raw_checks = raw_payload.get('check_runs')
+    if not isinstance(raw_checks, list):
+        raise RuntimeError('Check evidence is missing check_runs[]')
+
+    raw_value = os.environ.get('RAW_CHECKS_FILE', '').strip()
+    raw_path = (
+        Path(raw_value)
+        if raw_value
+        else checks_path.with_name(f'{checks_path.stem}.raw{checks_path.suffix}')
+    )
+    raw_path.write_bytes(raw_bytes)
+
+    run_ids = sorted({run_id for check in raw_checks if (run_id := run_id_of(check))})
+    workflows: list[dict[str, Any]] = []
+    for run_id in run_ids:
+        item = rest(f'repos/{repository}/actions/runs/{run_id}')
+        if item.get('id') != run_id:
+            raise RuntimeError(
+                f'Workflow metadata identity mismatch: expected run {run_id}, '
+                f'got {item.get("id")!r}'
+            )
+        workflows.append(
+            {
+                'id': item.get('id'),
+                'name': item.get('name'),
+                'status': item.get('status'),
+                'conclusion': item.get('conclusion'),
+                'details_url': item.get('html_url'),
+                'head_sha': item.get('head_sha'),
+                'event': item.get('event'),
+                'app': {'slug': 'github-actions'},
+            }
+        )
+
+    mismatched = [item for item in workflows if item.get('head_sha') != expected_head]
+    if mismatched:
+        summary = ', '.join(
+            f'id={item.get("id")} name={item.get("name")} head={item.get("head_sha")}'
+            for item in mismatched
+        )
+        raise RuntimeError(f'Workflow metadata contains a different head: {summary}')
+
+    external_checks = [check for check in raw_checks if run_id_of(check) is None]
+    derived = {'check_runs': workflows + external_checks}
+
+    trigger_event = os.environ.get('TRIGGER_EVENT', '').strip()
+    if trigger_event == 'workflow_run':
+        trigger_head = os.environ.get('TRIGGER_HEAD_SHA', '').strip().lower()
+        if trigger_head != expected_head:
+            raise RuntimeError(
+                f'Workflow trigger head does not match PR head: {trigger_head or "missing"} '
+                f'!= {expected_head}'
+            )
+        trusted_matches = [
+            item
+            for item in workflows
+            if item.get('name') == 'AI review contract'
+            and item.get('status') == 'completed'
+            and item.get('conclusion') == 'success'
+            and item.get('head_sha') == expected_head
+            and item.get('app', {}).get('slug') == 'github-actions'
+        ]
+        if not trusted_matches:
+            raise RuntimeError(
+                'Workflow-run evidence lacks a successful exact-head AI review contract'
+            )
+
+    checks_path.write_text(
+        json.dumps(derived, ensure_ascii=False, separators=(',', ':')),
+        encoding='utf-8',
+    )
+    print(
+        'Derived workflow-level check evidence: '
+        f'{len(workflows)} Actions workflows, {len(external_checks)} external checks; '
+        f'raw evidence preserved at {raw_path}'
+    )
+
+
 def main() -> int:
     repository = required_env('REPOSITORY')
     owner, name = repository.split('/', 1)
@@ -115,6 +229,14 @@ def main() -> int:
         json.dumps(fetch_all(owner, name, number), ensure_ascii=False),
         encoding='utf-8',
     )
+
+    if os.environ.get('CHECKS_FILE', '').strip():
+        pr_file = Path(required_env('PR_JSON_FILE'))
+        pr_payload = json.loads(pr_file.read_text(encoding='utf-8'))
+        expected_head = str(pr_payload.get('head', {}).get('sha') or '').strip().lower()
+        if not re.fullmatch(r'[0-9a-f]{40}', expected_head):
+            raise RuntimeError(f'PR evidence contains an invalid head SHA: {expected_head!r}')
+        normalize_workflow_checks(repository, expected_head)
     return 0
 
 

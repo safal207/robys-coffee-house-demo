@@ -33,6 +33,7 @@ jobs:
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_sha != '')
     permissions:
+      actions: read
       checks: read
       contents: read
       issues: write
@@ -203,6 +204,7 @@ jobs:
             echo "REVIEWS_FILE=${prefix}-reviews.json"
             echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
             echo "THREADS_FILE=${prefix}-threads.json"
+            echo "RAW_CHECKS_FILE=${prefix}-checks-raw.json"
             echo "CHECKS_FILE=${prefix}-checks.json"
             echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
