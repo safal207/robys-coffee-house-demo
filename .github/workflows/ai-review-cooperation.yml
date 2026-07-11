@@ -20,6 +20,7 @@ jobs:
         github.event.comment.user.login == github.repository_owner)) ||
       (github.event_name == 'pull_request_review' &&
        github.event.review.state == 'approved' &&
+       github.event.review.commit_id == github.event.pull_request.head.sha &&
        (github.event.review.user.login == 'coderabbitai[bot]' ||
         github.event.review.user.login == 'coderabbitai'))
     permissions:
@@ -29,7 +30,23 @@ jobs:
       pull-requests: read
       statuses: read
     concurrency:
-      group: ai-review-cooperation-${{ github.event.issue.number || github.event.pull_request.number }}
+      group: >-
+        ai-review-cooperation-${{
+          ((github.event_name == 'issue_comment' &&
+            github.event.issue.pull_request != null &&
+            github.event.comment.body == '/ai-cooperation report' &&
+            (github.event.comment.author_association == 'OWNER' ||
+             github.event.comment.author_association == 'MEMBER' ||
+             github.event.comment.author_association == 'COLLABORATOR' ||
+             github.event.comment.user.login == github.repository_owner)) ||
+           (github.event_name == 'pull_request_review' &&
+            github.event.review.state == 'approved' &&
+            github.event.review.commit_id == github.event.pull_request.head.sha &&
+            (github.event.review.user.login == 'coderabbitai[bot]' ||
+             github.event.review.user.login == 'coderabbitai'))) &&
+          (github.event.issue.number || github.event.pull_request.number) ||
+          github.run_id
+        }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -42,6 +59,8 @@ jobs:
       TRIGGER_AUTHOR: ${{ github.event.comment.user.login || github.event.review.user.login }}
       TRIGGER_ASSOCIATION: ${{ github.event.comment.author_association || github.event.review.author_association }}
       REVIEW_STATE: ${{ github.event.review.state || '' }}
+      REVIEW_COMMIT: ${{ github.event.review.commit_id || '' }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
 
     steps:
       - name: Authorize cooperation trigger
@@ -73,9 +92,13 @@ jobs:
                 echo "Review trigger is not an approval: ${REVIEW_STATE}" >&2
                 exit 1
               fi
+              if [ -z "${REVIEW_COMMIT}" ] || [ -z "${PR_HEAD_SHA}" ] || [ "${REVIEW_COMMIT}" != "${PR_HEAD_SHA}" ]; then
+                echo "Review trigger is not bound to the current PR head: ${REVIEW_COMMIT:-missing} != ${PR_HEAD_SHA:-missing}" >&2
+                exit 1
+              fi
               case "${TRIGGER_AUTHOR}" in
                 coderabbitai|coderabbitai\[bot\])
-                  echo "Authorized by native CodeRabbit approval."
+                  echo "Authorized by native exact-head CodeRabbit approval."
                   ;;
                 *)
                   echo "Unauthorized review trigger actor: ${TRIGGER_AUTHOR}" >&2
