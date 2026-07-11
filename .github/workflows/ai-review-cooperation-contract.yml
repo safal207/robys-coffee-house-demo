@@ -118,13 +118,23 @@ jobs:
           raise 'failure diagnostic is not restricted to failed jobs' unless diagnostic['if'].to_s.include?('failure()')
 
           run = diagnostic['run'].to_s
-          required = [diagnostic_marker, 'RUN_URL', 'jq -n', 'issues/${PR_NUMBER}/comments']
+          required = [
+            diagnostic_marker,
+            'RUN_URL',
+            'printf -v body',
+            'jq -n',
+            'existing_diagnostic_id',
+            '--method PATCH',
+            '--method POST',
+            'Güvenilir raporlayıcı',
+            'Доверенный репортер',
+          ]
           missing = required.reject { |token| run.include?(token) }
           raise "incomplete diagnostic publisher: #{missing.join(', ')}" unless missing.empty?
 
-          forbidden = ['toJson(github)', '${{ github.token }}', 'GH_TOKEN:']
+          forbidden = ['toJson(github)', '${{ github.token }}', 'GH_TOKEN:', 'cat <<']
           leaked = forbidden.select { |token| run.include?(token) }
-          raise "diagnostic publisher exposes sensitive context: #{leaked.join(', ')}" unless leaked.empty?
+          raise "diagnostic publisher exposes sensitive or malformed context: #{leaked.join(', ')}" unless leaked.empty?
 
           ledger = File.read('.github/workflows/review-ledger.yml', encoding: 'UTF-8')
           reports_block = ledger.split('const reports = issueComments.filter', 2)[1].split('const report =', 2)[0]
