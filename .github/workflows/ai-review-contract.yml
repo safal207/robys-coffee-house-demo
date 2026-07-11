@@ -121,45 +121,97 @@ jobs:
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
             | jq 'add // []' > "${STATUSES_FILE}"
 
-      - name: Normalize current AI gate after verifier success
+      - name: Build workflow-level check evidence after verifier success
         id: normalize_self
         run: |
           set -euo pipefail
-          run_fragment="/actions/runs/${GITHUB_RUN_ID}"
-          current_matches="$(
-            jq --arg fragment "${run_fragment}" '
-              [.check_runs[]
-               | select(
-                   (((.details_url // .html_url // "") | contains($fragment))) and
-                   (.status != "completed")
-                 )]
-              | length
-            ' "${RAW_CHECKS_FILE}"
-          )"
-          if [ "${current_matches}" != "1" ]; then
-            echo "Expected exactly one in-progress check for current run ${GITHUB_RUN_ID}; found ${current_matches}." >&2
-            jq -r --arg fragment "${run_fragment}" '
-              .check_runs[]
-              | select(((.details_url // .html_url // "") | contains($fragment)))
-              | "name=\(.name) status=\(.status) conclusion=\(.conclusion // "null") url=\(.details_url // .html_url // "")"
-            ' "${RAW_CHECKS_FILE}" >&2
+          run_ids_file="${RUNNER_TEMP}/cooperation-workflow-run-ids.txt"
+          workflow_jsonl="${RUNNER_TEMP}/cooperation-workflow-runs.jsonl"
+          workflow_checks="${RUNNER_TEMP}/cooperation-workflow-checks.json"
+          external_checks="${RUNNER_TEMP}/cooperation-external-checks.json"
+          : > "${workflow_jsonl}"
+
+          jq -r '
+            .check_runs[]
+            | (.details_url // .html_url // "")
+            | try capture("/actions/runs/(?<id>[0-9]+)").id catch empty
+          ' "${RAW_CHECKS_FILE}" | sort -u > "${run_ids_file}"
+
+          while IFS= read -r run_id; do
+            [ -n "${run_id}" ] || continue
+            gh api "repos/${REPOSITORY}/actions/runs/${run_id}" \
+              --jq '{id: .id, name: .name, status: .status, conclusion: .conclusion, details_url: .html_url, head_sha: .head_sha, event: .event}' \
+              >> "${workflow_jsonl}"
+          done < "${run_ids_file}"
+
+          jq -s '.' "${workflow_jsonl}" > "${workflow_checks}"
+          expected_run_count="$(sed '/^$/d' "${run_ids_file}" | wc -l | tr -d ' ')"
+          actual_run_count="$(jq 'length' "${workflow_checks}")"
+          if [ "${actual_run_count}" != "${expected_run_count}" ]; then
+            echo "Workflow metadata collection was incomplete: expected ${expected_run_count}, got ${actual_run_count}." >&2
             exit 1
           fi
 
-          jq --arg fragment "${run_fragment}" '
+          mismatched_heads="$(
+            jq --arg expected "${EXPECTED_HEAD}" '[.[] | select(.head_sha != $expected)] | length' "${workflow_checks}"
+          )"
+          if [ "${mismatched_heads}" != "0" ]; then
+            echo "Workflow metadata contains checks from a different head." >&2
+            jq -r --arg expected "${EXPECTED_HEAD}" '.[] | select(.head_sha != $expected) | "id=\(.id) name=\(.name) head=\(.head_sha)"' "${workflow_checks}" >&2
+            exit 1
+          fi
+
+          jq '[
+            .check_runs[]
+            | select(
+                ((.details_url // .html_url // "") | test("/actions/runs/[0-9]+") | not)
+              )
+          ]' "${RAW_CHECKS_FILE}" > "${external_checks}"
+
+          jq -n \
+            --slurpfile workflows "${workflow_checks}" \
+            --slurpfile external "${external_checks}" \
+            '{check_runs: ($workflows[0] + $external[0])}' \
+            > "${CHECKS_FILE}"
+
+          current_matches="$(
+            jq --argjson run_id "${GITHUB_RUN_ID}" '
+              [.check_runs[]
+               | select(
+                   .id == $run_id and
+                   .name == "AI review contract" and
+                   .status != "completed"
+                 )]
+              | length
+            ' "${CHECKS_FILE}"
+          )"
+          if [ "${current_matches}" != "1" ]; then
+            echo "Expected exactly one in-progress AI review workflow for current run ${GITHUB_RUN_ID}; found ${current_matches}." >&2
+            jq -r --argjson run_id "${GITHUB_RUN_ID}" '
+              .check_runs[]
+              | select(.id == $run_id)
+              | "id=\(.id) name=\(.name) status=\(.status) conclusion=\(.conclusion // "null") head=\(.head_sha // "external")"
+            ' "${CHECKS_FILE}" >&2
+            exit 1
+          fi
+
+          tmp_checks="${CHECKS_FILE}.tmp"
+          jq --argjson run_id "${GITHUB_RUN_ID}" '
             .check_runs |= map(
-              if (((.details_url // .html_url // "") | contains($fragment)) and .status != "completed")
+              if (.id == $run_id and .name == "AI review contract" and .status != "completed")
               then .status = "completed" | .conclusion = "success"
               else .
               end
             )
-          ' "${RAW_CHECKS_FILE}" > "${CHECKS_FILE}"
+          ' "${CHECKS_FILE}" > "${tmp_checks}"
+          mv "${tmp_checks}" "${CHECKS_FILE}"
 
           normalized_count="$(
-            jq --arg fragment "${run_fragment}" '
+            jq --argjson run_id "${GITHUB_RUN_ID}" '
               [.check_runs[]
                | select(
-                   (((.details_url // .html_url // "") | contains($fragment))) and
+                   .id == $run_id and
+                   .name == "AI review contract" and
                    .status == "completed" and
                    .conclusion == "success"
                  )]
@@ -167,7 +219,7 @@ jobs:
             ' "${CHECKS_FILE}"
           )"
           test "${normalized_count}" = "1"
-          echo "Normalized the single current-run check after successful exact-head verifier evidence."
+          echo "Built workflow-level evidence and normalized the current AI workflow after verifier success."
 
       - name: Collect complete GraphQL review evidence
         id: graphql_evidence
@@ -282,7 +334,7 @@ jobs:
             "| trusted reporter checkout / güvenilir reporter checkout / trusted checkout | ${REPORTER_CHECKOUT_OUTCOME:-unknown} |" \
             "| configure / yapılandırma / настройка | ${CONFIGURE_OUTCOME:-unknown} |" \
             "| REST evidence / REST kanıtı / REST-доказательства | ${REST_OUTCOME:-unknown} |" \
-            "| normalize current check / mevcut check normalizasyonu / нормализация текущей проверки | ${NORMALIZE_OUTCOME:-unknown} |" \
+            "| workflow-level check evidence / workflow-level check kanıtı / workflow-level evidence | ${NORMALIZE_OUTCOME:-unknown} |" \
             "| GraphQL evidence / GraphQL kanıtı / GraphQL-доказательства | ${GRAPHQL_OUTCOME:-unknown} |" \
             "| build report / rapor oluşturma / построение отчета | ${BUILD_OUTCOME:-unknown} |" \
             "| validate conclusion / sonucu doğrulama / проверка заключения | ${VALIDATE_OUTCOME:-unknown} |" \
