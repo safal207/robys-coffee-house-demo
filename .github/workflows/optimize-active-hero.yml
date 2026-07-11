@@ -1,8 +1,6 @@
 name: One-shot active hero optimizer
 
 on:
-  push:
-    branches: [perf/optimize-active-hero]
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
@@ -13,16 +11,22 @@ permissions:
   contents: write
 
 concurrency:
-  group: optimize-active-hero-${{ github.ref }}
-  cancel-in-progress: false
+  group: optimize-active-hero-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   optimize:
     if: >-
       github.repository == 'safal207/robys-coffee-house-demo' &&
-      (github.event_name == 'push' || github.head_ref == 'perf/optimize-active-hero')
+      github.head_ref == 'perf/optimize-active-hero'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      INPUT_VIDEO: src/robys-ambience-clean.mp4
+      OUTPUT_VIDEO: ${{ runner.temp }}/robys-ambience-clean.mp4
+      PASSLOG: ${{ runner.temp }}/robys-hero-pass
+      PASS1_VIDEO: ${{ runner.temp }}/robys-hero-pass1.mp4
+      METADATA_FILE: ${{ runner.temp }}/hero-metadata.json
     steps:
       - name: Checkout optimization branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -31,35 +35,55 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Optimize and validate active hero
+      - name: Inspect source hero
         run: |
           set -euo pipefail
-          input='src/robys-ambience-clean.mp4'
-          output="${RUNNER_TEMP}/robys-ambience-clean.mp4"
-          passlog="${RUNNER_TEMP}/robys-hero-pass"
+          test -f "$INPUT_VIDEO"
+          stat -c 'source_bytes=%s' "$INPUT_VIDEO"
+          ffprobe -v error \
+            -show_entries format=duration,size \
+            -show_entries stream=width,height,codec_name,codec_type \
+            -of json "$INPUT_VIDEO"
 
-          test -f "$input"
+      - name: Encode pass one
+        run: |
+          set -euo pipefail
           ffmpeg -hide_banner -loglevel error -y \
-            -i "$input" -an -vf 'scale=480:-2' \
+            -i "$INPUT_VIDEO" -an -vf 'scale=480:-2' \
             -c:v libx264 -preset slow -profile:v main -level 3.1 \
-            -b:v 220k -pass 1 -passlogfile "$passlog" \
-            -f mp4 /dev/null
-          ffmpeg -hide_banner -loglevel error -y \
-            -i "$input" -an -vf 'scale=480:-2' \
-            -c:v libx264 -preset slow -profile:v main -level 3.1 \
-            -b:v 220k -pass 2 -passlogfile "$passlog" \
-            -pix_fmt yuv420p -movflags +faststart "$output"
+            -b:v 200k -pass 1 -passlogfile "$PASSLOG" \
+            -pix_fmt yuv420p "$PASS1_VIDEO"
 
-          bytes="$(stat -c %s "$output")"
+      - name: Encode pass two
+        run: |
+          set -euo pipefail
+          ffmpeg -hide_banner -loglevel error -y \
+            -i "$INPUT_VIDEO" -an -vf 'scale=480:-2' \
+            -c:v libx264 -preset slow -profile:v main -level 3.1 \
+            -b:v 200k -pass 2 -passlogfile "$PASSLOG" \
+            -pix_fmt yuv420p -movflags +faststart "$OUTPUT_VIDEO"
+
+      - name: Validate optimized media
+        run: |
+          set -euo pipefail
+          bytes="$(stat -c %s "$OUTPUT_VIDEO")"
+          echo "optimized_bytes=$bytes"
           test "$bytes" -ge 20000
           test "$bytes" -le 256000
-          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$output")" = 'h264'
-          test -z "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$output")"
-          ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height,codec_name,codec_type -of json "$output" > "${RUNNER_TEMP}/hero-metadata.json"
-          jq -e '(.format.duration | tonumber) >= 1 and (.format.duration | tonumber) <= 8' "${RUNNER_TEMP}/hero-metadata.json" >/dev/null
-          jq -e '[.streams[] | select(.codec_type == "video")] | length == 1' "${RUNNER_TEMP}/hero-metadata.json" >/dev/null
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$OUTPUT_VIDEO")" = 'h264'
+          test -z "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$OUTPUT_VIDEO")"
+          ffprobe -v error \
+            -show_entries format=duration,size \
+            -show_entries stream=width,height,codec_name,codec_type \
+            -of json "$OUTPUT_VIDEO" > "$METADATA_FILE"
+          jq -e '(.format.duration | tonumber) >= 1 and (.format.duration | tonumber) <= 8' "$METADATA_FILE" >/dev/null
+          jq -e '[.streams[] | select(.codec_type == "video")] | length == 1' "$METADATA_FILE" >/dev/null
+          jq . "$METADATA_FILE"
 
-          mv "$output" "$input"
+      - name: Update product references and integrity evidence
+        run: |
+          set -euo pipefail
+          mv "$OUTPUT_VIDEO" "$INPUT_VIDEO"
 
           python3 - <<'PY'
           import re
@@ -87,10 +111,6 @@ jobs:
           node scripts/generate-integrity-manifest.mjs
           node scripts/generate-integrity-manifest.mjs --check
           node scripts/verify-integrity-manifest.mjs
-
-          echo "Optimized hero evidence:"
-          jq . "${RUNNER_TEMP}/hero-metadata.json"
-          stat -c 'optimized_bytes=%s' "$input"
 
       - name: Commit optimized product files and remove one-shot workflow
         run: |
