@@ -1,0 +1,103 @@
+name: One-shot active hero optimizer
+
+on:
+  push:
+    branches: [perf/optimize-active-hero]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: optimize-active-hero-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  optimize:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout optimization branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: perf/optimize-active-hero
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Optimize and validate active hero
+        run: |
+          set -euo pipefail
+          input='src/robys-ambience-clean.mp4'
+          output="${RUNNER_TEMP}/robys-ambience-clean.mp4"
+          passlog="${RUNNER_TEMP}/robys-hero-pass"
+
+          test -f "$input"
+          ffmpeg -hide_banner -loglevel error -y \
+            -i "$input" -an -vf 'scale=480:-2' \
+            -c:v libx264 -preset slow -profile:v main -level 3.1 \
+            -b:v 220k -pass 1 -passlogfile "$passlog" \
+            -f mp4 /dev/null
+          ffmpeg -hide_banner -loglevel error -y \
+            -i "$input" -an -vf 'scale=480:-2' \
+            -c:v libx264 -preset slow -profile:v main -level 3.1 \
+            -b:v 220k -pass 2 -passlogfile "$passlog" \
+            -pix_fmt yuv420p -movflags +faststart "$output"
+
+          bytes="$(stat -c %s "$output")"
+          test "$bytes" -ge 20000
+          test "$bytes" -le 256000
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$output")" = 'h264'
+          test -z "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$output")"
+          ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height,codec_name,codec_type -of json "$output" > "${RUNNER_TEMP}/hero-metadata.json"
+          jq -e '(.format.duration | tonumber) >= 1 and (.format.duration | tonumber) <= 8' "${RUNNER_TEMP}/hero-metadata.json" >/dev/null
+          jq -e '[.streams[] | select(.codec_type == "video")] | length == 1' "${RUNNER_TEMP}/hero-metadata.json" >/dev/null
+
+          mv "$output" "$input"
+
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          old_video = 'src/robys-ambience-clean.mp4?v=20260627-2'
+          new_video = 'src/robys-ambience-clean.mp4?v=20260711-1'
+          for filename in ('index.html', 'qa.js'):
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              if old_video not in text:
+                  raise SystemExit(f'{filename}: expected active hero URL not found')
+              path.write_text(text.replace(old_video, new_video), encoding='utf-8')
+
+          build_pattern = re.compile(r'(<meta\b[^>]*name=["\']robys-build["\'][^>]*content=["\'])[^"\']+(["\'])', re.I)
+          for filename in ('index.html', 'menu.html'):
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              updated, count = build_pattern.subn(r'\g<1>20260711-1\g<2>', text, count=1)
+              if count != 1:
+                  raise SystemExit(f'{filename}: robys-build marker not updated')
+              path.write_text(updated, encoding='utf-8')
+          PY
+
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/generate-integrity-manifest.mjs --check
+          node scripts/verify-integrity-manifest.mjs
+
+          echo "Original and optimized hero evidence:"
+          jq . "${RUNNER_TEMP}/hero-metadata.json"
+          stat -c 'optimized_bytes=%s' "$input"
+
+      - name: Commit optimized product files and remove one-shot workflow
+        run: |
+          set -euo pipefail
+          rm .github/workflows/optimize-active-hero.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            .github/workflows/optimize-active-hero.yml \
+            src/robys-ambience-clean.mp4 \
+            index.html \
+            menu.html \
+            qa.js \
+            integrity-manifest.json
+          git diff --cached --stat
+          git commit -m 'perf: optimize active hero video'
+          git push origin HEAD:perf/optimize-active-hero
