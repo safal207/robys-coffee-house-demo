@@ -123,6 +123,9 @@ def fetch_all(owner: str, name: str, number: int) -> dict[str, Any]:
 
 
 def run_id_of(check: dict[str, Any]) -> int | None:
+    app = check.get('app') or {}
+    if not isinstance(app, dict) or app.get('slug') != 'github-actions':
+        return None
     url = str(check.get('details_url') or check.get('html_url') or '')
     match = RUN_URL.search(url)
     return int(match.group(1)) if match else None
