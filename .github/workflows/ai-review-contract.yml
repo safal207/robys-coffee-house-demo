@@ -140,7 +140,7 @@ jobs:
           while IFS= read -r run_id; do
             [ -n "${run_id}" ] || continue
             gh api "repos/${REPOSITORY}/actions/runs/${run_id}" \
-              --jq '{id: .id, name: .name, status: .status, conclusion: .conclusion, details_url: .html_url, head_sha: .head_sha, event: .event}' \
+              --jq '{id: .id, name: .name, status: .status, conclusion: .conclusion, details_url: .html_url, head_sha: .head_sha, event: .event, app: {slug: "github-actions"}}' \
               >> "${workflow_jsonl}"
           done < "${run_ids_file}"
 
@@ -174,12 +174,21 @@ jobs:
             '{check_runs: ($workflows[0] + $external[0])}' \
             > "${CHECKS_FILE}"
 
+          github_actions_workflow_count="$(
+            jq '[.check_runs[] | select(.app.slug == "github-actions")] | length' "${CHECKS_FILE}"
+          )"
+          if [ "${github_actions_workflow_count}" != "${actual_run_count}" ]; then
+            echo "Workflow provenance mapping was incomplete: expected ${actual_run_count}, got ${github_actions_workflow_count}." >&2
+            exit 1
+          fi
+
           current_matches="$(
             jq --argjson run_id "${GITHUB_RUN_ID}" '
               [.check_runs[]
                | select(
                    .id == $run_id and
                    .name == "AI review contract" and
+                   .app.slug == "github-actions" and
                    .status != "completed"
                  )]
               | length
@@ -190,7 +199,7 @@ jobs:
             jq -r --argjson run_id "${GITHUB_RUN_ID}" '
               .check_runs[]
               | select(.id == $run_id)
-              | "id=\(.id) name=\(.name) status=\(.status) conclusion=\(.conclusion // "null") head=\(.head_sha // "external")"
+              | "id=\(.id) name=\(.name) app=\(.app.slug // "missing") status=\(.status) conclusion=\(.conclusion // "null") head=\(.head_sha // "external")"
             ' "${CHECKS_FILE}" >&2
             exit 1
           fi
@@ -198,7 +207,7 @@ jobs:
           tmp_checks="${CHECKS_FILE}.tmp"
           jq --argjson run_id "${GITHUB_RUN_ID}" '
             .check_runs |= map(
-              if (.id == $run_id and .name == "AI review contract" and .status != "completed")
+              if (.id == $run_id and .name == "AI review contract" and .app.slug == "github-actions" and .status != "completed")
               then .status = "completed" | .conclusion = "success"
               else .
               end
@@ -212,6 +221,7 @@ jobs:
                | select(
                    .id == $run_id and
                    .name == "AI review contract" and
+                   .app.slug == "github-actions" and
                    .status == "completed" and
                    .conclusion == "success"
                  )]
@@ -219,7 +229,7 @@ jobs:
             ' "${CHECKS_FILE}"
           )"
           test "${normalized_count}" = "1"
-          echo "Built workflow-level evidence and normalized the current AI workflow after verifier success."
+          echo "Built workflow-level evidence with GitHub Actions provenance and normalized the current AI workflow after verifier success."
 
       - name: Collect complete GraphQL review evidence
         id: graphql_evidence
