@@ -57,12 +57,9 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
-      - name: Verify least privilege and trusted command
+      - name: Verify least privilege
         run: |
-          grep -Fq "github.event.comment.body == '/ai-cooperation report'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'OWNER'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'MEMBER'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'pull_request_review:' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
@@ -83,6 +80,218 @@ jobs:
             'statuses' => 'read',
           }
           raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          RUBY
+
+      - name: Verify exact job trigger guard
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+
+          def normalize_expression(value)
+            output = +''
+            quote = nil
+            escaped = false
+            value.to_s.each_char do |char|
+              if quote
+                output << char
+                if escaped
+                  escaped = false
+                elsif char == '\\'
+                  escaped = true
+                elsif char == quote
+                  quote = nil
+                end
+              elsif char == "'" || char == '"'
+                quote = char
+                output << char
+              elsif char.match?(/\s/)
+                next
+              else
+                output << char
+              end
+            end
+            raise 'unterminated quoted literal in workflow expression' if quote
+            output
+          end
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          actual = normalize_expression(workflow.dig('jobs', 'report', 'if'))
+          expected = normalize_expression(<<~'EXPR')
+            (github.event_name == 'issue_comment' &&
+             github.event.issue.pull_request != null &&
+             github.event.comment.body == '/ai-cooperation report' &&
+             (github.event.comment.author_association == 'OWNER' ||
+              github.event.comment.author_association == 'MEMBER' ||
+              github.event.comment.author_association == 'COLLABORATOR' ||
+              github.event.comment.user.login == github.repository_owner)) ||
+            (github.event_name == 'pull_request_review' &&
+             github.event.review.state == 'approved' &&
+             github.event.review.commit_id == github.event.pull_request.head.sha &&
+             github.event.review.user.type == 'Bot' &&
+             (github.event.review.user.login == 'coderabbitai[bot]' ||
+              github.event.review.user.login == 'coderabbitai'))
+          EXPR
+          raise "job trigger guard drifted:\n#{workflow.dig('jobs', 'report', 'if')}" unless actual == expected
+          RUBY
+
+      - name: Verify concurrency trust partition
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+
+          def normalize_expression(value)
+            output = +''
+            quote = nil
+            escaped = false
+            value.to_s.each_char do |char|
+              if quote
+                output << char
+                if escaped
+                  escaped = false
+                elsif char == '\\'
+                  escaped = true
+                elsif char == quote
+                  quote = nil
+                end
+              elsif char == "'" || char == '"'
+                quote = char
+                output << char
+              elsif char.match?(/\s/)
+                next
+              else
+                output << char
+              end
+            end
+            raise 'unterminated quoted literal in workflow expression' if quote
+            output
+          end
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          concurrency = workflow.dig('jobs', 'report', 'concurrency')
+          raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
+          actual = normalize_expression(concurrency['group'])
+          expected_source = <<~'EXPR'
+            ai-review-cooperation-__EXPR_OPEN__
+              ((github.event_name == 'issue_comment' &&
+                github.event.issue.pull_request != null &&
+                github.event.comment.body == '/ai-cooperation report' &&
+                (github.event.comment.author_association == 'OWNER' ||
+                 github.event.comment.author_association == 'MEMBER' ||
+                 github.event.comment.author_association == 'COLLABORATOR' ||
+                 github.event.comment.user.login == github.repository_owner)) ||
+               (github.event_name == 'pull_request_review' &&
+                github.event.review.state == 'approved' &&
+                github.event.review.commit_id == github.event.pull_request.head.sha &&
+                github.event.review.user.type == 'Bot' &&
+                (github.event.review.user.login == 'coderabbitai[bot]' ||
+                 github.event.review.user.login == 'coderabbitai'))) &&
+              (github.event.issue.number || github.event.pull_request.number) ||
+              github.run_id
+            }}
+          EXPR
+          expected = normalize_expression(expected_source.sub('__EXPR_OPEN__', '$' + '{{'))
+          raise "concurrency trust partition drifted:\n#{concurrency['group']}" unless actual == expected
+          RUBY
+
+      - name: Verify trigger environment mappings
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          env = YAML.load_file('.github/workflows/ai-review-cooperation.yml').dig('jobs', 'report', 'env')
+          required = {
+            'PR_NUMBER' => 'github.event.issue.number || github.event.pull_request.number',
+            'TRIGGER_EVENT' => 'github.event_name',
+            'TRIGGER_AUTHOR' => 'github.event.comment.user.login || github.event.review.user.login',
+            'TRIGGER_ASSOCIATION' => 'github.event.comment.author_association || github.event.review.author_association',
+            'REVIEW_STATE' => "github.event.review.state || ''",
+            'REVIEW_COMMIT' => "github.event.review.commit_id || ''",
+            'REVIEW_USER_TYPE' => "github.event.review.user.type || ''",
+            'PR_HEAD_SHA' => "github.event.pull_request.head.sha || ''",
+          }
+          missing = required.reject { |key, token| env.fetch(key, '').include?(token) }
+          raise "trigger environment drifted: #{missing.inspect}" unless missing.empty?
+          RUBY
+
+      - name: Execute authorization matrix
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'open3'
+          require 'tempfile'
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          authorization = workflow.dig('jobs', 'report', 'steps').first
+          raise 'authorization must remain first' unless authorization['name'] == 'Authorize cooperation trigger'
+          script = authorization['run'].to_s
+
+          cases = [
+            ['trusted owner association', true, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'member-user',
+              'TRIGGER_ASSOCIATION' => 'OWNER', 'REVIEW_STATE' => '',
+              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            }],
+            ['exact repository owner fallback', true, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'repo-owner',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => '',
+              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            }],
+            ['exact-head CodeRabbit bot approval', true, {
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
+              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'abc123',
+            }],
+            ['untrusted comment', false, {
+              'TRIGGER_EVENT' => 'issue_comment', 'TRIGGER_AUTHOR' => 'attacker',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => '',
+              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            }],
+            ['human approval', false, {
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'human-reviewer',
+              'TRIGGER_ASSOCIATION' => 'MEMBER', 'REVIEW_STATE' => 'approved',
+              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'User', 'PR_HEAD_SHA' => 'abc123',
+            }],
+            ['CodeRabbit-named user approval', false, {
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
+              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'User', 'PR_HEAD_SHA' => 'abc123',
+            }],
+            ['non-approved CodeRabbit review', false, {
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'changes_requested',
+              'REVIEW_COMMIT' => 'abc123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'abc123',
+            }],
+            ['stale CodeRabbit approval', false, {
+              'TRIGGER_EVENT' => 'pull_request_review', 'TRIGGER_AUTHOR' => 'coderabbitai[bot]',
+              'TRIGGER_ASSOCIATION' => 'NONE', 'REVIEW_STATE' => 'approved',
+              'REVIEW_COMMIT' => 'old123', 'REVIEW_USER_TYPE' => 'Bot', 'PR_HEAD_SHA' => 'new456',
+            }],
+            ['unsupported event', false, {
+              'TRIGGER_EVENT' => 'push', 'TRIGGER_AUTHOR' => 'repo-owner',
+              'TRIGGER_ASSOCIATION' => 'OWNER', 'REVIEW_STATE' => '',
+              'REVIEW_COMMIT' => '', 'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '',
+            }],
+          ]
+
+          Tempfile.create(['cooperation-authorization', '.sh']) do |file|
+            file.write(script)
+            file.flush
+            File.chmod(0o700, file.path)
+            cases.each do |name, expected_success, values|
+              test_env = {
+                'REPOSITORY_OWNER' => 'repo-owner',
+                'TRIGGER_EVENT' => '',
+                'TRIGGER_AUTHOR' => '',
+                'TRIGGER_ASSOCIATION' => '',
+                'REVIEW_STATE' => '',
+                'REVIEW_COMMIT' => '',
+                'REVIEW_USER_TYPE' => '',
+                'PR_HEAD_SHA' => '',
+              }.merge(values)
+              _stdout, stderr, status = Open3.capture3(test_env, 'bash', file.path)
+              next if status.success? == expected_success
+              raise "authorization matrix failed for #{name}: expected #{expected_success}, status=#{status.exitstatus}, stderr=#{stderr}"
+            end
+          end
           RUBY
 
       - name: Verify complete evidence collection
@@ -132,7 +341,7 @@ jobs:
           missing = required.reject { |token| run.include?(token) }
           raise "incomplete diagnostic publisher: #{missing.join(', ')}" unless missing.empty?
 
-          forbidden = ['toJson(github)', '${{ github.token }}', 'GH_TOKEN:', 'cat <<']
+          forbidden = ['toJson(github)', '$' + '{{ github.token }}', 'GH_TOKEN:', 'cat <<']
           leaked = forbidden.select { |token| run.include?(token) }
           raise "diagnostic publisher exposes sensitive or malformed context: #{leaked.join(', ')}" unless leaked.empty?
 
@@ -194,4 +403,4 @@ jobs:
 
       - name: Verify job-scoped cancellation
         run: |
-          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('ai-review-cooperation-')"
+          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs', 'report', 'concurrency'); raise 'missing job concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('github.run_id')"

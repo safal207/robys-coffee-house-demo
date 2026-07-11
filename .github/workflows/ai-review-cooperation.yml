@@ -3,18 +3,27 @@ name: AI review cooperation report
 on:
   issue_comment:
     types: [created]
+  pull_request_review:
+    types: [submitted]
 
 permissions: {}
 
 jobs:
   report:
     if: >-
-      github.event.issue.pull_request != null &&
-      github.event.comment.body == '/ai-cooperation report' &&
-      (github.event.comment.author_association == 'OWNER' ||
-       github.event.comment.author_association == 'MEMBER' ||
-       github.event.comment.author_association == 'COLLABORATOR' ||
-       github.event.comment.user.login == github.repository_owner)
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       github.event.comment.body == '/ai-cooperation report' &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.user.login == github.repository_owner)) ||
+      (github.event_name == 'pull_request_review' &&
+       github.event.review.state == 'approved' &&
+       github.event.review.commit_id == github.event.pull_request.head.sha &&
+       github.event.review.user.type == 'Bot' &&
+       (github.event.review.user.login == 'coderabbitai[bot]' ||
+        github.event.review.user.login == 'coderabbitai'))
     permissions:
       checks: read
       contents: read
@@ -22,7 +31,24 @@ jobs:
       pull-requests: read
       statuses: read
     concurrency:
-      group: ai-review-cooperation-${{ github.event.issue.number }}
+      group: >-
+        ai-review-cooperation-${{
+          ((github.event_name == 'issue_comment' &&
+            github.event.issue.pull_request != null &&
+            github.event.comment.body == '/ai-cooperation report' &&
+            (github.event.comment.author_association == 'OWNER' ||
+             github.event.comment.author_association == 'MEMBER' ||
+             github.event.comment.author_association == 'COLLABORATOR' ||
+             github.event.comment.user.login == github.repository_owner)) ||
+           (github.event_name == 'pull_request_review' &&
+            github.event.review.state == 'approved' &&
+            github.event.review.commit_id == github.event.pull_request.head.sha &&
+            github.event.review.user.type == 'Bot' &&
+            (github.event.review.user.login == 'coderabbitai[bot]' ||
+             github.event.review.user.login == 'coderabbitai'))) &&
+          (github.event.issue.number || github.event.pull_request.number) ||
+          github.run_id
+        }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -30,29 +56,66 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       REPOSITORY_OWNER: ${{ github.repository_owner }}
-      PR_NUMBER: ${{ github.event.issue.number }}
-      COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
-      COMMENT_ASSOCIATION: ${{ github.event.comment.author_association }}
+      TRIGGER_EVENT: ${{ github.event_name }}
+      PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+      TRIGGER_AUTHOR: ${{ github.event.comment.user.login || github.event.review.user.login }}
+      TRIGGER_ASSOCIATION: ${{ github.event.comment.author_association || github.event.review.author_association }}
+      REVIEW_STATE: ${{ github.event.review.state || '' }}
+      REVIEW_COMMIT: ${{ github.event.review.commit_id || '' }}
+      REVIEW_USER_TYPE: ${{ github.event.review.user.type || '' }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
 
     steps:
-      - name: Authorize cooperation command
+      - name: Authorize cooperation trigger
         id: authorize
         run: |
           set -euo pipefail
-          echo "Cooperation command actor: ${COMMENT_AUTHOR}"
-          echo "GitHub author association: ${COMMENT_ASSOCIATION:-NONE}"
+          echo "Cooperation trigger event: ${TRIGGER_EVENT}"
+          echo "Cooperation trigger actor: ${TRIGGER_AUTHOR}"
+          echo "GitHub author association: ${TRIGGER_ASSOCIATION:-NONE}"
           echo "Repository owner: ${REPOSITORY_OWNER}"
 
-          case "${COMMENT_ASSOCIATION:-NONE}" in
-            OWNER|MEMBER|COLLABORATOR)
-              echo "Authorized by trusted repository association."
+          case "${TRIGGER_EVENT}" in
+            issue_comment)
+              case "${TRIGGER_ASSOCIATION:-NONE}" in
+                OWNER|MEMBER|COLLABORATOR)
+                  echo "Authorized command by trusted repository association."
+                  ;;
+                *)
+                  if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
+                    echo "Unauthorized cooperation-report command actor: ${TRIGGER_AUTHOR}" >&2
+                    exit 1
+                  fi
+                  echo "Authorized command by exact repository-owner identity."
+                  ;;
+              esac
               ;;
-            *)
-              if [ "${COMMENT_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
-                echo "Unauthorized cooperation-report command actor: ${COMMENT_AUTHOR}" >&2
+            pull_request_review)
+              if [ "${REVIEW_STATE}" != "approved" ]; then
+                echo "Review trigger is not an approval: ${REVIEW_STATE}" >&2
                 exit 1
               fi
-              echo "Authorized by exact repository-owner identity."
+              if [ -z "${REVIEW_COMMIT}" ] || [ -z "${PR_HEAD_SHA}" ] || [ "${REVIEW_COMMIT}" != "${PR_HEAD_SHA}" ]; then
+                echo "Review trigger is not bound to the current PR head: ${REVIEW_COMMIT:-missing} != ${PR_HEAD_SHA:-missing}" >&2
+                exit 1
+              fi
+              if [ "${REVIEW_USER_TYPE}" != "Bot" ]; then
+                echo "Review trigger actor is not a bot: ${REVIEW_USER_TYPE:-missing}" >&2
+                exit 1
+              fi
+              case "${TRIGGER_AUTHOR}" in
+                coderabbitai|coderabbitai\[bot\])
+                  echo "Authorized by native exact-head CodeRabbit bot approval."
+                  ;;
+                *)
+                  echo "Unauthorized review trigger actor: ${TRIGGER_AUTHOR}" >&2
+                  exit 1
+                  ;;
+              esac
+              ;;
+            *)
+              echo "Unsupported cooperation trigger event: ${TRIGGER_EVENT}" >&2
+              exit 1
               ;;
           esac
 
