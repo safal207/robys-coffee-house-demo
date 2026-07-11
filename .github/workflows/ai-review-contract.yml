@@ -1,7 +1,7 @@
 name: AI review contract
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
 
 permissions:
@@ -199,7 +199,7 @@ jobs:
             jq -r --argjson run_id "${GITHUB_RUN_ID}" '
               .check_runs[]
               | select(.id == $run_id)
-              | "id=\(.id) name=\(.name) app=\(.app.slug // "missing") status=\(.status) conclusion=\(.conclusion // "null") head=\(.head_sha // "external")"
+              | "id=\(.id) name=\(.name) app=\(.app.slug // \"missing\") status=\(.status) conclusion=\(.conclusion // \"null\") head=\(.head_sha // \"external\")"
             ' "${CHECKS_FILE}" >&2
             exit 1
           fi
