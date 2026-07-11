@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: fix/android-download-offline
       - name: Assemble and publish reviewed APK
@@ -50,8 +50,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -66,8 +69,108 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           node scripts/adversarial-browser.mjs 2>&1 | tee .artifacts/adversarial-browser.log
+      - name: Detect Android/offline probe scope
+        id: offline_scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts
+
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run_offline=true" >> "$GITHUB_OUTPUT"
+            echo "Non-PR event: Android/offline probe required." | tee .artifacts/offline-scope.log
+            exit 0
+          fi
+
+          if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null || ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
+            git fetch --no-tags --prune --depth=1 origin "$BASE_SHA" "$HEAD_SHA" || true
+          fi
+
+          if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null || ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
+            echo "run_offline=true" >> "$GITHUB_OUTPUT"
+            echo "Required PR commits are unavailable locally: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            exit 0
+          fi
+
+          merge_base="$(git merge-base "$BASE_SHA" "$HEAD_SHA" || true)"
+          if [ -z "$merge_base" ]; then
+            echo "run_offline=true" >> "$GITHUB_OUTPUT"
+            echo "PR merge base is unavailable: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            exit 0
+          fi
+
+          collect_changed_paths() {
+            while IFS=$'\t' read -r status first_path second_path; do
+              [ -n "$status" ] || continue
+              case "$status" in
+                R*|C*)
+                  printf '%s\n%s\n' "$first_path" "$second_path"
+                  ;;
+                *)
+                  printf '%s\n' "$first_path"
+                  ;;
+              esac
+            done
+          }
+
+          git diff --name-status -M "$merge_base" "$HEAD_SHA" -- \
+            | collect_changed_paths \
+            | sed '/^$/d' \
+            | sort -u \
+            > .artifacts/offline-scope-changed-files.txt
+          changed_files="$(cat .artifacts/offline-scope-changed-files.txt)"
+
+          # Root web/PWA assets are runtime; nested docs/process files are deliberately excluded.
+          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
+
+          for required_path in \
+            manifest.webmanifest \
+            app.js \
+            icon.svg \
+            apple-touch-icon.png \
+            mobile-install-copy.json \
+            downloads/robys-coffee-house.apk \
+            assets/runtime-image.webp \
+            src/nested/runtime-data.bin; do
+            printf '%s\n' "$required_path" | grep -Eq "$scope_pattern" || {
+              echo "Scope regression: required path was not selected: $required_path" >&2
+              exit 1
+            }
+          done
+
+          for excluded_path in \
+            docs/review-board.md \
+            docs/demo.html \
+            docs/theme.css \
+            docs/example.js \
+            .github/workflows/docs-only.yml; do
+            if printf '%s\n' "$excluded_path" | grep -Eq "$scope_pattern"; then
+              echo "Scope regression: process-only path was selected: $excluded_path" >&2
+              exit 1
+            fi
+          done
+
+          rename_fixture="$(printf 'R100\tindex.html\tdocs/index.html\n' | collect_changed_paths)"
+          printf '%s\n' "$rename_fixture" | grep -Fxq 'index.html' || {
+            echo "Scope regression: rename source path was not preserved." >&2
+            exit 1
+          }
+          printf '%s\n' "$rename_fixture" | grep -Fxq 'docs/index.html' || {
+            echo "Scope regression: rename destination path was not preserved." >&2
+            exit 1
+          }
+
+          if printf '%s\n' "$changed_files" | grep -Eq "$scope_pattern"; then
+            echo "run_offline=true" >> "$GITHUB_OUTPUT"
+            echo "Runtime/PWA/download files changed: Android/offline probe required." | tee .artifacts/offline-scope.log
+          else
+            echo "run_offline=false" >> "$GITHUB_OUTPUT"
+            echo "No runtime/PWA/download files changed: Android/offline probe skipped." | tee .artifacts/offline-scope.log
+          fi
       - name: Run Android download and offline probes
-        if: ${{ hashFiles('scripts/verify-offline-browser.mjs') != '' }}
+        if: ${{ hashFiles('scripts/verify-offline-browser.mjs') != '' && steps.offline_scope.outputs.run_offline == 'true' }}
         env:
           BASE_URL: http://127.0.0.1:4173
         run: |
@@ -82,7 +185,7 @@ jobs:
           node scripts/verify-offline-browser.mjs 2>&1 | tee .artifacts/offline-android.log
       - name: Upload evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: adversarial-browser-${{ github.run_id }}
           path: |
@@ -90,5 +193,7 @@ jobs:
             .artifacts/adversarial-browser.log
             .artifacts/offline-android.log
             .artifacts/offline-server.log
+            .artifacts/offline-scope.log
+            .artifacts/offline-scope-changed-files.txt
           if-no-files-found: warn
           retention-days: 30
