@@ -57,7 +57,7 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
-      - name: Verify trusted trigger semantics
+      - name: Verify least privilege
         run: |
           grep -Fq 'pull_request_review:' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
@@ -69,24 +69,26 @@ jobs:
           ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
           ruby <<'RUBY'
           require 'yaml'
-          require 'open3'
-          require 'tempfile'
-
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
-          job = workflow.dig('jobs', 'report')
-          permissions = job['permissions']
-          expected_permissions = {
+          permissions = workflow.dig('jobs', 'report', 'permissions')
+          expected = {
             'checks' => 'read',
             'contents' => 'read',
             'issues' => 'write',
             'pull-requests' => 'read',
             'statuses' => 'read',
           }
-          raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected_permissions
+          raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          RUBY
 
-          normalize = ->(value) { value.to_s.gsub(/\s+/, '') }
-          expected_guard = <<~'EXPR'
+      - name: Verify exact job trigger guard
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          actual = workflow.dig('jobs', 'report', 'if').to_s.gsub(/\s+/, '')
+          expected = <<~'EXPR'.gsub(/\s+/, '')
             (github.event_name == 'issue_comment' &&
              github.event.issue.pull_request != null &&
              github.event.comment.body == '/ai-cooperation report' &&
@@ -100,12 +102,18 @@ jobs:
              (github.event.review.user.login == 'coderabbitai[bot]' ||
               github.event.review.user.login == 'coderabbitai'))
           EXPR
-          actual_guard = job['if'].to_s
-          unless normalize.call(actual_guard) == normalize.call(expected_guard)
-            raise "job trigger guard drifted:\n#{actual_guard}"
-          end
+          raise "job trigger guard drifted:\n#{workflow.dig('jobs', 'report', 'if')}" unless actual == expected
+          RUBY
 
-          expected_group = <<~'EXPR'
+      - name: Verify concurrency trust partition
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          concurrency = workflow.dig('jobs', 'report', 'concurrency')
+          raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
+          actual = concurrency['group'].to_s.gsub(/\s+/, '')
+          expected = <<~'EXPR'.gsub(/\s+/, '')
             ai-review-cooperation-${{
               ((github.event_name == 'issue_comment' &&
                 github.event.issue.pull_request != null &&
@@ -123,18 +131,36 @@ jobs:
               github.run_id
             }}
           EXPR
-          concurrency = job['concurrency']
-          raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
-          unless normalize.call(concurrency['group']) == normalize.call(expected_group)
-            raise "concurrency trust partition drifted:\n#{concurrency['group']}"
-          end
+          raise "concurrency trust partition drifted:\n#{concurrency['group']}" unless actual == expected
+          RUBY
 
-          env = job['env']
-          raise 'PR number does not support both events' unless env['PR_NUMBER'].include?('github.event.issue.number || github.event.pull_request.number')
-          raise 'review commit is not captured' unless env['REVIEW_COMMIT'].include?('github.event.review.commit_id')
-          raise 'PR head is not captured' unless env['PR_HEAD_SHA'].include?('github.event.pull_request.head.sha')
+      - name: Verify trigger environment mappings
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          env = YAML.load_file('.github/workflows/ai-review-cooperation.yml').dig('jobs', 'report', 'env')
+          required = {
+            'PR_NUMBER' => 'github.event.issue.number || github.event.pull_request.number',
+            'TRIGGER_EVENT' => 'github.event_name',
+            'TRIGGER_AUTHOR' => 'github.event.comment.user.login || github.event.review.user.login',
+            'TRIGGER_ASSOCIATION' => 'github.event.comment.author_association || github.event.review.author_association',
+            'REVIEW_STATE' => "github.event.review.state || ''",
+            'REVIEW_COMMIT' => "github.event.review.commit_id || ''",
+            'PR_HEAD_SHA' => "github.event.pull_request.head.sha || ''",
+          }
+          missing = required.reject { |key, token| env.fetch(key, '').include?(token) }
+          raise "trigger environment drifted: #{missing.inspect}" unless missing.empty?
+          RUBY
 
-          authorization = job['steps'].first
+      - name: Execute authorization matrix
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'open3'
+          require 'tempfile'
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          authorization = workflow.dig('jobs', 'report', 'steps').first
           raise 'authorization must remain first' unless authorization['name'] == 'Authorize cooperation trigger'
           script = authorization['run'].to_s
 
