@@ -126,7 +126,7 @@ jobs:
           fi
           changed_files="$(cat .artifacts/offline-scope-changed-files.txt)"
 
-          # Root web/PWA assets and the runtime build entrypoint are in scope;
+          # Root web/PWA assets, published data, and the runtime build entrypoint are in scope;
           # nested docs/process files remain deliberately excluded.
           scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|data/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
 
