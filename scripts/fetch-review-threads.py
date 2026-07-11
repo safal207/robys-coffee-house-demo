@@ -137,6 +137,8 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
     checks_path = Path(checks_value)
     raw_bytes = checks_path.read_bytes()
     raw_payload = json.loads(raw_bytes.decode('utf-8'))
+    if not isinstance(raw_payload, dict):
+        raise RuntimeError('Check evidence must be a JSON object')
     raw_checks = raw_payload.get('check_runs')
     if not isinstance(raw_checks, list):
         raise RuntimeError('Check evidence is missing check_runs[]')
@@ -183,7 +185,14 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
     external_checks = [check for check in raw_checks if run_id_of(check) is None]
     derived = {'check_runs': workflows + external_checks}
 
-    if os.environ.get('TRIGGER_EVENT', '').strip() == 'workflow_run':
+    trigger_event = os.environ.get('TRIGGER_EVENT', '').strip()
+    if trigger_event == 'workflow_run':
+        trigger_head = os.environ.get('TRIGGER_HEAD_SHA', '').strip().lower()
+        if trigger_head != expected_head:
+            raise RuntimeError(
+                f'Workflow trigger head does not match PR head: {trigger_head or "missing"} '
+                f'!= {expected_head}'
+            )
         trusted_matches = [
             item
             for item in workflows
@@ -219,12 +228,13 @@ def main() -> int:
         encoding='utf-8',
     )
 
-    pr_file = Path(required_env('PR_JSON_FILE'))
-    pr_payload = json.loads(pr_file.read_text(encoding='utf-8'))
-    expected_head = str(pr_payload.get('head', {}).get('sha') or '').strip()
-    if not re.fullmatch(r'[0-9a-fA-F]{40}', expected_head):
-        raise RuntimeError(f'PR evidence contains an invalid head SHA: {expected_head!r}')
-    normalize_workflow_checks(repository, expected_head.lower())
+    if os.environ.get('CHECKS_FILE', '').strip():
+        pr_file = Path(required_env('PR_JSON_FILE'))
+        pr_payload = json.loads(pr_file.read_text(encoding='utf-8'))
+        expected_head = str(pr_payload.get('head', {}).get('sha') or '').strip().lower()
+        if not re.fullmatch(r'[0-9a-f]{40}', expected_head):
+            raise RuntimeError(f'PR evidence contains an invalid head SHA: {expected_head!r}')
+        normalize_workflow_checks(repository, expected_head)
     return 0
 
 
