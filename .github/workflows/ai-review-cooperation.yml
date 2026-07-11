@@ -10,7 +10,11 @@ jobs:
   report:
     if: >-
       github.event.issue.pull_request != null &&
-      github.event.comment.body == '/ai-cooperation report'
+      github.event.comment.body == '/ai-cooperation report' &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'MEMBER' ||
+       github.event.comment.author_association == 'COLLABORATOR' ||
+       github.event.comment.user.login == github.repository_owner)
     permissions:
       checks: read
       contents: read
