@@ -158,6 +158,11 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
     workflows: list[dict[str, Any]] = []
     for run_id in run_ids:
         item = rest(f'repos/{repository}/actions/runs/{run_id}')
+        if item.get('id') != run_id:
+            raise RuntimeError(
+                f'Workflow metadata identity mismatch: expected run {run_id}, '
+                f'got {item.get("id")!r}'
+            )
         workflows.append(
             {
                 'id': item.get('id'),
@@ -169,12 +174,6 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
                 'event': item.get('event'),
                 'app': {'slug': 'github-actions'},
             }
-        )
-
-    if len(workflows) != len(run_ids):
-        raise RuntimeError(
-            f'Workflow metadata collection was incomplete: expected {len(run_ids)}, '
-            f'got {len(workflows)}'
         )
 
     mismatched = [item for item in workflows if item.get('head_sha') != expected_head]
