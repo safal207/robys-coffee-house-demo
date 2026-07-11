@@ -57,12 +57,17 @@ jobs:
       - name: Parse workflow YAML
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
-      - name: Verify least privilege and trusted command
+      - name: Verify least privilege and trusted triggers
         run: |
+          grep -Fq 'pull_request_review:' .github/workflows/ai-review-cooperation.yml
           grep -Fq "github.event.comment.body == '/ai-cooperation report'" .github/workflows/ai-review-cooperation.yml
           grep -Fq "author_association == 'OWNER'" .github/workflows/ai-review-cooperation.yml
           grep -Fq "author_association == 'MEMBER'" .github/workflows/ai-review-cooperation.yml
           grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "github.event.review.state == 'approved'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "github.event.review.user.login == 'coderabbitai[bot]'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq "github.event.review.user.login == 'coderabbitai'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'github.event.issue.number || github.event.pull_request.number' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
@@ -74,7 +79,8 @@ jobs:
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
-          permissions = workflow.dig('jobs', 'report', 'permissions')
+          job = workflow.dig('jobs', 'report')
+          permissions = job['permissions']
           expected = {
             'checks' => 'read',
             'contents' => 'read',
@@ -83,6 +89,36 @@ jobs:
             'statuses' => 'read',
           }
           raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+
+          job_if = job['if'].to_s
+          required_if = [
+            "github.event_name == 'issue_comment'",
+            "github.event.comment.body == '/ai-cooperation report'",
+            "github.event_name == 'pull_request_review'",
+            "github.event.review.state == 'approved'",
+            "github.event.review.user.login == 'coderabbitai[bot]'",
+            "github.event.review.user.login == 'coderabbitai'",
+          ]
+          missing_if = required_if.reject { |token| job_if.include?(token) }
+          raise "missing trigger guard invariants: #{missing_if.inspect}" unless missing_if.empty?
+
+          env = job['env']
+          raise 'PR number does not support both events' unless env['PR_NUMBER'].include?('github.event.issue.number || github.event.pull_request.number')
+          raise 'trigger event is not captured' unless env['TRIGGER_EVENT'].include?('github.event_name')
+
+          authorization = job['steps'].first
+          raise 'authorization must remain first' unless authorization['name'] == 'Authorize cooperation trigger'
+          run = authorization['run'].to_s
+          required_auth = [
+            'issue_comment',
+            'pull_request_review',
+            'OWNER|MEMBER|COLLABORATOR',
+            'coderabbitai|coderabbitai\\[bot\\]',
+            'REVIEW_STATE',
+            'exit 1',
+          ]
+          missing_auth = required_auth.reject { |token| run.include?(token) }
+          raise "missing runtime authorization invariants: #{missing_auth.inspect}" unless missing_auth.empty?
           RUBY
 
       - name: Verify complete evidence collection
