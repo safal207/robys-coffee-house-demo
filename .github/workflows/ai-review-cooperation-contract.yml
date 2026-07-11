@@ -60,9 +60,12 @@ jobs:
       - name: Verify least privilege and trusted command
         run: |
           grep -Fq "github.event.comment.body == '/ai-cooperation report'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'OWNER'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'MEMBER'" .github/workflows/ai-review-cooperation.yml
-          grep -Fq "author_association == 'COLLABORATOR'" .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'COMMENT_AUTHOR: ${{ github.event.comment.user.login }}' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'COMMENT_ASSOCIATION: ${{ github.event.comment.author_association }}' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'REPOSITORY_OWNER: ${{ github.repository_owner }}' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'OWNER|MEMBER|COLLABORATOR' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'Unauthorized cooperation-report command actor' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'Authorized by exact repository-owner identity.' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'RUNNER_TEMP' .github/workflows/ai-review-cooperation.yml
@@ -74,7 +77,11 @@ jobs:
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
-          permissions = workflow.dig('jobs', 'report', 'permissions')
+          job = workflow.dig('jobs', 'report')
+          job_if = job['if'].to_s
+          raise 'command filter must remain exact' unless job_if.include?("github.event.comment.body == '/ai-cooperation report'")
+          raise 'author association must be checked inside the observable authorization step' if job_if.include?('author_association')
+          permissions = job['permissions']
           expected = {
             'checks' => 'read',
             'contents' => 'read',
@@ -83,6 +90,18 @@ jobs:
             'statuses' => 'read',
           }
           raise "unexpected job permissions: #{permissions.inspect}" unless permissions == expected
+          steps = job['steps']
+          raise 'authorization must be the first step' unless steps.first['name'] == 'Authorize cooperation command'
+          authorization = steps.first['run'].to_s
+          required = [
+            'OWNER|MEMBER|COLLABORATOR',
+            'COMMENT_AUTHOR',
+            'COMMENT_ASSOCIATION',
+            'REPOSITORY_OWNER',
+            'exit 1',
+          ]
+          missing = required.reject { |token| authorization.include?(token) }
+          raise "missing authorization invariants: #{missing.inspect}" unless missing.empty?
           RUBY
 
       - name: Verify complete evidence collection
