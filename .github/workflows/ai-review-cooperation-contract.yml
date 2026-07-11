@@ -72,6 +72,7 @@ jobs:
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
           expected = {
+            'actions' => 'read',
             'checks' => 'read',
             'contents' => 'read',
             'issues' => 'write',
@@ -262,10 +263,15 @@ jobs:
         run: |
           grep -Fq 'check-runs?per_page=100' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'statuses?per_page=100' .github/workflows/ai-review-cooperation.yml
+          grep -Fq 'RAW_CHECKS_FILE' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'STATUSES_FILE' .github/workflows/ai-review-cooperation.yml
           grep -Fq -- '--paginate' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'scripts/fetch-review-threads.py' .github/workflows/ai-review-cooperation.yml
           grep -Fq 'hasNextPage' scripts/fetch-review-threads.py
+          grep -Fq 'repos/{repository}/actions/runs/{run_id}' scripts/fetch-review-threads.py
+          grep -Fq "'app': {'slug': 'github-actions'}" scripts/fetch-review-threads.py
+          grep -Fq 'raw_path.write_bytes(raw_bytes)' scripts/fetch-review-threads.py
+          grep -Fq 'Workflow-run evidence lacks a successful exact-head AI review contract' scripts/fetch-review-threads.py
           grep -Fq 'EVIDENCE_TRUNCATED' scripts/ai-review-cooperation.py
           grep -Fq 'PR head changed before publishing' .github/workflows/ai-review-cooperation.yml
 
