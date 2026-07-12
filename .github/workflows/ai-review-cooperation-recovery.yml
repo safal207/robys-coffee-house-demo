@@ -1,0 +1,271 @@
+name: AI review cooperation recovery
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to recover
+        required: true
+        type: string
+      expected_head_sha:
+        description: Exact 40-character PR head SHA
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  recover:
+    if: >-
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       github.event.issue.state == 'open' &&
+       github.event.comment.body == '/ai-cooperation recover' &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.user.login == github.repository_owner)) ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner)
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      issues: write
+      pull-requests: read
+      statuses: read
+    concurrency:
+      group: ai-review-cooperation-recovery-${{ github.event.issue.number || inputs.pr_number || github.run_id }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      REPOSITORY_OWNER: ${{ github.repository_owner }}
+      TRIGGER_EVENT: ${{ github.event_name }}
+      TRIGGER_AUTHOR: ${{ github.actor }}
+      TRIGGER_ASSOCIATION: ${{ github.event.comment.author_association || '' }}
+      PR_NUMBER: ${{ github.event.issue.number || inputs.pr_number }}
+      EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha || '' }}
+
+    steps:
+      - name: Authorize recovery trigger
+        id: authorize
+        run: |
+          set -euo pipefail
+
+          if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid PR number: ${PR_NUMBER:-missing}" >&2
+            exit 1
+          fi
+
+          case "${TRIGGER_EVENT}" in
+            issue_comment)
+              case "${TRIGGER_ASSOCIATION:-NONE}" in
+                OWNER|MEMBER|COLLABORATOR)
+                  ;;
+                *)
+                  if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
+                    echo "Unauthorized recovery actor: ${TRIGGER_AUTHOR}" >&2
+                    exit 1
+                  fi
+                  ;;
+              esac
+              ;;
+            workflow_dispatch)
+              if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
+                echo "workflow_dispatch recovery is owner-only: ${TRIGGER_AUTHOR}" >&2
+                exit 1
+              fi
+              if ! [[ "${EXPECTED_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+                echo "workflow_dispatch requires an exact 40-character head SHA." >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "Unsupported recovery event: ${TRIGGER_EVENT}" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout trusted reporter code
+        id: checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Configure cooperation temp paths
+        id: configure
+        run: |
+          set -euo pipefail
+          prefix="${RUNNER_TEMP}/cooperation-recovery-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          {
+            echo "PR_JSON_FILE=${prefix}-pr.json"
+            echo "HEAD_COMMIT_FILE=${prefix}-head.json"
+            echo "COMMENTS_FILE=${prefix}-comments.json"
+            echo "REVIEWS_FILE=${prefix}-reviews.json"
+            echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
+            echo "THREADS_FILE=${prefix}-threads.json"
+            echo "RAW_CHECKS_FILE=${prefix}-checks-raw.json"
+            echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "STATUSES_FILE=${prefix}-statuses.json"
+            echo "FILES_FILE=${prefix}-files.json"
+            echo "COMMENT_FILE=${prefix}-comment.json"
+          } >> "${GITHUB_ENV}"
+
+      - name: Collect exact-head REST evidence
+        id: rest_evidence
+        run: |
+          set -euo pipefail
+
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          PR_STATE="$(jq -r '.state' "${PR_JSON_FILE}")"
+          if [ "${PR_STATE}" != "open" ]; then
+            echo "Recovery requires an open pull request; current state is ${PR_STATE:-missing}." >&2
+            exit 1
+          fi
+
+          HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "GitHub returned an invalid PR head SHA: ${HEAD_SHA}" >&2
+            exit 1
+          fi
+          if [ -n "${EXPECTED_HEAD_SHA}" ] && [ "${EXPECTED_HEAD_SHA}" != "${HEAD_SHA}" ]; then
+            echo "Recovery input is stale: expected ${EXPECTED_HEAD_SHA}, current ${HEAD_SHA}" >&2
+            exit 1
+          fi
+
+          gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" > "${HEAD_COMMIT_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            | jq 'add // []' > "${COMMENTS_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" \
+            | jq 'add // []' > "${REVIEWS_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" \
+            | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+            | jq 'add // []' > "${FILES_FILE}"
+          gh api --paginate -H 'Accept: application/vnd.github+json' \
+            "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
+            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
+            > "${CHECKS_FILE}"
+          gh api --paginate --slurp \
+            "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
+            | jq 'add // []' > "${STATUSES_FILE}"
+
+      - name: Collect complete GraphQL review evidence
+        id: graphql_evidence
+        run: python3 scripts/fetch-review-threads.py
+
+      - name: Build causal cooperation report
+        id: build_report
+        run: python3 scripts/ai-review-cooperation.py report
+
+      - name: Publish or update cooperation report
+        id: publish_report
+        run: |
+          set -euo pipefail
+
+          EVIDENCE_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          CURRENT_STATE="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
+          if [ "${CURRENT_STATE}" != "open" ]; then
+            echo "PR was closed before publishing the recovery report." >&2
+            exit 1
+          fi
+
+          CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          if [ "${CURRENT_HEAD}" != "${EVIDENCE_HEAD}" ]; then
+            echo "PR head changed before publishing: ${EVIDENCE_HEAD} -> ${CURRENT_HEAD}" >&2
+            exit 1
+          fi
+          if [ -n "${EXPECTED_HEAD_SHA}" ] && [ "${CURRENT_HEAD}" != "${EXPECTED_HEAD_SHA}" ]; then
+            echo "PR head no longer matches recovery input: ${EXPECTED_HEAD_SHA} -> ${CURRENT_HEAD}" >&2
+            exit 1
+          fi
+
+          test -s "${COMMENT_FILE}"
+          jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
+          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
+          if [ "${body_bytes}" -gt 65000 ]; then
+            echo "Cooperation report exceeds GitHub comment limit: ${body_bytes} bytes" >&2
+            exit 1
+          fi
+
+          existing_id="$(
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id' \
+              | tail -n 1
+          )"
+
+          if [ -n "${existing_id}" ]; then
+            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${COMMENT_FILE}"
+          else
+            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${COMMENT_FILE}"
+          fi
+
+      - name: Publish recovery failure diagnostic
+        if: ${{ failure() }}
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AUTHORIZE_OUTCOME: ${{ steps.authorize.outcome }}
+          CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          CONFIGURE_OUTCOME: ${{ steps.configure.outcome }}
+          REST_OUTCOME: ${{ steps.rest_evidence.outcome }}
+          GRAPHQL_OUTCOME: ${{ steps.graphql_evidence.outcome }}
+          BUILD_OUTCOME: ${{ steps.build_report.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish_report.outcome }}
+        run: |
+          set -euo pipefail
+
+          if ! [[ "${PR_NUMBER:-}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Cannot publish recovery diagnostic without a valid PR number." >&2
+            exit 1
+          fi
+
+          printf -v body '%s\n' \
+            '<!-- ai-review-cooperation-diagnostic -->' \
+            '## AI cooperation recovery failed / AI işbirliği kurtarması başarısız / Сбой восстановления AI-взаимодействия' \
+            '' \
+            "The trusted recovery reporter did not publish a cooperation report for PR #${PR_NUMBER}." \
+            "Güvenilir kurtarma raporlayıcısı PR #${PR_NUMBER} için işbirliği raporunu yayımlamadı." \
+            "Доверенный репортер восстановления не опубликовал отчет о взаимодействии для PR #${PR_NUMBER}." \
+            '' \
+            '| Stage / Aşama / Этап | Outcome / Sonuç / Результат |' \
+            '|---|---|' \
+            "| authorize / yetkilendirme / авторизация | ${AUTHORIZE_OUTCOME:-unknown} |" \
+            "| checkout / kaynak kodu alma / получение кода | ${CHECKOUT_OUTCOME:-unknown} |" \
+            "| configure / yapılandırma / настройка | ${CONFIGURE_OUTCOME:-unknown} |" \
+            "| REST evidence / REST kanıtı / REST-доказательства | ${REST_OUTCOME:-unknown} |" \
+            "| GraphQL evidence / GraphQL kanıtı / GraphQL-доказательства | ${GRAPHQL_OUTCOME:-unknown} |" \
+            "| build report / rapor oluşturma / построение отчета | ${BUILD_OUTCOME:-unknown} |" \
+            "| publish report / raporu yayımlama / публикация отчета | ${PUBLISH_OUTCOME:-unknown} |" \
+            '' \
+            "Run / Çalıştırma / Запуск: ${RUN_URL}"
+
+          payload="${RUNNER_TEMP}/cooperation-recovery-diagnostic.json"
+          jq -n --arg body "${body}" '{body: $body}' > "${payload}"
+          existing_id="$(
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation-diagnostic -->"))) | .id' \
+              | tail -n 1
+          )"
+          if [ -n "${existing_id}" ]; then
+            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${payload}"
+          else
+            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -H 'Accept: application/vnd.github+json' \
+              --input "${payload}"
+          fi

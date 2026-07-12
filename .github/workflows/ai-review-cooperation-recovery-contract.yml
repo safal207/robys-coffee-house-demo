@@ -1,0 +1,180 @@
+name: AI review cooperation recovery contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ai-review-cooperation-recovery.yml
+      - .github/workflows/ai-review-cooperation-recovery-contract.yml
+      - scripts/ai-review-cooperation.py
+      - scripts/fetch-review-threads.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-review-cooperation-recovery-contract-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify recovery contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Parse recovery workflow YAML
+        run: >-
+          ruby -e "require 'yaml';
+          YAML.parse_file('.github/workflows/ai-review-cooperation-recovery.yml');
+          YAML.parse_file('.github/workflows/ai-review-cooperation-recovery-contract.yml')"
+
+      - name: Verify recovery event and permission boundary
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation-recovery.yml
+          grep -Fq 'issue_comment:' "${workflow}"
+          grep -Fq 'workflow_dispatch:' "${workflow}"
+          grep -Fq "github.event.comment.body == '/ai-cooperation recover'" "${workflow}"
+          grep -Fq "github.event.issue.state == 'open'" "${workflow}"
+          grep -Fq "github.actor == github.repository_owner" "${workflow}"
+          grep -Fq 'persist-credentials: false' "${workflow}"
+          ! grep -Fq 'pull_request_target' "${workflow}"
+          ! grep -Fq 'contents: write' "${workflow}"
+          ! grep -Fq 'actions: write' "${workflow}"
+
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
+          raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
+          expected = {
+            'actions' => 'read',
+            'checks' => 'read',
+            'contents' => 'read',
+            'issues' => 'write',
+            'pull-requests' => 'read',
+            'statuses' => 'read',
+          }
+          actual = workflow.dig('jobs', 'recover', 'permissions')
+          raise "unexpected recovery permissions: #{actual.inspect}" unless actual == expected
+          RUBY
+
+      - name: Verify exact recovery guard and concurrency
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+
+          def normalize(value)
+            value.to_s.gsub(/\s+/, '')
+          end
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
+          job = workflow.dig('jobs', 'recover')
+          expected_guard = <<~'EXPR'
+            (github.event_name == 'issue_comment' &&
+             github.event.issue.pull_request != null &&
+             github.event.issue.state == 'open' &&
+             github.event.comment.body == '/ai-cooperation recover' &&
+             (github.event.comment.author_association == 'OWNER' ||
+              github.event.comment.author_association == 'MEMBER' ||
+              github.event.comment.author_association == 'COLLABORATOR' ||
+              github.event.comment.user.login == github.repository_owner)) ||
+            (github.event_name == 'workflow_dispatch' &&
+             github.actor == github.repository_owner)
+          EXPR
+          raise 'recovery job guard drifted' unless normalize(job['if']) == normalize(expected_guard)
+
+          concurrency = job['concurrency']
+          raise 'recovery cancellation must remain enabled' unless concurrency['cancel-in-progress'] == true
+          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.run_id }}'
+          unless normalize(concurrency['group']) == normalize(expected_group)
+            raise "recovery concurrency group drifted: #{concurrency['group'].inspect}"
+          end
+          RUBY
+
+      - name: Execute recovery authorization matrix
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'open3'
+          require 'tempfile'
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
+          authorization = workflow.dig('jobs', 'recover', 'steps').first
+          raise 'authorization must be first' unless authorization['name'] == 'Authorize recovery trigger'
+          script = authorization['run'].to_s
+
+          base = {
+            'PR_NUMBER' => '203',
+            'EXPECTED_HEAD_SHA' => '',
+            'TRIGGER_EVENT' => '',
+            'TRIGGER_AUTHOR' => '',
+            'TRIGGER_ASSOCIATION' => '',
+            'REPOSITORY_OWNER' => 'repo-owner',
+          }
+          exact_sha = 'a' * 40
+          cases = [
+            ['owner association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-owner','TRIGGER_ASSOCIATION'=>'OWNER'}],
+            ['member association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-member','TRIGGER_ASSOCIATION'=>'MEMBER'}],
+            ['collaborator association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-collaborator','TRIGGER_ASSOCIATION'=>'COLLABORATOR'}],
+            ['exact owner fallback', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'NONE'}],
+            ['owner dispatch', true, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>exact_sha}],
+            ['attacker command', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'attacker','TRIGGER_ASSOCIATION'=>'NONE'}],
+            ['non-owner dispatch', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'member','EXPECTED_HEAD_SHA'=>exact_sha}],
+            ['dispatch without SHA', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>''}],
+            ['invalid PR number', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'OWNER','PR_NUMBER'=>'x'}],
+            ['unsupported event', false, {'TRIGGER_EVENT'=>'push','TRIGGER_AUTHOR'=>'repo-owner'}],
+          ]
+
+          Tempfile.create(['recovery-auth', '.sh']) do |file|
+            file.write(script)
+            file.flush
+            cases.each do |name, should_pass, overrides|
+              _out, _err, status = Open3.capture3(base.merge(overrides), 'bash', file.path)
+              passed = status.success?
+              raise "authorization case failed: #{name} expected=#{should_pass} actual=#{passed}" unless passed == should_pass
+            end
+          end
+          RUBY
+
+      - name: Verify exact-head, open-state and trusted publication invariants
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation-recovery.yml
+          grep -Fq 'EXPECTED_HEAD_SHA' "${workflow}"
+          grep -Fq 'Recovery input is stale:' "${workflow}"
+          grep -Fq 'Recovery requires an open pull request' "${workflow}"
+          grep -Fq 'PR was closed before publishing the recovery report.' "${workflow}"
+          grep -Fq 'PR head changed before publishing:' "${workflow}"
+          grep -Fq 'PR head no longer matches recovery input:' "${workflow}"
+          grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
+          grep -Fq '<!-- ai-review-cooperation-diagnostic -->' "${workflow}"
+          grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
+          grep -Fq 'python3 scripts/fetch-review-threads.py' "${workflow}"
+          grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
+          grep -Fq 'Güvenilir kurtarma raporlayıcısı' "${workflow}"
+          grep -Fq 'Доверенный репортер восстановления' "${workflow}"
+          grep -Fq 'Stage / Aşama / Этап' "${workflow}"
+          grep -Fq 'Run / Çalıştırma / Запуск' "${workflow}"
+
+      - name: Validate embedded shell programs
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'tempfile'
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
+          workflow.dig('jobs', 'recover', 'steps').each_with_index do |step, index|
+            next unless step['run']
+            Tempfile.create(["recovery-step-#{index}", '.sh']) do |file|
+              file.write(step['run'].to_s)
+              file.flush
+              unless system('bash', '-n', file.path, out: File::NULL, err: File::NULL)
+                raise "invalid shell syntax in recovery step #{index}: #{step['name']}"
+              end
+            end
+          end
+          RUBY
