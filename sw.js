@@ -78,6 +78,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
+    url.pathname.endsWith("/qa.js") ||
+    url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css");
   if (requiresExactRevision) {
     return cache.match(request);
