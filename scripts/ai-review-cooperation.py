@@ -87,6 +87,11 @@ def login_of(item: dict[str, Any]) -> str:
     return str(user.get('login') or '').lower() if isinstance(user, dict) else ''
 
 
+def user_type_of(item: dict[str, Any]) -> str:
+    user = item.get('user') or item.get('author') or {}
+    return str(user.get('type') or user.get('__typename') or '') if isinstance(user, dict) else ''
+
+
 def association_of(item: dict[str, Any]) -> str:
     return str(item.get('author_association') or item.get('authorAssociation') or '').upper()
 
@@ -213,12 +218,18 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     head_sha = str(pr['head']['sha']).lower()
     all_items = reviews + (threads if threads_available else review_comments)
 
-    qodo_items = bot_items(all_items, BOT_LOGINS['Qodo'], head_time)
+    qodo_req = fresh_requests(comments, '/qodo review', head_time)
+    qodo_reviews = [
+        item for item in reviews
+        if login_of(item) in {login.lower() for login in BOT_LOGINS['Qodo']}
+        and user_type_of(item) == 'Bot'
+        and is_after_head(item, head_time)
+    ]
     qodo = result_from_exact_evidence(
-        name='Qodo', requested=True,
-        exact_items=[item for item in qodo_items if current_head_evidence(item, head_sha)],
+        name='Qodo', requested=bool(qodo_req),
+        exact_items=[item for item in qodo_reviews if current_head_evidence(item, head_sha)] if qodo_req else [],
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait for the automatic Qodo review on the current head.')
+        no_evidence_action='Post /qodo review, then wait for the automatic Qodo review on the current head.')
 
     codex_req = fresh_requests(comments, '@codex review', head_time)
     codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
@@ -327,7 +338,7 @@ def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
     if checks.pending or qodo.level not in {'E4', 'E5'}:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Qodo evidence is still incomplete.'
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or trusted exact-head Qodo evidence is still incomplete.'
     gaps = [bot.name for bot in bots if bot.name != 'Qodo' and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
@@ -381,7 +392,7 @@ def build_report(*, pr: dict[str, Any], head_commit: dict[str, Any], comments: l
     failed = ', '.join(check_summary.failed_names) or 'none'
     optional = ', '.join(check_summary.optional_failed_names) or 'none'
     evidence = 'complete' if complete else 'truncated (`EVIDENCE_TRUNCATED`)'
-    return f'''{COMMENT_MARKER}
+    return f"""{COMMENT_MARKER}
 ## AI reviewer cooperation report
 
 **Current head:** `{head_sha}`  
@@ -414,10 +425,10 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and exact-head Qodo evidence dominate; CodeRabbit, Codex, Jules and DeepSeek are advisory; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI, a trusted `/qodo review` approval and exact-head Qodo Bot evidence dominate; CodeRabbit, Codex, Jules and DeepSeek are advisory; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
-'''
+"""
 
 
 def main() -> int:

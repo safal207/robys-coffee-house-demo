@@ -1,11 +1,13 @@
 "use strict";
 
+const TRUSTED_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
 const QODO_LOGINS = new Set(["qodo-code-review", "qodo-code-review[bot]"]);
 const CODERABBIT_LOGINS = new Set(["coderabbitai[bot]", "coderabbitai"]);
 const CODEX_LOGINS = new Set([
   "chatgpt-codex-connector[bot]",
   "chatgpt-codex-connector",
 ]);
+const QODO_COMMAND = "/qodo review";
 const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 
@@ -13,6 +15,10 @@ function parseTime(value) {
   if (typeof value !== "string" || value.trim() === "") return 0;
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function createdTimeOf(item) {
+  return parseTime(item.created_at);
 }
 
 function submittedTimeOf(review) {
@@ -25,6 +31,14 @@ function isSubmittedActiveReview(review) {
     review.state !== "PENDING" &&
     review.state !== "DISMISSED"
   );
+}
+
+function commandLinesOf(item) {
+  return (item.body ?? "")
+    .toLowerCase()
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 function isPermissionError(error) {
@@ -58,6 +72,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   let lastApiError = "";
 
   for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
+    let qodoRequestAt = 0;
     let qodoReview;
     let codeRabbitReview;
     let nativeCodexReview;
@@ -75,12 +90,30 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         }
       }
 
-      const reviews = await github.paginate(github.rest.pulls.listReviews, {
-        owner,
-        repo,
-        pull_number: pr.number,
-        per_page: 100,
-      });
+      const [comments, reviews] = await Promise.all([
+        github.paginate(github.rest.issues.listComments, {
+          owner,
+          repo,
+          issue_number: pr.number,
+          since: new Date(headUpdateAnchor).toISOString(),
+          per_page: 100,
+        }),
+        github.paginate(github.rest.pulls.listReviews, {
+          owner,
+          repo,
+          pull_number: pr.number,
+          per_page: 100,
+        }),
+      ]);
+
+      qodoRequestAt = comments
+        .filter(
+          (item) =>
+            TRUSTED_ASSOCIATIONS.has(item.author_association) &&
+            createdTimeOf(item) >= headUpdateAnchor &&
+            commandLinesOf(item).includes(QODO_COMMAND),
+        )
+        .reduce((latest, item) => Math.max(latest, createdTimeOf(item)), 0);
 
       qodoReview = exactHeadReview(reviews, QODO_LOGINS, currentHead, headUpdateAnchor);
       codeRabbitReview = exactHeadReview(
@@ -99,7 +132,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
       lastApiError = error?.message ?? String(error);
       if (isPermissionError(error)) {
         core.setFailed(
-          "AI review verifier lacks required workflow permissions. Grant actions: read and pull-requests: read. " +
+          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, and pull-requests: read. " +
             `GitHub API error: ${lastApiError}`,
         );
         return;
@@ -109,7 +142,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
       );
     }
 
-    if (qodoReview) {
+    if (qodoRequestAt > 0 && qodoReview) {
       await core.summary
         .addHeading("AI review contract")
         .addTable([
@@ -118,7 +151,11 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
             { data: "Evidence", header: true },
             { data: "Exact head", header: true },
           ],
-          ["Qodo (required)", "native submitted pull-request review", "yes"],
+          [
+            "Qodo (required)",
+            "trusted request plus native submitted pull-request review",
+            "yes",
+          ],
           [
             "CodeRabbit (supplemental)",
             codeRabbitReview ? "native submitted review" : "not counted",
@@ -132,18 +169,19 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         ])
         .addRaw(
           `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
-            "Pending, dismissed, stale-head, non-bot and pre-anchor reviews do not count.\n",
+            "The trusted /qodo review approval and the native Bot review must both be current-head-era evidence. " +
+            "Pending, dismissed, stale-head, non-bot and pre-anchor evidence does not count.\n",
         )
         .write();
       core.notice(
-        `Verified native Qodo evidence for ${pr.head.sha}: submitted exact-head pull-request review.`,
+        `Verified trusted Qodo request and native exact-head review for ${pr.head.sha}.`,
       );
       return;
     }
 
     core.info(
-      `Waiting for native Qodo evidence (${attempt}/${POLL_ATTEMPTS}); ` +
-        `review=${Boolean(qodoReview)}; head=${pr.head.sha}`,
+      `Waiting for trusted Qodo evidence (${attempt}/${POLL_ATTEMPTS}); ` +
+        `request=${qodoRequestAt > 0}; review=${Boolean(qodoReview)}; head=${pr.head.sha}`,
     );
     if (attempt < POLL_ATTEMPTS) {
       await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -151,7 +189,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require a native Qodo review submitted by qodo-code-review for the same exact head after the immutable workflow-run freshness anchor. " +
+    "Require both a trusted /qodo review approval comment created after the immutable workflow-run freshness anchor and a native Qodo Bot review submitted for the same exact head after that anchor. " +
       "CodeRabbit and Codex are supplemental and cannot satisfy the required lane." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );

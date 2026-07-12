@@ -123,7 +123,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("codeRabbitRequestAt") && aiContract.includes("codexRequestAt")]
+  ["AI evidence requires trusted Qodo approval, exact-head Bot identity and immutable freshness", aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("QODO_LOGINS") && aiContract.includes("QODO_COMMAND") && aiContract.includes("qodoRequestAt") && aiContract.includes("headUpdateAnchor") && aiContract.includes('review.user?.type === "Bot"')]
 ]);
 
 const report = {

@@ -87,7 +87,7 @@ jobs:
             const isDispositionReply = (reply) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
               const maintainer = trustedAssociations.has(reply.author_association);
               return disposition && exactHead && maintainer;
             };
@@ -105,22 +105,13 @@ jobs:
             )));
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
-            const qodoEvidence = [
-              ...reviews.filter((item) => (
-                qodoLogins.has(item.user?.login) &&
-                item.user?.type === 'Bot' &&
-                item.state !== 'PENDING' &&
-                item.state !== 'DISMISSED' &&
-                item.commit_id?.toLowerCase() === head
-              )),
-              ...reviewComments.filter((item) => (
-                qodoLogins.has(item.user?.login) &&
-                reviewHeads.get(item.pull_request_review_id) === head
-              )),
-              ...issueComments.filter((item) => (
-                qodoLogins.has(item.user?.login) && exactHeadBody(item.body)
-              )),
-            ];
+            const qodoEvidence = reviews.filter((item) => (
+              qodoLogins.has(item.user?.login) &&
+              item.user?.type === 'Bot' &&
+              item.state !== 'PENDING' &&
+              item.state !== 'DISMISSED' &&
+              item.commit_id?.toLowerCase() === head
+            ));
             if (qodoEvidence.length === 0) {
               core.setFailed(`PDG-001 depth D4 incomplete: no native Qodo exact-head evidence for ${head}.`);
               return;
@@ -166,12 +157,10 @@ jobs:
                 return;
               }
             }
-            for (const reviewer of ['Qodo']) {
-              const row = new RegExp(`^\\|\\s*${reviewer}\\s*\\|[^\\n]*\\|\\s*E[45]\\s*\\|`, 'im');
-              if (!row.test(report.body ?? '')) {
-                core.setFailed(`PDG-001 depth D4 incomplete: ${reviewer} lacks E4/E5 exact-head evidence for ${head}.`);
-                return;
-              }
+            const qodoRow = /^\|\s*Qodo\s*\|[^\n]*\|\s*E[45]\s*\|/im;
+            if (!qodoRow.test(report.body ?? '')) {
+              core.setFailed(`PDG-001 depth D4 incomplete: Qodo lacks E4/E5 exact-head evidence for ${head}.`);
+              return;
             }
             if (latestBotEvidenceAt > timeOf(report)) {
               core.setFailed(`PDG-001 evidence changed after the latest cooperation report for ${head}.`);
@@ -187,7 +176,7 @@ jobs:
               const body = (item.body ?? '').replaceAll('`', '');
               const trusted = trustedAssociations.has(item.author_association);
               const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
               const depth = /^Depth:\s*D6\s*$/im.test(body);
               return trusted && contract && exactHead && depth;
             });

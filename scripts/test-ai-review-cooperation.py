@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline tests for the causal AI reviewer cooperation report."""
+'''Offline tests for the causal AI reviewer cooperation report.'''
 
 from __future__ import annotations
 
@@ -21,10 +21,22 @@ OLD_HEAD = 'b' * 40
 HEAD_TIME = '2026-06-30T00:00:00Z'
 AFTER = '2026-06-30T00:01:00Z'
 BEFORE = '2026-06-29T23:59:00Z'
+BOT_LOGINS = {
+    'qodo-code-review',
+    'qodo-code-review[bot]',
+    'chatgpt-codex-connector',
+    'chatgpt-codex-connector[bot]',
+    'jules',
+    'jules[bot]',
+    'google-labs-jules[bot]',
+    'coderabbitai',
+    'coderabbitai[bot]',
+    'github-actions[bot]',
+}
 
 
 def user(login: str) -> dict[str, str]:
-    return {'login': login}
+    return {'login': login, 'type': 'Bot' if login in BOT_LOGINS else 'User'}
 
 
 def comment(
@@ -184,17 +196,21 @@ class CooperationReportTests(unittest.TestCase):
     def test_all_exact_head_evidence_produces_ready_and_e5(self) -> None:
         data = base_inputs()
         data['comments'] = [
+            comment('/qodo review'),
             comment('@codex review'),
             comment('@jules review'),
             comment('@coderabbitai review'),
             comment('/deepseek review'),
             comment(
-                f'''<!-- deepseek-pr-review -->\nReviewed commit: `{HEAD}`\nСерьёзных проблем не найдено.''',
+                f'''<!-- deepseek-pr-review -->
+Reviewed commit: `{HEAD}`
+Серьёзных проблем не найдено.''',
                 login='github-actions[bot]',
                 association='NONE',
             ),
         ]
         data['reviews'] = [
+            review('No findings.', login='qodo-code-review'),
             review('No findings.', login='chatgpt-codex-connector'),
             review('No findings.', login='jules[bot]'),
             review('No findings.', login='coderabbitai[bot]'),
@@ -209,8 +225,18 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **READY**', report)
-        self.assertEqual(report.count('| E5 | clean exact-head review | none | `OK` |'), 4)
+        self.assertEqual(report.count('| E5 | clean exact-head review | none | `OK` |'), 5)
         self.assertIn('Required CI: 2 passed, 0 pending, 0 failed', report)
+
+    def test_qodo_review_without_trusted_request_does_not_count(self) -> None:
+        data = base_inputs()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Qodo | no | E0 | not requested |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
 
     def test_required_ci_failure_blocks(self) -> None:
         data = base_inputs()
@@ -303,8 +329,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_truncated_thread_collection_forbids_ready(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = [comment('/qodo review')]
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['threads_data'] = threads(complete=False)
         data['checks'] = {'check_runs': [check('Security contract')]}
 
@@ -335,8 +361,14 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_resolved_thread_is_not_counted_as_finding(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
-        data['reviews'] = [review('No findings.', login='coderabbitai[bot]')]
+        data['comments'] = [
+            comment('/qodo review'),
+            comment('@coderabbitai review'),
+        ]
+        data['reviews'] = [
+            review('No findings.', login='qodo-code-review'),
+            review('No findings.', login='coderabbitai[bot]'),
+        ]
         data['threads_data'] = threads(
             thread_comment('P1 old issue', login='chatgpt-codex-connector'),
             resolved=True,
@@ -348,9 +380,13 @@ class CooperationReportTests(unittest.TestCase):
         self.assertNotIn('P1x1', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
-    def test_late_coderabbit_status_satisfies_mandatory_lane(self) -> None:
+    def test_late_coderabbit_status_is_advisory(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
+        data['comments'] = [
+            comment('/qodo review'),
+            comment('@coderabbitai review'),
+        ]
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['statuses'] = [{
             'context': 'CodeRabbit',
             'state': 'success',
