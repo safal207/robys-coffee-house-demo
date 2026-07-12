@@ -1,16 +1,33 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import {
+  ACTIVE_HERO_FETCH,
+  ACTIVE_HERO_PATH,
+  TRUSTED_HERO_PATH,
+  fetchReference,
+} from "./media-contract-config.mjs";
 
+const LIVE_HERO_PATH = "src/robys-ambience-clean.mp4";
+const LIVE_POSTER_PATH = "src/robys-hero-poster.jpg";
 const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
 const localIndex = readFileSync("index.html", "utf8");
 const expectedBuild = localIndex.match(/<meta\b[^>]*name=["']robys-build["'][^>]*content=["']([^"']+)["']/i)?.[1];
 if (!expectedBuild) throw new Error("[LIVE-001] Local robys-build marker is missing");
+if (ACTIVE_HERO_PATH !== LIVE_HERO_PATH || TRUSTED_HERO_PATH !== LIVE_HERO_PATH) {
+  throw new Error("[LIVE-001] Active hero escaped the trusted live path");
+}
 
 const baseUrl = new URL(process.env.ROBYS_LIVE_BASE ?? profile.siteUrl);
 const attempts = Number(process.env.ROBYS_LIVE_ATTEMPTS ?? 15);
 const delayMs = Number(process.env.ROBYS_LIVE_DELAY_MS ?? 20000);
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
-const report = { expectedBuild, baseUrl: baseUrl.href, attempts: [], passed: false };
+const report = {
+  schemaVersion: 2,
+  expectedBuild,
+  activeHeroPath: LIVE_HERO_PATH,
+  attempts: [],
+  passed: false,
+};
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -19,11 +36,15 @@ async function fetchText(pathname) {
   url.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
   const response = await fetch(url, {
     redirect: "follow",
-    headers: { "cache-control": "no-cache", pragma: "no-cache" }
+    headers: { "cache-control": "no-cache", pragma: "no-cache" },
   });
   const body = await response.text();
   if (!response.ok) throw new Error(`${url.pathname} returned HTTP ${response.status}`);
-  return { url: response.url, body, contentType: response.headers.get("content-type") ?? "" };
+  return { body, contentType: response.headers.get("content-type") ?? "" };
+}
+
+function normalizedContentType(response) {
+  return response.headers.get("content-type")?.split(";")[0].trim().toLowerCase() ?? "";
 }
 
 async function verifyPublishedFiles() {
@@ -32,8 +53,8 @@ async function verifyPublishedFiles() {
     fetchText("menu.html"),
     fetchText("robots.txt"),
     fetchText("sitemap.xml"),
-    fetch(new URL("src/robys-hero-mobile-lite.mp4", baseUrl), { headers: { range: "bytes=0-2047" } }),
-    fetch(new URL("src/robys-hero-poster.jpg", baseUrl), { headers: { range: "bytes=0-2047" } })
+    fetch(new URL(LIVE_HERO_PATH, baseUrl), { headers: { range: "bytes=0-2047", "cache-control": "no-cache" } }),
+    fetch(new URL(LIVE_POSTER_PATH, baseUrl), { headers: { range: "bytes=0-2047" } }),
   ]);
 
   for (const [name, page] of [["landing", landing], ["menu", menu]]) {
@@ -45,15 +66,17 @@ async function verifyPublishedFiles() {
   if (!sitemap.body.includes(`<loc>${profile.siteUrl}</loc>`) || !sitemap.body.includes(`<loc>${profile.menuUrl}</loc>`)) {
     throw new Error("sitemap.xml does not expose both public pages");
   }
-  if (!(video.ok || video.status === 206)) throw new Error(`Hero video returned HTTP ${video.status}`);
-  if (!(poster.ok || poster.status === 206)) throw new Error(`Hero poster returned HTTP ${poster.status}`);
 
-  return {
-    landingUrl: landing.url,
-    menuUrl: menu.url,
-    videoStatus: video.status,
-    posterStatus: poster.status
-  };
+  const videoType = normalizedContentType(video);
+  const posterType = normalizedContentType(poster);
+  if (![200, 206].includes(video.status) || videoType !== "video/mp4") {
+    throw new Error(`Active hero response is invalid: HTTP ${video.status}, type ${videoType || "unknown"}`);
+  }
+  if (![200, 206].includes(poster.status) || posterType !== "image/jpeg") {
+    throw new Error(`Hero poster response is invalid: HTTP ${poster.status}, type ${posterType || "unknown"}`);
+  }
+
+  console.log("LIVE-001 published assets verified with exact media types");
 }
 
 async function verifyBrowser(browser) {
@@ -62,7 +85,7 @@ async function verifyBrowser(browser) {
     deviceScaleFactor: 1,
     locale: "tr-TR",
     timezoneId: "Europe/Istanbul",
-    serviceWorkers: "allow"
+    serviceWorkers: "allow",
   });
   const page = await context.newPage();
   const sameOriginFailures = [];
@@ -99,22 +122,28 @@ async function verifyBrowser(browser) {
     const mapSrc = await page.locator(".map-live-frame").getAttribute("src");
     if (!mapSrc?.includes("output=embed")) throw new Error("Embedded map source is invalid");
 
+    const sourceValue = await page.locator(".hero-video source").getAttribute("src");
+    const publishedHeroFetch = sourceValue ? fetchReference(sourceValue, "published hero source") : null;
+    if (publishedHeroFetch !== ACTIVE_HERO_FETCH) {
+      throw new Error(`Published hero source drifted: ${publishedHeroFetch ?? "missing"}`);
+    }
+
     const videoState = await page.locator(".hero-video").evaluate(async (video) => {
       video.muted = true;
       try {
         await video.play();
       } catch {
-        return { started: false, error: video.error?.message ?? "play() rejected", readyState: video.readyState };
+        return { started: false, mediaErrorCode: video.error?.code ?? null, readyState: video.readyState };
       }
       await new Promise((resolve) => setTimeout(resolve, 700));
       return {
         started: !video.paused && video.currentTime > 0,
         currentTime: video.currentTime,
         readyState: video.readyState,
-        error: video.error?.message ?? null
+        mediaErrorCode: video.error?.code ?? null,
       };
     });
-    if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
+    if (!videoState.started) throw new Error(`Hero video did not start: code=${videoState.mediaErrorCode}, ready=${videoState.readyState}`);
 
     const menuUrl = new URL("menu.html", baseUrl);
     menuUrl.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
@@ -140,7 +169,7 @@ async function verifyBrowser(browser) {
     if (pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(" | ")}`);
     if (sameOriginFailures.length) throw new Error(`Same-origin browser failures: ${sameOriginFailures.join(" | ")}`);
 
-    return { initialItems, videoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
+    console.log(`LIVE-001 browser journey verified: items=${initialItems}, videoTime=${videoState.currentTime}`);
   } finally {
     await context.close();
   }
@@ -153,9 +182,10 @@ try {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const attemptReport = { attempt, startedAt: new Date().toISOString() };
     try {
-      attemptReport.http = await verifyPublishedFiles();
-      attemptReport.browser = await verifyBrowser(browser);
+      await verifyPublishedFiles();
+      await verifyBrowser(browser);
       attemptReport.passed = true;
+      attemptReport.verdict = "LIVE_JOURNEY_VERIFIED";
       report.attempts.push(attemptReport);
       report.passed = true;
       report.completedAt = new Date().toISOString();
@@ -167,7 +197,7 @@ try {
     } catch (error) {
       lastError = error;
       attemptReport.passed = false;
-      attemptReport.error = error.message;
+      attemptReport.verdict = "LIVE_ATTEMPT_FAILED";
       report.attempts.push(attemptReport);
       writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
       console.warn(`LIVE-001 attempt ${attempt}/${attempts} failed: ${error.message}`);
@@ -180,7 +210,7 @@ try {
 
 if (!report.passed) {
   report.completedAt = new Date().toISOString();
-  report.finalError = lastError?.message ?? "Unknown live smoke failure";
+  report.finalVerdict = "LIVE_SMOKE_FAILED";
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   throw lastError ?? new Error("[LIVE-001] Live smoke failed");
 }
