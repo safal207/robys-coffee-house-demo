@@ -74,9 +74,11 @@ Initial automatic routes are fixed by depth:
 | Depth | Automatic route |
 |---:|---|
 | L1 | CI → CodeRabbit |
-| L2 | CI → mutations → CodeRabbit risk review → Codex evidence review |
-| L3 | TRACE/PDG → mutations → CodeRabbit → Codex → maintainer Proof Seal |
-| L4 | TRACE/PDG → security → mutations → CodeRabbit → Codex → human authorization → action gate |
+| L2 | CI → mutations → CodeRabbit risk review → human maintainer evidence review |
+| L3 | TRACE/PDG → mutations → CodeRabbit risk review → human maintainer evidence review → maintainer Proof Seal |
+| L4 | TRACE/PDG → security → mutations → CodeRabbit risk review → human maintainer evidence review → human authorization → action gate |
+
+Codex and DeepSeek are optional advisory reviewers. Their availability is reported as diagnostic evidence, but neither reviewer appears in a binding route, counts toward binding capacity or receives merge authority.
 
 The same inputs produce the same route and route key. A shallow route cannot serve a deeper classification.
 
