@@ -101,6 +101,7 @@ expectDecision("L4 requires a human", "ESCALATE", "L4", {
   coderabbit: "AVAILABLE",
   codex: "AVAILABLE"
 }, (payload) => {
+  if (!payload.reasons.includes("BINDING_CAPACITY_1_OF_2")) throw new Error("missing binding capacity reason");
   if (!payload.reasons.includes("HUMAN_REVIEWER_REQUIRED")) throw new Error("missing human escalation reason");
 });
 
