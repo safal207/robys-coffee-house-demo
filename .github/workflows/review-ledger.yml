@@ -24,7 +24,7 @@ jobs:
       contents: read # Read repository metadata for the current PR head.
       issues: read # Read cooperation-report and Proof-Seal issue comments.
       pull-requests: read # Read exact-head reviews, inline findings and dispositions.
-      statuses: read # Read native exact-head CodeRabbit commit-status evidence.
+      statuses: read # Read supplemental bot commit-status evidence.
 
     steps:
       - name: Require PDG-001 depth D6 for the exact head
@@ -65,7 +65,10 @@ jobs:
             const reviewHeads = new Map(
               reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
             );
+            const qodoLogins = new Set(['qodo-code-review', 'qodo-code-review[bot]']);
             const reviewBots = new Set([
+              'qodo-code-review',
+              'qodo-code-review[bot]',
               'chatgpt-codex-connector',
               'chatgpt-codex-connector[bot]',
               'coderabbitai',
@@ -84,7 +87,7 @@ jobs:
             const isDispositionReply = (reply) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
               const maintainer = trustedAssociations.has(reply.author_association);
               return disposition && exactHead && maintainer;
             };
@@ -102,27 +105,24 @@ jobs:
             )));
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
-            const codeRabbitEvidence = [
+            const qodoEvidence = [
               ...reviews.filter((item) => (
-                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
+                qodoLogins.has(item.user?.login) &&
+                item.user?.type === 'Bot' &&
+                item.state !== 'PENDING' &&
+                item.state !== 'DISMISSED' &&
                 item.commit_id?.toLowerCase() === head
               )),
               ...reviewComments.filter((item) => (
-                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
+                qodoLogins.has(item.user?.login) &&
                 reviewHeads.get(item.pull_request_review_id) === head
               )),
               ...issueComments.filter((item) => (
-                (item.user?.login === 'coderabbitai' || item.user?.login === 'coderabbitai[bot]') &&
-                exactHeadBody(item.body)
-              )),
-              ...statuses.filter((item) => (
-                item.context === 'CodeRabbit' &&
-                item.state === 'success' &&
-                (item.creator?.login === 'coderabbitai' || item.creator?.login === 'coderabbitai[bot]')
+                qodoLogins.has(item.user?.login) && exactHeadBody(item.body)
               )),
             ];
-            if (codeRabbitEvidence.length === 0) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no native CodeRabbit exact-head evidence for ${head}.`);
+            if (qodoEvidence.length === 0) {
+              core.setFailed(`PDG-001 depth D4 incomplete: no native Qodo exact-head evidence for ${head}.`);
               return;
             }
 
@@ -160,13 +160,13 @@ jobs:
             if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
               const match = /advisory gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
               const gaps = (match?.[1] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
-              const supplemental = new Set(['Codex', 'Jules', 'DeepSeek']);
+              const supplemental = new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']);
               if (gaps.length === 0 || gaps.some((item) => !supplemental.has(item))) {
                 core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has a mandatory-reviewer advisory gap for ${head}.`);
                 return;
               }
             }
-            for (const reviewer of ['CodeRabbit']) {
+            for (const reviewer of ['Qodo']) {
               const row = new RegExp(`^\\|\\s*${reviewer}\\s*\\|[^\\n]*\\|\\s*E[45]\\s*\\|`, 'im');
               if (!row.test(report.body ?? '')) {
                 core.setFailed(`PDG-001 depth D4 incomplete: ${reviewer} lacks E4/E5 exact-head evidence for ${head}.`);
@@ -187,7 +187,7 @@ jobs:
               const body = (item.body ?? '').replaceAll('`', '');
               const trusted = trustedAssociations.has(item.author_association);
               const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
               const depth = /^Depth:\s*D6\s*$/im.test(body);
               return trusted && contract && exactHead && depth;
             });
@@ -202,4 +202,4 @@ jobs:
               return;
             }
 
-            core.notice(`PDG-001 depth D6 sealed for ${head}: mandatory CodeRabbit evidence complete; ${findings.length} exact-head finding(s) dispositioned.`);
+            core.notice(`PDG-001 depth D6 sealed for ${head}: mandatory Qodo evidence complete; ${findings.length} exact-head finding(s) dispositioned.`);
