@@ -35,6 +35,7 @@ jobs:
           grep -Fq 'issue_comment:' "${workflow}"
           grep -Fq 'workflow_dispatch:' "${workflow}"
           grep -Fq "github.event.comment.body == '/ai-cooperation recover'" "${workflow}"
+          grep -Fq "github.event.issue.state == 'open'" "${workflow}"
           grep -Fq "github.actor == github.repository_owner" "${workflow}"
           grep -Fq 'persist-credentials: false' "${workflow}"
           ! grep -Fq 'pull_request_target' "${workflow}"
@@ -71,6 +72,7 @@ jobs:
           expected_guard = <<~'EXPR'
             (github.event_name == 'issue_comment' &&
              github.event.issue.pull_request != null &&
+             github.event.issue.state == 'open' &&
              github.event.comment.body == '/ai-cooperation recover' &&
              (github.event.comment.author_association == 'OWNER' ||
               github.event.comment.author_association == 'MEMBER' ||
@@ -132,12 +134,14 @@ jobs:
           end
           RUBY
 
-      - name: Verify exact-head and trusted publication invariants
+      - name: Verify exact-head, open-state and trusted publication invariants
         run: |
           set -euo pipefail
           workflow=.github/workflows/ai-review-cooperation-recovery.yml
           grep -Fq 'EXPECTED_HEAD_SHA' "${workflow}"
           grep -Fq 'Recovery input is stale:' "${workflow}"
+          grep -Fq 'Recovery requires an open pull request' "${workflow}"
+          grep -Fq 'PR was closed before publishing the recovery report.' "${workflow}"
           grep -Fq 'PR head changed before publishing:' "${workflow}"
           grep -Fq 'PR head no longer matches recovery input:' "${workflow}"
           grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
@@ -145,6 +149,10 @@ jobs:
           grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
           grep -Fq 'python3 scripts/fetch-review-threads.py' "${workflow}"
           grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
+          grep -Fq 'Güvenilir kurtarma raporlayıcısı' "${workflow}"
+          grep -Fq 'Доверенный репортер восстановления' "${workflow}"
+          grep -Fq 'Stage / Aşama / Этап' "${workflow}"
+          grep -Fq 'Run / Çalıştırma / Запуск' "${workflow}"
 
       - name: Validate embedded shell programs
         run: |
