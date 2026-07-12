@@ -124,9 +124,8 @@ jobs:
           Tempfile.create(['recovery-auth', '.sh']) do |file|
             file.write(script)
             file.flush
-            File.chmod(0o700, file.path)
             cases.each do |name, should_pass, overrides|
-              _out, _err, status = Open3.capture3(base.merge(overrides), file.path)
+              _out, _err, status = Open3.capture3(base.merge(overrides), 'bash', file.path)
               passed = status.success?
               raise "authorization case failed: #{name} expected=#{should_pass} actual=#{passed}" unless passed == should_pass
             end
