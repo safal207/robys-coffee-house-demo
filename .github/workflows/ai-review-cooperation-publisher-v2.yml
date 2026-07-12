@@ -1,4 +1,4 @@
-name: AI review cooperation publisher v2
+name: AI review cooperation publisher v2 / AI inceleme işbirliği yayıncısı v2 / Издатель отчёта AI-взаимодействия v2
 
 on:
   workflow_run:
@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
   publish:
+    name: Publish trusted report / Güvenilir raporu yayımla / Опубликовать доверенный отчёт
     if: >-
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.name == 'AI review contract' &&
@@ -35,7 +36,6 @@ jobs:
       actions: read
       checks: read
       contents: read
-      issues: write
       pull-requests: write
       statuses: read
     runs-on: ubuntu-latest
@@ -53,7 +53,7 @@ jobs:
       WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion || '' }}
 
     steps:
-      - name: Authorize publisher trigger
+      - name: Authorize publisher trigger / Yayıncı tetikleyicisini yetkilendir / Авторизовать триггер издателя
         id: authorize
         run: |
           set -euo pipefail
@@ -87,7 +87,7 @@ jobs:
               ;;
           esac
 
-      - name: Checkout trusted publisher code
+      - name: Checkout trusted publisher code / Güvenilir yayıncı kodunu al / Получить доверенный код издателя
         id: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -95,7 +95,7 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Resolve exact open pull request
+      - name: Resolve exact open pull request / Tam açık pull request'i çözümle / Определить точный открытый pull request
         id: resolve_pr
         run: |
           set -euo pipefail
@@ -122,7 +122,7 @@ jobs:
             exit 1
           fi
 
-      - name: Configure evidence paths
+      - name: Configure evidence paths / Kanıt yollarını yapılandır / Настроить пути доказательств
         id: configure
         run: |
           set -euo pipefail
@@ -140,7 +140,7 @@ jobs:
             echo "COMMENT_FILE=${prefix}-comment.json"
           } >> "${GITHUB_ENV}"
 
-      - name: Collect exact-head REST evidence
+      - name: Collect exact-head REST evidence / Exact-head REST kanıtını topla / Собрать REST-доказательства exact-head
         id: rest_evidence
         run: |
           set -euo pipefail
@@ -170,15 +170,15 @@ jobs:
           gh api --paginate --slurp "repos/${REPOSITORY}/commits/${head}/statuses?per_page=100" \
             | jq 'add // []' > "${STATUSES_FILE}"
 
-      - name: Collect complete GraphQL review evidence
+      - name: Collect complete GraphQL review evidence / Tam GraphQL inceleme kanıtını topla / Собрать полные GraphQL-доказательства ревью
         id: graphql_evidence
         run: python3 scripts/fetch-review-threads.py
 
-      - name: Build canonical cooperation report
+      - name: Build canonical cooperation report / Kanonik işbirliği raporunu oluştur / Построить канонический отчёт взаимодействия
         id: build_report
         run: python3 scripts/ai-review-cooperation.py report
 
-      - name: Publish canonical cooperation report
+      - name: Publish canonical cooperation report / Kanonik işbirliği raporunu yayımla / Опубликовать канонический отчёт взаимодействия
         id: publish_report
         run: |
           set -euo pipefail
@@ -191,9 +191,15 @@ jobs:
             exit 1
           fi
           test -s "${COMMENT_FILE}"
+          jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
           jq -e '.body | contains("<!-- ai-review-cooperation -->")' "${COMMENT_FILE}" >/dev/null
+          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
+          if [ "${body_bytes}" -gt 65000 ]; then
+            echo "Cooperation report exceeds GitHub comment limit / İşbirliği raporu GitHub yorum sınırını aşıyor / Отчёт взаимодействия превышает лимит комментария GitHub: ${body_bytes}" >&2
+            exit 1
+          fi
           existing="$({
-            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?sort=created&direction=asc&per_page=100" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id'
           } | tail -n 1)"
           if [ -n "${existing}" ]; then
@@ -204,7 +210,7 @@ jobs:
               -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
           fi
 
-      - name: Publish failure summary
+      - name: Publish failure summary / Hata özetini yayımla / Опубликовать сводку сбоя
         if: ${{ failure() }}
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
