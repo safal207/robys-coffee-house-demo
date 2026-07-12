@@ -1,4 +1,4 @@
-name: AI review cooperation publisher v2 contract
+name: AI review cooperation publisher v2 contract / AI inceleme işbirliği yayıncısı v2 sözleşmesi / Контракт издателя отчёта AI-взаимодействия v2
 
 on:
   pull_request:
@@ -17,38 +17,37 @@ concurrency:
 
 jobs:
   verify:
-    name: Verify publisher v2 contract
+    name: Verify publisher v2 contract / Yayıncı v2 sözleşmesini doğrula / Проверить контракт издателя v2
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout pull request
+      - name: Checkout pull request / Pull request'i al / Получить pull request
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
           show-progress: false
 
-      - name: Parse workflow YAML
+      - name: Parse workflow YAML / İş akışı YAML'ını ayrıştır / Разобрать YAML workflow
         run: >-
           ruby -e "require 'yaml';
           YAML.parse_file('.github/workflows/ai-review-cooperation-publisher-v2.yml');
           YAML.parse_file('.github/workflows/ai-review-cooperation-publisher-v2-contract.yml')"
 
-      - name: Verify events and exact permissions
+      - name: Verify events and exact permissions / Olayları ve tam izinleri doğrula / Проверить события и точные разрешения
         run: |
           ruby <<'RUBY'
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation-publisher-v2.yml')
-          raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
+          raise 'workflow permissions must default to none / iş akışı izinleri varsayılan olarak boş olmalı / разрешения workflow по умолчанию должны быть пустыми' unless workflow['permissions'] == {}
           expected = {
             'actions' => 'read',
             'checks' => 'read',
             'contents' => 'read',
-            'issues' => 'write',
             'pull-requests' => 'write',
             'statuses' => 'read',
           }
           actual = workflow.dig('jobs', 'publish', 'permissions')
-          raise "unexpected publisher permissions: #{actual.inspect}" unless actual == expected
+          raise "unexpected publisher permissions / beklenmeyen yayıncı izinleri / неожиданные разрешения издателя: #{actual.inspect}" unless actual == expected
           RUBY
           workflow=.github/workflows/ai-review-cooperation-publisher-v2.yml
           grep -Fq 'workflow_run:' "${workflow}"
@@ -56,11 +55,13 @@ jobs:
           grep -Fq 'types: [completed]' "${workflow}"
           grep -Fq 'workflow_dispatch:' "${workflow}"
           grep -Fq 'persist-credentials: false' "${workflow}"
+          grep -Fq 'pull-requests: write' "${workflow}"
+          ! grep -Fq 'issues: write' "${workflow}"
           ! grep -Fq 'pull_request_target' "${workflow}"
           ! grep -Fq 'contents: write' "${workflow}"
           ! grep -Fq 'actions: write' "${workflow}"
 
-      - name: Verify exact guard and concurrency
+      - name: Verify exact guard and concurrency / Tam guard ve eşzamanlılığı doğrula / Проверить точный guard и concurrency
         run: |
           ruby <<'RUBY'
           require 'yaml'
@@ -88,7 +89,7 @@ jobs:
                 output << character
               end
             end
-            raise 'unterminated quoted literal' if quote
+            raise 'unterminated quoted literal / kapanmamış tırnaklı ifade / незавершённый строковый литерал' if quote
             output
           end
 
@@ -103,15 +104,15 @@ jobs:
             (github.event_name == 'workflow_dispatch' &&
              github.actor == github.repository_owner)
           EXPR
-          raise 'publisher guard drifted' unless normalize(job['if']) == normalize(expected_guard)
+          raise 'publisher guard drifted / yayıncı guard değişti / guard издателя изменился' unless normalize(job['if']) == normalize(expected_guard)
 
           expected_group = 'ai-review-cooperation-publisher-v2-' + '$' + '{{ github.event.workflow_run.head_sha || inputs.pr_number || github.run_id }}'
           concurrency = workflow['concurrency']
-          raise 'publisher cancellation must remain enabled' unless concurrency['cancel-in-progress'] == true
-          raise 'publisher concurrency drifted' unless normalize(concurrency['group']) == normalize(expected_group)
+          raise 'publisher cancellation must remain enabled / yayıncı iptali etkin kalmalı / отмена издателя должна оставаться включённой' unless concurrency['cancel-in-progress'] == true
+          raise 'publisher concurrency drifted / yayıncı concurrency değişti / concurrency издателя изменилась' unless normalize(concurrency['group']) == normalize(expected_group)
           RUBY
 
-      - name: Execute authorization matrix
+      - name: Execute authorization matrix / Yetkilendirme matrisini çalıştır / Выполнить матрицу авторизации
         run: |
           ruby <<'RUBY'
           require 'yaml'
@@ -119,7 +120,8 @@ jobs:
           require 'tempfile'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation-publisher-v2.yml')
           step = workflow.dig('jobs', 'publish', 'steps').first
-          raise 'authorization must be first' unless step['name'] == 'Authorize publisher trigger'
+          expected_name = 'Authorize publisher trigger / Yayıncı tetikleyicisini yetkilendir / Авторизовать триггер издателя'
+          raise 'authorization must be first / yetkilendirme ilk olmalı / авторизация должна быть первой' unless step['name'] == expected_name
           script = step['run'].to_s
           sha = 'a' * 40
           base = {
@@ -128,26 +130,26 @@ jobs:
             'EXPECTED_HEAD_SHA' => '', 'GITHUB_ACTOR' => '', 'REPOSITORY_OWNER' => 'owner',
           }
           cases = [
-            ['trusted workflow run', true, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>sha}],
-            ['owner dispatch', true, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'owner','PR_NUMBER'=>'203','EXPECTED_HEAD_SHA'=>sha}],
-            ['wrong workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'Other','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>sha}],
-            ['failed workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'failure','TRIGGER_HEAD_SHA'=>sha}],
-            ['workflow missing SHA', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success'}],
-            ['non-owner dispatch', false, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'member','PR_NUMBER'=>'203','EXPECTED_HEAD_SHA'=>sha}],
-            ['dispatch missing PR', false, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'owner','EXPECTED_HEAD_SHA'=>sha}],
-            ['unsupported event', false, {'TRIGGER_EVENT'=>'push'}],
+            ['trusted workflow run / güvenilir workflow run / доверенный запуск workflow', true, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>sha}],
+            ['owner dispatch / sahip dispatch / запуск владельца', true, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'owner','PR_NUMBER'=>'203','EXPECTED_HEAD_SHA'=>sha}],
+            ['wrong workflow / yanlış workflow / неверный workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'Other','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>sha}],
+            ['failed workflow / başarısız workflow / неуспешный workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'failure','TRIGGER_HEAD_SHA'=>sha}],
+            ['workflow missing SHA / SHA eksik / отсутствует SHA', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success'}],
+            ['non-owner dispatch / sahip olmayan dispatch / запуск не владельца', false, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'member','PR_NUMBER'=>'203','EXPECTED_HEAD_SHA'=>sha}],
+            ['dispatch missing PR / PR eksik dispatch / запуск без PR', false, {'TRIGGER_EVENT'=>'workflow_dispatch','GITHUB_ACTOR'=>'owner','EXPECTED_HEAD_SHA'=>sha}],
+            ['unsupported event / desteklenmeyen olay / неподдерживаемое событие', false, {'TRIGGER_EVENT'=>'push'}],
           ]
           Tempfile.create(['publisher-v2-auth', '.sh']) do |file|
             file.write(script)
             file.flush
             cases.each do |name, expected, values|
               _out, err, status = Open3.capture3(base.merge(values), 'bash', file.path)
-              raise "authorization case failed: #{name}: #{err}" unless status.success? == expected
+              raise "authorization case failed / yetkilendirme vakası başarısız / сбой случая авторизации: #{name}: #{err}" unless status.success? == expected
             end
           end
           RUBY
 
-      - name: Verify exact PR resolution and freshness
+      - name: Verify exact PR resolution and freshness / Tam PR çözümleme ve tazeliği doğrula / Проверить точное определение PR и свежесть
         run: |
           set -euo pipefail
           workflow=.github/workflows/ai-review-cooperation-publisher-v2.yml
@@ -160,7 +162,7 @@ jobs:
           grep -Fq '[ "${current_head}" != "${evidence_head}" ]' "${workflow}"
           grep -Fq '[ "${current_head}" != "${EXPECTED_HEAD_SHA}" ]' "${workflow}"
 
-      - name: Verify canonical publication boundary
+      - name: Verify canonical publication boundary / Kanonik yayın sınırını doğrula / Проверить каноническую границу публикации
         run: |
           set -euo pipefail
           workflow=.github/workflows/ai-review-cooperation-publisher-v2.yml
@@ -168,10 +170,13 @@ jobs:
           grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
           grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
           grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
-          grep -Fq 'issues/${PR_NUMBER}/comments' "${workflow}"
+          grep -Fq 'issues/${PR_NUMBER}/comments?sort=created&direction=asc&per_page=100' "${workflow}"
+          grep -Fq '.body | type == "string" and length > 0' "${workflow}"
+          grep -Fq 'body_bytes=' "${workflow}"
+          grep -Fq '65000' "${workflow}"
           grep -Fq 'GITHUB_STEP_SUMMARY' "${workflow}"
 
-      - name: Validate embedded shell programs
+      - name: Validate embedded shell programs / Gömülü shell programlarını doğrula / Проверить встроенные shell-программы
         run: |
           ruby <<'RUBY'
           require 'yaml'
@@ -183,7 +188,7 @@ jobs:
               file.write(step['run'].to_s)
               file.flush
               unless system('bash', '-n', file.path, out: File::NULL, err: File::NULL)
-                raise "invalid shell syntax in step #{index}: #{step['name']}"
+                raise "invalid shell syntax / geçersiz shell sözdizimi / недопустимый синтаксис shell in step/adım/шаг #{index}: #{step['name']}"
               end
             end
           end
