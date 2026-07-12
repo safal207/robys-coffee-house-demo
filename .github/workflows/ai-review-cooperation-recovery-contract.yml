@@ -39,9 +39,12 @@ jobs:
           workflow=.github/workflows/ai-review-cooperation-recovery.yml
           grep -Fq 'issue_comment:' "${workflow}"
           grep -Fq 'workflow_dispatch:' "${workflow}"
+          grep -Fq 'workflow_run:' "${workflow}"
+          grep -Fq 'workflows: [AI review contract]' "${workflow}"
           grep -Fq "github.event.comment.body == '/ai-cooperation recover'" "${workflow}"
           grep -Fq "github.event.issue.state == 'open'" "${workflow}"
           grep -Fq "github.actor == github.repository_owner" "${workflow}"
+          grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
           grep -Fq 'persist-credentials: false' "${workflow}"
           ! grep -Fq 'pull_request_target' "${workflow}"
           ! grep -Fq 'contents: write' "${workflow}"
@@ -84,13 +87,18 @@ jobs:
               github.event.comment.author_association == 'COLLABORATOR' ||
               github.event.comment.user.login == github.repository_owner)) ||
             (github.event_name == 'workflow_dispatch' &&
-             github.actor == github.repository_owner)
+             github.actor == github.repository_owner) ||
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'AI review contract' &&
+             github.event.workflow_run.event == 'pull_request' &&
+             github.event.workflow_run.conclusion == 'success' &&
+             github.event.workflow_run.head_sha != '')
           EXPR
           raise 'recovery job guard drifted' unless normalize(job['if']) == normalize(expected_guard)
 
           concurrency = job['concurrency']
           raise 'recovery cancellation must remain enabled' unless concurrency['cancel-in-progress'] == true
-          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.run_id }}'
+          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.event.workflow_run.head_sha || github.run_id }}'
           unless normalize(concurrency['group']) == normalize(expected_group)
             raise "recovery concurrency group drifted: #{concurrency['group'].inspect}"
           end
@@ -115,6 +123,10 @@ jobs:
             'TRIGGER_AUTHOR' => '',
             'TRIGGER_ASSOCIATION' => '',
             'REPOSITORY_OWNER' => 'repo-owner',
+            'WORKFLOW_NAME' => '',
+            'WORKFLOW_EVENT' => '',
+            'WORKFLOW_CONCLUSION' => '',
+            'TRIGGER_HEAD_SHA' => '',
           }
           exact_sha = 'a' * 40
           cases = [
@@ -123,10 +135,15 @@ jobs:
             ['collaborator association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-collaborator','TRIGGER_ASSOCIATION'=>'COLLABORATOR'}],
             ['exact owner fallback', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'NONE'}],
             ['owner dispatch', true, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>exact_sha}],
+            ['trusted workflow run', true, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
             ['attacker command', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'attacker','TRIGGER_ASSOCIATION'=>'NONE'}],
             ['non-owner dispatch', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'member','EXPECTED_HEAD_SHA'=>exact_sha}],
             ['dispatch without SHA', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>''}],
             ['invalid PR number', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'OWNER','PR_NUMBER'=>'x'}],
+            ['wrong workflow name', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'Other','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['wrong workflow event', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'push','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['failed workflow conclusion', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'failure','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['workflow run missing SHA', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>''}],
             ['unsupported event', false, {'TRIGGER_EVENT'=>'push','TRIGGER_AUTHOR'=>'repo-owner'}],
           ]
 
@@ -140,6 +157,19 @@ jobs:
             end
           end
           RUBY
+
+      - name: Verify workflow-run resolution and freshness invariants
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation-recovery.yml
+          grep -Fq 'Resolve workflow-run pull request' "${workflow}"
+          grep -Fq 'commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100' "${workflow}"
+          grep -Fq '.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo' "${workflow}"
+          grep -Fq 'Expected exactly one open PR for workflow head' "${workflow}"
+          grep -Fq 'PR_NUMBER=${resolved_pr}' "${workflow}"
+          grep -Fq 'Workflow trigger is not bound to the current PR head:' "${workflow}"
+          grep -Fq 'PR head no longer matches workflow trigger:' "${workflow}"
+          grep -Fq 'RESOLVE_PR_OUTCOME' "${workflow}"
 
       - name: Verify exact-head, open-state and trusted publication invariants
         run: |
