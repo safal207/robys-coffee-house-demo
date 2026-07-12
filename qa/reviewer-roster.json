@@ -18,11 +18,11 @@
     },
     "L2": {
       "minimumAvailable": 2,
-      "requiresHuman": false
+      "requiresHuman": true
     },
     "L3": {
       "minimumAvailable": 2,
-      "requiresHuman": false
+      "requiresHuman": true
     },
     "L4": {
       "minimumAvailable": 2,
@@ -37,9 +37,12 @@
       "L4": 2
     },
     "humanRequiredDepths": [
+      "L2",
+      "L3",
       "L4"
     ],
     "advisoryReviewers": [
+      "codex",
       "deepseek"
     ]
   },
@@ -66,16 +69,15 @@
       "id": "codex",
       "label": "Codex",
       "kind": "ai",
-      "binding": true,
-      "advisory": false,
+      "binding": false,
+      "advisory": true,
       "eligibleDepths": [
         "L2",
         "L3",
         "L4"
       ],
       "roles": [
-        "evidence_verifier",
-        "risk_critic"
+        "advisory_reviewer"
       ],
       "defaultStatus": "UNKNOWN"
     },

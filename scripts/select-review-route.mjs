@@ -10,6 +10,13 @@ const EXPECTED_AUTOMATIC_ROUTES = {
   L3: "route-l3-standard",
   L4: "route-l4-standard"
 };
+const EXPECTED_BINDING_ACTOR_FLOORS = {
+  L1: 1,
+  L2: 2,
+  L3: 2,
+  L4: 2
+};
+const EXPECTED_HUMAN_REQUIRED_DEPTHS = ["L2", "L3", "L4"];
 
 function fail(message) {
   throw new Error(`RRM-ROUTE-001: ${message}`);
@@ -79,8 +86,8 @@ export function validateReviewRoutePolicy(policy) {
   if (nonNegotiable.advisoryActorsForbidden !== true) fail("advisory actors must remain forbidden");
   if (nonNegotiable.exactDepthMatchRequired !== true) fail("exact depth matching must remain required");
   if (!Array.isArray(nonNegotiable.humanRequiredDepths)) fail("humanRequiredDepths are required");
-  for (const depth of ["L3", "L4"]) {
-    if (!nonNegotiable.humanRequiredDepths.includes(depth)) fail(`${depth} must require a human actor`);
+  if (!sameOrderedValues(nonNegotiable.humanRequiredDepths, EXPECTED_HUMAN_REQUIRED_DEPTHS)) {
+    fail("humanRequiredDepths must remain L2, L3, L4");
   }
 
   if (!Array.isArray(policy.routes) || policy.routes.length === 0) fail("routes must not be empty");
@@ -94,6 +101,8 @@ export function validateReviewRoutePolicy(policy) {
     }
     const floor = nonNegotiable.minimumDistinctBindingActors?.[depth];
     if (!Number.isInteger(floor) || floor < 1) fail(`${depth} has invalid actor floor`);
+    const expectedFloor = EXPECTED_BINDING_ACTOR_FLOORS[depth];
+    if (floor !== expectedFloor) fail(`${depth} actor floor must remain ${expectedFloor}`);
   }
 
   for (const route of policy.routes) {
