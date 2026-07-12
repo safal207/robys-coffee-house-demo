@@ -114,6 +114,10 @@ jobs:
               exit 1
             fi
             resolved="$(jq -r '.[0].number' "${matches}")"
+            if ! [[ "${resolved}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "Invalid resolved PR / Geçersiz çözümlenen PR / Недопустимый определённый PR: ${resolved}" >&2
+              exit 1
+            fi
             echo "PR_NUMBER=${resolved}" >> "${GITHUB_ENV}"
             echo "EXPECTED_HEAD_SHA=${TRIGGER_HEAD_SHA}" >> "${GITHUB_ENV}"
           fi
