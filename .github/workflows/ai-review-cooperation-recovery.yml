@@ -21,6 +21,7 @@ jobs:
     if: >-
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
+       github.event.issue.state == 'open' &&
        github.event.comment.body == '/ai-cooperation recover' &&
        (github.event.comment.author_association == 'OWNER' ||
         github.event.comment.author_association == 'MEMBER' ||
@@ -122,6 +123,12 @@ jobs:
           set -euo pipefail
 
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          PR_STATE="$(jq -r '.state' "${PR_JSON_FILE}")"
+          if [ "${PR_STATE}" != "open" ]; then
+            echo "Recovery requires an open pull request; current state is ${PR_STATE:-missing}." >&2
+            exit 1
+          fi
+
           HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
           if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
             echo "GitHub returned an invalid PR head SHA: ${HEAD_SHA}" >&2
@@ -167,6 +174,12 @@ jobs:
           set -euo pipefail
 
           EVIDENCE_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          CURRENT_STATE="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
+          if [ "${CURRENT_STATE}" != "open" ]; then
+            echo "PR was closed before publishing the recovery report." >&2
+            exit 1
+          fi
+
           CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
           if [ "${CURRENT_HEAD}" != "${EVIDENCE_HEAD}" ]; then
             echo "PR head changed before publishing: ${EVIDENCE_HEAD} -> ${CURRENT_HEAD}" >&2
@@ -225,18 +238,20 @@ jobs:
             '## AI cooperation recovery failed / AI işbirliği kurtarması başarısız / Сбой восстановления AI-взаимодействия' \
             '' \
             "The trusted recovery reporter did not publish a cooperation report for PR #${PR_NUMBER}." \
+            "Güvenilir kurtarma raporlayıcısı PR #${PR_NUMBER} için işbirliği raporunu yayımlamadı." \
+            "Доверенный репортер восстановления не опубликовал отчет о взаимодействии для PR #${PR_NUMBER}." \
             '' \
-            '| Stage | Outcome |' \
+            '| Stage / Aşama / Этап | Outcome / Sonuç / Результат |' \
             '|---|---|' \
-            "| authorize | ${AUTHORIZE_OUTCOME:-unknown} |" \
-            "| checkout | ${CHECKOUT_OUTCOME:-unknown} |" \
-            "| configure | ${CONFIGURE_OUTCOME:-unknown} |" \
-            "| REST evidence | ${REST_OUTCOME:-unknown} |" \
-            "| GraphQL evidence | ${GRAPHQL_OUTCOME:-unknown} |" \
-            "| build report | ${BUILD_OUTCOME:-unknown} |" \
-            "| publish report | ${PUBLISH_OUTCOME:-unknown} |" \
+            "| authorize / yetkilendirme / авторизация | ${AUTHORIZE_OUTCOME:-unknown} |" \
+            "| checkout / kaynak kodu alma / получение кода | ${CHECKOUT_OUTCOME:-unknown} |" \
+            "| configure / yapılandırma / настройка | ${CONFIGURE_OUTCOME:-unknown} |" \
+            "| REST evidence / REST kanıtı / REST-доказательства | ${REST_OUTCOME:-unknown} |" \
+            "| GraphQL evidence / GraphQL kanıtı / GraphQL-доказательства | ${GRAPHQL_OUTCOME:-unknown} |" \
+            "| build report / rapor oluşturma / построение отчета | ${BUILD_OUTCOME:-unknown} |" \
+            "| publish report / raporu yayımlama / публикация отчета | ${PUBLISH_OUTCOME:-unknown} |" \
             '' \
-            "Run: ${RUN_URL}"
+            "Run / Çalıştırma / Запуск: ${RUN_URL}"
 
           payload="${RUNNER_TEMP}/cooperation-recovery-diagnostic.json"
           jq -n --arg body "${body}" '{body: $body}' > "${payload}"
