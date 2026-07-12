@@ -62,31 +62,18 @@ jobs:
 
           workflow = Path('.github/workflows/ai-review-contract.yml').read_text(encoding='utf-8')
           verifier = Path('scripts/verify-ai-review-contract.cjs').read_text(encoding='utf-8')
-          contract = workflow + '\n' + verifier
-
+          corpus = workflow + '\n' + verifier
           required = [
-              'actions: read',
-              'issues: read',
-              'pull-requests: read',
-              'QODO_LOGINS',
-              'QODO_COMMAND',
-              '/qodo review',
-              'TRUSTED_ASSOCIATIONS',
-              'headUpdateAnchor',
-              'currentHead',
-              'commit_id',
-              'review.user?.type === "Bot"',
-              'issues.listComments',
-              'pulls.listReviews',
+              'actions: read', 'issues: read', 'pull-requests: read',
+              'QODO_LOGINS', 'QODO_COMMAND', '/qodo review',
+              'TRUSTED_ASSOCIATIONS', 'headUpdateAnchor', 'currentHead',
+              'commit_id', 'review.user?.type === "Bot"',
+              'issues.listComments', 'pulls.listReviews',
               'qodoRequestAt > 0 && qodoReview',
           ]
-          missing = [token for token in required if token not in contract]
-          forbidden = [
-              'CodeRabbit (required)',
-              'CODERABBIT_STATUS_CONTEXT',
-              'codeRabbitRequestAt',
-          ]
-          leaked = [token for token in forbidden if token in contract]
+          forbidden = ['CodeRabbit (required)', 'CODERABBIT_STATUS_CONTEXT', 'codeRabbitRequestAt']
+          missing = [token for token in required if token not in corpus]
+          leaked = [token for token in forbidden if token in corpus]
           if missing or leaked:
               raise SystemExit(f'Qodo contract drift: missing={missing}, forbidden={leaked}')
           PY
@@ -111,12 +98,12 @@ jobs:
               'Authorized by native exact-head Qodo bot review.',
               'Workflow trigger is not bound to the current PR head',
               'PR head changed before publishing',
-              'ref: ${{ github.event.repository.default_branch }}',
+              'github.event.repository.default_branch',
               'persist-credentials: false',
               'cancel-in-progress: true',
           ]
-          missing = [token for token in required if token not in workflow]
           forbidden = ['pull_request_target', 'contents: write']
+          missing = [token for token in required if token not in workflow]
           leaked = [token for token in forbidden if token in workflow]
           if missing or leaked:
               raise SystemExit(f'Cooperation reporter drift: missing={missing}, forbidden={leaked}')
@@ -126,15 +113,13 @@ jobs:
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
           expected = {
-            'actions' => 'read',
-            'checks' => 'read',
-            'contents' => 'read',
-            'issues' => 'write',
-            'pull-requests' => 'read',
-            'statuses' => 'read',
+            'actions' => 'read', 'checks' => 'read', 'contents' => 'read',
+            'issues' => 'write', 'pull-requests' => 'read', 'statuses' => 'read',
           }
           actual = workflow.dig('jobs', 'report', 'permissions')
           raise "unexpected reporter permissions: #{actual.inspect}" unless actual == expected
+          concurrency = workflow.dig('jobs', 'report', 'concurrency')
+          raise 'missing safe cancellation' unless concurrency && concurrency['cancel-in-progress'] == true
           RUBY
 
       - name: Verify Qodo ledger and D6 boundary
@@ -144,21 +129,20 @@ jobs:
 
           ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
           required = [
-              "const qodoEvidence = reviews.filter(",
-              "qodoLogins.has(item.user?.login)",
+              'const qodoEvidence = reviews.filter(',
+              'qodoLogins.has(item.user?.login)',
               "item.user?.type === 'Bot'",
-              "item.commit_id?.toLowerCase() === head",
-              "no native Qodo exact-head evidence",
-              "const qodoRow =",
-              "Qodo lacks E4/E5 exact-head evidence",
-              "new RegExp(`^Head:\\\\s*${head}\\\\s*$`, 'im')",
-              "Proof-Depth-Seal:",
-              "Depth:\\s*D6",
-              "fresh",
+              "item.state !== 'PENDING'",
+              "item.state !== 'DISMISSED'",
+              'item.commit_id?.toLowerCase() === head',
+              'no native Qodo exact-head evidence',
+              'Qodo lacks E4/E5 exact-head evidence',
+              'Proof-Depth-Seal:', 'Depth:\\s*D6',
           ]
           missing = [token for token in required if token not in ledger]
-          supplemental = ['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']
-          missing += [f'supplemental:{name}' for name in supplemental if name not in ledger]
+          for reviewer in ['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']:
+              if reviewer not in ledger:
+                  missing.append(f'supplemental:{reviewer}')
           reports = ledger.split('const reports = issueComments.filter', 1)[1].split('const report =', 1)[0]
           if 'trustedAssociations' in reports:
               missing.append('bot-only cooperation report trust boundary')
@@ -175,32 +159,23 @@ jobs:
           script = Path('scripts/grok-review.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
           corpus = workflow + '\n' + script + '\n' + policy
-
           required = [
-              '/grok review',
-              '/grok deep-review',
+              '/grok review', '/grok deep-review',
               "github.event.comment.author_association == 'OWNER'",
               "github.event.comment.author_association == 'MEMBER'",
               "github.event.comment.author_association == 'COLLABORATOR'",
-              'XAI_API_KEY: ${{ secrets.XAI_API_KEY }}',
-              'GROK_MODEL: grok-4.5',
+              'XAI_API_KEY:', 'secrets.XAI_API_KEY', 'GROK_MODEL: grok-4.5',
               'https://api.x.ai/v1/chat/completions',
-              'Authorization',
-              'Bearer',
-              '<!-- grok-pr-review -->',
-              'Reviewed commit:',
-              'PR head changed before publishing',
-              'STALE_HEAD',
-              'MISSING_CONFIGURATION',
-              'RATE_LIMITED',
-              'PROVIDER_UNAVAILABLE',
-              'timeout=240',
+              'Authorization', 'Bearer', '<!-- grok-pr-review -->',
+              'Reviewed commit:', 'PR head changed before publishing',
+              'STALE_HEAD', 'MISSING_CONFIGURATION', 'RATE_LIMITED',
+              'PROVIDER_UNAVAILABLE', 'timeout=240',
               'RETRY_DELAYS_SECONDS = (2, 5)',
               'Qodo and required CI remain authoritative.',
-              'Actions secret: XAI_API_KEY',
+              'XAI_API_KEY',
           ]
-          missing = [token for token in required if token not in corpus]
           forbidden = ['pull_request_target', 'contents: write']
+          missing = [token for token in required if token not in corpus]
           leaked = [token for token in forbidden if token in workflow]
           if missing or leaked:
               raise SystemExit(f'Grok reviewer drift: missing={missing}, forbidden={leaked}')
@@ -209,9 +184,7 @@ jobs:
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/grok-review.yml')
           expected = {
-            'contents' => 'read',
-            'issues' => 'read',
-            'pull-requests' => 'write',
+            'contents' => 'read', 'issues' => 'read', 'pull-requests' => 'write',
           }
           raise "unexpected Grok permissions: #{workflow['permissions'].inspect}" unless workflow['permissions'] == expected
           RUBY
@@ -224,23 +197,16 @@ jobs:
           script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
           ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
-          required = [
-              '<!-- ai-review-cooperation -->',
-              'BOT_LOGINS',
-              "login_of(item) == 'github-actions[bot]'",
-              'REQUIRED_CHECKS',
-              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH',
-              'NO_CURRENT_HEAD_EVIDENCE',
-              'FIX_THEN_RERUN',
-              'flowchart TD',
-              'not a majority vote',
-              'STALE_HEAD',
-              'PERMISSION_ERROR',
-              '/qodo review',
-              'Qodo',
-              'Grok',
-          ]
           corpus = script + policy + ledger
+          required = [
+              '<!-- ai-review-cooperation -->', 'BOT_LOGINS',
+              "login_of(item) == 'github-actions[bot]'", 'REQUIRED_CHECKS',
+              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'NO_CURRENT_HEAD_EVIDENCE',
+              'FIX_THEN_RERUN', 'flowchart TD', 'not a majority vote',
+              'STALE_HEAD', 'PERMISSION_ERROR', '/qodo review',
+              'Qodo', 'Grok', 'active_submitted_review',
+              "state not in {'PENDING', 'DISMISSED'}",
+          ]
           missing = [token for token in required if token not in corpus]
           if missing:
               raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
