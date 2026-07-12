@@ -19,6 +19,7 @@ DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
+    'Qodo': {'qodo-code-review', 'qodo-code-review[bot]'},
     'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
     'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
     'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
@@ -212,6 +213,13 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     head_sha = str(pr['head']['sha']).lower()
     all_items = reviews + (threads if threads_available else review_comments)
 
+    qodo_items = bot_items(all_items, BOT_LOGINS['Qodo'], head_time)
+    qodo = result_from_exact_evidence(
+        name='Qodo', requested=True,
+        exact_items=[item for item in qodo_items if current_head_evidence(item, head_sha)],
+        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+        no_evidence_action='Wait for the automatic Qodo review on the current head.')
+
     codex_req = fresh_requests(comments, '@codex review', head_time)
     codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
     codex = result_from_exact_evidence(
@@ -279,7 +287,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         deepseek.level, deepseek.state = 'E1', 'bootstrap pending'
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
-    return [codex, jules, rabbit, deepseek]
+    return [qodo, codex, jules, rabbit, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -311,16 +319,16 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
                        evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
-    coderabbit = next(bot for bot in bots if bot.name == 'CodeRabbit')
+    qodo = next(bot for bot in bots if bot.name == 'Qodo')
     if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
         return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
-    if checks.pending or coderabbit.level not in {'E4', 'E5'}:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head CodeRabbit evidence is still incomplete.'
-    gaps = [bot.name for bot in bots if bot.name != 'CodeRabbit' and bot.level not in {'E4', 'E5'}]
+    if checks.pending or qodo.level not in {'E4', 'E5'}:
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head Qodo evidence is still incomplete.'
+    gaps = [bot.name for bot in bots if bot.name != 'Qodo' and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
     return 'READY', 'Required CI and exact-head reviewer evidence are complete.'
@@ -406,7 +414,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and exact-head Qodo evidence dominate; CodeRabbit, Codex, Jules and DeepSeek are advisory; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
