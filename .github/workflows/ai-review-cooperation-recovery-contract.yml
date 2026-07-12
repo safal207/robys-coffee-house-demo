@@ -39,9 +39,15 @@ jobs:
           workflow=.github/workflows/ai-review-cooperation-recovery.yml
           grep -Fq 'issue_comment:' "${workflow}"
           grep -Fq 'workflow_dispatch:' "${workflow}"
+          grep -Fq 'workflow_run:' "${workflow}"
+          grep -Fq 'workflows: [AI review contract]' "${workflow}"
           grep -Fq "github.event.comment.body == '/ai-cooperation recover'" "${workflow}"
           grep -Fq "github.event.issue.state == 'open'" "${workflow}"
           grep -Fq "github.actor == github.repository_owner" "${workflow}"
+          grep -Fq "github.event.workflow_run.name == 'AI review contract'" "${workflow}"
+          grep -Fq "github.event.workflow_run.event == 'pull_request'" "${workflow}"
+          grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
+          grep -Fq "github.event.workflow_run.head_sha != ''" "${workflow}"
           grep -Fq 'persist-credentials: false' "${workflow}"
           ! grep -Fq 'pull_request_target' "${workflow}"
           ! grep -Fq 'contents: write' "${workflow}"
@@ -68,8 +74,37 @@ jobs:
           ruby <<'RUBY'
           require 'yaml'
 
-          def normalize(value)
-            value.to_s.gsub(/\s+/, '')
+          def normalize_expression(value)
+            output = +''
+            quote = nil
+            escaped = false
+
+            value.to_s.each_char do |character|
+              if quote
+                output << character
+                if escaped
+                  escaped = false
+                elsif character == '\\'
+                  escaped = true
+                elsif character == quote
+                  quote = nil
+                end
+              elsif character == "'" || character == '"'
+                quote = character
+                output << character
+              elsif character.match?(/\s/)
+                next
+              else
+                output << character
+              end
+            end
+
+            raise 'unterminated quoted literal in workflow expression' if quote
+            output
+          end
+
+          unless normalize_expression("x == 'AI review contract'") != normalize_expression("x == 'AI  review contract'")
+            raise 'quote-aware expression normalizer removed semantic literal whitespace'
           end
 
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
@@ -84,14 +119,21 @@ jobs:
               github.event.comment.author_association == 'COLLABORATOR' ||
               github.event.comment.user.login == github.repository_owner)) ||
             (github.event_name == 'workflow_dispatch' &&
-             github.actor == github.repository_owner)
+             github.actor == github.repository_owner) ||
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'AI review contract' &&
+             github.event.workflow_run.event == 'pull_request' &&
+             github.event.workflow_run.conclusion == 'success' &&
+             github.event.workflow_run.head_sha != '')
           EXPR
-          raise 'recovery job guard drifted' unless normalize(job['if']) == normalize(expected_guard)
+          unless normalize_expression(job['if']) == normalize_expression(expected_guard)
+            raise 'recovery job guard drifted'
+          end
 
           concurrency = job['concurrency']
           raise 'recovery cancellation must remain enabled' unless concurrency['cancel-in-progress'] == true
-          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.run_id }}'
-          unless normalize(concurrency['group']) == normalize(expected_group)
+          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.event.workflow_run.head_sha || github.run_id }}'
+          unless normalize_expression(concurrency['group']) == normalize_expression(expected_group)
             raise "recovery concurrency group drifted: #{concurrency['group'].inspect}"
           end
           RUBY
@@ -115,6 +157,10 @@ jobs:
             'TRIGGER_AUTHOR' => '',
             'TRIGGER_ASSOCIATION' => '',
             'REPOSITORY_OWNER' => 'repo-owner',
+            'WORKFLOW_NAME' => '',
+            'WORKFLOW_EVENT' => '',
+            'WORKFLOW_CONCLUSION' => '',
+            'TRIGGER_HEAD_SHA' => '',
           }
           exact_sha = 'a' * 40
           cases = [
@@ -123,10 +169,15 @@ jobs:
             ['collaborator association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-collaborator','TRIGGER_ASSOCIATION'=>'COLLABORATOR'}],
             ['exact owner fallback', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'NONE'}],
             ['owner dispatch', true, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>exact_sha}],
+            ['trusted workflow run', true, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
             ['attacker command', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'attacker','TRIGGER_ASSOCIATION'=>'NONE'}],
             ['non-owner dispatch', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'member','EXPECTED_HEAD_SHA'=>exact_sha}],
             ['dispatch without SHA', false, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>''}],
             ['invalid PR number', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'OWNER','PR_NUMBER'=>'x'}],
+            ['wrong workflow name', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'Other','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['wrong workflow event', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'push','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['failed workflow conclusion', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'failure','TRIGGER_HEAD_SHA'=>exact_sha}],
+            ['workflow run missing SHA', false, {'TRIGGER_EVENT'=>'workflow_run','PR_NUMBER'=>'','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>''}],
             ['unsupported event', false, {'TRIGGER_EVENT'=>'push','TRIGGER_AUTHOR'=>'repo-owner'}],
           ]
 
@@ -141,25 +192,91 @@ jobs:
           end
           RUBY
 
-      - name: Verify exact-head, open-state and trusted publication invariants
+      - name: Verify workflow-run resolution and freshness invariants
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation-recovery.yml
+          grep -Fq 'Resolve workflow-run pull request' "${workflow}"
+          grep -Fq 'commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100' "${workflow}"
+          grep -Fq '.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo' "${workflow}"
+          grep -Fq 'Expected exactly one open PR for workflow head' "${workflow}"
+          grep -Fq 'PR_NUMBER=${resolved_pr}' "${workflow}"
+          grep -Fq 'Workflow trigger is not bound to the current PR head' "${workflow}"
+          grep -Fq 'PR head no longer matches workflow trigger' "${workflow}"
+          grep -Fq 'RESOLVE_PR_OUTCOME' "${workflow}"
+
+      - name: Verify exact-head, multilingual and trusted publication invariants
         run: |
           set -euo pipefail
           workflow=.github/workflows/ai-review-cooperation-recovery.yml
           grep -Fq 'EXPECTED_HEAD_SHA' "${workflow}"
-          grep -Fq 'Recovery input is stale:' "${workflow}"
+          grep -Fq 'Recovery input is stale' "${workflow}"
           grep -Fq 'Recovery requires an open pull request' "${workflow}"
-          grep -Fq 'PR was closed before publishing the recovery report.' "${workflow}"
-          grep -Fq 'PR head changed before publishing:' "${workflow}"
-          grep -Fq 'PR head no longer matches recovery input:' "${workflow}"
+          grep -Fq 'PR was closed before publishing the recovery report' "${workflow}"
+          grep -Fq 'PR head changed before publishing' "${workflow}"
+          grep -Fq 'PR head no longer matches recovery input' "${workflow}"
           grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
           grep -Fq '<!-- ai-review-cooperation-diagnostic -->' "${workflow}"
           grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
           grep -Fq 'python3 scripts/fetch-review-threads.py' "${workflow}"
           grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
+          grep -Fq 'Yetkisiz workflow_run kurtarma tetikleyicisi' "${workflow}"
+          grep -Fq 'Недоверенный триггер восстановления workflow_run' "${workflow}"
+          grep -Fq 'İş akışı head SHA' "${workflow}"
+          grep -Fq 'SHA головы workflow' "${workflow}"
           grep -Fq 'Güvenilir kurtarma raporlayıcısı' "${workflow}"
           grep -Fq 'Доверенный репортер восстановления' "${workflow}"
           grep -Fq 'Stage / Aşama / Этап' "${workflow}"
           grep -Fq 'Run / Çalıştırma / Запуск' "${workflow}"
+          grep -Fq 'GITHUB_STEP_SUMMARY' "${workflow}"
+          grep -Fq 'workflow_run kurtarması benzersiz bir açık PR çözümleyemedi' "${workflow}"
+          grep -Fq 'Восстановление workflow_run не смогло однозначно определить открытый PR' "${workflow}"
+
+      - name: Execute missing-PR diagnostic fallback
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'open3'
+          require 'tempfile'
+
+          workflow = YAML.load_file('.github/workflows/ai-review-cooperation-recovery.yml')
+          diagnostic = workflow.dig('jobs', 'recover', 'steps').find do |step|
+            step['name'] == 'Publish recovery failure diagnostic'
+          end
+          raise 'missing recovery failure diagnostic step' unless diagnostic
+
+          Tempfile.create(['recovery-diagnostic', '.sh']) do |script_file|
+            Tempfile.create(['recovery-summary', '.md']) do |summary_file|
+              script_file.write(diagnostic['run'].to_s)
+              script_file.flush
+              env = {
+                'PR_NUMBER' => '',
+                'GITHUB_STEP_SUMMARY' => summary_file.path,
+                'TRIGGER_EVENT' => 'workflow_run',
+                'TRIGGER_HEAD_SHA' => 'a' * 40,
+                'WORKFLOW_NAME' => 'AI review contract',
+                'WORKFLOW_EVENT' => 'pull_request',
+                'WORKFLOW_CONCLUSION' => 'success',
+                'RESOLVE_PR_OUTCOME' => 'failure',
+                'RUN_URL' => 'https://example.invalid/run/1',
+              }
+              _out, err, status = Open3.capture3(env, 'bash', script_file.path)
+              raise "missing-PR diagnostic fallback failed: #{err}" unless status.success?
+              summary_file.rewind
+              summary = summary_file.read
+              required = [
+                'could not resolve a unique open PR',
+                'benzersiz bir açık PR çözümleyemedi',
+                'не смогло однозначно определить открытый PR',
+                'AI review contract',
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                'Resolve PR / PR çözümleme / Определение PR',
+              ]
+              missing = required.reject { |value| summary.include?(value) }
+              raise "missing run-summary diagnostic evidence: #{missing.inspect}" unless missing.empty?
+            end
+          end
+          RUBY
 
       - name: Validate embedded shell programs
         run: |
