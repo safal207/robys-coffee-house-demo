@@ -1,0 +1,240 @@
+name: AI review cooperation publisher v2 / AI inceleme işbirliği yayıncısı v2 / Издатель отчёта AI-взаимодействия v2
+
+on:
+  workflow_run:
+    workflows: [AI review contract]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number / Pull request numarası / Номер pull request
+        required: true
+        type: string
+      expected_head_sha:
+        description: Exact PR head SHA / Tam PR head SHA / Точный SHA головы PR
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: ai-review-cooperation-publisher-v2-${{ github.event.workflow_run.head_sha || inputs.pr_number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish trusted report / Güvenilir raporu yayımla / Опубликовать доверенный отчёт
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.name == 'AI review contract' &&
+       github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_sha != '') ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner)
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: write
+      statuses: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      REPOSITORY_OWNER: ${{ github.repository_owner }}
+      TRIGGER_EVENT: ${{ github.event_name }}
+      PR_NUMBER: ${{ inputs.pr_number || '' }}
+      EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha || '' }}
+      TRIGGER_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
+      WORKFLOW_NAME: ${{ github.event.workflow_run.name || '' }}
+      WORKFLOW_EVENT: ${{ github.event.workflow_run.event || '' }}
+      WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion || '' }}
+
+    steps:
+      - name: Authorize publisher trigger / Yayıncı tetikleyicisini yetkilendir / Авторизовать триггер издателя
+        id: authorize
+        run: |
+          set -euo pipefail
+          case "${TRIGGER_EVENT}" in
+            workflow_run)
+              if [ "${WORKFLOW_NAME}" != "AI review contract" ] || \
+                 [ "${WORKFLOW_EVENT}" != "pull_request" ] || \
+                 [ "${WORKFLOW_CONCLUSION}" != "success" ]; then
+                echo "Untrusted workflow trigger / Güvenilmeyen iş akışı tetikleyicisi / Недоверенный триггер workflow" >&2
+                exit 1
+              fi
+              if ! [[ "${TRIGGER_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+                echo "Invalid workflow head SHA / Geçersiz iş akışı head SHA / Недопустимый SHA головы workflow" >&2
+                exit 1
+              fi
+              ;;
+            workflow_dispatch)
+              if [ "${GITHUB_ACTOR}" != "${REPOSITORY_OWNER}" ]; then
+                echo "Owner-only dispatch / Yalnızca depo sahibi / Запуск только владельцем" >&2
+                exit 1
+              fi
+              if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]] || \
+                 ! [[ "${EXPECTED_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+                echo "Dispatch requires PR number and exact SHA / PR numarası ve tam SHA gerekli / Требуются номер PR и точный SHA" >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "Unsupported event / Desteklenmeyen olay / Неподдерживаемое событие" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout trusted publisher code / Güvenilir yayıncı kodunu al / Получить доверенный код издателя
+        id: checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          show-progress: false
+
+      - name: Resolve exact open pull request / Tam açık pull request'i çözümle / Определить точный открытый pull request
+        id: resolve_pr
+        run: |
+          set -euo pipefail
+          if [ "${TRIGGER_EVENT}" = "workflow_run" ]; then
+            candidates="${RUNNER_TEMP}/publisher-v2-pr-candidates.json"
+            gh api -H 'Accept: application/vnd.github+json' \
+              "repos/${REPOSITORY}/commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100" \
+              > "${candidates}"
+            matches="${RUNNER_TEMP}/publisher-v2-pr-matches.json"
+            jq --arg sha "${TRIGGER_HEAD_SHA}" --arg repo "${REPOSITORY}" \
+              '[.[] | select(.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo)]' \
+              "${candidates}" > "${matches}"
+            count="$(jq 'length' "${matches}")"
+            if [ "${count}" != "1" ]; then
+              echo "Expected one open exact-head PR / Bir açık exact-head PR bekleniyordu / Ожидался один открытый PR с точной головой; count=${count}" >&2
+              exit 1
+            fi
+            resolved="$(jq -r '.[0].number' "${matches}")"
+            if ! [[ "${resolved}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "Invalid resolved PR / Geçersiz çözümlenen PR / Недопустимый определённый PR: ${resolved}" >&2
+              exit 1
+            fi
+            echo "PR_NUMBER=${resolved}" >> "${GITHUB_ENV}"
+            echo "EXPECTED_HEAD_SHA=${TRIGGER_HEAD_SHA}" >> "${GITHUB_ENV}"
+          fi
+          if ! [[ "${PR_NUMBER:-${resolved:-}}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid resolved PR / Geçersiz çözümlenen PR / Недопустимый определённый PR" >&2
+            exit 1
+          fi
+
+      - name: Configure evidence paths / Kanıt yollarını yapılandır / Настроить пути доказательств
+        id: configure
+        run: |
+          set -euo pipefail
+          prefix="${RUNNER_TEMP}/cooperation-publisher-v2-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          {
+            echo "PR_JSON_FILE=${prefix}-pr.json"
+            echo "HEAD_COMMIT_FILE=${prefix}-head.json"
+            echo "COMMENTS_FILE=${prefix}-comments.json"
+            echo "REVIEWS_FILE=${prefix}-reviews.json"
+            echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
+            echo "THREADS_FILE=${prefix}-threads.json"
+            echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "STATUSES_FILE=${prefix}-statuses.json"
+            echo "FILES_FILE=${prefix}-files.json"
+            echo "COMMENT_FILE=${prefix}-comment.json"
+          } >> "${GITHUB_ENV}"
+
+      - name: Collect exact-head REST evidence / Exact-head REST kanıtını topla / Собрать REST-доказательства exact-head
+        id: rest_evidence
+        run: |
+          set -euo pipefail
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          state="$(jq -r '.state' "${PR_JSON_FILE}")"
+          head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          if [ "${state}" != "open" ]; then
+            echo "PR is not open / PR açık değil / PR не открыт" >&2
+            exit 1
+          fi
+          if [ "${head}" != "${EXPECTED_HEAD_SHA}" ]; then
+            echo "Stale trigger / Eski tetikleyici / Устаревший триггер: ${EXPECTED_HEAD_SHA} != ${head}" >&2
+            exit 1
+          fi
+          gh api "repos/${REPOSITORY}/commits/${head}" > "${HEAD_COMMIT_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            | jq 'add // []' > "${COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" \
+            | jq 'add // []' > "${REVIEWS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" \
+            | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+            | jq 'add // []' > "${FILES_FILE}"
+          gh api --paginate -H 'Accept: application/vnd.github+json' \
+            "repos/${REPOSITORY}/commits/${head}/check-runs?per_page=100" \
+            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' > "${CHECKS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/commits/${head}/statuses?per_page=100" \
+            | jq 'add // []' > "${STATUSES_FILE}"
+
+      - name: Collect complete GraphQL review evidence / Tam GraphQL inceleme kanıtını topla / Собрать полные GraphQL-доказательства ревью
+        id: graphql_evidence
+        run: python3 scripts/fetch-review-threads.py
+
+      - name: Build canonical cooperation report / Kanonik işbirliği raporunu oluştur / Построить канонический отчёт взаимодействия
+        id: build_report
+        run: python3 scripts/ai-review-cooperation.py report
+
+      - name: Publish canonical cooperation report / Kanonik işbirliği raporunu yayımla / Опубликовать канонический отчёт взаимодействия
+        id: publish_report
+        run: |
+          set -euo pipefail
+          evidence_head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          current_head="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          current_state="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
+          if [ "${current_state}" != "open" ] || [ "${current_head}" != "${evidence_head}" ] || \
+             [ "${current_head}" != "${EXPECTED_HEAD_SHA}" ]; then
+            echo "PR moved before publication / PR yayımdan önce değişti / PR изменился до публикации" >&2
+            exit 1
+          fi
+          test -s "${COMMENT_FILE}"
+          jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
+          jq -e '.body | contains("<!-- ai-review-cooperation -->")' "${COMMENT_FILE}" >/dev/null
+          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
+          if [ "${body_bytes}" -gt 65000 ]; then
+            echo "Cooperation report exceeds GitHub comment limit / İşbirliği raporu GitHub yorum sınırını aşıyor / Отчёт взаимодействия превышает лимит комментария GitHub: ${body_bytes}" >&2
+            exit 1
+          fi
+          existing="$({
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?sort=created&direction=asc&per_page=100" \
+              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id'
+          } | tail -n 1)"
+          if [ -n "${existing}" ]; then
+            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing}" \
+              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
+          else
+            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
+          fi
+
+      - name: Publish failure summary / Hata özetini yayımla / Опубликовать сводку сбоя
+        if: ${{ failure() }}
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AUTHORIZE_OUTCOME: ${{ steps.authorize.outcome }}
+          RESOLVE_OUTCOME: ${{ steps.resolve_pr.outcome }}
+          REST_OUTCOME: ${{ steps.rest_evidence.outcome }}
+          GRAPHQL_OUTCOME: ${{ steps.graphql_evidence.outcome }}
+          BUILD_OUTCOME: ${{ steps.build_report.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish_report.outcome }}
+        run: |
+          {
+            echo '## Cooperation publisher v2 failure / Publisher v2 hatası / Сбой publisher v2'
+            echo
+            echo "- PR: \`${PR_NUMBER:-unresolved}\`"
+            echo "- Expected head / Beklenen head / Ожидаемая голова: \`${EXPECTED_HEAD_SHA:-missing}\`"
+            echo "- Authorize / Yetkilendirme / Авторизация: \`${AUTHORIZE_OUTCOME:-unknown}\`"
+            echo "- Resolve / Çözümleme / Определение PR: \`${RESOLVE_OUTCOME:-unknown}\`"
+            echo "- REST: \`${REST_OUTCOME:-unknown}\`"
+            echo "- GraphQL: \`${GRAPHQL_OUTCOME:-unknown}\`"
+            echo "- Build / Oluşturma / Построение: \`${BUILD_OUTCOME:-unknown}\`"
+            echo "- Publish / Yayımlama / Публикация: \`${PUBLISH_OUTCOME:-unknown}\`"
+            echo "- Run / Çalıştırma / Запуск: ${RUN_URL}"
+          } >> "${GITHUB_STEP_SUMMARY}"
