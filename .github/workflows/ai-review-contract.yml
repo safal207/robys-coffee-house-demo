@@ -9,6 +9,8 @@ permissions:
   actions: read
   # Required to check out the trusted verifier commit.
   contents: read
+  # Required for the trusted /qodo review approval comment.
+  issues: read
   # Required for native exact-head Qodo review evidence.
   pull-requests: read
 
@@ -21,11 +23,11 @@ jobs:
       - name: Check out trusted Qodo verifier
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 9994ca640aa74885eaa9b038809c1bcca173b9d9
+          ref: cccf807574a8ea96aee5efec37fa0309ca5ac51e
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
-      - name: Wait for native exact-head Qodo evidence
+      - name: Wait for trusted exact-head Qodo evidence
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
