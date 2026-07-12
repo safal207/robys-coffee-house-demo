@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Pull request number to recover
+        description: Pull request number to recover / Kurtarılacak pull request numarası / Номер pull request для восстановления
         required: true
         type: string
       expected_head_sha:
-        description: Exact 40-character PR head SHA
+        description: Exact 40-character PR head SHA / Tam 40 karakterli PR head SHA / Точный 40-символьный SHA головы PR
         required: true
         type: string
   workflow_run:
@@ -72,7 +72,7 @@ jobs:
           case "${TRIGGER_EVENT}" in
             issue_comment)
               if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
-                echo "Invalid PR number: ${PR_NUMBER:-missing}" >&2
+                echo "Invalid PR number / Geçersiz PR numarası / Недопустимый номер PR: ${PR_NUMBER:-missing}" >&2
                 exit 1
               fi
               case "${TRIGGER_ASSOCIATION:-NONE}" in
@@ -80,7 +80,7 @@ jobs:
                   ;;
                 *)
                   if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
-                    echo "Unauthorized recovery actor: ${TRIGGER_AUTHOR}" >&2
+                    echo "Unauthorized recovery actor / Yetkisiz kurtarma aktörü / Неавторизованный участник восстановления: ${TRIGGER_AUTHOR}" >&2
                     exit 1
                   fi
                   ;;
@@ -88,30 +88,30 @@ jobs:
               ;;
             workflow_dispatch)
               if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
-                echo "Invalid PR number: ${PR_NUMBER:-missing}" >&2
+                echo "Invalid PR number / Geçersiz PR numarası / Недопустимый номер PR: ${PR_NUMBER:-missing}" >&2
                 exit 1
               fi
               if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
-                echo "workflow_dispatch recovery is owner-only: ${TRIGGER_AUTHOR}" >&2
+                echo "workflow_dispatch recovery is owner-only / workflow_dispatch kurtarması yalnızca depo sahibine açıktır / Восстановление workflow_dispatch доступно только владельцу: ${TRIGGER_AUTHOR}" >&2
                 exit 1
               fi
               if ! [[ "${EXPECTED_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
-                echo "workflow_dispatch requires an exact 40-character head SHA." >&2
+                echo "workflow_dispatch requires an exact 40-character head SHA / workflow_dispatch tam 40 karakterli head SHA gerektirir / workflow_dispatch требует точный 40-символьный SHA головы" >&2
                 exit 1
               fi
               ;;
             workflow_run)
               if [ "${WORKFLOW_NAME}" != "AI review contract" ] || [ "${WORKFLOW_EVENT}" != "pull_request" ] || [ "${WORKFLOW_CONCLUSION}" != "success" ]; then
-                echo "Unauthorized workflow_run recovery trigger: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing}" >&2
+                echo "Unauthorized workflow_run recovery trigger / Yetkisiz workflow_run kurtarma tetikleyicisi / Недоверенный триггер восстановления workflow_run: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing}" >&2
                 exit 1
               fi
               if ! [[ "${TRIGGER_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
-                echo "workflow_run recovery requires an exact 40-character head SHA." >&2
+                echo "workflow_run recovery requires an exact 40-character head SHA / workflow_run kurtarması tam 40 karakterli head SHA gerektirir / Восстановление workflow_run требует точный 40-символьный SHA головы" >&2
                 exit 1
               fi
               ;;
             *)
-              echo "Unsupported recovery event: ${TRIGGER_EVENT}" >&2
+              echo "Unsupported recovery event / Desteklenmeyen kurtarma olayı / Неподдерживаемое событие восстановления: ${TRIGGER_EVENT}" >&2
               exit 1
               ;;
           esac
@@ -130,7 +130,7 @@ jobs:
 
           if [ "${TRIGGER_EVENT}" != "workflow_run" ]; then
             if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
-              echo "Trusted trigger is missing a valid PR number." >&2
+              echo "Trusted trigger is missing a valid PR number / Güvenilir tetikleyicide geçerli PR numarası eksik / В доверенном триггере отсутствует допустимый номер PR" >&2
               exit 1
             fi
             exit 0
@@ -148,17 +148,17 @@ jobs:
 
           match_count="$(jq 'length' "${matches_file}")"
           if [ "${match_count}" != "1" ]; then
-            echo "Expected exactly one open PR for workflow head ${TRIGGER_HEAD_SHA}; found ${match_count}." >&2
+            echo "Expected exactly one open PR for workflow head / İş akışı head SHA'sı için tam bir açık PR bekleniyordu / Для SHA головы workflow ожидался ровно один открытый PR: ${TRIGGER_HEAD_SHA}; found/bulundu/найдено ${match_count}" >&2
             exit 1
           fi
 
           resolved_pr="$(jq -r '.[0].number' "${matches_file}")"
           if ! [[ "${resolved_pr}" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Resolved invalid PR number: ${resolved_pr}" >&2
+            echo "Resolved invalid PR number / Geçersiz PR numarası çözümlendi / Получен недопустимый номер PR: ${resolved_pr}" >&2
             exit 1
           fi
           echo "PR_NUMBER=${resolved_pr}" >> "${GITHUB_ENV}"
-          echo "Resolved workflow head ${TRIGGER_HEAD_SHA} to PR #${resolved_pr}."
+          echo "Resolved workflow head to PR / İş akışı head SHA'sı PR'a çözümlendi / SHA головы workflow сопоставлен с PR: ${TRIGGER_HEAD_SHA} -> #${resolved_pr}"
 
       - name: Configure cooperation temp paths
         id: configure
@@ -187,21 +187,21 @@ jobs:
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
           PR_STATE="$(jq -r '.state' "${PR_JSON_FILE}")"
           if [ "${PR_STATE}" != "open" ]; then
-            echo "Recovery requires an open pull request; current state is ${PR_STATE:-missing}." >&2
+            echo "Recovery requires an open pull request / Kurtarma açık bir pull request gerektirir / Для восстановления требуется открытый pull request; state/durum/состояние=${PR_STATE:-missing}" >&2
             exit 1
           fi
 
           HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
           if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "GitHub returned an invalid PR head SHA: ${HEAD_SHA}" >&2
+            echo "GitHub returned an invalid PR head SHA / GitHub geçersiz PR head SHA döndürdü / GitHub вернул недопустимый SHA головы PR: ${HEAD_SHA}" >&2
             exit 1
           fi
           if [ -n "${EXPECTED_HEAD_SHA}" ] && [ "${EXPECTED_HEAD_SHA}" != "${HEAD_SHA}" ]; then
-            echo "Recovery input is stale: expected ${EXPECTED_HEAD_SHA}, current ${HEAD_SHA}" >&2
+            echo "Recovery input is stale / Kurtarma girdisi eski / Входные данные восстановления устарели: expected/beklenen/ожидался ${EXPECTED_HEAD_SHA}, current/geçerli/текущий ${HEAD_SHA}" >&2
             exit 1
           fi
           if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${HEAD_SHA}" ]; then
-            echo "Workflow trigger is not bound to the current PR head: ${TRIGGER_HEAD_SHA} != ${HEAD_SHA}" >&2
+            echo "Workflow trigger is not bound to the current PR head / İş akışı tetikleyicisi mevcut PR head SHA'sına bağlı değil / Триггер workflow не привязан к текущей голове PR: ${TRIGGER_HEAD_SHA} != ${HEAD_SHA}" >&2
             exit 1
           fi
 
@@ -242,21 +242,21 @@ jobs:
           EVIDENCE_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
           CURRENT_STATE="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
           if [ "${CURRENT_STATE}" != "open" ]; then
-            echo "PR was closed before publishing the recovery report." >&2
+            echo "PR was closed before publishing the recovery report / Kurtarma raporu yayımlanmadan önce PR kapatıldı / PR был закрыт до публикации отчета восстановления" >&2
             exit 1
           fi
 
           CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
           if [ "${CURRENT_HEAD}" != "${EVIDENCE_HEAD}" ]; then
-            echo "PR head changed before publishing: ${EVIDENCE_HEAD} -> ${CURRENT_HEAD}" >&2
+            echo "PR head changed before publishing / PR head SHA yayımlamadan önce değişti / Голова PR изменилась до публикации: ${EVIDENCE_HEAD} -> ${CURRENT_HEAD}" >&2
             exit 1
           fi
           if [ -n "${EXPECTED_HEAD_SHA}" ] && [ "${CURRENT_HEAD}" != "${EXPECTED_HEAD_SHA}" ]; then
-            echo "PR head no longer matches recovery input: ${EXPECTED_HEAD_SHA} -> ${CURRENT_HEAD}" >&2
+            echo "PR head no longer matches recovery input / PR head SHA artık kurtarma girdisiyle eşleşmiyor / Голова PR больше не совпадает с входом восстановления: ${EXPECTED_HEAD_SHA} -> ${CURRENT_HEAD}" >&2
             exit 1
           fi
           if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${CURRENT_HEAD}" != "${TRIGGER_HEAD_SHA}" ]; then
-            echo "PR head no longer matches workflow trigger: ${TRIGGER_HEAD_SHA} -> ${CURRENT_HEAD}" >&2
+            echo "PR head no longer matches workflow trigger / PR head SHA artık iş akışı tetikleyicisiyle eşleşmiyor / Голова PR больше не совпадает с триггером workflow: ${TRIGGER_HEAD_SHA} -> ${CURRENT_HEAD}" >&2
             exit 1
           fi
 
@@ -264,7 +264,7 @@ jobs:
           jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
           body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
           if [ "${body_bytes}" -gt 65000 ]; then
-            echo "Cooperation report exceeds GitHub comment limit: ${body_bytes} bytes" >&2
+            echo "Cooperation report exceeds GitHub comment limit / İşbirliği raporu GitHub yorum sınırını aşıyor / Отчет о взаимодействии превышает лимит комментария GitHub: ${body_bytes} bytes/bayt/байт" >&2
             exit 1
           fi
 
@@ -300,8 +300,23 @@ jobs:
           set -euo pipefail
 
           if ! [[ "${PR_NUMBER:-}" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Cannot publish recovery diagnostic without a valid PR number." >&2
-            exit 1
+            {
+              echo '## AI cooperation recovery diagnostic / AI işbirliği kurtarma tanısı / Диагностика восстановления AI-взаимодействия'
+              echo
+              echo 'The workflow-run recovery could not resolve a unique open PR, so no PR comment was published.'
+              echo 'workflow_run kurtarması benzersiz bir açık PR çözümleyemedi; bu nedenle PR yorumu yayımlanmadı.'
+              echo 'Восстановление workflow_run не смогло однозначно определить открытый PR, поэтому комментарий в PR не опубликован.'
+              echo
+              echo "- Trigger event / Tetikleyici olayı / Событие триггера: \`${TRIGGER_EVENT:-missing}\`"
+              echo "- Trigger head / Tetikleyici head SHA / SHA головы триггера: \`${TRIGGER_HEAD_SHA:-missing}\`"
+              echo "- Workflow / İş akışı / Workflow: \`${WORKFLOW_NAME:-missing}\`"
+              echo "- Workflow event / İş akışı olayı / Событие workflow: \`${WORKFLOW_EVENT:-missing}\`"
+              echo "- Workflow conclusion / İş akışı sonucu / Результат workflow: \`${WORKFLOW_CONCLUSION:-missing}\`"
+              echo "- Resolve PR / PR çözümleme / Определение PR: \`${RESOLVE_PR_OUTCOME:-unknown}\`"
+              echo "- Run / Çalıştırma / Запуск: ${RUN_URL}"
+            } >> "${GITHUB_STEP_SUMMARY}"
+            echo "Cannot publish a PR diagnostic without a valid PR number; details were written to the run summary / Geçerli PR numarası olmadan PR tanısı yayımlanamaz; ayrıntılar çalıştırma özetine yazıldı / Невозможно опубликовать диагностику в PR без допустимого номера; подробности записаны в сводку запуска" >&2
+            exit 0
           fi
 
           printf -v body '%s\n' \
