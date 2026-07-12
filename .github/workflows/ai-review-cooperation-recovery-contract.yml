@@ -11,8 +11,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ai-review-cooperation-recovery-contract-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   verify:
+    name: Verify recovery contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -85,10 +90,10 @@ jobs:
 
           concurrency = job['concurrency']
           raise 'recovery cancellation must remain enabled' unless concurrency['cancel-in-progress'] == true
-          group = normalize(concurrency['group'])
-          required = ['ai-review-cooperation-recovery-', 'github.event.issue.number', 'inputs.pr_number', 'github.run_id']
-          missing = required.reject { |token| group.include?(normalize(token)) }
-          raise "recovery concurrency drifted: #{missing.inspect}" unless missing.empty?
+          expected_group = 'ai-review-cooperation-recovery-' + '$' + '{{ github.event.issue.number || inputs.pr_number || github.run_id }}'
+          unless normalize(concurrency['group']) == normalize(expected_group)
+            raise "recovery concurrency group drifted: #{concurrency['group'].inspect}"
+          end
           RUBY
 
       - name: Execute recovery authorization matrix
@@ -113,7 +118,9 @@ jobs:
           }
           exact_sha = 'a' * 40
           cases = [
-            ['owner association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'member','TRIGGER_ASSOCIATION'=>'OWNER'}],
+            ['owner association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-owner','TRIGGER_ASSOCIATION'=>'OWNER'}],
+            ['member association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-member','TRIGGER_ASSOCIATION'=>'MEMBER'}],
+            ['collaborator association command', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'trusted-collaborator','TRIGGER_ASSOCIATION'=>'COLLABORATOR'}],
             ['exact owner fallback', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'repo-owner','TRIGGER_ASSOCIATION'=>'NONE'}],
             ['owner dispatch', true, {'TRIGGER_EVENT'=>'workflow_dispatch','TRIGGER_AUTHOR'=>'repo-owner','EXPECTED_HEAD_SHA'=>exact_sha}],
             ['attacker command', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'attacker','TRIGGER_ASSOCIATION'=>'NONE'}],
