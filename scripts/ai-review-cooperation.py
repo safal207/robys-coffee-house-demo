@@ -16,6 +16,7 @@ from typing import Any
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
 DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
+GROK_MARKER = '<!-- grok-pr-review -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
@@ -33,6 +34,7 @@ REQUIRED_CHECKS = {
     'AI review cooperation contract', 'Export reconstructed community reel',
     'Taste Journey poster contract', 'Gallery mobile gate',
 }
+AI_REVIEW_ANCHOR_NAMES = {'Verify exact-head independent review', 'AI review contract'}
 EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
 LABEL_TO_SEVERITY = {'blocker': 'P0', 'critical': 'P1', 'major': 'P2', 'minor': 'P3'}
 ITALIC_SEGMENT_RE = re.compile(r'_([^_\n]+)_')
@@ -75,7 +77,10 @@ def read_json_env(name: str) -> Any:
 def parse_time(value: str | None) -> datetime:
     if not value:
         return datetime.min.replace(tzinfo=timezone.utc)
-    return datetime.fromisoformat(value.replace('Z', '+00:00'))
+    try:
+        return datetime.fromisoformat(value.replace('Z', '+00:00'))
+    except ValueError:
+        return datetime.min.replace(tzinfo=timezone.utc)
 
 
 def body_of(item: dict[str, Any]) -> str:
@@ -100,8 +105,8 @@ def time_of(item: dict[str, Any]) -> datetime:
     return parse_time(str(item.get('submitted_at') or item.get('created_at') or item.get('createdAt') or ''))
 
 
-def is_after_head(item: dict[str, Any], head_time: datetime) -> bool:
-    return time_of(item) >= head_time
+def command_lines_of(item: dict[str, Any]) -> list[str]:
+    return [line.strip().lower() for line in body_of(item).splitlines() if line.strip()]
 
 
 def active_submitted_review(item: dict[str, Any]) -> bool:
@@ -122,6 +127,30 @@ def reviewed_commit_of(item: dict[str, Any]) -> str | None:
 
 def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     return reviewed_commit_of(item) == head_sha.lower()
+
+
+def immutable_head_anchor(checks: dict[str, Any]) -> datetime:
+    """Return a GitHub-server timestamp for the exact-head AI contract run.
+
+    Commit author/committer timestamps are deliberately not accepted because they can be
+    backdated. Tests may provide ``head_update_anchor`` directly; production derives the
+    anchor from the current-head check run returned by GitHub's checks API.
+    """
+    explicit = checks.get('head_update_anchor')
+    if isinstance(explicit, str) and explicit:
+        return parse_time(explicit)
+
+    candidates: list[tuple[int, datetime]] = []
+    for check in checks.get('check_runs') or []:
+        if str(check.get('name') or '') not in AI_REVIEW_ANCHOR_NAMES:
+            continue
+        timestamp = parse_time(str(check.get('started_at') or check.get('created_at') or ''))
+        if timestamp == datetime.min.replace(tzinfo=timezone.utc):
+            continue
+        candidates.append((int(check.get('id') or 0), timestamp))
+    if not candidates:
+        return datetime.max.replace(tzinfo=timezone.utc)
+    return max(candidates, key=lambda value: value[0])[1]
 
 
 def severities_of(body: str) -> set[str]:
@@ -188,22 +217,31 @@ def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, An
     return True, complete, comments
 
 
-def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: datetime) -> list[dict[str, Any]]:
+def fresh_requests(
+    comments: list[dict[str, Any]],
+    commands: str | Iterable[str],
+    head_update_anchor: datetime,
+) -> list[dict[str, Any]]:
+    accepted = {commands.lower()} if isinstance(commands, str) else {item.lower() for item in commands}
     return [
         item for item in comments
-        if body_of(item).strip().lower() == command.lower()
-        and association_of(item) in TRUSTED_ASSOCIATIONS
-        and is_after_head(item, head_time)
+        if association_of(item) in TRUSTED_ASSOCIATIONS
+        and time_of(item) >= head_update_anchor
+        and any(command in accepted for command in command_lines_of(item))
     ]
+
+
+def latest_request_at(requests: Iterable[dict[str, Any]], fallback: datetime) -> datetime:
+    return max((time_of(item) for item in requests), default=fallback)
 
 
 def bot_items(
     items: Iterable[dict[str, Any]],
     allowed_logins: set[str],
-    head_time: datetime,
+    not_before: datetime,
 ) -> list[dict[str, Any]]:
     allowed = {login.lower() for login in allowed_logins}
-    return [item for item in items if login_of(item) in allowed and is_after_head(item, head_time)]
+    return [item for item in items if login_of(item) in allowed and time_of(item) >= not_before]
 
 
 def result_from_exact_evidence(
@@ -238,6 +276,21 @@ def result_from_exact_evidence(
     )
 
 
+def action_comment_evidence(
+    comments: list[dict[str, Any]],
+    marker: str,
+    head_sha: str,
+    request_at: datetime,
+) -> list[dict[str, Any]]:
+    return [
+        item for item in comments
+        if login_of(item) == 'github-actions[bot]'
+        and marker in body_of(item)
+        and time_of(item) >= request_at
+        and current_head_evidence(item, head_sha)
+    ]
+
+
 def classify_bots(
     *,
     pr: dict[str, Any],
@@ -248,57 +301,58 @@ def classify_bots(
     threads_available: bool,
     statuses: list[dict[str, Any]],
     changed_paths: set[str],
-    head_time: datetime,
+    head_update_anchor: datetime,
 ) -> list[BotResult]:
     head_sha = str(pr['head']['sha']).lower()
-    all_items = reviews + (threads if threads_available else review_comments)
+    unresolved_items = threads if threads_available else review_comments
+    all_items = reviews + unresolved_items + comments
 
-    qodo_req = fresh_requests(comments, '/qodo review', head_time)
-    qodo_reviews = [
+    qodo_req = fresh_requests(comments, '/qodo review', head_update_anchor)
+    qodo_request_at = latest_request_at(qodo_req, head_update_anchor)
+    qodo_native_reviews = [
         item for item in reviews
         if login_of(item) in {login.lower() for login in BOT_LOGINS['Qodo']}
         and user_type_of(item) == 'Bot'
         and active_submitted_review(item)
-        and is_after_head(item, head_time)
+        and time_of(item) >= qodo_request_at
+        and current_head_evidence(item, head_sha)
+    ]
+    qodo_findings = [
+        item for item in bot_items(unresolved_items, BOT_LOGINS['Qodo'], qodo_request_at)
+        if current_head_evidence(item, head_sha)
     ]
     qodo = result_from_exact_evidence(
         name='Qodo',
         requested=bool(qodo_req),
-        exact_items=[
-            item for item in qodo_reviews
-            if current_head_evidence(item, head_sha)
-        ] if qodo_req else [],
+        exact_items=(qodo_native_reviews + qodo_findings) if qodo_req and qodo_native_reviews else [],
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
         no_evidence_action='Post /qodo review, then wait for the automatic Qodo review on the current head.',
     )
 
-    codex_req = fresh_requests(comments, '@codex review', head_time)
-    codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
-    codex = result_from_exact_evidence(
-        name='Codex',
-        requested=bool(codex_req),
-        exact_items=[item for item in codex_items if current_head_evidence(item, head_sha)],
-        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait up to 10 minutes, then retry once with @codex review.',
-    )
+    def native_bot(name: str, command: str, action: str) -> BotResult:
+        requests = fresh_requests(comments, command, head_update_anchor)
+        request_at = latest_request_at(requests, head_update_anchor)
+        items = [
+            item for item in bot_items(all_items, BOT_LOGINS[name], request_at)
+            if current_head_evidence(item, head_sha)
+        ]
+        return result_from_exact_evidence(
+            name=name,
+            requested=bool(requests),
+            exact_items=items if requests else [],
+            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+            no_evidence_action=action,
+        )
 
-    jules_req = fresh_requests(comments, '@jules review', head_time)
-    jules_items = bot_items(comments + all_items, BOT_LOGINS['Jules'], head_time)
-    jules = result_from_exact_evidence(
-        name='Jules',
-        requested=bool(jules_req),
-        exact_items=[item for item in jules_items if current_head_evidence(item, head_sha)],
-        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
-        no_evidence_action='Retry once after 15 minutes; keep the gap advisory.',
-    )
+    codex = native_bot('Codex', '@codex review', 'Wait up to 10 minutes, then retry once with @codex review.')
+    jules = native_bot('Jules', '@jules review', 'Retry once after 15 minutes; keep the gap advisory.')
 
-    rabbit_req = fresh_requests(comments, '@coderabbitai review', head_time)
-    rabbit_request_at = max((time_of(item) for item in rabbit_req), default=head_time)
-    rabbit_items = bot_items(comments + all_items, BOT_LOGINS['CodeRabbit'], head_time)
+    rabbit_req = fresh_requests(comments, '@coderabbitai review', head_update_anchor)
+    rabbit_request_at = latest_request_at(rabbit_req, head_update_anchor)
+    rabbit_items = bot_items(all_items, BOT_LOGINS['CodeRabbit'], rabbit_request_at)
     rabbit_reviews = [
         item for item in rabbit_items
         if current_head_evidence(item, head_sha)
-        and time_of(item) >= rabbit_request_at
         and 'review in progress' not in body_of(item).lower()
         and 'currently processing' not in body_of(item).lower()
         and 'review failed' not in body_of(item).lower()
@@ -312,11 +366,8 @@ def classify_bots(
     ]
     rabbit_exact = rabbit_reviews + rabbit_statuses if rabbit_req else []
     rabbit = result_from_exact_evidence(
-        name='CodeRabbit',
-        requested=bool(rabbit_req),
-        exact_items=rabbit_exact,
-        no_evidence_reason='NO_ACK',
-        no_evidence_action='Retry once after 15 minutes.',
+        name='CodeRabbit', requested=bool(rabbit_req), exact_items=rabbit_exact,
+        no_evidence_reason='NO_ACK', no_evidence_action='Retry once after 15 minutes.',
     )
     latest_rabbit = max(rabbit_items, key=time_of, default=None)
     if not rabbit_exact and latest_rabbit:
@@ -331,39 +382,53 @@ def classify_bots(
             rabbit.level, rabbit.state, rabbit.reason = 'E2', 'in progress', 'ACK_ONLY'
             rabbit.action = 'Wait to the 15-minute timeout before one retry.'
 
-    deep_req = [
-        item
-        for command in ('/deepseek review', '/deepseek deep-review')
-        for item in fresh_requests(comments, command, head_time)
-    ]
-    deep_items = [
-        item for item in comments
-        if login_of(item) == 'github-actions[bot]'
-        and DEEPSEEK_MARKER in body_of(item)
-        and is_after_head(item, head_time)
-    ]
-    deep_exact = [item for item in deep_items if current_head_evidence(item, head_sha)]
-    deepseek = result_from_exact_evidence(
-        name='DeepSeek',
-        requested=bool(deep_req),
-        exact_items=deep_exact,
-        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Inspect the DeepSeek workflow result and retry once.',
-    )
-    latest_deep = max(deep_items, key=time_of, default=None)
-    if latest_deep and 'status:** failed' in body_of(latest_deep).lower():
-        match = REASON_CODE_RE.search(body_of(latest_deep))
-        deepseek.level, deepseek.state = 'E2', 'failed'
-        deepseek.reason = match.group(1).upper() if match else 'PROVIDER_UNAVAILABLE'
-        deepseek.action = 'Apply the reason-code policy, then rerun on the same head.'
-        deepseek.findings = {f'P{i}': 0 for i in range(4)}
-        deepseek.finding_keys.clear()
-    elif deep_req and not deep_exact and '.github/workflows/deepseek-review.yml' in changed_paths:
-        deepseek.level, deepseek.state = 'E1', 'bootstrap pending'
-        deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
-        deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
+    def action_bot(
+        *, name: str, commands: tuple[str, ...], marker: str,
+        workflow_path: str, action: str,
+    ) -> BotResult:
+        requests = fresh_requests(comments, commands, head_update_anchor)
+        request_at = latest_request_at(requests, head_update_anchor)
+        exact = action_comment_evidence(comments, marker, head_sha, request_at) if requests else []
+        result = result_from_exact_evidence(
+            name=name,
+            requested=bool(requests),
+            exact_items=exact,
+            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+            no_evidence_action=action,
+        )
+        latest = max(
+            [item for item in comments if login_of(item) == 'github-actions[bot]' and marker in body_of(item)],
+            key=time_of,
+            default=None,
+        )
+        if latest and time_of(latest) >= request_at and 'status:** failed' in body_of(latest).lower():
+            match = REASON_CODE_RE.search(body_of(latest))
+            result.level, result.state = 'E2', 'failed'
+            result.reason = match.group(1).upper() if match else 'PROVIDER_UNAVAILABLE'
+            result.action = 'Apply the reason-code policy, then rerun on the same head.'
+            result.findings = {f'P{i}': 0 for i in range(4)}
+            result.finding_keys.clear()
+        elif requests and not exact and workflow_path in changed_paths:
+            result.level, result.state = 'E1', 'bootstrap pending'
+            result.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
+            result.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
+        return result
 
-    return [qodo, codex, jules, rabbit, deepseek]
+    deepseek = action_bot(
+        name='DeepSeek',
+        commands=('/deepseek review', '/deepseek deep-review'),
+        marker=DEEPSEEK_MARKER,
+        workflow_path='.github/workflows/deepseek-review.yml',
+        action='Inspect the DeepSeek workflow result and retry once.',
+    )
+    grok = action_bot(
+        name='Grok',
+        commands=('/grok review', '/grok deep-review'),
+        marker=GROK_MARKER,
+        workflow_path='.github/workflows/grok-review.yml',
+        action='Inspect the Grok workflow result and retry once.',
+    )
+    return [qodo, codex, jules, rabbit, deepseek, grok]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -374,7 +439,6 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
             continue
         if name not in latest or int(check.get('id') or 0) >= int(latest[name].get('id') or 0):
             latest[name] = check
-
     passed = pending = 0
     failed: list[str] = []
     optional_failed: list[str] = []
@@ -394,10 +458,7 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 
 
 def overall_conclusion(
-    bots: list[BotResult],
-    *,
-    checks: CheckSummary,
-    evidence_complete: bool,
+    bots: list[BotResult], *, checks: CheckSummary, evidence_complete: bool,
 ) -> tuple[str, str]:
     combined = combined_findings(bots)
     qodo = next(bot for bot in bots if bot.name == 'Qodo')
@@ -421,20 +482,15 @@ def findings_text(findings: dict[str, int]) -> str:
 
 
 def mermaid_graph(
-    bots: list[BotResult],
-    *,
-    head_sha: str,
-    checks: CheckSummary,
-    evidence_complete: bool,
-    conclusion: str,
+    bots: list[BotResult], *, head_sha: str, checks: CheckSummary,
+    evidence_complete: bool, conclusion: str,
 ) -> str:
     lines = [
         'flowchart TD',
         f'  H["Current head {head_sha[:12]}"]',
         f'  CI["Required CI: {checks.passed} passed, {checks.pending} pending, {len(checks.failed_names)} failed"]',
         f'  DATA["Evidence pages: {"complete" if evidence_complete else "truncated"}"]',
-        '  H --> CI',
-        '  H --> DATA',
+        '  H --> CI', '  H --> DATA',
     ]
     for index, bot in enumerate(bots, 1):
         lines += [
@@ -442,10 +498,8 @@ def mermaid_graph(
             f'  E{index}["{bot.level}: {bot.state}"]',
             f'  C{index}["Cause: {bot.reason}"]',
             f'  A{index}["Action: {bot.action}"]',
-            f'  H --> R{index}',
-            f'  R{index} --> E{index}',
-            f'  E{index} --> C{index}',
-            f'  C{index} --> A{index}',
+            f'  H --> R{index}', f'  R{index} --> E{index}',
+            f'  E{index} --> C{index}', f'  C{index} --> A{index}',
         ]
     lines += [f'  D["Conclusion: {conclusion}"]', '  CI --> D', '  DATA --> D']
     lines += [f'  A{index} --> D' for index in range(1, len(bots) + 1)]
@@ -453,40 +507,23 @@ def mermaid_graph(
 
 
 def build_report(
-    *,
-    pr: dict[str, Any],
-    head_commit: dict[str, Any],
-    comments: list[dict[str, Any]],
-    reviews: list[dict[str, Any]],
-    review_comments: list[dict[str, Any]],
-    threads_data: dict[str, Any],
-    checks: dict[str, Any],
-    statuses: list[dict[str, Any]],
+    *, pr: dict[str, Any], head_commit: dict[str, Any], comments: list[dict[str, Any]],
+    reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
+    threads_data: dict[str, Any], checks: dict[str, Any], statuses: list[dict[str, Any]],
     files: list[dict[str, Any]],
 ) -> str:
+    del head_commit  # commit timestamps are intentionally not freshness evidence
     head_sha = str(pr['head']['sha']).lower()
-    commit = head_commit.get('commit') or {}
-    head_time = parse_time(str(
-        (commit.get('committer') or {}).get('date')
-        or (commit.get('author') or {}).get('date')
-        or ''
-    ))
+    head_update_anchor = immutable_head_anchor(checks)
     available, complete, threads = flatten_threads(threads_data)
     bots = classify_bots(
-        pr=pr,
-        comments=comments,
-        reviews=reviews,
-        review_comments=review_comments,
-        threads=threads,
-        threads_available=available,
-        statuses=statuses,
+        pr=pr, comments=comments, reviews=reviews, review_comments=review_comments,
+        threads=threads, threads_available=available, statuses=statuses,
         changed_paths={str(item.get('filename') or '') for item in files},
-        head_time=head_time,
+        head_update_anchor=head_update_anchor,
     )
     check_summary = classify_checks(checks)
-    conclusion, why = overall_conclusion(
-        bots, checks=check_summary, evidence_complete=complete,
-    )
+    conclusion, why = overall_conclusion(bots, checks=check_summary, evidence_complete=complete)
     unique = combined_findings(bots)
     table = [
         '| Reviewer | Request | Evidence | State | Findings | Cause | Next action |',
@@ -498,16 +535,17 @@ def build_report(
             f'{findings_text(bot.findings)} | `{bot.reason}` | {bot.action} |'
         )
     graph = mermaid_graph(
-        bots,
-        head_sha=head_sha,
-        checks=check_summary,
-        evidence_complete=complete,
-        conclusion=conclusion,
+        bots, head_sha=head_sha, checks=check_summary,
+        evidence_complete=complete, conclusion=conclusion,
     )
     failed = ', '.join(check_summary.failed_names) or 'none'
     optional = ', '.join(check_summary.optional_failed_names) or 'none'
     evidence = 'complete' if complete else 'truncated (`EVIDENCE_TRUNCATED`)'
-
+    anchor_text = (
+        head_update_anchor.isoformat().replace('+00:00', 'Z')
+        if head_update_anchor != datetime.max.replace(tzinfo=timezone.utc)
+        else 'missing (`NO_IMMUTABLE_HEAD_ANCHOR`)'
+    )
     return f"""{COMMENT_MARKER}
 ## AI reviewer cooperation report
 
@@ -526,6 +564,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### CI and collection summary
 
+- Immutable head-update anchor: **{anchor_text}**
 - Required checks passed: **{check_summary.passed}**
 - Required checks pending: **{check_summary.pending}**
 - Required checks failed: **{len(check_summary.failed_names)}**
@@ -541,7 +580,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI, a trusted `/qodo review` approval and exact-head Qodo Bot evidence dominate; CodeRabbit, Codex, Jules and DeepSeek are advisory; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI, a trusted `/qodo review` approval and a request-bound exact-head Qodo Bot review dominate; CodeRabbit, Codex, Jules, DeepSeek and Grok are advisory; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 """
@@ -563,10 +602,7 @@ def main() -> int:
         files=read_json_env('FILES_FILE'),
     )
     output = Path(os.environ.get('COMMENT_FILE', '').strip() or DEFAULT_COMMENT_PATH)
-    output.write_text(
-        json.dumps({'body': body}, ensure_ascii=False),
-        encoding='utf-8',
-    )
+    output.write_text(json.dumps({'body': body}, ensure_ascii=False), encoding='utf-8')
     return 0
 
 
