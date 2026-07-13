@@ -107,10 +107,10 @@ def base_inputs() -> dict[str, object]:
 def exact_action_comment(marker: str, created_at: str = AFTER) -> dict[str, object]:
     if marker == '<!-- grok-pr-review -->':
         body = f'''{marker}
+<!-- Reviewed commit: `{HEAD}` -->
 ### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok
 
 **Reviewed commit / İncelenen commit / Проверенный commit:** `{HEAD}`  
-Reviewed commit: `{HEAD}`  
 
 English: No actionable issues found.
 Türkçe: Eyleme geçirilebilir sorun bulunamadı.
@@ -215,6 +215,8 @@ class CooperationReportTests(unittest.TestCase):
         report_text = MODULE.build_report(**data)
         self.assertIn('| Grok | yes | E1 | bootstrap pending |', report_text)
         self.assertIn('`BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`', report_text)
+        self.assertIn('BOOTSTRAP-001 Phase 1', report_text)
+        self.assertIn('PR #202', report_text)
 
     def test_p2_finding_drives_fix_then_rerun(self) -> None:
         data = base_inputs()
@@ -279,6 +281,30 @@ class CooperationReportTests(unittest.TestCase):
         }]
         report_text = MODULE.build_report(**data)
         self.assertIn('| CodeRabbit | yes | E5 | clean exact-head review |', report_text)
+
+    def test_mermaid_graph_escapes_dynamic_labels(self) -> None:
+        bot = MODULE.BotResult(
+            name='Grok "reviewer"',
+            requested=True,
+            level='E2',
+            state='line one\nline two',
+            reason='quote " and `tick`',
+            action='path C:\\temp\nretry',
+            findings={f'P{i}': 0 for i in range(4)},
+        )
+        graph = MODULE.mermaid_graph(
+            [bot],
+            head_sha=HEAD,
+            checks=MODULE.CheckSummary(1, 0, [], []),
+            evidence_complete=True,
+            conclusion='READY "now"',
+        )
+        self.assertIn("Grok 'reviewer' request", graph)
+        self.assertIn('line one line two', graph)
+        self.assertIn("quote ' and 'tick'", graph)
+        self.assertIn('READY \'now\'', graph)
+        self.assertNotIn('line one\nline two', graph)
+        self.assertNotIn('Grok "reviewer" request', graph)
 
 
 if __name__ == '__main__':
