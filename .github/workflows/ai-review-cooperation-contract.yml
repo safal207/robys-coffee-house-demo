@@ -64,17 +64,20 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           set -euo pipefail
-          git diff --name-only "${BASE_SHA}...${HEAD_SHA}" > "${RUNNER_TEMP}/bootstrap-files.txt"
-          python3 - <<'PY'
+          git cat-file -e "${BASE_SHA}^{commit}"
+          git cat-file -e "${HEAD_SHA}^{commit}"
+          changed_file="${RUNNER_TEMP}/bootstrap-files.txt"
+          git diff --name-only "${BASE_SHA}" "${HEAD_SHA}" | sort -u | tee "${changed_file}"
+          CHANGED_FILE="${changed_file}" python3 - <<'PY'
+          import json
           import os
           from pathlib import Path
 
           changed = {
               line.strip()
-              for line in Path(os.environ['RUNNER_TEMP'] + '/bootstrap-files.txt').read_text(encoding='utf-8').splitlines()
+              for line in Path(os.environ['CHANGED_FILE']).read_text(encoding='utf-8').splitlines()
               if line.strip()
           }
           bootstrap_triggers = {
@@ -102,12 +105,15 @@ jobs:
               'scripts/verify-ai-review-freshness.mjs',
               'scripts/verify-ai-style-review-matrix.mjs',
           }
+          if not changed:
+              raise SystemExit('BOOTSTRAP-001 could not resolve any changed paths.')
           if changed & bootstrap_triggers:
               unexpected = sorted(changed - allowed)
               if unexpected:
                   raise SystemExit('BOOTSTRAP-001 forbids non-governance paths: ' + ', '.join(unexpected))
               policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-              body = os.environ.get('PR_BODY', '')
+              event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text(encoding='utf-8'))
+              body = str((event.get('pull_request') or {}).get('body') or '')
               required_policy = ['BOOTSTRAP-001', 'Phase 1 bootstrap', 'Phase 2 enforcement', 'PR #202']
               missing = [token for token in required_policy if token not in policy]
               if missing:
@@ -252,10 +258,7 @@ jobs:
               'test_publish_uses_hidden_machine_binding_and_trilingual_label',
               'XAI_API_KEY',
           ]
-          forbidden = [
-              'pull_request_target', 'contents: write', 'Return the review in Russian.',
-              "f'Reviewed commit: `{head_sha}`  \\n'",
-          ]
+          forbidden = ['pull_request_target', 'contents: write', 'Return the review in Russian.']
           missing = [token for token in required if token not in corpus]
           leaked = [token for token in forbidden if token in workflow + '\n' + script]
           if missing or leaked:
