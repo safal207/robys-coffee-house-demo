@@ -161,8 +161,9 @@ jobs:
 
           workflow = Path('.github/workflows/grok-review.yml').read_text(encoding='utf-8')
           script = Path('scripts/grok-review.py').read_text(encoding='utf-8')
+          tests = Path('scripts/test-ai-review-cooperation.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          corpus = workflow + '\n' + script + '\n' + policy
+          corpus = workflow + '\n' + script + '\n' + tests + '\n' + policy
           required = [
               '/grok review', '/grok deep-review',
               "github.event.issue.state == 'open'",
@@ -172,13 +173,18 @@ jobs:
               'XAI_API_KEY:', 'secrets.XAI_API_KEY', 'GROK_MODEL: grok-4.5',
               'https://api.x.ai/v1/chat/completions',
               'Authorization', 'Bearer', '<!-- grok-pr-review -->',
-              'Reviewed commit', 'PR head changed before publishing',
+              'Reviewed commit: `{expected_head}`',
+              'PR head changed before publishing',
               'PR_NOT_OPEN', 'current_state',
               'English', 'Türkçe', 'Русский',
               'STALE_HEAD', 'MISSING_CONFIGURATION', 'RATE_LIMITED',
               'PROVIDER_UNAVAILABLE', 'timeout=240',
               'RETRY_DELAYS_SECONDS = (2, 5)',
               'Qodo and required CI remain authoritative.',
+              'test -s "${COMMENT_FILE}"',
+              'contains($marker)', 'body_bytes=', '65000',
+              'expected_binding=', 'contains($binding)',
+              'test_grok_multilingual_label_without_canonical_binding_does_not_count',
               'XAI_API_KEY',
           ]
           forbidden = ['pull_request_target', 'contents: write', 'Return the review in Russian.']
