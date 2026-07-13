@@ -70,6 +70,8 @@ jobs:
               'commit_id', 'review.user?.type === "Bot"',
               'issues.listComments', 'pulls.listReviews',
               'qodoRequestAt > 0 && qodoReview',
+              'Math.max(headUpdateAnchor, qodoRequestAt)',
+              'submitted after that trusted request',
           ]
           forbidden = ['CodeRabbit (required)', 'CODERABBIT_STATUS_CONTEXT', 'codeRabbitRequestAt']
           missing = [token for token in required if token not in corpus]
@@ -137,10 +139,12 @@ jobs:
               'item.commit_id?.toLowerCase() === head',
               'no native Qodo exact-head evidence',
               'Qodo lacks E4/E5 exact-head evidence',
+              '<!-- deepseek-pr-review -->', '<!-- grok-pr-review -->',
+              "item.user?.login === 'github-actions[bot]'",
               'Proof-Depth-Seal:', 'Depth:\\s*D6',
           ]
           missing = [token for token in required if token not in ledger]
-          for reviewer in ['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']:
+          for reviewer in ['CodeRabbit', 'Codex', 'Jules', 'DeepSeek', 'Grok']:
               if reviewer not in ledger:
                   missing.append(f'supplemental:{reviewer}')
           reports = ledger.split('const reports = issueComments.filter', 1)[1].split('const report =', 1)[0]
@@ -161,22 +165,25 @@ jobs:
           corpus = workflow + '\n' + script + '\n' + policy
           required = [
               '/grok review', '/grok deep-review',
+              "github.event.issue.state == 'open'",
               "github.event.comment.author_association == 'OWNER'",
               "github.event.comment.author_association == 'MEMBER'",
               "github.event.comment.author_association == 'COLLABORATOR'",
               'XAI_API_KEY:', 'secrets.XAI_API_KEY', 'GROK_MODEL: grok-4.5',
               'https://api.x.ai/v1/chat/completions',
               'Authorization', 'Bearer', '<!-- grok-pr-review -->',
-              'Reviewed commit:', 'PR head changed before publishing',
+              'Reviewed commit', 'PR head changed before publishing',
+              'PR_NOT_OPEN', 'current_state',
+              'English', 'Türkçe', 'Русский',
               'STALE_HEAD', 'MISSING_CONFIGURATION', 'RATE_LIMITED',
               'PROVIDER_UNAVAILABLE', 'timeout=240',
               'RETRY_DELAYS_SECONDS = (2, 5)',
               'Qodo and required CI remain authoritative.',
               'XAI_API_KEY',
           ]
-          forbidden = ['pull_request_target', 'contents: write']
+          forbidden = ['pull_request_target', 'contents: write', 'Return the review in Russian.']
           missing = [token for token in required if token not in corpus]
-          leaked = [token for token in forbidden if token in workflow]
+          leaked = [token for token in forbidden if token in workflow + '\n' + script]
           if missing or leaked:
               raise SystemExit(f'Grok reviewer drift: missing={missing}, forbidden={leaked}')
           PY
@@ -204,7 +211,8 @@ jobs:
               'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'NO_CURRENT_HEAD_EVIDENCE',
               'FIX_THEN_RERUN', 'flowchart TD', 'not a majority vote',
               'STALE_HEAD', 'PERMISSION_ERROR', '/qodo review',
-              'Qodo', 'Grok', 'active_submitted_review',
+              'Qodo', 'Grok', 'GROK_MARKER', 'immutable_head_anchor',
+              'qodo_request_at', 'active_submitted_review',
               "state not in {'PENDING', 'DISMISSED'}",
           ]
           missing = [token for token in required if token not in corpus]
