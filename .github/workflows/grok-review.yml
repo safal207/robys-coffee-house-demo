@@ -13,6 +13,7 @@ jobs:
   review:
     if: >-
       github.event.issue.pull_request != null &&
+      github.event.issue.state == 'open' &&
       (github.event.comment.body == '/grok review' ||
        github.event.comment.body == '/grok deep-review') &&
       (github.event.comment.author_association == 'OWNER' ||
@@ -49,9 +50,15 @@ jobs:
             echo "ERROR_FILE=${prefix}-error.json"
           } >> "${GITHUB_ENV}"
 
-      - name: Fetch current PR input
+      - name: Fetch current open PR input
         run: |
+          set -euo pipefail
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
+          current_state="$(jq -r '.state' "${PR_JSON_FILE}")"
+          if [ "${current_state}" != "open" ]; then
+            echo "PR is not open: ${current_state}" >&2
+            exit 1
+          fi
           head_repo="$(jq -r '.head.repo.full_name' "${PR_JSON_FILE}")"
           test "${head_repo}" = "${REPOSITORY}"
           gh api -H 'Accept: application/vnd.github.v3.diff' \
@@ -71,7 +78,7 @@ jobs:
           MODE: ${{ steps.prepare.outputs.mode }}
         run: python3 scripts/grok-review.py infer
 
-      - name: Re-read PR head
+      - name: Re-read PR state and head
         run: gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${CURRENT_PR_JSON_FILE}"
 
       - name: Build current-head review comment
@@ -94,7 +101,13 @@ jobs:
         env:
           EXPECTED_HEAD: ${{ steps.prepare.outputs.head_sha }}
         run: |
+          set -euo pipefail
           test -f "${COMMENT_FILE}"
+          current_state="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
+          if [ "${current_state}" != "open" ]; then
+            echo "PR is not open before publishing: ${current_state}" >&2
+            exit 1
+          fi
           if [ -n "${EXPECTED_HEAD}" ]; then
             current_head="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
             if [ "${current_head}" != "${EXPECTED_HEAD}" ]; then
