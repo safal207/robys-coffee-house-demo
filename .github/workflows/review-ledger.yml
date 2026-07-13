@@ -71,11 +71,15 @@ jobs:
               'qodo-code-review[bot]',
               'chatgpt-codex-connector',
               'chatgpt-codex-connector[bot]',
+              'jules',
+              'jules[bot]',
+              'google-labs-jules[bot]',
               'coderabbitai',
               'coderabbitai[bot]',
               'github-advanced-security',
               'github-advanced-security[bot]',
             ]);
+            const actionReviewMarkers = ['<!-- deepseek-pr-review -->', '<!-- grok-pr-review -->'];
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
             const timeOf = (item) => Math.max(
@@ -123,7 +127,9 @@ jobs:
                 reviewBots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head
               )),
               ...issueComments.filter((item) => (
-                reviewBots.has(item.user?.login) && exactHeadBody(item.body)
+                item.user?.login === 'github-actions[bot]' &&
+                actionReviewMarkers.some((marker) => (item.body ?? '').includes(marker)) &&
+                exactHeadBody(item.body)
               )),
               ...statuses.filter((item) => (
                 item.context === 'CodeRabbit' &&
@@ -151,7 +157,7 @@ jobs:
             if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
               const match = /advisory gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
               const gaps = (match?.[1] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
-              const supplemental = new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']);
+              const supplemental = new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek', 'Grok']);
               if (gaps.length === 0 || gaps.some((item) => !supplemental.has(item))) {
                 core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has a mandatory-reviewer advisory gap for ${head}.`);
                 return;
