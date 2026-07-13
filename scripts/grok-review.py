@@ -256,6 +256,7 @@ def publish() -> None:
 **Provider / Sağlayıcı / Провайдер:** `xAI`  
 **Model / Model / Модель:** `{required_env('MODEL')}`  
 **Reviewed commit / İncelenen commit / Проверенный commit:** `{expected_head}`  
+Reviewed commit: `{expected_head}`  
 **Mode / Mod / Режим:** `{required_env('MODE')}`  
 **Diff truncated / Diff kısaltıldı / Diff сокращён:** `{required_env('TRUNCATED')}`
 
@@ -283,6 +284,7 @@ def failure() -> None:
     head_sha = os.environ.get('HEAD_SHA', '').strip()
     reviewed_line = (
         f'**Reviewed commit / İncelenen commit / Проверенный commit:** `{head_sha}`  \n'
+        f'Reviewed commit: `{head_sha}`  \n'
         if head_sha else ''
     )
     write_comment(
