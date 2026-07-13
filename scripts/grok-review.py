@@ -79,6 +79,11 @@ def write_comment(body: str) -> None:
     )
 
 
+def machine_binding(head_sha: str) -> str:
+    """Return an invisible, canonical exact-head binding for machine parsers."""
+    return f'<!-- Reviewed commit: `{head_sha}` -->'
+
+
 def require_open_pr(pr: dict[str, Any]) -> None:
     if str(pr.get('state') or '').lower() != 'open':
         raise ReviewError('PR_NOT_OPEN', f"Pull request state is {pr.get('state', 'unknown')}, expected open")
@@ -251,12 +256,12 @@ def publish() -> None:
         raise ReviewError('STALE_HEAD', f'PR head changed while review was running: {expected_head} -> {current_head}')
 
     body = f"""{COMMENT_MARKER}
+{machine_binding(expected_head)}
 ### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok
 
 **Provider / Sağlayıcı / Провайдер:** `xAI`  
 **Model / Model / Модель:** `{required_env('MODEL')}`  
 **Reviewed commit / İncelenen commit / Проверенный commit:** `{expected_head}`  
-Reviewed commit: `{expected_head}`  
 **Mode / Mod / Режим:** `{required_env('MODE')}`  
 **Diff truncated / Diff kısaltıldı / Diff сокращён:** `{required_env('TRUNCATED')}`
 
@@ -283,14 +288,14 @@ def failure() -> None:
             pass
     head_sha = os.environ.get('HEAD_SHA', '').strip()
     reviewed_line = (
+        f'{machine_binding(head_sha)}\n'
         f'**Reviewed commit / İncelenen commit / Проверенный commit:** `{head_sha}`  \n'
-        f'Reviewed commit: `{head_sha}`  \n'
         if head_sha else ''
     )
     write_comment(
         f'{COMMENT_MARKER}\n'
-        '### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok\n\n'
         f'{reviewed_line}'
+        '### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok\n\n'
         f'**Status / Durum / Статус:** failed / başarısız / ошибка  \n'
         f'**Reason code / Neden kodu / Код причины:** `{code}`\n\n'
         f'{detail}\n\n'
