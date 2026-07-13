@@ -13,6 +13,7 @@ on:
       - scripts/fetch-review-threads.py
       - scripts/grok-review.py
       - scripts/test-ai-review-cooperation.py
+      - scripts/test-grok-review.py
       - scripts/verify-ai-review-contract.cjs
       - scripts/verify-ai-review-freshness.mjs
       - scripts/verify-ai-style-review-matrix.mjs
@@ -24,11 +25,12 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
       - name: Checkout pull request
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          fetch-depth: 0
           persist-credentials: false
           show-progress: false
 
@@ -39,9 +41,12 @@ jobs:
           scripts/fetch-review-threads.py
           scripts/grok-review.py
           scripts/test-ai-review-cooperation.py
+          scripts/test-grok-review.py
 
       - name: Run offline cooperation contracts
-        run: python3 scripts/test-ai-review-cooperation.py -v
+        run: |
+          python3 scripts/test-ai-review-cooperation.py -v
+          python3 scripts/test-grok-review.py -v
 
       - name: Parse workflow YAML and JavaScript
         run: |
@@ -54,6 +59,63 @@ jobs:
           node --check scripts/verify-ai-review-contract.cjs
           node --check scripts/verify-ai-review-freshness.mjs
           node --check scripts/verify-ai-style-review-matrix.mjs
+
+      - name: Verify BOOTSTRAP-001 phase-one scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          git diff --name-only "${BASE_SHA}...${HEAD_SHA}" > "${RUNNER_TEMP}/bootstrap-files.txt"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          changed = {
+              line.strip()
+              for line in Path(os.environ['RUNNER_TEMP'] + '/bootstrap-files.txt').read_text(encoding='utf-8').splitlines()
+              if line.strip()
+          }
+          bootstrap_triggers = {
+              '.github/workflows/ai-review-contract.yml',
+              '.github/workflows/ai-review-cooperation.yml',
+              '.github/workflows/grok-review.yml',
+              '.github/workflows/review-ledger.yml',
+              'scripts/ai-review-cooperation.py',
+              'scripts/grok-review.py',
+          }
+          allowed = {
+              '.github/workflows/ai-review-contract.yml',
+              '.github/workflows/ai-review-cooperation.yml',
+              '.github/workflows/ai-review-cooperation-contract.yml',
+              '.github/workflows/grok-review.yml',
+              '.github/workflows/review-ledger.yml',
+              '.github/workflows/traceability.yml',
+              'docs/ai-review-cooperation-policy.md',
+              'scripts/ai-review-cooperation.py',
+              'scripts/fetch-review-threads.py',
+              'scripts/grok-review.py',
+              'scripts/test-ai-review-cooperation.py',
+              'scripts/test-grok-review.py',
+              'scripts/verify-ai-review-contract.cjs',
+              'scripts/verify-ai-review-freshness.mjs',
+              'scripts/verify-ai-style-review-matrix.mjs',
+          }
+          if changed & bootstrap_triggers:
+              unexpected = sorted(changed - allowed)
+              if unexpected:
+                  raise SystemExit('BOOTSTRAP-001 forbids non-governance paths: ' + ', '.join(unexpected))
+              policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
+              body = os.environ.get('PR_BODY', '')
+              required_policy = ['BOOTSTRAP-001', 'Phase 1 bootstrap', 'Phase 2 enforcement', 'PR #202']
+              missing = [token for token in required_policy if token not in policy]
+              if missing:
+                  raise SystemExit('BOOTSTRAP-001 policy drift: ' + ', '.join(missing))
+              if 'PR #202' not in body or 'Phase 1' not in body:
+                  raise SystemExit('BOOTSTRAP-001 PR body must name Phase 1 and the post-merge target PR #202.')
+              print('BOOTSTRAP-001 governance-only phase validated for post-merge verification on PR #202.')
+          PY
 
       - name: Verify mandatory Qodo exact-head lane
         run: |
@@ -161,9 +223,10 @@ jobs:
 
           workflow = Path('.github/workflows/grok-review.yml').read_text(encoding='utf-8')
           script = Path('scripts/grok-review.py').read_text(encoding='utf-8')
-          tests = Path('scripts/test-ai-review-cooperation.py').read_text(encoding='utf-8')
+          cooperation_tests = Path('scripts/test-ai-review-cooperation.py').read_text(encoding='utf-8')
+          grok_tests = Path('scripts/test-grok-review.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          corpus = workflow + '\n' + script + '\n' + tests + '\n' + policy
+          corpus = workflow + '\n' + script + '\n' + cooperation_tests + '\n' + grok_tests + '\n' + policy
           required = [
               '/grok review', '/grok deep-review',
               "github.event.issue.state == 'open'",
@@ -173,7 +236,7 @@ jobs:
               'XAI_API_KEY:', 'secrets.XAI_API_KEY', 'GROK_MODEL: grok-4.5',
               'https://api.x.ai/v1/chat/completions',
               'Authorization', 'Bearer', '<!-- grok-pr-review -->',
-              'Reviewed commit: `{expected_head}`',
+              "return f'<!-- Reviewed commit: `{head_sha}` -->'",
               'PR head changed before publishing',
               'PR_NOT_OPEN', 'current_state',
               'English', 'Türkçe', 'Русский',
@@ -183,11 +246,16 @@ jobs:
               'Qodo and required CI remain authoritative.',
               'test -s "${COMMENT_FILE}"',
               'contains($marker)', 'body_bytes=', '65000',
-              'expected_binding=', 'contains($binding)',
+              'expected_binding="<!-- Reviewed commit:', 'contains($binding)',
               'test_grok_multilingual_label_without_canonical_binding_does_not_count',
+              'test_prepare_replaces_invalid_utf8_and_truncates_large_diff',
+              'test_publish_uses_hidden_machine_binding_and_trilingual_label',
               'XAI_API_KEY',
           ]
-          forbidden = ['pull_request_target', 'contents: write', 'Return the review in Russian.']
+          forbidden = [
+              'pull_request_target', 'contents: write', 'Return the review in Russian.',
+              "f'Reviewed commit: `{head_sha}`  \\n'",
+          ]
           missing = [token for token in required if token not in corpus]
           leaked = [token for token in forbidden if token in workflow + '\n' + script]
           if missing or leaked:
@@ -208,18 +276,22 @@ jobs:
           from pathlib import Path
 
           script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
+          tests = Path('scripts/test-ai-review-cooperation.py').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
           ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
-          corpus = script + policy + ledger
+          corpus = script + tests + policy + ledger
           required = [
               '<!-- ai-review-cooperation -->', 'BOT_LOGINS',
               "login_of(item) == 'github-actions[bot]'", 'REQUIRED_CHECKS',
-              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'NO_CURRENT_HEAD_EVIDENCE',
-              'FIX_THEN_RERUN', 'flowchart TD', 'not a majority vote',
+              'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'BOOTSTRAP-001',
+              'Phase 1 bootstrap', 'Phase 2 enforcement', 'PR #202',
+              'NO_CURRENT_HEAD_EVIDENCE', 'FIX_THEN_RERUN',
+              'flowchart TD', 'mermaid_text', 'not a majority vote',
               'STALE_HEAD', 'PERMISSION_ERROR', '/qodo review',
               'Qodo', 'Grok', 'GROK_MARKER', 'immutable_head_anchor',
               'qodo_request_at', 'active_submitted_review',
               "state not in {'PENDING', 'DISMISSED'}",
+              'test_mermaid_graph_escapes_dynamic_labels',
           ]
           missing = [token for token in required if token not in corpus]
           if missing:
