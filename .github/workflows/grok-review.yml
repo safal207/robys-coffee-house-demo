@@ -102,13 +102,24 @@ jobs:
           EXPECTED_HEAD: ${{ steps.prepare.outputs.head_sha }}
         run: |
           set -euo pipefail
-          test -f "${COMMENT_FILE}"
+          test -s "${COMMENT_FILE}"
+          jq -e --arg marker '<!-- grok-pr-review -->' \
+            '.body | type == "string" and length > 0 and contains($marker)' \
+            "${COMMENT_FILE}" >/dev/null
+          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
+          if [ "${body_bytes}" -gt 65000 ]; then
+            echo "Grok review comment is too large: ${body_bytes} bytes" >&2
+            exit 1
+          fi
           current_state="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')"
           if [ "${current_state}" != "open" ]; then
             echo "PR is not open before publishing: ${current_state}" >&2
             exit 1
           fi
           if [ -n "${EXPECTED_HEAD}" ]; then
+            expected_binding="Reviewed commit: \`${EXPECTED_HEAD}\`"
+            jq -e --arg binding "${expected_binding}" '.body | contains($binding)' \
+              "${COMMENT_FILE}" >/dev/null
             current_head="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
             if [ "${current_head}" != "${EXPECTED_HEAD}" ]; then
               echo "PR head changed before publishing: ${EXPECTED_HEAD} -> ${current_head}" >&2
