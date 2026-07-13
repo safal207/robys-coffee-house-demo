@@ -48,14 +48,14 @@ function isPermissionError(error) {
   return !/rate limit|secondary rate|abuse detection/i.test(message);
 }
 
-function exactHeadReview(reviews, logins, currentHead, headUpdateAnchor) {
+function exactHeadReview(reviews, logins, currentHead, notBefore) {
   return reviews.find(
     (review) =>
       logins.has(review.user?.login) &&
       review.user?.type === "Bot" &&
       review.commit_id?.toLowerCase() === currentHead &&
       isSubmittedActiveReview(review) &&
-      submittedTimeOf(review) >= headUpdateAnchor,
+      submittedTimeOf(review) >= notBefore,
   );
 }
 
@@ -115,7 +115,10 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         )
         .reduce((latest, item) => Math.max(latest, createdTimeOf(item)), 0);
 
-      qodoReview = exactHeadReview(reviews, QODO_LOGINS, currentHead, headUpdateAnchor);
+      const qodoReviewAnchor = Math.max(headUpdateAnchor, qodoRequestAt);
+      qodoReview = qodoRequestAt > 0
+        ? exactHeadReview(reviews, QODO_LOGINS, currentHead, qodoReviewAnchor)
+        : undefined;
       codeRabbitReview = exactHeadReview(
         reviews,
         CODERABBIT_LOGINS,
@@ -153,7 +156,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           ],
           [
             "Qodo (required)",
-            "trusted request plus native submitted pull-request review",
+            "trusted request followed by native submitted pull-request review",
             "yes",
           ],
           [
@@ -169,19 +172,19 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         ])
         .addRaw(
           `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
-            "The trusted /qodo review approval and the native Bot review must both be current-head-era evidence. " +
-            "Pending, dismissed, stale-head, non-bot and pre-anchor evidence does not count.\n",
+            "The trusted /qodo review approval must be created after the immutable workflow-run anchor, and the native Qodo Bot review must be submitted after that trusted request for the same exact head. " +
+            "Pending, dismissed, stale-head, non-bot, pre-anchor and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
-        `Verified trusted Qodo request and native exact-head review for ${pr.head.sha}.`,
+        `Verified request-bound Qodo review for ${pr.head.sha}; request_at=${new Date(qodoRequestAt).toISOString()}.`,
       );
       return;
     }
 
     core.info(
       `Waiting for trusted Qodo evidence (${attempt}/${POLL_ATTEMPTS}); ` +
-        `request=${qodoRequestAt > 0}; review=${Boolean(qodoReview)}; head=${pr.head.sha}`,
+        `request=${qodoRequestAt > 0}; request_bound_review=${Boolean(qodoReview)}; head=${pr.head.sha}`,
     );
     if (attempt < POLL_ATTEMPTS) {
       await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -189,7 +192,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require both a trusted /qodo review approval comment created after the immutable workflow-run freshness anchor and a native Qodo Bot review submitted for the same exact head after that anchor. " +
+    "Require a trusted /qodo review approval comment created after the immutable workflow-run freshness anchor and a native Qodo Bot review submitted after that trusted request for the same exact head. " +
       "CodeRabbit and Codex are supplemental and cannot satisfy the required lane." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
