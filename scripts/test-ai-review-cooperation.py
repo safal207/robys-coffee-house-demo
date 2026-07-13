@@ -215,7 +215,9 @@ class CooperationReportTests(unittest.TestCase):
         report_text = MODULE.build_report(**data)
         self.assertIn('| Grok | yes | E1 | bootstrap pending |', report_text)
         self.assertIn('`BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`', report_text)
-        self.assertIn('BOOTSTRAP-001 Phase 1', report_text)
+        self.assertIn('EN: Apply BOOTSTRAP-001 Phase 1', report_text)
+        self.assertIn("TR: BOOTSTRAP-001 Faz 1'i uygulayın", report_text)
+        self.assertIn('RU: Выполните этап 1 BOOTSTRAP-001', report_text)
         self.assertIn('PR #202', report_text)
 
     def test_p2_finding_drives_fix_then_rerun(self) -> None:
