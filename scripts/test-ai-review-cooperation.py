@@ -105,9 +105,20 @@ def base_inputs() -> dict[str, object]:
 
 
 def exact_action_comment(marker: str, created_at: str = AFTER) -> dict[str, object]:
+    if marker == '<!-- grok-pr-review -->':
+        body = f'''{marker}
+### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok
+
+**Reviewed commit / İncelenen commit / Проверенный commit:** `{HEAD}`  
+Reviewed commit: `{HEAD}`  
+
+English: No actionable issues found.
+Türkçe: Eyleme geçirilebilir sorun bulunamadı.
+Русский: Существенных проблем не найдено.'''
+    else:
+        body = f'{marker}\nReviewed commit: `{HEAD}`\nNo actionable findings.'
     return comment(
-        f'{marker}\nReviewed commit: `{HEAD}`\nNo actionable findings.',
-        login='github-actions[bot]', created_at=created_at, association='NONE',
+        body, login='github-actions[bot]', created_at=created_at, association='NONE',
     )
 
 
@@ -173,6 +184,18 @@ class CooperationReportTests(unittest.TestCase):
             comment('/grok review', created_at=AFTER),
         ]
         data['reviews'] = [review('No findings.', 'qodo-code-review')]
+        report_text = MODULE.build_report(**data)
+        self.assertIn('| Grok | yes | E1 | missing evidence |', report_text)
+
+    def test_grok_multilingual_label_without_canonical_binding_does_not_count(self) -> None:
+        data = base_inputs()
+        multilingual_only = comment(
+            f'''<!-- grok-pr-review -->
+### Grok PR Review / Grok PR İncelemesi / Проверка PR от Grok
+**Reviewed commit / İncelenen commit / Проверенный commit:** `{HEAD}`''',
+            login='github-actions[bot]', created_at=AFTER, association='NONE',
+        )
+        data['comments'] = [comment('/grok review'), multilingual_only]
         report_text = MODULE.build_report(**data)
         self.assertIn('| Grok | yes | E1 | missing evidence |', report_text)
 
