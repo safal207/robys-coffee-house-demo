@@ -411,7 +411,11 @@ def classify_bots(
         elif requests and not exact and workflow_path in changed_paths:
             result.level, result.state = 'E1', 'bootstrap pending'
             result.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
-            result.action = 'Apply BOOTSTRAP-001 Phase 1, then validate live behavior on PR #202.'
+            result.action = (
+                'EN: Apply BOOTSTRAP-001 Phase 1, then validate live behavior on PR #202. / '
+                "TR: BOOTSTRAP-001 Faz 1'i uygulayın, ardından canlı davranışı PR #202'de doğrulayın. / "
+                'RU: Выполните этап 1 BOOTSTRAP-001, затем проверьте работу в PR #202.'
+            )
         return result
 
     deepseek = action_bot(
