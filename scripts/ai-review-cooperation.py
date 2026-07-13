@@ -411,7 +411,7 @@ def classify_bots(
         elif requests and not exact and workflow_path in changed_paths:
             result.level, result.state = 'E1', 'bootstrap pending'
             result.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
-            result.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
+            result.action = 'Apply BOOTSTRAP-001 Phase 1, then validate live behavior on PR #202.'
         return result
 
     deepseek = action_bot(
@@ -481,27 +481,41 @@ def findings_text(findings: dict[str, int]) -> str:
     return ', '.join(values) if values else 'none'
 
 
+def mermaid_text(value: object, limit: int = 240) -> str:
+    """Normalize dynamic text before inserting it into a Mermaid quoted label."""
+    normalized = re.sub(r'\s+', ' ', str(value)).strip()
+    normalized = normalized.replace('\\', '\\\\').replace('"', "'").replace('`', "'")
+    return normalized[:limit]
+
+
 def mermaid_graph(
     bots: list[BotResult], *, head_sha: str, checks: CheckSummary,
     evidence_complete: bool, conclusion: str,
 ) -> str:
+    safe_head = mermaid_text(head_sha[:12])
+    safe_conclusion = mermaid_text(conclusion)
     lines = [
         'flowchart TD',
-        f'  H["Current head {head_sha[:12]}"]',
+        f'  H["Current head {safe_head}"]',
         f'  CI["Required CI: {checks.passed} passed, {checks.pending} pending, {len(checks.failed_names)} failed"]',
         f'  DATA["Evidence pages: {"complete" if evidence_complete else "truncated"}"]',
         '  H --> CI', '  H --> DATA',
     ]
     for index, bot in enumerate(bots, 1):
+        safe_name = mermaid_text(bot.name)
+        safe_level = mermaid_text(bot.level)
+        safe_state = mermaid_text(bot.state)
+        safe_reason = mermaid_text(bot.reason)
+        safe_action = mermaid_text(bot.action)
         lines += [
-            f'  R{index}["{bot.name} request: {"yes" if bot.requested else "no"}"]',
-            f'  E{index}["{bot.level}: {bot.state}"]',
-            f'  C{index}["Cause: {bot.reason}"]',
-            f'  A{index}["Action: {bot.action}"]',
+            f'  R{index}["{safe_name} request: {"yes" if bot.requested else "no"}"]',
+            f'  E{index}["{safe_level}: {safe_state}"]',
+            f'  C{index}["Cause: {safe_reason}"]',
+            f'  A{index}["Action: {safe_action}"]',
             f'  H --> R{index}', f'  R{index} --> E{index}',
             f'  E{index} --> C{index}', f'  C{index} --> A{index}',
         ]
-    lines += [f'  D["Conclusion: {conclusion}"]', '  CI --> D', '  DATA --> D']
+    lines += [f'  D["Conclusion: {safe_conclusion}"]', '  CI --> D', '  DATA --> D']
     lines += [f'  A{index} --> D' for index in range(1, len(bots) + 1)]
     return '\n'.join(lines)
 
