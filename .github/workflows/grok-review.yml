@@ -117,7 +117,7 @@ jobs:
             exit 1
           fi
           if [ -n "${EXPECTED_HEAD}" ]; then
-            expected_binding="Reviewed commit: \`${EXPECTED_HEAD}\`"
+            expected_binding="<!-- Reviewed commit: \`${EXPECTED_HEAD}\` -->"
             jq -e --arg binding "${expected_binding}" '.body | contains($binding)' \
               "${COMMENT_FILE}" >/dev/null
             current_head="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
