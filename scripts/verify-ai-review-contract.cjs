@@ -1,12 +1,17 @@
 "use strict";
 
 const TRUSTED_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+const QODO_LOGINS = new Set(["qodo-code-review", "qodo-code-review[bot]"]);
 const CODERABBIT_LOGINS = new Set(["coderabbitai[bot]", "coderabbitai"]);
 const CODEX_LOGINS = new Set([
   "chatgpt-codex-connector[bot]",
   "chatgpt-codex-connector",
 ]);
-const CODERABBIT_STATUS_CONTEXT = "CodeRabbit";
+const QODO_COMMAND = "/qodo review";
+const CODERABBIT_COMMAND = "@coderabbitai review";
+const CODEX_COMMAND = "@codex review";
+const MIN_QODO_REQUEST_GAP_MS = 15 * 60 * 1000;
+const SECOND_QODO_TIMEOUT_MS = 15 * 60 * 1000;
 const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 
@@ -40,13 +45,6 @@ function commandLinesOf(item) {
     .filter(Boolean);
 }
 
-function latestCreatedTime(items) {
-  return items.reduce(
-    (latest, item) => Math.max(latest, createdTimeOf(item)),
-    0,
-  );
-}
-
 function isPermissionError(error) {
   const message = error?.message ?? "";
   if (error?.status === 401) return true;
@@ -54,7 +52,153 @@ function isPermissionError(error) {
   return !/rate limit|secondary rate|abuse detection/i.test(message);
 }
 
-module.exports = async function verifyAiReviewContract({ github, context, core }) {
+function freshTrustedRequests(comments, command, headUpdateAnchor, notBefore = 0) {
+  return comments
+    .filter(
+      (item) =>
+        TRUSTED_ASSOCIATIONS.has(item.author_association) &&
+        createdTimeOf(item) >= Math.max(headUpdateAnchor, notBefore) &&
+        commandLinesOf(item).includes(command),
+    )
+    .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
+}
+
+function exactHeadReviews(reviews, logins, currentHead, notBefore) {
+  return reviews
+    .filter(
+      (review) =>
+        logins.has(review.user?.login) &&
+        review.user?.type === "Bot" &&
+        review.commit_id?.toLowerCase() === currentHead &&
+        isSubmittedActiveReview(review) &&
+        submittedTimeOf(review) >= notBefore,
+    )
+    .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
+}
+
+function qodoTimeoutPair(requests) {
+  let selected;
+  for (let secondIndex = 1; secondIndex < requests.length; secondIndex += 1) {
+    const secondAt = createdTimeOf(requests[secondIndex]);
+    for (let firstIndex = secondIndex - 1; firstIndex >= 0; firstIndex -= 1) {
+      const firstAt = createdTimeOf(requests[firstIndex]);
+      if (secondAt - firstAt >= MIN_QODO_REQUEST_GAP_MS) {
+        selected = { firstAt, secondAt };
+        break;
+      }
+    }
+  }
+  return selected;
+}
+
+function firstRequestAt(requests) {
+  return requests.length > 0 ? createdTimeOf(requests[0]) : 0;
+}
+
+function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnchor, now }) {
+  const qodoRequests = freshTrustedRequests(
+    comments,
+    QODO_COMMAND,
+    headUpdateAnchor,
+  );
+  const qodoRequestAt = firstRequestAt(qodoRequests);
+  const qodoReview = qodoRequestAt > 0
+    ? exactHeadReviews(reviews, QODO_LOGINS, currentHead, qodoRequestAt)[0]
+    : undefined;
+
+  if (qodoReview) {
+    return {
+      provider: "Qodo",
+      mode: "primary",
+      primaryFailure: "none",
+      review: qodoReview,
+      qodoRequestAt,
+      fallbackEligible: false,
+    };
+  }
+
+  const timeoutPair = qodoTimeoutPair(qodoRequests);
+  const fallbackEligibleAt = timeoutPair
+    ? timeoutPair.secondAt + SECOND_QODO_TIMEOUT_MS
+    : 0;
+  const fallbackEligible = fallbackEligibleAt > 0 && now >= fallbackEligibleAt;
+
+  if (!fallbackEligible) {
+    return {
+      provider: null,
+      mode: "pending",
+      primaryFailure: timeoutPair ? "QODO_TIMEOUT_2_PENDING" : "QODO_TIMEOUT_1_PENDING",
+      review: null,
+      qodoRequestAt,
+      timeoutPair,
+      fallbackEligible,
+      fallbackEligibleAt,
+    };
+  }
+
+  const codexRequests = freshTrustedRequests(
+    comments,
+    CODEX_COMMAND,
+    headUpdateAnchor,
+    timeoutPair.secondAt,
+  );
+  const codeRabbitRequests = freshTrustedRequests(
+    comments,
+    CODERABBIT_COMMAND,
+    headUpdateAnchor,
+    timeoutPair.secondAt,
+  );
+  const codexRequestAt = firstRequestAt(codexRequests);
+  const codeRabbitRequestAt = firstRequestAt(codeRabbitRequests);
+  const codexReview = codexRequestAt > 0
+    ? exactHeadReviews(reviews, CODEX_LOGINS, currentHead, codexRequestAt)[0]
+    : undefined;
+  const codeRabbitReview = codeRabbitRequestAt > 0
+    ? exactHeadReviews(reviews, CODERABBIT_LOGINS, currentHead, codeRabbitRequestAt)[0]
+    : undefined;
+
+  const candidates = [
+    codexReview
+      ? { provider: "Codex", review: codexReview, requestAt: codexRequestAt }
+      : null,
+    codeRabbitReview
+      ? { provider: "CodeRabbit", review: codeRabbitReview, requestAt: codeRabbitRequestAt }
+      : null,
+  ]
+    .filter(Boolean)
+    .sort((left, right) => {
+      const timeDelta = submittedTimeOf(left.review) - submittedTimeOf(right.review);
+      if (timeDelta !== 0) return timeDelta;
+      return left.provider.localeCompare(right.provider);
+    });
+
+  if (candidates.length > 0) {
+    return {
+      ...candidates[0],
+      mode: "fallback",
+      primaryFailure: "QODO_TIMEOUT_2",
+      qodoRequestAt,
+      timeoutPair,
+      fallbackEligible,
+      fallbackEligibleAt,
+    };
+  }
+
+  return {
+    provider: null,
+    mode: "fallback-pending",
+    primaryFailure: "QODO_TIMEOUT_2",
+    review: null,
+    qodoRequestAt,
+    timeoutPair,
+    fallbackEligible,
+    fallbackEligibleAt,
+    codexRequestAt,
+    codeRabbitRequestAt,
+  };
+}
+
+async function verifyAiReviewContract({ github, context, core }) {
   const { owner, repo } = context.repo;
   const pr = context.payload.pull_request;
   if (!pr?.head?.sha) {
@@ -67,10 +211,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   let lastApiError = "";
 
   for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
-    let codeRabbitRequestAt = 0;
-    let codeRabbitReview;
-    let codeRabbitStatus;
-    let nativeCodexReview;
+    let selection;
 
     try {
       if (headUpdateAnchor <= 0) {
@@ -85,7 +226,7 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
         }
       }
 
-      const [comments, reviews, statuses] = await Promise.all([
+      const [comments, reviews] = await Promise.all([
         github.paginate(github.rest.issues.listComments, {
           owner,
           repo,
@@ -99,57 +240,20 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
           pull_number: pr.number,
           per_page: 100,
         }),
-        github.paginate(github.rest.repos.listCommitStatusesForRef, {
-          owner,
-          repo,
-          ref: currentHead,
-          per_page: 100,
-        }),
       ]);
 
-      const freshRequest = (item, command) =>
-        TRUSTED_ASSOCIATIONS.has(item.author_association) &&
-        createdTimeOf(item) >= headUpdateAnchor &&
-        commandLinesOf(item).includes(command);
-
-      codeRabbitRequestAt = latestCreatedTime(
-        comments.filter((item) => freshRequest(item, "@coderabbitai review")),
-      );
-      const codexRequestAt = latestCreatedTime(
-        comments.filter((item) => freshRequest(item, "@codex review")),
-      );
-
-      codeRabbitReview = reviews.find(
-        (review) =>
-          CODERABBIT_LOGINS.has(review.user?.login) &&
-          review.commit_id?.toLowerCase() === currentHead &&
-          isSubmittedActiveReview(review) &&
-          codeRabbitRequestAt > 0 &&
-          submittedTimeOf(review) >= codeRabbitRequestAt,
-      );
-
-      codeRabbitStatus = statuses.find(
-        (status) =>
-          status.context === CODERABBIT_STATUS_CONTEXT &&
-          status.state === "success" &&
-          CODERABBIT_LOGINS.has(status.creator?.login) &&
-          codeRabbitRequestAt > 0 &&
-          createdTimeOf(status) >= codeRabbitRequestAt,
-      );
-
-      nativeCodexReview = reviews.find(
-        (review) =>
-          CODEX_LOGINS.has(review.user?.login) &&
-          review.commit_id?.toLowerCase() === currentHead &&
-          isSubmittedActiveReview(review) &&
-          codexRequestAt > 0 &&
-          submittedTimeOf(review) >= codexRequestAt,
-      );
+      selection = selectRequiredEvidence({
+        comments,
+        reviews,
+        currentHead,
+        headUpdateAnchor,
+        now: Date.now(),
+      });
     } catch (error) {
       lastApiError = error?.message ?? String(error);
       if (isPermissionError(error)) {
         core.setFailed(
-          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, pull-requests: read, and statuses: read. " +
+          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, and pull-requests: read. " +
             `GitHub API error: ${lastApiError}`,
         );
         return;
@@ -159,40 +263,39 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
       );
     }
 
-    if (codeRabbitRequestAt > 0 && (codeRabbitReview || codeRabbitStatus)) {
-      const evidenceType = codeRabbitReview
-        ? "submitted exact-head pull-request review"
-        : "successful exact-head commit status after the request";
+    if (selection?.provider) {
       await core.summary
         .addHeading("AI review contract")
         .addTable([
           [
-            { data: "Lane", header: true },
-            { data: "Evidence", header: true },
+            { data: "Required reviewer", header: true },
+            { data: "Mode", header: true },
             { data: "Exact head", header: true },
+            { data: "Primary failure", header: true },
           ],
-          ["CodeRabbit (required)", evidenceType, "yes"],
           [
-            "Codex (supplemental)",
-            nativeCodexReview ? "native submitted review" : "not counted",
-            nativeCodexReview ? "yes" : "n/a",
+            selection.provider,
+            selection.mode,
+            "yes",
+            selection.primaryFailure,
           ],
         ])
         .addRaw(
           `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
-            "Edited requests, pending/dismissed reviews, summaries, and older-head evidence do not count.\n",
+            "Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
+            "Pending, dismissed, stale-head, non-bot, pre-anchor and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
-        `Verified native CodeRabbit evidence for ${pr.head.sha}: ${evidenceType}.`,
+        `Verified ${selection.mode} required review from ${selection.provider} for ${pr.head.sha}; primary_failure=${selection.primaryFailure}.`,
       );
       return;
     }
 
     core.info(
-      `Waiting for native CodeRabbit evidence (${attempt}/${POLL_ATTEMPTS}); ` +
-        `request=${codeRabbitRequestAt > 0}; review=${Boolean(codeRabbitReview)}; ` +
-        `status=${Boolean(codeRabbitStatus)}; head=${pr.head.sha}`,
+      `Waiting for independent review evidence (${attempt}/${POLL_ATTEMPTS}); ` +
+        `mode=${selection?.mode ?? "unknown"}; primary_failure=${selection?.primaryFailure ?? "unknown"}; ` +
+        `fallback_eligible=${Boolean(selection?.fallbackEligible)}; head=${pr.head.sha}`,
     );
     if (attempt < POLL_ATTEMPTS) {
       await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -200,7 +303,20 @@ module.exports = async function verifyAiReviewContract({ github, context, core }
   }
 
   core.setFailed(
-    "Require a trusted @coderabbitai review request created after the immutable head-update anchor and native CodeRabbit evidence for that same head after the request: either a submitted active review or a successful bot-authored CodeRabbit commit status." +
+    "Require request-bound native exact-head independent review evidence. Qodo is primary. " +
+      "Fallback opens only after two trusted /qodo review requests at least 15 minutes apart and 15 additional minutes after the second request; then a trusted @codex review or @coderabbitai review request must be followed by a native Bot review on the same exact head. " +
+      "A reaction, acknowledgement, status-only result, maintainer-authored proxy, stale review, pending review, or dismissed review does not count." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
+}
+
+module.exports = verifyAiReviewContract;
+module.exports._test = {
+  MIN_QODO_REQUEST_GAP_MS,
+  SECOND_QODO_TIMEOUT_MS,
+  commandLinesOf,
+  exactHeadReviews,
+  freshTrustedRequests,
+  qodoTimeoutPair,
+  selectRequiredEvidence,
 };
