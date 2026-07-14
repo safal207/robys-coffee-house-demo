@@ -43,28 +43,46 @@ jobs:
           ruby <<'RUBY'
           require 'yaml'
 
-          trusted_path = '.github/workflows/ai-review-contract.yml'
-          trusted_text = File.read(trusted_path)
-          trusted = YAML.load_file(trusted_path)
+          trusted = YAML.load_file('.github/workflows/ai-review-contract.yml')
           expected_permissions = {
             'actions' => 'read', 'contents' => 'read', 'issues' => 'read',
             'pull-requests' => 'read',
           }
           raise "unexpected trusted workflow name: #{trusted['name'].inspect}" unless trusted['name'] == 'AI review contract'
           raise "unexpected permissions: #{trusted['permissions'].inspect}" unless trusted['permissions'] == expected_permissions
-          required = [
-            'github.event.repository.default_branch',
-            'persist-credentials: false',
-            'Verify exact-head independent review',
-            'Wait for request-bound independent review evidence',
-          ]
-          missing = required.reject { |token| trusted_text.include?(token) }
-          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write']
-          leaked = forbidden.select { |token| trusted_text.include?(token) }
-          raise "trusted checkout drift: missing=#{missing.inspect}, forbidden=#{leaked.inspect}" unless missing.empty? && leaked.empty?
+
+          trusted_triggers = trusted['on'] || trusted[true]
+          raise "unexpected trusted triggers: #{trusted_triggers.inspect}" unless trusted_triggers.is_a?(Hash) && trusted_triggers.keys == ['pull_request']
+          pull_request_trigger = trusted_triggers['pull_request']
+          expected_types = ['opened', 'synchronize', 'reopened']
+          raise "unexpected pull_request trigger: #{pull_request_trigger.inspect}" unless pull_request_trigger.is_a?(Hash) && pull_request_trigger.keys == ['types'] && pull_request_trigger['types'] == expected_types
+
+          verify_job = trusted.dig('jobs', 'verify')
+          raise 'missing trusted verify job' unless verify_job.is_a?(Hash)
+          raise "unexpected trusted job name: #{verify_job['name'].inspect}" unless verify_job['name'] == 'Verify exact-head independent review'
+          raise "unexpected trusted runner: #{verify_job['runs-on'].inspect}" unless verify_job['runs-on'] == 'ubuntu-latest'
+          raise "unexpected trusted timeout: #{verify_job['timeout-minutes'].inspect}" unless verify_job['timeout-minutes'] == 17
+          steps = verify_job['steps']
+          raise 'trusted verify steps are missing' unless steps.is_a?(Array)
+
+          checkout = steps.find { |step| step['name'] == 'Check out trusted default-branch verifier' }
+          raise 'missing trusted checkout step' unless checkout
+          raise "unexpected checkout action: #{checkout['uses'].inspect}" unless checkout['uses'] == 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683'
+          expected_ref = '$' + '{{ github.event.repository.default_branch }}'
+          raise "checkout ref is not the default branch: #{checkout.dig('with', 'ref').inspect}" unless checkout.dig('with', 'ref') == expected_ref
+          raise 'checkout credentials must not persist' unless checkout.dig('with', 'persist-credentials') == false
+          raise 'trusted checkout must be shallow' unless checkout.dig('with', 'fetch-depth') == 1
+
+          verify_step = steps.find { |step| step['name'] == 'Wait for request-bound independent review evidence' }
+          raise 'missing trusted verifier step' unless verify_step
+          raise "unexpected github-script action: #{verify_step['uses'].inspect}" unless verify_step['uses'] == 'actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b'
+          expected_script = "const verify = require('./scripts/verify-ai-review-contract.cjs');\nawait verify({ github, context, core });\n"
+          raise 'trusted verifier script drifted' unless verify_step.dig('with', 'script') == expected_script
 
           provider = YAML.load_file('.github/workflows/ai-review-provider-pool-contract.yml')
           raise "unexpected provider workflow name: #{provider['name'].inspect}" unless provider['name'] == 'AI review provider pool contract'
+          provider_triggers = provider['on'] || provider[true]
+          raise "unexpected provider triggers: #{provider_triggers.inspect}" unless provider_triggers.is_a?(Hash) && provider_triggers.keys == ['pull_request']
           concurrency = provider['concurrency']
           raise 'missing provider-pool concurrency' unless concurrency
           expected_group = 'ai-review-provider-pool-contract-' + '$' + '{{ github.event.pull_request.number }}'
