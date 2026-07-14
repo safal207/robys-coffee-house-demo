@@ -89,21 +89,12 @@ function exactHeadReviews(reviews, logins, currentHead, notBefore) {
     .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
 }
 
-function stableHeadUpdateAnchor(runs, currentHead, currentRunId) {
-  const exactHeadRuns = runs.filter(
-    (run) =>
-      run.head_sha?.toLowerCase() === currentHead &&
-      run.name === AI_REVIEW_WORKFLOW_NAME &&
-      run.event === "pull_request",
-  );
-  const currentRunPresent = exactHeadRuns.some((run) => run.id === currentRunId);
-  if (!currentRunPresent) return 0;
-
-  const anchors = exactHeadRuns
-    .map((run) => parseTime(run.created_at))
-    .filter((value) => value > 0);
-
-  return anchors.length > 0 ? Math.min(...anchors) : 0;
+function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
+  if (run.id !== currentRunId) return 0;
+  if (run.name !== AI_REVIEW_WORKFLOW_NAME) return 0;
+  if (run.event !== "pull_request") return 0;
+  if (run.head_sha?.toLowerCase() !== currentHead) return 0;
+  return parseTime(run.created_at);
 }
 
 function qodoTimeoutPair(requests) {
@@ -238,25 +229,18 @@ async function resolveStableHeadUpdateAnchor({
   currentHead,
   currentRunId,
 }) {
-  const [workflowRuns, currentRunResponse] = await Promise.all([
-    github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
-      owner,
-      repo,
-      event: "pull_request",
-      head_sha: currentHead,
-      per_page: 100,
-    }),
-    github.rest.actions.getWorkflowRun({
-      owner,
-      repo,
-      run_id: currentRunId,
-    }),
-  ]);
-
-  const runs = [...workflowRuns, currentRunResponse.data];
-  const anchor = stableHeadUpdateAnchor(runs, currentHead, currentRunId);
+  const response = await github.rest.actions.getWorkflowRun({
+    owner,
+    repo,
+    run_id: currentRunId,
+  });
+  const anchor = stableHeadUpdateAnchor(
+    response.data,
+    currentHead,
+    currentRunId,
+  );
   if (anchor <= 0) {
-    throw new Error("no immutable AI review workflow anchor exists for the current head");
+    throw new Error("current AI review workflow run is not bound to the current pull-request head");
   }
   return anchor;
 }
@@ -342,9 +326,9 @@ async function verifyAiReviewContract({ github, context, core }) {
           ],
         ])
         .addRaw(
-          `\nStable freshness anchor: earliest ${AI_REVIEW_WORKFLOW_NAME} run in this repository for head ${pr.head.sha}. ` +
-            "Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
-            "A failed run may be rerun after the timeout windows without losing request history. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
+          `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
+            "GitHub preserves the workflow run ID across rerun attempts, so rerunning the same failed run preserves the anchor. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
+            "Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
@@ -366,7 +350,7 @@ async function verifyAiReviewContract({ github, context, core }) {
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Qodo is primary. " +
       "Fallback opens only after two trusted /qodo review requests at least 15 minutes apart and 15 additional minutes after the second request; then a trusted @codex review or @coderabbitai review request must be followed by a native Bot review on the same exact head. " +
-      "After the timeout windows, rerun the failed AI review contract; its stable exact-head server-side anchor preserves the earlier request history even when workflow pull-request metadata is empty. " +
+      "After the timeout windows, rerun the same failed AI review workflow run; GitHub preserves its run ID and server-side freshness anchor across attempts. Starting a new workflow run creates a new anchor and requires fresh requests. " +
       "A reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
