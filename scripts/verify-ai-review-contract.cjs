@@ -46,6 +46,11 @@ function commandLinesOf(item) {
     .filter(Boolean);
 }
 
+function hasExactHeadBinding(item, currentHead) {
+  const expected = `exact head: ${currentHead.toLowerCase()}`;
+  return commandLinesOf(item).includes(expected);
+}
+
 function isPermissionError(error) {
   const message = error?.message ?? "";
   if (error?.status === 401) return true;
@@ -53,13 +58,20 @@ function isPermissionError(error) {
   return !/rate limit|secondary rate|abuse detection/i.test(message);
 }
 
-function freshTrustedRequests(comments, command, headUpdateAnchor, notBefore = 0) {
+function freshTrustedRequests(
+  comments,
+  command,
+  currentHead,
+  headUpdateAnchor,
+  notBefore = 0,
+) {
   return comments
     .filter(
       (item) =>
         TRUSTED_ASSOCIATIONS.has(item.author_association) &&
         createdTimeOf(item) >= Math.max(headUpdateAnchor, notBefore) &&
-        commandLinesOf(item).includes(command),
+        commandLinesOf(item).includes(command) &&
+        hasExactHeadBinding(item, currentHead),
     )
     .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
 }
@@ -77,17 +89,17 @@ function exactHeadReviews(reviews, logins, currentHead, notBefore) {
     .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
 }
 
-function stableHeadUpdateAnchor(runs, currentHead, prNumber, currentRunId) {
-  const anchors = runs
-    .filter((run) => {
-      const exactHead = run.head_sha?.toLowerCase() === currentHead;
-      const exactWorkflow = run.name === AI_REVIEW_WORKFLOW_NAME;
-      const pullRequestEvent = run.event === "pull_request";
-      const associatedPr =
-        run.id === currentRunId ||
-        (run.pull_requests ?? []).some((item) => item.number === prNumber);
-      return exactHead && exactWorkflow && pullRequestEvent && associatedPr;
-    })
+function stableHeadUpdateAnchor(runs, currentHead, currentRunId) {
+  const exactHeadRuns = runs.filter(
+    (run) =>
+      run.head_sha?.toLowerCase() === currentHead &&
+      run.name === AI_REVIEW_WORKFLOW_NAME &&
+      run.event === "pull_request",
+  );
+  const currentRunPresent = exactHeadRuns.some((run) => run.id === currentRunId);
+  if (!currentRunPresent) return 0;
+
+  const anchors = exactHeadRuns
     .map((run) => parseTime(run.created_at))
     .filter((value) => value > 0);
 
@@ -117,6 +129,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   const qodoRequests = freshTrustedRequests(
     comments,
     QODO_COMMAND,
+    currentHead,
     headUpdateAnchor,
   );
   const qodoRequestAt = firstRequestAt(qodoRequests);
@@ -157,12 +170,14 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   const codexRequests = freshTrustedRequests(
     comments,
     CODEX_COMMAND,
+    currentHead,
     headUpdateAnchor,
     timeoutPair.secondAt,
   );
   const codeRabbitRequests = freshTrustedRequests(
     comments,
     CODERABBIT_COMMAND,
+    currentHead,
     headUpdateAnchor,
     timeoutPair.secondAt,
   );
@@ -221,7 +236,6 @@ async function resolveStableHeadUpdateAnchor({
   owner,
   repo,
   currentHead,
-  prNumber,
   currentRunId,
 }) {
   const [workflowRuns, currentRunResponse] = await Promise.all([
@@ -240,14 +254,9 @@ async function resolveStableHeadUpdateAnchor({
   ]);
 
   const runs = [...workflowRuns, currentRunResponse.data];
-  const anchor = stableHeadUpdateAnchor(
-    runs,
-    currentHead,
-    prNumber,
-    currentRunId,
-  );
+  const anchor = stableHeadUpdateAnchor(runs, currentHead, currentRunId);
   if (anchor <= 0) {
-    throw new Error("no immutable AI review workflow anchor exists for the current PR head");
+    throw new Error("no immutable AI review workflow anchor exists for the current head");
   }
   return anchor;
 }
@@ -274,7 +283,6 @@ async function verifyAiReviewContract({ github, context, core }) {
           owner,
           repo,
           currentHead,
-          prNumber: pr.number,
           currentRunId: context.runId,
         });
       }
@@ -334,9 +342,9 @@ async function verifyAiReviewContract({ github, context, core }) {
           ],
         ])
         .addRaw(
-          `\nStable freshness anchor: earliest ${AI_REVIEW_WORKFLOW_NAME} run for PR #${pr.number} and head ${pr.head.sha}. ` +
-            "Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
-            "A failed run may be rerun after the timeout windows without losing request history. Pending, dismissed, stale-head, non-bot, pre-anchor and pre-request evidence does not count.\n",
+          `\nStable freshness anchor: earliest ${AI_REVIEW_WORKFLOW_NAME} run in this repository for head ${pr.head.sha}. ` +
+            "Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
+            "A failed run may be rerun after the timeout windows without losing request history. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
@@ -356,10 +364,10 @@ async function verifyAiReviewContract({ github, context, core }) {
   }
 
   core.setFailed(
-    "Require request-bound native exact-head independent review evidence. Qodo is primary. " +
+    "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Qodo is primary. " +
       "Fallback opens only after two trusted /qodo review requests at least 15 minutes apart and 15 additional minutes after the second request; then a trusted @codex review or @coderabbitai review request must be followed by a native Bot review on the same exact head. " +
-      "After the timeout windows, rerun the failed AI review contract; its stable server-side anchor preserves the earlier request history. " +
-      "A reaction, acknowledgement, status-only result, maintainer-authored proxy, stale review, pending review, or dismissed review does not count." +
+      "After the timeout windows, rerun the failed AI review contract; its stable exact-head server-side anchor preserves the earlier request history even when workflow pull-request metadata is empty. " +
+      "A reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
@@ -372,6 +380,7 @@ module.exports._test = {
   commandLinesOf,
   exactHeadReviews,
   freshTrustedRequests,
+  hasExactHeadBinding,
   qodoTimeoutPair,
   selectRequiredEvidence,
   stableHeadUpdateAnchor,
