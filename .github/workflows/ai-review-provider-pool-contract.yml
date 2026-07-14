@@ -95,15 +95,18 @@ jobs:
               'AI_REVIEW_WORKFLOW_NAME = "AI review contract"',
               'actions.listWorkflowRunsForRepo',
               'head_sha: currentHead',
-              'run.pull_requests',
               'Math.min(...anchors)',
               'stableHeadUpdateAnchor',
+              'hasExactHeadBinding',
+              'exact head:',
+              'Every trusted request must contain',
+              'missing or empty workflow `pull_requests` metadata',
               'Simulates a later rerun',
               'A failed run may be rerun',
               'stable GitHub-server anchor',
               'A reaction, acknowledgement, status-only result',
               'provider-pool contract: ok',
-              'two trusted `/qodo review` requests',
+              'two trusted exact-head `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
           ]
@@ -112,6 +115,7 @@ jobs:
               'successful exact-head commit status after the request',
               'maintainer-authored proxy does count',
               'headUpdateAnchor = parseTime(run.data.created_at)',
+              'run.pull_requests',
           ]
           missing = [token for token in required if token not in corpus]
           leaked = [token for token in forbidden_verifier if token in verifier]
