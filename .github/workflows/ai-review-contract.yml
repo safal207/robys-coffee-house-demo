@@ -2,18 +2,18 @@ name: AI review contract
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 permissions:
   # Required for the immutable workflow-run freshness anchor.
   actions: read
-  # Required to check out the trusted verifier merged by trust patch PR #175.
+  # The verifier is always loaded from the protected default branch, never from PR code.
   contents: read
-  # Required for trusted exact-head review request comments.
+  # Required for trusted exact-head reviewer request comments.
   issues: read
-  # Required for native pull-request review evidence.
+  # Required for native exact-head pull-request review evidence.
   pull-requests: read
-  # Required for native exact-head CodeRabbit commit-status evidence.
+  # Kept read-only during the staged migration because the pre-patch verifier used it.
   statuses: read
 
 jobs:
@@ -22,14 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 17
     steps:
-      - name: Check out trusted timestamp verifier
+      - name: Check out trusted default-branch verifier
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 577dfd5eebe75038ee067830e6b0c70815fcc837
+          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
-      - name: Wait for native exact-head CodeRabbit evidence
+      - name: Wait for request-bound independent review evidence
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
