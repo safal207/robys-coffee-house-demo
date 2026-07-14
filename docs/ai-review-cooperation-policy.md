@@ -93,6 +93,12 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 
 Other failures such as GitHub API permission errors, incomplete evidence collection, stale heads, or actionable findings are enforced by their owning workflow/report/ledger layers. They are not `selectRequiredEvidence.primaryFailure` values and must not be confused with this provider-selection contract.
 
+## Cross-layer failure semantics
+
+The provider selector is only one stage of the causal chain. Downstream workflows retain their own stable reason codes, including `BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`, `NO_CURRENT_HEAD_EVIDENCE`, `STALE_HEAD`, and `PERMISSION_ERROR`. An unresolved P2 remains `FIX_THEN_RERUN`; truncated evidence remains fail-closed; and no provider selection can erase an actionable finding.
+
+The final conclusion is causal, not a majority vote. Required CI, exact-head identity, complete evidence collection, fresh reports, dispositions, and D6 provenance remain independent gates.
+
 ## Trusted-code boundary
 
 The `AI review contract` always checks out its verifier from the protected default branch. Pull-request code cannot replace the verifier that judges the same pull request.
