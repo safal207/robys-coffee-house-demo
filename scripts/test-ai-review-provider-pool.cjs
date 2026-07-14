@@ -4,11 +4,16 @@ const assert = require("node:assert/strict");
 const { _test } = require("./verify-ai-review-contract.cjs");
 
 const HEAD = "a".repeat(40);
+const OLD_HEAD = "b".repeat(40);
 const ANCHOR = Date.parse("2026-07-14T00:00:00Z");
 const T = (minutes) => new Date(ANCHOR + minutes * 60_000).toISOString();
 
 function comment(body, minutes, association = "OWNER") {
   return { body, created_at: T(minutes), author_association: association };
+}
+
+function request(command, minutes, association = "OWNER", head = HEAD) {
+  return comment(`${command}\n\nExact head: ${head}`, minutes, association);
 }
 
 function review(login, minutes, state = "COMMENTED", head = HEAD) {
@@ -25,10 +30,9 @@ function workflowRun({
   id,
   minutes,
   head = HEAD,
-  prNumber = 210,
   name = "AI review contract",
   event = "pull_request",
-  includePr = true,
+  pullRequests = [],
 }) {
   return {
     id,
@@ -36,7 +40,7 @@ function workflowRun({
     event,
     head_sha: head,
     created_at: T(minutes),
-    pull_requests: includePr ? [{ number: prNumber }] : [],
+    pull_requests: pullRequests,
   };
 }
 
@@ -53,14 +57,12 @@ function select(comments, reviews, nowMinutes) {
 {
   const anchor = _test.stableHeadUpdateAnchor(
     [
-      workflowRun({ id: 11, minutes: 1 }),
-      workflowRun({ id: 12, minutes: 31 }),
-      workflowRun({ id: 13, minutes: 0, prNumber: 999 }),
-      workflowRun({ id: 14, minutes: 0, head: "b".repeat(40) }),
+      workflowRun({ id: 11, minutes: 1, pullRequests: [] }),
+      workflowRun({ id: 12, minutes: 31, pullRequests: [{ number: 210 }] }),
+      workflowRun({ id: 14, minutes: 0, head: OLD_HEAD }),
       workflowRun({ id: 15, minutes: 0, name: "Other workflow" }),
     ],
     HEAD,
-    210,
     12,
   );
   assert.equal(anchor, ANCHOR + 60_000);
@@ -68,17 +70,31 @@ function select(comments, reviews, nowMinutes) {
 
 {
   const anchor = _test.stableHeadUpdateAnchor(
-    [workflowRun({ id: 77, minutes: 4, includePr: false })],
+    [workflowRun({ id: 77, minutes: 4, pullRequests: [] })],
     HEAD,
-    210,
     77,
   );
   assert.equal(anchor, ANCHOR + 4 * 60_000);
 }
 
 {
+  const anchor = _test.stableHeadUpdateAnchor(
+    [workflowRun({ id: 11, minutes: 1 })],
+    HEAD,
+    99,
+  );
+  assert.equal(anchor, 0);
+}
+
+{
+  assert.equal(_test.hasExactHeadBinding(request("/qodo review", 1), HEAD), true);
+  assert.equal(_test.hasExactHeadBinding(comment("/qodo review", 1), HEAD), false);
+  assert.equal(_test.hasExactHeadBinding(request("/qodo review", 1, "OWNER", OLD_HEAD), HEAD), false);
+}
+
+{
   const result = select(
-    [comment("/qodo review", 1)],
+    [request("/qodo review", 1)],
     [review("qodo-code-review", 3)],
     4,
   );
@@ -89,10 +105,29 @@ function select(comments, reviews, nowMinutes) {
 
 {
   const result = select(
+    [comment("/qodo review", 1)],
+    [review("qodo-code-review", 3)],
+    4,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.primaryFailure, "QODO_TIMEOUT_1_PENDING");
+}
+
+{
+  const result = select(
+    [request("/qodo review", 1, "OWNER", OLD_HEAD)],
+    [review("qodo-code-review", 3)],
+    4,
+  );
+  assert.equal(result.provider, null);
+}
+
+{
+  const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     30,
@@ -105,9 +140,9 @@ function select(comments, reviews, nowMinutes) {
   // Simulates a later rerun that retained the earliest exact-head workflow anchor.
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -120,9 +155,9 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@coderabbitai review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@coderabbitai review", 17),
     ],
     [review("coderabbitai[bot]", 20)],
     31,
@@ -134,9 +169,9 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
     [
       review("chatgpt-codex-connector[bot]", 18),
@@ -151,9 +186,9 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17, "NONE"),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17, "NONE"),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -165,9 +200,9 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
     [review("chatgpt-codex-connector-evil", 18)],
     31,
@@ -178,9 +213,9 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
     [review("chatgpt-codex-connector[bot]", 18, "DISMISSED")],
     31,
@@ -191,11 +226,11 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      comment("/qodo review", 1),
-      comment("/qodo review", 16),
-      comment("@codex review", 17),
+      request("/qodo review", 1),
+      request("/qodo review", 16),
+      request("@codex review", 17),
     ],
-    [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", "b".repeat(40))],
+    [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", OLD_HEAD)],
     31,
   );
   assert.equal(result.provider, null);
