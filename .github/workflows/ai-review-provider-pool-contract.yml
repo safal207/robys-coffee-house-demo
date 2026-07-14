@@ -62,22 +62,28 @@ jobs:
           raise "unexpected trusted job name: #{verify_job['name'].inspect}" unless verify_job['name'] == 'Verify exact-head independent review'
           raise "unexpected trusted runner: #{verify_job['runs-on'].inspect}" unless verify_job['runs-on'] == 'ubuntu-latest'
           raise "unexpected trusted timeout: #{verify_job['timeout-minutes'].inspect}" unless verify_job['timeout-minutes'] == 17
-          steps = verify_job['steps']
-          raise 'trusted verify steps are missing' unless steps.is_a?(Array)
 
-          checkout = steps.find { |step| step['name'] == 'Check out trusted default-branch verifier' }
-          raise 'missing trusted checkout step' unless checkout
-          raise "unexpected checkout action: #{checkout['uses'].inspect}" unless checkout['uses'] == 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683'
           expected_ref = '$' + '{{ github.event.repository.default_branch }}'
-          raise "checkout ref is not the default branch: #{checkout.dig('with', 'ref').inspect}" unless checkout.dig('with', 'ref') == expected_ref
-          raise 'checkout credentials must not persist' unless checkout.dig('with', 'persist-credentials') == false
-          raise 'trusted checkout must be shallow' unless checkout.dig('with', 'fetch-depth') == 1
-
-          verify_step = steps.find { |step| step['name'] == 'Wait for request-bound independent review evidence' }
-          raise 'missing trusted verifier step' unless verify_step
-          raise "unexpected github-script action: #{verify_step['uses'].inspect}" unless verify_step['uses'] == 'actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b'
           expected_script = "const verify = require('./scripts/verify-ai-review-contract.cjs');\nawait verify({ github, context, core });\n"
-          raise 'trusted verifier script drifted' unless verify_step.dig('with', 'script') == expected_script
+          expected_steps = [
+            {
+              'name' => 'Check out trusted default-branch verifier',
+              'uses' => 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683',
+              'with' => {
+                'ref' => expected_ref,
+                'fetch-depth' => 1,
+                'persist-credentials' => false,
+                'show-progress' => false,
+              },
+            },
+            {
+              'name' => 'Wait for request-bound independent review evidence',
+              'uses' => 'actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b',
+              'with' => { 'script' => expected_script },
+            },
+          ]
+          actual_steps = verify_job['steps']
+          raise "trusted verifier steps drifted: #{actual_steps.inspect}" unless actual_steps == expected_steps
 
           provider = YAML.load_file('.github/workflows/ai-review-provider-pool-contract.yml')
           raise "unexpected provider workflow name: #{provider['name'].inspect}" unless provider['name'] == 'AI review provider pool contract'
@@ -129,6 +135,8 @@ jobs:
               'two trusted exact-head `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
+              'expected_steps',
+              'actual_steps == expected_steps',
           ]
           forbidden_verifier = [
               'codeRabbitStatus',
