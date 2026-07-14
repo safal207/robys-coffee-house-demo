@@ -13,8 +13,6 @@ permissions:
   issues: read
   # Required for native exact-head pull-request review evidence.
   pull-requests: read
-  # Kept read-only during the staged migration because the pre-patch verifier used it.
-  statuses: read
 
 jobs:
   verify:
