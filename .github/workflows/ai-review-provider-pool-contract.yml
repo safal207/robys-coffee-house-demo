@@ -9,11 +9,16 @@ on:
       - scripts/test-ai-review-provider-pool.cjs
       - docs/ai-review-cooperation-policy.md
 
+concurrency:
+  group: ai-review-provider-pool-contract-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   verify:
+    name: Verify provider-pool contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -42,7 +47,7 @@ jobs:
           workflow = YAML.load_file(path)
           expected = {
             'actions' => 'read', 'contents' => 'read', 'issues' => 'read',
-            'pull-requests' => 'read', 'statuses' => 'read',
+            'pull-requests' => 'read',
           }
           raise "unexpected permissions: #{workflow['permissions'].inspect}" unless workflow['permissions'] == expected
           required = [
@@ -52,7 +57,7 @@ jobs:
             'Wait for request-bound independent review evidence',
           ]
           missing = required.reject { |token| text.include?(token) }
-          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write']
+          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write', 'statuses: read']
           leaked = forbidden.select { |token| text.include?(token) }
           raise "trusted checkout drift: missing=#{missing.inspect}, forbidden=#{leaked.inspect}" unless missing.empty? && leaked.empty?
           RUBY
@@ -65,7 +70,8 @@ jobs:
           verifier = Path('scripts/verify-ai-review-contract.cjs').read_text(encoding='utf-8')
           tests = Path('scripts/test-ai-review-provider-pool.cjs').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          corpus = verifier + '\n' + tests + '\n' + policy
+          workflow = Path('.github/workflows/ai-review-provider-pool-contract.yml').read_text(encoding='utf-8')
+          corpus = verifier + '\n' + tests + '\n' + policy + '\n' + workflow
           required = [
               'QODO_COMMAND = "/qodo review"',
               'CODERABBIT_COMMAND = "@coderabbitai review"',
@@ -91,15 +97,19 @@ jobs:
               'two trusted `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
+              'ai-review-provider-pool-contract-${{ github.event.pull_request.number }}',
+              'cancel-in-progress: true',
+              'Verify provider-pool contract',
           ]
           forbidden = [
               'codeRabbitStatus',
               'successful exact-head commit status after the request',
               'maintainer-authored proxy does count',
               'headUpdateAnchor = parseTime(run.data.created_at)',
+              "'statuses' => 'read'",
           ]
           missing = [token for token in required if token not in corpus]
-          leaked = [token for token in forbidden if token in verifier]
+          leaked = [token for token in forbidden if token in verifier or token in workflow]
           if missing or leaked:
               raise SystemExit(f'provider-pool drift: missing={missing}, forbidden={leaked}')
           PY
