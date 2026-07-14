@@ -42,7 +42,7 @@ Exact head: <full 40-character current head SHA>
 
 The first qualifying native exact-head Codex or CodeRabbit Bot review may satisfy the required lane after fallback eligibility is reached. Status-only evidence, reactions, acknowledgements, summaries, owner-authored connector output, unbound commands, and maintainer proxy reviews never satisfy the required lane.
 
-The AI review workflow intentionally evaluates one provider window per run. After the second Qodo timeout window has elapsed, rerun the failed `AI review contract`. The verifier derives a stable GitHub-server anchor from the earliest `AI review contract` pull-request run for the same exact head in this repository. Every accepted request is independently bound to that exact SHA, so missing or empty workflow `pull_requests` metadata cannot discard request history or admit a different-head request. The verifier does not use author-controlled commit timestamps and does not reset freshness to the rerun time.
+The verifier uses the GitHub-server `created_at` of the current `AI review contract` workflow run as its freshness anchor. GitHub keeps `GITHUB_RUN_ID` unchanged when that workflow run is re-run and increments `GITHUB_RUN_ATTEMPT` for each attempt. Therefore, rerunning the same failed workflow run after the timeout windows preserves its original server-side anchor without depending on `pull_requests`, branch-name heuristics, another PR, or author-controlled commit timestamps. Starting a new workflow run creates a new anchor and requires fresh exact-head requests.
 
 A new commit invalidates every request, timeout window, review, report, disposition, proof seal, and merge-ready decision associated with the previous head.
 
@@ -74,7 +74,7 @@ For all required providers:
 - `commit_id` must equal the full current head;
 - the review must be submitted after that provider’s trusted request;
 - the request body must contain both the canonical command and `Exact head: <full current SHA>`;
-- the trusted request must be created after the stable exact-head workflow anchor.
+- the trusted request must be created after the current workflow run’s stable server-side anchor.
 
 ## Fallback invariants
 
@@ -89,7 +89,8 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 - findings from every responding reviewer remain binding;
 - a later bot review invalidates any older cooperation report and D6 seal;
 - a head change resets the whole state machine;
-- a rerun on the same head reuses the earliest exact-head workflow-run anchor instead of discarding request history.
+- only a rerun attempt of the same failed workflow run preserves the anchor;
+- a newly created workflow run requires fresh requests even when the head SHA is unchanged.
 
 ## Provider-pool reason values
 
@@ -100,7 +101,7 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 | `none` | A request-bound native Qodo review satisfies the primary lane | Continue with downstream evidence checks |
 | `QODO_TIMEOUT_1_PENDING` | No valid exact-head timeout pair exists yet | Wait for the first window or post the second exact-head Qodo request after 15 minutes |
 | `QODO_TIMEOUT_2_PENDING` | Two valid exact-head Qodo requests exist, but 15 minutes have not elapsed after the second | Wait until fallback eligibility time |
-| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native Qodo evidence | Require request-bound native Codex or CodeRabbit fallback, then rerun the failed contract |
+| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native Qodo evidence | Require request-bound native Codex or CodeRabbit fallback, then rerun the same failed workflow run |
 
 Other failures such as GitHub API permission errors, incomplete evidence collection, stale heads, or actionable findings are enforced by their owning workflow/report/ledger layers. They are not `selectRequiredEvidence.primaryFailure` values and must not be confused with this provider-selection contract.
 
@@ -108,7 +109,7 @@ Other failures such as GitHub API permission errors, incomplete evidence collect
 
 The provider selector is only one stage of the causal chain. Downstream workflows retain their own stable reason codes, including `BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`, `NO_CURRENT_HEAD_EVIDENCE`, `STALE_HEAD`, and `PERMISSION_ERROR`. An unresolved P2 remains `FIX_THEN_RERUN`; truncated evidence remains fail-closed; and no provider selection can erase an actionable finding.
 
-The final conclusion is causal, not a majority vote. Required CI, exact-head identity, complete evidence collection, fresh reports, dispositions, and D6 provenance remain independent gates.
+The conclusion is causal, not a majority vote. Required CI, exact-head identity, complete evidence collection, fresh reports, dispositions, and D6 provenance remain independent gates.
 
 ## Trusted-code boundary
 
