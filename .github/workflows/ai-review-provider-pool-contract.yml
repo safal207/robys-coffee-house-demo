@@ -38,34 +38,37 @@ jobs:
         run: |
           ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-contract.yml'); YAML.parse_file('.github/workflows/ai-review-provider-pool-contract.yml')"
 
-      - name: Verify trusted checkout and least privilege
+      - name: Verify workflow structure and least privilege
         run: |
           ruby <<'RUBY'
           require 'yaml'
-          path = '.github/workflows/ai-review-contract.yml'
-          text = File.read(path)
-          workflow = YAML.load_file(path)
-          expected = {
+
+          trusted_path = '.github/workflows/ai-review-contract.yml'
+          trusted_text = File.read(trusted_path)
+          trusted = YAML.load_file(trusted_path)
+          expected_permissions = {
             'actions' => 'read', 'contents' => 'read', 'issues' => 'read',
             'pull-requests' => 'read',
           }
-          raise "unexpected permissions: #{workflow['permissions'].inspect}" unless workflow['permissions'] == expected
+          raise "unexpected trusted workflow name: #{trusted['name'].inspect}" unless trusted['name'] == 'AI review contract'
+          raise "unexpected permissions: #{trusted['permissions'].inspect}" unless trusted['permissions'] == expected_permissions
           required = [
             'github.event.repository.default_branch',
             'persist-credentials: false',
             'Verify exact-head independent review',
             'Wait for request-bound independent review evidence',
           ]
-          missing = required.reject { |token| text.include?(token) }
-          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write', 'statuses: read']
-          leaked = forbidden.select { |token| text.include?(token) }
+          missing = required.reject { |token| trusted_text.include?(token) }
+          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write']
+          leaked = forbidden.select { |token| trusted_text.include?(token) }
           raise "trusted checkout drift: missing=#{missing.inspect}, forbidden=#{leaked.inspect}" unless missing.empty? && leaked.empty?
 
           provider = YAML.load_file('.github/workflows/ai-review-provider-pool-contract.yml')
+          raise "unexpected provider workflow name: #{provider['name'].inspect}" unless provider['name'] == 'AI review provider pool contract'
           concurrency = provider['concurrency']
           raise 'missing provider-pool concurrency' unless concurrency
-          group = concurrency['group'].to_s
-          raise "unexpected concurrency group: #{group.inspect}" unless group.start_with?('ai-review-provider-pool-contract-') && group.include?('github.event.pull_request.number')
+          expected_group = 'ai-review-provider-pool-contract-' + '$' + '{{ github.event.pull_request.number }}'
+          raise "unexpected concurrency group: #{concurrency['group'].inspect}" unless concurrency['group'] == expected_group
           raise 'stale runs must be cancelled' unless concurrency['cancel-in-progress'] == true
           raise 'provider-pool job must be named' unless provider.dig('jobs', 'verify', 'name') == 'Verify provider-pool contract'
           RUBY
@@ -79,7 +82,6 @@ jobs:
           tests = Path('scripts/test-ai-review-provider-pool.cjs').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
           provider_workflow = Path('.github/workflows/ai-review-provider-pool-contract.yml').read_text(encoding='utf-8')
-          trusted_workflow = Path('.github/workflows/ai-review-contract.yml').read_text(encoding='utf-8')
           corpus = verifier + '\n' + tests + '\n' + policy + '\n' + provider_workflow
           required = [
               'QODO_COMMAND = "/qodo review"',
@@ -93,17 +95,17 @@ jobs:
               'review.state !== "DISMISSED"',
               'primaryFailure: "QODO_TIMEOUT_2"',
               'AI_REVIEW_WORKFLOW_NAME = "AI review contract"',
-              'actions.listWorkflowRunsForRepo',
-              'head_sha: currentHead',
-              'Math.min(...anchors)',
-              'stableHeadUpdateAnchor',
+              'github.rest.actions.getWorkflowRun',
+              'run.id !== currentRunId',
+              'run.name !== AI_REVIEW_WORKFLOW_NAME',
+              'run.event !== "pull_request"',
+              'run.head_sha?.toLowerCase() !== currentHead',
               'hasExactHeadBinding',
               'exact head:',
-              'Every trusted request must contain',
-              'missing or empty workflow `pull_requests` metadata',
-              'Simulates a later rerun',
-              'A failed run may be rerun',
-              'stable GitHub-server anchor',
+              'GITHUB_RUN_ID',
+              'GITHUB_RUN_ATTEMPT',
+              'same failed workflow run',
+              'Simulates a later attempt of the same workflow run',
               'A reaction, acknowledgement, status-only result',
               'provider-pool contract: ok',
               'two trusted exact-head `/qodo review` requests',
@@ -115,12 +117,12 @@ jobs:
               'successful exact-head commit status after the request',
               'maintainer-authored proxy does count',
               'headUpdateAnchor = parseTime(run.data.created_at)',
+              'actions.listWorkflowRunsForRepo',
               'run.pull_requests',
+              'Math.min(...anchors)',
           ]
           missing = [token for token in required if token not in corpus]
           leaked = [token for token in forbidden_verifier if token in verifier]
-          if 'statuses: read' in trusted_workflow:
-              leaked.append('trusted workflow statuses permission')
           if missing or leaked:
               raise SystemExit(f'provider-pool drift: missing={missing}, forbidden={leaked}')
           PY
