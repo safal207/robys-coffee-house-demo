@@ -1,0 +1,95 @@
+name: AI review provider pool contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ai-review-contract.yml
+      - .github/workflows/ai-review-provider-pool-contract.yml
+      - scripts/verify-ai-review-contract.cjs
+      - scripts/test-ai-review-provider-pool.cjs
+      - docs/ai-review-cooperation-policy.md
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Run provider-pool unit contract
+        run: |
+          node --check scripts/verify-ai-review-contract.cjs
+          node --check scripts/test-ai-review-provider-pool.cjs
+          node scripts/test-ai-review-provider-pool.cjs
+
+      - name: Parse workflow YAML
+        run: |
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-contract.yml'); YAML.parse_file('.github/workflows/ai-review-provider-pool-contract.yml')"
+
+      - name: Verify trusted checkout and least privilege
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          path = '.github/workflows/ai-review-contract.yml'
+          text = File.read(path)
+          workflow = YAML.load_file(path)
+          expected = {
+            'actions' => 'read', 'contents' => 'read', 'issues' => 'read',
+            'pull-requests' => 'read', 'statuses' => 'read',
+          }
+          raise "unexpected permissions: #{workflow['permissions'].inspect}" unless workflow['permissions'] == expected
+          required = [
+            'github.event.repository.default_branch',
+            'persist-credentials: false',
+            'Verify exact-head independent review',
+            'Wait for request-bound independent review evidence',
+          ]
+          missing = required.reject { |token| text.include?(token) }
+          forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write']
+          leaked = forbidden.select { |token| text.include?(token) }
+          raise "trusted checkout drift: missing=#{missing.inspect}, forbidden=#{leaked.inspect}" unless missing.empty? && leaked.empty?
+          RUBY
+
+      - name: Verify fail-closed provider-pool invariants
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          verifier = Path('scripts/verify-ai-review-contract.cjs').read_text(encoding='utf-8')
+          tests = Path('scripts/test-ai-review-provider-pool.cjs').read_text(encoding='utf-8')
+          policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
+          corpus = verifier + '\n' + tests + '\n' + policy
+          required = [
+              'QODO_COMMAND = "/qodo review"',
+              'CODERABBIT_COMMAND = "@coderabbitai review"',
+              'CODEX_COMMAND = "@codex review"',
+              'MIN_QODO_REQUEST_GAP_MS = 15 * 60 * 1000',
+              'SECOND_QODO_TIMEOUT_MS = 15 * 60 * 1000',
+              'review.user?.type === "Bot"',
+              'review.commit_id?.toLowerCase() === currentHead',
+              'review.state !== "PENDING"',
+              'review.state !== "DISMISSED"',
+              'primaryFailure: "QODO_TIMEOUT_2"',
+              'A reaction, acknowledgement, status-only result',
+              'provider-pool contract: ok',
+              'two trusted `/qodo review` requests',
+              'Codex or CodeRabbit',
+              'default branch',
+          ]
+          forbidden = [
+              'codeRabbitStatus',
+              'successful exact-head commit status after the request',
+              'maintainer-authored proxy does count',
+          ]
+          missing = [token for token in required if token not in corpus]
+          leaked = [token for token in forbidden if token in verifier]
+          if missing or leaked:
+              raise SystemExit(f'provider-pool drift: missing={missing}, forbidden={leaked}')
+          PY
