@@ -32,7 +32,7 @@ function workflowRun({
   head = HEAD,
   name = "AI review contract",
   event = "pull_request",
-  pullRequests = [],
+  runAttempt = 1,
 }) {
   return {
     id,
@@ -40,7 +40,8 @@ function workflowRun({
     event,
     head_sha: head,
     created_at: T(minutes),
-    pull_requests: pullRequests,
+    run_attempt: runAttempt,
+    pull_requests: [],
   };
 }
 
@@ -56,21 +57,7 @@ function select(comments, reviews, nowMinutes) {
 
 {
   const anchor = _test.stableHeadUpdateAnchor(
-    [
-      workflowRun({ id: 11, minutes: 1, pullRequests: [] }),
-      workflowRun({ id: 12, minutes: 31, pullRequests: [{ number: 210 }] }),
-      workflowRun({ id: 14, minutes: 0, head: OLD_HEAD }),
-      workflowRun({ id: 15, minutes: 0, name: "Other workflow" }),
-    ],
-    HEAD,
-    12,
-  );
-  assert.equal(anchor, ANCHOR + 60_000);
-}
-
-{
-  const anchor = _test.stableHeadUpdateAnchor(
-    [workflowRun({ id: 77, minutes: 4, pullRequests: [] })],
+    workflowRun({ id: 77, minutes: 4, runAttempt: 3 }),
     HEAD,
     77,
   );
@@ -79,11 +66,32 @@ function select(comments, reviews, nowMinutes) {
 
 {
   const anchor = _test.stableHeadUpdateAnchor(
-    [workflowRun({ id: 11, minutes: 1 })],
+    workflowRun({ id: 11, minutes: 1 }),
     HEAD,
     99,
   );
   assert.equal(anchor, 0);
+}
+
+{
+  const wrongHead = _test.stableHeadUpdateAnchor(
+    workflowRun({ id: 77, minutes: 4, head: OLD_HEAD }),
+    HEAD,
+    77,
+  );
+  const wrongName = _test.stableHeadUpdateAnchor(
+    workflowRun({ id: 77, minutes: 4, name: "Other workflow" }),
+    HEAD,
+    77,
+  );
+  const wrongEvent = _test.stableHeadUpdateAnchor(
+    workflowRun({ id: 77, minutes: 4, event: "push" }),
+    HEAD,
+    77,
+  );
+  assert.equal(wrongHead, 0);
+  assert.equal(wrongName, 0);
+  assert.equal(wrongEvent, 0);
 }
 
 {
@@ -137,7 +145,7 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
-  // Simulates a later rerun that retained the earliest exact-head workflow anchor.
+  // Simulates a later attempt of the same workflow run with the original created_at anchor.
   const result = select(
     [
       request("/qodo review", 1),
