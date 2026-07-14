@@ -60,6 +60,14 @@ jobs:
           forbidden = ['pull_request_target', 'contents: write', 'issues: write', 'pull-requests: write', 'statuses: read']
           leaked = forbidden.select { |token| text.include?(token) }
           raise "trusted checkout drift: missing=#{missing.inspect}, forbidden=#{leaked.inspect}" unless missing.empty? && leaked.empty?
+
+          provider = YAML.load_file('.github/workflows/ai-review-provider-pool-contract.yml')
+          concurrency = provider['concurrency']
+          raise 'missing provider-pool concurrency' unless concurrency
+          group = concurrency['group'].to_s
+          raise "unexpected concurrency group: #{group.inspect}" unless group.start_with?('ai-review-provider-pool-contract-') && group.include?('github.event.pull_request.number')
+          raise 'stale runs must be cancelled' unless concurrency['cancel-in-progress'] == true
+          raise 'provider-pool job must be named' unless provider.dig('jobs', 'verify', 'name') == 'Verify provider-pool contract'
           RUBY
 
       - name: Verify fail-closed provider-pool invariants
@@ -98,9 +106,6 @@ jobs:
               'two trusted `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
-              'ai-review-provider-pool-contract-${{ github.event.pull_request.number }}',
-              'cancel-in-progress: true',
-              'Verify provider-pool contract',
           ]
           forbidden_verifier = [
               'codeRabbitStatus',
