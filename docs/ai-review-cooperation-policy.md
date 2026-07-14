@@ -80,22 +80,18 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 - a head change resets the whole state machine;
 - a rerun on the same head reuses the earliest trusted workflow-run anchor instead of discarding request history.
 
-## Stable failure reasons
+## Provider-pool reason values
 
-| Code | Cause | Default action |
+`selectRequiredEvidence` returns exactly these stable `primaryFailure` values:
+
+| Value | Meaning | Default action |
 |---|---|---|
-| `NO_REQUEST` | No trusted exact-head request was posted | Post the canonical command |
-| `ACK_ONLY` | Bot acknowledged but produced no native review | Wait to timeout; retry only as policy permits |
-| `QODO_TIMEOUT_1_PENDING` | The first Qodo wait window is incomplete | Wait or post the second request after 15 minutes |
-| `QODO_TIMEOUT_2_PENDING` | The second Qodo wait window is incomplete | Wait until 15 minutes after the second request |
-| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native evidence | Use request-bound Codex or CodeRabbit fallback, then rerun the failed contract |
-| `NO_CURRENT_HEAD_EVIDENCE` | Response exists but is not bound to the current SHA | Request a fresh exact-head review |
-| `STALE_HEAD` | PR head changed during review or before publication | Discard the result and restart |
-| `IDENTITY_UNAVAILABLE` | Provider cannot publish through its configured Bot identity | Use another eligible provider; never substitute a maintainer identity |
-| `EVIDENCE_TRUNCATED` | Collection did not include every page of evidence | Fail closed and paginate fully |
-| `PROVIDER_UNAVAILABLE` | Provider timed out or returned a server-side failure | Apply bounded retry/fallback policy |
-| `PERMISSION_ERROR` | Workflow cannot read native evidence | Fix permissions; do not downgrade evidence |
-| `ACTIONABLE_FINDINGS` | P0-P3 findings are present | Resolve findings and rerun on the new head |
+| `none` | A request-bound native Qodo review satisfies the primary lane | Continue with downstream evidence checks |
+| `QODO_TIMEOUT_1_PENDING` | No valid timeout pair exists yet | Wait for the first window or post the second Qodo request after 15 minutes |
+| `QODO_TIMEOUT_2_PENDING` | Two valid Qodo requests exist, but 15 minutes have not elapsed after the second | Wait until fallback eligibility time |
+| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native Qodo evidence | Require request-bound native Codex or CodeRabbit fallback, then rerun the failed contract |
+
+Other failures such as GitHub API permission errors, incomplete evidence collection, stale heads, or actionable findings are enforced by their owning workflow/report/ledger layers. They are not `selectRequiredEvidence.primaryFailure` values and must not be confused with this provider-selection contract.
 
 ## Trusted-code boundary
 
