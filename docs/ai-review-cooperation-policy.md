@@ -33,6 +33,8 @@ Fallback becomes eligible only after another 15 minutes has elapsed after the se
 
 The first qualifying native exact-head Codex or CodeRabbit Bot review may satisfy the required lane after fallback eligibility is reached. Status-only evidence, reactions, acknowledgements, summaries, owner-authored connector output, and maintainer proxy reviews never satisfy the required lane.
 
+The AI review workflow intentionally evaluates one provider window per run. After the second Qodo timeout window has elapsed, rerun the failed `AI review contract`. The verifier derives a stable GitHub-server anchor from the earliest `AI review contract` workflow run associated with the same pull request and exact head, so a later rerun retains the earlier trusted request history. It does not use author-controlled commit timestamps and does not reset freshness to the rerun time.
+
 A new commit invalidates every request, timeout window, review, report, disposition, proof seal, and merge-ready decision associated with the previous head.
 
 ## Evidence ladder
@@ -62,7 +64,7 @@ For all required providers:
 - the review must be submitted and not `PENDING` or `DISMISSED`;
 - `commit_id` must equal the full current head;
 - the review must be submitted after that provider’s trusted request;
-- the trusted request must be created after the immutable workflow-run anchor.
+- the trusted request must be created after the stable exact-head workflow anchor.
 
 ## Fallback invariants
 
@@ -75,7 +77,8 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 - a late Qodo review takes primary precedence;
 - findings from every responding reviewer remain binding;
 - a later bot review invalidates any older cooperation report and D6 seal;
-- a head change resets the whole state machine.
+- a head change resets the whole state machine;
+- a rerun on the same head reuses the earliest trusted workflow-run anchor instead of discarding request history.
 
 ## Stable failure reasons
 
@@ -85,7 +88,7 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 | `ACK_ONLY` | Bot acknowledged but produced no native review | Wait to timeout; retry only as policy permits |
 | `QODO_TIMEOUT_1_PENDING` | The first Qodo wait window is incomplete | Wait or post the second request after 15 minutes |
 | `QODO_TIMEOUT_2_PENDING` | The second Qodo wait window is incomplete | Wait until 15 minutes after the second request |
-| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native evidence | Use request-bound Codex or CodeRabbit fallback |
+| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native evidence | Use request-bound Codex or CodeRabbit fallback, then rerun the failed contract |
 | `NO_CURRENT_HEAD_EVIDENCE` | Response exists but is not bound to the current SHA | Request a fresh exact-head review |
 | `STALE_HEAD` | PR head changed during review or before publication | Discard the result and restart |
 | `IDENTITY_UNAVAILABLE` | Provider cannot publish through its configured Bot identity | Use another eligible provider; never substitute a maintainer identity |
