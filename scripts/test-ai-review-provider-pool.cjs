@@ -21,6 +21,25 @@ function review(login, minutes, state = "COMMENTED", head = HEAD) {
   };
 }
 
+function workflowRun({
+  id,
+  minutes,
+  head = HEAD,
+  prNumber = 210,
+  name = "AI review contract",
+  event = "pull_request",
+  includePr = true,
+}) {
+  return {
+    id,
+    name,
+    event,
+    head_sha: head,
+    created_at: T(minutes),
+    pull_requests: includePr ? [{ number: prNumber }] : [],
+  };
+}
+
 function select(comments, reviews, nowMinutes) {
   return _test.selectRequiredEvidence({
     comments,
@@ -29,6 +48,32 @@ function select(comments, reviews, nowMinutes) {
     headUpdateAnchor: ANCHOR,
     now: ANCHOR + nowMinutes * 60_000,
   });
+}
+
+{
+  const anchor = _test.stableHeadUpdateAnchor(
+    [
+      workflowRun({ id: 11, minutes: 1 }),
+      workflowRun({ id: 12, minutes: 31 }),
+      workflowRun({ id: 13, minutes: 0, prNumber: 999 }),
+      workflowRun({ id: 14, minutes: 0, head: "b".repeat(40) }),
+      workflowRun({ id: 15, minutes: 0, name: "Other workflow" }),
+    ],
+    HEAD,
+    210,
+    12,
+  );
+  assert.equal(anchor, ANCHOR + 60_000);
+}
+
+{
+  const anchor = _test.stableHeadUpdateAnchor(
+    [workflowRun({ id: 77, minutes: 4, includePr: false })],
+    HEAD,
+    210,
+    77,
+  );
+  assert.equal(anchor, ANCHOR + 4 * 60_000);
 }
 
 {
@@ -57,6 +102,7 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
+  // Simulates a later rerun that retained the earliest exact-head workflow anchor.
   const result = select(
     [
       comment("/qodo review", 1),
