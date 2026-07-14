@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  # Required for the immutable workflow-run freshness anchor.
+  # Required for the stable GitHub-server workflow-run freshness anchor.
   actions: read
   # The verifier is always loaded from the protected default branch, never from PR code.
   contents: read
@@ -20,6 +20,8 @@ jobs:
   verify:
     name: Verify exact-head independent review
     runs-on: ubuntu-latest
+    # One run covers one provider window. A later rerun reuses the earliest exact-head
+    # AI review workflow anchor, so earlier trusted requests are not discarded.
     timeout-minutes: 17
     steps:
       - name: Check out trusted default-branch verifier
