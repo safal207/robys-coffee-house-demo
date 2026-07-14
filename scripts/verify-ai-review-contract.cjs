@@ -7,6 +7,7 @@ const CODEX_LOGINS = new Set([
   "chatgpt-codex-connector[bot]",
   "chatgpt-codex-connector",
 ]);
+const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
 const QODO_COMMAND = "/qodo review";
 const CODERABBIT_COMMAND = "@coderabbitai review";
 const CODEX_COMMAND = "@codex review";
@@ -74,6 +75,23 @@ function exactHeadReviews(reviews, logins, currentHead, notBefore) {
         submittedTimeOf(review) >= notBefore,
     )
     .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
+}
+
+function stableHeadUpdateAnchor(runs, currentHead, prNumber, currentRunId) {
+  const anchors = runs
+    .filter((run) => {
+      const exactHead = run.head_sha?.toLowerCase() === currentHead;
+      const exactWorkflow = run.name === AI_REVIEW_WORKFLOW_NAME;
+      const pullRequestEvent = run.event === "pull_request";
+      const associatedPr =
+        run.id === currentRunId ||
+        (run.pull_requests ?? []).some((item) => item.number === prNumber);
+      return exactHead && exactWorkflow && pullRequestEvent && associatedPr;
+    })
+    .map((run) => parseTime(run.created_at))
+    .filter((value) => value > 0);
+
+  return anchors.length > 0 ? Math.min(...anchors) : 0;
 }
 
 function qodoTimeoutPair(requests) {
@@ -198,6 +216,42 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   };
 }
 
+async function resolveStableHeadUpdateAnchor({
+  github,
+  owner,
+  repo,
+  currentHead,
+  prNumber,
+  currentRunId,
+}) {
+  const [workflowRuns, currentRunResponse] = await Promise.all([
+    github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+      owner,
+      repo,
+      event: "pull_request",
+      head_sha: currentHead,
+      per_page: 100,
+    }),
+    github.rest.actions.getWorkflowRun({
+      owner,
+      repo,
+      run_id: currentRunId,
+    }),
+  ]);
+
+  const runs = [...workflowRuns, currentRunResponse.data];
+  const anchor = stableHeadUpdateAnchor(
+    runs,
+    currentHead,
+    prNumber,
+    currentRunId,
+  );
+  if (anchor <= 0) {
+    throw new Error("no immutable AI review workflow anchor exists for the current PR head");
+  }
+  return anchor;
+}
+
 async function verifyAiReviewContract({ github, context, core }) {
   const { owner, repo } = context.repo;
   const pr = context.payload.pull_request;
@@ -215,15 +269,14 @@ async function verifyAiReviewContract({ github, context, core }) {
 
     try {
       if (headUpdateAnchor <= 0) {
-        const run = await github.rest.actions.getWorkflowRun({
+        headUpdateAnchor = await resolveStableHeadUpdateAnchor({
+          github,
           owner,
           repo,
-          run_id: context.runId,
+          currentHead,
+          prNumber: pr.number,
+          currentRunId: context.runId,
         });
-        headUpdateAnchor = parseTime(run.data.created_at);
-        if (headUpdateAnchor <= 0) {
-          throw new Error("workflow run has no immutable creation timestamp");
-        }
       }
 
       const [comments, reviews] = await Promise.all([
@@ -281,9 +334,9 @@ async function verifyAiReviewContract({ github, context, core }) {
           ],
         ])
         .addRaw(
-          `\nFreshness anchor: workflow run ${context.runId}; head ${pr.head.sha}. ` +
+          `\nStable freshness anchor: earliest ${AI_REVIEW_WORKFLOW_NAME} run for PR #${pr.number} and head ${pr.head.sha}. ` +
             "Qodo is primary. Fallback requires two trusted /qodo review requests at least 15 minutes apart, another 15 minutes after the second request, and a request-bound native exact-head Codex or CodeRabbit Bot review. " +
-            "Pending, dismissed, stale-head, non-bot, pre-anchor and pre-request evidence does not count.\n",
+            "A failed run may be rerun after the timeout windows without losing request history. Pending, dismissed, stale-head, non-bot, pre-anchor and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
@@ -305,6 +358,7 @@ async function verifyAiReviewContract({ github, context, core }) {
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Qodo is primary. " +
       "Fallback opens only after two trusted /qodo review requests at least 15 minutes apart and 15 additional minutes after the second request; then a trusted @codex review or @coderabbitai review request must be followed by a native Bot review on the same exact head. " +
+      "After the timeout windows, rerun the failed AI review contract; its stable server-side anchor preserves the earlier request history. " +
       "A reaction, acknowledgement, status-only result, maintainer-authored proxy, stale review, pending review, or dismissed review does not count." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
@@ -312,6 +366,7 @@ async function verifyAiReviewContract({ github, context, core }) {
 
 module.exports = verifyAiReviewContract;
 module.exports._test = {
+  AI_REVIEW_WORKFLOW_NAME,
   MIN_QODO_REQUEST_GAP_MS,
   SECOND_QODO_TIMEOUT_MS,
   commandLinesOf,
@@ -319,4 +374,5 @@ module.exports._test = {
   freshTrustedRequests,
   qodoTimeoutPair,
   selectRequiredEvidence,
+  stableHeadUpdateAnchor,
 };
