@@ -2,14 +2,12 @@
 
 const TRUSTED_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
 const QODO_LOGINS = new Set(["qodo-code-review", "qodo-code-review[bot]"]);
-const CODERABBIT_LOGINS = new Set(["coderabbitai[bot]", "coderabbitai"]);
 const CODEX_LOGINS = new Set([
   "chatgpt-codex-connector[bot]",
   "chatgpt-codex-connector",
 ]);
 const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
 const QODO_COMMAND = "/qodo review";
-const CODERABBIT_COMMAND = "@coderabbitai review";
 const CODEX_COMMAND = "@codex review";
 const MIN_QODO_REQUEST_GAP_MS = 15 * 60 * 1000;
 const SECOND_QODO_TIMEOUT_MS = 15 * 60 * 1000;
@@ -28,11 +26,11 @@ const NEGATED_LIMIT_SIGNAL_PATTERNS = [
   /\b(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)\b[^\n.!?]{0,80}\b(?:not|never|no longer)\b/i,
 ];
 
-const PROVIDERS = [
+const ACTIVE_PROVIDERS = [
   { name: "Qodo", command: QODO_COMMAND, logins: QODO_LOGINS },
   { name: "Codex", command: CODEX_COMMAND, logins: CODEX_LOGINS },
-  { name: "CodeRabbit", command: CODERABBIT_COMMAND, logins: CODERABBIT_LOGINS },
 ];
+const DORMANT_PROVIDER_NAMES = new Set(["CodeRabbit"]);
 
 function parseTime(value) {
   if (typeof value !== "string" || value.trim() === "") return 0;
@@ -188,7 +186,7 @@ function firstRequestAt(requests) {
 }
 
 function collectProviderState({ comments, reviews, currentHead, headUpdateAnchor }) {
-  return PROVIDERS.map((provider) => {
+  return ACTIVE_PROVIDERS.map((provider) => {
     const requests = freshTrustedRequests(
       comments,
       provider.command,
@@ -431,7 +429,7 @@ async function verifyAiReviewContract({ github, context, core }) {
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before either provider-limit or timeout fallback can open. Qodo remains primary, but an authenticated provider Bot rate, usage, quota, or review-limit signal then opens automatic failover to another available request-bound native exact-head reviewer. " +
+            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo and Codex are the active reviewer pool and must both be requested after each head update before either provider-limit or timeout fallback can open. Qodo remains primary; an authenticated active-provider Bot rate, usage, quota, or review-limit signal opens automatic failover to the other available request-bound native exact-head reviewer. CodeRabbit is dormant and its requests, comments, limits, statuses and reviews do not affect this contract. " +
             "Quoted or fenced limit text, negated limit statements and a signal from the selected reviewer do not count. A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
@@ -452,16 +450,18 @@ async function verifyAiReviewContract({ github, context, core }) {
   }
 
   core.setFailed(
-    "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo, Codex and CodeRabbit as warm standbys after every head update. " +
-      "Qodo remains primary. Both provider-limit and timeout fallback open only after all three current-head requests exist. Provider-limit fallback additionally requires an authenticated provider Bot to report a positive unquoted rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
-      "An unavailable provider cannot satisfy its own failover. A limit notice, negated or quoted limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
+    "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo and Codex after every head update. " +
+      "Qodo remains primary. Both provider-limit and timeout fallback open only after both active-provider requests exist. Provider-limit fallback additionally requires an authenticated active-provider Bot to report a positive unquoted rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
+      "CodeRabbit is dormant and cannot open, close or satisfy this gate. An unavailable provider cannot satisfy its own failover. A limit notice, negated or quoted limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
 
 module.exports = verifyAiReviewContract;
 module.exports._test = {
+  ACTIVE_PROVIDER_NAMES: ACTIVE_PROVIDERS.map((provider) => provider.name),
   AI_REVIEW_WORKFLOW_NAME,
+  DORMANT_PROVIDER_NAMES,
   LIMIT_SIGNAL_PATTERNS,
   NEGATED_LIMIT_SIGNAL_PATTERNS,
   MIN_QODO_REQUEST_GAP_MS,
