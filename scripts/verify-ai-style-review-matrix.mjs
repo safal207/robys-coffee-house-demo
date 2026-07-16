@@ -86,6 +86,10 @@ function reviewerFailoverIsCurrentHeadBound() {
   });
 
   const valid = select([...baseComments, signal()], [review()]);
+  const missingPrimary = select(
+    [request("@codex review", 2), request("@coderabbitai review", 2), signal()],
+    [review()]
+  );
   const stale = select([...baseComments, signal()], [review(staleHead)]);
   const spoofed = select([...baseComments, signal("User")], [review()]);
   const noticeOnly = select([...baseComments, signal()], []);
@@ -94,6 +98,11 @@ function reviewerFailoverIsCurrentHeadBound() {
     valid.mode === "automatic-failover" &&
     valid.primaryFailure === "PROVIDER_LIMIT" &&
     valid.unavailableProviders?.includes("CodeRabbit") &&
+    valid.warmStandbyRoundReady === true &&
+    missingPrimary.provider === null &&
+    missingPrimary.mode === "pending" &&
+    missingPrimary.fallbackEligible === false &&
+    missingPrimary.warmStandbyRoundReady === false &&
     stale.provider === null &&
     stale.mode === "fallback-pending" &&
     spoofed.provider === null &&
@@ -178,7 +187,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is exact-head bound and supports authenticated provider-limit failover", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
+  ["AI evidence is exact-head bound and requires complete warm-standby dispatch before provider-limit failover", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
 ]);
 
 const report = {
