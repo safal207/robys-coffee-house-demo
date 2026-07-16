@@ -246,7 +246,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     all_items = reviews + (threads if threads_available else review_comments)
 
     qodo_req = fresh_requests(comments, '/qodo review', head_time, head_sha)
-    qodo_items = bot_items(comments + all_items, BOT_LOGINS['Qodo'], head_time)
+    qodo_items = bot_items(all_items, BOT_LOGINS['Qodo'], head_time)
     qodo = result_from_exact_evidence(
         name='Qodo', requested=bool(qodo_req),
         exact_items=request_bound_exact_items(qodo_items, qodo_req, head_sha),
@@ -254,7 +254,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         no_evidence_action='Wait for a request-bound native Qodo review or use the documented Codex fallback.')
 
     codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
-    codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
+    codex_items = bot_items(all_items, BOT_LOGINS['Codex'], head_time)
     codex = result_from_exact_evidence(
         name='Codex', requested=bool(codex_req),
         exact_items=request_bound_exact_items(codex_items, codex_req, head_sha),
