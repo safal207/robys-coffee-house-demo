@@ -8,12 +8,21 @@ const OLD_HEAD = "b".repeat(40);
 const ANCHOR = Date.parse("2026-07-14T00:00:00Z");
 const T = (minutes) => new Date(ANCHOR + minutes * 60_000).toISOString();
 
-function comment(body, minutes, association = "OWNER") {
-  return { body, created_at: T(minutes), author_association: association };
+function comment(body, minutes, association = "OWNER", login, type) {
+  return {
+    body,
+    created_at: T(minutes),
+    author_association: association,
+    user: login ? { login, type: type ?? "Bot" } : undefined,
+  };
 }
 
 function request(command, minutes, association = "OWNER", head = HEAD) {
   return comment(`${command}\n\nExact head: ${head}`, minutes, association);
+}
+
+function limitSignal(login, minutes, body = "Review limit reached. Next review available in: 28 minutes.", type = "Bot") {
+  return comment(body, minutes, "NONE", login, type);
 }
 
 function review(login, minutes, state = "COMMENTED", head = HEAD) {
@@ -135,7 +144,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
+      request("@codex review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     30,
@@ -150,7 +159,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
+      request("@codex review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -164,8 +173,105 @@ function select(comments, reviews, nowMinutes) {
   const result = select(
     [
       request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, "Codex");
+  assert.equal(result.mode, "automatic-failover");
+  assert.equal(result.primaryFailure, "PROVIDER_LIMIT");
+  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
+    ],
+    [review("coderabbitai[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, "CodeRabbit");
+  assert.equal(result.mode, "automatic-failover");
+  assert.deepEqual(result.unavailableProviders, ["Qodo"]);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3, "Review limit reached."),
+    ],
+    [],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "fallback-pending");
+  assert.equal(result.primaryFailure, "PROVIDER_LIMIT");
+}
+
+{
+  const result = select(
+    [
+      limitSignal("coderabbitai[bot]", 1),
+      request("/qodo review", 2),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+    ],
+    [review("chatgpt-codex-connector[bot]", 3)],
+    4,
+  );
+  assert.equal(result.provider, null);
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3, "Review limit reached.", "User"),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3),
+    ],
+    [
+      review("chatgpt-codex-connector[bot]", 4),
+      review("qodo-code-review", 5),
+    ],
+    6,
+  );
+  assert.equal(result.provider, "Qodo");
+  assert.equal(result.mode, "primary");
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@coderabbitai review", 17),
+      request("@coderabbitai review", 2),
     ],
     [review("coderabbitai[bot]", 20)],
     31,
@@ -179,24 +285,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
-    ],
-    [
-      review("chatgpt-codex-connector[bot]", 18),
-      review("qodo-code-review", 25),
-    ],
-    31,
-  );
-  assert.equal(result.provider, "Qodo");
-  assert.equal(result.mode, "primary");
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("/qodo review", 16),
-      request("@codex review", 17, "NONE"),
+      request("@codex review", 2, "NONE"),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -210,7 +299,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
+      request("@codex review", 2),
     ],
     [review("chatgpt-codex-connector-evil", 18)],
     31,
@@ -223,7 +312,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
+      request("@codex review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18, "DISMISSED")],
     31,
@@ -236,7 +325,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("/qodo review", 16),
-      request("@codex review", 17),
+      request("@codex review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", OLD_HEAD)],
     31,
