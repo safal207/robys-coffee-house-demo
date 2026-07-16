@@ -62,6 +62,16 @@ assert(automaticFailover.provider === "Codex", "authenticated provider limit did
 assert(automaticFailover.mode === "automatic-failover", `expected automatic-failover mode, found ${automaticFailover.mode}`);
 assert(automaticFailover.primaryFailure === "PROVIDER_LIMIT", `expected PROVIDER_LIMIT, found ${automaticFailover.primaryFailure}`);
 assert(automaticFailover.unavailableProviders?.includes("CodeRabbit"), "limited provider was not recorded as unavailable");
+assert(automaticFailover.warmStandbyRoundReady === true, "complete three-provider dispatch was not recorded");
+
+const missingPrimaryDispatch = select(
+  [request("@codex review", 2), request("@coderabbitai review", 2), providerSignal()],
+  [codexReview()]
+);
+assert(missingPrimaryDispatch.provider === null, "provider limit bypassed the missing Qodo dispatch");
+assert(missingPrimaryDispatch.mode === "pending", "incomplete dispatch opened failover mode");
+assert(missingPrimaryDispatch.fallbackEligible === false, "incomplete dispatch became fallback eligible");
+assert(missingPrimaryDispatch.warmStandbyRoundReady === false, "incomplete dispatch was marked ready");
 
 const staleReview = select([...baseComments, providerSignal()], [codexReview(STALE_HEAD)]);
 assert(staleReview.provider === null, "stale-head review satisfied the current-head lane");
@@ -75,4 +85,4 @@ const noticeOnly = select([...baseComments, providerSignal()], []);
 assert(noticeOnly.provider === null, "provider limit notice counted as review evidence");
 assert(noticeOnly.mode === "fallback-pending", "limit without alternate review did not remain fail-closed");
 
-console.log("✅ AI-FRESHNESS-001 valid: exact-head evidence is enforced semantically; authenticated provider limits open warm-standby failover, spoofed or stale evidence cannot satisfy the lane, and notices alone remain fail-closed.");
+console.log("✅ AI-FRESHNESS-001 valid: exact-head evidence is enforced semantically; all three reviewers must be dispatched before authenticated provider-limit failover, while incomplete dispatch, spoofed or stale evidence, and notices without reviews remain fail-closed.");
