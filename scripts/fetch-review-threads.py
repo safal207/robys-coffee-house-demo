@@ -44,6 +44,7 @@ query($id:ID!,$after:String){
 '''
 
 RUN_URL = re.compile(r'/actions/runs/([1-9][0-9]*)(?:/|$)')
+FULL_SHA = re.compile(r'[0-9a-f]{40}')
 
 
 def required_env(name: str) -> str:
@@ -131,8 +132,23 @@ def run_id_of(check: dict[str, Any]) -> int | None:
     return int(match.group(1)) if match else None
 
 
+def workflow_record(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        'id': item.get('id'),
+        'name': item.get('name'),
+        'display_title': item.get('display_title'),
+        'status': item.get('status'),
+        'conclusion': item.get('conclusion'),
+        'details_url': item.get('html_url'),
+        'head_sha': item.get('head_sha'),
+        'event': item.get('event'),
+        'path': item.get('path'),
+        'app': {'slug': 'github-actions'},
+    }
+
+
 def normalize_workflow_checks(repository: str, expected_head: str) -> None:
-    """Preserve raw check runs and derive one exact-head entry per Actions workflow."""
+    """Preserve raw check runs and derive exact-head workflow evidence."""
     checks_value = os.environ.get('CHECKS_FILE', '').strip()
     if not checks_value:
         return
@@ -163,20 +179,20 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
                 f'Workflow metadata identity mismatch: expected run {run_id}, '
                 f'got {item.get("id")!r}'
             )
-        workflows.append(
-            {
-                'id': item.get('id'),
-                'name': item.get('name'),
-                'status': item.get('status'),
-                'conclusion': item.get('conclusion'),
-                'details_url': item.get('html_url'),
-                'head_sha': item.get('head_sha'),
-                'event': item.get('event'),
-                'app': {'slug': 'github-actions'},
-            }
-        )
+        workflows.append(workflow_record(item))
 
-    mismatched = [item for item in workflows if item.get('head_sha') != expected_head]
+    trigger_event = os.environ.get('TRIGGER_EVENT', '').strip()
+    trigger_run_id: int | None = None
+    if trigger_event == 'workflow_run':
+        run_id_value = required_env('WORKFLOW_RUN_ID')
+        if not re.fullmatch(r'[1-9][0-9]*', run_id_value):
+            raise RuntimeError(f'Invalid triggering workflow run id: {run_id_value!r}')
+        trigger_run_id = int(run_id_value)
+
+    ordinary_workflows = [
+        item for item in workflows if item.get('id') != trigger_run_id
+    ]
+    mismatched = [item for item in ordinary_workflows if item.get('head_sha') != expected_head]
     if mismatched:
         summary = ', '.join(
             f'id={item.get("id")} name={item.get("name")} head={item.get("head_sha")}'
@@ -184,17 +200,50 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
         )
         raise RuntimeError(f'Workflow metadata contains a different head: {summary}')
 
+    workflows = ordinary_workflows
+    if trigger_event == 'workflow_run':
+        trigger_head = required_env('TRIGGER_HEAD_SHA').lower()
+        trusted_base = required_env('WORKFLOW_BASE_SHA').lower()
+        default_branch = required_env('DEFAULT_BRANCH')
+        pr_number = int(required_env('PR_NUMBER'))
+        if trigger_head != expected_head:
+            raise RuntimeError(
+                f'Workflow trigger target head does not match PR head: '
+                f'{trigger_head} != {expected_head}'
+            )
+        if not FULL_SHA.fullmatch(trusted_base):
+            raise RuntimeError(f'Invalid trusted base SHA: {trusted_base!r}')
+
+        trigger = rest(f'repos/{repository}/actions/runs/{trigger_run_id}')
+        expected_title = f'AI review PR #{pr_number} head {expected_head}'
+        expected_path = f'.github/workflows/ai-review-contract.yml@{default_branch}'
+        required = {
+            'id': trigger_run_id,
+            'name': 'AI review contract',
+            'display_title': expected_title,
+            'status': 'completed',
+            'conclusion': 'success',
+            'head_sha': trusted_base,
+            'event': 'pull_request_target',
+            'path': expected_path,
+        }
+        drift = {
+            key: (trigger.get(key), expected)
+            for key, expected in required.items()
+            if trigger.get(key) != expected
+        }
+        if drift:
+            raise RuntimeError(f'Trusted target workflow metadata drift: {drift!r}')
+
+        trusted = workflow_record(trigger)
+        trusted['trusted_base_sha'] = trusted_base
+        trusted['head_sha'] = expected_head
+        workflows.append(trusted)
+
     external_checks = [check for check in raw_checks if run_id_of(check) is None]
     derived = {'check_runs': workflows + external_checks}
 
-    trigger_event = os.environ.get('TRIGGER_EVENT', '').strip()
     if trigger_event == 'workflow_run':
-        trigger_head = os.environ.get('TRIGGER_HEAD_SHA', '').strip().lower()
-        if trigger_head != expected_head:
-            raise RuntimeError(
-                f'Workflow trigger head does not match PR head: {trigger_head or "missing"} '
-                f'!= {expected_head}'
-            )
         trusted_matches = [
             item
             for item in workflows
@@ -202,11 +251,14 @@ def normalize_workflow_checks(repository: str, expected_head: str) -> None:
             and item.get('status') == 'completed'
             and item.get('conclusion') == 'success'
             and item.get('head_sha') == expected_head
+            and item.get('trusted_base_sha') == required_env('WORKFLOW_BASE_SHA').lower()
+            and item.get('event') == 'pull_request_target'
             and item.get('app', {}).get('slug') == 'github-actions'
         ]
-        if not trusted_matches:
+        if len(trusted_matches) != 1:
             raise RuntimeError(
-                'Workflow-run evidence lacks a successful exact-head AI review contract'
+                'Workflow-run evidence lacks one successful trusted-base AI review contract '
+                'bound to the exact PR head'
             )
 
     checks_path.write_text(
@@ -234,7 +286,7 @@ def main() -> int:
         pr_file = Path(required_env('PR_JSON_FILE'))
         pr_payload = json.loads(pr_file.read_text(encoding='utf-8'))
         expected_head = str(pr_payload.get('head', {}).get('sha') or '').strip().lower()
-        if not re.fullmatch(r'[0-9a-f]{40}', expected_head):
+        if not FULL_SHA.fullmatch(expected_head):
             raise RuntimeError(f'PR evidence contains an invalid head SHA: {expected_head!r}')
         normalize_workflow_checks(repository, expected_head)
     return 0
