@@ -4,16 +4,16 @@ enable_free_tier: true
 
 reviews:
   profile: "assertive"
-  request_changes_workflow: true
+  request_changes_workflow: false
   high_level_summary: true
   high_level_summary_instructions: |
     Суммируй цель изменения, основные риски, затронутые пользовательские сценарии
     и проверяемые доказательства. Отдельно отмечай generated-файлы и integrity manifest.
   high_level_summary_in_walkthrough: true
-  review_status: true
+  review_status: false
   review_details: true
-  commit_status: true
-  fail_commit_status: true
+  commit_status: false
+  fail_commit_status: false
   collapse_walkthrough: true
   changed_files_summary: true
   sequence_diagrams: false
@@ -68,9 +68,9 @@ reviews:
         Проверяй техническую достоверность команд и контрактов. Не оставляй
         косметические замечания, если они не влияют на понимание или выполнение.
   auto_review:
-    enabled: true
-    auto_incremental_review: true
+    enabled: false
+    auto_incremental_review: false
     drafts: false
 
 chat:
-  auto_reply: true
+  auto_reply: false
