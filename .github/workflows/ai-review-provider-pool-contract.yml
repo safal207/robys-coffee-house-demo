@@ -44,7 +44,10 @@ jobs:
           require 'yaml'
 
           trusted = YAML.load_file('.github/workflows/ai-review-contract.yml')
-          allowed_workflow_keys = ['name', 'on', true, 'permissions', 'jobs']
+          trusted_trigger_keys = trusted.keys.select { |key| key == 'on' || key == true }
+          raise "trusted workflow must contain exactly one on key: #{trusted_trigger_keys.inspect}" unless trusted_trigger_keys.length == 1
+          trusted_trigger_key = trusted_trigger_keys.first
+          allowed_workflow_keys = ['name', 'permissions', 'jobs', trusted_trigger_key]
           unexpected_workflow_keys = trusted.keys - allowed_workflow_keys
           raise "unexpected trusted workflow keys: #{unexpected_workflow_keys.inspect}" unless unexpected_workflow_keys.empty?
 
@@ -55,7 +58,7 @@ jobs:
           raise "unexpected trusted workflow name: #{trusted['name'].inspect}" unless trusted['name'] == 'AI review contract'
           raise "unexpected permissions: #{trusted['permissions'].inspect}" unless trusted['permissions'] == expected_permissions
 
-          trusted_triggers = trusted['on'] || trusted[true]
+          trusted_triggers = trusted[trusted_trigger_key]
           raise "unexpected trusted triggers: #{trusted_triggers.inspect}" unless trusted_triggers.is_a?(Hash) && trusted_triggers.keys == ['pull_request']
           pull_request_trigger = trusted_triggers['pull_request']
           expected_types = ['opened', 'synchronize', 'reopened']
@@ -95,8 +98,14 @@ jobs:
           raise "trusted verifier steps drifted: #{actual_steps.inspect}" unless actual_steps == expected_steps
 
           provider = YAML.load_file('.github/workflows/ai-review-provider-pool-contract.yml')
+          provider_trigger_keys = provider.keys.select { |key| key == 'on' || key == true }
+          raise "provider workflow must contain exactly one on key: #{provider_trigger_keys.inspect}" unless provider_trigger_keys.length == 1
+          provider_trigger_key = provider_trigger_keys.first
+          allowed_provider_keys = ['name', 'concurrency', 'permissions', 'jobs', provider_trigger_key]
+          unexpected_provider_keys = provider.keys - allowed_provider_keys
+          raise "unexpected provider workflow keys: #{unexpected_provider_keys.inspect}" unless unexpected_provider_keys.empty?
           raise "unexpected provider workflow name: #{provider['name'].inspect}" unless provider['name'] == 'AI review provider pool contract'
-          provider_triggers = provider['on'] || provider[true]
+          provider_triggers = provider[provider_trigger_key]
           raise "unexpected provider triggers: #{provider_triggers.inspect}" unless provider_triggers.is_a?(Hash) && provider_triggers.keys == ['pull_request']
           concurrency = provider['concurrency']
           raise 'missing provider-pool concurrency' unless concurrency
