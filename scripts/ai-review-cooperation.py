@@ -19,10 +19,12 @@ DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
+    'Qodo': {'qodo-code-review', 'qodo-code-review[bot]'},
     'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
     'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
-    'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
 }
+ACTIVE_REVIEWERS = {'Qodo', 'Codex'}
+ADVISORY_REVIEWERS = {'Jules', 'DeepSeek'}
 REQUIRED_CHECKS = {
     'Human approval contract', 'Security contract', 'Verify generated runtime',
     'Reviewdog static review', 'CodeQL security analysis',
@@ -113,6 +115,10 @@ def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     return reviewed_commit_of(item) == head_sha.lower()
 
 
+def command_lines(item: dict[str, Any]) -> set[str]:
+    return {line.strip().lower() for line in body_of(item).splitlines() if line.strip()}
+
+
 def severities_of(body: str) -> set[str]:
     result = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
     for segment in ITALIC_SEGMENT_RE.findall(body):
@@ -177,9 +183,21 @@ def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, An
     return True, complete, comments
 
 
-def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: datetime) -> list[dict[str, Any]]:
-    return [item for item in comments if body_of(item).strip().lower() == command.lower()
-            and association_of(item) in TRUSTED_ASSOCIATIONS and is_after_head(item, head_time)]
+def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: datetime,
+                   head_sha: str | None = None) -> list[dict[str, Any]]:
+    expected_command = command.lower()
+    expected_head = f'exact head: {head_sha.lower()}' if head_sha else None
+    result: list[dict[str, Any]] = []
+    for item in comments:
+        lines = command_lines(item)
+        if expected_command not in lines:
+            continue
+        if expected_head and expected_head not in lines:
+            continue
+        if association_of(item) not in TRUSTED_ASSOCIATIONS or not is_after_head(item, head_time):
+            continue
+        result.append(item)
+    return result
 
 
 def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str], head_time: datetime) -> list[dict[str, Any]]:
@@ -209,10 +227,19 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   threads: list[dict[str, Any]], threads_available: bool,
                   statuses: list[dict[str, Any]], changed_paths: set[str],
                   head_time: datetime) -> list[BotResult]:
+    del statuses
     head_sha = str(pr['head']['sha']).lower()
     all_items = reviews + (threads if threads_available else review_comments)
 
-    codex_req = fresh_requests(comments, '@codex review', head_time)
+    qodo_req = fresh_requests(comments, '/qodo review', head_time, head_sha)
+    qodo_items = bot_items(comments + all_items, BOT_LOGINS['Qodo'], head_time)
+    qodo = result_from_exact_evidence(
+        name='Qodo', requested=bool(qodo_req),
+        exact_items=[item for item in qodo_items if current_head_evidence(item, head_sha)],
+        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+        no_evidence_action='Wait for native Qodo review or use the documented Codex fallback.')
+
+    codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
     codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
     codex = result_from_exact_evidence(
         name='Codex', requested=bool(codex_req),
@@ -228,35 +255,9 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
         no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
 
-    rabbit_req = fresh_requests(comments, '@coderabbitai review', head_time)
-    rabbit_request_at = max((time_of(item) for item in rabbit_req), default=head_time)
-    rabbit_items = bot_items(comments + all_items, BOT_LOGINS['CodeRabbit'], head_time)
-    rabbit_reviews = [item for item in rabbit_items if current_head_evidence(item, head_sha)
-                      and time_of(item) >= rabbit_request_at
-                      and 'review in progress' not in body_of(item).lower()
-                      and 'currently processing' not in body_of(item).lower()
-                      and 'review failed' not in body_of(item).lower()]
-    rabbit_statuses = [item for item in statuses
-                       if str(item.get('context') or '') == 'CodeRabbit'
-                       and str(item.get('state') or '') == 'success'
-                       and login_of({'user': item.get('creator') or {}}) in BOT_LOGINS['CodeRabbit']
-                       and time_of(item) >= rabbit_request_at]
-    rabbit_exact = rabbit_reviews + rabbit_statuses if rabbit_req else []
-    rabbit = result_from_exact_evidence(
-        name='CodeRabbit', requested=bool(rabbit_req), exact_items=rabbit_exact,
-        no_evidence_reason='NO_ACK', no_evidence_action='Retry once after 15 minutes.')
-    latest_rabbit = max(rabbit_items, key=time_of, default=None)
-    if not rabbit_exact and latest_rabbit:
-        text = body_of(latest_rabbit).lower()
-        if 'failed to replace' in text or 'insufficient permissions' in text:
-            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'permission failure', 'PERMISSION_ERROR'
-            rabbit.action = 'Fix comment ownership/permissions, then retry once.'
-        elif 'review failed' in text or 'failure by coderabbit' in text:
-            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'provider failure', 'PROVIDER_UNAVAILABLE'
-            rabbit.action = 'Retry once; keep the outage advisory if CI remains healthy.'
-        elif 'review in progress' in text or 'currently processing' in text:
-            rabbit.level, rabbit.state, rabbit.reason = 'E2', 'in progress', 'ACK_ONLY'
-            rabbit.action = 'Wait to the 15-minute timeout before one retry.'
+    dormant = BotResult(
+        'CodeRabbit', False, 'E0', 'dormant', 'DORMANT_PROVIDER',
+        'No action while CodeRabbit is disabled.', {f'P{i}': 0 for i in range(4)}, set())
 
     deep_req = [item for command in ('/deepseek review', '/deepseek deep-review')
                 for item in fresh_requests(comments, command, head_time)]
@@ -276,10 +277,10 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         deepseek.findings = {f'P{i}': 0 for i in range(4)}
         deepseek.finding_keys.clear()
     elif deep_req and not deep_exact and '.github/workflows/deepseek-review.yml' in changed_paths:
-        deepseek.level, deepseek.state = 'E1', 'bootstrap pending'
+        deepseek.level, deepseek.state = 'E2', 'bootstrap pending'
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
-    return [codex, jules, rabbit, deepseek]
+    return [qodo, codex, jules, dormant, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -311,19 +312,21 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
                        evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
-    coderabbit = next(bot for bot in bots if bot.name == 'CodeRabbit')
+    active = [bot for bot in bots if bot.name in ACTIVE_REVIEWERS]
+    active_requested = all(bot.requested for bot in active)
+    active_review_complete = any(bot.level in {'E4', 'E5'} for bot in active)
     if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
         return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
-    if checks.pending or coderabbit.level not in {'E4', 'E5'}:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or exact-head CodeRabbit evidence is still incomplete.'
-    gaps = [bot.name for bot in bots if bot.name != 'CodeRabbit' and bot.level not in {'E4', 'E5'}]
+    if checks.pending or not active_requested or not active_review_complete:
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or Qodo/Codex exact-head evidence is still incomplete.'
+    gaps = [bot.name for bot in bots if bot.name in ADVISORY_REVIEWERS and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
-    return 'READY', 'Required CI and exact-head reviewer evidence are complete.'
+    return 'READY', 'Required CI and Qodo/Codex exact-head reviewer evidence are complete.'
 
 
 def findings_text(findings: dict[str, int]) -> str:
@@ -406,7 +409,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and exact-head evidence dominate; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and exact-head Qodo/Codex evidence dominate; CodeRabbit is dormant; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
