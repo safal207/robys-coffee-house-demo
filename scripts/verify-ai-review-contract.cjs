@@ -24,8 +24,8 @@ const LIMIT_SIGNAL_PATTERNS = [
   /temporarily unavailable[^\n]*(?:limit|quota)/i,
 ];
 const NEGATED_LIMIT_SIGNAL_PATTERNS = [
-  /\b(?:no|not|never)\s+(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)(?:\s+(?:has\s+been\s+)?(?:reached|exceeded|exhausted))?\b/i,
-  /\b(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)(?:\s+(?:has\s+been\s+)?)?(?:not|no longer)\s*(?:reached|exceeded|exhausted)?\b/i,
+  /\b(?:no|not|never|without)\b[^\n.!?]{0,80}\b(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)\b/i,
+  /\b(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)\b[^\n.!?]{0,80}\b(?:not|never|no longer)\b/i,
 ];
 
 const PROVIDERS = [
@@ -111,11 +111,39 @@ function exactHeadReviews(reviews, logins, currentHead, notBefore) {
     .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
 }
 
-function hasPositiveProviderLimitSignal(body) {
-  if (NEGATED_LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body))) {
-    return false;
+function stripQuotedAndFencedMarkdown(body) {
+  const visible = [];
+  let fenceMarker = null;
+
+  for (const line of String(body ?? "").split(/\r?\n/)) {
+    const fence = line.match(/^\s{0,3}(`{3,}|~{3,})/);
+    if (fence) {
+      const marker = fence[1][0];
+      if (fenceMarker === null) fenceMarker = marker;
+      else if (fenceMarker === marker) fenceMarker = null;
+      continue;
+    }
+    if (fenceMarker !== null) continue;
+    if (/^\s{0,3}>/.test(line)) continue;
+    visible.push(line);
   }
-  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body));
+
+  return visible.join("\n");
+}
+
+function hasPositiveProviderLimitSignal(body) {
+  const visibleBody = stripQuotedAndFencedMarkdown(body);
+  const clauses = visibleBody
+    .split(/(?<=[.!?])\s+|\r?\n+/)
+    .map((clause) => clause.trim())
+    .filter(Boolean);
+
+  return clauses.some((clause) => {
+    if (!LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(clause))) {
+      return false;
+    }
+    return !NEGATED_LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(clause));
+  });
 }
 
 function providerLimitSignals(comments, logins, notBefore) {
@@ -136,6 +164,10 @@ function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
   if (run.event !== "pull_request") return 0;
   if (run.head_sha?.toLowerCase() !== currentHead) return 0;
   return parseTime(run.created_at);
+}
+
+function pullHeadMatches(pull, currentHead) {
+  return pull?.head?.sha?.toLowerCase() === currentHead;
 }
 
 function qodoTimeoutPair(requests) {
@@ -232,7 +264,12 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   }
 
   const candidates = states
-    .filter((state) => state.name !== "Qodo" && state.review)
+    .filter(
+      (state) =>
+        state.name !== "Qodo" &&
+        !state.limitSignal &&
+        state.review,
+    )
     .map((state) => ({
       provider: state.name,
       review: state.review,
@@ -323,7 +360,12 @@ async function verifyAiReviewContract({ github, context, core }) {
         });
       }
 
-      const [comments, reviews] = await Promise.all([
+      const [livePull, comments, reviews] = await Promise.all([
+        github.rest.pulls.get({
+          owner,
+          repo,
+          pull_number: pr.number,
+        }),
         github.paginate(github.rest.issues.listComments, {
           owner,
           repo,
@@ -338,6 +380,14 @@ async function verifyAiReviewContract({ github, context, core }) {
           per_page: 100,
         }),
       ]);
+
+      if (!pullHeadMatches(livePull.data, currentHead)) {
+        core.setFailed(
+          `AI review workflow head ${pr.head.sha} is stale; current pull-request head is ${livePull.data?.head?.sha ?? "unknown"}. ` +
+            "A new commit invalidates all earlier requests, reviews, limit signals, timeout windows and merge-ready decisions.",
+        );
+        return;
+      }
 
       selection = selectRequiredEvidence({
         comments,
@@ -381,8 +431,8 @@ async function verifyAiReviewContract({ github, context, core }) {
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before either provider-limit or timeout fallback can open. Qodo remains primary, but an authenticated provider Bot rate, usage, quota, or review-limit signal then opens automatic failover to another request-bound native exact-head reviewer. " +
-            "A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
+            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before either provider-limit or timeout fallback can open. Qodo remains primary, but an authenticated provider Bot rate, usage, quota, or review-limit signal then opens automatic failover to another available request-bound native exact-head reviewer. " +
+            "Quoted or fenced limit text, negated limit statements and a signal from the selected reviewer do not count. A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
       core.notice(
@@ -403,8 +453,8 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo, Codex and CodeRabbit as warm standbys after every head update. " +
-      "Qodo remains primary. Both provider-limit and timeout fallback open only after all three current-head requests exist. Provider-limit fallback additionally requires an authenticated provider Bot to report a positive rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
-      "A limit notice, negated limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
+      "Qodo remains primary. Both provider-limit and timeout fallback open only after all three current-head requests exist. Provider-limit fallback additionally requires an authenticated provider Bot to report a positive unquoted rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
+      "An unavailable provider cannot satisfy its own failover. A limit notice, negated or quoted limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
@@ -422,7 +472,9 @@ module.exports._test = {
   hasExactHeadBinding,
   hasPositiveProviderLimitSignal,
   providerLimitSignals,
+  pullHeadMatches,
   signalTimeOf,
+  stripQuotedAndFencedMarkdown,
   qodoTimeoutPair,
   selectRequiredEvidence,
   stableHeadUpdateAnchor,
