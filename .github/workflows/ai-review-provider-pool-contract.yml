@@ -44,6 +44,10 @@ jobs:
           require 'yaml'
 
           trusted = YAML.load_file('.github/workflows/ai-review-contract.yml')
+          allowed_workflow_keys = ['name', 'on', true, 'permissions', 'jobs']
+          unexpected_workflow_keys = trusted.keys - allowed_workflow_keys
+          raise "unexpected trusted workflow keys: #{unexpected_workflow_keys.inspect}" unless unexpected_workflow_keys.empty?
+
           expected_permissions = {
             'actions' => 'read', 'contents' => 'read', 'issues' => 'read',
             'pull-requests' => 'read',
@@ -57,8 +61,13 @@ jobs:
           expected_types = ['opened', 'synchronize', 'reopened']
           raise "unexpected pull_request trigger: #{pull_request_trigger.inspect}" unless pull_request_trigger.is_a?(Hash) && pull_request_trigger.keys == ['types'] && pull_request_trigger['types'] == expected_types
 
-          verify_job = trusted.dig('jobs', 'verify')
+          trusted_jobs = trusted['jobs']
+          raise "unexpected trusted jobs: #{trusted_jobs.inspect}" unless trusted_jobs.is_a?(Hash) && trusted_jobs.keys == ['verify']
+          verify_job = trusted_jobs['verify']
           raise 'missing trusted verify job' unless verify_job.is_a?(Hash)
+          allowed_job_keys = ['name', 'runs-on', 'timeout-minutes', 'steps']
+          unexpected_job_keys = verify_job.keys - allowed_job_keys
+          raise "unexpected trusted verify-job keys: #{unexpected_job_keys.inspect}" unless unexpected_job_keys.empty?
           raise "unexpected trusted job name: #{verify_job['name'].inspect}" unless verify_job['name'] == 'Verify exact-head independent review'
           raise "unexpected trusted runner: #{verify_job['runs-on'].inspect}" unless verify_job['runs-on'] == 'ubuntu-latest'
           raise "unexpected trusted timeout: #{verify_job['timeout-minutes'].inspect}" unless verify_job['timeout-minutes'] == 17
