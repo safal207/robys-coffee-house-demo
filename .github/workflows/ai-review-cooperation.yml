@@ -266,7 +266,9 @@ jobs:
 
       - name: Build causal cooperation report
         id: build_report
-        run: python3 scripts/ai-review-cooperation.py report
+        run: |
+          python3 scripts/ai-review-cooperation.py report
+          node scripts/enforce-ai-review-selection.cjs
 
       - name: Publish or update cooperation report
         id: publish_report
