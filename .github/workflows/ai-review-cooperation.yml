@@ -32,7 +32,7 @@ jobs:
         github.event.review.user.login == 'chatgpt-codex-connector[bot]')) ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.name == 'AI review contract' &&
-       github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.event == 'pull_request_target' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_sha != '')
     permissions:
@@ -63,7 +63,7 @@ jobs:
           (github.event.issue.number || github.event.pull_request.number) ||
           (github.event_name == 'workflow_run' &&
            github.event.workflow_run.name == 'AI review contract' &&
-           github.event.workflow_run.event == 'pull_request' &&
+           github.event.workflow_run.event == 'pull_request_target' &&
            github.event.workflow_run.conclusion == 'success' &&
            github.event.workflow_run.head_sha != '' &&
            format('workflow-{0}', github.event.workflow_run.head_sha)) ||
@@ -140,7 +140,7 @@ jobs:
               esac
               ;;
             workflow_run)
-              if [ "${WORKFLOW_NAME}" != "AI review contract" ] || [ "${WORKFLOW_EVENT}" != "pull_request" ] || [ "${WORKFLOW_CONCLUSION}" != "success" ]; then
+              if [ "${WORKFLOW_NAME}" != "AI review contract" ] || [ "${WORKFLOW_EVENT}" != "pull_request_target" ] || [ "${WORKFLOW_CONCLUSION}" != "success" ]; then
                 echo "Unauthorized workflow_run trigger: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing}" >&2
                 exit 1
               fi
