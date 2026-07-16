@@ -47,7 +47,7 @@ A provider is considered unavailable for the current review round only when all 
 - that provider has a trusted exact-head request for the current head;
 - an issue comment is authored by an allowlisted login for that provider;
 - `user.type` equals `Bot`;
-- the comment was created after that provider's request;
+- the comment was created or bot-updated after that provider's request;
 - the comment explicitly reports a review/rate/usage limit, exhausted quota, a next-review delay, or temporary unavailability caused by a limit.
 
 An authenticated provider-limit signal immediately opens automatic failover. The first qualifying request-bound native exact-head review from another warm-standby provider may satisfy the required lane. The limit notice itself is operational evidence only and has no merge value.
@@ -58,7 +58,7 @@ The following never open automatic failover:
 - a copied or quoted limit message;
 - a message from an unallowlisted login;
 - a non-Bot account;
-- a signal created before the provider request;
+- a signal whose latest bot-controlled `created_at`/`updated_at` timestamp predates the provider request;
 - a generic error without an explicit rate, usage, quota, or review-limit meaning.
 
 If every requested provider reports a limit and no qualifying review exists, the lane remains fail-closed.
