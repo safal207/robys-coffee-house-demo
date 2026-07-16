@@ -30,7 +30,7 @@ raise "unexpected trusted permissions: #{trusted['permissions'].inspect}" unless
   'pull-requests' => 'read'
 }
 raise "unexpected trusted triggers: #{trusted[trusted_on].inspect}" unless trusted[trusted_on] == {
-  'pull_request' => { 'types' => ['opened', 'synchronize', 'reopened'] }
+  'pull_request_target' => { 'types' => ['opened', 'synchronize', 'reopened'] }
 }
 assert_exact_keys(trusted['jobs'], ['verify'], 'trusted jobs')
 trusted_job = trusted['jobs']['verify']
@@ -38,8 +38,8 @@ assert_exact_keys(trusted_job, ['name', 'runs-on', 'timeout-minutes', 'steps'], 
 raise "unexpected trusted job name: #{trusted_job['name'].inspect}" unless trusted_job['name'] == 'Verify exact-head independent review'
 raise "unexpected trusted runner: #{trusted_job['runs-on'].inspect}" unless trusted_job['runs-on'] == 'ubuntu-latest'
 raise "unexpected trusted timeout: #{trusted_job['timeout-minutes'].inspect}" unless trusted_job['timeout-minutes'] == 17
-expected_ref = '$' + '{{ github.event.repository.default_branch }}'
-expected_script = "const verify = require('./scripts/verify-ai-review-contract.cjs');\nawait verify({ github, context, core });\n"
+expected_ref = '$' + '{{ github.sha }}'
+expected_script = "const verify = require('./scripts/verify-ai-review-target-contract.cjs');\n// The trusted target runner imports ./scripts/verify-ai-review-contract.cjs from this same default-branch checkout.\nawait verify({ github, context, core });\n"
 expected_trusted_steps = [
   {
     'name' => 'Check out trusted default-branch verifier',
@@ -67,7 +67,9 @@ expected_paths = [
   '.github/workflows/ai-review-contract.yml',
   '.github/workflows/ai-review-provider-pool-contract.yml',
   'scripts/verify-ai-review-contract.cjs',
+  'scripts/verify-ai-review-target-contract.cjs',
   'scripts/test-ai-review-provider-pool.cjs',
+  'scripts/test-ai-review-target-contract.cjs',
   'scripts/test-ai-review-workflow-structure.rb',
   'docs/ai-review-cooperation-policy.md'
 ]
@@ -96,7 +98,7 @@ expected_provider_steps = [
   },
   {
     'name' => 'Run provider-pool behavior contract',
-    'run' => "node --check scripts/verify-ai-review-contract.cjs\nnode --check scripts/test-ai-review-provider-pool.cjs\nnode scripts/test-ai-review-provider-pool.cjs\n"
+    'run' => "node --check scripts/verify-ai-review-contract.cjs\nnode --check scripts/verify-ai-review-target-contract.cjs\nnode --check scripts/test-ai-review-provider-pool.cjs\nnode --check scripts/test-ai-review-target-contract.cjs\nnode scripts/test-ai-review-provider-pool.cjs\nnode scripts/test-ai-review-target-contract.cjs\n"
   },
   {
     'name' => 'Verify workflow structure and least privilege',
