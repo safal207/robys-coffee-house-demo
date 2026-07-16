@@ -1,14 +1,18 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 
+const require = createRequire(import.meta.url);
+const verifierModule = require("./verify-ai-review-contract.cjs");
+const selectRequiredEvidence = verifierModule?._test?.selectRequiredEvidence;
+const activeProviderNames = verifierModule?._test?.ACTIVE_PROVIDER_NAMES;
+const dormantProviderNames = verifierModule?._test?.DORMANT_PROVIDER_NAMES;
 const matrix = JSON.parse(readFileSync("qa/ai-style-review-matrix.json", "utf8"));
 const uiUx = JSON.parse(readFileSync("qa/ui-ux-matrix.json", "utf8"));
 const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const workflow = readFileSync(".github/workflows/visual-regression.yml", "utf8");
 const aiWorkflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
-const aiVerifier = readFileSync("scripts/verify-ai-review-contract.cjs", "utf8");
-const aiContract = `${aiWorkflow}\n${aiVerifier}`;
 const uiRunner = readFileSync("scripts/ui-ux-matrix.mjs", "utf8");
 const socialVerifier = readFileSync("scripts/verify-social-network-live.mjs", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
@@ -45,6 +49,86 @@ function hasLanguages(html) {
 
 function hasCanonicalInstagramLiteral(content) {
   return canonicalInstagramLiteral.test(content);
+}
+
+function reviewerFailoverIsCurrentHeadBound() {
+  if (typeof selectRequiredEvidence !== "function") return false;
+  if (JSON.stringify(activeProviderNames) !== JSON.stringify(["Qodo", "Codex"])) return false;
+  if (dormantProviderNames?.has("CodeRabbit") !== true) return false;
+
+  const head = "a".repeat(40);
+  const staleHead = "b".repeat(40);
+  const anchor = Date.parse("2026-07-16T00:00:00Z");
+  const at = (minutes) => new Date(anchor + minutes * 60_000).toISOString();
+  const request = (command, minutes) => ({
+    body: `${command}\n\nExact head: ${head}`,
+    created_at: at(minutes),
+    author_association: "OWNER"
+  });
+  const qodoSignal = (type = "Bot") => ({
+    body: "Review limit reached. Next review available in: 28 minutes.",
+    created_at: at(3),
+    updated_at: at(3),
+    user: { login: "qodo-code-review[bot]", type }
+  });
+  const rabbitSignal = () => ({
+    body: "Review limit reached. Next review available in: 28 minutes.",
+    created_at: at(3),
+    updated_at: at(3),
+    user: { login: "coderabbitai[bot]", type: "Bot" }
+  });
+  const codexReview = (commitId = head) => ({
+    submitted_at: at(4),
+    state: "COMMENTED",
+    commit_id: commitId,
+    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" }
+  });
+  const rabbitReview = () => ({
+    submitted_at: at(4),
+    state: "APPROVED",
+    commit_id: head,
+    user: { login: "coderabbitai[bot]", type: "Bot" }
+  });
+  const baseComments = [
+    request("/qodo review", 1),
+    request("@codex review", 2)
+  ];
+  const select = (comments, reviews) => selectRequiredEvidence({
+    comments,
+    reviews,
+    currentHead: head,
+    headUpdateAnchor: anchor,
+    now: anchor + 5 * 60_000
+  });
+
+  const valid = select([...baseComments, qodoSignal()], [codexReview()]);
+  const missingStandby = select([request("/qodo review", 1), qodoSignal()], [codexReview()]);
+  const stale = select([...baseComments, qodoSignal()], [codexReview(staleHead)]);
+  const spoofed = select([...baseComments, qodoSignal("User")], [codexReview()]);
+  const noticeOnly = select([...baseComments, qodoSignal()], []);
+  const dormantRabbit = select(
+    [...baseComments, request("@coderabbitai review", 2), rabbitSignal()],
+    [rabbitReview()]
+  );
+
+  return valid.provider === "Codex" &&
+    valid.mode === "automatic-failover" &&
+    valid.primaryFailure === "PROVIDER_LIMIT" &&
+    valid.unavailableProviders?.includes("Qodo") &&
+    valid.warmStandbyRoundReady === true &&
+    missingStandby.provider === null &&
+    missingStandby.mode === "pending" &&
+    missingStandby.fallbackEligible === false &&
+    missingStandby.warmStandbyRoundReady === false &&
+    stale.provider === null &&
+    stale.mode === "fallback-pending" &&
+    spoofed.provider === null &&
+    spoofed.mode === "pending" &&
+    noticeOnly.provider === null &&
+    noticeOnly.mode === "fallback-pending" &&
+    dormantRabbit.provider === null &&
+    dormantRabbit.mode === "pending" &&
+    dormantRabbit.unavailableProviders?.length === 0;
 }
 
 assert(matrix.version === 1, "matrix version must remain 1");
@@ -123,7 +207,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("codeRabbitRequestAt") && aiContract.includes("codexRequestAt")]
+  ["AI evidence is exact-head bound, requires Qodo-Codex dispatch before failover, and ignores dormant CodeRabbit", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
 ]);
 
 const report = {

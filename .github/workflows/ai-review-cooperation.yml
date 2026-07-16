@@ -22,11 +22,14 @@ jobs:
         github.event.comment.author_association == 'COLLABORATOR' ||
         github.event.comment.user.login == github.repository_owner)) ||
       (github.event_name == 'pull_request_review' &&
-       github.event.review.state == 'approved' &&
+       github.event.review.state != 'pending' &&
+       github.event.review.state != 'dismissed' &&
        github.event.review.commit_id == github.event.pull_request.head.sha &&
        github.event.review.user.type == 'Bot' &&
-       (github.event.review.user.login == 'coderabbitai[bot]' ||
-        github.event.review.user.login == 'coderabbitai')) ||
+       (github.event.review.user.login == 'qodo-code-review' ||
+        github.event.review.user.login == 'qodo-code-review[bot]' ||
+        github.event.review.user.login == 'chatgpt-codex-connector' ||
+        github.event.review.user.login == 'chatgpt-codex-connector[bot]')) ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.name == 'AI review contract' &&
        github.event.workflow_run.event == 'pull_request' &&
@@ -38,7 +41,6 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
-      statuses: read
     concurrency:
       group: >-
         ai-review-cooperation-${{
@@ -50,11 +52,14 @@ jobs:
              github.event.comment.author_association == 'COLLABORATOR' ||
              github.event.comment.user.login == github.repository_owner)) ||
            (github.event_name == 'pull_request_review' &&
-            github.event.review.state == 'approved' &&
+            github.event.review.state != 'pending' &&
+            github.event.review.state != 'dismissed' &&
             github.event.review.commit_id == github.event.pull_request.head.sha &&
             github.event.review.user.type == 'Bot' &&
-            (github.event.review.user.login == 'coderabbitai[bot]' ||
-             github.event.review.user.login == 'coderabbitai'))) &&
+            (github.event.review.user.login == 'qodo-code-review' ||
+             github.event.review.user.login == 'qodo-code-review[bot]' ||
+             github.event.review.user.login == 'chatgpt-codex-connector' ||
+             github.event.review.user.login == 'chatgpt-codex-connector[bot]'))) &&
           (github.event.issue.number || github.event.pull_request.number) ||
           (github.event_name == 'workflow_run' &&
            github.event.workflow_run.name == 'AI review contract' &&
@@ -110,10 +115,12 @@ jobs:
               esac
               ;;
             pull_request_review)
-              if [ "${REVIEW_STATE}" != "approved" ]; then
-                echo "Review trigger is not an approval: ${REVIEW_STATE}" >&2
-                exit 1
-              fi
+              case "${REVIEW_STATE}" in
+                pending|dismissed|'')
+                  echo "Review trigger is not an active submitted review: ${REVIEW_STATE:-missing}" >&2
+                  exit 1
+                  ;;
+              esac
               if [ -z "${REVIEW_COMMIT}" ] || [ -z "${PR_HEAD_SHA}" ] || [ "${REVIEW_COMMIT}" != "${PR_HEAD_SHA}" ]; then
                 echo "Review trigger is not bound to the current PR head: ${REVIEW_COMMIT:-missing} != ${PR_HEAD_SHA:-missing}" >&2
                 exit 1
@@ -123,8 +130,8 @@ jobs:
                 exit 1
               fi
               case "${TRIGGER_AUTHOR}" in
-                coderabbitai|coderabbitai\[bot\])
-                  echo "Authorized by native exact-head CodeRabbit bot approval."
+                qodo-code-review|qodo-code-review\[bot\]|chatgpt-codex-connector|chatgpt-codex-connector\[bot\])
+                  echo "Authorized by native exact-head active reviewer Bot."
                   ;;
                 *)
                   echo "Unauthorized review trigger actor: ${TRIGGER_AUTHOR}" >&2
@@ -238,9 +245,7 @@ jobs:
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
             | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
             > "${CHECKS_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
-            | jq 'add // []' > "${STATUSES_FILE}"
+          printf '[]\n' > "${STATUSES_FILE}"
 
       - name: Collect complete GraphQL review evidence
         id: graphql_evidence

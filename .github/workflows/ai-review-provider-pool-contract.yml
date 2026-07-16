@@ -1,0 +1,40 @@
+name: AI review provider pool contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ai-review-contract.yml
+      - .github/workflows/ai-review-provider-pool-contract.yml
+      - scripts/verify-ai-review-contract.cjs
+      - scripts/test-ai-review-provider-pool.cjs
+      - scripts/test-ai-review-workflow-structure.rb
+      - docs/ai-review-cooperation-policy.md
+
+concurrency:
+  group: ai-review-provider-pool-contract-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify provider-pool contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Run provider-pool behavior contract
+        run: |
+          node --check scripts/verify-ai-review-contract.cjs
+          node --check scripts/test-ai-review-provider-pool.cjs
+          node scripts/test-ai-review-provider-pool.cjs
+
+      - name: Verify workflow structure and least privilege
+        run: |
+          ruby scripts/test-ai-review-workflow-structure.rb

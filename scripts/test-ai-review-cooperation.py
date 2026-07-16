@@ -41,6 +41,21 @@ def comment(
     }
 
 
+def request(
+    command: str,
+    *,
+    created_at: str = AFTER,
+    login: str = 'safal207',
+    association: str = 'OWNER',
+) -> dict[str, object]:
+    return comment(
+        f'{command}\n\nExact head: {HEAD}',
+        login=login,
+        created_at=created_at,
+        association=association,
+    )
+
+
 def review(
     body: str,
     login: str,
@@ -106,6 +121,10 @@ def base_inputs() -> dict[str, object]:
     }
 
 
+def active_requests() -> list[dict[str, object]]:
+    return [request('/qodo review'), request('@codex review')]
+
+
 def check(
     name: str,
     *,
@@ -124,17 +143,7 @@ def check(
 class CooperationReportTests(unittest.TestCase):
     def test_p2_finding_drives_fix_then_rerun(self) -> None:
         data = base_inputs()
-        data['comments'] = [
-            comment('@codex review'),
-            comment('@jules review'),
-            comment('@coderabbitai review'),
-            comment('/deepseek review'),
-            comment(
-                'Review failed due to provider error.',
-                login='coderabbitai[bot]',
-                association='NONE',
-            ),
-        ]
+        data['comments'] = active_requests()
         finding = thread_comment(
             'P2 Disable thinking for normal reviews.',
             login='chatgpt-codex-connector',
@@ -142,32 +151,19 @@ class CooperationReportTests(unittest.TestCase):
             line=172,
         )
         data['threads_data'] = threads(finding)
-        data['review_comments'] = [
-            {
-                'body': finding['body'],
-                'user': user('chatgpt-codex-connector'),
-                'commit_id': HEAD,
-                'created_at': AFTER,
-                'path': finding['path'],
-                'line': finding['line'],
-            }
-        ]
         data['checks'] = {'check_runs': [check('Security contract')]}
-        data['files'] = [{'filename': '.github/workflows/deepseek-review.yml'}]
 
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **FIX_THEN_RERUN**', report)
         self.assertIn('| Codex | yes | E4 | findings | P2x1 |', report)
         self.assertIn('Unique root causes: **1**', report)
-        self.assertIn('`NO_ACK`', report)
-        self.assertIn('`PROVIDER_UNAVAILABLE`', report)
-        self.assertIn('`BOOTSTRAP_NOT_ON_DEFAULT_BRANCH`', report)
         self.assertIn('Cause: ACTIONABLE_FINDINGS', report)
 
-    def test_coderabbit_major_label_maps_to_p2(self) -> None:
+    def test_dormant_coderabbit_finding_is_ignored(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
+        data['comments'] = active_requests() + [request('@coderabbitai review')]
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['threads_data'] = threads(
             thread_comment(
                 '_🎯 Functional Correctness_ | _🟠 Major_\nMissing pagination.',
@@ -178,16 +174,15 @@ class CooperationReportTests(unittest.TestCase):
 
         report = MODULE.build_report(**data)
 
-        self.assertIn('| CodeRabbit | yes | E4 | findings | P2x1 |', report)
-        self.assertIn('**Overall conclusion:** **FIX_THEN_RERUN**', report)
+        self.assertIn('| CodeRabbit | no | E0 | dormant | none | `DORMANT_PROVIDER` |', report)
+        self.assertNotIn('P2x1', report)
+        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
     def test_all_exact_head_evidence_produces_ready_and_e5(self) -> None:
         data = base_inputs()
-        data['comments'] = [
-            comment('@codex review'),
-            comment('@jules review'),
-            comment('@coderabbitai review'),
-            comment('/deepseek review'),
+        data['comments'] = active_requests() + [
+            request('@jules review'),
+            request('/deepseek review'),
             comment(
                 f'''<!-- deepseek-pr-review -->\nReviewed commit: `{HEAD}`\nСерьёзных проблем не найдено.''',
                 login='github-actions[bot]',
@@ -195,9 +190,9 @@ class CooperationReportTests(unittest.TestCase):
             ),
         ]
         data['reviews'] = [
+            review('No findings.', login='qodo-code-review'),
             review('No findings.', login='chatgpt-codex-connector'),
             review('No findings.', login='jules[bot]'),
-            review('No findings.', login='coderabbitai[bot]'),
         ]
         data['checks'] = {
             'check_runs': [
@@ -210,12 +205,13 @@ class CooperationReportTests(unittest.TestCase):
 
         self.assertIn('**Overall conclusion:** **READY**', report)
         self.assertEqual(report.count('| E5 | clean exact-head review | none | `OK` |'), 4)
+        self.assertIn('| CodeRabbit | no | E0 | dormant |', report)
         self.assertIn('Required CI: 2 passed, 0 pending, 0 failed', report)
 
     def test_required_ci_failure_blocks(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['checks'] = {
             'check_runs': [check('Security contract', conclusion='failure')]
         }
@@ -227,8 +223,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_optional_ci_failure_does_not_block(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['checks'] = {
             'check_runs': [
                 check('Security contract'),
@@ -243,8 +239,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_latest_required_check_run_wins_by_name(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['checks'] = {
             'check_runs': [
                 check('Security contract', identifier=1, conclusion='failure'),
@@ -260,7 +256,7 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_stale_codex_review_does_not_count(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
+        data['comments'] = active_requests()
         data['reviews'] = [
             review('No findings.', login='chatgpt-codex-connector', commit_id=OLD_HEAD)
         ]
@@ -269,11 +265,12 @@ class CooperationReportTests(unittest.TestCase):
         report = MODULE.build_report(**data)
 
         self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+        self.assertIn('| Codex | yes | E1 | missing evidence |', report)
         self.assertIn('`NO_CURRENT_HEAD_EVIDENCE`', report)
 
     def test_spoofed_codex_login_does_not_count(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
+        data['comments'] = active_requests()
         data['reviews'] = [
             review('No findings.', login='chatgpt-codex-connector-evil')
         ]
@@ -287,7 +284,7 @@ class CooperationReportTests(unittest.TestCase):
     def test_spoofed_deepseek_marker_does_not_count(self) -> None:
         data = base_inputs()
         data['comments'] = [
-            comment('/deepseek review'),
+            request('/deepseek review'),
             comment(
                 f'<!-- deepseek-pr-review -->\nReviewed commit: `{HEAD}`',
                 login='attacker',
@@ -303,8 +300,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_truncated_thread_collection_forbids_ready(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review')]
-        data['reviews'] = [review('No findings.', login='chatgpt-codex-connector')]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['threads_data'] = threads(complete=False)
         data['checks'] = {'check_runs': [check('Security contract')]}
 
@@ -315,7 +312,7 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_request_before_head_is_not_fresh(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@codex review', created_at=BEFORE)]
+        data['comments'] = [request('@codex review', created_at=BEFORE)]
         data['checks'] = {'check_runs': [check('Security contract')]}
 
         report = MODULE.build_report(**data)
@@ -325,7 +322,7 @@ class CooperationReportTests(unittest.TestCase):
     def test_untrusted_request_is_ignored(self) -> None:
         data = base_inputs()
         data['comments'] = [
-            comment('@codex review', login='outsider', association='NONE')
+            request('@codex review', login='outsider', association='NONE')
         ]
         data['checks'] = {'check_runs': [check('Security contract')]}
 
@@ -335,8 +332,8 @@ class CooperationReportTests(unittest.TestCase):
 
     def test_resolved_thread_is_not_counted_as_finding(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
-        data['reviews'] = [review('No findings.', login='coderabbitai[bot]')]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['threads_data'] = threads(
             thread_comment('P1 old issue', login='chatgpt-codex-connector'),
             resolved=True,
@@ -348,9 +345,9 @@ class CooperationReportTests(unittest.TestCase):
         self.assertNotIn('P1x1', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
-    def test_late_coderabbit_status_satisfies_mandatory_lane(self) -> None:
+    def test_coderabbit_status_never_satisfies_active_lane(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
+        data['comments'] = active_requests() + [request('@coderabbitai review')]
         data['statuses'] = [{
             'context': 'CodeRabbit',
             'state': 'success',
@@ -361,25 +358,83 @@ class CooperationReportTests(unittest.TestCase):
 
         report = MODULE.build_report(**data)
 
-        self.assertIn('| CodeRabbit | yes | E5 | clean exact-head review |', report)
-        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
-        self.assertIn('advisory gaps: Codex, Jules, DeepSeek.', report)
+        self.assertIn('| CodeRabbit | no | E0 | dormant |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
 
-    def test_coderabbit_status_before_request_is_stale(self) -> None:
+    def test_qodo_review_satisfies_active_lane_with_codex_request(self) -> None:
         data = base_inputs()
-        data['comments'] = [comment('@coderabbitai review')]
-        data['statuses'] = [{
-            'context': 'CodeRabbit',
-            'state': 'success',
-            'creator': user('coderabbitai[bot]'),
-            'created_at': BEFORE,
-        }]
+        data['comments'] = active_requests()
+        data['reviews'] = [review('No findings.', login='qodo-code-review')]
         data['checks'] = {'check_runs': [check('Security contract')]}
 
         report = MODULE.build_report(**data)
 
-        self.assertIn('| CodeRabbit | yes | E1 | missing evidence |', report)
+        self.assertIn('| Qodo | yes | E5 | clean exact-head review |', report)
+        self.assertIn('| Codex | yes | E1 | missing evidence |', report)
+        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
+
+    def test_pre_request_codex_review_does_not_count(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            request('/qodo review'),
+            request('@codex review', created_at='2026-06-30T00:02:00Z'),
+        ]
+        data['reviews'] = [
+            review('No findings.', login='chatgpt-codex-connector', submitted_at=AFTER)
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | yes | E1 | missing evidence |', report)
         self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+
+    def test_post_request_codex_review_counts(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            request('/qodo review'),
+            request('@codex review', created_at='2026-06-30T00:02:00Z'),
+        ]
+        data['reviews'] = [
+            review(
+                'No findings.',
+                login='chatgpt-codex-connector',
+                submitted_at='2026-06-30T00:03:00Z',
+            )
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
+        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
+
+    def test_qodo_issue_comment_cannot_satisfy_native_lane(self) -> None:
+        data = base_inputs()
+        data['comments'] = active_requests() + [
+            comment(
+                f'Reviewed commit: `{HEAD}`',
+                login='qodo-code-review',
+                created_at='2026-06-30T00:03:00Z',
+                association='NONE',
+            )
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Qodo | yes | E1 | missing evidence |', report)
+        self.assertNotIn('| Qodo | yes | E5 |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+
+    def test_ledger_escapes_head_matchers_and_binds_reviews_to_requests(self) -> None:
+        ledger = (SCRIPT.parent.parent / '.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
+        self.assertEqual(ledger.count('new RegExp(`^Head:\\\\s*${head}\\\\s*$`'), 2)
+        self.assertIn('const qodoRequestAt = Math.min(...qodoRequests.map(timeOf));', ledger)
+        self.assertIn('const codexRequestAt = Math.min(...codexRequests.map(timeOf));', ledger)
+        self.assertIn('const submittedAt = Date.parse(item.submitted_at ?? 0);', ledger)
+        self.assertIn('submittedAt >= requestAt', ledger)
+        self.assertIn('no request-bound native Qodo/Codex exact-head review', ledger)
 
 
 if __name__ == '__main__':
