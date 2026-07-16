@@ -205,6 +205,20 @@ def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str], head_ti
     return [item for item in items if login_of(item) in allowed and is_after_head(item, head_time)]
 
 
+def request_bound_exact_items(
+    items: Iterable[dict[str, Any]],
+    requests: list[dict[str, Any]],
+    head_sha: str,
+) -> list[dict[str, Any]]:
+    if not requests:
+        return []
+    request_at = min(time_of(item) for item in requests)
+    return [
+        item for item in items
+        if current_head_evidence(item, head_sha) and time_of(item) >= request_at
+    ]
+
+
 def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[dict[str, Any]],
                                no_evidence_reason: str, no_evidence_action: str) -> BotResult:
     findings, keys = finding_summary(exact_items)
@@ -235,15 +249,15 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     qodo_items = bot_items(comments + all_items, BOT_LOGINS['Qodo'], head_time)
     qodo = result_from_exact_evidence(
         name='Qodo', requested=bool(qodo_req),
-        exact_items=[item for item in qodo_items if current_head_evidence(item, head_sha)],
+        exact_items=request_bound_exact_items(qodo_items, qodo_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait for native Qodo review or use the documented Codex fallback.')
+        no_evidence_action='Wait for a request-bound native Qodo review or use the documented Codex fallback.')
 
     codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
     codex_items = bot_items(comments + all_items, BOT_LOGINS['Codex'], head_time)
     codex = result_from_exact_evidence(
         name='Codex', requested=bool(codex_req),
-        exact_items=[item for item in codex_items if current_head_evidence(item, head_sha)],
+        exact_items=request_bound_exact_items(codex_items, codex_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
         no_evidence_action='Wait up to 10 minutes, then retry once with @codex review.')
 
@@ -251,7 +265,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     jules_items = bot_items(comments + all_items, BOT_LOGINS['Jules'], head_time)
     jules = result_from_exact_evidence(
         name='Jules', requested=bool(jules_req),
-        exact_items=[item for item in jules_items if current_head_evidence(item, head_sha)],
+        exact_items=request_bound_exact_items(jules_items, jules_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
         no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
 
@@ -263,7 +277,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                 for item in fresh_requests(comments, command, head_time)]
     deep_items = [item for item in comments if login_of(item) == 'github-actions[bot]'
                   and DEEPSEEK_MARKER in body_of(item) and is_after_head(item, head_time)]
-    deep_exact = [item for item in deep_items if current_head_evidence(item, head_sha)]
+    deep_exact = request_bound_exact_items(deep_items, deep_req, head_sha)
     deepseek = result_from_exact_evidence(
         name='DeepSeek', requested=bool(deep_req), exact_items=deep_exact,
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
@@ -322,11 +336,11 @@ def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
     if checks.pending or not active_requested or not active_review_complete:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or Qodo/Codex exact-head evidence is still incomplete.'
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or request-bound Qodo/Codex exact-head evidence is still incomplete.'
     gaps = [bot.name for bot in bots if bot.name in ADVISORY_REVIEWERS and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
-    return 'READY', 'Required CI and Qodo/Codex exact-head reviewer evidence are complete.'
+    return 'READY', 'Required CI and request-bound Qodo/Codex exact-head reviewer evidence are complete.'
 
 
 def findings_text(findings: dict[str, int]) -> str:
@@ -409,7 +423,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and exact-head Qodo/Codex evidence dominate; CodeRabbit is dormant; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Qodo/Codex evidence dominate; CodeRabbit is dormant; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
