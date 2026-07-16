@@ -106,12 +106,22 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
+  assert.equal(_test.pullHeadMatches({ head: { sha: HEAD } }, HEAD), true);
+  assert.equal(_test.pullHeadMatches({ head: { sha: OLD_HEAD } }, HEAD), false);
+  assert.equal(_test.pullHeadMatches({}, HEAD), false);
+}
+
+{
   assert.equal(_test.hasExactHeadBinding(request("/qodo review", 1), HEAD), true);
   assert.equal(_test.hasExactHeadBinding(comment("/qodo review", 1), HEAD), false);
   assert.equal(_test.hasExactHeadBinding(request("/qodo review", 1, "OWNER", OLD_HEAD), HEAD), false);
 }
 
 {
+  assert.equal(
+    _test.stripQuotedAndFencedMarkdown("> Review limit reached\nvisible\n```\nQuota exceeded\n```"),
+    "visible",
+  );
   assert.equal(
     _test.hasPositiveProviderLimitSignal("Review limit reached. Next review available in: 28 minutes."),
     true,
@@ -123,6 +133,22 @@ function select(comments, reviews, nowMinutes) {
   assert.equal(
     _test.hasPositiveProviderLimitSignal("Review limit not reached; review can continue."),
     false,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("This is not a rate limit reached condition."),
+    false,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("> Review limit reached\nNormal status update."),
+    false,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("```text\nReview limit reached\n```\nNormal status update."),
+    false,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("> old quote\nReview limit reached."),
+    true,
   );
 }
 
@@ -172,7 +198,6 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
-  // Simulates a later attempt of the same workflow run with the original created_at anchor.
   const result = select(
     [
       request("/qodo review", 1),
@@ -246,6 +271,41 @@ function select(comments, reviews, nowMinutes) {
       request("/qodo review", 1),
       request("@codex review", 2),
       request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3),
+    ],
+    [review("coderabbitai[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "fallback-pending");
+  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("chatgpt-codex-connector[bot]", 3, "Quota exceeded for reviews."),
+    ],
+    [
+      review("chatgpt-codex-connector[bot]", 4),
+      review("coderabbitai[bot]", 5),
+    ],
+    6,
+  );
+  assert.equal(result.provider, "CodeRabbit");
+  assert.equal(result.mode, "automatic-failover");
+  assert.deepEqual(result.unavailableProviders, ["Codex"]);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
       limitSignal("coderabbitai[bot]", 3, "Provider is not rate limited and can review normally."),
     ],
     [review("chatgpt-codex-connector[bot]", 4)],
@@ -263,6 +323,22 @@ function select(comments, reviews, nowMinutes) {
       request("@codex review", 2),
       request("@coderabbitai review", 2),
       limitSignal("coderabbitai[bot]", 3, "No review limit reached; review can continue."),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3, "> Review limit reached\nNo current capacity issue."),
     ],
     [review("chatgpt-codex-connector[bot]", 4)],
     5,
