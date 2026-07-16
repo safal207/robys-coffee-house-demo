@@ -114,8 +114,8 @@ jobs:
           verifier = Path('scripts/verify-ai-review-contract.cjs').read_text(encoding='utf-8')
           tests = Path('scripts/test-ai-review-provider-pool.cjs').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          corpus = verifier + '\n' + tests + '\n' + policy
-          required = [
+
+          required_verifier = [
               'QODO_COMMAND = "/qodo review"',
               'CODERABBIT_COMMAND = "@coderabbitai review"',
               'CODEX_COMMAND = "@codex review"',
@@ -134,12 +134,16 @@ jobs:
               'run.head_sha?.toLowerCase() !== currentHead',
               'hasExactHeadBinding',
               'exact head:',
+              'A reaction, acknowledgement, status-only result',
+          ]
+          required_tests = [
+              'Simulates a later attempt of the same workflow run',
+              'provider-pool contract: ok',
+          ]
+          required_policy = [
               'GITHUB_RUN_ID',
               'GITHUB_RUN_ATTEMPT',
               'same failed workflow run',
-              'Simulates a later attempt of the same workflow run',
-              'A reaction, acknowledgement, status-only result',
-              'provider-pool contract: ok',
               'two trusted exact-head `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
@@ -153,8 +157,18 @@ jobs:
               'run.pull_requests',
               'Math.min(...anchors)',
           ]
-          missing = [token for token in required if token not in corpus]
+
+          missing_by_source = {
+              'verifier': [token for token in required_verifier if token not in verifier],
+              'tests': [token for token in required_tests if token not in tests],
+              'policy': [token for token in required_policy if token not in policy],
+          }
+          missing_by_source = {
+              source: missing for source, missing in missing_by_source.items() if missing
+          }
           leaked = [token for token in forbidden_verifier if token in verifier]
-          if missing or leaked:
-              raise SystemExit(f'provider-pool drift: missing={missing}, forbidden={leaked}')
+          if missing_by_source or leaked:
+              raise SystemExit(
+                  f'provider-pool drift: missing_by_source={missing_by_source}, forbidden={leaked}'
+              )
           PY
