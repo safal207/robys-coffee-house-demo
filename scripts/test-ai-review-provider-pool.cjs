@@ -186,6 +186,41 @@ function select(comments, reviews, nowMinutes) {
   assert.equal(result.mode, "automatic-failover");
   assert.equal(result.primaryFailure, "PROVIDER_LIMIT");
   assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
+  assert.equal(result.warmStandbyRoundReady, true);
+}
+
+{
+  const result = select(
+    [
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.equal(result.fallbackEligible, false);
+  assert.equal(result.warmStandbyRoundReady, false);
+  assert.deepEqual(result.requestedProviders, ["Codex", "CodeRabbit"]);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.equal(result.fallbackEligible, false);
+  assert.equal(result.warmStandbyRoundReady, false);
+  assert.deepEqual(result.requestedProviders, ["Qodo", "Codex"]);
 }
 
 {
