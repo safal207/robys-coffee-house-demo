@@ -23,6 +23,10 @@ const LIMIT_SIGNAL_PATTERNS = [
   /next review available in/i,
   /temporarily unavailable[^\n]*(?:limit|quota)/i,
 ];
+const NEGATED_LIMIT_SIGNAL_PATTERNS = [
+  /\b(?:no|not|never)\s+(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)(?:\s+(?:has\s+been\s+)?(?:reached|exceeded|exhausted))?\b/i,
+  /\b(?:(?:review|rate|usage)\s+limit(?:ed)?|quota)(?:\s+(?:has\s+been\s+)?)?(?:not|no longer)\s*(?:reached|exceeded|exhausted)?\b/i,
+];
 
 const PROVIDERS = [
   { name: "Qodo", command: QODO_COMMAND, logins: QODO_LOGINS },
@@ -107,6 +111,13 @@ function exactHeadReviews(reviews, logins, currentHead, notBefore) {
     .sort((left, right) => submittedTimeOf(left) - submittedTimeOf(right));
 }
 
+function hasPositiveProviderLimitSignal(body) {
+  if (NEGATED_LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body))) {
+    return false;
+  }
+  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body));
+}
+
 function providerLimitSignals(comments, logins, notBefore) {
   if (notBefore <= 0) return [];
   return comments
@@ -114,8 +125,7 @@ function providerLimitSignals(comments, logins, notBefore) {
       if (!logins.has(item.user?.login)) return false;
       if (item.user?.type !== "Bot") return false;
       if (signalTimeOf(item) < notBefore) return false;
-      const body = item.body ?? "";
-      return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body));
+      return hasPositiveProviderLimitSignal(item.body ?? "");
     })
     .sort((left, right) => signalTimeOf(left) - signalTimeOf(right));
 }
@@ -403,12 +413,14 @@ module.exports = verifyAiReviewContract;
 module.exports._test = {
   AI_REVIEW_WORKFLOW_NAME,
   LIMIT_SIGNAL_PATTERNS,
+  NEGATED_LIMIT_SIGNAL_PATTERNS,
   MIN_QODO_REQUEST_GAP_MS,
   SECOND_QODO_TIMEOUT_MS,
   commandLinesOf,
   exactHeadReviews,
   freshTrustedRequests,
   hasExactHeadBinding,
+  hasPositiveProviderLimitSignal,
   providerLimitSignals,
   signalTimeOf,
   qodoTimeoutPair,
