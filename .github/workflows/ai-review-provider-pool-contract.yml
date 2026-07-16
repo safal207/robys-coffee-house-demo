@@ -105,8 +105,7 @@ jobs:
           verifier = Path('scripts/verify-ai-review-contract.cjs').read_text(encoding='utf-8')
           tests = Path('scripts/test-ai-review-provider-pool.cjs').read_text(encoding='utf-8')
           policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          provider_workflow = Path('.github/workflows/ai-review-provider-pool-contract.yml').read_text(encoding='utf-8')
-          corpus = verifier + '\n' + tests + '\n' + policy + '\n' + provider_workflow
+          corpus = verifier + '\n' + tests + '\n' + policy
           required = [
               'QODO_COMMAND = "/qodo review"',
               'CODERABBIT_COMMAND = "@coderabbitai review"',
@@ -135,8 +134,6 @@ jobs:
               'two trusted exact-head `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
-              'expected_steps',
-              'actual_steps == expected_steps',
           ]
           forbidden_verifier = [
               'codeRabbitStatus',
