@@ -17,7 +17,7 @@ const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 const LIMIT_SIGNAL_PATTERNS = [
   /review limit reached/i,
-  /rate limit(?:ed| reached| exceeded)?/i,
+  /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
   /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
   /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
   /next review available in/i,
@@ -129,18 +129,16 @@ function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
 }
 
 function qodoTimeoutPair(requests) {
-  let selected;
   for (let secondIndex = 1; secondIndex < requests.length; secondIndex += 1) {
     const secondAt = createdTimeOf(requests[secondIndex]);
-    for (let firstIndex = secondIndex - 1; firstIndex >= 0; firstIndex -= 1) {
+    for (let firstIndex = 0; firstIndex < secondIndex; firstIndex += 1) {
       const firstAt = createdTimeOf(requests[firstIndex]);
       if (secondAt - firstAt >= MIN_QODO_REQUEST_GAP_MS) {
-        selected = { firstAt, secondAt };
-        break;
+        return { firstAt, secondAt };
       }
     }
   }
-  return selected;
+  return undefined;
 }
 
 function firstRequestAt(requests) {
@@ -201,7 +199,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   const fallbackEligibleAt = timeoutPair
     ? timeoutPair.secondAt + SECOND_QODO_TIMEOUT_MS
     : 0;
-  const timeoutFallbackEligible = fallbackEligibleAt > 0 && now >= fallbackEligibleAt;
+  const timeoutFallbackEligible = warmStandbyRoundReady && fallbackEligibleAt > 0 && now >= fallbackEligibleAt;
   const limitFallbackEligible = warmStandbyRoundReady && unavailableProviders.length > 0;
   const fallbackEligible = timeoutFallbackEligible || limitFallbackEligible;
   const primaryFailure = limitFallbackEligible ? "PROVIDER_LIMIT" :
@@ -373,7 +371,7 @@ async function verifyAiReviewContract({ github, context, core }) {
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before provider-limit failover can open. Qodo remains primary, but an authenticated provider Bot rate-limit or quota signal then opens automatic failover to another request-bound native exact-head reviewer. " +
+            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before either provider-limit or timeout fallback can open. Qodo remains primary, but an authenticated provider Bot rate, usage, quota, or review-limit signal then opens automatic failover to another request-bound native exact-head reviewer. " +
             "A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
@@ -395,8 +393,8 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo, Codex and CodeRabbit as warm standbys after every head update. " +
-      "Qodo remains primary. Automatic provider-limit failover opens only after all three current-head requests exist and an authenticated provider Bot reports a rate, usage, quota, or review limit; otherwise fallback opens after the existing two-request Qodo timeout sequence. " +
-      "A limit notice, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
+      "Qodo remains primary. Both provider-limit and timeout fallback open only after all three current-head requests exist. Provider-limit fallback additionally requires an authenticated provider Bot to report a positive rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
+      "A limit notice, negated limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
