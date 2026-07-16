@@ -42,18 +42,22 @@ A new commit invalidates every request, limit signal, timeout window, review, re
 
 ## Automatic provider-limit failover
 
+Automatic failover is eligible only after the current review round contains trusted exact-head requests for **all three providers: Qodo, Codex, and CodeRabbit**.
+
 A provider is considered unavailable for the current review round only when all of these conditions hold:
 
+- all three trusted exact-head provider requests exist for the current head;
 - that provider has a trusted exact-head request for the current head;
 - an issue comment is authored by an allowlisted login for that provider;
 - `user.type` equals `Bot`;
 - the comment was created or bot-updated after that provider's request;
 - the comment explicitly reports a review/rate/usage limit, exhausted quota, a next-review delay, or temporary unavailability caused by a limit.
 
-An authenticated provider-limit signal immediately opens automatic failover. The first qualifying request-bound native exact-head review from another warm-standby provider may satisfy the required lane. The limit notice itself is operational evidence only and has no merge value.
+After complete warm-standby dispatch, an authenticated provider-limit signal immediately opens automatic failover. The first qualifying request-bound native exact-head review from another warm-standby provider may satisfy the required lane. The limit notice itself is operational evidence only and has no merge value.
 
 The following never open automatic failover:
 
+- an incomplete dispatch round, including a missing Qodo request or a missing standby request;
 - a maintainer claiming that a provider is limited;
 - a copied or quoted limit message;
 - a message from an unallowlisted login;
@@ -72,7 +76,7 @@ Provider-limit failover is additive to the existing Qodo timeout path. When no a
 3. fallback becomes eligible 15 minutes after the second request;
 4. a qualifying warm-standby Codex or CodeRabbit review may then satisfy the lane.
 
-The two trusted exact-head `/qodo review` requests remain necessary for timeout-based fallback, but they are not required when an allowlisted provider Bot has explicitly reported a current-round limit.
+The two trusted exact-head `/qodo review` requests remain necessary for timeout-based fallback. They are not required for provider-limit failover, but the complete single-request dispatch to Qodo, Codex, and CodeRabbit is still mandatory.
 
 The verifier uses the GitHub-server `created_at` of the current `AI review contract` pull-request run as its freshness anchor. GitHub keeps `GITHUB_RUN_ID` unchanged when that workflow run is re-run and increments `GITHUB_RUN_ATTEMPT`. Rerunning the same failed workflow run preserves its server-side anchor. Starting a new workflow run creates a new anchor and requires fresh exact-head requests.
 
@@ -111,6 +115,7 @@ For all required reviews:
 The pool is fail-closed and cannot be used to shop for a more favorable answer:
 
 - Qodo takes primary precedence whenever a qualifying Qodo review exists;
+- provider-limit failover requires all three trusted current-head provider requests before any limit signal can open the lane;
 - provider-limit failover requires an authenticated allowlisted Bot signal after that provider's current-head request;
 - a non-limited fallback still requires the complete Qodo timeout sequence;
 - every provider request and accepted review must bind the same current SHA;
@@ -127,8 +132,8 @@ The pool is fail-closed and cannot be used to shop for a more favorable answer:
 | Value | Meaning | Default action |
 |---|---|---|
 | `none` | A request-bound native Qodo review satisfies the primary lane | Continue with downstream evidence checks |
-| `PROVIDER_LIMIT` | At least one requested allowlisted provider Bot reported a current-round limit | Select another warm-standby exact-head reviewer; remain fail-closed if none has reviewed |
-| `QODO_TIMEOUT_1_PENDING` | No valid exact-head Qodo timeout pair exists yet | Wait for the first window or post the second Qodo request after 15 minutes |
+| `PROVIDER_LIMIT` | All three current-head requests exist and at least one requested allowlisted provider Bot reported a current-round limit | Select another warm-standby exact-head reviewer; remain fail-closed if none has reviewed |
+| `QODO_TIMEOUT_1_PENDING` | No valid exact-head Qodo timeout pair exists yet, including an incomplete initial dispatch | Post any missing current-head requests or wait for the first Qodo window |
 | `QODO_TIMEOUT_2_PENDING` | Two valid exact-head Qodo requests exist, but 15 minutes have not elapsed after the second | Wait until timeout fallback eligibility |
 | `QODO_TIMEOUT_2` | Both Qodo timeout windows elapsed without native Qodo evidence | Accept a request-bound native Codex or CodeRabbit warm-standby review |
 
