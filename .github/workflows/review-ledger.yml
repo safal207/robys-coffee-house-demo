@@ -60,12 +60,15 @@ jobs:
             const reviewHeads = new Map(
               reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
             );
-            const activeReviewerBots = new Set([
+            const qodoBots = new Set([
               'qodo-code-review',
               'qodo-code-review[bot]',
+            ]);
+            const codexBots = new Set([
               'chatgpt-codex-connector',
               'chatgpt-codex-connector[bot]',
             ]);
+            const activeReviewerBots = new Set([...qodoBots, ...codexBots]);
             const findingBots = new Set([
               ...activeReviewerBots,
               'github-advanced-security',
@@ -93,7 +96,7 @@ jobs:
             const isDispositionReply = (reply) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
               const maintainer = trustedAssociations.has(reply.author_association);
               return disposition && exactHead && maintainer;
             };
@@ -111,23 +114,33 @@ jobs:
             )));
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
-            const qodoRequested = issueComments.some((item) => trustedExactRequest(item, '/qodo review'));
-            const codexRequested = issueComments.some((item) => trustedExactRequest(item, '@codex review'));
-            if (!qodoRequested || !codexRequested) {
+            const qodoRequests = issueComments.filter((item) => trustedExactRequest(item, '/qodo review'));
+            const codexRequests = issueComments.filter((item) => trustedExactRequest(item, '@codex review'));
+            if (qodoRequests.length === 0 || codexRequests.length === 0) {
               core.setFailed(`PDG-001 depth D4 incomplete: missing trusted Qodo/Codex exact-head dispatch for ${head}.`);
               return;
             }
+            const qodoRequestAt = Math.min(...qodoRequests.map(timeOf));
+            const codexRequestAt = Math.min(...codexRequests.map(timeOf));
 
-            const activeReviewerEvidence = reviews.filter((item) => (
-              activeReviewerBots.has(item.user?.login) &&
-              item.user?.type === 'Bot' &&
-              item.commit_id?.toLowerCase() === head &&
-              Boolean(item.submitted_at) &&
-              item.state !== 'PENDING' &&
-              item.state !== 'DISMISSED'
-            ));
+            const activeReviewerEvidence = reviews.filter((item) => {
+              const login = item.user?.login;
+              const requestAt = qodoBots.has(login)
+                ? qodoRequestAt
+                : codexBots.has(login)
+                  ? codexRequestAt
+                  : 0;
+              const submittedAt = Date.parse(item.submitted_at ?? 0);
+              return activeReviewerBots.has(login) &&
+                item.user?.type === 'Bot' &&
+                item.commit_id?.toLowerCase() === head &&
+                Number.isFinite(submittedAt) &&
+                submittedAt >= requestAt &&
+                item.state !== 'PENDING' &&
+                item.state !== 'DISMISSED';
+            });
             if (activeReviewerEvidence.length === 0) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no native Qodo/Codex exact-head review for ${head}.`);
+              core.setFailed(`PDG-001 depth D4 incomplete: no request-bound native Qodo/Codex exact-head review for ${head}.`);
               return;
             }
 
@@ -195,7 +208,7 @@ jobs:
               const body = (item.body ?? '').replaceAll('`', '');
               const trusted = trustedAssociations.has(item.author_association);
               const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\s*${head}\s*$`, 'im').test(body);
+              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
               const depth = /^Depth:\s*D6\s*$/im.test(body);
               return trusted && contract && exactHead && depth;
             });
@@ -210,4 +223,4 @@ jobs:
               return;
             }
 
-            core.notice(`PDG-001 depth D6 sealed for ${head}: Qodo/Codex active evidence complete, CodeRabbit dormant; ${findings.length} exact-head finding(s) dispositioned.`);
+            core.notice(`PDG-001 depth D6 sealed for ${head}: Qodo/Codex request-bound active evidence complete, CodeRabbit dormant; ${findings.length} exact-head finding(s) dispositioned.`);
