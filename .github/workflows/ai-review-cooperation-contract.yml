@@ -8,10 +8,12 @@ on:
       - .github/workflows/review-ledger.yml
       - .github/workflows/traceability.yml
       - scripts/ai-review-cooperation.py
+      - scripts/enforce-ai-review-selection.cjs
       - scripts/render-ci-proof-summary.mjs
       - scripts/fetch-review-threads.py
       - scripts/test-ai-review-cooperation.py
       - scripts/test-ai-review-cooperation-workflow.rb
+      - scripts/test-ai-review-selection-guard.cjs
       - docs/ai-review-cooperation-policy.md
 
 permissions:
@@ -34,6 +36,12 @@ jobs:
           scripts/ai-review-cooperation.py
           scripts/fetch-review-threads.py
           scripts/test-ai-review-cooperation.py
+
+      - name: Verify authoritative selection guard
+        run: |
+          node --check scripts/enforce-ai-review-selection.cjs
+          node --check scripts/test-ai-review-selection-guard.cjs
+          node scripts/test-ai-review-selection-guard.cjs
 
       - name: Run offline cooperation contracts
         id: offline-tests
