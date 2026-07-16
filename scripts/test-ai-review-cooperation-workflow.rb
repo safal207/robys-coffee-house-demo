@@ -224,8 +224,8 @@ raise 'empty compatibility status evidence missing' unless collector.include?("p
 
 fetcher = File.read('scripts/fetch-review-threads.py', encoding: 'UTF-8')
 [
-  "expected_title = f'AI review PR #{pr_number} head {expected_head}'",
-  "expected_path = f'.github/workflows/ai-review-contract.yml@{default_branch}'",
+  %q{expected_title = f'AI review PR #{pr_number} head {expected_head}'},
+  %q{expected_path = f'.github/workflows/ai-review-contract.yml@{default_branch}'},
   "'trusted_base_sha'",
   "'pull_request_target'",
   'Trusted target workflow metadata drift',
