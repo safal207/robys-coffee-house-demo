@@ -112,6 +112,21 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("Review limit reached. Next review available in: 28 minutes."),
+    true,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("No review limit reached; review can continue."),
+    false,
+  );
+  assert.equal(
+    _test.hasPositiveProviderLimitSignal("Review limit not reached; review can continue."),
+    false,
+  );
+}
+
+{
   const result = select(
     [request("/qodo review", 1)],
     [review("qodo-code-review", 3)],
@@ -232,6 +247,22 @@ function select(comments, reviews, nowMinutes) {
       request("@codex review", 2),
       request("@coderabbitai review", 2),
       limitSignal("coderabbitai[bot]", 3, "Provider is not rate limited and can review normally."),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3, "No review limit reached; review can continue."),
     ],
     [review("chatgpt-codex-connector[bot]", 4)],
     5,
