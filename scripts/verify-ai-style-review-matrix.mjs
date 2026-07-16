@@ -3,7 +3,10 @@ import { createRequire } from "node:module";
 import path from "node:path";
 
 const require = createRequire(import.meta.url);
-const selectRequiredEvidence = require("./verify-ai-review-contract.cjs")?._test?.selectRequiredEvidence;
+const verifierModule = require("./verify-ai-review-contract.cjs");
+const selectRequiredEvidence = verifierModule?._test?.selectRequiredEvidence;
+const activeProviderNames = verifierModule?._test?.ACTIVE_PROVIDER_NAMES;
+const dormantProviderNames = verifierModule?._test?.DORMANT_PROVIDER_NAMES;
 const matrix = JSON.parse(readFileSync("qa/ai-style-review-matrix.json", "utf8"));
 const uiUx = JSON.parse(readFileSync("qa/ui-ux-matrix.json", "utf8"));
 const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
@@ -50,6 +53,8 @@ function hasCanonicalInstagramLiteral(content) {
 
 function reviewerFailoverIsCurrentHeadBound() {
   if (typeof selectRequiredEvidence !== "function") return false;
+  if (JSON.stringify(activeProviderNames) !== JSON.stringify(["Qodo", "Codex"])) return false;
+  if (dormantProviderNames?.has("CodeRabbit") !== true) return false;
 
   const head = "a".repeat(40);
   const staleHead = "b".repeat(40);
@@ -60,22 +65,33 @@ function reviewerFailoverIsCurrentHeadBound() {
     created_at: at(minutes),
     author_association: "OWNER"
   });
-  const signal = (type = "Bot") => ({
+  const qodoSignal = (type = "Bot") => ({
     body: "Review limit reached. Next review available in: 28 minutes.",
     created_at: at(3),
     updated_at: at(3),
-    user: { login: "coderabbitai[bot]", type }
+    user: { login: "qodo-code-review[bot]", type }
   });
-  const review = (commitId = head) => ({
+  const rabbitSignal = () => ({
+    body: "Review limit reached. Next review available in: 28 minutes.",
+    created_at: at(3),
+    updated_at: at(3),
+    user: { login: "coderabbitai[bot]", type: "Bot" }
+  });
+  const codexReview = (commitId = head) => ({
     submitted_at: at(4),
     state: "COMMENTED",
     commit_id: commitId,
     user: { login: "chatgpt-codex-connector[bot]", type: "Bot" }
   });
+  const rabbitReview = () => ({
+    submitted_at: at(4),
+    state: "APPROVED",
+    commit_id: head,
+    user: { login: "coderabbitai[bot]", type: "Bot" }
+  });
   const baseComments = [
     request("/qodo review", 1),
-    request("@codex review", 2),
-    request("@coderabbitai review", 2)
+    request("@codex review", 2)
   ];
   const select = (comments, reviews) => selectRequiredEvidence({
     comments,
@@ -85,30 +101,34 @@ function reviewerFailoverIsCurrentHeadBound() {
     now: anchor + 5 * 60_000
   });
 
-  const valid = select([...baseComments, signal()], [review()]);
-  const missingPrimary = select(
-    [request("@codex review", 2), request("@coderabbitai review", 2), signal()],
-    [review()]
+  const valid = select([...baseComments, qodoSignal()], [codexReview()]);
+  const missingStandby = select([request("/qodo review", 1), qodoSignal()], [codexReview()]);
+  const stale = select([...baseComments, qodoSignal()], [codexReview(staleHead)]);
+  const spoofed = select([...baseComments, qodoSignal("User")], [codexReview()]);
+  const noticeOnly = select([...baseComments, qodoSignal()], []);
+  const dormantRabbit = select(
+    [...baseComments, request("@coderabbitai review", 2), rabbitSignal()],
+    [rabbitReview()]
   );
-  const stale = select([...baseComments, signal()], [review(staleHead)]);
-  const spoofed = select([...baseComments, signal("User")], [review()]);
-  const noticeOnly = select([...baseComments, signal()], []);
 
   return valid.provider === "Codex" &&
     valid.mode === "automatic-failover" &&
     valid.primaryFailure === "PROVIDER_LIMIT" &&
-    valid.unavailableProviders?.includes("CodeRabbit") &&
+    valid.unavailableProviders?.includes("Qodo") &&
     valid.warmStandbyRoundReady === true &&
-    missingPrimary.provider === null &&
-    missingPrimary.mode === "pending" &&
-    missingPrimary.fallbackEligible === false &&
-    missingPrimary.warmStandbyRoundReady === false &&
+    missingStandby.provider === null &&
+    missingStandby.mode === "pending" &&
+    missingStandby.fallbackEligible === false &&
+    missingStandby.warmStandbyRoundReady === false &&
     stale.provider === null &&
     stale.mode === "fallback-pending" &&
     spoofed.provider === null &&
     spoofed.mode === "pending" &&
     noticeOnly.provider === null &&
-    noticeOnly.mode === "fallback-pending";
+    noticeOnly.mode === "fallback-pending" &&
+    dormantRabbit.provider === null &&
+    dormantRabbit.mode === "pending" &&
+    dormantRabbit.unavailableProviders?.length === 0;
 }
 
 assert(matrix.version === 1, "matrix version must remain 1");
@@ -187,7 +207,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is exact-head bound and requires complete warm-standby dispatch before provider-limit failover", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
+  ["AI evidence is exact-head bound, requires Qodo-Codex dispatch before failover, and ignores dormant CodeRabbit", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
 ]);
 
 const report = {
