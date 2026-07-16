@@ -409,6 +409,24 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
+    def test_qodo_issue_comment_cannot_satisfy_native_lane(self) -> None:
+        data = base_inputs()
+        data['comments'] = active_requests() + [
+            comment(
+                f'Reviewed commit: `{HEAD}`',
+                login='qodo-code-review',
+                created_at='2026-06-30T00:03:00Z',
+                association='NONE',
+            )
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Qodo | yes | E1 | missing evidence |', report)
+        self.assertNotIn('| Qodo | yes | E5 |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+
     def test_ledger_escapes_head_matchers_and_binds_reviews_to_requests(self) -> None:
         ledger = (SCRIPT.parent.parent / '.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
         self.assertEqual(ledger.count('new RegExp(`^Head:\\\\s*${head}\\\\s*$`'), 2)
