@@ -1,14 +1,15 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 
+const require = createRequire(import.meta.url);
+const selectRequiredEvidence = require("./verify-ai-review-contract.cjs")?._test?.selectRequiredEvidence;
 const matrix = JSON.parse(readFileSync("qa/ai-style-review-matrix.json", "utf8"));
 const uiUx = JSON.parse(readFileSync("qa/ui-ux-matrix.json", "utf8"));
 const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const workflow = readFileSync(".github/workflows/visual-regression.yml", "utf8");
 const aiWorkflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
-const aiVerifier = readFileSync("scripts/verify-ai-review-contract.cjs", "utf8");
-const aiContract = `${aiWorkflow}\n${aiVerifier}`;
 const uiRunner = readFileSync("scripts/ui-ux-matrix.mjs", "utf8");
 const socialVerifier = readFileSync("scripts/verify-social-network-live.mjs", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
@@ -45,6 +46,60 @@ function hasLanguages(html) {
 
 function hasCanonicalInstagramLiteral(content) {
   return canonicalInstagramLiteral.test(content);
+}
+
+function reviewerFailoverIsCurrentHeadBound() {
+  if (typeof selectRequiredEvidence !== "function") return false;
+
+  const head = "a".repeat(40);
+  const staleHead = "b".repeat(40);
+  const anchor = Date.parse("2026-07-16T00:00:00Z");
+  const at = (minutes) => new Date(anchor + minutes * 60_000).toISOString();
+  const request = (command, minutes) => ({
+    body: `${command}\n\nExact head: ${head}`,
+    created_at: at(minutes),
+    author_association: "OWNER"
+  });
+  const signal = (type = "Bot") => ({
+    body: "Review limit reached. Next review available in: 28 minutes.",
+    created_at: at(3),
+    updated_at: at(3),
+    user: { login: "coderabbitai[bot]", type }
+  });
+  const review = (commitId = head) => ({
+    submitted_at: at(4),
+    state: "COMMENTED",
+    commit_id: commitId,
+    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" }
+  });
+  const baseComments = [
+    request("/qodo review", 1),
+    request("@codex review", 2),
+    request("@coderabbitai review", 2)
+  ];
+  const select = (comments, reviews) => selectRequiredEvidence({
+    comments,
+    reviews,
+    currentHead: head,
+    headUpdateAnchor: anchor,
+    now: anchor + 5 * 60_000
+  });
+
+  const valid = select([...baseComments, signal()], [review()]);
+  const stale = select([...baseComments, signal()], [review(staleHead)]);
+  const spoofed = select([...baseComments, signal("User")], [review()]);
+  const noticeOnly = select([...baseComments, signal()], []);
+
+  return valid.provider === "Codex" &&
+    valid.mode === "automatic-failover" &&
+    valid.primaryFailure === "PROVIDER_LIMIT" &&
+    valid.unavailableProviders?.includes("CodeRabbit") &&
+    stale.provider === null &&
+    stale.mode === "fallback-pending" &&
+    spoofed.provider === null &&
+    spoofed.mode === "pending" &&
+    noticeOnly.provider === null &&
+    noticeOnly.mode === "fallback-pending";
 }
 
 assert(matrix.version === 1, "matrix version must remain 1");
@@ -123,7 +178,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to the latest request and current head", aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("codeRabbitRequestAt") && aiContract.includes("codexRequestAt")]
+  ["AI evidence is exact-head bound and supports authenticated provider-limit failover", aiWorkflow.includes("verify-ai-review-contract.cjs") && reviewerFailoverIsCurrentHeadBound()]
 ]);
 
 const report = {
