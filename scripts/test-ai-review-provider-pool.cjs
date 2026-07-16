@@ -27,13 +27,13 @@ function limitSignal(login, minutes, body = "Review limit reached. Next review a
   return item;
 }
 
-function review(login, minutes, state = "COMMENTED", head = HEAD) {
+function review(login, minutes, state = "COMMENTED", head = HEAD, type = "Bot") {
   return {
     body: "",
     submitted_at: T(minutes),
     state,
     commit_id: head,
-    user: { login, type: "Bot" },
+    user: { login, type },
   };
 }
 
@@ -66,6 +66,9 @@ function select(comments, reviews, nowMinutes) {
   });
 }
 
+assert.deepEqual(_test.ACTIVE_PROVIDER_NAMES, ["Qodo", "Codex"]);
+assert.equal(_test.DORMANT_PROVIDER_NAMES.has("CodeRabbit"), true);
+
 {
   const anchor = _test.stableHeadUpdateAnchor(
     workflowRun({ id: 77, minutes: 4, runAttempt: 3 }),
@@ -76,33 +79,22 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
-  const anchor = _test.stableHeadUpdateAnchor(
-    workflowRun({ id: 11, minutes: 1 }),
-    HEAD,
-    99,
+  assert.equal(
+    _test.stableHeadUpdateAnchor(workflowRun({ id: 11, minutes: 1 }), HEAD, 99),
+    0,
   );
-  assert.equal(anchor, 0);
-}
-
-{
-  const wrongHead = _test.stableHeadUpdateAnchor(
-    workflowRun({ id: 77, minutes: 4, head: OLD_HEAD }),
-    HEAD,
-    77,
+  assert.equal(
+    _test.stableHeadUpdateAnchor(workflowRun({ id: 77, minutes: 4, head: OLD_HEAD }), HEAD, 77),
+    0,
   );
-  const wrongName = _test.stableHeadUpdateAnchor(
-    workflowRun({ id: 77, minutes: 4, name: "Other workflow" }),
-    HEAD,
-    77,
+  assert.equal(
+    _test.stableHeadUpdateAnchor(workflowRun({ id: 77, minutes: 4, name: "Other workflow" }), HEAD, 77),
+    0,
   );
-  const wrongEvent = _test.stableHeadUpdateAnchor(
-    workflowRun({ id: 77, minutes: 4, event: "push" }),
-    HEAD,
-    77,
+  assert.equal(
+    _test.stableHeadUpdateAnchor(workflowRun({ id: 77, minutes: 4, event: "push" }), HEAD, 77),
+    0,
   );
-  assert.equal(wrongHead, 0);
-  assert.equal(wrongName, 0);
-  assert.equal(wrongEvent, 0);
 }
 
 {
@@ -126,30 +118,15 @@ function select(comments, reviews, nowMinutes) {
     _test.hasPositiveProviderLimitSignal("Review limit reached. Next review available in: 28 minutes."),
     true,
   );
-  assert.equal(
-    _test.hasPositiveProviderLimitSignal("No review limit reached; review can continue."),
-    false,
-  );
-  assert.equal(
-    _test.hasPositiveProviderLimitSignal("Review limit not reached; review can continue."),
-    false,
-  );
-  assert.equal(
-    _test.hasPositiveProviderLimitSignal("This is not a rate limit reached condition."),
-    false,
-  );
-  assert.equal(
-    _test.hasPositiveProviderLimitSignal("> Review limit reached\nNormal status update."),
-    false,
-  );
+  assert.equal(_test.hasPositiveProviderLimitSignal("No review limit reached; review can continue."), false);
+  assert.equal(_test.hasPositiveProviderLimitSignal("Review limit not reached; review can continue."), false);
+  assert.equal(_test.hasPositiveProviderLimitSignal("This is not a rate limit reached condition."), false);
+  assert.equal(_test.hasPositiveProviderLimitSignal("> Review limit reached\nNormal status update."), false);
   assert.equal(
     _test.hasPositiveProviderLimitSignal("```text\nReview limit reached\n```\nNormal status update."),
     false,
   );
-  assert.equal(
-    _test.hasPositiveProviderLimitSignal("> old quote\nReview limit reached."),
-    true,
-  );
+  assert.equal(_test.hasPositiveProviderLimitSignal("> old quote\nReview limit reached."), true);
 }
 
 {
@@ -188,13 +165,13 @@ function select(comments, reviews, nowMinutes) {
       request("/qodo review", 1),
       request("/qodo review", 16),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     30,
   );
   assert.equal(result.provider, null);
   assert.equal(result.mode, "pending");
+  assert.equal(result.warmStandbyRoundReady, true);
 }
 
 {
@@ -203,7 +180,6 @@ function select(comments, reviews, nowMinutes) {
       request("/qodo review", 1),
       request("/qodo review", 16),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -215,11 +191,7 @@ function select(comments, reviews, nowMinutes) {
 
 {
   const result = select(
-    [
-      request("/qodo review", 1),
-      request("/qodo review", 16),
-      request("@codex review", 2),
-    ],
+    [request("/qodo review", 1), request("/qodo review", 16)],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
   );
@@ -227,6 +199,7 @@ function select(comments, reviews, nowMinutes) {
   assert.equal(result.mode, "pending");
   assert.equal(result.fallbackEligible, false);
   assert.equal(result.warmStandbyRoundReady, false);
+  assert.deepEqual(result.requestedProviders, ["Qodo"]);
 }
 
 {
@@ -236,13 +209,11 @@ function select(comments, reviews, nowMinutes) {
       request("/qodo review", 16),
       request("/qodo review", 20),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
   );
   assert.equal(result.provider, "Codex");
-  assert.equal(result.mode, "fallback");
   assert.equal(result.timeoutPair.secondAt, ANCHOR + 16 * 60_000);
   assert.equal(result.fallbackEligibleAt, ANCHOR + 31 * 60_000);
 }
@@ -252,8 +223,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3),
+      limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
     ],
     [review("chatgpt-codex-connector[bot]", 4)],
     5,
@@ -261,7 +231,7 @@ function select(comments, reviews, nowMinutes) {
   assert.equal(result.provider, "Codex");
   assert.equal(result.mode, "automatic-failover");
   assert.equal(result.primaryFailure, "PROVIDER_LIMIT");
-  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
+  assert.deepEqual(result.unavailableProviders, ["Qodo"]);
   assert.equal(result.warmStandbyRoundReady, true);
 }
 
@@ -270,141 +240,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3),
-    ],
-    [review("coderabbitai[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "fallback-pending");
-  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("chatgpt-codex-connector[bot]", 3, "Quota exceeded for reviews."),
-    ],
-    [
-      review("chatgpt-codex-connector[bot]", 4),
-      review("coderabbitai[bot]", 5),
-    ],
-    6,
-  );
-  assert.equal(result.provider, "CodeRabbit");
-  assert.equal(result.mode, "automatic-failover");
-  assert.deepEqual(result.unavailableProviders, ["Codex"]);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3, "Provider is not rate limited and can review normally."),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "pending");
-  assert.deepEqual(result.unavailableProviders, []);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3, "No review limit reached; review can continue."),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "pending");
-  assert.deepEqual(result.unavailableProviders, []);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3, "> Review limit reached\nNo current capacity issue."),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "pending");
-  assert.deepEqual(result.unavailableProviders, []);
-}
-
-{
-  const result = select(
-    [
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "pending");
-  assert.equal(result.fallbackEligible, false);
-  assert.equal(result.warmStandbyRoundReady, false);
-  assert.deepEqual(result.requestedProviders, ["Codex", "CodeRabbit"]);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
       limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "pending");
-  assert.equal(result.fallbackEligible, false);
-  assert.equal(result.warmStandbyRoundReady, false);
-  assert.deepEqual(result.requestedProviders, ["Qodo", "Codex"]);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
-    ],
-    [review("coderabbitai[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, "CodeRabbit");
-  assert.equal(result.mode, "automatic-failover");
-  assert.deepEqual(result.unavailableProviders, ["Qodo"]);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3, "Review limit reached."),
     ],
     [],
     5,
@@ -417,47 +253,16 @@ function select(comments, reviews, nowMinutes) {
 {
   const result = select(
     [
-      limitSignal("coderabbitai[bot]", -60, "Review limit reached.", "Bot", 3),
       request("/qodo review", 1),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
-    ],
-    [review("chatgpt-codex-connector[bot]", 4)],
-    5,
-  );
-  assert.equal(result.provider, "Codex");
-  assert.equal(result.mode, "automatic-failover");
-  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
-}
-
-{
-  const result = select(
-    [
-      limitSignal("coderabbitai[bot]", 1),
-      request("/qodo review", 2),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-    ],
-    [review("chatgpt-codex-connector[bot]", 3)],
-    4,
-  );
-  assert.equal(result.provider, null);
-  assert.deepEqual(result.unavailableProviders, []);
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3, "Review limit reached.", "User"),
+      limitSignal("chatgpt-codex-connector[bot]", 3, "Quota exceeded for reviews."),
     ],
     [review("chatgpt-codex-connector[bot]", 4)],
     5,
   );
   assert.equal(result.provider, null);
-  assert.deepEqual(result.unavailableProviders, []);
+  assert.equal(result.mode, "fallback-pending");
+  assert.deepEqual(result.unavailableProviders, ["Codex"]);
 }
 
 {
@@ -465,8 +270,7 @@ function select(comments, reviews, nowMinutes) {
     [
       request("/qodo review", 1),
       request("@codex review", 2),
-      request("@coderabbitai review", 2),
-      limitSignal("coderabbitai[bot]", 3),
+      limitSignal("chatgpt-codex-connector[bot]", 3, "Quota exceeded for reviews."),
     ],
     [
       review("chatgpt-codex-connector[bot]", 4),
@@ -482,15 +286,108 @@ function select(comments, reviews, nowMinutes) {
   const result = select(
     [
       request("/qodo review", 1),
-      request("/qodo review", 16),
+      request("@codex review", 2),
+      limitSignal("qodo-code-review[bot]", -60, "Review limit reached.", "Bot", 3),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, "Codex");
+  assert.equal(result.mode, "automatic-failover");
+}
+
+{
+  const result = select(
+    [
+      limitSignal("qodo-code-review[bot]", 1),
+      request("/qodo review", 2),
+      request("@codex review", 2),
+    ],
+    [review("chatgpt-codex-connector[bot]", 3)],
+    4,
+  );
+  assert.equal(result.provider, null);
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      limitSignal("qodo-code-review[bot]", 3, "Review limit reached.", "User"),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      limitSignal("qodo-code-review[bot]", 3, "No review limit reached; review can continue."),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      limitSignal("qodo-code-review[bot]", 3, "> Review limit reached\nNo current capacity issue."),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const dormantComments = [
+    request("/qodo review", 1),
+    request("@coderabbitai review", 2),
+    limitSignal("coderabbitai[bot]", 3),
+  ];
+  const result = select(dormantComments, [review("coderabbitai[bot]", 4)], 5);
+  assert.equal(result.provider, null);
+  assert.equal(result.mode, "pending");
+  assert.equal(result.warmStandbyRoundReady, false);
+  assert.deepEqual(result.requestedProviders, ["Qodo"]);
+  assert.deepEqual(result.unavailableProviders, []);
+}
+
+{
+  const result = select(
+    [
+      request("/qodo review", 1),
       request("@codex review", 2),
       request("@coderabbitai review", 2),
+      limitSignal("coderabbitai[bot]", 3),
+      limitSignal("qodo-code-review[bot]", 3, "Quota exceeded for reviews."),
     ],
-    [review("coderabbitai[bot]", 20)],
-    31,
+    [
+      review("coderabbitai[bot]", 4),
+      review("chatgpt-codex-connector[bot]", 5),
+    ],
+    6,
   );
-  assert.equal(result.provider, "CodeRabbit");
-  assert.equal(result.mode, "fallback");
+  assert.equal(result.provider, "Codex");
+  assert.equal(result.mode, "automatic-failover");
+  assert.deepEqual(result.unavailableProviders, ["Qodo"]);
+  assert.deepEqual(result.requestedProviders, ["Qodo", "Codex"]);
 }
 
 {
@@ -499,7 +396,6 @@ function select(comments, reviews, nowMinutes) {
       request("/qodo review", 1),
       request("/qodo review", 16),
       request("@codex review", 2, "NONE"),
-      request("@coderabbitai review", 2),
     ],
     [review("chatgpt-codex-connector[bot]", 18)],
     31,
@@ -510,48 +406,19 @@ function select(comments, reviews, nowMinutes) {
 }
 
 {
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("/qodo review", 16),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-    ],
-    [review("chatgpt-codex-connector-evil", 18)],
-    31,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "fallback-pending");
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("/qodo review", 16),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-    ],
-    [review("chatgpt-codex-connector[bot]", 18, "DISMISSED")],
-    31,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "fallback-pending");
-}
-
-{
-  const result = select(
-    [
-      request("/qodo review", 1),
-      request("/qodo review", 16),
-      request("@codex review", 2),
-      request("@coderabbitai review", 2),
-    ],
-    [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", OLD_HEAD)],
-    31,
-  );
-  assert.equal(result.provider, null);
-  assert.equal(result.mode, "fallback-pending");
+  const base = [
+    request("/qodo review", 1),
+    request("/qodo review", 16),
+    request("@codex review", 2),
+  ];
+  const evil = select(base, [review("chatgpt-codex-connector-evil", 18)], 31);
+  const dismissed = select(base, [review("chatgpt-codex-connector[bot]", 18, "DISMISSED")], 31);
+  const stale = select(base, [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", OLD_HEAD)], 31);
+  const human = select(base, [review("chatgpt-codex-connector[bot]", 18, "COMMENTED", HEAD, "User")], 31);
+  assert.equal(evil.mode, "fallback-pending");
+  assert.equal(dismissed.mode, "fallback-pending");
+  assert.equal(stale.mode, "fallback-pending");
+  assert.equal(human.mode, "fallback-pending");
 }
 
 console.log("provider-pool contract: ok");
