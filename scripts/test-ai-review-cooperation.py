@@ -373,6 +373,42 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('| Codex | yes | E1 | missing evidence |', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
+    def test_pre_request_codex_review_does_not_count(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            request('/qodo review'),
+            request('@codex review', created_at='2026-06-30T00:02:00Z'),
+        ]
+        data['reviews'] = [
+            review('No findings.', login='chatgpt-codex-connector', submitted_at=AFTER)
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | yes | E1 | missing evidence |', report)
+        self.assertIn('**Overall conclusion:** **WAIT_FOR_EVIDENCE**', report)
+
+    def test_post_request_codex_review_counts(self) -> None:
+        data = base_inputs()
+        data['comments'] = [
+            request('/qodo review'),
+            request('@codex review', created_at='2026-06-30T00:02:00Z'),
+        ]
+        data['reviews'] = [
+            review(
+                'No findings.',
+                login='chatgpt-codex-connector',
+                submitted_at='2026-06-30T00:03:00Z',
+            )
+        ]
+        data['checks'] = {'check_runs': [check('Security contract')]}
+
+        report = MODULE.build_report(**data)
+
+        self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
+        self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
+
     def test_ledger_escapes_head_matchers_and_binds_reviews_to_requests(self) -> None:
         ledger = (SCRIPT.parent.parent / '.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
         self.assertEqual(ledger.count('new RegExp(`^Head:\\\\s*${head}\\\\s*$`'), 2)
