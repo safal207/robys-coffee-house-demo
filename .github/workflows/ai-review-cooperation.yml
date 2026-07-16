@@ -213,6 +213,7 @@ jobs:
             echo "THREADS_FILE=${prefix}-threads.json"
             echo "RAW_CHECKS_FILE=${prefix}-checks-raw.json"
             echo "CHECKS_FILE=${prefix}-checks.json"
+            echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
             echo "COMMENT_FILE=${prefix}-comment.json"
           } >> "${GITHUB_ENV}"
@@ -244,6 +245,7 @@ jobs:
             "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
             | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
             > "${CHECKS_FILE}"
+          printf '[]\n' > "${STATUSES_FILE}"
 
       - name: Collect complete GraphQL review evidence
         id: graphql_evidence
