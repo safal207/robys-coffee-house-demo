@@ -174,6 +174,10 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     headUpdateAnchor,
   });
   const qodo = states.find((state) => state.name === "Qodo");
+  const requestedProviders = states
+    .filter((state) => state.requestAt > 0)
+    .map((state) => state.name);
+  const warmStandbyRoundReady = states.every((state) => state.requestAt > 0);
   const unavailableProviders = states
     .filter((state) => state.limitSignal)
     .map((state) => state.name)
@@ -188,6 +192,8 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       qodoRequestAt: qodo.requestAt,
       fallbackEligible: false,
       unavailableProviders,
+      requestedProviders,
+      warmStandbyRoundReady,
     };
   }
 
@@ -196,7 +202,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     ? timeoutPair.secondAt + SECOND_QODO_TIMEOUT_MS
     : 0;
   const timeoutFallbackEligible = fallbackEligibleAt > 0 && now >= fallbackEligibleAt;
-  const limitFallbackEligible = unavailableProviders.length > 0;
+  const limitFallbackEligible = warmStandbyRoundReady && unavailableProviders.length > 0;
   const fallbackEligible = timeoutFallbackEligible || limitFallbackEligible;
   const primaryFailure = limitFallbackEligible ? "PROVIDER_LIMIT" :
     timeoutPair ? "QODO_TIMEOUT_2_PENDING" : "QODO_TIMEOUT_1_PENDING";
@@ -212,6 +218,8 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       fallbackEligible,
       fallbackEligibleAt,
       unavailableProviders,
+      requestedProviders,
+      warmStandbyRoundReady,
     };
   }
 
@@ -238,6 +246,8 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       fallbackEligible,
       fallbackEligibleAt,
       unavailableProviders,
+      requestedProviders,
+      warmStandbyRoundReady,
     };
   }
 
@@ -251,7 +261,8 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     fallbackEligible,
     fallbackEligibleAt,
     unavailableProviders,
-    requestedProviders: states.filter((state) => state.requestAt > 0).map((state) => state.name),
+    requestedProviders,
+    warmStandbyRoundReady,
   };
 }
 
@@ -362,7 +373,7 @@ async function verifyAiReviewContract({ github, context, core }) {
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit should be requested as warm standbys after each head update. Qodo remains primary, but an authenticated provider Bot rate-limit or quota signal immediately opens automatic failover to another request-bound native exact-head reviewer. " +
+            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo, Codex and CodeRabbit must all be requested as warm standbys after each head update before provider-limit failover can open. Qodo remains primary, but an authenticated provider Bot rate-limit or quota signal then opens automatic failover to another request-bound native exact-head reviewer. " +
             "A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
@@ -375,7 +386,7 @@ async function verifyAiReviewContract({ github, context, core }) {
     core.info(
       `Waiting for independent review evidence (${attempt}/${POLL_ATTEMPTS}); ` +
         `mode=${selection?.mode ?? "unknown"}; primary_failure=${selection?.primaryFailure ?? "unknown"}; ` +
-        `fallback_eligible=${Boolean(selection?.fallbackEligible)}; unavailable=${selection?.unavailableProviders?.join(",") || "none"}; head=${pr.head.sha}`,
+        `fallback_eligible=${Boolean(selection?.fallbackEligible)}; requested=${selection?.requestedProviders?.join(",") || "none"}; unavailable=${selection?.unavailableProviders?.join(",") || "none"}; head=${pr.head.sha}`,
     );
     if (attempt < POLL_ATTEMPTS) {
       await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -384,7 +395,7 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo, Codex and CodeRabbit as warm standbys after every head update. " +
-      "Qodo remains primary. An authenticated provider Bot rate-limit or quota signal immediately opens automatic failover to another requested provider; otherwise fallback opens after the existing two-request Qodo timeout sequence. " +
+      "Qodo remains primary. Automatic provider-limit failover opens only after all three current-head requests exist and an authenticated provider Bot reports a rate, usage, quota, or review limit; otherwise fallback opens after the existing two-request Qodo timeout sequence. " +
       "A limit notice, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
