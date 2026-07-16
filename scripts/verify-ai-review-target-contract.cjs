@@ -23,6 +23,10 @@ function isFullSha(value) {
   return typeof value === "string" && /^[0-9a-f]{40}$/i.test(value);
 }
 
+function expectedRunTitle(prNumber, currentHead) {
+  return `AI review PR #${prNumber} head ${currentHead.toLowerCase()}`;
+}
+
 function isPermissionError(error) {
   const message = error?.message ?? "";
   if (error?.status === 401) return true;
@@ -55,12 +59,15 @@ function stableTargetRunAnchor(run, {
   currentRunId,
   trustedBaseSha,
   defaultBranch,
+  prNumber,
+  currentHead,
 }) {
   if (run?.id !== currentRunId) return 0;
   if (run?.name !== AI_REVIEW_WORKFLOW_NAME) return 0;
   if (run?.event !== "pull_request_target") return 0;
   if (run?.head_sha?.toLowerCase() !== trustedBaseSha.toLowerCase()) return 0;
   if (run?.path !== `${WORKFLOW_PATH}@${defaultBranch}`) return 0;
+  if (run?.display_title !== expectedRunTitle(prNumber, currentHead)) return 0;
   return parseTime(run.created_at);
 }
 
@@ -71,6 +78,8 @@ async function resolveStableTargetAnchor({
   currentRunId,
   trustedBaseSha,
   defaultBranch,
+  prNumber,
+  currentHead,
 }) {
   const response = await github.rest.actions.getWorkflowRun({
     owner,
@@ -81,10 +90,12 @@ async function resolveStableTargetAnchor({
     currentRunId,
     trustedBaseSha,
     defaultBranch,
+    prNumber,
+    currentHead,
   });
   if (anchor <= 0) {
     throw new Error(
-      "current workflow run is not a default-branch-owned pull_request_target run bound to the trusted base SHA",
+      "current workflow run is not a default-branch-owned pull_request_target run bound to the trusted base SHA and exact PR head",
     );
   }
   return anchor;
@@ -117,6 +128,8 @@ async function verifyAiReviewTargetContract({ github, context, core }) {
           currentRunId: context.runId,
           trustedBaseSha,
           defaultBranch,
+          prNumber: pr.number,
+          currentHead,
         });
       }
 
@@ -193,6 +206,7 @@ async function verifyAiReviewTargetContract({ github, context, core }) {
         ])
         .addRaw(
           `\nTrust boundary: workflow ${WORKFLOW_PATH}@${defaultBranch} and verifier code were loaded from trusted base ${trustedBaseSha}. ` +
+            `Run title binds PR #${pr.number} to exact head ${currentHead}. ` +
             `Freshness anchor: GitHub-server created_at of pull_request_target run ${context.runId}. ` +
             "No pull-request code, dependency, artifact, cache or generated file is executed by this gate. " +
             "Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo and Codex form the active pool; CodeRabbit is dormant. " +
@@ -227,6 +241,7 @@ module.exports = verifyAiReviewTargetContract;
 module.exports._test = {
   ALLOWED_ACTIONS,
   WORKFLOW_PATH,
+  expectedRunTitle,
   stableTargetRunAnchor,
   targetContextError,
 };
