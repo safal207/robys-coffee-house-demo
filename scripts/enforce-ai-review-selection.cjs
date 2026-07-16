@@ -39,7 +39,9 @@ function enforceSelection({
 
   const workflowAnchor = parseTime(workflowCreatedAt);
   const headAnchor = headCommitTime(headCommit);
-  const anchor = triggerEvent === "workflow_run" ? workflowAnchor : headAnchor;
+  // A workflow-run refresh has already been authorized as a successful trusted target run.
+  // Prefer its server timestamp when supplied; otherwise retain the exact-head commit floor.
+  const anchor = workflowAnchor > 0 ? workflowAnchor : headAnchor;
   if (anchor <= 0) {
     throw new Error("cooperation selection guard requires a stable freshness anchor");
   }
