@@ -59,4 +59,21 @@ jobs:
         run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
 
       - name: Verify trusted workflow-run handoff
-        run: ruby scripts/test-ai-review-cooperation-workflow.rb
+        id: handoff-tests
+        continue-on-error: true
+        run: ruby scripts/test-ai-review-cooperation-workflow.rb > "${RUNNER_TEMP}/cooperation-handoff.log" 2>&1
+
+      - name: Upload failed handoff test log
+        if: steps.handoff-tests.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cooperation-handoff-failure-${{ github.run_id }}
+          path: ${{ runner.temp }}/cooperation-handoff.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Surface failed handoff contract
+        if: steps.handoff-tests.outcome == 'failure'
+        run: |
+          cat "${RUNNER_TEMP}/cooperation-handoff.log"
+          exit 1
