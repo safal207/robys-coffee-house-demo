@@ -133,6 +133,8 @@ jobs:
               'LIMIT_SIGNAL_PATTERNS',
               '/review limit reached/i',
               'providerLimitSignals',
+              'signalTimeOf',
+              'parseTime(item.updated_at)',
               'item.user?.type !== "Bot"',
               'review.user?.type === "Bot"',
               'review.commit_id?.toLowerCase() === currentHead',
@@ -153,6 +155,7 @@ jobs:
           required_tests = [
               'Simulates a later attempt of the same workflow run',
               'Review limit reached',
+              'updated_at',
               'automatic-failover',
               'provider-pool contract: ok',
           ]
@@ -161,6 +164,8 @@ jobs:
               'GITHUB_RUN_ATTEMPT',
               'warm standbys',
               'automatic failover',
+              'bot-updated',
+              '`created_at`/`updated_at`',
               'two trusted exact-head `/qodo review` requests',
               'Codex or CodeRabbit',
               'default branch',
