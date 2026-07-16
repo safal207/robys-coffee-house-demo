@@ -44,6 +44,10 @@ function submittedTimeOf(review) {
   return parseTime(review.submitted_at);
 }
 
+function signalTimeOf(item) {
+  return Math.max(parseTime(item.created_at), parseTime(item.updated_at));
+}
+
 function isSubmittedActiveReview(review) {
   return (
     Boolean(review.submitted_at) &&
@@ -109,11 +113,11 @@ function providerLimitSignals(comments, logins, notBefore) {
     .filter((item) => {
       if (!logins.has(item.user?.login)) return false;
       if (item.user?.type !== "Bot") return false;
-      if (createdTimeOf(item) < notBefore) return false;
+      if (signalTimeOf(item) < notBefore) return false;
       const body = item.body ?? "";
       return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(body));
     })
-    .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
+    .sort((left, right) => signalTimeOf(left) - signalTimeOf(right));
 }
 
 function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
@@ -397,6 +401,7 @@ module.exports._test = {
   freshTrustedRequests,
   hasExactHeadBinding,
   providerLimitSignals,
+  signalTimeOf,
   qodoTimeoutPair,
   selectRequiredEvidence,
   stableHeadUpdateAnchor,
