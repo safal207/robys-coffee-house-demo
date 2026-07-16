@@ -140,7 +140,7 @@ jobs:
                 item.state !== 'DISMISSED';
             });
             if (activeReviewerEvidence.length === 0) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no request-bound native Qodo/Codex exact-head review for ${head}.`);
+              core.setFailed(`PDG-001 depth D4 incomplete: no native Qodo/Codex exact-head review is request-bound; no request-bound native Qodo/Codex exact-head review exists for ${head}.`);
               return;
             }
 
