@@ -1,32 +1,28 @@
 # AI reviewer cooperation policy
 
-This repository treats AI reviewers as independent sensors, not as a voting committee. A request, an acknowledgement, a reaction, a status, a maintainer-authored note, and a native exact-head bot review are different evidence classes and must never be conflated.
+This repository treats AI reviewers as independent sensors, not as a voting committee. A request, an acknowledgement, a provider-limit notice, a reaction, a status, a maintainer-authored note, and a native exact-head bot review are different evidence classes and must never be conflated.
 
 ## Required independent-review capability
 
 The required lane is a provider pool rather than a permanent dependency on one vendor:
 
-1. **Qodo** is the primary native exact-head reviewer.
-2. **Codex** and **CodeRabbit** are native exact-head fallback reviewers.
+1. **Qodo** is the preferred primary native exact-head reviewer.
+2. **Codex** and **CodeRabbit** are warm-standby native exact-head reviewers.
 3. **Jules** and **DeepSeek** remain advisory.
 4. **CI** remains authoritative executable evidence for build, security, browser, accessibility, visual, integrity, and performance contracts.
 5. **Maintainer** owns the final release decision but cannot impersonate an independent reviewer.
 
 A provider name is not the capability. The capability is a request-bound native Bot review whose `commit_id` equals the current head.
 
-## Canonical temporal sequence
+## Warm-standby dispatch rule
 
-After every head update, freeze the branch and post the primary request with the full current SHA:
+After every head update, freeze the branch and send all three trusted exact-head requests in the same review round:
 
 ```text
 /qodo review
 
 Exact head: <full 40-character current head SHA>
 ```
-
-If no native Qodo review appears after 15 minutes, post exactly one second trusted request with the same exact-head binding. The two trusted `/qodo review` requests must be at least 15 minutes apart.
-
-Fallback becomes eligible only after another 15 minutes has elapsed after the second Qodo request and no native exact-head Qodo review exists. Fallback requests may be posted after the second Qodo request so the independent reviewers can work in parallel:
 
 ```text
 @codex review
@@ -40,11 +36,45 @@ Exact head: <full 40-character current head SHA>
 Exact head: <full 40-character current head SHA>
 ```
 
-The first qualifying native exact-head Codex or CodeRabbit Bot review may satisfy the required lane after fallback eligibility is reached. Status-only evidence, reactions, acknowledgements, summaries, owner-authored connector output, unbound commands, and maintainer proxy reviews never satisfy the required lane.
+Qodo remains preferred, but Codex and CodeRabbit start as warm standbys instead of waiting for a provider failure. This removes provider availability from the critical path without weakening exact-head identity or evidence requirements.
 
-The verifier uses the GitHub-server `created_at` of the current `AI review contract` workflow run as its freshness anchor. GitHub keeps `GITHUB_RUN_ID` unchanged when that workflow run is re-run and increments `GITHUB_RUN_ATTEMPT` for each attempt. Therefore, rerunning the same failed workflow run after the timeout windows preserves its original server-side anchor without depending on `pull_requests`, branch-name heuristics, another PR, or author-controlled commit timestamps. Starting a new workflow run creates a new anchor and requires fresh exact-head requests.
+A new commit invalidates every request, limit signal, timeout window, review, report, disposition, proof seal, and merge-ready decision associated with the previous head.
 
-A new commit invalidates every request, timeout window, review, report, disposition, proof seal, and merge-ready decision associated with the previous head.
+## Automatic provider-limit failover
+
+A provider is considered unavailable for the current review round only when all of these conditions hold:
+
+- that provider has a trusted exact-head request for the current head;
+- an issue comment is authored by an allowlisted login for that provider;
+- `user.type` equals `Bot`;
+- the comment was created after that provider's request;
+- the comment explicitly reports a review/rate/usage limit, exhausted quota, a next-review delay, or temporary unavailability caused by a limit.
+
+An authenticated provider-limit signal immediately opens automatic failover. The first qualifying request-bound native exact-head review from another warm-standby provider may satisfy the required lane. The limit notice itself is operational evidence only and has no merge value.
+
+The following never open automatic failover:
+
+- a maintainer claiming that a provider is limited;
+- a copied or quoted limit message;
+- a message from an unallowlisted login;
+- a non-Bot account;
+- a signal created before the provider request;
+- a generic error without an explicit rate, usage, quota, or review-limit meaning.
+
+If every requested provider reports a limit and no qualifying review exists, the lane remains fail-closed.
+
+## Timeout fallback
+
+Provider-limit failover is additive to the existing Qodo timeout path. When no authenticated provider-limit signal exists:
+
+1. the first trusted exact-head `/qodo review` request starts the primary window;
+2. a second trusted exact-head `/qodo review` request must be posted at least 15 minutes later;
+3. fallback becomes eligible 15 minutes after the second request;
+4. a qualifying warm-standby Codex or CodeRabbit review may then satisfy the lane.
+
+The two trusted exact-head `/qodo review` requests remain necessary for timeout-based fallback, but they are not required when an allowlisted provider Bot has explicitly reported a current-round limit.
+
+The verifier uses the GitHub-server `created_at` of the current `AI review contract` pull-request run as its freshness anchor. GitHub keeps `GITHUB_RUN_ID` unchanged when that workflow run is re-run and increments `GITHUB_RUN_ATTEMPT`. Rerunning the same failed workflow run preserves its server-side anchor. Starting a new workflow run creates a new anchor and requires fresh exact-head requests.
 
 ## Evidence ladder
 
@@ -52,41 +82,39 @@ A new commit invalidates every request, timeout window, review, report, disposit
 |---|---|---|
 | E0 | No trusted exact-head request exists | None |
 | E1 | Trusted exact-head request exists | None |
-| E2 | Bot acknowledged or started work | Operational only |
+| E2 | Bot acknowledged, started work, or reported a limit | Operational only |
 | E3 | Bot responded, but identity or exact-head binding is not verified | Advisory only |
 | E4 | Verified request-bound exact-head Bot review contains actionable findings | Blocking/advisory according to severity |
 | E5 | Verified request-bound exact-head Bot review is clean, or all findings are resolved on the current head | Merge-supporting evidence |
 
-A reaction, “in progress” message, status-only result, issue comment without native commit binding, owner-authored proxy, spoofed author, unbound request, older-SHA response, pending review, dismissed review, resolved thread by itself, or truncated collection cannot satisfy E4/E5.
+A provider-limit notice, reaction, “in progress” message, status-only result, issue comment without native commit binding, owner-authored proxy, spoofed author, unbound request, older-SHA response, pending review, dismissed review, resolved thread by itself, or truncated collection cannot satisfy E4/E5.
 
 ## Identity and binding
 
-Evidence is accepted only from exact allowlisted GitHub logins:
+Evidence and limit signals are accepted only from exact allowlisted GitHub logins:
 
 - Qodo: `qodo-code-review`, `qodo-code-review[bot]`
 - Codex: `chatgpt-codex-connector`, `chatgpt-codex-connector[bot]`
 - CodeRabbit: `coderabbitai`, `coderabbitai[bot]`
 
-For all required providers:
+For all required reviews:
 
 - `user.type` must equal `Bot`;
 - the review must be submitted and not `PENDING` or `DISMISSED`;
 - `commit_id` must equal the full current head;
-- the review must be submitted after that provider’s trusted request;
+- the review must be submitted after that provider's trusted request;
 - the request body must contain both the canonical command and `Exact head: <full current SHA>`;
-- the trusted request must be created after the current workflow run’s stable server-side anchor.
+- the trusted request must be created after the current workflow run's stable server-side anchor.
 
-## Fallback invariants
+## Selection invariants
 
-Fallback is fail-closed and cannot be used to shop for a more favorable answer:
+The pool is fail-closed and cannot be used to shop for a more favorable answer:
 
-- two trusted exact-head `/qodo review` requests are required;
-- the requests must be at least 15 minutes apart;
-- 15 additional minutes must pass after the second request;
-- fallback requests must not predate the second Qodo request;
-- every primary and fallback request must bind the same current SHA;
-- a late Qodo review takes primary precedence;
-- findings from every responding reviewer remain binding;
+- Qodo takes primary precedence whenever a qualifying Qodo review exists;
+- provider-limit failover requires an authenticated allowlisted Bot signal after that provider's current-head request;
+- a non-limited fallback still requires the complete Qodo timeout sequence;
+- every provider request and accepted review must bind the same current SHA;
+- findings from every responding reviewer remain binding, including reviews that arrive after the required lane first passes;
 - a later bot review invalidates any older cooperation report and D6 seal;
 - a head change resets the whole state machine;
 - only a rerun attempt of the same failed workflow run preserves the anchor;
@@ -94,16 +122,17 @@ Fallback is fail-closed and cannot be used to shop for a more favorable answer:
 
 ## Provider-pool reason values
 
-`selectRequiredEvidence` returns exactly these stable `primaryFailure` values:
+`selectRequiredEvidence` returns these stable `primaryFailure` values:
 
 | Value | Meaning | Default action |
 |---|---|---|
 | `none` | A request-bound native Qodo review satisfies the primary lane | Continue with downstream evidence checks |
-| `QODO_TIMEOUT_1_PENDING` | No valid exact-head timeout pair exists yet | Wait for the first window or post the second exact-head Qodo request after 15 minutes |
-| `QODO_TIMEOUT_2_PENDING` | Two valid exact-head Qodo requests exist, but 15 minutes have not elapsed after the second | Wait until fallback eligibility time |
-| `QODO_TIMEOUT_2` | Both Qodo windows elapsed without native Qodo evidence | Require request-bound native Codex or CodeRabbit fallback, then rerun the same failed workflow run |
+| `PROVIDER_LIMIT` | At least one requested allowlisted provider Bot reported a current-round limit | Select another warm-standby exact-head reviewer; remain fail-closed if none has reviewed |
+| `QODO_TIMEOUT_1_PENDING` | No valid exact-head Qodo timeout pair exists yet | Wait for the first window or post the second Qodo request after 15 minutes |
+| `QODO_TIMEOUT_2_PENDING` | Two valid exact-head Qodo requests exist, but 15 minutes have not elapsed after the second | Wait until timeout fallback eligibility |
+| `QODO_TIMEOUT_2` | Both Qodo timeout windows elapsed without native Qodo evidence | Accept a request-bound native Codex or CodeRabbit warm-standby review |
 
-Other failures such as GitHub API permission errors, incomplete evidence collection, stale heads, or actionable findings are enforced by their owning workflow/report/ledger layers. They are not `selectRequiredEvidence.primaryFailure` values and must not be confused with this provider-selection contract.
+Other failures such as GitHub API permission errors, incomplete evidence collection, stale heads, or actionable findings are enforced by their owning workflow/report/ledger layers. They are not provider-selection reason values.
 
 ## Cross-layer failure semantics
 
@@ -115,7 +144,7 @@ The conclusion is causal, not a majority vote. Required CI, exact-head identity,
 
 The `AI review contract` always checks out its verifier from the protected default branch. Pull-request code cannot replace the verifier that judges the same pull request.
 
-This trust patch changes only the default-branch AI-review gate and its read-only contracts. The cooperation report and D6 ledger remain on their legacy CodeRabbit rule until the governance bootstrap in PR #208 aligns those downstream stages. Therefore fallback evidence cannot produce a final merge by itself during the transition; it can only unblock independent review of the #208 changes that complete the migration.
+This trust patch changes only the default-branch AI-review gate and its read-only contracts. The cooperation report and D6 ledger remain on their legacy CodeRabbit rule until the governance bootstrap in PR #208 aligns those downstream stages. Therefore provider-pool evidence cannot produce a final merge by itself during the transition.
 
 ## Required CI and final decision
 
@@ -125,8 +154,9 @@ After the downstream migration is complete, the cooperation report and D6 seal m
 
 ```text
 Required-Reviewer: <Qodo|Codex|CodeRabbit>
-Review-Mode: <primary|fallback>
-Primary-Failure: <none|QODO_TIMEOUT_2>
+Review-Mode: <primary|automatic-failover|fallback>
+Primary-Failure: <none|PROVIDER_LIMIT|QODO_TIMEOUT_2>
+Unavailable-Providers: <none|comma-separated provider names>
 ```
 
 No reviewer may create an unbounded retry loop.
