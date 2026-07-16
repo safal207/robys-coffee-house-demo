@@ -21,8 +21,10 @@ end
 
 trusted = YAML.load_file('.github/workflows/ai-review-contract.yml')
 trusted_on = trigger_key(trusted, 'trusted workflow')
-assert_exact_keys(trusted, ['name', trusted_on, 'permissions', 'jobs'], 'trusted workflow')
+assert_exact_keys(trusted, ['name', 'run-name', trusted_on, 'permissions', 'jobs'], 'trusted workflow')
 raise "unexpected trusted workflow name: #{trusted['name'].inspect}" unless trusted['name'] == 'AI review contract'
+expected_run_name = 'AI review PR #' + '$' + '{{ github.event.pull_request.number }} head ' + '$' + '{{ github.event.pull_request.head.sha }}'
+raise "unexpected trusted run-name: #{trusted['run-name'].inspect}" unless trusted['run-name'] == expected_run_name
 raise "unexpected trusted permissions: #{trusted['permissions'].inspect}" unless trusted['permissions'] == {
   'actions' => 'read',
   'contents' => 'read',
