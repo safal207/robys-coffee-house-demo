@@ -21,8 +21,10 @@ function request(command, minutes, association = "OWNER", head = HEAD) {
   return comment(`${command}\n\nExact head: ${head}`, minutes, association);
 }
 
-function limitSignal(login, minutes, body = "Review limit reached. Next review available in: 28 minutes.", type = "Bot") {
-  return comment(body, minutes, "NONE", login, type);
+function limitSignal(login, minutes, body = "Review limit reached. Next review available in: 28 minutes.", type = "Bot", updatedMinutes) {
+  const item = comment(body, minutes, "NONE", login, type);
+  if (updatedMinutes !== undefined) item.updated_at = T(updatedMinutes);
+  return item;
 }
 
 function review(login, minutes, state = "COMMENTED", head = HEAD) {
@@ -216,6 +218,22 @@ function select(comments, reviews, nowMinutes) {
   assert.equal(result.provider, null);
   assert.equal(result.mode, "fallback-pending");
   assert.equal(result.primaryFailure, "PROVIDER_LIMIT");
+}
+
+{
+  const result = select(
+    [
+      limitSignal("coderabbitai[bot]", -60, "Review limit reached.", "Bot", 3),
+      request("/qodo review", 1),
+      request("@codex review", 2),
+      request("@coderabbitai review", 2),
+    ],
+    [review("chatgpt-codex-connector[bot]", 4)],
+    5,
+  );
+  assert.equal(result.provider, "Codex");
+  assert.equal(result.mode, "automatic-failover");
+  assert.deepEqual(result.unavailableProviders, ["CodeRabbit"]);
 }
 
 {
