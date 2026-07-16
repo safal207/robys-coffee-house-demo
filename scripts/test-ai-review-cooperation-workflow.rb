@@ -190,6 +190,7 @@ cases = [
     'WORKFLOW_PATH' => '.github/workflows/other.yml@main',
     'WORKFLOW_BASE_SHA' => base_sha
   }]
+]
 Tempfile.create(['cooperation-auth', '.sh']) do |file|
   file.write(authorization)
   file.flush
