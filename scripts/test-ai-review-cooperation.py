@@ -373,6 +373,15 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('| Codex | yes | E1 | missing evidence |', report)
         self.assertIn('**Overall conclusion:** **READY_WITH_ADVISORY_GAPS**', report)
 
+    def test_ledger_escapes_head_matchers_and_binds_reviews_to_requests(self) -> None:
+        ledger = (SCRIPT.parent.parent / '.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
+        self.assertEqual(ledger.count('new RegExp(`^Head:\\\\s*${head}\\\\s*$`'), 2)
+        self.assertIn('const qodoRequestAt = Math.min(...qodoRequests.map(timeOf));', ledger)
+        self.assertIn('const codexRequestAt = Math.min(...codexRequests.map(timeOf));', ledger)
+        self.assertIn('const submittedAt = Date.parse(item.submitted_at ?? 0);', ledger)
+        self.assertIn('submittedAt >= requestAt', ledger)
+        self.assertIn('no request-bound native Qodo/Codex exact-head review', ledger)
+
 
 if __name__ == '__main__':
     unittest.main()
