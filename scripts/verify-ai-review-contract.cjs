@@ -197,10 +197,7 @@ function collectProviderState({ comments, reviews, currentHead, headUpdateAnchor
     const review = requestAt > 0
       ? exactHeadReviews(reviews, provider.logins, currentHead, requestAt)[0]
       : undefined;
-    const limitSignal = requestAt > 0
-      ? providerLimitSignals(comments, provider.logins, requestAt)[0]
-      : undefined;
-    return { ...provider, requests, requestAt, review, limitSignal };
+    return { ...provider, requests, requestAt, review, limitSignal: undefined };
   });
 }
 
@@ -216,6 +213,16 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     .filter((state) => state.requestAt > 0)
     .map((state) => state.name);
   const warmStandbyRoundReady = states.every((state) => state.requestAt > 0);
+  const roundReadyAt = warmStandbyRoundReady
+    ? Math.max(...states.map((state) => state.requestAt))
+    : 0;
+
+  for (const state of states) {
+    state.limitSignal = roundReadyAt > 0
+      ? providerLimitSignals(comments, state.logins, roundReadyAt)[0]
+      : undefined;
+  }
+
   const unavailableProviders = states
     .filter((state) => state.limitSignal)
     .map((state) => state.name)
@@ -232,6 +239,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       unavailableProviders,
       requestedProviders,
       warmStandbyRoundReady,
+      roundReadyAt,
     };
   }
 
@@ -258,6 +266,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       unavailableProviders,
       requestedProviders,
       warmStandbyRoundReady,
+      roundReadyAt,
     };
   }
 
@@ -291,6 +300,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
       unavailableProviders,
       requestedProviders,
       warmStandbyRoundReady,
+      roundReadyAt,
     };
   }
 
@@ -306,6 +316,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     unavailableProviders,
     requestedProviders,
     warmStandbyRoundReady,
+    roundReadyAt,
   };
 }
 
@@ -429,7 +440,7 @@ async function verifyAiReviewContract({ github, context, core }) {
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo and Codex are the active reviewer pool and must both be requested after each head update before either provider-limit or timeout fallback can open. Qodo remains primary; an authenticated active-provider Bot rate, usage, quota, or review-limit signal opens automatic failover to the other available request-bound native exact-head reviewer. CodeRabbit is dormant and its requests, comments, limits, statuses and reviews do not affect this contract. " +
+            "GitHub preserves the workflow run ID across rerun attempts. Every trusted request must contain an exact `Exact head: <SHA>` line. Qodo and Codex are the active reviewer pool and must both be requested after each head update before either provider-limit or timeout fallback can open. A provider-limit signal counts only when its bot-controlled created_at/updated_at is at or after the completed active-round timestamp. Qodo remains primary; an authenticated active-provider Bot rate, usage, quota, or review-limit signal then opens automatic failover to the other available request-bound native exact-head reviewer. CodeRabbit is dormant and its requests, comments, limits, statuses and reviews do not affect this contract. " +
             "Quoted or fenced limit text, negated limit statements and a signal from the selected reviewer do not count. A limit signal is operational evidence only and never satisfies the review lane. Pending, dismissed, stale-head, non-bot, pre-anchor, unbound and pre-request evidence does not count.\n",
         )
         .write();
@@ -451,7 +462,7 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound native exact-head independent review evidence. Every trusted request must include `Exact head: <current full SHA>`. Request Qodo and Codex after every head update. " +
-      "Qodo remains primary. Both provider-limit and timeout fallback open only after both active-provider requests exist. Provider-limit fallback additionally requires an authenticated active-provider Bot to report a positive unquoted rate, usage, quota, or review-limit condition; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
+      "Qodo remains primary. Both provider-limit and timeout fallback open only after both active-provider requests exist. Provider-limit fallback additionally requires an authenticated active-provider Bot to report a positive unquoted rate, usage, quota, or review-limit condition at or after the completed active-round timestamp; timeout fallback additionally requires the existing two-request Qodo timeout sequence. " +
       "CodeRabbit is dormant and cannot open, close or satisfy this gate. An unavailable provider cannot satisfy its own failover. A limit notice, negated or quoted limit statement, reaction, acknowledgement, status-only result, maintainer-authored proxy, unbound request, stale review, pending review, or dismissed review does not count as review evidence." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
