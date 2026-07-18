@@ -61,7 +61,7 @@ function reviewedCommitOf(item) {
   const native = String(item?.commit_id ?? "").trim().toLowerCase();
   if (/^[0-9a-f]{7,40}$/.test(native)) return native;
   const match = String(item?.body ?? "").match(
-    /reviewed\s+commit\s*:\s*(?:\*\*)?\s*`?([0-9a-f]{7,40})`?/i,
+    /reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i,
   );
   return match?.[1]?.toLowerCase() ?? "";
 }
