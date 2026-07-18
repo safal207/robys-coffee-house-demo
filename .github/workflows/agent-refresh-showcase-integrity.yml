@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/clean-pairing-cards
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
