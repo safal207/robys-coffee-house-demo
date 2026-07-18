@@ -24,15 +24,19 @@ assert(html.includes('rel="preload" href="src/products/cards/pairing-cool-lime-m
 assert(html.includes('href="menu-premium-stability.css"'), "Menu must use the path-level premium CSS cache break");
 assert(html.indexOf('src="menu-page.js"') < html.indexOf("</head>"), "Primary menu module must start loading from the document head");
 assert(stability.includes("scrollbar-gutter:stable"), "Stable scrollbar geometry is required");
+assert(stability.includes(".full-menu-panel--featured .full-menu-list{grid-template-columns:1fr"), "Featured pairings must use one large poster per row");
+assert(stability.includes("max-width:980px"), "Showcase posters need a premium large-format width");
+assert(stability.includes("aspect-ratio:1/1"), "Finished square artwork must retain its full geometry");
 assert(stability.includes("object-fit:contain"), "Pairing artwork must not be cropped");
 assert(stability.includes("transform:none!important"), "Legacy image zoom transforms must be neutralized");
+assert(stability.includes(".full-menu-item--visual .full-menu-item-details{position:absolute!important"), "Duplicate card copy and price must be visually hidden beside finished artwork");
+assert(stability.includes("clip-path:inset(50%)"), "Showcase metadata must remain available to assistive technology without visual duplication");
+assert(stability.includes("@media(hover:none),(pointer:coarse)"), "Touch devices need a no-motion showcase path");
 assert(stability.includes("prefers-reduced-motion:reduce"), "Reduced-motion users need a no-motion path");
-assert(stability.includes(".full-menu-item--visual .full-menu-price{display:inline-flex"), "Pairing offer price must remain visibly available");
-assert(!stability.includes("clip-path:inset(50%)"), "Visible pairing price must not be clipped as assistive-only content");
 assert(manifest.icons.every((icon) => !String(icon.purpose).includes("maskable")), "Non-safe-zone artwork must not claim maskable support");
 assert(serviceWorkerUrl(menuPwa) === serviceWorkerUrl(landingPwa), "Landing and menu must register the same service-worker URL");
 assert(serviceWorker.includes('"./menu-premium-stability.css"'), "Fresh premium CSS path must be available offline");
 assert(!serviceWorker.includes('"./menu-stability.css"'), "Service worker must not cache the stale legacy CSS path");
 assert(serviceWorker.includes("robys-offline-v20-20260718-premium"), "PWA cache revision must deliver the optimized assets");
 
-console.log("✅ MENU-PREMIUM-001 passed: stable layout, calm artwork, visible pricing, path-level cache safety, synchronized PWA registration and clean icon metadata.");
+console.log("✅ MENU-PREMIUM-001 passed: large poster showcase, no visible duplicate pricing, stable geometry, calm motion, path-level cache safety and synchronized PWA registration.");
