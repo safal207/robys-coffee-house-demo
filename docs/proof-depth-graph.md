@@ -23,33 +23,30 @@ flowchart LR
   C["D0 claim"] --> A["D1 artifact"]
   A --> V["D2 executable check"]
   V --> M["D3 mutation test"]
-  M --> R["D4 CodeRabbit"]
+  M --> R["D4 Codex"]
   R --> L["D5 disposition ledger"]
   L --> S["D6 Proof Seal"]
 ```
 
-The binding reviewer is **CodeRabbit**. Codex, DeepSeek and Jules are supplemental lanes: their evidence and findings remain visible and must be dispositioned when present, but provider absence does not block `READY_WITH_ADVISORY_GAPS`.
+The binding reviewer is **Codex**. CodeRabbit is a scheduled advisory reserve. Its authenticated current-head findings must be dispositioned when present, but provider absence does not block readiness. DeepSeek and Jules are optional advisory lanes. Qodo is disabled.
 
 The executable graph is `qa/proof-depth-graph.json`.
 
-```bash
-npm run verify:proof-depth
-npm run test:proof-depth
-```
+Validation commands are `npm run verify:proof-depth` and `npm run test:proof-depth`.
 
 ## Proof Seal
 
-```text
-Proof-Depth-Seal: PDG-001
-Head: <exact 40-character commit SHA>
-Depth: D6
-```
+A proof seal contains these three lines:
+
+- `Proof-Depth-Seal: PDG-001`
+- `Head: <exact 40-character commit SHA>`
+- `Depth: D6`
 
 A seal is valid only when:
 
 1. it names the current PR head;
-2. CodeRabbit has current-head evidence at cooperation evidence level E4 or E5;
-3. all current-head findings from any available reviewer have explicit dispositions;
+2. Codex has current-head evidence at cooperation evidence level E4 or E5;
+3. all current-head findings from Codex and any available advisory reviewer have explicit dispositions;
 4. required CI and mutation tests pass;
 5. the seal was posted after the latest evidence and dispositions.
 
