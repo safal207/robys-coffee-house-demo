@@ -1,3 +1,3 @@
-const SERVICE_WORKER_URL = "sw.js?v=offline-20260718-premium-1";
+const SERVICE_WORKER_URL = "sw.js?v=offline-20260710-runtime-1";
 const P="robys-pwa",T=globalThis.trustedTypes;
 let p;const h=document.documentElement,c=()=>h.classList.toggle("is-offline",!navigator.onLine),u=x=>T?(p??=T.createPolicy(P,{createScriptURL:y=>y===SERVICE_WORKER_URL?y:(()=>{throw TypeError()})()})).createScriptURL(x):x,r=async()=>{try{await navigator.serviceWorker.register(u(SERVICE_WORKER_URL),{ scope: "./" });await navigator.serviceWorker.ready;h.dataset.offlineReady="true"}catch{h.dataset.offlineReady="false"}};c();for(const e of["online","offline"])addEventListener(e,c);const d=()=>navigator.serviceWorker&&r();document.readyState==="loading"?document.addEventListener("DOMContentLoaded",d,{once:true}):d();
