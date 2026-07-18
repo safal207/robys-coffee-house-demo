@@ -61,6 +61,19 @@ const commentEvidence = verifier.selectRequiredEvidence({
 });
 assert.equal(commentEvidence.provider, "Codex");
 
+for (const label of ["_Reviewed commit:_", "*Reviewed commit:*"]) {
+  const italicCommentEvidence = verifier.selectRequiredEvidence({
+    comments: [
+      request(),
+      codexComment({ body: `Codex Review: no blocking issues.\n\n${label} \`${head.slice(0, 10)}\`` }),
+    ],
+    reviews: [],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert.equal(italicCommentEvidence.provider, "Codex", `${label} should bind Codex comment evidence`);
+}
+
 const editedPreRequestComment = verifier.selectRequiredEvidence({
   comments: [
     request(),
@@ -123,4 +136,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; plain, bold and italic reviewed-commit labels are accepted; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
