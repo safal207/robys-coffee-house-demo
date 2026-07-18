@@ -125,18 +125,18 @@ jobs:
               if (!codeRabbitBots.has(login)) return false;
               return reserveRequested && timeOf(item) >= reserveRequestAt;
             };
+            const codeRabbitIssueCommentIsExactHead = (item) => (
+              codeRabbitBots.has(item.user?.login) &&
+              createdTimeOf(item) >= reserveRequestAt &&
+              (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
+            );
             const issueCommentIsCurrentHeadBotOutput = (item) => {
               const login = item.user?.login;
               if (codexBots.has(login)) {
                 return exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body));
               }
               if (otherReviewBots.has(login)) return exactHeadBody(item.body);
-              return (
-                reserveRequested &&
-                codeRabbitBots.has(login) &&
-                createdTimeOf(item) >= reserveRequestAt &&
-                exactHeadBody(item.body)
-              );
+              return reserveRequested && codeRabbitIssueCommentIsExactHead(item);
             };
 
             const reviewFindings = reviewComments.filter((item) => (
@@ -179,11 +179,7 @@ jobs:
                 reviewHeads.get(item.pull_request_review_id) === head &&
                 timeOf(item) >= reserveRequestAt
               )),
-              ...issueComments.filter((item) => (
-                codeRabbitBots.has(item.user?.login) &&
-                exactHeadBody(item.body) &&
-                createdTimeOf(item) >= reserveRequestAt
-              )),
+              ...issueComments.filter(codeRabbitIssueCommentIsExactHead),
               ...statuses.filter((item) => (
                 item.context === 'CodeRabbit' &&
                 item.state === 'success' &&
