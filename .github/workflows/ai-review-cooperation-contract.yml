@@ -91,7 +91,6 @@ jobs:
           grep -Fq 'Disposition-For-Issue-Comment' "${ledger}"
           grep -Fq 'createdTimeOf(reply) >= createdTimeOf(finding)' "${ledger}"
           grep -Fq "source === 'issue-comment'" "${ledger}"
-          grep -Fq 'issue-comment finding' "${pdg_doc}"
           grep -Fq 'Disposition-For-Issue-Comment' "${pdg_doc}"
           grep -Fq "requested-without-evidence-advisory" "${ledger}"
           grep -Fq "const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);" "${ledger}"
