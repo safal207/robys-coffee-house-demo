@@ -8,6 +8,7 @@ on:
       - .github/workflows/coderabbit-reserve.yml
       - .github/workflows/coderabbit-reserve-contract.yml
       - .github/workflows/review-ledger.yml
+      - .github/pull_request_template.md
       - scripts/ai-review-cooperation.py
       - scripts/coderabbit-reserve.cjs
       - scripts/fetch-review-threads.py
@@ -55,6 +56,7 @@ jobs:
           workflow=.github/workflows/ai-review-cooperation.yml
           ledger=.github/workflows/review-ledger.yml
           policy=docs/ai-review-cooperation-policy.md
+          template=.github/pull_request_template.md
 
           grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
           grep -Fq "RESERVE_REVIEWERS = {'CodeRabbit'}" "${reporter}"
@@ -63,6 +65,15 @@ jobs:
           grep -Fq "Qodo is disabled" "${policy}"
           grep -Fq "CodeRabbit is a bounded scheduled reserve" "${policy}"
           grep -Fq "sole required request-bound AI reviewer" "${policy}"
+          grep -Fq '@codex review' "${template}"
+          grep -Fq 'CodeRabbit is a scheduled advisory reserve' "${template}"
+          grep -Fq 'Qodo is disabled' "${template}"
+          grep -Fq 'A fresh trusted Codex request contains the full current head SHA' "${template}"
+          grep -Fq 'Any authenticated current-head CodeRabbit reserve findings are resolved or explicitly dispositioned' "${template}"
+          ! grep -Fq '@coderabbitai review' "${template}"
+          ! grep -Fq 'Codex lane is supplemental' "${template}"
+          ! grep -Fq 'A fresh CodeRabbit request contains the full current head SHA' "${template}"
+          ! grep -Fq 'A CodeRabbit-authored PR review object is bound to that exact head' "${template}"
           grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
           grep -Fq "requested-without-evidence-advisory" "${ledger}"
           grep -Fq "const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);" "${ledger}"
