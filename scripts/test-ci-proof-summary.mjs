@@ -35,5 +35,11 @@ for (const escaped of ["&lt;script&gt;", "&lt;svg&gt;", "&lt;img", "&#96;break&#
 if (!output.includes("feature/&#96;break&#96; &lt;script&gt;alert(1)&lt;/script&gt; **bold**")) {
   throw new Error(`newlines must collapse without changing escaped text:\n${output}`);
 }
+if (!output.includes("Codex binding; CodeRabbit scheduled reserve; supplemental lanes advisory")) {
+  throw new Error(`D4 reviewer roles are stale:\n${output}`);
+}
+if (output.includes("CodeRabbit binding")) {
+  throw new Error(`CodeRabbit must not be rendered as binding:\n${output}`);
+}
 
-console.log("✅ PDG summary mutation test passed: head, branch and blocker metadata cannot inject Markdown or HTML.");
+console.log("✅ PDG summary mutation test passed: metadata is escaped and D4 renders Codex binding with CodeRabbit reserve-only.");
