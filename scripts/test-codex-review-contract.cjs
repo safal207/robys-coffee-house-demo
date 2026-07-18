@@ -1,6 +1,7 @@
 "use strict";
 
 const assert = require("node:assert/strict");
+const { readFileSync } = require("node:fs");
 const verifier = require("./verify-ai-review-contract.cjs")._test;
 
 const head = "1234567890abcdef1234567890abcdef12345678";
@@ -37,6 +38,11 @@ function codexComment(overrides = {}) {
     ...overrides,
   };
 }
+
+const workflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
+assert(workflow.includes("types: [opened, synchronize]"));
+assert(!workflow.includes("ready_for_review"));
+assert(!workflow.includes("reopened"));
 
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
@@ -136,4 +142,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; plain, bold and italic reviewed-commit labels are accepted; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; review runs only on real head updates; plain, bold and italic reviewed-commit labels are accepted; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
