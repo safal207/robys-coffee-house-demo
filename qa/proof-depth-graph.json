@@ -51,13 +51,13 @@
       "ref": "npm run test:traceability"
     },
     {
-      "id": "REVIEW-CODERABBIT",
+      "id": "REVIEW-CODEX",
       "kind": "independent-review",
       "depth": 4,
-      "label": "CodeRabbit exact-head review",
+      "label": "Codex exact-head review",
       "origin": "observed",
-      "provider": "CodeRabbit",
-      "independenceKey": "coderabbit",
+      "provider": "Codex",
+      "independenceKey": "codex",
       "freshness": "exact-head"
     },
     {
@@ -100,12 +100,12 @@
     },
     {
       "from": "CHALLENGE-MUTATION",
-      "to": "REVIEW-CODERABBIT",
+      "to": "REVIEW-CODEX",
       "relation": "reviewed-by",
       "authority": "binding"
     },
     {
-      "from": "REVIEW-CODERABBIT",
+      "from": "REVIEW-CODEX",
       "to": "DISPOSITION-LEDGER",
       "relation": "resolved-by",
       "authority": "binding"
