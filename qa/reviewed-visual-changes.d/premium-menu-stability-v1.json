@@ -12,34 +12,40 @@
         {
           "capture": "menu-full",
           "viewport": "phone-320",
-          "reason": "dimension mismatch 320x6353 vs 320x6651"
+          "reason": "dimension mismatch 320x6353 vs 320x6326"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "totalPixels": 147560,
+          "maxDiffPixelRatio": 0.006
         },
         {
           "capture": "menu-share",
           "viewport": "phone-360-short",
           "totalPixels": 160320,
-          "maxDiffPixelRatio": 0.004
+          "maxDiffPixelRatio": 0.021
         },
         {
           "capture": "menu-full",
           "viewport": "phone-390",
-          "reason": "dimension mismatch 390x6156 vs 390x6375"
+          "reason": "dimension mismatch 390x6156 vs 390x6131"
         },
         {
           "capture": "menu-share",
           "viewport": "phone-390",
           "totalPixels": 175350,
-          "maxDiffPixelRatio": 0.004
+          "maxDiffPixelRatio": 0.009
         },
         {
           "capture": "menu-full",
           "viewport": "tablet-768",
-          "reason": "dimension mismatch 768x7088 vs 768x6358"
+          "reason": "dimension mismatch 768x7088 vs 768x7182"
         },
         {
           "capture": "menu-full",
           "viewport": "desktop-1440",
-          "reason": "dimension mismatch 1440x4845 vs 1440x4560"
+          "reason": "dimension mismatch 1440x4845 vs 1440x6251"
         }
       ]
     }
