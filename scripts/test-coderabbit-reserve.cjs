@@ -100,6 +100,16 @@ const codexComplete = evaluate({ comments: [codexRequest()], reviews: [codexRevi
 assert.equal(codexComplete.eligible, false);
 assert.equal(codexComplete.reason, "CODEX_COMPLETE");
 
+const codexCompleteBeforeDuplicateRequest = evaluate({
+  comments: [
+    codexRequest(),
+    codexRequest({ created_at: "2026-07-18T09:30:00Z", updated_at: "2026-07-18T09:30:00Z" }),
+  ],
+  reviews: [codexReview()],
+});
+assert.equal(codexCompleteBeforeDuplicateRequest.eligible, false);
+assert.equal(codexCompleteBeforeDuplicateRequest.reason, "CODEX_COMPLETE");
+
 const tooSoon = evaluate({
   comments: [codexRequest({ created_at: "2026-07-18T09:30:00Z", updated_at: "2026-07-18T09:30:00Z" })],
 });
