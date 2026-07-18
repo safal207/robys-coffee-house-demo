@@ -61,6 +61,7 @@ jobs:
           set -euo pipefail
           reporter=scripts/ai-review-cooperation.py
           workflow=.github/workflows/ai-review-cooperation.yml
+          reserve_contract=.github/workflows/coderabbit-reserve-contract.yml
           ledger=.github/workflows/review-ledger.yml
           trace=.github/workflows/traceability.yml
           policy=docs/ai-review-cooperation-policy.md
@@ -84,12 +85,14 @@ jobs:
           ! grep -Fq 'Codex lane is supplemental' "${template}"
           ! grep -Fq 'A fresh CodeRabbit request contains the full current head SHA' "${template}"
           ! grep -Fq 'A CodeRabbit-authored PR review object is bound to that exact head' "${template}"
+          grep -Fq 'name: CodeRabbit reserve contract' "${reserve_contract}"
           grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
           grep -Fq 'const reviewedCommitOf = (body)' "${ledger}"
           grep -Fq 'isExactHeadCommit(reviewedCommitOf(item.body))' "${ledger}"
           grep -Fq 'const issueCommentFindings = issueComments.filter' "${ledger}"
           grep -Fq 'Disposition-For-Issue-Comment' "${ledger}"
           grep -Fq 'createdTimeOf(reply) >= createdTimeOf(finding)' "${ledger}"
+          grep -Fq 'timeOf(reply) >= timeOf(finding)' "${ledger}"
           grep -Fq "source === 'issue-comment'" "${ledger}"
           grep -Fq 'Disposition-For-Issue-Comment' "${pdg_doc}"
           grep -Fq "requested-without-evidence-advisory" "${ledger}"
