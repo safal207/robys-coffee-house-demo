@@ -5,8 +5,8 @@ const policy = JSON.parse(readFileSync("qa/review-route-policy.json", "utf8"));
 const head = "1234567890abcdef1234567890abcdef12345678";
 
 const actors = {
-  coderabbit: ["draft_reviewer", "risk_critic"],
-  codex: ["advisory_reviewer"],
+  coderabbit: ["reserve_reviewer", "risk_critic"],
+  codex: ["draft_reviewer", "risk_critic"],
   "human-maintainer": ["risk_critic", "evidence_verifier", "operator", "authorization_owner"],
   deepseek: ["advisory_reviewer"]
 };
@@ -17,7 +17,7 @@ function depthResult(depth) {
 
 function rosterResult(depth, ids, statuses = {}, decision = "READY") {
   const reviewers = ids.map((id) => {
-    const advisory = id === "codex" || id === "deepseek";
+    const advisory = id === "coderabbit" || id === "deepseek";
     const status = statuses[id] || "AVAILABLE";
     return {
       id,
@@ -56,8 +56,8 @@ function expectFailure(label, expected, action) {
 
 validateReviewRoutePolicy(policy);
 
-const l3Roster = rosterResult("L3", ["coderabbit", "human-maintainer", "codex"], {
-  codex: "NO_BALANCE"
+const l3Roster = rosterResult("L3", ["codex", "human-maintainer", "coderabbit"], {
+  coderabbit: "NO_BALANCE"
 });
 const first = selectReviewRoute(policy, depthResult("L3"), l3Roster, head);
 const second = selectReviewRoute(policy, depthResult("L3"), l3Roster, head);
@@ -71,7 +71,7 @@ if (JSON.stringify(first) !== JSON.stringify(second)) {
 const missingHuman = selectReviewRoute(
   policy,
   depthResult("L3"),
-  rosterResult("L3", ["coderabbit", "codex"]),
+  rosterResult("L3", ["codex", "coderabbit"]),
   head
 );
 if (missingHuman.decision !== "ESCALATE" || !missingHuman.missingActors.includes("human-maintainer")) {
@@ -80,17 +80,17 @@ if (missingHuman.decision !== "ESCALATE" || !missingHuman.missingActors.includes
 
 const partialRoster = rosterResult(
   "L3",
-  ["coderabbit", "human-maintainer", "codex"],
-  { coderabbit: "PARTIAL", codex: "AVAILABLE" },
+  ["codex", "human-maintainer", "coderabbit"],
+  { codex: "PARTIAL", coderabbit: "AVAILABLE" },
   "ESCALATE"
 );
 const partial = selectReviewRoute(policy, depthResult("L3"), partialRoster, head);
-if (partial.decision !== "ESCALATE" || !partial.partialActors.includes("coderabbit")) {
-  throw new Error("PARTIAL binding reviewer must not enter an automatic route");
+if (partial.decision !== "ESCALATE" || !partial.partialActors.includes("codex")) {
+  throw new Error("PARTIAL Codex must not enter an automatic route");
 }
 
-const auditedRoster = rosterResult("L3", ["coderabbit", "human-maintainer", "codex"], {
-  codex: "QUOTA_EXHAUSTED"
+const auditedRoster = rosterResult("L3", ["codex", "human-maintainer", "coderabbit"], {
+  coderabbit: "QUOTA_EXHAUSTED"
 });
 const audited = selectReviewRoute(
   policy,
@@ -98,7 +98,7 @@ const audited = selectReviewRoute(
   auditedRoster,
   head,
   {
-    routeId: "route-l3-coderabbit-human",
+    routeId: "route-l3-codex-human",
     expectedHead: head,
     expectedDepth: "L3",
     approvedBy: "maintainer.alex",
@@ -111,7 +111,7 @@ if (audited.decision !== "SELECTED" || audited.selectionMode !== "override") {
 
 expectFailure("short reason", "at least 24 characters", () => {
   selectReviewRoute(policy, depthResult("L3"), auditedRoster, head, {
-    routeId: "route-l3-coderabbit-human",
+    routeId: "route-l3-codex-human",
     expectedHead: head,
     expectedDepth: "L3",
     approvedBy: "maintainer.alex",
@@ -121,7 +121,7 @@ expectFailure("short reason", "at least 24 characters", () => {
 
 expectFailure("depth mismatch", "does not match selected depth", () => {
   selectReviewRoute(policy, depthResult("L3"), auditedRoster, head, {
-    routeId: "route-l2-coderabbit-human",
+    routeId: "route-l2-codex-human",
     expectedHead: head,
     expectedDepth: "L3",
     approvedBy: "maintainer.alex",
@@ -131,16 +131,16 @@ expectFailure("depth mismatch", "does not match selected depth", () => {
 
 const advisoryPolicy = structuredClone(policy);
 const standardL2 = advisoryPolicy.routes.find((route) => route.id === "route-l2-standard");
-standardL2.requiredActors = ["codex", "human-maintainer"];
-standardL2.stages.find((stage) => stage.actor === "coderabbit").actor = "codex";
+standardL2.requiredActors = ["coderabbit", "human-maintainer"];
+standardL2.stages.find((stage) => stage.actor === "codex").actor = "coderabbit";
 const advisory = selectReviewRoute(
   advisoryPolicy,
   depthResult("L2"),
-  rosterResult("L2", ["codex", "human-maintainer"]),
+  rosterResult("L2", ["coderabbit", "human-maintainer"]),
   head
 );
-if (advisory.decision !== "ESCALATE" || !advisory.reasons.some((reason) => reason.includes("codex"))) {
-  throw new Error("Codex advisory authority must not satisfy a binding route");
+if (advisory.decision !== "ESCALATE" || !advisory.reasons.some((reason) => reason.includes("coderabbit"))) {
+  throw new Error("CodeRabbit advisory authority must not satisfy a binding route");
 }
 
 expectFailure("automatic mapping", "L3 automatic route must remain route-l3-standard", () => {
@@ -165,8 +165,8 @@ expectFailure("actor floor", "fewer than 2 distinct binding actors", () => {
   const changed = structuredClone(policy);
   const route = changed.routes.find((item) => item.id === "route-l4-standard");
   route.requiredActors = ["human-maintainer"];
-  route.stages = route.stages.filter((stage) => stage.actor !== "coderabbit");
+  route.stages = route.stages.filter((stage) => stage.actor !== "codex");
   validateReviewRoutePolicy(changed);
 });
 
-console.log("✅ RRM-ROUTE-001 tests passed: Codex remains advisory, binding routes stay deterministic, and human authorization is preserved.");
+console.log("✅ RRM-ROUTE-001 tests passed: Codex is binding, CodeRabbit remains advisory reserve, routes stay deterministic, and human authorization is preserved.");
