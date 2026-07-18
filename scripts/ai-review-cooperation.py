@@ -19,12 +19,12 @@ DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
-    'Qodo': {'qodo-code-review', 'qodo-code-review[bot]'},
     'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
     'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
 }
-ACTIVE_REVIEWERS = {'Qodo', 'Codex'}
+ACTIVE_REVIEWERS = {'Codex'}
 ADVISORY_REVIEWERS = {'Jules', 'DeepSeek'}
+DORMANT_REVIEWERS = {'Qodo', 'CodeRabbit'}
 REQUIRED_CHECKS = {
     'Human approval contract', 'Security contract', 'Verify generated runtime',
     'Reviewdog static review', 'CodeQL security analysis',
@@ -37,7 +37,7 @@ REQUIRED_CHECKS = {
 EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
 LABEL_TO_SEVERITY = {'blocker': 'P0', 'critical': 'P1', 'major': 'P2', 'minor': 'P3'}
 ITALIC_SEGMENT_RE = re.compile(r'_([^_\n]+)_')
-REVIEWED_COMMIT_RE = re.compile(r'Reviewed commit:[^`]*`([0-9a-f]{40})`', re.IGNORECASE)
+REVIEWED_COMMIT_RE = re.compile(r'Reviewed\s+commit\s*:[^`]*`([0-9a-f]{7,40})`', re.IGNORECASE)
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
 
@@ -112,7 +112,8 @@ def reviewed_commit_of(item: dict[str, Any]) -> str | None:
 
 
 def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
-    return reviewed_commit_of(item) == head_sha.lower()
+    reviewed = reviewed_commit_of(item)
+    return bool(reviewed and len(reviewed) >= 7 and head_sha.lower().startswith(reviewed))
 
 
 def command_lines(item: dict[str, Any]) -> set[str]:
@@ -122,58 +123,49 @@ def command_lines(item: dict[str, Any]) -> set[str]:
 def severities_of(body: str) -> set[str]:
     result = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
     for segment in ITALIC_SEGMENT_RE.findall(body):
-        normalized = segment.lower()
-        for label, severity in LABEL_TO_SEVERITY.items():
-            if re.search(rf'\b{label}\b', normalized):
-                result.add(severity)
+        normalized = MARKDOWN_RE.sub('', segment).strip().lower()
+        if normalized in LABEL_TO_SEVERITY:
+            result.add(LABEL_TO_SEVERITY[normalized])
     return result
 
 
-def normalized_finding_text(item: dict[str, Any], severity: str) -> str:
-    text = MARKDOWN_RE.sub(' ', body_of(item).lower())
-    text = re.sub(r'useful\?.*$', '', text, flags=re.DOTALL)
-    text = re.sub(r'\s+', ' ', text).strip()
-    path = str(item.get('path') or '')
-    line = str(item.get('line') or item.get('original_line') or item.get('originalLine') or '')
-    return f'{severity}|{path}|{line}|{text[:320]}'
+def finding_key(item: dict[str, Any], severity: str) -> str:
+    path = str(item.get('path') or item.get('file') or '').lower()
+    line = str(item.get('line') or item.get('original_line') or '')
+    text = MARKDOWN_RE.sub(' ', body_of(item)).lower()
+    text = re.sub(r'\s+', ' ', text).strip()[:240]
+    return f'{severity}|{path}|{line}|{text}'
 
 
 def finding_summary(items: Iterable[dict[str, Any]]) -> tuple[dict[str, int], set[str]]:
-    unique: dict[str, str] = {}
+    keys: set[str] = set()
+    counts = {f'P{i}': 0 for i in range(4)}
     for item in items:
         for severity in severities_of(body_of(item)):
-            unique.setdefault(normalized_finding_text(item, severity), severity)
-    counts = {f'P{i}': 0 for i in range(4)}
-    for severity in unique.values():
-        counts[severity] += 1
-    return counts, set(unique)
+            key = finding_key(item, severity)
+            if key in keys:
+                continue
+            keys.add(key)
+            counts[severity] += 1
+    return counts, keys
 
 
 def combined_findings(bots: Iterable[BotResult]) -> dict[str, int]:
-    unique: dict[str, str] = {}
+    unique: dict[str, set[str]] = {f'P{i}': set() for i in range(4)}
     for bot in bots:
         for key in bot.finding_keys:
-            unique.setdefault(key, key.split('|', 1)[0])
-    counts = {f'P{i}': 0 for i in range(4)}
-    for severity in unique.values():
-        if severity in counts:
-            counts[severity] += 1
-    return counts
+            severity = key.split('|', 1)[0]
+            if severity in unique:
+                unique[severity].add(key)
+    return {severity: len(keys) for severity, keys in unique.items()}
 
 
 def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, Any]]]:
-    if isinstance(data.get('threads'), list):
-        nodes = data['threads']
-        complete = bool(data.get('complete', False))
-    else:
-        try:
-            connection = data['data']['repository']['pullRequest']['reviewThreads']
-            nodes = connection.get('nodes') or []
-            complete = not bool((connection.get('pageInfo') or {}).get('hasNextPage'))
-        except (KeyError, TypeError):
-            return False, False, []
+    if not isinstance(data, dict) or 'threads' not in data:
+        return False, False, []
+    complete = bool(data.get('complete', True))
     comments: list[dict[str, Any]] = []
-    for thread in nodes:
+    for thread in data.get('threads') or []:
         if thread.get('isResolved'):
             continue
         connection = thread.get('comments') or {}
@@ -205,18 +197,12 @@ def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str], head_ti
     return [item for item in items if login_of(item) in allowed and is_after_head(item, head_time)]
 
 
-def request_bound_exact_items(
-    items: Iterable[dict[str, Any]],
-    requests: list[dict[str, Any]],
-    head_sha: str,
-) -> list[dict[str, Any]]:
+def request_bound_exact_items(items: Iterable[dict[str, Any]], requests: list[dict[str, Any]],
+                              head_sha: str) -> list[dict[str, Any]]:
     if not requests:
         return []
     request_at = min(time_of(item) for item in requests)
-    return [
-        item for item in items
-        if current_head_evidence(item, head_sha) and time_of(item) >= request_at
-    ]
+    return [item for item in items if current_head_evidence(item, head_sha) and time_of(item) >= request_at]
 
 
 def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[dict[str, Any]],
@@ -236,6 +222,11 @@ def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[
                      'Post the canonical review command.', findings)
 
 
+def dormant_result(name: str) -> BotResult:
+    return BotResult(name, False, 'E0', 'disabled', 'DORMANT_PROVIDER',
+                     f'No action; {name} is disabled.', {f'P{i}': 0 for i in range(4)}, set())
+
+
 def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
                   threads: list[dict[str, Any]], threads_available: bool,
@@ -243,15 +234,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   head_time: datetime) -> list[BotResult]:
     del statuses
     head_sha = str(pr['head']['sha']).lower()
-    all_items = reviews + (threads if threads_available else review_comments)
-
-    qodo_req = fresh_requests(comments, '/qodo review', head_time, head_sha)
-    qodo_items = bot_items(all_items, BOT_LOGINS['Qodo'], head_time)
-    qodo = result_from_exact_evidence(
-        name='Qodo', requested=bool(qodo_req),
-        exact_items=request_bound_exact_items(qodo_items, qodo_req, head_sha),
-        no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait for a request-bound native Qodo review or use the documented Codex fallback.')
+    all_items = comments + reviews + (threads if threads_available else review_comments)
 
     codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
     codex_items = bot_items(all_items, BOT_LOGINS['Codex'], head_time)
@@ -259,19 +242,15 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         name='Codex', requested=bool(codex_req),
         exact_items=request_bound_exact_items(codex_items, codex_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait up to 10 minutes, then retry once with @codex review.')
+        no_evidence_action='Wait within the bounded window, then retry once with @codex review.')
 
     jules_req = fresh_requests(comments, '@jules review', head_time)
-    jules_items = bot_items(comments + all_items, BOT_LOGINS['Jules'], head_time)
+    jules_items = bot_items(all_items, BOT_LOGINS['Jules'], head_time)
     jules = result_from_exact_evidence(
         name='Jules', requested=bool(jules_req),
         exact_items=request_bound_exact_items(jules_items, jules_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
         no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
-
-    dormant = BotResult(
-        'CodeRabbit', False, 'E0', 'dormant', 'DORMANT_PROVIDER',
-        'No action while CodeRabbit is disabled.', {f'P{i}': 0 for i in range(4)}, set())
 
     deep_req = [item for command in ('/deepseek review', '/deepseek deep-review')
                 for item in fresh_requests(comments, command, head_time)]
@@ -294,7 +273,8 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         deepseek.level, deepseek.state = 'E2', 'bootstrap pending'
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
-    return [qodo, codex, jules, dormant, deepseek]
+
+    return [codex, dormant_result('Qodo'), dormant_result('CodeRabbit'), jules, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -326,21 +306,19 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
                        evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
-    active = [bot for bot in bots if bot.name in ACTIVE_REVIEWERS]
-    active_requested = all(bot.requested for bot in active)
-    active_review_complete = any(bot.level in {'E4', 'E5'} for bot in active)
+    codex = next(bot for bot in bots if bot.name == 'Codex')
     if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
-        return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request fresh exact-head reviews.'
+        return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request a fresh Codex exact-head review.'
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
-    if checks.pending or not active_requested or not active_review_complete:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or request-bound Qodo/Codex exact-head evidence is still incomplete.'
+    if checks.pending or not codex.requested or codex.level not in {'E4', 'E5'}:
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or request-bound Codex exact-head evidence is still incomplete.'
     gaps = [bot.name for bot in bots if bot.name in ADVISORY_REVIEWERS and bot.level not in {'E4', 'E5'}]
     if gaps:
         return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
-    return 'READY', 'Required CI and request-bound Qodo/Codex exact-head reviewer evidence are complete.'
+    return 'READY', 'Required CI and request-bound Codex exact-head evidence are complete.'
 
 
 def findings_text(findings: dict[str, int]) -> str:
@@ -423,7 +401,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Qodo/Codex evidence dominate; CodeRabbit is dormant; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo and CodeRabbit are disabled; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
