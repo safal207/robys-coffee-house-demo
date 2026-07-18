@@ -8,6 +8,7 @@ on:
       - .github/workflows/coderabbit-reserve.yml
       - .github/workflows/coderabbit-reserve-contract.yml
       - .github/workflows/review-ledger.yml
+      - .github/workflows/traceability.yml
       - .github/pull_request_template.md
       - scripts/ai-review-cooperation.py
       - scripts/coderabbit-reserve.cjs
@@ -15,7 +16,9 @@ on:
       - scripts/test-ai-review-cooperation.py
       - scripts/test-coderabbit-reserve.cjs
       - scripts/test-codex-review-contract.cjs
+      - qa/proof-depth-graph.json
       - docs/ai-review-cooperation-policy.md
+      - docs/proof-depth-graph.md
 
 permissions:
   contents: read
@@ -39,6 +42,9 @@ jobs:
           node scripts/test-coderabbit-reserve.cjs
           node scripts/test-codex-review-contract.cjs
           node scripts/verify-ai-review-freshness.mjs
+          node scripts/verify-proof-depth-graph.mjs
+          node scripts/test-proof-depth-graph.mjs
+          node scripts/test-ci-proof-summary.mjs
 
       - name: Parse workflow YAML
         run: >-
@@ -47,7 +53,8 @@ jobs:
           YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml');
           YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
           YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml');
-          YAML.parse_file('.github/workflows/review-ledger.yml')"
+          YAML.parse_file('.github/workflows/review-ledger.yml');
+          YAML.parse_file('.github/workflows/traceability.yml')"
 
       - name: Verify reviewer role boundary
         run: |
@@ -55,7 +62,10 @@ jobs:
           reporter=scripts/ai-review-cooperation.py
           workflow=.github/workflows/ai-review-cooperation.yml
           ledger=.github/workflows/review-ledger.yml
+          trace=.github/workflows/traceability.yml
           policy=docs/ai-review-cooperation-policy.md
+          pdg_doc=docs/proof-depth-graph.md
+          pdg=qa/proof-depth-graph.json
           template=.github/pull_request_template.md
 
           grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
@@ -75,6 +85,8 @@ jobs:
           ! grep -Fq 'A fresh CodeRabbit request contains the full current head SHA' "${template}"
           ! grep -Fq 'A CodeRabbit-authored PR review object is bound to that exact head' "${template}"
           grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
+          grep -Fq 'const reviewedCommitOf = (body)' "${ledger}"
+          grep -Fq 'isExactHeadCommit(reviewedCommitOf(item.body))' "${ledger}"
           grep -Fq "requested-without-evidence-advisory" "${ledger}"
           grep -Fq "const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);" "${ledger}"
           grep -Fq '^Head:\\s*${head}\\s*$' "${ledger}"
@@ -82,6 +94,13 @@ jobs:
           ! grep -Fq 'scheduled CodeRabbit reserve was requested but no exact-head evidence exists' "${ledger}"
           ! grep -Fq 'requested CodeRabbit reserve lacks E4/E5 exact-head evidence' "${ledger}"
           ! grep -Fq 'mandatory CodeRabbit evidence' "${ledger}"
+          grep -Fq '"id": "REVIEW-CODEX"' "${pdg}"
+          grep -Fq '"provider": "Codex"' "${pdg}"
+          ! grep -Fq 'REVIEW-CODERABBIT' "${pdg}"
+          grep -Fq 'binding reviewer is **Codex**' "${pdg_doc}"
+          ! grep -Fq 'binding reviewer is **CodeRabbit**' "${pdg_doc}"
+          grep -Fq 'Waiting for mandatory Codex exact-head evidence' "${trace}"
+          ! grep -Fq 'Waiting for mandatory CodeRabbit exact-head evidence' "${trace}"
           ! grep -Fq "'/qodo review'" "${reporter}"
           ! grep -Fqi 'coderabbitai' "${workflow}"
           ! grep -Fqi 'qodo-code-review' "${workflow}"
