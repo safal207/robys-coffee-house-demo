@@ -100,7 +100,12 @@ jobs:
             const isIssueDispositionFor = (reply, finding) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const reference = new RegExp(`^Disposition-For-Issue-Comment:\\s*${finding.id}\\s*$`, 'im').test(body);
-              return reference && createdTimeOf(reply) >= createdTimeOf(finding) && isDispositionReply(reply);
+              return (
+                reference &&
+                createdTimeOf(reply) >= createdTimeOf(finding) &&
+                timeOf(reply) >= timeOf(finding) &&
+                isDispositionReply(reply)
+              );
             };
 
             const reserveRequests = issueComments
