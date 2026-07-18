@@ -34,6 +34,18 @@ The executable graph is `qa/proof-depth-graph.json`.
 
 Validation commands are `npm run verify:proof-depth` and `npm run test:proof-depth`.
 
+## D5 dispositions
+
+Inline review findings use a maintainer reply containing `Disposition`, `Head`, and any supporting evidence required by the chosen disposition.
+
+When an authenticated reviewer publishes a current-head P0-P3 finding as a top-level PR issue comment, disposition it with a later trusted top-level comment containing:
+
+- `Disposition-For-Issue-Comment: <GitHub comment ID>`
+- `Disposition: accepted`, `rejected-with-evidence`, or `superseded`
+- `Head: <exact 40-character commit SHA>`
+
+An older comment edited after the finding is not accepted as a fresh disposition.
+
 ## Proof Seal
 
 A proof seal contains these three lines:
