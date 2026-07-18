@@ -5,7 +5,7 @@
       "id": "premium-menu-stability-v1",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/212#issuecomment-5010637088",
       "contentBindings": {
-        "menu.html": "cbb541130f87e8ce98a813d7153afa98d906ee9e",
+        "menu.html": "56348cc5cc7bcc275e1adf070ac38d7e6585b3e5",
         "menu-stability.css": "d817536c2ab9d96151b241e8bd641f21c012ed2c"
       },
       "expectedFailures": [
