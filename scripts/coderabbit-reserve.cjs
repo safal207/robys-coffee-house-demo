@@ -182,13 +182,14 @@ function evaluateCandidate({ pull, comments, reviews, headCommit, nowMs }) {
     return { eligible: false, reason: "NO_CODEX_REQUEST", head };
   }
 
+  const earliestCodexRequestAt = createdTimeOf(codexRequests[0]);
   const latestCodexRequestAt = createdTimeOf(codexRequests.at(-1));
   const codexEvidence = exactHeadEvidence({
     comments,
     reviews,
     logins: CODEX_LOGINS,
     head,
-    requestAt: latestCodexRequestAt,
+    requestAt: earliestCodexRequestAt,
   });
   if (codexEvidence.length > 0) {
     return { eligible: false, reason: "CODEX_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
