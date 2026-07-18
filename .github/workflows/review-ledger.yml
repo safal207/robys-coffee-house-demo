@@ -77,7 +77,7 @@ jobs:
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
             const reviewedCommitOf = (body) => (
-              /Reviewed commit:\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
+              /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
             const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
             const timeOf = (item) => Math.max(
