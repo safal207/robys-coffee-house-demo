@@ -25,14 +25,6 @@ function submittedTimeOf(item) {
   return parseTime(item?.submitted_at);
 }
 
-function evidenceTimeOf(item) {
-  return Math.max(
-    submittedTimeOf(item),
-    createdTimeOf(item),
-    parseTime(item?.updated_at),
-  );
-}
-
 function commandLinesOf(item) {
   return String(item?.body ?? "")
     .toLowerCase()
@@ -42,8 +34,7 @@ function commandLinesOf(item) {
 }
 
 function hasExactHeadBinding(item, currentHead) {
-  const expected = `exact head: ${currentHead.toLowerCase()}`;
-  return commandLinesOf(item).includes(expected);
+  return commandLinesOf(item).includes(`exact head: ${currentHead.toLowerCase()}`);
 }
 
 function isPermissionError(error) {
@@ -76,20 +67,15 @@ function reviewedCommitOf(item) {
 
 function isExactHeadCommit(evidenceCommit, currentHead) {
   if (!evidenceCommit || evidenceCommit.length < 7) return false;
-  const normalizedHead = currentHead.toLowerCase();
-  return normalizedHead === evidenceCommit || normalizedHead.startsWith(evidenceCommit);
-}
-
-function isSubmittedReview(review) {
-  return (
-    Boolean(review?.submitted_at) &&
-    review.state !== "PENDING" &&
-    review.state !== "DISMISSED"
-  );
+  return currentHead.toLowerCase().startsWith(evidenceCommit);
 }
 
 function isCodexBot(item) {
   return CODEX_LOGINS.has(item?.user?.login) && item?.user?.type === "Bot";
+}
+
+function isSubmittedReview(review) {
+  return Boolean(review?.submitted_at) && review.state !== "PENDING" && review.state !== "DISMISSED";
 }
 
 function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
@@ -103,16 +89,20 @@ function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
       isExactHeadCommit(reviewedCommitOf(review), currentHead),
   );
 
+  // A pre-request comment must never become fresh merely because somebody edits it later.
+  // Comment evidence is therefore bound to created_at, not updated_at.
   const botComments = comments.filter(
     (comment) =>
       isCodexBot(comment) &&
-      evidenceTimeOf(comment) >= requestAt &&
+      createdTimeOf(comment) >= requestAt &&
       isExactHeadCommit(reviewedCommitOf(comment), currentHead),
   );
 
-  return [...nativeReviews, ...botComments].sort(
-    (left, right) => evidenceTimeOf(left) - evidenceTimeOf(right),
-  );
+  return [...nativeReviews, ...botComments].sort((left, right) => {
+    const leftTime = submittedTimeOf(left) || createdTimeOf(left);
+    const rightTime = submittedTimeOf(right) || createdTimeOf(right);
+    return leftTime - rightTime;
+  });
 }
 
 function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
@@ -147,23 +137,13 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
   };
 }
 
-async function resolveStableHeadUpdateAnchor({
-  github,
-  owner,
-  repo,
-  currentHead,
-  currentRunId,
-}) {
+async function resolveStableHeadUpdateAnchor({ github, owner, repo, currentHead, currentRunId }) {
   const response = await github.rest.actions.getWorkflowRun({
     owner,
     repo,
     run_id: currentRunId,
   });
-  const anchor = stableHeadUpdateAnchor(
-    response.data,
-    currentHead,
-    currentRunId,
-  );
+  const anchor = stableHeadUpdateAnchor(response.data, currentHead, currentRunId);
   if (anchor <= 0) {
     throw new Error("current AI review workflow run is not bound to the current pull-request head");
   }
@@ -184,7 +164,6 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
     let selection;
-
     try {
       if (headUpdateAnchor <= 0) {
         headUpdateAnchor = await resolveStableHeadUpdateAnchor({
@@ -197,11 +176,7 @@ async function verifyAiReviewContract({ github, context, core }) {
       }
 
       const [livePull, comments, reviews] = await Promise.all([
-        github.rest.pulls.get({
-          owner,
-          repo,
-          pull_number: pr.number,
-        }),
+        github.rest.pulls.get({ owner, repo, pull_number: pr.number }),
         github.paginate(github.rest.issues.listComments, {
           owner,
           repo,
@@ -220,29 +195,22 @@ async function verifyAiReviewContract({ github, context, core }) {
       if (!pullHeadMatches(livePull.data, currentHead)) {
         core.setFailed(
           `AI review workflow head ${pr.head.sha} is stale; current pull-request head is ${livePull.data?.head?.sha ?? "unknown"}. ` +
-            "A new commit invalidates every earlier request, review and merge-ready decision.",
+            "A new commit invalidates every earlier request, review and readiness decision.",
         );
         return;
       }
 
-      selection = selectRequiredEvidence({
-        comments,
-        reviews,
-        currentHead,
-        headUpdateAnchor,
-      });
+      selection = selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnchor });
     } catch (error) {
       lastApiError = error?.message ?? String(error);
       if (isPermissionError(error)) {
         core.setFailed(
-          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read, and pull-requests: read. " +
+          "AI review verifier lacks required workflow permissions. Grant actions: read, issues: read and pull-requests: read. " +
             `GitHub API error: ${lastApiError}`,
         );
         return;
       }
-      core.warning(
-        `Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${lastApiError}`,
-      );
+      core.warning(`Transient GitHub API error (${attempt}/${POLL_ATTEMPTS}): ${lastApiError}`);
     }
 
     if (selection?.provider) {
@@ -255,23 +223,16 @@ async function verifyAiReviewContract({ github, context, core }) {
             { data: "Exact head", header: true },
             { data: "Dormant providers", header: true },
           ],
-          [
-            selection.provider,
-            selection.mode,
-            "yes",
-            selection.dormantProviders.join(", "),
-          ],
+          [selection.provider, selection.mode, "yes", selection.dormantProviders.join(", ")],
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
             "The trusted request must contain separate `@codex review` and `Exact head: <full SHA>` lines after every head update. " +
-            "Evidence must come from the authenticated Codex bot after that request and bind to the current commit. Qodo and CodeRabbit are disabled and cannot open, block or satisfy this gate. " +
-            "Stale-head, non-bot, pre-anchor, pre-request, pending or dismissed evidence does not count.\n",
+            "Evidence must be published by the authenticated Codex bot after that request and bind to the current commit. " +
+            "Qodo and CodeRabbit are disabled and cannot open, block or satisfy this gate.\n",
         )
         .write();
-      core.notice(
-        `Verified request-bound Codex review for ${pr.head.sha}; dormant=${selection.dormantProviders.join(",")}.`,
-      );
+      core.notice(`Verified request-bound Codex review for ${pr.head.sha}.`);
       return;
     }
 
@@ -286,8 +247,8 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound Codex exact-head review evidence. Post `@codex review` and `Exact head: <current full SHA>` on separate lines after every head update. " +
-      "An authenticated Codex bot review or canonical reviewed-commit comment submitted after that request may satisfy the lane. Qodo and CodeRabbit are disabled and cannot satisfy or block this gate. " +
-      "A reaction, acknowledgement, status-only result, maintainer proxy, unbound request, stale review, pending review or dismissed review does not count." +
+      "An authenticated Codex bot review or canonical reviewed-commit comment published after that request may satisfy the lane. " +
+      "Qodo and CodeRabbit are disabled and cannot satisfy or block this gate." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
