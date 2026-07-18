@@ -131,8 +131,9 @@ def severities_of(body: str) -> set[str]:
     result = {f'P{value}' for value in EXPLICIT_SEVERITY_RE.findall(body)}
     for segment in ITALIC_SEGMENT_RE.findall(body):
         normalized = MARKDOWN_RE.sub('', segment).strip().lower()
-        if normalized in LABEL_TO_SEVERITY:
-            result.add(LABEL_TO_SEVERITY[normalized])
+        for label, severity in LABEL_TO_SEVERITY.items():
+            if re.search(rf'\b{re.escape(label)}\b', normalized):
+                result.add(severity)
     return result
 
 
