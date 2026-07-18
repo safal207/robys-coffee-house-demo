@@ -38,6 +38,16 @@ function codexRequest(overrides = {}) {
   return comment(`@codex review\nExact head: ${HEAD}`, overrides);
 }
 
+function codexComment(label = "**Reviewed commit:**", overrides = {}) {
+  return comment(`Codex Review: no blocking issues.\n\n${label} \`${HEAD.slice(0, 10)}\``, {
+    created_at: "2026-07-18T08:30:00Z",
+    updated_at: "2026-07-18T08:30:00Z",
+    author_association: "NONE",
+    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+    ...overrides,
+  });
+}
+
 function codexReview(overrides = {}) {
   return {
     body: "Clean review",
@@ -99,6 +109,12 @@ assert.equal(noCodex.reason, "NO_CODEX_REQUEST");
 const codexComplete = evaluate({ comments: [codexRequest()], reviews: [codexReview()] });
 assert.equal(codexComplete.eligible, false);
 assert.equal(codexComplete.reason, "CODEX_COMPLETE");
+
+for (const label of ["**Reviewed commit:**", "_Reviewed commit:_", "*Reviewed commit:*"]) {
+  const codexCommentComplete = evaluate({ comments: [codexRequest(), codexComment(label)] });
+  assert.equal(codexCommentComplete.eligible, false, `${label} must suppress reserve dispatch`);
+  assert.equal(codexCommentComplete.reason, "CODEX_COMPLETE");
+}
 
 const codexCompleteBeforeDuplicateRequest = evaluate({
   comments: [
@@ -167,4 +183,4 @@ assert(body.includes(`Exact head: ${HEAD}`));
 assert(body.includes("13:00 Europe/Istanbul"));
 assert(body.includes("cannot replace or satisfy Codex"));
 
-console.log("✅ CODERABBIT-RESERVE-001 passed: bounded 09:00/13:00/19:00 Istanbul reserve requests activate only after Codex remains unavailable.");
+console.log("✅ CODERABBIT-RESERVE-001 passed: bounded 09:00/13:00/19:00 Istanbul reserve requests activate only after Codex remains unavailable, and plain/bold/italic Codex evidence suppresses reserve dispatch.");
