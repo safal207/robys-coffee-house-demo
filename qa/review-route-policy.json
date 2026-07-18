@@ -40,10 +40,10 @@
       "automatic": true,
       "governanceExceptionRequired": false,
       "label": "Low-risk standard review",
-      "requiredActors": ["coderabbit"],
+      "requiredActors": ["codex"],
       "stages": [
         { "id": "ci", "kind": "check", "actor": "system" },
-        { "id": "draft-review", "kind": "review", "role": "draft_reviewer", "actor": "coderabbit" }
+        { "id": "draft-review", "kind": "review", "role": "draft_reviewer", "actor": "codex" }
       ]
     },
     {
@@ -53,26 +53,26 @@
       "automatic": true,
       "governanceExceptionRequired": false,
       "label": "Product change standard review",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "requiredActors": ["codex", "human-maintainer"],
       "stages": [
         { "id": "ci", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
+        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "codex" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" }
       ]
     },
     {
-      "id": "route-l2-coderabbit-human",
+      "id": "route-l2-codex-human",
       "depth": "L2",
       "priority": 200,
       "automatic": false,
       "governanceExceptionRequired": true,
       "label": "Product change intensified human review",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "requiredActors": ["codex", "human-maintainer"],
       "stages": [
         { "id": "ci", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
+        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "codex" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "operator-review", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
       ]
@@ -84,27 +84,27 @@
       "automatic": true,
       "governanceExceptionRequired": false,
       "label": "Governance full proof route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "requiredActors": ["codex", "human-maintainer"],
       "stages": [
         { "id": "trace-pdg", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
+        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "codex" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "proof-seal", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
       ]
     },
     {
-      "id": "route-l3-coderabbit-human",
+      "id": "route-l3-codex-human",
       "depth": "L3",
       "priority": 200,
       "automatic": false,
       "governanceExceptionRequired": true,
       "label": "Governance intensified human proof route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "requiredActors": ["codex", "human-maintainer"],
       "stages": [
         { "id": "trace-pdg", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
+        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "codex" },
         { "id": "secondary-risk-review", "kind": "review", "role": "risk_critic", "actor": "human-maintainer" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "proof-seal", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
@@ -117,12 +117,12 @@
       "automatic": true,
       "governanceExceptionRequired": false,
       "label": "Sensitive action authorization route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "requiredActors": ["codex", "human-maintainer"],
       "stages": [
         { "id": "trace-pdg", "kind": "check", "actor": "system" },
         { "id": "security", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
+        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "codex" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "human-authorization", "kind": "decision", "role": "authorization_owner", "actor": "human-maintainer" },
         { "id": "action-gate", "kind": "gate", "actor": "system" }
