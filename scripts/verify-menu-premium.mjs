@@ -7,8 +7,10 @@ function assert(condition, message) {
 const html = readFileSync("menu.html", "utf8");
 const stability = readFileSync("menu-stability.css", "utf8");
 const manifest = JSON.parse(readFileSync("manifest.webmanifest", "utf8"));
-const pwa = readFileSync("menu-pwa.js", "utf8");
+const menuPwa = readFileSync("menu-pwa.js", "utf8");
+const landingPwa = readFileSync("pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorkerUrl = (source) => source.match(/const SERVICE_WORKER_URL = "([^"]+)";/)?.[1];
 
 assert(!existsSync("pairing-posters.css"), "Legacy overlay CSS must not remain in the public root");
 assert(!existsSync("pairing-posters.js"), "Legacy overlay JavaScript must not remain in the public root");
@@ -22,8 +24,10 @@ assert(stability.includes("scrollbar-gutter:stable"), "Stable scrollbar geometry
 assert(stability.includes("object-fit:contain"), "Pairing artwork must not be cropped");
 assert(stability.includes("transform:none!important"), "Legacy image zoom transforms must be neutralized");
 assert(stability.includes("prefers-reduced-motion:reduce"), "Reduced-motion users need a no-motion path");
-assert(stability.includes(".full-menu-item--visual .full-menu-price"), "Duplicate visual pairing price must be hidden but remain semantic");
+assert(stability.includes(".full-menu-item--visual .full-menu-price{display:inline-flex"), "Pairing offer price must remain visibly available");
+assert(!stability.includes("clip-path:inset(50%)"), "Visible pairing price must not be clipped as assistive-only content");
 assert(manifest.icons.every((icon) => !String(icon.purpose).includes("maskable")), "Non-safe-zone artwork must not claim maskable support");
-assert(pwa.includes("offline-20260718-premium-1") && serviceWorker.includes("robys-offline-v20-20260718-premium"), "PWA cache revision must deliver the optimized assets");
+assert(serviceWorkerUrl(menuPwa) === serviceWorkerUrl(landingPwa), "Landing and menu must register the same service-worker URL");
+assert(serviceWorker.includes("robys-offline-v20-20260718-premium"), "PWA cache revision must deliver the optimized assets");
 
-console.log("✅ MENU-PREMIUM-001 passed: stable layout, calm artwork, early menu fetch, clean icon metadata and fresh PWA cache.");
+console.log("✅ MENU-PREMIUM-001 passed: stable layout, calm artwork, visible pricing, synchronized PWA registration, clean icon metadata and fresh cache.");
