@@ -211,7 +211,7 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     humanSatisfied,
     reasons,
     reviewers,
-    note: "Advisory availability, including Codex quota or balance, never counts toward binding capacity or merge authority."
+    note: "Codex is the binding AI reviewer. CodeRabbit and DeepSeek availability is advisory and never counts toward binding capacity or merge authority."
   };
 }
 
