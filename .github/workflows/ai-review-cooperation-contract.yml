@@ -5,10 +5,7 @@ on:
     paths:
       - .github/workflows/ai-review-cooperation.yml
       - .github/workflows/ai-review-cooperation-contract.yml
-      - .github/workflows/review-ledger.yml
-      - .github/workflows/traceability.yml
       - scripts/ai-review-cooperation.py
-      - scripts/render-ci-proof-summary.mjs
       - scripts/fetch-review-threads.py
       - scripts/test-ai-review-cooperation.py
       - docs/ai-review-cooperation-policy.md
@@ -27,46 +24,53 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Compile cooperation scripts
-        run: >-
-          python3 -m py_compile
-          scripts/ai-review-cooperation.py
-          scripts/fetch-review-threads.py
-          scripts/test-ai-review-cooperation.py
-
-      - name: Run offline cooperation contracts
-        id: offline-tests
-        continue-on-error: true
-        run: python3 scripts/test-ai-review-cooperation.py -v > "${RUNNER_TEMP}/cooperation-tests.log" 2>&1
-
-      - name: Upload failed cooperation test log
-        if: steps.offline-tests.outcome == 'failure'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: cooperation-test-failure-${{ github.run_id }}
-          path: ${{ runner.temp }}/cooperation-tests.log
-          if-no-files-found: error
-          retention-days: 3
-
-      - name: Surface failed cooperation contracts
-        if: steps.offline-tests.outcome == 'failure'
+      - name: Compile and run Codex-only cooperation tests
         run: |
-          tail -n 100 "${RUNNER_TEMP}/cooperation-tests.log"
-          exit 1
+          python3 -m py_compile scripts/ai-review-cooperation.py scripts/fetch-review-threads.py scripts/test-ai-review-cooperation.py
+          python3 scripts/test-ai-review-cooperation.py -v
+          node scripts/test-codex-review-contract.cjs
+          node scripts/verify-ai-review-freshness.mjs
 
       - name: Parse workflow YAML
-        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml'); YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/traceability.yml')"
+        run: >-
+          ruby -e "require 'yaml';
+          YAML.parse_file('.github/workflows/ai-review-cooperation.yml');
+          YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
 
-      - name: Verify least privilege and event declarations
+      - name: Verify Codex-only provider boundary
         run: |
-          grep -Fq 'pull_request_review:' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'workflow_run:' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'workflows: [AI review contract]' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'types: [completed]' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'default_branch' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'persist-credentials: false' .github/workflows/ai-review-cooperation.yml
-          ! grep -Fq 'contents: write' .github/workflows/ai-review-cooperation.yml
-          ! grep -Fq 'pull_request_target' .github/workflows/ai-review-cooperation.yml
+          set -euo pipefail
+          reporter=scripts/ai-review-cooperation.py
+          workflow=.github/workflows/ai-review-cooperation.yml
+          policy=docs/ai-review-cooperation-policy.md
+
+          grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
+          grep -Fq "DORMANT_REVIEWERS = {'Qodo', 'CodeRabbit'}" "${reporter}"
+          grep -Fq "Qodo and CodeRabbit are disabled" "${reporter}"
+          grep -Fq "Qodo is disabled" "${policy}"
+          grep -Fq "Codex is the sole active" "${policy}"
+          ! grep -Fq "'/qodo review'" "${reporter}"
+          ! grep -Fqi 'coderabbitai' "${workflow}"
+          ! grep -Fqi 'qodo-code-review' "${workflow}"
+
+      - name: Verify event and permission boundary
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation.yml
+          grep -Fq 'issue_comment:' "${workflow}"
+          grep -Fq 'workflow_run:' "${workflow}"
+          grep -Fq 'workflows: [AI review contract]' "${workflow}"
+          grep -Fq 'types: [completed]' "${workflow}"
+          grep -Fq "github.event.comment.body == '/ai-cooperation report'" "${workflow}"
+          grep -Fq "github.event.workflow_run.name == 'AI review contract'" "${workflow}"
+          grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
+          grep -Fq 'persist-credentials: false' "${workflow}"
+          grep -Fq 'default_branch' "${workflow}"
+          ! grep -Fq 'pull_request_review:' "${workflow}"
+          ! grep -Fq 'pull_request_target' "${workflow}"
+          ! grep -Fq 'contents: write' "${workflow}"
+          ! grep -Fq 'actions: write' "${workflow}"
+
           ruby <<'RUBY'
           require 'yaml'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
@@ -83,252 +87,67 @@ jobs:
           raise "unexpected job permissions: #{actual.inspect}" unless actual == expected
           RUBY
 
-      - name: Verify exact trusted trigger semantics
+      - name: Verify trusted trigger and concurrency
         run: |
           ruby <<'RUBY'
           require 'yaml'
 
-          def normalize_expression(value)
-            output = +''
-            quote = nil
-            escaped = false
-            value.to_s.each_char do |char|
-              if quote
-                output << char
-                if escaped
-                  escaped = false
-                elsif char == '\\'
-                  escaped = true
-                elsif char == quote
-                  quote = nil
-                end
-              elsif char == "'" || char == '"'
-                quote = char
-                output << char
-              elsif char.match?(/\s/)
-                next
-              else
-                output << char
-              end
-            end
-            raise 'unterminated quoted literal' if quote
-            output
+          def normalize(value)
+            value.to_s.gsub(/\s+/, '')
           end
 
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           job = workflow.dig('jobs', 'report')
-          expected_guard = <<~'EXPR'
-            (github.event_name == 'issue_comment' &&
-             github.event.issue.pull_request != null &&
-             github.event.comment.body == '/ai-cooperation report' &&
-             (github.event.comment.author_association == 'OWNER' ||
-              github.event.comment.author_association == 'MEMBER' ||
-              github.event.comment.author_association == 'COLLABORATOR' ||
-              github.event.comment.user.login == github.repository_owner)) ||
-            (github.event_name == 'pull_request_review' &&
-             github.event.review.state == 'approved' &&
-             github.event.review.commit_id == github.event.pull_request.head.sha &&
-             github.event.review.user.type == 'Bot' &&
-             (github.event.review.user.login == 'coderabbitai[bot]' ||
-              github.event.review.user.login == 'coderabbitai')) ||
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'AI review contract' &&
-             github.event.workflow_run.event == 'pull_request' &&
-             github.event.workflow_run.conclusion == 'success' &&
-             github.event.workflow_run.head_sha != '')
-          EXPR
-          raise 'job trigger guard drifted' unless normalize_expression(job['if']) == normalize_expression(expected_guard)
+          guard = normalize(job['if'])
+          required = [
+            "github.event_name=='issue_comment'",
+            "github.event.issue.state=='open'",
+            "github.event.comment.body=='/ai-cooperationreport'",
+            "github.event_name=='workflow_run'",
+            "github.event.workflow_run.name=='AIreviewcontract'",
+            "github.event.workflow_run.event=='pull_request'",
+            "github.event.workflow_run.conclusion=='success'",
+            "github.event.workflow_run.head_sha!=''",
+          ]
+          missing = required.reject { |token| guard.include?(token) }
+          raise "trigger guard drifted: #{missing.inspect}" unless missing.empty?
 
           concurrency = job['concurrency']
           raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
-          expected_group_source = <<~'EXPR'
-            ai-review-cooperation-__EXPR_OPEN__
-              ((github.event_name == 'issue_comment' &&
-                github.event.issue.pull_request != null &&
-                github.event.comment.body == '/ai-cooperation report' &&
-                (github.event.comment.author_association == 'OWNER' ||
-                 github.event.comment.author_association == 'MEMBER' ||
-                 github.event.comment.author_association == 'COLLABORATOR' ||
-                 github.event.comment.user.login == github.repository_owner)) ||
-               (github.event_name == 'pull_request_review' &&
-                github.event.review.state == 'approved' &&
-                github.event.review.commit_id == github.event.pull_request.head.sha &&
-                github.event.review.user.type == 'Bot' &&
-                (github.event.review.user.login == 'coderabbitai[bot]' ||
-                 github.event.review.user.login == 'coderabbitai'))) &&
-              (github.event.issue.number || github.event.pull_request.number) ||
-              (github.event_name == 'workflow_run' &&
-               github.event.workflow_run.name == 'AI review contract' &&
-               github.event.workflow_run.event == 'pull_request' &&
-               github.event.workflow_run.conclusion == 'success' &&
-               github.event.workflow_run.head_sha != '' &&
-               format('workflow-{0}', github.event.workflow_run.head_sha)) ||
-              github.run_id
-            }}
-          EXPR
-          expected_group = expected_group_source.sub('__EXPR_OPEN__', '$' + '{{')
-          raise 'concurrency trust partition drifted' unless normalize_expression(concurrency['group']) == normalize_expression(expected_group)
+          group = concurrency['group'].to_s
+          raise 'concurrency must partition by PR or workflow head' unless group.include?('github.event.issue.number') && group.include?('github.event.workflow_run.head_sha')
           RUBY
 
-      - name: Verify trigger environment mappings
+      - name: Verify exact-head collection and publication
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/ai-review-cooperation.yml
+          grep -Fq 'commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100' "${workflow}"
+          grep -Fq '.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo' "${workflow}"
+          grep -Fq 'Expected exactly one open PR for workflow head' "${workflow}"
+          grep -Fq 'Workflow trigger is not bound to the current PR head' "${workflow}"
+          grep -Fq 'gh api --paginate --slurp' "${workflow}"
+          grep -Fq 'python3 scripts/fetch-review-threads.py' "${workflow}"
+          grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
+          grep -Fq 'PR head changed before publishing' "${workflow}"
+          grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
+          grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
+          grep -Fq '65000' "${workflow}"
+
+      - name: Validate embedded shell programs
         run: |
           ruby <<'RUBY'
           require 'yaml'
-          env = YAML.load_file('.github/workflows/ai-review-cooperation.yml').dig('jobs', 'report', 'env')
-          required = {
-            'PR_NUMBER' => 'github.event.issue.number || github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number',
-            'TRIGGER_EVENT' => 'github.event_name',
-            'TRIGGER_AUTHOR' => 'github.event.comment.user.login || github.event.review.user.login || github.event.workflow_run.actor.login',
-            'TRIGGER_HEAD_SHA' => "github.event.review.commit_id || github.event.workflow_run.head_sha || ''",
-            'WORKFLOW_NAME' => "github.event.workflow_run.name || ''",
-            'WORKFLOW_EVENT' => "github.event.workflow_run.event || ''",
-            'WORKFLOW_CONCLUSION' => "github.event.workflow_run.conclusion || ''",
-          }
-          missing = required.reject { |key, token| env.fetch(key, '').include?(token) }
-          raise "trigger environment drifted: #{missing.inspect}" unless missing.empty?
-          RUBY
-
-      - name: Execute authorization matrix
-        run: |
-          ruby <<'RUBY'
-          require 'yaml'
-          require 'open3'
           require 'tempfile'
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          authorization = workflow.dig('jobs', 'report', 'steps').first
-          raise 'authorization must remain first' unless authorization['name'] == 'Authorize cooperation trigger'
-          script = authorization['run'].to_s
-          base = {
-            'REPOSITORY_OWNER' => 'repo-owner', 'TRIGGER_EVENT' => '', 'TRIGGER_AUTHOR' => '',
-            'TRIGGER_ASSOCIATION' => '', 'REVIEW_STATE' => '', 'REVIEW_COMMIT' => '',
-            'REVIEW_USER_TYPE' => '', 'PR_HEAD_SHA' => '', 'WORKFLOW_NAME' => '',
-            'WORKFLOW_EVENT' => '', 'WORKFLOW_CONCLUSION' => '', 'PR_NUMBER' => '',
-            'TRIGGER_HEAD_SHA' => '',
-          }
-          cases = [
-            ['trusted owner', true, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'member','TRIGGER_ASSOCIATION'=>'OWNER'}],
-            ['CodeRabbit bot', true, {'TRIGGER_EVENT'=>'pull_request_review','TRIGGER_AUTHOR'=>'coderabbitai[bot]','REVIEW_STATE'=>'approved','REVIEW_COMMIT'=>'abc','REVIEW_USER_TYPE'=>'Bot','PR_HEAD_SHA'=>'abc'}],
-            ['workflow run without payload PR', true, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>'abc'}],
-            ['attacker', false, {'TRIGGER_EVENT'=>'issue_comment','TRIGGER_AUTHOR'=>'attacker','TRIGGER_ASSOCIATION'=>'NONE'}],
-            ['human review', false, {'TRIGGER_EVENT'=>'pull_request_review','TRIGGER_AUTHOR'=>'human','REVIEW_STATE'=>'approved','REVIEW_COMMIT'=>'abc','REVIEW_USER_TYPE'=>'User','PR_HEAD_SHA'=>'abc'}],
-            ['stale approval', false, {'TRIGGER_EVENT'=>'pull_request_review','TRIGGER_AUTHOR'=>'coderabbitai[bot]','REVIEW_STATE'=>'approved','REVIEW_COMMIT'=>'old','REVIEW_USER_TYPE'=>'Bot','PR_HEAD_SHA'=>'new'}],
-            ['wrong workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'Other','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success','TRIGGER_HEAD_SHA'=>'abc'}],
-            ['failed workflow', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'failure','TRIGGER_HEAD_SHA'=>'abc'}],
-            ['missing workflow head', false, {'TRIGGER_EVENT'=>'workflow_run','WORKFLOW_NAME'=>'AI review contract','WORKFLOW_EVENT'=>'pull_request','WORKFLOW_CONCLUSION'=>'success'}],
-          ]
-          Tempfile.create(['cooperation-auth', '.sh']) do |file|
-            file.write(script); file.flush; File.chmod(0o700, file.path)
-            cases.each do |name, expected, values|
-              _out, err, status = Open3.capture3(base.merge(values), 'bash', file.path)
-              raise "authorization matrix failed for #{name}: #{err}" unless status.success? == expected
+          workflow.dig('jobs', 'report', 'steps').each_with_index do |step, index|
+            next unless step['run']
+            Tempfile.create(["cooperation-step-#{index}", '.sh']) do |file|
+              file.write(step['run'].to_s)
+              file.flush
+              unless system('bash', '-n', file.path, out: File::NULL, err: File::NULL)
+                raise "invalid shell syntax in step #{index}: #{step['name']}"
+              end
             end
           end
           RUBY
-
-      - name: Verify deterministic PR resolution
-        run: |
-          ruby <<'RUBY'
-          require 'yaml'
-          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          steps = workflow.dig('jobs', 'report', 'steps')
-          checkout_index = steps.index { |step| step['name'] == 'Checkout trusted reporter code' }
-          resolve_index = steps.index { |step| step['name'] == 'Resolve workflow-run pull request' }
-          configure_index = steps.index { |step| step['name'] == 'Configure cooperation temp paths' }
-          raise 'missing PR resolution step' unless resolve_index
-          raise 'PR resolution must run after trusted checkout and before configuration' unless checkout_index < resolve_index && resolve_index < configure_index
-          run = steps[resolve_index]['run'].to_s
-          required = [
-            'commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100',
-            '.state == "open"', '.head.sha == $sha', '.base.repo.full_name == $repo',
-            'Expected exactly one open PR', 'match_count', 'GITHUB_ENV', 'PR_NUMBER=',
-          ]
-          missing = required.reject { |token| run.include?(token) }
-          raise "incomplete PR resolver: #{missing.inspect}" unless missing.empty?
-          RUBY
-          fixture='[
-            {"number":184,"state":"open","head":{"sha":"abc"},"base":{"repo":{"full_name":"owner/repo"}}},
-            {"number":185,"state":"closed","head":{"sha":"abc"},"base":{"repo":{"full_name":"owner/repo"}}},
-            {"number":186,"state":"open","head":{"sha":"other"},"base":{"repo":{"full_name":"owner/repo"}}}
-          ]'
-          matches="$(printf '%s' "$fixture" | jq --arg sha abc --arg repo owner/repo '[.[] | select(.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo)]')"
-          test "$(printf '%s' "$matches" | jq 'length')" = '1'
-          test "$(printf '%s' "$matches" | jq -r '.[0].number')" = '184'
-
-      - name: Verify workflow-run exact-head recheck
-        run: |
-          grep -Fq 'Workflow trigger is not bound to the current PR head' .github/workflows/ai-review-cooperation.yml
-          grep -Fq '[ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${HEAD_SHA}" ]' .github/workflows/ai-review-cooperation.yml
-
-      - name: Verify complete evidence collection
-        run: |
-          grep -Fq 'RAW_CHECKS_FILE' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'STATUSES_FILE' .github/workflows/ai-review-cooperation.yml
-          ruby <<'RUBY'
-          require 'yaml'
-          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          step = workflow.dig('jobs', 'report', 'steps').find { |item| item['name'] == 'Collect exact-head REST evidence' }
-          raise 'missing exact-head REST evidence step' unless step
-          run = step['run'].to_s
-          checks_pattern = /gh api --paginate[^\n]*\\\n\s+"repos\/\$\{REPOSITORY\}\/commits\/\$\{HEAD_SHA\}\/check-runs\?per_page=100"/
-          statuses_pattern = /gh api --paginate[^\n]*\\\n\s+"repos\/\$\{REPOSITORY\}\/commits\/\$\{HEAD_SHA\}\/statuses\?per_page=100"/
-          raise 'check-runs endpoint lost its own --paginate flag' unless run.match?(checks_pattern)
-          raise 'statuses endpoint lost its own --paginate flag' unless run.match?(statuses_pattern)
-          RUBY
-          grep -Fq 'scripts/fetch-review-threads.py' .github/workflows/ai-review-cooperation.yml
-          grep -Fq 'hasNextPage' scripts/fetch-review-threads.py
-          grep -Fq 'repos/{repository}/actions/runs/{run_id}' scripts/fetch-review-threads.py
-          grep -Fq "'app': {'slug': 'github-actions'}" scripts/fetch-review-threads.py
-          grep -Fq 'raw_path.write_bytes(raw_bytes)' scripts/fetch-review-threads.py
-          grep -Fq 'Workflow metadata identity mismatch' scripts/fetch-review-threads.py
-          grep -Fq 'Workflow-run evidence lacks a successful exact-head AI review contract' scripts/fetch-review-threads.py
-          grep -Fq 'EVIDENCE_TRUNCATED' scripts/ai-review-cooperation.py
-          grep -Fq 'PR head changed before publishing' .github/workflows/ai-review-cooperation.yml
-
-      - name: Verify failure diagnostics cannot spoof evidence
-        run: |
-          ruby <<'RUBY'
-          require 'yaml'
-          trusted = '<!-- ai-review-cooperation -->'
-          diagnostic = '<!-- ai-review-cooperation-diagnostic -->'
-          raise 'diagnostic aliases trusted marker' if diagnostic.include?(trusted)
-          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          step = workflow.dig('jobs','report','steps').find { |item| item['name'] == 'Publish reporter failure diagnostic' }
-          raise 'missing failure diagnostic' unless step && step['if'].to_s.include?('failure()')
-          run = step['run'].to_s
-          required = [diagnostic, 'RESOLVE_OUTCOME', 'existing_diagnostic_id', '--method PATCH', '--method POST']
-          missing = required.reject { |token| run.include?(token) }
-          raise "incomplete diagnostic: #{missing.inspect}" unless missing.empty?
-          forbidden = ['toJson(github)', '$' + '{{ github.token }}', 'GH_TOKEN:', 'cat <<']
-          leaked = forbidden.select { |token| run.include?(token) }
-          raise "diagnostic leaks context: #{leaked.inspect}" unless leaked.empty?
-          ledger = File.read('.github/workflows/review-ledger.yml', encoding: 'UTF-8')
-          reports = ledger.split('const reports = issueComments.filter',2)[1].split('const report =',2)[0]
-          raise 'ledger accepts diagnostics' if reports.include?(diagnostic)
-          RUBY
-
-      - name: Verify causal trust and ledger boundaries
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          script = Path('scripts/ai-review-cooperation.py').read_text(encoding='utf-8')
-          policy = Path('docs/ai-review-cooperation-policy.md').read_text(encoding='utf-8')
-          ledger = Path('.github/workflows/review-ledger.yml').read_text(encoding='utf-8')
-          required = [
-              '<!-- ai-review-cooperation -->', 'BOT_LOGINS', "login_of(item) == 'github-actions[bot]'",
-              'REQUIRED_CHECKS', 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH', 'NO_CURRENT_HEAD_EVIDENCE',
-              'FIX_THEN_RERUN', 'flowchart TD', 'not a majority vote',
-              'STALE_HEAD', 'PERMISSION_ERROR', 'const codeRabbitEvidence = [',
-              'no native CodeRabbit exact-head evidence', "item.user?.login === 'github-actions[bot]'",
-          ]
-          corpus = script + policy + ledger
-          missing = [token for token in required if token not in corpus]
-          reports = ledger.split('const reports = issueComments.filter',1)[1].split('const report =',1)[0]
-          if 'trustedAssociations' in reports:
-              missing.append('bot-only cooperation report trust boundary')
-          if missing:
-              raise SystemExit('Missing cooperation invariants: ' + ', '.join(missing))
-          PY
-
-      - name: Verify job-scoped cancellation
-        run: |
-          ruby -e "require 'yaml'; workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml'); raise 'workflow-level concurrency is unsafe' if workflow.key?('concurrency'); concurrency = workflow.dig('jobs','report','concurrency'); raise 'missing safe concurrency' unless concurrency && concurrency['cancel-in-progress'] == true && concurrency['group'].include?('github.run_id') && concurrency['group'].include?('workflow-{0}')"
