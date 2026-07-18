@@ -44,6 +44,12 @@ assert(workflow.includes("types: [opened, synchronize]"));
 assert(!workflow.includes("ready_for_review"));
 assert(!workflow.includes("reopened"));
 
+const ledgerWorkflow = readFileSync(".github/workflows/review-ledger.yml", "utf8");
+assert(ledgerWorkflow.includes("const codeRabbitIssueCommentIsExactHead = (item) => ("));
+assert(ledgerWorkflow.includes("(exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))"));
+assert(ledgerWorkflow.includes("return reserveRequested && codeRabbitIssueCommentIsExactHead(item);"));
+assert(ledgerWorkflow.includes("...issueComments.filter(codeRabbitIssueCommentIsExactHead),"));
+
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
 assert(!verifier.DORMANT_PROVIDER_NAMES.has("CodeRabbit"));
@@ -142,4 +148,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; review runs only on real head updates; plain, bold and italic reviewed-commit labels are accepted; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; review runs only on real head updates; plain, bold and italic reviewed-commit labels are accepted; CodeRabbit reserve issue comments use the same short reviewed-commit binding for D5 evidence; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
