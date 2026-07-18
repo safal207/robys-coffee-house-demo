@@ -20,7 +20,7 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu.css",
-  "./menu-stability.css",
+  "./menu-premium-stability.css",
   "./menu-security.css",
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
