@@ -2,7 +2,8 @@ name: AI review contract
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    # Lifecycle-only events keep the same head and must not invalidate exact-head evidence.
+    types: [opened, synchronize]
 
 permissions:
   # Required for the immutable workflow-run freshness anchor.
