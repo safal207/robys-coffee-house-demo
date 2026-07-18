@@ -8,17 +8,7 @@ Link screenshots, logs, artifacts, or reproducible checks.
 
 ## AI review
 
-After every PR head update, freeze the branch and post a fresh top-level request for the mandatory independent reviewer. The request must include the full 40-character current head SHA:
-
-```text
-@coderabbitai review
-
-Exact head: <full 40-character current head SHA>
-```
-
-CodeRabbit evidence is valid only when the configured bot publishes a pull-request review object whose `commit_id` equals that exact head. A reaction, progress/status comment, maintainer-authored review, proxy marker, or response for an older SHA does not satisfy the gate.
-
-The Codex lane is supplemental on connector surfaces where no native Codex bot review object is available. It may be requested with the same exact-head format:
+After every PR head update, freeze the branch and post a fresh trusted top-level request for the sole required AI reviewer. Include the full 40-character current head SHA:
 
 ```text
 @codex review
@@ -26,9 +16,13 @@ The Codex lane is supplemental on connector surfaces where no native Codex bot r
 Exact head: <full 40-character current head SHA>
 ```
 
-Codex counts as independent evidence only when the configured Codex bot itself publishes a review object bound to the exact head. Output written through the repository owner identity remains advisory and cannot satisfy an independent-review gate.
+Codex evidence is valid only when the configured Codex bot publishes authenticated evidence bound to that exact head after the trusted request. A reaction, progress message, pending or dismissed review, maintainer-authored proxy, edited pre-request comment, or response for an older SHA does not satisfy the gate.
 
-A new commit invalidates every earlier request and review result. Post fresh requests with the new full SHA.
+CodeRabbit is a scheduled advisory reserve. The protected default-branch dispatcher may request it at 09:00, 13:00 or 19:00 Europe/Istanbul only after a Codex exact-head request has waited at least 45 minutes without acceptable evidence. Do not manually request CodeRabbit during the normal PR flow. Its absence, rate limit, or failure cannot block readiness, and a clean CodeRabbit result cannot replace Codex. Authenticated current-head CodeRabbit findings must still be resolved or dispositioned when present.
+
+Qodo is disabled. Do not request Qodo and do not treat its comments, reviews, statuses, or billing notices as readiness evidence.
+
+A new commit invalidates every earlier request and review result. Post a fresh Codex request with the new full SHA.
 
 Optional advisory reviewers may also be requested after the latest head update:
 
@@ -56,9 +50,10 @@ This is explicit maintainer intent, not independent human or bot approval.
 - [ ] Latest exact-head CI is green.
 - [ ] Generated files are current.
 - [ ] Visual changes include exact-head evidence.
-- [ ] A fresh CodeRabbit request contains the full current head SHA.
-- [ ] A CodeRabbit-authored PR review object is bound to that exact head.
-- [ ] Codex is recorded as supplemental unless a native exact-head bot review exists.
+- [ ] A fresh trusted Codex request contains the full current head SHA.
+- [ ] Authenticated Codex evidence is bound to that exact head and was published after the request.
+- [ ] Any authenticated current-head CodeRabbit reserve findings are resolved or explicitly dispositioned.
+- [ ] Qodo was not requested and is not treated as readiness evidence.
 - [ ] Optional reviewer findings are resolved or explicitly dispositioned when requested.
 - [ ] Required independent human approval exists for the exact current head when enforcement is enabled.
 - [ ] Solo maintainer attestation is green for the exact current head when no independent human reviewer is available.
