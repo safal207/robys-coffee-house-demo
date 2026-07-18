@@ -16,23 +16,27 @@ from typing import Any
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
 DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
+CODERABBIT_RESERVE_MARKER = '<!-- coderabbit-reserve -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
     'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
+    'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
     'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
 }
 ACTIVE_REVIEWERS = {'Codex'}
+RESERVE_REVIEWERS = {'CodeRabbit'}
 ADVISORY_REVIEWERS = {'Jules', 'DeepSeek'}
-DORMANT_REVIEWERS = {'Qodo', 'CodeRabbit'}
+DORMANT_REVIEWERS = {'Qodo'}
 REQUIRED_CHECKS = {
     'Human approval contract', 'Security contract', 'Verify generated runtime',
     'Reviewdog static review', 'CodeQL security analysis',
     'Adversarial browser contract', 'Visual regression', 'OWASP ZAP baseline',
     'Lighthouse performance contract', 'iOS WebKit route gate',
     'AI review contract', 'DeepSeek review contract',
-    'AI review cooperation contract', 'Export reconstructed community reel',
-    'Taste Journey poster contract', 'Gallery mobile gate',
+    'AI review cooperation contract', 'CodeRabbit reserve contract',
+    'Export reconstructed community reel', 'Taste Journey poster contract',
+    'Gallery mobile gate',
 }
 EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
 LABEL_TO_SEVERITY = {'blocker': 'P0', 'critical': 'P1', 'major': 'P2', 'minor': 'P3'}
@@ -192,7 +196,21 @@ def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: date
     return result
 
 
-def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str], head_time: datetime) -> list[dict[str, Any]]:
+def fresh_reserve_requests(comments: list[dict[str, Any]], head_time: datetime,
+                           head_sha: str) -> list[dict[str, Any]]:
+    expected_head = f'exact head: {head_sha.lower()}'
+    return [
+        item for item in comments
+        if login_of(item) == 'github-actions[bot]'
+        and CODERABBIT_RESERVE_MARKER in body_of(item)
+        and '@coderabbitai review' in command_lines(item)
+        and expected_head in command_lines(item)
+        and is_after_head(item, head_time)
+    ]
+
+
+def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str],
+              head_time: datetime) -> list[dict[str, Any]]:
     allowed = {login.lower() for login in allowed_logins}
     return [item for item in items if login_of(item) in allowed and is_after_head(item, head_time)]
 
@@ -205,16 +223,19 @@ def request_bound_exact_items(items: Iterable[dict[str, Any]], requests: list[di
     return [item for item in items if current_head_evidence(item, head_sha) and time_of(item) >= request_at]
 
 
-def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[dict[str, Any]],
-                               no_evidence_reason: str, no_evidence_action: str) -> BotResult:
+def result_from_exact_evidence(*, name: str, requested: bool,
+                               exact_items: list[dict[str, Any]],
+                               no_evidence_reason: str,
+                               no_evidence_action: str) -> BotResult:
     findings, keys = finding_summary(exact_items)
     if exact_items:
         actionable = bool(keys)
-        return BotResult(name, requested, 'E4' if actionable else 'E5',
-                         'findings' if actionable else 'clean exact-head review',
-                         'ACTIONABLE_FINDINGS' if actionable else 'OK',
-                         'Resolve findings and rerun on the new head.' if actionable else 'No action.',
-                         findings, keys)
+        return BotResult(
+            name, requested, 'E4' if actionable else 'E5',
+            'findings' if actionable else 'clean exact-head review',
+            'ACTIONABLE_FINDINGS' if actionable else 'OK',
+            'Resolve findings and rerun on the new head.' if actionable else 'No action.',
+            findings, keys)
     if requested:
         return BotResult(name, True, 'E1', 'missing evidence', no_evidence_reason,
                          no_evidence_action, findings)
@@ -225,6 +246,13 @@ def result_from_exact_evidence(*, name: str, requested: bool, exact_items: list[
 def dormant_result(name: str) -> BotResult:
     return BotResult(name, False, 'E0', 'disabled', 'DORMANT_PROVIDER',
                      f'No action; {name} is disabled.', {f'P{i}': 0 for i in range(4)}, set())
+
+
+def reserve_standby_result(name: str) -> BotResult:
+    return BotResult(
+        name, False, 'E0', 'scheduled reserve', 'SCHEDULED_RESERVE',
+        'No action unless Codex remains unavailable at the next 09:00, 13:00 or 19:00 Europe/Istanbul window.',
+        {f'P{i}': 0 for i in range(4)}, set())
 
 
 def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
@@ -243,6 +271,17 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         exact_items=request_bound_exact_items(codex_items, codex_req, head_sha),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
         no_evidence_action='Wait within the bounded window, then retry once with @codex review.')
+
+    rabbit_req = fresh_reserve_requests(comments, head_time, head_sha)
+    rabbit_items = bot_items(all_items, BOT_LOGINS['CodeRabbit'], head_time)
+    coderabbit = (
+        result_from_exact_evidence(
+            name='CodeRabbit', requested=True,
+            exact_items=request_bound_exact_items(rabbit_items, rabbit_req, head_sha),
+            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+            no_evidence_action='Wait until the next bounded reserve window; do not retry immediately.')
+        if rabbit_req else reserve_standby_result('CodeRabbit')
+    )
 
     jules_req = fresh_requests(comments, '@jules review', head_time)
     jules_items = bot_items(all_items, BOT_LOGINS['Jules'], head_time)
@@ -274,7 +313,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
 
-    return [codex, dormant_result('Qodo'), dormant_result('CodeRabbit'), jules, deepseek]
+    return [codex, dormant_result('Qodo'), coderabbit, jules, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -401,7 +440,7 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo and CodeRabbit are disabled; duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo is disabled; CodeRabbit is a bounded scheduled advisory reserve at 09:00, 13:00 and 19:00 Europe/Istanbul and its absence never blocks readiness. Verified CodeRabbit findings still enter the causal finding graph. Duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
