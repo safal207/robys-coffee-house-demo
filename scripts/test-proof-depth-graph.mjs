@@ -53,7 +53,7 @@ function expectPathFailure(label, expectedText, argumentFactory) {
 
 expectSuccess("valid proof graph");
 expectFailure("stage skipping", "proof stage skip", (graph) => {
-  graph.edges.find((edge) => edge.from === "CHECK-TRACE" && edge.to === "CHALLENGE-MUTATION").to = "REVIEW-CODERABBIT";
+  graph.edges.find((edge) => edge.from === "CHECK-TRACE" && edge.to === "CHALLENGE-MUTATION").to = "REVIEW-CODEX";
 });
 expectFailure("orphan proof node", "outside a complete binding proof path", (graph) => {
   graph.nodes.push({ id: "ARTIFACT-ORPHAN", kind: "artifact", depth: 1, label: "orphan", origin: "observed" });
@@ -62,13 +62,13 @@ expectFailure("reviewer policy removal", "minimumIndependentReviewers must be ex
   graph.policy.minimumIndependentReviewers = 0;
 });
 expectFailure("missing mandatory reviewer path", "lacks binding proof stage independent-review", (graph) => {
-  graph.edges.find((edge) => edge.to === "REVIEW-CODERABBIT").authority = "advisory";
+  graph.edges.find((edge) => edge.to === "REVIEW-CODEX").authority = "advisory";
 });
 expectFailure("advisory-only completion", "lacks binding proof stage disposition", (graph) => {
   for (const edge of graph.edges.filter((item) => item.to === "DISPOSITION-LEDGER")) edge.authority = "advisory";
 });
 expectFailure("stale binding", "must be exact-head bound", (graph) => {
-  delete graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").freshness;
+  delete graph.nodes.find((node) => node.id === "REVIEW-CODEX").freshness;
 });
 expectFailure("inferred binding authority", "inferred knowledge cannot grant binding authority", (graph) => {
   graph.nodes.find((node) => node.id === "DISPOSITION-LEDGER").origin = "inferred";
