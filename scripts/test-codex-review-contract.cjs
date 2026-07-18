@@ -40,7 +40,8 @@ function codexComment(overrides = {}) {
 
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
-assert(verifier.DORMANT_PROVIDER_NAMES.has("CodeRabbit"));
+assert(!verifier.DORMANT_PROVIDER_NAMES.has("CodeRabbit"));
+assert(verifier.RESERVE_PROVIDER_NAMES.has("CodeRabbit"));
 
 const accepted = verifier.selectRequiredEvidence({
   comments: [request()],
@@ -50,6 +51,7 @@ const accepted = verifier.selectRequiredEvidence({
 });
 assert.equal(accepted.provider, "Codex");
 assert.equal(accepted.mode, "codex-only");
+assert.deepEqual(accepted.reserveProviders, ["CodeRabbit"]);
 
 const commentEvidence = verifier.selectRequiredEvidence({
   comments: [request(), codexComment()],
@@ -105,6 +107,14 @@ const qodoOnly = verifier.selectRequiredEvidence({
 });
 assert.equal(qodoOnly.provider, null);
 
+const rabbitOnly = verifier.selectRequiredEvidence({
+  comments: [request(`@coderabbitai review\nExact head: ${head}`)],
+  reviews: [nativeReview()],
+  currentHead: head,
+  headUpdateAnchor: anchor,
+});
+assert.equal(rabbitOnly.provider, null);
+
 const preRequestReview = verifier.selectRequiredEvidence({
   comments: [request()],
   reviews: [nativeReview({ submitted_at: "2026-07-18T10:00:30Z" })],
@@ -113,4 +123,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex is the sole active exact-head reviewer; edited pre-request comments, Qodo and CodeRabbit cannot satisfy the gate.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
