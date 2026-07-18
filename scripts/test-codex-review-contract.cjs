@@ -28,6 +28,16 @@ function nativeReview(overrides = {}) {
   };
 }
 
+function codexComment(overrides = {}) {
+  return {
+    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+    created_at: reviewAt,
+    updated_at: reviewAt,
+    body: `Codex Review: Didn't find any major issues.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+    ...overrides,
+  };
+}
+
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
 assert(verifier.DORMANT_PROVIDER_NAMES.has("CodeRabbit"));
@@ -42,20 +52,26 @@ assert.equal(accepted.provider, "Codex");
 assert.equal(accepted.mode, "codex-only");
 
 const commentEvidence = verifier.selectRequiredEvidence({
-  comments: [
-    request(),
-    {
-      user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
-      created_at: reviewAt,
-      updated_at: reviewAt,
-      body: `Codex Review: Didn't find any major issues.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
-    },
-  ],
+  comments: [request(), codexComment()],
   reviews: [],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
 assert.equal(commentEvidence.provider, "Codex");
+
+const editedPreRequestComment = verifier.selectRequiredEvidence({
+  comments: [
+    request(),
+    codexComment({
+      created_at: "2026-07-18T10:00:30Z",
+      updated_at: reviewAt,
+    }),
+  ],
+  reviews: [],
+  currentHead: head,
+  headUpdateAnchor: anchor,
+});
+assert.equal(editedPreRequestComment.provider, null);
 
 const staleRequest = verifier.selectRequiredEvidence({
   comments: [request(undefined, { created_at: "2026-07-18T09:59:59Z" })],
@@ -97,4 +113,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex is the sole active exact-head reviewer; Qodo and CodeRabbit are dormant.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex is the sole active exact-head reviewer; edited pre-request comments, Qodo and CodeRabbit cannot satisfy the gate.");
