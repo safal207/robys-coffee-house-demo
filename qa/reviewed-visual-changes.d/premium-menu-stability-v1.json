@@ -6,7 +6,7 @@
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/212#issuecomment-5010637088",
       "contentBindings": {
         "menu.html": "3be04a4e65de22a07a7e1b7201fc9ccdc52c37cf",
-        "menu-premium-stability.css": "d817536c2ab9d96151b241e8bd641f21c012ed2c"
+        "menu-premium-stability.css": "106eb48a3f9008c63a7382b7cba1d231a5ba184e"
       },
       "expectedFailures": [
         {
