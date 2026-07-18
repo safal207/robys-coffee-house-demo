@@ -48,7 +48,7 @@ jobs:
           grep -Fq "DORMANT_REVIEWERS = {'Qodo', 'CodeRabbit'}" "${reporter}"
           grep -Fq "Qodo and CodeRabbit are disabled" "${reporter}"
           grep -Fq "Qodo is disabled" "${policy}"
-          grep -Fq "Codex is the sole active" "${policy}"
+          grep -Fq "sole active request-bound AI reviewer" "${policy}"
           ! grep -Fq "'/qodo review'" "${reporter}"
           ! grep -Fqi 'coderabbitai' "${workflow}"
           ! grep -Fqi 'qodo-code-review' "${workflow}"
