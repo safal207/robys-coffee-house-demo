@@ -64,8 +64,12 @@ jobs:
           grep -Fq "CodeRabbit is a bounded scheduled reserve" "${policy}"
           grep -Fq "sole required request-bound AI reviewer" "${policy}"
           grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
-          grep -Fq 'if (reserveRequested && codeRabbitEvidence.length === 0)' "${ledger}"
+          grep -Fq "requested-without-evidence-advisory" "${ledger}"
+          grep -Fq "const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);" "${ledger}"
+          grep -Fq '^Head:\\s*${head}\\s*$' "${ledger}"
           grep -Fq 'CodeRabbit reserve=' "${ledger}"
+          ! grep -Fq 'scheduled CodeRabbit reserve was requested but no exact-head evidence exists' "${ledger}"
+          ! grep -Fq 'requested CodeRabbit reserve lacks E4/E5 exact-head evidence' "${ledger}"
           ! grep -Fq 'mandatory CodeRabbit evidence' "${ledger}"
           ! grep -Fq "'/qodo review'" "${reporter}"
           ! grep -Fqi 'coderabbitai' "${workflow}"
@@ -152,20 +156,32 @@ jobs:
           grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"
           grep -Fq '65000' "${workflow}"
 
-      - name: Validate embedded shell programs
+      - name: Validate embedded programs
         run: |
           ruby <<'RUBY'
           require 'yaml'
           require 'tempfile'
-          workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
-          workflow.dig('jobs', 'report', 'steps').each_with_index do |step, index|
+
+          cooperation = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
+          cooperation.dig('jobs', 'report', 'steps').each_with_index do |step, index|
             next unless step['run']
             Tempfile.create(["cooperation-step-#{index}", '.sh']) do |file|
               file.write(step['run'].to_s)
               file.flush
               unless system('bash', '-n', file.path, out: File::NULL, err: File::NULL)
-                raise "invalid shell syntax in step #{index}: #{step['name']}"
+                raise "invalid shell syntax in cooperation step #{index}: #{step['name']}"
               end
+            end
+          end
+
+          ledger = YAML.load_file('.github/workflows/review-ledger.yml')
+          script = ledger.dig('jobs', 'review-ledger', 'steps', 0, 'with', 'script')
+          raise 'missing review-ledger script' unless script
+          Tempfile.create(['review-ledger', '.js']) do |file|
+            file.write("(async () => {\n#{script}\n})();\n")
+            file.flush
+            unless system('node', '--check', file.path, out: File::NULL, err: File::NULL)
+              raise 'invalid JavaScript syntax in review-ledger'
             end
           end
           RUBY
