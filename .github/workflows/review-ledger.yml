@@ -76,6 +76,10 @@ jobs:
             ]);
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
+            const reviewedCommitOf = (body) => (
+              /Reviewed commit:\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
+            );
+            const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
             const timeOf = (item) => Math.max(
               0,
               ...[item.submitted_at, item.created_at, item.updated_at]
@@ -151,6 +155,20 @@ jobs:
                 ? 'requested-with-evidence'
                 : 'requested-without-evidence-advisory';
 
+            const issueCommentIsExactBotEvidence = (item) => {
+              const login = item.user?.login;
+              if (codexBots.has(login)) {
+                return exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body));
+              }
+              if (otherReviewBots.has(login)) return exactHeadBody(item.body);
+              return (
+                reserveRequested &&
+                codeRabbitBots.has(login) &&
+                createdTimeOf(item) >= reserveRequestAt &&
+                exactHeadBody(item.body)
+              );
+            };
+
             const exactBotEvidence = [
               ...reviews.filter((item) => (
                 (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login) ||
@@ -162,11 +180,7 @@ jobs:
                   (reserveRequested && codeRabbitBots.has(item.user?.login) && timeOf(item) >= reserveRequestAt)) &&
                 reviewHeads.get(item.pull_request_review_id) === head
               )),
-              ...issueComments.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login) ||
-                  (reserveRequested && codeRabbitBots.has(item.user?.login) && createdTimeOf(item) >= reserveRequestAt)) &&
-                exactHeadBody(item.body)
-              )),
+              ...issueComments.filter(issueCommentIsExactBotEvidence),
               ...statuses.filter((item) => (
                 reserveRequested &&
                 item.context === 'CodeRabbit' &&
