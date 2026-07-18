@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline tests for the Codex-only causal AI reviewer cooperation report."""
+"""Offline tests for the Codex-required, CodeRabbit-reserve cooperation report."""
 
 from __future__ import annotations
 
@@ -106,6 +106,12 @@ def codex_request(created_at: str = AFTER, association: str = 'OWNER') -> dict[s
                    association=association)
 
 
+def rabbit_request(created_at: str = AFTER) -> dict[str, object]:
+    return comment(
+        f'<!-- coderabbit-reserve -->\n@coderabbitai review\n\nExact head: {HEAD}',
+        login='github-actions[bot]', created_at=created_at, association='NONE')
+
+
 def deepseek_comment() -> dict[str, object]:
     return comment(
         f'<!-- deepseek-pr-review -->\n**Status:** complete\nReviewed commit: `{HEAD}`',
@@ -122,6 +128,7 @@ class CooperationReportTests(unittest.TestCase):
         report = self.report(comments=[codex_request()], reviews=[review('Clean review')])
         self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
         self.assertIn('| Qodo | no | E0 | disabled |', report)
+        self.assertIn('| CodeRabbit | no | E0 | scheduled reserve |', report)
         self.assertIn('**READY_WITH_ADVISORY_GAPS**', report)
 
     def test_all_available_exact_head_evidence_produces_ready(self) -> None:
@@ -160,6 +167,32 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('| Qodo | no | E0 | disabled |', report)
         self.assertIn('| Codex | no | E0 | not requested |', report)
         self.assertNotIn('P1x1', report)
+
+    def test_coderabbit_reserve_is_not_required(self) -> None:
+        report = self.report(
+            comments=[rabbit_request()],
+            reviews=[review('Clean Rabbit review', login='coderabbitai[bot]')],
+        )
+        self.assertIn('| CodeRabbit | yes | E5 | clean exact-head review |', report)
+        self.assertIn('| Codex | no | E0 | not requested |', report)
+        self.assertIn('**WAIT_FOR_EVIDENCE**', report)
+
+    def test_unmarked_coderabbit_request_is_not_trusted_reserve(self) -> None:
+        report = self.report(
+            comments=[comment(f'@coderabbitai review\nExact head: {HEAD}')],
+            reviews=[review('Clean Rabbit review', login='coderabbitai[bot]')],
+        )
+        self.assertIn('| CodeRabbit | no | E0 | scheduled reserve |', report)
+
+    def test_verified_coderabbit_p2_enters_causal_graph(self) -> None:
+        finding = thread_comment('P2 reserve reviewer found a race', login='coderabbitai[bot]')
+        report = self.report(
+            comments=[codex_request(), rabbit_request()],
+            reviews=[review('Clean Codex review')],
+            threads_data=threads(finding),
+        )
+        self.assertIn('| CodeRabbit | yes | E4 | findings | P2x1 |', report)
+        self.assertIn('**FIX_THEN_RERUN**', report)
 
     def test_stale_codex_review_does_not_count(self) -> None:
         report = self.report(comments=[codex_request()],
