@@ -1,39 +1,28 @@
 # AI reviewer cooperation policy
 
-This repository treats AI reviewers as independent sensors, not as a voting committee. A request, an acknowledgement, a status comment, a maintainer-authored note, and an exact-head bot review are different evidence classes and must never be conflated.
+This repository treats AI reviewers as evidence-producing sensors, not as a voting committee. Requests, acknowledgements, comments, native reviews and executable CI remain distinct evidence classes.
 
-## Roles
+## Active reviewer
 
-- **CodeRabbit** — mandatory independent AI review lane on the current GitHub surface.
-- **Codex** — supplemental review lane; it becomes independent evidence only when the configured Codex bot itself publishes an exact-head pull-request review object.
-- **Jules** — advisory implementation review.
-- **DeepSeek** — advisory QA/security review through the official API workflow.
-- **CI** — authoritative executable evidence for build, security, browser, accessibility, visual, integrity, and performance contracts.
-- **Maintainer** — owns the final release decision but cannot impersonate an independent reviewer.
+- **Codex** is the sole active request-bound AI reviewer.
+- **Qodo is disabled.** Its commands, comments, billing notices, statuses and reviews cannot open, block or satisfy a merge gate.
+- **CodeRabbit is disabled.** Its output is historical/advisory only.
+- **Jules and DeepSeek** remain optional advisory reviewers.
+- **CI** remains the authoritative executable evidence for build, security, browser, accessibility, visual, integrity and performance contracts.
+- **Maintainer** owns the final release decision but cannot impersonate independent bot evidence.
 
-The mandatory lane is capability-aware, not identity-substituted. When a provider cannot publish through its configured bot identity, that limitation is recorded openly and its owner-authored output remains advisory.
+## Canonical exact-head request
 
-## Canonical exact-head requests
-
-After every head update, freeze the branch and post a fresh trusted top-level request containing the full 40-character current SHA:
-
-```text
-@coderabbitai review
-
-Exact head: <full 40-character current head SHA>
-```
-
-The supplemental Codex request uses the same binding:
+After every head update, freeze the branch and post a trusted top-level request containing the full 40-character current SHA:
 
 ```text
 @codex review
-
 Exact head: <full 40-character current head SHA>
 ```
 
-A new commit invalidates all earlier requests and review evidence. The request must be reposted with the new SHA.
+A new commit invalidates every earlier request and review result. The request must be posted again for the new head.
 
-Optional advisory commands remain:
+Optional advisory commands may still be used:
 
 ```text
 @jules review
@@ -41,80 +30,86 @@ Optional advisory commands remain:
 /deepseek deep-review
 ```
 
-Advisory output is exact-head evidence only when the provider response identifies or is natively bound to the current commit.
+Advisory output never replaces the required Codex lane.
 
 ## Evidence ladder
 
 | Level | Meaning | Merge value |
 |---|---|---|
-| E0 | No trusted request exists | None |
-| E1 | Trusted exact-head request exists | None |
-| E2 | Bot acknowledged or started work | Operational only |
-| E3 | Bot responded, but identity or current-head binding is not verified | Advisory only |
-| E4 | Verified exact-head bot response contains actionable findings | Blocking/advisory according to severity |
-| E5 | Verified exact-head bot response is clean, or all findings are resolved on the current head | Merge-supporting evidence |
+| E0 | No trusted Codex request exists | None |
+| E1 | Trusted exact-head Codex request exists | None |
+| E2 | Codex acknowledged or started work | Operational only |
+| E3 | Codex responded, but bot identity or current-head binding is not verified | Advisory only |
+| E4 | Verified exact-head Codex response contains actionable findings | Blocking according to severity |
+| E5 | Verified exact-head Codex response is clean, or all findings are resolved on the current head | Merge-supporting evidence |
 
-A reaction, “in progress” message, issue status comment without commit binding, owner-authored proxy, spoofed author, older-SHA response, resolved thread by itself, or truncated evidence collection cannot satisfy E4/E5.
+E4/E5 requires:
 
-For the mandatory CodeRabbit lane, E4/E5 requires a CodeRabbit-authored pull-request review object whose `commit_id` equals the current head and whose publication follows the fresh exact-head request.
+1. a trusted `@codex review` request posted after the current workflow freshness anchor;
+2. a separate `Exact head: <full SHA>` line;
+3. authenticated Codex bot authorship;
+4. a native review `commit_id` matching the current head, or the canonical Codex reviewed-commit comment bound to the current head;
+5. publication after the trusted request.
 
-For Codex, E4/E5 is independent evidence only when the configured Codex bot publishes an equivalent exact-head review object. Connector output authored as the repository owner is E3 advisory evidence at most.
+A reaction, acknowledgement, status-only result, maintainer-authored proxy, spoofed author, stale SHA, pre-request output, pending review, dismissed review or truncated evidence collection cannot satisfy E4/E5.
+
+## Trusted execution boundary
+
+The `AI review contract` workflow executes the verifier from GitHub's supplied pull-request base SHA:
+
+```text
+${{ github.event.pull_request.base.sha }}
+```
+
+The workflow therefore never executes verifier code from the untrusted PR branch. A PR that introduces a new verifier cannot self-prove that verifier; the new contract becomes authoritative only after it reaches the protected default branch and runs on a subsequent PR head.
 
 ## Stable failure reasons
 
 | Code | Cause | Default action |
 |---|---|---|
-| `NO_REQUEST` | No trusted exact-head request was posted | Post the canonical command with the full SHA |
-| `NO_ACK` | Request exists but the bot never acknowledged it | Retry once after the bot timeout |
-| `ACK_ONLY` | Bot acknowledged but produced no review object | Wait to timeout, then retry once |
-| `NO_CURRENT_HEAD_EVIDENCE` | Response exists but is not bound to the current SHA | Request a fresh exact-head review |
-| `STALE_HEAD` | PR head changed during review or before publication | Discard the result and rerun |
-| `IDENTITY_UNAVAILABLE` | Provider cannot publish through the configured bot identity | Record the lane as supplemental/advisory; never substitute a maintainer identity |
-| `EVIDENCE_TRUNCATED` | Not every check, review, thread, or thread comment was collected | Fail closed; paginate fully before evaluating readiness |
-| `BOOTSTRAP_NOT_ON_DEFAULT_BRANCH` | An `issue_comment` workflow is changed in the PR but not yet present on the default branch | Merge the bootstrap workflow first, then test it on another PR |
-| `AUTH_REJECTED` | Provider rejected credentials or permissions | Stop retries; rotate/fix the secret or permissions |
-| `RATE_LIMITED` | Provider returned a rate-limit response | Retry with bounded backoff |
-| `PROVIDER_UNAVAILABLE` | Provider or bot returned a server-side failure | Retry once; keep required evidence blocked |
-| `PERMISSION_ERROR` | Bot cannot create its required review object | Fix permissions or provider configuration; do not downgrade to an unbound comment |
-| `INCOMPLETE_RESPONSE` | Model stopped because of length, filtering, missing completion metadata, or interruption | Do not publish as successful evidence; reduce scope or retry as policy allows |
-| `ACTIONABLE_FINDINGS` | P0-P3 findings are present | Resolve according to severity and rerun on the new head |
-| `NOISE_ONLY` | Output contains no evidence-backed actionable content | Record as advisory, not as a blocker |
-
-## Trusted identities and binding
-
-Evidence is accepted only from exact GitHub logins maintained in the executable contract. Substring matching is forbidden. Mandatory review evidence must use the native pull-request review `commit_id`; prose that merely repeats a SHA is not a substitute.
-
-DeepSeek report comments are accepted only from `github-actions[bot]` and must include the exact reviewed commit. Maintainer-authored comments and reviews never satisfy an independent reviewer lane.
-
-## Required CI
-
-Only explicit required-check allowlists contribute to `BLOCK`, `WAIT_FOR_EVIDENCE`, or `READY`. Optional and experimental checks remain visible but cannot silently become merge requirements. Branch protection remains the final enforcement layer for status checks.
+| `NO_REQUEST` | No trusted Codex exact-head request exists | Post the canonical request with the full SHA |
+| `NO_ACK` | Request exists but Codex never acknowledged it | Wait to the bounded timeout, then retry once |
+| `NO_CURRENT_HEAD_EVIDENCE` | Response is not bound to the current SHA | Post a fresh exact-head request |
+| `STALE_HEAD` | PR head changed during review | Discard the result and rerun |
+| `IDENTITY_UNAVAILABLE` | Codex cannot publish through its configured bot identity | Keep readiness blocked; do not substitute maintainer output |
+| `EVIDENCE_TRUNCATED` | Evidence pagination is incomplete | Fail closed and collect every page |
+| `BOOTSTRAP_NOT_ON_DEFAULT_BRANCH` | New trusted verifier is not yet on the default branch | Merge the governance bootstrap, then validate it on another PR |
+| `AUTH_REJECTED` | Credentials or permissions were rejected | Fix permissions; do not downgrade the evidence class |
+| `RATE_LIMITED` | Provider returned a rate-limit response | Retry once with bounded backoff |
+| `PROVIDER_UNAVAILABLE` | Provider returned a server-side failure | Retry once; required evidence remains blocked |
+| `ACTIONABLE_FINDINGS` | P0-P3 findings exist | Resolve according to severity and rerun on the new head |
 
 ## Timeouts and retries
 
-- CodeRabbit: wait up to 15 minutes; retry once after a provider, permission, or auto-pause interruption.
-- Codex: wait up to 10 minutes when a native bot surface is configured; otherwise record `IDENTITY_UNAVAILABLE` and keep the lane supplemental.
-- Jules: wait up to 15 minutes; retry once. Missing Jules output remains advisory.
-- DeepSeek: workflow timeout is 10 minutes. Retry 429 and transient 5xx/network failures with bounded backoff; never retry 401/403 automatically.
+- Codex waits within the bounded workflow window and may be requested once again after timeout.
+- Jules and DeepSeek remain optional and use bounded retries.
 - No reviewer may create an unbounded retry loop.
+- Qodo receives no new requests and has no timeout or fallback role.
 
 ## Causal aggregation
 
-The cooperation report collapses duplicate observations by normalized root-cause signature. Three reviewers repeating the same defect count as one causal finding with stronger corroboration, not three independent blockers.
+The evidence graph is:
 
-The report graph follows this direction:
+```text
+current head
+→ trusted Codex exact-head request
+→ verified Codex bot identity
+→ exact-head response
+→ finding/root cause
+→ disposition
+→ required action
+→ overall conclusion
+```
 
-`current head -> trusted exact-head request -> verified reviewer identity -> exact-head evidence -> finding/root cause -> disposition -> required action -> overall conclusion`
-
-Required CI, reviewer identity, commit binding, disposition completeness, and evidence-collection completeness enter the graph independently. Bot consensus cannot override failing required checks, and green CI cannot erase a verified P0-P2 correctness or security finding.
+Required CI, reviewer identity, commit binding, disposition completeness and evidence-collection completeness enter the graph independently. Reviewer prose cannot override failing executable checks, and green CI cannot erase a verified P0-P2 finding.
 
 ## Overall conclusion rules
 
-1. **BLOCK** — any P0/P1 finding, failing required CI, stale-head publication, trust-boundary breach, or forged reviewer identity.
-2. **FIX_THEN_RERUN** — any unresolved P2 root cause or contract/documentation mismatch.
-3. **WAIT_FOR_EVIDENCE** — the mandatory independent CodeRabbit exact-head review, required CI, disposition, or complete pagination is missing.
-4. **READY_WITH_ADVISORY_GAPS** — required CI and CodeRabbit are E5, no unresolved P0-P2 exists, but a supplemental reviewer is unavailable or incomplete.
-5. **READY** — required CI is green, mandatory independent exact-head evidence is E5, evidence collection and dispositions are complete, and all available actionable findings are resolved.
+1. **BLOCK** — any P0/P1 finding, failing required CI, stale-head publication, trust-boundary breach or forged reviewer identity.
+2. **FIX_THEN_RERUN** — any unresolved P2 root cause or contract mismatch.
+3. **WAIT_FOR_EVIDENCE** — Codex exact-head evidence, required CI, disposition or complete pagination is missing.
+4. **READY_WITH_ADVISORY_GAPS** — required CI and Codex are complete, no unresolved P0-P2 exists, but optional reviewers are unavailable.
+5. **READY** — required CI is green, Codex exact-head evidence is complete, evidence collection and dispositions are complete, and actionable findings are resolved.
 
 P3 findings are tracked but do not block unless the maintainer explicitly promotes them.
 
@@ -126,4 +121,4 @@ Run:
 /ai-cooperation report
 ```
 
-The report must identify the exact head, distinguish mandatory independent evidence from supplemental lanes, show stable reason codes and dispositions, and publish one overall conclusion. It may summarize advisory reviewers, but it must never upgrade owner-authored output into independent bot evidence.
+The report must identify the exact head, show Codex as the only required reviewer, label Qodo and CodeRabbit as disabled, preserve stable reason codes and publish one overall conclusion.
