@@ -159,6 +159,18 @@ class CooperationReportTests(unittest.TestCase):
         )
         self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
 
+    def test_canonical_codex_comment_without_backticks_counts(self) -> None:
+        report = self.report(
+            comments=[
+                codex_request(),
+                comment(
+                    f"Codex Review: Didn't find any major issues.\n\n**Reviewed commit:** {HEAD[:10]}",
+                    login='chatgpt-codex-connector[bot]', created_at=LATER,
+                    association='NONE'),
+            ],
+        )
+        self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
+
     def test_qodo_request_and_review_are_ignored(self) -> None:
         report = self.report(
             comments=[comment(f'/qodo review\nExact head: {HEAD}')],
