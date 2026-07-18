@@ -41,7 +41,10 @@ REQUIRED_CHECKS = {
 EXPLICIT_SEVERITY_RE = re.compile(r'\bP([0-3])\b', re.IGNORECASE)
 LABEL_TO_SEVERITY = {'blocker': 'P0', 'critical': 'P1', 'major': 'P2', 'minor': 'P3'}
 ITALIC_SEGMENT_RE = re.compile(r'_([^_\n]+)_')
-REVIEWED_COMMIT_RE = re.compile(r'Reviewed\s+commit\s*:[^`]*`([0-9a-f]{7,40})`', re.IGNORECASE)
+REVIEWED_COMMIT_RE = re.compile(
+    r'Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?',
+    re.IGNORECASE,
+)
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
 
