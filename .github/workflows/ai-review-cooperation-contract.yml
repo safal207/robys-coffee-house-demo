@@ -5,9 +5,14 @@ on:
     paths:
       - .github/workflows/ai-review-cooperation.yml
       - .github/workflows/ai-review-cooperation-contract.yml
+      - .github/workflows/coderabbit-reserve.yml
+      - .github/workflows/coderabbit-reserve-contract.yml
       - scripts/ai-review-cooperation.py
+      - scripts/coderabbit-reserve.cjs
       - scripts/fetch-review-threads.py
       - scripts/test-ai-review-cooperation.py
+      - scripts/test-coderabbit-reserve.cjs
+      - scripts/test-codex-review-contract.cjs
       - docs/ai-review-cooperation-policy.md
 
 permissions:
@@ -24,10 +29,12 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Compile and run Codex-only cooperation tests
+      - name: Compile and run Codex-required reserve-aware cooperation tests
         run: |
           python3 -m py_compile scripts/ai-review-cooperation.py scripts/fetch-review-threads.py scripts/test-ai-review-cooperation.py
           python3 scripts/test-ai-review-cooperation.py -v
+          node --check scripts/coderabbit-reserve.cjs
+          node scripts/test-coderabbit-reserve.cjs
           node scripts/test-codex-review-contract.cjs
           node scripts/verify-ai-review-freshness.mjs
 
@@ -35,9 +42,11 @@ jobs:
         run: >-
           ruby -e "require 'yaml';
           YAML.parse_file('.github/workflows/ai-review-cooperation.yml');
-          YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml')"
+          YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml');
+          YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
+          YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml')"
 
-      - name: Verify Codex-only provider boundary
+      - name: Verify reviewer role boundary
         run: |
           set -euo pipefail
           reporter=scripts/ai-review-cooperation.py
@@ -45,10 +54,12 @@ jobs:
           policy=docs/ai-review-cooperation-policy.md
 
           grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
-          grep -Fq "DORMANT_REVIEWERS = {'Qodo', 'CodeRabbit'}" "${reporter}"
-          grep -Fq "Qodo and CodeRabbit are disabled" "${reporter}"
+          grep -Fq "RESERVE_REVIEWERS = {'CodeRabbit'}" "${reporter}"
+          grep -Fq "DORMANT_REVIEWERS = {'Qodo'}" "${reporter}"
+          grep -Fq "CODERABBIT_RESERVE_MARKER = '<!-- coderabbit-reserve -->'" "${reporter}"
           grep -Fq "Qodo is disabled" "${policy}"
-          grep -Fq "sole active request-bound AI reviewer" "${policy}"
+          grep -Fq "CodeRabbit is a bounded scheduled reserve" "${policy}"
+          grep -Fq "sole required request-bound AI reviewer" "${policy}"
           ! grep -Fq "'/qodo review'" "${reporter}"
           ! grep -Fqi 'coderabbitai' "${workflow}"
           ! grep -Fqi 'qodo-code-review' "${workflow}"
