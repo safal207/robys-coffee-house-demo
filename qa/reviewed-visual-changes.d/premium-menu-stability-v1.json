@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "premium-menu-stability-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/212#issuecomment-5010637088",
+      "contentBindings": {
+        "menu.html": "3be04a4e65de22a07a7e1b7201fc9ccdc52c37cf",
+        "menu-premium-stability.css": "106eb48a3f9008c63a7382b7cba1d231a5ba184e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6353 vs 320x6326"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "totalPixels": 147560,
+          "maxDiffPixelRatio": 0.006
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 160320,
+          "maxDiffPixelRatio": 0.021
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6156 vs 390x6131"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 175350,
+          "maxDiffPixelRatio": 0.009
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7088 vs 768x7182"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4845 vs 1440x6251"
+        }
+      ]
+    }
+  ]
+}

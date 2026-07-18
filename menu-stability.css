@@ -1,4 +1,0 @@
-.menu-category-nav:not([data-ready]){min-height:40px}
-.full-menu-grid:not([data-ready]){min-height:2542px}
-@media(max-width:900px){.full-menu-grid:not([data-ready]){min-height:3574px}}
-@media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:38px}}

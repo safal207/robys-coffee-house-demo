@@ -1,0 +1,16 @@
+html{scrollbar-gutter:stable}
+.menu-category-nav:not([data-ready]){min-height:40px}
+.full-menu-grid:not([data-ready]){min-height:2542px}
+.full-menu-panel--featured{padding:28px 0 0;background:transparent;border:0;box-shadow:none}
+.full-menu-panel--featured .full-menu-panel-header{margin:0 0 26px;padding:0 4px 20px;border-bottom:1px solid var(--line)}
+.full-menu-panel--featured .full-menu-panel-icon{display:none}
+.full-menu-panel--featured .full-menu-list{grid-template-columns:1fr;gap:30px}
+.full-menu-item--visual{position:relative;display:block;width:100%;max-width:980px;margin:0 auto;overflow:hidden;background:transparent;border:0;border-radius:28px;box-shadow:0 18px 48px rgba(36,28,27,.09);transition:transform .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s ease}
+.full-menu-item--visual .full-menu-item-media{min-height:0;aspect-ratio:1/1;overflow:hidden;background:#f3ece3;border-radius:inherit}
+.full-menu-item--visual .full-menu-item-media img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;transform:none!important;filter:none!important;transition:none!important}
+.full-menu-item--visual .full-menu-item-details{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+@media(hover:hover) and (pointer:fine){.full-menu-item--visual:hover{transform:translateY(-2px);box-shadow:0 24px 58px rgba(36,28,27,.12)}}
+@media(max-width:900px){.full-menu-grid:not([data-ready]){min-height:3574px}.full-menu-panel--featured{padding-top:24px}.full-menu-panel--featured .full-menu-list{gap:26px}}
+@media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:38px}.full-menu-panel--featured{padding-top:20px}.full-menu-panel--featured .full-menu-panel-header{margin-bottom:20px;padding-inline:2px}.full-menu-panel--featured .full-menu-list{gap:24px}.full-menu-item--visual{border-radius:22px;box-shadow:0 14px 36px rgba(36,28,27,.09)}.full-menu-item--visual .full-menu-item-media{aspect-ratio:1/1}}
+@media(hover:none),(pointer:coarse){.full-menu-item--visual{transition:none}.full-menu-item--visual:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.full-menu-item--visual{transition:none!important}.full-menu-item--visual:hover{transform:none!important}}
