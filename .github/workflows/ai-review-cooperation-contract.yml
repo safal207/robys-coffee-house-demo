@@ -7,6 +7,7 @@ on:
       - .github/workflows/ai-review-cooperation-contract.yml
       - .github/workflows/coderabbit-reserve.yml
       - .github/workflows/coderabbit-reserve-contract.yml
+      - .github/workflows/review-ledger.yml
       - scripts/ai-review-cooperation.py
       - scripts/coderabbit-reserve.cjs
       - scripts/fetch-review-threads.py
@@ -44,13 +45,15 @@ jobs:
           YAML.parse_file('.github/workflows/ai-review-cooperation.yml');
           YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml');
           YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
-          YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml')"
+          YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml');
+          YAML.parse_file('.github/workflows/review-ledger.yml')"
 
       - name: Verify reviewer role boundary
         run: |
           set -euo pipefail
           reporter=scripts/ai-review-cooperation.py
           workflow=.github/workflows/ai-review-cooperation.yml
+          ledger=.github/workflows/review-ledger.yml
           policy=docs/ai-review-cooperation-policy.md
 
           grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
@@ -60,6 +63,10 @@ jobs:
           grep -Fq "Qodo is disabled" "${policy}"
           grep -Fq "CodeRabbit is a bounded scheduled reserve" "${policy}"
           grep -Fq "sole required request-bound AI reviewer" "${policy}"
+          grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
+          grep -Fq 'if (reserveRequested && codeRabbitEvidence.length === 0)' "${ledger}"
+          grep -Fq "CodeRabbit reserve=${reserveRequested ? 'requested-and-complete' : 'not-requested'}" "${ledger}"
+          ! grep -Fq 'mandatory CodeRabbit evidence' "${ledger}"
           ! grep -Fq "'/qodo review'" "${reporter}"
           ! grep -Fqi 'coderabbitai' "${workflow}"
           ! grep -Fqi 'qodo-code-review' "${workflow}"
