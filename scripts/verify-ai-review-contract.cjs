@@ -9,7 +9,8 @@ const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
 const CODEX_COMMAND = "@codex review";
 const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
-const DORMANT_PROVIDER_NAMES = new Set(["Qodo", "CodeRabbit"]);
+const DORMANT_PROVIDER_NAMES = new Set(["Qodo"]);
+const RESERVE_PROVIDER_NAMES = new Set(["CodeRabbit"]);
 
 function parseTime(value) {
   if (typeof value !== "string" || value.trim() === "") return 0;
@@ -134,6 +135,7 @@ function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnch
     codexRequestAt,
     requestedProviders: codexRequestAt > 0 ? ["Codex"] : [],
     dormantProviders: [...DORMANT_PROVIDER_NAMES].sort(),
+    reserveProviders: [...RESERVE_PROVIDER_NAMES].sort(),
   };
 }
 
@@ -221,15 +223,22 @@ async function verifyAiReviewContract({ github, context, core }) {
             { data: "Required reviewer", header: true },
             { data: "Mode", header: true },
             { data: "Exact head", header: true },
-            { data: "Dormant providers", header: true },
+            { data: "Disabled providers", header: true },
+            { data: "Scheduled reserve", header: true },
           ],
-          [selection.provider, selection.mode, "yes", selection.dormantProviders.join(", ")],
+          [
+            selection.provider,
+            selection.mode,
+            "yes",
+            selection.dormantProviders.join(", ") || "none",
+            selection.reserveProviders.join(", ") || "none",
+          ],
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
             "The trusted request must contain separate `@codex review` and `Exact head: <full SHA>` lines after every head update. " +
             "Evidence must be published by the authenticated Codex bot after that request and bind to the current commit. " +
-            "Qodo and CodeRabbit are disabled and cannot open, block or satisfy this gate.\n",
+            "Qodo is disabled. CodeRabbit is an advisory scheduled reserve at 09:00, 13:00 and 19:00 Europe/Istanbul; it cannot open, block or satisfy this required gate.\n",
         )
         .write();
       core.notice(`Verified request-bound Codex review for ${pr.head.sha}.`);
@@ -248,7 +257,7 @@ async function verifyAiReviewContract({ github, context, core }) {
   core.setFailed(
     "Require request-bound Codex exact-head review evidence. Post `@codex review` and `Exact head: <current full SHA>` on separate lines after every head update. " +
       "An authenticated Codex bot review or canonical reviewed-commit comment published after that request may satisfy the lane. " +
-      "Qodo and CodeRabbit are disabled and cannot satisfy or block this gate." +
+      "Qodo is disabled. CodeRabbit is a scheduled advisory reserve and cannot satisfy or block this gate." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
@@ -259,6 +268,7 @@ module.exports._test = {
   AI_REVIEW_WORKFLOW_NAME,
   CODEX_COMMAND,
   DORMANT_PROVIDER_NAMES,
+  RESERVE_PROVIDER_NAMES,
   commandLinesOf,
   exactHeadCodexEvidence,
   freshTrustedRequests,
