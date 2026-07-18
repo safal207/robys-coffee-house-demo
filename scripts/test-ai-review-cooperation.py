@@ -247,6 +247,13 @@ class CooperationReportTests(unittest.TestCase):
         self.assertIn('| Codex | yes | E4 | findings | P2x1 |', report)
         self.assertIn('**FIX_THEN_RERUN**', report)
 
+    def test_decorated_major_label_drives_fix_then_rerun(self) -> None:
+        finding = thread_comment('_🎯 Functional Correctness_ | _🟠 Major_')
+        report = self.report(comments=[codex_request()],
+                             threads_data=threads(finding))
+        self.assertIn('| Codex | yes | E4 | findings | P2x1 |', report)
+        self.assertIn('**FIX_THEN_RERUN**', report)
+
     def test_resolved_thread_is_not_counted_as_finding(self) -> None:
         finding = thread_comment('P1 resolved issue')
         report = self.report(comments=[codex_request()],
