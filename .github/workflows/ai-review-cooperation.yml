@@ -3,8 +3,6 @@ name: AI review cooperation report
 on:
   issue_comment:
     types: [created]
-  pull_request_review:
-    types: [submitted]
   workflow_run:
     workflows: [AI review contract]
     types: [completed]
@@ -16,17 +14,12 @@ jobs:
     if: >-
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
+       github.event.issue.state == 'open' &&
        github.event.comment.body == '/ai-cooperation report' &&
        (github.event.comment.author_association == 'OWNER' ||
         github.event.comment.author_association == 'MEMBER' ||
         github.event.comment.author_association == 'COLLABORATOR' ||
         github.event.comment.user.login == github.repository_owner)) ||
-      (github.event_name == 'pull_request_review' &&
-       github.event.review.state == 'approved' &&
-       github.event.review.commit_id == github.event.pull_request.head.sha &&
-       github.event.review.user.type == 'Bot' &&
-       (github.event.review.user.login == 'coderabbitai[bot]' ||
-        github.event.review.user.login == 'coderabbitai')) ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.name == 'AI review contract' &&
        github.event.workflow_run.event == 'pull_request' &&
@@ -40,30 +33,7 @@ jobs:
       pull-requests: read
       statuses: read
     concurrency:
-      group: >-
-        ai-review-cooperation-${{
-          ((github.event_name == 'issue_comment' &&
-            github.event.issue.pull_request != null &&
-            github.event.comment.body == '/ai-cooperation report' &&
-            (github.event.comment.author_association == 'OWNER' ||
-             github.event.comment.author_association == 'MEMBER' ||
-             github.event.comment.author_association == 'COLLABORATOR' ||
-             github.event.comment.user.login == github.repository_owner)) ||
-           (github.event_name == 'pull_request_review' &&
-            github.event.review.state == 'approved' &&
-            github.event.review.commit_id == github.event.pull_request.head.sha &&
-            github.event.review.user.type == 'Bot' &&
-            (github.event.review.user.login == 'coderabbitai[bot]' ||
-             github.event.review.user.login == 'coderabbitai'))) &&
-          (github.event.issue.number || github.event.pull_request.number) ||
-          (github.event_name == 'workflow_run' &&
-           github.event.workflow_run.name == 'AI review contract' &&
-           github.event.workflow_run.event == 'pull_request' &&
-           github.event.workflow_run.conclusion == 'success' &&
-           github.event.workflow_run.head_sha != '' &&
-           format('workflow-{0}', github.event.workflow_run.head_sha)) ||
-          github.run_id
-        }}
+      group: ai-review-cooperation-${{ github.event.issue.number || github.event.workflow_run.head_sha || github.run_id }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -72,76 +42,43 @@ jobs:
       REPOSITORY: ${{ github.repository }}
       REPOSITORY_OWNER: ${{ github.repository_owner }}
       TRIGGER_EVENT: ${{ github.event_name }}
-      PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
-      TRIGGER_AUTHOR: ${{ github.event.comment.user.login || github.event.review.user.login || github.event.workflow_run.actor.login }}
-      TRIGGER_ASSOCIATION: ${{ github.event.comment.author_association || github.event.review.author_association || '' }}
-      REVIEW_STATE: ${{ github.event.review.state || '' }}
-      REVIEW_COMMIT: ${{ github.event.review.commit_id || '' }}
-      REVIEW_USER_TYPE: ${{ github.event.review.user.type || '' }}
-      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
+      PR_NUMBER: ${{ github.event.issue.number || '' }}
+      TRIGGER_AUTHOR: ${{ github.event.comment.user.login || github.event.workflow_run.actor.login || '' }}
+      TRIGGER_ASSOCIATION: ${{ github.event.comment.author_association || '' }}
       WORKFLOW_NAME: ${{ github.event.workflow_run.name || '' }}
       WORKFLOW_EVENT: ${{ github.event.workflow_run.event || '' }}
       WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion || '' }}
-      TRIGGER_HEAD_SHA: ${{ github.event.review.commit_id || github.event.workflow_run.head_sha || '' }}
+      TRIGGER_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
 
     steps:
       - name: Authorize cooperation trigger
-        id: authorize
         run: |
           set -euo pipefail
-          echo "Cooperation trigger event: ${TRIGGER_EVENT}"
-          echo "Cooperation trigger actor: ${TRIGGER_AUTHOR}"
-          echo "GitHub author association: ${TRIGGER_ASSOCIATION:-NONE}"
-          echo "Repository owner: ${REPOSITORY_OWNER}"
-
           case "${TRIGGER_EVENT}" in
             issue_comment)
               case "${TRIGGER_ASSOCIATION:-NONE}" in
                 OWNER|MEMBER|COLLABORATOR)
-                  echo "Authorized command by trusted repository association."
                   ;;
                 *)
                   if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
                     echo "Unauthorized cooperation-report command actor: ${TRIGGER_AUTHOR}" >&2
                     exit 1
                   fi
-                  echo "Authorized command by exact repository-owner identity."
                   ;;
               esac
-              ;;
-            pull_request_review)
-              if [ "${REVIEW_STATE}" != "approved" ]; then
-                echo "Review trigger is not an approval: ${REVIEW_STATE}" >&2
+              if ! [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
+                echo "Trusted command is missing a valid PR number: ${PR_NUMBER:-missing}" >&2
                 exit 1
               fi
-              if [ -z "${REVIEW_COMMIT}" ] || [ -z "${PR_HEAD_SHA}" ] || [ "${REVIEW_COMMIT}" != "${PR_HEAD_SHA}" ]; then
-                echo "Review trigger is not bound to the current PR head: ${REVIEW_COMMIT:-missing} != ${PR_HEAD_SHA:-missing}" >&2
-                exit 1
-              fi
-              if [ "${REVIEW_USER_TYPE}" != "Bot" ]; then
-                echo "Review trigger actor is not a bot: ${REVIEW_USER_TYPE:-missing}" >&2
-                exit 1
-              fi
-              case "${TRIGGER_AUTHOR}" in
-                coderabbitai|coderabbitai\[bot\])
-                  echo "Authorized by native exact-head CodeRabbit bot approval."
-                  ;;
-                *)
-                  echo "Unauthorized review trigger actor: ${TRIGGER_AUTHOR}" >&2
-                  exit 1
-                  ;;
-              esac
               ;;
             workflow_run)
-              if [ "${WORKFLOW_NAME}" != "AI review contract" ] || [ "${WORKFLOW_EVENT}" != "pull_request" ] || [ "${WORKFLOW_CONCLUSION}" != "success" ]; then
-                echo "Unauthorized workflow_run trigger: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing}" >&2
+              if [ "${WORKFLOW_NAME}" != "AI review contract" ] ||
+                 [ "${WORKFLOW_EVENT}" != "pull_request" ] ||
+                 [ "${WORKFLOW_CONCLUSION}" != "success" ] ||
+                 [ -z "${TRIGGER_HEAD_SHA}" ]; then
+                echo "Unauthorized workflow_run trigger: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing} head=${TRIGGER_HEAD_SHA:-missing}" >&2
                 exit 1
               fi
-              if [ -z "${TRIGGER_HEAD_SHA}" ]; then
-                echo "workflow_run trigger is missing head SHA." >&2
-                exit 1
-              fi
-              echo "Authorized by successful AI review contract workflow_run."
               ;;
             *)
               echo "Unsupported cooperation trigger event: ${TRIGGER_EVENT}" >&2
@@ -150,22 +87,16 @@ jobs:
           esac
 
       - name: Checkout trusted reporter code
-        id: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+          show-progress: false
 
       - name: Resolve workflow-run pull request
-        id: resolve_pr
         run: |
           set -euo pipefail
           if [ "${TRIGGER_EVENT}" != "workflow_run" ]; then
-            if [ -z "${PR_NUMBER}" ]; then
-              echo "Trusted trigger is missing a PR number." >&2
-              exit 1
-            fi
-            echo "PR number supplied by event payload: ${PR_NUMBER}"
             exit 0
           fi
 
@@ -191,10 +122,8 @@ jobs:
             exit 1
           fi
           echo "PR_NUMBER=${resolved_pr}" >> "${GITHUB_ENV}"
-          echo "Resolved workflow head ${TRIGGER_HEAD_SHA} to PR #${resolved_pr}."
 
-      - name: Configure cooperation temp paths
-        id: configure
+      - name: Configure cooperation evidence paths
         run: |
           prefix="${RUNNER_TEMP}/cooperation-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           {
@@ -204,144 +133,87 @@ jobs:
             echo "REVIEWS_FILE=${prefix}-reviews.json"
             echo "REVIEW_COMMENTS_FILE=${prefix}-review-comments.json"
             echo "THREADS_FILE=${prefix}-threads.json"
-            echo "RAW_CHECKS_FILE=${prefix}-checks-raw.json"
             echo "CHECKS_FILE=${prefix}-checks.json"
             echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
             echo "COMMENT_FILE=${prefix}-comment.json"
           } >> "${GITHUB_ENV}"
 
-      - name: Collect exact-head REST evidence
-        id: rest_evidence
+      - name: Collect complete exact-head evidence
         run: |
           set -euo pipefail
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${PR_JSON_FILE}"
-          HEAD_SHA="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
-          if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${HEAD_SHA}" ]; then
-            echo "Workflow trigger is not bound to the current PR head: ${TRIGGER_HEAD_SHA} != ${HEAD_SHA}" >&2
+          state="$(jq -r '.state' "${PR_JSON_FILE}")"
+          head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          if [ "${state}" != "open" ]; then
+            echo "Cooperation report requires an open pull request." >&2
             exit 1
           fi
-          gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" > "${HEAD_COMMIT_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
-            | jq 'add // []' > "${COMMENTS_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" \
-            | jq 'add // []' > "${REVIEWS_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" \
-            | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
-            | jq 'add // []' > "${FILES_FILE}"
-          gh api --paginate -H 'Accept: application/vnd.github+json' \
-            "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
-            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' \
-            > "${CHECKS_FILE}"
-          gh api --paginate --slurp \
-            "repos/${REPOSITORY}/commits/${HEAD_SHA}/statuses?per_page=100" \
-            | jq 'add // []' > "${STATUSES_FILE}"
+          if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${head}" ]; then
+            echo "Workflow trigger is not bound to the current PR head: ${TRIGGER_HEAD_SHA} != ${head}" >&2
+            exit 1
+          fi
 
-      - name: Collect complete GraphQL review evidence
-        id: graphql_evidence
+          gh api "repos/${REPOSITORY}/commits/${head}" > "${HEAD_COMMIT_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq 'add // []' > "${COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" | jq 'add // []' > "${REVIEWS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" | jq 'add // []' > "${FILES_FILE}"
+          gh api --paginate -H 'Accept: application/vnd.github+json' \
+            "repos/${REPOSITORY}/commits/${head}/check-runs?per_page=100" \
+            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' > "${CHECKS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/commits/${head}/statuses?per_page=100" | jq 'add // []' > "${STATUSES_FILE}"
+
+      - name: Collect complete GraphQL review threads
         run: python3 scripts/fetch-review-threads.py
 
-      - name: Build causal cooperation report
-        id: build_report
+      - name: Build Codex-only cooperation report
         run: python3 scripts/ai-review-cooperation.py report
 
       - name: Publish or update cooperation report
-        id: publish_report
         run: |
           set -euo pipefail
-
-          EXPECTED_HEAD="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
-          CURRENT_HEAD="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
-          if [ "${CURRENT_HEAD}" != "${EXPECTED_HEAD}" ]; then
-            echo "PR head changed before publishing: ${EXPECTED_HEAD} -> ${CURRENT_HEAD}" >&2
+          expected_head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          current="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}")"
+          current_state="$(jq -r '.state' <<<"${current}")"
+          current_head="$(jq -r '.head.sha' <<<"${current}")"
+          if [ "${current_state}" != "open" ]; then
+            echo "PR was closed before publishing the cooperation report." >&2
+            exit 1
+          fi
+          if [ "${current_head}" != "${expected_head}" ]; then
+            echo "PR head changed before publishing: ${expected_head} -> ${current_head}" >&2
             exit 1
           fi
 
           test -s "${COMMENT_FILE}"
           jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
           body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
-          echo "Cooperation report body bytes: ${body_bytes}"
           if [ "${body_bytes}" -gt 65000 ]; then
-            echo "Cooperation report body is too large for a GitHub issue comment: ${body_bytes} bytes" >&2
+            echo "Cooperation report body is too large: ${body_bytes} bytes" >&2
             exit 1
           fi
 
           existing_id="$(
-            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?sort=created&direction=asc&per_page=100" \
               --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id' \
               | tail -n 1
           )"
-
           if [ -n "${existing_id}" ]; then
-            echo "Updating existing cooperation report comment ${existing_id}"
             gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
-              -H 'Accept: application/vnd.github+json' \
-              --input "${COMMENT_FILE}"
+              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
           else
-            echo "Creating new cooperation report comment"
             gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              -H 'Accept: application/vnd.github+json' \
-              --input "${COMMENT_FILE}"
+              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
           fi
 
-      - name: Publish reporter failure diagnostic
+      - name: Summarize reporter failure
         if: ${{ failure() }}
-        env:
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          AUTHORIZE_OUTCOME: ${{ steps.authorize.outcome }}
-          CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
-          RESOLVE_OUTCOME: ${{ steps.resolve_pr.outcome }}
-          CONFIGURE_OUTCOME: ${{ steps.configure.outcome }}
-          REST_OUTCOME: ${{ steps.rest_evidence.outcome }}
-          GRAPHQL_OUTCOME: ${{ steps.graphql_evidence.outcome }}
-          BUILD_OUTCOME: ${{ steps.build_report.outcome }}
-          PUBLISH_OUTCOME: ${{ steps.publish_report.outcome }}
         run: |
-          set -euo pipefail
-          printf -v body '%s\n' \
-            '<!-- ai-review-cooperation-diagnostic -->' \
-            '## AI cooperation reporter failed / AI işbirliği raporlayıcısı başarısız / Сбой репортера AI-взаимодействия' \
-            '' \
-            "The trusted reporter did not publish a cooperation report for PR #${PR_NUMBER:-unknown}." \
-            "Güvenilir raporlayıcı PR #${PR_NUMBER:-unknown} için işbirliği raporunu yayımlamadı." \
-            "Доверенный репортер не опубликовал отчет о взаимодействии для PR #${PR_NUMBER:-unknown}." \
-            '' \
-            '| Stage / Aşama / Этап | Outcome / Sonuç / Результат |' \
-            '|---|---|' \
-            "| authorize / yetkilendirme / авторизация | ${AUTHORIZE_OUTCOME:-unknown} |" \
-            "| checkout / kaynak kodu alma / получение кода | ${CHECKOUT_OUTCOME:-unknown} |" \
-            "| resolve PR / PR çözümleme / определение PR | ${RESOLVE_OUTCOME:-unknown} |" \
-            "| configure / yapılandırma / настройка | ${CONFIGURE_OUTCOME:-unknown} |" \
-            "| REST evidence / REST kanıtı / REST-доказательства | ${REST_OUTCOME:-unknown} |" \
-            "| GraphQL evidence / GraphQL kanıtı / GraphQL-доказательства | ${GRAPHQL_OUTCOME:-unknown} |" \
-            "| build report / rapor oluşturma / построение отчета | ${BUILD_OUTCOME:-unknown} |" \
-            "| publish report / raporu yayımlama / публикация отчета | ${PUBLISH_OUTCOME:-unknown} |" \
-            '' \
-            "Run / Çalıştırma / Запуск: ${RUN_URL}"
-
-          if ! [[ "${PR_NUMBER:-}" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Cannot publish diagnostic because PR resolution did not produce a valid PR number." >&2
-            exit 1
-          fi
-          diagnostic_payload="${RUNNER_TEMP}/cooperation-diagnostic.json"
-          jq -n --arg body "${body}" '{body: $body}' > "${diagnostic_payload}"
-          existing_diagnostic_id="$(
-            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation-diagnostic -->"))) | .id' \
-              | tail -n 1
-          )"
-
-          if [ -n "${existing_diagnostic_id}" ]; then
-            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_diagnostic_id}" \
-              -H 'Accept: application/vnd.github+json' \
-              --input "${diagnostic_payload}"
-          else
-            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              -H 'Accept: application/vnd.github+json' \
-              --input "${diagnostic_payload}"
-          fi
+          {
+            echo "## AI cooperation reporter failed"
+            echo
+            echo "Trigger: ${TRIGGER_EVENT}"
+            echo "Head: ${TRIGGER_HEAD_SHA:-unknown}"
+            echo "Qodo and CodeRabbit remain disabled; this diagnostic does not count as reviewer evidence."
+          } >> "${GITHUB_STEP_SUMMARY}"
