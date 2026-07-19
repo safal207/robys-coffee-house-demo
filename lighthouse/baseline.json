@@ -1,35 +1,38 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-06-21T12:43:08Z",
+  "recorded_at": "2026-07-12T14:26:18.094Z",
   "source": {
-    "workflow_run_id": 27904621910,
-    "head_sha": "b19ac84b9affb4c9dba4a9f8219adcba6f1fafab",
-    "runs_per_profile": 3,
+    "workflow_run_id": 29196139773,
+    "head_sha": "7ed2fda598039176b31287b2c62e8c0b3eb964b8",
+    "measurement_head_sha": "9c061cfb49651a1699abd30e486a7a99a21f7ea7",
+    "base_sha": "df4cf785b6570d29efdca6c48a7027fbbdc756ab",
+    "runs_per_profile": 6,
     "lighthouse_version": "12.6.1",
-    "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36"
+    "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+    "reason": "Post-#201 active-hero baseline migration measured with the corrected #202 contract; no product HTML, media binary, hard budget, or threshold changed."
   },
   "mobile": {
-    "performance": 1,
-    "lcp": 1746.0334500000004,
-    "tbt": 5,
-    "cls": 0.001001076659093564,
-    "fcp": 1145.6312749999997,
-    "speed_index": 1145.6312749999997,
-    "total_js_bytes": 21021,
-    "hero_file_bytes": 79620,
-    "hero_transfer_bytes": 79974,
-    "hero_request_duration": 7182.999999989988
+    "performance": 0.99,
+    "lcp": 1720.7730999999999,
+    "tbt": 34.04718750000001,
+    "cls": 0,
+    "fcp": 1328.0407249999998,
+    "speed_index": 1328.0407249999998,
+    "total_js_bytes": 22015,
+    "hero_file_bytes": 184712,
+    "hero_transfer_bytes": 185069,
+    "hero_request_duration": 12.796999999991385
   },
   "desktop": {
     "performance": 1,
-    "lcp": 459.98599999999993,
+    "lcp": 399.7030625,
     "tbt": 0,
     "cls": 0,
-    "fcp": 396.662,
-    "speed_index": 514.322302666667,
-    "total_js_bytes": 21021,
-    "hero_file_bytes": 79620,
-    "hero_transfer_bytes": 79974,
-    "hero_request_duration": 6413.999999997031
+    "fcp": 359.2429125,
+    "speed_index": 446.26356212500156,
+    "total_js_bytes": 22015,
+    "hero_file_bytes": 184712,
+    "hero_transfer_bytes": 185069,
+    "hero_request_duration": 15.64100000000326
   }
 }
