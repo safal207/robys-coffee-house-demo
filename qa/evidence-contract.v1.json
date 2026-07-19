@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "Robis Evidence Run v1",
+  "artifactDirectory": ".artifacts/robis-evidence-run",
+  "stages": [
+    {
+      "id": "core-check",
+      "label": "Repository check",
+      "npmScript": "check",
+      "required": true,
+      "scope": "exact-head"
+    },
+    {
+      "id": "security",
+      "label": "Security contracts and secret scan",
+      "npmScript": "verify:security",
+      "required": true,
+      "scope": "exact-head"
+    },
+    {
+      "id": "performance",
+      "label": "Performance contract",
+      "npmScript": "verify:performance",
+      "required": true,
+      "scope": "exact-head"
+    },
+    {
+      "id": "integrity",
+      "label": "Generated integrity manifest",
+      "npmScript": "verify:integrity",
+      "required": true,
+      "scope": "exact-head"
+    },
+    {
+      "id": "live-integrity",
+      "label": "Current production integrity",
+      "npmScript": "verify:integrity:live",
+      "required": false,
+      "scope": "production",
+      "live": true
+    },
+    {
+      "id": "live-smoke",
+      "label": "Current production browser smoke",
+      "npmScript": "verify:live:smoke",
+      "required": false,
+      "scope": "production",
+      "live": true
+    }
+  ],
+  "verdicts": {
+    "blocked": "A required exact-head stage failed, exact-head identity is unavailable, or the requested SHA does not match the checked-out commit.",
+    "productionEvidenceFailed": "A production stage that was explicitly requested failed or remained unproven.",
+    "readyWithAdvisoryGaps": "All required exact-head stages passed, while production-bound stages were not requested and deployment equivalence remains unproven.",
+    "ready": "All required exact-head stages passed and every requested production stage passed. This does not by itself prove that production bytes equal the pull-request head."
+  }
+}

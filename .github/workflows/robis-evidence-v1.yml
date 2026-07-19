@@ -1,0 +1,69 @@
+name: Robis Evidence Run v1
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_live:
+        description: Run production-bound integrity and browser smoke checks
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robis-evidence-v1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    name: Exact-head evidence package
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      ROBYS_RUN_LIVE: ${{ github.event_name == 'workflow_dispatch' && inputs.run_live && '1' || '0' }}
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.ROBYS_EXACT_HEAD }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install browser tooling for requested live evidence
+        if: ${{ env.ROBYS_RUN_LIVE == '1' }}
+        run: npm install --no-save --package-lock=false playwright@1.52.0
+
+      - name: Install Chromium for requested live evidence
+        if: ${{ env.ROBYS_RUN_LIVE == '1' }}
+        run: npx playwright install --with-deps chromium
+
+      - name: Build immutable evidence package
+        id: evidence
+        continue-on-error: true
+        run: node scripts/run-evidence-v1.mjs
+
+      - name: Upload evidence package
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: robis-evidence-${{ env.ROBYS_EXACT_HEAD }}
+          path: .artifacts/robis-evidence-run
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce Pythia failure verdicts
+        if: ${{ always() }}
+        run: |
+          node -e "const fs=require('fs'); const p='.artifacts/robis-evidence-run/pythia-verdict.json'; if(!fs.existsSync(p)) { console.error('Missing Pythia verdict'); process.exit(1); } const v=JSON.parse(fs.readFileSync(p,'utf8')); console.log(v); if(['BLOCKED','PRODUCTION_EVIDENCE_FAILED'].includes(v.verdict)) process.exit(1);"
