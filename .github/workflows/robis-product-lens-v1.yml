@@ -11,6 +11,7 @@ on:
       - "discover-v2.js"
       - "analytics.js"
       - "social-offer.js"
+      - "src/social-offer.ts"
       - "qa/product-lens.v1.json"
       - "scripts/run-product-lens-v1.mjs"
       - "docs/robis-product-lens-run-v1.md"
@@ -29,6 +30,7 @@ jobs:
       - name: Check out exact head
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
@@ -42,7 +44,7 @@ jobs:
         continue-on-error: true
         env:
           ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/run-product-lens-v1.mjs --trusted-lens-head 8d44c5de599ec5dca98a70c0d9017e894c3646af
+        run: node scripts/run-product-lens-v1.mjs --trusted-lens-head c81f13cb58b590cb6fea27fdbcb6113bb5e95cc4
 
       - name: Upload product-lens evidence
         if: always()
