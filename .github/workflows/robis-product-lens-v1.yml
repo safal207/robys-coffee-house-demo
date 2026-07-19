@@ -10,6 +10,8 @@ on:
       - "pairing-posters.js"
       - "discover.html"
       - "discover-v2.js"
+      - "discover-copy.js"
+      - "discover-journeys-v2.js"
       - "discover-rotation-v3.js"
       - "src/discover-rotation.ts"
       - "analytics.js"
