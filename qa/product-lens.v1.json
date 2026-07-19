@@ -31,6 +31,8 @@
     "pairing-posters.js",
     "discover.html",
     "discover-v2.js",
+    "discover-copy.js",
+    "discover-journeys-v2.js",
     "discover-rotation-v3.js",
     "src/discover-rotation.ts",
     "analytics.js",
@@ -44,14 +46,14 @@
       "label": "VALUE_PATH_CLEAR",
       "confidence": "high",
       "claim": "The repository exposes a coherent digital path from entry to menu, pairing discovery, directions, and Instagram reservation.",
-      "evidence": ["index.html", "menu.html", "menu-actions.js", "discover.html", "discover-rotation-v3.js", "src/discover-rotation.ts"]
+      "evidence": ["index.html", "menu.html", "menu-actions.js", "discover.html", "discover-v2.js", "discover-copy.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts"]
     },
     {
       "id": "PL-002",
       "label": "VALUE_PATH_CLEAR",
       "confidence": "high",
       "claim": "Pairings are optional and separately priced; the site contains no online checkout or one-click payment commitment.",
-      "evidence": ["menu-data.js", "pairing-posters.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "menu.html"]
+      "evidence": ["menu-data.js", "pairing-posters.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "menu.html"]
     },
     {
       "id": "PL-003",
@@ -65,7 +67,7 @@
       "label": "RECOVERY_GAP",
       "confidence": "medium",
       "claim": "Taste Journey remembers language, visit stage, and discovered pairings locally, but it does not preserve a selected pairing through Maps or Instagram handoff.",
-      "evidence": ["discover-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "index.html", "menu.html"]
+      "evidence": ["discover-v2.js", "discover-copy.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "index.html", "menu.html"]
     },
     {
       "id": "PL-005",
@@ -79,7 +81,7 @@
       "label": "VALUE_UNPROVEN",
       "confidence": "high",
       "claim": "Approved-offer and social-offer presentation exists, but no exact experiment, cohort, denominator, observation window, counter-metrics, or realized-value result is stored in this repository.",
-      "evidence": ["menu-data.js", "social-offer.js", "src/social-offer.ts", "discover-rotation-v3.js", "src/discover-rotation.ts", "scripts/build.mjs", "analytics.js"]
+      "evidence": ["menu-data.js", "social-offer.js", "src/social-offer.ts", "discover-copy.js", "discover-journeys-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "scripts/build.mjs", "analytics.js"]
     }
   ],
   "boundaryChecks": {
