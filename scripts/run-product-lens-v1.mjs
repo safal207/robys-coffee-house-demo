@@ -25,8 +25,10 @@ function expectedHead(actualHead) {
   return String(process.env.ROBYS_EXACT_HEAD || process.env.GITHUB_HEAD_SHA || process.env.GITHUB_SHA || actualHead).trim().toLowerCase();
 }
 
-function expectedLensHead() {
-  return String(process.env.ROBYS_TRUSTED_LOTUS_LENS_HEAD || "").trim().toLowerCase();
+function trustedLensHeadFromArgs() {
+  const index = process.argv.indexOf("--trusted-lens-head");
+  if (index === -1 || index + 1 >= process.argv.length) return "";
+  return String(process.argv[index + 1]).trim().toLowerCase();
 }
 
 function htmlLinks(text) {
@@ -82,7 +84,7 @@ function writeJson(pathname, value) {
 const contract = JSON.parse(readFileSync(CONTRACT_PATH, "utf8"));
 const actualHead = currentHead();
 const requestedHead = expectedHead(actualHead);
-const trustedLensHead = expectedLensHead();
+const trustedLensHead = trustedLensHeadFromArgs();
 const contractLensHead = String(contract.lens?.exactHead || "").trim().toLowerCase();
 const validSha = /^[0-9a-f]{40}$/;
 
@@ -109,7 +111,7 @@ const externalLinks = [
 
 const checks = [
   check("HEAD-001", "Exact Robis head identity", validSha.test(requestedHead) && validSha.test(actualHead) && requestedHead === actualHead, ["git rev-parse HEAD", "ROBYS_EXACT_HEAD/GITHUB_HEAD_SHA/GITHUB_SHA"], `requested=${requestedHead}; checkedOut=${actualHead}`),
-  check("LENS-001", "Trusted Lotus lens head identity", validSha.test(trustedLensHead) && validSha.test(contractLensHead) && trustedLensHead === contractLensHead, ["ROBYS_TRUSTED_LOTUS_LENS_HEAD", "qa/product-lens.v1.json#lens.exactHead"], `trusted=${trustedLensHead || "missing"}; contract=${contractLensHead || "missing"}`),
+  check("LENS-001", "Trusted Lotus lens head identity", validSha.test(trustedLensHead) && validSha.test(contractLensHead) && trustedLensHead === contractLensHead, ["--trusted-lens-head", "qa/product-lens.v1.json#lens.exactHead"], `trusted=${trustedLensHead || "missing"}; contract=${contractLensHead || "missing"}`),
   check("CONTRACT-001", "Advisory verdict and conclusion are allowlisted", ALLOWED_REVIEW_VERDICTS.has(contract.reviewVerdict) && ALLOWED_PRODUCT_CONCLUSIONS.has(contract.overallConclusion), ["scripts/run-product-lens-v1.mjs", "qa/product-lens.v1.json"], `verdict=${contract.reviewVerdict}; conclusion=${contract.overallConclusion}`),
   check("FILES-001", "Bounded source set exists", missingFiles.length === 0, contract.sourceFiles, missingFiles.length ? `missing=${missingFiles.join(",")}` : `${contract.sourceFiles.length} source files present`),
   check("PATH-001", "Entry-to-visit path remains present", indexHtml.includes("menu.html#pairing-offers") && socialOfferJs.includes('link.href = "discover.html"') && indexExternalKinds.has("maps") && indexExternalKinds.has("instagram") && menuHtml.includes("data-instagram-booking") && menuHtml.includes('data-menu-action-copy="mapsLink"') && discoverHtml.includes('id="pairing-menu-link"'), ["index.html", "menu.html", "discover.html", "social-offer.js"], "homepage → pairing/menu → Maps or Instagram handoff"),
