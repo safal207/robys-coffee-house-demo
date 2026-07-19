@@ -1,0 +1,259 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join, relative, resolve } from "node:path";
+
+const ROOT = process.cwd();
+const requireFromTrustedRunner = createRequire(import.meta.url);
+const ts = requireFromTrustedRunner("typescript");
+const CONTRACT_PATH = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_CONTRACT || "qa/product-lens.v1.json");
+const ARTIFACT_DIR = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_ARTIFACT_DIR || ".artifacts/robis-product-lens-v1");
+const EXPECTED_TRUSTED_LENS_HEAD = "44087899bdaad86b32b13d89812cbf7a174db2fe";
+const ALLOWED_REVIEW_VERDICTS = new Set(["PRODUCT_PATH_REVIEWED_WITH_GAPS"]);
+const ALLOWED_PRODUCT_CONCLUSIONS = new Set(["VALUE_UNPROVEN"]);
+const ALLOWED_OBSERVATION_LABELS = new Set([
+  "VALUE_PATH_CLEAR",
+  "VALUE_UNPROVEN",
+  "FRICTION_RISK",
+  "COERCION_RISK",
+  "RECOVERY_GAP",
+  "MEASUREMENT_GAP"
+]);
+const EXPECTED_BOUNDARY_CHECKS = Object.freeze({
+  paidExtrasPreselected: false,
+  onlinePaymentPresent: false,
+  hiddenRecurringTermsDetected: false,
+  falseUrgencyDetected: false,
+  obstructedDeclineDetected: false,
+  growthClaimAuthorized: false
+});
+const EXPECTED_AUTHORITY = "The lens and its labels are advisory. They do not authorize pricing, payment, launch, experiment, deployment, delivery, or merge.";
+const EXPECTED_HANDOFF_KINDS = Object.freeze({
+  "index.html": ["maps", "instagram"],
+  "menu.html": ["maps", "instagram"],
+  "social-offer.js": ["instagram"],
+  "src/social-offer.ts": ["instagram"]
+});
+
+function read(pathname) {
+  return readFileSync(resolve(ROOT, pathname), "utf8");
+}
+
+function sha256(content) {
+  return createHash("sha256").update(content).digest("hex");
+}
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim().toLowerCase();
+}
+
+function requestedHeadFromEnvironment() {
+  return String(process.env.ROBYS_EXACT_HEAD || process.env.GITHUB_HEAD_SHA || process.env.GITHUB_SHA || "").trim().toLowerCase();
+}
+
+function argumentValue(name) {
+  const index = process.argv.indexOf(name);
+  if (index === -1 || index + 1 >= process.argv.length) return "";
+  return String(process.argv[index + 1]).trim().toLowerCase();
+}
+
+function htmlLinks(text) {
+  return [...text.matchAll(/\bhref\s*=\s*["']([^"']+)["']/gi)].map((match) => match[1].replaceAll("&amp;", "&"));
+}
+
+function javascriptUrls(text) {
+  return [...text.matchAll(/["'`](https:\/\/[^"'`\s]+)["'`]/g)].map((match) => match[1].replaceAll("&amp;", "&"));
+}
+
+function sourceLinks(pathname, text) {
+  if (pathname.endsWith(".html")) return htmlLinks(text);
+  if (pathname.endsWith(".js") || pathname.endsWith(".ts") || pathname.endsWith(".mjs")) return javascriptUrls(text);
+  return [];
+}
+
+function parseExternalUrl(href) {
+  try {
+    return new URL(href, "https://robys.invalid/");
+  } catch {
+    return null;
+  }
+}
+
+function externalKind(href) {
+  const url = parseExternalUrl(href);
+  if (!url || url.protocol !== "https:") return null;
+  const hostname = url.hostname.toLowerCase();
+  if ((hostname === "google.com" || hostname === "www.google.com") && url.pathname.startsWith("/maps")) return "maps";
+  if (hostname === "instagram.com" || hostname === "www.instagram.com") return "instagram";
+  return null;
+}
+
+function hasProductContext(href) {
+  const url = parseExternalUrl(href);
+  if (!url) return false;
+  return ["item", "pairing", "offer", "choice", "product"].some((key) => url.searchParams.has(key));
+}
+
+function exactObjectMatches(actual, expected) {
+  if (!actual || typeof actual !== "object" || Array.isArray(actual)) return false;
+  const actualKeys = Object.keys(actual).sort();
+  const expectedKeys = Object.keys(expected).sort();
+  return actualKeys.length === expectedKeys.length &&
+    actualKeys.every((key, index) => key === expectedKeys[index] && actual[key] === expected[key]);
+}
+
+function compileClassicScript(source) {
+  return ts.transpileModule(source, {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.None,
+      strict: true,
+      removeComments: false
+    }
+  }).outputText;
+}
+
+function occurrences(text, pattern) {
+  return [...text.matchAll(pattern)].length;
+}
+
+function check(id, label, passed, evidence, detail) {
+  return { id, label, passed: Boolean(passed), evidence, detail };
+}
+
+function walk(directory) {
+  const paths = [];
+  for (const entry of readdirSync(directory)) {
+    const fullPath = join(directory, entry);
+    if (statSync(fullPath).isDirectory()) paths.push(...walk(fullPath));
+    else paths.push(fullPath);
+  }
+  return paths;
+}
+
+function writeJson(pathname, value) {
+  mkdirSync(dirname(pathname), { recursive: true });
+  writeFileSync(pathname, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+const contract = JSON.parse(readFileSync(CONTRACT_PATH, "utf8"));
+const actualHead = currentHead();
+const requestedHead = requestedHeadFromEnvironment();
+const trustedLensHead = argumentValue("--trusted-lens-head");
+const trustedRunnerCommit = argumentValue("--trusted-runner-commit");
+const contractLensHead = String(contract.lens?.exactHead || "").trim().toLowerCase();
+const validSha = /^[0-9a-f]{40}$/;
+
+rmSync(ARTIFACT_DIR, { recursive: true, force: true });
+mkdirSync(ARTIFACT_DIR, { recursive: true });
+
+const missingFiles = contract.sourceFiles.filter((pathname) => !existsSync(resolve(ROOT, pathname)));
+const sources = Object.fromEntries(contract.sourceFiles.filter((pathname) => !missingFiles.includes(pathname)).map((pathname) => [pathname, read(pathname)]));
+
+const indexHtml = sources["index.html"] || "";
+const menuHtml = sources["menu.html"] || "";
+const menuActionsJs = sources["menu-actions.js"] || "";
+const menuData = sources["menu-data.js"] || "";
+const pairingPosters = sources["pairing-posters.js"] || "";
+const discoverHtml = sources["discover.html"] || "";
+const discoverJs = sources["discover-v2.js"] || "";
+const discoverRotationJs = sources["discover-rotation-v3.js"] || "";
+const discoverRotationTs = sources["src/discover-rotation.ts"] || "";
+const analyticsJs = sources["analytics.js"] || "";
+const socialOfferJs = sources["social-offer.js"] || "";
+const socialOfferTs = sources["src/social-offer.ts"] || "";
+const buildScript = sources["scripts/build.mjs"] || "";
+const indexExternalKinds = new Set(htmlLinks(indexHtml).map(externalKind).filter(Boolean));
+const handoffSourceFiles = Object.keys(sources).filter((pathname) => /\.(?:html|js|ts|mjs)$/.test(pathname));
+const externalLinksBySource = Object.fromEntries(handoffSourceFiles.map((pathname) => [
+  pathname,
+  sourceLinks(pathname, sources[pathname]).filter((href) => externalKind(href))
+]));
+const externalLinks = Object.values(externalLinksBySource).flat();
+const expectedHandoffCoverage = Object.entries(EXPECTED_HANDOFF_KINDS).every(([pathname, expectedKinds]) => {
+  const foundKinds = new Set((externalLinksBySource[pathname] || []).map(externalKind).filter(Boolean));
+  return expectedKinds.every((kind) => foundKinds.has(kind));
+});
+const handoffCoverageDetail = Object.entries(EXPECTED_HANDOFF_KINDS).map(([pathname, expectedKinds]) => {
+  const foundKinds = [...new Set((externalLinksBySource[pathname] || []).map(externalKind).filter(Boolean))].sort();
+  return `${pathname}=expected:${expectedKinds.join("+")},found:${foundKinds.join("+") || "none"}`;
+}).join("; ");
+const boundaryMatches = exactObjectMatches(contract.boundaryChecks, EXPECTED_BOUNDARY_CHECKS) && contract.authority === EXPECTED_AUTHORITY;
+const observationLabelsValid = Array.isArray(contract.observations) && contract.observations.length > 0 && contract.observations.every((item) => ALLOWED_OBSERVATION_LABELS.has(item?.label));
+const generatedSocialOfferJs = socialOfferTs ? compileClassicScript(socialOfferTs) : "";
+const socialOfferParity = Boolean(generatedSocialOfferJs) && generatedSocialOfferJs === socialOfferJs;
+const generatedDiscoverRotationJs = discoverRotationTs ? compileClassicScript(discoverRotationTs) : "";
+const discoverRotationParity = Boolean(generatedDiscoverRotationJs) && generatedDiscoverRotationJs === discoverRotationJs;
+const buildContractMatches = buildScript.includes('transpileClassicScript("src/social-offer.ts", "social-offer.js")') &&
+  buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")') &&
+  buildScript.includes("target: ts.ScriptTarget.ES2020") &&
+  buildScript.includes("module: ts.ModuleKind.None") &&
+  buildScript.includes("strict: true") &&
+  buildScript.includes("removeComments: false");
+const bookingHandler = 'document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => track("instagram_booking_click"));';
+const bookingHandlerBounded = menuActionsJs.includes(bookingHandler) &&
+  occurrences(menuActionsJs, /data-instagram-booking/g) === 2 &&
+  occurrences(menuActionsJs, /instagram_booking_click/g) === 1;
+const lensHeadMatches = validSha.test(trustedLensHead) && validSha.test(contractLensHead) && trustedLensHead === EXPECTED_TRUSTED_LENS_HEAD && contractLensHead === EXPECTED_TRUSTED_LENS_HEAD;
+
+const checks = [
+  check("HEAD-001", "Exact Robis head identity requires an independent requested SHA", validSha.test(requestedHead) && validSha.test(actualHead) && requestedHead === actualHead, ["git rev-parse HEAD", "ROBYS_EXACT_HEAD/GITHUB_HEAD_SHA/GITHUB_SHA"], `requested=${requestedHead || "missing"}; checkedOut=${actualHead}`),
+  check("RUNNER-001", "Trusted runner commit is explicit", validSha.test(trustedRunnerCommit), ["--trusted-runner-commit", ".github/workflows/robis-product-lens-v1.yml"], `trustedRunnerCommit=${trustedRunnerCommit || "missing"}`),
+  check("LENS-001", "Trusted Lotus lens head is pinned to the reviewed contract", lensHeadMatches, ["scripts/run-product-lens-v1.mjs#EXPECTED_TRUSTED_LENS_HEAD", "--trusted-lens-head", "qa/product-lens.v1.json#lens.exactHead"], `expected=${EXPECTED_TRUSTED_LENS_HEAD}; trusted=${trustedLensHead || "missing"}; contract=${contractLensHead || "missing"}`),
+  check("CONTRACT-001", "Advisory verdict and conclusion are allowlisted", ALLOWED_REVIEW_VERDICTS.has(contract.reviewVerdict) && ALLOWED_PRODUCT_CONCLUSIONS.has(contract.overallConclusion), ["scripts/run-product-lens-v1.mjs", "qa/product-lens.v1.json"], `verdict=${contract.reviewVerdict}; conclusion=${contract.overallConclusion}`),
+  check("LABELS-001", "Observation labels are advisory and allowlisted", observationLabelsValid, ["scripts/run-product-lens-v1.mjs#ALLOWED_OBSERVATION_LABELS", "qa/product-lens.v1.json#observations", "docs/robis-product-lens-run-v1.md#authority-boundary"], `labels=${Array.isArray(contract.observations) ? contract.observations.map((item) => item?.label).join(",") : "invalid"}`),
+  check("BOUNDARY-001", "No-authority boundary is exact and non-authorizing", boundaryMatches, ["scripts/run-product-lens-v1.mjs", "qa/product-lens.v1.json#boundaryChecks", "qa/product-lens.v1.json#authority"], `boundaryChecks=${JSON.stringify(contract.boundaryChecks)}; authority=${contract.authority}`),
+  check("FILES-001", "Bounded source set exists", missingFiles.length === 0, contract.sourceFiles, missingFiles.length ? `missing=${missingFiles.join(",")}` : `${contract.sourceFiles.length} source files present`),
+  check("BUILD-001", "Generated-script build contract remains pinned", buildContractMatches, ["scripts/build.mjs", "trusted TypeScript compiler"], "social-offer and active discover renderer must transpile as strict ES2020 classic scripts with comments preserved"),
+  check("SOURCE-001", "Entire typed social-offer source matches generated runtime", socialOfferParity, ["src/social-offer.ts", "social-offer.js", "scripts/build.mjs"], `generatedSha256=${generatedSocialOfferJs ? sha256(generatedSocialOfferJs) : "missing"}; runtimeSha256=${socialOfferJs ? sha256(socialOfferJs) : "missing"}`),
+  check("DISCOVER-001", "Entire active Taste Journey renderer matches typed source", discoverRotationParity, ["src/discover-rotation.ts", "discover-rotation-v3.js", "scripts/build.mjs", "discover.html"], `generatedSha256=${generatedDiscoverRotationJs ? sha256(generatedDiscoverRotationJs) : "missing"}; runtimeSha256=${discoverRotationJs ? sha256(discoverRotationJs) : "missing"}`),
+  check("BOOKING-001", "Loaded Instagram booking handler remains bounded to analytics", bookingHandlerBounded, ["menu.html#[data-instagram-booking]", "menu-actions.js"], `bookingSelectors=${occurrences(menuActionsJs, /data-instagram-booking/g)}; bookingEvents=${occurrences(menuActionsJs, /instagram_booking_click/g)}`),
+  check("PATH-001", "Entry-to-visit path remains present", indexHtml.includes("menu.html#pairing-offers") && socialOfferJs.includes('link.href = "discover.html"') && indexExternalKinds.has("maps") && indexExternalKinds.has("instagram") && menuHtml.includes("data-instagram-booking") && menuHtml.includes('data-menu-action-copy="mapsLink"') && discoverHtml.includes('id="pairing-menu-link"') && discoverHtml.includes("discover-rotation-v3.js"), ["index.html", "menu.html", "menu-actions.js", "discover.html", "discover-rotation-v3.js", "social-offer.js"], "homepage → pairing/menu → active Taste Journey renderer → Maps or Instagram handoff"),
+  check("OFFER-001", "Optional pairing prices remain explicit", menuData.includes('id: "pairing-offers"') && menuData.includes('pricingMode: "approved-offer"') && menuData.includes('pricingMode: "menu-total"') && /price:\s*290\b/.test(menuData) && /price:\s*370\b/.test(menuData) && pairingPosters.includes("pairing-poster-price") && discoverRotationTs.includes('localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")') && discoverRotationJs.includes('localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")'), ["menu-data.js", "pairing-posters.js", "src/discover-rotation.ts", "discover-rotation-v3.js"], "approved offer and menu-total pairings expose TRY prices in source and active renderer"),
+  check("CHOICE-001", "No online payment or preselected paid extra", /form-action 'none'/.test(menuHtml) && !/<input[^>]+\bchecked\b/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}`) && !/(stripe|paypal|checkout\.com|iyzico|payment[_-]?intent)/i.test(`${indexHtml}\n${menuHtml}\n${menuActionsJs}\n${discoverHtml}\n${discoverRotationJs}\n${discoverRotationTs}\n${socialOfferJs}\n${socialOfferTs}`), ["index.html", "menu.html", "menu-actions.js", "discover.html", "discover-rotation-v3.js", "src/discover-rotation.ts", "social-offer.js", "src/social-offer.ts"], "pairings are presentation and discovery, not an online payment commitment"),
+  check("RECOVERY-001", "Local discovery memory remains bounded", discoverHtml.includes("yalnızca bu cihazda tutulur") && discoverHtml.includes("Baskı yok") && discoverJs.includes('language:"robys-language"') && discoverJs.includes('visits:"robys-discovery-visits"') && discoverJs.includes('discovered:"robys-discovery-pairs"'), ["discover.html", "discover-v2.js"], "language, visit stage, and discovered pairings are local-device state"),
+  check("MEASURE-001", "Analytics finding remains client-buffer-only", analyticsJs.includes("const eventBuffer = []") && analyticsJs.includes("window.dataLayer") && !/\bfetch\s*\(|sendBeacon\s*\(|XMLHttpRequest|WebSocket\s*\(/.test(analyticsJs), ["analytics.js"], "repository does not prove durable analytics or POS attribution"),
+  check("HANDOFF-001", "Expected per-file handoffs exist and all bounded handoffs remain context-free", expectedHandoffCoverage && externalLinks.length > 0 && externalLinks.every((href) => !hasProductContext(href)), [...Object.keys(EXPECTED_HANDOFF_KINDS), ...handoffSourceFiles.filter((pathname) => !Object.hasOwn(EXPECTED_HANDOFF_KINDS, pathname))], `${handoffCoverageDetail}; ${externalLinks.length} parsed Maps/Instagram links across ${handoffSourceFiles.length} bounded HTML/JS/TS/MJS sources; none preserve selected-product context`),
+  check("CLAIM-001", "Offer claims remain unproven rather than promoted to growth evidence", socialOfferParity && discoverRotationParity && socialOfferJs.includes("price: 340") && socialOfferTs.includes("price: 340") && socialOfferJs.includes('currency: "₺"') && socialOfferTs.includes('currency: "₺"') && analyticsJs.includes('event: "robys_action"') && contract.overallConclusion === "VALUE_UNPROVEN", ["social-offer.js", "src/social-offer.ts", "discover-rotation-v3.js", "src/discover-rotation.ts", "scripts/build.mjs", "analytics.js", "qa/product-lens.v1.json"], "explicit source/runtime offers exist, but realized-value outcome is not evidenced")
+];
+
+const failed = checks.filter((item) => !item.passed);
+const verdict = failed.length ? "BLOCKED" : contract.reviewVerdict;
+const productConclusion = failed.length ? "VALUE_UNPROVEN" : contract.overallConclusion;
+const exactHead = {
+  requestedHead,
+  checkedOutHead: actualHead,
+  matches: requestedHead === actualHead,
+  evaluatedBaseSha: contract.product.evaluatedBaseSha,
+  trustedRunnerCommit,
+  expectedLensHead: EXPECTED_TRUSTED_LENS_HEAD,
+  trustedLensHead,
+  contractLensHead,
+  lensMatches: lensHeadMatches
+};
+const causalGraph = {
+  nodes: contract.journey,
+  edges: [
+    { from: "entry", to: "discovery", state: "PROVEN", evidence: ["index.html", "discover.html"] },
+    { from: "discovery", to: "menu", state: "PROVEN", evidence: ["discover-v2.js", "discover-rotation-v3.js", "src/discover-rotation.ts", "menu.html"] },
+    { from: "menu", to: "pairing", state: "PROVEN", evidence: ["menu-data.js", "pairing-posters.js", "discover-rotation-v3.js", "src/discover-rotation.ts"] },
+    { from: "pairing", to: "handoff", state: "PARTIAL", evidence: ["menu.html", "menu-actions.js", "social-offer.js", "src/social-offer.ts"], gap: "selected pairing context is not preserved" },
+    { from: "handoff", to: "visit", state: "UNPROVEN", gap: "external-platform completion is not observed" },
+    { from: "visit", to: "purchase", state: "UNPROVEN", gap: "no POS attribution evidence" },
+    { from: "purchase", to: "repeat", state: "UNPROVEN", gap: "no bounded repeat-value cohort" }
+  ]
+};
+const summary = { schemaVersion: 1, generatedAt: new Date().toISOString(), verdict, productConclusion, exactHead, checks, observations: contract.observations, boundaryChecks: contract.boundaryChecks, experiments: contract.experiments, authority: contract.authority };
+const report = `# Robis Product Lens Run v1\n\n- Exact head: \`${actualHead}\`\n- Trusted runner commit: \`${trustedRunnerCommit || "missing"}\`\n- Trusted Lotus lens head: \`${trustedLensHead || "missing"}\`\n- Verdict: **${verdict}**\n- Product conclusion: **${productConclusion}**\n- Required checks: ${checks.length - failed.length}/${checks.length} passed\n\n## Causal reading\n\nThe digital path from entry through menu and pairing to Maps or Instagram is inspectable. The repository does not prove that the handoff became a physical visit, purchase, AOV/LTV change, or repeat visit. That downstream gap remains visible rather than being converted into a growth claim.\n\n## Observations\n\n${contract.observations.map((item) => `- **${item.id} · ${item.label}** — ${item.claim}`).join("\n")}\n\n## Bounded experiments\n\n${contract.experiments.map((item) => `- **${item.id} · ${item.name}** — ${item.hypothesis}`).join("\n")}\n\n## Authority boundary\n\n${contract.authority}\n`;
+
+writeJson(join(ARTIFACT_DIR, "exact-head.json"), exactHead);
+writeJson(join(ARTIFACT_DIR, "checks.json"), checks);
+writeJson(join(ARTIFACT_DIR, "findings.json"), contract.observations);
+writeJson(join(ARTIFACT_DIR, "causal-graph.json"), causalGraph);
+writeJson(join(ARTIFACT_DIR, "run-summary.json"), summary);
+writeFileSync(join(ARTIFACT_DIR, "lotus-product-report.md"), report, "utf8");
+const manifestEntries = walk(ARTIFACT_DIR).filter((pathname) => !pathname.endsWith("manifest.json")).map((pathname) => { const content = readFileSync(pathname); return { path: relative(ARTIFACT_DIR, pathname).replaceAll("\\", "/"), bytes: content.length, sha256: sha256(content) }; }).sort((a, b) => a.path.localeCompare(b.path));
+writeJson(join(ARTIFACT_DIR, "manifest.json"), { algorithm: "sha256", entries: manifestEntries });
+console.log(JSON.stringify({ verdict, productConclusion, exactHead, failedChecks: failed.map((item) => item.id), artifactDir: relative(ROOT, ARTIFACT_DIR) }, null, 2));
+if (failed.length) process.exitCode = 1;
