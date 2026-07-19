@@ -18,6 +18,7 @@ on:
       - "scripts/build.mjs"
       - "qa/product-lens.v1.json"
       - "scripts/run-product-lens-v1.mjs"
+      - "scripts/run-product-lens-trusted.mjs"
       - "docs/robis-product-lens-run-v1.md"
       - ".github/workflows/robis-product-lens-v1.yml"
   workflow_dispatch:
@@ -42,7 +43,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: safal207/robys-coffee-house-demo
-          ref: 03b2d2e6951baaa2703b535dcd4c35b02369b6d1
+          ref: a719ddfe0f095d97e90be425d736e85a620ed352
           path: .trusted-product-lens
           persist-credentials: false
 
@@ -63,8 +64,8 @@ jobs:
         env:
           ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: >-
-          node .trusted-product-lens/scripts/run-product-lens-v1.mjs
-          --trusted-runner-commit 03b2d2e6951baaa2703b535dcd4c35b02369b6d1
+          node .trusted-product-lens/scripts/run-product-lens-trusted.mjs
+          --trusted-runner-commit a719ddfe0f095d97e90be425d736e85a620ed352
           --trusted-lens-head 44087899bdaad86b32b13d89812cbf7a174db2fe
 
       - name: Upload product-lens evidence
