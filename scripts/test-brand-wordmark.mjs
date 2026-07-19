@@ -90,7 +90,7 @@ export function verifyBrandWordmark() {
   const brandReference = readFileSync(resolve(root, "docs/brand-reference-policy.md"), "utf8");
 
   assert.match(index, /<span class="brand-mark">R<\/span><span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
-  assert.match(menu, /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
+  assert.match(menu, /<span class="brand-mark">R<\/span>\s*<span class="brand-copy">\s*<strong>ROBY'S<\/strong>\s*<small>COFFEE HOUSE<\/small>\s*<span class="menu-page-brand-tagline">FRESH COFFEE, DAILY<\/span>\s*<\/span>/);
 
   assert.doesNotMatch(index, /brand--inverse/, "Home must render the black master wordmark, not the inverse variant");
   assert.doesNotMatch(menu, /brand--inverse/, "Menu must render the black master wordmark, not the inverse variant");
