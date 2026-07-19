@@ -6,8 +6,17 @@ import { dirname, join, relative, resolve } from "node:path";
 const ROOT = process.cwd();
 const CONTRACT_PATH = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_CONTRACT || "qa/product-lens.v1.json");
 const ARTIFACT_DIR = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_ARTIFACT_DIR || ".artifacts/robis-product-lens-v1");
+const EXPECTED_TRUSTED_LENS_HEAD = "c22346acedbc14de4a8c0f0b1ca1bb656af8466f";
 const ALLOWED_REVIEW_VERDICTS = new Set(["PRODUCT_PATH_REVIEWED_WITH_GAPS"]);
 const ALLOWED_PRODUCT_CONCLUSIONS = new Set(["VALUE_UNPROVEN"]);
+const ALLOWED_OBSERVATION_LABELS = new Set([
+  "VALUE_PATH_CLEAR",
+  "VALUE_UNPROVEN",
+  "FRICTION_RISK",
+  "COERCION_RISK",
+  "RECOVERY_GAP",
+  "MEASUREMENT_GAP"
+]);
 const EXPECTED_BOUNDARY_CHECKS = Object.freeze({
   paidExtrasPreselected: false,
   onlinePaymentPresent: false,
@@ -17,6 +26,12 @@ const EXPECTED_BOUNDARY_CHECKS = Object.freeze({
   growthClaimAuthorized: false
 });
 const EXPECTED_AUTHORITY = "The lens and its labels are advisory. They do not authorize pricing, payment, launch, experiment, deployment, delivery, or merge.";
+const EXPECTED_HANDOFF_KINDS = Object.freeze({
+  "index.html": ["maps", "instagram"],
+  "menu.html": ["maps", "instagram"],
+  "social-offer.js": ["instagram"],
+  "src/social-offer.ts": ["instagram"]
+});
 
 function read(pathname) {
   return readFileSync(resolve(ROOT, pathname), "utf8");
@@ -48,6 +63,12 @@ function javascriptUrls(text) {
   return [...text.matchAll(/["'`](https:\/\/[^"'`\s]+)["'`]/g)].map((match) => match[1].replaceAll("&amp;", "&"));
 }
 
+function sourceLinks(pathname, text) {
+  if (pathname.endsWith(".html")) return htmlLinks(text);
+  if (pathname.endsWith(".js") || pathname.endsWith(".ts")) return javascriptUrls(text);
+  return [];
+}
+
 function parseExternalUrl(href) {
   try {
     return new URL(href, "https://robys.invalid/");
@@ -77,6 +98,11 @@ function exactObjectMatches(actual, expected) {
   const expectedKeys = Object.keys(expected).sort();
   return actualKeys.length === expectedKeys.length &&
     actualKeys.every((key, index) => key === expectedKeys[index] && actual[key] === expected[key]);
+}
+
+function socialOfferFingerprint(text) {
+  const match = text.match(/const\s+SOCIAL_OFFER(?:\s*:\s*SocialOffer)?\s*=\s*(\{[\s\S]*?\n\};)/);
+  return match ? match[1].replace(/\s+/g, "") : "";
 }
 
 function check(id, label, passed, evidence, detail) {
@@ -119,26 +145,44 @@ const discoverHtml = sources["discover.html"] || "";
 const discoverJs = sources["discover-v2.js"] || "";
 const analyticsJs = sources["analytics.js"] || "";
 const socialOfferJs = sources["social-offer.js"] || "";
+const socialOfferTs = sources["src/social-offer.ts"] || "";
 const indexExternalKinds = new Set(htmlLinks(indexHtml).map(externalKind).filter(Boolean));
-const handoffSourceFiles = Object.keys(sources).filter((pathname) => pathname.endsWith(".html") || pathname.endsWith(".js"));
-const externalLinks = handoffSourceFiles.flatMap((pathname) => (
-  pathname.endsWith(".html") ? htmlLinks(sources[pathname]) : javascriptUrls(sources[pathname])
-)).filter((href) => externalKind(href));
+const handoffSourceFiles = Object.keys(sources).filter((pathname) => pathname.endsWith(".html") || pathname.endsWith(".js") || pathname.endsWith(".ts"));
+const externalLinksBySource = Object.fromEntries(handoffSourceFiles.map((pathname) => [
+  pathname,
+  sourceLinks(pathname, sources[pathname]).filter((href) => externalKind(href))
+]));
+const externalLinks = Object.values(externalLinksBySource).flat();
+const expectedHandoffCoverage = Object.entries(EXPECTED_HANDOFF_KINDS).every(([pathname, expectedKinds]) => {
+  const foundKinds = new Set((externalLinksBySource[pathname] || []).map(externalKind).filter(Boolean));
+  return expectedKinds.every((kind) => foundKinds.has(kind));
+});
+const handoffCoverageDetail = Object.entries(EXPECTED_HANDOFF_KINDS).map(([pathname, expectedKinds]) => {
+  const foundKinds = [...new Set((externalLinksBySource[pathname] || []).map(externalKind).filter(Boolean))].sort();
+  return `${pathname}=expected:${expectedKinds.join("+")},found:${foundKinds.join("+") || "none"}`;
+}).join("; ");
 const boundaryMatches = exactObjectMatches(contract.boundaryChecks, EXPECTED_BOUNDARY_CHECKS) && contract.authority === EXPECTED_AUTHORITY;
+const observationLabelsValid = Array.isArray(contract.observations) && contract.observations.length > 0 && contract.observations.every((item) => ALLOWED_OBSERVATION_LABELS.has(item?.label));
+const socialOfferSourceFingerprint = socialOfferFingerprint(socialOfferTs);
+const socialOfferRuntimeFingerprint = socialOfferFingerprint(socialOfferJs);
+const socialOfferParity = Boolean(socialOfferSourceFingerprint) && socialOfferSourceFingerprint === socialOfferRuntimeFingerprint;
+const lensHeadMatches = validSha.test(trustedLensHead) && validSha.test(contractLensHead) && trustedLensHead === EXPECTED_TRUSTED_LENS_HEAD && contractLensHead === EXPECTED_TRUSTED_LENS_HEAD;
 
 const checks = [
   check("HEAD-001", "Exact Robis head identity", validSha.test(requestedHead) && validSha.test(actualHead) && requestedHead === actualHead, ["git rev-parse HEAD", "ROBYS_EXACT_HEAD/GITHUB_HEAD_SHA/GITHUB_SHA"], `requested=${requestedHead}; checkedOut=${actualHead}`),
-  check("LENS-001", "Trusted Lotus lens head identity", validSha.test(trustedLensHead) && validSha.test(contractLensHead) && trustedLensHead === contractLensHead, ["--trusted-lens-head", "qa/product-lens.v1.json#lens.exactHead"], `trusted=${trustedLensHead || "missing"}; contract=${contractLensHead || "missing"}`),
+  check("LENS-001", "Trusted Lotus lens head is pinned to the reviewed contract", lensHeadMatches, ["scripts/run-product-lens-v1.mjs#EXPECTED_TRUSTED_LENS_HEAD", "--trusted-lens-head", "qa/product-lens.v1.json#lens.exactHead"], `expected=${EXPECTED_TRUSTED_LENS_HEAD}; trusted=${trustedLensHead || "missing"}; contract=${contractLensHead || "missing"}`),
   check("CONTRACT-001", "Advisory verdict and conclusion are allowlisted", ALLOWED_REVIEW_VERDICTS.has(contract.reviewVerdict) && ALLOWED_PRODUCT_CONCLUSIONS.has(contract.overallConclusion), ["scripts/run-product-lens-v1.mjs", "qa/product-lens.v1.json"], `verdict=${contract.reviewVerdict}; conclusion=${contract.overallConclusion}`),
+  check("LABELS-001", "Observation labels are advisory and allowlisted", observationLabelsValid, ["scripts/run-product-lens-v1.mjs#ALLOWED_OBSERVATION_LABELS", "qa/product-lens.v1.json#observations"], `labels=${Array.isArray(contract.observations) ? contract.observations.map((item) => item?.label).join(",") : "invalid"}`),
   check("BOUNDARY-001", "No-authority boundary is exact and non-authorizing", boundaryMatches, ["scripts/run-product-lens-v1.mjs", "qa/product-lens.v1.json#boundaryChecks", "qa/product-lens.v1.json#authority"], `boundaryChecks=${JSON.stringify(contract.boundaryChecks)}; authority=${contract.authority}`),
   check("FILES-001", "Bounded source set exists", missingFiles.length === 0, contract.sourceFiles, missingFiles.length ? `missing=${missingFiles.join(",")}` : `${contract.sourceFiles.length} source files present`),
+  check("SOURCE-001", "Typed social-offer source matches generated runtime", socialOfferParity, ["src/social-offer.ts#SOCIAL_OFFER", "social-offer.js#SOCIAL_OFFER"], `sourceFingerprint=${socialOfferSourceFingerprint ? sha256(socialOfferSourceFingerprint) : "missing"}; runtimeFingerprint=${socialOfferRuntimeFingerprint ? sha256(socialOfferRuntimeFingerprint) : "missing"}`),
   check("PATH-001", "Entry-to-visit path remains present", indexHtml.includes("menu.html#pairing-offers") && socialOfferJs.includes('link.href = "discover.html"') && indexExternalKinds.has("maps") && indexExternalKinds.has("instagram") && menuHtml.includes("data-instagram-booking") && menuHtml.includes('data-menu-action-copy="mapsLink"') && discoverHtml.includes('id="pairing-menu-link"'), ["index.html", "menu.html", "discover.html", "social-offer.js"], "homepage → pairing/menu → Maps or Instagram handoff"),
   check("OFFER-001", "Optional pairing prices remain explicit", menuData.includes('id: "pairing-offers"') && menuData.includes('pricingMode: "approved-offer"') && menuData.includes('pricingMode: "menu-total"') && /price:\s*290\b/.test(menuData) && /price:\s*370\b/.test(menuData) && pairingPosters.includes("pairing-poster-price"), ["menu-data.js", "pairing-posters.js"], "approved offer and menu-total pairings expose TRY prices"),
-  check("CHOICE-001", "No online payment or preselected paid extra", /form-action 'none'/.test(menuHtml) && !/<input[^>]+\bchecked\b/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}`) && !/(stripe|paypal|checkout\.com|iyzico|payment[_-]?intent)/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}\n${socialOfferJs}`), ["index.html", "menu.html", "discover.html", "social-offer.js"], "pairings are presentation and discovery, not an online payment commitment"),
+  check("CHOICE-001", "No online payment or preselected paid extra", /form-action 'none'/.test(menuHtml) && !/<input[^>]+\bchecked\b/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}`) && !/(stripe|paypal|checkout\.com|iyzico|payment[_-]?intent)/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}\n${socialOfferJs}\n${socialOfferTs}`), ["index.html", "menu.html", "discover.html", "social-offer.js", "src/social-offer.ts"], "pairings are presentation and discovery, not an online payment commitment"),
   check("RECOVERY-001", "Local discovery memory remains bounded", discoverHtml.includes("yalnızca bu cihazda tutulur") && discoverHtml.includes("Baskı yok") && discoverJs.includes('language:"robys-language"') && discoverJs.includes('visits:"robys-discovery-visits"') && discoverJs.includes('discovered:"robys-discovery-pairs"'), ["discover.html", "discover-v2.js"], "language, visit stage, and discovered pairings are local-device state"),
   check("MEASURE-001", "Analytics finding remains client-buffer-only", analyticsJs.includes("const eventBuffer = []") && analyticsJs.includes("window.dataLayer") && !/\bfetch\s*\(|sendBeacon\s*\(|XMLHttpRequest|WebSocket\s*\(/.test(analyticsJs), ["analytics.js"], "repository does not prove durable analytics or POS attribution"),
-  check("HANDOFF-001", "All bounded HTML and scripted external handoffs remain context-free", externalLinks.length >= 6 && externalLinks.every((href) => !hasProductContext(href)), handoffSourceFiles, `${externalLinks.length} parsed Maps/Instagram links across ${handoffSourceFiles.length} bounded HTML/JS sources; none preserve selected-product context`),
-  check("CLAIM-001", "Offer claims remain unproven rather than promoted to growth evidence", socialOfferJs.includes("price: 340") && socialOfferJs.includes('currency: "₺"') && analyticsJs.includes('event: "robys_action"') && contract.overallConclusion === "VALUE_UNPROVEN", ["social-offer.js", "analytics.js", "qa/product-lens.v1.json"], "explicit offer exists, but realized-value outcome is not evidenced")
+  check("HANDOFF-001", "Expected per-file handoffs exist and all bounded handoffs remain context-free", expectedHandoffCoverage && externalLinks.length > 0 && externalLinks.every((href) => !hasProductContext(href)), [...Object.keys(EXPECTED_HANDOFF_KINDS), ...handoffSourceFiles.filter((pathname) => !Object.hasOwn(EXPECTED_HANDOFF_KINDS, pathname))], `${handoffCoverageDetail}; ${externalLinks.length} parsed Maps/Instagram links across ${handoffSourceFiles.length} bounded HTML/JS/TS sources; none preserve selected-product context`),
+  check("CLAIM-001", "Offer claims remain unproven rather than promoted to growth evidence", socialOfferParity && socialOfferJs.includes("price: 340") && socialOfferTs.includes("price: 340") && socialOfferJs.includes('currency: "₺"') && socialOfferTs.includes('currency: "₺"') && analyticsJs.includes('event: "robys_action"') && contract.overallConclusion === "VALUE_UNPROVEN", ["social-offer.js", "src/social-offer.ts", "analytics.js", "qa/product-lens.v1.json"], "explicit source/runtime offer exists, but realized-value outcome is not evidenced")
 ];
 
 const failed = checks.filter((item) => !item.passed);
@@ -149,9 +193,10 @@ const exactHead = {
   checkedOutHead: actualHead,
   matches: requestedHead === actualHead,
   evaluatedBaseSha: contract.product.evaluatedBaseSha,
+  expectedLensHead: EXPECTED_TRUSTED_LENS_HEAD,
   trustedLensHead,
   contractLensHead,
-  lensMatches: trustedLensHead === contractLensHead
+  lensMatches: lensHeadMatches
 };
 const causalGraph = {
   nodes: contract.journey,
@@ -159,7 +204,7 @@ const causalGraph = {
     { from: "entry", to: "discovery", state: "PROVEN", evidence: ["index.html", "discover.html"] },
     { from: "discovery", to: "menu", state: "PROVEN", evidence: ["discover-v2.js", "menu.html"] },
     { from: "menu", to: "pairing", state: "PROVEN", evidence: ["menu-data.js", "pairing-posters.js"] },
-    { from: "pairing", to: "handoff", state: "PARTIAL", evidence: ["menu.html", "social-offer.js"], gap: "selected pairing context is not preserved" },
+    { from: "pairing", to: "handoff", state: "PARTIAL", evidence: ["menu.html", "social-offer.js", "src/social-offer.ts"], gap: "selected pairing context is not preserved" },
     { from: "handoff", to: "visit", state: "UNPROVEN", gap: "external-platform completion is not observed" },
     { from: "visit", to: "purchase", state: "UNPROVEN", gap: "no POS attribution evidence" },
     { from: "purchase", to: "repeat", state: "UNPROVEN", gap: "no bounded repeat-value cohort" }
