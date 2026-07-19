@@ -85,4 +85,4 @@ The biggest break is after the handoff: the repository sees digital intent but n
 
 ## Authority boundary
 
-The Product Lens may describe `VALUE_PATH_CLEAR`, `VALUE_UNPROVEN`, `FRICTION_RISK`, `RECOVERY_GAP`, or `MEASUREMENT_GAP`. It does not authorize pricing, payment, launch, experiment, deployment, delivery, or merge.
+The Product Lens may describe `VALUE_PATH_CLEAR`, `VALUE_UNPROVEN`, `FRICTION_RISK`, `COERCION_RISK`, `RECOVERY_GAP`, or `MEASUREMENT_GAP`. These labels are advisory observations. The lens does not authorize pricing, payment, launch, experiment, deployment, delivery, approval, or merge.
