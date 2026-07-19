@@ -10,6 +10,8 @@ on:
       - "pairing-posters.js"
       - "discover.html"
       - "discover-v2.js"
+      - "discover-rotation-v3.js"
+      - "src/discover-rotation.ts"
       - "analytics.js"
       - "social-offer.js"
       - "src/social-offer.ts"
@@ -40,7 +42,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: safal207/robys-coffee-house-demo
-          ref: 76b294f1f1338ee18aa56e56e815c223d4f01655
+          ref: 03b2d2e6951baaa2703b535dcd4c35b02369b6d1
           path: .trusted-product-lens
           persist-credentials: false
 
@@ -62,7 +64,7 @@ jobs:
           ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: >-
           node .trusted-product-lens/scripts/run-product-lens-v1.mjs
-          --trusted-runner-commit 76b294f1f1338ee18aa56e56e815c223d4f01655
+          --trusted-runner-commit 03b2d2e6951baaa2703b535dcd4c35b02369b6d1
           --trusted-lens-head 44087899bdaad86b32b13d89812cbf7a174db2fe
 
       - name: Upload product-lens evidence
