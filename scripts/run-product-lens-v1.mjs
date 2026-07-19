@@ -27,6 +27,29 @@ function htmlLinks(text) {
   return [...text.matchAll(/\bhref\s*=\s*["']([^"']+)["']/gi)].map((match) => match[1].replaceAll("&amp;", "&"));
 }
 
+function parseExternalUrl(href) {
+  try {
+    return new URL(href, "https://robys.invalid/");
+  } catch {
+    return null;
+  }
+}
+
+function externalKind(href) {
+  const url = parseExternalUrl(href);
+  if (!url || url.protocol !== "https:") return null;
+  const hostname = url.hostname.toLowerCase();
+  if ((hostname === "google.com" || hostname === "www.google.com") && url.pathname.startsWith("/maps")) return "maps";
+  if (hostname === "instagram.com" || hostname === "www.instagram.com") return "instagram";
+  return null;
+}
+
+function hasProductContext(href) {
+  const url = parseExternalUrl(href);
+  if (!url) return false;
+  return ["item", "pairing", "offer", "choice", "product"].some((key) => url.searchParams.has(key));
+}
+
 function check(id, label, passed, evidence, detail) {
   return { id, label, passed: Boolean(passed), evidence, detail };
 }
@@ -65,17 +88,18 @@ const discoverHtml = sources["discover.html"] || "";
 const discoverJs = sources["discover-v2.js"] || "";
 const analyticsJs = sources["analytics.js"] || "";
 const socialOfferJs = sources["social-offer.js"] || "";
-const externalLinks = [...htmlLinks(indexHtml), ...htmlLinks(menuHtml)].filter((href) => /google\.com\/maps|instagram\.com/i.test(href));
+const indexExternalKinds = new Set(htmlLinks(indexHtml).map(externalKind).filter(Boolean));
+const externalLinks = [...htmlLinks(indexHtml), ...htmlLinks(menuHtml)].filter((href) => externalKind(href));
 
 const checks = [
   check("HEAD-001", "Exact head identity", validSha.test(requestedHead) && validSha.test(actualHead) && requestedHead === actualHead, ["git rev-parse HEAD", "ROBYS_EXACT_HEAD/GITHUB_HEAD_SHA/GITHUB_SHA"], `requested=${requestedHead}; checkedOut=${actualHead}`),
   check("FILES-001", "Bounded source set exists", missingFiles.length === 0, contract.sourceFiles, missingFiles.length ? `missing=${missingFiles.join(",")}` : `${contract.sourceFiles.length} source files present`),
-  check("PATH-001", "Entry-to-visit path remains present", indexHtml.includes("menu.html#pairing-offers") && socialOfferJs.includes('link.href = "discover.html"') && /google\.com\/maps/i.test(indexHtml) && /instagram\.com/i.test(indexHtml) && menuHtml.includes("data-instagram-booking") && menuHtml.includes('data-menu-action-copy="mapsLink"') && discoverHtml.includes('id="pairing-menu-link"'), ["index.html", "menu.html", "discover.html", "social-offer.js"], "homepage → pairing/menu → Maps or Instagram handoff"),
+  check("PATH-001", "Entry-to-visit path remains present", indexHtml.includes("menu.html#pairing-offers") && socialOfferJs.includes('link.href = "discover.html"') && indexExternalKinds.has("maps") && indexExternalKinds.has("instagram") && menuHtml.includes("data-instagram-booking") && menuHtml.includes('data-menu-action-copy="mapsLink"') && discoverHtml.includes('id="pairing-menu-link"'), ["index.html", "menu.html", "discover.html", "social-offer.js"], "homepage → pairing/menu → Maps or Instagram handoff"),
   check("OFFER-001", "Optional pairing prices remain explicit", menuData.includes('id: "pairing-offers"') && menuData.includes('pricingMode: "approved-offer"') && menuData.includes('pricingMode: "menu-total"') && /price:\s*290\b/.test(menuData) && /price:\s*370\b/.test(menuData) && pairingPosters.includes("pairing-poster-price"), ["menu-data.js", "pairing-posters.js"], "approved offer and menu-total pairings expose TRY prices"),
   check("CHOICE-001", "No online payment or preselected paid extra", /form-action 'none'/.test(menuHtml) && !/<input[^>]+\bchecked\b/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}`) && !/(stripe|paypal|checkout\.com|iyzico|payment[_-]?intent)/i.test(`${indexHtml}\n${menuHtml}\n${discoverHtml}\n${socialOfferJs}`), ["index.html", "menu.html", "discover.html", "social-offer.js"], "pairings are presentation and discovery, not an online payment commitment"),
   check("RECOVERY-001", "Local discovery memory remains bounded", discoverHtml.includes("yalnızca bu cihazda tutulur") && discoverHtml.includes("Baskı yok") && discoverJs.includes('language:"robys-language"') && discoverJs.includes('visits:"robys-discovery-visits"') && discoverJs.includes('discovered:"robys-discovery-pairs"'), ["discover.html", "discover-v2.js"], "language, visit stage, and discovered pairings are local-device state"),
   check("MEASURE-001", "Analytics finding remains client-buffer-only", analyticsJs.includes("const eventBuffer = []") && analyticsJs.includes("window.dataLayer") && !/\bfetch\s*\(|sendBeacon\s*\(|XMLHttpRequest|WebSocket\s*\(/.test(analyticsJs), ["analytics.js"], "repository does not prove durable analytics or POS attribution"),
-  check("HANDOFF-001", "External handoff remains context-free", externalLinks.length >= 5 && externalLinks.every((href) => !/[?&](item|pairing|offer|choice|product)=/i.test(href)), ["index.html", "menu.html"], `${externalLinks.length} Maps/Instagram links; none preserve selected-product context`),
+  check("HANDOFF-001", "External handoff remains context-free", externalLinks.length >= 5 && externalLinks.every((href) => !hasProductContext(href)), ["index.html", "menu.html"], `${externalLinks.length} Maps/Instagram links; none preserve selected-product context`),
   check("CLAIM-001", "Offer claims remain unproven rather than promoted to growth evidence", socialOfferJs.includes("price: 340") && socialOfferJs.includes('currency: "₺"') && analyticsJs.includes('event: "robys_action"') && contract.overallConclusion === "VALUE_UNPROVEN", ["social-offer.js", "analytics.js", "qa/product-lens.v1.json"], "explicit offer exists, but realized-value outcome is not evidenced")
 ];
 
