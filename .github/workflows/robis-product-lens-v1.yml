@@ -42,6 +42,7 @@ jobs:
         continue-on-error: true
         env:
           ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          ROBYS_TRUSTED_LOTUS_LENS_HEAD: 6f8af92c73185a36c276562c133579b5102c68b5
         run: node scripts/run-product-lens-v1.mjs
 
       - name: Upload product-lens evidence
