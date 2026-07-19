@@ -145,17 +145,17 @@ writeJson(path.join(outputDir, "exact-head.json"), exactHead);
 const stages = contract.stages.map(runStage);
 const copiedReports = copyKnownReports();
 const requiredFailures = stages.filter((stage) => stage.required && stage.status === "FAILED");
-const requiredIncomplete = stages.filter((stage) => stage.required && !["PASSED", "DRY_RUN"].includes(stage.status));
+const requiredUnproven = stages.filter((stage) => stage.required && !["PASSED", "DRY_RUN"].includes(stage.status));
 const requestedLive = stages.filter((stage) => stage.live && runLive);
 const allRequestedLivePassed = requestedLive.length > 0 && requestedLive.every((stage) => stage.status === "PASSED");
 
 let verdict;
 let rationale;
-if (!exactHead.valid || requiredFailures.length || requiredIncomplete.length) {
+if (!exactHead.valid || requiredUnproven.length) {
   verdict = "BLOCKED";
   rationale = !exactHead.valid
     ? "A valid 40-character exact-head SHA was not available."
-    : `${requiredFailures.length + requiredIncomplete.length} required exact-head stage(s) are not proven green.`;
+    : `${requiredUnproven.length} required exact-head stage(s) are not proven green.`;
 } else if (dryRun) {
   verdict = "DRY_RUN_ONLY";
   rationale = "The runner and artifact graph were exercised without executing repository gates.";
