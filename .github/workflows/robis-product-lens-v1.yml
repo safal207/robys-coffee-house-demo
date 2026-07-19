@@ -1,0 +1,58 @@
+name: Robis Product Lens v1
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "menu.html"
+      - "menu-data.js"
+      - "pairing-posters.js"
+      - "discover.html"
+      - "discover-v2.js"
+      - "analytics.js"
+      - "social-offer.js"
+      - "qa/product-lens.v1.json"
+      - "scripts/run-product-lens-v1.mjs"
+      - "docs/robis-product-lens-run-v1.md"
+      - ".github/workflows/robis-product-lens-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  product-lens:
+    name: Exact-head product lens package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Lotus Product Lens
+        id: product_lens
+        continue-on-error: true
+        env:
+          ROBYS_EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/run-product-lens-v1.mjs
+
+      - name: Upload product-lens evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robis-product-lens-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/robis-product-lens-v1
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce product-lens contract
+        if: steps.product_lens.outcome != 'success'
+        run: exit 1
