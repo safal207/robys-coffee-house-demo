@@ -34,7 +34,9 @@ function fileExists(reference, id) {
 }
 
 function hrefs(html, prefix) {
-  return Array.from(html.matchAll(new RegExp(`href=["'](${prefix}[^"']+)["']`, "gi")), (match) => match[1]);
+  const prefixPattern = new RegExp(`^${prefix}`, "i");
+  return Array.from(html.matchAll(/href=["']([^"']+)["']/gi), (match) => match[1].replaceAll("&amp;", "&"))
+    .filter((href) => prefixPattern.test(href));
 }
 
 function cssRule(css, selector, id) {
@@ -54,7 +56,8 @@ for (const breakpoint of [980, 680, 390]) {
 assert(mobileCss.includes("min-height:100svh"), "MOBILE-001", "Hero viewport handling changed");
 assert(conversionCss.includes("grid-template-columns:1fr 1fr"), "MOBILE-001", "Mobile CTA must keep two columns");
 assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-area support changed");
-assert(conversionCss.includes("padding-bottom:calc(70px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
+assert(conversionCss.includes("body{padding-bottom:0}"), "MOBILE-001", "Mobile document must not restore the trailing body spacer");
+assert(conversionCss.includes(".site-footer{padding-bottom:calc(98px + env(safe-area-inset-bottom))}"), "MOBILE-001", "Footer CTA clearance changed");
 assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
@@ -93,9 +96,13 @@ assert(routeUrls.length >= 4, "CTA-001", `Expected route CTAs, found ${routeUrls
 assert(new Set(routeUrls).size === 1, "CTA-001", "Route destinations differ");
 assert(routeUrls[0].includes("Roby%27s+Coffee+House+Gazipasa"), "CTA-001", "Wrong route destination");
 assert(routeUrls.every((url) => url.endsWith("&travelmode=driving")), "CTA-001", "Route CTAs must open driving navigation");
+const instagramProfileUrl = "https://www.instagram.com/robyscoffeehouse/";
+const communityReelUrl = "https://www.instagram.com/reel/C0qYxxmIY9t/";
 const instagramUrls = hrefs(allHtml, "https://www\\.instagram\\.com/");
-assert(instagramUrls.length >= 3, "CTA-001", `Expected Instagram CTAs, found ${instagramUrls.length}`);
-assert(instagramUrls.every((url) => url === "https://www.instagram.com/robyscoffeehouse/"), "CTA-001", "Wrong Instagram destination");
+const instagramProfileUrls = instagramUrls.filter((url) => url === instagramProfileUrl);
+assert(instagramProfileUrls.length >= 3, "CTA-001", `Expected Instagram profile CTAs, found ${instagramProfileUrls.length}`);
+assert(instagramUrls.includes(communityReelUrl), "CTA-001", "Community Reel destination disappeared");
+assert(instagramUrls.every((url) => url === instagramProfileUrl || url === communityReelUrl), "CTA-001", "Unexpected Instagram destination");
 for (const tag of Array.from(allHtml.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0])) {
   assert(/rel=["'][^"']*noopener[^"']*noreferrer[^"']*["']/i.test(tag), "CTA-001", "Unsafe external link");
 }
