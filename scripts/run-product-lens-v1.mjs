@@ -6,7 +6,7 @@ import { dirname, join, relative, resolve } from "node:path";
 const ROOT = process.cwd();
 const CONTRACT_PATH = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_CONTRACT || "qa/product-lens.v1.json");
 const ARTIFACT_DIR = resolve(ROOT, process.env.ROBYS_PRODUCT_LENS_ARTIFACT_DIR || ".artifacts/robis-product-lens-v1");
-const EXPECTED_TRUSTED_LENS_HEAD = "c22346acedbc14de4a8c0f0b1ca1bb656af8466f";
+const EXPECTED_TRUSTED_LENS_HEAD = "6573e6f693fa785b0fe21abe849464a9c9ad4212";
 const ALLOWED_REVIEW_VERDICTS = new Set(["PRODUCT_PATH_REVIEWED_WITH_GAPS"]);
 const ALLOWED_PRODUCT_CONCLUSIONS = new Set(["VALUE_UNPROVEN"]);
 const ALLOWED_OBSERVATION_LABELS = new Set([
