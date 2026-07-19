@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "lens": {
+    "name": "Lotus Product Lens v0.1",
+    "repository": "safal207/LS",
+    "pullRequest": 920,
+    "exactHead": "42df7f98e8eb5e2369502048e6e5127537e406ee"
+  },
+  "product": {
+    "name": "Roby's Coffee House digital visit funnel",
+    "repository": "safal207/robys-coffee-house-demo",
+    "evaluatedBaseSha": "d26a54743c67c0fd55d60aca3430dc04171a7a2b",
+    "userGoal": "Discover a suitable drink or pairing, understand the price, find the cafe, and visit without pressure.",
+    "businessGoal": "Increase qualified cafe visits, pairing selection, reservations, and repeat visits without hiding price, choice, or exit."
+  },
+  "journey": [
+    { "id": "entry", "label": "Homepage, shared menu, QR, search, or Instagram entry" },
+    { "id": "discovery", "label": "Taste Journey or featured-product discovery" },
+    { "id": "menu", "label": "Searchable multilingual menu with explicit TRY prices" },
+    { "id": "pairing", "label": "Optional drink-and-dessert pairing" },
+    { "id": "handoff", "label": "Google Maps directions or Instagram reservation handoff" },
+    { "id": "visit", "label": "Physical cafe visit" },
+    { "id": "purchase", "label": "In-store purchase and realized value" },
+    { "id": "repeat", "label": "Return visit or voluntary community relationship" }
+  ],
+  "sourceFiles": [
+    "index.html",
+    "menu.html",
+    "menu-data.js",
+    "pairing-posters.js",
+    "discover.html",
+    "discover-v2.js",
+    "analytics.js",
+    "social-offer.js"
+  ],
+  "observations": [
+    {
+      "id": "PL-001",
+      "label": "VALUE_PATH_CLEAR",
+      "confidence": "high",
+      "claim": "The repository exposes a coherent digital path from entry to menu, pairing discovery, directions, and Instagram reservation.",
+      "evidence": ["index.html", "menu.html", "discover.html"]
+    },
+    {
+      "id": "PL-002",
+      "label": "VALUE_PATH_CLEAR",
+      "confidence": "high",
+      "claim": "Pairings are optional and separately priced; the site contains no online checkout or one-click payment commitment.",
+      "evidence": ["menu-data.js", "pairing-posters.js", "menu.html"]
+    },
+    {
+      "id": "PL-003",
+      "label": "MEASUREMENT_GAP",
+      "confidence": "high",
+      "claim": "Analytics are buffered in the page and dataLayer, but the repository does not prove durable collection or attribution to POS purchase, AOV, LTV, refund, churn, or repeat visit.",
+      "evidence": ["analytics.js"]
+    },
+    {
+      "id": "PL-004",
+      "label": "RECOVERY_GAP",
+      "confidence": "medium",
+      "claim": "Taste Journey remembers language, visit stage, and discovered pairings locally, but it does not preserve a selected pairing through Maps or Instagram handoff.",
+      "evidence": ["discover-v2.js", "index.html", "menu.html"]
+    },
+    {
+      "id": "PL-005",
+      "label": "FRICTION_RISK",
+      "confidence": "medium",
+      "claim": "External Maps and Instagram transitions lose product context, so staff and the visitor must reconstruct the intended pairing or reservation manually.",
+      "evidence": ["index.html", "menu.html", "social-offer.js"]
+    },
+    {
+      "id": "PL-006",
+      "label": "VALUE_UNPROVEN",
+      "confidence": "high",
+      "claim": "Approved-offer and social-offer presentation exists, but no exact experiment, cohort, denominator, observation window, counter-metrics, or realized-value result is stored in this repository.",
+      "evidence": ["menu-data.js", "social-offer.js", "analytics.js"]
+    }
+  ],
+  "boundaryChecks": {
+    "paidExtrasPreselected": false,
+    "onlinePaymentPresent": false,
+    "hiddenRecurringTermsDetected": false,
+    "falseUrgencyDetected": false,
+    "obstructedDeclineDetected": false,
+    "growthClaimAuthorized": false
+  },
+  "overallConclusion": "VALUE_UNPROVEN",
+  "reviewVerdict": "PRODUCT_PATH_REVIEWED_WITH_GAPS",
+  "experiments": [
+    {
+      "id": "EXP-001",
+      "name": "Pairing-to-handoff continuity",
+      "hypothesis": "Showing the chosen pairing before Maps or Instagram handoff reduces reconstruction friction.",
+      "guardrails": ["No payment preselection", "Clear reset", "Local/session state only by default", "No false urgency"]
+    },
+    {
+      "id": "EXP-002",
+      "name": "Aggregate visit attribution bridge",
+      "hypothesis": "A bounded source or offer code can connect digital intent to aggregate POS outcomes without personal profiling.",
+      "guardrails": ["Aggregate reporting", "Defined retention", "No cross-site identity", "Refund and complaint counter-metrics"]
+    },
+    {
+      "id": "EXP-003",
+      "name": "Voluntary resume-last-pairing",
+      "hypothesis": "A visible local resume option helps returning visitors without creating pressure.",
+      "guardrails": ["Explicit clear control", "No notification pressure", "No hidden persistence", "Easy full-menu exit"]
+    }
+  ],
+  "authority": "The lens and its labels are advisory. They do not authorize pricing, payment, launch, experiment, deployment, delivery, or merge."
+}
