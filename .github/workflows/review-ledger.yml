@@ -193,25 +193,29 @@ jobs:
                 ? 'requested-with-evidence'
                 : 'requested-without-evidence-advisory';
 
+            // Clean reserve evidence is advisory and must not invalidate an otherwise current report.
+            // Any reserve item that carries a P0-P3 finding remains freshness-significant and enters D5.
+            const codeRabbitFindingEvidence = [
+              ...codeRabbitEvidence.filter((item) => hasFindingSeverity(item.body)),
+            ];
+
             const exactBotEvidence = [
               ...reviews.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login) ||
-                  (reserveRequested && codeRabbitBots.has(item.user?.login) && timeOf(item) >= reserveRequestAt)) &&
+                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) &&
                 item.commit_id?.toLowerCase() === head
               )),
               ...reviewComments.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login) ||
-                  (reserveRequested && codeRabbitBots.has(item.user?.login) && timeOf(item) >= reserveRequestAt)) &&
+                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) &&
                 reviewHeads.get(item.pull_request_review_id) === head
               )),
-              ...issueComments.filter(issueCommentIsCurrentHeadBotOutput),
-              ...statuses.filter((item) => (
-                reserveRequested &&
-                item.context === 'CodeRabbit' &&
-                item.state === 'success' &&
-                codeRabbitBots.has(item.creator?.login) &&
-                timeOf(item) >= reserveRequestAt
-              )),
+              ...issueComments.filter((item) => {
+                const login = item.user?.login;
+                if (codexBots.has(login)) {
+                  return exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body));
+                }
+                return otherReviewBots.has(login) && exactHeadBody(item.body);
+              }),
+              ...codeRabbitFindingEvidence,
             ];
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
