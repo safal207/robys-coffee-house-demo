@@ -46,6 +46,14 @@ REVIEWED_COMMIT_RE = re.compile(
     re.IGNORECASE,
 )
 REASON_CODE_RE = re.compile(r'Reason code:[^`]*`([A-Z0-9_]+)`', re.IGNORECASE)
+DISPOSITION_RE = re.compile(
+    r'^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$',
+    re.IGNORECASE | re.MULTILINE,
+)
+DISPOSITION_TARGET_RE = re.compile(
+    r'^Disposition-For-Issue-Comment:\s*(\d+)\s*$',
+    re.IGNORECASE | re.MULTILINE,
+)
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
 
 
@@ -103,6 +111,17 @@ def time_of(item: dict[str, Any]) -> datetime:
     return parse_time(str(item.get('submitted_at') or item.get('created_at') or item.get('createdAt') or ''))
 
 
+def latest_time_of(item: dict[str, Any]) -> datetime:
+    values = [
+        item.get('submitted_at'),
+        item.get('created_at'),
+        item.get('createdAt'),
+        item.get('updated_at'),
+        item.get('updatedAt'),
+    ]
+    return max((parse_time(str(value)) for value in values if value), default=parse_time(None))
+
+
 def is_after_head(item: dict[str, Any], head_time: datetime) -> bool:
     return time_of(item) >= head_time
 
@@ -121,6 +140,20 @@ def reviewed_commit_of(item: dict[str, Any]) -> str | None:
 def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     reviewed = reviewed_commit_of(item)
     return bool(reviewed and len(reviewed) >= 7 and head_sha.lower().startswith(reviewed))
+
+
+def is_final_codex_comment_evidence(item: dict[str, Any]) -> bool:
+    body = body_of(item)
+    return bool(
+        re.search(r'here are some automated review suggestions for this pull request', body, re.IGNORECASE)
+        or re.search(
+            r"\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}"
+            r"\b(?:issue|issues|problem|problems)\b",
+            body,
+            re.IGNORECASE,
+        )
+        or re.search(r'\bcodex review\s*:\s*(?:complete|completed)\b', body, re.IGNORECASE)
+    )
 
 
 def command_lines(item: dict[str, Any]) -> set[str]:
@@ -166,6 +199,41 @@ def combined_findings(bots: Iterable[BotResult]) -> dict[str, int]:
             if severity in unique:
                 unique[severity].add(key)
     return {severity: len(keys) for severity, keys in unique.items()}
+
+
+def dispositioned_issue_comment_ids(comments: list[dict[str, Any]], head_sha: str) -> set[str]:
+    by_id = {
+        str(item.get('id')): item
+        for item in comments
+        if item.get('id') is not None
+    }
+    exact_head_re = re.compile(
+        rf'^Head:\s*{re.escape(head_sha)}\s*$',
+        re.IGNORECASE | re.MULTILINE,
+    )
+    dispositioned: set[str] = set()
+    for reply in comments:
+        body = body_of(reply).replace('`', '')
+        target = DISPOSITION_TARGET_RE.search(body)
+        if not target or not DISPOSITION_RE.search(body) or not exact_head_re.search(body):
+            continue
+        if association_of(reply) not in TRUSTED_ASSOCIATIONS:
+            continue
+        finding = by_id.get(target.group(1))
+        if finding is None:
+            continue
+        if time_of(reply) < time_of(finding) or latest_time_of(reply) < latest_time_of(finding):
+            continue
+        dispositioned.add(target.group(1))
+    return dispositioned
+
+
+def active_finding_items(items: Iterable[dict[str, Any]],
+                         dispositioned_ids: set[str]) -> list[dict[str, Any]]:
+    return [
+        item for item in items
+        if str(item.get('id')) not in dispositioned_ids
+    ]
 
 
 def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, Any]]]:
@@ -230,8 +298,9 @@ def request_bound_exact_items(items: Iterable[dict[str, Any]], requests: list[di
 def result_from_exact_evidence(*, name: str, requested: bool,
                                exact_items: list[dict[str, Any]],
                                no_evidence_reason: str,
-                               no_evidence_action: str) -> BotResult:
-    findings, keys = finding_summary(exact_items)
+                               no_evidence_action: str,
+                               finding_items: list[dict[str, Any]] | None = None) -> BotResult:
+    findings, keys = finding_summary(exact_items if finding_items is None else finding_items)
     if exact_items:
         actionable = bool(keys)
         return BotResult(
@@ -266,32 +335,47 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   head_time: datetime) -> list[BotResult]:
     del statuses
     head_sha = str(pr['head']['sha']).lower()
-    all_items = comments + reviews + (threads if threads_available else review_comments)
+    review_surface = reviews + (threads if threads_available else review_comments)
+    dispositioned_ids = dispositioned_issue_comment_ids(comments, head_sha)
 
     codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
-    codex_items = bot_items(all_items, BOT_LOGINS['Codex'], head_time)
+    codex_review_items = bot_items(review_surface, BOT_LOGINS['Codex'], head_time)
+    codex_comment_items = [
+        item for item in bot_items(comments, BOT_LOGINS['Codex'], head_time)
+        if is_final_codex_comment_evidence(item)
+    ]
+    codex_exact = request_bound_exact_items(
+        codex_review_items + codex_comment_items,
+        codex_req,
+        head_sha,
+    )
     codex = result_from_exact_evidence(
         name='Codex', requested=bool(codex_req),
-        exact_items=request_bound_exact_items(codex_items, codex_req, head_sha),
+        exact_items=codex_exact,
+        finding_items=active_finding_items(codex_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
         no_evidence_action='Wait within the bounded window, then retry once with @codex review.')
 
     rabbit_req = fresh_reserve_requests(comments, head_time, head_sha)
-    rabbit_items = bot_items(all_items, BOT_LOGINS['CodeRabbit'], head_time)
+    rabbit_items = bot_items(comments + review_surface, BOT_LOGINS['CodeRabbit'], head_time)
+    rabbit_exact = request_bound_exact_items(rabbit_items, rabbit_req, head_sha)
     coderabbit = (
         result_from_exact_evidence(
             name='CodeRabbit', requested=True,
-            exact_items=request_bound_exact_items(rabbit_items, rabbit_req, head_sha),
+            exact_items=rabbit_exact,
+            finding_items=active_finding_items(rabbit_exact, dispositioned_ids),
             no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
             no_evidence_action='Wait until the next bounded reserve window; do not retry immediately.')
         if rabbit_req else reserve_standby_result('CodeRabbit')
     )
 
     jules_req = fresh_requests(comments, '@jules review', head_time)
-    jules_items = bot_items(all_items, BOT_LOGINS['Jules'], head_time)
+    jules_items = bot_items(comments + review_surface, BOT_LOGINS['Jules'], head_time)
+    jules_exact = request_bound_exact_items(jules_items, jules_req, head_sha)
     jules = result_from_exact_evidence(
         name='Jules', requested=bool(jules_req),
-        exact_items=request_bound_exact_items(jules_items, jules_req, head_sha),
+        exact_items=jules_exact,
+        finding_items=active_finding_items(jules_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
         no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
 
@@ -302,6 +386,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     deep_exact = request_bound_exact_items(deep_items, deep_req, head_sha)
     deepseek = result_from_exact_evidence(
         name='DeepSeek', requested=bool(deep_req), exact_items=deep_exact,
+        finding_items=active_finding_items(deep_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
         no_evidence_action='Inspect the DeepSeek workflow result and retry once.')
     latest_deep = max(deep_items, key=time_of, default=None)
@@ -426,6 +511,7 @@ def build_report(*, pr: dict[str, Any], head_commit: dict[str, Any], comments: l
 
 Unique root causes: **{sum(unique.values())}** — {findings_text(unique)}.
 Duplicate REST/GraphQL copies of the same inline finding are counted once.
+Trusted exact-head issue-comment dispositions remove only the referenced finding after the disposition is newer than the finding's latest edit.
 
 ### CI and collection summary
 
@@ -444,25 +530,30 @@ Duplicate REST/GraphQL copies of the same inline finding are counted once.
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo is disabled; CodeRabbit is a bounded scheduled advisory reserve at 09:00, 13:00 and 19:00 Europe/Istanbul and its absence never blocks readiness. Verified CodeRabbit findings still enter the causal finding graph. Duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, truncated, failed, or acknowledgement-only responses never count as merge evidence.
+The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo is disabled; CodeRabbit is a bounded scheduled advisory reserve at 09:00, 13:00 and 19:00 Europe/Istanbul and its absence never blocks readiness. Verified CodeRabbit findings still enter the causal finding graph. Duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, dispositioned, truncated, failed, progress, quota, error, or acknowledgement-only responses never count as active merge findings or completed Codex evidence.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
 
 
-def main() -> int:
+def main() -> None:
     if len(sys.argv) != 2 or sys.argv[1] != 'report':
-        print('Usage: ai-review-cooperation.py report', file=sys.stderr)
-        return 2
-    body = build_report(pr=read_json_env('PR_JSON_FILE'), head_commit=read_json_env('HEAD_COMMIT_FILE'),
-                        comments=read_json_env('COMMENTS_FILE'), reviews=read_json_env('REVIEWS_FILE'),
-                        review_comments=read_json_env('REVIEW_COMMENTS_FILE'),
-                        threads_data=read_json_env('THREADS_FILE'), checks=read_json_env('CHECKS_FILE'),
-                        statuses=read_json_env('STATUSES_FILE'), files=read_json_env('FILES_FILE'))
-    output = Path(os.environ.get('COMMENT_FILE', '').strip() or DEFAULT_COMMENT_PATH)
-    output.write_text(json.dumps({'body': body}, ensure_ascii=False), encoding='utf-8')
-    return 0
+        raise SystemExit('Usage: ai-review-cooperation.py report')
+    report = build_report(
+        pr=read_json_env('PR_JSON_FILE'),
+        head_commit=read_json_env('HEAD_COMMIT_FILE'),
+        comments=read_json_env('COMMENTS_FILE'),
+        reviews=read_json_env('REVIEWS_FILE'),
+        review_comments=read_json_env('REVIEW_COMMENTS_FILE'),
+        threads_data=read_json_env('THREADS_FILE'),
+        checks=read_json_env('CHECKS_FILE'),
+        statuses=read_json_env('STATUSES_FILE'),
+        files=read_json_env('FILES_FILE'),
+    )
+    output = Path(os.environ.get('COMMENT_FILE') or DEFAULT_COMMENT_PATH)
+    output.write_text(json.dumps({'body': report}, ensure_ascii=False), encoding='utf-8')
+    print(report)
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    main()
