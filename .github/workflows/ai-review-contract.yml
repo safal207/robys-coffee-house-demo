@@ -10,14 +10,14 @@ permissions:
   actions: read
   # Required to check out the verifier from GitHub's trusted base SHA.
   contents: read
-  # Required for trusted exact-head review request comments.
+  # Required for trusted exact-head review request comments and provider-limit signals.
   issues: read
   # Required for native pull-request review evidence.
   pull-requests: read
 
 jobs:
   verify:
-    name: Verify exact-head Codex review
+    name: Verify exact-head CodeRabbit review or limit waiver
     runs-on: ubuntu-latest
     timeout-minutes: 17
     steps:
@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
-      - name: Wait for native exact-head Codex evidence
+      - name: Wait for exact-head CodeRabbit evidence or explicit limit signal
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
