@@ -1,16 +1,22 @@
 "use strict";
 
 const TRUSTED_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
-const CODEX_LOGINS = new Set([
-  "chatgpt-codex-connector[bot]",
-  "chatgpt-codex-connector",
-]);
+const CODERABBIT_LOGINS = new Set(["coderabbitai", "coderabbitai[bot]"]);
 const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
-const CODEX_COMMAND = "@codex review";
+const CODERABBIT_COMMAND = "@coderabbitai review";
+const CODERABBIT_MARKER = "<!-- coderabbit-reserve -->";
 const POLL_ATTEMPTS = 45;
 const POLL_INTERVAL_MS = 20_000;
 const DORMANT_PROVIDER_NAMES = new Set(["Qodo"]);
-const RESERVE_PROVIDER_NAMES = new Set(["CodeRabbit"]);
+const ADVISORY_PROVIDER_NAMES = new Set(["Codex", "DeepSeek"]);
+const LIMIT_SIGNAL_PATTERNS = [
+  /review limit reached/i,
+  /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /next review available in/i,
+  /free tier[^\n]{0,80}limit/i,
+];
 
 function parseTime(value) {
   if (typeof value !== "string" || value.trim() === "") return 0;
@@ -45,15 +51,17 @@ function isPermissionError(error) {
   return !/rate limit|secondary rate|abuse detection/i.test(message);
 }
 
-function freshTrustedRequests(comments, currentHead, headUpdateAnchor) {
+function isTrustedRequiredRequest(item, currentHead, headUpdateAnchor) {
+  if (createdTimeOf(item) < headUpdateAnchor) return false;
+  if (!commandLinesOf(item).includes(CODERABBIT_COMMAND)) return false;
+  if (!hasExactHeadBinding(item, currentHead)) return false;
+  if (TRUSTED_ASSOCIATIONS.has(item.author_association)) return true;
+  return item?.user?.login === "github-actions[bot]" && String(item?.body ?? "").includes(CODERABBIT_MARKER);
+}
+
+function freshRequiredRequests(comments, currentHead, headUpdateAnchor) {
   return comments
-    .filter(
-      (item) =>
-        TRUSTED_ASSOCIATIONS.has(item.author_association) &&
-        createdTimeOf(item) >= headUpdateAnchor &&
-        commandLinesOf(item).includes(CODEX_COMMAND) &&
-        hasExactHeadBinding(item, currentHead),
-    )
+    .filter((item) => isTrustedRequiredRequest(item, currentHead, headUpdateAnchor))
     .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
 }
 
@@ -71,42 +79,49 @@ function isExactHeadCommit(evidenceCommit, currentHead) {
   return currentHead.toLowerCase().startsWith(evidenceCommit);
 }
 
-function isCodexBot(item) {
-  return CODEX_LOGINS.has(item?.user?.login) && item?.user?.type === "Bot";
+function isCodeRabbitBot(item) {
+  return CODERABBIT_LOGINS.has(item?.user?.login) && item?.user?.type === "Bot";
 }
 
 function isSubmittedReview(review) {
   return Boolean(review?.submitted_at) && review.state !== "PENDING" && review.state !== "DISMISSED";
 }
 
-function isFinalCodexCommentEvidence(item) {
+function hasPositiveLimitSignal(body) {
+  const text = String(body ?? "");
+  if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) {
+    return false;
+  }
+  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function isFinalCodeRabbitCommentEvidence(item) {
   const body = String(item?.body ?? "");
+  if (hasPositiveLimitSignal(body)) return false;
+  if (/\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b/i.test(body)) return false;
   return (
-    /here are some automated review suggestions for this pull request/i.test(body) ||
-    /\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body) ||
-    /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
+    /\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b/i.test(body) ||
+    /\breview (?:is )?(?:complete|completed)\b/i.test(body) ||
+    /\b(?:no|did(?:n't| not) find|found no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body)
   );
 }
 
-function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
+function exactHeadCodeRabbitEvidence({ comments, reviews, currentHead, requestAt }) {
   if (requestAt <= 0) return [];
 
   const nativeReviews = reviews.filter(
     (review) =>
-      isCodexBot(review) &&
+      isCodeRabbitBot(review) &&
       isSubmittedReview(review) &&
       submittedTimeOf(review) >= requestAt &&
       isExactHeadCommit(reviewedCommitOf(review), currentHead),
   );
 
-  // A pre-request comment must never become fresh merely because somebody edits it later.
-  // Comment evidence is therefore bound to created_at, not updated_at. It must also carry
-  // a completed-review shape; acknowledgements, progress, quota and error messages are not E4/E5.
   const botComments = comments.filter(
     (comment) =>
-      isCodexBot(comment) &&
+      isCodeRabbitBot(comment) &&
       createdTimeOf(comment) >= requestAt &&
-      isFinalCodexCommentEvidence(comment) &&
+      isFinalCodeRabbitCommentEvidence(comment) &&
       isExactHeadCommit(reviewedCommitOf(comment), currentHead),
   );
 
@@ -115,6 +130,19 @@ function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
     const rightTime = submittedTimeOf(right) || createdTimeOf(right);
     return leftTime - rightTime;
   });
+}
+
+function latestCodeRabbitLimitSignal(comments, requestAt) {
+  if (requestAt <= 0) return null;
+  return comments
+    .filter(
+      (comment) =>
+        isCodeRabbitBot(comment) &&
+        createdTimeOf(comment) >= requestAt &&
+        hasPositiveLimitSignal(comment.body),
+    )
+    .sort((left, right) => createdTimeOf(left) - createdTimeOf(right))
+    .at(-1) ?? null;
 }
 
 function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
@@ -130,23 +158,54 @@ function pullHeadMatches(pull, currentHead) {
 }
 
 function selectRequiredEvidence({ comments, reviews, currentHead, headUpdateAnchor }) {
-  const requests = freshTrustedRequests(comments, currentHead, headUpdateAnchor);
-  const codexRequestAt = requests.length > 0 ? createdTimeOf(requests[0]) : 0;
-  const evidence = exactHeadCodexEvidence({
+  const requests = freshRequiredRequests(comments, currentHead, headUpdateAnchor);
+  const earliestRequestAt = requests.length > 0 ? createdTimeOf(requests[0]) : 0;
+  const latestRequestAt = requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
+  const evidence = exactHeadCodeRabbitEvidence({
     comments,
     reviews,
     currentHead,
-    requestAt: codexRequestAt,
+    requestAt: earliestRequestAt,
   });
+  const limitSignal = evidence.length === 0
+    ? latestCodeRabbitLimitSignal(comments, latestRequestAt)
+    : null;
+
+  if (evidence.length > 0) {
+    return {
+      provider: "CodeRabbit",
+      mode: "coderabbit-required",
+      review: evidence[0],
+      providerLimitWaived: false,
+      requestAt: earliestRequestAt,
+      requestedProviders: ["CodeRabbit"],
+      dormantProviders: [...DORMANT_PROVIDER_NAMES].sort(),
+      advisoryProviders: [...ADVISORY_PROVIDER_NAMES].sort(),
+    };
+  }
+
+  if (limitSignal) {
+    return {
+      provider: "CodeRabbit",
+      mode: "provider-limit-bypass",
+      review: limitSignal,
+      providerLimitWaived: true,
+      requestAt: latestRequestAt,
+      requestedProviders: ["CodeRabbit"],
+      dormantProviders: [...DORMANT_PROVIDER_NAMES].sort(),
+      advisoryProviders: [...ADVISORY_PROVIDER_NAMES].sort(),
+    };
+  }
 
   return {
-    provider: evidence.length > 0 ? "Codex" : null,
-    mode: evidence.length > 0 ? "codex-only" : "pending",
-    review: evidence[0] ?? null,
-    codexRequestAt,
-    requestedProviders: codexRequestAt > 0 ? ["Codex"] : [],
+    provider: null,
+    mode: "pending",
+    review: null,
+    providerLimitWaived: false,
+    requestAt: latestRequestAt,
+    requestedProviders: latestRequestAt > 0 ? ["CodeRabbit"] : [],
     dormantProviders: [...DORMANT_PROVIDER_NAMES].sort(),
-    reserveProviders: [...RESERVE_PROVIDER_NAMES].sort(),
+    advisoryProviders: [...ADVISORY_PROVIDER_NAMES].sort(),
   };
 }
 
@@ -234,30 +293,34 @@ async function verifyAiReviewContract({ github, context, core }) {
             { data: "Required reviewer", header: true },
             { data: "Mode", header: true },
             { data: "Exact head", header: true },
-            { data: "Disabled providers", header: true },
-            { data: "Scheduled reserve", header: true },
+            { data: "Provider-limit waiver", header: true },
+            { data: "Advisory providers", header: true },
           ],
           [
             selection.provider,
             selection.mode,
-            "yes",
-            selection.dormantProviders.join(", ") || "none",
-            selection.reserveProviders.join(", ") || "none",
+            selection.providerLimitWaived ? "request-bound" : "yes",
+            selection.providerLimitWaived ? "yes" : "no",
+            selection.advisoryProviders.join(", ") || "none",
           ],
         ])
         .addRaw(
           `\nStable freshness anchor: GitHub-server created_at of workflow run ${context.runId} for head ${pr.head.sha}. ` +
-            "The trusted request must contain separate `@codex review` and `Exact head: <full SHA>` lines after every head update. " +
-            "Evidence must be published by the authenticated Codex bot after that request and bind to the current commit. " +
-            "Qodo is disabled. CodeRabbit is an advisory scheduled reserve at 09:00, 13:00 and 19:00 Europe/Istanbul; it cannot open, block or satisfy this required gate.\n",
+            "The trusted request must contain separate `@coderabbitai review` and `Exact head: <full SHA>` lines after every head update. " +
+            "A submitted exact-head CodeRabbit review satisfies the gate. A positive authenticated CodeRabbit limit/quota signal published after the latest trusted request activates the documented provider-limit bypass. " +
+            "Silence, progress, generic failure, third-party comments and stale signals never satisfy or waive the gate. Codex and DeepSeek are advisory; Qodo is disabled.\n",
         )
         .write();
-      core.notice(`Verified request-bound Codex review for ${pr.head.sha}.`);
+      if (selection.providerLimitWaived) {
+        core.warning(`CodeRabbit provider-limit waiver verified for ${pr.head.sha}; human approval, CI, cooperation report and D6 remain mandatory.`);
+      } else {
+        core.notice(`Verified request-bound CodeRabbit review for ${pr.head.sha}.`);
+      }
       return;
     }
 
     core.info(
-      `Waiting for Codex exact-head review evidence (${attempt}/${POLL_ATTEMPTS}); ` +
+      `Waiting for CodeRabbit exact-head review or explicit limit signal (${attempt}/${POLL_ATTEMPTS}); ` +
         `requested=${selection?.requestedProviders?.join(",") || "none"}; head=${pr.head.sha}`,
     );
     if (attempt < POLL_ATTEMPTS) {
@@ -266,27 +329,30 @@ async function verifyAiReviewContract({ github, context, core }) {
   }
 
   core.setFailed(
-    "Require request-bound Codex exact-head review evidence. Post `@codex review` and `Exact head: <current full SHA>` on separate lines after every head update. " +
-      "An authenticated submitted Codex review or canonical completed reviewed-commit comment published after that request may satisfy the lane. " +
-      "Acknowledgement, progress, quota, failure and error comments never satisfy it. " +
-      "Qodo is disabled. CodeRabbit is a scheduled advisory reserve and cannot satisfy or block this gate." +
+    "Require request-bound CodeRabbit exact-head review evidence or an explicit authenticated provider-limit signal. " +
+      "Post `@coderabbitai review` and `Exact head: <current full SHA>` on separate lines after every head update. " +
+      "A submitted exact-head CodeRabbit review may satisfy the lane; a positive CodeRabbit limit/quota response after the latest trusted request may waive only the external AI-review step. " +
+      "Silence, progress, generic failure, error and stale comments never satisfy or waive it. Codex and DeepSeek are advisory; Qodo is disabled." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
 }
 
 module.exports = verifyAiReviewContract;
 module.exports._test = {
-  ACTIVE_PROVIDER_NAMES: ["Codex"],
+  ACTIVE_PROVIDER_NAMES: ["CodeRabbit"],
+  ADVISORY_PROVIDER_NAMES,
   AI_REVIEW_WORKFLOW_NAME,
-  CODEX_COMMAND,
+  CODERABBIT_COMMAND,
+  CODERABBIT_MARKER,
   DORMANT_PROVIDER_NAMES,
-  RESERVE_PROVIDER_NAMES,
   commandLinesOf,
-  exactHeadCodexEvidence,
-  freshTrustedRequests,
+  exactHeadCodeRabbitEvidence,
+  freshRequiredRequests,
   hasExactHeadBinding,
+  hasPositiveLimitSignal,
   isExactHeadCommit,
-  isFinalCodexCommentEvidence,
+  isFinalCodeRabbitCommentEvidence,
+  latestCodeRabbitLimitSignal,
   pullHeadMatches,
   reviewedCommitOf,
   selectRequiredEvidence,
