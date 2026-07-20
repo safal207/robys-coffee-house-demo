@@ -1,16 +1,11 @@
 "use strict";
 
 const TRUSTED_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
-const CODEX_LOGINS = new Set([
-  "chatgpt-codex-connector",
-  "chatgpt-codex-connector[bot]",
-]);
 const CODERABBIT_LOGINS = new Set(["coderabbitai", "coderabbitai[bot]"]);
-const CODEX_COMMAND = "@codex review";
 const CODERABBIT_COMMAND = "@coderabbitai review";
-const RESERVE_MARKER = "<!-- coderabbit-reserve -->";
+const REQUEST_MARKER = "<!-- coderabbit-reserve -->";
 const TIME_ZONE = "Europe/Istanbul";
-const CODEX_WAIT_MS = 45 * 60 * 1000;
+const INITIAL_WAIT_MS = 45 * 60 * 1000;
 const RETRY_GAP_MS = 3 * 60 * 60 * 1000;
 const MAX_REQUESTS_PER_LOCAL_DAY = 3;
 const MAX_REQUESTS_PER_RUN = 1;
@@ -25,6 +20,7 @@ const LIMIT_SIGNAL_PATTERNS = [
   /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
   /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
   /next review available in/i,
+  /free tier[^\n]{0,80}limit/i,
 ];
 
 function parseTime(value) {
@@ -78,63 +74,69 @@ function isSubmittedReview(review) {
   return Boolean(review?.submitted_at) && review.state !== "PENDING" && review.state !== "DISMISSED";
 }
 
-function isFinalCodexCommentEvidence(item) {
+function hasPositiveLimitSignal(body) {
+  const text = String(body ?? "");
+  if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) {
+    return false;
+  }
+  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function isFinalCodeRabbitCommentEvidence(item) {
   const body = String(item?.body ?? "");
+  if (hasPositiveLimitSignal(body)) return false;
+  if (/\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b/i.test(body)) return false;
   return (
-    /here are some automated review suggestions for this pull request/i.test(body) ||
-    /\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body) ||
-    /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
+    /\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b/i.test(body) ||
+    /\breview (?:is )?(?:complete|completed)\b/i.test(body) ||
+    /\b(?:no|did(?:n't| not) find|found no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body)
   );
 }
 
-function trustedRequests(comments, command, head, notBefore) {
+function isTrustedRequest(item, head, notBefore) {
+  if (createdTimeOf(item) < notBefore) return false;
+  if (!commandLinesOf(item).includes(CODERABBIT_COMMAND)) return false;
+  if (!hasExactHeadBinding(item, head)) return false;
+  if (TRUSTED_ASSOCIATIONS.has(item.author_association)) return true;
+  return item?.user?.login === "github-actions[bot]" && String(item?.body ?? "").includes(REQUEST_MARKER);
+}
+
+function codeRabbitRequests(comments, head, notBefore) {
   return comments
-    .filter(
-      (comment) =>
-        TRUSTED_ASSOCIATIONS.has(comment.author_association) &&
-        createdTimeOf(comment) >= notBefore &&
-        commandLinesOf(comment).includes(command) &&
-        hasExactHeadBinding(comment, head),
-    )
+    .filter((comment) => isTrustedRequest(comment, head, notBefore))
     .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
 }
 
-function exactHeadEvidence({
-  comments,
-  reviews,
-  logins,
-  head,
-  requestAt,
-  commentPredicate = () => true,
-}) {
+function exactHeadEvidence({ comments, reviews, head, requestAt }) {
   if (requestAt <= 0) return [];
   const nativeReviews = reviews.filter(
     (review) =>
-      isBotFrom(review, logins) &&
+      isBotFrom(review, CODERABBIT_LOGINS) &&
       isSubmittedReview(review) &&
       submittedTimeOf(review) >= requestAt &&
       isExactHeadCommit(reviewedCommitOf(review), head),
   );
   const botComments = comments.filter(
     (comment) =>
-      isBotFrom(comment, logins) &&
+      isBotFrom(comment, CODERABBIT_LOGINS) &&
       createdTimeOf(comment) >= requestAt &&
-      commentPredicate(comment) &&
+      isFinalCodeRabbitCommentEvidence(comment) &&
       isExactHeadCommit(reviewedCommitOf(comment), head),
   );
   return [...nativeReviews, ...botComments];
 }
 
-function reserveRequests(comments, head) {
+function latestCodeRabbitLimitSignal(comments, requestAt) {
+  if (requestAt <= 0) return undefined;
   return comments
     .filter(
       (comment) =>
-        comment?.user?.login === "github-actions[bot]" &&
-        String(comment?.body ?? "").includes(RESERVE_MARKER) &&
-        commandLinesOf(comment).includes(CODERABBIT_COMMAND) &&
-        hasExactHeadBinding(comment, head),
+        isBotFrom(comment, CODERABBIT_LOGINS) &&
+        createdTimeOf(comment) >= requestAt &&
+        hasPositiveLimitSignal(comment.body),
     )
-    .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
+    .sort((left, right) => createdTimeOf(left) - createdTimeOf(right))
+    .at(-1);
 }
 
 function localDateKey(timestampMs) {
@@ -146,30 +148,6 @@ function localDateKey(timestampMs) {
   }).formatToParts(new Date(timestampMs));
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
-}
-
-function hasPositiveLimitSignal(body) {
-  const text = String(body ?? "");
-  if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) {
-    return false;
-  }
-  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
-}
-
-function latestCodeRabbitLimitSignal(comments, notBefore) {
-  return comments
-    .filter(
-      (comment) =>
-        isBotFrom(comment, CODERABBIT_LOGINS) &&
-        Math.max(createdTimeOf(comment), updatedTimeOf(comment)) >= notBefore &&
-        hasPositiveLimitSignal(comment.body),
-    )
-    .sort(
-      (left, right) =>
-        Math.max(createdTimeOf(left), updatedTimeOf(left)) -
-        Math.max(createdTimeOf(right), updatedTimeOf(right)),
-    )
-    .at(-1);
 }
 
 function headCommitTime(headCommit) {
@@ -193,83 +171,53 @@ function evaluateCandidate({ pull, comments, reviews, headCommit, nowMs }) {
 
   const headAt = headCommitTime(headCommit);
   if (headAt <= 0) return { eligible: false, reason: "MISSING_HEAD_TIME", head };
-
-  const codexRequests = trustedRequests(comments, CODEX_COMMAND, head, headAt);
-  if (codexRequests.length === 0) {
-    return { eligible: false, reason: "NO_CODEX_REQUEST", head };
+  if (nowMs - headAt < INITIAL_WAIT_MS) {
+    return { eligible: false, reason: "HEAD_WAIT", head };
   }
 
-  const earliestCodexRequestAt = createdTimeOf(codexRequests[0]);
-  const latestCodexRequestAt = createdTimeOf(codexRequests.at(-1));
-  const codexEvidence = exactHeadEvidence({
-    comments,
-    reviews,
-    logins: CODEX_LOGINS,
-    head,
-    requestAt: earliestCodexRequestAt,
-    commentPredicate: isFinalCodexCommentEvidence,
-  });
-  if (codexEvidence.length > 0) {
-    return { eligible: false, reason: "CODEX_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
-  }
+  const requests = codeRabbitRequests(comments, head, headAt);
+  const earliestRequestAt = requests.length > 0 ? createdTimeOf(requests[0]) : 0;
+  const latestRequestAt = requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
 
-  if (nowMs - latestCodexRequestAt < CODEX_WAIT_MS) {
-    return { eligible: false, reason: "CODEX_WAIT", head, codexRequestAt: latestCodexRequestAt };
-  }
-
-  const requests = reserveRequests(comments, head);
-  const earliestReserveAt = requests.length > 0 ? createdTimeOf(requests[0]) : 0;
-  const latestReserveAt = requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
-  if (earliestReserveAt > 0) {
-    const rabbitEvidence = exactHeadEvidence({
-      comments,
-      reviews,
-      logins: CODERABBIT_LOGINS,
-      head,
-      requestAt: earliestReserveAt,
-    });
-    if (rabbitEvidence.length > 0) {
-      return { eligible: false, reason: "CODERABBIT_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
+  if (earliestRequestAt > 0) {
+    const evidence = exactHeadEvidence({ comments, reviews, head, requestAt: earliestRequestAt });
+    if (evidence.length > 0) {
+      return { eligible: false, reason: "CODERABBIT_COMPLETE", head };
     }
   }
 
-  if (latestReserveAt > 0 && nowMs - latestReserveAt < RETRY_GAP_MS) {
-    return { eligible: false, reason: "RESERVE_COOLDOWN", head, codexRequestAt: latestCodexRequestAt };
+  const limitSignal = latestCodeRabbitLimitSignal(comments, latestRequestAt);
+  if (limitSignal) {
+    return { eligible: false, reason: "PROVIDER_LIMIT_WAIVED", head };
+  }
+
+  if (latestRequestAt > 0 && nowMs - latestRequestAt < RETRY_GAP_MS) {
+    return { eligible: false, reason: "REQUEST_COOLDOWN", head };
   }
 
   const today = localDateKey(nowMs);
   const requestsToday = requests.filter((request) => localDateKey(createdTimeOf(request)) === today).length;
   if (requestsToday >= MAX_REQUESTS_PER_LOCAL_DAY) {
-    return { eligible: false, reason: "DAILY_HEAD_CAP", head, codexRequestAt: latestCodexRequestAt };
-  }
-
-  const latestLimit = latestReserveAt > 0
-    ? latestCodeRabbitLimitSignal(comments, latestReserveAt)
-    : undefined;
-  const latestLimitAt = latestLimit
-    ? Math.max(createdTimeOf(latestLimit), updatedTimeOf(latestLimit))
-    : 0;
-  if (latestLimitAt > 0 && nowMs - latestLimitAt < RETRY_GAP_MS) {
-    return { eligible: false, reason: "PROVIDER_LIMIT_COOLDOWN", head, codexRequestAt: latestCodexRequestAt };
+    return { eligible: false, reason: "DAILY_HEAD_CAP", head };
   }
 
   return {
     eligible: true,
-    reason: "CODEX_MISSING_AFTER_WAIT",
+    reason: requests.length === 0 ? "INITIAL_REQUIRED_REQUEST" : "RETRY_REQUIRED_REQUEST",
     head,
-    codexRequestAt: latestCodexRequestAt,
     requestsToday,
     draft: Boolean(pull.draft),
     pullNumber: pull.number,
+    waitingSince: latestRequestAt || headAt,
   };
 }
 
-function reserveWindowLabel(context) {
+function requestWindowLabel(context) {
   return WINDOW_LABELS.get(context?.payload?.schedule) ?? "manual";
 }
 
 function requestBody({ head, windowLabel }) {
-  return `${RESERVE_MARKER}\n${CODERABBIT_COMMAND}\n\nExact head: ${head}\nReserve window: ${windowLabel} ${TIME_ZONE}\nReason: Codex exact-head evidence is still missing after the bounded 45-minute wait.\nPolicy: advisory emergency reserve only; CodeRabbit cannot replace or satisfy Codex, and its absence never blocks readiness.`;
+  return `${REQUEST_MARKER}\n${CODERABBIT_COMMAND}\n\nExact head: ${head}\nRequest window: ${windowLabel} ${TIME_ZONE}\nReason: required CodeRabbit exact-head evidence is still missing.\nPolicy: a final review satisfies the AI lane; an explicit authenticated limit/quota response activates only the documented provider-limit waiver. Human approval, CI, dispositions and D6 remain mandatory.`;
 }
 
 async function loadCandidateData({ github, owner, repo, pull }) {
@@ -292,7 +240,7 @@ async function loadCandidateData({ github, owner, repo, pull }) {
   return { comments, reviews, headCommit: headCommit.data };
 }
 
-async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.now() }) {
+async function dispatchCodeRabbitRequest({ github, context, core, nowMs = Date.now() }) {
   const { owner, repo } = context.repo;
   const inputs = context.payload.inputs ?? {};
   const requestedNumber = Number.parseInt(String(inputs.pr_number ?? ""), 10);
@@ -316,7 +264,7 @@ async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.n
   if (expectedHead) {
     if (pulls.length !== 1 || pulls[0]?.head?.sha?.toLowerCase() !== expectedHead) {
       core.setFailed(
-        `Manual reserve input is stale: expected head ${expectedHead}, current head ${pulls[0]?.head?.sha ?? "unknown"}.`,
+        `Manual CodeRabbit input is stale: expected head ${expectedHead}, current head ${pulls[0]?.head?.sha ?? "unknown"}.`,
       );
       return;
     }
@@ -337,11 +285,11 @@ async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.n
     .sort((left, right) => {
       const draftDelta = Number(left.draft) - Number(right.draft);
       if (draftDelta !== 0) return draftDelta;
-      return left.codexRequestAt - right.codexRequestAt;
+      return left.waitingSince - right.waitingSince;
     })
     .slice(0, MAX_REQUESTS_PER_RUN);
 
-  const windowLabel = reserveWindowLabel(context);
+  const windowLabel = requestWindowLabel(context);
   for (const item of eligible) {
     await github.rest.issues.createComment({
       owner,
@@ -349,9 +297,7 @@ async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.n
       issue_number: item.pull.number,
       body: requestBody({ head: item.head, windowLabel }),
     });
-    core.notice(
-      `Requested advisory CodeRabbit reserve review for PR #${item.pull.number} at ${item.head}; window=${windowLabel}.`,
-    );
+    core.notice(`Requested required CodeRabbit review for PR #${item.pull.number} at ${item.head}; window=${windowLabel}.`);
   }
 
   const reasonCounts = new Map();
@@ -359,7 +305,7 @@ async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.n
     reasonCounts.set(item.reason, (reasonCounts.get(item.reason) ?? 0) + 1);
   }
   await core.summary
-    .addHeading("CodeRabbit reserve windows")
+    .addHeading("CodeRabbit required-review windows")
     .addTable([
       [
         { data: "Window", header: true },
@@ -370,32 +316,30 @@ async function dispatchCodeRabbitReserve({ github, context, core, nowMs = Date.n
       [windowLabel, String(evaluated.length), String(eligible.length), String(MAX_REQUESTS_PER_RUN)],
     ])
     .addRaw(
-      `\nSchedule: 09:00, 13:00 and 19:00 ${TIME_ZONE}. Codex wait: 45 minutes. ` +
+      `\nSchedule: 09:00, 13:00 and 19:00 ${TIME_ZONE}. Initial head wait: 45 minutes. ` +
         `Per-head local-day cap: ${MAX_REQUESTS_PER_LOCAL_DAY}. Retry gap: ${RETRY_GAP_MS / 3_600_000} hours. ` +
         `Skipped: ${[...reasonCounts.entries()].map(([reason, count]) => `${reason}=${count}`).join(", ") || "none"}.\n`,
     )
     .write();
 }
 
-module.exports = dispatchCodeRabbitReserve;
+module.exports = dispatchCodeRabbitRequest;
 module.exports._test = {
-  CODEX_COMMAND,
   CODERABBIT_COMMAND,
-  CODEX_WAIT_MS,
+  INITIAL_WAIT_MS,
   MAX_REQUESTS_PER_LOCAL_DAY,
   MAX_REQUESTS_PER_RUN,
-  RESERVE_MARKER,
+  REQUEST_MARKER,
   RETRY_GAP_MS,
   TIME_ZONE,
+  codeRabbitRequests,
   commandLinesOf,
   evaluateCandidate,
   exactHeadEvidence,
   hasExactHeadBinding,
   hasPositiveLimitSignal,
-  isFinalCodexCommentEvidence,
+  isFinalCodeRabbitCommentEvidence,
   localDateKey,
   requestBody,
-  reserveRequests,
   reviewedCommitOf,
-  trustedRequests,
 };
