@@ -16,17 +16,16 @@ from typing import Any
 
 COMMENT_MARKER = '<!-- ai-review-cooperation -->'
 DEEPSEEK_MARKER = '<!-- deepseek-pr-review -->'
-CODERABBIT_RESERVE_MARKER = '<!-- coderabbit-reserve -->'
+CODERABBIT_MARKER = '<!-- coderabbit-reserve -->'
 DEFAULT_COMMENT_PATH = Path(tempfile.mkdtemp(prefix='ai-review-cooperation-')) / 'comment.json'
 TRUSTED_ASSOCIATIONS = {'OWNER', 'MEMBER', 'COLLABORATOR'}
 BOT_LOGINS = {
-    'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
     'CodeRabbit': {'coderabbitai', 'coderabbitai[bot]'},
+    'Codex': {'chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'},
     'Jules': {'jules', 'jules[bot]', 'google-labs-jules[bot]'},
 }
-ACTIVE_REVIEWERS = {'Codex'}
-RESERVE_REVIEWERS = {'CodeRabbit'}
-ADVISORY_REVIEWERS = {'Jules', 'DeepSeek'}
+ACTIVE_REVIEWERS = {'CodeRabbit'}
+ADVISORY_REVIEWERS = {'Codex', 'Jules', 'DeepSeek'}
 DORMANT_REVIEWERS = {'Qodo'}
 REQUIRED_CHECKS = {
     'Human approval contract', 'Security contract', 'Verify generated runtime',
@@ -55,6 +54,14 @@ DISPOSITION_TARGET_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 MARKDOWN_RE = re.compile(r'[`*_>#\[\]()!]+')
+LIMIT_SIGNAL_PATTERNS = (
+    re.compile(r'review limit reached', re.IGNORECASE),
+    re.compile(r'rate limit (?:has been )?(?:reached|exceeded|exhausted)', re.IGNORECASE),
+    re.compile(r'quota (?:has been )?(?:reached|exceeded|exhausted)', re.IGNORECASE),
+    re.compile(r'usage limit (?:has been )?(?:reached|exceeded|exhausted)', re.IGNORECASE),
+    re.compile(r'next review available in', re.IGNORECASE),
+    re.compile(r'free tier[^\n]{0,80}limit', re.IGNORECASE),
+)
 
 
 @dataclass
@@ -67,6 +74,7 @@ class BotResult:
     action: str
     findings: dict[str, int]
     finding_keys: set[str] = field(default_factory=set)
+    waived: bool = False
 
 
 @dataclass
@@ -113,11 +121,8 @@ def time_of(item: dict[str, Any]) -> datetime:
 
 def latest_time_of(item: dict[str, Any]) -> datetime:
     values = [
-        item.get('submitted_at'),
-        item.get('created_at'),
-        item.get('createdAt'),
-        item.get('updated_at'),
-        item.get('updatedAt'),
+        item.get('submitted_at'), item.get('created_at'), item.get('createdAt'),
+        item.get('updated_at'), item.get('updatedAt'),
     ]
     return max((parse_time(str(value)) for value in values if value), default=parse_time(None))
 
@@ -140,6 +145,34 @@ def reviewed_commit_of(item: dict[str, Any]) -> str | None:
 def current_head_evidence(item: dict[str, Any], head_sha: str) -> bool:
     reviewed = reviewed_commit_of(item)
     return bool(reviewed and len(reviewed) >= 7 and head_sha.lower().startswith(reviewed))
+
+
+def has_positive_limit_signal(body: str) -> bool:
+    text = str(body or '')
+    if re.search(
+        r'\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b',
+        text,
+        re.IGNORECASE,
+    ):
+        return False
+    return any(pattern.search(text) for pattern in LIMIT_SIGNAL_PATTERNS)
+
+
+def is_final_coderabbit_comment_evidence(item: dict[str, Any]) -> bool:
+    body = body_of(item)
+    if has_positive_limit_signal(body):
+        return False
+    if re.search(r'\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b', body, re.IGNORECASE):
+        return False
+    return bool(
+        re.search(r'\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b', body, re.IGNORECASE)
+        or re.search(r'\breview (?:is )?(?:complete|completed)\b', body, re.IGNORECASE)
+        or re.search(
+            r"\b(?:no|did(?:n't| not) find|found no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b",
+            body,
+            re.IGNORECASE,
+        )
+    )
 
 
 def is_final_codex_comment_evidence(item: dict[str, Any]) -> bool:
@@ -202,15 +235,8 @@ def combined_findings(bots: Iterable[BotResult]) -> dict[str, int]:
 
 
 def dispositioned_issue_comment_ids(comments: list[dict[str, Any]], head_sha: str) -> set[str]:
-    by_id = {
-        str(item.get('id')): item
-        for item in comments
-        if item.get('id') is not None
-    }
-    exact_head_re = re.compile(
-        rf'^Head:\s*{re.escape(head_sha)}\s*$',
-        re.IGNORECASE | re.MULTILINE,
-    )
+    by_id = {str(item.get('id')): item for item in comments if item.get('id') is not None}
+    exact_head_re = re.compile(rf'^Head:\s*{re.escape(head_sha)}\s*$', re.IGNORECASE | re.MULTILINE)
     dispositioned: set[str] = set()
     for reply in comments:
         body = body_of(reply).replace('`', '')
@@ -228,12 +254,8 @@ def dispositioned_issue_comment_ids(comments: list[dict[str, Any]], head_sha: st
     return dispositioned
 
 
-def active_finding_items(items: Iterable[dict[str, Any]],
-                         dispositioned_ids: set[str]) -> list[dict[str, Any]]:
-    return [
-        item for item in items
-        if str(item.get('id')) not in dispositioned_ids
-    ]
+def active_finding_items(items: Iterable[dict[str, Any]], dispositioned_ids: set[str]) -> list[dict[str, Any]]:
+    return [item for item in items if str(item.get('id')) not in dispositioned_ids]
 
 
 def flatten_threads(data: dict[str, Any]) -> tuple[bool, bool, list[dict[str, Any]]]:
@@ -268,17 +290,29 @@ def fresh_requests(comments: list[dict[str, Any]], command: str, head_time: date
     return result
 
 
-def fresh_reserve_requests(comments: list[dict[str, Any]], head_time: datetime,
-                           head_sha: str) -> list[dict[str, Any]]:
+def fresh_action_requests(comments: list[dict[str, Any]], head_time: datetime,
+                          head_sha: str) -> list[dict[str, Any]]:
     expected_head = f'exact head: {head_sha.lower()}'
     return [
         item for item in comments
         if login_of(item) == 'github-actions[bot]'
-        and CODERABBIT_RESERVE_MARKER in body_of(item)
+        and CODERABBIT_MARKER in body_of(item)
         and '@coderabbitai review' in command_lines(item)
         and expected_head in command_lines(item)
         and is_after_head(item, head_time)
     ]
+
+
+def unique_items(items: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in sorted(items, key=time_of):
+        identity = str(item.get('id') or item.get('node_id') or f'{login_of(item)}:{time_of(item).isoformat()}:{body_of(item)}')
+        if identity in seen:
+            continue
+        seen.add(identity)
+        result.append(item)
+    return result
 
 
 def bot_items(items: Iterable[dict[str, Any]], allowed_logins: set[str],
@@ -293,6 +327,17 @@ def request_bound_exact_items(items: Iterable[dict[str, Any]], requests: list[di
         return []
     request_at = min(time_of(item) for item in requests)
     return [item for item in items if current_head_evidence(item, head_sha) and time_of(item) >= request_at]
+
+
+def latest_limit_signal(items: Iterable[dict[str, Any]], requests: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not requests:
+        return None
+    latest_request_at = max(time_of(item) for item in requests)
+    signals = [
+        item for item in items
+        if time_of(item) >= latest_request_at and has_positive_limit_signal(body_of(item))
+    ]
+    return max(signals, key=time_of, default=None)
 
 
 def result_from_exact_evidence(*, name: str, requested: bool,
@@ -321,13 +366,6 @@ def dormant_result(name: str) -> BotResult:
                      f'No action; {name} is disabled.', {f'P{i}': 0 for i in range(4)}, set())
 
 
-def reserve_standby_result(name: str) -> BotResult:
-    return BotResult(
-        name, False, 'E0', 'scheduled reserve', 'SCHEDULED_RESERVE',
-        'No action unless Codex remains unavailable at the next 09:00, 13:00 or 19:00 Europe/Istanbul window.',
-        {f'P{i}': 0 for i in range(4)}, set())
-
-
 def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
                   reviews: list[dict[str, Any]], review_comments: list[dict[str, Any]],
                   threads: list[dict[str, Any]], threads_available: bool,
@@ -338,46 +376,62 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
     review_surface = reviews + (threads if threads_available else review_comments)
     dispositioned_ids = dispositioned_issue_comment_ids(comments, head_sha)
 
+    rabbit_requests = unique_items(
+        fresh_requests(comments, '@coderabbitai review', head_time, head_sha)
+        + fresh_action_requests(comments, head_time, head_sha)
+    )
+    rabbit_review_items = bot_items(review_surface, BOT_LOGINS['CodeRabbit'], head_time)
+    rabbit_comment_items = [
+        item for item in bot_items(comments, BOT_LOGINS['CodeRabbit'], head_time)
+        if is_final_coderabbit_comment_evidence(item)
+    ]
+    rabbit_exact = request_bound_exact_items(
+        rabbit_review_items + rabbit_comment_items,
+        rabbit_requests,
+        head_sha,
+    )
+    rabbit_limit = latest_limit_signal(
+        bot_items(comments, BOT_LOGINS['CodeRabbit'], head_time),
+        rabbit_requests,
+    ) if not rabbit_exact else None
+    if rabbit_exact:
+        coderabbit = result_from_exact_evidence(
+            name='CodeRabbit', requested=True, exact_items=rabbit_exact,
+            finding_items=active_finding_items(rabbit_exact, dispositioned_ids),
+            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+            no_evidence_action='Wait for the request-bound CodeRabbit review.')
+    elif rabbit_limit:
+        coderabbit = BotResult(
+            'CodeRabbit', True, 'E2', 'provider limit waived', 'QUOTA_EXHAUSTED',
+            'Proceed only with green CI, human approval, a refreshed report and a later D6 seal.',
+            {f'P{i}': 0 for i in range(4)}, set(), True)
+    else:
+        coderabbit = result_from_exact_evidence(
+            name='CodeRabbit', requested=bool(rabbit_requests), exact_items=[],
+            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
+            no_evidence_action='Wait for CodeRabbit or an explicit authenticated limit/quota response.')
+
     codex_req = fresh_requests(comments, '@codex review', head_time, head_sha)
     codex_review_items = bot_items(review_surface, BOT_LOGINS['Codex'], head_time)
     codex_comment_items = [
         item for item in bot_items(comments, BOT_LOGINS['Codex'], head_time)
         if is_final_codex_comment_evidence(item)
     ]
-    codex_exact = request_bound_exact_items(
-        codex_review_items + codex_comment_items,
-        codex_req,
-        head_sha,
-    )
+    codex_exact = request_bound_exact_items(codex_review_items + codex_comment_items, codex_req, head_sha)
     codex = result_from_exact_evidence(
-        name='Codex', requested=bool(codex_req),
-        exact_items=codex_exact,
+        name='Codex', requested=bool(codex_req), exact_items=codex_exact,
         finding_items=active_finding_items(codex_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Wait within the bounded window, then retry once with @codex review.')
-
-    rabbit_req = fresh_reserve_requests(comments, head_time, head_sha)
-    rabbit_items = bot_items(comments + review_surface, BOT_LOGINS['CodeRabbit'], head_time)
-    rabbit_exact = request_bound_exact_items(rabbit_items, rabbit_req, head_sha)
-    coderabbit = (
-        result_from_exact_evidence(
-            name='CodeRabbit', requested=True,
-            exact_items=rabbit_exact,
-            finding_items=active_finding_items(rabbit_exact, dispositioned_ids),
-            no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-            no_evidence_action='Wait until the next bounded reserve window; do not retry immediately.')
-        if rabbit_req else reserve_standby_result('CodeRabbit')
-    )
+        no_evidence_action='Codex is advisory; no merge-blocking action is required.')
 
     jules_req = fresh_requests(comments, '@jules review', head_time)
     jules_items = bot_items(comments + review_surface, BOT_LOGINS['Jules'], head_time)
     jules_exact = request_bound_exact_items(jules_items, jules_req, head_sha)
     jules = result_from_exact_evidence(
-        name='Jules', requested=bool(jules_req),
-        exact_items=jules_exact,
+        name='Jules', requested=bool(jules_req), exact_items=jules_exact,
         finding_items=active_finding_items(jules_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE' if jules_items else 'NO_ACK',
-        no_evidence_action='Retry once after 15 minutes; keep the gap advisory.')
+        no_evidence_action='Jules is advisory; retry only when useful.')
 
     deep_req = [item for command in ('/deepseek review', '/deepseek deep-review')
                 for item in fresh_requests(comments, command, head_time)]
@@ -388,13 +442,13 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         name='DeepSeek', requested=bool(deep_req), exact_items=deep_exact,
         finding_items=active_finding_items(deep_exact, dispositioned_ids),
         no_evidence_reason='NO_CURRENT_HEAD_EVIDENCE',
-        no_evidence_action='Inspect the DeepSeek workflow result and retry once.')
+        no_evidence_action='DeepSeek is advisory; inspect or retry when useful.')
     latest_deep = max(deep_items, key=time_of, default=None)
     if latest_deep and 'status:** failed' in body_of(latest_deep).lower():
         match = REASON_CODE_RE.search(body_of(latest_deep))
         deepseek.level, deepseek.state = 'E2', 'failed'
         deepseek.reason = match.group(1).upper() if match else 'PROVIDER_UNAVAILABLE'
-        deepseek.action = 'Apply the reason-code policy, then rerun on the same head.'
+        deepseek.action = 'Apply the advisory reason-code policy.'
         deepseek.findings = {f'P{i}': 0 for i in range(4)}
         deepseek.finding_keys.clear()
     elif deep_req and not deep_exact and '.github/workflows/deepseek-review.yml' in changed_paths:
@@ -402,7 +456,7 @@ def classify_bots(*, pr: dict[str, Any], comments: list[dict[str, Any]],
         deepseek.reason = 'BOOTSTRAP_NOT_ON_DEFAULT_BRANCH'
         deepseek.action = 'Merge the bootstrap reviewer first, then test it on another PR.'
 
-    return [codex, dormant_result('Qodo'), coderabbit, jules, deepseek]
+    return [coderabbit, dormant_result('Qodo'), codex, jules, deepseek]
 
 
 def classify_checks(checks: dict[str, Any]) -> CheckSummary:
@@ -434,19 +488,25 @@ def classify_checks(checks: dict[str, Any]) -> CheckSummary:
 def overall_conclusion(bots: list[BotResult], *, checks: CheckSummary,
                        evidence_complete: bool) -> tuple[str, str]:
     combined = combined_findings(bots)
-    codex = next(bot for bot in bots if bot.name == 'Codex')
+    required = next(bot for bot in bots if bot.name == 'CodeRabbit')
     if checks.failed_names or combined['P0'] or combined['P1']:
         return 'BLOCK', 'Required CI or a P0/P1 finding blocks merge.'
     if combined['P2']:
-        return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request a fresh Codex exact-head review.'
+        return 'FIX_THEN_RERUN', 'Resolve every unique P2 root cause and request a fresh exact-head review.'
     if not evidence_complete:
         return 'WAIT_FOR_EVIDENCE', 'Evidence pagination was incomplete; READY is forbidden.'
-    if checks.pending or not codex.requested or codex.level not in {'E4', 'E5'}:
-        return 'WAIT_FOR_EVIDENCE', 'Required CI or request-bound Codex exact-head evidence is still incomplete.'
+    if checks.pending or not required.requested:
+        return 'WAIT_FOR_EVIDENCE', 'Required CI or the exact-head CodeRabbit request is still incomplete.'
+    required_complete = required.level in {'E4', 'E5'}
+    required_limit_waived = required.waived and required.reason == 'QUOTA_EXHAUSTED'
+    if not required_complete and not required_limit_waived:
+        return 'WAIT_FOR_EVIDENCE', 'CodeRabbit has neither final exact-head evidence nor an authenticated limit waiver.'
     gaps = [bot.name for bot in bots if bot.name in ADVISORY_REVIEWERS and bot.level not in {'E4', 'E5'}]
+    if required_limit_waived:
+        gaps.insert(0, 'CodeRabbit')
     if gaps:
-        return 'READY_WITH_ADVISORY_GAPS', 'Required evidence is green; advisory gaps: ' + ', '.join(gaps) + '.'
-    return 'READY', 'Required CI and request-bound Codex exact-head evidence are complete.'
+        return 'READY_WITH_ADVISORY_GAPS', 'Required controls are green; documented gaps: ' + ', '.join(dict.fromkeys(gaps)) + '.'
+    return 'READY', 'Required CI and request-bound CodeRabbit exact-head evidence are complete.'
 
 
 def findings_text(findings: dict[str, int]) -> str:
@@ -486,11 +546,11 @@ def build_report(*, pr: dict[str, Any], head_commit: dict[str, Any], comments: l
     check_summary = classify_checks(checks)
     conclusion, why = overall_conclusion(bots, checks=check_summary, evidence_complete=complete)
     unique = combined_findings(bots)
-    table = ['| Reviewer | Request | Evidence | State | Findings | Cause | Next action |',
-             '|---|---:|---|---|---|---|---|']
+    table = ['| Reviewer | Request | Evidence | State | Waived | Findings | Cause | Next action |',
+             '|---|---:|---|---|---:|---|---|---|']
     for bot in bots:
         table.append(f'| {bot.name} | {"yes" if bot.requested else "no"} | {bot.level} | {bot.state} | '
-                     f'{findings_text(bot.findings)} | `{bot.reason}` | {bot.action} |')
+                     f'{"yes" if bot.waived else "no"} | {findings_text(bot.findings)} | `{bot.reason}` | {bot.action} |')
     graph = mermaid_graph(bots, head_sha=head_sha, checks=check_summary,
                           evidence_complete=complete, conclusion=conclusion)
     failed = ', '.join(check_summary.failed_names) or 'none'
@@ -530,7 +590,7 @@ Trusted exact-head issue-comment dispositions remove only the referenced finding
 
 ### Decision policy
 
-The conclusion is causal, not a majority vote: required executable CI and request-bound exact-head Codex evidence dominate; Qodo is disabled; CodeRabbit is a bounded scheduled advisory reserve at 09:00, 13:00 and 19:00 Europe/Istanbul and its absence never blocks readiness. Verified CodeRabbit findings still enter the causal finding graph. Duplicate findings are collapsed by normalized root-cause signature; stale, spoofed, pre-request, resolved, dispositioned, truncated, failed, progress, quota, error, or acknowledgement-only responses never count as active merge findings or completed Codex evidence.
+The conclusion is causal, not a majority vote. Required executable CI, human approval and the request-bound CodeRabbit lane dominate. A submitted exact-head CodeRabbit review produces normal E4/E5 evidence. A positive authenticated CodeRabbit limit/quota response after the latest trusted exact-head request may waive only the external AI-review step and yields `READY_WITH_ADVISORY_GAPS`; silence, progress, generic failure, stale output or third-party claims never waive it. Codex, Jules and DeepSeek are advisory; Qodo is disabled. All active P0–P3 findings still require resolution or exact-head disposition, and D6 must be posted after the latest evidence and dispositions.
 
 _Refresh with `/ai-cooperation report`. Policy: `docs/ai-review-cooperation-policy.md`._
 '''
