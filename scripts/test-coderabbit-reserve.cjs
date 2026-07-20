@@ -48,6 +48,15 @@ function codexComment(label = "**Reviewed commit:**", overrides = {}) {
   });
 }
 
+function nonFinalCodexComment(body) {
+  return comment(`${body}\n\n**Reviewed commit:** \`${HEAD.slice(0, 10)}\``, {
+    created_at: "2026-07-18T08:30:00Z",
+    updated_at: "2026-07-18T08:30:00Z",
+    author_association: "NONE",
+    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+  });
+}
+
 function codexReview(overrides = {}) {
   return {
     body: "Clean review",
@@ -116,6 +125,16 @@ for (const label of ["**Reviewed commit:**", "_Reviewed commit:_", "*Reviewed co
   assert.equal(codexCommentComplete.reason, "CODEX_COMPLETE");
 }
 
+for (const body of [
+  "Codex review started and is in progress.",
+  "Codex review failed because the provider is unavailable.",
+  "Codex review quota exceeded; retry later.",
+]) {
+  const nonFinal = evaluate({ comments: [codexRequest(), nonFinalCodexComment(body)] });
+  assert.equal(nonFinal.eligible, true, "non-final Codex comments must not suppress reserve dispatch");
+  assert.equal(nonFinal.reason, "CODEX_MISSING_AFTER_WAIT");
+}
+
 const codexCompleteBeforeDuplicateRequest = evaluate({
   comments: [
     codexRequest(),
@@ -132,7 +151,14 @@ const tooSoon = evaluate({
 assert.equal(tooSoon.eligible, false);
 assert.equal(tooSoon.reason, "CODEX_WAIT");
 
-const rabbitComplete = evaluate({ comments: [codexRequest()], reviews: [rabbitReview()] });
+const staleRabbitBeforeMarker = evaluate({ comments: [codexRequest()], reviews: [rabbitReview()] });
+assert.equal(staleRabbitBeforeMarker.eligible, true);
+assert.equal(staleRabbitBeforeMarker.reason, "CODEX_MISSING_AFTER_WAIT");
+
+const rabbitComplete = evaluate({
+  comments: [codexRequest(), reserveRequest("2026-07-18T06:00:00Z")],
+  reviews: [rabbitReview()],
+});
 assert.equal(rabbitComplete.eligible, false);
 assert.equal(rabbitComplete.reason, "CODERABBIT_COMPLETE");
 
@@ -150,6 +176,20 @@ const dailyCap = evaluate({
 });
 assert.equal(dailyCap.eligible, false);
 assert.equal(dailyCap.reason, "DAILY_HEAD_CAP");
+
+const staleLimitBeforeMarker = evaluate({
+  comments: [
+    codexRequest(),
+    comment("Review limit reached. Next review available in 2 hours.", {
+      created_at: "2026-07-18T09:15:00Z",
+      updated_at: "2026-07-18T09:15:00Z",
+      author_association: "NONE",
+      user: { login: "coderabbitai[bot]", type: "Bot" },
+    }),
+  ],
+});
+assert.equal(staleLimitBeforeMarker.eligible, true);
+assert.equal(staleLimitBeforeMarker.reason, "CODEX_MISSING_AFTER_WAIT");
 
 const limitCooldown = evaluate({
   comments: [
@@ -183,4 +223,4 @@ assert(body.includes(`Exact head: ${HEAD}`));
 assert(body.includes("13:00 Europe/Istanbul"));
 assert(body.includes("cannot replace or satisfy Codex"));
 
-console.log("✅ CODERABBIT-RESERVE-001 passed: bounded 09:00/13:00/19:00 Istanbul reserve requests activate only after Codex remains unavailable, and plain/bold/italic Codex evidence suppresses reserve dispatch.");
+console.log("✅ CODERABBIT-RESERVE-001 passed: bounded reserve dispatch requires final Codex evidence semantics and a trusted reserve marker before CodeRabbit evidence or limit signals can suppress a probe.");
