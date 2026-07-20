@@ -49,6 +49,8 @@ assert(ledgerWorkflow.includes("const codeRabbitIssueCommentIsExactHead = (item)
 assert(ledgerWorkflow.includes("(exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))"));
 assert(ledgerWorkflow.includes("return reserveRequested && codeRabbitIssueCommentIsExactHead(item);"));
 assert(ledgerWorkflow.includes("...issueComments.filter(codeRabbitIssueCommentIsExactHead),"));
+assert(ledgerWorkflow.includes("const codeRabbitFindingEvidence = ["));
+assert(ledgerWorkflow.includes("...codeRabbitEvidence.filter((item) => hasFindingSeverity(item.body)),"));
 
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
@@ -73,6 +75,19 @@ const commentEvidence = verifier.selectRequiredEvidence({
 });
 assert.equal(commentEvidence.provider, "Codex");
 
+const suggestionsCommentEvidence = verifier.selectRequiredEvidence({
+  comments: [
+    request(),
+    codexComment({
+      body: `### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+    }),
+  ],
+  reviews: [],
+  currentHead: head,
+  headUpdateAnchor: anchor,
+});
+assert.equal(suggestionsCommentEvidence.provider, "Codex");
+
 for (const label of ["_Reviewed commit:_", "*Reviewed commit:*"]) {
   const italicCommentEvidence = verifier.selectRequiredEvidence({
     comments: [
@@ -83,7 +98,21 @@ for (const label of ["_Reviewed commit:_", "*Reviewed commit:*"]) {
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert.equal(italicCommentEvidence.provider, "Codex", `${label} should bind Codex comment evidence`);
+  assert.equal(italicCommentEvidence.provider, "Codex", `${label} should bind completed Codex comment evidence`);
+}
+
+for (const body of [
+  `Codex review started and is in progress.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+  `Codex review failed because the provider is unavailable.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+  `Codex review quota exceeded; retry later.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+]) {
+  const nonFinalComment = verifier.selectRequiredEvidence({
+    comments: [request(), codexComment({ body })],
+    reviews: [],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert.equal(nonFinalComment.provider, null, "non-final Codex comments must not satisfy the required lane");
 }
 
 const editedPreRequestComment = verifier.selectRequiredEvidence({
@@ -148,4 +177,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; review runs only on real head updates; plain, bold and italic reviewed-commit labels are accepted; CodeRabbit reserve issue comments use the same short reviewed-commit binding for D5 evidence; Qodo is disabled and CodeRabbit is scheduled advisory reserve only.");
+console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; only submitted native reviews or explicit completed-review comments satisfy the lane; progress, quota, failure and error comments are rejected; created-at, latest-request and exact-head guards remain enforced; clean CodeRabbit reserve evidence cannot stale a ready report, while reserve findings remain dispositioned; Qodo is disabled.");
