@@ -171,15 +171,17 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
   const reviewers = roster.reviewers
     .filter((reviewer) => reviewer.eligibleDepths.includes(depth))
     .map((reviewer) => {
-      const status = statuses[reviewer.id] ?? reviewer.defaultStatus;
-      const available = status === "AVAILABLE";
+      const runtimeStatus = statuses[reviewer.id] ?? reviewer.defaultStatus;
+      const available = runtimeStatus === "AVAILABLE";
       const waivedByProviderLimit = reviewer.binding && reviewer.kind === "ai" &&
-        waiverReviewers.has(reviewer.id) && waiverStatuses.has(status);
+        waiverReviewers.has(reviewer.id) && waiverStatuses.has(runtimeStatus);
+      const effectiveStatus = waivedByProviderLimit ? "AVAILABLE" : runtimeStatus;
       return {
         id: reviewer.id,
         label: reviewer.label,
         kind: reviewer.kind,
-        status,
+        status: effectiveStatus,
+        runtimeStatus,
         binding: reviewer.binding,
         advisory: reviewer.advisory,
         roles: reviewer.roles,
@@ -192,13 +194,13 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
   const requirement = roster.bindingRequirements[depth];
   const effectiveBinding = reviewers.filter((reviewer) => reviewer.countsTowardBinding);
   const availableAdvisory = reviewers.filter((reviewer) => reviewer.availableAdvisory);
-  const partialReviewers = reviewers.filter((reviewer) => reviewer.status === "PARTIAL");
+  const partialReviewers = reviewers.filter((reviewer) => reviewer.runtimeStatus === "PARTIAL");
   const unavailableAdvisory = reviewers.filter(
-    (reviewer) => reviewer.advisory && reviewer.status !== "AVAILABLE"
+    (reviewer) => reviewer.advisory && reviewer.runtimeStatus !== "AVAILABLE"
   );
   const waivedBinding = effectiveBinding.filter((reviewer) => reviewer.waivedByProviderLimit);
   const humanSatisfied = !requirement.requiresHuman || effectiveBinding.some(
-    (reviewer) => reviewer.kind === "human" && reviewer.status === "AVAILABLE"
+    (reviewer) => reviewer.kind === "human" && reviewer.runtimeStatus === "AVAILABLE"
   );
   const capacitySatisfied = effectiveBinding.length >= requirement.minimumAvailable;
   const decision = capacitySatisfied && humanSatisfied ? "READY" : "ESCALATE";
@@ -210,8 +212,8 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     ...partialReviewers
       .filter((reviewer) => reviewer.binding)
       .map((reviewer) => `PARTIAL_BINDING_REVIEWER_${reviewer.id}`),
-    ...unavailableAdvisory.map((reviewer) => `ADVISORY_REVIEWER_${reviewer.id}_${reviewer.status}`),
-    ...waivedBinding.map((reviewer) => `BINDING_REVIEWER_${reviewer.id}_${reviewer.status}_WAIVED`)
+    ...unavailableAdvisory.map((reviewer) => `ADVISORY_REVIEWER_${reviewer.id}_${reviewer.runtimeStatus}`),
+    ...waivedBinding.map((reviewer) => `BINDING_REVIEWER_${reviewer.id}_${reviewer.runtimeStatus}_WAIVED`)
   ];
 
   return {
@@ -225,14 +227,14 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     waivedBindingReviewers: waivedBinding.map((reviewer) => reviewer.id),
     optionalAdvisoryReviewers: reviewers.filter((reviewer) => reviewer.advisory).map((reviewer) => reviewer.id),
     availableAdvisoryReviewers: availableAdvisory.map((reviewer) => reviewer.id),
-    unavailableAdvisoryReviewers: unavailableAdvisory.map((reviewer) => ({ id: reviewer.id, status: reviewer.status })),
+    unavailableAdvisoryReviewers: unavailableAdvisory.map((reviewer) => ({ id: reviewer.id, status: reviewer.runtimeStatus })),
     partialReviewers: partialReviewers.map((reviewer) => reviewer.id),
     runtimeWarnings,
     requiresHuman: requirement.requiresHuman,
     humanSatisfied,
     reasons,
     reviewers,
-    note: "CodeRabbit is the binding AI reviewer. Only an explicit QUOTA_EXHAUSTED state may waive its execution step; human review, CI, evidence reporting and merge authorization remain mandatory. Codex and DeepSeek are advisory."
+    note: "CodeRabbit is the binding AI reviewer. Only an explicit QUOTA_EXHAUSTED state may waive its execution step; the real runtimeStatus remains visible while route selection receives an effective AVAILABLE state. Human review, CI, evidence reporting and merge authorization remain mandatory. Codex and DeepSeek are advisory."
   };
 }
 
