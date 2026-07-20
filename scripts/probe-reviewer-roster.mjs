@@ -114,16 +114,32 @@ function validateRoster(roster) {
   for (const reviewerId of roster.nonNegotiablePolicy.advisoryReviewers) {
     const reviewer = reviewerMap.get(reviewerId);
     if (!reviewer) fail(`missing advisory reviewer ${reviewerId}`);
-    if (reviewer.binding || !reviewer.advisory) {
-      fail(`${reviewerId} must remain advisory-only`);
-    }
+    if (reviewer.binding || !reviewer.advisory) fail(`${reviewerId} must remain advisory-only`);
   }
-
   for (const reviewer of roster.reviewers.filter((item) => item.advisory)) {
     if (!roster.nonNegotiablePolicy.advisoryReviewers.includes(reviewer.id)) {
       fail(`${reviewer.id} advisory authority must be declared non-negotiable`);
     }
   }
+
+  const waiverPolicy = roster.nonNegotiablePolicy.providerLimitWaivers;
+  if (!waiverPolicy || typeof waiverPolicy !== "object") fail("providerLimitWaivers are required");
+  if (!Array.isArray(waiverPolicy.reviewers) || waiverPolicy.reviewers.length === 0) {
+    fail("providerLimitWaivers.reviewers must not be empty");
+  }
+  if (!Array.isArray(waiverPolicy.statuses) || waiverPolicy.statuses.length !== 1 || waiverPolicy.statuses[0] !== "QUOTA_EXHAUSTED") {
+    fail("providerLimitWaivers.statuses must remain QUOTA_EXHAUSTED only");
+  }
+  unique(waiverPolicy.reviewers, "provider-limit waiver reviewer");
+  for (const reviewerId of waiverPolicy.reviewers) {
+    const reviewer = reviewerMap.get(reviewerId);
+    if (!reviewer) fail(`missing provider-limit waiver reviewer ${reviewerId}`);
+    if (!reviewer.binding || reviewer.advisory || reviewer.kind !== "ai") {
+      fail(`${reviewerId} provider-limit waiver requires a binding AI reviewer`);
+    }
+  }
+  if (!waiverPolicy.reviewers.includes("coderabbit")) fail("CodeRabbit must remain the provider-limit waiver reviewer");
+  if (waiverPolicy.reviewers.includes("human-maintainer")) fail("human reviewer cannot be provider-limit waived");
 
   for (const depth of LEVELS) {
     const eligibleBinding = roster.reviewers.filter(
@@ -150,11 +166,15 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     if (!roster.allowedStatuses.includes(status)) fail(`${reviewerId} has invalid runtime status ${status}`);
   }
 
+  const waiverReviewers = new Set(roster.nonNegotiablePolicy.providerLimitWaivers.reviewers);
+  const waiverStatuses = new Set(roster.nonNegotiablePolicy.providerLimitWaivers.statuses);
   const reviewers = roster.reviewers
     .filter((reviewer) => reviewer.eligibleDepths.includes(depth))
     .map((reviewer) => {
       const status = statuses[reviewer.id] ?? reviewer.defaultStatus;
       const available = status === "AVAILABLE";
+      const waivedByProviderLimit = reviewer.binding && reviewer.kind === "ai" &&
+        waiverReviewers.has(reviewer.id) && waiverStatuses.has(status);
       return {
         id: reviewer.id,
         label: reviewer.label,
@@ -163,32 +183,35 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
         binding: reviewer.binding,
         advisory: reviewer.advisory,
         roles: reviewer.roles,
-        countsTowardBinding: available && reviewer.binding,
+        waivedByProviderLimit,
+        countsTowardBinding: reviewer.binding && (available || waivedByProviderLimit),
         availableAdvisory: available && reviewer.advisory
       };
     });
 
   const requirement = roster.bindingRequirements[depth];
-  const availableBinding = reviewers.filter((reviewer) => reviewer.countsTowardBinding);
+  const effectiveBinding = reviewers.filter((reviewer) => reviewer.countsTowardBinding);
   const availableAdvisory = reviewers.filter((reviewer) => reviewer.availableAdvisory);
   const partialReviewers = reviewers.filter((reviewer) => reviewer.status === "PARTIAL");
   const unavailableAdvisory = reviewers.filter(
     (reviewer) => reviewer.advisory && reviewer.status !== "AVAILABLE"
   );
-  const humanSatisfied = !requirement.requiresHuman || availableBinding.some((reviewer) => reviewer.kind === "human");
-  const capacitySatisfied = availableBinding.length >= requirement.minimumAvailable;
+  const waivedBinding = effectiveBinding.filter((reviewer) => reviewer.waivedByProviderLimit);
+  const humanSatisfied = !requirement.requiresHuman || effectiveBinding.some(
+    (reviewer) => reviewer.kind === "human" && reviewer.status === "AVAILABLE"
+  );
+  const capacitySatisfied = effectiveBinding.length >= requirement.minimumAvailable;
   const decision = capacitySatisfied && humanSatisfied ? "READY" : "ESCALATE";
   const reasons = [];
-  if (!capacitySatisfied) reasons.push(`BINDING_CAPACITY_${availableBinding.length}_OF_${requirement.minimumAvailable}`);
+  if (!capacitySatisfied) reasons.push(`BINDING_CAPACITY_${effectiveBinding.length}_OF_${requirement.minimumAvailable}`);
   if (!humanSatisfied) reasons.push("HUMAN_REVIEWER_REQUIRED");
 
   const runtimeWarnings = [
     ...partialReviewers
       .filter((reviewer) => reviewer.binding)
       .map((reviewer) => `PARTIAL_BINDING_REVIEWER_${reviewer.id}`),
-    ...unavailableAdvisory.map(
-      (reviewer) => `ADVISORY_REVIEWER_${reviewer.id}_${reviewer.status}`
-    )
+    ...unavailableAdvisory.map((reviewer) => `ADVISORY_REVIEWER_${reviewer.id}_${reviewer.status}`),
+    ...waivedBinding.map((reviewer) => `BINDING_REVIEWER_${reviewer.id}_${reviewer.status}_WAIVED`)
   ];
 
   return {
@@ -198,20 +221,18 @@ export function probeReviewerRoster(roster, depth, statuses = {}) {
     decision,
     authority: "preflight-only",
     requiredBindingReviewers: requirement.minimumAvailable,
-    availableBindingReviewers: availableBinding.map((reviewer) => reviewer.id),
+    availableBindingReviewers: effectiveBinding.map((reviewer) => reviewer.id),
+    waivedBindingReviewers: waivedBinding.map((reviewer) => reviewer.id),
     optionalAdvisoryReviewers: reviewers.filter((reviewer) => reviewer.advisory).map((reviewer) => reviewer.id),
     availableAdvisoryReviewers: availableAdvisory.map((reviewer) => reviewer.id),
-    unavailableAdvisoryReviewers: unavailableAdvisory.map((reviewer) => ({
-      id: reviewer.id,
-      status: reviewer.status
-    })),
+    unavailableAdvisoryReviewers: unavailableAdvisory.map((reviewer) => ({ id: reviewer.id, status: reviewer.status })),
     partialReviewers: partialReviewers.map((reviewer) => reviewer.id),
     runtimeWarnings,
     requiresHuman: requirement.requiresHuman,
     humanSatisfied,
     reasons,
     reviewers,
-    note: "Codex is the binding AI reviewer. CodeRabbit and DeepSeek availability is advisory and never counts toward binding capacity or merge authority."
+    note: "CodeRabbit is the binding AI reviewer. Only an explicit QUOTA_EXHAUSTED state may waive its execution step; human review, CI, evidence reporting and merge authorization remain mandatory. Codex and DeepSeek are advisory."
   };
 }
 
