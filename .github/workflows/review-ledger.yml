@@ -80,9 +80,23 @@ jobs:
               /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
             const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
-            const hasFindingSeverity = (body) => (
-              /\bP[0-3]\b|_(?:blocker|critical|major|minor)_/i.test(body ?? '')
-            );
+            const isFinalCodexCommentEvidence = (item) => {
+              const body = String(item?.body ?? '');
+              return (
+                /here are some automated review suggestions for this pull request/i.test(body) ||
+                /\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body) ||
+                /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
+              );
+            };
+            const hasFindingSeverity = (body) => {
+              const text = String(body ?? '');
+              if (/\bP[0-3]\b/i.test(text)) return true;
+              return [...text.matchAll(/_([^_\n]+)_/g)].some(([, segment]) => (
+                /\b(?:blocker|critical|major|minor)\b/i.test(
+                  segment.replace(/[`*_>#\[\]()!]+/g, ' '),
+                )
+              ));
+            };
             const timeOf = (item) => Math.max(
               0,
               ...[item.submitted_at, item.created_at, item.updated_at]
@@ -133,7 +147,10 @@ jobs:
             const issueCommentIsCurrentHeadBotOutput = (item) => {
               const login = item.user?.login;
               if (codexBots.has(login)) {
-                return exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body));
+                return (
+                  isFinalCodexCommentEvidence(item) &&
+                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
+                );
               }
               if (otherReviewBots.has(login)) return exactHeadBody(item.body);
               return reserveRequested && codeRabbitIssueCommentIsExactHead(item);
@@ -211,7 +228,10 @@ jobs:
               ...issueComments.filter((item) => {
                 const login = item.user?.login;
                 if (codexBots.has(login)) {
-                  return exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body));
+                  return (
+                    isFinalCodexCommentEvidence(item) &&
+                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
+                  );
                 }
                 return otherReviewBots.has(login) && exactHeadBody(item.body);
               }),
