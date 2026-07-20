@@ -43,83 +43,82 @@ function expectFailure(label, expectedText, depth, statuses = {}, mutator) {
 }
 
 const bindingReady = {
-  codex: "AVAILABLE",
+  coderabbit: "AVAILABLE",
   "human-maintainer": "AVAILABLE"
 };
 
-expectDecision("Codex and human binding pair is sufficient", "READY", "L3", bindingReady, (payload) => {
-  if (payload.availableBindingReviewers.join(",") !== "codex,human-maintainer") {
+expectDecision("CodeRabbit and human binding pair is sufficient", "READY", "L3", bindingReady, (payload) => {
+  if (payload.availableBindingReviewers.join(",") !== "coderabbit,human-maintainer") {
     throw new Error(`unexpected binding pair: ${payload.availableBindingReviewers.join(",")}`);
   }
-  if (!payload.optionalAdvisoryReviewers.includes("coderabbit")) throw new Error("CodeRabbit is not optional advisory");
+  if (!payload.optionalAdvisoryReviewers.includes("codex")) throw new Error("Codex is not advisory");
 });
 
-expectDecision("available CodeRabbit is advisory only", "READY", "L3", {
+expectDecision("available Codex remains advisory", "READY", "L3", {
   ...bindingReady,
-  coderabbit: "AVAILABLE"
+  codex: "AVAILABLE"
 }, (payload) => {
-  if (payload.availableBindingReviewers.includes("coderabbit")) throw new Error("CodeRabbit counted as binding");
-  if (!payload.availableAdvisoryReviewers.includes("coderabbit")) throw new Error("CodeRabbit advisory availability missing");
+  if (payload.availableBindingReviewers.includes("codex")) throw new Error("Codex counted as binding");
+  if (!payload.availableAdvisoryReviewers.includes("codex")) throw new Error("Codex advisory availability missing");
 });
 
-for (const status of ["PARTIAL", "PAUSED", "NO_BALANCE", "QUOTA_EXHAUSTED", "NOT_CONFIGURED", "TIMED_OUT", "UNKNOWN"]) {
-  expectDecision(`CodeRabbit ${status} is non-blocking`, "READY", "L3", {
-    ...bindingReady,
-    coderabbit: status
+expectDecision("CodeRabbit quota exhaustion is explicitly waived", "READY", "L3", {
+  coderabbit: "QUOTA_EXHAUSTED",
+  "human-maintainer": "AVAILABLE"
+}, (payload) => {
+  if (!payload.availableBindingReviewers.includes("coderabbit")) throw new Error("waived CodeRabbit missing from effective binding capacity");
+  if (!payload.waivedBindingReviewers.includes("coderabbit")) throw new Error("CodeRabbit waiver not reported");
+  if (!payload.runtimeWarnings.includes("BINDING_REVIEWER_coderabbit_QUOTA_EXHAUSTED_WAIVED")) {
+    throw new Error("quota waiver warning missing");
+  }
+});
+
+for (const status of ["PARTIAL", "PAUSED", "NO_BALANCE", "NOT_CONFIGURED", "TIMED_OUT", "UNKNOWN"]) {
+  expectDecision(`CodeRabbit ${status} does not activate waiver`, "ESCALATE", "L3", {
+    coderabbit: status,
+    "human-maintainer": "AVAILABLE",
+    codex: "AVAILABLE"
   }, (payload) => {
-    if (!payload.runtimeWarnings.includes(`ADVISORY_REVIEWER_coderabbit_${status}`)) {
-      throw new Error(`missing CodeRabbit ${status} warning`);
-    }
-    const unavailable = payload.unavailableAdvisoryReviewers.find((reviewer) => reviewer.id === "coderabbit");
-    if (unavailable?.status !== status) throw new Error(`missing CodeRabbit unavailable state ${status}`);
-    if (payload.reasons.some((reason) => reason.includes("coderabbit"))) throw new Error("CodeRabbit advisory state became a blocking reason");
+    if (payload.waivedBindingReviewers.includes("coderabbit")) throw new Error(`${status} incorrectly activated waiver`);
+    if (!payload.reasons.includes("BINDING_CAPACITY_1_OF_2")) throw new Error("binding capacity escalation missing");
   });
 }
 
-expectDecision("partial Codex escalates", "ESCALATE", "L2", {
-  codex: "PARTIAL",
-  "human-maintainer": "AVAILABLE",
-  coderabbit: "AVAILABLE"
+expectDecision("partial CodeRabbit is reported", "ESCALATE", "L2", {
+  coderabbit: "PARTIAL",
+  "human-maintainer": "AVAILABLE"
 }, (payload) => {
-  if (payload.availableBindingReviewers.includes("codex")) throw new Error("partial Codex counted as available");
-  if (!payload.partialReviewers.includes("codex")) throw new Error("partial Codex was not reported");
-  if (!payload.runtimeWarnings.includes("PARTIAL_BINDING_REVIEWER_codex")) throw new Error("partial binding warning missing");
+  if (!payload.partialReviewers.includes("coderabbit")) throw new Error("partial CodeRabbit was not reported");
+  if (!payload.runtimeWarnings.includes("PARTIAL_BINDING_REVIEWER_coderabbit")) throw new Error("partial binding warning missing");
 });
 
-expectDecision("advisory cannot fill binding capacity", "ESCALATE", "L3", {
+expectDecision("advisory reviewers cannot fill binding capacity", "ESCALATE", "L3", {
+  coderabbit: "UNKNOWN",
   codex: "AVAILABLE",
-  coderabbit: "AVAILABLE",
-  deepseek: "AVAILABLE"
+  deepseek: "AVAILABLE",
+  "human-maintainer": "AVAILABLE"
 }, (payload) => {
-  if (!payload.availableBindingReviewers.includes("codex")) throw new Error("Codex binding reviewer missing");
-  if (payload.availableBindingReviewers.includes("coderabbit")) throw new Error("CodeRabbit counted as binding");
+  if (payload.availableBindingReviewers.includes("codex")) throw new Error("Codex counted as binding");
   if (payload.availableBindingReviewers.includes("deepseek")) throw new Error("DeepSeek counted as binding");
   if (!payload.reasons.includes("BINDING_CAPACITY_1_OF_2")) throw new Error("missing binding capacity reason");
-  if (!payload.reasons.includes("HUMAN_REVIEWER_REQUIRED")) throw new Error("missing human escalation reason");
 });
 
-expectDecision("L4 requires a human", "ESCALATE", "L4", {
-  codex: "AVAILABLE",
+expectDecision("L4 still requires a human", "ESCALATE", "L4", {
   coderabbit: "AVAILABLE"
 }, (payload) => {
   if (!payload.reasons.includes("BINDING_CAPACITY_1_OF_2")) throw new Error("missing binding capacity reason");
   if (!payload.reasons.includes("HUMAN_REVIEWER_REQUIRED")) throw new Error("missing human escalation reason");
 });
 
-expectDecision("human capacity is explicit", "READY", "L4", {
-  codex: "AVAILABLE",
-  "human-maintainer": "AVAILABLE",
-  coderabbit: "NO_BALANCE"
-});
-
-expectDecision("unknown binding runtime state escalates", "ESCALATE", "L2", {
-  codex: "UNKNOWN",
+expectDecision("human capacity remains explicit under quota waiver", "READY", "L4", {
+  coderabbit: "QUOTA_EXHAUSTED",
   "human-maintainer": "AVAILABLE"
 });
-expectFailure("invalid runtime status", "invalid runtime status", "L2", { codex: "INVALID" });
+
+expectFailure("invalid runtime status", "invalid runtime status", "L2", { coderabbit: "INVALID" });
 expectFailure("unknown reviewer status", "unknown reviewer", "L2", { unregistered: "AVAILABLE" });
 
-for (const reviewerId of ["coderabbit", "deepseek"]) {
+for (const reviewerId of ["codex", "deepseek"]) {
   expectFailure(`${reviewerId} advisory authority mutation`, `${reviewerId} must remain advisory-only`, "L3", {}, (roster) => {
     const reviewer = roster.reviewers.find((item) => item.id === reviewerId);
     reviewer.binding = true;
@@ -127,12 +126,27 @@ for (const reviewerId of ["coderabbit", "deepseek"]) {
   });
 }
 
+expectFailure("CodeRabbit binding mutation", "coderabbit provider-limit waiver requires a binding AI reviewer", "L3", {}, (roster) => {
+  const reviewer = roster.reviewers.find((item) => item.id === "coderabbit");
+  reviewer.binding = false;
+  reviewer.advisory = true;
+  roster.nonNegotiablePolicy.advisoryReviewers.push("coderabbit");
+});
+
+expectFailure("waiver status broadening", "statuses must remain QUOTA_EXHAUSTED only", "L3", {}, (roster) => {
+  roster.nonNegotiablePolicy.providerLimitWaivers.statuses.push("NO_BALANCE");
+});
+
+expectFailure("human waiver forbidden", "human reviewer cannot be provider-limit waived", "L3", {}, (roster) => {
+  roster.nonNegotiablePolicy.providerLimitWaivers.reviewers.push("human-maintainer");
+});
+
 expectFailure("undeclared advisory reviewer", "advisory authority must be declared non-negotiable", "L3", {}, (roster) => {
-  roster.nonNegotiablePolicy.advisoryReviewers = ["coderabbit"];
+  roster.nonNegotiablePolicy.advisoryReviewers = ["codex"];
 });
 
 expectFailure("binding floor mutation", "L3 minimumAvailable must remain 2", "L3", {}, (roster) => {
   roster.bindingRequirements.L3.minimumAvailable = 1;
 });
 
-console.log("✅ RRM-ROSTER-001 mutation tests passed: Codex is binding, CodeRabbit remains advisory reserve, binding capacity stays explicit, and human authorization remains required.");
+console.log("✅ RRM-ROSTER-001 mutation tests passed: CodeRabbit is binding, explicit QUOTA_EXHAUSTED may be waived, Codex and DeepSeek remain advisory, and human authorization stays mandatory at L2-L4.");
