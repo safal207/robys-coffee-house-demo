@@ -123,7 +123,7 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to trusted-base Codex-only exact-head review", aiWorkflow.includes("github.event.pull_request.base.sha") && aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("CODEX_COMMAND") && aiContract.includes("codexRequestAt") && aiContract.includes("DORMANT_PROVIDER_NAMES") && !aiContract.includes("QODO_COMMAND")]
+  ["AI evidence is tied to trusted-base CodeRabbit exact-head review or authenticated quota waiver", aiWorkflow.includes("github.event.pull_request.base.sha") && aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("CODERABBIT_COMMAND") && aiContract.includes("latestCodeRabbitLimitSignal") && aiContract.includes("provider-limit-bypass") && aiContract.includes("DORMANT_PROVIDER_NAMES") && !aiContract.includes("QODO_COMMAND")]
 ]);
 
 const report = {
