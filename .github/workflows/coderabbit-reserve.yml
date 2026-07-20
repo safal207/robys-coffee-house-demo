@@ -1,4 +1,4 @@
-name: CodeRabbit reserve windows
+name: CodeRabbit required-review windows
 
 on:
   schedule:
@@ -20,12 +20,12 @@ on:
 permissions: {}
 
 concurrency:
-  group: coderabbit-reserve-${{ github.event.schedule || inputs.pr_number || github.run_id }}
+  group: coderabbit-required-${{ github.event.schedule || inputs.pr_number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   reserve:
-    name: Dispatch bounded advisory reserve
+    name: Dispatch bounded required-review request
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
-      - name: Evaluate Codex fallback and request CodeRabbit reserve
+      - name: Evaluate and request bounded CodeRabbit review
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
