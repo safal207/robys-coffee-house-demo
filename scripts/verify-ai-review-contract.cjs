@@ -79,6 +79,15 @@ function isSubmittedReview(review) {
   return Boolean(review?.submitted_at) && review.state !== "PENDING" && review.state !== "DISMISSED";
 }
 
+function isFinalCodexCommentEvidence(item) {
+  const body = String(item?.body ?? "");
+  return (
+    /here are some automated review suggestions for this pull request/i.test(body) ||
+    /\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body) ||
+    /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
+  );
+}
+
 function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
   if (requestAt <= 0) return [];
 
@@ -91,11 +100,13 @@ function exactHeadCodexEvidence({ comments, reviews, currentHead, requestAt }) {
   );
 
   // A pre-request comment must never become fresh merely because somebody edits it later.
-  // Comment evidence is therefore bound to created_at, not updated_at.
+  // Comment evidence is therefore bound to created_at, not updated_at. It must also carry
+  // a completed-review shape; acknowledgements, progress, quota and error messages are not E4/E5.
   const botComments = comments.filter(
     (comment) =>
       isCodexBot(comment) &&
       createdTimeOf(comment) >= requestAt &&
+      isFinalCodexCommentEvidence(comment) &&
       isExactHeadCommit(reviewedCommitOf(comment), currentHead),
   );
 
@@ -256,7 +267,8 @@ async function verifyAiReviewContract({ github, context, core }) {
 
   core.setFailed(
     "Require request-bound Codex exact-head review evidence. Post `@codex review` and `Exact head: <current full SHA>` on separate lines after every head update. " +
-      "An authenticated Codex bot review or canonical reviewed-commit comment published after that request may satisfy the lane. " +
+      "An authenticated submitted Codex review or canonical completed reviewed-commit comment published after that request may satisfy the lane. " +
+      "Acknowledgement, progress, quota, failure and error comments never satisfy it. " +
       "Qodo is disabled. CodeRabbit is a scheduled advisory reserve and cannot satisfy or block this gate." +
       (lastApiError ? ` Last transient API error: ${lastApiError}` : ""),
   );
@@ -274,6 +286,7 @@ module.exports._test = {
   freshTrustedRequests,
   hasExactHeadBinding,
   isExactHeadCommit,
+  isFinalCodexCommentEvidence,
   pullHeadMatches,
   reviewedCommitOf,
   selectRequiredEvidence,
