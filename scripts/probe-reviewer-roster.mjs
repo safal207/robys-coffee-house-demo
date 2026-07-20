@@ -131,6 +131,9 @@ function validateRoster(roster) {
     fail("providerLimitWaivers.statuses must remain QUOTA_EXHAUSTED only");
   }
   unique(waiverPolicy.reviewers, "provider-limit waiver reviewer");
+  if (waiverPolicy.reviewers.includes("human-maintainer")) {
+    fail("human reviewer cannot be provider-limit waived");
+  }
   for (const reviewerId of waiverPolicy.reviewers) {
     const reviewer = reviewerMap.get(reviewerId);
     if (!reviewer) fail(`missing provider-limit waiver reviewer ${reviewerId}`);
@@ -139,7 +142,6 @@ function validateRoster(roster) {
     }
   }
   if (!waiverPolicy.reviewers.includes("coderabbit")) fail("CodeRabbit must remain the provider-limit waiver reviewer");
-  if (waiverPolicy.reviewers.includes("human-maintainer")) fail("human reviewer cannot be provider-limit waived");
 
   for (const depth of LEVELS) {
     const eligibleBinding = roster.reviewers.filter(
