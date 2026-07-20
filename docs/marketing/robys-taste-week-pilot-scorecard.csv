@@ -1,0 +1,5 @@
+date,source,landing_sessions,quiz_starts,quiz_completions,pair_a_views,pair_b_views,route_clicks,instagram_clicks,code_a_views,code_b_views,pair_a_purchases,pair_b_purchases,attributed_revenue_try,bonus_cost_try,paid_media_cost_try,other_campaign_cost_try,notes
+YYYY-MM-DD,instagram,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,""
+YYYY-MM-DD,qr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,""
+YYYY-MM-DD,direct,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,""
+TOTAL,all,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Calculate contribution as revenue × confirmed gross margin − bonus − media − other costs"
