@@ -113,7 +113,7 @@
     {
       "from": "CHALLENGE-MUTATION",
       "to": "REVIEW-CODERABBIT",
-      "relation": "reviewed-or-waived-by",
+      "relation": "reviewed-by",
       "authority": "binding"
     },
     {
