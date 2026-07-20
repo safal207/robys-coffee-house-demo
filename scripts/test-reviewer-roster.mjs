@@ -71,6 +71,10 @@ expectDecision("CodeRabbit quota exhaustion is explicitly waived", "READY", "L3"
   if (!payload.runtimeWarnings.includes("BINDING_REVIEWER_coderabbit_QUOTA_EXHAUSTED_WAIVED")) {
     throw new Error("quota waiver warning missing");
   }
+  const rabbit = payload.reviewers.find((reviewer) => reviewer.id === "coderabbit");
+  if (rabbit.runtimeStatus !== "QUOTA_EXHAUSTED" || rabbit.status !== "AVAILABLE") {
+    throw new Error("quota waiver must preserve runtime status and expose effective route availability");
+  }
 });
 
 for (const status of ["PARTIAL", "PAUSED", "NO_BALANCE", "NOT_CONFIGURED", "TIMED_OUT", "UNKNOWN"]) {
@@ -81,6 +85,10 @@ for (const status of ["PARTIAL", "PAUSED", "NO_BALANCE", "NOT_CONFIGURED", "TIME
   }, (payload) => {
     if (payload.waivedBindingReviewers.includes("coderabbit")) throw new Error(`${status} incorrectly activated waiver`);
     if (!payload.reasons.includes("BINDING_CAPACITY_1_OF_2")) throw new Error("binding capacity escalation missing");
+    const rabbit = payload.reviewers.find((reviewer) => reviewer.id === "coderabbit");
+    if (rabbit.status !== status || rabbit.runtimeStatus !== status) {
+      throw new Error(`${status} must remain unavailable to route selection`);
+    }
   });
 }
 
@@ -149,4 +157,4 @@ expectFailure("binding floor mutation", "L3 minimumAvailable must remain 2", "L3
   roster.bindingRequirements.L3.minimumAvailable = 1;
 });
 
-console.log("✅ RRM-ROSTER-001 mutation tests passed: CodeRabbit is binding, explicit QUOTA_EXHAUSTED may be waived, Codex and DeepSeek remain advisory, and human authorization stays mandatory at L2-L4.");
+console.log("✅ RRM-ROSTER-001 mutation tests passed: CodeRabbit is binding, explicit QUOTA_EXHAUSTED preserves the runtime state while enabling the narrow route waiver, Codex and DeepSeek remain advisory, and human authorization stays mandatory at L2-L4.");
