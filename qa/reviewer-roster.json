@@ -42,32 +42,22 @@
       "L4"
     ],
     "advisoryReviewers": [
-      "coderabbit",
+      "codex",
       "deepseek"
-    ]
+    ],
+    "providerLimitWaivers": {
+      "reviewers": [
+        "coderabbit"
+      ],
+      "statuses": [
+        "QUOTA_EXHAUSTED"
+      ]
+    }
   },
   "reviewers": [
     {
       "id": "coderabbit",
       "label": "CodeRabbit",
-      "kind": "ai",
-      "binding": false,
-      "advisory": true,
-      "eligibleDepths": [
-        "L1",
-        "L2",
-        "L3",
-        "L4"
-      ],
-      "roles": [
-        "reserve_reviewer",
-        "risk_critic"
-      ],
-      "defaultStatus": "UNKNOWN"
-    },
-    {
-      "id": "codex",
-      "label": "Codex",
       "kind": "ai",
       "binding": true,
       "advisory": false,
@@ -79,6 +69,24 @@
       ],
       "roles": [
         "draft_reviewer",
+        "risk_critic"
+      ],
+      "defaultStatus": "UNKNOWN"
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "kind": "ai",
+      "binding": false,
+      "advisory": true,
+      "eligibleDepths": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "roles": [
+        "advisory_reviewer",
         "risk_critic"
       ],
       "defaultStatus": "UNKNOWN"
