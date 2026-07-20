@@ -21,6 +21,7 @@ OLD_HEAD = 'b' * 40
 HEAD_TIME = '2026-06-30T00:00:00Z'
 AFTER = '2026-06-30T00:01:00Z'
 LATER = '2026-06-30T00:02:00Z'
+LATEST = '2026-06-30T00:03:00Z'
 BEFORE = '2026-06-29T23:59:00Z'
 
 
@@ -29,14 +30,18 @@ def user(login: str, kind: str = 'Bot') -> dict[str, str]:
 
 
 def comment(body: str, login: str = 'safal207', created_at: str = AFTER,
-            association: str = 'OWNER') -> dict[str, object]:
-    return {
+            association: str = 'OWNER', identifier: int | None = None,
+            updated_at: str | None = None) -> dict[str, object]:
+    item: dict[str, object] = {
         'body': body,
         'user': user(login, 'User' if login == 'safal207' else 'Bot'),
         'created_at': created_at,
-        'updated_at': created_at,
+        'updated_at': updated_at or created_at,
         'author_association': association,
     }
+    if identifier is not None:
+        item['id'] = identifier
+    return item
 
 
 def review(body: str, login: str = 'chatgpt-codex-connector[bot]',
@@ -170,6 +175,50 @@ class CooperationReportTests(unittest.TestCase):
             ],
         )
         self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
+
+    def test_non_final_codex_comments_do_not_count(self) -> None:
+        for body in (
+            'Codex review started and is in progress.',
+            'Codex review failed because the provider is unavailable.',
+            'Codex review quota exceeded; retry later.',
+        ):
+            with self.subTest(body=body):
+                report = self.report(
+                    comments=[
+                        codex_request(),
+                        comment(
+                            f'{body}\n\n**Reviewed commit:** `{HEAD[:10]}`',
+                            login='chatgpt-codex-connector[bot]', created_at=LATER,
+                            association='NONE'),
+                    ],
+                )
+                self.assertIn('| Codex | yes | E1 | missing evidence |', report)
+                self.assertIn('**WAIT_FOR_EVIDENCE**', report)
+
+    def test_dispositioned_issue_comment_p2_becomes_clean_e5(self) -> None:
+        finding = comment(
+            f'Codex Review: completed\n\nP2 API contract mismatch.\n\n**Reviewed commit:** `{HEAD[:10]}`',
+            login='chatgpt-codex-connector[bot]', created_at=LATER,
+            association='NONE', identifier=101)
+        disposition = comment(
+            f'Disposition-For-Issue-Comment: 101\nDisposition: rejected-with-evidence\nHead: {HEAD}',
+            created_at=LATEST, identifier=102)
+        report = self.report(comments=[codex_request(), finding, disposition])
+        self.assertIn('| Codex | yes | E5 | clean exact-head review |', report)
+        self.assertNotIn('P2x1', report)
+        self.assertIn('**READY_WITH_ADVISORY_GAPS**', report)
+
+    def test_edited_issue_finding_invalidates_older_disposition(self) -> None:
+        finding = comment(
+            f'Codex Review: completed\n\nP2 API contract mismatch.\n\n**Reviewed commit:** `{HEAD[:10]}`',
+            login='chatgpt-codex-connector[bot]', created_at=LATER,
+            updated_at='2026-06-30T00:04:00Z', association='NONE', identifier=101)
+        disposition = comment(
+            f'Disposition-For-Issue-Comment: 101\nDisposition: rejected-with-evidence\nHead: {HEAD}',
+            created_at=LATEST, identifier=102)
+        report = self.report(comments=[codex_request(), finding, disposition])
+        self.assertIn('| Codex | yes | E4 | findings | P2x1 |', report)
+        self.assertIn('**FIX_THEN_RERUN**', report)
 
     def test_qodo_request_and_review_are_ignored(self) -> None:
         report = self.report(
