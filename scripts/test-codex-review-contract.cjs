@@ -51,6 +51,14 @@ assert(ledgerWorkflow.includes("return reserveRequested && codeRabbitIssueCommen
 assert(ledgerWorkflow.includes("...issueComments.filter(codeRabbitIssueCommentIsExactHead),"));
 assert(ledgerWorkflow.includes("const codeRabbitFindingEvidence = ["));
 assert(ledgerWorkflow.includes("...codeRabbitEvidence.filter((item) => hasFindingSeverity(item.body)),"));
+assert(ledgerWorkflow.includes("const isFinalCodexCommentEvidence = (item) => {"));
+assert(ledgerWorkflow.includes("isFinalCodexCommentEvidence(item) &&"));
+assert(ledgerWorkflow.includes("text.matchAll(/_([^_\\n]+)_/g)"));
+
+const reserveDispatcher = readFileSync("scripts/coderabbit-reserve.cjs", "utf8");
+assert(reserveDispatcher.includes("commentPredicate: isFinalCodexCommentEvidence"));
+assert(reserveDispatcher.includes("requestAt: earliestReserveAt"));
+assert(reserveDispatcher.includes("latestReserveAt > 0"));
 
 assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
@@ -177,4 +185,4 @@ const preRequestReview = verifier.selectRequiredEvidence({
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: Codex remains the sole required exact-head reviewer; only submitted native reviews or explicit completed-review comments satisfy the lane; progress, quota, failure and error comments are rejected; created-at, latest-request and exact-head guards remain enforced; clean CodeRabbit reserve evidence cannot stale a ready report, while reserve findings remain dispositioned; Qodo is disabled.");
+console.log("✅ AI-CODEX-ONLY-001 passed: verifier, reserve dispatcher, cooperation reporter and ledger share final-comment, exact-head, trusted-marker and decorated-severity boundaries; Qodo remains disabled and CodeRabbit remains advisory.");
