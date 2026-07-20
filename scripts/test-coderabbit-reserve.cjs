@@ -5,7 +5,7 @@ const scheduler = require("./coderabbit-reserve.cjs")._test;
 
 const HEAD = "a".repeat(40);
 const NOW = Date.parse("2026-07-20T10:00:00Z"); // 13:00 Europe/Istanbul
-const HEAD_AT = "2026-07-20T07:00:00Z";
+const HEAD_AT = "2026-07-20T05:00:00Z";
 const REQUEST_AT = "2026-07-20T08:00:00Z";
 
 function pull(overrides = {}) {
