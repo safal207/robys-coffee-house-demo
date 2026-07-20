@@ -35,11 +35,14 @@ for (const escaped of ["&lt;script&gt;", "&lt;svg&gt;", "&lt;img", "&#96;break&#
 if (!output.includes("feature/&#96;break&#96; &lt;script&gt;alert(1)&lt;/script&gt; **bold**")) {
   throw new Error(`newlines must collapse without changing escaped text:\n${output}`);
 }
-if (!output.includes("Codex binding; CodeRabbit scheduled reserve; supplemental lanes advisory")) {
+if (!output.includes("CodeRabbit exact-head review or authenticated QUOTA_EXHAUSTED waiver; Codex/Jules/DeepSeek advisory")) {
   throw new Error(`D4 reviewer roles are stale:\n${output}`);
 }
-if (output.includes("CodeRabbit binding")) {
-  throw new Error(`CodeRabbit must not be rendered as binding:\n${output}`);
+if (!output.includes("provider-limit waiver occupies D4 only as documented operational evidence")) {
+  throw new Error(`provider-limit waiver boundary is missing:\n${output}`);
+}
+if (output.includes("Codex binding")) {
+  throw new Error(`Codex must not be rendered as binding:\n${output}`);
 }
 
-console.log("✅ PDG summary mutation test passed: metadata is escaped and D4 renders Codex binding with CodeRabbit reserve-only.");
+console.log("✅ PDG summary mutation test passed: metadata is escaped and D4 renders the CodeRabbit review-or-quota-waiver outcome without weakening D5, D6, CI or human approval.");
