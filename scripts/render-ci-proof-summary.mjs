@@ -21,7 +21,7 @@ const stages = [
   { depth: "D1", label: "Artifacts", detail: "Manifests, code and state graphs", defaultStatus: "success" },
   { depth: "D2", label: "Executable checks", detail: "TRACE-001 and PDG-001 validators", defaultStatus: "success" },
   { depth: "D3", label: "Mutation challenge", detail: "Broken evidence must fail", defaultStatus: "success" },
-  { depth: "D4", label: "Independent AI review", detail: "Codex binding; CodeRabbit scheduled reserve; supplemental lanes advisory", defaultStatus: "waiting" },
+  { depth: "D4", label: "Independent AI outcome", detail: "CodeRabbit exact-head review or authenticated QUOTA_EXHAUSTED waiver; Codex/Jules/DeepSeek advisory", defaultStatus: "waiting" },
   { depth: "D5", label: "Disposition ledger", detail: "Every current-head finding classified", defaultStatus: "waiting" },
   { depth: "D6", label: "Proof Seal", detail: "Maintainer exact-head Verified Episode", defaultStatus: "waiting" }
 ];
@@ -92,7 +92,9 @@ ${rows.join("\n")}
 
 A green check is not enough. The PR is ready only when the complete exact-head path reaches **D6**:
 
-\`claim → artifacts → executable checks → mutation challenge → independent reviews → dispositions → Proof Seal\`
+\`claim → artifacts → executable checks → mutation challenge → CodeRabbit outcome → dispositions → Proof Seal\`
+
+A provider-limit waiver occupies D4 only as documented operational evidence; it never claims that a review occurred and never bypasses D5, D6, CI or human approval.
 
 ${firstIncomplete
   ? `### Next action\n\nComplete **${firstIncomplete.depth} — ${firstIncomplete.label}** before moving further.`
