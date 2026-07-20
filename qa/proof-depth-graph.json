@@ -16,7 +16,13 @@
     ],
     "bindingFreshness": "exact-head",
     "sealMustPostdateEvidence": true,
-    "inferredEdgesAreAdvisoryOnly": true
+    "inferredEdgesAreAdvisoryOnly": true,
+    "providerLimitWaiver": {
+      "provider": "CodeRabbit",
+      "reason": "QUOTA_EXHAUSTED",
+      "doesNotClaimReview": true,
+      "preservesHumanCiDispositionAndSeal": true
+    }
   },
   "nodes": [
     {
@@ -51,14 +57,20 @@
       "ref": "npm run test:traceability"
     },
     {
-      "id": "REVIEW-CODEX",
+      "id": "REVIEW-CODERABBIT",
       "kind": "independent-review",
       "depth": 4,
-      "label": "Codex exact-head review",
+      "label": "CodeRabbit exact-head review or verified provider-limit waiver",
       "origin": "observed",
-      "provider": "Codex",
-      "independenceKey": "codex",
-      "freshness": "exact-head"
+      "provider": "CodeRabbit",
+      "independenceKey": "coderabbit",
+      "freshness": "exact-head",
+      "acceptedOutcomes": [
+        "E4",
+        "E5",
+        "QUOTA_EXHAUSTED_WAIVER"
+      ],
+      "waiverDoesNotClaimReview": true
     },
     {
       "id": "DISPOSITION-LEDGER",
@@ -100,12 +112,12 @@
     },
     {
       "from": "CHALLENGE-MUTATION",
-      "to": "REVIEW-CODEX",
-      "relation": "reviewed-by",
+      "to": "REVIEW-CODERABBIT",
+      "relation": "reviewed-or-waived-by",
       "authority": "binding"
     },
     {
-      "from": "REVIEW-CODEX",
+      "from": "REVIEW-CODERABBIT",
       "to": "DISPOSITION-LEDGER",
       "relation": "resolved-by",
       "authority": "binding"
