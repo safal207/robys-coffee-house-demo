@@ -27,12 +27,20 @@ if (waived.decision !== "READY") throw new Error(`expected quota-waived READY, g
 if (!waived.waivedBindingReviewers.includes("coderabbit")) {
   throw new Error("CodeRabbit quota waiver is missing");
 }
+const waivedRabbit = waived.reviewers.find((reviewer) => reviewer.id === "coderabbit");
+if (waivedRabbit.runtimeStatus !== "QUOTA_EXHAUSTED" || waivedRabbit.status !== "AVAILABLE") {
+  throw new Error("quota waiver must preserve runtimeStatus while exposing effective route availability");
+}
 
 const notWaived = probeReviewerRoster(roster, "L3", {
   coderabbit: "NO_BALANCE",
   "human-maintainer": "AVAILABLE"
 });
 if (notWaived.decision !== "ESCALATE") throw new Error("NO_BALANCE must not activate quota waiver");
+const unavailableRabbit = notWaived.reviewers.find((reviewer) => reviewer.id === "coderabbit");
+if (unavailableRabbit.status !== "NO_BALANCE" || unavailableRabbit.runtimeStatus !== "NO_BALANCE") {
+  throw new Error("non-waived provider status must remain unavailable to route selection");
+}
 
 const weakened = structuredClone(roster);
 const human = weakened.reviewers.find((reviewer) => reviewer.id === "human-maintainer");
@@ -44,4 +52,4 @@ try {
   if (!error.message.includes("L2 has only 1 eligible binding reviewers for minimum 2")) throw error;
 }
 
-console.log("✅ RRM roster module passed: CodeRabbit is binding, QUOTA_EXHAUSTED has a narrow waiver, Codex is advisory, and human capacity remains protected.");
+console.log("✅ RRM roster module passed: CodeRabbit is binding, QUOTA_EXHAUSTED preserves the real runtime state while exposing narrow route availability, Codex is advisory, and human capacity remains protected.");
