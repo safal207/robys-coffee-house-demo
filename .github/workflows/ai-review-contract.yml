@@ -2,7 +2,7 @@ name: AI review contract
 
 on:
   pull_request:
-    # Lifecycle-only events keep the same head and must not invalidate exact-head evidence.
+    # opened starts the first head-bound run; synchronize reruns after new commits change the PR head and invalidate earlier exact-head evidence.
     types: [opened, synchronize]
 
 permissions:
