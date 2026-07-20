@@ -8,25 +8,26 @@ Link screenshots, logs, artifacts, or reproducible checks.
 
 ## AI review
 
-After every PR head update, freeze the branch and post a fresh trusted top-level request for the sole required AI reviewer. Include the full 40-character current head SHA:
+After every PR head update, freeze the branch and post a fresh trusted top-level request for the required AI reviewer. Include the full 40-character current head SHA:
 
 ```text
-@codex review
+@coderabbitai review
 
 Exact head: <full 40-character current head SHA>
 ```
 
-Codex evidence is valid only when the configured Codex bot publishes authenticated evidence bound to that exact head after the trusted request. A reaction, progress message, pending or dismissed review, maintainer-authored proxy, edited pre-request comment, or response for an older SHA does not satisfy the gate.
+CodeRabbit evidence is valid only when the configured CodeRabbit bot publishes authenticated evidence bound to that exact head after the trusted request. A reaction, progress message, pending or dismissed review, maintainer-authored proxy, edited pre-request comment, or response for an older SHA does not satisfy the normal lane.
 
-CodeRabbit is a scheduled advisory reserve. The protected default-branch dispatcher may request it at 09:00, 13:00 or 19:00 Europe/Istanbul only after a Codex exact-head request has waited at least 45 minutes without acceptable evidence. Do not manually request CodeRabbit during the normal PR flow. Its absence, rate limit, or failure cannot block readiness, and a clean CodeRabbit result cannot replace Codex. Authenticated current-head CodeRabbit findings must still be resolved or dispositioned when present.
+A positive authenticated CodeRabbit `limit`, `quota`, `usage limit`, or `next review available` response published after the latest trusted exact-head request may waive only the external AI-review step. Silence, a generic failure, an unavailable message without an explicit limit, or a third-party claim does not activate the waiver. Under a provider-limit waiver, CI, human approval, the cooperation report, all finding dispositions and the later D6 proof seal remain mandatory.
 
-Qodo is disabled. Do not request Qodo and do not treat its comments, reviews, statuses, or billing notices as readiness evidence.
+Codex, Jules and DeepSeek are optional advisory reviewers. Qodo is disabled. Advisory evidence never replaces CodeRabbit evidence and cannot independently authorize merge.
 
-A new commit invalidates every earlier request and review result. Post a fresh Codex request with the new full SHA.
+A new commit invalidates every earlier request, review result and provider-limit waiver. Post a fresh CodeRabbit request with the new full SHA.
 
 Optional advisory reviewers may also be requested after the latest head update:
 
 ```text
+@codex review
 @jules review
 /deepseek review
 ```
@@ -50,11 +51,14 @@ This is explicit maintainer intent, not independent human or bot approval.
 - [ ] Latest exact-head CI is green.
 - [ ] Generated files are current.
 - [ ] Visual changes include exact-head evidence.
-- [ ] A fresh trusted Codex request contains the full current head SHA.
-- [ ] Authenticated Codex evidence is bound to that exact head and was published after the request.
-- [ ] Any authenticated current-head CodeRabbit reserve findings are resolved or explicitly dispositioned.
+- [ ] A fresh trusted CodeRabbit request contains the full current head SHA.
+- [ ] Authenticated CodeRabbit evidence is bound to that exact head and was published after the request, or an authenticated post-request provider-limit signal activates the narrow waiver.
+- [ ] Any authenticated current-head CodeRabbit findings are resolved or explicitly dispositioned.
+- [ ] Codex, Jules and DeepSeek are treated as advisory only.
 - [ ] Qodo was not requested and is not treated as readiness evidence.
 - [ ] Optional reviewer findings are resolved or explicitly dispositioned when requested.
 - [ ] Required independent human approval exists for the exact current head when enforcement is enabled.
 - [ ] Solo maintainer attestation is green for the exact current head when no independent human reviewer is available.
+- [ ] The cooperation report is READY or READY_WITH_ADVISORY_GAPS for the exact head.
+- [ ] The D6 proof seal was posted after the latest evidence and dispositions.
 - [ ] Every actionable finding is resolved or documented on the current head.
