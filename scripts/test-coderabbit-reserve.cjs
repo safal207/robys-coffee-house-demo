@@ -1,12 +1,12 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const reserve = require("./coderabbit-reserve.cjs")._test;
+const scheduler = require("./coderabbit-reserve.cjs")._test;
 
 const HEAD = "a".repeat(40);
-const NOW = Date.parse("2026-07-18T10:00:00Z"); // 13:00 Europe/Istanbul
-const HEAD_AT = "2026-07-18T07:00:00Z";
-const CODEX_REQUEST_AT = "2026-07-18T08:00:00Z";
+const NOW = Date.parse("2026-07-20T10:00:00Z"); // 13:00 Europe/Istanbul
+const HEAD_AT = "2026-07-20T07:00:00Z";
+const REQUEST_AT = "2026-07-20T08:00:00Z";
 
 function pull(overrides = {}) {
   return {
@@ -26,201 +26,166 @@ function headCommit(date = HEAD_AT) {
 function comment(body, overrides = {}) {
   return {
     body,
-    created_at: CODEX_REQUEST_AT,
-    updated_at: CODEX_REQUEST_AT,
+    created_at: REQUEST_AT,
+    updated_at: REQUEST_AT,
     author_association: "OWNER",
     user: { login: "safal207", type: "User" },
     ...overrides,
   };
 }
 
-function codexRequest(overrides = {}) {
-  return comment(`@codex review\nExact head: ${HEAD}`, overrides);
-}
-
-function codexComment(label = "**Reviewed commit:**", overrides = {}) {
-  return comment(`Codex Review: no blocking issues.\n\n${label} \`${HEAD.slice(0, 10)}\``, {
-    created_at: "2026-07-18T08:30:00Z",
-    updated_at: "2026-07-18T08:30:00Z",
-    author_association: "NONE",
-    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
-    ...overrides,
+function manualRequest(createdAt = REQUEST_AT) {
+  return comment(`@coderabbitai review\nExact head: ${HEAD}`, {
+    created_at: createdAt,
+    updated_at: createdAt,
   });
 }
 
-function nonFinalCodexComment(body) {
-  return comment(`${body}\n\n**Reviewed commit:** \`${HEAD.slice(0, 10)}\``, {
-    created_at: "2026-07-18T08:30:00Z",
-    updated_at: "2026-07-18T08:30:00Z",
+function actionRequest(createdAt = REQUEST_AT) {
+  return comment(`${scheduler.REQUEST_MARKER}\n@coderabbitai review\n\nExact head: ${HEAD}`, {
+    created_at: createdAt,
+    updated_at: createdAt,
     author_association: "NONE",
-    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+    user: { login: "github-actions[bot]", type: "Bot" },
   });
-}
-
-function codexReview(overrides = {}) {
-  return {
-    body: "Clean review",
-    state: "COMMENTED",
-    submitted_at: "2026-07-18T08:30:00Z",
-    commit_id: HEAD,
-    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
-    ...overrides,
-  };
 }
 
 function rabbitReview(overrides = {}) {
   return {
     body: "Clean review",
     state: "COMMENTED",
-    submitted_at: "2026-07-18T09:30:00Z",
+    submitted_at: "2026-07-20T08:30:00Z",
     commit_id: HEAD,
     user: { login: "coderabbitai[bot]", type: "Bot" },
     ...overrides,
   };
 }
 
-function reserveRequest(createdAt = "2026-07-18T06:00:00Z") {
-  return comment(
-    `${reserve.RESERVE_MARKER}\n@coderabbitai review\n\nExact head: ${HEAD}`,
-    {
-      created_at: createdAt,
-      updated_at: createdAt,
-      author_association: "NONE",
-      user: { login: "github-actions[bot]", type: "Bot" },
-    },
-  );
+function rabbitComment(body = `CodeRabbit Review: completed.\n\nReviewed commit: \`${HEAD.slice(0, 10)}\``, overrides = {}) {
+  return comment(body, {
+    created_at: "2026-07-20T08:30:00Z",
+    updated_at: "2026-07-20T08:30:00Z",
+    author_association: "NONE",
+    user: { login: "coderabbitai[bot]", type: "Bot" },
+    ...overrides,
+  });
 }
 
-function evaluate({ comments = [codexRequest()], reviews = [], nowMs = NOW, pullValue = pull() } = {}) {
-  return reserve.evaluateCandidate({
+function evaluate({ comments = [], reviews = [], nowMs = NOW, pullValue = pull(), headDate = HEAD_AT } = {}) {
+  return scheduler.evaluateCandidate({
     pull: pullValue,
     comments,
     reviews,
-    headCommit: headCommit(),
+    headCommit: headCommit(headDate),
     nowMs,
   });
 }
 
-assert.equal(reserve.TIME_ZONE, "Europe/Istanbul");
-assert.equal(reserve.CODEX_WAIT_MS, 45 * 60 * 1000);
-assert.equal(reserve.MAX_REQUESTS_PER_RUN, 1);
-assert.equal(reserve.MAX_REQUESTS_PER_LOCAL_DAY, 3);
-assert.equal(reserve.localDateKey(NOW), "2026-07-18");
+assert.equal(scheduler.TIME_ZONE, "Europe/Istanbul");
+assert.equal(scheduler.INITIAL_WAIT_MS, 45 * 60 * 1000);
+assert.equal(scheduler.MAX_REQUESTS_PER_RUN, 1);
+assert.equal(scheduler.MAX_REQUESTS_PER_LOCAL_DAY, 3);
+assert.equal(scheduler.localDateKey(NOW), "2026-07-20");
 
-const eligible = evaluate();
-assert.equal(eligible.eligible, true);
-assert.equal(eligible.reason, "CODEX_MISSING_AFTER_WAIT");
+const initial = evaluate();
+assert.equal(initial.eligible, true);
+assert.equal(initial.reason, "INITIAL_REQUIRED_REQUEST");
 
-const noCodex = evaluate({ comments: [] });
-assert.equal(noCodex.eligible, false);
-assert.equal(noCodex.reason, "NO_CODEX_REQUEST");
+const headWait = evaluate({ headDate: "2026-07-20T09:30:00Z" });
+assert.equal(headWait.eligible, false);
+assert.equal(headWait.reason, "HEAD_WAIT");
 
-const codexComplete = evaluate({ comments: [codexRequest()], reviews: [codexReview()] });
-assert.equal(codexComplete.eligible, false);
-assert.equal(codexComplete.reason, "CODEX_COMPLETE");
+const manualCooldown = evaluate({ comments: [manualRequest("2026-07-20T09:00:00Z")] });
+assert.equal(manualCooldown.eligible, false);
+assert.equal(manualCooldown.reason, "REQUEST_COOLDOWN");
 
-for (const label of ["**Reviewed commit:**", "_Reviewed commit:_", "*Reviewed commit:*"]) {
-  const codexCommentComplete = evaluate({ comments: [codexRequest(), codexComment(label)] });
-  assert.equal(codexCommentComplete.eligible, false, `${label} must suppress reserve dispatch`);
-  assert.equal(codexCommentComplete.reason, "CODEX_COMPLETE");
-}
+const actionCooldown = evaluate({ comments: [actionRequest("2026-07-20T09:00:00Z")] });
+assert.equal(actionCooldown.eligible, false);
+assert.equal(actionCooldown.reason, "REQUEST_COOLDOWN");
+
+const nativeComplete = evaluate({ comments: [manualRequest()], reviews: [rabbitReview()] });
+assert.equal(nativeComplete.eligible, false);
+assert.equal(nativeComplete.reason, "CODERABBIT_COMPLETE");
+
+const commentComplete = evaluate({ comments: [manualRequest(), rabbitComment()] });
+assert.equal(commentComplete.eligible, false);
+assert.equal(commentComplete.reason, "CODERABBIT_COMPLETE");
 
 for (const body of [
-  "Codex review started and is in progress.",
-  "Codex review failed because the provider is unavailable.",
-  "Codex review quota exceeded; retry later.",
+  "CodeRabbit review started and is in progress.",
+  "CodeRabbit review failed because the provider is unavailable.",
+  "Generic provider error.",
 ]) {
-  const nonFinal = evaluate({ comments: [codexRequest(), nonFinalCodexComment(body)] });
-  assert.equal(nonFinal.eligible, true, "non-final Codex comments must not suppress reserve dispatch");
-  assert.equal(nonFinal.reason, "CODEX_MISSING_AFTER_WAIT");
+  const retry = evaluate({
+    comments: [manualRequest("2026-07-20T06:00:00Z"), rabbitComment(body, { created_at: "2026-07-20T06:30:00Z" })],
+  });
+  assert.equal(retry.eligible, true, `${body} must not count as final evidence or quota waiver`);
+  assert.equal(retry.reason, "RETRY_REQUIRED_REQUEST");
 }
 
-const codexCompleteBeforeDuplicateRequest = evaluate({
+const limitWaived = evaluate({
   comments: [
-    codexRequest(),
-    codexRequest({ created_at: "2026-07-18T09:30:00Z", updated_at: "2026-07-18T09:30:00Z" }),
+    manualRequest("2026-07-20T06:00:00Z"),
+    rabbitComment("Review limit reached. Next review available in 2 hours.", {
+      created_at: "2026-07-20T06:30:00Z",
+    }),
   ],
-  reviews: [codexReview()],
 });
-assert.equal(codexCompleteBeforeDuplicateRequest.eligible, false);
-assert.equal(codexCompleteBeforeDuplicateRequest.reason, "CODEX_COMPLETE");
+assert.equal(limitWaived.eligible, false);
+assert.equal(limitWaived.reason, "PROVIDER_LIMIT_WAIVED");
 
-const tooSoon = evaluate({
-  comments: [codexRequest({ created_at: "2026-07-18T09:30:00Z", updated_at: "2026-07-18T09:30:00Z" })],
+const negativeLimit = evaluate({
+  comments: [
+    manualRequest("2026-07-20T06:00:00Z"),
+    rabbitComment("No review limit was reached; review is starting.", {
+      created_at: "2026-07-20T06:30:00Z",
+    }),
+  ],
 });
-assert.equal(tooSoon.eligible, false);
-assert.equal(tooSoon.reason, "CODEX_WAIT");
+assert.equal(negativeLimit.eligible, true);
+assert.equal(negativeLimit.reason, "RETRY_REQUIRED_REQUEST");
 
-const staleRabbitBeforeMarker = evaluate({ comments: [codexRequest()], reviews: [rabbitReview()] });
-assert.equal(staleRabbitBeforeMarker.eligible, true);
-assert.equal(staleRabbitBeforeMarker.reason, "CODEX_MISSING_AFTER_WAIT");
-
-const rabbitComplete = evaluate({
-  comments: [codexRequest(), reserveRequest("2026-07-18T06:00:00Z")],
-  reviews: [rabbitReview()],
+const staleLimitBeforeLatestRequest = evaluate({
+  comments: [
+    manualRequest("2026-07-20T05:00:00Z"),
+    rabbitComment("Review limit reached.", { created_at: "2026-07-20T05:30:00Z" }),
+    manualRequest("2026-07-20T09:00:00Z"),
+  ],
 });
-assert.equal(rabbitComplete.eligible, false);
-assert.equal(rabbitComplete.reason, "CODERABBIT_COMPLETE");
-
-const cooldown = evaluate({ comments: [codexRequest(), reserveRequest("2026-07-18T09:00:00Z")] });
-assert.equal(cooldown.eligible, false);
-assert.equal(cooldown.reason, "RESERVE_COOLDOWN");
+assert.equal(staleLimitBeforeLatestRequest.eligible, false);
+assert.equal(staleLimitBeforeLatestRequest.reason, "REQUEST_COOLDOWN");
 
 const dailyCap = evaluate({
   comments: [
-    codexRequest(),
-    reserveRequest("2026-07-18T06:00:00Z"),
-    reserveRequest("2026-07-18T06:10:00Z"),
-    reserveRequest("2026-07-18T06:20:00Z"),
+    actionRequest("2026-07-20T05:00:00Z"),
+    actionRequest("2026-07-20T05:10:00Z"),
+    actionRequest("2026-07-20T05:20:00Z"),
   ],
 });
 assert.equal(dailyCap.eligible, false);
 assert.equal(dailyCap.reason, "DAILY_HEAD_CAP");
 
-const staleLimitBeforeMarker = evaluate({
-  comments: [
-    codexRequest(),
-    comment("Review limit reached. Next review available in 2 hours.", {
-      created_at: "2026-07-18T09:15:00Z",
-      updated_at: "2026-07-18T09:15:00Z",
-      author_association: "NONE",
-      user: { login: "coderabbitai[bot]", type: "Bot" },
-    }),
-  ],
+const staleHeadRequest = evaluate({
+  comments: [comment(`@coderabbitai review\nExact head: ${"b".repeat(40)}`)],
 });
-assert.equal(staleLimitBeforeMarker.eligible, true);
-assert.equal(staleLimitBeforeMarker.reason, "CODEX_MISSING_AFTER_WAIT");
+assert.equal(staleHeadRequest.eligible, true);
+assert.equal(staleHeadRequest.reason, "INITIAL_REQUIRED_REQUEST");
 
-const limitCooldown = evaluate({
-  comments: [
-    codexRequest(),
-    reserveRequest("2026-07-18T06:00:00Z"),
-    comment("Review limit reached. Next review available in 2 hours.", {
-      created_at: "2026-07-18T09:15:00Z",
-      updated_at: "2026-07-18T09:15:00Z",
-      author_association: "NONE",
-      user: { login: "coderabbitai[bot]", type: "Bot" },
-    }),
-  ],
+const untrustedRequest = evaluate({
+  comments: [manualRequest(REQUEST_AT), comment(`@coderabbitai review\nExact head: ${HEAD}`, {
+    author_association: "NONE",
+    user: { login: "random-user", type: "User" },
+  })],
 });
-assert.equal(limitCooldown.eligible, false);
-assert.equal(limitCooldown.reason, "PROVIDER_LIMIT_COOLDOWN");
+assert.equal(untrustedRequest.eligible, false);
+assert.equal(untrustedRequest.reason, "REQUEST_COOLDOWN");
 
-const qodoNoise = evaluate({
-  comments: [
-    codexRequest(),
-    comment(`/qodo review\nExact head: ${HEAD}`, {
-      user: { login: "safal207", type: "User" },
-    }),
-  ],
-});
-assert.equal(qodoNoise.eligible, true);
-
-const body = reserve.requestBody({ head: HEAD, windowLabel: "13:00" });
-assert(body.includes(reserve.RESERVE_MARKER));
+const body = scheduler.requestBody({ head: HEAD, windowLabel: "13:00" });
+assert(body.includes(scheduler.REQUEST_MARKER));
 assert(body.includes("@coderabbitai review"));
 assert(body.includes(`Exact head: ${HEAD}`));
 assert(body.includes("13:00 Europe/Istanbul"));
-assert(body.includes("cannot replace or satisfy Codex"));
+assert(body.includes("provider-limit waiver"));
+assert(body.includes("Human approval, CI, dispositions and D6 remain mandatory"));
 
-console.log("✅ CODERABBIT-RESERVE-001 passed: bounded reserve dispatch requires final Codex evidence semantics and a trusted reserve marker before CodeRabbit evidence or limit signals can suppress a probe.");
+console.log("✅ CODERABBIT-REQUIRED-001 passed: scheduled windows create bounded required-review requests, final evidence stops retries, and only an explicit post-request limit/quota signal activates the narrow waiver.");
