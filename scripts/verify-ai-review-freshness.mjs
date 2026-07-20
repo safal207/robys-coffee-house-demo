@@ -9,9 +9,11 @@ const requiredTokens = [
   "github.event.pull_request.base.sha",
   "currentHead",
   "commit_id",
-  "CODEX_COMMAND",
-  "codexRequestAt",
-  "DORMANT_PROVIDER_NAMES"
+  "CODERABBIT_COMMAND",
+  "latestCodeRabbitLimitSignal",
+  "provider-limit-bypass",
+  "DORMANT_PROVIDER_NAMES",
+  "ADVISORY_PROVIDER_NAMES"
 ];
 
 const forbiddenTokens = [
@@ -20,7 +22,8 @@ const forbiddenTokens = [
   "qodoRequestAt",
   "warmStandbyRoundReady",
   "Qodo remains primary",
-  "ref: 577dfd5eebe75038ee067830e6b0c70815fcc837",
+  "CODEX_COMMAND",
+  "codexRequestAt",
   "latestDeepSeekRequestAt",
   "/deepseek review",
   "hasDeepSeekEvidence"
@@ -28,12 +31,12 @@ const forbiddenTokens = [
 
 const missing = requiredTokens.filter((token) => !contract.includes(token));
 if (missing.length > 0) {
-  throw new Error(`[AI-FRESHNESS-001] missing trusted Codex-only exact-head guard(s): ${missing.join(", ")}`);
+  throw new Error(`[AI-FRESHNESS-001] missing trusted CodeRabbit exact-head or provider-limit guard(s): ${missing.join(", ")}`);
 }
 
 const forbidden = forbiddenTokens.filter((token) => contract.includes(token));
 if (forbidden.length > 0) {
-  throw new Error(`[AI-FRESHNESS-001] disabled or optional reviewer leaked into binding gate: ${forbidden.join(", ")}`);
+  throw new Error(`[AI-FRESHNESS-001] disabled or advisory reviewer leaked into the binding gate: ${forbidden.join(", ")}`);
 }
 
-console.log("✅ AI-FRESHNESS-001 valid: Actions executes the verifier from GitHub's trusted base SHA; Codex is the sole request-bound exact-head reviewer, while Qodo, CodeRabbit and optional reviewers cannot block or satisfy readiness.");
+console.log("✅ AI-FRESHNESS-001 valid: Actions executes the verifier from GitHub's trusted base SHA; CodeRabbit is the sole request-bound exact-head AI reviewer; only an authenticated post-request limit/quota signal may waive its execution step; Codex, DeepSeek and Qodo cannot satisfy the binding gate.");
