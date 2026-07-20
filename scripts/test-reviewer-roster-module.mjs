@@ -2,21 +2,37 @@ import { readFileSync } from "node:fs";
 import { probeReviewerRoster } from "./probe-reviewer-roster.mjs";
 
 const roster = JSON.parse(readFileSync("qa/reviewer-roster.json", "utf8"));
+
 const ready = probeReviewerRoster(roster, "L3", {
-  codex: "AVAILABLE",
+  coderabbit: "AVAILABLE",
   "human-maintainer": "AVAILABLE",
-  coderabbit: "NO_BALANCE"
+  codex: "UNKNOWN"
 });
 if (ready.decision !== "READY") throw new Error(`expected READY, got ${ready.decision}`);
-if (!ready.runtimeWarnings.includes("ADVISORY_REVIEWER_coderabbit_NO_BALANCE")) {
-  throw new Error("CodeRabbit advisory warning is missing");
+if (!ready.availableBindingReviewers.includes("coderabbit")) {
+  throw new Error("CodeRabbit binding reviewer is missing");
 }
-if (!ready.availableBindingReviewers.includes("codex")) {
-  throw new Error("Codex binding reviewer is missing");
+if (ready.availableBindingReviewers.includes("codex")) {
+  throw new Error("Codex counted as binding");
 }
-if (ready.availableBindingReviewers.includes("coderabbit")) {
-  throw new Error("CodeRabbit counted as binding");
+if (!ready.runtimeWarnings.includes("ADVISORY_REVIEWER_codex_UNKNOWN")) {
+  throw new Error("Codex advisory warning is missing");
 }
+
+const waived = probeReviewerRoster(roster, "L3", {
+  coderabbit: "QUOTA_EXHAUSTED",
+  "human-maintainer": "AVAILABLE"
+});
+if (waived.decision !== "READY") throw new Error(`expected quota-waived READY, got ${waived.decision}`);
+if (!waived.waivedBindingReviewers.includes("coderabbit")) {
+  throw new Error("CodeRabbit quota waiver is missing");
+}
+
+const notWaived = probeReviewerRoster(roster, "L3", {
+  coderabbit: "NO_BALANCE",
+  "human-maintainer": "AVAILABLE"
+});
+if (notWaived.decision !== "ESCALATE") throw new Error("NO_BALANCE must not activate quota waiver");
 
 const weakened = structuredClone(roster);
 const human = weakened.reviewers.find((reviewer) => reviewer.id === "human-maintainer");
@@ -28,4 +44,4 @@ try {
   if (!error.message.includes("L2 has only 1 eligible binding reviewers for minimum 2")) throw error;
 }
 
-console.log("✅ RRM roster module passed: Codex is binding and CodeRabbit is advisory.");
+console.log("✅ RRM roster module passed: CodeRabbit is binding, QUOTA_EXHAUSTED has a narrow waiver, Codex is advisory, and human capacity remains protected.");
