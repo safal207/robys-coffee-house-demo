@@ -70,6 +70,9 @@ expectFailure("advisory-only completion", "lacks binding proof stage disposition
 expectFailure("stale binding", "must be exact-head bound", (graph) => {
   delete graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").freshness;
 });
+expectFailure("wrong provider", "missing reviewer independence metadata", (graph) => {
+  delete graph.nodes.find((node) => node.id === "REVIEW-CODERABBIT").provider;
+});
 expectFailure("inferred binding authority", "inferred knowledge cannot grant binding authority", (graph) => {
   graph.nodes.find((node) => node.id === "DISPOSITION-LEDGER").origin = "inferred";
 });
@@ -85,4 +88,4 @@ expectFailure("back edge", "proof stage skip", (graph) => {
 expectPathFailure("absolute graph path", "graph path must be repository-relative", (root) => path.join(root, "graph.json"));
 expectPathFailure("graph path escape", "graph path escapes repository root", () => "../outside-graph.json");
 
-console.log("✅ PDG-001 mutation tests passed: mandatory-reviewer policy, binding reachability, freshness, inferred authority, proof seal and graph path containment.");
+console.log("✅ PDG-001 mutation tests passed: CodeRabbit outcome occupies D4, binding reachability and freshness remain exact-head, and provider-limit waiver metadata cannot bypass dispositions or the later proof seal.");

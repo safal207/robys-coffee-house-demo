@@ -16,7 +16,13 @@
     ],
     "bindingFreshness": "exact-head",
     "sealMustPostdateEvidence": true,
-    "inferredEdgesAreAdvisoryOnly": true
+    "inferredEdgesAreAdvisoryOnly": true,
+    "providerLimitWaiver": {
+      "provider": "CodeRabbit",
+      "reason": "QUOTA_EXHAUSTED",
+      "doesNotClaimReview": true,
+      "preservesHumanCiDispositionAndSeal": true
+    }
   },
   "nodes": [
     {
@@ -54,11 +60,17 @@
       "id": "REVIEW-CODERABBIT",
       "kind": "independent-review",
       "depth": 4,
-      "label": "CodeRabbit exact-head review",
+      "label": "CodeRabbit exact-head review or verified provider-limit waiver",
       "origin": "observed",
       "provider": "CodeRabbit",
       "independenceKey": "coderabbit",
-      "freshness": "exact-head"
+      "freshness": "exact-head",
+      "acceptedOutcomes": [
+        "E4",
+        "E5",
+        "QUOTA_EXHAUSTED_WAIVER"
+      ],
+      "waiverDoesNotClaimReview": true
     },
     {
       "id": "DISPOSITION-LEDGER",

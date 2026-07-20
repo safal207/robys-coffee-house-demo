@@ -1,0 +1,116 @@
+name: CodeRabbit required-review contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/coderabbit-reserve.yml
+      - .github/workflows/coderabbit-reserve-contract.yml
+      - scripts/coderabbit-reserve.cjs
+      - scripts/test-coderabbit-reserve.cjs
+      - scripts/verify-ai-review-contract.cjs
+      - scripts/test-codex-review-contract.cjs
+      - scripts/ai-review-cooperation.py
+      - scripts/test-ai-review-cooperation.py
+      - scripts/verify-ai-review-freshness.mjs
+      - qa/proof-depth-graph.json
+      - scripts/verify-proof-depth-graph.mjs
+      - scripts/test-proof-depth-graph.mjs
+      - scripts/render-ci-proof-summary.mjs
+      - scripts/test-ci-proof-summary.mjs
+      - docs/ai-review-cooperation-policy.md
+      - package.json
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: CodeRabbit required-review contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Test cooperation reporter
+        run: |
+          python3 -m py_compile scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py
+          python3 scripts/test-ai-review-cooperation.py -v
+
+      - name: Test bounded request scheduler
+        run: |
+          node --check scripts/coderabbit-reserve.cjs
+          node scripts/test-coderabbit-reserve.cjs
+
+      - name: Test required reviewer gate
+        run: |
+          node --check scripts/verify-ai-review-contract.cjs
+          node scripts/test-codex-review-contract.cjs
+          node scripts/verify-ai-review-freshness.mjs
+
+      - name: Test proof graph and summary
+        run: |
+          node scripts/verify-proof-depth-graph.mjs
+          node scripts/test-proof-depth-graph.mjs
+          node scripts/test-ci-proof-summary.mjs
+
+      - name: Parse workflow YAML
+        run: >-
+          ruby -e "require 'yaml';
+          YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
+          YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml')"
+
+      - name: Verify schedule and limit boundaries
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/coderabbit-reserve.yml
+          dispatcher=scripts/coderabbit-reserve.cjs
+          grep -Fq "cron: '0 6 * * *'" "${workflow}"
+          grep -Fq "cron: '0 10 * * *'" "${workflow}"
+          grep -Fq "cron: '0 16 * * *'" "${workflow}"
+          grep -Fq 'Europe/Istanbul' "${workflow}"
+          grep -Fq 'const INITIAL_WAIT_MS = 45 * 60 * 1000' "${dispatcher}"
+          grep -Fq 'const RETRY_GAP_MS = 3 * 60 * 60 * 1000' "${dispatcher}"
+          grep -Fq 'const MAX_REQUESTS_PER_LOCAL_DAY = 3' "${dispatcher}"
+          grep -Fq 'const MAX_REQUESTS_PER_RUN = 1' "${dispatcher}"
+          grep -Fq '@coderabbitai review' "${dispatcher}"
+          grep -Fq 'INITIAL_REQUIRED_REQUEST' "${dispatcher}"
+          grep -Fq 'RETRY_REQUIRED_REQUEST' "${dispatcher}"
+          grep -Fq 'PROVIDER_LIMIT_WAIVED' "${dispatcher}"
+          grep -Fq 'Human approval, CI, dispositions and D6 remain mandatory' "${dispatcher}"
+          ! grep -Fq '/qodo review' "${dispatcher}"
+          ! grep -Fq 'cannot replace or satisfy Codex' "${dispatcher}"
+
+      - name: Verify trusted execution and least privilege
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/coderabbit-reserve.yml
+          grep -Fq 'default_branch' "${workflow}"
+          grep -Fq 'persist-credentials: false' "${workflow}"
+          grep -Fq 'Dispatch bounded required-review request' "${workflow}"
+          ! grep -Fq 'pull_request_target' "${workflow}"
+          ! grep -Fq 'contents: write' "${workflow}"
+          ! grep -Fq 'actions: write' "${workflow}"
+          ruby <<'RUBY'
+          require 'yaml'
+          workflow = YAML.load_file('.github/workflows/coderabbit-reserve.yml')
+          raise 'workflow permissions must default to none' unless workflow['permissions'] == {}
+          expected = {
+            'contents' => 'read',
+            'issues' => 'write',
+            'pull-requests' => 'read',
+          }
+          actual = workflow.dig('jobs', 'reserve', 'permissions')
+          raise "unexpected scheduler permissions: #{actual.inspect}" unless actual == expected
+          raise 'scheduled runs must not cancel each other' unless workflow.dig('concurrency', 'cancel-in-progress') == false
+          RUBY
+
+      - name: Validate embedded JavaScript
+        run: |
+          node --check scripts/coderabbit-reserve.cjs
+          node --check scripts/test-coderabbit-reserve.cjs
+          node --check scripts/verify-ai-review-contract.cjs
+          node --check scripts/test-codex-review-contract.cjs

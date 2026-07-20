@@ -30,7 +30,13 @@
     },
     "humanRequiredDepths": ["L2", "L3", "L4"],
     "advisoryActorsForbidden": true,
-    "exactDepthMatchRequired": true
+    "exactDepthMatchRequired": true,
+    "providerLimitWaiver": {
+      "actor": "coderabbit",
+      "status": "QUOTA_EXHAUSTED",
+      "requiresExactHeadSignal": true,
+      "humanStillRequiredAtDepths": ["L2", "L3", "L4"]
+    }
   },
   "routes": [
     {

@@ -44,7 +44,15 @@
     "advisoryReviewers": [
       "codex",
       "deepseek"
-    ]
+    ],
+    "providerLimitWaivers": {
+      "reviewers": [
+        "coderabbit"
+      ],
+      "statuses": [
+        "QUOTA_EXHAUSTED"
+      ]
+    }
   },
   "reviewers": [
     {
@@ -72,12 +80,14 @@
       "binding": false,
       "advisory": true,
       "eligibleDepths": [
+        "L1",
         "L2",
         "L3",
         "L4"
       ],
       "roles": [
-        "advisory_reviewer"
+        "advisory_reviewer",
+        "risk_critic"
       ],
       "defaultStatus": "UNKNOWN"
     },

@@ -6,7 +6,7 @@ const head = "1234567890abcdef1234567890abcdef12345678";
 
 const actors = {
   coderabbit: ["draft_reviewer", "risk_critic"],
-  codex: ["advisory_reviewer"],
+  codex: ["advisory_reviewer", "risk_critic"],
   "human-maintainer": ["risk_critic", "evidence_verifier", "operator", "authorization_owner"],
   deepseek: ["advisory_reviewer"]
 };
@@ -27,6 +27,7 @@ function rosterResult(depth, ids, statuses = {}, decision = "READY") {
       binding: !advisory,
       advisory,
       roles: actors[id],
+      waivedByProviderLimit: false,
       countsTowardBinding: !advisory && status === "AVAILABLE",
       availableAdvisory: advisory && status === "AVAILABLE"
     };
@@ -39,6 +40,7 @@ function rosterResult(depth, ids, statuses = {}, decision = "READY") {
     authority: "preflight-only",
     reasons: [],
     availableBindingReviewers: reviewers.filter((item) => item.countsTowardBinding).map((item) => item.id),
+    waivedBindingReviewers: [],
     availableAdvisoryReviewers: reviewers.filter((item) => item.availableAdvisory).map((item) => item.id),
     reviewers
   };
@@ -55,6 +57,12 @@ function expectFailure(label, expected, action) {
 }
 
 validateReviewRoutePolicy(policy);
+if (policy.nonNegotiablePolicy.providerLimitWaiver.actor !== "coderabbit") {
+  throw new Error("CodeRabbit provider-limit waiver actor is missing");
+}
+if (policy.nonNegotiablePolicy.providerLimitWaiver.status !== "QUOTA_EXHAUSTED") {
+  throw new Error("provider-limit waiver status must remain QUOTA_EXHAUSTED");
+}
 
 const l3Roster = rosterResult("L3", ["coderabbit", "human-maintainer", "codex"], {
   codex: "NO_BALANCE"
@@ -67,6 +75,9 @@ if (first.decision !== "SELECTED" || first.routeId !== "route-l3-standard") {
 if (JSON.stringify(first) !== JSON.stringify(second)) {
   throw new Error("identical inputs must produce identical route output");
 }
+if (!first.actors.includes("coderabbit") || first.actors.includes("codex")) {
+  throw new Error("standard route is not CodeRabbit-first");
+}
 
 const missingHuman = selectReviewRoute(
   policy,
@@ -75,7 +86,7 @@ const missingHuman = selectReviewRoute(
   head
 );
 if (missingHuman.decision !== "ESCALATE" || !missingHuman.missingActors.includes("human-maintainer")) {
-  throw new Error("L3 without a human must escalate even when Codex is available");
+  throw new Error("L3 without a human must escalate even when CodeRabbit is available");
 }
 
 const partialRoster = rosterResult(
@@ -86,7 +97,7 @@ const partialRoster = rosterResult(
 );
 const partial = selectReviewRoute(policy, depthResult("L3"), partialRoster, head);
 if (partial.decision !== "ESCALATE" || !partial.partialActors.includes("coderabbit")) {
-  throw new Error("PARTIAL binding reviewer must not enter an automatic route");
+  throw new Error("PARTIAL CodeRabbit must not enter an automatic route");
 }
 
 const auditedRoster = rosterResult("L3", ["coderabbit", "human-maintainer", "codex"], {
@@ -169,4 +180,4 @@ expectFailure("actor floor", "fewer than 2 distinct binding actors", () => {
   validateReviewRoutePolicy(changed);
 });
 
-console.log("✅ RRM-ROUTE-001 tests passed: Codex remains advisory, binding routes stay deterministic, and human authorization is preserved.");
+console.log("✅ RRM-ROUTE-001 tests passed: CodeRabbit is binding, Codex is advisory, routes stay deterministic, quota-waiver policy is explicit, and human authorization is preserved.");
