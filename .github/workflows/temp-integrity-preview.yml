@@ -1,0 +1,30 @@
+name: Temporary integrity preview
+
+on:
+  push:
+    branches:
+      - ux/mobile-usability-v1
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Generate integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Upload generated manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: generated-integrity-manifest
+          path: integrity-manifest.json
+          if-no-files-found: error
+          retention-days: 1

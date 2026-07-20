@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v19-20260710-pwa-startup-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v20-20260721-mobile-usability-10750cdfa32c-58d387ca0c01-8684882d7e96";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -23,7 +23,7 @@ const CORE_ASSETS = [
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
-  "./discover-rotation.css?v=96b566c9731e",
+  "./discover-rotation.css?v=8684882d7e96",
   "./wordmark-responsive.css?v=20260704-1",
   "./bootstrap.js",
   "./app.js",

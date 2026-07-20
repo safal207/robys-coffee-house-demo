@@ -1,4 +1,23 @@
 .menu-category-nav:not([data-ready]){min-height:40px}
 .full-menu-grid:not([data-ready]){min-height:2542px}
 @media(max-width:900px){.full-menu-grid:not([data-ready]){min-height:3574px}}
-@media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:38px}}
+@media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:44px}}
+
+/* MOBILE-USABILITY-V1: preserve controls during long touch scrolling and keep targets reachable. */
+@media(max-width:680px){
+  .menu-page .menu-page-back{min-height:44px}
+  .menu-page .lang-button{min-width:44px;min-height:44px;padding-inline:7px}
+  .menu-category-chip{min-height:44px}
+  .menu-inline-link{display:inline-flex;min-height:44px;align-items:center}
+}
+
+@media(max-width:340px){
+  .menu-page .lang-button{min-width:40px;min-height:44px;padding-inline:4px}
+}
+
+@media(hover:none) and (pointer:coarse){
+  .menu-page .site-header{position:static;top:auto;z-index:auto;box-shadow:none}
+  .menu-controls{position:sticky;top:0;z-index:80;box-shadow:0 10px 24px rgba(36,28,27,.08)}
+  .full-menu-wrap{scroll-margin-top:150px}
+  .full-menu-panel{scroll-margin-top:165px}
+}
