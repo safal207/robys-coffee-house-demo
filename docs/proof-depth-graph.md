@@ -12,7 +12,7 @@ PDG-001 applies the ClewAI ideas of ProofPath, CML, LTP and Verified Episode to 
 | D1 | Repository artifact |
 | D2 | Executable verification |
 | D3 | Mutation challenge |
-| D4 | Independent exact-head review |
+| D4 | Independent CodeRabbit outcome |
 | D5 | Finding disposition |
 | D6 | Maintainer Proof Seal |
 
@@ -23,12 +23,14 @@ flowchart LR
   C["D0 claim"] --> A["D1 artifact"]
   A --> V["D2 executable check"]
   V --> M["D3 mutation test"]
-  M --> R["D4 Codex"]
+  M --> R["D4 CodeRabbit review or verified quota waiver"]
   R --> L["D5 disposition ledger"]
   L --> S["D6 Proof Seal"]
 ```
 
-The binding reviewer is **Codex**. CodeRabbit is a scheduled advisory reserve. Its authenticated current-head findings must be dispositioned when present, but provider absence does not block readiness. DeepSeek and Jules are optional advisory lanes. Qodo is disabled.
+The binding AI reviewer is **CodeRabbit**. Codex, DeepSeek and Jules are advisory. Qodo is disabled.
+
+Normal D4 evidence is an authenticated request-bound CodeRabbit exact-head review at E4 or E5. A verified post-request `QUOTA_EXHAUSTED` signal may occupy D4 only as a provider-limit waiver. The waiver explicitly does not claim that a review occurred and cannot remove D5, D6, required CI or human authorization.
 
 The executable graph is `qa/proof-depth-graph.json`.
 
@@ -57,9 +59,10 @@ A proof seal contains these three lines:
 A seal is valid only when:
 
 1. it names the current PR head;
-2. Codex has current-head evidence at cooperation evidence level E4 or E5;
-3. all current-head findings from Codex and any available advisory reviewer have explicit dispositions;
-4. required CI and mutation tests pass;
-5. the seal was posted after the latest evidence and dispositions.
+2. CodeRabbit has current-head E4/E5 evidence, or a verified request-bound `QUOTA_EXHAUSTED` waiver is recorded without claiming review completion;
+3. all current-head findings from CodeRabbit and any available advisory reviewer have explicit dispositions;
+4. required CI, mutation tests and human approval pass;
+5. the cooperation report is `READY` or `READY_WITH_ADVISORY_GAPS` for the same head;
+6. the seal was posted after the latest evidence and dispositions.
 
 A new commit or later finding invalidates the seal. Inferred graph edges remain advisory and cannot grant readiness authority.
