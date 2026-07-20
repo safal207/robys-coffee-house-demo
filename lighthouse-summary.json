@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-16T18:28:37.774Z",
+  "generatedAt": "2026-07-20T19:21:42.260Z",
   "lighthouseVersion": "12.8.2",
   "testedUrl": "http://127.0.0.1:8080/",
   "device": {
@@ -31,22 +31,22 @@
   "metrics": {
     "first-contentful-paint": {
       "displayValue": "2.3 s",
-      "numericValue": 2315.402325,
+      "numericValue": 2297.4817000000003,
       "score": 0.74
     },
     "largest-contentful-paint": {
       "displayValue": "4.3 s",
-      "numericValue": 4324.0852,
+      "numericValue": 4320.655200000001,
       "score": 0.41
     },
     "speed-index": {
       "displayValue": "4.6 s",
-      "numericValue": 4602.7055556749865,
+      "numericValue": 4634.107424189784,
       "score": 0.7
     },
     "total-blocking-time": {
       "displayValue": "520 ms",
-      "numericValue": 518.8536999999999,
+      "numericValue": 519.0388000000003,
       "score": 0.56
     },
     "cumulative-layout-shift": {
@@ -56,7 +56,7 @@
     },
     "interactive": {
       "displayValue": "4.4 s",
-      "numericValue": 4403.749830000001,
+      "numericValue": 4400.859080000002,
       "score": 0.83
     }
   },
@@ -64,7 +64,7 @@
     {
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
-      "displayValue": "Est savings of 1,130 ms",
+      "displayValue": "Est savings of 1,100 ms",
       "score": 0
     },
     {
@@ -103,7 +103,7 @@
       "id": "mainthread-work-breakdown",
       "title": "Minimize main-thread work",
       "score": 0,
-      "displayValue": "3.6 s"
+      "displayValue": "3.7 s"
     },
     {
       "id": "largest-contentful-paint-element",
@@ -115,7 +115,7 @@
       "id": "render-blocking-resources",
       "title": "Eliminate render-blocking resources",
       "score": 0,
-      "displayValue": "Est savings of 1,130 ms"
+      "displayValue": "Est savings of 1,100 ms"
     },
     {
       "id": "unminified-javascript",
@@ -151,7 +151,7 @@
       "id": "render-blocking-insight",
       "title": "Render blocking requests",
       "score": 0,
-      "displayValue": "Est savings of 1,280 ms"
+      "displayValue": "Est savings of 1,250 ms"
     },
     {
       "id": "largest-contentful-paint",
@@ -162,7 +162,7 @@
     {
       "id": "max-potential-fid",
       "title": "Max Potential First Input Delay",
-      "score": 0.48,
+      "score": 0.5,
       "displayValue": "250 ms"
     },
     {
