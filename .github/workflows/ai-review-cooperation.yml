@@ -167,7 +167,7 @@ jobs:
       - name: Collect complete GraphQL review threads
         run: python3 scripts/fetch-review-threads.py
 
-      - name: Build Codex-only cooperation report
+      - name: Build CodeRabbit-first cooperation report
         run: python3 scripts/ai-review-cooperation.py report
 
       - name: Publish or update cooperation report
@@ -215,5 +215,5 @@ jobs:
             echo
             echo "Trigger: ${TRIGGER_EVENT}"
             echo "Head: ${TRIGGER_HEAD_SHA:-unknown}"
-            echo "Qodo and CodeRabbit remain disabled; this diagnostic does not count as reviewer evidence."
+            echo "This diagnostic is not reviewer evidence. CodeRabbit is required; an authenticated quota/limit response may waive only the external review step. Codex, Jules and DeepSeek are advisory; Qodo is disabled."
           } >> "${GITHUB_STEP_SUMMARY}"
