@@ -78,6 +78,15 @@ function isSubmittedReview(review) {
   return Boolean(review?.submitted_at) && review.state !== "PENDING" && review.state !== "DISMISSED";
 }
 
+function isFinalCodexCommentEvidence(item) {
+  const body = String(item?.body ?? "");
+  return (
+    /here are some automated review suggestions for this pull request/i.test(body) ||
+    /\bcodex review\s*:\s*(?:did(?:n't| not) find|found no|no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body) ||
+    /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
+  );
+}
+
 function trustedRequests(comments, command, head, notBefore) {
   return comments
     .filter(
@@ -90,7 +99,14 @@ function trustedRequests(comments, command, head, notBefore) {
     .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
 }
 
-function exactHeadEvidence({ comments, reviews, logins, head, requestAt }) {
+function exactHeadEvidence({
+  comments,
+  reviews,
+  logins,
+  head,
+  requestAt,
+  commentPredicate = () => true,
+}) {
   if (requestAt <= 0) return [];
   const nativeReviews = reviews.filter(
     (review) =>
@@ -103,6 +119,7 @@ function exactHeadEvidence({ comments, reviews, logins, head, requestAt }) {
     (comment) =>
       isBotFrom(comment, logins) &&
       createdTimeOf(comment) >= requestAt &&
+      commentPredicate(comment) &&
       isExactHeadCommit(reviewedCommitOf(comment), head),
   );
   return [...nativeReviews, ...botComments];
@@ -190,6 +207,7 @@ function evaluateCandidate({ pull, comments, reviews, headCommit, nowMs }) {
     logins: CODEX_LOGINS,
     head,
     requestAt: earliestCodexRequestAt,
+    commentPredicate: isFinalCodexCommentEvidence,
   });
   if (codexEvidence.length > 0) {
     return { eligible: false, reason: "CODEX_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
@@ -199,19 +217,22 @@ function evaluateCandidate({ pull, comments, reviews, headCommit, nowMs }) {
     return { eligible: false, reason: "CODEX_WAIT", head, codexRequestAt: latestCodexRequestAt };
   }
 
-  const rabbitEvidence = exactHeadEvidence({
-    comments,
-    reviews,
-    logins: CODERABBIT_LOGINS,
-    head,
-    requestAt: headAt,
-  });
-  if (rabbitEvidence.length > 0) {
-    return { eligible: false, reason: "CODERABBIT_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
+  const requests = reserveRequests(comments, head);
+  const earliestReserveAt = requests.length > 0 ? createdTimeOf(requests[0]) : 0;
+  const latestReserveAt = requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
+  if (earliestReserveAt > 0) {
+    const rabbitEvidence = exactHeadEvidence({
+      comments,
+      reviews,
+      logins: CODERABBIT_LOGINS,
+      head,
+      requestAt: earliestReserveAt,
+    });
+    if (rabbitEvidence.length > 0) {
+      return { eligible: false, reason: "CODERABBIT_COMPLETE", head, codexRequestAt: latestCodexRequestAt };
+    }
   }
 
-  const requests = reserveRequests(comments, head);
-  const latestReserveAt = requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
   if (latestReserveAt > 0 && nowMs - latestReserveAt < RETRY_GAP_MS) {
     return { eligible: false, reason: "RESERVE_COOLDOWN", head, codexRequestAt: latestCodexRequestAt };
   }
@@ -222,7 +243,9 @@ function evaluateCandidate({ pull, comments, reviews, headCommit, nowMs }) {
     return { eligible: false, reason: "DAILY_HEAD_CAP", head, codexRequestAt: latestCodexRequestAt };
   }
 
-  const latestLimit = latestCodeRabbitLimitSignal(comments, latestReserveAt || headAt);
+  const latestLimit = latestReserveAt > 0
+    ? latestCodeRabbitLimitSignal(comments, latestReserveAt)
+    : undefined;
   const latestLimitAt = latestLimit
     ? Math.max(createdTimeOf(latestLimit), updatedTimeOf(latestLimit))
     : 0;
@@ -369,6 +392,7 @@ module.exports._test = {
   exactHeadEvidence,
   hasExactHeadBinding,
   hasPositiveLimitSignal,
+  isFinalCodexCommentEvidence,
   localDateKey,
   requestBody,
   reserveRequests,
