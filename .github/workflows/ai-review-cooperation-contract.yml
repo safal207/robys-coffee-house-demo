@@ -3,6 +3,7 @@ name: AI review cooperation contract
 on:
   pull_request:
     paths:
+      - .github/workflows/ai-review-contract.yml
       - .github/workflows/ai-review-cooperation.yml
       - .github/workflows/ai-review-cooperation-contract.yml
       - .github/workflows/coderabbit-reserve.yml
@@ -16,6 +17,8 @@ on:
       - scripts/test-ai-review-cooperation.py
       - scripts/test-coderabbit-reserve.cjs
       - scripts/test-codex-review-contract.cjs
+      - qa/reviewer-roster.json
+      - qa/review-route-policy.json
       - qa/proof-depth-graph.json
       - docs/ai-review-cooperation-policy.md
       - docs/proof-depth-graph.md
@@ -34,7 +37,7 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Compile and run Codex-required reserve-aware cooperation tests
+      - name: Compile and run CodeRabbit-required cooperation tests
         run: |
           python3 -m py_compile scripts/ai-review-cooperation.py scripts/fetch-review-threads.py scripts/test-ai-review-cooperation.py
           python3 scripts/test-ai-review-cooperation.py -v
@@ -49,6 +52,7 @@ jobs:
       - name: Parse workflow YAML
         run: >-
           ruby -e "require 'yaml';
+          YAML.parse_file('.github/workflows/ai-review-contract.yml');
           YAML.parse_file('.github/workflows/ai-review-cooperation.yml');
           YAML.parse_file('.github/workflows/ai-review-cooperation-contract.yml');
           YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
@@ -59,58 +63,44 @@ jobs:
       - name: Verify reviewer role boundary
         run: |
           set -euo pipefail
+          verifier=scripts/verify-ai-review-contract.cjs
           reporter=scripts/ai-review-cooperation.py
+          scheduler=scripts/coderabbit-reserve.cjs
           workflow=.github/workflows/ai-review-cooperation.yml
-          reserve_contract=.github/workflows/coderabbit-reserve-contract.yml
+          ai_workflow=.github/workflows/ai-review-contract.yml
           ledger=.github/workflows/review-ledger.yml
-          trace=.github/workflows/traceability.yml
           policy=docs/ai-review-cooperation-policy.md
-          pdg_doc=docs/proof-depth-graph.md
-          pdg=qa/proof-depth-graph.json
           template=.github/pull_request_template.md
+          roster=qa/reviewer-roster.json
+          routes=qa/review-route-policy.json
 
-          grep -Fq "ACTIVE_REVIEWERS = {'Codex'}" "${reporter}"
-          grep -Fq "RESERVE_REVIEWERS = {'CodeRabbit'}" "${reporter}"
+          grep -Fq 'ACTIVE_PROVIDER_NAMES: ["CodeRabbit"]' "${verifier}"
+          grep -Fq 'provider-limit-bypass' "${verifier}"
+          grep -Fq 'hasPositiveLimitSignal' "${verifier}"
+          grep -Fq "ACTIVE_REVIEWERS = {'CodeRabbit'}" "${reporter}"
+          grep -Fq "ADVISORY_REVIEWERS = {'Codex', 'Jules', 'DeepSeek'}" "${reporter}"
           grep -Fq "DORMANT_REVIEWERS = {'Qodo'}" "${reporter}"
-          grep -Fq "CODERABBIT_RESERVE_MARKER = '<!-- coderabbit-reserve -->'" "${reporter}"
-          grep -Fq "Qodo is disabled" "${policy}"
-          grep -Fq "CodeRabbit is a bounded scheduled reserve" "${policy}"
-          grep -Fq "sole required request-bound AI reviewer" "${policy}"
-          grep -Fq '@codex review' "${template}"
-          grep -Fq 'CodeRabbit is a scheduled advisory reserve' "${template}"
-          grep -Fq 'Qodo is disabled' "${template}"
-          grep -Fq 'A fresh trusted Codex request contains the full current head SHA' "${template}"
-          grep -Fq 'Any authenticated current-head CodeRabbit reserve findings are resolved or explicitly dispositioned' "${template}"
-          ! grep -Fq '@coderabbitai review' "${template}"
-          ! grep -Fq 'Codex lane is supplemental' "${template}"
-          ! grep -Fq 'A fresh CodeRabbit request contains the full current head SHA' "${template}"
-          ! grep -Fq 'A CodeRabbit-authored PR review object is bound to that exact head' "${template}"
-          grep -Fq 'name: CodeRabbit reserve contract' "${reserve_contract}"
-          grep -Fq 'const reserveRequested = reserveRequests.length > 0' "${ledger}"
-          grep -Fq 'const reviewedCommitOf = (body)' "${ledger}"
-          grep -Fq 'isExactHeadCommit(reviewedCommitOf(item.body))' "${ledger}"
-          grep -Fq 'const issueCommentFindings = issueComments.filter' "${ledger}"
+          grep -Fq 'provider limit waived' "${reporter}"
+          grep -Fq 'INITIAL_REQUIRED_REQUEST' "${scheduler}"
+          grep -Fq 'PROVIDER_LIMIT_WAIVED' "${scheduler}"
+          grep -Fq 'Verify exact-head CodeRabbit review or limit waiver' "${ai_workflow}"
+          grep -Fq '@coderabbitai review' "${template}"
+          grep -Fq 'provider-limit signal activates the narrow waiver' "${template}"
+          grep -Fq 'Codex, Jules and DeepSeek are treated as advisory only' "${template}"
+          grep -Fq 'const codeRabbitRequests = issueComments' "${ledger}"
+          grep -Fq 'const hasPositiveLimitSignal = (body) => {' "${ledger}"
+          grep -Fq 'provider-limit-waived' "${ledger}"
+          grep -Fq "new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek'])" "${ledger}"
           grep -Fq 'Disposition-For-Issue-Comment' "${ledger}"
-          grep -Fq 'createdTimeOf(reply) >= createdTimeOf(finding)' "${ledger}"
           grep -Fq 'timeOf(reply) >= timeOf(finding)' "${ledger}"
-          grep -Fq "source === 'issue-comment'" "${ledger}"
-          grep -Fq 'Disposition-For-Issue-Comment' "${pdg_doc}"
-          grep -Fq "requested-without-evidence-advisory" "${ledger}"
-          grep -Fq "const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);" "${ledger}"
-          grep -Fq '^Head:\\s*${head}\\s*$' "${ledger}"
-          grep -Fq 'CodeRabbit reserve=' "${ledger}"
-          ! grep -Fq 'scheduled CodeRabbit reserve was requested but no exact-head evidence exists' "${ledger}"
-          ! grep -Fq 'requested CodeRabbit reserve lacks E4/E5 exact-head evidence' "${ledger}"
-          ! grep -Fq 'mandatory CodeRabbit evidence' "${ledger}"
-          grep -Fq '"id": "REVIEW-CODEX"' "${pdg}"
-          grep -Fq '"provider": "Codex"' "${pdg}"
-          ! grep -Fq 'REVIEW-CODERABBIT' "${pdg}"
-          grep -Fq 'binding reviewer is **Codex**' "${pdg_doc}"
-          ! grep -Fq 'binding reviewer is **CodeRabbit**' "${pdg_doc}"
-          grep -Fq 'Waiting for mandatory Codex exact-head evidence' "${trace}"
-          ! grep -Fq 'Waiting for mandatory CodeRabbit exact-head evidence' "${trace}"
-          ! grep -Fq "'/qodo review'" "${reporter}"
-          ! grep -Fqi 'coderabbitai' "${workflow}"
+          grep -Fq '"id": "coderabbit"' "${roster}"
+          grep -Fq '"binding": true' "${roster}"
+          grep -Fq '"providerLimitWaivers"' "${roster}"
+          grep -Fq '"actor": "coderabbit"' "${routes}"
+          grep -Fq '"status": "QUOTA_EXHAUSTED"' "${routes}"
+          grep -Fq 'CodeRabbit is the required request-bound AI reviewer' "${policy}"
+          grep -Fq 'explicit authenticated CodeRabbit limit' "${policy}"
+          grep -Fq 'Qodo is disabled' "${policy}"
           ! grep -Fqi 'qodo-code-review' "${workflow}"
 
       - name: Verify event and permission boundary
@@ -151,11 +141,9 @@ jobs:
         run: |
           ruby <<'RUBY'
           require 'yaml'
-
           def normalize(value)
             value.to_s.gsub(/\s+/, '')
           end
-
           workflow = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           job = workflow.dig('jobs', 'report')
           guard = normalize(job['if'])
@@ -171,7 +159,6 @@ jobs:
           ]
           missing = required.reject { |token| guard.include?(token) }
           raise "trigger guard drifted: #{missing.inspect}" unless missing.empty?
-
           concurrency = job['concurrency']
           raise 'cancel-in-progress must remain enabled' unless concurrency['cancel-in-progress'] == true
           group = concurrency['group'].to_s
@@ -199,7 +186,6 @@ jobs:
           ruby <<'RUBY'
           require 'yaml'
           require 'tempfile'
-
           cooperation = YAML.load_file('.github/workflows/ai-review-cooperation.yml')
           cooperation.dig('jobs', 'report', 'steps').each_with_index do |step, index|
             next unless step['run']
@@ -211,7 +197,6 @@ jobs:
               end
             end
           end
-
           ledger = YAML.load_file('.github/workflows/review-ledger.yml')
           script = ledger.dig('jobs', 'review-ledger', 'steps', 0, 'with', 'script')
           raise 'missing review-ledger script' unless script
