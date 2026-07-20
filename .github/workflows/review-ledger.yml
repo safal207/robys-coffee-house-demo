@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: read # Read repository metadata for the current PR head.
-      issues: read # Read cooperation reports, reserve requests, issue-comment dispositions and proof-seal comments.
-      pull-requests: read # Read exact-head reviews, inline findings and dispositions.
-      statuses: read # Read optional native exact-head CodeRabbit status evidence.
+      contents: read
+      issues: read
+      pull-requests: read
+      statuses: read
 
     steps:
       - name: Require PDG-001 depth D6 for the exact head
@@ -44,42 +44,45 @@ jobs:
             const pr = (await github.rest.pulls.get({ owner, repo, pull_number: prNumber })).data;
             const head = pr.head.sha.toLowerCase();
             const [reviewComments, reviews, issueComments, statuses] = await Promise.all([
-              github.paginate(
-                github.rest.pulls.listReviewComments,
-                { owner, repo, pull_number: prNumber, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.pulls.listReviews,
-                { owner, repo, pull_number: prNumber, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: prNumber, per_page: 100 },
-              ),
-              github.paginate(
-                github.rest.repos.listCommitStatusesForRef,
-                { owner, repo, ref: head, per_page: 100 },
-              ),
+              github.paginate(github.rest.pulls.listReviewComments, { owner, repo, pull_number: prNumber, per_page: 100 }),
+              github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: prNumber, per_page: 100 }),
+              github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: prNumber, per_page: 100 }),
+              github.paginate(github.rest.repos.listCommitStatusesForRef, { owner, repo, ref: head, per_page: 100 }),
             ]);
 
-            const reviewHeads = new Map(
-              reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]),
-            );
-            const codexBots = new Set([
-              'chatgpt-codex-connector',
-              'chatgpt-codex-connector[bot]',
-            ]);
+            const reviewHeads = new Map(reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]));
             const codeRabbitBots = new Set(['coderabbitai', 'coderabbitai[bot]']);
-            const otherReviewBots = new Set([
-              'github-advanced-security',
-              'github-advanced-security[bot]',
-            ]);
+            const codexBots = new Set(['chatgpt-codex-connector', 'chatgpt-codex-connector[bot]']);
+            const otherReviewBots = new Set(['github-advanced-security', 'github-advanced-security[bot]']);
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
+            const commandLines = (body) => String(body ?? '').toLowerCase().split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
             const reviewedCommitOf = (body) => (
               /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
             const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
+            const hasPositiveLimitSignal = (body) => {
+              const text = String(body ?? '');
+              if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) return false;
+              return [
+                /review limit reached/i,
+                /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+                /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
+                /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+                /next review available in/i,
+                /free tier[^\n]{0,80}limit/i,
+              ].some((pattern) => pattern.test(text));
+            };
+            const isFinalCodeRabbitCommentEvidence = (item) => {
+              const body = String(item?.body ?? '');
+              if (hasPositiveLimitSignal(body)) return false;
+              if (/\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b/i.test(body)) return false;
+              return (
+                /\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b/i.test(body) ||
+                /\breview (?:is )?(?:complete|completed)\b/i.test(body) ||
+                /\b(?:no|did(?:n't| not) find|found no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body)
+              );
+            };
             const isFinalCodexCommentEvidence = (item) => {
               const body = String(item?.body ?? '');
               return (
@@ -92,9 +95,7 @@ jobs:
               const text = String(body ?? '');
               if (/\bP[0-3]\b/i.test(text)) return true;
               return [...text.matchAll(/_([^_\n]+)_/g)].some(([, segment]) => (
-                /\b(?:blocker|critical|major|minor)\b/i.test(
-                  segment.replace(/[`*_>#\[\]()!]+/g, ' '),
-                )
+                /\b(?:blocker|critical|major|minor)\b/i.test(segment.replace(/[`*_>#\[\]()!]+/g, ' '))
               ));
             };
             const timeOf = (item) => Math.max(
@@ -114,57 +115,46 @@ jobs:
             const isIssueDispositionFor = (reply, finding) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const reference = new RegExp(`^Disposition-For-Issue-Comment:\\s*${finding.id}\\s*$`, 'im').test(body);
-              return (
-                reference &&
-                createdTimeOf(reply) >= createdTimeOf(finding) &&
-                timeOf(reply) >= timeOf(finding) &&
-                isDispositionReply(reply)
-              );
+              return reference && createdTimeOf(reply) >= createdTimeOf(finding) && timeOf(reply) >= timeOf(finding) && isDispositionReply(reply);
             };
 
-            const reserveRequests = issueComments
-              .filter((item) => (
-                item.user?.login === 'github-actions[bot]' &&
-                (item.body ?? '').includes('<!-- coderabbit-reserve -->') &&
-                /^\s*@coderabbitai review\s*$/im.test(item.body ?? '') &&
-                exactHeadBody(item.body)
-              ))
+            const codeRabbitRequests = issueComments
+              .filter((item) => {
+                const lines = commandLines(item.body);
+                const canonical = lines.includes('@coderabbitai review') && lines.includes(`exact head: ${head}`);
+                const trustedHuman = trustedAssociations.has(item.author_association);
+                const trustedAction = item.user?.login === 'github-actions[bot]' && (item.body ?? '').includes('<!-- coderabbit-reserve -->');
+                return canonical && (trustedHuman || trustedAction);
+              })
               .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
-            const reserveRequested = reserveRequests.length > 0;
-            const reserveRequestAt = reserveRequested ? createdTimeOf(reserveRequests.at(-1)) : 0;
+            const codeRabbitRequested = codeRabbitRequests.length > 0;
+            const earliestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests[0]) : 0;
+            const latestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests.at(-1)) : 0;
 
             const acceptedFindingAuthor = (item) => {
               const login = item.user?.login;
-              if (codexBots.has(login) || otherReviewBots.has(login)) return true;
-              if (!codeRabbitBots.has(login)) return false;
-              return reserveRequested && timeOf(item) >= reserveRequestAt;
+              if (codeRabbitBots.has(login)) return codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt;
+              return codexBots.has(login) || otherReviewBots.has(login);
             };
-            const codeRabbitIssueCommentIsExactHead = (item) => (
-              codeRabbitBots.has(item.user?.login) &&
-              createdTimeOf(item) >= reserveRequestAt &&
-              (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
-            );
             const issueCommentIsCurrentHeadBotOutput = (item) => {
               const login = item.user?.login;
-              if (codexBots.has(login)) {
-                return (
-                  isFinalCodexCommentEvidence(item) &&
-                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
-                );
+              if (codeRabbitBots.has(login)) {
+                return codeRabbitRequested && createdTimeOf(item) >= earliestCodeRabbitRequestAt &&
+                  isFinalCodeRabbitCommentEvidence(item) &&
+                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
               }
-              if (otherReviewBots.has(login)) return exactHeadBody(item.body);
-              return reserveRequested && codeRabbitIssueCommentIsExactHead(item);
+              if (codexBots.has(login)) {
+                return isFinalCodexCommentEvidence(item) &&
+                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
+              }
+              return otherReviewBots.has(login) && exactHeadBody(item.body);
             };
 
             const reviewFindings = reviewComments.filter((item) => (
-              !item.in_reply_to_id &&
-              acceptedFindingAuthor(item) &&
-              reviewHeads.get(item.pull_request_review_id) === head
+              !item.in_reply_to_id && acceptedFindingAuthor(item) && reviewHeads.get(item.pull_request_review_id) === head
             ));
             const issueCommentFindings = issueComments.filter((item) => (
-              acceptedFindingAuthor(item) &&
-              issueCommentIsCurrentHeadBotOutput(item) &&
-              hasFindingSeverity(item.body)
+              acceptedFindingAuthor(item) && issueCommentIsCurrentHeadBotOutput(item) && hasFindingSeverity(item.body)
             ));
             const reviewDispositionReplies = reviewFindings.flatMap((finding) => (
               reviewComments.filter((item) => item.in_reply_to_id === finding.id && isDispositionReply(item))
@@ -173,9 +163,7 @@ jobs:
               issueComments.filter((item) => isIssueDispositionFor(item, finding))
             ));
             const missingReviewFindings = reviewFindings
-              .filter((finding) => !reviewComments.some((item) => (
-                item.in_reply_to_id === finding.id && isDispositionReply(item)
-              )))
+              .filter((finding) => !reviewComments.some((item) => item.in_reply_to_id === finding.id && isDispositionReply(item)))
               .map((finding) => ({ source: 'review-comment', finding }));
             const missingIssueFindings = issueCommentFindings
               .filter((finding) => !issueComments.some((item) => isIssueDispositionFor(item, finding)))
@@ -185,58 +173,43 @@ jobs:
             const dispositionReplies = [...reviewDispositionReplies, ...issueDispositionReplies];
             const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
 
-            const codeRabbitEvidence = reserveRequested ? [
+            const codeRabbitEvidence = codeRabbitRequested ? [
               ...reviews.filter((item) => (
-                codeRabbitBots.has(item.user?.login) &&
-                item.commit_id?.toLowerCase() === head &&
-                timeOf(item) >= reserveRequestAt
+                codeRabbitBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head && timeOf(item) >= earliestCodeRabbitRequestAt
               )),
               ...reviewComments.filter((item) => (
-                codeRabbitBots.has(item.user?.login) &&
-                reviewHeads.get(item.pull_request_review_id) === head &&
-                timeOf(item) >= reserveRequestAt
+                codeRabbitBots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head && timeOf(item) >= earliestCodeRabbitRequestAt
               )),
-              ...issueComments.filter(codeRabbitIssueCommentIsExactHead),
+              ...issueComments.filter((item) => (
+                codeRabbitBots.has(item.user?.login) && (
+                  (createdTimeOf(item) >= earliestCodeRabbitRequestAt && isFinalCodeRabbitCommentEvidence(item) &&
+                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))) ||
+                  (createdTimeOf(item) >= latestCodeRabbitRequestAt && hasPositiveLimitSignal(item.body))
+                )
+              )),
               ...statuses.filter((item) => (
-                item.context === 'CodeRabbit' &&
-                item.state === 'success' &&
-                codeRabbitBots.has(item.creator?.login) &&
-                timeOf(item) >= reserveRequestAt
+                item.context === 'CodeRabbit' && item.state === 'success' && codeRabbitBots.has(item.creator?.login) &&
+                timeOf(item) >= earliestCodeRabbitRequestAt
               )),
             ] : [];
-            const codeRabbitState = !reserveRequested
-              ? 'not-requested'
-              : codeRabbitEvidence.length > 0
-                ? 'requested-with-evidence'
-                : 'requested-without-evidence-advisory';
 
-            // Clean reserve evidence is advisory and must not invalidate an otherwise current report.
-            // Any reserve item that carries a P0-P3 finding remains freshness-significant and enters D5.
-            const codeRabbitFindingEvidence = [
-              ...codeRabbitEvidence.filter((item) => hasFindingSeverity(item.body)),
-            ];
-
-            const exactBotEvidence = [
+            const optionalExactEvidence = [
               ...reviews.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) &&
-                item.commit_id?.toLowerCase() === head
+                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) && item.commit_id?.toLowerCase() === head
               )),
               ...reviewComments.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) &&
-                reviewHeads.get(item.pull_request_review_id) === head
+                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) && reviewHeads.get(item.pull_request_review_id) === head
               )),
               ...issueComments.filter((item) => {
                 const login = item.user?.login;
                 if (codexBots.has(login)) {
-                  return (
-                    isFinalCodexCommentEvidence(item) &&
-                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
-                  );
+                  return isFinalCodexCommentEvidence(item) &&
+                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
                 }
                 return otherReviewBots.has(login) && exactHeadBody(item.body);
               }),
-              ...codeRabbitFindingEvidence,
             ];
+            const exactBotEvidence = [...codeRabbitEvidence, ...optionalExactEvidence];
             const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
 
             const reports = issueComments.filter((item) => (
@@ -255,11 +228,11 @@ jobs:
               return;
             }
             if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
-              const match = /advisory gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
+              const match = /(?:advisory|documented) gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
               const gaps = (match?.[1] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
-              const supplemental = new Set(['CodeRabbit', 'Jules', 'DeepSeek']);
-              if (gaps.length === 0 || gaps.some((item) => !supplemental.has(item))) {
-                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has a required-reviewer advisory gap for ${head}.`);
+              const allowed = new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']);
+              if (gaps.length === 0 || gaps.some((item) => !allowed.has(item))) {
+                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has an unrecognized gap for ${head}.`);
                 return;
               }
             }
@@ -269,9 +242,7 @@ jobs:
             }
             if (missing.length > 0) {
               const locations = missing.map(({ source, finding }) => (
-                source === 'issue-comment'
-                  ? `issue-comment:${finding.id}`
-                  : `${finding.path}:${finding.line ?? finding.original_line ?? '-'}`
+                source === 'issue-comment' ? `issue-comment:${finding.id}` : `${finding.path}:${finding.line ?? finding.original_line ?? '-'}`
               ));
               core.setFailed(`PDG-001 depth D5 incomplete: missing dispositions for ${missing.length} finding(s): ${locations.join(', ')}`);
               return;
@@ -296,9 +267,11 @@ jobs:
               return;
             }
 
+            const requiredState = codeRabbitEvidence.some((item) => hasPositiveLimitSignal(item.body))
+              ? 'provider-limit-waived'
+              : 'exact-head-evidence';
             core.notice(
-              `PDG-001 depth D6 sealed for ${head}: Codex-required evidence complete; ` +
-                `CodeRabbit reserve=${codeRabbitState}; ` +
-                `${findings.length} exact-head finding(s) dispositioned ` +
-                `(${reviewFindings.length} review-comment, ${issueCommentFindings.length} issue-comment).`,
+              `PDG-001 depth D6 sealed for ${head}: CodeRabbit required state=${requiredState}; ` +
+              `${findings.length} exact-head finding(s) dispositioned ` +
+              `(${reviewFindings.length} review-comment, ${issueCommentFindings.length} issue-comment).`,
             );
