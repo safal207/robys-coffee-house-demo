@@ -14,9 +14,15 @@ on:
       - scripts/ai-review-cooperation.py
       - scripts/coderabbit-reserve.cjs
       - scripts/fetch-review-threads.py
+      - scripts/verify-ai-review-contract.cjs
+      - scripts/verify-ai-review-freshness.mjs
+      - scripts/verify-proof-depth-graph.mjs
+      - scripts/render-ci-proof-summary.mjs
       - scripts/test-ai-review-cooperation.py
       - scripts/test-coderabbit-reserve.cjs
       - scripts/test-codex-review-contract.cjs
+      - scripts/test-proof-depth-graph.mjs
+      - scripts/test-ci-proof-summary.mjs
       - qa/reviewer-roster.json
       - qa/review-route-policy.json
       - qa/proof-depth-graph.json
