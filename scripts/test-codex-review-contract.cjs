@@ -5,65 +5,75 @@ const { readFileSync } = require("node:fs");
 const verifier = require("./verify-ai-review-contract.cjs")._test;
 
 const head = "1234567890abcdef1234567890abcdef12345678";
-const anchor = Date.parse("2026-07-18T10:00:00Z");
-const requestAt = "2026-07-18T10:01:00Z";
-const reviewAt = "2026-07-18T10:02:00Z";
+const anchor = Date.parse("2026-07-20T10:00:00Z");
+const requestAt = "2026-07-20T10:01:00Z";
+const reviewAt = "2026-07-20T10:02:00Z";
 
-function request(body = `@codex review\nExact head: ${head}`, overrides = {}) {
+function request(body = `@coderabbitai review\nExact head: ${head}`, overrides = {}) {
   return {
     body,
     author_association: "OWNER",
     created_at: requestAt,
+    user: { login: "safal207", type: "User" },
     ...overrides,
   };
+}
+
+function actionRequest(overrides = {}) {
+  return request(`${verifier.CODERABBIT_MARKER}\n@coderabbitai review\n\nExact head: ${head}`, {
+    author_association: "NONE",
+    user: { login: "github-actions[bot]", type: "Bot" },
+    ...overrides,
+  });
 }
 
 function nativeReview(overrides = {}) {
   return {
-    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+    user: { login: "coderabbitai[bot]", type: "Bot" },
     state: "COMMENTED",
     submitted_at: reviewAt,
     commit_id: head,
-    body: "Codex review complete.",
+    body: "CodeRabbit review complete.",
     ...overrides,
   };
 }
 
-function codexComment(overrides = {}) {
+function rabbitComment(overrides = {}) {
   return {
-    user: { login: "chatgpt-codex-connector[bot]", type: "Bot" },
+    user: { login: "coderabbitai[bot]", type: "Bot" },
     created_at: reviewAt,
     updated_at: reviewAt,
-    body: `Codex Review: Didn't find any major issues.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+    body: `CodeRabbit Review: completed.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+    ...overrides,
+  };
+}
+
+function limitComment(body = "Review limit reached. Next review available in 2 hours.", overrides = {}) {
+  return {
+    user: { login: "coderabbitai[bot]", type: "Bot" },
+    created_at: reviewAt,
+    updated_at: reviewAt,
+    body,
     ...overrides,
   };
 }
 
 const workflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
 assert(workflow.includes("types: [opened, synchronize]"));
-assert(!workflow.includes("ready_for_review"));
-assert(!workflow.includes("reopened"));
+assert(workflow.includes("Verify exact-head CodeRabbit review or limit waiver"));
+assert(workflow.includes("Wait for exact-head CodeRabbit evidence or explicit limit signal"));
 
 const ledgerWorkflow = readFileSync(".github/workflows/review-ledger.yml", "utf8");
-assert(ledgerWorkflow.includes("const codeRabbitIssueCommentIsExactHead = (item) => ("));
-assert(ledgerWorkflow.includes("(exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))"));
-assert(ledgerWorkflow.includes("return reserveRequested && codeRabbitIssueCommentIsExactHead(item);"));
-assert(ledgerWorkflow.includes("...issueComments.filter(codeRabbitIssueCommentIsExactHead),"));
-assert(ledgerWorkflow.includes("const codeRabbitFindingEvidence = ["));
-assert(ledgerWorkflow.includes("...codeRabbitEvidence.filter((item) => hasFindingSeverity(item.body)),"));
-assert(ledgerWorkflow.includes("const isFinalCodexCommentEvidence = (item) => {"));
-assert(ledgerWorkflow.includes("isFinalCodexCommentEvidence(item) &&"));
+assert(ledgerWorkflow.includes("const codeRabbitRequests = issueComments"));
+assert(ledgerWorkflow.includes("const hasPositiveLimitSignal = (body) => {"));
+assert(ledgerWorkflow.includes("provider-limit-waived"));
+assert(ledgerWorkflow.includes("new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek'])"));
 assert(ledgerWorkflow.includes("text.matchAll(/_([^_\\n]+)_/g)"));
 
-const reserveDispatcher = readFileSync("scripts/coderabbit-reserve.cjs", "utf8");
-assert(reserveDispatcher.includes("commentPredicate: isFinalCodexCommentEvidence"));
-assert(reserveDispatcher.includes("requestAt: earliestReserveAt"));
-assert(reserveDispatcher.includes("latestReserveAt > 0"));
-
-assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["Codex"]);
+assert.deepEqual(verifier.ACTIVE_PROVIDER_NAMES, ["CodeRabbit"]);
+assert(verifier.ADVISORY_PROVIDER_NAMES.has("Codex"));
+assert(verifier.ADVISORY_PROVIDER_NAMES.has("DeepSeek"));
 assert(verifier.DORMANT_PROVIDER_NAMES.has("Qodo"));
-assert(!verifier.DORMANT_PROVIDER_NAMES.has("CodeRabbit"));
-assert(verifier.RESERVE_PROVIDER_NAMES.has("CodeRabbit"));
 
 const accepted = verifier.selectRequiredEvidence({
   comments: [request()],
@@ -71,74 +81,65 @@ const accepted = verifier.selectRequiredEvidence({
   currentHead: head,
   headUpdateAnchor: anchor,
 });
-assert.equal(accepted.provider, "Codex");
-assert.equal(accepted.mode, "codex-only");
-assert.deepEqual(accepted.reserveProviders, ["CodeRabbit"]);
+assert.equal(accepted.provider, "CodeRabbit");
+assert.equal(accepted.mode, "coderabbit-required");
+assert.equal(accepted.providerLimitWaived, false);
+
+const actionAccepted = verifier.selectRequiredEvidence({
+  comments: [actionRequest()],
+  reviews: [nativeReview()],
+  currentHead: head,
+  headUpdateAnchor: anchor,
+});
+assert.equal(actionAccepted.provider, "CodeRabbit");
 
 const commentEvidence = verifier.selectRequiredEvidence({
-  comments: [request(), codexComment()],
+  comments: [request(), rabbitComment()],
   reviews: [],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
-assert.equal(commentEvidence.provider, "Codex");
+assert.equal(commentEvidence.provider, "CodeRabbit");
+assert.equal(commentEvidence.mode, "coderabbit-required");
 
-const suggestionsCommentEvidence = verifier.selectRequiredEvidence({
-  comments: [
-    request(),
-    codexComment({
-      body: `### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
-    }),
-  ],
+const limitBypass = verifier.selectRequiredEvidence({
+  comments: [request(), limitComment()],
   reviews: [],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
-assert.equal(suggestionsCommentEvidence.provider, "Codex");
-
-for (const label of ["_Reviewed commit:_", "*Reviewed commit:*"]) {
-  const italicCommentEvidence = verifier.selectRequiredEvidence({
-    comments: [
-      request(),
-      codexComment({ body: `Codex Review: no blocking issues.\n\n${label} \`${head.slice(0, 10)}\`` }),
-    ],
-    reviews: [],
-    currentHead: head,
-    headUpdateAnchor: anchor,
-  });
-  assert.equal(italicCommentEvidence.provider, "Codex", `${label} should bind completed Codex comment evidence`);
-}
+assert.equal(limitBypass.provider, "CodeRabbit");
+assert.equal(limitBypass.mode, "provider-limit-bypass");
+assert.equal(limitBypass.providerLimitWaived, true);
 
 for (const body of [
-  `Codex review started and is in progress.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
-  `Codex review failed because the provider is unavailable.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
-  `Codex review quota exceeded; retry later.\n\n**Reviewed commit:** \`${head.slice(0, 10)}\``,
+  "No review limit was reached; review is starting.",
+  "CodeRabbit review started and is in progress.",
+  "CodeRabbit review failed because the provider is unavailable.",
+  "Generic provider error.",
 ]) {
-  const nonFinalComment = verifier.selectRequiredEvidence({
-    comments: [request(), codexComment({ body })],
+  const pending = verifier.selectRequiredEvidence({
+    comments: [request(), limitComment(body)],
     reviews: [],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert.equal(nonFinalComment.provider, null, "non-final Codex comments must not satisfy the required lane");
+  assert.equal(pending.provider, null, `${body} must not satisfy or waive the required lane`);
 }
 
-const editedPreRequestComment = verifier.selectRequiredEvidence({
+const staleLimit = verifier.selectRequiredEvidence({
   comments: [
+    limitComment(undefined, { created_at: "2026-07-20T10:00:30Z" }),
     request(),
-    codexComment({
-      created_at: "2026-07-18T10:00:30Z",
-      updated_at: reviewAt,
-    }),
   ],
   reviews: [],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
-assert.equal(editedPreRequestComment.provider, null);
+assert.equal(staleLimit.provider, null);
 
 const staleRequest = verifier.selectRequiredEvidence({
-  comments: [request(undefined, { created_at: "2026-07-18T09:59:59Z" })],
+  comments: [request(undefined, { created_at: "2026-07-20T09:59:59Z" })],
   reviews: [nativeReview()],
   currentHead: head,
   headUpdateAnchor: anchor,
@@ -146,7 +147,7 @@ const staleRequest = verifier.selectRequiredEvidence({
 assert.equal(staleRequest.provider, null);
 
 const wrongHead = verifier.selectRequiredEvidence({
-  comments: [request(`@codex review\nExact head: ${"a".repeat(40)}`)],
+  comments: [request(`@coderabbitai review\nExact head: ${"a".repeat(40)}`)],
   reviews: [nativeReview()],
   currentHead: head,
   headUpdateAnchor: anchor,
@@ -161,28 +162,20 @@ const untrusted = verifier.selectRequiredEvidence({
 });
 assert.equal(untrusted.provider, null);
 
-const qodoOnly = verifier.selectRequiredEvidence({
-  comments: [request(`/qodo review\nExact head: ${head}`)],
-  reviews: [nativeReview()],
+const codexOnly = verifier.selectRequiredEvidence({
+  comments: [request(`@codex review\nExact head: ${head}`)],
+  reviews: [{ ...nativeReview(), user: { login: "chatgpt-codex-connector[bot]", type: "Bot" } }],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
-assert.equal(qodoOnly.provider, null);
-
-const rabbitOnly = verifier.selectRequiredEvidence({
-  comments: [request(`@coderabbitai review\nExact head: ${head}`)],
-  reviews: [nativeReview()],
-  currentHead: head,
-  headUpdateAnchor: anchor,
-});
-assert.equal(rabbitOnly.provider, null);
+assert.equal(codexOnly.provider, null);
 
 const preRequestReview = verifier.selectRequiredEvidence({
   comments: [request()],
-  reviews: [nativeReview({ submitted_at: "2026-07-18T10:00:30Z" })],
+  reviews: [nativeReview({ submitted_at: "2026-07-20T10:00:30Z" })],
   currentHead: head,
   headUpdateAnchor: anchor,
 });
 assert.equal(preRequestReview.provider, null);
 
-console.log("✅ AI-CODEX-ONLY-001 passed: verifier, reserve dispatcher, cooperation reporter and ledger share final-comment, exact-head, trusted-marker and decorated-severity boundaries; Qodo remains disabled and CodeRabbit remains advisory.");
+console.log("✅ AI-REVIEW-001 passed: CodeRabbit is the required exact-head reviewer; only final authenticated evidence satisfies the normal lane; a positive post-request CodeRabbit limit/quota signal activates the narrow provider-limit waiver; silence, progress, generic failure, stale output and Codex advisory evidence cannot satisfy it.");
