@@ -11,6 +11,12 @@ on:
       - scripts/test-codex-review-contract.cjs
       - scripts/ai-review-cooperation.py
       - scripts/test-ai-review-cooperation.py
+      - scripts/verify-ai-review-freshness.mjs
+      - qa/proof-depth-graph.json
+      - scripts/verify-proof-depth-graph.mjs
+      - scripts/test-proof-depth-graph.mjs
+      - scripts/render-ci-proof-summary.mjs
+      - scripts/test-ci-proof-summary.mjs
       - docs/ai-review-cooperation-policy.md
       - package.json
 
@@ -28,18 +34,35 @@ jobs:
         with:
           persist-credentials: false
           show-progress: false
-      - name: Run bounded required-review unit tests
+
+      - name: Test cooperation reporter
+        run: |
+          python3 -m py_compile scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py
+          python3 scripts/test-ai-review-cooperation.py -v
+
+      - name: Test bounded request scheduler
         run: |
           node --check scripts/coderabbit-reserve.cjs
           node scripts/test-coderabbit-reserve.cjs
+
+      - name: Test required reviewer gate
+        run: |
+          node --check scripts/verify-ai-review-contract.cjs
           node scripts/test-codex-review-contract.cjs
-          python3 -m py_compile scripts/ai-review-cooperation.py scripts/test-ai-review-cooperation.py
-          python3 scripts/test-ai-review-cooperation.py -v
+          node scripts/verify-ai-review-freshness.mjs
+
+      - name: Test proof graph and summary
+        run: |
+          node scripts/verify-proof-depth-graph.mjs
+          node scripts/test-proof-depth-graph.mjs
+          node scripts/test-ci-proof-summary.mjs
+
       - name: Parse workflow YAML
         run: >-
           ruby -e "require 'yaml';
           YAML.parse_file('.github/workflows/coderabbit-reserve.yml');
           YAML.parse_file('.github/workflows/coderabbit-reserve-contract.yml')"
+
       - name: Verify schedule and limit boundaries
         run: |
           set -euo pipefail
@@ -60,6 +83,7 @@ jobs:
           grep -Fq 'Human approval, CI, dispositions and D6 remain mandatory' "${dispatcher}"
           ! grep -Fq '/qodo review' "${dispatcher}"
           ! grep -Fq 'cannot replace or satisfy Codex' "${dispatcher}"
+
       - name: Verify trusted execution and least privilege
         run: |
           set -euo pipefail
@@ -83,7 +107,10 @@ jobs:
           raise "unexpected scheduler permissions: #{actual.inspect}" unless actual == expected
           raise 'scheduled runs must not cancel each other' unless workflow.dig('concurrency', 'cancel-in-progress') == false
           RUBY
+
       - name: Validate embedded JavaScript
         run: |
           node --check scripts/coderabbit-reserve.cjs
           node --check scripts/test-coderabbit-reserve.cjs
+          node --check scripts/verify-ai-review-contract.cjs
+          node --check scripts/test-codex-review-contract.cjs
