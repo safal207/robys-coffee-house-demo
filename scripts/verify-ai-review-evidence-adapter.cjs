@@ -8,6 +8,7 @@ const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
 const CODERABBIT_COMMAND = "@coderabbitai review";
 const CODERABBIT_MARKER = "<!-- coderabbit-reserve -->";
 const WALKTHROUGH_MARKERS = ["<!-- walkthrough_start -->", "<!-- review_stack_entry_start -->"];
+const FULL_SHA_RE = /\b[0-9a-f]{40}\b/gi;
 const LIMIT_SIGNAL_PATTERNS = [
   /review limit reached/i,
   /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
@@ -54,9 +55,18 @@ function isCodeRabbitBot(item) {
   return CODERABBIT_LOGINS.has(item?.user?.login) && item?.user?.type === "Bot";
 }
 
-function hasCurrentHeadInWalkthrough(body, currentHead) {
-  const text = String(body ?? "").toLowerCase();
-  return text.includes(currentHead.toLowerCase());
+function hasWalkthroughMarker(body) {
+  const text = String(body ?? "");
+  return WALKTHROUGH_MARKERS.some((marker) => text.includes(marker));
+}
+
+function fullHeadReferences(body) {
+  return [...String(body ?? "").toLowerCase().matchAll(FULL_SHA_RE)].map((match) => match[0]);
+}
+
+function hasNoConflictingHeadReference(body, currentHead) {
+  const references = fullHeadReferences(body);
+  return references.length === 0 || references.includes(currentHead.toLowerCase());
 }
 
 function hasPositiveLimitSignal(body) {
@@ -75,8 +85,8 @@ function isCompletedWalkthrough(item, currentHead, requestAt) {
   const body = String(item?.body ?? "");
   if (!isCodeRabbitBot(item)) return false;
   if (!isObservedAfterRequest(item, requestAt)) return false;
-  if (!WALKTHROUGH_MARKERS.some((marker) => body.includes(marker))) return false;
-  if (!hasCurrentHeadInWalkthrough(body, currentHead)) return false;
+  if (!hasWalkthroughMarker(body)) return false;
+  if (!hasNoConflictingHeadReference(body, currentHead)) return false;
   if (hasPositiveLimitSignal(body)) return false;
   if (/\b(?:started|starting|queued|in progress)\b/i.test(body) && !body.includes("<!-- walkthrough_start -->")) {
     return false;
@@ -109,7 +119,8 @@ function selectStableLimitEvidence({ comments, currentHead, headUpdateAnchor }) 
       return (
         isCodeRabbitBot(item) &&
         isObservedAfterRequest(item, requestAt) &&
-        hasCurrentHeadInWalkthrough(body, currentHead) &&
+        hasWalkthroughMarker(body) &&
+        hasNoConflictingHeadReference(body, currentHead) &&
         hasPositiveLimitSignal(body)
       );
     })
@@ -184,8 +195,8 @@ async function verifyAiReviewEvidenceAdapter({
         ])
         .addRaw(
           `\nAccepted an authenticated CodeRabbit limit signal observed after the latest trusted exact-head request for ${pr.head.sha}. ` +
-            "A stable provider comment may predate the request, but its GitHub updated_at observation and body must bind the current full SHA. " +
-            "This waives only the external AI-review delivery step; CI, finding disposition, human approval and authority boundaries remain mandatory.\n",
+            "The live PR head is rechecked before selection. A stable provider comment may omit a SHA, but any explicit full SHA must include the current head. " +
+            "This waives only external delivery; CI, finding disposition, human approval and authority boundaries remain mandatory.\n",
         )
         .write();
       core.warning(`CodeRabbit provider-limit waiver verified for ${pr.head.sha}.`);
@@ -203,11 +214,11 @@ async function verifyAiReviewEvidenceAdapter({
             { data: "Exact head", header: true },
             { data: "Provider-limit waiver", header: true },
           ],
-          ["CodeRabbit", "authenticated-walkthrough", "yes", "no"],
+          ["CodeRabbit", "authenticated-walkthrough", "request-bound", "no"],
         ])
         .addRaw(
           `\nAccepted an authenticated CodeRabbit walkthrough updated after the latest trusted exact-head request for ${pr.head.sha}. ` +
-            "The stable comment may predate the request, but its GitHub updated_at observation and body must bind the current full SHA. " +
+            "The live PR head is rechecked before selection. A stable walkthrough may omit a SHA, but any explicit full SHA must include the current head. " +
             "This proves review delivery only; finding disposition and human authority remain separate.\n",
         )
         .write();
@@ -228,11 +239,14 @@ module.exports._test = {
   AI_REVIEW_WORKFLOW_NAME,
   CODERABBIT_COMMAND,
   CODERABBIT_MARKER,
+  FULL_SHA_RE,
   LIMIT_SIGNAL_PATTERNS,
   WALKTHROUGH_MARKERS,
   createdTimeOf,
-  hasCurrentHeadInWalkthrough,
+  fullHeadReferences,
+  hasNoConflictingHeadReference,
   hasPositiveLimitSignal,
+  hasWalkthroughMarker,
   isCompletedWalkthrough,
   isTrustedRequest,
   latestTrustedRequestAt,
