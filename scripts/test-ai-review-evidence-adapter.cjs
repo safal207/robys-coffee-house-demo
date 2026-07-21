@@ -38,11 +38,30 @@ function walkthrough(overrides = {}) {
   };
 }
 
+function headlessWalkthrough(overrides = {}) {
+  return walkthrough({
+    body:
+      "<!-- review_stack_entry_start -->\n" +
+      "<!-- walkthrough_start -->\n" +
+      "## Walkthrough\nReview completed without an embedded commit range.",
+    ...overrides,
+  });
+}
+
 function limitSignal(overrides = {}) {
   return walkthrough({
     body:
       "<!-- review_stack_entry_start -->\n" +
       `Reviewing files changed between ${otherHead} and ${head}.\n` +
+      "Review limit reached. Next review available in 38 minutes.",
+    ...overrides,
+  });
+}
+
+function headlessLimitSignal(overrides = {}) {
+  return walkthrough({
+    body:
+      "<!-- review_stack_entry_start -->\n" +
       "Review limit reached. Next review available in 38 minutes.",
     ...overrides,
   });
@@ -125,8 +144,15 @@ function assertSelectionSemantics() {
   assert(accepted, "a reused CodeRabbit summary updated after the request must be accepted");
   assert.equal(adapter.observedTimeOf(accepted), Date.parse(updatedAt));
 
+  const acceptedHeadless = adapter.selectWalkthroughEvidence({
+    comments: [request(), headlessWalkthrough()],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert(acceptedHeadless, "a request-bound stable walkthrough may omit an embedded SHA");
+
   const staleUpdate = adapter.selectWalkthroughEvidence({
-    comments: [request(), walkthrough({ updated_at: "2026-07-21T06:20:30Z" })],
+    comments: [request(), headlessWalkthrough({ updated_at: "2026-07-21T06:20:30Z" })],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
@@ -137,7 +163,11 @@ function assertSelectionSemantics() {
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert.equal(wrongHead, null, "walkthrough evidence must include the full current head");
+  assert.equal(wrongHead, null, "an explicitly conflicting full SHA must fail closed");
+
+  assert.deepEqual(adapter.fullHeadReferences(`base ${otherHead}; head ${head}`), [otherHead, head]);
+  assert.equal(adapter.hasNoConflictingHeadReference("no commit range", head), true);
+  assert.equal(adapter.hasNoConflictingHeadReference(`reviewed ${otherHead}`, head), false);
 
   const quotaBody = adapter.selectWalkthroughEvidence({
     comments: [request(), limitSignal()],
@@ -151,31 +181,38 @@ function assertSelectionSemantics() {
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert(acceptedLimit, "an updated authenticated exact-head quota response must activate the narrow waiver");
+  assert(acceptedLimit, "an updated authenticated request-bound quota response must activate the narrow waiver");
+
+  const acceptedHeadlessLimit = adapter.selectStableLimitEvidence({
+    comments: [request(), headlessLimitSignal()],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert(acceptedHeadlessLimit, "a request-bound stable quota response may omit an embedded SHA");
 
   const staleLimit = adapter.selectStableLimitEvidence({
-    comments: [request(), limitSignal({ updated_at: "2026-07-21T06:20:30Z" })],
+    comments: [request(), headlessLimitSignal({ updated_at: "2026-07-21T06:20:30Z" })],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
   assert.equal(staleLimit, null, "a quota observation before the latest request must not waive the lane");
 
   const wrongHeadLimit = adapter.selectStableLimitEvidence({
-    comments: [request(), limitSignal({ body: `Review limit reached. Reviewed ${otherHead}.` })],
+    comments: [request(), limitSignal({ body: `<!-- review_stack_entry_start -->\nReview limit reached. Reviewed ${otherHead}.` })],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert.equal(wrongHeadLimit, null, "a quota response must include the full current head");
+  assert.equal(wrongHeadLimit, null, "an explicitly conflicting quota SHA must fail closed");
 
   const negativeLimit = adapter.selectStableLimitEvidence({
-    comments: [request(), limitSignal({ body: `No review limit was reached for ${head}.` })],
+    comments: [request(), headlessLimitSignal({ body: "<!-- review_stack_entry_start -->\nNo review limit was reached." })],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
   assert.equal(negativeLimit, null, "a negative limit phrase must not activate a waiver");
 
   const spoofedBot = adapter.selectWalkthroughEvidence({
-    comments: [request(), walkthrough({ user: { login: "attacker", type: "Bot" } })],
+    comments: [request(), headlessWalkthrough({ user: { login: "attacker", type: "Bot" } })],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
@@ -184,7 +221,7 @@ function assertSelectionSemantics() {
   const editedOldRequest = adapter.selectWalkthroughEvidence({
     comments: [
       request({ created_at: "2026-07-21T06:19:00Z", updated_at: requestAt }),
-      walkthrough(),
+      headlessWalkthrough(),
     ],
     currentHead: head,
     headUpdateAnchor: anchor,
@@ -196,7 +233,7 @@ function assertSelectionSemantics() {
     comments: [
       request(),
       request({ created_at: secondRequestAt, updated_at: secondRequestAt }),
-      walkthrough({ updated_at: "2026-07-21T06:22:30Z" }),
+      headlessWalkthrough({ updated_at: "2026-07-21T06:22:30Z" }),
     ],
     currentHead: head,
     headUpdateAnchor: anchor,
@@ -207,7 +244,7 @@ function assertSelectionSemantics() {
     comments: [
       request(),
       request({ created_at: secondRequestAt, updated_at: secondRequestAt }),
-      walkthrough({ updated_at: "2026-07-21T06:24:00Z" }),
+      headlessWalkthrough({ updated_at: "2026-07-21T06:24:00Z" }),
     ],
     currentHead: head,
     headUpdateAnchor: anchor,
@@ -228,12 +265,12 @@ async function assertIntegrationSemantics() {
     const core = coreMock();
     let legacyCalls = 0;
     await verifyAiReviewEvidenceAdapter({
-      github: githubMock({ comments: [request(), walkthrough()] }),
+      github: githubMock({ comments: [request(), headlessWalkthrough()] }),
       context: context(),
       core,
       legacyVerifierFn: async () => { legacyCalls += 1; },
     });
-    assert.equal(legacyCalls, 0, "walkthrough success must not invoke the legacy verifier");
+    assert.equal(legacyCalls, 0, "request-bound walkthrough success must not invoke the legacy verifier");
     assert.equal(core.calls.failures.length, 0);
     assert.equal(core.calls.summaryWrites, 1);
     assert.equal(core.calls.notices.length, 1);
@@ -243,12 +280,12 @@ async function assertIntegrationSemantics() {
     const core = coreMock();
     let legacyCalls = 0;
     await verifyAiReviewEvidenceAdapter({
-      github: githubMock({ comments: [request(), limitSignal()] }),
+      github: githubMock({ comments: [request(), headlessLimitSignal()] }),
       context: context(),
       core,
       legacyVerifierFn: async () => { legacyCalls += 1; },
     });
-    assert.equal(legacyCalls, 0, "an exact-head provider-limit signal must use the narrow adapter waiver");
+    assert.equal(legacyCalls, 0, "a request-bound provider-limit signal must use the narrow adapter waiver");
     assert.equal(core.calls.failures.length, 0);
     assert.equal(core.calls.summaryWrites, 1);
     assert.equal(core.calls.warnings.length, 1);
@@ -272,7 +309,7 @@ async function assertIntegrationSemantics() {
     const core = coreMock();
     let legacyCalls = 0;
     await verifyAiReviewEvidenceAdapter({
-      github: githubMock({ liveHead: otherHead, comments: [request(), walkthrough()] }),
+      github: githubMock({ liveHead: otherHead, comments: [request(), headlessWalkthrough()] }),
       context: context(),
       core,
       legacyVerifierFn: async () => { legacyCalls += 1; },
@@ -315,7 +352,7 @@ async function assertIntegrationSemantics() {
   assertAnchorSemantics();
   await assertIntegrationSemantics();
   console.log(
-    "✅ AI-REVIEW-ADAPTER-001 passed: stable walkthrough and exact-head quota selection, negative workflow anchors, stale-head fail-closed behavior, normal legacy fallback, and prominent unexpected-error fallback are covered.",
+    "✅ AI-REVIEW-ADAPTER-001 passed: request-bound headless walkthrough and quota evidence, conflicting-SHA rejection, negative workflow anchors, stale-head fail-closed behavior, normal legacy fallback, and prominent unexpected-error fallback are covered.",
   );
 })().catch((error) => {
   console.error(error);
