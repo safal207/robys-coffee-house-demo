@@ -142,22 +142,23 @@
   }
 
   .discover-header .brand{
-    max-width:104px!important;
+    width:116px!important;
+    max-width:116px!important;
     padding:5px 7px!important;
   }
 
   .discover-header .brand-copy{
-    width:88px!important;
+    width:100px!important;
     color:#111!important;
-    --robys-wordmark-font-size:1.70rem;
-    --robys-wordmark-scale-x:.72;
+    --robys-wordmark-font-size:1.62rem;
+    --robys-wordmark-scale-x:.70;
     --robys-wordmark-scale-y:1.08;
   }
 
   .discover-header .brand-copy strong{
-    width:25px!important;
+    width:24px!important;
     height:28px!important;
-    margin-left:17px!important;
+    margin-left:18px!important;
   }
 }
 
@@ -170,7 +171,7 @@
     overflow:hidden!important;
   }
 
-  .discover-header .brand-copy{
+  body.discover-page .discover-header .brand-copy{
     display:flex!important;
     width:70px!important;
     color:#111!important;
