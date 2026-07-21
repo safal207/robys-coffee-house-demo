@@ -1,0 +1,536 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://safal207.github.io/robys-coffee-house-demo/schemas/causal-review-envelope.v1.json",
+  "title": "Robis Causal Review Envelope v1",
+  "description": "Advisory exact-head causal transition record with no execution, approval, or merge authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "repository",
+    "pull_request",
+    "head_sha",
+    "thread_id",
+    "time",
+    "space",
+    "transition",
+    "authority",
+    "decision",
+    "findings",
+    "checks",
+    "reviewers",
+    "evidence",
+    "causal_basis",
+    "causal_graph",
+    "trace",
+    "supersession"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "robis.causal-review.v1"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^review:[0-9a-f]{64}$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[^/\\s]+/[^/\\s]+$"
+    },
+    "pull_request": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "head_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "thread_id": {
+      "type": "string",
+      "pattern": "^robis-pr-[1-9][0-9]*$"
+    },
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valid_time",
+        "transaction_time"
+      ],
+      "properties": {
+        "valid_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "transaction_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin",
+        "crossed_boundary",
+        "destination"
+      ],
+      "properties": {
+        "origin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository",
+            "pull_request",
+            "head_sha"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "pull_request": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "head_sha": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          }
+        },
+        "crossed_boundary": {
+          "const": "evidence_to_advisory_decision"
+        },
+        "destination": {
+          "const": "human_adjudication"
+        }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_from",
+        "state_to",
+        "tension",
+        "cause_id",
+        "parent_cause_id",
+        "smallest_justified_action"
+      ],
+      "properties": {
+        "state_from": {
+          "const": "HEAD_UPDATED"
+        },
+        "state_to": {
+          "enum": [
+            "BLOCKED",
+            "FIX_REQUIRED",
+            "EVIDENCE_PENDING",
+            "READY_ADVISORY",
+            "READY"
+          ]
+        },
+        "tension": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cause_id": {
+          "type": "string",
+          "pattern": "^cause:[0-9a-f]{64}$"
+        },
+        "parent_cause_id": {
+          "type": "string",
+          "pattern": "^head:[0-9a-f]{40}$"
+        },
+        "smallest_justified_action": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actor",
+        "role",
+        "can_execute",
+        "can_approve",
+        "can_merge",
+        "human_adjudication_required"
+      ],
+      "properties": {
+        "actor": {
+          "const": "robis-ai-review-cooperation"
+        },
+        "role": {
+          "const": "advisory_aggregator"
+        },
+        "can_execute": {
+          "const": false
+        },
+        "can_approve": {
+          "const": false
+        },
+        "can_merge": {
+          "const": false
+        },
+        "human_adjudication_required": {
+          "const": true
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "verdict",
+        "why",
+        "advisory_only"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^decision:[0-9a-f]{40}:(block|fix_then_rerun|wait_for_evidence|ready_with_advisory_gaps|ready)$"
+        },
+        "verdict": {
+          "enum": [
+            "BLOCK",
+            "FIX_THEN_RERUN",
+            "WAIT_FOR_EVIDENCE",
+            "READY_WITH_ADVISORY_GAPS",
+            "READY"
+          ]
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1
+        },
+        "advisory_only": {
+          "const": true
+        }
+      }
+    },
+    "findings": {
+      "$ref": "#/$defs/findings"
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "pending",
+        "failed",
+        "optional_failed"
+      ],
+      "properties": {
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pending": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "optional_failed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reviewers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role",
+          "requested",
+          "level",
+          "state",
+          "reason",
+          "action",
+          "waived",
+          "findings"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "required",
+              "advisory",
+              "dormant"
+            ]
+          },
+          "requested": {
+            "type": "boolean"
+          },
+          "level": {
+            "enum": [
+              "E0",
+              "E1",
+              "E2",
+              "E3",
+              "E4",
+              "E5"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "waived": {
+            "type": "boolean"
+          },
+          "findings": {
+            "$ref": "#/$defs/findings"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pagination_complete",
+        "manifest"
+      ],
+      "properties": {
+        "pagination_complete": {
+          "type": "boolean"
+        },
+        "manifest": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "byte_size",
+              "sha256"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "changed_files",
+                  "check_runs",
+                  "head_commit",
+                  "issue_comments",
+                  "pull_request",
+                  "review_comments",
+                  "review_threads",
+                  "reviews",
+                  "statuses"
+                ]
+              },
+              "byte_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "causal_basis": {
+      "type": "object"
+    },
+    "causal_graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root_ids",
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "root_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^head:[0-9a-f]{40}$"
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "exact_head_state",
+                  "causal_basis",
+                  "advisory_decision"
+                ]
+              }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "relation"
+            ],
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              },
+              "relation": {
+                "enum": [
+                  "supports",
+                  "justifies"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "trace": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "sequence",
+          "ts",
+          "ref",
+          "previous"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "sense",
+              "transition",
+              "commit"
+            ]
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ref": {
+            "type": "string"
+          },
+          "previous": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "execution_committed": {
+            "const": false
+          }
+        }
+      }
+    },
+    "supersession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supersedes_record",
+        "must_be_superseded_after_head_change"
+      ],
+      "properties": {
+        "supersedes_record": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "must_be_superseded_after_head_change": {
+          "const": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "properties": {
+        "P0": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P1": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P2": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P3": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
