@@ -1,0 +1,12 @@
+/* Photo-referenced Roby's mark from the owner-provided takeaway-cup image. */
+.brand-copy strong{
+  border-color:transparent!important;
+  border-radius:0!important;
+  background:url("src/brand/robys-organic-ring.svg?v=20260720-1") center/contain no-repeat!important;
+}
+
+.menu-page-mark::before{
+  border-color:transparent!important;
+  border-radius:0!important;
+  background:url("src/brand/robys-organic-ring.svg?v=20260720-1") center/contain no-repeat!important;
+}
