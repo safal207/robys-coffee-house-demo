@@ -124,10 +124,19 @@ Build from the same environment files used by the cooperation reporter:
 python3 scripts/causal_review_envelope.py build
 ```
 
-Validate any envelope:
+Validate the structural envelope and its cross-field semantic seal:
 
 ```bash
 python3 scripts/causal_review_envelope.py validate \
+  qa/causal-review-envelope.example.json
+python3 scripts/verify_causal_review_semantics.py validate \
+  qa/causal-review-envelope.example.json
+```
+
+Run the semantic mutation challenge:
+
+```bash
+python3 scripts/verify_causal_review_semantics.py self-test \
   qa/causal-review-envelope.example.json
 ```
 
@@ -144,7 +153,7 @@ python3 scripts/test_causal_review_envelope.py -v
 1. resolves one open PR for the triggering exact head;
 2. collects paginated REST and GraphQL evidence;
 3. builds the envelope with the existing reporter policy;
-4. validates the result independently;
+4. validates structure and recomputes the cross-field semantic projection;
 5. uploads the JSON artifact;
 6. publishes only a GitHub Step Summary.
 
