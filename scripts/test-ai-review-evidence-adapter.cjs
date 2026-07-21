@@ -38,6 +38,16 @@ function walkthrough(overrides = {}) {
   };
 }
 
+function limitSignal(overrides = {}) {
+  return walkthrough({
+    body:
+      "<!-- review_stack_entry_start -->\n" +
+      `Reviewing files changed between ${otherHead} and ${head}.\n` +
+      "Review limit reached. Next review available in 38 minutes.",
+    ...overrides,
+  });
+}
+
 function workflowRun(overrides = {}) {
   return {
     id: runId,
@@ -130,11 +140,39 @@ function assertSelectionSemantics() {
   assert.equal(wrongHead, null, "walkthrough evidence must include the full current head");
 
   const quotaBody = adapter.selectWalkthroughEvidence({
-    comments: [request(), walkthrough({ body: `<!-- walkthrough_start -->\n${head}\nReview limit reached.` })],
+    comments: [request(), limitSignal()],
     currentHead: head,
     headUpdateAnchor: anchor,
   });
-  assert.equal(quotaBody, null, "a quota response must remain in the legacy waiver lane");
+  assert.equal(quotaBody, null, "a quota response must never become clean walkthrough evidence");
+
+  const acceptedLimit = adapter.selectStableLimitEvidence({
+    comments: [request(), limitSignal()],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert(acceptedLimit, "an updated authenticated exact-head quota response must activate the narrow waiver");
+
+  const staleLimit = adapter.selectStableLimitEvidence({
+    comments: [request(), limitSignal({ updated_at: "2026-07-21T06:20:30Z" })],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert.equal(staleLimit, null, "a quota observation before the latest request must not waive the lane");
+
+  const wrongHeadLimit = adapter.selectStableLimitEvidence({
+    comments: [request(), limitSignal({ body: `Review limit reached. Reviewed ${otherHead}.` })],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert.equal(wrongHeadLimit, null, "a quota response must include the full current head");
+
+  const negativeLimit = adapter.selectStableLimitEvidence({
+    comments: [request(), limitSignal({ body: `No review limit was reached for ${head}.` })],
+    currentHead: head,
+    headUpdateAnchor: anchor,
+  });
+  assert.equal(negativeLimit, null, "a negative limit phrase must not activate a waiver");
 
   const spoofedBot = adapter.selectWalkthroughEvidence({
     comments: [request(), walkthrough({ user: { login: "attacker", type: "Bot" } })],
@@ -205,6 +243,21 @@ async function assertIntegrationSemantics() {
     const core = coreMock();
     let legacyCalls = 0;
     await verifyAiReviewEvidenceAdapter({
+      github: githubMock({ comments: [request(), limitSignal()] }),
+      context: context(),
+      core,
+      legacyVerifierFn: async () => { legacyCalls += 1; },
+    });
+    assert.equal(legacyCalls, 0, "an exact-head provider-limit signal must use the narrow adapter waiver");
+    assert.equal(core.calls.failures.length, 0);
+    assert.equal(core.calls.summaryWrites, 1);
+    assert.equal(core.calls.warnings.length, 1);
+  }
+
+  {
+    const core = coreMock();
+    let legacyCalls = 0;
+    await verifyAiReviewEvidenceAdapter({
       github: githubMock({ run: workflowRun({ id: runId + 1 }) }),
       context: context(),
       core,
@@ -238,7 +291,7 @@ async function assertIntegrationSemantics() {
       core,
       legacyVerifierFn: async () => { legacyCalls += 1; },
     });
-    assert.equal(legacyCalls, 1, "missing walkthrough evidence must invoke the legacy verifier");
+    assert.equal(legacyCalls, 1, "missing walkthrough and limit evidence must invoke the legacy verifier");
     assert.equal(core.calls.errors.length, 0, "normal evidence absence is not an adapter error");
   }
 
@@ -262,7 +315,7 @@ async function assertIntegrationSemantics() {
   assertAnchorSemantics();
   await assertIntegrationSemantics();
   console.log(
-    "✅ AI-REVIEW-ADAPTER-001 passed: stable walkthrough selection, negative workflow anchors, stale-head fail-closed behavior, normal legacy fallback, and prominent unexpected-error fallback are covered.",
+    "✅ AI-REVIEW-ADAPTER-001 passed: stable walkthrough and exact-head quota selection, negative workflow anchors, stale-head fail-closed behavior, normal legacy fallback, and prominent unexpected-error fallback are covered.",
   );
 })().catch((error) => {
   console.error(error);
