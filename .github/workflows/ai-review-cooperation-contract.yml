@@ -12,13 +12,17 @@ on:
       - .github/workflows/traceability.yml
       - .github/pull_request_template.md
       - scripts/ai-review-cooperation.py
+      - scripts/ai_review_cooperation_request_bound.py
+      - scripts/test_ai_review_cooperation_request_bound.py
       - scripts/coderabbit-reserve.cjs
       - scripts/fetch-review-threads.py
       - scripts/verify-ai-review-contract.cjs
+      - scripts/verify-ai-review-evidence-adapter.cjs
       - scripts/verify-ai-review-freshness.mjs
       - scripts/verify-proof-depth-graph.mjs
       - scripts/render-ci-proof-summary.mjs
       - scripts/test-ai-review-cooperation.py
+      - scripts/test-ai-review-evidence-adapter.cjs
       - scripts/test-coderabbit-reserve.cjs
       - scripts/test-codex-review-contract.cjs
       - scripts/test-proof-depth-graph.mjs
@@ -35,7 +39,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
       - name: Checkout pull request
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -45,10 +49,18 @@ jobs:
 
       - name: Compile and run CodeRabbit-required cooperation tests
         run: |
-          python3 -m py_compile scripts/ai-review-cooperation.py scripts/fetch-review-threads.py scripts/test-ai-review-cooperation.py
+          python3 -m py_compile \
+            scripts/ai-review-cooperation.py \
+            scripts/ai_review_cooperation_request_bound.py \
+            scripts/test-ai-review-cooperation.py \
+            scripts/test_ai_review_cooperation_request_bound.py \
+            scripts/fetch-review-threads.py
           python3 scripts/test-ai-review-cooperation.py -v
+          python3 scripts/test_ai_review_cooperation_request_bound.py -v
           node --check scripts/coderabbit-reserve.cjs
+          node --check scripts/verify-ai-review-evidence-adapter.cjs
           node scripts/test-coderabbit-reserve.cjs
+          node scripts/test-ai-review-evidence-adapter.cjs
           node scripts/test-codex-review-contract.cjs
           node scripts/verify-ai-review-freshness.mjs
           node scripts/verify-proof-depth-graph.mjs
@@ -70,7 +82,9 @@ jobs:
         run: |
           set -euo pipefail
           verifier=scripts/verify-ai-review-contract.cjs
+          adapter=scripts/verify-ai-review-evidence-adapter.cjs
           reporter=scripts/ai-review-cooperation.py
+          request_bound=scripts/ai_review_cooperation_request_bound.py
           scheduler=scripts/coderabbit-reserve.cjs
           workflow=.github/workflows/ai-review-cooperation.yml
           ai_workflow=.github/workflows/ai-review-contract.yml
@@ -83,10 +97,16 @@ jobs:
           grep -Fq 'ACTIVE_PROVIDER_NAMES: ["CodeRabbit"]' "${verifier}"
           grep -Fq 'provider-limit-bypass' "${verifier}"
           grep -Fq 'hasPositiveLimitSignal' "${verifier}"
+          grep -Fq 'hasNoConflictingHeadReference' "${adapter}"
+          grep -Fq 'selectStableLimitEvidence' "${adapter}"
           grep -Fq "ACTIVE_REVIEWERS = {'CodeRabbit'}" "${reporter}"
           grep -Fq "ADVISORY_REVIEWERS = {'Codex', 'Jules', 'DeepSeek'}" "${reporter}"
           grep -Fq "DORMANT_REVIEWERS = {'Qodo'}" "${reporter}"
           grep -Fq 'provider limit waived' "${reporter}"
+          grep -Fq 'module.bot_items = patched_bot_items' "${request_bound}"
+          grep -Fq 'module.request_bound_exact_items = patched_request_bound_exact_items' "${request_bound}"
+          grep -Fq 'module.latest_limit_signal = patched_latest_limit_signal' "${request_bound}"
+          grep -Fq 'has_no_conflicting_head_reference' "${request_bound}"
           grep -Fq 'INITIAL_REQUIRED_REQUEST' "${scheduler}"
           grep -Fq 'PROVIDER_LIMIT_WAIVED' "${scheduler}"
           grep -Fq 'Verify exact-head CodeRabbit review or limit waiver' "${ai_workflow}"
@@ -94,7 +114,9 @@ jobs:
           grep -Fq 'provider-limit signal activates the narrow waiver' "${template}"
           grep -Fq 'Codex, Jules and DeepSeek are treated as advisory only' "${template}"
           grep -Fq 'const codeRabbitRequests = issueComments' "${ledger}"
-          grep -Fq 'const hasPositiveLimitSignal = (body) => {' "${ledger}"
+          grep -Fq 'const requestBoundStableOutput = (item) => (' "${ledger}"
+          grep -Fq 'hasNoConflictingHeadReference' "${ledger}"
+          grep -Fq 'timeOf(item) >= latestCodeRabbitRequestAt' "${ledger}"
           grep -Fq 'provider-limit-waived' "${ledger}"
           grep -Fq "new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek'])" "${ledger}"
           grep -Fq 'Disposition-For-Issue-Comment' "${ledger}"
@@ -107,7 +129,10 @@ jobs:
           grep -Fq 'CodeRabbit is the required request-bound AI reviewer' "${policy}"
           grep -Fq 'explicit authenticated CodeRabbit limit' "${policy}"
           grep -Fq 'Qodo is disabled' "${policy}"
-          ! grep -Fqi 'qodo-code-review' "${workflow}"
+          if grep -Fqi 'qodo-code-review' "${workflow}"; then
+            echo 'Disabled Qodo workflow leaked into cooperation runtime.' >&2
+            exit 1
+          fi
 
       - name: Verify event and permission boundary
         run: |
@@ -122,10 +147,18 @@ jobs:
           grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
           grep -Fq 'persist-credentials: false' "${workflow}"
           grep -Fq 'default_branch' "${workflow}"
-          ! grep -Fq 'pull_request_review:' "${workflow}"
-          ! grep -Fq 'pull_request_target' "${workflow}"
-          ! grep -Fq 'contents: write' "${workflow}"
-          ! grep -Fq 'actions: write' "${workflow}"
+          forbidden=(
+            'pull_request_review:'
+            'pull_request_target'
+            'contents: write'
+            'actions: write'
+          )
+          for token in "${forbidden[@]}"; do
+            if grep -Fq "${token}" "${workflow}"; then
+              echo "Forbidden cooperation workflow capability or event: ${token}" >&2
+              exit 1
+            fi
+          done
 
           ruby <<'RUBY'
           require 'yaml'
@@ -181,7 +214,7 @@ jobs:
           grep -Fq 'Workflow trigger is not bound to the current PR head' "${workflow}"
           grep -Fq 'gh api --paginate --slurp' "${workflow}"
           grep -Fq 'python3 scripts/fetch-review-threads.py' "${workflow}"
-          grep -Fq 'python3 scripts/ai-review-cooperation.py report' "${workflow}"
+          grep -Fq 'python3 scripts/ai_review_cooperation_request_bound.py report' "${workflow}"
           grep -Fq 'PR head changed before publishing' "${workflow}"
           grep -Fq '<!-- ai-review-cooperation -->' "${workflow}"
           grep -Fq '.user.login == "github-actions[bot]"' "${workflow}"

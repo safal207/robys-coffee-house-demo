@@ -1,4 +1,4 @@
-name: AI review cooperation report
+name: Causal review envelope
 
 on:
   issue_comment:
@@ -9,8 +9,12 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.workflow_run.head_sha || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  report:
+  build:
     if: >-
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
@@ -25,18 +29,16 @@ jobs:
        github.event.workflow_run.event == 'pull_request' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_sha != '')
+    name: Build exact-head causal envelope
     permissions:
       actions: read
       checks: read
       contents: read
-      issues: write
+      issues: read
       pull-requests: read
       statuses: read
-    concurrency:
-      group: ai-review-cooperation-${{ github.event.issue.number || github.event.workflow_run.head_sha || github.run_id }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     env:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
@@ -51,7 +53,7 @@ jobs:
       TRIGGER_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
 
     steps:
-      - name: Authorize cooperation trigger
+      - name: Authorize observer trigger
         run: |
           set -euo pipefail
           case "${TRIGGER_EVENT}" in
@@ -61,7 +63,7 @@ jobs:
                   ;;
                 *)
                   if [ "${TRIGGER_AUTHOR}" != "${REPOSITORY_OWNER}" ]; then
-                    echo "Unauthorized cooperation-report command actor: ${TRIGGER_AUTHOR}" >&2
+                    echo "Unauthorized causal-envelope command actor: ${TRIGGER_AUTHOR}" >&2
                     exit 1
                   fi
                   ;;
@@ -76,17 +78,17 @@ jobs:
                  [ "${WORKFLOW_EVENT}" != "pull_request" ] ||
                  [ "${WORKFLOW_CONCLUSION}" != "success" ] ||
                  [ -z "${TRIGGER_HEAD_SHA}" ]; then
-                echo "Unauthorized workflow_run trigger: name=${WORKFLOW_NAME:-missing} event=${WORKFLOW_EVENT:-missing} conclusion=${WORKFLOW_CONCLUSION:-missing} head=${TRIGGER_HEAD_SHA:-missing}" >&2
+                echo "Unauthorized workflow_run trigger." >&2
                 exit 1
               fi
               ;;
             *)
-              echo "Unsupported cooperation trigger event: ${TRIGGER_EVENT}" >&2
+              echo "Unsupported trigger: ${TRIGGER_EVENT}" >&2
               exit 1
               ;;
           esac
 
-      - name: Checkout trusted reporter code
+      - name: Check out trusted envelope builder
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.repository.default_branch }}
@@ -100,32 +102,30 @@ jobs:
             exit 0
           fi
 
-          candidates_file="${RUNNER_TEMP}/workflow-run-pr-candidates.json"
+          candidates="${RUNNER_TEMP}/causal-envelope-pr-candidates.json"
+          matches="${RUNNER_TEMP}/causal-envelope-pr-matches.json"
           gh api -H 'Accept: application/vnd.github+json' \
             "repos/${REPOSITORY}/commits/${TRIGGER_HEAD_SHA}/pulls?per_page=100" \
-            > "${candidates_file}"
-
-          matches_file="${RUNNER_TEMP}/workflow-run-pr-matches.json"
+            > "${candidates}"
           jq --arg sha "${TRIGGER_HEAD_SHA}" --arg repo "${REPOSITORY}" \
             '[.[] | select(.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo)]' \
-            "${candidates_file}" > "${matches_file}"
+            "${candidates}" > "${matches}"
 
-          match_count="$(jq 'length' "${matches_file}")"
-          if [ "${match_count}" != "1" ]; then
-            echo "Expected exactly one open PR for workflow head ${TRIGGER_HEAD_SHA}; found ${match_count}." >&2
+          count="$(jq 'length' "${matches}")"
+          if [ "${count}" != "1" ]; then
+            echo "Expected exactly one open PR for ${TRIGGER_HEAD_SHA}; found ${count}." >&2
             exit 1
           fi
-
-          resolved_pr="$(jq -r '.[0].number' "${matches_file}")"
-          if ! [[ "${resolved_pr}" =~ ^[1-9][0-9]*$ ]]; then
-            echo "Resolved invalid PR number: ${resolved_pr}" >&2
+          resolved="$(jq -r '.[0].number' "${matches}")"
+          if ! [[ "${resolved}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Resolved invalid PR number: ${resolved}" >&2
             exit 1
           fi
-          echo "PR_NUMBER=${resolved_pr}" >> "${GITHUB_ENV}"
+          echo "PR_NUMBER=${resolved}" >> "${GITHUB_ENV}"
 
-      - name: Configure cooperation evidence paths
+      - name: Configure evidence paths
         run: |
-          prefix="${RUNNER_TEMP}/cooperation-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          prefix="${RUNNER_TEMP}/causal-envelope-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           {
             echo "PR_JSON_FILE=${prefix}-pr.json"
             echo "HEAD_COMMIT_FILE=${prefix}-head.json"
@@ -136,7 +136,7 @@ jobs:
             echo "CHECKS_FILE=${prefix}-checks.json"
             echo "STATUSES_FILE=${prefix}-statuses.json"
             echo "FILES_FILE=${prefix}-files.json"
-            echo "COMMENT_FILE=${prefix}-comment.json"
+            echo "CAUSAL_ENVELOPE_FILE=${RUNNER_TEMP}/causal-review-envelope.json"
           } >> "${GITHUB_ENV}"
 
       - name: Collect complete exact-head evidence
@@ -146,74 +146,70 @@ jobs:
           state="$(jq -r '.state' "${PR_JSON_FILE}")"
           head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
           if [ "${state}" != "open" ]; then
-            echo "Cooperation report requires an open pull request." >&2
+            echo "Causal envelope requires an open pull request." >&2
             exit 1
           fi
           if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${head}" ]; then
-            echo "Workflow trigger is not bound to the current PR head: ${TRIGGER_HEAD_SHA} != ${head}" >&2
+            echo "Workflow trigger is stale: ${TRIGGER_HEAD_SHA} != ${head}" >&2
             exit 1
           fi
 
           gh api "repos/${REPOSITORY}/commits/${head}" > "${HEAD_COMMIT_FILE}"
-          gh api --paginate --slurp "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq 'add // []' > "${COMMENTS_FILE}"
-          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" | jq 'add // []' > "${REVIEWS_FILE}"
-          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" | jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
-          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" | jq 'add // []' > "${FILES_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" |
+            jq 'add // []' > "${COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" |
+            jq 'add // []' > "${REVIEWS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/comments?per_page=100" |
+            jq 'add // []' > "${REVIEW_COMMENTS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" |
+            jq 'add // []' > "${FILES_FILE}"
           gh api --paginate -H 'Accept: application/vnd.github+json' \
-            "repos/${REPOSITORY}/commits/${head}/check-runs?per_page=100" \
-            | jq -s '{check_runs: (map(.check_runs // []) | add // [])}' > "${CHECKS_FILE}"
-          gh api --paginate --slurp "repos/${REPOSITORY}/commits/${head}/statuses?per_page=100" | jq 'add // []' > "${STATUSES_FILE}"
+            "repos/${REPOSITORY}/commits/${head}/check-runs?per_page=100" |
+            jq -s '{check_runs: (map(.check_runs // []) | add // [])}' > "${CHECKS_FILE}"
+          gh api --paginate --slurp "repos/${REPOSITORY}/commits/${head}/statuses?per_page=100" |
+            jq 'add // []' > "${STATUSES_FILE}"
 
       - name: Collect complete GraphQL review threads
         run: python3 scripts/fetch-review-threads.py
 
-      - name: Build CodeRabbit-first cooperation report
-        run: python3 scripts/ai_review_cooperation_request_bound.py report
-
-      - name: Publish or update cooperation report
+      - name: Build and validate causal envelope
         run: |
           set -euo pipefail
-          expected_head="$(jq -r '.head.sha' "${PR_JSON_FILE}")"
+          python3 scripts/causal_review_envelope_request_bound.py build
+          python3 scripts/causal_review_envelope.py validate "${CAUSAL_ENVELOPE_FILE}"
+          python3 scripts/verify_causal_review_semantics.py validate "${CAUSAL_ENVELOPE_FILE}"
+
+      - name: Recheck exact head before retaining evidence
+        run: |
+          set -euo pipefail
+          expected="$(jq -r '.head_sha' "${CAUSAL_ENVELOPE_FILE}")"
           current="$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}")"
-          current_state="$(jq -r '.state' <<<"${current}")"
-          current_head="$(jq -r '.head.sha' <<<"${current}")"
-          if [ "${current_state}" != "open" ]; then
-            echo "PR was closed before publishing the cooperation report." >&2
-            exit 1
-          fi
-          if [ "${current_head}" != "${expected_head}" ]; then
-            echo "PR head changed before publishing: ${expected_head} -> ${current_head}" >&2
+          state="$(jq -r '.state' <<<"${current}")"
+          head="$(jq -r '.head.sha' <<<"${current}")"
+          if [ "${state}" != "open" ] || [ "${head}" != "${expected}" ]; then
+            echo "PR changed before artifact retention: state=${state} expected=${expected} current=${head}" >&2
             exit 1
           fi
 
-          test -s "${COMMENT_FILE}"
-          jq -e '.body | type == "string" and length > 0' "${COMMENT_FILE}" >/dev/null
-          body_bytes="$(jq -r '.body' "${COMMENT_FILE}" | wc -c | tr -d ' ')"
-          if [ "${body_bytes}" -gt 65000 ]; then
-            echo "Cooperation report body is too large: ${body_bytes} bytes" >&2
-            exit 1
-          fi
+      - name: Upload causal envelope
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: causal-review-envelope-${{ github.run_id }}
+          path: ${{ runner.temp }}/causal-review-envelope.json
+          if-no-files-found: error
+          retention-days: 14
 
-          existing_id="$(
-            gh api --paginate "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments?sort=created&direction=asc&per_page=100" \
-              --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- ai-review-cooperation -->"))) | .id' \
-              | tail -n 1
-          )"
-          if [ -n "${existing_id}" ]; then
-            gh api --method PATCH "repos/${REPOSITORY}/issues/comments/${existing_id}" \
-              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
-          else
-            gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              -H 'Accept: application/vnd.github+json' --input "${COMMENT_FILE}"
-          fi
-
-      - name: Summarize reporter failure
-        if: ${{ failure() }}
+      - name: Summarize advisory record
         run: |
           {
-            echo "## AI cooperation reporter failed"
+            echo "## Robis causal review envelope"
             echo
-            echo "Trigger: ${TRIGGER_EVENT}"
-            echo "Head: ${TRIGGER_HEAD_SHA:-unknown}"
-            echo "This diagnostic is not reviewer evidence. CodeRabbit is required; an authenticated quota/limit response may waive only the external review step. Codex, Jules and DeepSeek are advisory; Qodo is disabled."
+            echo "- Record: \`$(jq -r '.record_id' "${CAUSAL_ENVELOPE_FILE}")\`"
+            echo "- Exact head: \`$(jq -r '.head_sha' "${CAUSAL_ENVELOPE_FILE}")\`"
+            echo "- Decision: **$(jq -r '.decision.verdict' "${CAUSAL_ENVELOPE_FILE}")**"
+            echo "- Transition: \`$(jq -r '.transition.state_from' "${CAUSAL_ENVELOPE_FILE}") → $(jq -r '.transition.state_to' "${CAUSAL_ENVELOPE_FILE}")\`"
+            echo "- Valid time: \`$(jq -r '.time.valid_time' "${CAUSAL_ENVELOPE_FILE}")\`"
+            echo "- Transaction time: \`$(jq -r '.time.transaction_time' "${CAUSAL_ENVELOPE_FILE}")\`"
+            echo
+            echo "Advisory only: this artifact cannot execute, approve, or merge."
           } >> "${GITHUB_STEP_SUMMARY}"

@@ -7,8 +7,9 @@ const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const workflow = readFileSync(".github/workflows/visual-regression.yml", "utf8");
 const aiWorkflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
+const aiAdapter = readFileSync("scripts/verify-ai-review-evidence-adapter.cjs", "utf8");
 const aiVerifier = readFileSync("scripts/verify-ai-review-contract.cjs", "utf8");
-const aiContract = `${aiWorkflow}\n${aiVerifier}`;
+const aiContract = `${aiWorkflow}\n${aiAdapter}\n${aiVerifier}`;
 const uiRunner = readFileSync("scripts/ui-ux-matrix.mjs", "utf8");
 const socialVerifier = readFileSync("scripts/verify-social-network-live.mjs", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
@@ -123,7 +124,21 @@ record("claude", [
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to trusted-base CodeRabbit exact-head review or authenticated quota waiver", aiWorkflow.includes("github.event.pull_request.base.sha") && aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("CODERABBIT_COMMAND") && aiContract.includes("latestCodeRabbitLimitSignal") && aiContract.includes("provider-limit-bypass") && aiContract.includes("DORMANT_PROVIDER_NAMES") && !aiContract.includes("QODO_COMMAND")]
+  [
+    "AI evidence is tied to trusted-base exact-head review, authenticated stable quota waiver, and legacy fail-closed fallback",
+    aiWorkflow.includes("github.event.pull_request.base.sha") &&
+      aiWorkflow.includes("verify-ai-review-evidence-adapter.cjs") &&
+      aiContract.includes("currentHead") &&
+      aiContract.includes("commit_id") &&
+      aiContract.includes("CODERABBIT_COMMAND") &&
+      aiContract.includes("selectStableLimitEvidence") &&
+      aiContract.includes("hasPositiveLimitSignal") &&
+      aiContract.includes("provider-limit-bypass") &&
+      aiContract.includes("legacyVerifierFn") &&
+      aiContract.includes("latestCodeRabbitLimitSignal") &&
+      aiContract.includes("DORMANT_PROVIDER_NAMES") &&
+      !aiContract.includes("QODO_COMMAND")
+  ]
 ]);
 
 const report = {
