@@ -22,13 +22,12 @@ jobs:
       issues: read
       pull-requests: read
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     env:
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.issue.number }}
       COMMAND_BODY: ${{ github.event.comment.body }}
-
     steps:
       - name: Check out trusted validator
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -41,12 +40,7 @@ jobs:
       - name: Resolve command and current pull request head
         run: |
           set -euo pipefail
-          record_path="$(
-            printf '%s\n' "${COMMAND_BODY}" |
-              head -n 1 |
-              sed 's#^/virtual-panel verify ##'
-          )"
-
+          record_path="$(printf '%s\n' "${COMMAND_BODY}" | head -n 1 | sed 's#^/virtual-panel verify ##')"
           if [ "${record_path}" != "qa/virtual-review-panel.example.json" ] &&
              ! [[ "${record_path}" =~ ^qa/virtual-panels/[A-Za-z0-9._/-]+\.json$ ]]; then
             echo "Record path must be the canonical example or qa/virtual-panels/<safe-name>.json" >&2
@@ -56,7 +50,6 @@ jobs:
             echo "Record path contains a forbidden traversal or empty segment." >&2
             exit 1
           fi
-
           pull_json="${RUNNER_TEMP}/pull.json"
           gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" > "${pull_json}"
           state="$(jq -r '.state' "${pull_json}")"
@@ -65,7 +58,6 @@ jobs:
             echo "Virtual panel verification requires an open PR with a full head SHA." >&2
             exit 1
           fi
-
           {
             echo "RECORD_PATH=${record_path}"
             echo "CURRENT_HEAD=${current_head}"
@@ -75,36 +67,30 @@ jobs:
       - name: Download record bytes from exact pull request head
         run: |
           set -euo pipefail
-          gh api "repos/${REPOSITORY}/contents/${RECORD_PATH}?ref=${CURRENT_HEAD}" \
-            --jq '.content' |
-            tr -d '\n' |
-            base64 --decode > "${RECORD_FILE}"
+          gh api "repos/${REPOSITORY}/contents/${RECORD_PATH}?ref=${CURRENT_HEAD}" --jq '.content' |
+            tr -d '\n' | base64 --decode > "${RECORD_FILE}"
           test -s "${RECORD_FILE}"
 
-      - name: Validate role-separated panel contract
+      - name: Validate schema, semantic rules, and embedded evidence bytes
         run: |
-          python3 trusted/scripts/virtual_review_panel.py validate "${RECORD_FILE}"
+          python3 trusted/scripts/validate_virtual_panel_schema.py \
+            trusted/qa/virtual-review-panel.schema.json "${RECORD_FILE}"
           python3 trusted/scripts/verify_virtual_panel_hardening.py "${RECORD_FILE}"
+          python3 trusted/scripts/virtual_review_panel.py validate "${RECORD_FILE}"
 
       - name: Verify subject and exact-head identity
         run: |
           python3 - <<'PY'
-          import json
-          import os
+          import json, os
           from pathlib import Path
-
-          record = json.loads(Path(os.environ["RECORD_FILE"]).read_text(encoding="utf-8"))
-          subject = record["subject"]
-          record_head = subject["head_sha"]
-          current_head = os.environ["CURRENT_HEAD"]
-          if subject["repository"] != os.environ["REPOSITORY"]:
-              raise SystemExit("record repository does not match the workflow repository")
-          if subject["pull_request"] != int(os.environ["PR_NUMBER"]):
-              raise SystemExit("record pull request does not match the command target")
-          if record_head != current_head:
-              raise SystemExit(f"record_head != current_head: {record_head} != {current_head}")
-          if record["activation"]["external_lane_satisfied"] is not False:
-              raise SystemExit("virtual panel must not satisfy the external reviewer lane")
+          record=json.loads(Path(os.environ["RECORD_FILE"]).read_text())
+          subject=record["subject"]
+          record_head=subject["head_sha"]
+          current_head=os.environ["CURRENT_HEAD"]
+          if subject["repository"] != os.environ["REPOSITORY"]: raise SystemExit("record repository does not match the workflow repository")
+          if subject["pull_request"] != int(os.environ["PR_NUMBER"]): raise SystemExit("record pull request does not match the command target")
+          if record_head != current_head: raise SystemExit(f"record_head != current_head: {record_head} != {current_head}")
+          if record["activation"]["external_lane_satisfied"] is not False: raise SystemExit("virtual panel must not satisfy the external reviewer lane")
           PY
 
       - name: Upload verified advisory record
@@ -123,6 +109,7 @@ jobs:
             echo "- PR: #${PR_NUMBER}"
             echo "- Exact head: \`${CURRENT_HEAD}\`"
             echo "- Record: \`${RECORD_PATH}\`"
+            echo "- Embedded evidence bytes: SHA-256 and byte size recomputed"
             echo "- External reviewer lane satisfied: **no**"
             echo "- Authority: advisory only; no execution, approval, or merge"
           } >> "${GITHUB_STEP_SUMMARY}"
