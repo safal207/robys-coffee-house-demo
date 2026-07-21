@@ -143,7 +143,9 @@ jobs:
           grep -Fq 'github.event.pull_request.base.sha' "${ai_workflow}"
           grep -Fq 'observedTimeOf(item)' "${adapter}"
           grep -Fq 'WALKTHROUGH_MARKERS' "${adapter}"
-          grep -Fq 'hasCurrentHeadInWalkthrough' "${adapter}"
+          grep -Fq 'hasWalkthroughMarker' "${adapter}"
+          grep -Fq 'hasNoConflictingHeadReference' "${adapter}"
+          grep -Fq 'livePull.data?.head?.sha' "${adapter}"
           grep -Fq 'await legacyVerifierFn({ github, context, core })' "${adapter}"
 
       - name: Verify implementation reuses reporter policy
