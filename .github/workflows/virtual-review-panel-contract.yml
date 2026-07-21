@@ -6,7 +6,9 @@ on:
       - ".github/workflows/virtual-review-panel-contract.yml"
       - ".github/workflows/virtual-review-panel-verify.yml"
       - "scripts/virtual_review_panel.py"
+      - "scripts/verify_virtual_panel_hardening.py"
       - "scripts/test_virtual_review_panel.py"
+      - "scripts/test_virtual_panel_hardening.py"
       - "qa/virtual-review-panel.schema.json"
       - "qa/virtual-review-panel-roles.json"
       - "qa/virtual-review-panel.example.json"
@@ -37,13 +39,19 @@ jobs:
         run: |
           python3 -m py_compile \
             scripts/virtual_review_panel.py \
-            scripts/test_virtual_review_panel.py
+            scripts/verify_virtual_panel_hardening.py \
+            scripts/test_virtual_review_panel.py \
+            scripts/test_virtual_panel_hardening.py
 
       - name: Run mutation tests
-        run: python3 scripts/test_virtual_review_panel.py -v
+        run: |
+          python3 scripts/test_virtual_review_panel.py -v
+          python3 scripts/test_virtual_panel_hardening.py -v
 
       - name: Validate canonical panel record
-        run: python3 scripts/virtual_review_panel.py validate qa/virtual-review-panel.example.json
+        run: |
+          python3 scripts/virtual_review_panel.py validate qa/virtual-review-panel.example.json
+          python3 scripts/verify_virtual_panel_hardening.py qa/virtual-review-panel.example.json
 
       - name: Verify deterministic normalization
         run: |
@@ -111,6 +119,7 @@ jobs:
           grep -Fq "github.event.repository.default_branch" "${verifier}"
           grep -Fq "persist-credentials: false" "${verifier}"
           grep -Fq "python3 trusted/scripts/virtual_review_panel.py validate" "${verifier}"
+          grep -Fq "python3 trusted/scripts/verify_virtual_panel_hardening.py" "${verifier}"
           grep -Fq "record_head != current_head" "${verifier}"
           grep -Fq "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" "${verifier}"
 
