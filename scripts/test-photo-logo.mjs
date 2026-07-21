@@ -9,12 +9,11 @@ const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8")
 
 assert.match(bootstrap, /const photoLogo = document\.createElement\("link"\)/);
 assert.match(bootstrap, /photoLogo\.rel = "stylesheet"/);
-assert.match(bootstrap, /photoLogo\.href = "brand-photo-logo\.css\?v=20260720-1"/);
+assert.match(bootstrap, /photoLogo\.href = "brand-photo-logo\.css\?v=20260721-type-1"/);
 assert.match(bootstrap, /document\.head\.append\(photoLogo\)/);
 assert.doesNotMatch(bootstrap, /DOMContentLoaded/, "logo stylesheet must be requested immediately from the head bootstrap");
 
 assert.match(stylesheet, /\.brand-copy strong\s*\{/);
-// With global border-box sizing, the old transparent 8px border reduced a 34px mark to an 18px background area.
 assert.match(stylesheet, /border:\s*0\s*!important/);
 assert.doesNotMatch(
   stylesheet,
@@ -24,6 +23,30 @@ assert.doesNotMatch(
 assert.match(stylesheet, /src\/brand\/robys-organic-ring\.svg\?v=20260720-1/);
 assert.match(stylesheet, /background:\s*url\([^)]*robys-organic-ring\.svg[^)]*\)\s*center\/contain\s*no-repeat\s*!important/);
 
+assert.match(
+  stylesheet,
+  /font-family:"Arial Narrow","Roboto Condensed","DejaVu Sans Condensed",Arial,sans-serif!important/,
+  "wordmark must use a narrow, self-contained font stack",
+);
+assert.match(stylesheet, /--robys-wordmark-scale-x:\.78/);
+assert.match(stylesheet, /--robys-wordmark-scale-y:1\.12/);
+assert.match(stylesheet, /--robys-wordmark-rise:-56%/);
+assert.match(stylesheet, /letter-spacing:-\.06em!important/);
+assert.match(
+  stylesheet,
+  /transform:translateY\(var\(--robys-wordmark-rise\)\) scaleX\(var\(--robys-wordmark-scale-x\)\) scaleY\(var\(--robys-wordmark-scale-y\)\)!important/,
+);
+assert.match(
+  stylesheet,
+  /@media\(max-width:390px\)[\s\S]*?\.site-header \.brand\s*\{[\s\S]*?overflow:hidden!important/,
+  "narrow header lockup must remain inside its white container",
+);
+assert.match(
+  stylesheet,
+  /@media\(max-width:340px\)[\s\S]*?\.discover-header \.brand-copy\s*\{[\s\S]*?display:flex!important/,
+  "discover must render a compact wordmark instead of an empty white pill",
+);
+
 assert.match(ring, /fill="#d32636"/);
 assert.match(ring, /fill-rule="evenodd"/);
 assert.match(ring, /Photo-referenced red organic ring brand mark/);
@@ -31,7 +54,7 @@ assert.match(ring, /Photo-referenced red organic ring brand mark/);
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260720-1"/);
+assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-type-1"/);
 assert.match(coreAssets, /"\.\/src\/brand\/robys-organic-ring\.svg\?v=20260720-1"/);
 
 const exactRevisionBlock = serviceWorker.match(
