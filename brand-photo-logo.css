@@ -165,26 +165,26 @@
 @media(max-width:340px){
   .discover-header .brand{
     display:inline-flex!important;
-    width:84px!important;
-    max-width:84px!important;
+    width:94px!important;
+    max-width:94px!important;
     padding:5px 6px!important;
     overflow:hidden!important;
   }
 
   body.discover-page .discover-header .brand-copy{
     display:flex!important;
-    width:70px!important;
+    width:80px!important;
     color:#111!important;
-    --robys-wordmark-font-size:1.38rem;
+    --robys-wordmark-font-size:1.32rem;
     --robys-wordmark-gap:0px;
-    --robys-wordmark-scale-x:.70;
+    --robys-wordmark-scale-x:.68;
     --robys-wordmark-scale-y:1.08;
   }
 
   .discover-header .brand-copy strong{
-    width:21px!important;
+    width:20px!important;
     height:24px!important;
-    margin-left:14px!important;
+    margin-left:16px!important;
     margin-right:0!important;
   }
 
