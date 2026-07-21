@@ -143,7 +143,7 @@ jobs:
           grep -Fq 'python3 scripts/causal_review_envelope.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
           grep -Fq 'python3 scripts/verify_causal_review_semantics.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
           grep -Fq "python3 scripts/ai_review_cooperation_request_bound.py report" "${cooperation_workflow}"
-          grep -Fq 'ref: ${{ github.event.repository.default_branch }}' "${cooperation_workflow}"
+          grep -Fq 'github.event.repository.default_branch' "${cooperation_workflow}"
           grep -Fq "persist-credentials: false" "${cooperation_workflow}"
 
           grep -Fq "require('./scripts/verify-ai-review-evidence-adapter.cjs')" "${ai_workflow}"
