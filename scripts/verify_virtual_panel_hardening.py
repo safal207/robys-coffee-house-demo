@@ -13,6 +13,7 @@ from virtual_review_panel import validate_record
 
 
 def parse_utc(value: Any) -> datetime | None:
+    """Parse one timezone-aware RFC3339 timestamp into UTC."""
     if not isinstance(value, str) or not value.strip():
         return None
     try:
@@ -25,6 +26,7 @@ def parse_utc(value: Any) -> datetime | None:
 
 
 def preflight_errors(record: Any) -> list[str]:
+    """Return shape and time errors without raising on hostile nested values."""
     errors: list[str] = []
 
     def require(condition: bool, message: str) -> None:
@@ -38,7 +40,7 @@ def preflight_errors(record: Any) -> list[str]:
     require(isinstance(implementation, dict), "implementation must be an object")
     providers = implementation.get("providers") if isinstance(implementation, dict) else None
     require(isinstance(providers, list), "implementation.providers must be an array")
-    for index, provider in enumerate(providers or []):
+    for index, provider in enumerate(providers if isinstance(providers, list) else []):
         require(isinstance(provider, dict), f"provider {index} must be an object")
         if isinstance(provider, dict):
             for field in ("id", "label", "evidence_ref"):
@@ -47,14 +49,16 @@ def preflight_errors(record: Any) -> list[str]:
 
     roles = record.get("roles")
     require(isinstance(roles, list), "roles must be an array")
-    for role_index, role in enumerate(roles or []):
+    for role_index, role in enumerate(roles if isinstance(roles, list) else []):
         require(isinstance(role, dict), f"role {role_index} must be an object")
         if not isinstance(role, dict):
             continue
         observations = role.get("observations")
         require(isinstance(observations, list),
                 f"role {role_index}.observations must be an array")
-        for observation_index, observation in enumerate(observations or []):
+        for observation_index, observation in enumerate(
+            observations if isinstance(observations, list) else []
+        ):
             require(isinstance(observation, dict),
                     f"role {role_index} observation {observation_index} must be an object")
             if not isinstance(observation, dict):
@@ -62,7 +66,9 @@ def preflight_errors(record: Any) -> list[str]:
             evidence_refs = observation.get("evidence_refs")
             require(isinstance(evidence_refs, list),
                     f"observation {observation_index}.evidence_refs must be an array")
-            for ref_index, evidence_ref in enumerate(evidence_refs or []):
+            for ref_index, evidence_ref in enumerate(
+                evidence_refs if isinstance(evidence_refs, list) else []
+            ):
                 require(isinstance(evidence_ref, dict),
                         f"evidence reference {ref_index} must be an object")
 
@@ -70,7 +76,7 @@ def preflight_errors(record: Any) -> list[str]:
     require(isinstance(evidence, dict), "evidence must be an object")
     manifest = evidence.get("manifest") if isinstance(evidence, dict) else None
     require(isinstance(manifest, list), "evidence.manifest must be an array")
-    for index, item in enumerate(manifest or []):
+    for index, item in enumerate(manifest if isinstance(manifest, list) else []):
         require(isinstance(item, dict), f"manifest entry {index} must be an object")
 
     time = record.get("time")
@@ -87,6 +93,7 @@ def preflight_errors(record: Any) -> list[str]:
 
 
 def semantic_errors(record: Any) -> list[str]:
+    """Return fail-closed preflight and semantic validator errors."""
     errors = preflight_errors(record)
     if errors:
         return list(dict.fromkeys(errors))
@@ -98,6 +105,7 @@ def semantic_errors(record: Any) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
+    """Validate one record through the fail-closed hardening seal."""
     if len(argv) != 2:
         print("Usage: verify_virtual_panel_hardening.py <record.json>", file=sys.stderr)
         return 2
