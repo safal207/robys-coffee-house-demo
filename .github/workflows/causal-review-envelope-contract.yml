@@ -85,7 +85,7 @@ jobs:
           assert example["trace"][2]["execution_committed"] is False
           assert [item["type"] for item in example["trace"]] == ["sense", "transition", "commit"]
 
-          roles = [item["role"] for item in example["evidence"]["manifest"]
+          roles = [item["role"] for item in example["evidence"]["manifest"]]
           assert roles == [
               "changed_files", "check_runs", "head_commit", "issue_comments",
               "pull_request", "review_comments", "review_threads", "reviews", "statuses",
