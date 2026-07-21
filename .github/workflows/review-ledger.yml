@@ -55,12 +55,20 @@ jobs:
             const codexBots = new Set(['chatgpt-codex-connector', 'chatgpt-codex-connector[bot]']);
             const otherReviewBots = new Set(['github-advanced-security', 'github-advanced-security[bot]']);
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const walkthroughMarkers = ['<!-- walkthrough_start -->', '<!-- review_stack_entry_start -->'];
+            const fullShaPattern = /\b[0-9a-f]{40}\b/gi;
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
             const commandLines = (body) => String(body ?? '').toLowerCase().split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
             const reviewedCommitOf = (body) => (
               /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
             const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
+            const hasWalkthroughMarker = (body) => walkthroughMarkers.some((marker) => String(body ?? '').includes(marker));
+            const fullHeadReferences = (body) => [...String(body ?? '').toLowerCase().matchAll(fullShaPattern)].map((match) => match[0]);
+            const hasNoConflictingHeadReference = (body) => {
+              const references = fullHeadReferences(body);
+              return references.length === 0 || references.includes(head);
+            };
             const hasPositiveLimitSignal = (body) => {
               const text = String(body ?? '');
               if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) return false;
@@ -76,6 +84,9 @@ jobs:
             const isFinalCodeRabbitCommentEvidence = (item) => {
               const body = String(item?.body ?? '');
               if (hasPositiveLimitSignal(body)) return false;
+              if (hasWalkthroughMarker(body)) {
+                return hasNoConflictingHeadReference(body) && !/\b(?:failed|failure|error|unavailable)\b/i.test(body);
+              }
               if (/\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b/i.test(body)) return false;
               return (
                 /\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b/i.test(body) ||
@@ -131,6 +142,13 @@ jobs:
             const earliestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests[0]) : 0;
             const latestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests.at(-1)) : 0;
 
+            const requestBoundStableOutput = (item) => (
+              codeRabbitBots.has(item.user?.login) &&
+              codeRabbitRequested &&
+              timeOf(item) >= latestCodeRabbitRequestAt &&
+              hasWalkthroughMarker(item.body) &&
+              hasNoConflictingHeadReference(item.body)
+            );
             const acceptedFindingAuthor = (item) => {
               const login = item.user?.login;
               if (codeRabbitBots.has(login)) return codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt;
@@ -139,9 +157,14 @@ jobs:
             const issueCommentIsCurrentHeadBotOutput = (item) => {
               const login = item.user?.login;
               if (codeRabbitBots.has(login)) {
-                return codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt &&
+                return (
+                  requestBoundStableOutput(item) &&
+                  isFinalCodeRabbitCommentEvidence(item)
+                ) || (
+                  codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt &&
                   isFinalCodeRabbitCommentEvidence(item) &&
-                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
+                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
+                );
               }
               if (codexBots.has(login)) {
                 return isFinalCodexCommentEvidence(item) &&
@@ -175,22 +198,25 @@ jobs:
 
             const codeRabbitEvidence = codeRabbitRequested ? [
               ...reviews.filter((item) => (
-                codeRabbitBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head && timeOf(item) >= earliestCodeRabbitRequestAt
+                codeRabbitBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head && timeOf(item) >= latestCodeRabbitRequestAt
               )),
               ...reviewComments.filter((item) => (
-                codeRabbitBots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head && timeOf(item) >= earliestCodeRabbitRequestAt
+                codeRabbitBots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head && timeOf(item) >= latestCodeRabbitRequestAt
               )),
               ...issueComments.filter((item) => (
                 codeRabbitBots.has(item.user?.login) && (
-                  (timeOf(item) >= earliestCodeRabbitRequestAt && isFinalCodeRabbitCommentEvidence(item) &&
-                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))) ||
-                  (timeOf(item) >= latestCodeRabbitRequestAt && hasPositiveLimitSignal(item.body) &&
-                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body))))
+                  (requestBoundStableOutput(item) && (
+                    isFinalCodeRabbitCommentEvidence(item) || hasPositiveLimitSignal(item.body)
+                  )) ||
+                  (timeOf(item) >= latestCodeRabbitRequestAt && (
+                    (isFinalCodeRabbitCommentEvidence(item) || hasPositiveLimitSignal(item.body)) &&
+                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))
+                  ))
                 )
               )),
               ...statuses.filter((item) => (
                 item.context === 'CodeRabbit' && item.state === 'success' && codeRabbitBots.has(item.creator?.login) &&
-                timeOf(item) >= earliestCodeRabbitRequestAt
+                timeOf(item) >= latestCodeRabbitRequestAt
               )),
             ] : [];
 
