@@ -1,0 +1,43 @@
+name: Refresh photo logo integrity manifest
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.event.pull_request.head.ref == 'agent/refresh-photo-logo-on-main-20260721'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: safal207/robys-coffee-house-demo
+          ref: agent/refresh-photo-logo-on-main-20260721
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate exact integrity manifest
+        run: npm run integrity:generate
+
+      - name: Commit generated manifest and remove helper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/refresh-photo-logo-manifest.yml
+          git add integrity-manifest.json
+          git commit -m "chore: refresh photo logo integrity manifest"
+          git push origin HEAD:agent/refresh-photo-logo-on-main-20260721
