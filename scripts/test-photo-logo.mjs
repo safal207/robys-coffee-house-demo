@@ -14,7 +14,12 @@ assert.match(bootstrap, /document\.head\.append\(photoLogo\)/);
 assert.doesNotMatch(bootstrap, /DOMContentLoaded/, "logo stylesheet must be requested immediately from the head bootstrap");
 
 assert.match(stylesheet, /\.brand-copy strong\s*\{/);
-assert.match(stylesheet, /border-color:\s*transparent\s*!important/);
+assert.match(stylesheet, /border:\s*0\s*!important/);
+assert.doesNotMatch(
+  stylesheet,
+  /border-color:\s*transparent\s*!important/,
+  "transparent border must not shrink the organic O background positioning area",
+);
 assert.match(stylesheet, /src\/brand\/robys-organic-ring\.svg\?v=20260720-1/);
 assert.match(stylesheet, /background:\s*url\([^)]*robys-organic-ring\.svg[^)]*\)\s*center\/contain\s*no-repeat\s*!important/);
 
