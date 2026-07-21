@@ -19,7 +19,9 @@ const requiredTokens = [
   "observedTimeOf",
   "updated_at",
   "WALKTHROUGH_MARKERS",
-  "hasCurrentHeadInWalkthrough",
+  "hasWalkthroughMarker",
+  "hasNoConflictingHeadReference",
+  "livePull.data?.head?.sha",
   "hasPositiveLimitSignal",
   "selectStableLimitEvidence",
   "await legacyVerifierFn({ github, context, core })"
@@ -40,7 +42,7 @@ const forbiddenTokens = [
 
 const missing = requiredTokens.filter((token) => !contract.includes(token));
 if (missing.length > 0) {
-  throw new Error(`[AI-FRESHNESS-001] missing trusted CodeRabbit exact-head, walkthrough freshness, provider-limit, or legacy-fallback guard(s): ${missing.join(", ")}`);
+  throw new Error(`[AI-FRESHNESS-001] missing trusted CodeRabbit request-bound walkthrough, provider-limit, live-head, or legacy-fallback guard(s): ${missing.join(", ")}`);
 }
 
 const forbidden = forbiddenTokens.filter((token) => contract.includes(token));
@@ -48,4 +50,4 @@ if (forbidden.length > 0) {
   throw new Error(`[AI-FRESHNESS-001] disabled or advisory reviewer leaked into the binding gate: ${forbidden.join(", ")}`);
 }
 
-console.log("✅ AI-FRESHNESS-001 valid: Actions executes the adapter from GitHub's trusted base SHA; stable CodeRabbit walkthroughs and provider-limit signals require authenticated bot identity, post-request updated_at freshness and full exact-head binding; quota evidence activates only the narrow provider-limit bypass; the injectable legacy verifier remains the fail-closed fallback; Codex, DeepSeek and Qodo cannot satisfy the binding gate.");
+console.log("✅ AI-FRESHNESS-001 valid: Actions executes the adapter from GitHub's trusted base SHA; stable CodeRabbit walkthroughs and provider-limit signals require authenticated bot identity, a fresh exact-head command, post-request updated_at observation, and an unchanged live PR head; an omitted SHA is allowed but any explicit conflicting full SHA fails closed; quota activates only the narrow provider-limit bypass; the injectable legacy verifier remains the fail-closed fallback; Codex, DeepSeek and Qodo cannot satisfy the binding gate.");
