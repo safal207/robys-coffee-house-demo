@@ -1,0 +1,332 @@
+{
+  "schema_version": "robis.causal-review.v1",
+  "repository": "safal207/robys-coffee-house-demo",
+  "pull_request": 224,
+  "head_sha": "364f3c2452014883871eda12f94d26eadf629eb6",
+  "thread_id": "robis-pr-224",
+  "time": {
+    "valid_time": "2026-07-21T05:29:22Z",
+    "transaction_time": "2026-07-21T05:30:04Z"
+  },
+  "space": {
+    "origin": {
+      "repository": "safal207/robys-coffee-house-demo",
+      "pull_request": 224,
+      "head_sha": "364f3c2452014883871eda12f94d26eadf629eb6"
+    },
+    "crossed_boundary": "evidence_to_advisory_decision",
+    "destination": "human_adjudication"
+  },
+  "transition": {
+    "state_from": "HEAD_UPDATED",
+    "state_to": "READY_ADVISORY",
+    "tension": "required controls satisfied with explicit advisory/provider gaps",
+    "cause_id": "cause:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+    "parent_cause_id": "head:364f3c2452014883871eda12f94d26eadf629eb6",
+    "smallest_justified_action": "Submit the advisory record to human adjudication with gaps visible."
+  },
+  "authority": {
+    "actor": "robis-ai-review-cooperation",
+    "role": "advisory_aggregator",
+    "can_execute": false,
+    "can_approve": false,
+    "can_merge": false,
+    "human_adjudication_required": true
+  },
+  "decision": {
+    "id": "decision:364f3c2452014883871eda12f94d26eadf629eb6:ready_with_advisory_gaps",
+    "verdict": "READY_WITH_ADVISORY_GAPS",
+    "why": "Required controls are green; documented gaps: CodeRabbit, Codex, Jules, DeepSeek.",
+    "advisory_only": true
+  },
+  "findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "checks": {
+    "passed": 17,
+    "pending": 0,
+    "failed": [],
+    "optional_failed": []
+  },
+  "reviewers": [
+    {
+      "name": "CodeRabbit",
+      "role": "required",
+      "requested": true,
+      "level": "E2",
+      "state": "provider limit waived",
+      "reason": "QUOTA_EXHAUSTED",
+      "action": "Proceed only with green CI, human approval, a refreshed report and a later D6 seal.",
+      "waived": true,
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      }
+    },
+    {
+      "name": "Qodo",
+      "role": "dormant",
+      "requested": false,
+      "level": "E0",
+      "state": "disabled",
+      "reason": "DORMANT_PROVIDER",
+      "action": "No action; Qodo is disabled.",
+      "waived": false,
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      }
+    },
+    {
+      "name": "Codex",
+      "role": "advisory",
+      "requested": false,
+      "level": "E0",
+      "state": "not requested",
+      "reason": "NO_REQUEST",
+      "action": "Post the canonical review command.",
+      "waived": false,
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      }
+    },
+    {
+      "name": "Jules",
+      "role": "advisory",
+      "requested": false,
+      "level": "E0",
+      "state": "not requested",
+      "reason": "NO_REQUEST",
+      "action": "Post the canonical review command.",
+      "waived": false,
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      }
+    },
+    {
+      "name": "DeepSeek",
+      "role": "advisory",
+      "requested": false,
+      "level": "E0",
+      "state": "not requested",
+      "reason": "NO_REQUEST",
+      "action": "Post the canonical review command.",
+      "waived": false,
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      }
+    }
+  ],
+  "evidence": {
+    "pagination_complete": true,
+    "manifest": [
+      {
+        "role": "changed_files",
+        "byte_size": 100,
+        "sha256": "1f6e22a2004c4a264bee32b4a47b073be43afca4283a2985a88e23dc9997716d"
+      },
+      {
+        "role": "check_runs",
+        "byte_size": 101,
+        "sha256": "de00f0e9cc95f461c839e13a9ecf49816e418127d3efe3627051dc6d2debdfbd"
+      },
+      {
+        "role": "head_commit",
+        "byte_size": 102,
+        "sha256": "e1987bd070f272d69fa4741ad6c75be344c4878f90526e20018607bd97ffa90b"
+      },
+      {
+        "role": "issue_comments",
+        "byte_size": 103,
+        "sha256": "7f867780d77a8eabd926326b5cabe52bf46ee90287b90825d6784a2dafe01668"
+      },
+      {
+        "role": "pull_request",
+        "byte_size": 104,
+        "sha256": "512580c80946c1c7cf61dafde88f1bf0256724ce2afe040bb413f862f41bbc42"
+      },
+      {
+        "role": "review_comments",
+        "byte_size": 105,
+        "sha256": "79d8aa30e37fc1f8ef4968907384dffcbc315977f65afba692c812489609c6bd"
+      },
+      {
+        "role": "review_threads",
+        "byte_size": 106,
+        "sha256": "e5e6ff60f7301a1dbfde49912e7b27dce199ce2090b157b5c85f57404782763a"
+      },
+      {
+        "role": "reviews",
+        "byte_size": 107,
+        "sha256": "4dac23c9117c792a1fc015d54b137918e74575dbda1ace7d2725ee09cf03dc26"
+      },
+      {
+        "role": "statuses",
+        "byte_size": 108,
+        "sha256": "55c5f72d6c70d12d6101d73f3f54de5aa1bf543dcde150239f108b7c3460dcc5"
+      }
+    ]
+  },
+  "causal_basis": {
+    "head_sha": "364f3c2452014883871eda12f94d26eadf629eb6",
+    "conclusion": "READY_WITH_ADVISORY_GAPS",
+    "findings": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0
+    },
+    "checks": {
+      "passed": 17,
+      "pending": 0,
+      "failed": []
+    },
+    "evidence_complete": true,
+    "reviewers": [
+      {
+        "name": "CodeRabbit",
+        "requested": true,
+        "level": "E2",
+        "reason": "QUOTA_EXHAUSTED",
+        "waived": true,
+        "findings": {
+          "P0": 0,
+          "P1": 0,
+          "P2": 0,
+          "P3": 0
+        }
+      },
+      {
+        "name": "Qodo",
+        "requested": false,
+        "level": "E0",
+        "reason": "DORMANT_PROVIDER",
+        "waived": false,
+        "findings": {
+          "P0": 0,
+          "P1": 0,
+          "P2": 0,
+          "P3": 0
+        }
+      },
+      {
+        "name": "Codex",
+        "requested": false,
+        "level": "E0",
+        "reason": "NO_REQUEST",
+        "waived": false,
+        "findings": {
+          "P0": 0,
+          "P1": 0,
+          "P2": 0,
+          "P3": 0
+        }
+      },
+      {
+        "name": "Jules",
+        "requested": false,
+        "level": "E0",
+        "reason": "NO_REQUEST",
+        "waived": false,
+        "findings": {
+          "P0": 0,
+          "P1": 0,
+          "P2": 0,
+          "P3": 0
+        }
+      },
+      {
+        "name": "DeepSeek",
+        "requested": false,
+        "level": "E0",
+        "reason": "NO_REQUEST",
+        "waived": false,
+        "findings": {
+          "P0": 0,
+          "P1": 0,
+          "P2": 0,
+          "P3": 0
+        }
+      }
+    ]
+  },
+  "causal_graph": {
+    "root_ids": [
+      "head:364f3c2452014883871eda12f94d26eadf629eb6"
+    ],
+    "nodes": [
+      {
+        "id": "head:364f3c2452014883871eda12f94d26eadf629eb6",
+        "kind": "exact_head_state"
+      },
+      {
+        "id": "cause:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+        "kind": "causal_basis"
+      },
+      {
+        "id": "decision:364f3c2452014883871eda12f94d26eadf629eb6:ready_with_advisory_gaps",
+        "kind": "advisory_decision"
+      }
+    ],
+    "edges": [
+      {
+        "from": "head:364f3c2452014883871eda12f94d26eadf629eb6",
+        "to": "cause:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+        "relation": "supports"
+      },
+      {
+        "from": "cause:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+        "to": "decision:364f3c2452014883871eda12f94d26eadf629eb6:ready_with_advisory_gaps",
+        "relation": "justifies"
+      }
+    ]
+  },
+  "trace": [
+    {
+      "id": "sense:364f3c2452014883871eda12f94d26eadf629eb6",
+      "type": "sense",
+      "sequence": 1,
+      "ts": "2026-07-21T05:29:22Z",
+      "ref": "head:364f3c2452014883871eda12f94d26eadf629eb6",
+      "previous": null
+    },
+    {
+      "id": "transition:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+      "type": "transition",
+      "sequence": 2,
+      "ts": "2026-07-21T05:30:04Z",
+      "ref": "cause:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+      "previous": "sense:364f3c2452014883871eda12f94d26eadf629eb6"
+    },
+    {
+      "id": "commit:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+      "type": "commit",
+      "sequence": 3,
+      "ts": "2026-07-21T05:30:04Z",
+      "ref": "decision:364f3c2452014883871eda12f94d26eadf629eb6:ready_with_advisory_gaps",
+      "previous": "transition:75537427e241b8c790110f90d26a2b2f4331a6ffec8079fa0281ef427e5ea8e5",
+      "execution_committed": false
+    }
+  ],
+  "supersession": {
+    "supersedes_record": null,
+    "must_be_superseded_after_head_change": true
+  },
+  "record_id": "review:0adee40b298482ddfe83183b2995872b25b1ba8fc4e180badbd7f3fe6038aae6"
+}
