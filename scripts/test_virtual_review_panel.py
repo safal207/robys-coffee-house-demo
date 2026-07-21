@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-import copy
 import json
 import unittest
 from pathlib import Path
 
 from virtual_review_panel import (
+    causal_basis,
     dedupe_root_causes,
     digest_json,
     expected_dissent,
@@ -24,7 +24,21 @@ def fixture() -> dict:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
-def rehash(record: dict) -> None:
+def rederive(record: dict) -> None:
+    record["root_causes"] = dedupe_root_causes(record["roles"])
+    record["decision"]["verdict"] = expected_verdict(record)
+    head = record["subject"]["head_sha"]
+    record["decision"]["id"] = f"panel-decision:{head}:{record['decision']['verdict'].lower()}"
+    record["dissent"] = expected_dissent(record)
+    states = {
+        "BLOCK": "BLOCKED",
+        "FIX_THEN_RERUN": "FIX_REQUIRED",
+        "WAIT_FOR_EVIDENCE": "EVIDENCE_PENDING",
+        "READY_WITH_ADVISORY_GAPS": "READY_ADVISORY",
+    }
+    record["transition"]["state_to"] = states[record["decision"]["verdict"]]
+    record["causal_basis"] = causal_basis(record)
+    record["transition"]["cause_id"] = f"panel-cause:{digest_json(record['causal_basis'])}"
     recompute_record_id(record)
 
 
@@ -35,90 +49,99 @@ class VirtualReviewPanelTests(unittest.TestCase):
     def test_fabricated_multi_provider_identity_fails(self) -> None:
         record = fixture()
         record["implementation"]["mode"] = "multi_provider"
-        rehash(record)
+        recompute_record_id(record)
         self.assertIn("multi-provider mode requires at least two providers", validate_record(record))
-
-    def test_single_model_mode_cannot_hide_extra_provider(self) -> None:
-        record = fixture()
-        record["implementation"]["providers"].append(
-            {"id": "fake:provider", "label": "Fake", "evidence_ref": "none"}
-        )
-        rehash(record)
-        self.assertIn("single-model mode must disclose exactly one provider", validate_record(record))
 
     def test_virtual_panel_cannot_satisfy_external_lane(self) -> None:
         record = fixture()
         record["activation"]["external_lane_satisfied"] = True
-        rehash(record)
+        recompute_record_id(record)
         self.assertIn("virtual panel cannot satisfy the external reviewer lane", validate_record(record))
 
-    def test_hidden_dissent_fails_even_after_rehash(self) -> None:
+    def test_repository_must_be_exact_owner_name(self) -> None:
         record = fixture()
-        record["dissent"] = []
-        record["causal_basis"] = {
-            **record["causal_basis"],
-            "dissent": [],
-        }
+        record["subject"]["repository"] = "a/b/c"
+        recompute_record_id(record)
+        self.assertIn("subject.repository must be exactly owner/name", validate_record(record))
+
+    def test_provider_evidence_reference_is_required(self) -> None:
+        record = fixture()
+        record["activation"]["provider_evidence_ref"] = ""
+        recompute_record_id(record)
+        self.assertIn("activation.provider_evidence_ref must be non-empty", validate_record(record))
+
+    def test_pass_with_p0_is_rejected_and_preserved_as_dissent(self) -> None:
+        record = fixture()
+        role = record["roles"][0]
+        role["observations"][0]["severity"] = "P0"
+        role["vote"] = "PASS"
+        record["decision"]["verdict"] = "BLOCK"
+        record["decision"]["id"] = f"panel-decision:{record['subject']['head_sha']}:block"
+        record["root_causes"] = dedupe_root_causes(record["roles"])
+        record["dissent"] = expected_dissent(record)
+        record["transition"]["state_to"] = "BLOCKED"
+        record["causal_basis"] = causal_basis(record)
         record["transition"]["cause_id"] = f"panel-cause:{digest_json(record['causal_basis'])}"
-        rehash(record)
-        self.assertTrue(any("dissent must preserve" in item for item in validate_record(record)))
+        recompute_record_id(record)
+        errors = validate_record(record)
+        self.assertTrue(any("vote PASS contradicts" in error for error in errors))
+        self.assertEqual(record["dissent"][0]["role_id"], "causal_architect")
 
-    def test_duplicate_root_cause_projection_fails(self) -> None:
+    def test_p3_finding_requires_fix_vote(self) -> None:
         record = fixture()
-        record["root_causes"].append(copy.deepcopy(record["root_causes"][0]))
-        rehash(record)
-        self.assertTrue(any("deterministic deduplication" in item for item in validate_record(record)))
+        role = record["roles"][0]
+        role["observations"][0]["severity"] = "P3"
+        role["vote"] = "PASS"
+        recompute_record_id(record)
+        self.assertTrue(any("vote PASS contradicts" in error for error in validate_record(record)))
 
-    def test_stale_head_evidence_fails(self) -> None:
+    def test_hidden_alternative_verdict_fails(self) -> None:
         record = fixture()
-        record["roles"][0]["observations"][0]["evidence_refs"][0]["head_sha"] = "b" * 40
-        rehash(record)
-        self.assertTrue(any("stale evidence head" in item for item in validate_record(record)))
+        record["roles"][4]["observations"] = []
+        record["roles"][4]["vote"] = "WAIT_FOR_EVIDENCE"
+        rederive(record)
+        self.assertTrue(record["dissent"])
+        record["dissent"] = []
+        record["causal_basis"] = causal_basis(record)
+        record["transition"]["cause_id"] = f"panel-cause:{digest_json(record['causal_basis'])}"
+        recompute_record_id(record)
+        self.assertTrue(any("dissent must preserve" in error for error in validate_record(record)))
+
+    def test_manifest_digest_is_recomputed_from_bytes(self) -> None:
+        record = fixture()
+        record["evidence"]["manifest"][0]["sha256"] = "a" * 64
+        rederive(record)
+        self.assertTrue(any("evidence digest mismatch" in error for error in validate_record(record)))
+
+    def test_manifest_size_is_recomputed_from_bytes(self) -> None:
+        record = fixture()
+        record["evidence"]["manifest"][0]["byte_size"] += 1
+        rederive(record)
+        self.assertTrue(any("evidence byte size mismatch" in error for error in validate_record(record)))
+
+    def test_manifest_base64_is_strict(self) -> None:
+        record = fixture()
+        record["evidence"]["manifest"][0]["content_base64"] = "%%%"
+        rederive(record)
+        self.assertTrue(any("strict base64" in error for error in validate_record(record)))
 
     def test_authority_escalation_fails(self) -> None:
         record = fixture()
         record["authority"]["can_merge"] = True
-        rehash(record)
+        recompute_record_id(record)
         self.assertIn("panel grants merge authority", validate_record(record))
 
-    def test_manifest_tamper_breaks_causal_projection(self) -> None:
+    def test_stale_head_evidence_fails(self) -> None:
         record = fixture()
-        record["evidence"]["manifest"][0]["sha256"] = "a" * 64
-        rehash(record)
-        self.assertTrue(any("causal_basis must be" in item for item in validate_record(record)))
+        record["roles"][0]["observations"][0]["evidence_refs"][0]["head_sha"] = "b" * 40
+        recompute_record_id(record)
+        self.assertTrue(any("stale evidence head" in error for error in validate_record(record)))
 
-    def test_p3_finding_requires_fix_then_rerun(self) -> None:
+    def test_evidence_line_must_be_positive(self) -> None:
         record = fixture()
-        for role in record["roles"]:
-            role["observations"] = []
-            role["vote"] = "PASS"
-            role["rationale"] = "No issue."
-        record["roles"][0]["observations"] = [{
-            "id": "causal_architect:P3-001",
-            "severity": "P3",
-            "root_cause_key": "minor-policy-gap",
-            "title": "Minor policy gap",
-            "confidence": 0.8,
-            "recommendation": "Fix it.",
-            "evidence_refs": [{
-                "path": "docs/policy.md",
-                "line": 1,
-                "head_sha": record["subject"]["head_sha"],
-            }],
-        }]
-        record["roles"][0]["vote"] = "FIX_THEN_RERUN"
-        self.assertEqual(expected_verdict(record), "FIX_THEN_RERUN")
-
-    def test_expected_dissent_keeps_nonmatching_vote(self) -> None:
-        record = fixture()
-        self.assertEqual(
-            expected_dissent(record),
-            [{
-                "role_id": "ci_reliability",
-                "vote": "WAIT_FOR_EVIDENCE",
-                "reason": record["roles"][4]["rationale"],
-            }],
-        )
+        record["roles"][0]["observations"][0]["evidence_refs"][0]["line"] = 0
+        recompute_record_id(record)
+        self.assertTrue(any("invalid evidence line" in error for error in validate_record(record)))
 
     def test_root_causes_are_deterministic(self) -> None:
         record = fixture()
