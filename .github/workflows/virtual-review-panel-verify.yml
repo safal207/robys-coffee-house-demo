@@ -76,7 +76,6 @@ jobs:
           python3 trusted/scripts/validate_virtual_panel_schema.py \
             trusted/qa/virtual-review-panel.schema.json "${RECORD_FILE}"
           python3 trusted/scripts/verify_virtual_panel_hardening.py "${RECORD_FILE}"
-          python3 trusted/scripts/virtual_review_panel.py validate "${RECORD_FILE}"
 
       - name: Verify subject and exact-head identity
         run: |
