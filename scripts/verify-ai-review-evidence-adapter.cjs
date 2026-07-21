@@ -86,7 +86,12 @@ function stableHeadUpdateAnchor(run, currentHead, currentRunId) {
   return parseTime(run?.created_at);
 }
 
-async function verifyAiReviewEvidenceAdapter({ github, context, core }) {
+async function verifyAiReviewEvidenceAdapter({
+  github,
+  context,
+  core,
+  legacyVerifierFn = legacyVerifier,
+}) {
   const { owner, repo } = context.repo;
   const pr = context.payload.pull_request;
   if (!pr?.head?.sha) {
@@ -148,10 +153,12 @@ async function verifyAiReviewEvidenceAdapter({ github, context, core }) {
       return;
     }
   } catch (error) {
-    core.warning(`Walkthrough adapter could not establish evidence: ${error?.message ?? String(error)}. Falling back to the legacy verifier.`);
+    core.error(
+      `Walkthrough adapter failed unexpectedly, falling back to the legacy verifier: ${error?.message ?? String(error)}`,
+    );
   }
 
-  await legacyVerifier({ github, context, core });
+  await legacyVerifierFn({ github, context, core });
 }
 
 module.exports = verifyAiReviewEvidenceAdapter;

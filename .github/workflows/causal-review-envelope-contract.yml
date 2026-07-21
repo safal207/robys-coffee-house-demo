@@ -110,10 +110,22 @@ jobs:
           grep -Fq "issues: read" "${workflow}"
           grep -Fq "pull-requests: read" "${workflow}"
           grep -Fq "statuses: read" "${workflow}"
-          ! grep -Fq "issues: write" "${workflow}"
-          ! grep -Fq "pull-requests: write" "${workflow}"
-          ! grep -Fq "contents: write" "${workflow}"
-          ! grep -Fq "pull_request_target" "${workflow}"
+
+          forbidden_workflow_tokens=(
+            "issues: write"
+            "pull-requests: write"
+            "contents: write"
+            "pull_request_target"
+            "--method POST"
+            "--method PATCH"
+            "<!-- ai-review-cooperation -->"
+          )
+          for token in "${forbidden_workflow_tokens[@]}"; do
+            if grep -Fq -- "${token}" "${workflow}"; then
+              echo "Forbidden causal-envelope workflow capability or mutation marker: ${token}" >&2
+              exit 1
+            fi
+          done
 
           grep -Fq "github.event.comment.body == '/ai-cooperation report'" "${workflow}"
           grep -Fq "github.event.workflow_run.name == 'AI review contract'" "${workflow}"
@@ -132,11 +144,7 @@ jobs:
           grep -Fq 'observedTimeOf(item)' "${adapter}"
           grep -Fq 'WALKTHROUGH_MARKERS' "${adapter}"
           grep -Fq 'hasCurrentHeadInWalkthrough' "${adapter}"
-          grep -Fq 'await legacyVerifier({ github, context, core })' "${adapter}"
-
-          ! grep -Fq -- "--method POST" "${workflow}"
-          ! grep -Fq -- "--method PATCH" "${workflow}"
-          ! grep -Fq "<!-- ai-review-cooperation -->" "${workflow}"
+          grep -Fq 'await legacyVerifierFn({ github, context, core })' "${adapter}"
 
       - name: Verify implementation reuses reporter policy
         run: |
