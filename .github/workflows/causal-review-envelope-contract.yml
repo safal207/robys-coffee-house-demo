@@ -1,0 +1,129 @@
+name: Causal review envelope contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/causal-review-envelope.yml"
+      - ".github/workflows/causal-review-envelope-contract.yml"
+      - "scripts/causal_review_envelope.py"
+      - "scripts/test_causal_review_envelope.py"
+      - "scripts/ai-review-cooperation.py"
+      - "scripts/fetch-review-threads.py"
+      - "qa/causal-review-envelope.schema.json"
+      - "qa/causal-review-envelope.example.json"
+      - "docs/causal-review-envelope-v1.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate causal review envelope
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Check out exact pull request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          show-progress: false
+
+      - name: Compile implementation and tests
+        run: |
+          python3 -m py_compile \
+            scripts/ai-review-cooperation.py \
+            scripts/causal_review_envelope.py \
+            scripts/test_causal_review_envelope.py
+
+      - name: Run causal mutation tests
+        run: python3 scripts/test_causal_review_envelope.py -v
+
+      - name: Validate canonical example
+        run: python3 scripts/causal_review_envelope.py validate qa/causal-review-envelope.example.json
+
+      - name: Verify schema, example, and authority boundary
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          schema = json.loads(Path("qa/causal-review-envelope.schema.json").read_text(encoding="utf-8"))
+          example = json.loads(Path("qa/causal-review-envelope.example.json").read_text(encoding="utf-8"))
+
+          assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+          assert schema["properties"]["schema_version"]["const"] == "robis.causal-review.v1"
+          authority = schema["properties"]["authority"]["properties"]
+          assert authority["can_execute"]["const"] is False
+          assert authority["can_approve"]["const"] is False
+          assert authority["can_merge"]["const"] is False
+          assert authority["human_adjudication_required"]["const"] is True
+
+          assert example["schema_version"] == "robis.causal-review.v1"
+          assert example["authority"]["can_execute"] is False
+          assert example["authority"]["can_approve"] is False
+          assert example["authority"]["can_merge"] is False
+          assert example["authority"]["human_adjudication_required"] is True
+          assert example["trace"][2]["execution_committed"] is False
+          assert [item["type"] for item in example["trace"]] == ["sense", "transition", "commit"]
+
+          roles = [item["role"] for item in example["evidence"]["manifest"]]
+          assert roles == [
+              "changed_files", "check_runs", "head_commit", "issue_comments",
+              "pull_request", "review_comments", "review_threads", "reviews", "statuses",
+          ]
+          PY
+
+      - name: Parse workflows
+        run: |
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/causal-review-envelope.yml'); YAML.parse_file('.github/workflows/causal-review-envelope-contract.yml')"
+
+      - name: Verify live observer is read-only and exact-head bound
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/causal-review-envelope.yml
+
+          grep -Fq "permissions: {}" "${workflow}"
+          grep -Fq "actions: read" "${workflow}"
+          grep -Fq "checks: read" "${workflow}"
+          grep -Fq "contents: read" "${workflow}"
+          grep -Fq "issues: read" "${workflow}"
+          grep -Fq "pull-requests: read" "${workflow}"
+          grep -Fq "statuses: read" "${workflow}"
+          ! grep -Fq "issues: write" "${workflow}"
+          ! grep -Fq "pull-requests: write" "${workflow}"
+          ! grep -Fq "contents: write" "${workflow}"
+          ! grep -Fq "pull_request_target" "${workflow}"
+
+          grep -Fq "github.event.comment.body == '/ai-cooperation report'" "${workflow}"
+          grep -Fq "github.event.workflow_run.name == 'AI review contract'" "${workflow}"
+          grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
+          grep -Fq 'select(.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo)' "${workflow}"
+          grep -Fq 'if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${head}" ]' "${workflow}"
+          grep -Fq "persist-credentials: false" "${workflow}"
+          grep -Fq "python3 scripts/causal_review_envelope.py build" "${workflow}"
+          grep -Fq 'python3 scripts/causal_review_envelope.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
+          grep -Fq 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' "${workflow}"
+          grep -Fq "Advisory only: this artifact cannot execute, approve, or merge." "${workflow}"
+
+          ! grep -Fq -- "--method POST" "${workflow}"
+          ! grep -Fq -- "--method PATCH" "${workflow}"
+          ! grep -Fq "<!-- ai-review-cooperation -->" "${workflow}"
+
+      - name: Verify implementation reuses reporter policy
+        run: |
+          set -euo pipefail
+          implementation=scripts/causal_review_envelope.py
+          grep -Fq 'path = Path(__file__).with_name("ai-review-cooperation.py")' "${implementation}"
+          grep -Fq "cooperation.classify_bots" "${implementation}"
+          grep -Fq "cooperation.classify_checks" "${implementation}"
+          grep -Fq "cooperation.overall_conclusion" "${implementation}"
+          grep -Fq '"state_from": "HEAD_UPDATED"' "${implementation}"
+          grep -Fq '"crossed_boundary": "evidence_to_advisory_decision"' "${implementation}"
+          grep -Fq '"execution_committed": False' "${implementation}"
+          grep -Fq '"must_be_superseded_after_head_change": True' "${implementation}"
