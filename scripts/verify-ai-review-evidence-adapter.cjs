@@ -8,6 +8,13 @@ const AI_REVIEW_WORKFLOW_NAME = "AI review contract";
 const CODERABBIT_COMMAND = "@coderabbitai review";
 const CODERABBIT_MARKER = "<!-- coderabbit-reserve -->";
 const WALKTHROUGH_MARKERS = ["<!-- walkthrough_start -->", "<!-- review_stack_entry_start -->"];
+const LIMIT_SIGNAL_PATTERNS = [
+  /review limit reached/i,
+  /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
+  /next review available in/i,
+];
 
 function parseTime(value) {
   if (typeof value !== "string" || value.trim() === "") return 0;
@@ -52,28 +59,60 @@ function hasCurrentHeadInWalkthrough(body, currentHead) {
   return text.includes(currentHead.toLowerCase());
 }
 
+function hasPositiveLimitSignal(body) {
+  const text = String(body ?? "");
+  if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) {
+    return false;
+  }
+  return LIMIT_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function isObservedAfterRequest(item, requestAt) {
+  return observedTimeOf(item) >= requestAt;
+}
+
 function isCompletedWalkthrough(item, currentHead, requestAt) {
   const body = String(item?.body ?? "");
   if (!isCodeRabbitBot(item)) return false;
-  if (observedTimeOf(item) < requestAt) return false;
+  if (!isObservedAfterRequest(item, requestAt)) return false;
   if (!WALKTHROUGH_MARKERS.some((marker) => body.includes(marker))) return false;
   if (!hasCurrentHeadInWalkthrough(body, currentHead)) return false;
-  if (/review limit reached|next review available in|rate limit|quota exceeded/i.test(body)) return false;
+  if (hasPositiveLimitSignal(body)) return false;
   if (/\b(?:started|starting|queued|in progress)\b/i.test(body) && !body.includes("<!-- walkthrough_start -->")) {
     return false;
   }
   return true;
 }
 
-function selectWalkthroughEvidence({ comments, currentHead, headUpdateAnchor }) {
+function latestTrustedRequestAt(comments, currentHead, headUpdateAnchor) {
   const requests = comments
     .filter((item) => isTrustedRequest(item, currentHead, headUpdateAnchor))
     .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
-  if (requests.length === 0) return null;
+  return requests.length > 0 ? createdTimeOf(requests.at(-1)) : 0;
+}
 
-  const latestRequestAt = createdTimeOf(requests.at(-1));
+function selectWalkthroughEvidence({ comments, currentHead, headUpdateAnchor }) {
+  const requestAt = latestTrustedRequestAt(comments, currentHead, headUpdateAnchor);
+  if (requestAt <= 0) return null;
   return comments
-    .filter((item) => isCompletedWalkthrough(item, currentHead, latestRequestAt))
+    .filter((item) => isCompletedWalkthrough(item, currentHead, requestAt))
+    .sort((left, right) => observedTimeOf(left) - observedTimeOf(right))
+    .at(-1) ?? null;
+}
+
+function selectStableLimitEvidence({ comments, currentHead, headUpdateAnchor }) {
+  const requestAt = latestTrustedRequestAt(comments, currentHead, headUpdateAnchor);
+  if (requestAt <= 0) return null;
+  return comments
+    .filter((item) => {
+      const body = String(item?.body ?? "");
+      return (
+        isCodeRabbitBot(item) &&
+        isObservedAfterRequest(item, requestAt) &&
+        hasCurrentHeadInWalkthrough(body, currentHead) &&
+        hasPositiveLimitSignal(body)
+      );
+    })
     .sort((left, right) => observedTimeOf(left) - observedTimeOf(right))
     .at(-1) ?? null;
 }
@@ -130,6 +169,29 @@ async function verifyAiReviewEvidenceAdapter({
       return;
     }
 
+    const limitSignal = selectStableLimitEvidence({ comments, currentHead, headUpdateAnchor });
+    if (limitSignal) {
+      await core.summary
+        .addHeading("AI review contract")
+        .addTable([
+          [
+            { data: "Required reviewer", header: true },
+            { data: "Mode", header: true },
+            { data: "Exact head", header: true },
+            { data: "Provider-limit waiver", header: true },
+          ],
+          ["CodeRabbit", "provider-limit-bypass", "request-bound", "yes"],
+        ])
+        .addRaw(
+          `\nAccepted an authenticated CodeRabbit limit signal observed after the latest trusted exact-head request for ${pr.head.sha}. ` +
+            "A stable provider comment may predate the request, but its GitHub updated_at observation and body must bind the current full SHA. " +
+            "This waives only the external AI-review delivery step; CI, finding disposition, human approval and authority boundaries remain mandatory.\n",
+        )
+        .write();
+      core.warning(`CodeRabbit provider-limit waiver verified for ${pr.head.sha}.`);
+      return;
+    }
+
     const walkthrough = selectWalkthroughEvidence({ comments, currentHead, headUpdateAnchor });
     if (walkthrough) {
       await core.summary
@@ -166,12 +228,16 @@ module.exports._test = {
   AI_REVIEW_WORKFLOW_NAME,
   CODERABBIT_COMMAND,
   CODERABBIT_MARKER,
+  LIMIT_SIGNAL_PATTERNS,
   WALKTHROUGH_MARKERS,
   createdTimeOf,
   hasCurrentHeadInWalkthrough,
+  hasPositiveLimitSignal,
   isCompletedWalkthrough,
   isTrustedRequest,
+  latestTrustedRequestAt,
   observedTimeOf,
+  selectStableLimitEvidence,
   selectWalkthroughEvidence,
   stableHeadUpdateAnchor,
 };
