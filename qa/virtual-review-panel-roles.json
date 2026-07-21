@@ -1,0 +1,72 @@
+{
+  "schema_version": "robis.virtual-review-panel.roles.v1",
+  "roles": [
+    {
+      "id": "causal_architect",
+      "purpose": "Verify parent causes, evidence identity, graph lineage, and root-cause deduplication.",
+      "must_check": [
+        "exact-head parent cause",
+        "evidence manifest binding",
+        "cause identity",
+        "duplicate symptom collapse"
+      ],
+      "forbidden_claims": [
+        "external reviewer satisfied",
+        "merge authorized"
+      ]
+    },
+    {
+      "id": "temporal_provenance",
+      "purpose": "Verify valid time, observation/transaction time, freshness, and supersession.",
+      "must_check": [
+        "trusted head observation",
+        "issuer-controlled timestamps",
+        "updated comments",
+        "stale-head invalidation"
+      ],
+      "forbidden_claims": [
+        "commit timestamp proves observation time"
+      ]
+    },
+    {
+      "id": "adversarial_semantics",
+      "purpose": "Try to create false-green records through rehashing, contradictory fields, and shadow paths.",
+      "must_check": [
+        "semantic re-derivation",
+        "record digest",
+        "hidden dissent",
+        "shadow decisions"
+      ],
+      "forbidden_claims": [
+        "hash consistency proves semantic truth"
+      ]
+    },
+    {
+      "id": "authority_safety",
+      "purpose": "Protect least privilege and the boundary between advisory judgment and execution.",
+      "must_check": [
+        "no execution",
+        "no approval",
+        "no merge",
+        "human adjudication"
+      ],
+      "forbidden_claims": [
+        "panel acts as required external reviewer"
+      ]
+    },
+    {
+      "id": "ci_reliability",
+      "purpose": "Verify lifecycle behavior, pagination, retries, provider comment reuse, and exact-head gates.",
+      "must_check": [
+        "bounded waits",
+        "provider state taxonomy",
+        "comment update behavior",
+        "workflow permissions"
+      ],
+      "forbidden_claims": [
+        "silence means clean",
+        "quota means approval"
+      ]
+    }
+  ]
+}
