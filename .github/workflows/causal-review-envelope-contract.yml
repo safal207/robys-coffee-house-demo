@@ -4,15 +4,19 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ai-review-contract.yml"
+      - ".github/workflows/ai-review-cooperation.yml"
       - ".github/workflows/causal-review-envelope.yml"
       - ".github/workflows/causal-review-envelope-contract.yml"
       - "scripts/verify-ai-review-contract.cjs"
       - "scripts/verify-ai-review-evidence-adapter.cjs"
       - "scripts/test-ai-review-evidence-adapter.cjs"
+      - "scripts/ai-review-cooperation.py"
+      - "scripts/ai_review_cooperation_request_bound.py"
+      - "scripts/test_ai_review_cooperation_request_bound.py"
       - "scripts/causal_review_envelope.py"
+      - "scripts/causal_review_envelope_request_bound.py"
       - "scripts/test_causal_review_envelope.py"
       - "scripts/verify_causal_review_semantics.py"
-      - "scripts/ai-review-cooperation.py"
       - "scripts/fetch-review-threads.py"
       - "qa/causal-review-envelope.schema.json"
       - "qa/causal-review-envelope.example.json"
@@ -43,7 +47,10 @@ jobs:
         run: |
           python3 -m py_compile \
             scripts/ai-review-cooperation.py \
+            scripts/ai_review_cooperation_request_bound.py \
+            scripts/test_ai_review_cooperation_request_bound.py \
             scripts/causal_review_envelope.py \
+            scripts/causal_review_envelope_request_bound.py \
             scripts/test_causal_review_envelope.py \
             scripts/verify_causal_review_semantics.py
           node --check scripts/verify-ai-review-evidence-adapter.cjs
@@ -52,11 +59,13 @@ jobs:
       - name: Run causal mutation tests
         run: |
           python3 scripts/test_causal_review_envelope.py -v
+          python3 scripts/test_ai_review_cooperation_request_bound.py -v
           node scripts/test-ai-review-evidence-adapter.cjs
 
       - name: Validate canonical example
         run: |
           python3 scripts/causal_review_envelope.py validate qa/causal-review-envelope.example.json
+          python3 scripts/causal_review_envelope_request_bound.py validate qa/causal-review-envelope.example.json
           python3 scripts/verify_causal_review_semantics.py validate qa/causal-review-envelope.example.json
           python3 scripts/verify_causal_review_semantics.py self-test qa/causal-review-envelope.example.json
 
@@ -94,14 +103,17 @@ jobs:
 
       - name: Parse workflows
         run: |
-          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-contract.yml'); YAML.parse_file('.github/workflows/causal-review-envelope.yml'); YAML.parse_file('.github/workflows/causal-review-envelope-contract.yml')"
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-contract.yml'); YAML.parse_file('.github/workflows/ai-review-cooperation.yml'); YAML.parse_file('.github/workflows/causal-review-envelope.yml'); YAML.parse_file('.github/workflows/causal-review-envelope-contract.yml')"
 
-      - name: Verify live observer is read-only and exact-head bound
+      - name: Verify live observers and request-bound wrappers
         run: |
           set -euo pipefail
           workflow=.github/workflows/causal-review-envelope.yml
+          cooperation_workflow=.github/workflows/ai-review-cooperation.yml
           ai_workflow=.github/workflows/ai-review-contract.yml
           adapter=scripts/verify-ai-review-evidence-adapter.cjs
+          cooperation=scripts/ai_review_cooperation_request_bound.py
+          causal_wrapper=scripts/causal_review_envelope_request_bound.py
 
           grep -Fq "permissions: {}" "${workflow}"
           grep -Fq "actions: read" "${workflow}"
@@ -127,26 +139,26 @@ jobs:
             fi
           done
 
-          grep -Fq "github.event.comment.body == '/ai-cooperation report'" "${workflow}"
-          grep -Fq "github.event.workflow_run.name == 'AI review contract'" "${workflow}"
-          grep -Fq "github.event.workflow_run.conclusion == 'success'" "${workflow}"
-          grep -Fq 'select(.state == "open" and .head.sha == $sha and .base.repo.full_name == $repo)' "${workflow}"
-          grep -Fq 'if [ "${TRIGGER_EVENT}" = "workflow_run" ] && [ "${TRIGGER_HEAD_SHA}" != "${head}" ]' "${workflow}"
-          grep -Fq "persist-credentials: false" "${workflow}"
-          grep -Fq "python3 scripts/causal_review_envelope.py build" "${workflow}"
+          grep -Fq "python3 scripts/causal_review_envelope_request_bound.py build" "${workflow}"
           grep -Fq 'python3 scripts/causal_review_envelope.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
           grep -Fq 'python3 scripts/verify_causal_review_semantics.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
-          grep -Fq 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' "${workflow}"
-          grep -Fq "Advisory only: this artifact cannot execute, approve, or merge." "${workflow}"
+          grep -Fq "python3 scripts/ai_review_cooperation_request_bound.py report" "${cooperation_workflow}"
+          grep -Fq 'ref: ${{ github.event.repository.default_branch }}' "${cooperation_workflow}"
+          grep -Fq "persist-credentials: false" "${cooperation_workflow}"
 
           grep -Fq "require('./scripts/verify-ai-review-evidence-adapter.cjs')" "${ai_workflow}"
           grep -Fq 'github.event.pull_request.base.sha' "${ai_workflow}"
           grep -Fq 'observedTimeOf(item)' "${adapter}"
-          grep -Fq 'WALKTHROUGH_MARKERS' "${adapter}"
           grep -Fq 'hasWalkthroughMarker' "${adapter}"
           grep -Fq 'hasNoConflictingHeadReference' "${adapter}"
           grep -Fq 'livePull.data?.head?.sha' "${adapter}"
           grep -Fq 'await legacyVerifierFn({ github, context, core })' "${adapter}"
+
+          grep -Fq 'module.bot_items = patched_bot_items' "${cooperation}"
+          grep -Fq 'module.request_bound_exact_items = patched_request_bound_exact_items' "${cooperation}"
+          grep -Fq 'module.latest_limit_signal = patched_latest_limit_signal' "${cooperation}"
+          grep -Fq 'has_no_conflicting_head_reference' "${cooperation}"
+          grep -Fq 'CAUSAL.load_cooperation_module = lambda: COOPERATION' "${causal_wrapper}"
 
       - name: Verify implementation reuses reporter policy
         run: |
