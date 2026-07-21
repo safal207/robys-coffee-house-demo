@@ -168,7 +168,7 @@ jobs:
         run: python3 scripts/fetch-review-threads.py
 
       - name: Build CodeRabbit-first cooperation report
-        run: python3 scripts/ai-review-cooperation.py report
+        run: python3 scripts/ai_review_cooperation_request_bound.py report
 
       - name: Publish or update cooperation report
         run: |
