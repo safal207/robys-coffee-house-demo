@@ -3,8 +3,12 @@ name: Causal review envelope contract
 on:
   pull_request:
     paths:
+      - ".github/workflows/ai-review-contract.yml"
       - ".github/workflows/causal-review-envelope.yml"
       - ".github/workflows/causal-review-envelope-contract.yml"
+      - "scripts/verify-ai-review-contract.cjs"
+      - "scripts/verify-ai-review-evidence-adapter.cjs"
+      - "scripts/test-ai-review-evidence-adapter.cjs"
       - "scripts/causal_review_envelope.py"
       - "scripts/test_causal_review_envelope.py"
       - "scripts/verify_causal_review_semantics.py"
@@ -42,9 +46,13 @@ jobs:
             scripts/causal_review_envelope.py \
             scripts/test_causal_review_envelope.py \
             scripts/verify_causal_review_semantics.py
+          node --check scripts/verify-ai-review-evidence-adapter.cjs
+          node --check scripts/test-ai-review-evidence-adapter.cjs
 
       - name: Run causal mutation tests
-        run: python3 scripts/test_causal_review_envelope.py -v
+        run: |
+          python3 scripts/test_causal_review_envelope.py -v
+          node scripts/test-ai-review-evidence-adapter.cjs
 
       - name: Validate canonical example
         run: |
@@ -77,7 +85,7 @@ jobs:
           assert example["trace"][2]["execution_committed"] is False
           assert [item["type"] for item in example["trace"]] == ["sense", "transition", "commit"]
 
-          roles = [item["role"] for item in example["evidence"]["manifest"]]
+          roles = [item["role"] for item in example["evidence"]["manifest"]
           assert roles == [
               "changed_files", "check_runs", "head_commit", "issue_comments",
               "pull_request", "review_comments", "review_threads", "reviews", "statuses",
@@ -86,12 +94,14 @@ jobs:
 
       - name: Parse workflows
         run: |
-          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/causal-review-envelope.yml'); YAML.parse_file('.github/workflows/causal-review-envelope-contract.yml')"
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/ai-review-contract.yml'); YAML.parse_file('.github/workflows/causal-review-envelope.yml'); YAML.parse_file('.github/workflows/causal-review-envelope-contract.yml')"
 
       - name: Verify live observer is read-only and exact-head bound
         run: |
           set -euo pipefail
           workflow=.github/workflows/causal-review-envelope.yml
+          ai_workflow=.github/workflows/ai-review-contract.yml
+          adapter=scripts/verify-ai-review-evidence-adapter.cjs
 
           grep -Fq "permissions: {}" "${workflow}"
           grep -Fq "actions: read" "${workflow}"
@@ -116,6 +126,13 @@ jobs:
           grep -Fq 'python3 scripts/verify_causal_review_semantics.py validate "${CAUSAL_ENVELOPE_FILE}"' "${workflow}"
           grep -Fq 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' "${workflow}"
           grep -Fq "Advisory only: this artifact cannot execute, approve, or merge." "${workflow}"
+
+          grep -Fq "require('./scripts/verify-ai-review-evidence-adapter.cjs')" "${ai_workflow}"
+          grep -Fq 'github.event.pull_request.base.sha' "${ai_workflow}"
+          grep -Fq 'observedTimeOf(item)' "${adapter}"
+          grep -Fq 'WALKTHROUGH_MARKERS' "${adapter}"
+          grep -Fq 'hasCurrentHeadInWalkthrough' "${adapter}"
+          grep -Fq 'await legacyVerifier({ github, context, core })' "${adapter}"
 
           ! grep -Fq -- "--method POST" "${workflow}"
           ! grep -Fq -- "--method PATCH" "${workflow}"
