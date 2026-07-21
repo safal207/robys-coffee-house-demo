@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v20-20260720-photo-logo-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v21-20260721-wordmark-type-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -25,7 +25,7 @@ const CORE_ASSETS = [
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
-  "./brand-photo-logo.css?v=20260720-1",
+  "./brand-photo-logo.css?v=20260721-type-1",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",
@@ -121,30 +121,16 @@ async function navigationResponse(request) {
 }
 
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
-  if (request.method !== "GET") return;
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
 
-  const url = new URL(request.url);
-  if (request.mode === "navigate") {
-    event.respondWith(navigationResponse(request));
+  if (event.request.mode === "navigate") {
+    event.respondWith(navigationResponse(event.request));
     return;
   }
 
-  if (url.origin !== self.location.origin) return;
-
-  event.respondWith((async () => {
-    const cached = await cachedResponse(request);
-    if (cached) return cached;
-
-    try {
-      const network = await fetch(request);
-      if (network.ok) {
-        const cache = await caches.open(CACHE_VERSION);
-        cache.put(request, network.clone()).catch(() => {});
-      }
-      return network;
-    } catch {
-      return Response.error();
-    }
-  })());
+  event.respondWith(
+    cachedResponse(event.request).then((cached) => cached || fetch(event.request))
+  );
 });
