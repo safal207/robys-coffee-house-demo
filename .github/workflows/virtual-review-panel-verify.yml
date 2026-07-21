@@ -82,7 +82,9 @@ jobs:
           test -s "${RECORD_FILE}"
 
       - name: Validate role-separated panel contract
-        run: python3 trusted/scripts/virtual_review_panel.py validate "${RECORD_FILE}"
+        run: |
+          python3 trusted/scripts/virtual_review_panel.py validate "${RECORD_FILE}"
+          python3 trusted/scripts/verify_virtual_panel_hardening.py "${RECORD_FILE}"
 
       - name: Verify subject and exact-head identity
         run: |
