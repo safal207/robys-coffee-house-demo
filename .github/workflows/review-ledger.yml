@@ -139,7 +139,7 @@ jobs:
             const issueCommentIsCurrentHeadBotOutput = (item) => {
               const login = item.user?.login;
               if (codeRabbitBots.has(login)) {
-                return codeRabbitRequested && createdTimeOf(item) >= earliestCodeRabbitRequestAt &&
+                return codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt &&
                   isFinalCodeRabbitCommentEvidence(item) &&
                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
               }
@@ -182,9 +182,10 @@ jobs:
               )),
               ...issueComments.filter((item) => (
                 codeRabbitBots.has(item.user?.login) && (
-                  (createdTimeOf(item) >= earliestCodeRabbitRequestAt && isFinalCodeRabbitCommentEvidence(item) &&
+                  (timeOf(item) >= earliestCodeRabbitRequestAt && isFinalCodeRabbitCommentEvidence(item) &&
                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))) ||
-                  (createdTimeOf(item) >= latestCodeRabbitRequestAt && hasPositiveLimitSignal(item.body))
+                  (timeOf(item) >= latestCodeRabbitRequestAt && hasPositiveLimitSignal(item.body) &&
+                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body))))
                 )
               )),
               ...statuses.filter((item) => (
