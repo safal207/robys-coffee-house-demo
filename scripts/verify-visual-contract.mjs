@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { verifyBrandWordmark } from "./test-brand-wordmark.mjs";
+import "./test-photo-logo.mjs";
 
 const config = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
