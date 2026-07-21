@@ -1,12 +1,146 @@
 /* Photo-referenced Roby's mark from the owner-provided takeaway-cup image. */
+.brand-copy{
+  --robys-wordmark-font-size:2.28rem;
+  --robys-wordmark-gap:1px;
+  --robys-wordmark-scale-x:.78;
+  --robys-wordmark-scale-y:1.12;
+  --robys-wordmark-rise:-56%;
+}
+
 .brand-copy strong{
   border:0!important;
   border-radius:0!important;
   background:url("src/brand/robys-organic-ring.svg?v=20260720-1") center/contain no-repeat!important;
 }
 
+.brand-copy strong::before,
+.brand-copy strong::after{
+  font-family:"Arial Narrow","Roboto Condensed","DejaVu Sans Condensed",Arial,sans-serif!important;
+  font-size:var(--robys-wordmark-font-size)!important;
+  font-weight:700!important;
+  line-height:.86!important;
+  letter-spacing:-.06em!important;
+  transform:translateY(var(--robys-wordmark-rise)) scaleX(var(--robys-wordmark-scale-x)) scaleY(var(--robys-wordmark-scale-y))!important;
+}
+
+.brand-copy strong::before{
+  right:calc(100% + var(--robys-wordmark-gap))!important;
+  transform-origin:right center!important;
+}
+
+.brand-copy strong::after{
+  left:calc(100% + var(--robys-wordmark-gap))!important;
+  transform-origin:left center!important;
+}
+
+.brand-copy small{
+  font-weight:400!important;
+  letter-spacing:.16em!important;
+}
+
+.menu-page-brand .brand-copy{
+  --robys-wordmark-font-size:3.22rem;
+  --robys-wordmark-gap:2px;
+  --robys-wordmark-scale-x:.75;
+  --robys-wordmark-scale-y:1.14;
+}
+
 .menu-page-mark::before{
   border:0!important;
   border-radius:0!important;
   background:url("src/brand/robys-organic-ring.svg?v=20260720-1") center/contain no-repeat!important;
+}
+
+@media(max-width:680px){
+  .site-header .brand{
+    max-width:128px!important;
+    overflow:hidden!important;
+  }
+
+  .site-header .brand-copy{
+    display:flex!important;
+    width:108px!important;
+    --robys-wordmark-font-size:2.05rem;
+    --robys-wordmark-gap:0px;
+    --robys-wordmark-scale-x:.76;
+    --robys-wordmark-scale-y:1.12;
+  }
+
+  .site-header .brand-copy strong{
+    width:30px!important;
+    height:34px!important;
+    margin-left:21px!important;
+    margin-right:0!important;
+  }
+
+  .site-header .brand-copy small{
+    display:block!important;
+    margin-top:3px!important;
+    font-size:.45rem!important;
+    letter-spacing:.10em!important;
+    text-indent:.10em!important;
+  }
+
+  .menu-page-brand .brand-copy{
+    --robys-wordmark-font-size:2.78rem;
+    --robys-wordmark-gap:1px;
+    --robys-wordmark-scale-x:.75;
+    --robys-wordmark-scale-y:1.14;
+  }
+}
+
+@media(max-width:390px){
+  .site-header .brand{
+    max-width:110px!important;
+    padding:6px 8px!important;
+  }
+
+  .site-header .brand-copy{
+    width:92px!important;
+    --robys-wordmark-font-size:1.84rem;
+    --robys-wordmark-scale-x:.74;
+    --robys-wordmark-scale-y:1.13;
+  }
+
+  .site-header .brand-copy strong{
+    width:27px!important;
+    height:31px!important;
+    margin-left:18px!important;
+  }
+
+  .site-header .brand-copy small{
+    font-size:.41rem!important;
+    letter-spacing:.08em!important;
+    text-indent:.08em!important;
+  }
+}
+
+@media(max-width:340px){
+  .discover-header .brand{
+    display:inline-flex!important;
+    width:84px!important;
+    max-width:84px!important;
+    padding:5px 6px!important;
+    overflow:hidden!important;
+  }
+
+  .discover-header .brand-copy{
+    display:flex!important;
+    width:70px!important;
+    --robys-wordmark-font-size:1.46rem;
+    --robys-wordmark-gap:0px;
+    --robys-wordmark-scale-x:.72;
+    --robys-wordmark-scale-y:1.13;
+  }
+
+  .discover-header .brand-copy strong{
+    width:22px!important;
+    height:25px!important;
+    margin-left:14px!important;
+    margin-right:0!important;
+  }
+
+  .discover-header .brand-copy small{
+    display:none!important;
+  }
 }
