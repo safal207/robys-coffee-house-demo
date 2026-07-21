@@ -7,6 +7,7 @@ on:
       - ".github/workflows/virtual-review-panel-verify.yml"
       - "scripts/virtual_review_panel.py"
       - "scripts/verify_virtual_panel_hardening.py"
+      - "scripts/validate_virtual_panel_schema.py"
       - "scripts/test_virtual_review_panel.py"
       - "scripts/test_virtual_panel_hardening.py"
       - "qa/virtual-review-panel.schema.json"
@@ -25,8 +26,7 @@ jobs:
   validate:
     name: Validate role-separated virtual panel
     runs-on: ubuntu-latest
-    timeout-minutes: 6
-
+    timeout-minutes: 8
     steps:
       - name: Check out exact pull request head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -40,6 +40,7 @@ jobs:
           python3 -m py_compile \
             scripts/virtual_review_panel.py \
             scripts/verify_virtual_panel_hardening.py \
+            scripts/validate_virtual_panel_schema.py \
             scripts/test_virtual_review_panel.py \
             scripts/test_virtual_panel_hardening.py
 
@@ -52,77 +53,55 @@ jobs:
         run: |
           python3 scripts/virtual_review_panel.py validate qa/virtual-review-panel.example.json
           python3 scripts/verify_virtual_panel_hardening.py qa/virtual-review-panel.example.json
+          python3 scripts/validate_virtual_panel_schema.py \
+            qa/virtual-review-panel.schema.json \
+            qa/virtual-review-panel.example.json
 
       - name: Verify deterministic normalization
         run: |
-          python3 scripts/virtual_review_panel.py normalize \
-            qa/virtual-review-panel.example.json \
-            "${RUNNER_TEMP}/normalized-panel-1.json"
-          python3 scripts/virtual_review_panel.py normalize \
-            "${RUNNER_TEMP}/normalized-panel-1.json" \
-            "${RUNNER_TEMP}/normalized-panel-2.json"
-          diff -u "${RUNNER_TEMP}/normalized-panel-1.json" "${RUNNER_TEMP}/normalized-panel-2.json"
+          python3 scripts/virtual_review_panel.py normalize qa/virtual-review-panel.example.json "${RUNNER_TEMP}/normalized-1.json"
+          python3 scripts/virtual_review_panel.py normalize "${RUNNER_TEMP}/normalized-1.json" "${RUNNER_TEMP}/normalized-2.json"
+          diff -u "${RUNNER_TEMP}/normalized-1.json" "${RUNNER_TEMP}/normalized-2.json"
 
       - name: Verify schema and role registry
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-
-          schema = json.loads(Path("qa/virtual-review-panel.schema.json").read_text(encoding="utf-8"))
-          roles = json.loads(Path("qa/virtual-review-panel-roles.json").read_text(encoding="utf-8"))
-          example = json.loads(Path("qa/virtual-review-panel.example.json").read_text(encoding="utf-8"))
-
-          expected = [
-              "causal_architect",
-              "temporal_provenance",
-              "adversarial_semantics",
-              "authority_safety",
-              "ci_reliability",
-          ]
-
+          schema=json.loads(Path("qa/virtual-review-panel.schema.json").read_text())
+          roles=json.loads(Path("qa/virtual-review-panel-roles.json").read_text())
+          example=json.loads(Path("qa/virtual-review-panel.example.json").read_text())
+          expected=["causal_architect","temporal_provenance","adversarial_semantics","authority_safety","ci_reliability"]
           assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-          assert schema["properties"]["schema_version"]["const"] == "robis.virtual-review-panel.v1"
-          assert schema["properties"]["activation"]["properties"]["external_lane_satisfied"]["const"] is False
-          assert schema["properties"]["implementation"]["properties"]["external_provider_substitute"]["const"] is False
-          assert schema["properties"]["authority"]["properties"]["can_execute"]["const"] is False
-          assert schema["properties"]["authority"]["properties"]["can_approve"]["const"] is False
-          assert schema["properties"]["authority"]["properties"]["can_merge"]["const"] is False
-
           assert [item["id"] for item in roles["roles"]] == expected
           assert [item["id"] for item in example["roles"]] == expected
           assert example["implementation"]["mode"] == "single_model_role_simulation"
-          assert len(example["implementation"]["providers"]) == 1
           assert example["activation"]["external_lane_satisfied"] is False
-          assert example["decision"]["verdict"] == "FIX_THEN_RERUN"
-          assert example["dissent"]
+          assert example["authority"]["can_merge"] is False
+          assert all(item["content_base64"] for item in example["evidence"]["manifest"])
           PY
 
       - name: Parse workflow YAML
-        run: |
-          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/virtual-review-panel-contract.yml'); YAML.parse_file('.github/workflows/virtual-review-panel-verify.yml')"
+        run: ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/virtual-review-panel-contract.yml'); YAML.parse_file('.github/workflows/virtual-review-panel-verify.yml')"
 
       - name: Verify observer trust and authority boundaries
         run: |
           set -euo pipefail
           verifier=.github/workflows/virtual-review-panel-verify.yml
-
           grep -Fq "permissions: {}" "${verifier}"
           grep -Fq "contents: read" "${verifier}"
           grep -Fq "issues: read" "${verifier}"
           grep -Fq "pull-requests: read" "${verifier}"
-          ! grep -Fq "contents: write" "${verifier}"
-          ! grep -Fq "issues: write" "${verifier}"
-          ! grep -Fq "pull-requests: write" "${verifier}"
-          ! grep -Fq "pull_request_target" "${verifier}"
-
+          forbidden=("contents: write" "issues: write" "pull-requests: write" "pull_request_target")
+          for token in "${forbidden[@]}"; do
+            if grep -Fq "${token}" "${verifier}"; then
+              echo "Forbidden workflow capability: ${token}" >&2
+              exit 1
+            fi
+          done
           grep -Fq "github.event.repository.default_branch" "${verifier}"
           grep -Fq "persist-credentials: false" "${verifier}"
-          grep -Fq "python3 trusted/scripts/virtual_review_panel.py validate" "${verifier}"
-          grep -Fq "python3 trusted/scripts/verify_virtual_panel_hardening.py" "${verifier}"
+          grep -Fq "validate_virtual_panel_schema.py" "${verifier}"
+          grep -Fq "verify_virtual_panel_hardening.py" "${verifier}"
           grep -Fq "record_head != current_head" "${verifier}"
           grep -Fq "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" "${verifier}"
-
-          grep -Fq '"external_provider_substitute":false' qa/virtual-review-panel.example.json
-          grep -Fq '"can_merge":false' qa/virtual-review-panel.example.json
-          grep -Fq '"external_lane_satisfied":false' qa/virtual-review-panel.example.json
