@@ -81,6 +81,33 @@
     text-indent:.10em!important;
   }
 
+  .discover-header .brand{
+    max-width:118px!important;
+    padding:6px 8px!important;
+    overflow:hidden!important;
+  }
+
+  .discover-header .brand-copy{
+    display:flex!important;
+    width:100px!important;
+    color:#111!important;
+    --robys-wordmark-font-size:1.90rem;
+    --robys-wordmark-gap:0px;
+    --robys-wordmark-scale-x:.74;
+    --robys-wordmark-scale-y:1.08;
+  }
+
+  .discover-header .brand-copy strong{
+    width:28px!important;
+    height:31px!important;
+    margin-left:19px!important;
+    margin-right:0!important;
+  }
+
+  .discover-header .brand-copy small{
+    display:none!important;
+  }
+
   .menu-page-brand .brand-copy{
     --robys-wordmark-font-size:2.78rem;
     --robys-wordmark-gap:1px;
@@ -113,6 +140,25 @@
     letter-spacing:.08em!important;
     text-indent:.08em!important;
   }
+
+  .discover-header .brand{
+    max-width:104px!important;
+    padding:5px 7px!important;
+  }
+
+  .discover-header .brand-copy{
+    width:88px!important;
+    color:#111!important;
+    --robys-wordmark-font-size:1.70rem;
+    --robys-wordmark-scale-x:.72;
+    --robys-wordmark-scale-y:1.08;
+  }
+
+  .discover-header .brand-copy strong{
+    width:25px!important;
+    height:28px!important;
+    margin-left:17px!important;
+  }
 }
 
 @media(max-width:340px){
@@ -127,15 +173,16 @@
   .discover-header .brand-copy{
     display:flex!important;
     width:70px!important;
-    --robys-wordmark-font-size:1.46rem;
+    color:#111!important;
+    --robys-wordmark-font-size:1.38rem;
     --robys-wordmark-gap:0px;
-    --robys-wordmark-scale-x:.72;
-    --robys-wordmark-scale-y:1.13;
+    --robys-wordmark-scale-x:.70;
+    --robys-wordmark-scale-y:1.08;
   }
 
   .discover-header .brand-copy strong{
-    width:22px!important;
-    height:25px!important;
+    width:21px!important;
+    height:24px!important;
     margin-left:14px!important;
     margin-right:0!important;
   }
