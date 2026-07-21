@@ -1,0 +1,67 @@
+name: TypeScript dual compiler contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/typescript-dual-compiler.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "scripts/build.mjs"
+      - "scripts/verify-typescript-toolchain.mjs"
+      - "src/**/*.ts"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/typescript-dual-compiler.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "scripts/build.mjs"
+      - "scripts/verify-typescript-toolchain.mjs"
+      - "src/**/*.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate TS7 checker and TS6 build API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Verify compiler routing
+        run: npm run verify:typescript-toolchain
+
+      - name: Verify native and compatibility type checks
+        run: |
+          npm run typecheck
+          npm run typecheck:compat
+
+      - name: Verify compiler-API-backed build is unchanged
+        run: |
+          npm run build
+          git diff --exit-code -- \
+            app.js \
+            featured-gallery.js \
+            social-offer.js \
+            discover-rotation.js \
+            discover-rotation-v2.js \
+            discover-rotation-v3.js \
+            index.html \
+            discover.html \
+            sw.js
