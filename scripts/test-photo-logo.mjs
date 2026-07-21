@@ -9,7 +9,7 @@ const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8")
 
 assert.match(bootstrap, /const photoLogo = document\.createElement\("link"\)/);
 assert.match(bootstrap, /photoLogo\.rel = "stylesheet"/);
-assert.match(bootstrap, /photoLogo\.href = "brand-photo-logo\.css\?v=20260721-type-1"/);
+assert.match(bootstrap, /photoLogo\.href = "brand-photo-logo\.css\?v=20260721-type-2"/);
 assert.match(bootstrap, /document\.head\.append\(photoLogo\)/);
 assert.doesNotMatch(bootstrap, /DOMContentLoaded/, "logo stylesheet must be requested immediately from the head bootstrap");
 
@@ -43,8 +43,13 @@ assert.match(
 );
 assert.match(
   stylesheet,
+  /@media\(max-width:680px\)[\s\S]*?\.discover-header \.brand-copy\s*\{[\s\S]*?color:#111!important/,
+  "Discover wordmark must remain dark on its white mobile container",
+);
+assert.match(
+  stylesheet,
   /@media\(max-width:340px\)[\s\S]*?\.discover-header \.brand-copy\s*\{[\s\S]*?display:flex!important/,
-  "discover must render a compact wordmark instead of an empty white pill",
+  "Discover must render a compact wordmark instead of an empty white pill",
 );
 
 assert.match(ring, /fill="#d32636"/);
@@ -54,7 +59,7 @@ assert.match(ring, /Photo-referenced red organic ring brand mark/);
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-type-1"/);
+assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-type-2"/);
 assert.match(coreAssets, /"\.\/src\/brand\/robys-organic-ring\.svg\?v=20260720-1"/);
 
 const exactRevisionBlock = serviceWorker.match(
