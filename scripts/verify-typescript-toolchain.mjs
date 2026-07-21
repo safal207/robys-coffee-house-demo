@@ -1,9 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
 
-const binarySuffix = process.platform === "win32" ? ".cmd" : "";
-const nativeBinary = resolve(`node_modules/.bin/tsc${binarySuffix}`);
-const compatibilityBinary = resolve(`node_modules/.bin/tsc6${binarySuffix}`);
+const nativeBinary = "tsc";
+const compatibilityBinary = "tsc6";
 
 function run(binary, args) {
   const result = spawnSync(binary, args, {
