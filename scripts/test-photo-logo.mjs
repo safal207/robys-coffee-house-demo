@@ -14,6 +14,7 @@ assert.match(bootstrap, /document\.head\.append\(photoLogo\)/);
 assert.doesNotMatch(bootstrap, /DOMContentLoaded/, "logo stylesheet must be requested immediately from the head bootstrap");
 
 assert.match(stylesheet, /\.brand-copy strong\s*\{/);
+// With global border-box sizing, the old transparent 8px border reduced a 34px mark to an 18px background area.
 assert.match(stylesheet, /border:\s*0\s*!important/);
 assert.doesNotMatch(
   stylesheet,
