@@ -5,6 +5,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
+    "typecheck:compat": "tsc6 --noEmit",
+    "verify:typescript-toolchain": "node scripts/verify-typescript-toolchain.mjs",
     "verify:menu-content": "node scripts/verify-menu-content.mjs",
     "verify:instagram-tools": "node scripts/verify-instagram-tools.mjs",
     "verify:menu-share": "node scripts/verify-menu-share.mjs",
@@ -44,7 +46,7 @@
     "verify:integrity": "node scripts/generate-integrity-manifest.mjs --check && node scripts/verify-integrity-manifest.mjs",
     "verify:integrity:live": "node scripts/verify-live-integrity.mjs",
     "security:audit": "npm audit --audit-level=high",
-    "check": "npm run typecheck && npm run verify:gallery:assets && npm run build && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression",
+    "check": "npm run verify:typescript-toolchain && npm run typecheck && npm run verify:gallery:assets && npm run build && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression",
     "verify:bundle": "npm run verify:proof-depth && npm run test:proof-depth && npm run verify:traceability && npm run test:traceability && npm run typecheck && npm run verify:gallery:assets && npm run build && npm run verify:traceability && npm run test:traceability && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pairing-cta && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node scripts/verify-bundle.mjs && npm run verify:social-offer",
     "verify:media": "node scripts/verify-media.mjs",
     "verify:deploy:live": "node scripts/verify-live-deploy.mjs",
@@ -54,7 +56,8 @@
     "lighthouse:collect:desktop": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.desktop.cjs"
   },
   "devDependencies": {
+    "@typescript/native": "npm:typescript@7.0.2",
     "esbuild": "0.28.1",
-    "typescript": "5.8.3"
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   }
 }
