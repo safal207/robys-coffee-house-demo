@@ -177,6 +177,7 @@ jobs:
           set -euo pipefail
           python3 scripts/causal_review_envelope.py build
           python3 scripts/causal_review_envelope.py validate "${CAUSAL_ENVELOPE_FILE}"
+          python3 scripts/verify_causal_review_semantics.py validate "${CAUSAL_ENVELOPE_FILE}"
 
       - name: Recheck exact head before retaining evidence
         run: |
