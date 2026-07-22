@@ -25,6 +25,8 @@ assert.match(stylesheet, /robys-compact-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /robys-mark-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /\.brand-copy strong::before,[\s\S]*?content:none!important/);
 assert.match(stylesheet, /\.menu-page-brand-tagline\s*\{\s*display:none!important/);
+assert.match(stylesheet, /clip-path:inset\(50%\)!important/);
+assert.doesNotMatch(stylesheet, /(^|[\s;{])clip\s*:/m, "logo accessibility styles must not use deprecated clip");
 assert.doesNotMatch(stylesheet, /font-family:/, "visual wordmark must not depend on browser fonts");
 assert.doesNotMatch(stylesheet, /scaleX\(/, "visual wordmark must not be synthesized with CSS transforms");
 
