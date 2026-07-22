@@ -32,7 +32,12 @@ jobs:
         run: npm run build
 
       - name: Verify gate source syntax
-        run: node --check scripts/logo-intelligence-gate.mjs
+        run: |
+          node --check scripts/logo-intelligence-gate.mjs
+          node --check scripts/verify-logo-master-hashes.mjs
+
+      - name: Verify approved logo master identity
+        run: node scripts/verify-logo-master-hashes.mjs
 
       - name: Install deterministic visual tools
         run: npm install --no-save --package-lock=false playwright@1.52.0 pngjs@7.0.0
