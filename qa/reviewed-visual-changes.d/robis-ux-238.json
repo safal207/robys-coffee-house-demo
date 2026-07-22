@@ -6,7 +6,7 @@
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/239",
       "contentBindings": {
         "brand-photo-logo.css": "5ff73d13d444bbe4082b7523de10788affec97d3",
-        "social-offer.css": "e343438b896c064346e65026ab1c8337f5e3c5dc"
+        "social-offer.css": "085816a7ae4c9ede6506d1e8d2275166d31ed3a8"
       },
       "expectedFailures": [
         {
@@ -35,6 +35,11 @@
           "maxDiffPixelRatio": 0.011067708333333334
         },
         {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x242 vs 360x246"
+        },
+        {
           "capture": "menu-share",
           "viewport": "phone-360-short",
           "reason": "dimension mismatch 320x501 vs 320x508"
@@ -43,6 +48,11 @@
           "capture": "discover-pairing",
           "viewport": "phone-360-short",
           "maxDiffPixelRatio": 0.11588072122052705
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8557 vs 390x8561"
         },
         {
           "capture": "menu-full",
@@ -65,6 +75,11 @@
           "maxDiffPixelRatio": 0.004480842351564785
         },
         {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x242 vs 390x246"
+        },
+        {
           "capture": "menu-share",
           "viewport": "phone-390",
           "reason": "dimension mismatch 350x501 vs 350x508"
@@ -75,9 +90,19 @@
           "maxDiffPixelRatio": 0.03847441506562679
         },
         {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7571 vs 768x7575"
+        },
+        {
           "capture": "menu-full",
           "viewport": "tablet-768",
           "reason": "dimension mismatch 768x7111 vs 768x7118"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x215 vs 768x219"
         },
         {
           "capture": "menu-share",
