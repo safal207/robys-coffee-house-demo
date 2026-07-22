@@ -6,24 +6,28 @@
     {
       "id": "primary",
       "path": "src/brand/robys-primary-master-v1.svg",
+      "sha256": "cf8cd524dc402c18d317b2bfa83152d12fd829ed4418e845d96b190612394cdc",
       "viewBox": [0, 0, 1260, 210],
       "minVectorNodes": 25
     },
     {
       "id": "compact",
       "path": "src/brand/robys-compact-master-v1.svg",
+      "sha256": "dc37d69dc75453c79f94bfdbea9c91b8451929b322716cc5037ee89534e6545b",
       "viewBox": [0, 0, 435, 150],
       "minVectorNodes": 6
     },
     {
       "id": "mobile",
       "path": "src/brand/robys-mobile-master-v1.svg",
+      "sha256": "5c1dd31b298afcafa5ef23af8c9317081d0de999e143c2c3b517313829f3c6c9",
       "viewBox": [0, 0, 620, 200],
       "minVectorNodes": 7
     },
     {
       "id": "mark",
       "path": "src/brand/robys-mark-master-v1.svg",
+      "sha256": "85de24650af29674a5d798677402d6f054436ba188ca61d55d8d65171c912194",
       "viewBox": [0, 0, 100, 100],
       "minVectorNodes": 1
     }
