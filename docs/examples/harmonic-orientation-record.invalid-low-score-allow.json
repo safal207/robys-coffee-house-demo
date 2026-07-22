@@ -1,0 +1,27 @@
+{
+  "id": "HTO-INVALID-010",
+  "time_utc": "2026-07-10T06:30:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#189",
+  "head_sha": "invalid-low-score-allow-head",
+  "project_graph": {"invariant": ["Allow requires strong evidence."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "commit", "description": "Allow an unsupported transition."}, "expected_effect": []},
+  "real_graph": {
+    "evidence_before": {"green": [], "red": [], "missing": []},
+    "evidence_after": {"green": [], "red": [], "missing": []}
+  },
+  "orientation_center": {"decision": "allow", "reason": "Intentionally invalid low-score allow.", "next_allowed_move": "Collect evidence."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 0},
+      "side_effect_safety": {"value": 0},
+      "evidence_path": {"value": 0},
+      "exact_head_confidence": {"value": 0},
+      "reversibility": {"value": 0}
+    },
+    "hard_blockers": [],
+    "total": 0
+  }
+}

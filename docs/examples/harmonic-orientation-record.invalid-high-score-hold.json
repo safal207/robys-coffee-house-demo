@@ -1,0 +1,27 @@
+{
+  "id": "HTO-INVALID-011",
+  "time_utc": "2026-07-10T06:31:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#189",
+  "head_sha": "invalid-high-score-hold-head",
+  "project_graph": {"invariant": ["High score without blockers uses allow."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "documentation", "description": "Test high score with hold."}, "expected_effect": []},
+  "real_graph": {
+    "evidence_before": {"green": ["ready"], "red": [], "missing": []},
+    "evidence_after": {"green": ["verified"], "red": [], "missing": []}
+  },
+  "orientation_center": {"decision": "hold", "reason": "Invalid fixture.", "next_allowed_move": "Use allow."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []},
+  "scorecard": {
+    "scores": {
+      "project_invariant_alignment": {"value": 2},
+      "side_effect_safety": {"value": 2},
+      "evidence_path": {"value": 2},
+      "exact_head_confidence": {"value": 2},
+      "reversibility": {"value": 2}
+    },
+    "hard_blockers": [],
+    "total": 10
+  }
+}

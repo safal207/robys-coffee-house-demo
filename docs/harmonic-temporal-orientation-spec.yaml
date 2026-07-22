@@ -1,0 +1,146 @@
+schema_version: 1
+id: harmonic-temporal-orientation-system
+name: Harmonic Temporal Orientation System
+kind: project_navigation_model
+status: draft
+
+core_rule: >-
+  Accept a transition only when it preserves project invariants and real
+  evidence verifies it.
+
+graphs:
+  project_graph:
+    role: define_goals_constraints_and_forbidden_moves
+  transition_graph:
+    role: define_candidate_actions_and_expected_effects
+  real_graph:
+    role: record_green_red_and_missing_evidence
+  orientation_center:
+    role: select_allow_reject_hold_or_escalate
+  trajectory_graph:
+    role: record_state_changes_over_time
+  observer_graph:
+    role: detect_patterns_anomalies_and_risks
+  tuner_graph:
+    role: update_rules_thresholds_and_guardrails
+
+orientation_record_schema:
+  serialization: canonical_json
+  required_fields:
+    - id
+    - time_utc
+    - repo
+    - pr
+    - head_sha
+    - project_graph
+    - transition_graph
+    - real_graph
+    - orientation_center
+    - observer_graph
+    - tuner_graph
+    - scorecard
+  required_non_empty_objects:
+    - project_graph
+    - transition_graph
+    - real_graph
+    - orientation_center
+    - observer_graph
+    - tuner_graph
+  actor_values:
+    - human
+    - assistant
+    - ci
+    - bot
+    - orientation-center
+  decision_values:
+    - allow
+    - reject
+    - hold
+    - escalate
+
+real_graph_schema:
+  required_snapshots:
+    - evidence_before
+    - evidence_after
+  required_buckets:
+    - green
+    - red
+    - missing
+  bucket_type: array
+
+scorecard:
+  required: true
+  dimensions:
+    - project_invariant_alignment
+    - side_effect_safety
+    - evidence_path
+    - exact_head_confidence
+    - reversibility
+  dimension_scale:
+    minimum: 0
+    maximum: 2
+  total:
+    minimum: 0
+    maximum: 10
+    must_equal_dimension_sum: true
+
+hard_blocker_policy:
+  enum:
+    - trusted_exact_head_evidence_required_but_missing
+    - bot_identity_untrusted_or_unknown
+    - seal_order_wrong
+    - merge_readiness_command_premature
+    - baseline_refresh_lacks_source_artifact_or_run_id
+    - transition_mutates_unrelated_repair_flows
+    - transition_hides_evidence_debt
+  hold_class:
+    - trusted_exact_head_evidence_required_but_missing
+    - bot_identity_untrusted_or_unknown
+    - baseline_refresh_lacks_source_artifact_or_run_id
+  reject_class:
+    - seal_order_wrong
+    - merge_readiness_command_premature
+    - transition_mutates_unrelated_repair_flows
+    - transition_hides_evidence_debt
+  inferred_required_blockers:
+    - missing_trusted_exact_head_evidence_requires_trusted_exact_head_evidence_required_but_missing
+    - missing_or_untrusted_bot_identity_requires_bot_identity_untrusted_or_unknown
+    - baseline_refresh_without_artifact_or_run_evidence_requires_baseline_refresh_lacks_source_artifact_or_run_id
+  validation:
+    - blocker_value_must_be_in_enum
+    - blocker_container_must_be_array
+    - inferred_required_blocker_must_be_explicitly_listed
+    - omitted_required_blocker_invalidates_record
+  precedence:
+    - any_hard_blocker_forbids_allow
+    - any_hard_blocker_forbids_escalate
+    - any_reject_class_blocker_requires_reject
+    - otherwise_any_hold_class_blocker_requires_hold
+    - score_policy_applies_only_when_no_hard_blocker_exists
+
+score_policy:
+  zero_blockers:
+    score_8_to_10:
+      required_decision: allow
+    score_0_to_7:
+      forbidden_decision: allow
+      permitted_decisions:
+        - hold
+        - reject
+        - escalate
+  semantic_selection:
+    hold: missing_or_incomplete_evidence
+    reject: unsafe_or_invariant_breaking_transition
+    escalate: conflicting_valid_invariants
+
+machine_use_cases:
+  - validate_orientation_record_json
+  - validate_required_graph_objects
+  - validate_complete_evidence_snapshots
+  - enforce_score_decision_ranges
+  - score_transition_before_commit
+  - detect_missing_exact_head_evidence
+  - detect_omitted_required_hard_blocker
+  - require_artifact_for_baseline_refresh
+  - generate_observer_note_from_failed_transition
+  - update_tuner_rules_from_repeated_patterns

@@ -1,0 +1,13 @@
+{
+  "id": "HTO-INVALID-007",
+  "time_utc": "2026-07-10T04:24:00Z",
+  "repo": "safal207/robys-coffee-house-demo",
+  "pr": "#189",
+  "head_sha": "invalid-missing-scorecard-head",
+  "project_graph": {"invariant": ["Every decision record includes a scorecard."], "forbidden_moves": []},
+  "transition_graph": {"candidate": {"type": "documentation", "description": "Missing scorecard fixture."}, "expected_effect": []},
+  "real_graph": {"evidence_before": {"green": [], "red": [], "missing": []}, "evidence_after": {"green": [], "red": [], "missing": []}},
+  "orientation_center": {"decision": "allow", "reason": "Fixture intentionally omits scorecard.", "next_allowed_move": "Add the scorecard."},
+  "observer_graph": {"pattern": [], "anomaly": [], "risk": []},
+  "tuner_graph": {"rule_update": [], "threshold_update": []}
+}
