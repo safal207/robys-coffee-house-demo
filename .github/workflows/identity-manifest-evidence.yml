@@ -1,0 +1,43 @@
+name: Identity manifest evidence
+
+on:
+  push:
+    branches:
+      - agent/robis-logo-implementation-v1
+
+permissions:
+  contents: read
+
+jobs:
+  generate-manifest:
+    name: Generate exact-head integrity manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify identity contract
+        run: npm run verify:brand-identity
+
+      - name: Generate exact-head manifest
+        run: npm run integrity:generate
+
+      - name: Upload generated manifest
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        with:
+          name: identity-manifest-${{ github.sha }}
+          path: integrity-manifest.json
+          if-no-files-found: error
+          retention-days: 3
