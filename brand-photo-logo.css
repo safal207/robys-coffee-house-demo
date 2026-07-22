@@ -82,6 +82,30 @@
   }
 }
 
+@media(max-width:420px){
+  .discover-header-inner{
+    min-height:auto!important;
+    flex-wrap:wrap!important;
+    gap:6px 10px!important;
+    padding-block:8px!important;
+  }
+
+  .discover-header .brand{
+    order:1!important;
+  }
+
+  .discover-header .discover-back{
+    order:2!important;
+    margin-left:auto!important;
+  }
+
+  .discover-header .language-switcher{
+    order:3!important;
+    width:100%!important;
+    justify-content:flex-end!important;
+  }
+}
+
 @media(max-width:390px){
   .site-header .brand,
   .discover-header .brand{
