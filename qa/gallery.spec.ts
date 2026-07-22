@@ -116,10 +116,11 @@ test("all six responsive posters render inside their square frames", async ({ pa
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
-test("bottom panel leaves the viewport while the gallery is active", async ({ page }) => {
+test("bottom panel remains actionable while the gallery is active", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
   const panel = page.locator(".mobile-cta");
+  const routeAction = panel.locator("a").first();
   const gallery = page.locator(".featured-strip");
   await expect(panel).toBeVisible();
 
@@ -127,8 +128,16 @@ test("bottom panel leaves the viewport while the gallery is active", async ({ pa
   await page.waitForTimeout(350);
 
   await expect(page.locator("body")).toHaveClass(/featured-gallery-active/);
-  await expect(panel).toHaveCSS("opacity", "0");
-  await expect(panel).toHaveCSS("pointer-events", "none");
+  await expect(panel).toHaveCSS("opacity", "1");
+  await expect(panel).toHaveCSS("pointer-events", "auto");
+  await expect(routeAction).toBeVisible();
+
+  const routeBox = await routeAction.boundingBox();
+  expect(routeBox).not.toBeNull();
+  expect(routeBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+
+  await routeAction.focus();
+  await expect(routeAction).toBeFocused();
 });
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
