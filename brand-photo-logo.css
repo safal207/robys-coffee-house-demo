@@ -121,7 +121,7 @@
 
   html body.discover-page #next-pairing,
   html body.discover-page #mark-discovered,
-  html body.menu-page .menu-secondary-button{
+  html body.menu-page .menu-share-actions a{
     min-height:40px!important;
   }
 
