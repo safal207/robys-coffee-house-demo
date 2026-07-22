@@ -32,7 +32,7 @@ installAppleTouchIcon();
 
 const photoLogo = document.createElement("link");
 photoLogo.rel = "stylesheet";
-photoLogo.href = "brand-photo-logo.css?v=20260721-svg-master-1";
+photoLogo.href = "brand-photo-logo.css?v=20260723-identity-v1";
 document.head.append(photoLogo);
 
 if (!installAndroidButtonLogo()) {

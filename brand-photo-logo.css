@@ -1,5 +1,11 @@
 /* Approved asset-based Roby's identity. Letterforms live inside SVG paths,
    so rendering no longer depends on browser fonts or CSS stretching. */
+:root{
+  --robys-brand-red:#E21B23;
+  --robys-brand-ink:#111111;
+  --robys-brand-paper:#F5F5F2;
+}
+
 .brand-copy{
   display:block!important;
   position:relative!important;
@@ -45,7 +51,7 @@
 .discover-header .brand-copy{
   width:286px!important;
   height:58px!important;
-  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260721-master-1")!important;
+  background-image:url("src/brand/robys-header-master-v1.svg?v=20260723-identity-v1")!important;
 }
 
 .menu-page-brand .brand-copy{
