@@ -24,19 +24,13 @@
     },
     "minimumDistinctBindingActors": {
       "L1": 1,
-      "L2": 2,
-      "L3": 2,
-      "L4": 2
+      "L2": 1,
+      "L3": 1,
+      "L4": 1
     },
-    "humanRequiredDepths": ["L2", "L3", "L4"],
+    "humanRequiredDepths": ["L1", "L2", "L3", "L4"],
     "advisoryActorsForbidden": true,
-    "exactDepthMatchRequired": true,
-    "providerLimitWaiver": {
-      "actor": "coderabbit",
-      "status": "QUOTA_EXHAUSTED",
-      "requiresExactHeadSignal": true,
-      "humanStillRequiredAtDepths": ["L2", "L3", "L4"]
-    }
+    "exactDepthMatchRequired": true
   },
   "routes": [
     {
@@ -45,11 +39,11 @@
       "priority": 400,
       "automatic": true,
       "governanceExceptionRequired": false,
-      "label": "Low-risk standard review",
-      "requiredActors": ["coderabbit"],
+      "label": "Low-risk maintainer review",
+      "requiredActors": ["human-maintainer"],
       "stages": [
         { "id": "ci", "kind": "check", "actor": "system" },
-        { "id": "draft-review", "kind": "review", "role": "draft_reviewer", "actor": "coderabbit" }
+        { "id": "draft-review", "kind": "review", "role": "draft_reviewer", "actor": "human-maintainer" }
       ]
     },
     {
@@ -58,29 +52,12 @@
       "priority": 400,
       "automatic": true,
       "governanceExceptionRequired": false,
-      "label": "Product change standard review",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "label": "Product change maintainer review",
+      "requiredActors": ["human-maintainer"],
       "stages": [
         { "id": "ci", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" }
-      ]
-    },
-    {
-      "id": "route-l2-coderabbit-human",
-      "depth": "L2",
-      "priority": 200,
-      "automatic": false,
-      "governanceExceptionRequired": true,
-      "label": "Product change intensified human review",
-      "requiredActors": ["coderabbit", "human-maintainer"],
-      "stages": [
-        { "id": "ci", "kind": "check", "actor": "system" },
-        { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
-        { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
-        { "id": "operator-review", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
       ]
     },
     {
@@ -89,29 +66,11 @@
       "priority": 400,
       "automatic": true,
       "governanceExceptionRequired": false,
-      "label": "Governance full proof route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "label": "Governance maintainer proof route",
+      "requiredActors": ["human-maintainer"],
       "stages": [
         { "id": "trace-pdg", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
-        { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
-        { "id": "proof-seal", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
-      ]
-    },
-    {
-      "id": "route-l3-coderabbit-human",
-      "depth": "L3",
-      "priority": 200,
-      "automatic": false,
-      "governanceExceptionRequired": true,
-      "label": "Governance intensified human proof route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
-      "stages": [
-        { "id": "trace-pdg", "kind": "check", "actor": "system" },
-        { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
-        { "id": "secondary-risk-review", "kind": "review", "role": "risk_critic", "actor": "human-maintainer" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "proof-seal", "kind": "decision", "role": "operator", "actor": "human-maintainer" }
       ]
@@ -122,13 +81,12 @@
       "priority": 400,
       "automatic": true,
       "governanceExceptionRequired": false,
-      "label": "Sensitive action authorization route",
-      "requiredActors": ["coderabbit", "human-maintainer"],
+      "label": "Sensitive action human authorization route",
+      "requiredActors": ["human-maintainer"],
       "stages": [
         { "id": "trace-pdg", "kind": "check", "actor": "system" },
         { "id": "security", "kind": "check", "actor": "system" },
         { "id": "mutations", "kind": "check", "actor": "system" },
-        { "id": "risk-review", "kind": "review", "role": "risk_critic", "actor": "coderabbit" },
         { "id": "evidence-review", "kind": "review", "role": "evidence_verifier", "actor": "human-maintainer" },
         { "id": "human-authorization", "kind": "decision", "role": "authorization_owner", "actor": "human-maintainer" },
         { "id": "action-gate", "kind": "gate", "actor": "system" }
