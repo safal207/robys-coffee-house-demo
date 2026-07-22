@@ -1,0 +1,33 @@
+name: AI review classifier tests
+
+on:
+  pull_request:
+    paths:
+      - scripts/classify-ai-review-evidence.cjs
+      - scripts/test-classify-ai-review-evidence.cjs
+      - scripts/test-classify-ai-review-evidence-auth.cjs
+      - .github/workflows/ai-review-classifier-cases.yml
+
+concurrency:
+  group: ai-review-classifier-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Deterministic classifier cases
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Run classifier cases
+        run: |
+          node scripts/test-classify-ai-review-evidence.cjs
+          node scripts/test-classify-ai-review-evidence-auth.cjs
