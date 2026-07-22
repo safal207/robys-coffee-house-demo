@@ -19,7 +19,7 @@ for (const asset of assets) {
   assert.equal(existsSync(new URL(`../${asset}`, import.meta.url)), true, `missing SVG master: ${asset}`);
 }
 
-assert.match(bootstrap, /brand-photo-logo\.css\?v=20260721-svg-master-1/);
+assert.match(bootstrap, /brand-photo-logo\.css\?v=20260722-ux238-css-v1/);
 assert.match(stylesheet, /robys-primary-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /robys-compact-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /robys-mark-master-v1\.svg\?v=20260721-master-1/);
@@ -37,7 +37,7 @@ assert.match(markMaster, /M50 4C77\.7 4 96 22\.9 96 50\.3/, "standalone mark mus
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-svg-master-1"/);
+assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260722-ux238-css-v1"/);
 for (const asset of assets) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=20260721-master-1"`));
