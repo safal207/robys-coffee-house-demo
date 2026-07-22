@@ -1,0 +1,407 @@
+{
+  "schema_version": "liminalqa-causal-deep-audit-packet-v0.1",
+  "audit_id": "ROBIS-CAUSAL-DEEP-AUDIT-2026-07-22-V0.1",
+  "generated_at": "2026-07-22T20:30:00Z",
+  "target": {
+    "kind": "mixed",
+    "id": "robys-coffee-house-demo",
+    "canonical_origin": "https://safal207.github.io/robys-coffee-house-demo/",
+    "repository_full_name": "safal207/robys-coffee-house-demo",
+    "pull_request_number": 239
+  },
+  "scope": {
+    "included": [
+      "current main repository state",
+      "public Home/Menu/Discover journey represented by repository evidence",
+      "PR 239 mobile conversion and touch-target repair candidate",
+      "CI, review, documentation, causal lineage, analytics and product-impact evidence"
+    ],
+    "excluded": [
+      "authenticated surfaces",
+      "form submission",
+      "active security testing",
+      "load testing",
+      "owner interviews",
+      "POS, revenue, AOV, LTV and physical-visit data",
+      "external contact or disclosure",
+      "deployment or merge"
+    ],
+    "profiles": [
+      "repository main",
+      "PR 239 exact head",
+      "mobile 320/360/390/412",
+      "tablet 768/1024",
+      "desktop 1366/1440",
+      "TR/EN/RU"
+    ],
+    "stop_conditions": [
+      "main SHA changes",
+      "PR 239 head SHA changes",
+      "authorization boundary changes",
+      "live behavior cannot be reproduced from retained evidence"
+    ]
+  },
+  "source_identity": {
+    "identity_type": "mixed",
+    "value": "main@2fcc1de1a44093da399968f9474b30e6213bd793;pr239@5af1042be08bf2b2a492b2ce160402b4d758c59d",
+    "base_sha": "2fcc1de1a44093da399968f9474b30e6213bd793",
+    "head_sha": "5af1042be08bf2b2a492b2ce160402b4d758c59d",
+    "initial_check": "PASS",
+    "final_check": "PASS"
+  },
+  "authority": {
+    "mode": "evidence_only",
+    "allowed": [
+      "read public repository data",
+      "read public CI and review evidence",
+      "compare declared and actual source identities",
+      "produce advisory findings and next actions"
+    ],
+    "prohibited": [
+      "merge",
+      "deploy",
+      "contact the cafe or third parties",
+      "claim measured financial loss",
+      "approve owner data or commercial launch",
+      "perform active security testing"
+    ]
+  },
+  "verdict": {
+    "state": "HOLD",
+    "gate": "ESCALATE",
+    "summary": "The current main has reproducible mobile hierarchy, touch-target and localization risk candidates. PR 239 moves in the correct direction but is not acceptance-ready: its body names a non-existent exact head, the actual head has failing Visual Regression and Taste Poster workflows, and current unresolved review findings remain. Product value is still unproven because browser events are not joined to physical-visit or POS outcomes."
+  },
+  "causal_graph": [
+    {
+      "from": "MAIN-MOBILE-GALLERY-STATE",
+      "relation": "suppresses",
+      "to": "HIGH-INTENT-ROUTE-ACTION"
+    },
+    {
+      "from": "UNDERSIZED-REPEATED-CONTROLS",
+      "relation": "increases",
+      "to": "MOBILE-INTERACTION-FRICTION"
+    },
+    {
+      "from": "PR239-CSS-REPAIR",
+      "relation": "attempts_to_restore",
+      "to": "ROUTE-ACTION-REACHABILITY"
+    },
+    {
+      "from": "STALE-OR-INVALID-EVIDENCE-BINDINGS",
+      "relation": "causes",
+      "to": "PR239-HOLD"
+    },
+    {
+      "from": "LOCAL-ONLY-ANALYTICS-EVENTS",
+      "relation": "cannot_prove",
+      "to": "PHYSICAL-VISIT-OR-PURCHASE"
+    },
+    {
+      "from": "UNCONFIRMED-OWNER-DATA",
+      "relation": "weakens",
+      "to": "PUBLIC-LOCAL-BUSINESS-CLAIM-AUTHORITY"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "ROBIS-001",
+      "title": "PR 239 publishes an invalid exact-head evidence identity",
+      "claim_level": "CONFIRMED_DEFECT",
+      "severity": "HIGH",
+      "confidence": 1.0,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-PR239-METADATA", "TRACE-COMMIT-LOOKUP"],
+      "evidence_refs": ["E-PR239-INFO", "E-B86-NOT-FOUND", "E-PR239-ACTUAL-HEAD"],
+      "causal_parent": "The PR body and acceptance narrative were not regenerated from the actual GitHub head identity.",
+      "competing_explanations": [
+        "the SHA was a transcription error",
+        "the referenced object existed only in an unpushed local repository"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Regenerate the PR body and all acceptance records from GitHub's current head SHA and reject any evidence record whose commit cannot be fetched.",
+      "authority_boundary": "This invalidates the evidence claim only; it does not prove the UX patch itself is wrong."
+    },
+    {
+      "finding_id": "ROBIS-002",
+      "title": "PR 239 current head is not acceptance-ready",
+      "claim_level": "CONFIRMED_DEFECT",
+      "severity": "HIGH",
+      "confidence": 1.0,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-PR239-WORKFLOWS", "TRACE-PR239-REVIEWS"],
+      "evidence_refs": ["E-VISUAL-FAIL", "E-TASTE-POSTER-FAIL", "E-UNRESOLVED-THREADS"],
+      "causal_parent": "Required exact-head gates and current review findings are not all green/resolved on 5af1042be08bf2b2a492b2ce160402b4d758c59d.",
+      "competing_explanations": [
+        "the failures are evidence-maintenance defects rather than customer-facing regressions"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Repair the stale content binding and generated artifacts, resolve current threads with exact-head evidence, then rerun every required workflow on one unchanged SHA.",
+      "authority_boundary": "HOLD means not ready for review/merge; it does not authorize code changes or merge."
+    },
+    {
+      "finding_id": "ROBIS-003",
+      "title": "Mobile featured journey suppresses or delays high-intent visit actions on main",
+      "claim_level": "DEFECT_CANDIDATE",
+      "severity": "HIGH",
+      "confidence": 0.92,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-ISSUE238-FINDING1"],
+      "evidence_refs": ["E-ISSUE238", "E-PR239-CSS-PATCH"],
+      "causal_parent": "The mobile gallery state stacks six posters and hides the persistent Route/Instagram dock through a long scroll segment.",
+      "competing_explanations": [
+        "the gallery may increase product interest enough to offset delayed route access",
+        "users may use browser navigation or other visible links"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Run the bounded 320/360/390/412 journey with route-action visibility, focusability and clickability sampled throughout gallery intersection states.",
+      "authority_boundary": "No visit or revenue loss is claimed without production and POS-linked measurement."
+    },
+    {
+      "finding_id": "ROBIS-004",
+      "title": "Repeated mobile controls fall below the intended touch-target floor on main",
+      "claim_level": "DEFECT_CANDIDATE",
+      "severity": "HIGH",
+      "confidence": 0.95,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-ISSUE238-FINDING2"],
+      "evidence_refs": ["E-ISSUE238", "E-PR239-TOUCH-PATCH"],
+      "causal_parent": "Language, Maps/share and Discover pairing controls have measured boxes below the intended 40/44 CSS px floor across several profiles.",
+      "competing_explanations": [
+        "visual control size may differ from the actual clickable hit area"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Measure actual element bounding boxes and keyboard focus rings after settled render across every declared mobile/tablet profile.",
+      "authority_boundary": "This is a usability/accessibility risk candidate, not a claim of legal non-compliance."
+    },
+    {
+      "finding_id": "ROBIS-005",
+      "title": "Promotional poster copy does not fully follow the selected locale",
+      "claim_level": "DEFECT_CANDIDATE",
+      "severity": "MEDIUM",
+      "confidence": 0.9,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-ISSUE238-FINDING3"],
+      "evidence_refs": ["E-ISSUE238"],
+      "causal_parent": "English promotional text is baked into image assets while the surrounding interface switches among Turkish, English and Russian.",
+      "competing_explanations": [
+        "English product language may be an intentional visual-brand choice"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Capture one phone and one desktop profile for TR/EN/RU and compare visible image text with semantic accessible names and locale state.",
+      "authority_boundary": "Human brand/owner adjudication is required before classifying intentional English branding as an error."
+    },
+    {
+      "finding_id": "ROBIS-006",
+      "title": "Public address and opening-hours claims lack explicit owner-approval lineage",
+      "claim_level": "PRODUCT_SIGNAL",
+      "severity": "HIGH",
+      "confidence": 0.88,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-README-OWNER-GAP", "TRACE-INDEX-STRUCTURED-DATA"],
+      "evidence_refs": ["E-README", "E-INDEX"],
+      "causal_parent": "README still requires owner confirmation while public structured data asserts a street address and daily 09:00-00:00 hours.",
+      "causal_gap_code": "CML-AUDIT-R1-MISSING_PARENT",
+      "competing_explanations": [
+        "the owner may have approved the data outside the repository and the README is stale"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Add a dated owner-approved business-data record and bind JSON-LD, visible copy, Maps destination and tests to that source of truth.",
+      "authority_boundary": "The audit cannot determine the real-world address or hours without owner evidence."
+    },
+    {
+      "finding_id": "ROBIS-007",
+      "title": "Current analytics cannot prove visit, purchase or revenue impact",
+      "claim_level": "CONFIRMED_DEFECT",
+      "severity": "HIGH",
+      "confidence": 0.98,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-ANALYTICS-CODE", "TRACE-PRODUCT-LENS"],
+      "evidence_refs": ["E-ANALYTICS", "E-PR217"],
+      "causal_parent": "analytics.js buffers browser events and pushes to window.dataLayer, but repository evidence does not join those events to an external analytics sink, physical visit or POS purchase.",
+      "competing_explanations": [
+        "an external deployment layer may inject a collector not represented in the repository"
+      ],
+      "impact_class": "UNKNOWN",
+      "next_discriminating_test": "Define a privacy-safe campaign/session token and reconcile route/menu intent with a cafe-side or POS outcome under an approved measurement plan.",
+      "authority_boundary": "No conversion, AOV, LTV or revenue uplift may be claimed from click events alone."
+    },
+    {
+      "finding_id": "ROBIS-008",
+      "title": "README no longer describes the actual build and runtime architecture",
+      "claim_level": "CONFIRMED_DEFECT",
+      "severity": "MEDIUM",
+      "confidence": 1.0,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-README-PACKAGE-COMPARE"],
+      "evidence_refs": ["E-README", "E-PACKAGE", "E-INDEX"],
+      "causal_parent": "README says there is no build step or external JavaScript dependency while package.json defines a build pipeline with TypeScript/esbuild and the page loads multiple scripts, PWA and analytics modules.",
+      "competing_explanations": [
+        "README describes only a historical MVP deployment mode"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Rewrite setup/deploy documentation from the current package scripts and verify a clean-clone build/deploy path in CI.",
+      "authority_boundary": "This finding concerns repository documentation, not customer-facing runtime correctness."
+    },
+    {
+      "finding_id": "ROBIS-009",
+      "title": "Open stacked and superseded PRs obscure the current source of truth",
+      "claim_level": "PRODUCT_SIGNAL",
+      "severity": "MEDIUM",
+      "confidence": 0.9,
+      "reproduction_status": "REPRODUCED",
+      "trace_refs": ["TRACE-OPEN-PR-INVENTORY"],
+      "evidence_refs": ["E-OPEN-PRS"],
+      "causal_parent": "At least 21 open PRs include stacked governance experiments, old mobile repairs and product work based on different ancestors.",
+      "competing_explanations": [
+        "the PR set may intentionally function as a research archive"
+      ],
+      "impact_class": "QUALITATIVE",
+      "next_discriminating_test": "Classify every open PR as active, blocked, superseded, archive or close-now, then keep one current implementation chain per product objective.",
+      "authority_boundary": "The audit recommends triage but cannot close or merge PRs without an explicit action request."
+    }
+  ],
+  "evidence_ledger": [
+    {
+      "evidence_id": "E-MAIN-IDENTITY",
+      "type": "repository",
+      "status": "PASS",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "main@2fcc1de1a44093da399968f9474b30e6213bd793",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PR239-ACTUAL-HEAD",
+      "type": "repository",
+      "status": "PASS",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR239@5af1042be08bf2b2a492b2ce160402b4d758c59d",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-B86-NOT-FOUND",
+      "type": "repository",
+      "status": "FAIL",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "commit b86e12aab696f8c609e149789fd21266cce8cd94 returned no commit",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-VISUAL-FAIL",
+      "type": "repository",
+      "status": "FAIL",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "workflow run 29953446912; Validate reviewed visual change failed",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-TASTE-POSTER-FAIL",
+      "type": "repository",
+      "status": "FAIL",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "workflow run 29953446888; Reject stale generated files failed",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-UNRESOLVED-THREADS",
+      "type": "review",
+      "status": "FAIL",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR 239 current non-outdated unresolved review threads",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-ISSUE238",
+      "type": "rendered",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "issue 238 exact-head design evidence and acceptance criteria",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-README",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "README.md@main",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PACKAGE",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "package.json@main",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-INDEX",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "index.html@main",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-ANALYTICS",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "analytics.js@main",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PR217",
+      "type": "measurement",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR 217 PRODUCT_PATH_REVIEWED_WITH_GAPS / VALUE_UNPROVEN",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-OPEN-PRS",
+      "type": "repository",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "open PR inventory on 2026-07-22",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PR239-CSS-PATCH",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR 239 brand-photo-logo.css patch",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PR239-TOUCH-PATCH",
+      "type": "source",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR 239 44px touch-target rules",
+      "integrity": "VERIFIED"
+    },
+    {
+      "evidence_id": "E-PR239-INFO",
+      "type": "repository",
+      "status": "OBSERVED",
+      "observed_at": "2026-07-22T20:30:00Z",
+      "ref": "PR 239 metadata/body comparison",
+      "integrity": "VERIFIED"
+    }
+  ],
+  "limitations": [
+    "The web fetcher did not open the GitHub Pages URL directly, so this packet relies on current repository, issue, workflow and retained rendered-evidence records rather than a new independent live-browser capture.",
+    "No cafe owner approval record, production analytics backend, physical-visit data or POS data was available.",
+    "Severity describes plausible impact under the supported scope; it is not a measured revenue-loss estimate.",
+    "PR and main identities are intentionally fail-closed and make this packet stale when either SHA changes."
+  ],
+  "next_action": {
+    "class": "RUN_DISCRIMINATING_TEST",
+    "action": "Repair PR 239's exact-head metadata, content binding, generated artifacts and current review findings; then run the complete mobile UI/UX, visual, gallery, Lighthouse, iOS and security matrix on one unchanged head before human adjudication.",
+    "owner_or_authority": "Robis maintainer / human D6 reviewer",
+    "completion_signal": "PR body, all evidence records and every required green workflow reference the same fetchable 40-character head SHA, with zero current unresolved actionable threads.",
+    "stop_condition": "Any head movement, missing artifact, stale owner data, failed required check or unavailable load-bearing evidence returns the transition to HOLD."
+  }
+}
