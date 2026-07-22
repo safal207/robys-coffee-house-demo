@@ -6,7 +6,7 @@ const APPROVED_INK = "#111111";
 const APPROVED_PAPER = "#F5F5F2";
 const IDENTITY_REVISION = "20260723-identity-v1";
 const ICON_SIZES = [16, 32, 48, 192, 512];
-const APPLE_TOUCH_ICON_SHA256 = "0a3e9761774ee1f41f227d2e9e0d0a96f8288d7698c4213bb009a4959997a4d0";
+const APPLE_TOUCH_ICON_SHA256 = "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8";
 
 function read(path) {
   return readFileSync(path, "utf8");
