@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate-manifest:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref_name }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -53,3 +53,16 @@ jobs:
         run: |
           cat identity-verifier.log
           test "${{ steps.identity.outcome }}" = "success"
+
+      - name: Commit exact-head integrity manifest
+        if: github.event_name == 'push'
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "chore: refresh identity integrity manifest"
+          git push origin HEAD:${GITHUB_REF_NAME}
