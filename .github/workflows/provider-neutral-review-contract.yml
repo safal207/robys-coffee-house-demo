@@ -63,33 +63,8 @@ jobs:
           npm run test:review-routing
           npm run verify:ai-style-matrix
 
-      - name: Reject removed provider references
-        run: |
-          set -euo pipefail
-          if git grep -In -E 'CodeRabbit|coderabbit|@coderabbitai' -- \
-            ':!.github/workflows/provider-neutral-review-contract.yml' \
-            ':!scripts/test-provider-neutral-removal.mjs' \
-            ':!docs/provider-neutral-review-governance.md'; then
-            echo 'Removed review provider is still referenced by active repository files.' >&2
-            exit 1
-          fi
-          test ! -e .coderabbit.yaml
-          test ! -e .github/workflows/coderabbit-reserve.yml
-          test ! -e .github/workflows/coderabbit-reserve-contract.yml
-          test ! -e .github/workflows/ai-review-contract.yml
-          test ! -e .github/workflows/ai-review-cooperation.yml
-          test ! -e .github/workflows/ai-review-cooperation-contract.yml
-          test ! -e .github/workflows/ai-review-cooperation-recovery.yml
-          test ! -e .github/workflows/ai-review-cooperation-recovery-contract.yml
-          test ! -e .github/workflows/ai-review-cooperation-publisher-v2.yml
-          test ! -e .github/workflows/ai-review-cooperation-publisher-v2-contract.yml
-          test ! -e scripts/coderabbit-reserve.cjs
-          test ! -e scripts/test-coderabbit-reserve.cjs
-          test ! -e scripts/verify-ai-review-contract.cjs
-          test ! -e scripts/test-codex-review-contract.cjs
-          test ! -e scripts/verify-ai-review-freshness.mjs
-          test ! -e scripts/ai-review-cooperation.py
-          test ! -e scripts/test-ai-review-cooperation.py
+      - name: Reject removed provider traces
+        run: node scripts/test-provider-neutral-removal.mjs
 
       - name: Parse governance workflow YAML
         run: |
