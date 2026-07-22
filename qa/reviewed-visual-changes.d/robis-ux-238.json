@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "robis-mobile-touch-targets-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/239",
+      "contentBindings": {
+        "brand-photo-logo.css": "5ff73d13d444bbe4082b7523de10788affec97d3"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6360 vs 320x6367"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2652 vs 320x2688"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x526 vs 280x533"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x721 vs 280x740"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.011067708333333334
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 320x501 vs 320x508"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.05218880027739251
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6164 vs 390x6171"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2708 vs 390x2727"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.005905128205128205
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.004474992687920444
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 350x501 vs 350x508"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.03707057256990679
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7111 vs 768x7118"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x423 vs 728x430"
+        }
+      ]
+    }
+  ]
+}
