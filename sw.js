@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v19-20260710-pwa-startup-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v24-20260722-svg-master-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -25,6 +25,11 @@ const CORE_ASSETS = [
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
+  "./brand-photo-logo.css?v=20260721-svg-master-1",
+  "./src/brand/robys-primary-master-v1.svg?v=20260721-master-1",
+  "./src/brand/robys-compact-master-v1.svg?v=20260721-master-1",
+  "./src/brand/robys-mobile-master-v1.svg?v=20260721-master-1",
+  "./src/brand/robys-mark-master-v1.svg?v=20260721-master-1",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",
@@ -42,6 +47,7 @@ const CORE_ASSETS = [
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
   "./discover-rotation-v3.js?v=58d387ca0c01",
+  "./src/brand/robys-organic-ring.svg?v=20260720-1",
   "./src/pairings-data/final/cool-lime-macaron-hq.webp",
   "./src/pairings-data/approved/iced-san-sebastian-hq.png",
   "./src/products/cards/pairing-cool-lime-macaron.webp",
@@ -80,11 +86,29 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/discover-rotation.css") ||
     url.pathname.endsWith("/qa.js") ||
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
-    url.pathname.endsWith("/wordmark-responsive.css");
+    url.pathname.endsWith("/wordmark-responsive.css") ||
+    url.pathname.endsWith("/brand-photo-logo.css") ||
+    url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
+    url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
+    url.pathname.endsWith("/src/brand/robys-mobile-master-v1.svg") ||
+    url.pathname.endsWith("/src/brand/robys-mark-master-v1.svg") ||
+    url.pathname.endsWith("/src/brand/robys-organic-ring.svg");
   if (requiresExactRevision) {
     return cache.match(request);
   }
   return cache.match(request, { ignoreSearch: true });
+}
+
+async function runtimeAssetResponse(request) {
+  const cached = await cachedResponse(request);
+  if (cached) return cached;
+
+  const network = await fetch(request);
+  if (network.ok) {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.put(request, network.clone()).catch(() => {});
+  }
+  return network;
 }
 
 async function cachedPage(name) {
@@ -117,30 +141,14 @@ async function navigationResponse(request) {
 }
 
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
-  if (request.method !== "GET") return;
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
 
-  const url = new URL(request.url);
-  if (request.mode === "navigate") {
-    event.respondWith(navigationResponse(request));
+  if (event.request.mode === "navigate") {
+    event.respondWith(navigationResponse(event.request));
     return;
   }
 
-  if (url.origin !== self.location.origin) return;
-
-  event.respondWith((async () => {
-    const cached = await cachedResponse(request);
-    if (cached) return cached;
-
-    try {
-      const network = await fetch(request);
-      if (network.ok) {
-        const cache = await caches.open(CACHE_VERSION);
-        cache.put(request, network.clone()).catch(() => {});
-      }
-      return network;
-    } catch {
-      return Response.error();
-    }
-  })());
+  event.respondWith(runtimeAssetResponse(event.request));
 });

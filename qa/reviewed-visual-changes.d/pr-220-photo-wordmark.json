@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-220-approved-svg-master-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/220#pullrequestreview-4751198924",
+      "contentBindings": {
+        "brand-photo-logo.css": "0cc13bf808bd9d465bfc34d1c24869a34c6d3a68",
+        "src/brand/robys-primary-master-v1.svg": "5f9319aa698f6034b46ccc4cee7c8e14bb5e3d3b",
+        "src/brand/robys-compact-master-v1.svg": "493a6e2cef0c7fa5d84d2fc2cbb9c57e267921a8",
+        "src/brand/robys-mobile-master-v1.svg": "5c23a94a5b8dd5f197af18d00777b28213b50c13",
+        "src/brand/robys-mark-master-v1.svg": "a536411fb81bcc737b6f344ff27e002f5590e2c0"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6353 vs 320x6360"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x527 vs 280x526"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "totalPixels": 230400,
+          "maxDiffPixelRatio": 0.0054
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 160320,
+          "maxDiffPixelRatio": 0.0198
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "totalPixels": 230720,
+          "maxDiffPixelRatio": 0.016
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6156 vs 390x6164"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "totalPixels": 390000,
+          "maxDiffPixelRatio": 0.0032
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 175350,
+          "maxDiffPixelRatio": 0.0082
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7088 vs 768x7111"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "totalPixels": 2111232,
+          "maxDiffPixelRatio": 0.0055
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x424 vs 728x423"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "totalPixels": 843752,
+          "maxDiffPixelRatio": 0.0132
+        },
+        {
+          "capture": "hero",
+          "viewport": "laptop-1366",
+          "totalPixels": 1049088,
+          "maxDiffPixelRatio": 0.0142
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "totalPixels": 1240328,
+          "maxDiffPixelRatio": 0.0108
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "totalPixels": 370520,
+          "maxDiffPixelRatio": 0.0043
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "laptop-1366",
+          "totalPixels": 803580,
+          "maxDiffPixelRatio": 0.0058
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6980 vs 1440x6995"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4845 vs 1440x4868"
+        },
+        {
+          "capture": "hero",
+          "viewport": "desktop-1440",
+          "totalPixels": 1584000,
+          "maxDiffPixelRatio": 0.0093
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1180x320 vs 1180x319"
+        }
+      ]
+    }
+  ]
+}

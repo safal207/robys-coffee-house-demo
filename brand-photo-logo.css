@@ -1,0 +1,112 @@
+/* Approved asset-based Roby's identity. Letterforms live inside SVG paths,
+   so rendering no longer depends on browser fonts or CSS stretching. */
+.brand-copy{
+  display:block!important;
+  position:relative!important;
+  width:180px!important;
+  height:58px!important;
+  flex:0 0 auto!important;
+  background:url("src/brand/robys-compact-master-v1.svg?v=20260721-master-1") center/contain no-repeat!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+}
+
+.brand-copy strong,
+.brand-copy small{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  margin:-1px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+  border:0!important;
+  background:none!important;
+}
+
+.brand-copy strong::before,
+.brand-copy strong::after{
+  content:none!important;
+  display:none!important;
+}
+
+.menu-page-brand-tagline{
+  display:none!important;
+}
+
+.site-header .brand,
+.discover-header .brand{
+  overflow:hidden!important;
+}
+
+.site-header .brand-copy,
+.discover-header .brand-copy{
+  width:286px!important;
+  height:58px!important;
+  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260721-master-1")!important;
+}
+
+.menu-page-brand .brand-copy{
+  width:min(530px,84vw)!important;
+  height:112px!important;
+  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260721-master-1")!important;
+}
+
+.menu-page-mark::before{
+  border:0!important;
+  border-radius:0!important;
+  background:url("src/brand/robys-mark-master-v1.svg?v=20260721-master-1") center/contain no-repeat!important;
+}
+
+@media(max-width:680px){
+  .site-header .brand,
+  .discover-header .brand{
+    max-width:128px!important;
+    padding:6px 8px!important;
+    overflow:hidden!important;
+  }
+
+  .site-header .brand-copy,
+  .discover-header .brand-copy{
+    display:block!important;
+    width:108px!important;
+    height:39px!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260721-master-1")!important;
+  }
+
+  .menu-page-brand .brand-copy{
+    width:min(370px,84vw)!important;
+    height:84px!important;
+  }
+}
+
+@media(max-width:390px){
+  .site-header .brand,
+  .discover-header .brand{
+    max-width:112px!important;
+    padding:5px 7px!important;
+  }
+
+  .site-header .brand-copy,
+  .discover-header .brand-copy{
+    width:96px!important;
+    height:35px!important;
+  }
+}
+
+@media(max-width:340px){
+  .discover-header .brand{
+    width:96px!important;
+    max-width:96px!important;
+    padding:5px 6px!important;
+  }
+
+  body.discover-page .discover-header .brand-copy{
+    display:block!important;
+    width:82px!important;
+    height:31px!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260721-master-1")!important;
+  }
+}
