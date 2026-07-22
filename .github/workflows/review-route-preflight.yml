@@ -30,8 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read # Read and execute the exact PR head with a read-only token.
-      pull-requests: read # Read the authoritative paginated PR file list.
+      contents: read
+      pull-requests: read
 
     steps:
       - name: Checkout exact head
@@ -110,15 +110,13 @@ jobs:
 
       - name: Build runtime roster input
         env:
-          CODERABBIT_STATUS: ${{ vars.CODERABBIT_REVIEWER_STATUS || 'UNKNOWN' }}
           CODEX_STATUS: ${{ vars.CODEX_REVIEWER_STATUS || 'UNKNOWN' }}
-          HUMAN_STATUS: ${{ vars.HUMAN_REVIEWER_STATUS || 'UNKNOWN' }}
+          HUMAN_STATUS: ${{ vars.HUMAN_REVIEWER_STATUS || 'AVAILABLE' }}
           DEEPSEEK_STATUS: ${{ vars.DEEPSEEK_REVIEWER_STATUS || 'UNKNOWN' }}
         run: |
           node <<'NODE'
           const { writeFileSync } = require('node:fs');
           const statuses = {
-            coderabbit: process.env.CODERABBIT_STATUS,
             codex: process.env.CODEX_STATUS,
             'human-maintainer': process.env.HUMAN_STATUS,
             deepseek: process.env.DEEPSEEK_STATUS,

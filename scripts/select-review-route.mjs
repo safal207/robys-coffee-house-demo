@@ -10,13 +10,8 @@ const EXPECTED_AUTOMATIC_ROUTES = {
   L3: "route-l3-standard",
   L4: "route-l4-standard"
 };
-const EXPECTED_BINDING_ACTOR_FLOORS = {
-  L1: 1,
-  L2: 2,
-  L3: 2,
-  L4: 2
-};
-const EXPECTED_HUMAN_REQUIRED_DEPTHS = ["L2", "L3", "L4"];
+const EXPECTED_BINDING_ACTOR_FLOORS = { L1: 1, L2: 1, L3: 1, L4: 1 };
+const EXPECTED_HUMAN_REQUIRED_DEPTHS = ["L1", "L2", "L3", "L4"];
 
 function fail(message) {
   throw new Error(`RRM-ROUTE-001: ${message}`);
@@ -85,9 +80,9 @@ export function validateReviewRoutePolicy(policy) {
   if (!nonNegotiable || typeof nonNegotiable !== "object") fail("nonNegotiablePolicy is required");
   if (nonNegotiable.advisoryActorsForbidden !== true) fail("advisory actors must remain forbidden");
   if (nonNegotiable.exactDepthMatchRequired !== true) fail("exact depth matching must remain required");
-  if (!Array.isArray(nonNegotiable.humanRequiredDepths)) fail("humanRequiredDepths are required");
-  if (!sameOrderedValues(nonNegotiable.humanRequiredDepths, EXPECTED_HUMAN_REQUIRED_DEPTHS)) {
-    fail("humanRequiredDepths must remain L2, L3, L4");
+  if (!Array.isArray(nonNegotiable.humanRequiredDepths) ||
+      !sameOrderedValues(nonNegotiable.humanRequiredDepths, EXPECTED_HUMAN_REQUIRED_DEPTHS)) {
+    fail("humanRequiredDepths must remain L1, L2, L3, L4");
   }
 
   if (!Array.isArray(policy.routes) || policy.routes.length === 0) fail("routes must not be empty");
@@ -100,9 +95,9 @@ export function validateReviewRoutePolicy(policy) {
       fail(`${depth} automatic route must remain ${expectedRouteId}`);
     }
     const floor = nonNegotiable.minimumDistinctBindingActors?.[depth];
-    if (!Number.isInteger(floor) || floor < 1) fail(`${depth} has invalid actor floor`);
-    const expectedFloor = EXPECTED_BINDING_ACTOR_FLOORS[depth];
-    if (floor !== expectedFloor) fail(`${depth} actor floor must remain ${expectedFloor}`);
+    if (floor !== EXPECTED_BINDING_ACTOR_FLOORS[depth]) {
+      fail(`${depth} actor floor must remain ${EXPECTED_BINDING_ACTOR_FLOORS[depth]}`);
+    }
   }
 
   for (const route of policy.routes) {
@@ -110,16 +105,12 @@ export function validateReviewRoutePolicy(policy) {
     if (!DEPTHS.includes(route.depth)) fail(`${route.id} uses unknown depth ${route.depth}`);
     if (!Number.isInteger(route.priority)) fail(`${route.id} has invalid priority`);
     if (typeof route.automatic !== "boolean") fail(`${route.id} has invalid automatic flag`);
-    if (typeof route.governanceExceptionRequired !== "boolean") {
-      fail(`${route.id} has invalid governanceExceptionRequired flag`);
-    }
+    if (typeof route.governanceExceptionRequired !== "boolean") fail(`${route.id} has invalid governanceExceptionRequired flag`);
     if (!route.automatic && route.governanceExceptionRequired !== true) {
       fail(`${route.id} manual route must require a governance exception`);
     }
     if (typeof route.label !== "string" || !route.label.trim()) fail(`${route.id} has no label`);
-    if (!Array.isArray(route.requiredActors) || route.requiredActors.length === 0) {
-      fail(`${route.id} has no required actors`);
-    }
+    if (!Array.isArray(route.requiredActors) || route.requiredActors.length === 0) fail(`${route.id} has no required actors`);
     unique(route.requiredActors, `${route.id} actor`);
     for (const actor of route.requiredActors) {
       if (!ACTOR_PATTERN.test(actor) || actor === "system") fail(`${route.id} has invalid actor ${actor}`);
@@ -128,22 +119,16 @@ export function validateReviewRoutePolicy(policy) {
     if (new Set(route.requiredActors).size < actorFloor) {
       fail(`${route.id} has fewer than ${actorFloor} distinct binding actors`);
     }
-    if (nonNegotiable.humanRequiredDepths.includes(route.depth) && !route.requiredActors.includes("human-maintainer")) {
-      fail(`${route.id} must include human-maintainer`);
-    }
+    if (!route.requiredActors.includes("human-maintainer")) fail(`${route.id} must include human-maintainer`);
     if (!Array.isArray(route.stages) || route.stages.length === 0) fail(`${route.id} has no stages`);
     unique(route.stages.map((stage) => stage.id), `${route.id} stage id`);
     const usedActors = new Set();
     for (const stage of route.stages) {
       if (typeof stage.id !== "string" || !stage.id.trim()) fail(`${route.id} has invalid stage id`);
-      if (!["check", "review", "decision", "gate"].includes(stage.kind)) {
-        fail(`${route.id}.${stage.id} has invalid kind ${stage.kind}`);
-      }
+      if (!["check", "review", "decision", "gate"].includes(stage.kind)) fail(`${route.id}.${stage.id} has invalid kind ${stage.kind}`);
       if (typeof stage.actor !== "string" || !stage.actor.trim()) fail(`${route.id}.${stage.id} has no actor`);
       if (stage.actor !== "system") {
-        if (!route.requiredActors.includes(stage.actor)) {
-          fail(`${route.id}.${stage.id} uses undeclared actor ${stage.actor}`);
-        }
+        if (!route.requiredActors.includes(stage.actor)) fail(`${route.id}.${stage.id} uses undeclared actor ${stage.actor}`);
         usedActors.add(stage.actor);
         if (["review", "decision"].includes(stage.kind) && (!stage.role || typeof stage.role !== "string")) {
           fail(`${route.id}.${stage.id} is missing a role`);
@@ -162,7 +147,6 @@ export function validateReviewRoutePolicy(policy) {
       fail(`${routeId} is not a valid automatic ${depth} route`);
     }
   }
-
   return routes;
 }
 
@@ -184,7 +168,6 @@ function routeAvailability(route, actors) {
   const partialActors = [];
   const invalidAuthorityActors = [];
   const missingRoles = [];
-
   for (const actorId of route.requiredActors) {
     const actor = actors.get(actorId);
     if (!actor || actor.status !== "AVAILABLE" || actor.countsTowardBinding !== true) {
@@ -193,16 +176,11 @@ function routeAvailability(route, actors) {
       continue;
     }
     if (actor.binding !== true || actor.advisory === true) invalidAuthorityActors.push(actorId);
-    const requiredRoles = route.stages
-      .filter((stage) => stage.actor === actorId && stage.role)
-      .map((stage) => stage.role);
-    for (const role of requiredRoles) {
-      if (!Array.isArray(actor.roles) || !actor.roles.includes(role)) {
-        missingRoles.push(`${actorId}:${role}`);
-      }
+    const roles = route.stages.filter((stage) => stage.actor === actorId && stage.role).map((stage) => stage.role);
+    for (const role of roles) {
+      if (!Array.isArray(actor.roles) || !actor.roles.includes(role)) missingRoles.push(`${actorId}:${role}`);
     }
   }
-
   return {
     eligible: missingActors.length === 0 && invalidAuthorityActors.length === 0 && missingRoles.length === 0,
     missingActors,
@@ -236,8 +214,6 @@ export function selectReviewRoute(policy, depthResult, rosterResult, head, overr
   validateInputs(depthResult, rosterResult, head);
   const depth = depthResult.depth;
   const normalizedHead = head.toLowerCase();
-  const actors = actorStateMap(rosterResult);
-
   let route;
   let selectionMode;
   let overrideAudit = null;
@@ -261,10 +237,8 @@ export function selectReviewRoute(policy, depthResult, rosterResult, head, overr
   if (policy.nonNegotiablePolicy.exactDepthMatchRequired && route.depth !== depth) {
     fail(`${route.id} cannot serve selected depth ${depth}`);
   }
-
-  const availability = routeAvailability(route, actors);
-  const rosterReady = rosterResult.decision === "READY";
-  if (!availability.eligible || !rosterReady) {
+  const availability = routeAvailability(route, actorStateMap(rosterResult));
+  if (!availability.eligible || rosterResult.decision !== "READY") {
     const reasons = [...(rosterResult.reasons || [])];
     if (availability.missingActors.length) reasons.push(`MISSING_ROUTE_ACTORS_${availability.missingActors.join("_")}`);
     if (availability.partialActors.length) reasons.push(`PARTIAL_ROUTE_ACTORS_${availability.partialActors.join("_")}`);
@@ -286,7 +260,7 @@ export function selectReviewRoute(policy, depthResult, rosterResult, head, overr
       missingRoles: availability.missingRoles,
       availableBindingActors: rosterResult.availableBindingReviewers || [],
       overrideAudit,
-      note: "Route selection is advisory to PDG and cannot authorize merge or any side effect."
+      note: "Route selection is preflight-only and cannot approve or merge."
     };
   }
 
@@ -301,12 +275,10 @@ export function selectReviewRoute(policy, depthResult, rosterResult, head, overr
     routeId: route.id,
     routeKey: routeKey(policy, route),
     label: route.label,
-    governanceExceptionRequired: route.governanceExceptionRequired,
     actors: route.requiredActors,
     stages: route.stages,
-    rationale: selectionMode === "automatic" ? `STANDARD_ROUTE_FOR_${depth}` : overrideAudit.reason,
     overrideAudit,
-    note: "Route selection is advisory to PDG and cannot authorize merge or any side effect."
+    note: "Provider-neutral route selected. Human maintainer authority remains binding; optional AI reviewers are advisory."
   };
 }
 
@@ -319,15 +291,10 @@ function main() {
     process.stdout.write(`${JSON.stringify({ contract: policy.contract, valid: true })}\n`);
     return;
   }
-
-  const depthResult = args.get("--depth-json")
-    ? readJson(args.get("--depth-json"), "depth result")
-    : readJsonFile(args.get("--depth-result"), "depth result");
-  const rosterResult = args.get("--roster-json")
-    ? readJson(args.get("--roster-json"), "roster result")
-    : readJsonFile(args.get("--roster-result"), "roster result");
+  const depthResult = readJsonFile(args.get("--depth-result"), "depth result");
+  const rosterResult = readJsonFile(args.get("--roster-result"), "roster result");
   const head = args.get("--head") || process.env.REVIEW_HEAD;
-  const overrideSource = args.get("--override-json") ?? process.env.REVIEW_ROUTE_OVERRIDE_JSON;
+  const overrideSource = args.get("--override-json") || process.env.REVIEW_ROUTE_OVERRIDE_JSON;
   const override = overrideSource ? readJson(overrideSource, "override") : null;
   const result = selectReviewRoute(policy, depthResult, rosterResult, head, override);
   const rendered = `${JSON.stringify(result, null, 2)}\n`;

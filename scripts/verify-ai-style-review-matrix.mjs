@@ -5,10 +5,9 @@ const matrix = JSON.parse(readFileSync("qa/ai-style-review-matrix.json", "utf8")
 const uiUx = JSON.parse(readFileSync("qa/ui-ux-matrix.json", "utf8"));
 const visual = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
+const reviewerRoster = JSON.parse(readFileSync("qa/reviewer-roster.json", "utf8"));
 const workflow = readFileSync(".github/workflows/visual-regression.yml", "utf8");
-const aiWorkflow = readFileSync(".github/workflows/ai-review-contract.yml", "utf8");
-const aiVerifier = readFileSync("scripts/verify-ai-review-contract.cjs", "utf8");
-const aiContract = `${aiWorkflow}\n${aiVerifier}`;
+const reviewLedger = readFileSync(".github/workflows/review-ledger.yml", "utf8");
 const uiRunner = readFileSync("scripts/ui-ux-matrix.mjs", "utf8");
 const socialVerifier = readFileSync("scripts/verify-social-network-live.mjs", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
@@ -20,6 +19,7 @@ const requiredLenses = ["max", "qwen", "grok", "manus", "gemini", "gpt", "claude
 const expectedCoverage = new Set(matrix.requiredCoverage ?? []);
 const results = [];
 const canonicalInstagramLiteral = /["']https:\/\/www\.instagram\.com\/robyscoffeehouse\/["']/;
+const removedProviderPattern = new RegExp(["code", "rabbit"].join(""), "i");
 
 function fail(message) {
   throw new Error(`[AI-STYLE-001] ${message}`);
@@ -118,12 +118,14 @@ record("gpt", [
   ["changed UI styles use content-revisioned URLs", /social-offer\.css\?v=[0-9a-f]{12}/i.test(indexHtml) && /discover\.css\?v=[0-9a-f]{12}/i.test(discoverHtml)]
 ]);
 
+const humanMaintainer = reviewerRoster.reviewers.find((reviewer) => reviewer.id === "human-maintainer");
+const removedProviderPresent = reviewerRoster.reviewers.some((reviewer) => removedProviderPattern.test(`${reviewer.id} ${reviewer.label}`));
 record("claude", [
   ["keyboard focus requires a focus-specific visual change", uiRunner.includes("focusVisible && focused.cueChanged")],
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["AI evidence is tied to trusted-base CodeRabbit exact-head review or authenticated quota waiver", aiWorkflow.includes("github.event.pull_request.base.sha") && aiWorkflow.includes("verify-ai-review-contract.cjs") && aiContract.includes("currentHead") && aiContract.includes("commit_id") && aiContract.includes("CODERABBIT_COMMAND") && aiContract.includes("latestCodeRabbitLimitSignal") && aiContract.includes("provider-limit-bypass") && aiContract.includes("DORMANT_PROVIDER_NAMES") && !aiContract.includes("QODO_COMMAND")]
+  ["review authority is provider-neutral and maintainer-bound", humanMaintainer?.binding === true && humanMaintainer?.kind === "human" && !removedProviderPresent && reviewLedger.includes("Independent-Review:") && !removedProviderPattern.test(reviewLedger)]
 ]);
 
 const report = {

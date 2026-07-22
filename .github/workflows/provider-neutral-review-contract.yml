@@ -1,0 +1,79 @@
+name: Provider-neutral review contract
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Provider-neutral review governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Scan for removed provider traces
+        id: provider_scan
+        continue-on-error: true
+        env:
+          PROVIDER_SCAN_REPORT: ${{ runner.temp }}/provider-neutral-scan-report.json
+        run: node scripts/test-provider-neutral-removal.mjs
+
+      - name: Upload provider-removal diagnostics
+        if: steps.provider_scan.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: provider-neutral-scan-${{ github.run_id }}
+          path: ${{ runner.temp }}/provider-neutral-scan-report.json
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Surface provider-removal failure
+        if: steps.provider_scan.outcome == 'failure'
+        env:
+          PROVIDER_SCAN_REPORT: ${{ runner.temp }}/provider-neutral-scan-report.json
+        run: |
+          cat "${PROVIDER_SCAN_REPORT}"
+          exit 1
+
+      - name: Run provider-neutral governance tests
+        run: |
+          npm run verify:proof-depth
+          npm run test:proof-depth
+          npm run verify:review-routing
+          npm run test:review-routing
+          npm run verify:ai-style-matrix
+
+      - name: Parse governance workflow YAML
+        run: |
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/review-route-preflight.yml'); YAML.parse_file('.github/workflows/provider-neutral-review-contract.yml')"
+
+      - name: Validate embedded ledger JavaScript
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'tempfile'
+          workflow = YAML.load_file('.github/workflows/review-ledger.yml')
+          script = workflow.dig('jobs', 'review-ledger', 'steps', 0, 'with', 'script')
+          raise 'missing review-ledger script' unless script
+          Tempfile.create(['review-ledger', '.js']) do |file|
+            file.write("(async () => {\n#{script}\n})();\n")
+            file.flush
+            raise 'invalid JavaScript syntax in review-ledger' unless system('node', '--check', file.path)
+          end
+          RUBY

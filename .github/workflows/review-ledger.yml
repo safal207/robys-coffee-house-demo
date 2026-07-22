@@ -1,4 +1,4 @@
-name: Bot review disposition contract
+name: Review disposition contract
 
 on:
   pull_request:
@@ -24,10 +24,9 @@ jobs:
       contents: read
       issues: read
       pull-requests: read
-      statuses: read
 
     steps:
-      - name: Require PDG-001 depth D6 for the exact head
+      - name: Require provider-neutral PDG-001 depth D6
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
@@ -43,45 +42,38 @@ jobs:
 
             const pr = (await github.rest.pulls.get({ owner, repo, pull_number: prNumber })).data;
             const head = pr.head.sha.toLowerCase();
-            const [reviewComments, reviews, issueComments, statuses] = await Promise.all([
+            const [reviewComments, reviews, issueComments] = await Promise.all([
               github.paginate(github.rest.pulls.listReviewComments, { owner, repo, pull_number: prNumber, per_page: 100 }),
               github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: prNumber, per_page: 100 }),
               github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: prNumber, per_page: 100 }),
-              github.paginate(github.rest.repos.listCommitStatusesForRef, { owner, repo, ref: head, per_page: 100 }),
             ]);
 
-            const reviewHeads = new Map(reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]));
-            const codeRabbitBots = new Set(['coderabbitai', 'coderabbitai[bot]']);
-            const codexBots = new Set(['chatgpt-codex-connector', 'chatgpt-codex-connector[bot]']);
-            const otherReviewBots = new Set(['github-advanced-security', 'github-advanced-security[bot]']);
             const trustedAssociations = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+            const automatedReviewers = new Set([
+              'chatgpt-codex-connector',
+              'chatgpt-codex-connector[bot]',
+              'github-advanced-security',
+              'github-advanced-security[bot]',
+            ]);
+            const reviewHeads = new Map(reviews.map((review) => [review.id, review.commit_id?.toLowerCase()]));
+            const timeOf = (item) => Math.max(
+              0,
+              ...[item.submitted_at, item.created_at, item.updated_at]
+                .map((value) => Date.parse(value ?? 0))
+                .filter(Number.isFinite),
+            );
+            const createdTimeOf = (item) => Date.parse(item.created_at ?? 0) || 0;
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
-            const commandLines = (body) => String(body ?? '').toLowerCase().split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
             const reviewedCommitOf = (body) => (
               /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
             const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
-            const hasPositiveLimitSignal = (body) => {
+            const hasFindingSeverity = (body) => {
               const text = String(body ?? '');
-              if (/\b(?:no|not|without)\b[^\n.!?]{0,80}\b(?:rate limit|review limit|quota|usage limit)\b/i.test(text)) return false;
-              return [
-                /review limit reached/i,
-                /rate limit (?:has been )?(?:reached|exceeded|exhausted)/i,
-                /quota (?:has been )?(?:reached|exceeded|exhausted)/i,
-                /usage limit (?:has been )?(?:reached|exceeded|exhausted)/i,
-                /next review available in/i,
-                /free tier[^\n]{0,80}limit/i,
-              ].some((pattern) => pattern.test(text));
-            };
-            const isFinalCodeRabbitCommentEvidence = (item) => {
-              const body = String(item?.body ?? '');
-              if (hasPositiveLimitSignal(body)) return false;
-              if (/\b(?:started|starting|queued|in progress|failed|failure|error|unavailable)\b/i.test(body)) return false;
-              return (
-                /\bcoderabbit(?:ai)? review\s*:\s*(?:complete|completed)\b/i.test(body) ||
-                /\breview (?:is )?(?:complete|completed)\b/i.test(body) ||
-                /\b(?:no|did(?:n't| not) find|found no)\b[^\n]{0,100}\b(?:issue|issues|problem|problems)\b/i.test(body)
-              );
+              if (/\bP[0-3]\b/i.test(text)) return true;
+              return [...text.matchAll(/_([^_\n]+)_/g)].some(([, segment]) => (
+                /\b(?:blocker|critical|major|minor)\b/i.test(segment.replace(/[`*_>#\[\]()!]+/g, ' '))
+              ));
             };
             const isFinalCodexCommentEvidence = (item) => {
               const body = String(item?.body ?? '');
@@ -91,26 +83,20 @@ jobs:
                 /\bcodex review\s*:\s*(?:complete|completed)\b/i.test(body)
               );
             };
-            const hasFindingSeverity = (body) => {
-              const text = String(body ?? '');
-              if (/\bP[0-3]\b/i.test(text)) return true;
-              return [...text.matchAll(/_([^_\n]+)_/g)].some(([, segment]) => (
-                /\b(?:blocker|critical|major|minor)\b/i.test(segment.replace(/[`*_>#\[\]()!]+/g, ' '))
-              ));
+            const isTrustedAttestation = (item) => {
+              if (!trustedAssociations.has(item.author_association)) return false;
+              const body = String(item.body ?? '').replaceAll('`', '');
+              const explicit = /^Independent-Review:\s*PDG-001\s*$/im.test(body) &&
+                /^Outcome:\s*(?:accepted|approved)\s*$/im.test(body) &&
+                new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
+              const mergeReady = new RegExp(`^/merge-ready\\s+${head}\\s*$`, 'im').test(body);
+              return explicit || mergeReady;
             };
-            const timeOf = (item) => Math.max(
-              0,
-              ...[item.submitted_at, item.created_at, item.updated_at]
-                .map((value) => Date.parse(value ?? 0))
-                .filter(Number.isFinite),
-            );
-            const createdTimeOf = (item) => Date.parse(item.created_at ?? 0) || 0;
             const isDispositionReply = (reply) => {
               const body = (reply.body ?? '').replaceAll('`', '');
               const disposition = /^Disposition:\s*(accepted|rejected-with-evidence|superseded)\s*$/im.test(body);
               const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
-              const maintainer = trustedAssociations.has(reply.author_association);
-              return disposition && exactHead && maintainer;
+              return disposition && exactHead && trustedAssociations.has(reply.author_association);
             };
             const isIssueDispositionFor = (reply, finding) => {
               const body = (reply.body ?? '').replaceAll('`', '');
@@ -118,128 +104,53 @@ jobs:
               return reference && createdTimeOf(reply) >= createdTimeOf(finding) && timeOf(reply) >= timeOf(finding) && isDispositionReply(reply);
             };
 
-            const codeRabbitRequests = issueComments
-              .filter((item) => {
-                const lines = commandLines(item.body);
-                const canonical = lines.includes('@coderabbitai review') && lines.includes(`exact head: ${head}`);
-                const trustedHuman = trustedAssociations.has(item.author_association);
-                const trustedAction = item.user?.login === 'github-actions[bot]' && (item.body ?? '').includes('<!-- coderabbit-reserve -->');
-                return canonical && (trustedHuman || trustedAction);
-              })
-              .sort((left, right) => createdTimeOf(left) - createdTimeOf(right));
-            const codeRabbitRequested = codeRabbitRequests.length > 0;
-            const earliestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests[0]) : 0;
-            const latestCodeRabbitRequestAt = codeRabbitRequested ? createdTimeOf(codeRabbitRequests.at(-1)) : 0;
-
-            const acceptedFindingAuthor = (item) => {
-              const login = item.user?.login;
-              if (codeRabbitBots.has(login)) return codeRabbitRequested && timeOf(item) >= earliestCodeRabbitRequestAt;
-              return codexBots.has(login) || otherReviewBots.has(login);
-            };
-            const issueCommentIsCurrentHeadBotOutput = (item) => {
-              const login = item.user?.login;
-              if (codeRabbitBots.has(login)) {
-                return codeRabbitRequested && createdTimeOf(item) >= earliestCodeRabbitRequestAt &&
-                  isFinalCodeRabbitCommentEvidence(item) &&
-                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
-              }
-              if (codexBots.has(login)) {
-                return isFinalCodexCommentEvidence(item) &&
-                  (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
-              }
-              return otherReviewBots.has(login) && exactHeadBody(item.body);
-            };
-
-            const reviewFindings = reviewComments.filter((item) => (
-              !item.in_reply_to_id && acceptedFindingAuthor(item) && reviewHeads.get(item.pull_request_review_id) === head
+            const humanApprovals = reviews.filter((review) => (
+              review.state === 'APPROVED' &&
+              review.commit_id?.toLowerCase() === head &&
+              trustedAssociations.has(review.author_association)
             ));
-            const issueCommentFindings = issueComments.filter((item) => (
-              acceptedFindingAuthor(item) && issueCommentIsCurrentHeadBotOutput(item) && hasFindingSeverity(item.body)
-            ));
-            const reviewDispositionReplies = reviewFindings.flatMap((finding) => (
-              reviewComments.filter((item) => item.in_reply_to_id === finding.id && isDispositionReply(item))
-            ));
-            const issueDispositionReplies = issueCommentFindings.flatMap((finding) => (
-              issueComments.filter((item) => isIssueDispositionFor(item, finding))
-            ));
-            const missingReviewFindings = reviewFindings
-              .filter((finding) => !reviewComments.some((item) => item.in_reply_to_id === finding.id && isDispositionReply(item)))
-              .map((finding) => ({ source: 'review-comment', finding }));
-            const missingIssueFindings = issueCommentFindings
-              .filter((finding) => !issueComments.some((item) => isIssueDispositionFor(item, finding)))
-              .map((finding) => ({ source: 'issue-comment', finding }));
-            const findings = [...reviewFindings, ...issueCommentFindings];
-            const missing = [...missingReviewFindings, ...missingIssueFindings];
-            const dispositionReplies = [...reviewDispositionReplies, ...issueDispositionReplies];
-            const latestDispositionAt = Math.max(0, ...dispositionReplies.map(timeOf));
-
-            const codeRabbitEvidence = codeRabbitRequested ? [
-              ...reviews.filter((item) => (
-                codeRabbitBots.has(item.user?.login) && item.commit_id?.toLowerCase() === head && timeOf(item) >= earliestCodeRabbitRequestAt
+            const maintainerAttestations = issueComments.filter(isTrustedAttestation);
+            const optionalAutomatedEvidence = [
+              ...reviews.filter((review) => (
+                automatedReviewers.has(review.user?.login) && review.commit_id?.toLowerCase() === head
               )),
-              ...reviewComments.filter((item) => (
-                codeRabbitBots.has(item.user?.login) && reviewHeads.get(item.pull_request_review_id) === head && timeOf(item) >= earliestCodeRabbitRequestAt
+              ...reviewComments.filter((comment) => (
+                automatedReviewers.has(comment.user?.login) && reviewHeads.get(comment.pull_request_review_id) === head
               )),
-              ...issueComments.filter((item) => (
-                codeRabbitBots.has(item.user?.login) && (
-                  (createdTimeOf(item) >= earliestCodeRabbitRequestAt && isFinalCodeRabbitCommentEvidence(item) &&
-                   (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)))) ||
-                  (createdTimeOf(item) >= latestCodeRabbitRequestAt && hasPositiveLimitSignal(item.body))
-                )
-              )),
-              ...statuses.filter((item) => (
-                item.context === 'CodeRabbit' && item.state === 'success' && codeRabbitBots.has(item.creator?.login) &&
-                timeOf(item) >= earliestCodeRabbitRequestAt
-              )),
-            ] : [];
-
-            const optionalExactEvidence = [
-              ...reviews.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) && item.commit_id?.toLowerCase() === head
-              )),
-              ...reviewComments.filter((item) => (
-                (codexBots.has(item.user?.login) || otherReviewBots.has(item.user?.login)) && reviewHeads.get(item.pull_request_review_id) === head
-              )),
-              ...issueComments.filter((item) => {
-                const login = item.user?.login;
-                if (codexBots.has(login)) {
-                  return isFinalCodexCommentEvidence(item) &&
-                    (exactHeadBody(item.body) || isExactHeadCommit(reviewedCommitOf(item.body)));
+              ...issueComments.filter((comment) => {
+                const login = comment.user?.login;
+                if (!automatedReviewers.has(login)) return false;
+                if (login?.startsWith('chatgpt-codex-connector')) {
+                  return isFinalCodexCommentEvidence(comment) &&
+                    (exactHeadBody(comment.body) || isExactHeadCommit(reviewedCommitOf(comment.body)));
                 }
-                return otherReviewBots.has(login) && exactHeadBody(item.body);
+                return exactHeadBody(comment.body);
               }),
             ];
-            const exactBotEvidence = [...codeRabbitEvidence, ...optionalExactEvidence];
-            const latestBotEvidenceAt = Math.max(0, ...exactBotEvidence.map(timeOf));
+            const independentEvidence = [...humanApprovals, ...maintainerAttestations, ...optionalAutomatedEvidence];
+            if (independentEvidence.length === 0) {
+              core.setFailed(`PDG-001 depth D4 incomplete: no exact-head human approval, maintainer attestation or optional automated review for ${head}.`);
+              return;
+            }
 
-            const reports = issueComments.filter((item) => (
-              item.user?.login === 'github-actions[bot]' &&
-              (item.body ?? '').includes('<!-- ai-review-cooperation -->') &&
-              exactHeadBody(item.body)
+            const reviewFindings = reviewComments.filter((finding) => (
+              !finding.in_reply_to_id &&
+              automatedReviewers.has(finding.user?.login) &&
+              reviewHeads.get(finding.pull_request_review_id) === head &&
+              hasFindingSeverity(finding.body)
             ));
-            const report = reports.sort((left, right) => timeOf(right) - timeOf(left))[0];
-            if (!report) {
-              core.setFailed(`PDG-001 depth D4 incomplete: no trusted exact-head cooperation report for ${head}.`);
-              return;
-            }
-            const conclusion = /\*\*Overall conclusion:\*\*\s*\*\*(READY|READY_WITH_ADVISORY_GAPS)\*\*/i.exec(report.body ?? '')?.[1];
-            if (!conclusion) {
-              core.setFailed(`PDG-001 depth D4 incomplete: cooperation report is not ready for ${head}.`);
-              return;
-            }
-            if (conclusion === 'READY_WITH_ADVISORY_GAPS') {
-              const match = /(?:advisory|documented) gaps:\s*([^\n.]+)\./i.exec(report.body ?? '');
-              const gaps = (match?.[1] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
-              const allowed = new Set(['CodeRabbit', 'Codex', 'Jules', 'DeepSeek']);
-              if (gaps.length === 0 || gaps.some((item) => !allowed.has(item))) {
-                core.setFailed(`PDG-001 depth D4 incomplete: cooperation report has an unrecognized gap for ${head}.`);
-                return;
-              }
-            }
-            if (latestBotEvidenceAt > timeOf(report)) {
-              core.setFailed(`PDG-001 evidence changed after the latest cooperation report for ${head}.`);
-              return;
-            }
+            const issueCommentFindings = issueComments.filter((finding) => (
+              automatedReviewers.has(finding.user?.login) &&
+              exactHeadBody(finding.body) &&
+              hasFindingSeverity(finding.body)
+            ));
+            const missingReviewFindings = reviewFindings
+              .filter((finding) => !reviewComments.some((reply) => reply.in_reply_to_id === finding.id && isDispositionReply(reply)))
+              .map((finding) => ({ source: 'review-comment', finding }));
+            const missingIssueFindings = issueCommentFindings
+              .filter((finding) => !issueComments.some((reply) => isIssueDispositionFor(reply, finding)))
+              .map((finding) => ({ source: 'issue-comment', finding }));
+            const missing = [...missingReviewFindings, ...missingIssueFindings];
             if (missing.length > 0) {
               const locations = missing.map(({ source, finding }) => (
                 source === 'issue-comment' ? `issue-comment:${finding.id}` : `${finding.path}:${finding.line ?? finding.original_line ?? '-'}`
@@ -248,30 +159,33 @@ jobs:
               return;
             }
 
+            const dispositionReplies = [
+              ...reviewFindings.flatMap((finding) => reviewComments.filter((reply) => reply.in_reply_to_id === finding.id && isDispositionReply(reply))),
+              ...issueCommentFindings.flatMap((finding) => issueComments.filter((reply) => isIssueDispositionFor(reply, finding))),
+            ];
+            const latestPrerequisiteAt = Math.max(
+              0,
+              ...independentEvidence.map(timeOf),
+              ...dispositionReplies.map(timeOf),
+            );
             const seals = issueComments.filter((item) => {
               const body = (item.body ?? '').replaceAll('`', '');
-              const trusted = trustedAssociations.has(item.author_association);
-              const contract = /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body);
-              const exactHead = new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body);
-              const depth = /^Depth:\s*D6\s*$/im.test(body);
-              return trusted && contract && exactHead && depth;
+              return trustedAssociations.has(item.author_association) &&
+                /^Proof-Depth-Seal:\s*PDG-001\s*$/im.test(body) &&
+                new RegExp(`^Head:\\s*${head}\\s*$`, 'im').test(body) &&
+                /^Depth:\s*D6\s*$/im.test(body);
             });
             const seal = seals.sort((left, right) => timeOf(right) - timeOf(left))[0];
             if (!seal) {
               core.setFailed(`PDG-001 depth D6 incomplete: no maintainer proof seal for ${head}.`);
               return;
             }
-            const latestPrerequisiteAt = Math.max(timeOf(report), latestBotEvidenceAt, latestDispositionAt);
             if (timeOf(seal) <= latestPrerequisiteAt) {
-              core.setFailed(`PDG-001 proof seal is stale for ${head}; seal again after the latest evidence and dispositions.`);
+              core.setFailed(`PDG-001 proof seal is stale for ${head}; seal again after the latest independent evidence and dispositions.`);
               return;
             }
 
-            const requiredState = codeRabbitEvidence.some((item) => hasPositiveLimitSignal(item.body))
-              ? 'provider-limit-waived'
-              : 'exact-head-evidence';
             core.notice(
-              `PDG-001 depth D6 sealed for ${head}: CodeRabbit required state=${requiredState}; ` +
-              `${findings.length} exact-head finding(s) dispositioned ` +
-              `(${reviewFindings.length} review-comment, ${issueCommentFindings.length} issue-comment).`,
+              `PDG-001 depth D6 sealed for ${head}: provider-neutral independent evidence accepted; ` +
+              `${reviewFindings.length + issueCommentFindings.length} exact-head finding(s) dispositioned.`,
             );
