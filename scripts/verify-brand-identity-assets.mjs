@@ -107,6 +107,7 @@ assert(css.includes("robys-primary-master-v1.svg?v=20260721-master-1"), "large m
 assert(css.includes("robys-compact-master-v1.svg?v=20260721-master-1"), "mobile header must retain the compact master");
 assert(bootstrap.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "bootstrap must deliver the exact identity stylesheet revision");
 assert(bootstrap.includes("apple-touch-icon.png?v="), "Apple touch icon PNG wiring must remain active");
+assert(/^const CACHE_VERSION = "robys-offline-[^"]+-[a-f0-9]{12}-[a-f0-9]{12}-[a-f0-9]{12}";/m.test(serviceWorker), "service worker cache version must remain compatible with the deterministic build rewriter");
 assert(serviceWorker.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "service worker must precache the exact identity stylesheet revision");
 assert(serviceWorker.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "service worker must precache the exact header master revision");
 assert(serviceWorker.includes('"./icon-maskable.svg"'), "service worker must precache the dedicated maskable icon");
