@@ -1,0 +1,98 @@
+name: Provider-neutral review contract
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/review-ledger.yml
+      - .github/workflows/review-route-preflight.yml
+      - .github/workflows/provider-neutral-review-contract.yml
+      - .github/pull_request_template.md
+      - qa/proof-depth-graph.json
+      - qa/reviewer-roster.json
+      - qa/review-route-policy.json
+      - scripts/probe-reviewer-roster.mjs
+      - scripts/select-review-route.mjs
+      - scripts/test-proof-depth-graph.mjs
+      - scripts/test-ci-proof-summary.mjs
+      - scripts/test-reviewer-roster.mjs
+      - scripts/test-reviewer-roster-module.mjs
+      - scripts/test-review-route.mjs
+      - scripts/test-review-route-preflight-workflow.mjs
+      - scripts/verify-ai-style-review-matrix.mjs
+      - scripts/render-ci-proof-summary.mjs
+      - docs/proof-depth-graph.md
+      - docs/review-route-preflight.md
+      - docs/provider-neutral-review-governance.md
+      - package.json
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Provider-neutral review governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run provider-neutral governance tests
+        run: |
+          npm run verify:proof-depth
+          npm run test:proof-depth
+          npm run verify:review-routing
+          npm run test:review-routing
+          npm run verify:ai-style-matrix
+
+      - name: Reject removed provider references
+        run: |
+          set -euo pipefail
+          if git grep -In -E 'CodeRabbit|coderabbit|@coderabbitai' -- ':!docs/provider-neutral-review-governance.md'; then
+            echo 'Removed review provider is still referenced by active repository files.' >&2
+            exit 1
+          fi
+          test ! -e .coderabbit.yaml
+          test ! -e .github/workflows/coderabbit-reserve.yml
+          test ! -e .github/workflows/coderabbit-reserve-contract.yml
+          test ! -e .github/workflows/ai-review-contract.yml
+          test ! -e .github/workflows/ai-review-cooperation.yml
+          test ! -e .github/workflows/ai-review-cooperation-contract.yml
+          test ! -e scripts/coderabbit-reserve.cjs
+          test ! -e scripts/test-coderabbit-reserve.cjs
+          test ! -e scripts/verify-ai-review-contract.cjs
+          test ! -e scripts/test-codex-review-contract.cjs
+          test ! -e scripts/verify-ai-review-freshness.mjs
+          test ! -e scripts/ai-review-cooperation.py
+          test ! -e scripts/test-ai-review-cooperation.py
+
+      - name: Parse governance workflow YAML
+        run: |
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/review-ledger.yml'); YAML.parse_file('.github/workflows/review-route-preflight.yml'); YAML.parse_file('.github/workflows/provider-neutral-review-contract.yml')"
+
+      - name: Validate embedded ledger JavaScript
+        run: |
+          ruby <<'RUBY'
+          require 'yaml'
+          require 'tempfile'
+          workflow = YAML.load_file('.github/workflows/review-ledger.yml')
+          script = workflow.dig('jobs', 'review-ledger', 'steps', 0, 'with', 'script')
+          raise 'missing review-ledger script' unless script
+          Tempfile.create(['review-ledger', '.js']) do |file|
+            file.write("(async () => {\n#{script}\n})();\n")
+            file.flush
+            raise 'invalid JavaScript syntax in review-ledger' unless system('node', '--check', file.path)
+          end
+          RUBY
