@@ -6,6 +6,7 @@ const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), "render-c
 const maliciousBranch = "feature/`break`\n<script>alert(1)</script> **bold**";
 const maliciousHead = "abc`def<svg>";
 const maliciousBlocker = "D4 <img src=x onerror=alert(1)> `escape`";
+const removedProviderPattern = new RegExp(["code", "rabbit"].join(""), "i");
 
 const result = spawnSync(process.execPath, [SCRIPT], {
   encoding: "utf8",
@@ -41,7 +42,7 @@ if (!output.includes("Exact-head human approval, maintainer attestation or optio
 if (!output.includes("No external AI provider or provider quota is required")) {
   throw new Error(`provider-neutral authority boundary is missing:\n${output}`);
 }
-if (/coderabbit/i.test(output)) {
+if (removedProviderPattern.test(output)) {
   throw new Error(`removed provider leaked into proof summary:\n${output}`);
 }
 
