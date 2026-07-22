@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/mobile-conversion-touch-targets
+  pull_request:
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
