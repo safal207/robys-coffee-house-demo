@@ -27,17 +27,37 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Scan for removed provider traces
+        id: provider_scan
+        continue-on-error: true
+        env:
+          PROVIDER_SCAN_REPORT: ${{ runner.temp }}/provider-neutral-scan-report.json
+        run: node scripts/test-provider-neutral-removal.mjs
+
+      - name: Upload provider-removal diagnostics
+        if: steps.provider_scan.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: provider-neutral-scan-${{ github.run_id }}
+          path: ${{ runner.temp }}/provider-neutral-scan-report.json
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Surface provider-removal failure
+        if: steps.provider_scan.outcome == 'failure'
+        env:
+          PROVIDER_SCAN_REPORT: ${{ runner.temp }}/provider-neutral-scan-report.json
+        run: |
+          cat "${PROVIDER_SCAN_REPORT}"
+          exit 1
+
       - name: Run provider-neutral governance tests
         run: |
-          node scripts/test-provider-neutral-removal.mjs
           npm run verify:proof-depth
           npm run test:proof-depth
           npm run verify:review-routing
           npm run test:review-routing
           npm run verify:ai-style-matrix
-
-      - name: Reject removed provider traces
-        run: node scripts/test-provider-neutral-removal.mjs
 
       - name: Parse governance workflow YAML
         run: |
