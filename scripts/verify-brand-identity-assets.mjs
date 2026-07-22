@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 const APPROVED_RED = "#E21B23";
 const APPROVED_INK = "#111111";
 const APPROVED_PAPER = "#F5F5F2";
-const IDENTITY_REVISION = "20260723-identity-v1";
+const IDENTITY_REVISION = "20260723-identity-v2";
 const ICON_SIZES = [16, 32, 48, 192, 512];
 const APPLE_TOUCH_ICON_SHA256 = "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8";
 
@@ -54,10 +54,13 @@ const compact = read("src/brand/robys-compact-master-v1.svg");
 const icon = read("icon.svg");
 const maskable = read("icon-maskable.svg");
 const css = read("brand-photo-logo.css");
+const baseCss = read("styles.css");
+const organicRing = read("src/brand/robys-organic-ring.svg");
 const bootstrap = read("bootstrap.js");
 const serviceWorker = read("sw.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 const appleTouchIcon = readFileSync("apple-touch-icon.png");
+const identityPages = ["index.html", "menu.html", "discover.html"].map((path) => [path, read(path)]);
 
 for (const [path, source] of [
   ["src/brand/robys-mark-master-v1.svg", mark],
@@ -103,9 +106,16 @@ for (const [token, value] of [
 }
 
 assert(css.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "desktop header must load the no-tagline medium master");
+assert(css.includes("border-radius:999px!important"), "mobile header container must preserve the approved pill silhouette");
 assert(css.includes("robys-primary-master-v1.svg?v=20260721-master-1"), "large menu lockup must retain the primary master");
 assert(css.includes("robys-compact-master-v1.svg?v=20260721-master-1"), "mobile header must retain the compact master");
-assert(bootstrap.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "bootstrap must deliver the exact identity stylesheet revision");
+assert(baseCss.includes(`--brand-wordmark-red:${APPROVED_RED}`), "legacy wordmark fallback must use canonical red");
+assert(organicRing.includes(APPROVED_RED), "organic ring must use canonical red");
+assert(!organicRing.includes("#d32636"), "organic ring must not retain the legacy red");
+for (const [path, source] of identityPages) {
+  assert(source.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), `${path} must link the identity stylesheet without JavaScript`);
+}
+assert(!bootstrap.includes("brand-photo-logo.css"), "bootstrap must not inject the identity stylesheet at runtime");
 assert(bootstrap.includes("apple-touch-icon.png?v="), "Apple touch icon PNG wiring must remain active");
 assert(/^const CACHE_VERSION = "robys-offline-[^"]+-[a-f0-9]{12}-[a-f0-9]{12}-[a-f0-9]{12}";/m.test(serviceWorker), "service worker cache version must remain compatible with the deterministic build rewriter");
 assert(serviceWorker.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "service worker must precache the exact identity stylesheet revision");

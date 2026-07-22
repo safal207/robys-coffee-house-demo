@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v25-20260723-identity-v1-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v26-20260723-identity-v2-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -25,9 +25,9 @@ const CORE_ASSETS = [
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
-  "./brand-photo-logo.css?v=20260723-identity-v1",
+  "./brand-photo-logo.css?v=20260723-identity-v2",
   "./src/brand/robys-primary-master-v1.svg?v=20260721-master-1",
-  "./src/brand/robys-header-master-v1.svg?v=20260723-identity-v1",
+  "./src/brand/robys-header-master-v1.svg?v=20260723-identity-v2",
   "./src/brand/robys-compact-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-mobile-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-mark-master-v1.svg?v=20260721-master-1",

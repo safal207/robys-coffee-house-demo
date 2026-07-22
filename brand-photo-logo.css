@@ -51,7 +51,7 @@
 .discover-header .brand-copy{
   width:286px!important;
   height:58px!important;
-  background-image:url("src/brand/robys-header-master-v1.svg?v=20260723-identity-v1")!important;
+  background-image:url("src/brand/robys-header-master-v1.svg?v=20260723-identity-v2")!important;
 }
 
 .menu-page-brand .brand-copy{
@@ -69,9 +69,11 @@
 @media(max-width:680px){
   .site-header .brand,
   .discover-header .brand{
-    max-width:128px!important;
-    padding:6px 8px!important;
+    max-width:136px!important;
+    padding:6px 12px!important;
     overflow:hidden!important;
+    border-radius:999px!important;
+    box-shadow:0 10px 26px rgba(17,17,17,.16)!important;
   }
 
   .site-header .brand-copy,
@@ -91,8 +93,8 @@
 @media(max-width:390px){
   .site-header .brand,
   .discover-header .brand{
-    max-width:112px!important;
-    padding:5px 7px!important;
+    max-width:118px!important;
+    padding:5px 10px!important;
   }
 
   .site-header .brand-copy,
@@ -104,9 +106,9 @@
 
 @media(max-width:340px){
   .discover-header .brand{
-    width:96px!important;
-    max-width:96px!important;
-    padding:5px 6px!important;
+    width:100px!important;
+    max-width:100px!important;
+    padding:5px 8px!important;
   }
 
   body.discover-page .discover-header .brand-copy{
