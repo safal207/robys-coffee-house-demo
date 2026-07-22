@@ -1,6 +1,6 @@
 # `evaluate-world-class-logo`
 
-Repository-local skill for evidence-based logo and identity-system evaluation.
+Repository-local skill for rigorous logo and identity-system evaluation.
 
 ## Recommended Robis sequence
 
@@ -26,3 +26,8 @@ weighted points = (rating / 5) × dimension weight
 ```
 
 The total is capped at 100. Fatal P0 failures override the numeric score and block a release recommendation.
+
+## Applied audit
+
+- [Roby's world-class logo audit](../../../docs/brand/robys-world-class-logo-audit.md)
+- [Roby's logo release checklist](../../../docs/brand/robys-logo-release-checklist.md)
