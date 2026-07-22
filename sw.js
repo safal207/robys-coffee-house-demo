@@ -25,7 +25,7 @@ const CORE_ASSETS = [
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
-  "./brand-photo-logo.css?v=20260722-ux238-master-1",
+  "./brand-photo-logo.css?v=20260722-ux238-css-v1",
   "./src/brand/robys-primary-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-compact-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-mobile-master-v1.svg?v=20260721-master-1",
