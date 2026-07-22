@@ -1,8 +1,7 @@
 /* ROBIS-UX-238: bounded mobile conversion and touch-target repairs. */
 
 @media (max-width: 1024px) {
-  .menu-page .lang-button,
-  .discover-page .lang-button {
+  .language-switcher .lang-button {
     min-width: 40px !important;
     min-height: 40px !important;
     padding-inline: 8px !important;
