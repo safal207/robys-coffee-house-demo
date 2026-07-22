@@ -24,7 +24,7 @@
 }
 
 @media (max-width: 680px) {
-  body.featured-gallery-active .mobile-cta {
+  html body.featured-gallery-active nav.mobile-cta {
     transform: none !important;
     opacity: 1 !important;
     pointer-events: auto !important;
