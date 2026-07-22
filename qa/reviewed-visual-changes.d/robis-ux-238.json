@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "robis-mobile-touch-targets-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/239",
+      "contentBindings": {
+        "brand-photo-logo.css": "f6912385c572f8fed9d08307e942050512d92b4f"
+      },
+      "expectedFailures": [
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2652 vs 320x2684"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x721 vs 280x737"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.009
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.012
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2708 vs 390x2724"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.005
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.004
+        }
+      ]
+    }
+  ]
+}
