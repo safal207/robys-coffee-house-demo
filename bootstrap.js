@@ -35,11 +35,6 @@ photoLogo.rel = "stylesheet";
 photoLogo.href = "brand-photo-logo.css?v=20260721-svg-master-1";
 document.head.append(photoLogo);
 
-const uxFixes = document.createElement("link");
-uxFixes.rel = "stylesheet";
-uxFixes.href = "robis-ux-fixes.css?v=20260722-1";
-document.head.append(uxFixes);
-
 if (!installAndroidButtonLogo()) {
   let attempts = 0;
   let timeoutId;
