@@ -11,11 +11,14 @@ const html = readFileSync("index.html", "utf8");
 const mapCss = readFileSync("map-live.css", "utf8");
 const heroCss = readFileSync("hero-balance.css", "utf8");
 const featuredCss = readFileSync("featured-gallery.css", "utf8");
+const brandCss = readFileSync("brand-photo-logo.css", "utf8");
 const featuredRuntime = readFileSync("featured-gallery.js", "utf8");
 const featuredSource = readFileSync("src/featured-gallery.ts", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
+const EXPECTED_UX_CSS_REVISION = "20260723-identity-v1";
 
 function assert(condition, contract, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
@@ -96,7 +99,7 @@ const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bposter-
 assert(sourceIds.length === expectedOrder.length, "FEATURED-001", `Expected exactly ${expectedOrder.length} typed products, found ${sourceIds.length}`);
 assert(JSON.stringify(sourceIds) === JSON.stringify(expectedOrder), "FEATURED-001", `Typed product order changed: ${sourceIds.join(", ")}`);
 assert(sourceImages.length === expectedOrder.length, "FEATURED-001", `Expected ${expectedOrder.length} typed poster sources, found ${sourceImages.length}`);
-assert(sourceImages.every((path) => /^src\/products\/gallery-v5\/[\w.-]+\.webp\?v=\d{8}-\d+$/.test(path)), "FEATURED-001", "Every typed item must use a versioned gallery-v5 WebP source");
+assert(sourceImages.every((path) => /^src\/[\w./-]+\.webp\?v=\d{8}-\d+$/.test(path)), "FEATURED-001", "Every typed item must use a versioned gallery-v5 WebP source");
 assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Typed poster sources must be unique");
 assert(staticCards.length === expectedOrder.length, "FEATURED-001", `Static fallback must expose exactly ${expectedOrder.length} poster cards, found ${staticCards.length}`);
 assert(!html.includes("featured-card--overview"), "FEATURED-001", "Cafe overview must not return to the product feed");
@@ -107,7 +110,18 @@ assert(featuredCss.includes("grid-template-columns:minmax(0,1fr)!important"), "F
 assert(featuredCss.includes("aspect-ratio:1/1"), "FEATURED-001", "Poster frames must preserve a calm square canvas");
 assert(featuredCss.includes("object-fit:contain!important"), "FEATURED-001", "Poster artwork must never be cropped");
 assert(featuredCss.includes(".poster-card.is-error .poster-card-fallback"), "FEATURED-001", "Broken images must expose a visible fallback instead of a black card");
-assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATURED-001", "The mobile dock must move away while posters are being viewed");
+assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATURED-001", "Legacy gallery state rule must remain identifiable for the bounded override");
+const dockOverrideRule = cssRules(brandCss, "html body.featured-gallery-active nav.mobile-cta", "FEATURED-001")[0];
+assert(dockOverrideRule.includes("transform:none!important"), "FEATURED-001", "Gallery-active dock override must cancel the legacy translation");
+assert(dockOverrideRule.includes("opacity:1!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions visible");
+assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions clickable");
+const bootstrapCssRevision = bootstrapRuntime.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
+const serviceWorkerCssRevision = serviceWorker.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
+assert(Boolean(bootstrapCssRevision), "FEATURED-001", "Bootstrap must request a revisioned shared UX stylesheet");
+assert(bootstrapCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Bootstrap must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${bootstrapCssRevision || "missing"}`);
+assert(serviceWorkerCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Service Worker must precache the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${serviceWorkerCssRevision || "missing"}`);
+assert(bootstrapCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: bootstrap=${bootstrapCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
+assert(serviceWorker.includes('url.pathname.endsWith("/brand-photo-logo.css")'), "FEATURED-001", "Service Worker must preserve exact revision matching for the shared UX stylesheet");
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
 assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");
 assert(featuredRuntime.includes("MutationObserver"), "FEATURED-001", "Typed runtime must keep localized accessibility labels in sync");
@@ -130,5 +144,5 @@ assert(/window\.setTimeout\(\(\)\s*=>\s*observer\.disconnect\(\),\s*ANDROID_LOGO
 console.log("✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 6 complete images with iOS-safe dock handling, stable fallback height and no crop.");
+console.log("✅ FEATURED-001 gated: the TypeScript gallery keeps six complete images, actionable mobile visit controls, exact offline CSS revisioning, stable fallback height and no crop.");
 console.log("✅ MOBILE-INSTALL-001 gated: PNG touch icon bootstrap and bounded Android logo observation remain enforced.");
