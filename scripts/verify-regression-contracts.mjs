@@ -99,7 +99,7 @@ const staticCards = Array.from(html.matchAll(/<a\b[^>]*class=["'][^"']*\bposter-
 assert(sourceIds.length === expectedOrder.length, "FEATURED-001", `Expected exactly ${expectedOrder.length} typed products, found ${sourceIds.length}`);
 assert(JSON.stringify(sourceIds) === JSON.stringify(expectedOrder), "FEATURED-001", `Typed product order changed: ${sourceIds.join(", ")}`);
 assert(sourceImages.length === expectedOrder.length, "FEATURED-001", `Expected ${expectedOrder.length} typed poster sources, found ${sourceImages.length}`);
-assert(sourceImages.every((path) => /^src\/[\w./-]+\.webp\?v=\d{8}-\d+$/.test(path)), "FEATURED-001", "Every typed item must use a versioned gallery-v5 WebP source");
+assert(sourceImages.every((path) => /^src\/products\/gallery-v5\/[\w.-]+\.webp\?v=\d{8}-\d+$/.test(path)), "FEATURED-001", "Every typed item must use a versioned gallery-v5 WebP source");
 assert(new Set(sourceImages).size === sourceImages.length, "FEATURED-001", "Typed poster sources must be unique");
 assert(staticCards.length === expectedOrder.length, "FEATURED-001", `Static fallback must expose exactly ${expectedOrder.length} poster cards, found ${staticCards.length}`);
 assert(!html.includes("featured-card--overview"), "FEATURED-001", "Cafe overview must not return to the product feed");
