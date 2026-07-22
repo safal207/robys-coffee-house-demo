@@ -33,7 +33,7 @@ The binding authority is provider-neutral. A repository maintainer owns the deci
 D4 accepts one of these exact-head evidence forms:
 
 1. a trusted human `APPROVED` review bound to the current commit;
-2. a trusted top-level maintainer attestation:
+1. a trusted top-level maintainer attestation:
 
 ```text
 Independent-Review: PDG-001
@@ -41,7 +41,7 @@ Head: <exact 40-character commit SHA>
 Outcome: accepted
 ```
 
-3. optional exact-head automated review evidence from a configured non-binding reviewer.
+1. optional exact-head automated review evidence from a configured non-binding reviewer.
 
 A solo maintainer may use the existing exact-head `/merge-ready <SHA>` attestation as the D4 statement. This is explicit accountable intent, not a claim of external independence.
 
@@ -72,9 +72,9 @@ A proof seal contains these three lines:
 A seal is valid only when:
 
 1. it names the current PR head;
-2. exact-head D4 evidence exists;
-3. all current-head findings from configured optional reviewers have explicit dispositions;
-4. required CI, mutation tests and human authorization pass;
-5. the seal was posted after the latest evidence and dispositions.
+1. exact-head D4 evidence exists;
+1. all current-head findings from configured optional reviewers have explicit dispositions;
+1. required CI, mutation tests and human authorization pass;
+1. the seal was posted after the latest evidence and dispositions.
 
 A new commit or later finding invalidates the seal. Inferred graph edges remain advisory and cannot grant readiness authority. No external AI provider, quota state or provider-specific workflow is required for release.
