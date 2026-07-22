@@ -30,16 +30,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify identity contract
-        run: npm run verify:brand-identity
+      - name: Capture identity contract evidence
+        id: identity
+        continue-on-error: true
+        run: npm run verify:brand-identity > identity-verifier.log 2>&1
 
       - name: Generate exact-head manifest
         run: npm run integrity:generate
 
-      - name: Upload generated manifest
+      - name: Upload generated evidence
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
         with:
           name: identity-manifest-${{ github.event.pull_request.head.sha || github.sha }}
-          path: integrity-manifest.json
+          path: |
+            integrity-manifest.json
+            identity-verifier.log
           if-no-files-found: error
           retention-days: 3
+
+      - name: Enforce identity contract
+        if: always()
+        run: |
+          cat identity-verifier.log
+          test "${{ steps.identity.outcome }}" = "success"
