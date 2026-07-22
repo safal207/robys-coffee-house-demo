@@ -34,14 +34,33 @@ assert.match(compactMaster, /viewBox="0 0 435 150"/);
 assert.match(compactMaster, /translate\(105 -2\) scale\(\.65 1\)/, "S must occupy its own optical zone after Y and the apostrophe");
 assert.match(markMaster, /M50 4C77\.7 4 96 22\.9 96 50\.3/, "standalone mark must retain the smooth cup-referenced outer ring");
 
+const coreAssets = serviceWorker.match(
+  /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
+)?.groups?.body ?? "";
+assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-svg-master-1"/);
 for (const asset of assets) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  assert.match(serviceWorker, new RegExp(escaped));
+  assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=20260721-master-1"`));
 }
-assert.match(serviceWorker, /brand-photo-logo\.css\?v=20260721-svg-master-1/);
-assert.match(serviceWorker, /pathname\.endsWith\("\/src\/brand\/robys-primary-master-v1\.svg"\)/);
-assert.match(serviceWorker, /pathname\.endsWith\("\/src\/brand\/robys-compact-master-v1\.svg"\)/);
-assert.match(serviceWorker, /pathname\.endsWith\("\/src\/brand\/robys-mobile-master-v1\.svg"\)/);
-assert.match(serviceWorker, /pathname\.endsWith\("\/src\/brand\/robys-mark-master-v1\.svg"\)/);
+
+const exactRevisionBlock = serviceWorker.match(
+  /const requiresExactRevision =(?<body>[\s\S]*?)if \(requiresExactRevision\)/u,
+)?.groups?.body ?? "";
+for (const asset of assets) {
+  const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  assert.match(exactRevisionBlock, new RegExp(`url\\.pathname\\.endsWith\\("/${escaped}"\\)`));
+}
+assert.match(exactRevisionBlock, /url\.pathname\.endsWith\("\/brand-photo-logo\.css"\)/);
+assert.match(serviceWorker, /if \(requiresExactRevision\)\s*\{\s*return cache\.match\(request\);/su);
+
+const runtimeBlock = serviceWorker.match(
+  /async function runtimeAssetResponse\(request\) \{(?<body>[\s\S]*?)\n\}/u,
+)?.groups?.body ?? "";
+assert.match(runtimeBlock, /const cached = await cachedResponse\(request\)/);
+assert.match(runtimeBlock, /if \(cached\) return cached/);
+assert.match(runtimeBlock, /const network = await fetch\(request\)/);
+assert.match(runtimeBlock, /if \(network\.ok\)/);
+assert.match(runtimeBlock, /cache\.put\(request, network\.clone\(\)\)/);
+assert.match(serviceWorker, /event\.respondWith\(runtimeAssetResponse\(event\.request\)\)/);
 
 console.log("PASS: approved SVG-path Roby's wordmark contract");
