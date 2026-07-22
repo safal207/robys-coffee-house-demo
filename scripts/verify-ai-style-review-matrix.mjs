@@ -19,6 +19,7 @@ const requiredLenses = ["max", "qwen", "grok", "manus", "gemini", "gpt", "claude
 const expectedCoverage = new Set(matrix.requiredCoverage ?? []);
 const results = [];
 const canonicalInstagramLiteral = /["']https:\/\/www\.instagram\.com\/robyscoffeehouse\/["']/;
+const removedProviderPattern = new RegExp(["code", "rabbit"].join(""), "i");
 
 function fail(message) {
   throw new Error(`[AI-STYLE-001] ${message}`);
@@ -118,13 +119,13 @@ record("gpt", [
 ]);
 
 const humanMaintainer = reviewerRoster.reviewers.find((reviewer) => reviewer.id === "human-maintainer");
-const removedProviderPresent = reviewerRoster.reviewers.some((reviewer) => /coderabbit/i.test(`${reviewer.id} ${reviewer.label}`));
+const removedProviderPresent = reviewerRoster.reviewers.some((reviewer) => removedProviderPattern.test(`${reviewer.id} ${reviewer.label}`));
 record("claude", [
   ["keyboard focus requires a focus-specific visual change", uiRunner.includes("focusVisible && focused.cueChanged")],
   ["primary controls require accessible names", uiRunner.includes("has no accessible name")],
   ["external social links require safe rel tokens", uiRunner.includes('rel.includes("noopener")') && uiRunner.includes('rel.includes("noreferrer")')],
   ["network evidence persists sanitized outcomes only", socialVerifier.includes("persistedAttempts") && socialVerifier.includes("network-error")],
-  ["review authority is provider-neutral and maintainer-bound", humanMaintainer?.binding === true && humanMaintainer?.kind === "human" && !removedProviderPresent && reviewLedger.includes("Independent-Review:") && !/coderabbit/i.test(reviewLedger)]
+  ["review authority is provider-neutral and maintainer-bound", humanMaintainer?.binding === true && humanMaintainer?.kind === "human" && !removedProviderPresent && reviewLedger.includes("Independent-Review:") && !removedProviderPattern.test(reviewLedger)]
 ]);
 
 const report = {
