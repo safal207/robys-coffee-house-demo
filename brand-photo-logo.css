@@ -33,6 +33,10 @@
   display:none!important;
 }
 
+.menu-page-brand-tagline{
+  display:none!important;
+}
+
 .site-header .brand,
 .discover-header .brand{
   overflow:hidden!important;
