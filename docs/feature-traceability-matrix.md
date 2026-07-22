@@ -99,9 +99,9 @@ History records repository/product milestones, not production telemetry. Evidenc
 `FEAT-UI-002` records the current Roby's issue:
 
 1. The reveal runtime adds the initial hidden state.
-2. `IntersectionObserver` makes the menu content visible only on first intersection.
-3. The mobile fixed CTA may create a blurred compositing layer at the same time.
-4. The observer then unobserves the content, so repeated scrolling no longer reproduces the defect.
+1. `IntersectionObserver` makes the menu content visible only on first intersection.
+1. The mobile fixed CTA may create a blurred compositing layer at the same time.
+1. The observer then unobserves the content, so repeated scrolling no longer reproduces the defect.
 
 This is why ordinary final-state screenshots are insufficient. The required regression is a **cold-load temporal scenario**: reload, scroll into `.menu-section` for the first time, capture frames around the intersection and assert that the dark section never flashes.
 
@@ -110,29 +110,31 @@ This is why ordinary final-state screenshots are insufficient. The required regr
 For every product change:
 
 1. Name the impacted `FEAT-*` IDs in the PR description.
-2. Update requirements when product truth or acceptance criteria change.
-3. Update the state model when a new loading, empty, error, fallback, permission, retry or terminal state appears.
-4. Update all three layer statuses. An external service is not a Roby's backend.
-5. Add a dated history row with the PR, commit, build or defect reference.
-6. Link implementation evidence and executable or explicitly planned tests.
-7. Record new risks and a concrete next gate.
-8. Run `npm run verify:traceability`.
+1. Update requirements when product truth or acceptance criteria change.
+1. Update the state model when a new loading, empty, error, fallback, permission, retry or terminal state appears.
+1. Update all three layer statuses. An external service is not a Roby's backend.
+1. Add a dated history row with the PR, commit, build or defect reference.
+1. Link implementation evidence and executable or explicitly planned tests.
+1. Record new risks and a concrete next gate.
+1. Run `npm run verify:traceability`.
 
 A new first-party API must additionally define method/path, versioning, request and response schemas, error envelope, authentication/authorization, idempotency for writes, rate limits, timeout/retry policy and UI fallback.
 
 A new backend workflow must additionally define ownership, persistence, migrations, audit, observability, degraded/unavailable states, rollback and data-retention/privacy rules.
 
-## Bot-review disposition protocol
+## Review disposition protocol
 
-Bot review is evidence, not decoration. For each exact head:
+Review evidence is useful only when it is current, attributable and explicitly resolved. For each exact head:
 
-1. Collect native Codex and CodeRabbit reviews tied to the current commit SHA.
-2. Classify every actionable finding as `accepted`, `rejected-with-evidence` or `superseded`.
-3. Treat bot-resolved threads as unresolved until code or a technical disposition proves otherwise.
-4. Push fixes only after the classification is complete; any push invalidates the previous review evidence.
-5. Re-run mutation tests and all exact-head checks.
-6. Request fresh bot reviews on the new head before returning the PR to Ready for review.
-7. Allow maintainer merge attestation only when no current-head finding lacks a disposition.
+1. Collect trusted human approval, maintainer attestation and any optional automated review evidence tied to the current commit SHA.
+1. Classify every actionable finding as `accepted`, `rejected-with-evidence` or `superseded`.
+1. Treat automatically resolved threads as unresolved until code or a technical disposition proves otherwise.
+1. Push fixes only after the classification is complete; any push invalidates the previous review evidence.
+1. Re-run mutation tests and all exact-head checks.
+1. Refresh required human evidence and any optional automated review requested for the new head.
+1. Allow maintainer merge attestation only when no current-head finding lacks a disposition.
+
+No external AI provider is required for this protocol. Automated reviewers are advisory and cannot approve, block or merge by themselves.
 
 ## Definition of done by layer
 
@@ -151,6 +153,6 @@ Business state is owned by a first-party service with explicit contracts, idempo
 ## Immediate priorities
 
 1. Fix and automate `FEAT-UI-002` first-scroll behavior.
-2. Require `TRACE-001` updates for product PRs that change feature states or layer ownership.
-3. Keep exact-head validation evidence after every matrix change.
-4. Keep the backend planned, not prematurely built, until content administration or reservation ownership becomes a real business requirement.
+1. Require `TRACE-001` updates for product PRs that change feature states or layer ownership.
+1. Keep exact-head validation evidence after every matrix change.
+1. Keep the backend planned, not prematurely built, until content administration or reservation ownership becomes a real business requirement.
