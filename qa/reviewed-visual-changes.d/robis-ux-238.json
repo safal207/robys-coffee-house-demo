@@ -5,7 +5,7 @@
       "id": "robis-mobile-touch-targets-v1",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/239",
       "contentBindings": {
-        "brand-photo-logo.css": "f6912385c572f8fed9d08307e942050512d92b4f"
+        "brand-photo-logo.css": "c1b79c650294d874e56c77056277d449dce30546"
       },
       "expectedFailures": [
         {
