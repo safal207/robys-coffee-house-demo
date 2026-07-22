@@ -134,7 +134,7 @@ test("bottom panel remains actionable while the gallery is active", async ({ pag
 
   const routeBox = await routeAction.boundingBox();
   expect(routeBox).not.toBeNull();
-  expect(routeBox?.height ?? 0).toBeGreaterThanOrEqual(40);
+  expect(routeBox?.height ?? 0).toBeGreaterThanOrEqual(44);
 
   await routeAction.focus();
   await expect(routeAction).toBeFocused();
