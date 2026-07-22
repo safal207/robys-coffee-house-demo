@@ -1,7 +1,7 @@
 {
   "version": 1,
   "maxAttempts": 2,
-  "minimumTouchTarget": 24,
+  "minimumTouchTarget": 40,
   "recommendedTouchTarget": 40,
   "profiles": [
     { "id": "phone-320-short", "width": 320, "height": 568, "isMobile": true, "hasTouch": true },
@@ -18,7 +18,7 @@
       "id": "landing",
       "path": "index.html",
       "ready": ".hero",
-      "primarySelectors": [".hero .button", ".mobile-cta a", "#daily-offer a"]
+      "primarySelectors": [".hero .button", ".mobile-cta a", "#daily-offer a", ".lang-button"]
     },
     {
       "id": "menu",
