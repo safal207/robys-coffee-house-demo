@@ -2,33 +2,6 @@ name: Provider-neutral review contract
 
 on:
   pull_request:
-    paths:
-      - .github/workflows/review-ledger.yml
-      - .github/workflows/review-route-preflight.yml
-      - .github/workflows/provider-neutral-review-contract.yml
-      - .github/workflows/ai-review-cooperation-recovery.yml
-      - .github/workflows/ai-review-cooperation-recovery-contract.yml
-      - .github/workflows/ai-review-cooperation-publisher-v2.yml
-      - .github/workflows/ai-review-cooperation-publisher-v2-contract.yml
-      - .github/pull_request_template.md
-      - qa/proof-depth-graph.json
-      - qa/reviewer-roster.json
-      - qa/review-route-policy.json
-      - scripts/probe-reviewer-roster.mjs
-      - scripts/select-review-route.mjs
-      - scripts/test-provider-neutral-removal.mjs
-      - scripts/test-proof-depth-graph.mjs
-      - scripts/test-ci-proof-summary.mjs
-      - scripts/test-reviewer-roster.mjs
-      - scripts/test-reviewer-roster-module.mjs
-      - scripts/test-review-route.mjs
-      - scripts/test-review-route-preflight-workflow.mjs
-      - scripts/verify-ai-style-review-matrix.mjs
-      - scripts/render-ci-proof-summary.mjs
-      - docs/proof-depth-graph.md
-      - docs/review-route-preflight.md
-      - docs/provider-neutral-review-governance.md
-      - package.json
 
 permissions:
   contents: read
