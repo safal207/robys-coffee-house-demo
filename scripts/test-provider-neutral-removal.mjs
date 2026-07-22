@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const providerSlug = ["code", "rabbit"].join("");
@@ -48,10 +48,8 @@ function scanDirectory(directory = ".") {
     }
     if (!entry.isFile()) continue;
 
-    const metadata = statSync(fullPath);
-    if (metadata.size > maximumTextFileBytes) continue;
     const bytes = readFileSync(fullPath);
-    if (bytes.includes(0)) continue;
+    if (bytes.length > maximumTextFileBytes || bytes.includes(0)) continue;
     if (removedProviderPattern.test(bytes.toString("utf8"))) {
       findings.push({ kind: "repository-content", path: repositoryPath });
     }
