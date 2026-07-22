@@ -56,12 +56,12 @@
         {
           "capture": "hero",
           "viewport": "phone-390",
-          "maxDiffPixelRatio": 0.005905128205128205
+          "maxDiffPixelRatio": 0.005907692307692307
         },
         {
           "capture": "visit-map",
           "viewport": "phone-390",
-          "maxDiffPixelRatio": 0.004474992687920444
+          "maxDiffPixelRatio": 0.004480842351564785
         },
         {
           "capture": "menu-share",
