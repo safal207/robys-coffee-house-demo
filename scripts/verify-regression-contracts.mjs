@@ -18,6 +18,7 @@ const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
+const EXPECTED_UX_CSS_REVISION = "20260722-ux238-css-v1";
 
 function assert(condition, contract, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
@@ -117,6 +118,8 @@ assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001
 const bootstrapCssRevision = bootstrapRuntime.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
 const serviceWorkerCssRevision = serviceWorker.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
 assert(Boolean(bootstrapCssRevision), "FEATURED-001", "Bootstrap must request a revisioned shared UX stylesheet");
+assert(bootstrapCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Bootstrap must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${bootstrapCssRevision || "missing"}`);
+assert(serviceWorkerCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Service Worker must precache the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${serviceWorkerCssRevision || "missing"}`);
 assert(bootstrapCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: bootstrap=${bootstrapCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
 assert(serviceWorker.includes('url.pathname.endsWith("/brand-photo-logo.css")'), "FEATURED-001", "Service Worker must preserve exact revision matching for the shared UX stylesheet");
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
