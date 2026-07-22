@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const APPROVED_RED = "#E21B23";
@@ -5,6 +6,7 @@ const APPROVED_INK = "#111111";
 const APPROVED_PAPER = "#F5F5F2";
 const IDENTITY_REVISION = "20260723-identity-v1";
 const ICON_SIZES = [16, 32, 48, 192, 512];
+const APPLE_TOUCH_ICON_SHA256 = "0a3e9761774ee1f41f227d2e9e0d0a96f8288d7698c4213bb009a4959997a4d0";
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -55,6 +57,7 @@ const css = read("brand-photo-logo.css");
 const bootstrap = read("bootstrap.js");
 const serviceWorker = read("sw.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
+const appleTouchIcon = readFileSync("apple-touch-icon.png");
 
 for (const [path, source] of [
   ["src/brand/robys-mark-master-v1.svg", mark],
@@ -72,6 +75,9 @@ assert(!/FRESH\s+COFFEE\s+POINT/i.test(header), "medium header master must not c
 assert(header.includes(APPROVED_RED) && header.includes(APPROVED_INK), "medium header master must use canonical red and ink");
 assert(icon.includes(APPROVED_RED) && icon.includes(APPROVED_PAPER), "favicon must use canonical red and paper");
 assert(maskable.includes(APPROVED_RED) && maskable.includes(APPROVED_PAPER), "maskable icon must use canonical red and paper");
+assert(appleTouchIcon.subarray(1, 4).toString("ascii") === "PNG", "Apple touch icon must remain a PNG");
+assert(appleTouchIcon.readUInt32BE(16) === 180 && appleTouchIcon.readUInt32BE(20) === 180, "Apple touch icon must remain 180 × 180 px");
+assert(createHash("sha256").update(appleTouchIcon).digest("hex") === APPLE_TOUCH_ICON_SHA256, "Apple touch icon must remain bound to the approved organic O export");
 
 const markPath = mark.match(/<path\b[^>]*\bd=["']([^"']+)["']/i)?.[1];
 assert(markPath, "approved mark master must expose one path");
@@ -112,4 +118,4 @@ for (const size of ICON_SIZES) {
   assert(scaledAnyMargin > 0 && scaledMaskableMargin > 0, `${size}px icon geometry must retain visible edge clearance`);
 }
 
-console.log(`✅ BRAND-IDENTITY-001: canonical Roby's identity is path-only, split for any/maskable, and bounded at ${ICON_SIZES.join(", ")} px.`);
+console.log(`✅ BRAND-IDENTITY-001: canonical Roby's identity is path-only, platform-aligned, split for any/maskable, and bounded at ${ICON_SIZES.join(", ")} px.`);
