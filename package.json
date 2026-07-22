@@ -4,6 +4,7 @@
   "version": "2.0.0",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "verify:logo-intelligence": "node scripts/logo-intelligence-gate.mjs",
     "typecheck": "tsc --noEmit",
     "verify:menu-content": "node scripts/verify-menu-content.mjs",
     "verify:instagram-tools": "node scripts/verify-instagram-tools.mjs",
