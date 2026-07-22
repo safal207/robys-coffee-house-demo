@@ -14,29 +14,30 @@
   "bindingRequirements": {
     "L1": {
       "minimumAvailable": 1,
-      "requiresHuman": false
+      "requiresHuman": true
     },
     "L2": {
-      "minimumAvailable": 2,
+      "minimumAvailable": 1,
       "requiresHuman": true
     },
     "L3": {
-      "minimumAvailable": 2,
+      "minimumAvailable": 1,
       "requiresHuman": true
     },
     "L4": {
-      "minimumAvailable": 2,
+      "minimumAvailable": 1,
       "requiresHuman": true
     }
   },
   "nonNegotiablePolicy": {
     "minimumBindingByDepth": {
       "L1": 1,
-      "L2": 2,
-      "L3": 2,
-      "L4": 2
+      "L2": 1,
+      "L3": 1,
+      "L4": 1
     },
     "humanRequiredDepths": [
+      "L1",
       "L2",
       "L3",
       "L4"
@@ -44,21 +45,13 @@
     "advisoryReviewers": [
       "codex",
       "deepseek"
-    ],
-    "providerLimitWaivers": {
-      "reviewers": [
-        "coderabbit"
-      ],
-      "statuses": [
-        "QUOTA_EXHAUSTED"
-      ]
-    }
+    ]
   },
   "reviewers": [
     {
-      "id": "coderabbit",
-      "label": "CodeRabbit",
-      "kind": "ai",
+      "id": "human-maintainer",
+      "label": "Human maintainer",
+      "kind": "human",
       "binding": true,
       "advisory": false,
       "eligibleDepths": [
@@ -69,9 +62,12 @@
       ],
       "roles": [
         "draft_reviewer",
-        "risk_critic"
+        "risk_critic",
+        "evidence_verifier",
+        "operator",
+        "authorization_owner"
       ],
-      "defaultStatus": "UNKNOWN"
+      "defaultStatus": "AVAILABLE"
     },
     {
       "id": "codex",
@@ -88,25 +84,6 @@
       "roles": [
         "advisory_reviewer",
         "risk_critic"
-      ],
-      "defaultStatus": "UNKNOWN"
-    },
-    {
-      "id": "human-maintainer",
-      "label": "Human maintainer",
-      "kind": "human",
-      "binding": true,
-      "advisory": false,
-      "eligibleDepths": [
-        "L2",
-        "L3",
-        "L4"
-      ],
-      "roles": [
-        "risk_critic",
-        "evidence_verifier",
-        "operator",
-        "authorization_owner"
       ],
       "defaultStatus": "UNKNOWN"
     },
