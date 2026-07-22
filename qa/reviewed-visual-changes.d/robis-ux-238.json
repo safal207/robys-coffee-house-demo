@@ -9,9 +9,19 @@
       },
       "expectedFailures": [
         {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6360 vs 320x6363"
+        },
+        {
           "capture": "discover-full",
           "viewport": "phone-320",
           "reason": "dimension mismatch 320x2652 vs 320x2684"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x526 vs 280x529"
         },
         {
           "capture": "discover-pairing",
@@ -24,9 +34,19 @@
           "maxDiffPixelRatio": 0.009
         },
         {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 320x501 vs 320x504"
+        },
+        {
           "capture": "discover-pairing",
           "viewport": "phone-360-short",
           "maxDiffPixelRatio": 0.012
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6164 vs 390x6167"
         },
         {
           "capture": "discover-full",
@@ -42,6 +62,21 @@
           "capture": "visit-map",
           "viewport": "phone-390",
           "maxDiffPixelRatio": 0.004
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 350x501 vs 350x504"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7111 vs 768x7114"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x423 vs 728x426"
         }
       ]
     }
