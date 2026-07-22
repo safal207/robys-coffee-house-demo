@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v23-20260721-svg-master-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v24-20260722-svg-master-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -99,6 +99,18 @@ async function cachedResponse(request) {
   return cache.match(request, { ignoreSearch: true });
 }
 
+async function runtimeAssetResponse(request) {
+  const cached = await cachedResponse(request);
+  if (cached) return cached;
+
+  const network = await fetch(request);
+  if (network.ok) {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.put(request, network.clone()).catch(() => {});
+  }
+  return network;
+}
+
 async function cachedPage(name) {
   return (await cachedResponse(new Request(new URL(name, self.registration.scope)))) || Response.error();
 }
@@ -138,7 +150,5 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    cachedResponse(event.request).then((cached) => cached || fetch(event.request))
-  );
+  event.respondWith(runtimeAssetResponse(event.request));
 });
