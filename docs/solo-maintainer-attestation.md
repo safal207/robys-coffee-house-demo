@@ -102,7 +102,7 @@ and must not be selected as required merge gates.
 
 1. Finish implementation and stop changing the head.
 2. Run Security, CodeQL, ZAP, browser, visual, static, and project-specific checks.
-3. Request current-head Codex, Jules, CodeRabbit, and optional DeepSeek review.
+3. Collect exact-head human approval or maintainer attestation; optional automated reviewers may add advisory evidence.
 4. Resolve every actionable review thread.
 5. Read the final diff and evidence as the responsible maintainer.
 6. Post a new `/merge-ready <full current head SHA>` comment.
