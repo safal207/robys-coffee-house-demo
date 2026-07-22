@@ -110,3 +110,34 @@
     background-image:url("src/brand/robys-compact-master-v1.svg?v=20260721-master-1")!important;
   }
 }
+
+/* ROBIS-UX-238: bounded mobile conversion and touch-target repairs. */
+@media(max-width:1024px){
+  html .language-switcher .lang-button{
+    min-width:40px!important;
+    min-height:40px!important;
+    padding-inline:8px!important;
+  }
+
+  html body.discover-page #next-pairing,
+  html body.discover-page #mark-discovered,
+  html body.menu-page .menu-secondary-button{
+    min-height:40px!important;
+  }
+
+  html body.discover-page #next-pairing,
+  html body.discover-page #mark-discovered{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding-block:8px!important;
+  }
+}
+
+@media(max-width:680px){
+  html body.featured-gallery-active nav.mobile-cta{
+    transform:none!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+}
