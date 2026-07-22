@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "scoreThreshold": 80,
+  "brandRed": "#E21B23",
+  "assets": [
+    {
+      "id": "primary",
+      "path": "src/brand/robys-primary-master-v1.svg",
+      "viewBox": [0, 0, 1260, 210],
+      "minVectorNodes": 25
+    },
+    {
+      "id": "compact",
+      "path": "src/brand/robys-compact-master-v1.svg",
+      "viewBox": [0, 0, 435, 150],
+      "minVectorNodes": 6
+    },
+    {
+      "id": "mobile",
+      "path": "src/brand/robys-mobile-master-v1.svg",
+      "viewBox": [0, 0, 620, 200],
+      "minVectorNodes": 7
+    },
+    {
+      "id": "mark",
+      "path": "src/brand/robys-mark-master-v1.svg",
+      "viewBox": [0, 0, 100, 100],
+      "minVectorNodes": 1
+    }
+  ],
+  "pixelThresholds": {
+    "minInkRatio": 0.012,
+    "minRedRatio": 0.001,
+    "maxEdgeInkRatio": 0.08,
+    "minOccupiedWidthRatio": 0.45,
+    "minOccupiedHeightRatio": 0.2,
+    "maxHorizontalImbalanceRatio": 0.22
+  },
+  "scenarios": [
+    {
+      "id": "home-mobile-320",
+      "path": "index.html",
+      "selector": ".site-header .brand-copy",
+      "viewport": { "width": 320, "height": 900 },
+      "expectedAsset": "robys-compact-master-v1.svg",
+      "size": { "minWidth": 80, "maxWidth": 105, "minHeight": 28, "maxHeight": 42 }
+    },
+    {
+      "id": "home-mobile-390",
+      "path": "index.html",
+      "selector": ".site-header .brand-copy",
+      "viewport": { "width": 390, "height": 1000 },
+      "expectedAsset": "robys-compact-master-v1.svg",
+      "size": { "minWidth": 90, "maxWidth": 112, "minHeight": 30, "maxHeight": 45 }
+    },
+    {
+      "id": "home-desktop-1440",
+      "path": "index.html",
+      "selector": ".site-header .brand-copy",
+      "viewport": { "width": 1440, "height": 1000 },
+      "expectedAsset": "robys-primary-master-v1.svg",
+      "size": { "minWidth": 270, "maxWidth": 300, "minHeight": 52, "maxHeight": 64 }
+    },
+    {
+      "id": "discover-mobile-320",
+      "path": "discover.html",
+      "selector": ".discover-header .brand-copy",
+      "viewport": { "width": 320, "height": 900 },
+      "expectedAsset": "robys-compact-master-v1.svg",
+      "size": { "minWidth": 76, "maxWidth": 100, "minHeight": 27, "maxHeight": 40 }
+    },
+    {
+      "id": "discover-mobile-390",
+      "path": "discover.html",
+      "selector": ".discover-header .brand-copy",
+      "viewport": { "width": 390, "height": 1000 },
+      "expectedAsset": "robys-compact-master-v1.svg",
+      "size": { "minWidth": 90, "maxWidth": 112, "minHeight": 30, "maxHeight": 45 }
+    },
+    {
+      "id": "menu-mobile-390",
+      "path": "menu.html",
+      "selector": ".menu-page-brand .brand-copy",
+      "viewport": { "width": 390, "height": 1000 },
+      "expectedAsset": "robys-primary-master-v1.svg",
+      "size": { "minWidth": 310, "maxWidth": 340, "minHeight": 76, "maxHeight": 90 }
+    },
+    {
+      "id": "menu-desktop-1440",
+      "path": "menu.html",
+      "selector": ".menu-page-brand .brand-copy",
+      "viewport": { "width": 1440, "height": 1000 },
+      "expectedAsset": "robys-primary-master-v1.svg",
+      "size": { "minWidth": 510, "maxWidth": 540, "minHeight": 104, "maxHeight": 118 }
+    }
+  ]
+}
