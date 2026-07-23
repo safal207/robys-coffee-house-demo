@@ -30,11 +30,6 @@ function installAndroidButtonLogo() {
 
 installAppleTouchIcon();
 
-const photoLogo = document.createElement("link");
-photoLogo.rel = "stylesheet";
-photoLogo.href = "brand-photo-logo.css?v=20260723-identity-v1";
-document.head.append(photoLogo);
-
 if (!installAndroidButtonLogo()) {
   let attempts = 0;
   let timeoutId;
