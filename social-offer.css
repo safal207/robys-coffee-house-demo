@@ -16,6 +16,10 @@
 .social-offer-button:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(184,77,88,.3)}
 .social-offer-button:focus-visible,.social-offer-social:focus-visible{outline:3px solid rgba(240,154,163,.55);outline-offset:4px}
 
+@media(max-width:1024px){
+  .social-offer-social{min-width:44px;min-height:44px}
+}
+
 @media(max-width:680px){
   .social-offer{padding:22px 0 26px}
   .social-offer-card{width:calc(100% - 28px);grid-template-columns:76px minmax(0,1fr);grid-template-areas:"mark copy" "mark social" "button button";gap:10px 15px;padding:18px;border-radius:22px}

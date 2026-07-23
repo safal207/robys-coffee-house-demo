@@ -88,6 +88,30 @@
   }
 }
 
+@media(max-width:420px){
+  .discover-header-inner{
+    min-height:auto!important;
+    flex-wrap:wrap!important;
+    gap:6px 10px!important;
+    padding-block:8px!important;
+  }
+
+  .discover-header .brand{
+    order:1!important;
+  }
+
+  .discover-header .discover-back{
+    order:2!important;
+    margin-left:auto!important;
+  }
+
+  .discover-header .language-switcher{
+    order:3!important;
+    width:100%!important;
+    justify-content:flex-end!important;
+  }
+}
+
 @media(max-width:390px){
   .site-header .brand,
   .discover-header .brand{
@@ -114,5 +138,37 @@
     width:82px!important;
     height:31px!important;
     background-image:url("src/brand/robys-compact-master-v1.svg?v=20260721-master-1")!important;
+  }
+}
+
+/* ROBIS-UX-238: bounded mobile conversion and touch-target repairs. */
+@media(max-width:1024px){
+  html .language-switcher .lang-button{
+    min-width:44px!important;
+    min-height:44px!important;
+    padding-inline:8px!important;
+  }
+
+  html body.discover-page #next-pairing,
+  html body.discover-page #mark-discovered,
+  html body.menu-page .menu-share-actions a{
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+
+  html body.discover-page #next-pairing,
+  html body.discover-page #mark-discovered{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding-block:8px!important;
+  }
+}
+
+@media(max-width:680px){
+  html body.featured-gallery-active nav.mobile-cta{
+    transform:none!important;
+    opacity:1!important;
+    pointer-events:auto!important;
   }
 }

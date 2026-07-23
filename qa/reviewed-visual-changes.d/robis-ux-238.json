@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "robis-mobile-touch-targets-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/239",
+      "contentBindings": {
+        "brand-photo-logo.css": "db519da814aefc7e29cad7acf9be3a17e24f4c7d",
+        "social-offer.css": "36a262c7c596c1c6aeb7260ca3ef336bd94fc3f8"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6360 vs 320x6367"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2652 vs 320x2735"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x526 vs 280x533"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x721 vs 280x740"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.011067708333333334
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x242 vs 360x246"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 320x501 vs 320x508"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 0.11588072122052705
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8557 vs 390x8561"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6164 vs 390x6171"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2708 vs 390x2782"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.005907692307692307
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.004480842351564785
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x242 vs 390x246"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 350x501 vs 350x508"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 0.03847441506562679
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7571 vs 768x7575"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7111 vs 768x7118"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x215 vs 768x219"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x423 vs 728x430"
+        }
+      ]
+    }
+  ]
+}

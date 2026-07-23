@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 declare global {
   interface Window {
@@ -116,10 +116,12 @@ test("all six responsive posters render inside their square frames", async ({ pa
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
-test("bottom panel leaves the viewport while the gallery is active", async ({ page }) => {
+test("bottom panel remains actionable while the gallery is active", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
   const panel = page.locator(".mobile-cta");
+  const routeAction = panel.locator(".mobile-cta-route");
+  const instagramAction = panel.locator(".mobile-cta-instagram");
   const gallery = page.locator(".featured-strip");
   await expect(panel).toBeVisible();
 
@@ -127,8 +129,31 @@ test("bottom panel leaves the viewport while the gallery is active", async ({ pa
   await page.waitForTimeout(350);
 
   await expect(page.locator("body")).toHaveClass(/featured-gallery-active/);
-  await expect(panel).toHaveCSS("opacity", "0");
-  await expect(panel).toHaveCSS("pointer-events", "none");
+  await expect(panel).toHaveCSS("opacity", "1");
+  await expect(panel).toHaveCSS("pointer-events", "auto");
+
+  for (const action of [routeAction, instagramAction]) {
+    await expect(action).toBeVisible();
+    const box = await action.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await action.click({ trial: true });
+  }
+
+  const tabTo = async (target: Locator, maximumTabs = 40) => {
+    for (let index = 0; index < maximumTabs; index += 1) {
+      await page.keyboard.press("Tab");
+      if (await target.evaluate((element) => document.activeElement === element)) return;
+    }
+    throw new Error(`Keyboard navigation did not reach ${await target.getAttribute("class")}`);
+  };
+
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  await tabTo(routeAction);
+  await expect(routeAction).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(instagramAction).toBeFocused();
 });
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
