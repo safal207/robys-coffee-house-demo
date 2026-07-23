@@ -61,6 +61,11 @@ const serviceWorker = read("sw.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 const appleTouchIcon = readFileSync("apple-touch-icon.png");
 const identityPages = ["index.html", "menu.html", "discover.html"].map((path) => [path, read(path)]);
+const identityPreloads = new Map([
+  ["index.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />'],
+  ["menu.html", '<link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />'],
+  ["discover.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />']
+]);
 
 for (const [path, source] of [
   ["src/brand/robys-mark-master-v1.svg", mark],
@@ -114,6 +119,11 @@ assert(organicRing.includes(APPROVED_RED), "organic ring must use canonical red"
 assert(!organicRing.includes("#d32636"), "organic ring must not retain the legacy red");
 for (const [path, source] of identityPages) {
   assert(source.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), `${path} must link the identity stylesheet without JavaScript`);
+  const preload = identityPreloads.get(path);
+  assert(
+    source.includes(preload),
+    `${path} must preload its above-the-fold identity master`
+  );
 }
 assert(!bootstrap.includes("brand-photo-logo.css"), "bootstrap must not inject the identity stylesheet at runtime");
 assert(bootstrap.includes("apple-touch-icon.png?v="), "Apple touch icon PNG wiring must remain active");
