@@ -1,59 +1,53 @@
 {
-  "generatedAt": "2026-07-23T04:16:25.896Z",
+  "generatedAt": "2026-07-23T04:51:42.290Z",
   "lighthouseVersion": "12.8.2",
-  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=030c8a4fcfbc6ce01ccfcfc05bf1cc035c5bb048",
-  "commit": "030c8a4fcfbc6ce01ccfcfc05bf1cc035c5bb048",
+  "testedUrl": "https://safal207.github.io/robys-coffee-house-demo/?audit=b725d3eeae645d248c95d40a164fe164709d96c8",
+  "commit": "b725d3eeae645d248c95d40a164fe164709d96c8",
   "build": "20260711-1",
   "mobile": {
     "categories": {
-      "performance": 61,
+      "performance": 74,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
       "first-contentful-paint": {
-        "displayValue": "2.3 s",
-        "numericValue": 2299.9775
+        "displayValue": "1.3 s",
+        "numericValue": 1312.3315
       },
       "largest-contentful-paint": {
-        "displayValue": "3.0 s",
-        "numericValue": 2999.9775
+        "displayValue": "2.2 s",
+        "numericValue": 2185.8315000000002
       },
       "speed-index": {
-        "displayValue": "3.7 s",
-        "numericValue": 3727.1311197871228
+        "displayValue": "4.6 s",
+        "numericValue": 4591.905530188392
       },
       "total-blocking-time": {
-        "displayValue": "3,900 ms",
-        "numericValue": 3898.5
+        "displayValue": "980 ms",
+        "numericValue": 984.0000000000002
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
         "numericValue": 0
       },
       "interactive": {
-        "displayValue": "6.9 s",
-        "numericValue": 6941.3275
+        "displayValue": "3.0 s",
+        "numericValue": 3027.4315000000006
       }
     },
     "opportunities": [
       {
         "id": "render-blocking-resources",
         "title": "Eliminate render-blocking resources",
-        "displayValue": "Est savings of 400 ms",
-        "score": 0
-      },
-      {
-        "id": "modern-image-formats",
-        "title": "Serve images in next-gen formats",
-        "displayValue": "Est savings of 13 KiB",
+        "displayValue": "Est savings of 230 ms",
         "score": 0
       },
       {
         "id": "server-response-time",
         "title": "Initial server response time was short",
-        "displayValue": "Root document took 20 ms",
+        "displayValue": "Root document took 0 ms",
         "score": 1
       }
     ]
@@ -68,19 +62,19 @@
     "metrics": {
       "first-contentful-paint": {
         "displayValue": "0.3 s",
-        "numericValue": 259.06591999999995
+        "numericValue": 254.39499999999998
       },
       "largest-contentful-paint": {
         "displayValue": "0.4 s",
-        "numericValue": 400.74447499999997
+        "numericValue": 376.193
       },
       "speed-index": {
         "displayValue": "0.5 s",
-        "numericValue": 540.0141975146108
+        "numericValue": 487.41224949457535
       },
       "total-blocking-time": {
-        "displayValue": "10 ms",
-        "numericValue": 9.000000000000057
+        "displayValue": "0 ms",
+        "numericValue": 0
       },
       "cumulative-layout-shift": {
         "displayValue": "0",
@@ -88,7 +82,7 @@
       },
       "interactive": {
         "displayValue": "0.4 s",
-        "numericValue": 405.8449845
+        "numericValue": 379.3196
       }
     },
     "opportunities": [
