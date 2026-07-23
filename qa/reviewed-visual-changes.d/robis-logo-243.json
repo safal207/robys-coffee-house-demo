@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "robis-responsive-logo-pill-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/243",
+      "contentBindings": {
+        "brand-photo-logo.css": "0777e245122370b2392956967d0fc164507eb288"
+      },
+      "expectedFailures": [
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "totalPixels": 230400,
+          "maxDiffPixelRatio": 0.004635416666666667
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "totalPixels": 230720,
+          "maxDiffPixelRatio": 0.0040828710124826625
+        }
+      ]
+    }
+  ]
+}
