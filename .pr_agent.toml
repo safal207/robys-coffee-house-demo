@@ -1,0 +1,12 @@
+# Repository-level Qodo configuration.
+# Qodo is intentionally disabled for this repository.
+
+[config]
+ignore_repositories = ["^safal207/robys-coffee-house-demo$"]
+
+[github_app]
+pr_commands = []
+
+[checks]
+enable_auto_checks_feedback = false
+enable_help_text = false
