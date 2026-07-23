@@ -11,11 +11,14 @@ const html = readFileSync("index.html", "utf8");
 const mapCss = readFileSync("map-live.css", "utf8");
 const heroCss = readFileSync("hero-balance.css", "utf8");
 const featuredCss = readFileSync("featured-gallery.css", "utf8");
+const brandCss = readFileSync("brand-photo-logo.css", "utf8");
 const featuredRuntime = readFileSync("featured-gallery.js", "utf8");
 const featuredSource = readFileSync("src/featured-gallery.ts", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
+const EXPECTED_UX_CSS_REVISION = "20260723-identity-v1";
 
 function assert(condition, contract, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
@@ -26,6 +29,31 @@ function cssRules(css, selector, contract) {
   const matches = Array.from(css.matchAll(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "gi")));
   assert(matches.length > 0, contract, `Missing CSS rule for ${selector}`);
   return matches.map((match) => match[1].replace(/\s+/g, "").toLowerCase());
+}
+
+function matchedBlockBody(source, headerPattern, contract, label) {
+  const match = source.match(headerPattern);
+  assert(match && match.index !== undefined, contract, `Missing ${label}`);
+  const openingBrace = source.indexOf("{", match?.index ?? -1);
+  assert(openingBrace >= 0, contract, `${label} has no opening brace`);
+
+  let depth = 0;
+  for (let index = openingBrace; index < source.length; index += 1) {
+    if (source[index] === "{") depth += 1;
+    if (source[index] === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(openingBrace + 1, index);
+    }
+  }
+
+  assert(false, contract, `${label} has no balanced closing brace`);
+  return "";
+}
+
+function stripJavaScriptComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 function dashboardContract(id, minimumAssertions) {
@@ -107,7 +135,22 @@ assert(featuredCss.includes("grid-template-columns:minmax(0,1fr)!important"), "F
 assert(featuredCss.includes("aspect-ratio:1/1"), "FEATURED-001", "Poster frames must preserve a calm square canvas");
 assert(featuredCss.includes("object-fit:contain!important"), "FEATURED-001", "Poster artwork must never be cropped");
 assert(featuredCss.includes(".poster-card.is-error .poster-card-fallback"), "FEATURED-001", "Broken images must expose a visible fallback instead of a black card");
-assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATURED-001", "The mobile dock must move away while posters are being viewed");
+assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATURED-001", "Legacy gallery state rule must remain identifiable for the bounded override");
+const mobileDockScope = matchedBlockBody(brandCss, /@media\s*\(\s*max-width\s*:\s*680px\s*\)\s*\{/i, "FEATURED-001", "max-width:680px dock override block");
+const dockOverrideRule = cssRules(mobileDockScope, "html body.featured-gallery-active nav.mobile-cta", "FEATURED-001")[0];
+assert(dockOverrideRule.includes("transform:none!important"), "FEATURED-001", "Gallery-active dock override must cancel the legacy translation inside max-width:680px");
+assert(dockOverrideRule.includes("opacity:1!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions visible inside max-width:680px");
+assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions clickable inside max-width:680px");
+const bootstrapCssRevision = bootstrapRuntime.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
+const serviceWorkerCssRevision = serviceWorker.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
+assert(Boolean(bootstrapCssRevision), "FEATURED-001", "Bootstrap must request a revisioned shared UX stylesheet");
+assert(bootstrapCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Bootstrap must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${bootstrapCssRevision || "missing"}`);
+assert(serviceWorkerCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Service Worker must precache the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${serviceWorkerCssRevision || "missing"}`);
+assert(bootstrapCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: bootstrap=${bootstrapCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
+const exactRevisionMatch = serviceWorker.match(/const\s+requiresExactRevision\s*=\s*(?<predicate>[\s\S]*?);\s*if\s*\(\s*requiresExactRevision\s*\)/u);
+const exactRevisionPredicate = stripJavaScriptComments(exactRevisionMatch?.groups?.predicate ?? "");
+assert(Boolean(exactRevisionPredicate), "FEATURED-001", "Service Worker must define the requiresExactRevision predicate before its guarded cache branch");
+assert(/url\.pathname\.endsWith\(\s*["']\/brand-photo-logo\.css["']\s*\)/.test(exactRevisionPredicate), "FEATURED-001", "requiresExactRevision must directly include the shared UX stylesheet pathname predicate");
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
 assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");
 assert(featuredRuntime.includes("MutationObserver"), "FEATURED-001", "Typed runtime must keep localized accessibility labels in sync");
@@ -130,5 +173,5 @@ assert(/window\.setTimeout\(\(\)\s*=>\s*observer\.disconnect\(\),\s*ANDROID_LOGO
 console.log("✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
-console.log("✅ FEATURED-001 gated: the TypeScript gallery renders 6 complete images with iOS-safe dock handling, stable fallback height and no crop.");
+console.log("✅ FEATURED-001 gated: the TypeScript gallery keeps six complete images, actionable mobile visit controls, exact offline CSS revisioning, stable fallback height and no crop.");
 console.log("✅ MOBILE-INSTALL-001 gated: PNG touch icon bootstrap and bounded Android logo observation remain enforced.");

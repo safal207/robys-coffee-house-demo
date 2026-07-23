@@ -8,18 +8,20 @@ const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8")
 const compactMaster = readFileSync(new URL("../src/brand/robys-compact-master-v1.svg", import.meta.url), "utf8");
 const markMaster = readFileSync(new URL("../src/brand/robys-mark-master-v1.svg", import.meta.url), "utf8");
 
-const assets = [
-  "src/brand/robys-primary-master-v1.svg",
-  "src/brand/robys-compact-master-v1.svg",
-  "src/brand/robys-mobile-master-v1.svg",
-  "src/brand/robys-mark-master-v1.svg",
-];
+const assetRevisions = new Map([
+  ["src/brand/robys-primary-master-v1.svg", "20260721-master-1"],
+  ["src/brand/robys-header-master-v1.svg", "20260723-identity-v1"],
+  ["src/brand/robys-compact-master-v1.svg", "20260721-master-1"],
+  ["src/brand/robys-mobile-master-v1.svg", "20260721-master-1"],
+  ["src/brand/robys-mark-master-v1.svg", "20260721-master-1"],
+]);
 
-for (const asset of assets) {
+for (const asset of assetRevisions.keys()) {
   assert.equal(existsSync(new URL(`../${asset}`, import.meta.url)), true, `missing SVG master: ${asset}`);
 }
 
-assert.match(bootstrap, /brand-photo-logo\.css\?v=20260721-svg-master-1/);
+assert.match(bootstrap, /brand-photo-logo\.css\?v=20260723-identity-v1/);
+assert.match(stylesheet, /robys-header-master-v1\.svg\?v=20260723-identity-v1/);
 assert.match(stylesheet, /robys-primary-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /robys-compact-master-v1\.svg\?v=20260721-master-1/);
 assert.match(stylesheet, /robys-mark-master-v1\.svg\?v=20260721-master-1/);
@@ -37,16 +39,16 @@ assert.match(markMaster, /M50 4C77\.7 4 96 22\.9 96 50\.3/, "standalone mark mus
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260721-svg-master-1"/);
-for (const asset of assets) {
+assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260723-identity-v1"/);
+for (const [asset, revision] of assetRevisions) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=20260721-master-1"`));
+  assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=${revision}"`));
 }
 
 const exactRevisionBlock = serviceWorker.match(
   /const requiresExactRevision =(?<body>[\s\S]*?)if \(requiresExactRevision\)/u,
 )?.groups?.body ?? "";
-for (const asset of assets) {
+for (const asset of assetRevisions.keys()) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   assert.match(exactRevisionBlock, new RegExp(`url\\.pathname\\.endsWith\\("/${escaped}"\\)`));
 }
