@@ -17,7 +17,7 @@
 .social-offer-button:focus-visible,.social-offer-social:focus-visible{outline:3px solid rgba(240,154,163,.55);outline-offset:4px}
 
 @media(max-width:1024px){
-  .social-offer-social{min-height:44px}
+  .social-offer-social{min-width:44px;min-height:44px}
 }
 
 @media(max-width:680px){
