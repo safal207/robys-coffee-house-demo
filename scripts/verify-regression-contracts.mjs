@@ -31,6 +31,31 @@ function cssRules(css, selector, contract) {
   return matches.map((match) => match[1].replace(/\s+/g, "").toLowerCase());
 }
 
+function matchedBlockBody(source, headerPattern, contract, label) {
+  const match = source.match(headerPattern);
+  assert(match && match.index !== undefined, contract, `Missing ${label}`);
+  const openingBrace = source.indexOf("{", match?.index ?? -1);
+  assert(openingBrace >= 0, contract, `${label} has no opening brace`);
+
+  let depth = 0;
+  for (let index = openingBrace; index < source.length; index += 1) {
+    if (source[index] === "{") depth += 1;
+    if (source[index] === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(openingBrace + 1, index);
+    }
+  }
+
+  assert(false, contract, `${label} has no balanced closing brace`);
+  return "";
+}
+
+function stripJavaScriptComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
 function dashboardContract(id, minimumAssertions) {
   const contract = dashboard.contracts?.find((item) => item.id === id);
   assert(contract, id, `${id} is missing from qa/regression-dashboard.json`);
@@ -111,17 +136,21 @@ assert(featuredCss.includes("aspect-ratio:1/1"), "FEATURED-001", "Poster frames 
 assert(featuredCss.includes("object-fit:contain!important"), "FEATURED-001", "Poster artwork must never be cropped");
 assert(featuredCss.includes(".poster-card.is-error .poster-card-fallback"), "FEATURED-001", "Broken images must expose a visible fallback instead of a black card");
 assert(featuredCss.includes("body.featured-gallery-active .mobile-cta"), "FEATURED-001", "Legacy gallery state rule must remain identifiable for the bounded override");
-const dockOverrideRule = cssRules(brandCss, "html body.featured-gallery-active nav.mobile-cta", "FEATURED-001")[0];
-assert(dockOverrideRule.includes("transform:none!important"), "FEATURED-001", "Gallery-active dock override must cancel the legacy translation");
-assert(dockOverrideRule.includes("opacity:1!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions visible");
-assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions clickable");
+const mobileDockScope = matchedBlockBody(brandCss, /@media\s*\(\s*max-width\s*:\s*680px\s*\)\s*\{/i, "FEATURED-001", "max-width:680px dock override block");
+const dockOverrideRule = cssRules(mobileDockScope, "html body.featured-gallery-active nav.mobile-cta", "FEATURED-001")[0];
+assert(dockOverrideRule.includes("transform:none!important"), "FEATURED-001", "Gallery-active dock override must cancel the legacy translation inside max-width:680px");
+assert(dockOverrideRule.includes("opacity:1!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions visible inside max-width:680px");
+assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions clickable inside max-width:680px");
 const bootstrapCssRevision = bootstrapRuntime.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
 const serviceWorkerCssRevision = serviceWorker.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
 assert(Boolean(bootstrapCssRevision), "FEATURED-001", "Bootstrap must request a revisioned shared UX stylesheet");
 assert(bootstrapCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Bootstrap must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${bootstrapCssRevision || "missing"}`);
 assert(serviceWorkerCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Service Worker must precache the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${serviceWorkerCssRevision || "missing"}`);
 assert(bootstrapCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: bootstrap=${bootstrapCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
-assert(serviceWorker.includes('url.pathname.endsWith("/brand-photo-logo.css")'), "FEATURED-001", "Service Worker must preserve exact revision matching for the shared UX stylesheet");
+const exactRevisionMatch = serviceWorker.match(/const\s+requiresExactRevision\s*=\s*(?<predicate>[\s\S]*?);\s*if\s*\(\s*requiresExactRevision\s*\)/u);
+const exactRevisionPredicate = stripJavaScriptComments(exactRevisionMatch?.groups?.predicate ?? "");
+assert(Boolean(exactRevisionPredicate), "FEATURED-001", "Service Worker must define the requiresExactRevision predicate before its guarded cache branch");
+assert(/url\.pathname\.endsWith\(\s*["']\/brand-photo-logo\.css["']\s*\)/.test(exactRevisionPredicate), "FEATURED-001", "requiresExactRevision must directly include the shared UX stylesheet pathname predicate");
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
 assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");
 assert(featuredRuntime.includes("MutationObserver"), "FEATURED-001", "Typed runtime must keep localized accessibility labels in sync");
