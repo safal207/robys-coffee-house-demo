@@ -152,6 +152,7 @@
   html body.discover-page #next-pairing,
   html body.discover-page #mark-discovered,
   html body.menu-page .menu-share-actions a{
+    min-width:44px!important;
     min-height:44px!important;
   }
 
