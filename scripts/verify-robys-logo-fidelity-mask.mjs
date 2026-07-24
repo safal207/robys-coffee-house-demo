@@ -68,7 +68,7 @@ function mismatch(a,b){let n=0;for(let i=0;i<a.mask.length;i++)if(a.mask[i]!==b.
 async function diffPng(a,b,file){const out=new Uint8Array(a.mask.length);for(let i=0;i<out.length;i++)out[i]=a.mask[i]===b.mask[i]?0:1;await writeMask({mask:out,width:a.width,height:a.height},file);}
 async function board(ref,actual,diff,file,label){
   const w=ref.width,h=ref.height,lh=24,total=(h+lh)*3,items=[];
-  for(const [i,[name,img]] of [[0,['REFERENCE',ref]],[1,['BROWSER',actual]],[2,['DIFF',diff]]].entries()){
+  for(const [i,[name,img]] of [['REFERENCE',ref],['BROWSER',actual],['DIFF',diff]].entries()){
     const top=i*(h+lh);items.push({input:Buffer.from(`<svg width="${w}" height="${lh}"><rect width="100%" height="100%" fill="white"/><text x="8" y="17" font-size="13" font-family="Arial" font-weight="700">${label} · ${name}</text></svg>`),top,left:0});items.push({input:rgba(img),raw:{width:w,height:h,channels:4},top:top+lh,left:0});
   }
   await sharp({create:{width:w,height:total,channels:3,background:'#fff'}}).composite(items).png().toFile(file);
@@ -83,7 +83,7 @@ async function main(){
   const cfg=JSON.parse(await fs.readFile(a.config,'utf8'));assert.equal(cfg.authority.merge,false);assert.equal(cfg.authority.deployment,false);
   const refBytes=await fs.readFile(cfg.reference.mask_path);assert.equal(hash(refBytes),cfg.reference.mask_sha256);const rp=JSON.parse(refBytes);assert.equal(rp.source_sha256,cfg.reference.source_sha256);
   const ref={glyphs:Object.fromEntries(cfg.glyph_order.map(g=>[g,unpack(rp.glyphs[g])])),wordmark:unpack(rp.wordmark)};
-  const out=a['output-dir'];await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});const refFile=path.join(out,'reference-normalized.png');await writeMask(ref.wordmark,refFile);
+  const out=a['output-dir'];await fs.mkdir(out,{recursive:true});const refFile=path.join(out,'reference-normalized.png');await writeMask(ref.wordmark,refFile);
   const browser=await chromium.launch({executablePath:a.chrome,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});const results=[];
   try{for(const p of cfg.profiles){
     const cap=await capture(browser,cfg,p,out),m=await imageMask(cap.file),boxes=glyphBoxes(m,cfg.glyph_order),scores={};
