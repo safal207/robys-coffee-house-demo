@@ -19,7 +19,6 @@ export interface SmartChoiceItem {
   sourceCategoryId: string;
   name: MenuLocalizedText;
   description?: MenuLocalizedText;
-  category: string;
   priceMinor: number;
   currency: "TRY";
   tags: readonly string[];
@@ -67,14 +66,12 @@ export interface SmartChoiceCombo {
   blockedReason?: string;
 }
 
-export interface BumpTrigger {
-  comboIds?: readonly string[];
-  itemIds?: readonly string[];
-}
-
 export interface SmartChoiceBump {
   id: string;
-  trigger: BumpTrigger;
+  trigger: {
+    comboIds?: readonly string[];
+    itemIds?: readonly string[];
+  };
   targetItemId: string;
   deltaPriceMinor: number;
   exclusions: readonly string[];
@@ -91,11 +88,9 @@ export interface SmartChoiceCatalog {
   bumps: readonly SmartChoiceBump[];
 }
 
-export type CatalogDiagnosticSeverity = "error" | "warning";
-
 export interface CatalogDiagnostic {
   code: string;
-  severity: CatalogDiagnosticSeverity;
+  severity: "error" | "warning";
   path: string;
   message: string;
 }
@@ -106,7 +101,7 @@ interface FlattenedMenuItem {
   item: MenuItemSource;
 }
 
-interface SmartChoiceItemRule {
+interface ItemRule {
   sourceId: string;
   tags: readonly string[];
   intents: readonly SmartChoiceIntent[];
@@ -117,7 +112,7 @@ interface SmartChoiceItemRule {
   sourceStatus: SourceStatus;
 }
 
-interface SmartChoiceComboRule {
+interface ComboRule {
   id: string;
   sourceOfferId: string;
   componentIds: readonly string[];
@@ -151,22 +146,15 @@ function sourceIdFor(categoryId: string, item: MenuItemSource): string {
 }
 
 function flattenMenu(categories: readonly MenuCategorySource[]): FlattenedMenuItem[] {
-  const flattened: FlattenedMenuItem[] = [];
-
-  for (const category of categories) {
+  return categories.flatMap((category) => {
     const directItems = category.items ?? [];
     const groupedItems = (category.groups ?? []).flatMap((group) => group.items);
-
-    for (const item of [...directItems, ...groupedItems]) {
-      flattened.push({
-        sourceId: sourceIdFor(category.id, item),
-        categoryId: category.id,
-        item
-      });
-    }
-  }
-
-  return flattened;
+    return [...directItems, ...groupedItems].map((item) => ({
+      sourceId: sourceIdFor(category.id, item),
+      categoryId: category.id,
+      item
+    }));
+  });
 }
 
 const MENU_INDEX = new Map<string, FlattenedMenuItem>();
@@ -177,7 +165,7 @@ for (const entry of flattenMenu(menuCategories)) {
   MENU_INDEX.set(entry.sourceId, entry);
 }
 
-const ITEM_RULES: readonly SmartChoiceItemRule[] = [
+const ITEM_RULES: readonly ItemRule[] = [
   {
     sourceId: "hot-coffee--caffe-latte",
     tags: ["coffee", "milk", "morning"],
@@ -300,14 +288,11 @@ const ITEM_RULES: readonly SmartChoiceItemRule[] = [
   }
 ];
 
-const COMBO_RULES: readonly SmartChoiceComboRule[] = [
+const COMBO_RULES: readonly ComboRule[] = [
   {
     id: "combo-iced-san-sebastian",
     sourceOfferId: "iced-san-sebastian-pairing",
-    componentIds: [
-      "cold-coffee--iced-caffe-latte",
-      "desserts--san-sebastian-cheesecake"
-    ],
+    componentIds: ["cold-coffee--iced-caffe-latte", "desserts--san-sebastian-cheesecake"],
     intents: ["coffee", "dessert", "snack", "refresh"],
     tags: ["signature", "cold", "sweet"],
     availability: "available",
@@ -325,11 +310,9 @@ const COMBO_RULES: readonly SmartChoiceComboRule[] = [
   }
 ];
 
-function requireMenuSource(sourceId: string): FlattenedMenuItem {
+function requireSource(sourceId: string): FlattenedMenuItem {
   const source = MENU_INDEX.get(sourceId);
-  if (!source) {
-    throw new Error(`[SMART-CHOICE-CATALOG] Unknown public-menu source: ${sourceId}`);
-  }
+  if (!source) throw new Error(`[SMART-CHOICE-CATALOG] Unknown public-menu source: ${sourceId}`);
   return source;
 }
 
@@ -340,15 +323,14 @@ function toMinorUnits(priceLira: number, sourceId: string): number {
   return priceLira * 100;
 }
 
-function buildItem(rule: SmartChoiceItemRule): SmartChoiceItem {
-  const source = requireMenuSource(rule.sourceId);
+function buildItem(rule: ItemRule): SmartChoiceItem {
+  const source = requireSource(rule.sourceId);
   return {
     id: rule.sourceId,
     sourceId: rule.sourceId,
     sourceCategoryId: source.categoryId,
     name: source.item.name,
     ...(source.item.description ? { description: source.item.description } : {}),
-    category: source.categoryId,
     priceMinor: toMinorUnits(source.item.price, rule.sourceId),
     currency: "TRY",
     tags: rule.tags,
@@ -364,8 +346,8 @@ function buildItem(rule: SmartChoiceItemRule): SmartChoiceItem {
 const ITEMS = ITEM_RULES.map(buildItem);
 const ITEM_INDEX = new Map(ITEMS.map((item) => [item.id, item]));
 
-function buildCombo(rule: SmartChoiceComboRule): SmartChoiceCombo {
-  const source = requireMenuSource(rule.sourceOfferId);
+function buildCombo(rule: ComboRule): SmartChoiceCombo {
+  const source = requireSource(rule.sourceOfferId);
   return {
     id: rule.id,
     sourceOfferId: rule.sourceOfferId,
@@ -387,13 +369,14 @@ function buildCombo(rule: SmartChoiceComboRule): SmartChoiceCombo {
 }
 
 const COMBOS = COMBO_RULES.map(buildCombo);
+const MACARON_PRICE_MINOR = ITEM_INDEX.get("desserts--macaron")?.priceMinor ?? 0;
 
 const BUMPS: readonly SmartChoiceBump[] = [
   {
     id: "bump-macaron-after-iced-san-sebastian",
     trigger: { comboIds: ["combo-iced-san-sebastian"] },
     targetItemId: "desserts--macaron",
-    deltaPriceMinor: ITEM_INDEX.get("desserts--macaron")?.priceMinor ?? 0,
+    deltaPriceMinor: MACARON_PRICE_MINOR,
     exclusions: ["basket-already-contains-dessert-add-on"],
     availability: "unavailable",
     sourceStatus: "provisional"
@@ -409,346 +392,184 @@ export const SMART_CHOICE_CATALOG: SmartChoiceCatalog = {
   bumps: BUMPS
 };
 
-function addDiagnostic(
-  diagnostics: CatalogDiagnostic[],
+function diagnostic(
+  list: CatalogDiagnostic[],
   code: string,
-  severity: CatalogDiagnosticSeverity,
+  severity: "error" | "warning",
   path: string,
   message: string
 ): void {
-  diagnostics.push({ code, severity, path, message });
+  list.push({ code, severity, path, message });
 }
 
-function validateLocalizedText(
+function validateLocalized(
   value: MenuLocalizedText | undefined,
   path: string,
-  diagnostics: CatalogDiagnostic[]
+  list: CatalogDiagnostic[]
 ): void {
-  if (!value || typeof value !== "object") {
-    addDiagnostic(diagnostics, "SC-CATALOG-I18N-001", "error", path, "Localized text is missing.");
-    return;
-  }
-
   for (const language of LANGUAGES) {
-    if (typeof value[language] !== "string" || value[language].trim().length === 0) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-I18N-002",
-        "error",
-        `${path}.${language}`,
-        `Missing ${language} translation.`
-      );
+    if (!value || typeof value[language] !== "string" || value[language].trim().length === 0) {
+      diagnostic(list, "SC-CATALOG-I18N-001", "error", `${path}.${language}`, `Missing ${language} translation.`);
     }
   }
 }
 
-function validateMoney(
-  value: number,
-  path: string,
-  diagnostics: CatalogDiagnostic[],
-  allowZero = false
-): void {
-  const valid = Number.isInteger(value) && (allowZero ? value >= 0 : value > 0);
-  if (!valid) {
-    addDiagnostic(
-      diagnostics,
-      "SC-CATALOG-MONEY-001",
-      "error",
-      path,
-      "Money must be a positive integer in minor units."
-    );
+function validateMoney(value: number, path: string, list: CatalogDiagnostic[], allowZero = false): void {
+  if (!Number.isInteger(value) || (allowZero ? value < 0 : value <= 0)) {
+    diagnostic(list, "SC-CATALOG-MONEY-001", "error", path, "Money must be an integer in minor units.");
   }
 }
 
-function validateUniqueIds(
-  entries: readonly { id: string }[],
-  path: string,
-  diagnostics: CatalogDiagnostic[]
-): void {
+function validateUniqueIds(entries: readonly { id: string }[], path: string, list: CatalogDiagnostic[]): void {
   const seen = new Set<string>();
-  for (const [index, entry] of entries.entries()) {
-    if (!entry.id.trim()) {
-      addDiagnostic(diagnostics, "SC-CATALOG-ID-001", "error", `${path}[${index}].id`, "ID is empty.");
-    } else if (seen.has(entry.id)) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-ID-002",
-        "error",
-        `${path}[${index}].id`,
-        `Duplicate ID: ${entry.id}`
-      );
-    }
+  entries.forEach((entry, index) => {
+    if (!entry.id.trim()) diagnostic(list, "SC-CATALOG-ID-001", "error", `${path}[${index}].id`, "ID is empty.");
+    if (seen.has(entry.id)) diagnostic(list, "SC-CATALOG-ID-002", "error", `${path}[${index}].id`, `Duplicate ID: ${entry.id}`);
     seen.add(entry.id);
-  }
+  });
+}
+
+function isEligible(entry: { sourceStatus: SourceStatus; availability: AvailabilityStatus }): boolean {
+  return entry.sourceStatus === "confirmed" && entry.availability === "available";
 }
 
 export function validateSmartChoiceCatalog(
   catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG
 ): CatalogDiagnostic[] {
-  const diagnostics: CatalogDiagnostic[] = [];
+  const list: CatalogDiagnostic[] = [];
 
-  if (!catalog.version.trim()) {
-    addDiagnostic(diagnostics, "SC-CATALOG-VERSION-001", "error", "version", "Catalog version is missing.");
-  }
-  if (catalog.currency !== "TRY") {
-    addDiagnostic(diagnostics, "SC-CATALOG-CURRENCY-001", "error", "currency", "Currency must be TRY.");
-  }
-  if (catalog.minorUnitScale !== 100) {
-    addDiagnostic(
-      diagnostics,
-      "SC-CATALOG-CURRENCY-002",
-      "error",
-      "minorUnitScale",
-      "TRY prices must use a 100 minor-unit scale."
-    );
-  }
+  if (!catalog.version.trim()) diagnostic(list, "SC-CATALOG-VERSION-001", "error", "version", "Version is missing.");
+  if (catalog.currency !== "TRY") diagnostic(list, "SC-CATALOG-CURRENCY-001", "error", "currency", "Currency must be TRY.");
+  if (catalog.minorUnitScale !== 100) diagnostic(list, "SC-CATALOG-CURRENCY-002", "error", "minorUnitScale", "TRY must use a 100 minor-unit scale.");
 
-  validateUniqueIds(catalog.items, "items", diagnostics);
-  validateUniqueIds(catalog.combos, "combos", diagnostics);
-  validateUniqueIds(catalog.bumps, "bumps", diagnostics);
+  validateUniqueIds(catalog.items, "items", list);
+  validateUniqueIds(catalog.combos, "combos", list);
+  validateUniqueIds(catalog.bumps, "bumps", list);
 
   const itemIndex = new Map(catalog.items.map((item) => [item.id, item]));
   const comboIndex = new Map(catalog.combos.map((combo) => [combo.id, combo]));
 
-  for (const [index, item] of catalog.items.entries()) {
+  catalog.items.forEach((item, index) => {
     const path = `items[${index}]`;
-    validateLocalizedText(item.name, `${path}.name`, diagnostics);
-    if (item.description) validateLocalizedText(item.description, `${path}.description`, diagnostics);
-    validateMoney(item.priceMinor, `${path}.priceMinor`, diagnostics);
-
-    if (!MENU_INDEX.has(item.sourceId)) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-SOURCE-001",
-        "error",
-        `${path}.sourceId`,
-        `Unknown public-menu source: ${item.sourceId}`
-      );
-    }
-
+    validateLocalized(item.name, `${path}.name`, list);
+    if (item.description) validateLocalized(item.description, `${path}.description`, list);
+    validateMoney(item.priceMinor, `${path}.priceMinor`, list);
+    if (!MENU_INDEX.has(item.sourceId)) diagnostic(list, "SC-CATALOG-SOURCE-001", "error", `${path}.sourceId`, `Unknown menu source: ${item.sourceId}`);
     if (item.sourceStatus !== "confirmed" && item.availability === "available") {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-ELIGIBILITY-001",
-        "error",
-        path,
-        "Only confirmed items may be available for recommendation."
-      );
+      diagnostic(list, "SC-CATALOG-ELIGIBILITY-001", "error", path, "Only confirmed items may be available.");
     }
-  }
+  });
 
-  for (const [index, combo] of catalog.combos.entries()) {
+  catalog.combos.forEach((combo, index) => {
     const path = `combos[${index}]`;
-    validateLocalizedText(combo.name, `${path}.name`, diagnostics);
-    if (combo.description) validateLocalizedText(combo.description, `${path}.description`, diagnostics);
-    if (combo.extraValue) validateLocalizedText(combo.extraValue, `${path}.extraValue`, diagnostics);
-    validateMoney(combo.priceMinor, `${path}.priceMinor`, diagnostics);
+    validateLocalized(combo.name, `${path}.name`, list);
+    if (combo.description) validateLocalized(combo.description, `${path}.description`, list);
+    if (combo.extraValue) validateLocalized(combo.extraValue, `${path}.extraValue`, list);
+    validateMoney(combo.priceMinor, `${path}.priceMinor`, list);
+    if (!MENU_INDEX.has(combo.sourceOfferId)) diagnostic(list, "SC-CATALOG-SOURCE-002", "error", `${path}.sourceOfferId`, `Unknown offer source: ${combo.sourceOfferId}`);
+    if (combo.components.length < 2) diagnostic(list, "SC-CATALOG-COMBO-001", "error", `${path}.components`, "A combo needs at least two components.");
 
-    if (!MENU_INDEX.has(combo.sourceOfferId)) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-SOURCE-002",
-        "error",
-        `${path}.sourceOfferId`,
-        `Unknown public-menu offer source: ${combo.sourceOfferId}`
-      );
-    }
-
-    if (combo.components.length < 2) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-COMBO-001",
-        "error",
-        `${path}.components`,
-        "A combo must contain at least two components."
-      );
-    }
-
-    const componentIds = new Set<string>();
+    const seenComponents = new Set<string>();
     let componentTotalMinor = 0;
-    for (const [componentIndex, component] of combo.components.entries()) {
+    combo.components.forEach((component, componentIndex) => {
       const componentPath = `${path}.components[${componentIndex}]`;
       if (!Number.isInteger(component.quantity) || component.quantity <= 0) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-COMBO-002",
-          "error",
-          `${componentPath}.quantity`,
-          "Component quantity must be a positive integer."
-        );
+        diagnostic(list, "SC-CATALOG-COMBO-002", "error", `${componentPath}.quantity`, "Quantity must be a positive integer.");
       }
-      if (componentIds.has(component.itemId)) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-COMBO-003",
-          "error",
-          `${componentPath}.itemId`,
-          `Duplicate combo component: ${component.itemId}`
-        );
+      if (seenComponents.has(component.itemId)) {
+        diagnostic(list, "SC-CATALOG-COMBO-003", "error", `${componentPath}.itemId`, `Duplicate component: ${component.itemId}`);
       }
-      componentIds.add(component.itemId);
-
+      seenComponents.add(component.itemId);
       const item = itemIndex.get(component.itemId);
       if (!item) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-REFERENCE-001",
-          "error",
-          `${componentPath}.itemId`,
-          `Unknown item reference: ${component.itemId}`
-        );
+        diagnostic(list, "SC-CATALOG-REFERENCE-001", "error", `${componentPath}.itemId`, `Unknown item: ${component.itemId}`);
       } else {
         componentTotalMinor += item.priceMinor * component.quantity;
       }
-    }
+    });
 
-    for (const [substitutionIndex, substitution] of combo.allowedSubstitutions.entries()) {
+    combo.allowedSubstitutions.forEach((substitution, substitutionIndex) => {
       const substitutionPath = `${path}.allowedSubstitutions[${substitutionIndex}]`;
       if (!itemIndex.has(substitution.fromItemId) || !itemIndex.has(substitution.toItemId)) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-REFERENCE-002",
-          "error",
-          substitutionPath,
-          "Substitution references an unknown item."
-        );
+        diagnostic(list, "SC-CATALOG-REFERENCE-002", "error", substitutionPath, "Substitution references an unknown item.");
       }
-      validateMoney(substitution.priceDeltaMinor, `${substitutionPath}.priceDeltaMinor`, diagnostics, true);
-    }
+      validateMoney(substitution.priceDeltaMinor, `${substitutionPath}.priceDeltaMinor`, list, true);
+    });
 
-    for (const [upgradeIndex, upgrade] of combo.upgrades.entries()) {
+    combo.upgrades.forEach((upgrade, upgradeIndex) => {
       const upgradePath = `${path}.upgrades[${upgradeIndex}]`;
-      validateLocalizedText(upgrade.label, `${upgradePath}.label`, diagnostics);
-      validateMoney(upgrade.priceDeltaMinor, `${upgradePath}.priceDeltaMinor`, diagnostics, true);
-    }
+      validateLocalized(upgrade.label, `${upgradePath}.label`, list);
+      validateMoney(upgrade.priceDeltaMinor, `${upgradePath}.priceDeltaMinor`, list, true);
+    });
 
     if (combo.sourceStatus !== "confirmed" && combo.availability === "available") {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-ELIGIBILITY-002",
-        "error",
-        path,
-        "Only confirmed combos may be available for recommendation."
-      );
+      diagnostic(list, "SC-CATALOG-ELIGIBILITY-002", "error", path, "Only confirmed combos may be available.");
     }
 
     if (componentTotalMinor > 0 && combo.priceMinor > componentTotalMinor && !combo.extraValue) {
-      const eligible = combo.sourceStatus === "confirmed" && combo.availability === "available";
-      addDiagnostic(
-        diagnostics,
+      diagnostic(
+        list,
         "SC-CATALOG-COMBO-PRICE-001",
-        eligible ? "error" : "warning",
+        isEligible(combo) ? "error" : "warning",
         `${path}.priceMinor`,
-        eligible
+        isEligible(combo)
           ? "Orderable combo costs more than its components without declared extra value."
-          : "Blocked combo costs more than its components and remains ineligible until extra value or corrected pricing is declared."
+          : "Blocked combo remains ineligible until corrected pricing or extra value is declared."
       );
     }
-  }
+  });
 
-  for (const [index, bump] of catalog.bumps.entries()) {
+  catalog.bumps.forEach((bump, index) => {
     const path = `bumps[${index}]`;
-    validateMoney(bump.deltaPriceMinor, `${path}.deltaPriceMinor`, diagnostics);
-
+    validateMoney(bump.deltaPriceMinor, `${path}.deltaPriceMinor`, list);
     const target = itemIndex.get(bump.targetItemId);
     if (!target) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-REFERENCE-003",
-        "error",
-        `${path}.targetItemId`,
-        `Unknown bump target: ${bump.targetItemId}`
-      );
+      diagnostic(list, "SC-CATALOG-REFERENCE-003", "error", `${path}.targetItemId`, `Unknown bump target: ${bump.targetItemId}`);
     } else if (target.priceMinor !== bump.deltaPriceMinor) {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-BUMP-PRICE-001",
-        "error",
-        `${path}.deltaPriceMinor`,
-        "Bump price must match the referenced menu item until a separately approved offer exists."
-      );
+      diagnostic(list, "SC-CATALOG-BUMP-PRICE-001", "error", `${path}.deltaPriceMinor`, "Unapproved bump must use the menu item price.");
     }
 
     for (const comboId of bump.trigger.comboIds ?? []) {
       const combo = comboIndex.get(comboId);
       if (!combo) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-REFERENCE-004",
-          "error",
-          `${path}.trigger.comboIds`,
-          `Unknown trigger combo: ${comboId}`
-        );
+        diagnostic(list, "SC-CATALOG-REFERENCE-004", "error", `${path}.trigger.comboIds`, `Unknown trigger combo: ${comboId}`);
       } else if (combo.components.some((component) => component.itemId === bump.targetItemId)) {
-        addDiagnostic(\iagnostics,
-          "SC-CATALOG-BUMP-001",
-          "error",
-          path,
-          "Bump duplicates an item already included in its trigger combo."
-        );
+        diagnostic(list, "SC-CATALOG-BUMP-001", "error", path, "Bump duplicates an item already included in the combo.");
       }
     }
 
     for (const itemId of bump.trigger.itemIds ?? []) {
-      if (!itemIndex.has(itemId)) {
-        addDiagnostic(
-          diagnostics,
-          "SC-CATALOG-REFERENCE-005",
-          "error",
-          `${path}.trigger.itemIds`,
-          `Unknown trigger item: ${itemId}`
-        );
-      }
+      if (!itemIndex.has(itemId)) diagnostic(list, "SC-CATALOG-REFERENCE-005", "error", `${path}.trigger.itemIds`, `Unknown trigger item: ${itemId}`);
     }
 
     if (bump.sourceStatus !== "confirmed" && bump.availability === "available") {
-      addDiagnostic(
-        diagnostics,
-        "SC-CATALOG-ELIGIBILITY-003",
-        "error",
-        path,
-        "Only confirmed bumps may be available for recommendation."
-      );
+      diagnostic(list, "SC-CATALOG-ELIGIBILITY-003", "error", path, "Only confirmed bumps may be available.");
     }
-  }
+  });
 
-  return diagnostics;
+  return list;
 }
 
-export function assertSmartChoiceCatalog(
-  catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG
-): void {
-  const errors = validateSmartChoiceCatalog(catalog).filter((diagnostic) => diagnostic.severity === "error");
+export function assertSmartChoiceCatalog(catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG): void {
+  const errors = validateSmartChoiceCatalog(catalog).filter((entry) => entry.severity === "error");
   if (errors.length === 0) return;
-
-  const details = errors
-    .map((diagnostic) => `${diagnostic.code} ${diagnostic.path}: ${diagnostic.message}`)
-    .join("\n");
-  throw new Error(`[SMART-CHOICE-CATALOG] Validation failed:\n${details}`);
-}
-
-export function getEligibleItems(
-  catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG
-): readonly SmartChoiceItem[] {
-  return catalog.items.filter(
-    (item) => item.sourceStatus === "confirmed" && item.availability === "available"
+  throw new Error(
+    `[SMART-CHOICE-CATALOG] Validation failed:\n${errors
+      .map((entry) => `${entry.code} ${entry.path}: ${entry.message}`)
+      .join("\n")}`
   );
 }
 
-export function getEligibleCombos(
-  catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG
-): readonly SmartChoiceCombo[] {
-  return catalog.combos.filter(
-    (combo) => combo.sourceStatus === "confirmed" && combo.availability === "available"
-  );
+export function getEligibleItems(catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG): readonly SmartChoiceItem[] {
+  return catalog.items.filter(isEligible);
 }
 
-export function getEligibleBumps(
-  catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG
-): readonly SmartChoiceBump[] {
-  return catalog.bumps.filter(
-    (bump) => bump.sourceStatus === "confirmed" && bump.availability === "available"
-  );
+export function getEligibleCombos(catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG): readonly SmartChoiceCombo[] {
+  return catalog.combos.filter(isEligible);
+}
+
+export function getEligibleBumps(catalog: SmartChoiceCatalog = SMART_CHOICE_CATALOG): readonly SmartChoiceBump[] {
+  return catalog.bumps.filter(isEligible);
 }
 
 assertSmartChoiceCatalog();
