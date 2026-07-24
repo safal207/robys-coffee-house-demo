@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: remove-legacy-r-fallback
@@ -47,14 +47,37 @@ jobs:
           npm run check
           npm run verify:security
 
-      - name: Upload verified cleanup
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
-        with:
-          name: legacy-r-cleanup
-          path: |
-            index.html
-            menu.html
-            discover.html
-            integrity-manifest.json
-          if-no-files-found: error
-          retention-days: 1
+      - name: Publish verified files through GitHub Contents API
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_BRANCH: agent/remove-legacy-r-fallback
+        run: |
+          node <<'NODE'
+          const { readFileSync } = require('node:fs');
+          const files = ['index.html', 'menu.html', 'discover.html', 'integrity-manifest.json'];
+          const headers = {
+            Accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+            'X-GitHub-Api-Version': '2022-11-28',
+            'Content-Type': 'application/json'
+          };
+          for (const path of files) {
+            const endpoint = `https://api.github.com/repos/${process.env.REPOSITORY}/contents/${path}`;
+            const current = await fetch(`${endpoint}?ref=${encodeURIComponent(process.env.TARGET_BRANCH)}`, { headers });
+            if (!current.ok) throw new Error(`GET ${path}: ${current.status} ${await current.text()}`);
+            const { sha } = await current.json();
+            const response = await fetch(endpoint, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({
+                message: `fix: remove hidden legacy R fallback from ${path}`,
+                content: readFileSync(path).toString('base64'),
+                sha,
+                branch: process.env.TARGET_BRANCH
+              })
+            });
+            if (!response.ok) throw new Error(`PUT ${path}: ${response.status} ${await response.text()}`);
+            console.log(`Published ${path}`);
+          }
+          NODE
