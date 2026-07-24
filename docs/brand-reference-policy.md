@@ -16,7 +16,7 @@ A reconstructed website treatment must never be promoted as an official master a
 - The master variant is shown on a white or warm-white field.
 - White lettering is an explicit inverse variant for dark surfaces, not the default wordmark.
 - CSS filters such as `invert()` or `brightness()` must not be used to recolor the logo.
-- The current HEX values are implementation approximations sampled from public production imagery, not official brand specifications.
+- The approved digital identity tokens are red `#E21B23`, ink `#111111`, and warm paper `#F5F5F2`; changes require owner-approved brand evidence and an updated identity contract.
 
 ## Release protocol
 
