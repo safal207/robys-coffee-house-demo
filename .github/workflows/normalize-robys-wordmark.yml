@@ -37,6 +37,40 @@ jobs:
       - name: Normalize B and S geometry
         run: node scripts/normalize-robys-wordmark.mjs
 
+      - name: Rebind wordmark revision contracts
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          replacements = [
+              ("20260723-identity-v2", "20260724-wordmark-v3"),
+              (
+                  "robys-primary-master-v1.svg?v=20260721-master-1",
+                  "robys-primary-master-v1.svg?v=20260724-wordmark-v3",
+              ),
+              (
+                  "robys-compact-master-v1.svg?v=20260721-master-1",
+                  "robys-compact-master-v1.svg?v=20260724-wordmark-v3",
+              ),
+          ]
+
+          changed = []
+          for path in Path("scripts").glob("*.mjs"):
+              if path.name == "normalize-robys-wordmark.mjs":
+                  continue
+              source = path.read_text()
+              updated = source
+              for old, new in replacements:
+                  updated = updated.replace(old, new)
+              if updated != source:
+                  path.write_text(updated)
+                  changed.append(str(path))
+
+          print("rebound revision contracts:")
+          for path in changed:
+              print(f"- {path}")
+          PY
+
       - name: Build and regenerate integrity evidence
         run: |
           npm run build
