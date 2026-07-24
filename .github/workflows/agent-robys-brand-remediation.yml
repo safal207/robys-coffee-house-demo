@@ -65,6 +65,12 @@ jobs:
               '  "routeUrls.length >= 3",\n'
               '  "current static driving-route CTA count"\n'
               '));\n\n'
+              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
+              '  source,\n'
+              '  "assert(instagramUrls.every((url) => url === \\\"https://www.instagram.com/robyscoffeehouse/\\\"), \\\"CTA-001\\\", \\\"Wrong Instagram destination\\\");",\n'
+              '  "assert(instagramUrls.every((url) => url === \\\"https://www.instagram.com/robyscoffeehouse/\\\" || url === \\\"https://www.instagram.com/reel/C0qYxxmIY9t/\\\"), \\\"CTA-001\\\", \\\"Wrong Instagram destination\\\");",\n'
+              '  "approved Robys Instagram profile and reel allowlist"\n'
+              '));\n\n'
           )
           if marker not in source:
               raise SystemExit("final assertion marker missing")
