@@ -119,8 +119,11 @@ jobs:
               (.results | length) == 2 and
               ([.results[].profile] | sort) == ["desktop", "mobile"]
             ' reports/robys-logo-fidelity-v0.1/result.json >/dev/null
-          find reports/robys-logo-fidelity-v0.1 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > reports/robys-logo-fidelity-v0.1/SHA256SUMS
-          (cd reports/robys-logo-fidelity-v0.1 && sha256sum -c SHA256SUMS)
+          (
+            cd reports/robys-logo-fidelity-v0.1
+            find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
 
       - name: Upload exact comparison evidence
         if: always()
