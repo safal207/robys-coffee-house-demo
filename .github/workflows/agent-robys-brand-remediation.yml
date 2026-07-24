@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: agent-robys-brand-remediation
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   remediate:
@@ -34,62 +34,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Repair and syntax-check one-shot helper
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path("scripts/agent-fix-robys-brand.mjs")
-          source = path.read_text(encoding="utf-8")
-          source = source.replace(r"ink \`#111111`, and paper", r"ink \`#111111\`, and paper")
-          source = source.replace("88/100", "87/100")
-          source = source.replace("| Digital production readiness | 8/7* |", "| Digital production readiness | 7/7 |")
-          source = source.replace("| **Normalized total** | **88/100** |", "| **Normalized total** | **87/100** |")
-          source = source.replace("\\n\\n\\*Digital implementation exceeds the original production-readiness slice; physical-production evidence remains outside scope.", "")
-          source = source.replace(r"Georgia|Times New Roman|\\bserif\\b", r"Georgia|Times New Roman|(?<!sans-)\\bserif\\b")
-          source = source.replace(
-              "for (const path of textFiles()) {",
-              'for (const path of ["styles.css", "docs/instagram-tools.css", "docs/owner-pitch.css"]) {'
-          )
-          marker = "// Final fail-closed assertions before build and manifest regeneration."
-          stale_contract_fix = (
-              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
-              '  source,\n'
-              '  "padding-bottom:calc(70px + env(safe-area-inset-bottom))",\n'
-              '  "padding-bottom:calc(98px + env(safe-area-inset-bottom))",\n'
-              '  "mobile CTA protected footer spacing"\n'
-              '));\n\n'
-              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
-              '  source,\n'
-              '  "routeUrls.length >= 4",\n'
-              '  "routeUrls.length >= 3",\n'
-              '  "current static driving-route CTA count"\n'
-              '));\n\n'
-              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
-              '  source,\n'
-              '  "assert(instagramUrls.every((url) => url === \\\"https://www.instagram.com/robyscoffeehouse/\\\"), \\\"CTA-001\\\", \\\"Wrong Instagram destination\\\");",\n'
-              '  "assert(instagramUrls.every((url) => url === \\\"https://www.instagram.com/robyscoffeehouse/\\\" || url === \\\"https://www.instagram.com/reel/C0qYxxmIY9t/\\\"), \\\"CTA-001\\\", \\\"Wrong Instagram destination\\\");",\n'
-              '  "approved Robys Instagram profile and reel allowlist"\n'
-              '));\n\n'
-              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
-              '  source,\n'
-              '  "src/robys-hero-mobile-lite.mp4",\n'
-              '  "src/robys-ambience-clean.mp4",\n'
-              '  "current verified hero video asset"\n'
-              '));\n\n'
-              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
-              '  source,\n'
-              '  "HERO_VIDEO = \\\"src/robys-hero-mobile-lite.mp4",\n'
-              '  "HERO_VIDEO = \\\"src/robys-ambience-clean.mp4?v=20260711-1",\n'
-              '  "current hero runtime source contract"\n'
-              '));\n\n'
-          )
-          if marker not in source:
-              raise SystemExit("final assertion marker missing")
-          source = source.replace(marker, stale_contract_fix + marker, 1)
-          path.write_text(source, encoding="utf-8")
-          PY
-          node --check scripts/agent-fix-robys-brand.mjs
+      - name: Syntax-check remediation helper
+        run: node --check scripts/agent-fix-robys-brand.mjs
 
       - name: Apply bounded remediation
         shell: bash
