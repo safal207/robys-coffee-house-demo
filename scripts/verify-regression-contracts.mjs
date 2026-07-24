@@ -18,7 +18,7 @@ const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
-const EXPECTED_UX_CSS_REVISION = "20260723-identity-v1";
+const EXPECTED_UX_CSS_REVISION = "20260723-identity-v2";
 
 function assert(condition, contract, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);
@@ -141,12 +141,13 @@ const dockOverrideRule = cssRules(mobileDockScope, "html body.featured-gallery-a
 assert(dockOverrideRule.includes("transform:none!important"), "FEATURED-001", "Gallery-active dock override must cancel the legacy translation inside max-width:680px");
 assert(dockOverrideRule.includes("opacity:1!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions visible inside max-width:680px");
 assert(dockOverrideRule.includes("pointer-events:auto!important"), "FEATURED-001", "Gallery-active dock override must keep visit actions clickable inside max-width:680px");
-const bootstrapCssRevision = bootstrapRuntime.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
+const htmlCssRevision = html.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
 const serviceWorkerCssRevision = serviceWorker.match(/brand-photo-logo\.css\?v=([^"']+)/)?.[1] ?? "";
-assert(Boolean(bootstrapCssRevision), "FEATURED-001", "Bootstrap must request a revisioned shared UX stylesheet");
-assert(bootstrapCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Bootstrap must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${bootstrapCssRevision || "missing"}`);
+assert(Boolean(htmlCssRevision), "FEATURED-001", "Home must statically link a revisioned shared UX stylesheet");
+assert(htmlCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Home must pin the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${htmlCssRevision || "missing"}`);
 assert(serviceWorkerCssRevision === EXPECTED_UX_CSS_REVISION, "FEATURED-001", `Service Worker must precache the reviewed UX stylesheet revision ${EXPECTED_UX_CSS_REVISION}, found ${serviceWorkerCssRevision || "missing"}`);
-assert(bootstrapCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: bootstrap=${bootstrapCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
+assert(htmlCssRevision === serviceWorkerCssRevision, "FEATURED-001", `Shared UX stylesheet revision mismatch: html=${htmlCssRevision || "missing"}, service-worker=${serviceWorkerCssRevision || "missing"}`);
+assert(!/brand-photo-logo\.css\?v=/.test(bootstrapRuntime), "FEATURED-001", "Bootstrap must not duplicate the statically linked identity stylesheet");
 const exactRevisionMatch = serviceWorker.match(/const\s+requiresExactRevision\s*=\s*(?<predicate>[\s\S]*?);\s*if\s*\(\s*requiresExactRevision\s*\)/u);
 const exactRevisionPredicate = stripJavaScriptComments(exactRevisionMatch?.groups?.predicate ?? "");
 assert(Boolean(exactRevisionPredicate), "FEATURED-001", "Service Worker must define the requiresExactRevision predicate before its guarded cache branch");
