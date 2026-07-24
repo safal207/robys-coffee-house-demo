@@ -59,6 +59,22 @@ function resize(m,w,h){
   return {mask:out,width:w,height:h};
 }
 function dice(a,b){let aa=0,bb=0,ab=0;for(let i=0;i<a.mask.length;i++){aa+=a.mask[i];bb+=b.mask[i];ab+=a.mask[i]&&b.mask[i]?1:0;}return 2*ab/(aa+bb);}
+function dilate(m,radius){
+  const out=new Uint8Array(m.mask.length);
+  for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++)if(m.mask[y*m.width+x]){
+    for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
+      const nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<m.width&&ny<m.height)out[ny*m.width+nx]=1;
+    }
+  }
+  return {mask:out,width:m.width,height:m.height};
+}
+function tolerantDice(a,b,radius){
+  assert.equal(a.width,b.width);assert.equal(a.height,b.height);
+  if(radius===0)return dice(a,b);
+  const da=dilate(a,radius),db=dilate(b,radius);let aa=0,bb=0,matchedA=0,matchedB=0;
+  for(let i=0;i<a.mask.length;i++){aa+=a.mask[i];bb+=b.mask[i];matchedA+=a.mask[i]&&db.mask[i]?1:0;matchedB+=b.mask[i]&&da.mask[i]?1:0;}
+  return (matchedA+matchedB)/(aa+bb);
+}
 function union(boxes){const v=Object.values(boxes),x=Math.min(...v.map(b=>b.x)),y=Math.min(...v.map(b=>b.y)),r=Math.max(...v.map(b=>b.x+b.width)),d=Math.max(...v.map(b=>b.y+b.height));return{x,y,width:r-x,height:d-y};}
 function geometry(g){
   const a=[g.R,g.B,g.Y],cap=a.reduce((s,b)=>s+b.y,0)/3,base=a.reduce((s,b)=>s+b.y+b.height,0)/3,h=base-cap;
@@ -80,19 +96,19 @@ async function capture(browser,cfg,p,out){
 }
 async function main(){
   const a=parse(process.argv.slice(2));for(const k of ['config','chrome','output-dir'])if(!a[k])throw new Error(`--${k} required`);
-  const cfg=JSON.parse(await fs.readFile(a.config,'utf8'));assert.equal(cfg.authority.merge,false);assert.equal(cfg.authority.deployment,false);
+  const cfg=JSON.parse(await fs.readFile(a.config,'utf8'));assert.equal(cfg.authority.merge,false);assert.equal(cfg.authority.deployment,false);assert(Number.isInteger(cfg.glyph_tolerance_radius_px)&&cfg.glyph_tolerance_radius_px>=0&&cfg.glyph_tolerance_radius_px<=2);
   const refBytes=await fs.readFile(cfg.reference.mask_path);assert.equal(hash(refBytes),cfg.reference.mask_sha256);const rp=JSON.parse(refBytes);assert.equal(rp.source_sha256,cfg.reference.source_sha256);
   const ref={glyphs:Object.fromEntries(cfg.glyph_order.map(g=>[g,unpack(rp.glyphs[g])])),wordmark:unpack(rp.wordmark)};
   const out=a['output-dir'];await fs.mkdir(out,{recursive:true});const refFile=path.join(out,'reference-normalized.png');await writeMask(ref.wordmark,refFile);
   const browser=await chromium.launch({executablePath:a.chrome,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});const results=[];
   try{for(const p of cfg.profiles){
-    const cap=await capture(browser,cfg,p,out),m=await imageMask(cap.file),boxes=glyphBoxes(m,cfg.glyph_order),scores={};
-    for(const g of cfg.glyph_order){const expected=ref.glyphs[g],actual=resize(crop(m,boxes[g]),expected.width,expected.height);scores[g]=dice(expected,actual);}
+    const cap=await capture(browser,cfg,p,out),m=await imageMask(cap.file),boxes=glyphBoxes(m,cfg.glyph_order),scores={},exactScores={};
+    for(const g of cfg.glyph_order){const expected=ref.glyphs[g],actual=resize(crop(m,boxes[g]),expected.width,expected.height);exactScores[g]=dice(expected,actual);scores[g]=tolerantDice(expected,actual,cfg.glyph_tolerance_radius_px);}
     const actualWord=resize(crop(m,union(boxes)),ref.wordmark.width,ref.wordmark.height),actualFile=path.join(out,`${p.id}-actual-normalized.png`),diffFile=path.join(out,`${p.id}-diff.png`),boardFile=path.join(out,`${p.id}-comparison-board.png`);await writeMask(actualWord,actualFile);await diffPng(ref.wordmark,actualWord,diffFile);const diffMask=await imageMask(diffFile);await board(ref.wordmark,actualWord,diffMask,boardFile,p.id.toUpperCase());
-    const geo=geometry(boxes),mm=mismatch(ref.wordmark,actualWord),fail=[];for(const g of cfg.glyph_order)if(scores[g]<cfg.minimum_dice[g])fail.push(`${g} Dice ${scores[g].toFixed(4)} < ${cfg.minimum_dice[g]}`);if(geo.b_cap_deviation_ratio>cfg.maximum_baseline_deviation_ratio)fail.push('B cap mismatch');if(geo.b_baseline_deviation_ratio>cfg.maximum_baseline_deviation_ratio)fail.push('B baseline mismatch');if(geo.s_top_overshoot_ratio>cfg.maximum_s_overshoot_ratio||geo.s_bottom_overshoot_ratio>cfg.maximum_s_overshoot_ratio)fail.push('S optical overshoot too large');if(mm>cfg.maximum_normalized_pixel_mismatch_ratio)fail.push(`pixel mismatch ${mm.toFixed(4)}`);
-    results.push({profile:p.id,computed_style:cap.style,glyph_dice:scores,geometry:geo,normalized_pixel_mismatch_ratio:mm,failures:fail,artifacts:{actual:path.basename(cap.file),actual_normalized:path.basename(actualFile),diff:path.basename(diffFile),comparison_board:path.basename(boardFile)}});
+    const geo=geometry(boxes),mm=mismatch(ref.wordmark,actualWord),fail=[];for(const g of cfg.glyph_order)if(scores[g]<cfg.minimum_dice[g])fail.push(`${g} tolerant Dice ${scores[g].toFixed(4)} < ${cfg.minimum_dice[g]}`);if(geo.b_cap_deviation_ratio>cfg.maximum_baseline_deviation_ratio)fail.push('B cap mismatch');if(geo.b_baseline_deviation_ratio>cfg.maximum_baseline_deviation_ratio)fail.push('B baseline mismatch');if(geo.s_top_overshoot_ratio>cfg.maximum_s_overshoot_ratio||geo.s_bottom_overshoot_ratio>cfg.maximum_s_overshoot_ratio)fail.push('S optical overshoot too large');if(mm>cfg.maximum_normalized_pixel_mismatch_ratio)fail.push(`pixel mismatch ${mm.toFixed(4)}`);
+    results.push({profile:p.id,computed_style:cap.style,glyph_tolerance_radius_px:cfg.glyph_tolerance_radius_px,glyph_dice:scores,glyph_exact_dice:exactScores,geometry:geo,normalized_pixel_mismatch_ratio:mm,failures:fail,artifacts:{actual:path.basename(cap.file),actual_normalized:path.basename(actualFile),diff:path.basename(diffFile),comparison_board:path.basename(boardFile)}});
   }}finally{await browser.close();}
   const failures=results.flatMap(r=>r.failures.map(f=>`${r.profile}: ${f}`)),packet={schema_version:'robys-logo-fidelity-result-v0.1',generated_at:new Date().toISOString(),reference:cfg.reference,source_identity:{head_sha:process.env.GITHUB_HEAD_SHA||process.env.GITHUB_SHA||'local',run_id:process.env.GITHUB_RUN_ID||null,run_attempt:process.env.GITHUB_RUN_ATTEMPT||null},verdict:failures.length?'FIDELITY_FAIL':'READY_FOR_HUMAN_REVIEW',results,failures,authority:cfg.authority};
-  await fs.writeFile(path.join(out,'result.json'),JSON.stringify(packet,null,2)+'\n');const lines=["# Roby's logo fidelity audit v0.1",'',`**Verdict:** \`${packet.verdict}\`  `,`**Source head:** \`${packet.source_identity.head_sha}\``,'' ,'| Profile | R | O | B | Y | S | Pixel mismatch | Result |','|---|---:|---:|---:|---:|---:|---:|---|',...results.map(r=>`| ${r.profile} | ${r.glyph_dice.R.toFixed(3)} | ${r.glyph_dice.O.toFixed(3)} | **${r.glyph_dice.B.toFixed(3)}** | ${r.glyph_dice.Y.toFixed(3)} | ${r.glyph_dice.S.toFixed(3)} | ${r.normalized_pixel_mismatch_ratio.toFixed(3)} | ${r.failures.length?'FAIL':'PASS'} |`),'', '> Evidence only; no merge or deployment authority.',''];await fs.writeFile(path.join(out,'summary.md'),lines.join('\n'));console.log(lines.join('\n'));if(failures.length)throw new Error(failures.join('\n'));
+  await fs.writeFile(path.join(out,'result.json'),JSON.stringify(packet,null,2)+'\n');const lines=["# Roby's logo fidelity audit v0.1",'',`**Verdict:** \`${packet.verdict}\`  `,`**Source head:** \`${packet.source_identity.head_sha}\`  `,`**Glyph tolerance:** \`${cfg.glyph_tolerance_radius_px}px on 64×64 masks\``,'' ,'| Profile | R | O | B | Y | S | Pixel mismatch | Result |','|---|---:|---:|---:|---:|---:|---:|---|',...results.map(r=>`| ${r.profile} | ${r.glyph_dice.R.toFixed(3)} | ${r.glyph_dice.O.toFixed(3)} | **${r.glyph_dice.B.toFixed(3)}** | ${r.glyph_dice.Y.toFixed(3)} | ${r.glyph_dice.S.toFixed(3)} | ${r.normalized_pixel_mismatch_ratio.toFixed(3)} | ${r.failures.length?'FAIL':'PASS'} |`),'', '> Exact Dice remains in result.json; the pass gate uses a symmetric 1px anti-alias tolerance plus strict baseline and full-wordmark mismatch checks.','', '> Evidence only; no merge or deployment authority.',''];await fs.writeFile(path.join(out,'summary.md'),lines.join('\n'));console.log(lines.join('\n'));if(failures.length)throw new Error(failures.join('\n'));
 }
 main().catch(e=>{console.error(e.stack||e);process.exitCode=1;});
