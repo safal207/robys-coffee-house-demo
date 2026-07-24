@@ -167,18 +167,19 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:3831) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:3572) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
 ✅ ANDROID-APP-001 passed: repaired signed APK f188c2f0ab82… is cached, verified, downloadable offline and shows the real Android button logo.
-file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:17
+✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11
   if (!condition) throw new Error(`[${id}] ${message}`);
                         ^
 
-Error: [ASSET-001] Hero asset changed
-    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:17:25)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:158:1
+Error: [DEPLOY-001] 404 page must remain noindex
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11:25)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:120:1
     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
@@ -358,18 +359,19 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:5238) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:4983) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
 ✅ ANDROID-APP-001 passed: repaired signed APK f188c2f0ab82… is cached, verified, downloadable offline and shows the real Android button logo.
-file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:17
+✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11
   if (!condition) throw new Error(`[${id}] ${message}`);
                         ^
 
-Error: [ASSET-001] Hero asset changed
-    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:17:25)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-p1-interface-contracts.mjs:158:1
+Error: [DEPLOY-001] 404 page must remain noindex
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11:25)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:120:1
     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
