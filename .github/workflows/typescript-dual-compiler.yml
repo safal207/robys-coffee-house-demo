@@ -1,0 +1,73 @@
+name: TypeScript dual compiler contract
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/typescript-dual-compiler.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "scripts/build.mjs"
+      - "scripts/verify-typescript-toolchain.mjs"
+      - "src/**/*.ts"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/typescript-dual-compiler.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "scripts/build.mjs"
+      - "scripts/verify-typescript-toolchain.mjs"
+      - "src/**/*.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate TS7 checker and TS6 build API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Verify compiler routing
+        run: npm run verify:typescript-toolchain
+
+      - name: Verify native and compatibility type checks
+        run: |
+          npm run typecheck
+          npm run typecheck:compat
+
+      - name: Verify compiler-API-backed build is unchanged
+        run: |
+          npm run build
+          git diff --exit-code -- \
+            app.js \
+            featured-gallery.js \
+            social-offer.js \
+            discover-rotation.js \
+            discover-rotation-v2.js \
+            discover-rotation-v3.js \
+            index.html \
+            discover.html \
+            sw.js
