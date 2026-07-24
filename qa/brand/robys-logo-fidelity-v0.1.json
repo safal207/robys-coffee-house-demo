@@ -15,7 +15,7 @@
     {
       "id": "desktop",
       "viewport": {"width": 1440, "height": 1000},
-      "device_scale_factor": 1
+      "device_scale_factor": 2
     },
     {
       "id": "mobile",
