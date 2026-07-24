@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 const APPROVED_RED = "#E21B23";
 const APPROVED_INK = "#111111";
 const APPROVED_PAPER = "#F5F5F2";
-const IDENTITY_REVISION = "20260723-identity-v2";
+const IDENTITY_REVISION = "20260724-wordmark-v3";
 const ICON_SIZES = [16, 32, 48, 192, 512];
 const APPLE_TOUCH_ICON_SHA256 = "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8";
 
@@ -72,9 +72,9 @@ const serviceIdentityStyles = [
 const notFoundHtml = read("404.html");
 const offlineCss = read("offline.css");
 const identityPreloads = new Map([
-  ["index.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />'],
-  ["menu.html", '<link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />'],
-  ["discover.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />']
+  ["index.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />'],
+  ["menu.html", '<link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" fetchpriority="high" />'],
+  ["discover.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />']
 ]);
 
 for (const [path, source] of [
@@ -103,6 +103,33 @@ assert(icon.includes(markPath), "favicon must reuse the approved organic O path"
 assert(maskable.includes(markPath), "maskable icon must reuse the approved organic O path");
 assert(header.includes(markPath), "header wordmark must reuse the approved organic O path");
 
+function extractWordmark(svg, path) {
+  const match = svg.match(/<g id=["']robys-wordmark["'][\s\S]*?<\/g>/);
+  assert(match, `${path} must expose the canonical robys-wordmark definition`);
+  return match[0].replace(/\s+/g, " ").trim();
+}
+
+const wordmarkSources = [
+  ["src/brand/robys-compact-master-v1.svg", compact],
+  ["src/brand/robys-header-master-v1.svg", header],
+  ["src/brand/robys-primary-master-v1.svg", primary]
+];
+const canonicalWordmark = extractWordmark(compact, "src/brand/robys-compact-master-v1.svg");
+for (const [path, source] of wordmarkSources) {
+  assert(extractWordmark(source, path) === canonicalWordmark, `${path} must reuse byte-identical Roby's glyph geometry`);
+  assert(source.includes('<use href="#robys-wordmark"/>'), `${path} must render the canonical wordmark through <use>`);
+}
+
+const closeTo = (actual, expected) => Math.abs(actual - expected) < 0.001;
+const transformedY = (value, scale, translate) => value * scale + translate;
+assert(closeTo(transformedY(18, 0.863636, 2.454545), 18), "B bowls must retain the shared cap-height y=18");
+assert(closeTo(transformedY(150, 0.863636, 2.454545), 132), "B bowls must end on the shared baseline y=132");
+assert(closeTo(transformedY(14, 0.826087, 6.434783), 18), "S must start on the shared cap-height y=18");
+assert(closeTo(transformedY(152, 0.826087, 6.434783), 132), "S must end on the shared baseline y=132");
+assert(canonicalWordmark.includes('id="robys-b-stem"'), "B stem must remain independently bound to y=18…132");
+assert(canonicalWordmark.includes('id="robys-b-bowls"'), "B bowls must remain independently normalizable");
+assert(canonicalWordmark.includes('data-cap-y="18" data-baseline-y="132"'), "wordmark must publish its cap-height and baseline contract");
+
 assert(safeMargins(icon, "icon.svg") >= 0.15, "favicon mark must retain at least 15% edge clearance");
 assert(safeMargins(maskable, "icon-maskable.svg") >= 0.20, "maskable icon must retain at least 20% edge clearance");
 
@@ -122,8 +149,8 @@ for (const [token, value] of [
 
 assert(css.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "desktop header must load the no-tagline medium master");
 assert(css.includes("border-radius:999px!important"), "mobile header container must preserve the approved pill silhouette");
-assert(css.includes("robys-primary-master-v1.svg?v=20260721-master-1"), "large menu lockup must retain the primary master");
-assert(css.includes("robys-compact-master-v1.svg?v=20260721-master-1"), "mobile header must retain the compact master");
+assert(css.includes("robys-primary-master-v1.svg?v=20260724-wordmark-v3"), "large menu lockup must retain the primary master");
+assert(css.includes("robys-compact-master-v1.svg?v=20260724-wordmark-v3"), "mobile header must retain the compact master");
 assert(baseCss.includes(`--brand-wordmark-red:${APPROVED_RED}`), "legacy wordmark fallback must use canonical red");
 assert(baseCss.includes(`--ruby:${APPROVED_RED}`), "UI ruby token must use canonical red");
 assert(!baseCss.includes("#b84d58"), "base UI must not retain the legacy ruby red");
