@@ -1,4 +1,5 @@
 import { build } from "esbuild";
+import ts from "typescript";
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[SMART-CHOICE-CATALOG-VERIFY] ${message}`);
@@ -7,6 +8,31 @@ function assert(condition, message) {
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
+
+const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, "tsconfig.json");
+assert(configPath, "tsconfig.json was not found");
+
+const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+assert(!configFile.error, configFile.error ? ts.flattenDiagnosticMessageText(configFile.error.messageText, "\n") : "");
+
+const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, process.cwd());
+assert(
+  parsedConfig.errors.length === 0,
+  parsedConfig.errors.map((entry) => ts.flattenDiagnosticMessageText(entry.messageText, "\n")).join("\n")
+);
+
+const program = ts.createProgram({ rootNames: parsedConfig.fileNames, options: parsedConfig.options });
+const typeDiagnostics = ts.getPreEmitDiagnostics(program);
+assert(
+  typeDiagnostics.length === 0,
+  typeDiagnostics.length > 0
+    ? `TypeScript diagnostics failed:\n${ts.formatDiagnosticsWithColorAndContext(typeDiagnostics, {
+        getCanonicalFileName: (fileName) => fileName,
+        getCurrentDirectory: () => process.cwd(),
+        getNewLine: () => "\n"
+      })}`
+    : ""
+);
 
 const result = await build({
   entryPoints: ["src/smart-choice/catalog.ts"],
@@ -68,14 +94,18 @@ assert(eligibleBumps.length === 0, "No provisional bump may be eligible");
 const negativePrice = clone(SMART_CHOICE_CATALOG);
 negativePrice.items[0].priceMinor = -1;
 assert(
-  validateSmartChoiceCatalog(negativePrice).some((entry) => entry.code === "SC-CATALOG-MONEY-001" && entry.severity === "error"),
+  validateSmartChoiceCatalog(negativePrice).some(
+    (entry) => entry.code === "SC-CATALOG-MONEY-001" && entry.severity === "error"
+  ),
   "Negative prices must fail validation"
 );
 
 const unknownReference = clone(SMART_CHOICE_CATALOG);
 unknownReference.combos[0].components[0].itemId = "missing-item";
 assert(
-  validateSmartChoiceCatalog(unknownReference).some((entry) => entry.code === "SC-CATALOG-REFERENCE-001" && entry.severity === "error"),
+  validateSmartChoiceCatalog(unknownReference).some(
+    (entry) => entry.code === "SC-CATALOG-REFERENCE-001" && entry.severity === "error"
+  ),
   "Unknown combo component references must fail validation"
 );
 
@@ -100,5 +130,5 @@ assert(
 console.log(
   `✅ SMART-CHOICE-CATALOG passed: ${SMART_CHOICE_CATALOG.items.length} items, ` +
   `${SMART_CHOICE_CATALOG.combos.length} combos, ${SMART_CHOICE_CATALOG.bumps.length} bumps, ` +
-  `${warnings.length} expected warning(s), adversarial mutations rejected.`
+  `${warnings.length} expected warning(s), TypeScript clean, adversarial mutations rejected.`
 );
