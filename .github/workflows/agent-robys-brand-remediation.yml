@@ -47,6 +47,22 @@ jobs:
           source = source.replace("| **Normalized total** | **88/100** |", "| **Normalized total** | **87/100** |")
           source = source.replace("\\n\\n\\*Digital implementation exceeds the original production-readiness slice; physical-production evidence remains outside scope.", "")
           source = source.replace(r"Georgia|Times New Roman|\\bserif\\b", r"Georgia|Times New Roman|(?<!sans-)\\bserif\\b")
+          source = source.replace(
+              "for (const path of textFiles()) {",
+              'for (const path of ["styles.css", "docs/instagram-tools.css", "docs/owner-pitch.css"]) {'
+          )
+          marker = "// Final fail-closed assertions before build and manifest regeneration."
+          stale_contract_fix = '''update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(
+            source,
+            "padding-bottom:calc(70px + env(safe-area-inset-bottom))",
+            "padding-bottom:calc(98px + env(safe-area-inset-bottom))",
+            "mobile CTA protected footer spacing"
+          ));
+
+'''
+          if marker not in source:
+              raise SystemExit("final assertion marker missing")
+          source = source.replace(marker, stale_contract_fix + marker, 1)
           path.write_text(source, encoding="utf-8")
           PY
           node --check scripts/agent-fix-robys-brand.mjs
