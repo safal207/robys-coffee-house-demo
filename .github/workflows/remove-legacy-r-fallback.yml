@@ -47,16 +47,11 @@ jobs:
           npm run check
           npm run verify:security
 
-      - name: Remove temporary helper and workflow
-        run: |
-          rm scripts/remove-legacy-r-fallback.mjs
-          rm .github/workflows/remove-legacy-r-fallback.yml
-
-      - name: Commit verified cleanup
+      - name: Commit verified product cleanup
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add index.html menu.html discover.html integrity-manifest.json
           git diff --cached --check
           git commit -m "fix: remove hidden legacy R fallbacks"
           git push origin HEAD:agent/remove-legacy-r-fallback
