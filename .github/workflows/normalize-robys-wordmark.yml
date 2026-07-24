@@ -44,10 +44,19 @@ jobs:
 
       - name: Run complete checks
         run: |
-          npm run check
-          npm run verify:security
+          set +e
+          npm run check > wordmark-check.log 2>&1
+          check_status=$?
+          npm run verify:security >> wordmark-check.log 2>&1
+          security_status=$?
+          printf '\ncheck_status=%s\nsecurity_status=%s\n' "$check_status" "$security_status" >> wordmark-check.log
+          tail -n 80 wordmark-check.log
+          if [ "$check_status" -ne 0 ] || [ "$security_status" -ne 0 ]; then
+            exit 1
+          fi
 
-      - name: Upload exact SVG review assets
+      - name: Upload exact SVG review assets and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: robys-wordmark-normalized
@@ -58,8 +67,10 @@ jobs:
             src/brand/robys-header-master-v1.svg
             src/brand/robys-primary-master-v1.svg
             wordmark-geometry-report.txt
+            wordmark-check.log
 
       - name: Publish verified product files through GitHub Contents API
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
@@ -75,7 +86,8 @@ jobs:
             const excluded = new Set([
               'scripts/normalize-robys-wordmark.mjs',
               '.github/workflows/normalize-robys-wordmark.yml',
-              'wordmark-geometry-report.txt'
+              'wordmark-geometry-report.txt',
+              'wordmark-check.log'
             ]);
             const paths = execFileSync('git', ['diff', '--name-only'], { encoding: 'utf8' })
               .trim()
