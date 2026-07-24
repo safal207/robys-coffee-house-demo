@@ -34,6 +34,22 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Repair and syntax-check one-shot helper
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/agent-fix-robys-brand.mjs")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace(r"ink \`#111111`, and paper", r"ink \`#111111\`, and paper")
+          source = source.replace("88/100", "87/100")
+          source = source.replace("| Digital production readiness | 8/7* |", "| Digital production readiness | 7/7 |")
+          source = source.replace("| **Normalized total** | **88/100** |", "| **Normalized total** | **87/100** |")
+          source = source.replace("\\n\\n\\*Digital implementation exceeds the original production-readiness slice; physical-production evidence remains outside scope.", "")
+          path.write_text(source, encoding="utf-8")
+          PY
+          node --check scripts/agent-fix-robys-brand.mjs
+
       - name: Apply bounded remediation
         shell: bash
         run: |
