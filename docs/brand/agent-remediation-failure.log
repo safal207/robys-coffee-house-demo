@@ -1,16 +1,341 @@
-file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/agent-fix-robys-brand.mjs:198
-write("docs/brand/robys-logo-implementation-v1.md", `# Roby's identity normalization v1\n\nSource decision: the owner-provided Roby's identity sheet and the repository identity audit.\n\n## Implemented\n\n- uses path-only primary, medium, compact and mark masters;\n- derives favicon, maskable icon and Apple touch icon from the approved organic O;\n- statically links the Apple touch icon in Home, Menu, Discover and owner utility pages, with the existing JavaScript path retained only as a progressive fallback;\n- uses canonical digital identity tokens: red \`#E21B23\`, ink \`#111111`, and paper \`#F5F5F2\`;\n- aligns the shared UI ruby token and owner utility pages to the canonical red;\n- replaces visible legacy \`R\` badges with approved SVG assets;\n- keeps \`Fresh Coffee Point\` as the structured brand slogan while allowing marketing headlines as a separate copy layer;\n- retires \`robys-mobile-master-v1.svg\`: the compact transparent master is the asset, while pill radius and shadow belong to CSS;\n- verifies source assets, static wiring, safe zones, service pages, manifest delivery and legacy-token rejection.\n\n## Evidence boundary\n\nThis implementation does not claim trademark clearance, consumer recall, storefront-distance readability, physical print durability or revenue impact. One-color/reverse production masters and physical mockup testing remain separate work.\n`);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^^^
 
-SyntaxError: missing ) after argument list
-    at compileSourceTextModule (node:internal/modules/esm/utils:346:16)
-    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:110:18)
-    at #translate (node:internal/modules/esm/loader:559:20)
-    at afterLoad (node:internal/modules/esm/loader:612:29)
-    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:617:12)
-    at #createModuleJob (node:internal/modules/esm/loader:640:36)
-    at #getJobFromResolveResult (node:internal/modules/esm/loader:353:34)
-    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:321:41)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:25)
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run verify:gallery:assets && npm run build && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression
+
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+
+> robys-coffee-house@2.0.0 verify:gallery:assets
+> bash scripts/verify-gallery-assets.sh
+
+Gallery asset sizes:
+    74432  src/products/gallery-v5/latte.webp
+    59454  src/products/gallery-v5/latte-828.webp
+    95474  src/products/gallery-v5/iced-latte.webp
+    72290  src/products/gallery-v5/iced-latte-828.webp
+   117056  src/products/gallery-v5/san-sebastian.webp
+    84966  src/products/gallery-v5/san-sebastian-828.webp
+    84986  src/products/gallery-v5/lotus-cheesecake.webp
+    65248  src/products/gallery-v5/lotus-cheesecake-828.webp
+   104576  src/products/gallery-v5/croissant.webp
+    84028  src/products/gallery-v5/croissant-828.webp
+   120740  src/products/gallery-v5/nutella-croissant.webp
+    95968  src/products/gallery-v5/nutella-croissant-828.webp
+croissant-828.webp: OK
+iced-latte-828.webp: OK
+latte-828.webp: OK
+lotus-cheesecake-828.webp: OK
+nutella-croissant-828.webp: OK
+san-sebastian-828.webp: OK
+Gallery checks passed: masters=597264 bytes, responsive=461954 bytes.
+
+> robys-coffee-house@2.0.0 build
+> node scripts/build.mjs
+
+Built app.js (67bf5a9534ed), featured-gallery.js (dacaf1bdbacc), social-offer.js (2d091095f70c), discover-v2.js (10750cdfa32c), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (58d387ca0c01), plus discover-rotation.css (96b566c9731e) with exact synchronized cache keys.
+
+> robys-coffee-house@2.0.0 test:discover-rotation
+> node scripts/test-discover-pairing-rotation.mjs
+
+✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.
+
+> robys-coffee-house@2.0.0 verify:taste-journey-posters
+> node scripts/verify-taste-journey-posters.mjs
+
+✅ TASTE-POSTER-001 verified the approved 1254x1254 Iced Latte + San Sebastian PNG (2198571 bytes, SHA-256 6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329), source/runtime mapping, offline delivery and synchronized cache revisions.
+
+> robys-coffee-house@2.0.0 verify:pr140-blockers
+> node scripts/verify-pr140-release-blockers.mjs
+
+✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime 10750cdfa32c, poster JS 58d387ca0c01 and CSS 96b566c9731e.
+
+> robys-coffee-house@2.0.0 verify:session-state-fixture
+> node scripts/verify-session-state.mjs qa/fixtures/session-state/pr-126-stale-review.json
+
+Session state valid: qa/fixtures/session-state/pr-126-stale-review.json (BLOCKED, seq=1, head=144ab511642c9b394beeb9a49575a192e8ab5501)
+
+> robys-coffee-house@2.0.0 test:session-state
+> node scripts/test-session-state.mjs
+
+Session state tests passed.
+
+> robys-coffee-house@2.0.0 verify:regression
+> npm run verify:proof-depth && npm run test:proof-depth && npm run verify:review-routing && npm run test:review-routing && npm run verify:traceability && npm run test:traceability && npm run verify:ai-style-matrix && npm run verify:brand-identity && npm run verify:social-offer && npm run verify:pairing-cta && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial
+
+
+> robys-coffee-house@2.0.0 verify:proof-depth
+> node scripts/verify-proof-depth-graph.mjs
+
+✅ PDG-001 valid: 7 nodes, 6 edges, depth D6, 1 independent reviewers on binding paths.
+
+> robys-coffee-house@2.0.0 test:proof-depth
+> node scripts/test-proof-depth-graph.mjs && node scripts/test-ci-proof-summary.mjs
+
+✅ PDG-001 mutation tests passed: provider-neutral independent evidence occupies D4, exact-head freshness is binding, and dispositions plus the later proof seal remain mandatory.
+✅ PDG summary mutation test passed: metadata is escaped and D4 is provider-neutral while D5, D6, CI and human authority remain intact.
+
+> robys-coffee-house@2.0.0 verify:review-routing
+> npm run verify:review-depth && npm run verify:reviewer-roster && npm run verify:review-route
+
+
+> robys-coffee-house@2.0.0 verify:review-depth
+> node scripts/evaluate-review-depth.mjs --validate-only
+
+{"contract":"RRM-DEPTH-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:reviewer-roster
+> node scripts/probe-reviewer-roster.mjs --validate-only
+
+{"contract":"RRM-ROSTER-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:review-route
+> node scripts/select-review-route.mjs --validate-only
+
+{"contract":"RRM-ROUTE-001","valid":true}
+
+> robys-coffee-house@2.0.0 test:review-routing
+> npm run test:review-depth && npm run test:reviewer-roster && npm run test:reviewer-roster-module && npm run test:review-route && npm run test:review-route-workflow
+
+
+> robys-coffee-house@2.0.0 test:review-depth
+> node scripts/test-review-depth.mjs
+
+✅ RRM-DEPTH-001 mutation tests passed: import safety, L1-L4 routing, nested migrations, signal floors, path containment and non-negotiable policy floors.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster
+> node scripts/test-reviewer-roster.mjs
+
+✅ RRM-ROSTER-001 mutation tests passed: the human maintainer is the sole binding reviewer and optional AI reviewers remain advisory at every depth.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster-module
+> node scripts/test-reviewer-roster-module.mjs
+
+✅ RRM roster module passed: human maintainer authority is binding, optional AI reviewers remain advisory, and unavailable human authority fails closed.
+
+> robys-coffee-house@2.0.0 test:review-route
+> node scripts/test-review-route.mjs
+
+✅ RRM-ROUTE-001 tests passed: provider-neutral routes stay deterministic, human maintainer authority is binding, and optional AI reviewers cannot satisfy a route.
+
+> robys-coffee-house@2.0.0 test:review-route-workflow
+> node scripts/test-review-route-preflight-workflow.mjs
+
+✅ RRM-WORKFLOW-001 passed: exact-head path evidence, route selection, audited manual input and read-only PR execution are present.
+
+> robys-coffee-house@2.0.0 verify:traceability
+> node scripts/verify-html-evidence.mjs && node scripts/verify-source-evidence.mjs && node scripts/verify-feature-traceability.mjs
+
+✅ TRACE-HTML-001 valid: 10 HTML evidence fragment(s) matched real start-tag attributes.
+✅ TRACE-SOURCE-001 valid: 20 script evidence fragment(s) matched outside line and block comments.
+✅ TRACE-001 valid: 14 features, 42 requirements, 6 milestones.
+Lifecycle summary: released=8, implemented=3, planned=3
+
+> robys-coffee-house@2.0.0 test:traceability
+> node scripts/test-html-evidence.mjs && node scripts/test-source-evidence.mjs && node scripts/test-feature-traceability.mjs
+
+✅ TRACE-HTML-001 mutation tests passed: empty fragments fail; natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.
+✅ TRACE-SOURCE-001 mutation tests passed: empty fragments and comment-only symbols fail while code and string literals remain parseable.
+✅ TRACE-001 mutation tests passed: real HTML attributes, semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.
+
+> robys-coffee-house@2.0.0 verify:ai-style-matrix
+> node scripts/verify-ai-style-review-matrix.mjs
+
+✅ AI-STYLE-001 max: 5 checks passed
+✅ AI-STYLE-001 qwen: 5 checks passed
+✅ AI-STYLE-001 grok: 5 checks passed
+✅ AI-STYLE-001 manus: 5 checks passed
+✅ AI-STYLE-001 gemini: 5 checks passed
+✅ AI-STYLE-001 gpt: 5 checks passed
+✅ AI-STYLE-001 claude: 5 checks passed
+✅ AI-STYLE-001 passed 7 review lenses across 10 coverage areas.
+
+> robys-coffee-house@2.0.0 verify:brand-identity
+> node scripts/verify-brand-identity-assets.mjs
+
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:16
+  if (!condition) throw new Error(`[BRAND-IDENTITY-001] ${message}`);
+                        ^
+
+Error: [BRAND-IDENTITY-001] docs/instagram-tools.css must not introduce a serif display language
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:16:25)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:150:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.23.1
+
+> robys-coffee-house@2.0.0 integrity:generate
+> node scripts/generate-integrity-manifest.mjs
+
+✅ Wrote integrity-manifest.json: 136 public files, build 20260711-1.
+
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run verify:gallery:assets && npm run build && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression
+
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+
+> robys-coffee-house@2.0.0 verify:gallery:assets
+> bash scripts/verify-gallery-assets.sh
+
+Gallery asset sizes:
+    74432  src/products/gallery-v5/latte.webp
+    59454  src/products/gallery-v5/latte-828.webp
+    95474  src/products/gallery-v5/iced-latte.webp
+    72290  src/products/gallery-v5/iced-latte-828.webp
+   117056  src/products/gallery-v5/san-sebastian.webp
+    84966  src/products/gallery-v5/san-sebastian-828.webp
+    84986  src/products/gallery-v5/lotus-cheesecake.webp
+    65248  src/products/gallery-v5/lotus-cheesecake-828.webp
+   104576  src/products/gallery-v5/croissant.webp
+    84028  src/products/gallery-v5/croissant-828.webp
+   120740  src/products/gallery-v5/nutella-croissant.webp
+    95968  src/products/gallery-v5/nutella-croissant-828.webp
+croissant-828.webp: OK
+iced-latte-828.webp: OK
+latte-828.webp: OK
+lotus-cheesecake-828.webp: OK
+nutella-croissant-828.webp: OK
+san-sebastian-828.webp: OK
+Gallery checks passed: masters=597264 bytes, responsive=461954 bytes.
+
+> robys-coffee-house@2.0.0 build
+> node scripts/build.mjs
+
+Built app.js (67bf5a9534ed), featured-gallery.js (dacaf1bdbacc), social-offer.js (2d091095f70c), discover-v2.js (10750cdfa32c), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (58d387ca0c01), plus discover-rotation.css (96b566c9731e) with exact synchronized cache keys.
+
+> robys-coffee-house@2.0.0 test:discover-rotation
+> node scripts/test-discover-pairing-rotation.mjs
+
+✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.
+
+> robys-coffee-house@2.0.0 verify:taste-journey-posters
+> node scripts/verify-taste-journey-posters.mjs
+
+✅ TASTE-POSTER-001 verified the approved 1254x1254 Iced Latte + San Sebastian PNG (2198571 bytes, SHA-256 6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329), source/runtime mapping, offline delivery and synchronized cache revisions.
+
+> robys-coffee-house@2.0.0 verify:pr140-blockers
+> node scripts/verify-pr140-release-blockers.mjs
+
+✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime 10750cdfa32c, poster JS 58d387ca0c01 and CSS 96b566c9731e.
+
+> robys-coffee-house@2.0.0 verify:session-state-fixture
+> node scripts/verify-session-state.mjs qa/fixtures/session-state/pr-126-stale-review.json
+
+Session state valid: qa/fixtures/session-state/pr-126-stale-review.json (BLOCKED, seq=1, head=144ab511642c9b394beeb9a49575a192e8ab5501)
+
+> robys-coffee-house@2.0.0 test:session-state
+> node scripts/test-session-state.mjs
+
+Session state tests passed.
+
+> robys-coffee-house@2.0.0 verify:regression
+> npm run verify:proof-depth && npm run test:proof-depth && npm run verify:review-routing && npm run test:review-routing && npm run verify:traceability && npm run test:traceability && npm run verify:ai-style-matrix && npm run verify:brand-identity && npm run verify:social-offer && npm run verify:pairing-cta && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial
+
+
+> robys-coffee-house@2.0.0 verify:proof-depth
+> node scripts/verify-proof-depth-graph.mjs
+
+✅ PDG-001 valid: 7 nodes, 6 edges, depth D6, 1 independent reviewers on binding paths.
+
+> robys-coffee-house@2.0.0 test:proof-depth
+> node scripts/test-proof-depth-graph.mjs && node scripts/test-ci-proof-summary.mjs
+
+✅ PDG-001 mutation tests passed: provider-neutral independent evidence occupies D4, exact-head freshness is binding, and dispositions plus the later proof seal remain mandatory.
+✅ PDG summary mutation test passed: metadata is escaped and D4 is provider-neutral while D5, D6, CI and human authority remain intact.
+
+> robys-coffee-house@2.0.0 verify:review-routing
+> npm run verify:review-depth && npm run verify:reviewer-roster && npm run verify:review-route
+
+
+> robys-coffee-house@2.0.0 verify:review-depth
+> node scripts/evaluate-review-depth.mjs --validate-only
+
+{"contract":"RRM-DEPTH-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:reviewer-roster
+> node scripts/probe-reviewer-roster.mjs --validate-only
+
+{"contract":"RRM-ROSTER-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:review-route
+> node scripts/select-review-route.mjs --validate-only
+
+{"contract":"RRM-ROUTE-001","valid":true}
+
+> robys-coffee-house@2.0.0 test:review-routing
+> npm run test:review-depth && npm run test:reviewer-roster && npm run test:reviewer-roster-module && npm run test:review-route && npm run test:review-route-workflow
+
+
+> robys-coffee-house@2.0.0 test:review-depth
+> node scripts/test-review-depth.mjs
+
+✅ RRM-DEPTH-001 mutation tests passed: import safety, L1-L4 routing, nested migrations, signal floors, path containment and non-negotiable policy floors.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster
+> node scripts/test-reviewer-roster.mjs
+
+✅ RRM-ROSTER-001 mutation tests passed: the human maintainer is the sole binding reviewer and optional AI reviewers remain advisory at every depth.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster-module
+> node scripts/test-reviewer-roster-module.mjs
+
+✅ RRM roster module passed: human maintainer authority is binding, optional AI reviewers remain advisory, and unavailable human authority fails closed.
+
+> robys-coffee-house@2.0.0 test:review-route
+> node scripts/test-review-route.mjs
+
+✅ RRM-ROUTE-001 tests passed: provider-neutral routes stay deterministic, human maintainer authority is binding, and optional AI reviewers cannot satisfy a route.
+
+> robys-coffee-house@2.0.0 test:review-route-workflow
+> node scripts/test-review-route-preflight-workflow.mjs
+
+✅ RRM-WORKFLOW-001 passed: exact-head path evidence, route selection, audited manual input and read-only PR execution are present.
+
+> robys-coffee-house@2.0.0 verify:traceability
+> node scripts/verify-html-evidence.mjs && node scripts/verify-source-evidence.mjs && node scripts/verify-feature-traceability.mjs
+
+✅ TRACE-HTML-001 valid: 10 HTML evidence fragment(s) matched real start-tag attributes.
+✅ TRACE-SOURCE-001 valid: 20 script evidence fragment(s) matched outside line and block comments.
+✅ TRACE-001 valid: 14 features, 42 requirements, 6 milestones.
+Lifecycle summary: released=8, implemented=3, planned=3
+
+> robys-coffee-house@2.0.0 test:traceability
+> node scripts/test-html-evidence.mjs && node scripts/test-source-evidence.mjs && node scripts/test-feature-traceability.mjs
+
+✅ TRACE-HTML-001 mutation tests passed: empty fragments fail; natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.
+✅ TRACE-SOURCE-001 mutation tests passed: empty fragments and comment-only symbols fail while code and string literals remain parseable.
+✅ TRACE-001 mutation tests passed: real HTML attributes, semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.
+
+> robys-coffee-house@2.0.0 verify:ai-style-matrix
+> node scripts/verify-ai-style-review-matrix.mjs
+
+✅ AI-STYLE-001 max: 5 checks passed
+✅ AI-STYLE-001 qwen: 5 checks passed
+✅ AI-STYLE-001 grok: 5 checks passed
+✅ AI-STYLE-001 manus: 5 checks passed
+✅ AI-STYLE-001 gemini: 5 checks passed
+✅ AI-STYLE-001 gpt: 5 checks passed
+✅ AI-STYLE-001 claude: 5 checks passed
+✅ AI-STYLE-001 passed 7 review lenses across 10 coverage areas.
+
+> robys-coffee-house@2.0.0 verify:brand-identity
+> node scripts/verify-brand-identity-assets.mjs
+
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:16
+  if (!condition) throw new Error(`[BRAND-IDENTITY-001] ${message}`);
+                        ^
+
+Error: [BRAND-IDENTITY-001] docs/instagram-tools.css must not introduce a serif display language
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:16:25)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-brand-identity-assets.mjs:150:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
 
 Node.js v22.23.1
