@@ -4,6 +4,8 @@
   --robys-brand-red:#E21B23;
   --robys-brand-ink:#111111;
   --robys-brand-paper:#F5F5F2;
+  --ruby:var(--robys-brand-red);
+  --brand-wordmark-paper:var(--robys-brand-paper);
 }
 
 .brand-copy{
@@ -88,6 +90,12 @@
     width:min(370px,84vw)!important;
     height:84px!important;
   }
+
+  html body.featured-gallery-active nav.mobile-cta{
+    transform:none!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
 }
 
 @media(max-width:420px){
@@ -167,10 +175,5 @@
   }
 }
 
-@media(max-width:680px){
-  html body.featured-gallery-active nav.mobile-cta{
-    transform:none!important;
-    opacity:1!important;
-    pointer-events:auto!important;
-  }
-}
+
+.map-pin img{display:block;width:46px;height:46px;object-fit:contain;transform:rotate(45deg)}

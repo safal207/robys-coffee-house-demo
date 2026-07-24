@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const APPROVED_RED = "#E21B23";
 const APPROVED_INK = "#111111";
@@ -61,6 +61,16 @@ const serviceWorker = read("sw.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 const appleTouchIcon = readFileSync("apple-touch-icon.png");
 const identityPages = ["index.html", "menu.html", "discover.html"].map((path) => [path, read(path)]);
+const serviceIdentityPages = [
+  ["docs/instagram-tools.html", read("docs/instagram-tools.html")],
+  ["docs/owner-pitch.html", read("docs/owner-pitch.html")]
+];
+const serviceIdentityStyles = [
+  ["docs/instagram-tools.css", read("docs/instagram-tools.css")],
+  ["docs/owner-pitch.css", read("docs/owner-pitch.css")]
+];
+const notFoundHtml = read("404.html");
+const offlineCss = read("offline.css");
 const identityPreloads = new Map([
   ["index.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />'],
   ["menu.html", '<link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />'],
@@ -115,10 +125,14 @@ assert(css.includes("border-radius:999px!important"), "mobile header container m
 assert(css.includes("robys-primary-master-v1.svg?v=20260721-master-1"), "large menu lockup must retain the primary master");
 assert(css.includes("robys-compact-master-v1.svg?v=20260721-master-1"), "mobile header must retain the compact master");
 assert(baseCss.includes(`--brand-wordmark-red:${APPROVED_RED}`), "legacy wordmark fallback must use canonical red");
+assert(baseCss.includes(`--ruby:${APPROVED_RED}`), "UI ruby token must use canonical red");
+assert(!baseCss.includes("#b84d58"), "base UI must not retain the legacy ruby red");
+assert(!existsSync("src/brand/robys-mobile-master-v1.svg"), "deprecated baked-in mobile pill master must be removed");
 assert(organicRing.includes(APPROVED_RED), "organic ring must use canonical red");
 assert(!organicRing.includes("#d32636"), "organic ring must not retain the legacy red");
 for (const [path, source] of identityPages) {
   assert(source.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), `${path} must link the identity stylesheet without JavaScript`);
+  assert(source.includes('<link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />'), `${path} must statically link the Apple touch icon`);
   const preload = identityPreloads.get(path);
   assert(
     source.includes(preload),
@@ -126,7 +140,22 @@ for (const [path, source] of identityPages) {
   );
 }
 assert(!bootstrap.includes("brand-photo-logo.css"), "bootstrap must not inject the identity stylesheet at runtime");
-assert(bootstrap.includes("apple-touch-icon.png?v="), "Apple touch icon PNG wiring must remain active");
+assert(bootstrap.includes("apple-touch-icon.png?v="), "progressive Apple touch fallback may remain active");
+for (const [path, source] of serviceIdentityPages) {
+  assert(source.includes("../apple-touch-icon.png?v=ios-install-20260707-1"), `${path} must statically link the Apple touch icon`);
+  assert(!/class=["']brand-mark["'][^>]*>\s*R\s*</i.test(source), `${path} must not render the legacy R badge`);
+  assert(/robys-(?:compact|mark)-master-v1\.svg/.test(source), `${path} must reuse an approved SVG identity asset`);
+}
+for (const [path, source] of serviceIdentityStyles) {
+  assert(source.includes(APPROVED_RED), `${path} must use canonical red`);
+  assert(!source.includes("#b84d58"), `${path} must not retain the legacy ruby red`);
+  assert(!/Georgia|Times New Roman|(?<!sans-)\bserif\b/i.test(source), `${path} must not introduce a serif display language`);
+}
+assert(notFoundHtml.includes("apple-touch-icon.png?v=ios-install-20260707-1"), "404 page must statically link the Apple touch icon");
+assert(notFoundHtml.includes("src/brand/robys-mark-master-v1.svg"), "404 page must reuse the approved organic-O mark");
+assert(!/class=["']offline-mark["'][^>]*>\s*R\s*</i.test(notFoundHtml), "404 page must not render the legacy R badge");
+assert(offlineCss.includes(APPROVED_RED) && !offlineCss.includes("#b84d58"), "404 UI must use canonical red");
+assert(!/Georgia|Times New Roman|(?<!sans-)\bserif\b/i.test(offlineCss), "404 UI must not introduce a serif display language");
 assert(/^const CACHE_VERSION = "robys-offline-[^"]+-[a-f0-9]{12}-[a-f0-9]{12}-[a-f0-9]{12}";/m.test(serviceWorker), "service worker cache version must remain compatible with the deterministic build rewriter");
 assert(serviceWorker.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "service worker must precache the exact identity stylesheet revision");
 assert(serviceWorker.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "service worker must precache the exact header master revision");

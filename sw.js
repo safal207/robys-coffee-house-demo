@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v26-20260723-identity-v2-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v27-20260724-brand-normalization-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -29,7 +29,6 @@ const CORE_ASSETS = [
   "./src/brand/robys-primary-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-header-master-v1.svg?v=20260723-identity-v2",
   "./src/brand/robys-compact-master-v1.svg?v=20260721-master-1",
-  "./src/brand/robys-mobile-master-v1.svg?v=20260721-master-1",
   "./src/brand/robys-mark-master-v1.svg?v=20260721-master-1",
   "./bootstrap.js",
   "./app.js",
@@ -93,7 +92,6 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-header-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
-    url.pathname.endsWith("/src/brand/robys-mobile-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-mark-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-organic-ring.svg");
   if (requiresExactRevision) {
