@@ -167,7 +167,7 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:3768) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:3756) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
@@ -177,332 +177,41 @@ To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffe
 ✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
 ✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
 PASS: approved SVG-path Roby's wordmark contract
-node:internal/modules/run_main:123
-    triggerUncaughtException(
-    ^
-
-AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/. Input:
-
-'<!doctype html>\n' +
-  '<html lang="tr">\n' +
-  '<head>\n' +
-  '  <meta charset="UTF-8" />\n' +
-  '  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
-  '  <meta name="robys-build" content="20260711-1" />\n' +
-  `  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />\n` +
-  '  <meta name="robots" content="index,follow,max-image-preview:large" />\n' +
-  '  <meta name="theme-color" content="#241c1b" />\n' +
-  '  <meta name="referrer" content="strict-origin-when-cross-origin" />\n' +
-  `  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />\n` +
-  '  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-  `  <meta property="og:title" content="Roby's Coffee House Menü | Gazipaşa Kahve & Tatlı" />\n` +
-  `  <meta property="og:description" content="Kahveler, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Roby's Gazipaşa menüsünü Türkçe, English veya Русский inceleyin." />\n` +
-  '  <meta property="og:type" content="website" />\n' +
-  '  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-  `  <meta property="og:site_name" content="Roby's Coffee House" />\n` +
-  '  <meta property="og:locale" content="tr_TR" />\n' +
-  '  <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-  `  <meta property="og:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-  '  <meta name="twitter:card" content="summary_large_image" />\n' +
-  `  <meta name="twitter:title" content="Roby's Coffee House Menü | Gazipaşa" />\n` +
-  '  <meta name="twitter:description" content="Kahve, soğuk içecek, cheesecake, kruvasan ve sandviç seçeneklerini keşfedin." />\n' +
-  '  <meta name="twitter:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-  `  <meta name="twitter:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-  "  <title>Roby's Coffee House Menü | Gazipaşa</title>\n" +
-  '  <script type="application/ld+json">\n' +
-  '  {\n' +
-  '    "@context": "https://schema.org",\n' +
-  '    "@type": "Menu",\n' +
-  '    "@id": "https://safal207.github.io/robys-coffee-house-demo/menu.html#menu",\n' +
-  `    "name": "Roby's Coffee House Menu",\n` +
-  '    "url": "https://safal207.github.io/robys-coffee-house-demo/menu.html",\n' +
-  '    "image": "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg",\n' +
-  '    "inLanguage": ["tr", "en", "ru"],\n' +
-  '    "isPartOf": {\n' +
-  '      "@id": "https://safal207.github.io/robys-coffee-house-demo/#cafe"\n' +
-  '    }\n' +
-  '  }\n' +
-  '  </script>\n' +
-  '  <script src="bootstrap.js?v=security-20260622-1"></script>\n' +
-  '  <link rel="icon" href="icon.svg" type="image/svg+xml" />\n' +
-  '  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />\n' +
-  '  <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />\n' +
-  '  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />\n' +
-  '  <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />\n' +
-  '  <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="brand-photo-logo.css?v=20260723-identity-v2" />\n' +
-  '  <script defer src="menu-pwa.js?v=offline-20260710-runtime-1"></script>\n' +
-  '</head>\n' +
-  '<body class="menu-page">\n' +
-  '  <a class="skip-link" href="#menu-root">İçeriğe geç</a>\n' +
-  '\n' +
-  '<header class="site-header">\n' +
-  '  <div class="container header-inner">\n' +
-  '    <a class="menu-page-back" href="index.html">\n' +
-  '      <span class="menu-page-back-icon" aria-hidden="true">←</span>\n' +
-  '      <span data-menu-copy="back">Kafeye dön</span>\n' +
-  '    </a>\n' +
-  '    <div class="language-switcher" aria-label="Language selector">\n' +
-  '      <button class="lang-button active" type="button" data-lang="tr">TR</button>\n' +
-  '      <button class="lang-button" type="button" data-lang="en">EN</button>\n' +
-  '      <button class="lang-button" type="button" data-lang="ru">RU</button>\n' +
-  '    </div>\n' +
-  '  </div>\n' +
-  '</header>\n' +
-  '\n' +
-  '  <main class="menu-page-main">\n' +
-  '\n' +
-  '<section class="menu-page-hero">\n' +
-  '  <div class="container menu-page-hero-inner">\n' +
-  `    <a class="brand menu-page-brand" href="index.html" aria-label="Roby's Coffee House">\n` +
-  '      <span class="brand-mark">R</span>\n' +
-  '      <span class="brand-copy">\n' +
-  "        <strong>ROBY'S</strong>\n" +
-  '        <small>COFFEE HOUSE</small>\n' +
-  '        <span class="menu-page-brand-tagline">FRESH COFFEE POINT</span>\n' +
-  '      </span>\n' +
-  '    </a>\n' +
-  '    <div class="menu-page-hero-copy">\n' +
-  `      <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>\n` +
-  '      <h1 data-menu-copy="pageTitle">Tam Menü</h1>\n' +
-  '      <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>\n' +
-  '    </div>\n' +
-  '  </div>\n' +
-  '</section>\n' +
-  '\n' +
-  '    <section class="menu-controls" aria-label="Menu controls">\n' +
-  '      <div class="container menu-controls-inner">\n' +
-  '        <div class="menu-search">\n' +
-  '          <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>\n' +
-  '          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />\n' +
-  '        </div>\n' +
-  '        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="full-menu-wrap">\n' +
-  '      <div class="container">\n' +
-  '        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>\n' +
-  '        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>\n' +
-  `        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>\n` +
-  '        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="menu-share-section" aria-labelledby="menu-share-title">\n' +
-  '      <div class="container">\n' +
-  '        <div class="menu-share-card">\n' +
-  '          <div class="menu-share-copy">\n' +
-  '            <p class="eyebrow" data-menu-action-copy="shareEyebrow">MENÜYÜ PAYLAŞ</p>\n' +
-  '            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Menüyü arkadaşlarınla paylaş</h2>\n' +
-  `            <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>\n` +
-  '          </div>\n' +
-  '          <div class="menu-share-actions">\n' +
-  '            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>\n' +
-  '            <a class="button menu-secondary-button" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-menu-action-copy="instagramLink">Instagram</a>\n' +
-  '            <a class="menu-inline-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-action-copy="mapsLink">Google Maps ↗</a>\n' +
-  '          </div>\n' +
-  '          <p class="menu-share-status" id="menu-share-status" role="status" aria-live="polite"></p>\n' +
-  '        </div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="menu-page-cta">\n' +
-  '      <div class="container menu-page-cta-inner">\n' +
-  '        <div class="menu-page-cta-copy">\n' +
-  "          <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>\n" +
-  '          <p data-menu-action-copy="bookingLead">Masa ayırtmak için Instagram üzerinden bize yazın.</p>\n' +
-  '        </div>\n' +
-  '        <div class="menu-page-cta-actions">\n' +
-  `          <a class="button button-primary" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-instagram-booking data-menu-action-copy="bookingButton">Instagram'dan yaz · Masa ayırt</a>\n` +
-  '          <a class="button menu-dark-secondary-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>\n' +
-  '          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.</p>\n' +
-  '        </div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '  </main>\n' +
-  '\n' +
-  '  <footer class="menu-page-footer">\n' +
-  '    <div class="container menu-page-footer-inner">\n' +
-  `      <span>© <span id="current-year"></span> Roby's Coffee House</span>\n` +
-  '      <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">@robyscoffeehouse ↗</a>\n' +
-  '    </div>\n' +
-  '  </footer>\n' +
-  '\n' +
-  '  <script type="module" src="menu-ready.js"></script>\n' +
-  '  <script type="module" src="menu-page.js"></script>\n' +
-  '  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>\n' +
-  '  <script type="module" src="menu-actions.js?v=20260627-1"></script>\n' +
-  '</body>\n' +
-  '</html>\n'
-
-    at verifyBrandWordmark (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/test-brand-wordmark.mjs:93:10)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-visual-contract.mjs:97:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
-  generatedMessage: true,
-  code: 'ERR_ASSERTION',
-  actual: '<!doctype html>\n' +
-    '<html lang="tr">\n' +
-    '<head>\n' +
-    '  <meta charset="UTF-8" />\n' +
-    '  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
-    '  <meta name="robys-build" content="20260711-1" />\n' +
-    `  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />\n` +
-    '  <meta name="robots" content="index,follow,max-image-preview:large" />\n' +
-    '  <meta name="theme-color" content="#241c1b" />\n' +
-    '  <meta name="referrer" content="strict-origin-when-cross-origin" />\n' +
-    `  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />\n` +
-    '  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-    `  <meta property="og:title" content="Roby's Coffee House Menü | Gazipaşa Kahve & Tatlı" />\n` +
-    `  <meta property="og:description" content="Kahveler, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Roby's Gazipaşa menüsünü Türkçe, English veya Русский inceleyin." />\n` +
-    '  <meta property="og:type" content="website" />\n' +
-    '  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-    `  <meta property="og:site_name" content="Roby's Coffee House" />\n` +
-    '  <meta property="og:locale" content="tr_TR" />\n' +
-    '  <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-    `  <meta property="og:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-    '  <meta name="twitter:card" content="summary_large_image" />\n' +
-    `  <meta name="twitter:title" content="Roby's Coffee House Menü | Gazipaşa" />\n` +
-    '  <meta name="twitter:description" content="Kahve, soğuk içecek, cheesecake, kruvasan ve sandviç seçeneklerini keşfedin." />\n' +
-    '  <meta name="twitter:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-    `  <meta name="twitter:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-    "  <title>Roby's Coffee House Menü | Gazipaşa</title>\n" +
-    '  <script type="application/ld+json">\n' +
-    '  {\n' +
-    '    "@context": "https://schema.org",\n' +
-    '    "@type": "Menu",\n' +
-    '    "@id": "https://safal207.github.io/robys-coffee-house-demo/menu.html#menu",\n' +
-    `    "name": "Roby's Coffee House Menu",\n` +
-    '    "url": "https://safal207.github.io/robys-coffee-house-demo/menu.html",\n' +
-    '    "image": "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg",\n' +
-    '    "inLanguage": ["tr", "en", "ru"],\n' +
-    '    "isPartOf": {\n' +
-    '      "@id": "https://safal207.github.io/robys-coffee-house-demo/#cafe"\n' +
-    '    }\n' +
-    '  }\n' +
-    '  </script>\n' +
-    '  <script src="bootstrap.js?v=security-20260622-1"></script>\n' +
-    '  <link rel="icon" href="icon.svg" type="image/svg+xml" />\n' +
-    '  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />\n' +
-    '  <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />\n' +
-    '  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />\n' +
-    '  <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />\n' +
-    '  <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="brand-photo-logo.css?v=20260723-identity-v2" />\n' +
-    '  <script defer src="menu-pwa.js?v=offline-20260710-runtime-1"></script>\n' +
-    '</head>\n' +
-    '<body class="menu-page">\n' +
-    '  <a class="skip-link" href="#menu-root">İçeriğe geç</a>\n' +
-    '\n' +
-    '<header class="site-header">\n' +
-    '  <div class="container header-inner">\n' +
-    '    <a class="menu-page-back" href="index.html">\n' +
-    '      <span class="menu-page-back-icon" aria-hidden="true">←</span>\n' +
-    '      <span data-menu-copy="back">Kafeye dön</span>\n' +
-    '    </a>\n' +
-    '    <div class="language-switcher" aria-label="Language selector">\n' +
-    '      <button class="lang-button active" type="button" data-lang="tr">TR</button>\n' +
-    '      <button class="lang-button" type="button" data-lang="en">EN</button>\n' +
-    '      <button class="lang-button" type="button" data-lang="ru">RU</button>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</header>\n' +
-    '\n' +
-    '  <main class="menu-page-main">\n' +
-    '\n' +
-    '<section class="menu-page-hero">\n' +
-    '  <div class="container menu-page-hero-inner">\n' +
-    `    <a class="brand menu-page-brand" href="index.html" aria-label="Roby's Coffee House">\n` +
-    '      <span class="brand-mark">R</span>\n' +
-    '      <span class="brand-copy">\n' +
-    "        <strong>ROBY'S</strong>\n" +
-    '        <small>COFFEE HOUSE</small>\n' +
-    '        <span class="menu-page-brand-tagline">FRESH COFFEE POINT</span>\n' +
-    '      </span>\n' +
-    '    </a>\n' +
-    '    <div class="menu-page-hero-copy">\n' +
-    `      <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>\n` +
-    '      <h1 data-menu-copy="pageTitle">Tam Menü</h1>\n' +
-    '      <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</section>\n' +
-    '\n' +
-    '    <section class="menu-controls" aria-label="Menu controls">\n' +
-    '      <div class="container menu-controls-inner">\n' +
-    '        <div class="menu-search">\n' +
-    '          <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>\n' +
-    '          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />\n' +
-    '        </div>\n' +
-    '        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="full-menu-wrap">\n' +
-    '      <div class="container">\n' +
-    '        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>\n' +
-    '        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>\n' +
-    `        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>\n` +
-    '        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="menu-share-section" aria-labelledby="menu-share-title">\n' +
-    '      <div class="container">\n' +
-    '        <div class="menu-share-card">\n' +
-    '          <div class="menu-share-copy">\n' +
-    '            <p class="eyebrow" data-menu-action-copy="shareEyebrow">MENÜYÜ PAYLAŞ</p>\n' +
-    '            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Menüyü arkadaşlarınla paylaş</h2>\n' +
-    `            <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>\n` +
-    '          </div>\n' +
-    '          <div class="menu-share-actions">\n' +
-    '            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>\n' +
-    '            <a class="button menu-secondary-button" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-menu-action-copy="instagramLink">Instagram</a>\n' +
-    '            <a class="menu-inline-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-action-copy="mapsLink">Google Maps ↗</a>\n' +
-    '          </div>\n' +
-    '          <p class="menu-share-status" id="menu-share-status" role="status" aria-live="polite"></p>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="menu-page-cta">\n' +
-    '      <div class="container menu-page-cta-inner">\n' +
-    '        <div class="menu-page-cta-copy">\n' +
-    "          <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>\n" +
-    '          <p data-menu-action-copy="bookingLead">Masa ayırtmak için Instagram üzerinden bize yazın.</p>\n' +
-    '        </div>\n' +
-    '        <div class="menu-page-cta-actions">\n' +
-    `          <a class="button button-primary" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-instagram-booking data-menu-action-copy="bookingButton">Instagram'dan yaz · Masa ayırt</a>\n` +
-    '          <a class="button menu-dark-secondary-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>\n' +
-    '          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.</p>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '  </main>\n' +
-    '\n' +
-    '  <footer class="menu-page-footer">\n' +
-    '    <div class="container menu-page-footer-inner">\n' +
-    `      <span>© <span id="current-year"></span> Roby's Coffee House</span>\n` +
-    '      <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">@robyscoffeehouse ↗</a>\n' +
-    '    </div>\n' +
-    '  </footer>\n' +
-    '\n' +
-    '  <script type="module" src="menu-ready.js"></script>\n' +
-    '  <script type="module" src="menu-page.js"></script>\n' +
-    '  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>\n' +
-    '  <script type="module" src="menu-actions.js?v=20260627-1"></script>\n' +
-    '</body>\n' +
-    '</html>\n',
-  expected: /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/,
-  operator: 'match',
-  diff: 'simple'
+PASS: production path-based Roby's wordmark contract
+✅ VISUAL-001 configuration is wired, bounded and protected.
+{
+  "totalJsBytes": 95854,
+  "largestJs": {
+    "file": "app.js",
+    "size": 32588
+  },
+  "totalCssBytes": 81561,
+  "totalHtmlBytes": 32529,
+  "heroBytes": 79501,
+  "posterBytes": 33321,
+  "auditedPages": [
+    "index.html",
+    "menu.html"
+  ]
 }
+✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected.
+✅ LIVE-001 build markers match: 20260711-1.
+✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.
+✅ LIVE-001 workflow and smoke coverage are protected.
+✅ NAV-001 gated: internal navigation, deep links and critical CTAs resolve.
+✅ MENU-001 gated: menu structure, translations and protected prices are valid.
+✅ I18N-001 gated: TR/EN/RU coverage and persistence contracts are intact.
+✅ SEARCH-001 gated: multilingual search, filtering and clear behavior are intact.
+✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.
+✅ Security contracts passed: 258 checks.
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24
+  if (!condition) throw new Error(`[${contract}] ${message}`);
+                        ^
+
+Error: [FEATURED-001] Missing CSS rule for html body.featured-gallery-active nav.mobile-cta
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24:25)
+    at cssRules (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:30:3)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:140:26
 
 Node.js v22.23.1
 
@@ -679,7 +388,7 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:5175) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:5162) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
@@ -689,331 +398,40 @@ To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffe
 ✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
 ✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
 PASS: approved SVG-path Roby's wordmark contract
-node:internal/modules/run_main:123
-    triggerUncaughtException(
-    ^
-
-AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/. Input:
-
-'<!doctype html>\n' +
-  '<html lang="tr">\n' +
-  '<head>\n' +
-  '  <meta charset="UTF-8" />\n' +
-  '  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
-  '  <meta name="robys-build" content="20260711-1" />\n' +
-  `  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />\n` +
-  '  <meta name="robots" content="index,follow,max-image-preview:large" />\n' +
-  '  <meta name="theme-color" content="#241c1b" />\n' +
-  '  <meta name="referrer" content="strict-origin-when-cross-origin" />\n' +
-  `  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />\n` +
-  '  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-  `  <meta property="og:title" content="Roby's Coffee House Menü | Gazipaşa Kahve & Tatlı" />\n` +
-  `  <meta property="og:description" content="Kahveler, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Roby's Gazipaşa menüsünü Türkçe, English veya Русский inceleyin." />\n` +
-  '  <meta property="og:type" content="website" />\n' +
-  '  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-  `  <meta property="og:site_name" content="Roby's Coffee House" />\n` +
-  '  <meta property="og:locale" content="tr_TR" />\n' +
-  '  <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-  `  <meta property="og:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-  '  <meta name="twitter:card" content="summary_large_image" />\n' +
-  `  <meta name="twitter:title" content="Roby's Coffee House Menü | Gazipaşa" />\n` +
-  '  <meta name="twitter:description" content="Kahve, soğuk içecek, cheesecake, kruvasan ve sandviç seçeneklerini keşfedin." />\n' +
-  '  <meta name="twitter:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-  `  <meta name="twitter:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-  "  <title>Roby's Coffee House Menü | Gazipaşa</title>\n" +
-  '  <script type="application/ld+json">\n' +
-  '  {\n' +
-  '    "@context": "https://schema.org",\n' +
-  '    "@type": "Menu",\n' +
-  '    "@id": "https://safal207.github.io/robys-coffee-house-demo/menu.html#menu",\n' +
-  `    "name": "Roby's Coffee House Menu",\n` +
-  '    "url": "https://safal207.github.io/robys-coffee-house-demo/menu.html",\n' +
-  '    "image": "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg",\n' +
-  '    "inLanguage": ["tr", "en", "ru"],\n' +
-  '    "isPartOf": {\n' +
-  '      "@id": "https://safal207.github.io/robys-coffee-house-demo/#cafe"\n' +
-  '    }\n' +
-  '  }\n' +
-  '  </script>\n' +
-  '  <script src="bootstrap.js?v=security-20260622-1"></script>\n' +
-  '  <link rel="icon" href="icon.svg" type="image/svg+xml" />\n' +
-  '  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />\n' +
-  '  <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />\n' +
-  '  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />\n' +
-  '  <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />\n' +
-  '  <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />\n' +
-  '  <link rel="stylesheet" href="brand-photo-logo.css?v=20260723-identity-v2" />\n' +
-  '  <script defer src="menu-pwa.js?v=offline-20260710-runtime-1"></script>\n' +
-  '</head>\n' +
-  '<body class="menu-page">\n' +
-  '  <a class="skip-link" href="#menu-root">İçeriğe geç</a>\n' +
-  '\n' +
-  '<header class="site-header">\n' +
-  '  <div class="container header-inner">\n' +
-  '    <a class="menu-page-back" href="index.html">\n' +
-  '      <span class="menu-page-back-icon" aria-hidden="true">←</span>\n' +
-  '      <span data-menu-copy="back">Kafeye dön</span>\n' +
-  '    </a>\n' +
-  '    <div class="language-switcher" aria-label="Language selector">\n' +
-  '      <button class="lang-button active" type="button" data-lang="tr">TR</button>\n' +
-  '      <button class="lang-button" type="button" data-lang="en">EN</button>\n' +
-  '      <button class="lang-button" type="button" data-lang="ru">RU</button>\n' +
-  '    </div>\n' +
-  '  </div>\n' +
-  '</header>\n' +
-  '\n' +
-  '  <main class="menu-page-main">\n' +
-  '\n' +
-  '<section class="menu-page-hero">\n' +
-  '  <div class="container menu-page-hero-inner">\n' +
-  `    <a class="brand menu-page-brand" href="index.html" aria-label="Roby's Coffee House">\n` +
-  '      <span class="brand-mark">R</span>\n' +
-  '      <span class="brand-copy">\n' +
-  "        <strong>ROBY'S</strong>\n" +
-  '        <small>COFFEE HOUSE</small>\n' +
-  '        <span class="menu-page-brand-tagline">FRESH COFFEE POINT</span>\n' +
-  '      </span>\n' +
-  '    </a>\n' +
-  '    <div class="menu-page-hero-copy">\n' +
-  `      <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>\n` +
-  '      <h1 data-menu-copy="pageTitle">Tam Menü</h1>\n' +
-  '      <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>\n' +
-  '    </div>\n' +
-  '  </div>\n' +
-  '</section>\n' +
-  '\n' +
-  '    <section class="menu-controls" aria-label="Menu controls">\n' +
-  '      <div class="container menu-controls-inner">\n' +
-  '        <div class="menu-search">\n' +
-  '          <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>\n' +
-  '          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />\n' +
-  '        </div>\n' +
-  '        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="full-menu-wrap">\n' +
-  '      <div class="container">\n' +
-  '        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>\n' +
-  '        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>\n' +
-  `        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>\n` +
-  '        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="menu-share-section" aria-labelledby="menu-share-title">\n' +
-  '      <div class="container">\n' +
-  '        <div class="menu-share-card">\n' +
-  '          <div class="menu-share-copy">\n' +
-  '            <p class="eyebrow" data-menu-action-copy="shareEyebrow">MENÜYÜ PAYLAŞ</p>\n' +
-  '            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Menüyü arkadaşlarınla paylaş</h2>\n' +
-  `            <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>\n` +
-  '          </div>\n' +
-  '          <div class="menu-share-actions">\n' +
-  '            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>\n' +
-  '            <a class="button menu-secondary-button" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-menu-action-copy="instagramLink">Instagram</a>\n' +
-  '            <a class="menu-inline-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-action-copy="mapsLink">Google Maps ↗</a>\n' +
-  '          </div>\n' +
-  '          <p class="menu-share-status" id="menu-share-status" role="status" aria-live="polite"></p>\n' +
-  '        </div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '\n' +
-  '    <section class="menu-page-cta">\n' +
-  '      <div class="container menu-page-cta-inner">\n' +
-  '        <div class="menu-page-cta-copy">\n' +
-  "          <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>\n" +
-  '          <p data-menu-action-copy="bookingLead">Masa ayırtmak için Instagram üzerinden bize yazın.</p>\n' +
-  '        </div>\n' +
-  '        <div class="menu-page-cta-actions">\n' +
-  `          <a class="button button-primary" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-instagram-booking data-menu-action-copy="bookingButton">Instagram'dan yaz · Masa ayırt</a>\n` +
-  '          <a class="button menu-dark-secondary-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>\n' +
-  '          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.</p>\n' +
-  '        </div>\n' +
-  '      </div>\n' +
-  '    </section>\n' +
-  '  </main>\n' +
-  '\n' +
-  '  <footer class="menu-page-footer">\n' +
-  '    <div class="container menu-page-footer-inner">\n' +
-  `      <span>© <span id="current-year"></span> Roby's Coffee House</span>\n` +
-  '      <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">@robyscoffeehouse ↗</a>\n' +
-  '    </div>\n' +
-  '  </footer>\n' +
-  '\n' +
-  '  <script type="module" src="menu-ready.js"></script>\n' +
-  '  <script type="module" src="menu-page.js"></script>\n' +
-  '  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>\n' +
-  '  <script type="module" src="menu-actions.js?v=20260627-1"></script>\n' +
-  '</body>\n' +
-  '</html>\n'
-
-    at verifyBrandWordmark (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/test-brand-wordmark.mjs:93:10)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-visual-contract.mjs:97:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
-  generatedMessage: true,
-  code: 'ERR_ASSERTION',
-  actual: '<!doctype html>\n' +
-    '<html lang="tr">\n' +
-    '<head>\n' +
-    '  <meta charset="UTF-8" />\n' +
-    '  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
-    '  <meta name="robys-build" content="20260711-1" />\n' +
-    `  <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />\n` +
-    '  <meta name="robots" content="index,follow,max-image-preview:large" />\n' +
-    '  <meta name="theme-color" content="#241c1b" />\n' +
-    '  <meta name="referrer" content="strict-origin-when-cross-origin" />\n' +
-    `  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />\n` +
-    '  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-    `  <meta property="og:title" content="Roby's Coffee House Menü | Gazipaşa Kahve & Tatlı" />\n` +
-    `  <meta property="og:description" content="Kahveler, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Roby's Gazipaşa menüsünü Türkçe, English veya Русский inceleyin." />\n` +
-    '  <meta property="og:type" content="website" />\n' +
-    '  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/menu.html" />\n' +
-    `  <meta property="og:site_name" content="Roby's Coffee House" />\n` +
-    '  <meta property="og:locale" content="tr_TR" />\n' +
-    '  <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-    `  <meta property="og:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-    '  <meta name="twitter:card" content="summary_large_image" />\n' +
-    `  <meta name="twitter:title" content="Roby's Coffee House Menü | Gazipaşa" />\n` +
-    '  <meta name="twitter:description" content="Kahve, soğuk içecek, cheesecake, kruvasan ve sandviç seçeneklerini keşfedin." />\n' +
-    '  <meta name="twitter:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />\n' +
-    `  <meta name="twitter:image:alt" content="Roby's Coffee House in Gazipaşa" />\n` +
-    "  <title>Roby's Coffee House Menü | Gazipaşa</title>\n" +
-    '  <script type="application/ld+json">\n' +
-    '  {\n' +
-    '    "@context": "https://schema.org",\n' +
-    '    "@type": "Menu",\n' +
-    '    "@id": "https://safal207.github.io/robys-coffee-house-demo/menu.html#menu",\n' +
-    `    "name": "Roby's Coffee House Menu",\n` +
-    '    "url": "https://safal207.github.io/robys-coffee-house-demo/menu.html",\n' +
-    '    "image": "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg",\n' +
-    '    "inLanguage": ["tr", "en", "ru"],\n' +
-    '    "isPartOf": {\n' +
-    '      "@id": "https://safal207.github.io/robys-coffee-house-demo/#cafe"\n' +
-    '    }\n' +
-    '  }\n' +
-    '  </script>\n' +
-    '  <script src="bootstrap.js?v=security-20260622-1"></script>\n' +
-    '  <link rel="icon" href="icon.svg" type="image/svg+xml" />\n' +
-    '  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />\n' +
-    '  <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260721-master-1" as="image" type="image/svg+xml" fetchpriority="high" />\n' +
-    '  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />\n' +
-    '  <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />\n' +
-    '  <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />\n' +
-    '  <link rel="stylesheet" href="brand-photo-logo.css?v=20260723-identity-v2" />\n' +
-    '  <script defer src="menu-pwa.js?v=offline-20260710-runtime-1"></script>\n' +
-    '</head>\n' +
-    '<body class="menu-page">\n' +
-    '  <a class="skip-link" href="#menu-root">İçeriğe geç</a>\n' +
-    '\n' +
-    '<header class="site-header">\n' +
-    '  <div class="container header-inner">\n' +
-    '    <a class="menu-page-back" href="index.html">\n' +
-    '      <span class="menu-page-back-icon" aria-hidden="true">←</span>\n' +
-    '      <span data-menu-copy="back">Kafeye dön</span>\n' +
-    '    </a>\n' +
-    '    <div class="language-switcher" aria-label="Language selector">\n' +
-    '      <button class="lang-button active" type="button" data-lang="tr">TR</button>\n' +
-    '      <button class="lang-button" type="button" data-lang="en">EN</button>\n' +
-    '      <button class="lang-button" type="button" data-lang="ru">RU</button>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</header>\n' +
-    '\n' +
-    '  <main class="menu-page-main">\n' +
-    '\n' +
-    '<section class="menu-page-hero">\n' +
-    '  <div class="container menu-page-hero-inner">\n' +
-    `    <a class="brand menu-page-brand" href="index.html" aria-label="Roby's Coffee House">\n` +
-    '      <span class="brand-mark">R</span>\n' +
-    '      <span class="brand-copy">\n' +
-    "        <strong>ROBY'S</strong>\n" +
-    '        <small>COFFEE HOUSE</small>\n' +
-    '        <span class="menu-page-brand-tagline">FRESH COFFEE POINT</span>\n' +
-    '      </span>\n' +
-    '    </a>\n' +
-    '    <div class="menu-page-hero-copy">\n' +
-    `      <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>\n` +
-    '      <h1 data-menu-copy="pageTitle">Tam Menü</h1>\n' +
-    '      <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</section>\n' +
-    '\n' +
-    '    <section class="menu-controls" aria-label="Menu controls">\n' +
-    '      <div class="container menu-controls-inner">\n' +
-    '        <div class="menu-search">\n' +
-    '          <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>\n' +
-    '          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />\n' +
-    '        </div>\n' +
-    '        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="full-menu-wrap">\n' +
-    '      <div class="container">\n' +
-    '        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>\n' +
-    '        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>\n' +
-    `        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>\n` +
-    '        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="menu-share-section" aria-labelledby="menu-share-title">\n' +
-    '      <div class="container">\n' +
-    '        <div class="menu-share-card">\n' +
-    '          <div class="menu-share-copy">\n' +
-    '            <p class="eyebrow" data-menu-action-copy="shareEyebrow">MENÜYÜ PAYLAŞ</p>\n' +
-    '            <h2 id="menu-share-title" data-menu-action-copy="shareTitle">Menüyü arkadaşlarınla paylaş</h2>\n' +
-    `            <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>\n` +
-    '          </div>\n' +
-    '          <div class="menu-share-actions">\n' +
-    '            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>\n' +
-    '            <a class="button menu-secondary-button" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-menu-action-copy="instagramLink">Instagram</a>\n' +
-    '            <a class="menu-inline-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-action-copy="mapsLink">Google Maps ↗</a>\n' +
-    '          </div>\n' +
-    '          <p class="menu-share-status" id="menu-share-status" role="status" aria-live="polite"></p>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <section class="menu-page-cta">\n' +
-    '      <div class="container menu-page-cta-inner">\n' +
-    '        <div class="menu-page-cta-copy">\n' +
-    "          <h2>ROBY'S<br /><em>COFFEE HOUSE</em></h2>\n" +
-    '          <p data-menu-action-copy="bookingLead">Masa ayırtmak için Instagram üzerinden bize yazın.</p>\n' +
-    '        </div>\n' +
-    '        <div class="menu-page-cta-actions">\n' +
-    `          <a class="button button-primary" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-instagram-booking data-menu-action-copy="bookingButton">Instagram'dan yaz · Masa ayırt</a>\n` +
-    '          <a class="button menu-dark-secondary-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>\n' +
-    '          <p class="menu-booking-note" data-menu-action-copy="bookingNote">Rezervasyon, kafenin Instagram üzerinden onayıyla kesinleşir.</p>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '  </main>\n' +
-    '\n' +
-    '  <footer class="menu-page-footer">\n' +
-    '    <div class="container menu-page-footer-inner">\n' +
-    `      <span>© <span id="current-year"></span> Roby's Coffee House</span>\n` +
-    '      <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer">@robyscoffeehouse ↗</a>\n' +
-    '    </div>\n' +
-    '  </footer>\n' +
-    '\n' +
-    '  <script type="module" src="menu-ready.js"></script>\n' +
-    '  <script type="module" src="menu-page.js"></script>\n' +
-    '  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>\n' +
-    '  <script type="module" src="menu-actions.js?v=20260627-1"></script>\n' +
-    '</body>\n' +
-    '</html>\n',
-  expected: /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/,
-  operator: 'match',
-  diff: 'simple'
+PASS: production path-based Roby's wordmark contract
+✅ VISUAL-001 configuration is wired, bounded and protected.
+{
+  "totalJsBytes": 95854,
+  "largestJs": {
+    "file": "app.js",
+    "size": 32588
+  },
+  "totalCssBytes": 81561,
+  "totalHtmlBytes": 32529,
+  "heroBytes": 79501,
+  "posterBytes": 33321,
+  "auditedPages": [
+    "index.html",
+    "menu.html"
+  ]
 }
+✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected.
+✅ LIVE-001 build markers match: 20260711-1.
+✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.
+✅ LIVE-001 workflow and smoke coverage are protected.
+✅ NAV-001 gated: internal navigation, deep links and critical CTAs resolve.
+✅ MENU-001 gated: menu structure, translations and protected prices are valid.
+✅ I18N-001 gated: TR/EN/RU coverage and persistence contracts are intact.
+✅ SEARCH-001 gated: multilingual search, filtering and clear behavior are intact.
+✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.
+✅ Security contracts passed: 258 checks.
+file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24
+  if (!condition) throw new Error(`[${contract}] ${message}`);
+                        ^
+
+Error: [FEATURED-001] Missing CSS rule for html body.featured-gallery-active nav.mobile-cta
+    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24:25)
+    at cssRules (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:30:3)
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:140:26
 
 Node.js v22.23.1
