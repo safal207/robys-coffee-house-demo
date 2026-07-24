@@ -2,7 +2,7 @@
   "schema_version": "robys-logo-fidelity-v0.1",
   "reference": {
     "mask_path": "qa/brand/robys-primary-reference-mask-v0.1.json",
-    "mask_sha256": "d6cfa57df6556cfc6b11dbfb8bb22da4ff22fb697915ea54684c1fe61fc6516e",
+    "mask_sha256": "cdfdafbf0aa696ba99387fa457c18f61cd1045e049582f8afa0d96996ece2253",
     "source_sha256": "c6c244758f27a56505c501ccedd4fe159d378a9eed03883a89c0bd685b5c6f14",
     "provenance": "User-provided approved Roby's reference artwork used during PR #246 visual review",
     "scope": "Primary ROBY'S wordmark row normalized into a review mask"
