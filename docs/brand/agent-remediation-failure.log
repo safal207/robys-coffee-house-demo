@@ -167,7 +167,7 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:3756) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:3794) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
@@ -185,7 +185,7 @@ PASS: production path-based Roby's wordmark contract
     "file": "app.js",
     "size": 32588
   },
-  "totalCssBytes": 81561,
+  "totalCssBytes": 81534,
   "totalHtmlBytes": 32529,
   "heroBytes": 79501,
   "posterBytes": 33321,
@@ -208,10 +208,9 @@ file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts
   if (!condition) throw new Error(`[${contract}] ${message}`);
                         ^
 
-Error: [FEATURED-001] Missing CSS rule for html body.featured-gallery-active nav.mobile-cta
+Error: [FEATURED-001] Bootstrap must request a revisioned shared UX stylesheet
     at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24:25)
-    at cssRules (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:30:3)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:140:26
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:146:1
 
 Node.js v22.23.1
 
@@ -388,7 +387,7 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:5162) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:5201) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
@@ -406,7 +405,7 @@ PASS: production path-based Roby's wordmark contract
     "file": "app.js",
     "size": 32588
   },
-  "totalCssBytes": 81561,
+  "totalCssBytes": 81534,
   "totalHtmlBytes": 32529,
   "heroBytes": 79501,
   "posterBytes": 33321,
@@ -429,9 +428,8 @@ file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts
   if (!condition) throw new Error(`[${contract}] ${message}`);
                         ^
 
-Error: [FEATURED-001] Missing CSS rule for html body.featured-gallery-active nav.mobile-cta
+Error: [FEATURED-001] Bootstrap must request a revisioned shared UX stylesheet
     at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:24:25)
-    at cssRules (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:30:3)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:140:26
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-regression-contracts.mjs:146:1
 
 Node.js v22.23.1
