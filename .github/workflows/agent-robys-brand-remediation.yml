@@ -59,6 +59,12 @@ jobs:
               '  "padding-bottom:calc(98px + env(safe-area-inset-bottom))",\n'
               '  "mobile CTA protected footer spacing"\n'
               '));\n\n'
+              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
+              '  source,\n'
+              '  "routeUrls.length >= 4",\n'
+              '  "routeUrls.length >= 3",\n'
+              '  "current static driving-route CTA count"\n'
+              '));\n\n'
           )
           if marker not in source:
               raise SystemExit("final assertion marker missing")
