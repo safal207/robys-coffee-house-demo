@@ -64,7 +64,7 @@ jobs:
           npm run verify:brand-identity
 
       - name: Install pinned visual comparison runtime
-        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.54.1 pixelmatch@7.1.0 sharp@0.34.3
+        run: npm install --no-save --package-lock=false playwright-core@1.54.1 pixelmatch@7.1.0 sharp@0.34.3
 
       - name: Locate Chrome
         id: runtime
@@ -90,13 +90,20 @@ jobs:
           exit 1
 
       - name: Run Playwright fidelity gate
+        shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          mkdir -p reports/robys-logo-fidelity-v0.1
           node scripts/verify-robys-logo-fidelity-mask.mjs \
             --config qa/brand/robys-logo-fidelity-v0.1.json \
             --chrome "${{ steps.runtime.outputs.chrome }}" \
-            --output-dir reports/robys-logo-fidelity-v0.1
-          cat reports/robys-logo-fidelity-v0.1/summary.md >> "${GITHUB_STEP_SUMMARY}"
+            --output-dir reports/robys-logo-fidelity-v0.1 \
+            2>&1 | tee reports/robys-logo-fidelity-v0.1/execution.log
+          status=${PIPESTATUS[0]}
+          if [[ -f reports/robys-logo-fidelity-v0.1/summary.md ]]; then
+            cat reports/robys-logo-fidelity-v0.1/summary.md >> "${GITHUB_STEP_SUMMARY}"
+          fi
+          exit "${status}"
 
       - name: Verify evidence integrity and authority boundary
         shell: bash
@@ -112,7 +119,7 @@ jobs:
               (.results | length) == 2 and
               ([.results[].profile] | sort) == ["desktop", "mobile"]
             ' reports/robys-logo-fidelity-v0.1/result.json >/dev/null
-          find reports/robys-logo-fidelity-v0.1 -type f -print0 | sort -z | xargs -0 sha256sum > reports/robys-logo-fidelity-v0.1/SHA256SUMS
+          find reports/robys-logo-fidelity-v0.1 -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > reports/robys-logo-fidelity-v0.1/SHA256SUMS
           (cd reports/robys-logo-fidelity-v0.1 && sha256sum -c SHA256SUMS)
 
       - name: Upload exact comparison evidence
