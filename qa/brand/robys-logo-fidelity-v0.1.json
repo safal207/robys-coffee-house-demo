@@ -24,6 +24,7 @@
     }
   ],
   "glyph_order": ["R", "O", "B", "Y", "S"],
+  "glyph_tolerance_radius_px": 1,
   "minimum_dice": {
     "R": 0.86,
     "O": 0.82,
