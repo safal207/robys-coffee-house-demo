@@ -35,7 +35,37 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Normalize B and S geometry
-        run: node scripts/normalize-robys-wordmark.mjs
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          path = Path('scripts/normalize-robys-wordmark.mjs')
+          source = path.read_text()
+          old = '''  for (const path of ["index.html", "menu.html", "discover.html"]) {
+    replaceAllIn(path, [
+      ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+      ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`],
+      ["robys-primary-master-v1.svg?v=20260721-master-1", `robys-primary-master-v1.svg?v=${REVISION}`]
+    ]);
+  }
+'''
+          new = '''  replaceAllIn("index.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`]
+  ]);
+  replaceAllIn("menu.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-primary-master-v1.svg?v=20260721-master-1", `robys-primary-master-v1.svg?v=${REVISION}`]
+  ]);
+  replaceAllIn("discover.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`]
+  ]);
+'''
+          if old not in source:
+              raise SystemExit('expected page replacement block not found')
+          path.write_text(source.replace(old, new))
+          PY
+          node scripts/normalize-robys-wordmark.mjs
 
       - name: Build and regenerate integrity evidence
         run: |
