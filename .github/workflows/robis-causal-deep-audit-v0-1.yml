@@ -1,0 +1,103 @@
+name: Robis Causal Deep-Audit v0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/robis-causal-deep-audit-v0-1
+    paths:
+      - audits/robis/causal-deep-audit-v0.1/**
+      - docs/audits/ROBIS_CAUSAL_DEEP_AUDIT_V0_1.md
+      - scripts/validate-robis-causal-deep-audit-v0.1.mjs
+      - tests/robis-causal-deep-audit-v0.1.test.mjs
+      - .github/workflows/robis-causal-deep-audit-v0-1.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - audits/robis/causal-deep-audit-v0.1/**
+      - docs/audits/ROBIS_CAUSAL_DEEP_AUDIT_V0_1.md
+      - scripts/validate-robis-causal-deep-audit-v0.1.mjs
+      - tests/robis-causal-deep-audit-v0.1.test.mjs
+      - .github/workflows/robis-causal-deep-audit-v0-1.yml
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: robis-causal-deep-audit-v0-1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate packet, negative cases and exact targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout exact audit revision
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate JSON syntax
+        run: python3 -m json.tool audits/robis/causal-deep-audit-v0.1/audit-packet.json >/dev/null
+
+      - name: Validate causal audit contract
+        run: node scripts/validate-robis-causal-deep-audit-v0.1.mjs
+
+      - name: Run fail-closed negative tests
+        run: node tests/robis-causal-deep-audit-v0.1.test.mjs
+
+      - name: Fail closed when audited source identities move
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          packet="audits/robis/causal-deep-audit-v0.1/audit-packet.json"
+          expected_main="$(jq -r '.source_identity.base_sha' "$packet")"
+          expected_pr="$(jq -r '.source_identity.head_sha' "$packet")"
+
+          current_main="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/safal207/robys-coffee-house-demo/commits/main \
+            | jq -r '.sha')"
+
+          current_pr="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/safal207/robys-coffee-house-demo/pulls/239 \
+            | jq -r '.head.sha')"
+
+          test "$current_main" = "$expected_main" || {
+            echo "Audit stale: main moved from $expected_main to $current_main"
+            exit 1
+          }
+          test "$current_pr" = "$expected_pr" || {
+            echo "Audit stale: PR 239 moved from $expected_pr to $current_pr"
+            exit 1
+          }
+
+          echo "Exact targets verified: main=$current_main pr239=$current_pr"
+
+      - name: Hash audit artifact
+        run: |
+          set -euo pipefail
+          output="audits/robis/causal-deep-audit-v0.1/ARTIFACT_SHA256SUMS.txt"
+          : > "$output"
+          sha256sum audits/robis/causal-deep-audit-v0.1/audit-packet.json >> "$output"
+          sha256sum docs/audits/ROBIS_CAUSAL_DEEP_AUDIT_V0_1.md >> "$output"
+          sha256sum -c "$output"
+
+      - name: Upload exact audit packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: robis-causal-deep-audit-v0-1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            audits/robis/causal-deep-audit-v0.1/audit-packet.json
+            audits/robis/causal-deep-audit-v0.1/ARTIFACT_SHA256SUMS.txt
+            docs/audits/ROBIS_CAUSAL_DEEP_AUDIT_V0_1.md
+          if-no-files-found: error
+          retention-days: 14
