@@ -109,13 +109,18 @@ function patchDelivery() {
     ["robys-primary-master-v1.svg?v=20260721-master-1", `robys-primary-master-v1.svg?v=${REVISION}`]
   ]);
 
-  for (const path of ["index.html", "menu.html", "discover.html"]) {
-    replaceAllIn(path, [
-      ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
-      ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`],
-      ["robys-primary-master-v1.svg?v=20260721-master-1", `robys-primary-master-v1.svg?v=${REVISION}`]
-    ]);
-  }
+  replaceAllIn("index.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`]
+  ]);
+  replaceAllIn("menu.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-primary-master-v1.svg?v=20260721-master-1", `robys-primary-master-v1.svg?v=${REVISION}`]
+  ]);
+  replaceAllIn("discover.html", [
+    ["brand-photo-logo.css?v=20260723-identity-v2", `brand-photo-logo.css?v=${REVISION}`],
+    ["robys-compact-master-v1.svg?v=20260721-master-1", `robys-compact-master-v1.svg?v=${REVISION}`]
+  ]);
 
   replaceAllIn("sw.js", [
     ["robys-offline-v27-20260724-brand-normalization", "robys-offline-v28-20260724-wordmark-normalization"],
@@ -132,14 +137,6 @@ function patchIdentityContract() {
   source = source.replace('const IDENTITY_REVISION = "20260723-identity-v2";', `const IDENTITY_REVISION = "${REVISION}";`);
   source = source.split("robys-compact-master-v1.svg?v=20260721-master-1").join(`robys-compact-master-v1.svg?v=${REVISION}`);
   source = source.split("robys-primary-master-v1.svg?v=20260721-master-1").join(`robys-primary-master-v1.svg?v=${REVISION}`);
-  source = source.replace(
-    'assert(css.includes("robys-primary-master-v1.svg?v=20260721-master-1"), "large menu lockup must retain the primary master");',
-    'assert(css.includes(`robys-primary-master-v1.svg?v=${IDENTITY_REVISION}`), "large menu lockup must retain the revision-bound primary master");'
-  );
-  source = source.replace(
-    'assert(css.includes("robys-compact-master-v1.svg?v=20260721-master-1"), "mobile header must retain the compact master");',
-    'assert(css.includes(`robys-compact-master-v1.svg?v=${IDENTITY_REVISION}`), "mobile header must retain the revision-bound compact master");'
-  );
 
   const insertionMarker = 'assert(header.includes(markPath), "header wordmark must reuse the approved organic O path");\n';
   const geometryContract = `\nfunction extractWordmark(svg, path) {\n  const match = svg.match(/<g id=["']robys-wordmark["'][\\s\\S]*?<\\/g>/);\n  assert(match, \`${'${path}'} must expose the canonical robys-wordmark definition\`);\n  return match[0].replace(/\\s+/g, " ").trim();\n}\n\nconst wordmarkSources = [\n  ["src/brand/robys-compact-master-v1.svg", compact],\n  ["src/brand/robys-header-master-v1.svg", header],\n  ["src/brand/robys-primary-master-v1.svg", primary]\n];\nconst canonicalWordmark = extractWordmark(compact, "src/brand/robys-compact-master-v1.svg");\nfor (const [path, source] of wordmarkSources) {\n  assert(extractWordmark(source, path) === canonicalWordmark, \`${'${path}'} must reuse byte-identical Roby's glyph geometry\`);\n  assert(source.includes('<use href="#robys-wordmark"/>'), \`${'${path}'} must render the canonical wordmark through <use>\`);\n}\n\nconst closeTo = (actual, expected) => Math.abs(actual - expected) < 0.001;\nconst transformedY = (value, scale, translate) => value * scale + translate;\nassert(closeTo(transformedY(18, 0.863636, 2.454545), 18), "B bowls must retain the shared cap-height y=18");\nassert(closeTo(transformedY(150, 0.863636, 2.454545), 132), "B bowls must end on the shared baseline y=132");\nassert(closeTo(transformedY(14, 0.826087, 6.434783), 18), "S must start on the shared cap-height y=18");\nassert(closeTo(transformedY(152, 0.826087, 6.434783), 132), "S must end on the shared baseline y=132");\nassert(canonicalWordmark.includes('id="robys-b-stem"'), "B stem must remain independently bound to y=18…132");\nassert(canonicalWordmark.includes('id="robys-b-bowls"'), "B bowls must remain independently normalizable");\nassert(canonicalWordmark.includes('data-cap-y="18" data-baseline-y="132"'), "wordmark must publish its cap-height and baseline contract");\n`;
