@@ -7,8 +7,8 @@ on:
       - agent/normalize-robys-wordmark-geometry
     paths:
       - qa/brand/robys-logo-fidelity-v0.1.json
-      - qa/brand/robys-primary-reference.png.base64
-      - scripts/verify-robys-logo-fidelity.mjs
+      - qa/brand/robys-primary-reference-mask-v0.1.json
+      - scripts/verify-robys-logo-fidelity-mask.mjs
       - src/brand/robys-compact-master-v1.svg
       - src/brand/robys-header-master-v1.svg
       - src/brand/robys-primary-master-v1.svg
@@ -20,8 +20,8 @@ on:
       - main
     paths:
       - qa/brand/robys-logo-fidelity-v0.1.json
-      - qa/brand/robys-primary-reference.png.base64
-      - scripts/verify-robys-logo-fidelity.mjs
+      - qa/brand/robys-primary-reference-mask-v0.1.json
+      - scripts/verify-robys-logo-fidelity-mask.mjs
       - src/brand/robys-compact-master-v1.svg
       - src/brand/robys-header-master-v1.svg
       - src/brand/robys-primary-master-v1.svg
@@ -89,10 +89,10 @@ jobs:
           cat /tmp/robys-logo-server.log
           exit 1
 
-      - name: Run Playwright and Pixelmatch fidelity gate
+      - name: Run Playwright fidelity gate
         run: |
           set -euo pipefail
-          node scripts/verify-robys-logo-fidelity.mjs \
+          node scripts/verify-robys-logo-fidelity-mask.mjs \
             --config qa/brand/robys-logo-fidelity-v0.1.json \
             --chrome "${{ steps.runtime.outputs.chrome }}" \
             --output-dir reports/robys-logo-fidelity-v0.1
