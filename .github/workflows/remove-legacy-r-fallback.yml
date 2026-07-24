@@ -1,0 +1,62 @@
+name: Remove legacy R fallback
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: remove-legacy-r-fallback
+  cancel-in-progress: true
+
+jobs:
+  clean:
+    if: github.actor != 'github-actions[bot]' && github.head_ref == 'agent/remove-legacy-r-fallback'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/remove-legacy-r-fallback
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Remove hidden legacy R fallbacks
+        run: node scripts/remove-legacy-r-fallback.mjs
+
+      - name: Build and regenerate integrity evidence
+        run: |
+          npm run build
+          npm run integrity:generate
+
+      - name: Run full checks
+        run: |
+          npm run check
+          npm run verify:security
+
+      - name: Remove temporary helper and workflow
+        run: |
+          rm scripts/remove-legacy-r-fallback.mjs
+          rm .github/workflows/remove-legacy-r-fallback.yml
+
+      - name: Commit verified cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "fix: remove hidden legacy R fallbacks"
+          git push origin HEAD:agent/remove-legacy-r-fallback
