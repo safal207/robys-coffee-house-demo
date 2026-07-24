@@ -56,7 +56,7 @@ jobs:
           set -o pipefail
           node scripts/agent-fix-robys-brand.mjs 2>&1 | tee /tmp/robys-brand-remediation.log
 
-      - name: Persist failure diagnostics
+      - name: Persist apply diagnostics
         if: failure()
         run: |
           cp /tmp/robys-brand-remediation.log docs/brand/agent-remediation-failure.log
@@ -72,12 +72,26 @@ jobs:
           npm run integrity:generate
 
       - name: Run full repository checks
+        shell: bash
         run: |
-          npm run check || {
-            npm run integrity:generate
-            npm run check
-          }
-          npm run verify:security
+          set -o pipefail
+          {
+            npm run check || {
+              npm run integrity:generate
+              npm run check
+            }
+            npm run verify:security
+          } 2>&1 | tee /tmp/robys-brand-check.log
+
+      - name: Persist check diagnostics
+        if: failure()
+        run: |
+          cp /tmp/robys-brand-check.log docs/brand/agent-remediation-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/brand/agent-remediation-failure.log
+          git commit -m "chore: record brand verification failure"
+          git push origin HEAD:agent/fix-robys-brand-consistency
 
       - name: Remove temporary agent files
         run: |
