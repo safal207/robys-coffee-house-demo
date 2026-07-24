@@ -1,0 +1,41 @@
+{
+  "schema_version": "robys-logo-fidelity-v0.1",
+  "reference": {
+    "base64_path": "qa/brand/robys-primary-reference.png.base64",
+    "sha256": "c6c244758f27a56505c501ccedd4fe159d378a9eed03883a89c0bd685b5c6f14",
+    "provenance": "User-provided approved Roby's reference artwork used during PR #246 visual review",
+    "scope": "Primary lockup: ROBY'S COFFEE HOUSE plus Fresh Coffee Point"
+  },
+  "target": {
+    "url": "http://127.0.0.1:4173/menu.html",
+    "selector": ".menu-page-brand .brand-copy"
+  },
+  "profiles": [
+    {
+      "id": "desktop",
+      "viewport": {"width": 1440, "height": 1000},
+      "device_scale_factor": 1
+    },
+    {
+      "id": "mobile",
+      "viewport": {"width": 412, "height": 915},
+      "device_scale_factor": 2
+    }
+  ],
+  "glyph_order": ["R", "O", "B", "Y", "S"],
+  "minimum_dice": {
+    "R": 0.86,
+    "O": 0.82,
+    "B": 0.88,
+    "Y": 0.93,
+    "S": 0.82
+  },
+  "maximum_baseline_deviation_ratio": 0.02,
+  "maximum_s_overshoot_ratio": 0.04,
+  "maximum_normalized_pixel_mismatch_ratio": 0.30,
+  "authority": {
+    "mode": "evidence_only",
+    "deployment": false,
+    "merge": false
+  }
+}
