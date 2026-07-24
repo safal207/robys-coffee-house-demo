@@ -88,6 +88,12 @@
     width:min(370px,84vw)!important;
     height:84px!important;
   }
+
+  html body.featured-gallery-active nav.mobile-cta{
+    transform:none!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
 }
 
 @media(max-width:420px){
@@ -164,13 +170,5 @@
     align-items:center;
     justify-content:center;
     padding-block:8px!important;
-  }
-}
-
-@media(max-width:680px){
-  html body.featured-gallery-active nav.mobile-cta{
-    transform:none!important;
-    opacity:1!important;
-    pointer-events:auto!important;
   }
 }
