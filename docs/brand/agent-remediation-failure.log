@@ -167,22 +167,34 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:3774) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:3763) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
 ✅ ANDROID-APP-001 passed: repaired signed APK f188c2f0ab82… is cached, verified, downloadable offline and shows the real Android button logo.
 ✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
-file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11
-  if (!condition) throw new Error(`[${id}] ${message}`);
-                        ^
+✅ SEO-001 gated: metadata, social cards and JSON-LD are consistent.
+✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
+✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
 
-Error: [DEPLOY-001] 404 recovery URL changed
-    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11:25)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:121:1
+AssertionError [ERR_ASSERTION]: missing SVG master: src/brand/robys-mobile-master-v1.svg
+
+false !== true
+
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/test-photo-logo.mjs:20:10
     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
 
 Node.js v22.23.1
 
@@ -359,21 +371,33 @@ Lifecycle summary: released=8, implemented=3, planned=3
 PASS: static pairing CTA and cache revision are bound
 ✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
 ✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
-(node:5183) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
+(node:5171) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/menu-data.js is not specified and it doesn't parse as CommonJS.
 Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 To eliminate this warning, add "type": "module" to /home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/package.json.
 (Use `node --trace-warnings ...` to show where the warning was created)
 ✅ ANDROID-APP-001 passed: repaired signed APK f188c2f0ab82… is cached, verified, downloadable offline and shows the real Android button logo.
 ✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
-file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11
-  if (!condition) throw new Error(`[${id}] ${message}`);
-                        ^
+✅ SEO-001 gated: metadata, social cards and JSON-LD are consistent.
+✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
+✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
 
-Error: [DEPLOY-001] 404 recovery URL changed
-    at assert (file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:11:25)
-    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/verify-seo-content-deploy.mjs:121:1
+AssertionError [ERR_ASSERTION]: missing SVG master: src/brand/robys-mobile-master-v1.svg
+
+false !== true
+
+    at file:///home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/scripts/test-photo-logo.mjs:20:10
     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
 
 Node.js v22.23.1
