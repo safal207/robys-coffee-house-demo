@@ -55,29 +55,34 @@ jobs:
         run: |
           node <<'NODE'
           const { readFileSync } = require('node:fs');
-          const files = ['index.html', 'menu.html', 'discover.html', 'integrity-manifest.json'];
-          const headers = {
-            Accept: 'application/vnd.github+json',
-            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-            'X-GitHub-Api-Version': '2022-11-28',
-            'Content-Type': 'application/json'
-          };
-          for (const path of files) {
-            const endpoint = `https://api.github.com/repos/${process.env.REPOSITORY}/contents/${path}`;
-            const current = await fetch(`${endpoint}?ref=${encodeURIComponent(process.env.TARGET_BRANCH)}`, { headers });
-            if (!current.ok) throw new Error(`GET ${path}: ${current.status} ${await current.text()}`);
-            const { sha } = await current.json();
-            const response = await fetch(endpoint, {
-              method: 'PUT',
-              headers,
-              body: JSON.stringify({
-                message: `fix: remove hidden legacy R fallback from ${path}`,
-                content: readFileSync(path).toString('base64'),
-                sha,
-                branch: process.env.TARGET_BRANCH
-              })
-            });
-            if (!response.ok) throw new Error(`PUT ${path}: ${response.status} ${await response.text()}`);
-            console.log(`Published ${path}`);
-          }
+          (async () => {
+            const files = ['index.html', 'menu.html', 'discover.html', 'integrity-manifest.json'];
+            const headers = {
+              Accept: 'application/vnd.github+json',
+              Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+              'X-GitHub-Api-Version': '2022-11-28',
+              'Content-Type': 'application/json'
+            };
+            for (const path of files) {
+              const endpoint = `https://api.github.com/repos/${process.env.REPOSITORY}/contents/${path}`;
+              const current = await fetch(`${endpoint}?ref=${encodeURIComponent(process.env.TARGET_BRANCH)}`, { headers });
+              if (!current.ok) throw new Error(`GET ${path}: ${current.status} ${await current.text()}`);
+              const { sha } = await current.json();
+              const response = await fetch(endpoint, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({
+                  message: `fix: remove hidden legacy R fallback from ${path}`,
+                  content: readFileSync(path).toString('base64'),
+                  sha,
+                  branch: process.env.TARGET_BRANCH
+                })
+              });
+              if (!response.ok) throw new Error(`PUT ${path}: ${response.status} ${await response.text()}`);
+              console.log(`Published ${path}`);
+            }
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
           NODE
