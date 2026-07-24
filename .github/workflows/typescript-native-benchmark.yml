@@ -1,0 +1,58 @@
+name: TypeScript native benchmark
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/typescript-native-benchmark.yml"
+      - "package.json"
+      - "tsconfig.json"
+      - "scripts/benchmark-typescript.mjs"
+      - "src/**/*.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    name: Compare TypeScript 5, 6, and 7
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Verify current compiler-backed build
+        run: |
+          npm run typecheck
+          npm run build
+
+      - name: Install isolated compiler candidates
+        run: |
+          mkdir -p .typescript-bench/ts6 .typescript-bench/ts7
+          npm install --prefix .typescript-bench/ts6 --no-save --package-lock=false @typescript/typescript6@6.0.2
+          npm install --prefix .typescript-bench/ts7 --no-save --package-lock=false typescript@7.0.2
+
+      - name: Benchmark type checking
+        env:
+          TS_BENCH_WARMUPS: "2"
+          TS_BENCH_SAMPLES: "9"
+        run: npm run bench:typescript
+
+      - name: Upload benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-compiler-benchmark
+          path: .artifacts/typescript-benchmark.json
+          if-no-files-found: error
+          retention-days: 14

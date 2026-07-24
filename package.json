@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
+    "bench:typescript": "node scripts/benchmark-typescript.mjs",
     "verify:menu-content": "node scripts/verify-menu-content.mjs",
     "verify:instagram-tools": "node scripts/verify-instagram-tools.mjs",
     "verify:menu-share": "node scripts/verify-menu-share.mjs",
