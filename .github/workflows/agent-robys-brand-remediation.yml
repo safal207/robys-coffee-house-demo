@@ -71,6 +71,18 @@ jobs:
               '  "assert(instagramUrls.every((url) => url === \\\"https://www.instagram.com/robyscoffeehouse/\\\" || url === \\\"https://www.instagram.com/reel/C0qYxxmIY9t/\\\"), \\\"CTA-001\\\", \\\"Wrong Instagram destination\\\");",\n'
               '  "approved Robys Instagram profile and reel allowlist"\n'
               '));\n\n'
+              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
+              '  source,\n'
+              '  "src/robys-hero-mobile-lite.mp4",\n'
+              '  "src/robys-ambience-clean.mp4",\n'
+              '  "current verified hero video asset"\n'
+              '));\n\n'
+              'update("scripts/verify-p1-interface-contracts.mjs", (source) => replaceRequired(\n'
+              '  source,\n'
+              '  "HERO_VIDEO = \\\"src/robys-hero-mobile-lite.mp4",\n'
+              '  "HERO_VIDEO = \\\"src/robys-ambience-clean.mp4?v=20260711-1",\n'
+              '  "current hero runtime source contract"\n'
+              '));\n\n'
           )
           if marker not in source:
               raise SystemExit("final assertion marker missing")
