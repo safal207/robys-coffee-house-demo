@@ -1,0 +1,118 @@
+name: Normalize Roby's wordmark geometry
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: normalize-robys-wordmark-geometry
+  cancel-in-progress: true
+
+jobs:
+  normalize:
+    if: github.actor != 'github-actions[bot]' && github.head_ref == 'agent/normalize-robys-wordmark-geometry'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/normalize-robys-wordmark-geometry
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Normalize B and S geometry
+        run: node scripts/normalize-robys-wordmark.mjs
+
+      - name: Build and regenerate integrity evidence
+        run: |
+          npm run build
+          npm run integrity:generate
+
+      - name: Run complete checks
+        run: |
+          npm run check
+          npm run verify:security
+
+      - name: Upload exact SVG review assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-wordmark-normalized
+          if-no-files-found: error
+          retention-days: 2
+          path: |
+            src/brand/robys-compact-master-v1.svg
+            src/brand/robys-header-master-v1.svg
+            src/brand/robys-primary-master-v1.svg
+            wordmark-geometry-report.txt
+
+      - name: Publish verified product files through GitHub Contents API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_BRANCH: agent/normalize-robys-wordmark-geometry
+        run: |
+          node <<'NODE'
+          const { execFileSync } = require('node:child_process');
+          const { readFileSync } = require('node:fs');
+
+          (async () => {
+            const [owner, repo] = process.env.GH_REPOSITORY.split('/');
+            const branch = process.env.GH_BRANCH;
+            const excluded = new Set([
+              'scripts/normalize-robys-wordmark.mjs',
+              '.github/workflows/normalize-robys-wordmark.yml',
+              'wordmark-geometry-report.txt'
+            ]);
+            const paths = execFileSync('git', ['diff', '--name-only'], { encoding: 'utf8' })
+              .trim()
+              .split('\n')
+              .filter(Boolean)
+              .filter((path) => !excluded.has(path));
+
+            if (!paths.length) throw new Error('No verified product files changed');
+
+            const headers = {
+              Accept: 'application/vnd.github+json',
+              Authorization: `Bearer ${process.env.GH_TOKEN}`,
+              'X-GitHub-Api-Version': '2022-11-28',
+              'Content-Type': 'application/json'
+            };
+
+            for (const path of paths) {
+              const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`;
+              const current = await fetch(getUrl, { headers });
+              if (!current.ok) throw new Error(`GET ${path} failed: ${current.status} ${await current.text()}`);
+              const metadata = await current.json();
+              const body = {
+                message: `fix: normalize Roby's wordmark geometry (${path})`,
+                content: readFileSync(path).toString('base64'),
+                sha: metadata.sha,
+                branch
+              };
+              const put = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(body)
+              });
+              if (!put.ok) throw new Error(`PUT ${path} failed: ${put.status} ${await put.text()}`);
+              console.log(`published ${path}`);
+            }
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
