@@ -46,6 +46,7 @@ jobs:
           source = source.replace("| Digital production readiness | 8/7* |", "| Digital production readiness | 7/7 |")
           source = source.replace("| **Normalized total** | **88/100** |", "| **Normalized total** | **87/100** |")
           source = source.replace("\\n\\n\\*Digital implementation exceeds the original production-readiness slice; physical-production evidence remains outside scope.", "")
+          source = source.replace(r"Georgia|Times New Roman|\\bserif\\b", r"Georgia|Times New Roman|(?<!sans-)\\bserif\\b")
           path.write_text(source, encoding="utf-8")
           PY
           node --check scripts/agent-fix-robys-brand.mjs
