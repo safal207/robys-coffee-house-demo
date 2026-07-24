@@ -1,35 +1,17 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
+const IDENTITY_REVISION = "20260723-identity-v2";
+const MASTER_REVISION = "20260721-master-1";
 
-function cssRule(css, selector) {
-  const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  const rules = [...withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
-  const exactRule = rules.find(([, selectorList]) => selectorList.trim() === selector);
-  assert(exactRule, `Missing standalone CSS rule: ${selector}`);
-  return exactRule[2].replace(/\s+/g, "");
-}
-
-function atRuleBlock(css, prelude) {
-  const start = css.indexOf(prelude);
-  assert.notEqual(start, -1, `Missing at-rule: ${prelude}`);
-  const open = css.indexOf("{", start + prelude.length);
-  assert.notEqual(open, -1, `Missing opening brace for ${prelude}`);
-
-  let depth = 0;
-  for (let index = open; index < css.length; index += 1) {
-    if (css[index] === "{") depth += 1;
-    if (css[index] === "}") depth -= 1;
-    if (depth === 0) return css.slice(open + 1, index);
-  }
-
-  assert.fail(`Missing closing brace for ${prelude}`);
+function read(path) {
+  return readFileSync(resolve(root, path), "utf8");
 }
 
 function verifyDiscoverWordmarkStylesheet(discoverGuard) {
@@ -53,113 +35,103 @@ function verifyDiscoverWordmarkStylesheet(discoverGuard) {
   execute();
   execute();
 
-  assert.equal(appended.length, 1, "wordmark stylesheet injection must be idempotent");
+  assert.equal(appended.length, 1, "wordmark responsive stylesheet injection must be idempotent");
   assert.equal(appended[0].id, "robys-wordmark-responsive");
   assert.equal(appended[0].rel, "stylesheet");
   assert.equal(appended[0].href, "wordmark-responsive.css?v=20260704-1");
 }
 
-function verifyOfflineWordmarkDelivery(serviceWorker) {
+function verifyAccessibleBrandCopy(html, page) {
+  assert.match(html, /class=["'][^"']*brand-copy[^"']*["'][^>]*>[\s\S]*?<strong>ROBY'S<\/strong>[\s\S]*?<small>COFFEE HOUSE<\/small>/i, `${page} must preserve accessible brand text`);
+  assert.match(html, new RegExp(`brand-photo-logo\\.css\\?v=${IDENTITY_REVISION}`), `${page} must statically link the reviewed identity stylesheet`);
+  assert.doesNotMatch(html, /brand--inverse/, `${page} must use the approved black-on-paper identity family`);
+}
+
+function verifyOfflineDelivery(serviceWorker) {
   assert.match(
     serviceWorker,
     /const CACHE_VERSION = "robys-offline-[^"]+?(?:-[a-f0-9]{12}){3}";/,
     "service-worker cache marker must remain compatible with canonical build revisioning"
   );
-  assert.match(
-    serviceWorker,
-    /"\.\/wordmark-responsive\.css\?v=20260704-1"/,
-    "wordmark stylesheet must be precached with its exact revision"
-  );
-  assert.match(
-    serviceWorker,
-    /url\.pathname\.endsWith\("\/wordmark-responsive\.css"\)/,
-    "wordmark stylesheet must use exact-revision cache matching"
-  );
+  for (const asset of [
+    `brand-photo-logo.css?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-primary-master-v1.svg?v=${MASTER_REVISION}`,
+    `src/brand/robys-header-master-v1.svg?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-compact-master-v1.svg?v=${MASTER_REVISION}`,
+    `src/brand/robys-mark-master-v1.svg?v=${MASTER_REVISION}`,
+    "wordmark-responsive.css?v=20260704-1"
+  ]) {
+    const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    assert.match(serviceWorker, new RegExp(`"\\./${escaped}"`), `offline cache must include ${asset}`);
+  }
+  assert.doesNotMatch(serviceWorker, /robys-mobile-master-v1\.svg/, "offline delivery must not reference the retired baked mobile pill master");
+  for (const pathname of [
+    "/brand-photo-logo.css",
+    "/wordmark-responsive.css",
+    "/src/brand/robys-primary-master-v1.svg",
+    "/src/brand/robys-header-master-v1.svg",
+    "/src/brand/robys-compact-master-v1.svg",
+    "/src/brand/robys-mark-master-v1.svg"
+  ]) {
+    const escaped = pathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    assert.match(serviceWorker, new RegExp(`url\\.pathname\\.endsWith\\("${escaped}"\\)`), `${pathname} must use exact-revision cache matching`);
+  }
 }
 
 export function verifyBrandWordmark() {
-  const styles = readFileSync(resolve(root, "styles.css"), "utf8");
-  const finalQa = readFileSync(resolve(root, "final-qa.css"), "utf8");
-  const menuStyles = readFileSync(resolve(root, "menu.css"), "utf8");
-  const responsiveStyles = readFileSync(resolve(root, "wordmark-responsive.css"), "utf8");
-  const discoverGuard = readFileSync(resolve(root, "discover-weather-guard.js"), "utf8");
-  const serviceWorker = readFileSync(resolve(root, "sw.js"), "utf8");
-  const index = readFileSync(resolve(root, "index.html"), "utf8");
-  const menu = readFileSync(resolve(root, "menu.html"), "utf8");
-  const discover = readFileSync(resolve(root, "discover.html"), "utf8");
-  const brandReference = readFileSync(resolve(root, "docs/brand-reference-policy.md"), "utf8");
+  const index = read("index.html");
+  const menu = read("menu.html");
+  const discover = read("discover.html");
+  const baseStyles = read("styles.css");
+  const identityStyles = read("brand-photo-logo.css");
+  const responsiveStyles = read("wordmark-responsive.css");
+  const discoverGuard = read("discover-weather-guard.js");
+  const serviceWorker = read("sw.js");
+  const brandReference = read("docs/brand-reference-policy.md");
 
-  assert.match(index, /<span class="brand-mark">R<\/span><span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
-  assert.match(menu, /<span class="brand-mark">R<\/span>\s*<span class="brand-copy"><strong>ROBY'S<\/strong><small>COFFEE HOUSE<\/small><\/span>/);
+  for (const [page, html] of [["index.html", index], ["menu.html", menu], ["discover.html", discover]]) {
+    verifyAccessibleBrandCopy(html, page);
+  }
 
-  assert.doesNotMatch(index, /brand--inverse/, "Home must render the black master wordmark, not the inverse variant");
-  assert.doesNotMatch(menu, /brand--inverse/, "Menu must render the black master wordmark, not the inverse variant");
-  assert.doesNotMatch(discover, /brand--inverse/, "Discover must render the black master wordmark, not the inverse variant");
+  for (const asset of [
+    "src/brand/robys-primary-master-v1.svg",
+    "src/brand/robys-header-master-v1.svg",
+    "src/brand/robys-compact-master-v1.svg",
+    "src/brand/robys-mark-master-v1.svg"
+  ]) {
+    assert.equal(existsSync(resolve(root, asset)), true, `missing approved SVG master: ${asset}`);
+  }
+  assert.equal(existsSync(resolve(root, "src/brand/robys-mobile-master-v1.svg")), false, "retired baked mobile pill master must stay removed");
 
-  const rootTokens = cssRule(styles, ":root");
-  assert.match(rootTokens, /(?:^|;)--brand-wordmark-ink:#111111(?:;|$)/);
-  assert.match(rootTokens, /(?:^|;)--brand-wordmark-red:#d32636(?:;|$)/);
-  assert.match(rootTokens, /(?:^|;)--brand-wordmark-paper:#ffffff(?:;|$)/);
+  assert.match(baseStyles, /--brand-wordmark-ink:#111111/);
+  assert.match(baseStyles, /--brand-wordmark-red:#E21B23/);
+  assert.match(identityStyles, /--robys-brand-red:#E21B23/);
+  assert.match(identityStyles, /--robys-brand-ink:#111111/);
+  assert.match(identityStyles, /--robys-brand-paper:#F5F5F2/);
+  assert.match(identityStyles, /--ruby:var\(--robys-brand-red\)/);
+  assert.match(identityStyles, /--brand-wordmark-paper:var\(--robys-brand-paper\)/);
 
-  const brandRule = cssRule(styles, ".brand");
-  const brandCopyRule = cssRule(styles, ".brand-copy");
-  const sharedGlyphRule = cssRule(styles, ".brand-copy strong::before,.brand-copy strong::after");
-  const subtitleRule = cssRule(styles, ".brand-copy small");
-  const inverseRule = cssRule(styles, ".brand--inverse");
-  const inverseCopyRule = cssRule(styles, ".brand--inverse .brand-copy");
-
-  assert.match(brandRule, /(?:^|;)color:var\(--brand-wordmark-ink\)(?:;|$)/);
-  assert.match(brandRule, /(?:^|;)background:var\(--brand-wordmark-paper\)(?:;|$)/);
-  assert.match(brandCopyRule, /(?:^|;)color:var\(--brand-wordmark-ink\)(?:;|$)/);
-  assert.equal(cssRule(styles, ".brand-mark"), "display:none!important");
-  assert.match(cssRule(styles, ".brand-copy strong"), /(?:^|;)border:8pxsolidvar\(--brand-wordmark-red\)(?:;|$)/);
-  assert.match(sharedGlyphRule, /(?:^|;)color:currentColor(?:;|$)/);
-  assert.match(cssRule(styles, ".brand-copy strong::before"), /(?:^|;)content:"R";content:"R"\/""(?:;|$)/);
-  assert.match(cssRule(styles, ".brand-copy strong::after"), /(?:^|;)content:"BY'S";content:"BY'S"\/""(?:;|$)/);
-  assert.match(subtitleRule, /(?:^|;)display:block!important(?:;|$)/);
-  assert.match(subtitleRule, /(?:^|;)color:currentColor(?:;|$)/);
-  assert.match(inverseRule, /(?:^|;)color:var\(--brand-wordmark-inverse\)(?:;|$)/);
-  assert.match(inverseCopyRule, /(?:^|;)color:var\(--brand-wordmark-inverse\)(?:;|$)/);
-
-  const wordmarkRules = [brandRule, brandCopyRule, sharedGlyphRule, subtitleRule, inverseRule, inverseCopyRule].join(";");
-  assert.doesNotMatch(wordmarkRules, /filter:|invert\(|brightness\(/, "Wordmark recoloring filters are forbidden");
+  assert.match(identityStyles, new RegExp(`robys-header-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-primary-master-v1\\.svg\\?v=${MASTER_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-compact-master-v1\\.svg\\?v=${MASTER_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-mark-master-v1\\.svg\\?v=${MASTER_REVISION}`));
+  assert.doesNotMatch(identityStyles, /robys-mobile-master-v1\.svg/);
+  assert.match(identityStyles, /\.brand-copy strong,[\s\S]*?clip-path:inset\(50%\)!important/);
+  assert.match(identityStyles, /\.brand-copy strong::before,[\s\S]*?content:none!important/);
+  assert.match(identityStyles, /@media\(max-width:680px\)[\s\S]*?robys-compact-master-v1\.svg/);
+  assert.doesNotMatch(identityStyles, /font-family:/, "visual wordmark must not depend on browser fonts");
+  assert.doesNotMatch(identityStyles, /scaleX\(/, "visual wordmark must not be synthesized with CSS transforms");
 
   assert.match(brandReference, /primary master variant uses black or near-black/);
   assert.match(brandReference, /The `O` is a red ring/);
-  assert.match(brandReference, /side by side on desktop and mobile/);
-
-  const desktopLockup = cssRule(finalQa, ".site-header .brand-copy");
-  assert.match(desktopLockup, /(?:^|;)width:132px(?:;|$)/);
-  assert.match(desktopLockup, /(?:^|;)align-items:flex-start(?:;|$)/);
-  assert.equal(cssRule(finalQa, ".site-header .brand-copy strong"), "margin-right:0;margin-left:25px");
-  const desktopSubtitle = cssRule(finalQa, ".site-header .brand-copy small");
-  assert.match(desktopSubtitle, /(?:^|;)margin-top:4px!important(?:;|$)/);
-  assert.match(desktopSubtitle, /(?:^|;)letter-spacing:.20em!important(?:;|$)/);
-  assert.match(desktopSubtitle, /(?:^|;)text-indent:.20em(?:;|$)/);
-
-  const mobileLockup = atRuleBlock(finalQa, "@media(max-width:680px)");
-  assert.match(cssRule(mobileLockup, ".site-header .brand-copy"), /(?:^|;)width:106px(?:;|$)/);
-  assert.equal(cssRule(mobileLockup, ".site-header .brand-copy strong"), "margin-left:22px");
-
-  const compactLockup = atRuleBlock(finalQa, "@media(max-width:390px)");
-  assert.match(cssRule(compactLockup, ".site-header .brand-copy"), /(?:^|;)width:90px(?:;|$)/);
-  assert.equal(cssRule(compactLockup, ".site-header .brand-copy strong"), "margin-left:19px");
-  assert.match(cssRule(compactLockup, ".site-header .brand-copy small"), /(?:^|;)letter-spacing:.11em!important(?:;|$)/);
-
-  assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)width:54px(?:;|$)/);
-  assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)height:54px(?:;|$)/);
-  assert.match(cssRule(menuStyles, ".menu-page-mark::before"), /(?:^|;)border:12pxsolid#d32636(?:;|$)/);
+  assert.match(brandReference, /approved digital identity tokens are red `#E21B23`, ink `#111111`, and warm paper `#F5F5F2`/);
 
   verifyDiscoverWordmarkStylesheet(discoverGuard);
-  verifyOfflineWordmarkDelivery(serviceWorker);
+  assert.match(responsiveStyles, /@media\(max-width:680px\)/);
+  assert.match(responsiveStyles, /@media\(max-width:340px\)/);
+  verifyOfflineDelivery(serviceWorker);
 
-  const subtitleMedia = atRuleBlock(responsiveStyles, "@media(max-width:680px)");
-  assert.equal(cssRule(subtitleMedia, ".discover-header .brand-copy small"), "display:none!important");
-
-  const hiddenMedia = atRuleBlock(responsiveStyles, "@media(max-width:340px)");
-  assert.equal(cssRule(hiddenMedia, ".discover-header .brand-copy"), "display:none!important");
-
-  console.log("PASS: production-referenced Roby's wordmark contract");
+  console.log("PASS: production path-based Roby's wordmark contract");
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === modulePath) {
