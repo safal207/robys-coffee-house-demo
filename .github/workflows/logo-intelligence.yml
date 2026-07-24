@@ -1,0 +1,69 @@
+name: Logo intelligence gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  logo-intelligence:
+    name: LOGO-001 brand design intelligence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Build exact head
+        run: npm run build
+
+      - name: Verify gate source syntax
+        run: |
+          node --check scripts/logo-intelligence-gate.mjs
+          node --check scripts/verify-logo-master-hashes.mjs
+
+      - name: Verify approved logo master identity
+        run: node scripts/verify-logo-master-hashes.mjs
+
+      - name: Install deterministic visual tools
+        run: npm install --no-save --package-lock=false playwright@1.52.0 pngjs@7.0.0
+
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run logo design intelligence
+        env:
+          LOGO_INTELLIGENCE_RESULTS_DIR: ${{ github.workspace }}/logo-intelligence-results
+        run: npm run verify:logo-intelligence
+
+      - name: Publish logo design summary
+        if: always()
+        run: |
+          if [ -f logo-intelligence-results/logo-design-report.md ]; then
+            cat logo-intelligence-results/logo-design-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Logo intelligence report was not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload logo intelligence evidence
+        if: always()
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
+        with:
+          name: logo-intelligence-${{ github.run_id }}
+          path: logo-intelligence-results
+          if-no-files-found: warn
+          retention-days: 14
