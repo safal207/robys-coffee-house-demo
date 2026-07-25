@@ -495,7 +495,8 @@ function renderFlowTopline(): HTMLElement {
   track.setAttribute("aria-valuemax", String(questions.length));
   track.setAttribute("aria-valuenow", String(state.questionIndex + 1));
   const value = createElement("span", "progress-value");
-  value.style.width = `${((state.questionIndex + 1) / questions.length) * 100}%`;
+  const progressStep = Math.min(questions.length, Math.max(1, state.questionIndex + 1));
+  value.classList.add(`progress-value--${progressStep}`);
   track.append(value);
   progress.append(label, track);
 
@@ -754,7 +755,10 @@ function render(): void {
   else content = renderSelected();
   app.replaceChildren(content);
   window.requestAnimationFrame(() => {
-    content.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true });
+    const heading = content.querySelector<HTMLElement>("h1");
+    if (!heading) return;
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
   });
 }
 

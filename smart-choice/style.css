@@ -358,6 +358,12 @@ button {
   transition: width 220ms ease;
 }
 
+.progress-value--1 { width: 20%; }
+.progress-value--2 { width: 40%; }
+.progress-value--3 { width: 60%; }
+.progress-value--4 { width: 80%; }
+.progress-value--5 { width: 100%; }
+
 .icon-button {
   min-width: 44px;
   min-height: 44px;

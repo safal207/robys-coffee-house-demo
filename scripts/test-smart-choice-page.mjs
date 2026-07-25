@@ -38,6 +38,8 @@ assert(!source.includes("innerHTML"), "Page must not write untrusted HTML");
 assert(!source.includes("insertAdjacentHTML"), "Page must not insert raw HTML");
 assert(!source.includes("fetch("), "MVP flow must not depend on network requests");
 assert(!source.includes("Math.random"), "Flow must remain deterministic");
+assert(!source.includes(".style."), "Strict CSP forbids runtime inline style writes");
+assert(source.includes("heading.tabIndex = -1"), "Rendered headings must receive programmatic focus");
 
 assert(css.includes(":focus-visible"), "Visible keyboard focus styling is missing");
 assert(css.includes("prefers-reduced-motion"), "Reduced-motion support is missing");
