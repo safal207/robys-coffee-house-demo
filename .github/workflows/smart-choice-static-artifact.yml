@@ -32,7 +32,17 @@ jobs:
         run: npm ci
 
       - name: Build and verify Smart Choice
-        run: npm run build
+        shell: bash
+        run: |
+          set +e
+          npm run build > smart-choice-build.log 2>&1
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "Smart Choice build failed. Last 120 lines:"
+            tail -n 120 smart-choice-build.log
+            exit "$status"
+          fi
+          cat smart-choice-build.log
 
       - name: Generate exact integrity manifest
         run: npm run integrity:generate
