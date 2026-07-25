@@ -1,0 +1,135 @@
+name: Roby's Logo Fidelity
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/normalize-robys-wordmark-geometry
+    paths:
+      - qa/brand/robys-logo-fidelity-v0.1.json
+      - qa/brand/robys-primary-reference-mask-v0.1.json
+      - scripts/verify-robys-logo-fidelity-mask.mjs
+      - src/brand/robys-compact-master-v1.svg
+      - src/brand/robys-header-master-v1.svg
+      - src/brand/robys-primary-master-v1.svg
+      - brand-photo-logo.css
+      - menu.html
+      - .github/workflows/robys-logo-fidelity.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - qa/brand/robys-logo-fidelity-v0.1.json
+      - qa/brand/robys-primary-reference-mask-v0.1.json
+      - scripts/verify-robys-logo-fidelity-mask.mjs
+      - src/brand/robys-compact-master-v1.svg
+      - src/brand/robys-header-master-v1.svg
+      - src/brand/robys-primary-master-v1.svg
+      - brand-photo-logo.css
+      - menu.html
+      - .github/workflows/robys-logo-fidelity.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-logo-fidelity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fidelity:
+    name: Compare approved reference with browser render
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Checkout exact pull-request head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Bind exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_HEAD_SHA}"
+
+      - name: Validate structural brand contracts
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run verify:brand-identity
+
+      - name: Install pinned visual comparison runtime
+        run: npm install --no-save --package-lock=false playwright-core@1.54.1 pixelmatch@7.1.0 sharp@0.34.3
+
+      - name: Locate Chrome
+        id: runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "${chrome}"
+          "${chrome}" --version
+          echo "chrome=${chrome}" >> "${GITHUB_OUTPUT}"
+
+      - name: Serve exact repository revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/robys-logo-server.log 2>&1 &
+          echo $! > /tmp/robys-logo-server.pid
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:4173/menu.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/robys-logo-server.log
+          exit 1
+
+      - name: Run Playwright fidelity gate
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p reports/robys-logo-fidelity-v0.1
+          node scripts/verify-robys-logo-fidelity-mask.mjs \
+            --config qa/brand/robys-logo-fidelity-v0.1.json \
+            --chrome "${{ steps.runtime.outputs.chrome }}" \
+            --output-dir reports/robys-logo-fidelity-v0.1 \
+            2>&1 | tee reports/robys-logo-fidelity-v0.1/execution.log
+          status=${PIPESTATUS[0]}
+          if [[ -f reports/robys-logo-fidelity-v0.1/summary.md ]]; then
+            cat reports/robys-logo-fidelity-v0.1/summary.md >> "${GITHUB_STEP_SUMMARY}"
+          fi
+          exit "${status}"
+
+      - name: Verify evidence integrity and authority boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e \
+            --arg head "${GITHUB_HEAD_SHA}" '
+              .schema_version == "robys-logo-fidelity-result-v0.1" and
+              .source_identity.head_sha == $head and
+              .verdict == "READY_FOR_HUMAN_REVIEW" and
+              .authority.merge == false and
+              .authority.deployment == false and
+              (.results | length) == 2 and
+              ([.results[].profile] | sort) == ["desktop", "mobile"]
+            ' reports/robys-logo-fidelity-v0.1/result.json >/dev/null
+          (
+            cd reports/robys-logo-fidelity-v0.1
+            find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
+
+      - name: Upload exact comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-logo-fidelity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/robys-logo-fidelity-v0.1/
+          if-no-files-found: error
+          retention-days: 30

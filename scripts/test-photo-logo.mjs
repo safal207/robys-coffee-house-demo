@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
+const WORDMARK_REVISION = "20260724-wordmark-v3";
 const bootstrap = readFileSync(new URL("../bootstrap.js", import.meta.url), "utf8");
 const stylesheet = readFileSync(new URL("../brand-photo-logo.css", import.meta.url), "utf8");
 const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");
@@ -9,9 +10,9 @@ const compactMaster = readFileSync(new URL("../src/brand/robys-compact-master-v1
 const markMaster = readFileSync(new URL("../src/brand/robys-mark-master-v1.svg", import.meta.url), "utf8");
 
 const assetRevisions = new Map([
-  ["src/brand/robys-primary-master-v1.svg", "20260721-master-1"],
-  ["src/brand/robys-header-master-v1.svg", "20260723-identity-v2"],
-  ["src/brand/robys-compact-master-v1.svg", "20260721-master-1"],
+  ["src/brand/robys-primary-master-v1.svg", WORDMARK_REVISION],
+  ["src/brand/robys-header-master-v1.svg", WORDMARK_REVISION],
+  ["src/brand/robys-compact-master-v1.svg", WORDMARK_REVISION],
   ["src/brand/robys-mark-master-v1.svg", "20260721-master-1"],
 ]);
 
@@ -26,9 +27,9 @@ assert.equal(
 
 assert.match(bootstrap, /apple-touch-icon\.png\?v=ios-install-20260707-1/, "progressive Apple touch fallback changed");
 assert.doesNotMatch(bootstrap, /brand-photo-logo\.css/, "identity stylesheet must remain statically linked by HTML");
-assert.match(stylesheet, /robys-header-master-v1\.svg\?v=20260723-identity-v2/);
-assert.match(stylesheet, /robys-primary-master-v1\.svg\?v=20260721-master-1/);
-assert.match(stylesheet, /robys-compact-master-v1\.svg\?v=20260721-master-1/);
+assert.match(stylesheet, new RegExp(`robys-header-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
+assert.match(stylesheet, new RegExp(`robys-primary-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
+assert.match(stylesheet, new RegExp(`robys-compact-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
 assert.match(stylesheet, /robys-mark-master-v1\.svg\?v=20260721-master-1/);
 assert.doesNotMatch(stylesheet, /robys-mobile-master-v1\.svg/, "identity CSS must not depend on the retired baked mobile pill master");
 assert.match(stylesheet, /\.brand-copy strong::before,[\s\S]*?content:none!important/);
@@ -39,13 +40,15 @@ assert.doesNotMatch(stylesheet, /font-family:/, "visual wordmark must not depend
 assert.doesNotMatch(stylesheet, /scaleX\(/, "visual wordmark must not be synthesized with CSS transforms");
 
 assert.match(compactMaster, /viewBox="0 0 435 150"/);
-assert.match(compactMaster, /translate\(105 -2\) scale\(\.65 1\)/, "S must occupy its own optical zone after Y and the apostrophe");
+assert.match(compactMaster, /data-cap-y="18" data-baseline-y="132"/, "wordmark must publish the shared R/Y vertical grid");
+assert.match(compactMaster, /id="robys-b-bowls"[\s\S]*?translate\(62 2\.454545\) scale\(\.65 \.863636\)/, "B bowls must align to the R/Y cap-height and baseline");
+assert.match(compactMaster, /id="robys-s"[\s\S]*?translate\(105 6\.434783\) scale\(\.65 \.826087\)/, "S must align to the R/Y cap-height and baseline");
 assert.match(markMaster, /M50 4C77\.7 4 96 22\.9 96 50\.3/, "standalone mark must retain the smooth cup-referenced outer ring");
 
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, /"\.\/brand-photo-logo\.css\?v=20260723-identity-v2"/);
+assert.match(coreAssets, new RegExp(`"\\./brand-photo-logo\\.css\\?v=${WORDMARK_REVISION}"`));
 for (const [asset, revision] of assetRevisions) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=${revision}"`));
