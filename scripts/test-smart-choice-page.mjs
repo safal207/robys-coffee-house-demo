@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 
+// This contract validates both authored source and the exact generated static assets shipped by hosting.
 function assert(condition, message) {
   if (!condition) throw new Error(`[SMART-CHOICE-PAGE-TEST] ${message}`);
 }
