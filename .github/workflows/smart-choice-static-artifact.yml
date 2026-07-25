@@ -45,8 +45,9 @@ jobs:
         if: always()
         shell: bash
         run: |
-          mkdir -p .artifacts/smart-choice/smart-choice
+          mkdir -p .artifacts/smart-choice/smart-choice .artifacts/smart-choice/src/smart-choice
           cp smart-choice-build.log .artifacts/smart-choice/smart-choice-build.log
+          cp src/smart-choice/page.ts .artifacts/smart-choice/src/smart-choice/page.ts
           if [ -f smart-choice/app.js ]; then cp smart-choice/app.js .artifacts/smart-choice/smart-choice/app.js; fi
           if [ -f smart-choice/index.html ]; then cp smart-choice/index.html .artifacts/smart-choice/smart-choice/index.html; fi
           if [ -f smart-choice/style.css ]; then cp smart-choice/style.css .artifacts/smart-choice/smart-choice/style.css; fi
