@@ -1,0 +1,32 @@
+name: Smart Choice analytics finalizer
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-static:
+    if: github.event.pull_request.head.ref == 'agent/smart-choice-analytics'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/smart-choice-analytics
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run integrity:generate
+      - name: Commit exact generated outputs and remove finalizer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add smart-choice/analytics.js smart-choice/index.html integrity-manifest.json
+          git rm .github/workflows/smart-choice-analytics-finalizer.yml
+          git commit -m "build: finalize Smart Choice analytics assets"
+          git push origin HEAD:agent/smart-choice-analytics
