@@ -295,8 +295,13 @@ const reasonText: Record<SmartChoiceLanguage, Record<string, string>> = {
   }
 };
 
-const app = document.querySelector<HTMLElement>("#smart-choice-app");
-if (!app) throw new Error("[SMART-CHOICE-PAGE] App root is missing.");
+function requireElement<T extends HTMLElement>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) throw new Error(`[SMART-CHOICE-PAGE] Required element is missing: ${selector}`);
+  return element;
+}
+
+const app = requireElement<HTMLElement>("#smart-choice-app");
 
 const itemIndex = new Map(SMART_CHOICE_CATALOG.items.map((item) => [item.id, item]));
 let state = loadState();
@@ -335,13 +340,16 @@ function loadState(): FlowState {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return initialState();
     const parsed = JSON.parse(raw) as Partial<FlowState>;
+    const questionIndex =
+      typeof parsed.questionIndex === "number" && Number.isInteger(parsed.questionIndex)
+        ? parsed.questionIndex
+        : -1;
     if (
       parsed.version !== STATE_VERSION ||
       !isScreen(parsed.screen) ||
       !isLanguage(parsed.locale) ||
-      !Number.isInteger(parsed.questionIndex) ||
-      (parsed.questionIndex ?? -1) < 0 ||
-      (parsed.questionIndex ?? questions.length) >= questions.length ||
+      questionIndex < 0 ||
+      questionIndex >= questions.length ||
       !parsed.answers ||
       typeof parsed.answers !== "object"
     ) {
@@ -350,7 +358,7 @@ function loadState(): FlowState {
     return {
       version: STATE_VERSION,
       screen: parsed.screen,
-      questionIndex: parsed.questionIndex,
+      questionIndex,
       answers: parsed.answers,
       locale: parsed.locale,
       ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {})
@@ -413,10 +421,11 @@ function formatPrice(valueMinor: number): string {
 
 function updateStaticCopy(): void {
   document.documentElement.lang = state.locale;
-  document.title = `Roby's Smart Choice | ${copy[state.locale].fullMenu}`;
+  const languageCopy: Record<string, string> = copy[state.locale];
+  document.title = `Roby's Smart Choice | ${languageCopy.fullMenu}`;
   document.querySelectorAll<HTMLElement>("[data-static-copy]").forEach((element) => {
     const key = element.dataset.staticCopy;
-    if (key && key in copy[state.locale]) element.textContent = copy[state.locale][key];
+    if (key && languageCopy[key]) element.textContent = languageCopy[key];
   });
   document.querySelectorAll<HTMLButtonElement>(".lang-button").forEach((button) => {
     const active = button.dataset.lang === state.locale;
