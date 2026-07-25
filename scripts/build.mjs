@@ -13,6 +13,17 @@ await build({
   legalComments: "none"
 });
 
+await build({
+  entryPoints: ["src/smart-choice/page.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/app.js",
+  legalComments: "none"
+});
+
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
   const bundle = ts.transpileModule(source, {
@@ -105,6 +116,9 @@ const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
+const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
+const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
+
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -117,6 +131,11 @@ discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", disc
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
+let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
+writeFileSync("smart-choice/index.html", smartChoiceHtml);
+
 let serviceWorker = readFileSync("sw.js", "utf8");
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
@@ -126,4 +145,9 @@ serviceWorker = synchronizeServiceWorker(
 );
 writeFileSync("sw.js", serviceWorker);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}), plus discover-rotation.css (${discoverRotationCssRevision}) with exact synchronized cache keys.`);
+console.log(
+  `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
+  `featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), ` +
+  `discover-v2.js (${discoverRuntimeRevision}), discover-rotation-v3.js (${discoverRotationRevision}), ` +
+  `and Smart Choice style.css (${smartChoiceCssRevision}) with synchronized cache keys.`
+);
