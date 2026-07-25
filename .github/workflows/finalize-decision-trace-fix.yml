@@ -1,0 +1,49 @@
+name: Finalize Smart Choice decision trace compatibility
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.event.pull_request.head.ref == 'agent/smart-choice-decision-trace'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/smart-choice-decision-trace
+          fetch-depth: 0
+      - name: Apply exact compatibility fix
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/smart-choice/decision-trace-domain.ts')
+          source = path.read_text()
+          old = '''function decisionEvent(events: readonly SmartChoiceEvent[]): SmartChoiceEvent | null {
+            return validEvents(events)
+              .filter((event) => event.name === "recommendations_shown")
+              .at(-1) ?? null;
+          }'''
+          new = '''function decisionEvent(events: readonly SmartChoiceEvent[]): SmartChoiceEvent | null {
+            const matches = validEvents(events)
+              .filter((event) => event.name === "recommendations_shown");
+            return matches.length > 0 ? matches[matches.length - 1] : null;
+          }'''
+          if old not in source:
+              raise SystemExit('expected decisionEvent block not found')
+          path.write_text(source.replace(old, new))
+          PY
+          rm -f .github/workflows/smart-choice-decision-trace-diagnostics.yml
+          rm -f .github/workflows/finalize-decision-trace-fix.yml
+      - name: Commit exact fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/smart-choice/decision-trace-domain.ts .github/workflows
+          git commit -m "fix: keep decision trace compatible with ES2020"
+          git push origin HEAD:agent/smart-choice-decision-trace
