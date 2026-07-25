@@ -1,0 +1,31 @@
+.cart-builder {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+.cart-title { margin: 0; font: 700 clamp(1.8rem, 5vw, 2.8rem)/1 var(--display); }
+.cart-lead, .cart-bump-reason, .cart-draft-note, .cart-notice { margin: 0; color: var(--muted); font-size: .82rem; }
+.cart-section-title { margin: 8px 0 0; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+.cart-line-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cart-line { padding: 10px 12px; background: var(--cream); border-radius: 12px; font-weight: 700; }
+.cart-choice { display: flex; width: 100%; min-height: 60px; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 15px; cursor: pointer; text-align: left; }
+.cart-choice[aria-pressed="true"] { border-color: var(--ruby); box-shadow: 0 0 0 3px rgba(226,27,35,.1); }
+.cart-choice-label { font-weight: 800; }
+.cart-choice-price { color: var(--ruby); white-space: nowrap; }
+.cart-bump { display: grid; gap: 10px; padding: 18px; background: rgba(226,27,35,.05); border: 1px solid rgba(226,27,35,.22); border-radius: 18px; }
+.cart-bump-label { margin: 0; font-weight: 900; }
+.cart-bump-price { color: var(--ruby); }
+.cart-bump-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.cart-notice { padding: 12px 14px; background: var(--cream); border-radius: 13px; font-weight: 700; }
+.cart-notice--error { color: #8b1117; background: rgba(226,27,35,.09); }
+.cart-total-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; padding: 18px; background: var(--dark); border-radius: 18px; }
+.cart-total { display: grid; color: #fff; }
+.cart-total span { font-size: .72rem; opacity: .7; }
+.cart-total strong { font: 700 1.8rem/1 var(--display); }
+.cart-handoff[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.cart-payload { overflow: hidden; color: var(--muted); font-size: .72rem; }
+.cart-payload summary { cursor: pointer; font-weight: 800; }
+.cart-payload code { display: block; max-height: 130px; margin-top: 8px; padding: 10px; overflow: auto; background: var(--cream); border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 700px) { .cart-total-row { align-items: stretch; flex-direction: column; } .cart-handoff, .cart-bump-actions > * { width: 100%; } }
