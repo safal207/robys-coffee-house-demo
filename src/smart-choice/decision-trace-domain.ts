@@ -311,9 +311,9 @@ function buildGraph(transitions: readonly TraceTransition[]): SmartChoiceCausalG
 }
 
 function decisionEvent(events: readonly SmartChoiceEvent[]): SmartChoiceEvent | null {
-  return validEvents(events)
-    .filter((event) => event.name === "recommendations_shown")
-    .at(-1) ?? null;
+  const matches = validEvents(events)
+    .filter((event) => event.name === "recommendations_shown");
+  return matches.length > 0 ? matches[matches.length - 1] : null;
 }
 
 export function buildDecisionTrace(
