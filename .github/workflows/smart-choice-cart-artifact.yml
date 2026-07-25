@@ -1,0 +1,32 @@
+name: Smart Choice cart artifact
+
+on:
+  push:
+    branches:
+      - agent/smart-choice-cart
+
+permissions:
+  contents: read
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run integrity:generate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smart-choice-cart-static-${{ github.run_id }}
+          path: |
+            smart-choice/cart.js
+            smart-choice/index.html
+            integrity-manifest.json
+          if-no-files-found: error
+          retention-days: 2
