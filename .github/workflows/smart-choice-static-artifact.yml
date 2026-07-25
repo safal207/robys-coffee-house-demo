@@ -32,34 +32,38 @@ jobs:
         run: npm ci
 
       - name: Build and verify Smart Choice
+        id: smart-build
+        continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          npm run build > smart-choice-build.log 2>&1
-          status=$?
-          if [ "$status" -ne 0 ]; then
-            echo "Smart Choice build failed. Last 120 lines:"
-            tail -n 120 smart-choice-build.log
-            exit "$status"
-          fi
-          cat smart-choice-build.log
+        run: npm run build > smart-choice-build.log 2>&1
 
       - name: Generate exact integrity manifest
+        if: steps.smart-build.outcome == 'success'
         run: npm run integrity:generate
 
-      - name: Stage generated static files
+      - name: Stage diagnostics and generated static files
+        if: always()
+        shell: bash
         run: |
           mkdir -p .artifacts/smart-choice/smart-choice
-          cp smart-choice/app.js .artifacts/smart-choice/smart-choice/app.js
-          cp smart-choice/index.html .artifacts/smart-choice/smart-choice/index.html
-          cp smart-choice/style.css .artifacts/smart-choice/smart-choice/style.css
-          cp social-offer.js .artifacts/smart-choice/social-offer.js
-          cp integrity-manifest.json .artifacts/smart-choice/integrity-manifest.json
+          cp smart-choice-build.log .artifacts/smart-choice/smart-choice-build.log
+          if [ -f smart-choice/app.js ]; then cp smart-choice/app.js .artifacts/smart-choice/smart-choice/app.js; fi
+          if [ -f smart-choice/index.html ]; then cp smart-choice/index.html .artifacts/smart-choice/smart-choice/index.html; fi
+          if [ -f smart-choice/style.css ]; then cp smart-choice/style.css .artifacts/smart-choice/smart-choice/style.css; fi
+          if [ -f social-offer.js ]; then cp social-offer.js .artifacts/smart-choice/social-offer.js; fi
+          if [ -f integrity-manifest.json ]; then cp integrity-manifest.json .artifacts/smart-choice/integrity-manifest.json; fi
 
       - name: Upload exact static artifact
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: smart-choice-static-${{ github.event.pull_request.head.sha }}
           path: .artifacts/smart-choice
           if-no-files-found: error
           retention-days: 7
+
+      - name: Enforce successful build
+        if: steps.smart-build.outcome != 'success'
+        run: |
+          tail -n 120 smart-choice-build.log
+          exit 1
