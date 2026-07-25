@@ -1,9 +1,7 @@
 name: Smart Choice cart artifact
 
 on:
-  push:
-    branches:
-      - agent/smart-choice-cart
+  pull_request:
 
 permissions:
   contents: read
