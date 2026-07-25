@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Roby's Smart Choice ile birkaç kısa soruda size uygun kahve, tatlı veya atıştırmalık seçimini bulun." />
+  <meta name="theme-color" content="#241c1b" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/smart-choice/" />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Roby's Smart Choice</title>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#smart-choice-main">İçeriğe geç</a>
+
+  <header class="smart-header">
+    <a class="brand" href="../index.html" aria-label="Roby's Coffee House ana sayfası">
+      <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
+    </a>
+
+    <nav class="smart-header-actions" aria-label="Smart Choice controls">
+      <div class="language-switcher" role="group" aria-label="Language selector">
+        <button class="lang-button active" type="button" data-lang="tr" aria-pressed="true">TR</button>
+        <button class="lang-button" type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button class="lang-button" type="button" data-lang="ru" aria-pressed="false">RU</button>
+      </div>
+      <a class="menu-link" href="../menu.html" data-static-copy="fullMenu">Tam Menü</a>
+    </nav>
+  </header>
+
+  <main id="smart-choice-main" class="smart-main">
+    <section class="smart-shell" aria-labelledby="smart-choice-title">
+      <div id="smart-choice-app" class="smart-app" aria-live="polite" aria-busy="true">
+        <div class="loading-card">
+          <span class="loading-mark" aria-hidden="true">R</span>
+          <p>Smart Choice hazırlanıyor…</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <noscript>
+    <div class="noscript-card">
+      <p>Smart Choice için JavaScript gerekir. Tam menüyü güvenle açabilirsiniz.</p>
+      <a href="../menu.html">Tam menüyü aç</a>
+    </div>
+  </noscript>
+
+  <footer class="smart-footer">
+    <p data-static-copy="footerNote">Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.</p>
+  </footer>
+</body>
+</html>
