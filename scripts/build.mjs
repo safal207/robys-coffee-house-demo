@@ -24,6 +24,17 @@ await build({
   legalComments: "none"
 });
 
+await build({
+  entryPoints: ["src/smart-choice/cart.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/cart.js",
+  legalComments: "none"
+});
+
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
   const bundle = ts.transpileModule(source, {
@@ -117,7 +128,9 @@ const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
 const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
+const smartChoiceCartRevision = revisionFor("smart-choice/cart.js");
 const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
+const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
 
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
@@ -133,7 +146,9 @@ writeFileSync("discover.html", discoverHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart.js", smartChoiceCartRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw.js", "utf8");
@@ -147,7 +162,8 @@ writeFileSync("sw.js", serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
-  `featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), ` +
-  `discover-v2.js (${discoverRuntimeRevision}), discover-rotation-v3.js (${discoverRotationRevision}), ` +
-  `and Smart Choice style.css (${smartChoiceCssRevision}) with synchronized cache keys.`
+  `Smart Choice cart.js (${smartChoiceCartRevision}), featured-gallery.js (${galleryRevision}), ` +
+  `social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), ` +
+  `discover-rotation-v3.js (${discoverRotationRevision}), Smart Choice style.css (${smartChoiceCssRevision}), ` +
+  `and Smart Choice cart.css (${smartChoiceCartCssRevision}) with synchronized cache keys.`
 );
