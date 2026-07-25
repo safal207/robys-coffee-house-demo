@@ -47,8 +47,11 @@ try {
   assert.match(domain.buildWhatsAppDraftMessage(payloadA, "ru"), /не оплата/i);
 
   const source = await readFile("src/smart-choice/cart.ts", "utf8");
-  const page = await readFile("src/smart-choice/page.ts", "utf8");
-  assert(page.includes('import "./cart.js";'));
+  const html = await readFile("smart-choice/index.html", "utf8");
+  const buildSource = await readFile("scripts/build.mjs", "utf8");
+  assert(html.includes('src="cart.js'));
+  assert(html.includes('href="cart.css'));
+  assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
   assert(source.includes("MutationObserver"));
   assert(source.includes("robys-smart-choice-order.v1"));
   assert(source.includes("https://wa.me/?text="));
