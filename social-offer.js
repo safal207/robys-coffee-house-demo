@@ -31,6 +31,11 @@ const TASTE_JOURNEY_LINK = {
     en: "Meet today's taste",
     ru: "Познакомиться со вкусом дня"
 };
+const SMART_CHOICE_LINK = {
+    tr: "Seçmeme yardım et",
+    en: "Help me choose",
+    ru: "Помочь выбрать"
+};
 function localizedElement(tagName, className, copy) {
     const element = document.createElement(tagName);
     element.className = className;
@@ -40,6 +45,17 @@ function localizedElement(tagName, className, copy) {
     element.dataset.ru = copy.ru;
     element.textContent = copy.tr;
     return element;
+}
+function storedLanguage() {
+    try {
+        const language = localStorage.getItem("robys-language");
+        if (language === "en" || language === "ru")
+            return language;
+    }
+    catch {
+        // Turkish remains the safe fallback.
+    }
+    return "tr";
 }
 function renderSocialOffer() {
     const root = document.querySelector("#daily-offer");
@@ -103,14 +119,7 @@ function renderTasteJourneyLink() {
     link.className = "text-link";
     link.href = "discover.html";
     const label = localizedElement("span", "taste-journey-link-text", TASTE_JOURNEY_LINK);
-    try {
-        const language = localStorage.getItem("robys-language");
-        if (language === "en" || language === "ru")
-            label.textContent = TASTE_JOURNEY_LINK[language];
-    }
-    catch {
-        // The Turkish label remains a safe fallback when storage is unavailable.
-    }
+    label.textContent = TASTE_JOURNEY_LINK[storedLanguage()];
     const arrow = document.createElement("span");
     arrow.setAttribute("aria-hidden", "true");
     arrow.textContent = "→";
@@ -118,7 +127,24 @@ function renderTasteJourneyLink() {
     wrapper.append(link);
     menuIntro.append(wrapper);
 }
+function renderSmartChoiceEntry() {
+    const heroActions = document.querySelector(".hero-actions");
+    if (!heroActions || heroActions.querySelector("[data-smart-choice-entry]"))
+        return;
+    const existingPrimary = heroActions.querySelector(".button-primary");
+    existingPrimary?.classList.replace("button-primary", "button-ghost");
+    const link = document.createElement("a");
+    link.className = "button button-primary";
+    link.href = "smart-choice/";
+    link.dataset.smartChoiceEntry = "";
+    link.dataset.analyticsAction = "smart_choice_start";
+    const label = localizedElement("span", "smart-choice-entry-label", SMART_CHOICE_LINK);
+    label.textContent = SMART_CHOICE_LINK[storedLanguage()];
+    link.append(label);
+    heroActions.prepend(link);
+}
 function renderHomepageEnhancements() {
+    renderSmartChoiceEntry();
     renderSocialOffer();
     renderTasteJourneyLink();
 }
