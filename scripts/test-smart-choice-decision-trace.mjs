@@ -102,6 +102,7 @@ try {
   assert.equal(domain.readDecisionTrace(traceA).ok, true, "the current trace schema must be readable");
   assert.equal(domain.stableSerializeDecisionTrace(traceA), domain.stableSerializeDecisionTrace(traceB));
   assert.equal(traceA.traceId, traceB.traceId, "same decision and events must have a stable trace ID");
+  assert.match(traceA.traceId, /^sct_[a-f0-9]{8}$/, "trace ID must use the bounded deterministic format");
   assert.equal(JSON.stringify(result), resultBefore, "trace construction must not mutate the engine result");
 
   assert.deepEqual(traceA.candidateSet.beforeFiltering, result.trace.candidates.map((entry) => entry.candidateId).sort());
