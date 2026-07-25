@@ -99,6 +99,7 @@ try {
   const traceA = domain.buildDecisionTrace(result, events);
   const traceB = domain.buildDecisionTrace(result, events);
   assert.deepEqual(domain.validateDecisionTrace(traceA), []);
+  assert.equal(domain.readDecisionTrace(traceA).ok, true, "the current trace schema must be readable");
   assert.equal(domain.stableSerializeDecisionTrace(traceA), domain.stableSerializeDecisionTrace(traceB));
   assert.equal(traceA.traceId, traceB.traceId, "same decision and events must have a stable trace ID");
   assert.equal(JSON.stringify(result), resultBefore, "trace construction must not mutate the engine result");
