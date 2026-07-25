@@ -17,7 +17,7 @@ const html = readFileSync("smart-choice/index.html", "utf8");
 const css = readFileSync("smart-choice/style.css", "utf8");
 const source = readFileSync("src/smart-choice/page.ts", "utf8");
 const bundle = readFileSync("smart-choice/app.js", "utf8");
-const homepage = readFileSync("index.html", "utf8");
+const homepageEnhancements = readFileSync("src/social-offer.ts", "utf8");
 
 assert(/<main\b[^>]*id="smart-choice-main"/.test(html), "Smart Choice main landmark is missing");
 assert(/id="smart-choice-app"/.test(html), "Smart Choice app root is missing");
@@ -46,7 +46,8 @@ assert(!/width:\s*\d{4,}px/.test(css), "Suspicious fixed desktop width may cause
 
 assert(bundle.length > 5_000, "Generated Smart Choice bundle is unexpectedly small");
 assert(!bundle.includes("sourceMappingURL"), "Production bundle must not expose a source map URL");
-assert(homepage.includes('href="smart-choice/"'), "Homepage Smart Choice CTA is missing");
+assert(homepageEnhancements.includes('link.href = "smart-choice/"'), "Homepage Smart Choice CTA is missing");
+assert(homepageEnhancements.includes("data.smartChoiceEntry") || homepageEnhancements.includes("dataset.smartChoiceEntry"), "Homepage CTA needs an idempotency marker");
 
 console.log(
   `✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, ` +
