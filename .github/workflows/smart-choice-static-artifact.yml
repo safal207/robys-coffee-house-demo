@@ -1,0 +1,55 @@
+name: Smart Choice static artifact
+
+on:
+  pull_request:
+    paths:
+      - "smart-choice/**"
+      - "src/smart-choice/**"
+      - "src/social-offer.ts"
+      - "scripts/build.mjs"
+      - "scripts/test-smart-choice-page.mjs"
+      - "package.json"
+      - ".github/workflows/smart-choice-static-artifact.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-static-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and verify Smart Choice
+        run: npm run build
+
+      - name: Generate exact integrity manifest
+        run: npm run integrity:generate
+
+      - name: Stage generated static files
+        run: |
+          mkdir -p .artifacts/smart-choice/smart-choice
+          cp smart-choice/app.js .artifacts/smart-choice/smart-choice/app.js
+          cp smart-choice/index.html .artifacts/smart-choice/smart-choice/index.html
+          cp smart-choice/style.css .artifacts/smart-choice/smart-choice/style.css
+          cp social-offer.js .artifacts/smart-choice/social-offer.js
+          cp integrity-manifest.json .artifacts/smart-choice/integrity-manifest.json
+
+      - name: Upload exact static artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: smart-choice-static-${{ github.event.pull_request.head.sha }}
+          path: .artifacts/smart-choice
+          if-no-files-found: error
+          retention-days: 7
