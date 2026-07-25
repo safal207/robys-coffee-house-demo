@@ -26,102 +26,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
-      - name: Apply scoped TypeScript fixes
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("src/smart-choice/page.ts")
-          source = path.read_text()
-
-          replacements = [
-              (
-                  '''const app = document.querySelector<HTMLElement>("#smart-choice-app");
-          if (!app) throw new Error("[SMART-CHOICE-PAGE] App root is missing.");
-          ''',
-                  '''function requireElement<T extends HTMLElement>(selector: string): T {
-            const element = document.querySelector<T>(selector);
-            if (!element) throw new Error(`[SMART-CHOICE-PAGE] Required element is missing: ${selector}`);
-            return element;
-          }
-
-          const app = requireElement<HTMLElement>("#smart-choice-app");
-          ''',
-              ),
-              (
-                  '''    const parsed = JSON.parse(raw) as Partial<FlowState>;
-              if (
-                parsed.version !== STATE_VERSION ||
-                !isScreen(parsed.screen) ||
-                !isLanguage(parsed.locale) ||
-                !Number.isInteger(parsed.questionIndex) ||
-                (parsed.questionIndex ?? -1) < 0 ||
-                (parsed.questionIndex ?? questions.length) >= questions.length ||
-                !parsed.answers ||
-                typeof parsed.answers !== "object"
-              ) {
-          ''',
-                  '''    const parsed = JSON.parse(raw) as Partial<FlowState>;
-              const questionIndex =
-                typeof parsed.questionIndex === "number" && Number.isInteger(parsed.questionIndex)
-                  ? parsed.questionIndex
-                  : -1;
-              if (
-                parsed.version !== STATE_VERSION ||
-                !isScreen(parsed.screen) ||
-                !isLanguage(parsed.locale) ||
-                questionIndex < 0 ||
-                questionIndex >= questions.length ||
-                !parsed.answers ||
-                typeof parsed.answers !== "object"
-              ) {
-          ''',
-              ),
-              ("      questionIndex: parsed.questionIndex,", "      questionIndex,"),
-              (
-                  '''function updateStaticCopy(): void {
-            document.documentElement.lang = state.locale;
-            document.title = `Roby's Smart Choice | ${copy[state.locale].fullMenu}`;
-            document.querySelectorAll<HTMLElement>("[data-static-copy]").forEach((element) => {
-              const key = element.dataset.staticCopy;
-              if (key && key in copy[state.locale]) element.textContent = copy[state.locale][key];
-            });
-          ''',
-                  '''function updateStaticCopy(): void {
-            document.documentElement.lang = state.locale;
-            const languageCopy: Record<string, string> = copy[state.locale];
-            document.title = `Roby's Smart Choice | ${languageCopy.fullMenu}`;
-            document.querySelectorAll<HTMLElement>("[data-static-copy]").forEach((element) => {
-              const key = element.dataset.staticCopy;
-              if (key && languageCopy[key]) element.textContent = languageCopy[key];
-            });
-          ''',
-              ),
-          ]
-
-          changed = False
-          for before, after in replacements:
-              if before in source:
-                  source = source.replace(before, after, 1)
-                  changed = True
-              elif after not in source:
-                  raise SystemExit("Expected Smart Choice patch context was not found")
-
-          if changed:
-              path.write_text(source)
-          PY
-
-          if git diff --quiet -- src/smart-choice/page.ts; then
-            echo "Scoped TypeScript fixes already applied."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/smart-choice/page.ts
-            git commit -m "fix: satisfy Smart Choice TypeScript contracts"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
-
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -140,6 +44,20 @@ jobs:
       - name: Generate exact integrity manifest
         if: steps.smart-build.outcome == 'success'
         run: npm run integrity:generate
+
+      - name: Commit exact generated static outputs
+        if: steps.smart-build.outcome == 'success'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add smart-choice/app.js smart-choice/index.html social-offer.js integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Generated Smart Choice outputs are already exact."
+          else
+            git commit -m "build: commit Smart Choice static outputs"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
 
       - name: Stage diagnostics and generated static files
         if: always()
