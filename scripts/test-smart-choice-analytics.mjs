@@ -119,17 +119,22 @@ try {
   assert.equal(repeated.accepted, false, "repeated render must not create another semantic event");
 
   const runtimeSource = await readFile("src/smart-choice/analytics.ts", "utf8");
+  const html = await readFile("smart-choice/index.html", "utf8");
+  const buildSource = await readFile("scripts/build.mjs", "utf8");
   assert(runtimeSource.includes("SessionDebugSink"));
   assert(runtimeSource.includes("CallbackAnalyticsAdapter"));
   assert(runtimeSource.includes("MutationObserver"));
   assert(runtimeSource.includes("dedupeKey"));
   assert(runtimeSource.includes("bump-skipped-by-handoff"));
+  assert(html.includes('src="analytics.js?v='), "Smart Choice HTML must load a revisioned analytics bundle");
+  assert(buildSource.includes('entryPoints: ["src/smart-choice/analytics.ts"]'));
+  assert(buildSource.includes('revisionFor("smart-choice/analytics.js")'));
   assert(!runtimeSource.includes("innerHTML"));
   assert(!runtimeSource.includes("fetch("));
   assert(!runtimeSource.includes("phoneNumber"));
   assert(!runtimeSource.includes("emailAddress"));
 
-  console.log("✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters and funnel formulas verified.");
+  console.log("✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.");
 } finally {
   await rm(temp, { recursive: true, force: true });
 }
