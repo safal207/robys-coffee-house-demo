@@ -65,9 +65,9 @@ jobs:
             const createdTimeOf = (item) => Date.parse(item.created_at ?? 0) || 0;
             const exactHeadBody = (body) => new RegExp(`(^|[^0-9a-f])${head}([^0-9a-f]|$)`, 'i').test(body ?? '');
             const reviewedCommitOf = (body) => (
-              /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{7,40})`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
+              /Reviewed\s+commit\s*:\s*[*_]*\s*`?([0-9a-f]{40})(?![0-9a-f])`?/i.exec(body ?? '')?.[1]?.toLowerCase() ?? null
             );
-            const isExactHeadCommit = (candidate) => Boolean(candidate) && head.startsWith(candidate);
+            const isExactHeadCommit = (candidate) => Boolean(candidate) && candidate === head;
             const hasFindingSeverity = (body) => {
               const text = String(body ?? '');
               if (/\bP[0-3]\b/i.test(text)) return true;
