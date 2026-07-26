@@ -1,0 +1,128 @@
+name: LTP exact-head evidence audit
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      trace_path:
+        description: Repository-relative canonical JSONL trace path
+        required: false
+        default: qa/ltp/traces/project-audit.clean.jsonl
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ltp-exact-head-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: LTP trace, replay and evidence bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Freeze initial exact head
+        id: head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/ltp
+          initial="$(git rev-parse HEAD)"
+          test "${initial}" = "${EXPECTED_HEAD}"
+          test "${#initial}" -eq 40
+          printf '%s\n' "${initial}" > .artifacts/ltp/initial-head.txt
+          printf 'initial=%s\n' "${initial}" >> "${GITHUB_OUTPUT}"
+
+      - name: Validate integrity, action pins and negative contracts
+        env:
+          AUDIT_HEAD: ${{ steps.head.outputs.initial }}
+          CONTROL_PLANE_MANIFEST: .artifacts/ltp/control-plane-integrity.json
+          LTP_TEST_OUTPUT_DIR: .artifacts/ltp
+        run: |
+          set -euo pipefail
+          npm run verify:integrity
+          npm run verify:action-pinning
+          npm run test:exact-head-review
+          npm run test:ltp
+
+      - name: Inspect and replay canonical trace twice
+        env:
+          TRACE_PATH: ${{ inputs.trace_path || 'qa/ltp/traces/project-audit.clean.jsonl' }}
+        run: |
+          set -euo pipefail
+          case "${TRACE_PATH}" in
+            /*|*../*|../*|*/..) echo "unsafe trace path: ${TRACE_PATH}" >&2; exit 2 ;;
+          esac
+          test -f "${TRACE_PATH}"
+          test ! -L "${TRACE_PATH}"
+          node scripts/ltp-inspect.mjs trace --strict --quiet --format json --color never --input "${TRACE_PATH}" > .artifacts/ltp/inspector.json
+          node scripts/ltp-inspect.mjs replay --input "${TRACE_PATH}" > .artifacts/ltp/replay-1.json
+          node scripts/ltp-inspect.mjs replay --input "${TRACE_PATH}" > .artifacts/ltp/replay-2.json
+          cmp .artifacts/ltp/replay-1.json .artifacts/ltp/replay-2.json
+          cp "${TRACE_PATH}" .artifacts/ltp/trace.jsonl
+          printf '%s\n' "${TRACE_PATH}" > .artifacts/ltp/trace-path.txt
+
+      - name: Freeze final exact head and build manifest
+        env:
+          EXPECTED_HEAD: ${{ steps.head.outputs.initial }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          final="$(git rev-parse HEAD)"
+          test "${final}" = "${EXPECTED_HEAD}"
+          printf '%s\n' "${final}" > .artifacts/ltp/final-head.txt
+          node <<'NODE'
+          const { readFileSync, writeFileSync } = require('node:fs');
+          const manifest = {
+            contract: 'LTP-EXACT-HEAD-EVIDENCE-001',
+            repository: process.env.REPOSITORY,
+            branch: process.env.REF_NAME,
+            expectedHead: process.env.EXPECTED_HEAD,
+            initialHead: readFileSync('.artifacts/ltp/initial-head.txt', 'utf8').trim(),
+            finalHead: readFileSync('.artifacts/ltp/final-head.txt', 'utf8').trim(),
+            runId: process.env.RUN_ID,
+            runAttempt: process.env.RUN_ATTEMPT,
+            auditMode: 'advisory-read-only',
+            tracePath: readFileSync('.artifacts/ltp/trace-path.txt', 'utf8').trim(),
+            evidenceClass: readFileSync('.artifacts/ltp/trace-path.txt', 'utf8').trim().startsWith('qa/ltp/traces/') ? 'fixture' : 'repository-trace',
+            productionEvidence: false,
+            protectedEffectsExecuted: 0,
+            modelCallsDuringReplay: 0,
+            toolCallsDuringReplay: 0,
+            effectCallsDuringReplay: 0
+          };
+          writeFileSync('.artifacts/ltp/run-manifest.json', `${JSON.stringify(manifest, null, 2)}\n`);
+          NODE
+          sha256sum .artifacts/ltp/* > .artifacts/ltp/ARTIFACT_SHA256SUMS.txt
+
+      - name: Upload exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ltp-exact-head-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/ltp
+          if-no-files-found: error
+          retention-days: 30
