@@ -1,8 +1,17 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  statSync,
+  writeFileSync
+} from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
+const ROOT_REAL = realpathSync(ROOT);
 const OUTPUT = "integrity-manifest.json";
 const CHECK_MODE = process.argv.includes("--check");
 const excludedDirectories = new Set([
@@ -44,18 +53,39 @@ const publicExtensions = new Set([
   ".xml"
 ]);
 
+function fail(message) {
+  throw new Error(`INTEGRITY-001: ${message}`);
+}
+
 function normalized(relativePath) {
   return relativePath.split(path.sep).join("/");
+}
+
+function assertContainedRegularFile(absolute, relativePath) {
+  const relative = path.relative(ROOT, absolute);
+  let cursor = ROOT;
+  for (const segment of relative.split(path.sep).filter(Boolean)) {
+    cursor = path.join(cursor, segment);
+    if (lstatSync(cursor).isSymbolicLink()) fail(`${relativePath} contains a symlink component`);
+  }
+  const resolved = realpathSync(absolute);
+  const fromRoot = path.relative(ROOT_REAL, resolved);
+  if (fromRoot === ".." || fromRoot.startsWith(`..${path.sep}`) || path.isAbsolute(fromRoot)) {
+    fail(`${relativePath} resolves outside repository root`);
+  }
+  if (!statSync(resolved).isFile()) fail(`${relativePath} is not a regular file`);
 }
 
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     if (entry.isDirectory() && excludedDirectories.has(entry.name)) return [];
     const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) return walk(absolute);
     const relativePath = normalized(path.relative(ROOT, absolute));
+    if (entry.isSymbolicLink()) fail(`${relativePath} is a symlink`);
+    if (entry.isDirectory()) return walk(absolute);
     if (!relativePath.includes("/") && excludedRootFiles.has(relativePath)) return [];
     if (!publicExtensions.has(path.extname(entry.name).toLowerCase())) return [];
+    assertContainedRegularFile(absolute, relativePath);
     return [relativePath];
   });
 }
@@ -66,10 +96,14 @@ function digest(buffer) {
 
 const indexHtml = readFileSync("index.html", "utf8");
 const build = indexHtml.match(/<meta\b[^>]*name=["']robys-build["'][^>]*content=["']([^"']+)["']/i)?.[1];
-if (!build) throw new Error("INTEGRITY-001: index.html is missing the robys-build marker");
+if (!build) fail("index.html is missing the robys-build marker");
 
 const files = walk(ROOT)
-  .filter((file) => statSync(path.join(ROOT, file)).isFile())
+  .filter((file) => {
+    const absolute = path.join(ROOT, file);
+    assertContainedRegularFile(absolute, file);
+    return true;
+  })
   .sort((left, right) => left.localeCompare(right, "en"))
   .map((file) => {
     const bytes = readFileSync(path.join(ROOT, file));
@@ -77,7 +111,7 @@ const files = walk(ROOT)
   });
 
 if (!files.some((file) => file.path === "index.html") || !files.some((file) => file.path === "menu.html")) {
-  throw new Error("INTEGRITY-001: public entry pages are missing from the manifest input");
+  fail("public entry pages are missing from the manifest input");
 }
 
 const manifest = {
@@ -89,11 +123,9 @@ const manifest = {
 const serialized = `${JSON.stringify(manifest)}\n`;
 
 if (CHECK_MODE) {
-  if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
+  if (!existsSync(OUTPUT)) fail(`${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
-  if (committed !== serialized) {
-    throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
-  }
+  if (committed !== serialized) fail(`${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);
 } else {
   writeFileSync(OUTPUT, serialized);
