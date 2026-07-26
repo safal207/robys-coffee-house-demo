@@ -1,0 +1,52 @@
+name: Agent platform install verify
+
+on:
+  push:
+    branches:
+      - agent/platform-install-cta
+    paths:
+      - mobile-install.js
+      - mobile-install.css
+      - pwa.js
+      - sw.js
+      - scripts/verify-android-download.mjs
+      - .github/workflows/agent-platform-install-verify.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/platform-install-cta
+          fetch-depth: 0
+
+      - name: Verify JavaScript syntax
+        run: |
+          node --check mobile-install.js
+          node --check pwa.js
+          node --check sw.js
+
+      - name: Verify platform install contract
+        run: node scripts/verify-android-download.mjs
+
+      - name: Generate current integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Commit regenerated manifest
+        shell: bash
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Manifest already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "Regenerate integrity manifest for platform install CTA"
+          git push origin HEAD:agent/platform-install-cta
