@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 210" role="img" aria-labelledby="title desc">
   <title id="title">Roby's Coffee House</title>
-  <desc id="desc">Owner-approved primary Roby's Coffee House lockup with Fresh Coffee Point tagline.</desc>
+  <desc id="desc">Owner-approved primary Roby's Coffee House lockup with equal visual word heights and centered Fresh Coffee Point tagline.</desc>
   <defs>
     <g id="gF" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="square"><path d="M6 104V8h36M6 50h29"/></g>
     <g id="gR" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="square" stroke-linejoin="round"><path d="M6 104V8h20c17 0 26 10 26 23s-9 23-26 23H6M27 54l27 50"/></g>
@@ -19,8 +19,8 @@
     <path id="robys-apostrophe" fill="#E21B23" fill-rule="evenodd" d="M 206.00 1.00 L 205.00 2.00 L 205.00 11.00 L 210.00 11.00 L 210.00 9.00 L 211.00 8.00 L 211.00 6.00 L 212.00 5.00 L 212.00 3.00 L 213.00 2.00 L 213.00 1.00 Z"/>
   </g>
   </defs>
-  <g transform="translate(24 8) scale(1.48)"><use href="#robys-wordmark"/></g>
-  <g transform="translate(410 0)">  <g id="coffee-house" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(10 7) scale(1.73)"><use href="#robys-wordmark"/></g>
+  <g transform="translate(465 0)">  <g id="coffee-house" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
     <path d="M50 24C42 12 31 8 21 11 8 15 4 33 4 74s4 58 17 62c11 3 21-2 29-15"/>
     <ellipse cx="91" cy="74" rx="24" ry="63"/>
     <path d="M132 137V11h47M132 73h38"/>
@@ -33,7 +33,7 @@
     <path d="M707 26c-9-13-20-18-31-15-14 3-21 14-19 29 2 18 15 25 31 33 17 8 28 17 26 36-2 19-14 31-32 31-14 0-26-7-34-20"/>
     <path d="M777 11h-47v126h47M730 73h39"/>
   </g></g>
-  <g id="tagline" transform="translate(278 157) scale(.28)">
+  <g id="tagline" transform="translate(466 157) scale(.28)">
     <circle cx="-70" cy="53" r="10" fill="#111111"/>
     <use href="#gF" x="0"/><use href="#gR" x="67"/><use href="#gE" x="137"/><use href="#gS" x="202"/><use href="#gH" x="270"/>
     <use href="#gC" x="390"/><use href="#gO" x="455"/><use href="#gF" x="520"/><use href="#gF" x="585"/><use href="#gE" x="650"/><use href="#gE" x="715"/>
