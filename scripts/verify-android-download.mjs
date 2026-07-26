@@ -40,6 +40,9 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 const upgrade = readFileSync("android-download.js", "utf8");
 const bootstrap = readFileSync("bootstrap.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
+const mobileInstall = readFileSync("mobile-install.js", "utf8");
+const mobileInstallCss = readFileSync("mobile-install.css", "utf8");
+const pwa = readFileSync("pwa.js", "utf8");
 const sw = readFileSync("sw.js", "utf8");
 assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.1/part-"), "Runtime must construct all six APK part URLs");
 assert(upgrade.includes("repairPackedApk") && upgrade.includes("packed.subarray(17242, 25248)"), "Runtime must repair the reviewed multipart package deterministically");
@@ -51,5 +54,12 @@ assert(bootstrap.includes(".android-download-button .android-download-icon"), "A
 assert(bootstrap.includes("android-download-logo") && bootstrap.includes("src/android-mark.svg"), "Real Android logo is missing from the download button");
 assert(bootstrap.includes("placeholder.replaceWith(logo)"), "Legacy CSS Android icon is not replaced by the real logo");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
+assert(mobileInstall.includes('icon.src = "apple-touch-icon.png?v=20260726-approved-v4"'), "iPhone install button must show the reviewed Roby's app image");
+assert(mobileInstall.includes('icon.alt = ""') && mobileInstall.includes('icon.setAttribute("aria-hidden", "true")'), "Decorative iPhone app image must stay accessibility-neutral");
+assert(mobileInstall.includes('const shouldOfferIosInstall = section.dataset.platform !== "android" && !isStandaloneMode()'), "Android users must be excluded from the iPhone install offer before it is created");
+assert(mobileInstall.includes("if (shouldOfferIosInstall) actions.prepend(createIosInstallAction())"), "iPhone install action must be conditionally inserted");
+assert(!mobileInstall.includes('icon.textContent = ""'), "Unreliable font-only Apple glyph must not return");
+assert(mobileInstallCss.includes(".ios-install-icon") && mobileInstallCss.includes("object-fit:cover") && mobileInstallCss.includes("border-radius:9px"), "iPhone app image styling is missing");
+assert(pwa.includes("mobile-install.js?v=platform-install-20260727-1") && pwa.includes("mobile-install.css?v=platform-install-20260727-1"), "PWA bootstrap must load the revised install assets");
 assert(sw.includes("Array.from({ length: 6 }") && sw.includes("./downloads/android-v1.1/part-"), "Offline cache must construct all six APK part URLs");
-console.log(`✅ ${contract} passed: repaired signed APK ${actualSha256.slice(0, 12)}… is cached, verified, downloadable offline and shows the real Android button logo.`);
+console.log(`✅ ${contract} passed: Android gets only its verified APK action, while the iPhone action uses the real Roby's image and is omitted on Android.`);

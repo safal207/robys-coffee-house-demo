@@ -148,10 +148,14 @@ function createIosInstallAction() {
   button.setAttribute("aria-haspopup", "dialog");
   button.setAttribute("aria-controls", dialog.id);
 
-  const icon = document.createElement("span");
+  const icon = document.createElement("img");
   icon.className = "ios-install-icon";
+  icon.src = "apple-touch-icon.png?v=20260726-approved-v4";
+  icon.alt = "";
+  icon.width = 30;
+  icon.height = 30;
+  icon.decoding = "async";
   icon.setAttribute("aria-hidden", "true");
-  icon.textContent = "";
 
   const label = document.createElement("span");
   bindMobileCopy(label, "iosButton");
@@ -197,7 +201,9 @@ function enhanceMobileInstallSection() {
     androidButton.before(androidAction);
     androidAction.append(androidButton);
     if (androidMeta) androidAction.append(androidMeta);
-    actions.prepend(createIosInstallAction());
+
+    const shouldOfferIosInstall = section.dataset.platform !== "android" && !isStandaloneMode();
+    if (shouldOfferIosInstall) actions.prepend(createIosInstallAction());
   }
 
   const note = section.querySelector(".android-app-note");
