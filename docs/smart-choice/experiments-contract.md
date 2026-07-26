@@ -52,6 +52,7 @@ The primary metric is `handoff-rate`, not CTA clicks.
 - A valid stored assignment is reused for the session.
 - Assignment contains no name, phone, email, precise location, free text, or advertising identifier.
 - The compatibility value written for analytics contains only experiment ID and variant ID.
+- The experiment runtime loads before the analytics runtime so the first eligible funnel event receives the same stable assignment.
 
 ## 4. Kill switches
 
