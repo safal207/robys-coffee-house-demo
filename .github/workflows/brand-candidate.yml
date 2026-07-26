@@ -1,0 +1,38 @@
+name: Roby's brand candidate contract
+
+on:
+  pull_request:
+    paths:
+      - "qa/brand/candidate/**"
+      - "scripts/verify-robys-approved-identity-v4.mjs"
+      - "package.json"
+      - ".github/workflows/brand-candidate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brand-candidate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-brand-candidate:
+    name: BRAND-CANDIDATE-001 vector contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify owner-approved identity candidate
+        run: npm run verify:brand-candidate

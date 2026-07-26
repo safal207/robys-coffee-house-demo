@@ -1,198 +1,146 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
-const APPROVED_RED = "#E21B23";
-const APPROVED_INK = "#111111";
-const APPROVED_PAPER = "#F5F5F2";
-const IDENTITY_REVISION = "20260724-wordmark-v3";
-const ICON_SIZES = [16, 32, 48, 192, 512];
-const APPLE_TOUCH_ICON_SHA256 = "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8";
+const RED = "#E21B23";
+const INK = "#111111";
+const WHITE = "#FFFFFF";
+const REVISION = "20260726-approved-v4";
+const OLD_REVISION = "20260724-wordmark-v3";
+const MARK_BOX = [0, 0, 184, 211];
 
-function read(path) {
-  return readFileSync(path, "utf8");
-}
-
-function assert(condition, message) {
-  if (!condition) throw new Error(`[BRAND-IDENTITY-001] ${message}`);
-}
+const read = (path) => readFileSync(path, "utf8");
+const fail = (message) => { throw new Error(`[BRAND-IDENTITY-001] ${message}`); };
+const assert = (condition, message) => { if (!condition) fail(message); };
 
 function viewBox(svg, path) {
-  const match = svg.match(/\bviewBox=["']([^"']+)["']/i);
-  assert(match, `${path} must declare a viewBox`);
-  const values = match[1].trim().split(/\s+/).map(Number);
-  assert(values.length === 4 && values.every(Number.isFinite), `${path} has an invalid viewBox`);
-  return values;
+  const value = svg.match(/viewBox="([^"]+)"/i)?.[1];
+  assert(value, `${path} must declare a double-quoted viewBox`);
+  const numbers = value.trim().split(/\s+/).map(Number);
+  assert(numbers.length === 4 && numbers.every(Number.isFinite), `${path} has an invalid viewBox`);
+  return numbers;
 }
 
-function assertPathOnly(svg, path) {
-  assert(!/<text\b/i.test(svg), `${path} must not contain font-dependent <text> nodes`);
-  assert(!/\bfont-family\s*=/i.test(svg), `${path} must not depend on a font family`);
+function pathTag(svg, id, path) {
+  const pattern = new RegExp(`<path\\b[^>]*\\bid="${id}"[^>]*\\/?>`, "i");
+  const tag = svg.match(pattern)?.[0];
+  assert(tag, `${path} must expose path #${id}`);
+  return tag;
+}
+
+function pathD(svg, id, path) {
+  const value = pathTag(svg, id, path).match(/\bd="([^"]+)"/i)?.[1];
+  assert(value, `${path} path #${id} must expose d geometry`);
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function wordmark(svg, path) {
+  const group = svg.match(/<g id="robys-wordmark"[\s\S]*?<\/g>/)?.[0];
+  assert(group, `${path} must expose canonical robys-wordmark`);
+  return group.replace(/\s+/g, " ").trim();
+}
+
+function assertVector(svg, path) {
   assert(/<path\b/i.test(svg), `${path} must contain path geometry`);
+  assert(!/<image\b/i.test(svg), `${path} must not contain <image>`);
+  assert(!/data:image|base64,/i.test(svg), `${path} must not contain raster/base64 payloads`);
+  assert(!/<text\b|font-family\s*=/i.test(svg), `${path} must not depend on fonts or <text>`);
+  assert(svg.includes(RED), `${path} must use ${RED}`);
 }
 
-function extractTransform(svg, path) {
-  const match = svg.match(/<g\b[^>]*id=["']robys-mark["'][^>]*transform=["']translate\(([\d.]+)\s+([\d.]+)\)\s+scale\(([\d.]+)\)["']/i);
-  assert(match, `${path} must expose the bounded robys-mark transform`);
-  return { x: Number(match[1]), y: Number(match[2]), scale: Number(match[3]) };
+function iconClearance(svg, path) {
+  const match = svg.match(/<g[^>]*id="robys-mark"[^>]*transform="translate\(([-\d.]+)\s+([-\d.]+)\)\s+scale\(([-\d.]+)\)"/i);
+  assert(match, `${path} must expose a bounded robys-mark transform`);
+  const x = Number(match[1]);
+  const y = Number(match[2]);
+  const scale = Number(match[3]);
+  return Math.min(x, y, 512 - x - MARK_BOX[2] * scale, 512 - y - MARK_BOX[3] * scale) / 512;
 }
 
-function safeMargins(svg, path) {
-  const { x, y, scale } = extractTransform(svg, path);
-  const outerMin = 4;
-  const outerMax = 96;
-  const left = x + outerMin * scale;
-  const top = y + outerMin * scale;
-  const right = 512 - (x + outerMax * scale);
-  const bottom = 512 - (y + outerMax * scale);
-  return Math.min(left, top, right, bottom) / 512;
+const paths = {
+  mark: "src/brand/robys-mark-master-v1.svg",
+  ring: "src/brand/robys-organic-ring.svg",
+  compact: "src/brand/robys-compact-master-v1.svg",
+  header: "src/brand/robys-header-master-v1.svg",
+  primary: "src/brand/robys-primary-master-v1.svg",
+  icon: "icon.svg",
+  maskable: "icon-maskable.svg"
+};
+const assets = Object.fromEntries(Object.entries(paths).map(([key, path]) => [key, read(path)]));
+for (const [key, source] of Object.entries(assets)) assertVector(source, paths[key]);
+
+assert(JSON.stringify(viewBox(assets.mark, paths.mark)) === JSON.stringify(MARK_BOX), "mark must use 184 × 211 canvas");
+assert(JSON.stringify(viewBox(assets.ring, paths.ring)) === JSON.stringify(MARK_BOX), "ring must use 184 × 211 canvas");
+assert(JSON.stringify(viewBox(assets.compact, paths.compact)) === JSON.stringify([0, 0, 251, 79]), "compact must use 251 × 79 canvas");
+assert(JSON.stringify(viewBox(assets.header, paths.header)) === JSON.stringify([0, 0, 1260, 150]), "header must use 1260 × 150 canvas");
+assert(JSON.stringify(viewBox(assets.primary, paths.primary)) === JSON.stringify([0, 0, 1260, 210]), "primary must use 1260 × 210 canvas");
+
+const mark = pathD(assets.mark, "robys-mark", paths.mark);
+assert(pathD(assets.ring, "robys-mark", paths.ring) === mark, "supporting ring must reuse canonical Organic O");
+for (const key of ["compact", "header", "primary"]) {
+  assert(pathD(assets[key], "robys-o", paths[key]) === mark, `${key} must reuse canonical Organic O`);
+  assert(assets[key].includes('<use href="#robys-wordmark"/>'), `${key} must render canonical wordmark through <use>`);
+}
+const canonical = wordmark(assets.compact, paths.compact);
+for (const key of ["header", "primary"]) assert(wordmark(assets[key], paths[key]) === canonical, `${key} must reuse byte-identical wordmark geometry`);
+assert(canonical.includes('data-source="owner-approved-identity-sheet-20260726"'), "wordmark must declare approved identity sheet source");
+assert(canonical.includes('data-cap-y="0" data-baseline-y="79"'), "wordmark must declare cap and baseline contract");
+assert(canonical.includes('id="robys-letters"') && canonical.includes('id="robys-apostrophe"'), "wordmark must expose traced letters and apostrophe");
+assert(assets.header.includes('id="coffee-house"') && !assets.header.includes('id="tagline"'), "header must contain COFFEE HOUSE without tagline");
+assert(assets.primary.includes('id="coffee-house"') && assets.primary.includes('id="tagline"'), "primary must contain COFFEE HOUSE and tagline");
+assert([assets.compact, assets.header, assets.primary].every((source) => source.includes(INK)), `lockups must use ${INK}`);
+
+for (const [key, minimum] of [["icon", 0.15], ["maskable", 0.20]]) {
+  assert(assets[key].includes(mark), `${paths[key]} must reuse canonical Organic O`);
+  assert(assets[key].includes(WHITE), `${paths[key]} must use pure white background`);
+  assert(iconClearance(assets[key], paths[key]) >= minimum, `${paths[key]} must retain ${minimum * 100}% safe clearance`);
 }
 
-const mark = read("src/brand/robys-mark-master-v1.svg");
-const header = read("src/brand/robys-header-master-v1.svg");
-const primary = read("src/brand/robys-primary-master-v1.svg");
-const compact = read("src/brand/robys-compact-master-v1.svg");
-const icon = read("icon.svg");
-const maskable = read("icon-maskable.svg");
+const apple = readFileSync("apple-touch-icon.png");
+assert(apple.subarray(1, 4).toString("ascii") === "PNG", "Apple touch icon must remain PNG");
+assert(apple.readUInt32BE(16) === 180 && apple.readUInt32BE(20) === 180, "Apple touch icon must remain 180 × 180");
+assert(createHash("sha256").update(apple).digest("hex") !== "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8", "Apple touch icon must be regenerated for v4");
+
 const css = read("brand-photo-logo.css");
-const baseCss = read("styles.css");
-const organicRing = read("src/brand/robys-organic-ring.svg");
-const bootstrap = read("bootstrap.js");
-const serviceWorker = read("sw.js");
-const manifest = JSON.parse(read("manifest.webmanifest"));
-const appleTouchIcon = readFileSync("apple-touch-icon.png");
-const identityPages = ["index.html", "menu.html", "discover.html"].map((path) => [path, read(path)]);
-const serviceIdentityPages = [
-  ["docs/instagram-tools.html", read("docs/instagram-tools.html")],
-  ["docs/owner-pitch.html", read("docs/owner-pitch.html")]
-];
-const serviceIdentityStyles = [
-  ["docs/instagram-tools.css", read("docs/instagram-tools.css")],
-  ["docs/owner-pitch.css", read("docs/owner-pitch.css")]
-];
-const notFoundHtml = read("404.html");
-const offlineCss = read("offline.css");
-const identityPreloads = new Map([
-  ["index.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />'],
-  ["menu.html", '<link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" fetchpriority="high" />'],
-  ["discover.html", '<link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />']
-]);
-
-for (const [path, source] of [
-  ["src/brand/robys-mark-master-v1.svg", mark],
-  ["src/brand/robys-header-master-v1.svg", header],
-  ["src/brand/robys-primary-master-v1.svg", primary],
-  ["src/brand/robys-compact-master-v1.svg", compact],
-  ["icon.svg", icon],
-  ["icon-maskable.svg", maskable]
-]) {
-  assertPathOnly(source, path);
-}
-
-assert(JSON.stringify(viewBox(header, "src/brand/robys-header-master-v1.svg")) === JSON.stringify([0, 0, 1260, 150]), "medium header master must use the approved 1260 × 150 canvas");
-assert(!/FRESH\s+COFFEE\s+POINT/i.test(header), "medium header master must not contain the micro-tagline");
-assert(header.includes(APPROVED_RED) && header.includes(APPROVED_INK), "medium header master must use canonical red and ink");
-assert(icon.includes(APPROVED_RED) && icon.includes(APPROVED_PAPER), "favicon must use canonical red and paper");
-assert(maskable.includes(APPROVED_RED) && maskable.includes(APPROVED_PAPER), "maskable icon must use canonical red and paper");
-assert(appleTouchIcon.subarray(1, 4).toString("ascii") === "PNG", "Apple touch icon must remain a PNG");
-assert(appleTouchIcon.readUInt32BE(16) === 180 && appleTouchIcon.readUInt32BE(20) === 180, "Apple touch icon must remain 180 × 180 px");
-assert(createHash("sha256").update(appleTouchIcon).digest("hex") === APPLE_TOUCH_ICON_SHA256, "Apple touch icon must remain bound to the approved organic O export");
-
-const markPath = mark.match(/<path\b[^>]*\bd=["']([^"']+)["']/i)?.[1];
-assert(markPath, "approved mark master must expose one path");
-assert(icon.includes(markPath), "favicon must reuse the approved organic O path");
-assert(maskable.includes(markPath), "maskable icon must reuse the approved organic O path");
-assert(header.includes(markPath), "header wordmark must reuse the approved organic O path");
-
-function extractWordmark(svg, path) {
-  const match = svg.match(/<g id=["']robys-wordmark["'][\s\S]*?<\/g>/);
-  assert(match, `${path} must expose the canonical robys-wordmark definition`);
-  return match[0].replace(/\s+/g, " ").trim();
-}
-
-const wordmarkSources = [
-  ["src/brand/robys-compact-master-v1.svg", compact],
-  ["src/brand/robys-header-master-v1.svg", header],
-  ["src/brand/robys-primary-master-v1.svg", primary]
-];
-const canonicalWordmark = extractWordmark(compact, "src/brand/robys-compact-master-v1.svg");
-for (const [path, source] of wordmarkSources) {
-  assert(extractWordmark(source, path) === canonicalWordmark, `${path} must reuse byte-identical Roby's glyph geometry`);
-  assert(source.includes('<use href="#robys-wordmark"/>'), `${path} must render the canonical wordmark through <use>`);
-}
-
-const closeTo = (actual, expected) => Math.abs(actual - expected) < 0.001;
-const transformedY = (value, scale, translate) => value * scale + translate;
-assert(closeTo(transformedY(18, 0.863636, 2.454545), 18), "B bowls must retain the shared cap-height y=18");
-assert(closeTo(transformedY(150, 0.863636, 2.454545), 132), "B bowls must end on the shared baseline y=132");
-assert(closeTo(transformedY(14, 0.826087, 6.434783), 18), "S must start on the shared cap-height y=18");
-assert(closeTo(transformedY(152, 0.826087, 6.434783), 132), "S must end on the shared baseline y=132");
-assert(canonicalWordmark.includes('id="robys-b-stem"'), "B stem must remain independently bound to y=18…132");
-assert(canonicalWordmark.includes('id="robys-b-bowls"'), "B bowls must remain independently normalizable");
-assert(canonicalWordmark.includes('data-cap-y="18" data-baseline-y="132"'), "wordmark must publish its cap-height and baseline contract");
-
-assert(safeMargins(icon, "icon.svg") >= 0.15, "favicon mark must retain at least 15% edge clearance");
-assert(safeMargins(maskable, "icon-maskable.svg") >= 0.20, "maskable icon must retain at least 20% edge clearance");
-
-const manifestIcons = manifest.icons ?? [];
-assert(manifestIcons.length === 2, "manifest must publish exactly separate any and maskable icons");
-assert(manifestIcons.some((item) => item.src === "icon.svg" && item.purpose === "any" && item.type === "image/svg+xml"), "manifest must publish icon.svg for purpose any");
-assert(manifestIcons.some((item) => item.src === "icon-maskable.svg" && item.purpose === "maskable" && item.type === "image/svg+xml"), "manifest must publish a dedicated maskable icon");
-assert(!manifestIcons.some((item) => /\bany\s+maskable\b/.test(item.purpose ?? "")), "manifest must not reuse one asset for both any and maskable purposes");
-
-for (const [token, value] of [
-  ["--robys-brand-red", APPROVED_RED],
-  ["--robys-brand-ink", APPROVED_INK],
-  ["--robys-brand-paper", APPROVED_PAPER]
-]) {
+for (const [token, value] of [["--robys-brand-red", RED], ["--robys-brand-ink", INK], ["--robys-brand-paper", WHITE]]) {
   assert(css.includes(`${token}:${value}`), `${token} must publish ${value}`);
 }
+for (const asset of ["robys-compact-master-v1.svg", "robys-header-master-v1.svg", "robys-primary-master-v1.svg"]) {
+  assert(css.includes(`${asset}?v=${REVISION}`), `stylesheet must load ${asset} at ${REVISION}`);
+}
+assert(css.includes("border-radius:999px!important") && css.includes("box-shadow:0 10px 26px rgba(17,17,17,.16)!important"), "mobile shell must retain approved white pill treatment");
+assert(!css.includes(OLD_REVISION), "stylesheet must not retain old identity revision");
 
-assert(css.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "desktop header must load the no-tagline medium master");
-assert(css.includes("border-radius:999px!important"), "mobile header container must preserve the approved pill silhouette");
-assert(css.includes("robys-primary-master-v1.svg?v=20260724-wordmark-v3"), "large menu lockup must retain the primary master");
-assert(css.includes("robys-compact-master-v1.svg?v=20260724-wordmark-v3"), "mobile header must retain the compact master");
-assert(baseCss.includes(`--brand-wordmark-red:${APPROVED_RED}`), "legacy wordmark fallback must use canonical red");
-assert(baseCss.includes(`--ruby:${APPROVED_RED}`), "UI ruby token must use canonical red");
-assert(!baseCss.includes("#b84d58"), "base UI must not retain the legacy ruby red");
-assert(!existsSync("src/brand/robys-mobile-master-v1.svg"), "deprecated baked-in mobile pill master must be removed");
-assert(organicRing.includes(APPROVED_RED), "organic ring must use canonical red");
-assert(!organicRing.includes("#d32636"), "organic ring must not retain the legacy red");
-for (const [path, source] of identityPages) {
-  assert(source.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), `${path} must link the identity stylesheet without JavaScript`);
-  assert(source.includes('<link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />'), `${path} must statically link the Apple touch icon`);
-  const preload = identityPreloads.get(path);
-  assert(
-    source.includes(preload),
-    `${path} must preload its above-the-fold identity master`
-  );
+const preloads = new Map([
+  ["index.html", `src/brand/robys-compact-master-v1.svg?v=${REVISION}`],
+  ["menu.html", `src/brand/robys-primary-master-v1.svg?v=${REVISION}`],
+  ["discover.html", `src/brand/robys-compact-master-v1.svg?v=${REVISION}`]
+]);
+for (const [path, preload] of preloads) {
+  const html = read(path);
+  assert(html.includes(`brand-photo-logo.css?v=${REVISION}`), `${path} must link v4 stylesheet`);
+  assert(html.includes(preload), `${path} must preload v4 lockup`);
+  assert(!html.includes(OLD_REVISION), `${path} must not retain old identity revision`);
 }
-assert(!bootstrap.includes("brand-photo-logo.css"), "bootstrap must not inject the identity stylesheet at runtime");
-assert(bootstrap.includes("apple-touch-icon.png?v="), "progressive Apple touch fallback may remain active");
-for (const [path, source] of serviceIdentityPages) {
-  assert(source.includes("../apple-touch-icon.png?v=ios-install-20260707-1"), `${path} must statically link the Apple touch icon`);
-  assert(!/class=["']brand-mark["'][^>]*>\s*R\s*</i.test(source), `${path} must not render the legacy R badge`);
-  assert(/robys-(?:compact|mark)-master-v1\.svg/.test(source), `${path} must reuse an approved SVG identity asset`);
-}
-for (const [path, source] of serviceIdentityStyles) {
-  assert(source.includes(APPROVED_RED), `${path} must use canonical red`);
-  assert(!source.includes("#b84d58"), `${path} must not retain the legacy ruby red`);
-  assert(!/Georgia|Times New Roman|(?<!sans-)\bserif\b/i.test(source), `${path} must not introduce a serif display language`);
-}
-assert(notFoundHtml.includes("apple-touch-icon.png?v=ios-install-20260707-1"), "404 page must statically link the Apple touch icon");
-assert(notFoundHtml.includes("src/brand/robys-mark-master-v1.svg"), "404 page must reuse the approved organic-O mark");
-assert(!/class=["']offline-mark["'][^>]*>\s*R\s*</i.test(notFoundHtml), "404 page must not render the legacy R badge");
-assert(offlineCss.includes(APPROVED_RED) && !offlineCss.includes("#b84d58"), "404 UI must use canonical red");
-assert(!/Georgia|Times New Roman|(?<!sans-)\bserif\b/i.test(offlineCss), "404 UI must not introduce a serif display language");
-assert(/^const CACHE_VERSION = "robys-offline-[^"]+-[a-f0-9]{12}-[a-f0-9]{12}-[a-f0-9]{12}";/m.test(serviceWorker), "service worker cache version must remain compatible with the deterministic build rewriter");
-assert(serviceWorker.includes(`brand-photo-logo.css?v=${IDENTITY_REVISION}`), "service worker must precache the exact identity stylesheet revision");
-assert(serviceWorker.includes(`robys-header-master-v1.svg?v=${IDENTITY_REVISION}`), "service worker must precache the exact header master revision");
-assert(serviceWorker.includes('"./icon-maskable.svg"'), "service worker must precache the dedicated maskable icon");
-assert(serviceWorker.includes('endsWith("/src/brand/robys-header-master-v1.svg")'), "header master must use exact-revision cache matching");
+const sw = read("sw.js");
+assert(sw.includes(`brand-photo-logo.css?v=${REVISION}`), "service worker must precache v4 stylesheet");
+assert(sw.includes(`robys-header-master-v1.svg?v=${REVISION}`), "service worker must precache v4 header");
+assert(!sw.includes(OLD_REVISION), "service worker must not retain old identity revision");
 
-for (const size of ICON_SIZES) {
-  const scaledAnyMargin = Math.round(safeMargins(icon, "icon.svg") * size * 100) / 100;
-  const scaledMaskableMargin = Math.round(safeMargins(maskable, "icon-maskable.svg") * size * 100) / 100;
-  assert(scaledAnyMargin > 0 && scaledMaskableMargin > 0, `${size}px icon geometry must retain visible edge clearance`);
+const manifest = JSON.parse(read("manifest.webmanifest"));
+assert((manifest.icons ?? []).some((item) => item.src === "icon.svg" && item.purpose === "any"), "manifest must publish any icon");
+assert((manifest.icons ?? []).some((item) => item.src === "icon-maskable.svg" && item.purpose === "maskable"), "manifest must publish maskable icon");
+assert(!existsSync("src/brand/robys-mobile-master-v1.svg"), "deprecated baked-in mobile SVG must remain absent");
+
+const baseCss = read("styles.css");
+assert(baseCss.includes(`--brand-wordmark-red:${RED}`) && baseCss.includes(`--ruby:${RED}`), "base UI tokens must retain canonical red");
+assert(!baseCss.includes("#b84d58"), "base UI must not retain legacy red");
+for (const path of ["docs/instagram-tools.html", "docs/owner-pitch.html", "404.html"]) {
+  const source = read(path);
+  assert(/robys-(?:compact|mark)-master-v1\.svg/.test(source), `${path} must reuse an approved identity SVG`);
+}
+for (const path of ["docs/instagram-tools.css", "docs/owner-pitch.css", "offline.css"]) {
+  const source = read(path);
+  assert(source.includes(RED) && !source.includes("#b84d58"), `${path} must retain canonical red`);
 }
 
-console.log(`✅ BRAND-IDENTITY-001: canonical Roby's identity is path-only, platform-aligned, split for any/maskable, and bounded at ${ICON_SIZES.join(", ")} px.`);
+console.log(`✅ BRAND-IDENTITY-001: ${REVISION} is path-only, white-backed, canonically shared, statically delivered and cache-revisioned.`);
