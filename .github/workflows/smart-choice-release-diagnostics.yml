@@ -1,0 +1,32 @@
+name: Smart Choice release diagnostics
+
+on:
+  pull_request:
+    paths:
+      - 'src/smart-choice/**'
+      - 'smart-choice/**'
+      - 'scripts/**'
+      - 'package.json'
+      - '.github/workflows/smart-choice-release-diagnostics.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build tail
+        shell: bash
+        run: |
+          set +e
+          npm run build > /tmp/smart-choice-release-build.log 2>&1
+          code=$?
+          tail -n 140 /tmp/smart-choice-release-build.log
+          exit "$code"
