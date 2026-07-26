@@ -36,6 +36,17 @@ await build({
 });
 
 await build({
+  entryPoints: ["src/smart-choice/experiments.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/experiments.js",
+  legalComments: "none"
+});
+
+await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
   bundle: true,
   minify: true,
@@ -151,6 +162,7 @@ const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
 const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
 const smartChoiceCartRevision = revisionFor("smart-choice/cart.js");
+const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments.js");
 const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics.js");
 const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace.js");
 const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
@@ -172,6 +184,7 @@ writeFileSync("discover.html", discoverHtml);
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart.js", smartChoiceCartRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments.js", smartChoiceExperimentsRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics.js", smartChoiceAnalyticsRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace.js", smartChoiceDecisionTraceRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
@@ -190,10 +203,10 @@ writeFileSync("sw.js", serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
-  `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), ` +
-  `Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), featured-gallery.js (${galleryRevision}), ` +
-  `social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), ` +
-  `discover-rotation-v3.js (${discoverRotationRevision}), Smart Choice style.css (${smartChoiceCssRevision}), ` +
-  `Smart Choice cart.css (${smartChoiceCartCssRevision}), and Smart Choice decision-trace.css (${smartChoiceDecisionTraceCssRevision}) ` +
-  `with synchronized cache keys.`
+  `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice experiments.js (${smartChoiceExperimentsRevision}), ` +
+  `Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), ` +
+  `featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), ` +
+  `discover-v2.js (${discoverRuntimeRevision}), discover-rotation-v3.js (${discoverRotationRevision}), ` +
+  `Smart Choice style.css (${smartChoiceCssRevision}), Smart Choice cart.css (${smartChoiceCartCssRevision}), ` +
+  `and Smart Choice decision-trace.css (${smartChoiceDecisionTraceCssRevision}) with synchronized cache keys.`
 );
