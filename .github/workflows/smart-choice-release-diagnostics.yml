@@ -22,11 +22,19 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Build tail
-        shell: bash
+      - name: Release unit suite
+        run: npm run test:smart-choice-release
+      - name: Existing Smart Choice domain suites
         run: |
-          set +e
-          npm run build > /tmp/smart-choice-release-build.log 2>&1
-          code=$?
-          tail -n 30 /tmp/smart-choice-release-build.log
-          exit "$code"
+          npm run verify:smart-choice-catalog
+          npm run test:smart-choice-engine
+          npm run test:smart-choice-cart
+          npm run test:smart-choice-analytics
+          npm run test:smart-choice-decision-trace
+          npm run test:smart-choice-experiments
+      - name: Build exact static assets
+        run: node scripts/build.mjs
+      - name: Page contract
+        run: npm run test:smart-choice-page
+      - name: Release verifier
+        run: npm run verify:smart-choice-release
