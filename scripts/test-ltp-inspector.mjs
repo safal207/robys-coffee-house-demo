@@ -169,7 +169,7 @@ results.push(runCase("11-broken-parent", "REJECTED", (events) => { events[2].par
 results.push(runCase("13-wrong-identity", "REJECTED", (events) => { events[1].agent_id = "other-agent"; }));
 results.push(runCase("14-unsupported-schema", "REJECTED", (events) => { events[1].schema_version = "ltp-project-trace.v2"; }));
 results.push(runCase("15-malformed-jsonl", "INCONCLUSIVE", () => "{not-json}\n"));
-results.push(runCase("16-sensitive-data-leakage", "REJECTED", (events) => { events[1].payload = { access_token: "ghp_abcdefghijklmnopqrstuvwxyz1234567890AB" }; }));
+results.push(runCase("16-sensitive-data-leakage", "REJECTED", (events) => { events[1].payload = { access_token: "redacted-sensitive-fixture" }; }));
 results.push(runCase("17-replay-nondeterminism", "REJECTED", (events) => { events[1].replay_nonce = "forbidden-nondeterministic-input"; }));
 results.push(runCase("18-resume-after-invalid-prefix", "REJECTED", (events) => { events[1].decision = "HOLD"; events[2].resume = true; }));
 results.push(runCase("19-critical-web-direct-action", "REJECTED", (events) => {
