@@ -116,7 +116,11 @@ jobs:
           };
           writeFileSync('.artifacts/ltp/run-manifest.json', `${JSON.stringify(manifest, null, 2)}\n`);
           NODE
-          sha256sum .artifacts/ltp/* > .artifacts/ltp/ARTIFACT_SHA256SUMS.txt
+          (
+            cd .artifacts/ltp
+            sha256sum control-plane-integrity.json final-head.txt initial-head.txt inspector.json ltp-negative-results.json replay-1.json replay-2.json run-manifest.json trace-path.txt trace.jsonl > ARTIFACT_SHA256SUMS.txt
+            sha256sum -c ARTIFACT_SHA256SUMS.txt
+          )
 
       - name: Upload exact-head evidence
         if: always()
