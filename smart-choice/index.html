@@ -12,7 +12,9 @@
   <link rel="stylesheet" href="style.css?v=824dd6ec9c5f" />
   <link rel="stylesheet" href="cart.css?v=4fcc327520f5" />
   <link rel="stylesheet" href="decision-trace.css?v=caa831d49b1f" />
+  <link rel="stylesheet" href="release-qa.css" />
   <title>Roby's Smart Choice</title>
+  <script type="module" src="release-qa.js"></script>
   <script type="module" src="app.js?v=e3b1394277f7"></script>
   <script type="module" src="cart.js?v=cd82c4c3c5de"></script>
   <script type="module" src="experiments.js?v=1903cdc1c866"></script>
@@ -36,6 +38,9 @@
       <a class="menu-link" href="../menu.html" data-static-copy="fullMenu">Tam Menü</a>
     </nav>
   </header>
+
+  <div id="smart-choice-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="smart-choice-alert" class="release-alert" role="alert" aria-live="assertive" aria-atomic="true" hidden></div>
 
   <main id="smart-choice-main" class="smart-main">
     <section class="smart-shell" aria-labelledby="smart-choice-title">
