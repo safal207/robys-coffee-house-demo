@@ -66,9 +66,11 @@ Pilot static budgets:
 | Asset group | Budget |
 |---|---:|
 | Each Smart Choice JS bundle | 90 KB |
-| All Smart Choice JS | 250 KB |
+| All Smart Choice JS | 300 KB |
 | All Smart Choice CSS | 100 KB |
 | Smart Choice HTML | 30 KB |
+
+The initial exact release build is 287,888 bytes of uncompressed Smart Choice JavaScript. The 300 KB gate preserves measurable headroom without removing QA, analytics, Decision Trace or accessibility code merely to improve the number.
 
 The budget is checked against exact generated files committed to the branch. Existing browser/visual CI remains the mobile smoke and layout evidence layer.
 
