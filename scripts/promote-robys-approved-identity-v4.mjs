@@ -1,3 +1,4 @@
+// Triggered after workflow registration; keep promotion deterministic.
 import { readFileSync, writeFileSync } from "node:fs";
 
 const REVISION = "20260726-approved-v4";
@@ -50,10 +51,10 @@ const primary = approvedCopy(
 
 const markPathTag = requireMatch(
   organicCandidate,
-  /<path\b[^>]*\bid=[#']robys-mark["'][^>]*\/>/i,
+  /<path\b[^>]*\bid="robys-mark"[^>]*\/>/i,
   "Organic O candidate must expose one robys-mark path"
 )[0];
-const markPathD = requireMatch(markPathTag, /\bd=[#']([^#']+)[#']/i, "robys-mark path must expose d geometry")[1];
+const markPathD = requireMatch(markPathTag, /\bd="([^"]+)"/i, "robys-mark path must expose d geometry")[1];
 
 write(`${BRAND_ROOT}/robys-mark-master-v1.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184 211" role="img" aria-labelledby="title desc">
   <title id="title">Roby's organic O</title>
