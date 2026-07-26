@@ -28,5 +28,5 @@ jobs:
           set +e
           npm run build > /tmp/smart-choice-release-build.log 2>&1
           code=$?
-          tail -n 140 /tmp/smart-choice-release-build.log
+          tail -n 30 /tmp/smart-choice-release-build.log
           exit "$code"
