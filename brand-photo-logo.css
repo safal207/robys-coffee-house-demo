@@ -3,7 +3,7 @@
 :root{
   --robys-brand-red:#E21B23;
   --robys-brand-ink:#111111;
-  --robys-brand-paper:#F5F5F2;
+  --robys-brand-paper:#FFFFFF;
   --ruby:var(--robys-brand-red);
   --brand-wordmark-paper:var(--robys-brand-paper);
 }
@@ -14,7 +14,7 @@
   width:180px!important;
   height:58px!important;
   flex:0 0 auto!important;
-  background:url("src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3") center/contain no-repeat!important;
+  background:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4") center/contain no-repeat!important;
   color:transparent!important;
   font-size:0!important;
   line-height:0!important;
@@ -53,13 +53,13 @@
 .discover-header .brand-copy{
   width:286px!important;
   height:58px!important;
-  background-image:url("src/brand/robys-header-master-v1.svg?v=20260724-wordmark-v3")!important;
+  background-image:url("src/brand/robys-header-master-v1.svg?v=20260726-approved-v4")!important;
 }
 
 .menu-page-brand .brand-copy{
   width:min(530px,84vw)!important;
   height:112px!important;
-  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260724-wordmark-v3")!important;
+  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4")!important;
 }
 
 .menu-page-mark::before{
@@ -83,7 +83,7 @@
     display:block!important;
     width:108px!important;
     height:39px!important;
-    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3")!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4")!important;
   }
 
   .menu-page-brand .brand-copy{
@@ -147,7 +147,7 @@
     display:block!important;
     width:82px!important;
     height:31px!important;
-    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260724-wordmark-v3")!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4")!important;
   }
 }
 
