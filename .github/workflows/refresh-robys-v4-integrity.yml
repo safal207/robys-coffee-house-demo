@@ -7,6 +7,7 @@ on:
     paths:
       - "brand-photo-logo.css"
       - "scripts/verify-brand-identity-assets.mjs"
+      - "scripts/verify-robys-mark-cache-revision.mjs"
       - ".github/workflows/refresh-robys-v4-integrity.yml"
 
 permissions:
@@ -42,6 +43,7 @@ jobs:
         run: |
           npm run verify:brand-identity
           npm run verify:brand-candidate
+          node scripts/verify-robys-mark-cache-revision.mjs
           npm run verify:integrity
           git diff --check
 
