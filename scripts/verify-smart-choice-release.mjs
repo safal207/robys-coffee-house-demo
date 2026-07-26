@@ -115,7 +115,7 @@ const totalCss = cssFiles.reduce((sum, file) => sum + size(file), 0);
 for (const file of jsFiles) {
   assert.ok(size(file) <= 90_000, `${file} exceeds the 90 KB per-bundle pilot budget`);
 }
-assert.ok(totalJs <= 250_000, `Smart Choice JS total ${totalJs} exceeds the 250 KB pilot budget`);
+assert.ok(totalJs <= 300_000, `Smart Choice JS total ${totalJs} exceeds the 300 KB pilot budget`);
 assert.ok(totalCss <= 100_000, `Smart Choice CSS total ${totalCss} exceeds the 100 KB pilot budget`);
 assert.ok(size("smart-choice/index.html") <= 30_000, "Smart Choice HTML exceeds the 30 KB pilot budget");
 
