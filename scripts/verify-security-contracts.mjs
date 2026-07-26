@@ -49,6 +49,10 @@ function attribute(tag, name) {
   return tag.match(new RegExp(`\\b${name}='([^']*)'`, "i"))?.[1] ?? "";
 }
 
+function actionReferences(workflow) {
+  return [...workflow.matchAll(/^\s*-?\s*uses:\s*([^\s@]+)@([^\s#]+).*$/gm)].map((match) => ({ action: match[1], revision: match[2] }));
+}
+
 const runtime = RUNTIME_FILES.map((file) => ({ file, content: read(file) }));
 const dangerousPatterns = [
   [/\.innerHTML\s*=/, "innerHTML assignment"],
@@ -142,12 +146,18 @@ for (const { file, content } of runtime) {
 for (const required of [
   ".github/workflows/security.yml",
   ".github/workflows/codeql.yml",
+  ".github/workflows/ltp-exact-head-audit.yml",
   ".github/dependabot.yml",
   ".github/CODEOWNERS",
   "SECURITY.md",
   "docs/threat-model.md",
+  "docs/contracts/ltp-project-trace.v1.schema.json",
+  "docs/contracts/ltp-critical-actions.v0.1.json",
   "scripts/scan-secrets.mjs",
-  "scripts/verify-pwa-security-ast.mjs"
+  "scripts/verify-pwa-security-ast.mjs",
+  "scripts/verify-action-pinning.mjs",
+  "scripts/ltp-inspect.mjs",
+  "scripts/capture-control-plane-integrity.mjs"
 ]) must("CI-TRUST-001", existsSync(required), `Security control is missing: ${required}`);
 
 const securityWorkflow = read(".github/workflows/security.yml");
@@ -159,8 +169,23 @@ const codeql = read(".github/workflows/codeql.yml");
 must("SAST-001", codeql.includes("javascript-typescript"), "CodeQL does not analyze JavaScript/TypeScript");
 must("SAST-001", codeql.includes("security-events: write"), "CodeQL cannot publish security findings");
 
+for (const [file, workflow] of [
+  [".github/workflows/security.yml", securityWorkflow],
+  [".github/workflows/codeql.yml", codeql],
+  [".github/workflows/ltp-exact-head-audit.yml", read(".github/workflows/ltp-exact-head-audit.yml")],
+  [".github/workflows/review-ledger.yml", read(".github/workflows/review-ledger.yml")]
+]) {
+  const references = actionReferences(workflow);
+  must("CI-TRUST-001", references.length > 0, `${file} has no pinned external action references`);
+  for (const { action, revision } of references) {
+    must("CI-TRUST-001", action.startsWith("./") || /^[0-9a-f]{40}$/i.test(revision), `${file} uses mutable action reference ${action}@${revision}`);
+  }
+}
+
 must("DEPSEC-001", packageJson.scripts?.["security:audit"] === "npm audit --audit-level=high", "security:audit package script changed");
-must("SEC-001", packageJson.scripts?.["verify:security"] === "node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs", "verify:security package script changed");
+must("SEC-001", packageJson.scripts?.["verify:security"] === "node scripts/verify-security-contracts.mjs && node scripts/verify-action-pinning.mjs && node scripts/scan-secrets.mjs", "verify:security package script changed");
+must("CI-TRUST-001", packageJson.scripts?.["verify:integrity"]?.includes("capture-control-plane-integrity.mjs"), "control-plane integrity capture is not wired into verify:integrity");
+must("CI-TRUST-001", packageJson.scripts?.["test:ltp"] === "node scripts/test-ltp-inspector.mjs", "LTP negative suite is not wired into package scripts");
 
 for (const id of ["SEC-001", "CSP-001", "DEPSEC-001", "SECRET-001", "SAST-001", "CI-TRUST-001", "PRIVACY-001"]) {
   const contract = dashboard.contracts?.find((item) => item.id === id);
