@@ -1,0 +1,58 @@
+name: Refresh Roby's v4 integrity
+
+on:
+  push:
+    branches:
+      - agent/align-robys-approved-identity
+    paths:
+      - "brand-photo-logo.css"
+      - "scripts/verify-brand-identity-assets.mjs"
+      - ".github/workflows/refresh-robys-v4-integrity.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-robys-v4-integrity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Regenerate integrity evidence
+        run: npm run integrity:generate
+
+      - name: Verify brand and integrity contracts
+        run: |
+          npm run verify:brand-identity
+          npm run verify:brand-candidate
+          npm run verify:integrity
+          git diff --check
+
+      - name: Commit refreshed manifest
+        run: |
+          if git diff --quiet; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "Refresh Roby's v4 integrity manifest"
+          git push
