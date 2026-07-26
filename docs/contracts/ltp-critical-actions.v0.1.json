@@ -1,0 +1,16 @@
+{
+  "version": "0.1",
+  "contract": "LTP-CRITICAL-ACTIONS-001",
+  "actions": [
+    "transfer_money",
+    "delete_data",
+    "send_email",
+    "approve_trade",
+    "modify_system",
+    "delete_file",
+    "publish",
+    "deploy",
+    "payment"
+  ],
+  "rule": "A critical protected effect requires a prior exact-trace ALLOW authorization and must never be executed directly from WEB context or after BLOCK, DENY or HOLD."
+}
