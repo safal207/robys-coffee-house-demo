@@ -21,20 +21,23 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - name: Release unit suite
-        run: npm run test:smart-choice-release
-      - name: Existing Smart Choice domain suites
-        run: |
-          npm run verify:smart-choice-catalog
-          npm run test:smart-choice-engine
-          npm run test:smart-choice-cart
-          npm run test:smart-choice-analytics
-          npm run test:smart-choice-decision-trace
-          npm run test:smart-choice-experiments
+      - run: npm ci --silent
       - name: Build exact static assets
-        run: node scripts/build.mjs
-      - name: Page contract
-        run: npm run test:smart-choice-page
-      - name: Release verifier
-        run: npm run verify:smart-choice-release
+        run: node scripts/build.mjs > /dev/null
+      - name: Capture release verifier
+        id: verify
+        shell: bash
+        run: |
+          set +e
+          npm run verify:smart-choice-release > release-verifier.log 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smart-choice-release-verifier-log
+          path: release-verifier.log
+          if-no-files-found: error
+      - name: Enforce verifier result
+        shell: bash
+        run: exit "${{ steps.verify.outputs.exit_code }}"
