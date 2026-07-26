@@ -65,7 +65,7 @@
 .menu-page-mark::before{
   border:0!important;
   border-radius:0!important;
-  background:url("src/brand/robys-mark-master-v1.svg?v=20260721-master-1") center/contain no-repeat!important;
+  background:url("src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4") center/contain no-repeat!important;
 }
 
 @media(max-width:680px){
