@@ -158,3 +158,7 @@ Tests cover the issue example `3 000 000 ₺ → 3 600 000 ₺`, boundary growth
 - Successful and failed result headings preserve the ID referenced by the results region’s `aria-labelledby`.
 - A `<noscript>` fallback exposes the manual target, gap, additional-orders and required-AOV formulas.
 - User-initiated calculations may move focus to the new result heading after validation and rendering.
+
+## 12. Scope isolation
+
+Generated cache-key changes outside the simulator are not part of #258. The final PR must keep the public homepage identical to its stacked base and limit its code, tests, assets and integrity updates to the owner simulator.
