@@ -16,7 +16,7 @@ The simulator must never:
 - claim causal impact without a future controlled experiment;
 - publish or send the plan without explicit owner action.
 
-The public Smart Choice flow does not link to this page. The owner tool is `noindex`, stores no personal data and sends no network requests.
+The public Smart Choice flow does not link to this page. The owner tool is `noindex`, stores no personal data and sends no network requests. Direct navigation grants access only to the local planning interface; it does not authorize catalog, price or experiment changes.
 
 ## 2. Input contract
 
