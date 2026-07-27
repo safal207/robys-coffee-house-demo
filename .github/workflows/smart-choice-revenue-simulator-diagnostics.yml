@@ -24,8 +24,22 @@ jobs:
       - run: npm ci --silent
       - name: Revenue arithmetic suite
         run: npm run test:smart-choice-revenue-simulator
-      - name: TypeScript
-        run: npm run typecheck
+      - name: Capture TypeScript diagnostics
+        shell: bash
+        run: |
+          set +e
+          npm run typecheck > /tmp/revenue-simulator-tsc.log 2>&1
+          echo $? > /tmp/revenue-simulator-tsc.code
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: revenue-simulator-tsc-log
+          path: |
+            /tmp/revenue-simulator-tsc.log
+            /tmp/revenue-simulator-tsc.code
+      - name: Enforce TypeScript result
+        shell: bash
+        run: exit "$(cat /tmp/revenue-simulator-tsc.code)"
       - name: Build existing site
         run: node scripts/build.mjs
       - name: Build simulator
