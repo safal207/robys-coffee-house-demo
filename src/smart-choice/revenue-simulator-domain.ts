@@ -509,7 +509,7 @@ export function simulateRevenueGrowth(input: RevenueSimulationInput): RevenueSim
     buildScenario(definition, normalizedInput, targetRevenueMinor, effectiveAverageOrderValueMinor, guardrails)
   );
 
-  const resultWithoutId = {
+  const resultWithoutId: Omit<RevenueSimulationResult, "simulationId"> = {
     schemaVersion: REVENUE_SIMULATION_SCHEMA_VERSION,
     modelVersion: REVENUE_MODEL_VERSION,
     claimLevel: "scenario-only" as const,

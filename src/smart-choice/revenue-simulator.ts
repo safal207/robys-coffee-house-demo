@@ -10,15 +10,17 @@ import {
   type SimulationLocale
 } from "./revenue-simulator-domain.js";
 
-const form = document.querySelector<HTMLFormElement>("#revenue-simulator-form");
-const resultsRoot = document.querySelector<HTMLElement>("#revenue-simulator-results");
-const statusRoot = document.querySelector<HTMLElement>("#revenue-simulator-status");
-const exportJsonButton = document.querySelector<HTMLButtonElement>("#export-simulation-json");
-const exportMarkdownButton = document.querySelector<HTMLButtonElement>("#export-simulation-markdown");
-
-if (!form || !resultsRoot || !statusRoot || !exportJsonButton || !exportMarkdownButton) {
-  throw new Error("[SMART-CHOICE-REVENUE-SIMULATOR] Required owner UI elements are missing.");
+function requireElement<T extends Element>(selector: string): T {
+  const node = document.querySelector<T>(selector);
+  if (!node) throw new Error(`[SMART-CHOICE-REVENUE-SIMULATOR] Missing element: ${selector}`);
+  return node;
 }
+
+const form = requireElement<HTMLFormElement>("#revenue-simulator-form");
+const resultsRoot = requireElement<HTMLElement>("#revenue-simulator-results");
+const statusRoot = requireElement<HTMLElement>("#revenue-simulator-status");
+const exportJsonButton = requireElement<HTMLButtonElement>("#export-simulation-json");
+const exportMarkdownButton = requireElement<HTMLButtonElement>("#export-simulation-markdown");
 
 let currentResult: RevenueSimulationResult | null = null;
 
