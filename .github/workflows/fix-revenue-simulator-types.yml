@@ -21,29 +21,34 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           domain_path = Path('src/smart-choice/revenue-simulator-domain.ts')
           domain = domain_path.read_text()
-          old_domain = '  const resultWithoutId = {\n'
-          new_domain = '  const resultWithoutId: Omit<RevenueSimulationResult, "simulationId"> = {\n'
-          if old_domain not in domain:
-              raise SystemExit('Expected resultWithoutId declaration not found')
-          domain_path.write_text(domain.replace(old_domain, new_domain, 1))
+          updated_domain, domain_count = re.subn(
+              r'(^\s*)const resultWithoutId = \{',
+              r'\1const resultWithoutId: Omit<RevenueSimulationResult, "simulationId"> = {',
+              domain,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          if domain_count != 1:
+              raise SystemExit(f'Expected one resultWithoutId declaration, found {domain_count}')
+          domain_path.write_text(updated_domain)
 
           ui_path = Path('src/smart-choice/revenue-simulator.ts')
           ui = ui_path.read_text()
-          old_ui = '''const form = document.querySelector<HTMLFormElement>("#revenue-simulator-form");
-          const resultsRoot = document.querySelector<HTMLElement>("#revenue-simulator-results");
-          const statusRoot = document.querySelector<HTMLElement>("#revenue-simulator-status");
-          const exportJsonButton = document.querySelector<HTMLButtonElement>("#export-simulation-json");
-          const exportMarkdownButton = document.querySelector<HTMLButtonElement>("#export-simulation-markdown");
-
-          if (!form || !resultsRoot || !statusRoot || !exportJsonButton || !exportMarkdownButton) {
-            throw new Error("[SMART-CHOICE-REVENUE-SIMULATOR] Required owner UI elements are missing.");
-          }
-          '''
-          old_ui = '\n'.join(line.strip() if index == 0 else line[10:] for index, line in enumerate(old_ui.splitlines())) + '\n'
-          new_ui = '''function requireElement<T extends Element>(selector: string): T {
+          pattern = re.compile(
+              r'const form = document\.querySelector<HTMLFormElement>\("#revenue-simulator-form"\);\n'
+              r'const resultsRoot = document\.querySelector<HTMLElement>\("#revenue-simulator-results"\);\n'
+              r'const statusRoot = document\.querySelector<HTMLElement>\("#revenue-simulator-status"\);\n'
+              r'const exportJsonButton = document\.querySelector<HTMLButtonElement>\("#export-simulation-json"\);\n'
+              r'const exportMarkdownButton = document\.querySelector<HTMLButtonElement>\("#export-simulation-markdown"\);\n\n'
+              r'if \(!form \|\| !resultsRoot \|\| !statusRoot \|\| !exportJsonButton \|\| !exportMarkdownButton\) \{\n'
+              r'\s+throw new Error\("\[SMART-CHOICE-REVENUE-SIMULATOR\] Required owner UI elements are missing\."\);\n'
+              r'\}\n'
+          )
+          replacement = '''function requireElement<T extends Element>(selector: string): T {
             const node = document.querySelector<T>(selector);
             if (!node) throw new Error(`[SMART-CHOICE-REVENUE-SIMULATOR] Missing element: ${selector}`);
             return node;
@@ -55,10 +60,11 @@ jobs:
           const exportJsonButton = requireElement<HTMLButtonElement>("#export-simulation-json");
           const exportMarkdownButton = requireElement<HTMLButtonElement>("#export-simulation-markdown");
           '''
-          new_ui = '\n'.join(line.strip() if index == 0 else line[10:] for index, line in enumerate(new_ui.splitlines())) + '\n'
-          if old_ui not in ui:
-              raise SystemExit('Expected nullable DOM block not found')
-          ui_path.write_text(ui.replace(old_ui, new_ui, 1))
+          replacement = '\n'.join(line[10:] if line.startswith('          ') else line for line in replacement.splitlines()) + '\n'
+          updated_ui, ui_count = pattern.subn(replacement, ui, count=1)
+          if ui_count != 1:
+              raise SystemExit(f'Expected one nullable DOM block, found {ui_count}')
+          ui_path.write_text(updated_ui)
 
           Path('.github/workflows/fix-revenue-simulator-types.yml').unlink()
       - name: Commit exact fixes
