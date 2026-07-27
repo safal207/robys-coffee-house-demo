@@ -161,4 +161,4 @@ Tests cover the issue example `3 000 000 ₺ → 3 600 000 ₺`, boundary growth
 
 ## 12. Scope isolation
 
-Generated cache-key changes outside the simulator are not part of #258. The final PR must keep the public homepage identical to its stacked base and limit its code, tests, assets and integrity updates to the owner simulator.
+Semantic homepage content and behavior are outside #258 and must remain unchanged. A revision-only cache-key update is permitted when it is the exact output required by the repository-wide build and stale-generated-files contract; such a change must be paired with the matching integrity manifest and must not alter public copy, layout or behavior.
