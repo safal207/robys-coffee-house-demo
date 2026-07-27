@@ -93,7 +93,7 @@ projected gross profit = projected revenue − projected orders × average COGS 
 projected gross margin = projected gross profit / projected revenue
 ```
 
-A scenario breaching the configured minimum gross margin is not eligible for execution.
+A scenario breaching the configured minimum gross margin is not eligible for execution. When COGS is available, gross profit, incremental gross profit, margin and guardrail status must be visible in both the browser result and the Markdown export.
 
 ## 7. Commerce guardrails
 
@@ -138,7 +138,7 @@ Model version:
 smart-choice-revenue-model.v1
 ```
 
-Same normalized input produces the same simulation ID and identical JSON. Markdown contains the target, gap, formulas, scenarios, hypotheses, missing data and guardrails.
+Same normalized input produces the same simulation ID and identical JSON. Markdown contains the target, gap, formulas, scenarios, financials when available, hypotheses, missing data and guardrails.
 
 ## 10. Required verification
 
@@ -150,3 +150,11 @@ npm run check
 ```
 
 Tests cover the issue example `3 000 000 ₺ → 3 600 000 ₺`, boundary growth values, reconciliation, revenue-only behavior, gross-profit mode, zero-discount policy, mechanism eligibility and deterministic exports.
+
+## 11. Accepted accessibility and fallback contracts
+
+- The v0.1 browser UI exposes only the locale it actually translates: Russian (`ru-RU`).
+- Initial default calculation must not move keyboard or screen-reader focus away from the introduction and form.
+- Successful and failed result headings preserve the ID referenced by the results region’s `aria-labelledby`.
+- A `<noscript>` fallback exposes the manual target, gap, additional-orders and required-AOV formulas.
+- User-initiated calculations may move focus to the new result heading after validation and rendering.
