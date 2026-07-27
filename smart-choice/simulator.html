@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#241c1b" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="simulator.css" />
+  <title>Smart Choice — симулятор выручки</title>
+  <script type="module" src="simulator.js"></script>
+</head>
+<body>
+  <a class="sim-skip-link" href="#simulator-main">К расчёту</a>
+
+  <header class="sim-header">
+    <a class="sim-brand" href="../index.html" aria-label="Roby's Coffee House — главная">ROBY'S</a>
+    <div class="sim-header-copy">
+      <strong>Owner planning tool</strong>
+      <span>Не клиентский экран и не автоматическая стратегия</span>
+    </div>
+    <a class="sim-back-link" href="./">Smart Choice</a>
+  </header>
+
+  <main id="simulator-main" class="sim-main">
+    <section class="sim-intro" aria-labelledby="simulator-title">
+      <p class="sim-eyebrow">Revenue scenario simulator</p>
+      <h1 id="simulator-title">Разложить цель роста на проверяемые рычаги</h1>
+      <p>
+        Введите текущую выручку, заказы и средний чек. Инструмент покажет арифметический разрыв,
+        conservative / expected / stretch-сценарии и гипотезы для будущих экспериментов.
+      </p>
+      <div class="sim-boundary" role="note">
+        <strong>Граница:</strong> результат не является прогнозом, не обещает достижение цели и не меняет цены,
+        доступность, комбо или клиентский Smart Choice.
+      </div>
+    </section>
+
+    <section class="sim-workspace" aria-label="Параметры и результат">
+      <form id="revenue-simulator-form" class="sim-form">
+        <h2>Исходные данные</h2>
+
+        <div class="sim-field-grid">
+          <label class="sim-field">
+            <span>Валюта</span>
+            <select name="currency">
+              <option value="TRY" selected>TRY — турецкая лира</option>
+              <option value="RUB">RUB — российский рубль</option>
+              <option value="EUR">EUR — евро</option>
+              <option value="USD">USD — доллар США</option>
+            </select>
+          </label>
+
+          <label class="sim-field">
+            <span>Формат чисел</span>
+            <select name="locale">
+              <option value="ru-RU" selected>Русский</option>
+              <option value="tr-TR">Türkçe</option>
+              <option value="en-US">English</option>
+            </select>
+          </label>
+
+          <label class="sim-field sim-field--wide">
+            <span>Текущая месячная выручка</span>
+            <input name="currentRevenue" inputmode="decimal" value="3000000" required aria-describedby="revenue-help" />
+            <small id="revenue-help">В основной валюте, без знака валюты.</small>
+          </label>
+
+          <label class="sim-field">
+            <span>Заказов в месяц</span>
+            <input name="monthlyOrders" type="number" min="1" step="1" value="10000" required />
+          </label>
+
+          <label class="sim-field">
+            <span>Средний чек</span>
+            <input name="averageOrderValue" inputmode="decimal" value="300" required />
+          </label>
+
+          <label class="sim-field">
+            <span>Целевой рост, %</span>
+            <input name="targetGrowth" inputmode="decimal" value="20" required />
+          </label>
+
+          <label class="sim-field">
+            <span>Repeat rate, % — опционально</span>
+            <input name="repeatRate" inputmode="decimal" value="20" />
+          </label>
+
+          <label class="sim-field sim-field--wide">
+            <span>Средняя себестоимость заказа — опционально</span>
+            <input name="averageCogs" inputmode="decimal" placeholder="Без этого расчёт будет revenue-only" />
+          </label>
+        </div>
+
+        <div class="sim-form-actions">
+          <button class="sim-primary" type="submit">Рассчитать сценарии</button>
+          <button id="export-simulation-json" type="button" disabled>Скачать JSON</button>
+          <button id="export-simulation-markdown" type="button" disabled>Скачать Markdown</button>
+        </div>
+
+        <p class="sim-form-note">
+          Подтверждённые механики подставляются из текущего Smart Choice Catalog. Неподтверждённые upgrades и bumps
+          не считаются доступными гипотезами.
+        </p>
+      </form>
+
+      <section id="revenue-simulator-results" class="sim-results" aria-labelledby="results-placeholder-title">
+        <h2 id="results-placeholder-title">Результат появится здесь</h2>
+        <p>Расчёт выполняется локально в браузере и ничего не отправляет в сеть.</p>
+      </section>
+    </section>
+  </main>
+
+  <div id="revenue-simulator-status" class="sim-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <footer class="sim-footer">
+    <p>Schema: robys.smart-choice-revenue-simulation.v1 · Owner approval required before any pilot.</p>
+  </footer>
+</body>
+</html>
