@@ -89,6 +89,10 @@ try {
   assert.equal(withCogs.revenueOnlyWarning, null);
   assert.ok(withCogs.scenarios.every((scenario) => scenario.financials?.mode === "gross-profit"));
   assert.ok(withCogs.scenarios.every((scenario) => Number.isInteger(scenario.financials.projectedGrossProfitMinor)));
+  const cogsMarkdown = exportRevenueSimulationMarkdown(withCogs);
+  assert.match(cogsMarkdown, /Gross profit \/ margin/);
+  assert.match(cogsMarkdown, /pass|breach/);
+  assert.doesNotMatch(cogsMarkdown, /Unavailable — COGS missing/);
 
   const mismatchInput = { ...baseInput, averageOrderValueMinor: 20_000 };
   const mismatchDiagnostics = validateRevenueSimulationInput(mismatchInput);

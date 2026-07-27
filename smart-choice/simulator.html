@@ -8,9 +8,9 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
   <link rel="icon" href="../icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="simulator.css?v=0d9c8eea6e6f" />
+  <link rel="stylesheet" href="simulator.css?v=b39978b525a7" />
   <title>Smart Choice — симулятор выручки</title>
-  <script type="module" src="simulator.js?v=422fe82e90a2"></script>
+  <script type="module" src="simulator.js?v=5c07c4191e35"></script>
 </head>
 <body>
   <a class="sim-skip-link" href="#simulator-main">К расчёту</a>
@@ -52,15 +52,12 @@
               <option value="USD">USD — доллар США</option>
             </select>
           </label>
-
-          <label class="sim-field">
-            <span>Формат чисел</span>
-            <select name="locale">
-              <option value="ru-RU" selected>Русский</option>
-              <option value="tr-TR">Türkçe</option>
-              <option value="en-US">English</option>
-            </select>
-          </label>
+          <div class="sim-field">
+            <span>Язык интерфейса и чисел</span>
+            <strong class="sim-readonly-value">Русский (ru-RU)</strong>
+            <input type="hidden" name="locale" value="ru-RU" />
+            <small>Этот owner-интерфейс локализован только на русском. Другие форматы доступны через versioned API.</small>
+          </div>
 
           <label class="sim-field sim-field--wide">
             <span>Текущая месячная выручка</span>
@@ -111,6 +108,19 @@
         <p>Расчёт выполняется локально в браузере и ничего не отправляет в сеть.</p>
       </section>
     </section>
+    <noscript>
+      <section class="sim-results sim-noscript" aria-labelledby="simulator-noscript-title">
+        <h2 id="simulator-noscript-title">Ручной расчёт без JavaScript</h2>
+        <p>Автоматический симулятор требует JavaScript. Базовый сценарий можно проверить вручную:</p>
+        <ol>
+          <li><code>целевая выручка = текущая выручка × (1 + рост / 100)</code></li>
+          <li><code>денежный разрыв = целевая выручка − текущая выручка</code></li>
+          <li><code>дополнительные заказы = округление вверх(разрыв / средний чек)</code></li>
+          <li><code>нужный средний чек = округление вверх(целевая выручка / текущие заказы)</code></li>
+        </ol>
+        <p>Не меняйте цены и не публикуйте стратегию без проверки себестоимости, маржи и подтверждения владельца.</p>
+      </section>
+    </noscript>
   </main>
 
   <div id="revenue-simulator-status" class="sim-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>

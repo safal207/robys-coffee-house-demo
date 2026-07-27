@@ -118,13 +118,14 @@ function metricCard(label: string, value: string, note?: string): HTMLElement {
   return card;
 }
 
-function renderResult(result: RevenueSimulationResult): void {
+function renderResult(result: RevenueSimulationResult, focusHeading = true): void {
   clear(resultsRoot);
   currentResult = result;
   exportJsonButton.disabled = false;
   exportMarkdownButton.disabled = false;
 
   const heading = element("h2", "sim-results-title", "Сценарий роста");
+  heading.id = "results-placeholder-title";
   heading.tabIndex = -1;
   resultsRoot.append(heading);
   resultsRoot.append(
@@ -189,6 +190,16 @@ function renderResult(result: RevenueSimulationResult): void {
     }
     card.append(list);
     card.append(element("code", "sim-formula", scenario.formula));
+    if (scenario.financials) {
+      const financials = element("div", "sim-financials");
+      financials.append(
+        element("p", "", `Валовая прибыль: ${money(result, scenario.financials.projectedGrossProfitMinor)}`),
+        element("p", "", `Прирост валовой прибыли: ${money(result, scenario.financials.incrementalGrossProfitMinor)}`),
+        element("p", "", `Валовая маржа: ${percent(scenario.financials.projectedGrossMarginBps, result.locale)}`),
+        element("p", `sim-margin-status sim-margin-status--${scenario.financials.marginGuardrail}`, `Margin guardrail: ${scenario.financials.marginGuardrail}`)
+      );
+      card.append(financials);
+    }
     if (scenario.remainingToRequestedTargetMinor > 0) {
       card.append(element("p", "sim-scenario-note", `Остаток до заявленной цели: ${money(result, scenario.remainingToRequestedTargetMinor)}`));
     }
@@ -219,35 +230,36 @@ function renderResult(result: RevenueSimulationResult): void {
   const seal = element("p", "sim-seal", `Simulation ID: ${result.simulationId} · schema ${result.schemaVersion}`);
   resultsRoot.append(seal);
   statusRoot.textContent = "Сценарий рассчитан. Проверьте исходные данные и guardrails перед любым пилотом.";
-  heading.focus();
+  if (focusHeading) heading.focus();
 }
 
-function renderError(message: string): void {
+function renderError(message: string, focusHeading = true): void {
   clear(resultsRoot);
   currentResult = null;
   exportJsonButton.disabled = true;
   exportMarkdownButton.disabled = true;
   const heading = element("h2", "sim-results-title", "Расчёт остановлен");
+  heading.id = "results-placeholder-title";
   heading.tabIndex = -1;
   resultsRoot.append(heading);
   resultsRoot.append(element("p", "sim-error", message));
   resultsRoot.append(element("p", "sim-disclaimer", "Цены, каталог и клиентский Smart Choice не изменены."));
   statusRoot.textContent = `Ошибка проверки данных: ${message}`;
-  heading.focus();
+  if (focusHeading) heading.focus();
 }
 
-function runSimulation(): void {
+function runSimulation(focusHeading = true): void {
   try {
     const input = inputFromForm();
     const diagnostics = validateRevenueSimulationInput(input);
     const errors = diagnostics.filter((entry) => entry.severity === "error");
     if (errors.length > 0) {
-      renderError(errors.map((entry) => `${entry.path}: ${entry.message}`).join(" "));
+      renderError(errors.map((entry) => `${entry.path}: ${entry.message}`).join(" "), focusHeading);
       return;
     }
-    renderResult(simulateRevenueGrowth(input));
+    renderResult(simulateRevenueGrowth(input), focusHeading);
   } catch (error) {
-    renderError(error instanceof Error ? error.message : "Неизвестная ошибка расчёта.");
+    renderError(error instanceof Error ? error.message : "Неизвестная ошибка расчёта.", focusHeading);
   }
 }
 
@@ -263,7 +275,7 @@ function download(name: string, type: string, content: string): void {
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  runSimulation();
+  runSimulation(true);
 });
 
 exportJsonButton.addEventListener("click", () => {
@@ -294,4 +306,4 @@ window.RobysRevenueSimulator = {
   mechanisms: availableMechanisms()
 };
 
-runSimulation();
+runSimulation(false);

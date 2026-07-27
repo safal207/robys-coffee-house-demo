@@ -541,3 +541,31 @@ a {
     animation-iteration-count: 1 !important;
   }
 }
+
+
+.sim-readonly-value {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--sim-cream);
+  border: 1px solid var(--sim-line);
+  border-radius: 12px;
+  font-size: 0.82rem;
+}
+
+.sim-financials {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--sim-cream);
+  border-radius: 12px;
+  font-size: 0.7rem;
+}
+
+.sim-financials p { margin: 0; }
+.sim-margin-status--breach { color: #7d1117; font-weight: 900; }
+.sim-margin-status--pass { color: #245c35; font-weight: 900; }
+.sim-noscript { margin-top: 20px; }
+.sim-noscript code { overflow-wrap: anywhere; }

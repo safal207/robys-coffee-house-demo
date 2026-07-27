@@ -580,7 +580,10 @@ export function exportRevenueSimulationMarkdown(result: RevenueSimulationResult)
     const requirements = scenario.requirements
       .map((entry) => `${entry.lever} ${percent(entry.requiredLiftBps)}`)
       .join("; ");
-    return `| ${scenario.label} | ${percent(scenario.planningGrowthBps)} | ${money(scenario.projectedRevenueMinor)} | ${money(scenario.uncertaintyLowMinor)}–${money(scenario.uncertaintyHighMinor)} | ${requirements} |`;
+    const financialSummary = scenario.financials
+      ? `${money(scenario.financials.projectedGrossProfitMinor)}; Δ ${money(scenario.financials.incrementalGrossProfitMinor)}; ${percent(scenario.financials.projectedGrossMarginBps)}; ${scenario.financials.marginGuardrail}`
+      : "Unavailable — COGS missing";
+    return `| ${scenario.label} | ${percent(scenario.planningGrowthBps)} | ${money(scenario.projectedRevenueMinor)} | ${money(scenario.uncertaintyLowMinor)}–${money(scenario.uncertaintyHighMinor)} | ${requirements} | ${financialSummary} |`;
   });
   const hypothesisRows = result.hypotheses.map((entry) =>
     `| ${entry.title} | ${entry.status} | ${entry.primaryMetric} | ${entry.futureExperimentId} |`
@@ -602,8 +605,8 @@ export function exportRevenueSimulationMarkdown(result: RevenueSimulationResult)
     "",
     "## Scenarios",
     "",
-    "| Scenario | Planned growth | Projected revenue | Explicit range | Required lever lifts |",
-    "|---|---:|---:|---:|---|",
+    "| Scenario | Planned growth | Projected revenue | Explicit range | Required lever lifts | Gross profit / margin |",
+    "|---|---:|---:|---:|---|---|",
     ...scenarioRows,
     "",
     "## Hypotheses",

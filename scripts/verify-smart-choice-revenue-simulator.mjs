@@ -24,6 +24,9 @@ assert.match(html, /href="simulator\.css\?v=[a-f0-9]{12}"/, "simulator CSS revis
 assert.match(html, /id="revenue-simulator-form"/, "owner input form is missing");
 assert.match(html, /id="revenue-simulator-status"[^>]*role="status"[^>]*aria-live="polite"/, "accessible live status is missing");
 assert.match(html, /Owner approval required/, "owner-approval boundary is missing");
+assert.match(html, /name="locale" value="ru-RU"/, "owner UI must use its declared Russian locale");
+assert.ok(!html.includes('option value="tr-TR"') && !html.includes('option value="en-US"'), "untranslated locale options must not be exposed");
+assert.match(html, /<noscript>[\s\S]*целевая выручка = текущая выручка/, "manual no-JavaScript formula fallback is required");
 assert.ok(!/<script(?![^>]*src=)[^>]*>\s*[^<]/i.test(html), "inline executable scripts are forbidden");
 assert.ok(!/<style\b/i.test(html), "inline styles are forbidden");
 assert.ok(!/style\s*=/i.test(html), "inline style attributes are forbidden");
@@ -37,6 +40,9 @@ assert.ok(source.includes("Blob"), "local export must use a browser Blob");
 assert.ok(!source.includes("fetch("), "simulator UI must not send network requests");
 assert.ok(!source.includes("innerHTML"), "simulator UI must not write raw HTML");
 assert.ok(!source.includes("Math.random"), "simulator must remain deterministic");
+assert.ok(source.includes('heading.id = "results-placeholder-title"'), "results region label must remain valid after rendering");
+assert.ok(source.includes("runSimulation(false)"), "initial calculation must not steal focus");
+assert.ok(source.includes("scenario.financials"), "computed gross-profit and margin fields must be rendered");
 
 assert.ok(domain.includes('claimLevel: "scenario-only"'), "scenario-only claim boundary is missing");
 assert.ok(domain.includes("automaticPriceChangesAllowed: false"), "automatic price changes must be forbidden");
@@ -45,6 +51,7 @@ assert.ok(domain.includes("proposedDiscountBps: 0"), "simulator must not propose
 assert.ok(domain.includes("average-cogs-per-order"), "revenue-only missing-data warning is missing");
 assert.ok(domain.includes("futureExperimentId"), "hypotheses must link to future experiments");
 assert.ok(domain.includes("revenue × conversion"), "explicit revenue formula is missing");
+assert.ok(domain.includes("Gross profit / margin"), "human-readable financial export is missing");
 
 assert.ok(css.includes("min-width: 320px"), "320px mobile floor is missing");
 assert.ok(css.includes("overflow-x: hidden"), "horizontal overflow guard is missing");
