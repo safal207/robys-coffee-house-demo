@@ -23,7 +23,22 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: python scripts/patch-revenue-review-ui.py
+      - name: Capture UI patch result
+        shell: bash
+        run: |
+          set +e
+          python scripts/patch-revenue-review-ui.py > /tmp/patch-ui.log 2>&1
+          echo $? > /tmp/patch-ui.code
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: revenue-review-patch-log
+          path: |
+            /tmp/patch-ui.log
+            /tmp/patch-ui.code
+      - name: Enforce UI patch result
+        shell: bash
+        run: exit "$(cat /tmp/patch-ui.code)"
       - run: python scripts/patch-revenue-review-contracts.py
       - run: npm ci --silent
       - run: npm run build
