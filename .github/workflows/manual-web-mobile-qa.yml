@@ -21,31 +21,49 @@ concurrency:
   group: manual-web-mobile-qa-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  PLAYWRIGHT_VERSION: "1.55.0"
+  PLAYWRIGHT_IMAGE: "mcr.microsoft.com/playwright:v1.55.0-noble"
+
 jobs:
   web-and-apk-contract:
-    name: Web desktop, mobile web and APK contract
+    name: Docker · Web desktop, mobile web and APK contract
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - name: Checkout exact pull-request head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Install project dependencies
-        run: npm ci
+      - name: Pull pinned Playwright Docker image
+        run: docker pull "$PLAYWRIGHT_IMAGE"
 
-      - name: Install pinned Playwright and Chromium
+      - name: Run guided web manual journeys and APK contract in Docker
         run: |
-          npm install --no-save --ignore-scripts playwright@1.55.0
-          npx playwright install --with-deps chromium
+          docker run --rm --init --ipc=host \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            --env CI=true \
+            "$PLAYWRIGHT_IMAGE" \
+            bash -lc 'set -euo pipefail
+              apt-get update -qq
+              apt-get install -y --no-install-recommends unzip >/dev/null
+              npm ci
+              npm install --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
+              ROBYS_QA_OUTPUT=qa-artifacts/desktop node scripts/run-web-mobile-manual-qa.mjs desktop
+              ROBYS_QA_OUTPUT=qa-artifacts/mobile node scripts/run-web-mobile-manual-qa.mjs mobile
+              ROBYS_QA_OUTPUT=qa-artifacts/apk node scripts/run-android-apk-contract-qa.mjs'
 
-      - name: WEB manual journey — desktop
-        run: node scripts/run-web-mobile-manual-qa.mjs desktop
-
-      - name: MOB-WEB manual journey — responsive Android viewport
-        run: node scripts/run-web-mobile-manual-qa.mjs mobile
-
-      - name: APK-01 signed package and WebView contract
-        run: node scripts/run-android-apk-contract-qa.mjs
+      - name: Upload Docker browser and APK evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: docker-web-mobile-apk-contract
+          path: |
+            qa-artifacts/desktop
+            qa-artifacts/mobile
+            qa-artifacts/apk
+          if-no-files-found: error
+          retention-days: 14
 
   android-emulator:
     name: Android APK install and Smart Choice journey
@@ -90,6 +108,15 @@ jobs:
 
       - name: APK-02–APK-06 emulator manual journey
         run: python3 scripts/run-android-emulator-manual-qa.py --apk qa-artifacts/android/robys-coffee-house-v1.1.apk --out qa-artifacts/android
+
+      - name: Upload Android emulator evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-emulator-manual-qa
+          path: qa-artifacts/android
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Stop emulator
         if: always()
