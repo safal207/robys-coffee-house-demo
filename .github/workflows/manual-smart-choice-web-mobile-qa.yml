@@ -1,0 +1,93 @@
+name: Manual Smart Choice Web + Mobile Web QA
+
+on:
+  push:
+    branches:
+      - qa/manual-smart-choice-web-mobile
+    paths:
+      - "qa/manual/**"
+      - ".github/workflows/manual-smart-choice-web-mobile-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-smart-choice-web-mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-qa:
+    name: Desktop and Pixel 7 manual-style scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Build exact static release
+        run: npm run build
+
+      - name: Install Chromium test browser
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.54.1
+          npx playwright install --with-deps chromium
+
+      - name: Start exact-head static server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/robys-manual-qa-server.log 2>&1 &
+          echo $! > /tmp/robys-manual-qa-server.pid
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/robys-manual-qa-server.log
+          exit 1
+
+      - name: Execute exact-head desktop and mobile-web scenarios
+        id: local_qa
+        continue-on-error: true
+        run: node qa/manual/run-smart-choice-browser-qa.mjs exact-head http://127.0.0.1:4173/
+
+      - name: Execute published GitHub Pages desktop and mobile-web scenarios
+        id: live_qa
+        continue-on-error: true
+        run: node qa/manual/run-smart-choice-browser-qa.mjs published https://safal207.github.io/robys-coffee-house-demo/
+
+      - name: Preserve reports, screenshots and server log
+        if: always()
+        run: |
+          mkdir -p qa-results/runtime
+          cp /tmp/robys-manual-qa-server.log qa-results/runtime/local-server.log || true
+
+      - name: Upload manual QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-choice-manual-web-mobile-qa-${{ github.sha }}
+          path: qa-results/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Enforce manual QA result
+        if: always()
+        run: |
+          echo "Exact-head outcome: ${{ steps.local_qa.outcome }}"
+          echo "Published outcome:  ${{ steps.live_qa.outcome }}"
+          if [[ "${{ steps.local_qa.outcome }}" != "success" || "${{ steps.live_qa.outcome }}" != "success" ]]; then
+            exit 1
+          fi
