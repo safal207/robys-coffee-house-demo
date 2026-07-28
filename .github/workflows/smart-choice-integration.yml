@@ -114,7 +114,17 @@ jobs:
           run_checked full-check npm run check
           echo "All integration checks passed."
 
+      - name: Upload integration diagnostic
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-choice-integration-diagnostic-${{ github.run_id }}
+          path: /tmp/smart-choice-integration.log
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Seal integration commit
+        if: success()
         shell: bash
         run: |
           set -euo pipefail
