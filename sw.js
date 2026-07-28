@@ -99,3 +99,57 @@ async function cachedResponse(request) {
   }
   return cache.match(request, { ignoreSearch: true });
 }
+
+async function runtimeAssetResponse(request) {
+  const cached = await cachedResponse(request);
+  if (cached) return cached;
+
+  const network = await fetch(request);
+  if (network.ok) {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.put(request, network.clone()).catch(() => {});
+  }
+  return network;
+}
+
+async function cachedPage(name) {
+  return (await cachedResponse(new Request(new URL(name, self.registration.scope)))) || Response.error();
+}
+
+async function navigationResponse(request) {
+  const url = new URL(request.url);
+  const isMenu = url.pathname.endsWith("/menu.html");
+  const isDiscover = url.pathname.endsWith("/discover.html");
+  const isHome = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+
+  try {
+    const network = await fetch(request);
+    if (network.ok) {
+      if (isMenu || isDiscover || isHome) {
+        const cache = await caches.open(CACHE_VERSION);
+        cache.put(request, network.clone()).catch(() => {});
+      }
+      return network;
+    }
+  } catch {
+    // Fall through to a deterministic cached page.
+  }
+
+  if (isMenu) return cachedPage("menu.html");
+  if (isDiscover) return cachedPage("discover.html");
+  if (isHome) return cachedPage("index.html");
+  return cachedPage("404.html");
+}
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(navigationResponse(event.request));
+    return;
+  }
+
+  event.respondWith(runtimeAssetResponse(event.request));
+});
