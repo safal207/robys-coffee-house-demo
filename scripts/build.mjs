@@ -13,6 +13,72 @@ await build({
   legalComments: "none"
 });
 
+await build({
+  entryPoints: ["src/smart-choice/page.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/app.js",
+  legalComments: "none"
+});
+
+await build({
+  entryPoints: ["src/smart-choice/cart.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/cart.js",
+  legalComments: "none"
+});
+
+await build({
+  entryPoints: ["src/smart-choice/experiments.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/experiments.js",
+  legalComments: "none"
+});
+
+await build({
+  entryPoints: ["src/smart-choice/analytics.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/analytics.js",
+  legalComments: "none"
+});
+
+await build({
+  entryPoints: ["src/smart-choice/decision-trace.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/decision-trace.js",
+  legalComments: "none"
+});
+
+await build({
+  entryPoints: ["src/smart-choice/release-qa.ts"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "smart-choice/release-qa.js",
+  legalComments: "none"
+});
+
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
   const bundle = ts.transpileModule(source, {
@@ -105,6 +171,17 @@ const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
+const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
+const smartChoiceCartRevision = revisionFor("smart-choice/cart.js");
+const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments.js");
+const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics.js");
+const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace.js");
+const smartChoiceReleaseQaRevision = revisionFor("smart-choice/release-qa.js");
+const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
+const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
+const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-trace.css");
+const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
+
 let html = readFileSync("index.html", "utf8");
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -117,6 +194,19 @@ discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", disc
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
+let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "release-qa.js", smartChoiceReleaseQaRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart.js", smartChoiceCartRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments.js", smartChoiceExperimentsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics.js", smartChoiceAnalyticsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace.js", smartChoiceDecisionTraceRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smartChoiceReleaseQaCssRevision);
+writeFileSync("smart-choice/index.html", smartChoiceHtml);
+
 let serviceWorker = readFileSync("sw.js", "utf8");
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
@@ -126,4 +216,13 @@ serviceWorker = synchronizeServiceWorker(
 );
 writeFileSync("sw.js", serviceWorker);
 
-console.log(`Built app.js (${appRevision}), featured-gallery.js (${galleryRevision}), social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), discover-rotation.js, discover-rotation-v2.js and discover-rotation-v3.js (${discoverRotationRevision}), plus discover-rotation.css (${discoverRotationCssRevision}) with exact synchronized cache keys.`);
+console.log(
+  `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
+  `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice experiments.js (${smartChoiceExperimentsRevision}), ` +
+  `Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), ` +
+  `Smart Choice release-qa.js (${smartChoiceReleaseQaRevision}), featured-gallery.js (${galleryRevision}), ` +
+  `social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), ` +
+  `discover-rotation-v3.js (${discoverRotationRevision}), Smart Choice style.css (${smartChoiceCssRevision}), ` +
+  `Smart Choice cart.css (${smartChoiceCartCssRevision}), Smart Choice decision-trace.css (${smartChoiceDecisionTraceCssRevision}), ` +
+  `and Smart Choice release-qa.css (${smartChoiceReleaseQaCssRevision}) with synchronized cache keys.`
+);

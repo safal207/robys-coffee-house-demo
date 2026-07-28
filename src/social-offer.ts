@@ -47,6 +47,12 @@ const TASTE_JOURNEY_LINK: LocalizedCopy = {
   ru: "Познакомиться со вкусом дня"
 };
 
+const SMART_CHOICE_LINK: LocalizedCopy = {
+  tr: "Seçmeme yardım et",
+  en: "Help me choose",
+  ru: "Помочь выбрать"
+};
+
 function localizedElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   className: string,
@@ -60,6 +66,16 @@ function localizedElement<K extends keyof HTMLElementTagNameMap>(
   element.dataset.ru = copy.ru;
   element.textContent = copy.tr;
   return element;
+}
+
+function storedLanguage(): OfferLanguage {
+  try {
+    const language = localStorage.getItem("robys-language");
+    if (language === "en" || language === "ru") return language;
+  } catch {
+    // Turkish remains the safe fallback.
+  }
+  return "tr";
 }
 
 function renderSocialOffer() {
@@ -137,12 +153,7 @@ function renderTasteJourneyLink() {
   link.href = "discover.html";
 
   const label = localizedElement("span", "taste-journey-link-text", TASTE_JOURNEY_LINK);
-  try {
-    const language = localStorage.getItem("robys-language");
-    if (language === "en" || language === "ru") label.textContent = TASTE_JOURNEY_LINK[language];
-  } catch {
-    // The Turkish label remains a safe fallback when storage is unavailable.
-  }
+  label.textContent = TASTE_JOURNEY_LINK[storedLanguage()];
 
   const arrow = document.createElement("span");
   arrow.setAttribute("aria-hidden", "true");
@@ -152,7 +163,27 @@ function renderTasteJourneyLink() {
   menuIntro.append(wrapper);
 }
 
+function renderSmartChoiceEntry() {
+  const heroActions = document.querySelector<HTMLElement>(".hero-actions");
+  if (!heroActions || heroActions.querySelector("[data-smart-choice-entry]")) return;
+
+  const existingPrimary = heroActions.querySelector<HTMLElement>(".button-primary");
+  existingPrimary?.classList.replace("button-primary", "button-ghost");
+
+  const link = document.createElement("a");
+  link.className = "button button-primary";
+  link.href = "smart-choice/";
+  link.dataset.smartChoiceEntry = "";
+  link.dataset.analyticsAction = "smart_choice_start";
+
+  const label = localizedElement("span", "smart-choice-entry-label", SMART_CHOICE_LINK);
+  label.textContent = SMART_CHOICE_LINK[storedLanguage()];
+  link.append(label);
+  heroActions.prepend(link);
+}
+
 function renderHomepageEnhancements() {
+  renderSmartChoiceEntry();
   renderSocialOffer();
   renderTasteJourneyLink();
 }
