@@ -95,7 +95,13 @@ jobs:
 
           sed -i 's/const EXPECTED_UX_CSS_REVISION = "20260724-wordmark-v3";/const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";/' scripts/verify-regression-contracts.mjs
           grep -q 'const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";' scripts/verify-regression-contracts.mjs
-          git add scripts/verify-regression-contracts.mjs
+
+          sed -i 's/sw\.js?v=offline-20260710-runtime-1/sw.js?v=platform-install-20260727-1/' menu-pwa.js
+          sed -i 's/menu-pwa\.js?v=offline-20260710-runtime-1/menu-pwa.js?v=platform-install-20260727-1/' menu.html
+          grep -q 'const SERVICE_WORKER_URL = "sw.js?v=platform-install-20260727-1";' menu-pwa.js
+          grep -q 'src="menu-pwa.js?v=platform-install-20260727-1"' menu.html
+
+          git add scripts/verify-regression-contracts.mjs menu-pwa.js menu.html
 
       - name: Rebuild merged product and evidence
         shell: bash
