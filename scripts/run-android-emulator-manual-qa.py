@@ -56,6 +56,12 @@ def take_screenshot(output_dir: Path, name: str) -> Path:
     return local
 
 
+def save_logcat(output_dir: Path, name: str) -> Path:
+    local = output_dir / f"{name}.logcat.txt"
+    local.write_text(adb("logcat", "-d", "-v", "threadtime", check=False), encoding="utf-8")
+    return local
+
+
 def node_text(node: ET.Element) -> str:
     return " ".join(filter(None, [node.attrib.get("text", ""), node.attrib.get("content-desc", "")])).strip()
 
@@ -77,6 +83,13 @@ def bounds_center(node: ET.Element) -> tuple[int, int]:
     return ((x1 + x2) // 2, (y1 + y2) // 2)
 
 
+def tap_node(node: ET.Element) -> dict:
+    x, y = bounds_center(node)
+    adb("shell", "input", "tap", str(x), str(y))
+    time.sleep(1.5)
+    return {"matched": node_text(node), "x": x, "y": y}
+
+
 def wait_for_text(output_dir: Path, label: str, candidates: list[str], timeout: int = 45, scroll: bool = False) -> ET.Element:
     deadline = time.time() + timeout
     attempt = 0
@@ -96,11 +109,24 @@ def wait_for_text(output_dir: Path, label: str, candidates: list[str], timeout: 
 
 
 def tap_text(output_dir: Path, label: str, candidates: list[str], timeout: int = 30, scroll: bool = False) -> dict:
-    node = wait_for_text(output_dir, label, candidates, timeout=timeout, scroll=scroll)
-    x, y = bounds_center(node)
-    adb("shell", "input", "tap", str(x), str(y))
-    time.sleep(1.5)
-    return {"matched": node_text(node), "x": x, "y": y}
+    return tap_node(wait_for_text(output_dir, label, candidates, timeout=timeout, scroll=scroll))
+
+
+def prepare_network() -> dict:
+    adb("shell", "cmd", "connectivity", "airplane-mode", "disable", check=False)
+    adb("shell", "settings", "put", "global", "private_dns_mode", "off", check=False)
+    adb("shell", "svc", "wifi", "enable", check=False)
+    adb("shell", "svc", "data", "enable", check=False)
+    diagnostics = []
+    reachable = False
+    for attempt in range(1, 16):
+        ping = adb("shell", "ping", "-c", "1", "-W", "2", "safal207.github.io", check=False)
+        diagnostics.append(ping.strip()[-300:])
+        if "1 received" in ping or "1 packets received" in ping or "1 packets transmitted, 1 received" in ping:
+            reachable = True
+            break
+        time.sleep(2)
+    return {"reachableByPing": reachable, "attempts": len(diagnostics), "lastPing": diagnostics[-1] if diagnostics else ""}
 
 
 def main() -> None:
@@ -122,9 +148,10 @@ def main() -> None:
             print(f"✅ {case_id} {title}")
             return True
         except Exception as exc:
-            results.append({"id": case_id, "title": title, "status": "FAIL", "seconds": round(time.time() - started, 2), "error": str(exc)})
+            screenshot = take_screenshot(output_dir, f"failure-{case_id.lower()}")
+            logcat = save_logcat(output_dir, f"failure-{case_id.lower()}")
+            results.append({"id": case_id, "title": title, "status": "FAIL", "seconds": round(time.time() - started, 2), "error": str(exc), "evidence": {"screenshot": str(screenshot), "logcat": str(logcat)}})
             print(f"❌ {case_id} {title}: {exc}")
-            take_screenshot(output_dir, f"failure-{case_id.lower()}")
             return False
 
     def skip(case_id: str, title: str, reason: str) -> None:
@@ -132,32 +159,39 @@ def main() -> None:
         print(f"⏭️ {case_id} {title}: {reason}")
 
     def launch_home():
+        network = prepare_network()
+        adb("logcat", "-c", check=False)
         adb("shell", "am", "force-stop", PACKAGE)
         adb("shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1")
-        node = wait_for_text(
-            output_dir,
-            "home-smart-choice-entry",
-            ["Seçmeme yardım et", "Help me choose", "Помочь выбрать"],
-            timeout=60,
-            scroll=True,
-        )
-        screenshot = take_screenshot(output_dir, "android-home")
-        return {"matched": node_text(node), "screenshot": str(screenshot)}
+
+        deadline = time.time() + 120
+        attempt = 0
+        observed: list[str] = []
+        refreshes = 0
+        while time.time() < deadline:
+            attempt += 1
+            _, root = dump_ui(output_dir, f"home-smart-choice-entry-{attempt}")
+            observed = [node_text(node) for node in root.iter("node") if node_text(node)]
+            entry = find_node(root, ["Seçmeme yardım et", "Help me choose", "Помочь выбрать"])
+            if entry is not None:
+                screenshot = take_screenshot(output_dir, "android-home")
+                return {"matched": node_text(entry), "screenshot": str(screenshot), "network": network, "refreshes": refreshes}
+
+            offline = find_node(root, ["Нет подключения", "No connection", "Bağlantı yok", "Проверьте интернет", "Check your internet"])
+            refresh = find_node(root, ["Обновить", "Refresh", "Yenile"])
+            if offline is not None and refresh is not None:
+                tap_node(refresh)
+                refreshes += 1
+            else:
+                adb("shell", "input", "swipe", "200", "700", "200", "250", "350", check=False)
+            time.sleep(3)
+
+        sample = " | ".join(observed[:80])
+        raise RuntimeError(f"Landing page did not load after network recovery; network={network}; refreshes={refreshes}; observed: {sample}")
 
     def open_smart_choice():
-        tap = tap_text(
-            output_dir,
-            "tap-smart-choice-entry",
-            ["Seçmeme yardım et", "Help me choose", "Помочь выбрать"],
-            timeout=30,
-            scroll=True,
-        )
-        node = wait_for_text(
-            output_dir,
-            "smart-choice-welcome",
-            ["Bugünkü Roby's anınızı birlikte seçelim", "Let’s find your Roby's moment today", "Давайте найдём ваш момент Roby's сегодня"],
-            timeout=45,
-        )
+        tap = tap_text(output_dir, "tap-smart-choice-entry", ["Seçmeme yardım et", "Help me choose", "Помочь выбрать"], timeout=30, scroll=True)
+        node = wait_for_text(output_dir, "smart-choice-welcome", ["Bugünkü Roby's anınızı birlikte seçelim", "Let’s find your Roby's moment today", "Давайте найдём ваш момент Roby's сегодня"], timeout=45)
         screenshot = take_screenshot(output_dir, "android-smart-choice-welcome")
         return {"tap": tap, "welcome": node_text(node), "screenshot": str(screenshot)}
 
@@ -174,12 +208,7 @@ def main() -> None:
             selected = tap_text(output_dir, f"step-{index}-choice", candidates, timeout=30)
             continued = tap_text(output_dir, f"step-{index}-continue", ["Devam et", "Continue", "Продолжить"], timeout=30)
             evidence["steps"].append({"step": index, "selected": selected, "continue": continued})
-        result = wait_for_text(
-            output_dir,
-            "result",
-            ["Roby's seçiminiz hazır", "Your Roby's choice is ready", "Ваш выбор Roby's готов"],
-            timeout=45,
-        )
+        result = wait_for_text(output_dir, "result", ["Roby's seçiminiz hazır", "Your Roby's choice is ready", "Ваш выбор Roby's готов"], timeout=45)
         evidence["result"] = node_text(result)
         evidence["resultScreenshot"] = str(take_screenshot(output_dir, "android-smart-choice-results"))
         evidence["choose"] = tap_text(output_dir, "choose-result", ["Bunu seç", "Choose this", "Выбрать"], timeout=30, scroll=True)
@@ -190,18 +219,13 @@ def main() -> None:
 
     def verify_back():
         adb("shell", "input", "keyevent", "4")
-        node = wait_for_text(
-            output_dir,
-            "back-to-results",
-            ["Roby's seçiminiz hazır", "Your Roby's choice is ready", "Ваш выбор Roby's готов"],
-            timeout=30,
-        )
+        node = wait_for_text(output_dir, "back-to-results", ["Roby's seçiminiz hazır", "Your Roby's choice is ready", "Ваш выбор Roby's готов"], timeout=30)
         screenshot = take_screenshot(output_dir, "android-back-results")
         return {"returnedTo": node_text(node), "screenshot": str(screenshot)}
 
     sequence = [
         ("APK-02", "Install signed APK", lambda: {"adb": adb("install", "-r", str(apk)).strip()}),
-        ("APK-03", "Launch app and load live landing page", launch_home),
+        ("APK-03", "Launch app and recover live landing page", launch_home),
         ("APK-04", "Open Smart Choice inside app WebView", open_smart_choice),
         ("APK-05", "Complete confirmed five-step Smart Choice path and select result", complete_flow),
         ("APK-06", "Android Back returns to in-app results", verify_back),
