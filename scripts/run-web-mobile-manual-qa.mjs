@@ -11,7 +11,7 @@ const results = [];
 const failures = [];
 const HAPPY_CHOICES = [["Tatlı", "Dessert", "Десерт"], ["Soğuk", "Cold", "Холодное"], ["Tatlı", "Sweet", "Сладкое"], ["Bir kişi", "One", "Один"], ["400"]];
 const NO_MATCH_CHOICES = [["Kahve", "Coffee", "Кофе"], ["Sıcak", "Hot", "Горячее"], ["Tatlı", "Sweet", "Сладкое"], ["Bir kişi", "One", "Один"], ["250"]];
-const ignoredBrowserWarning = "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.";
+const ignoredBrowserWarning = /frame-ancestors.*ignored.*meta element/i;
 
 function assert(condition, message) { if (!condition) throw new Error(message); }
 async function runCase(id, title, action) {
@@ -30,16 +30,50 @@ async function runCase(id, title, action) {
 async function noHorizontalOverflow(page) {
   return page.evaluate(() => ({ viewport: document.documentElement.clientWidth, documentWidth: Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0) }));
 }
-async function openPage(page, path) {
-  const url = new URL(path, baseUrl);
-  url.searchParams.set("manual-qa", `${mode}-${Date.now()}`);
-  await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 45_000 });
+async function stopPendingNavigation(page) {
+  await page.evaluate(() => window.stop()).catch(() => null);
+}
+async function settlePage(page, readySelector) {
+  await page.waitForLoadState("domcontentloaded", { timeout: 15_000 }).catch(() => stopPendingNavigation(page));
+  if (readySelector) await page.locator(readySelector).waitFor({ state: "visible", timeout: 15_000 });
+}
+async function openPage(page, path, readySelector) {
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const url = new URL(path, baseUrl);
+    url.searchParams.set("manual-qa", `${mode}-${Date.now()}-${attempt}`);
+    try {
+      await page.goto(url.href, { waitUntil: "commit", timeout: 30_000 });
+      await settlePage(page, readySelector);
+      return;
+    } catch (error) {
+      lastError = error;
+      await stopPendingNavigation(page);
+      if (readySelector && await page.locator(readySelector).isVisible().catch(() => false)) return;
+      if (attempt < 3) await page.goto("about:blank", { waitUntil: "commit", timeout: 10_000 }).catch(() => null);
+    }
+  }
+  throw lastError ?? new Error(`Could not open ${path}`);
+}
+async function reloadSettled(page, readySelector) {
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.reload({ waitUntil: "commit", timeout: 30_000 });
+      await settlePage(page, readySelector);
+      return;
+    } catch (error) {
+      lastError = error;
+      await stopPendingNavigation(page);
+      if (await page.locator(readySelector).isVisible().catch(() => false)) return;
+    }
+  }
+  throw lastError ?? new Error("Could not reload page");
 }
 async function resetSmartChoice(page) {
-  await openPage(page, "smart-choice/");
+  await openPage(page, "smart-choice/", ".smart-title");
   await page.evaluate(() => sessionStorage.removeItem("robys-smart-choice-session.v1"));
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await page.locator(".smart-title").waitFor({ state: "visible", timeout: 15_000 });
+  await reloadSettled(page, ".smart-title");
 }
 async function findVisibleOption(page, candidates, prefix) {
   const buttons = page.locator(".option-button");
@@ -57,7 +91,8 @@ async function findVisibleOption(page, candidates, prefix) {
   throw new Error(`${prefix}: none of [${candidates.join(", ")}] matched visible options: ${inspected.join(" | ")}`);
 }
 async function completeSmartChoice(page, prefix, choices, expectedOutcome) {
-  await page.locator("#smart-choice-app .primary-button").first().click();
+  await stopPendingNavigation(page);
+  await page.locator("#smart-choice-app .primary-button").first().click({ noWaitAfter: true });
   const selectedTexts = [];
   for (let step = 1; step <= 5; step += 1) {
     const progress = page.locator('[role="progressbar"]');
@@ -66,11 +101,11 @@ async function completeSmartChoice(page, prefix, choices, expectedOutcome) {
     const continueButton = page.locator("#smart-choice-app .actions .primary-button");
     assert(await continueButton.isDisabled(), `${prefix}: Continue must be disabled before an answer at step ${step}`);
     const { button: option, text } = await findVisibleOption(page, choices[step - 1], `${prefix} step ${step}`);
-    await option.click();
+    await option.click({ noWaitAfter: true });
     selectedTexts.push(text);
     assert((await option.getAttribute("aria-pressed")) === "true", `${prefix}: option was not selected at step ${step}`);
     assert(!(await continueButton.isDisabled()), `${prefix}: Continue stayed disabled at step ${step}`);
-    await continueButton.click();
+    await continueButton.click({ noWaitAfter: true });
   }
   if (expectedOutcome === "result") await page.locator(".result-card").first().waitFor({ state: "visible", timeout: 15_000 });
   else await page.locator(".no-match-card").waitFor({ state: "visible", timeout: 15_000 });
@@ -88,7 +123,7 @@ page.on("response", (response) => { if (response.url().startsWith(baseUrl.origin
 page.on("console", (message) => {
   if (message.type() !== "error") return;
   const text = message.text();
-  if (text.includes(ignoredBrowserWarning)) { browserWarnings.push(`${text} · tracked by #293`); return; }
+  if (ignoredBrowserWarning.test(text)) { browserWarnings.push(`${text} · tracked by #293`); return; }
   const location = message.location().url;
   if (!location || location.startsWith(baseUrl.origin)) sameOriginErrors.push(`console: ${text}`);
 });
@@ -97,26 +132,24 @@ await page.route(/https:\/\/maps\.google\./, (route) => route.abort());
 try {
   if (mode === "desktop") {
     await runCase("WEB-01", "Landing page and primary navigation render", async () => {
-      await openPage(page, "index.html");
-      await page.locator(".hero h1").waitFor({ state: "visible", timeout: 15_000 });
+      await openPage(page, "index.html", ".hero h1");
       await page.locator("[data-smart-choice-entry]").waitFor({ state: "visible", timeout: 15_000 });
       assert(await page.locator('a[href="menu.html"]').first().isVisible(), "Full menu link is not visible");
       await page.screenshot({ path: `${outputDir}/web-home.png`, fullPage: true });
       return { title: await page.title(), smartChoiceEntry: true };
     });
     await runCase("WEB-02", "Language switch and persistence", async () => {
-      await page.locator('.lang-button[data-lang="en"]').click();
+      await page.locator('.lang-button[data-lang="en"]').click({ noWaitAfter: true });
       assert((await page.locator("html").getAttribute("lang")) === "en", "English did not update html lang");
       assert(/Help me choose/i.test(await page.locator("[data-smart-choice-entry]").innerText()), "Smart Choice CTA did not localize to English");
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await reloadSettled(page, ".hero h1");
       assert((await page.locator("html").getAttribute("lang")) === "en", "English did not persist after reload");
-      await page.locator('.lang-button[data-lang="ru"]').click();
+      await page.locator('.lang-button[data-lang="ru"]').click({ noWaitAfter: true });
       assert((await page.locator("html").getAttribute("lang")) === "ru", "Russian did not update html lang");
       return { persisted: "en", finalLanguage: "ru" };
     });
     await runCase("WEB-03", "Full menu renders", async () => {
-      await openPage(page, "menu.html");
-      await page.locator(".full-menu-item").first().waitFor({ state: "visible", timeout: 15_000 });
+      await openPage(page, "menu.html", ".full-menu-item");
       const count = await page.locator(".full-menu-item").count();
       assert(count >= 20, `Only ${count} menu items rendered`);
       return { itemCount: count };
@@ -152,14 +185,13 @@ try {
       return { recommendationCards: cards, selectedTexts, priceText, path: "dessert/cold/sweet/one/400" };
     });
     await runCase("WEB-10", "Choice confirmation, reload and browser Back", async () => {
-      await page.locator(".result-card .primary-button").first().click();
+      await page.locator(".result-card .primary-button").first().click({ noWaitAfter: true });
       await page.locator(".selected-card").waitFor({ state: "visible" });
       const selectedText = await page.locator(".selected-summary").innerText();
-      await page.reload({ waitUntil: "domcontentloaded" });
-      await page.locator(".selected-card").waitFor({ state: "visible", timeout: 15_000 });
-      await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => null);
-      await page.waitForTimeout(300);
-      assert(await page.locator(".result-card").first().isVisible(), "Browser Back did not return to results");
+      await reloadSettled(page, ".selected-card");
+      await page.goBack({ waitUntil: "commit" }).catch(() => null);
+      await stopPendingNavigation(page);
+      await page.locator(".result-card").first().waitFor({ state: "visible", timeout: 15_000 });
       return { selectedText, sessionRecovered: true, backReturnedToResults: true };
     });
     await runCase("WEB-11", "No-match path fails closed without invented offer", async () => {
@@ -172,8 +204,7 @@ try {
     });
   } else {
     await runCase("MOB-WEB-01", "Mobile landing has no horizontal overflow", async () => {
-      await openPage(page, "index.html");
-      await page.locator(".hero h1").waitFor({ state: "visible", timeout: 15_000 });
+      await openPage(page, "index.html", ".hero h1");
       await page.locator("[data-smart-choice-entry]").waitFor({ state: "visible", timeout: 15_000 });
       const dimensions = await noHorizontalOverflow(page);
       assert(dimensions.documentWidth <= dimensions.viewport + 1, `Horizontal overflow ${JSON.stringify(dimensions)}`);
@@ -188,14 +219,13 @@ try {
       return { links };
     });
     await runCase("MOB-WEB-04", "Mobile menu search and language", async () => {
-      await openPage(page, "menu.html");
-      await page.locator(".full-menu-item").first().waitFor({ state: "visible", timeout: 15_000 });
+      await openPage(page, "menu.html", ".full-menu-item");
       const search = page.locator("#menu-search");
       await search.fill("Lotus");
       await page.waitForTimeout(250);
       assert(/Lotus/i.test(await page.locator("#menu-root").innerText()), "Mobile Lotus search failed");
       await search.press("Escape");
-      await page.locator('.lang-button[data-lang="en"]').click();
+      await page.locator('.lang-button[data-lang="en"]').click({ noWaitAfter: true });
       assert((await page.locator("html").getAttribute("lang")) === "en", "Mobile language switch failed");
       const dimensions = await noHorizontalOverflow(page);
       assert(dimensions.documentWidth <= dimensions.viewport + 1, `Mobile menu overflow ${JSON.stringify(dimensions)}`);
@@ -203,13 +233,14 @@ try {
     });
     await runCase("MOB-WEB-05", "Smart Choice touch targets and full mobile happy path", async () => {
       await resetSmartChoice(page);
-      await page.locator("#smart-choice-app .primary-button").first().click();
+      await stopPendingNavigation(page);
+      await page.locator("#smart-choice-app .primary-button").first().click({ noWaitAfter: true });
       const firstOption = page.locator(".option-button").first();
       await firstOption.waitFor({ state: "visible" });
       const box = await firstOption.boundingBox();
       assert(Boolean(box) && box.height >= 44, `First option touch target is ${box?.height ?? 0}px high`);
-      await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => null);
-      await page.waitForTimeout(200);
+      await page.goBack({ waitUntil: "commit" }).catch(() => null);
+      await stopPendingNavigation(page);
       await resetSmartChoice(page);
       const selectedTexts = await completeSmartChoice(page, "mobile-happy", HAPPY_CHOICES, "result");
       const dimensions = await noHorizontalOverflow(page);
@@ -220,9 +251,9 @@ try {
       return { optionHeight: box?.height, selectedTexts, priceText, path: "dessert/cold/sweet/one/400", ...dimensions };
     });
     await runCase("MOB-WEB-07", "Smart Choice session recovery", async () => {
-      await page.locator(".result-card .primary-button").first().click();
+      await page.locator(".result-card .primary-button").first().click({ noWaitAfter: true });
       await page.locator(".selected-card").waitFor({ state: "visible" });
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await reloadSettled(page, ".selected-card");
       assert(await page.locator(".selected-card").isVisible(), "Selected state did not recover after reload");
       return { recovered: true };
     });
