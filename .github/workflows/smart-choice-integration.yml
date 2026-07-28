@@ -98,10 +98,12 @@ jobs:
 
           sed -i 's/sw\.js?v=offline-20260710-runtime-1/sw.js?v=platform-install-20260727-1/' menu-pwa.js
           sed -i 's/menu-pwa\.js?v=offline-20260710-runtime-1/menu-pwa.js?v=platform-install-20260727-1/' menu.html
+          sed -i 's/pwa\.js?v=offline-20260710-runtime-1/pwa.js?v=platform-install-20260727-1/' index.html
           grep -q 'const SERVICE_WORKER_URL = "sw.js?v=platform-install-20260727-1";' menu-pwa.js
           grep -q 'src="menu-pwa.js?v=platform-install-20260727-1"' menu.html
+          grep -q 'src="pwa.js?v=platform-install-20260727-1"' index.html
 
-          git add scripts/verify-regression-contracts.mjs menu-pwa.js menu.html
+          git add scripts/verify-regression-contracts.mjs menu-pwa.js menu.html index.html
 
       - name: Rebuild merged product and evidence
         shell: bash
