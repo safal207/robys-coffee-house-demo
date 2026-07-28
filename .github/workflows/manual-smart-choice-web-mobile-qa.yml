@@ -7,6 +7,12 @@ on:
     paths:
       - "qa/manual/**"
       - ".github/workflows/manual-smart-choice-web-mobile-qa.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "qa/manual/**"
+      - ".github/workflows/manual-smart-choice-web-mobile-qa.yml"
   workflow_dispatch:
 
 permissions:
