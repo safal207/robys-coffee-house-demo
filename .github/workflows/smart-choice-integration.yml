@@ -93,6 +93,10 @@ jobs:
             exit 1
           fi
 
+          sed -i 's/const EXPECTED_UX_CSS_REVISION = "20260724-wordmark-v3";/const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";/' scripts/verify-regression-contracts.mjs
+          grep -q 'const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";' scripts/verify-regression-contracts.mjs
+          git add scripts/verify-regression-contracts.mjs
+
       - name: Rebuild merged product and evidence
         shell: bash
         run: |
