@@ -29,7 +29,7 @@ const CORE_ASSETS = [
   "./src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-header-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4",
-  "./src/brand/robys-mark-master-v1.svg?v=20260721-master-1",
+  "./src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4",
   "./bootstrap.js",
   "./app.js",
   "./conversion.js",

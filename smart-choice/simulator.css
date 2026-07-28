@@ -1,0 +1,571 @@
+:root {
+  --sim-ink: #2f2725;
+  --sim-dark: #241c1b;
+  --sim-ruby: #e21b23;
+  --sim-paper: #fffdf9;
+  --sim-cream: #f4f1ec;
+  --sim-muted: #756b67;
+  --sim-line: rgba(47, 39, 37, 0.16);
+  --sim-shadow: 0 22px 70px rgba(36, 28, 27, 0.12);
+  --sim-display: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+  --sim-sans: Montserrat, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--sim-dark);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100svh;
+  margin: 0;
+  color: var(--sim-ink);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(226, 27, 35, 0.08), transparent 34rem),
+    var(--sim-cream);
+  font-family: var(--sim-sans);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+a {
+  font: inherit;
+}
+
+button,
+select,
+input {
+  min-height: 46px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+a {
+  color: inherit;
+}
+
+.sim-skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 20;
+  padding: 10px 14px;
+  color: var(--sim-dark);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: var(--sim-shadow);
+}
+
+.sim-skip-link:focus {
+  top: 16px;
+}
+
+.sim-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: max(14px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+  color: #fff;
+  background: var(--sim-dark);
+}
+
+.sim-brand {
+  padding: 8px 11px;
+  color: #111;
+  background: #fff;
+  border-radius: 12px;
+  font-family: var(--sim-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.sim-header-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.sim-header-copy strong {
+  font-size: 0.84rem;
+}
+
+.sim-header-copy span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.68rem;
+}
+
+.sim-back-link {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sim-main {
+  width: min(100%, 1260px);
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 64px) max(16px, env(safe-area-inset-right)) 64px max(16px, env(safe-area-inset-left));
+}
+
+.sim-intro {
+  max-width: 920px;
+  margin-bottom: 28px;
+}
+
+.sim-eyebrow {
+  margin: 0 0 10px;
+  color: var(--sim-ruby);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.sim-intro h1 {
+  max-width: 980px;
+  margin: 0 0 18px;
+  font-family: var(--sim-display);
+  font-size: clamp(2.8rem, 8vw, 6.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.sim-intro > p:not(.sim-eyebrow) {
+  max-width: 780px;
+  margin: 0;
+  color: var(--sim-muted);
+  font-size: clamp(1rem, 2vw, 1.12rem);
+}
+
+.sim-boundary {
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: rgba(226, 27, 35, 0.07);
+  border: 1px solid rgba(226, 27, 35, 0.22);
+  border-radius: 15px;
+  font-size: 0.86rem;
+}
+
+.sim-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.sim-form,
+.sim-results {
+  min-width: 0;
+  padding: clamp(22px, 4vw, 38px);
+  background: var(--sim-paper);
+  border: 1px solid var(--sim-line);
+  border-radius: 26px;
+  box-shadow: var(--sim-shadow);
+}
+
+.sim-form {
+  position: sticky;
+  top: 16px;
+}
+
+.sim-form h2,
+.sim-results h2,
+.sim-section-title {
+  margin: 0;
+  font-family: var(--sim-display);
+  line-height: 1;
+}
+
+.sim-form h2,
+.sim-results h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.sim-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.sim-field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.sim-field--wide {
+  grid-column: 1 / -1;
+}
+
+.sim-field > span {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.sim-field input,
+.sim-field select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  color: var(--sim-ink);
+  background: #fff;
+  border: 1px solid var(--sim-line);
+  border-radius: 12px;
+}
+
+.sim-field small {
+  color: var(--sim-muted);
+  font-size: 0.68rem;
+}
+
+.sim-form-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.sim-form-actions button {
+  padding: 11px 14px;
+  color: var(--sim-ink);
+  background: transparent;
+  border: 1px solid var(--sim-line);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.sim-form-actions .sim-primary {
+  grid-column: 1 / -1;
+  color: #fff;
+  background: var(--sim-ruby);
+  border-color: var(--sim-ruby);
+}
+
+.sim-form-note,
+.sim-disclaimer,
+.sim-metric-note,
+.sim-scenario-range,
+.sim-scenario-note,
+.sim-seal {
+  color: var(--sim-muted);
+}
+
+.sim-form-note {
+  margin: 16px 0 0;
+  font-size: 0.7rem;
+}
+
+.sim-results {
+  display: grid;
+  gap: 20px;
+}
+
+.sim-results-title {
+  outline: none;
+}
+
+.sim-disclaimer,
+.sim-warning,
+.sim-error {
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+}
+
+.sim-disclaimer {
+  background: var(--sim-cream);
+}
+
+.sim-warning {
+  color: #6e3c08;
+  background: #fff4dc;
+  border: 1px solid #efd19a;
+}
+
+.sim-error {
+  color: #7d1117;
+  background: #ffe9ea;
+  border: 1px solid #f0b7ba;
+}
+
+.sim-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sim-metric-card {
+  min-width: 0;
+  padding: 15px;
+  background: var(--sim-cream);
+  border-radius: 15px;
+}
+
+.sim-metric-label,
+.sim-metric-note {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sim-metric-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.sim-metric-value {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--sim-display);
+  font-size: clamp(1.45rem, 4vw, 2.25rem);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.sim-metric-note {
+  margin-top: 6px;
+  font-size: 0.65rem;
+}
+
+.sim-section-title {
+  margin-top: 8px;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+}
+
+.sim-scenario-grid,
+.sim-hypotheses {
+  display: grid;
+  gap: 12px;
+}
+
+.sim-scenario-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sim-scenario,
+.sim-hypothesis {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid var(--sim-line);
+  border-radius: 17px;
+}
+
+.sim-scenario--expected {
+  border-color: rgba(226, 27, 35, 0.45);
+  box-shadow: 0 10px 30px rgba(226, 27, 35, 0.08);
+}
+
+.sim-scenario-label,
+.sim-scenario-range,
+.sim-scenario-note,
+.sim-hypothesis p {
+  margin: 0;
+}
+
+.sim-scenario-label,
+.sim-hypothesis-status {
+  color: var(--sim-ruby);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sim-scenario-revenue {
+  display: block;
+  margin: 7px 0;
+  font-family: var(--sim-display);
+  font-size: 2rem;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.sim-scenario-range,
+.sim-scenario-note,
+.sim-hypothesis p {
+  font-size: 0.72rem;
+}
+
+.sim-requirements,
+.sim-missing-data {
+  margin: 13px 0;
+  padding-left: 18px;
+  font-size: 0.74rem;
+}
+
+.sim-formula {
+  display: block;
+  padding: 10px;
+  overflow-wrap: anywhere;
+  color: var(--sim-ink);
+  background: var(--sim-cream);
+  border-radius: 10px;
+  font-size: 0.65rem;
+}
+
+.sim-hypotheses {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sim-hypothesis h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+}
+
+.sim-hypothesis p + p {
+  margin-top: 6px;
+}
+
+.sim-guardrail {
+  color: var(--sim-muted);
+}
+
+.sim-seal {
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.65rem;
+  overflow-wrap: anywhere;
+}
+
+.sim-footer {
+  padding: 18px max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  color: rgba(255, 255, 255, 0.62);
+  background: var(--sim-dark);
+  text-align: center;
+  font-size: 0.68rem;
+}
+
+.sim-footer p {
+  margin: 0;
+}
+
+.sim-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(226, 27, 35, 0.48);
+  outline-offset: 3px;
+}
+
+@media (max-width: 960px) {
+  .sim-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-form {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .sim-header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .sim-back-link {
+    display: none;
+  }
+
+  .sim-field-grid,
+  .sim-scenario-grid,
+  .sim-hypotheses,
+  .sim-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-field--wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .sim-main {
+    padding-inline: 12px;
+  }
+
+  .sim-header-copy span {
+    display: none;
+  }
+
+  .sim-form,
+  .sim-results {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .sim-form-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-form-actions .sim-primary {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+.sim-readonly-value {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--sim-cream);
+  border: 1px solid var(--sim-line);
+  border-radius: 12px;
+  font-size: 0.82rem;
+}
+
+.sim-financials {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--sim-cream);
+  border-radius: 12px;
+  font-size: 0.7rem;
+}
+
+.sim-financials p { margin: 0; }
+.sim-margin-status--breach { color: #7d1117; font-weight: 900; }
+.sim-margin-status--pass { color: #245c35; font-weight: 900; }
+.sim-noscript { margin-top: 20px; }
+.sim-noscript code { overflow-wrap: anywhere; }

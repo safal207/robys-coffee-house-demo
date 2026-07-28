@@ -1,0 +1,40 @@
+.trace-debug-panel {
+  width: min(100% - 2rem, 1120px);
+  margin: 1rem auto 3rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  background: #171211;
+  color: #ffffff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.trace-debug-title {
+  margin: 0;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0.02em;
+}
+
+.trace-debug-note {
+  margin: 0.5rem 0 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+}
+
+.trace-debug-output {
+  max-height: 36rem;
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  border-radius: 14px;
+  background: #090706;
+  color: #f5ebe8;
+  font: 0.82rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.trace-debug-output:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}

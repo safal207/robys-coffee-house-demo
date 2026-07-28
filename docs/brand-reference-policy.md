@@ -13,10 +13,11 @@ A reconstructed website treatment must never be promoted as an official master a
 
 - The primary master variant uses black or near-black `R`, `BY'S`, and `COFFEE HOUSE`.
 - The `O` is a red ring.
-- The master variant is shown on a white or warm-white field.
+- The owner-approved identity v4 master is shown on a pure white field.
 - White lettering is an explicit inverse variant for dark surfaces, not the default wordmark.
 - CSS filters such as `invert()` or `brightness()` must not be used to recolor the logo.
-- The approved digital identity tokens are red `#E21B23`, ink `#111111`, and warm paper `#F5F5F2`; changes require owner-approved brand evidence and an updated identity contract.
+- The approved digital identity tokens are red `#E21B23`, ink `#111111`, and paper `#FFFFFF`; changes require owner-approved brand evidence and an updated identity contract.
+- Primary, header, compact, and standalone Organic O assets share the exact cache revision `20260726-approved-v4`.
 
 ## Release protocol
 

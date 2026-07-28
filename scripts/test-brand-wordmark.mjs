@@ -7,8 +7,7 @@ import { runInNewContext } from "node:vm";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
-const WORDMARK_REVISION = "20260724-wordmark-v3";
-const MARK_REVISION = "20260721-master-1";
+const IDENTITY_REVISION = "20260726-approved-v4";
 
 function read(path) {
   return readFileSync(resolve(root, path), "utf8");
@@ -43,8 +42,8 @@ function verifyDiscoverWordmarkStylesheet(discoverGuard) {
 
 function verifyAccessibleBrandCopy(html, page) {
   assert.match(html, /class=["'][^"']*brand-copy[^"']*["'][^>]*>[\s\S]*?<strong>ROBY'S<\/strong>[\s\S]*?<small>COFFEE HOUSE<\/small>/i, `${page} must preserve accessible brand text`);
-  assert.match(html, new RegExp(`brand-photo-logo\\.css\\?v=${WORDMARK_REVISION}`), `${page} must statically link the reviewed identity stylesheet`);
-  assert.doesNotMatch(html, /brand--inverse/, `${page} must use the approved black-on-paper identity family`);
+  assert.match(html, new RegExp(`brand-photo-logo\\.css\\?v=${IDENTITY_REVISION}`), `${page} must statically link the owner-approved v4 identity stylesheet`);
+  assert.doesNotMatch(html, /brand--inverse/, `${page} must use the approved black-on-white identity family`);
 }
 
 function verifyOfflineDelivery(serviceWorker) {
@@ -54,11 +53,11 @@ function verifyOfflineDelivery(serviceWorker) {
     "service-worker cache marker must remain compatible with canonical build revisioning"
   );
   for (const asset of [
-    `brand-photo-logo.css?v=${WORDMARK_REVISION}`,
-    `src/brand/robys-primary-master-v1.svg?v=${WORDMARK_REVISION}`,
-    `src/brand/robys-header-master-v1.svg?v=${WORDMARK_REVISION}`,
-    `src/brand/robys-compact-master-v1.svg?v=${WORDMARK_REVISION}`,
-    `src/brand/robys-mark-master-v1.svg?v=${MARK_REVISION}`,
+    `brand-photo-logo.css?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-primary-master-v1.svg?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-header-master-v1.svg?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-compact-master-v1.svg?v=${IDENTITY_REVISION}`,
+    `src/brand/robys-mark-master-v1.svg?v=${IDENTITY_REVISION}`,
     "wordmark-responsive.css?v=20260704-1"
   ]) {
     const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -107,14 +106,14 @@ export function verifyBrandWordmark() {
   assert.match(baseStyles, /--brand-wordmark-red:#E21B23/);
   assert.match(identityStyles, /--robys-brand-red:#E21B23/);
   assert.match(identityStyles, /--robys-brand-ink:#111111/);
-  assert.match(identityStyles, /--robys-brand-paper:#F5F5F2/);
+  assert.match(identityStyles, /--robys-brand-paper:#FFFFFF/);
   assert.match(identityStyles, /--ruby:var\(--robys-brand-red\)/);
   assert.match(identityStyles, /--brand-wordmark-paper:var\(--robys-brand-paper\)/);
 
-  assert.match(identityStyles, new RegExp(`robys-header-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-  assert.match(identityStyles, new RegExp(`robys-primary-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-  assert.match(identityStyles, new RegExp(`robys-compact-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-  assert.match(identityStyles, new RegExp(`robys-mark-master-v1\\.svg\\?v=${MARK_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-header-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-primary-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-compact-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+  assert.match(identityStyles, new RegExp(`robys-mark-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
   assert.doesNotMatch(identityStyles, /robys-mobile-master-v1\.svg/);
   assert.match(identityStyles, /\.brand-copy strong,[\s\S]*?clip-path:inset\(50%\)!important/);
   assert.match(identityStyles, /\.brand-copy strong::before,[\s\S]*?content:none!important/);
@@ -124,14 +123,14 @@ export function verifyBrandWordmark() {
 
   assert.match(brandReference, /primary master variant uses black or near-black/);
   assert.match(brandReference, /The `O` is a red ring/);
-  assert.match(brandReference, /approved digital identity tokens are red `#E21B23`, ink `#111111`, and warm paper `#F5F5F2`/);
+  assert.match(brandReference, /approved digital identity tokens are red `#E21B23`, ink `#111111`, and paper `#FFFFFF`/);
 
   verifyDiscoverWordmarkStylesheet(discoverGuard);
   assert.match(responsiveStyles, /@media\(max-width:680px\)/);
   assert.match(responsiveStyles, /@media\(max-width:340px\)/);
   verifyOfflineDelivery(serviceWorker);
 
-  console.log("PASS: production path-based Roby's wordmark contract");
+  console.log("PASS: production owner-approved Roby's identity v4 contract");
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === modulePath) {

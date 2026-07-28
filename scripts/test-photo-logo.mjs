@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const WORDMARK_REVISION = "20260724-wordmark-v3";
+const IDENTITY_REVISION = "20260726-approved-v4";
 const bootstrap = readFileSync(new URL("../bootstrap.js", import.meta.url), "utf8");
 const stylesheet = readFileSync(new URL("../brand-photo-logo.css", import.meta.url), "utf8");
 const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");
@@ -10,10 +10,10 @@ const compactMaster = readFileSync(new URL("../src/brand/robys-compact-master-v1
 const markMaster = readFileSync(new URL("../src/brand/robys-mark-master-v1.svg", import.meta.url), "utf8");
 
 const assetRevisions = new Map([
-  ["src/brand/robys-primary-master-v1.svg", WORDMARK_REVISION],
-  ["src/brand/robys-header-master-v1.svg", WORDMARK_REVISION],
-  ["src/brand/robys-compact-master-v1.svg", WORDMARK_REVISION],
-  ["src/brand/robys-mark-master-v1.svg", "20260721-master-1"],
+  ["src/brand/robys-primary-master-v1.svg", IDENTITY_REVISION],
+  ["src/brand/robys-header-master-v1.svg", IDENTITY_REVISION],
+  ["src/brand/robys-compact-master-v1.svg", IDENTITY_REVISION],
+  ["src/brand/robys-mark-master-v1.svg", IDENTITY_REVISION],
 ]);
 
 for (const asset of assetRevisions.keys()) {
@@ -27,10 +27,10 @@ assert.equal(
 
 assert.match(bootstrap, /apple-touch-icon\.png\?v=ios-install-20260707-1/, "progressive Apple touch fallback changed");
 assert.doesNotMatch(bootstrap, /brand-photo-logo\.css/, "identity stylesheet must remain statically linked by HTML");
-assert.match(stylesheet, new RegExp(`robys-header-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-assert.match(stylesheet, new RegExp(`robys-primary-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-assert.match(stylesheet, new RegExp(`robys-compact-master-v1\\.svg\\?v=${WORDMARK_REVISION}`));
-assert.match(stylesheet, /robys-mark-master-v1\.svg\?v=20260721-master-1/);
+assert.match(stylesheet, new RegExp(`robys-header-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+assert.match(stylesheet, new RegExp(`robys-primary-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+assert.match(stylesheet, new RegExp(`robys-compact-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
+assert.match(stylesheet, new RegExp(`robys-mark-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
 assert.doesNotMatch(stylesheet, /robys-mobile-master-v1\.svg/, "identity CSS must not depend on the retired baked mobile pill master");
 assert.match(stylesheet, /\.brand-copy strong::before,[\s\S]*?content:none!important/);
 assert.match(stylesheet, /\.menu-page-brand-tagline\s*\{\s*display:none!important/);
@@ -39,16 +39,20 @@ assert.doesNotMatch(stylesheet, /(^|[\s;{])clip\s*:/m, "logo accessibility style
 assert.doesNotMatch(stylesheet, /font-family:/, "visual wordmark must not depend on browser fonts");
 assert.doesNotMatch(stylesheet, /scaleX\(/, "visual wordmark must not be synthesized with CSS transforms");
 
-assert.match(compactMaster, /viewBox="0 0 435 150"/);
-assert.match(compactMaster, /data-cap-y="18" data-baseline-y="132"/, "wordmark must publish the shared R/Y vertical grid");
-assert.match(compactMaster, /id="robys-b-bowls"[\s\S]*?translate\(62 2\.454545\) scale\(\.65 \.863636\)/, "B bowls must align to the R/Y cap-height and baseline");
-assert.match(compactMaster, /id="robys-s"[\s\S]*?translate\(105 6\.434783\) scale\(\.65 \.826087\)/, "S must align to the R/Y cap-height and baseline");
-assert.match(markMaster, /M50 4C77\.7 4 96 22\.9 96 50\.3/, "standalone mark must retain the smooth cup-referenced outer ring");
+assert.match(compactMaster, /viewBox="0 0 251 79"/);
+assert.match(compactMaster, /data-source="owner-approved-identity-sheet-20260726"/);
+assert.match(compactMaster, /data-cap-y="0" data-baseline-y="79"/, "approved wordmark vertical grid changed");
+assert.match(compactMaster, /<use href="#robys-wordmark"\/>/, "compact master must render the canonical wordmark definition");
+assert.match(compactMaster, /id="robys-o"[\s\S]*?transform="translate\(40 0\) scale\(\.374407583\)"/, "Organic O placement changed");
+assert.match(markMaster, /viewBox="0 0 184 211"/);
+const markPath = markMaster.match(/id="robys-mark"[^>]*d="([^"]+)"/)?.[1];
+assert.ok(markPath, "standalone mark must expose the approved Organic O path");
+assert.equal(compactMaster.includes(markPath), true, "compact wordmark and standalone mark must share the exact Organic O geometry");
 
 const coreAssets = serviceWorker.match(
   /const CORE_ASSETS = \[(?<body>[\s\S]*?)\];/u,
 )?.groups?.body ?? "";
-assert.match(coreAssets, new RegExp(`"\\./brand-photo-logo\\.css\\?v=${WORDMARK_REVISION}"`));
+assert.match(coreAssets, new RegExp(`"\\./brand-photo-logo\\.css\\?v=${IDENTITY_REVISION}"`));
 for (const [asset, revision] of assetRevisions) {
   const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   assert.match(coreAssets, new RegExp(`"\\./${escaped}\\?v=${revision}"`));
@@ -76,4 +80,4 @@ assert.match(runtimeBlock, /if \(network\.ok\)/);
 assert.match(runtimeBlock, /cache\.put\(request, network\.clone\(\)\)/);
 assert.match(serviceWorker, /event\.respondWith\(runtimeAssetResponse\(event\.request\)\)/);
 
-console.log("PASS: approved SVG-path Roby's wordmark contract");
+console.log("PASS: deployed owner-approved SVG-path Roby's identity v4 contract");
