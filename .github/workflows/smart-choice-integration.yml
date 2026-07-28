@@ -1,11 +1,6 @@
 name: Smart Choice Integration
 
 on:
-  push:
-    branches:
-      - integration/smart-choice-release-v1
-    paths:
-      - .github/workflows/smart-choice-integration.yml
   pull_request:
     branches:
       - main
@@ -17,7 +12,7 @@ permissions:
 
 concurrency:
   group: smart-choice-integration-v1
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   integrate:
@@ -101,10 +96,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm ci --no-audit --no-fund
-          npm run build
-          npm run integrity:generate
-          npm run check
+          log=/tmp/smart-choice-integration.log
+          : > "${log}"
+          run_checked() {
+            label="$1"
+            shift
+            echo "Running ${label}..."
+            if ! "$@" >> "${log}" 2>&1; then
+              echo "FAILED: ${label}" >&2
+              tail -n 160 "${log}" >&2
+              exit 1
+            fi
+          }
+          run_checked npm-ci npm ci --no-audit --no-fund
+          run_checked build npm run build
+          run_checked integrity-generate npm run integrity:generate
+          run_checked full-check npm run check
+          echo "All integration checks passed."
 
       - name: Seal integration commit
         shell: bash
