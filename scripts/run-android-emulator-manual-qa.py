@@ -136,10 +136,10 @@ def main() -> None:
         return {"tap": tap, "welcome": node_text(node), "screenshot": str(screenshot)}
 
     def complete_flow():
-        evidence = {"start": tap_text(output_dir, "start", ["Seçime başla", "Start choosing", "Начать выбор"]), "steps": []}
+        evidence = {"start": tap_text(output_dir, "start", ["Seçime başla", "Start choosing", "Начать выбор"]), "steps": [], "path": "dessert/cold/sweet/one/400"}
         choices = [
-            ["Kahve", "Coffee", "Кофе"],
-            ["Sıcak", "Hot", "Горячее"],
+            ["Tatlı", "Dessert", "Десерт"],
+            ["Soğuk", "Cold", "Холодное"],
             ["Tatlı", "Sweet", "Сладкое"],
             ["Bir kişi", "One", "Один"],
             ["400 ₺'ye kadar", "Up to 400 ₺", "До 400 ₺"],
@@ -177,7 +177,7 @@ def main() -> None:
         ("APK-02", "Install signed APK", lambda: {"adb": adb("install", "-r", str(apk)).strip()}),
         ("APK-03", "Launch app and load live landing page", launch_home),
         ("APK-04", "Open Smart Choice inside app WebView", open_smart_choice),
-        ("APK-05", "Complete five Smart Choice steps and select result", complete_flow),
+        ("APK-05", "Complete confirmed five-step Smart Choice path and select result", complete_flow),
         ("APK-06", "Android Back returns to in-app results", verify_back),
     ]
 
