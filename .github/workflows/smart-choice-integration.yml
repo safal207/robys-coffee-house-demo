@@ -1,0 +1,112 @@
+name: Smart Choice Integration
+
+on:
+  push:
+    branches:
+      - integration/smart-choice-release-v1
+    paths:
+      - .github/workflows/smart-choice-integration.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: smart-choice-integration-v1
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v6
+        with:
+          ref: integration/smart-choice-release-v1
+          fetch-depth: 0
+
+      - name: Merge reviewed Smart Choice stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin agent/smart-choice-revenue-simulator
+
+          set +e
+          git merge --no-ff --no-commit origin/agent/smart-choice-revenue-simulator
+          merge_status=$?
+          set -e
+
+          if [ "${merge_status}" -ne 0 ]; then
+            conflicts="$(git diff --name-only --diff-filter=U | sort)"
+            printf 'Detected conflicts:\n%s\n' "${conflicts}"
+            unexpected="$(printf '%s\n' "${conflicts}" | grep -Ev '^(index\.html|integrity-manifest\.json|package\.json)$' || true)"
+            if [ -n "${unexpected}" ]; then
+              echo "Unexpected conflicts; refusing automatic integration:" >&2
+              printf '%s\n' "${unexpected}" >&2
+              exit 1
+            fi
+          fi
+
+          if git diff --name-only --diff-filter=U | grep -qx 'package.json'; then
+            git show :2:package.json > /tmp/package-main.json
+            git show :3:package.json > /tmp/package-smart-choice.json
+            node <<'NODE'
+          const fs = require('node:fs');
+          const main = JSON.parse(fs.readFileSync('/tmp/package-main.json', 'utf8'));
+          const smart = JSON.parse(fs.readFileSync('/tmp/package-smart-choice.json', 'utf8'));
+          const merged = {
+            ...main,
+            ...smart,
+            scripts: { ...main.scripts, ...smart.scripts },
+            devDependencies: { ...main.devDependencies, ...smart.devDependencies },
+          };
+          if (main.scripts['verify:brand-candidate']) {
+            merged.scripts['verify:brand-candidate'] = main.scripts['verify:brand-candidate'];
+          }
+          const regression = merged.scripts['verify:regression'];
+          if (regression && !regression.includes('npm run verify:brand-candidate')) {
+            merged.scripts['verify:regression'] = regression.replace(
+              'npm run verify:brand-identity &&',
+              'npm run verify:brand-identity && npm run verify:brand-candidate &&',
+            );
+          }
+          fs.writeFileSync('package.json', `${JSON.stringify(merged, null, 2)}\n`);
+          NODE
+            git add package.json
+          fi
+
+          for generated in index.html integrity-manifest.json; do
+            if git diff --name-only --diff-filter=U | grep -qx "${generated}"; then
+              git checkout --ours -- "${generated}"
+              git add "${generated}"
+            fi
+          done
+
+          if [ -n "$(git diff --name-only --diff-filter=U)" ]; then
+            echo "Unresolved paths remain:" >&2
+            git diff --name-only --diff-filter=U >&2
+            exit 1
+          fi
+
+      - name: Rebuild merged product and evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run integrity:generate
+          npm run check
+
+      - name: Seal integration commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/smart-choice-integration.yml
+          git add -A
+          test -z "$(git diff --name-only --diff-filter=U)"
+          git commit -m "feat: integrate Smart Choice release v1"
+          git push origin HEAD:integration/smart-choice-release-v1
