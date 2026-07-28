@@ -12,6 +12,8 @@ const profiles = [
   { id: "android-pixel-7", browserName: "chromium", browserType: chromium, context: { ...devices["Pixel 7"] } },
   { id: "iphone-14", browserName: "webkit", browserType: webkit, context: { ...devices["iPhone 14"] } }
 ];
+const HAPPY_CHOICES_RU = [/^Десерт(?:\s|$)/i, /^Холодное(?:\s|$)/i, /^Сладкое(?:\s|$)/i, /^Один(?:\s|$)/i, /400/];
+const ignoredBrowserWarning = "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -23,11 +25,13 @@ async function completeSmartChoice(page, profileId) {
     const progress = page.locator('[role="progressbar"]');
     await progress.waitFor({ state: "visible", timeout: 15_000 });
     assert((await progress.getAttribute("aria-valuenow")) === String(step), `${profileId}: expected step ${step}`);
-    const option = page.locator(".option-button").first();
+    const option = page.locator(".option-button").filter({ hasText: HAPPY_CHOICES_RU[step - 1] }).first();
     const continueButton = page.locator("#smart-choice-app .actions .primary-button");
     assert(await continueButton.isDisabled(), `${profileId}: Continue was enabled before selection at step ${step}`);
+    await option.waitFor({ state: "visible", timeout: 15_000 });
     await option.click();
     assert((await option.getAttribute("aria-pressed")) === "true", `${profileId}: option state did not update at step ${step}`);
+    assert(!(await continueButton.isDisabled()), `${profileId}: Continue stayed disabled at step ${step}`);
     await continueButton.click();
   }
   await page.locator(".result-card").first().waitFor({ state: "visible", timeout: 15_000 });
@@ -40,8 +44,10 @@ for (const profile of profiles) {
   const startedAt = new Date().toISOString();
   const browser = await profile.browserType.launch({ headless: true });
   const runtimeErrors = [];
+  const browserWarnings = [];
+  let context;
   try {
-    const context = await browser.newContext({
+    context = await browser.newContext({
       ...profile.context,
       locale: "tr-TR",
       timezoneId: "Europe/Istanbul",
@@ -56,8 +62,13 @@ for (const profile of profiles) {
     });
     page.on("console", (message) => {
       if (message.type() !== "error") return;
+      const text = message.text();
+      if (text.includes(ignoredBrowserWarning)) {
+        browserWarnings.push(`${text} · tracked by #293`);
+        return;
+      }
       const source = message.location().url;
-      if (!source || source.startsWith(baseUrl.origin)) runtimeErrors.push(`console: ${message.text()}`);
+      if (!source || source.startsWith(baseUrl.origin)) runtimeErrors.push(`console: ${text}`);
     });
     await page.route(/https:\/\/maps\.google\./, (route) => route.abort());
 
@@ -102,10 +113,17 @@ for (const profile of profiles) {
       status: "PASS",
       startedAt,
       completedAt: new Date().toISOString(),
-      evidence: { homeDimensions, smartDimensions, resultCount, screenshot }
+      evidence: {
+        homeDimensions,
+        smartDimensions,
+        resultCount,
+        path: "dessert/cold/sweet/one/400",
+        browserWarnings: [...new Set(browserWarnings)],
+        trackedIssue: 293,
+        screenshot
+      }
     });
-    console.log(`✅ ${profile.id}: landing → Smart Choice → five questions → results`);
-    await context.close();
+    console.log(`✅ ${profile.id}: landing → Smart Choice → confirmed five-question path → results`);
   } catch (error) {
     failed = true;
     const message = error instanceof Error ? error.message : String(error);
@@ -116,10 +134,12 @@ for (const profile of profiles) {
       startedAt,
       completedAt: new Date().toISOString(),
       error: message,
-      runtimeErrors
+      runtimeErrors,
+      browserWarnings
     });
     console.error(`❌ ${profile.id}: ${message}`);
   } finally {
+    await context?.close();
     await browser.close();
   }
 }
