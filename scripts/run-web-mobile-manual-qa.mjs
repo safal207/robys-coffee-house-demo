@@ -13,18 +13,18 @@ mkdirSync(outputDir, { recursive: true });
 const results = [];
 const failures = [];
 const HAPPY_CHOICES = [
-  /^(Tatlı|Dessert|Десерт)(?:\s|$)/i,
-  /^(Soğuk|Cold|Холодное)(?:\s|$)/i,
-  /^(Tatlı|Sweet|Сладкое)(?:\s|$)/i,
-  /^(Bir kişi|One|Один)(?:\s|$)/i,
-  /400/
+  ["Tatlı", "Dessert", "Десерт"],
+  ["Soğuk", "Cold", "Холодное"],
+  ["Tatlı", "Sweet", "Сладкое"],
+  ["Bir kişi", "One", "Один"],
+  ["400"]
 ];
 const NO_MATCH_CHOICES = [
-  /^(Kahve|Coffee|Кофе)(?:\s|$)/i,
-  /^(Sıcak|Hot|Горячее)(?:\s|$)/i,
-  /^(Tatlı|Sweet|Сладкое)(?:\s|$)/i,
-  /^(Bir kişi|One|Один)(?:\s|$)/i,
-  /250/
+  ["Kahve", "Coffee", "Кофе"],
+  ["Sıcak", "Hot", "Горячее"],
+  ["Tatlı", "Sweet", "Сладкое"],
+  ["Bir kişi", "One", "Один"],
+  ["250"]
 ];
 const ignoredBrowserWarning = "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.";
 
@@ -66,8 +66,27 @@ async function resetSmartChoice(page) {
   await page.locator(".smart-title").waitFor({ state: "visible", timeout: 15_000 });
 }
 
+async function findVisibleOption(page, candidates, prefix) {
+  const buttons = page.locator(".option-button");
+  await buttons.first().waitFor({ state: "visible", timeout: 15_000 });
+  const count = await buttons.count();
+  const inspected = [];
+  for (let index = 0; index < count; index += 1) {
+    const button = buttons.nth(index);
+    if (!(await button.isVisible())) continue;
+    const text = (await button.innerText()).replace(/\s+/g, " ").trim();
+    inspected.push(text);
+    const normalized = text.toLowerCase();
+    if (candidates.some((candidate) => normalized.includes(candidate.toLowerCase()))) {
+      return { button, text };
+    }
+  }
+  throw new Error(`${prefix}: none of [${candidates.join(", ")}] matched visible options: ${inspected.join(" | ")}`);
+}
+
 async function completeSmartChoice(page, prefix, choices, expectedOutcome) {
   await page.locator("#smart-choice-app .primary-button").first().click();
+  const selectedTexts = [];
   for (let step = 1; step <= 5; step += 1) {
     const progress = page.locator('[role="progressbar"]');
     await progress.waitFor({ state: "visible", timeout: 15_000 });
@@ -76,9 +95,9 @@ async function completeSmartChoice(page, prefix, choices, expectedOutcome) {
     const continueButton = page.locator("#smart-choice-app .actions .primary-button");
     assert(await continueButton.isDisabled(), `${prefix}: Continue must be disabled before an answer at step ${step}`);
 
-    const option = page.locator(".option-button").filter({ hasText: choices[step - 1] }).first();
-    await option.waitFor({ state: "visible", timeout: 15_000 });
+    const { button: option, text } = await findVisibleOption(page, choices[step - 1], `${prefix} step ${step}`);
     await option.click();
+    selectedTexts.push(text);
     assert((await option.getAttribute("aria-pressed")) === "true", `${prefix}: option was not selected at step ${step}`);
     assert(!(await continueButton.isDisabled()), `${prefix}: Continue stayed disabled at step ${step}`);
     await continueButton.click();
@@ -89,6 +108,7 @@ async function completeSmartChoice(page, prefix, choices, expectedOutcome) {
   } else {
     await page.locator(".no-match-card").waitFor({ state: "visible", timeout: 15_000 });
   }
+  return selectedTexts;
 }
 
 const browser = await chromium.launch({ headless: true });
@@ -177,13 +197,13 @@ try {
     });
 
     await runCase("WEB-07", "Five-question Smart Choice confirmed happy path", async () => {
-      await completeSmartChoice(page, "desktop-happy", HAPPY_CHOICES, "result");
+      const selectedTexts = await completeSmartChoice(page, "desktop-happy", HAPPY_CHOICES, "result");
       const cards = await page.locator(".result-card").count();
       assert(cards >= 1, "No recommendation cards rendered");
       assert((await page.locator(".result-price").first().innerText()).includes("₺"), "TRY price is missing");
       assert(/order|sipariş|заказ/i.test(await page.locator(".safe-note").first().innerText()), "No-order disclosure is missing");
       await page.screenshot({ path: `${outputDir}/web-smart-choice-results.png`, fullPage: true });
-      return { recommendationCards: cards, path: "dessert/cold/sweet/one/400" };
+      return { recommendationCards: cards, selectedTexts, path: "dessert/cold/sweet/one/400" };
     });
 
     await runCase("WEB-10", "Choice confirmation, reload and browser Back", async () => {
@@ -200,11 +220,11 @@ try {
 
     await runCase("WEB-11", "No-match path fails closed without invented offer", async () => {
       await resetSmartChoice(page);
-      await completeSmartChoice(page, "desktop-no-match", NO_MATCH_CHOICES, "no-match");
+      const selectedTexts = await completeSmartChoice(page, "desktop-no-match", NO_MATCH_CHOICES, "no-match");
       const text = await page.locator(".no-match-card").innerText();
       assert(/no exact match|точного совпадения нет|tam eşleşme yok/i.test(text), "No-match explanation is missing");
       assert((await page.locator(".result-card").count()) === 0, "No-match path invented a recommendation card");
-      return { path: "coffee/hot/sweet/one/250", failClosed: true };
+      return { selectedTexts, path: "coffee/hot/sweet/one/250", failClosed: true };
     });
   } else {
     await runCase("MOB-WEB-01", "Mobile landing has no horizontal overflow", async () => {
@@ -250,11 +270,11 @@ try {
       await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => null);
       await page.waitForTimeout(200);
       await resetSmartChoice(page);
-      await completeSmartChoice(page, "mobile-happy", HAPPY_CHOICES, "result");
+      const selectedTexts = await completeSmartChoice(page, "mobile-happy", HAPPY_CHOICES, "result");
       const dimensions = await noHorizontalOverflow(page);
       assert(dimensions.documentWidth <= dimensions.viewport + 1, `Smart Choice overflow ${JSON.stringify(dimensions)}`);
       await page.screenshot({ path: `${outputDir}/mobile-smart-choice-results.png`, fullPage: true });
-      return { optionHeight: box?.height, path: "dessert/cold/sweet/one/400", ...dimensions };
+      return { optionHeight: box?.height, selectedTexts, path: "dessert/cold/sweet/one/400", ...dimensions };
     });
 
     await runCase("MOB-WEB-07", "Smart Choice session recovery", async () => {
@@ -267,10 +287,10 @@ try {
 
     await runCase("MOB-WEB-08", "Mobile no-match path stays honest", async () => {
       await resetSmartChoice(page);
-      await completeSmartChoice(page, "mobile-no-match", NO_MATCH_CHOICES, "no-match");
+      const selectedTexts = await completeSmartChoice(page, "mobile-no-match", NO_MATCH_CHOICES, "no-match");
       assert(await page.locator(".no-match-card").isVisible(), "Mobile no-match card is missing");
       assert((await page.locator(".result-card").count()) === 0, "Mobile no-match path invented a result");
-      return { failClosed: true };
+      return { selectedTexts, failClosed: true };
     });
   }
 
