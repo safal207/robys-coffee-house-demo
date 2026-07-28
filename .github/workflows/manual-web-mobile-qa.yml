@@ -73,12 +73,11 @@ jobs:
       - name: Checkout exact pull-request head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Reconstruct and verify signed APK
+      - name: Reconstruct and verify signed APK with the shared contract
         run: |
-          mkdir -p qa-artifacts/android
-          cat downloads/android-v1.1/part-*.b64 | tr -d '\r\n\t ' | base64 --decode > qa-artifacts/android/robys-coffee-house-v1.1.apk
-          test "$(stat -c%s qa-artifacts/android/robys-coffee-house-v1.1.apk)" = "25231"
-          echo "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6  qa-artifacts/android/robys-coffee-house-v1.1.apk" | sha256sum --check
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends unzip >/dev/null
+          ROBYS_QA_OUTPUT=qa-artifacts/android node scripts/run-android-apk-contract-qa.mjs
 
       - name: Enable Android emulator acceleration
         run: |
