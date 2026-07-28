@@ -8,13 +8,18 @@ const read = (file) => readFileSync(path.join(root, file), "utf8");
 const size = (file) => statSync(path.join(root, file)).size;
 
 const html = read("smart-choice/index.html");
+const simulatorHtml = read("smart-choice/simulator.html");
 const baseCss = read("smart-choice/style.css");
+const brandCss = read("smart-choice/brand-v4.css");
 const releaseCss = read("smart-choice/release-qa.css");
+const sharedBrandCss = read("brand-photo-logo.css");
 const packageJson = JSON.parse(read("package.json"));
 const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
+
+const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
 
 function requireText(haystack, needle, message) {
   assert.ok(haystack.includes(needle), message ?? `Missing required text: ${needle}`);
@@ -69,6 +74,23 @@ assert.ok(!/<script(?![^>]*src=)[^>]*>/i.test(html), "inline scripts are forbidd
 assert.ok(!/style\s*=/i.test(html), "inline styles are forbidden");
 assert.ok(!/tabindex\s*=\s*["']?[1-9]/i.test(html), "positive tabindex is forbidden");
 
+for (const [surface, surfaceHtml] of [["client", html], ["owner simulator", simulatorHtml]]) {
+  requireText(surfaceHtml, `../brand-photo-logo.css?v=${APPROVED_IDENTITY_REVISION}`, `${surface} must load the shared owner-approved identity stylesheet`);
+  requireText(surfaceHtml, 'brand-v4.css?', `${surface} must load the Smart Choice identity adapter`);
+  requireText(surfaceHtml, '<span class="brand-copy"><strong>ROBY\'S</strong><small>COFFEE HOUSE</small></span>', `${surface} must preserve accessible brand copy behind the approved SVG`);
+}
+assert.ok(
+  html.indexOf("brand-photo-logo.css") > html.indexOf("release-qa.css"),
+  "shared approved identity CSS must load after local Smart Choice styles"
+);
+assert.ok(
+  simulatorHtml.indexOf("brand-photo-logo.css") > simulatorHtml.indexOf("simulator.css"),
+  "shared approved identity CSS must load after simulator styles"
+);
+requireText(sharedBrandCss, `robys-compact-master-v1.svg?v=${APPROVED_IDENTITY_REVISION}`, "shared brand CSS must use the approved compact SVG revision");
+requireText(brandCss, `robys-compact-master-v1.svg?v=${APPROVED_IDENTITY_REVISION}`, "Smart Choice adapter must pin the approved compact SVG revision");
+assert.ok(!/<a class="sim-brand"[^>]*>\s*ROBY'S\s*<\/a>/i.test(simulatorHtml), "owner simulator must not render a text-only wordmark");
+
 const releaseIndex = html.indexOf("release-qa.js");
 const appIndex = html.indexOf("app.js");
 const analyticsIndex = html.indexOf("analytics.js");
@@ -80,6 +102,7 @@ requireText(baseCss, "@media (prefers-reduced-motion: reduce)", "reduced motion 
 requireText(releaseCss, "@media (max-width: 360px)", "narrow mobile hardening is required");
 requireText(releaseCss, "overflow-wrap: anywhere", "long TR/RU strings must wrap safely");
 requireText(releaseCss, ".visually-hidden", "screen-reader-only utility is required");
+requireText(brandCss, "@media (max-width: 360px)", "approved identity adapter must include narrow-mobile sizing");
 
 requireText(pageSource, "sessionStorage", "session restore support is required");
 requireText(pageSource, "window.history", "browser back/deep-link support is required");
@@ -108,7 +131,8 @@ const cssFiles = [
   "smart-choice/style.css",
   "smart-choice/cart.css",
   "smart-choice/decision-trace.css",
-  "smart-choice/release-qa.css"
+  "smart-choice/release-qa.css",
+  "smart-choice/brand-v4.css"
 ];
 const totalJs = jsFiles.reduce((sum, file) => sum + size(file), 0);
 const totalCss = cssFiles.reduce((sum, file) => sum + size(file), 0);
@@ -120,6 +144,6 @@ assert.ok(totalCss <= 100_000, `Smart Choice CSS total ${totalCss} exceeds the 1
 assert.ok(size("smart-choice/index.html") <= 30_000, "Smart Choice HTML exceeds the 30 KB pilot budget");
 
 console.log(
-  `[SMART-CHOICE-RELEASE] verified locales, TRY, a11y, fallback, navigation, 320px and budgets: ` +
+  `[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: ` +
   `${totalJs} B JS / ${totalCss} B CSS`
 );
