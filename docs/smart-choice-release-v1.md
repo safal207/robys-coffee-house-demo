@@ -25,6 +25,10 @@ The release preserves the owner-approved Roby’s identity v4 and synchronizes:
 - landing and menu PWA registration at `platform-install-20260727-1`;
 - generated HTML and integrity-manifest evidence.
 
+## Post-merge visual inspection
+
+A direct inspection of the completed surfaces found that the Smart Choice header still reconstructed the wordmark with CSS and the owner simulator used a text-only brand label. PR #289 replaces both with the shared owner-approved compact SVG-path identity, adds bounded 320 px sizing, and makes this requirement executable in the Smart Choice release verifier.
+
 ## Verified boundary
 
 The integration workflow performed a real three-way merge against current `main`, rebuilt generated assets, regenerated the integrity manifest, and completed `npm run check` before sealing the product commit.

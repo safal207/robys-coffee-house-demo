@@ -1,0 +1,32 @@
+/* Smart Choice adapters for the shared owner-approved Roby's identity v4. */
+.smart-header .brand-copy,
+.sim-brand .brand-copy {
+  width: 142px !important;
+  height: 45px !important;
+  background-image: url("../src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4") !important;
+}
+
+.sim-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 520px) {
+  .smart-header .brand-copy {
+    width: 108px !important;
+    height: 39px !important;
+  }
+
+  .sim-brand .brand-copy {
+    width: 96px !important;
+    height: 35px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .smart-header .brand-copy {
+    width: 94px !important;
+    height: 34px !important;
+  }
+}
