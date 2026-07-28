@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/cross-browser-manual-qa.yml"
       - "scripts/run-cross-browser-manual-qa.mjs"
+      - "scripts/render-manual-qa-summary.mjs"
       - "index.html"
       - "menu.html"
       - "smart-choice/**"
@@ -13,6 +14,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: cross-browser-manual-qa-${{ github.event.pull_request.number || github.ref }}
@@ -35,6 +38,8 @@ jobs:
         run: docker pull "$PLAYWRIGHT_IMAGE"
 
       - name: Run cross-browser guided manual journey in Docker
+        id: cross_browser_qa
+        continue-on-error: true
         run: |
           docker run --rm --init --ipc=host \
             --volume "$GITHUB_WORKSPACE:/work" \
@@ -43,15 +48,35 @@ jobs:
             --env ROBYS_QA_OUTPUT=qa-artifacts/cross-browser \
             "$PLAYWRIGHT_IMAGE" \
             bash -lc 'set -euo pipefail
-              npm ci
-              npm install --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
+              npm ci --silent
+              npm install --silent --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
               node scripts/run-cross-browser-manual-qa.mjs'
+
+      - name: Render cross-browser QA summary
+        if: always()
+        run: |
+          mkdir -p qa-artifacts/cross-browser
+          node scripts/render-manual-qa-summary.mjs qa-artifacts/cross-browser > qa-artifacts/cross-browser-summary.md
+          cat qa-artifacts/cross-browser-summary.md
+
+      - name: Comment cross-browser result on pull request
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/comments" -F body=@qa-artifacts/cross-browser-summary.md
 
       - name: Upload cross-browser evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: cross-browser-manual-qa
-          path: qa-artifacts/cross-browser
+          path: |
+            qa-artifacts/cross-browser
+            qa-artifacts/cross-browser-summary.md
           if-no-files-found: error
           retention-days: 14
+
+      - name: Enforce cross-browser manual QA result
+        if: always() && steps.cross_browser_qa.outcome != 'success'
+        run: exit 1
