@@ -12,29 +12,49 @@ const profiles = [
   { id: "android-pixel-7", browserName: "chromium", browserType: chromium, context: { ...devices["Pixel 7"] } },
   { id: "iphone-14", browserName: "webkit", browserType: webkit, context: { ...devices["iPhone 14"] } }
 ];
-const HAPPY_CHOICES_RU = [/^Десерт(?:\s|$)/i, /^Холодное(?:\s|$)/i, /^Сладкое(?:\s|$)/i, /^Один(?:\s|$)/i, /400/];
+const HAPPY_CHOICES_RU = [["Десерт"], ["Холодное"], ["Сладкое"], ["Один"], ["400"]];
 const ignoredBrowserWarning = "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+async function findVisibleOption(page, candidates, profileId, step) {
+  const buttons = page.locator(".option-button");
+  await buttons.first().waitFor({ state: "visible", timeout: 15_000 });
+  const count = await buttons.count();
+  const inspected = [];
+  for (let index = 0; index < count; index += 1) {
+    const button = buttons.nth(index);
+    if (!(await button.isVisible())) continue;
+    const text = (await button.innerText()).replace(/\s+/g, " ").trim();
+    inspected.push(text);
+    const normalized = text.toLowerCase();
+    if (candidates.some((candidate) => normalized.includes(candidate.toLowerCase()))) {
+      return { button, text };
+    }
+  }
+  throw new Error(`${profileId}: step ${step} could not match [${candidates.join(", ")}]; options: ${inspected.join(" | ")}`);
+}
+
 async function completeSmartChoice(page, profileId) {
   await page.locator("#smart-choice-app .primary-button").first().click();
+  const selectedTexts = [];
   for (let step = 1; step <= 5; step += 1) {
     const progress = page.locator('[role="progressbar"]');
     await progress.waitFor({ state: "visible", timeout: 15_000 });
     assert((await progress.getAttribute("aria-valuenow")) === String(step), `${profileId}: expected step ${step}`);
-    const option = page.locator(".option-button").filter({ hasText: HAPPY_CHOICES_RU[step - 1] }).first();
     const continueButton = page.locator("#smart-choice-app .actions .primary-button");
     assert(await continueButton.isDisabled(), `${profileId}: Continue was enabled before selection at step ${step}`);
-    await option.waitFor({ state: "visible", timeout: 15_000 });
+    const { button: option, text } = await findVisibleOption(page, HAPPY_CHOICES_RU[step - 1], profileId, step);
     await option.click();
+    selectedTexts.push(text);
     assert((await option.getAttribute("aria-pressed")) === "true", `${profileId}: option state did not update at step ${step}`);
     assert(!(await continueButton.isDisabled()), `${profileId}: Continue stayed disabled at step ${step}`);
     await continueButton.click();
   }
   await page.locator(".result-card").first().waitFor({ state: "visible", timeout: 15_000 });
+  return selectedTexts;
 }
 
 const results = [];
@@ -92,7 +112,7 @@ for (const profile of profiles) {
     assert((await page.locator("html").getAttribute("lang")) === "ru", `${profile.id}: Russian language switch failed`);
     assert(/Начать выбор/.test(await page.locator("#smart-choice-app .primary-button").first().innerText()), `${profile.id}: Russian Smart Choice copy is missing`);
 
-    await completeSmartChoice(page, profile.id);
+    const selectedTexts = await completeSmartChoice(page, profile.id);
     const resultCount = await page.locator(".result-card").count();
     assert(resultCount >= 1, `${profile.id}: no result cards`);
     assert((await page.locator(".result-price").first().innerText()).includes("₺"), `${profile.id}: TRY price missing`);
@@ -117,6 +137,7 @@ for (const profile of profiles) {
         homeDimensions,
         smartDimensions,
         resultCount,
+        selectedTexts,
         path: "dessert/cold/sweet/one/400",
         browserWarnings: [...new Set(browserWarnings)],
         trackedIssue: 293,
