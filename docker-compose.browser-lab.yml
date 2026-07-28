@@ -1,0 +1,74 @@
+name: robys-browser-lab
+
+services:
+  site:
+    image: nginx:1.27.5-alpine
+    ports:
+      - "${ROBY_QA_SITE_PORT:-8080}:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+      - ./qa/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/healthz | grep -q '^ok$'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - qa-browser-lab
+
+  chromium:
+    image: "${ROBY_QA_CHROMIUM_IMAGE:-lscr.io/linuxserver/chromium:latest}"
+    pull_policy: always
+    environment:
+      PUID: "${PUID:-1000}"
+      PGID: "${PGID:-1000}"
+      TZ: "${TZ:-Europe/Istanbul}"
+      CUSTOM_USER: "${ROBY_QA_USER:-qa}"
+      PASSWORD: "${ROBY_QA_PASSWORD:-robys-local-only}"
+      TITLE: "Roby's QA — Chromium"
+      CHROME_CLI: "http://site/?qa-browser=chromium"
+    ports:
+      - "${ROBY_QA_CHROMIUM_HTTP_PORT:-3010}:3000"
+      - "${ROBY_QA_CHROMIUM_HTTPS_PORT:-3011}:3001"
+    volumes:
+      - chromium-config:/config
+    shm_size: "1gb"
+    depends_on:
+      site:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - qa-browser-lab
+
+  firefox:
+    image: "${ROBY_QA_FIREFOX_IMAGE:-lscr.io/linuxserver/firefox:latest}"
+    pull_policy: always
+    environment:
+      PUID: "${PUID:-1000}"
+      PGID: "${PGID:-1000}"
+      TZ: "${TZ:-Europe/Istanbul}"
+      CUSTOM_USER: "${ROBY_QA_USER:-qa}"
+      PASSWORD: "${ROBY_QA_PASSWORD:-robys-local-only}"
+      TITLE: "Roby's QA — Firefox"
+      FIREFOX_CLI: "http://site/?qa-browser=firefox"
+    ports:
+      - "${ROBY_QA_FIREFOX_HTTP_PORT:-3020}:3000"
+      - "${ROBY_QA_FIREFOX_HTTPS_PORT:-3021}:3001"
+    volumes:
+      - firefox-config:/config
+    shm_size: "1gb"
+    depends_on:
+      site:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - qa-browser-lab
+
+networks:
+  qa-browser-lab:
+    driver: bridge
+
+volumes:
+  chromium-config:
+  firefox-config:
