@@ -89,18 +89,21 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     results: list[dict] = []
 
-    def case(case_id: str, title: str, action):
+    def case(case_id: str, title: str, action) -> bool:
         started = time.time()
         try:
             evidence = action()
             results.append({"id": case_id, "title": title, "status": "PASS", "seconds": round(time.time() - started, 2), "evidence": evidence})
             print(f"✅ {case_id} {title}")
+            return True
         except Exception as exc:
             results.append({"id": case_id, "title": title, "status": "FAIL", "seconds": round(time.time() - started, 2), "error": str(exc)})
             print(f"❌ {case_id} {title}: {exc}")
-            raise
+            return False
 
-    case("APK-02", "Install signed APK", lambda: {"adb": adb("install", "-r", str(apk)).strip()})
+    def skip(case_id: str, title: str, reason: str) -> None:
+        results.append({"id": case_id, "title": title, "status": "SKIP", "seconds": 0, "error": reason})
+        print(f"⏭️ {case_id} {title}: {reason}")
 
     def launch_home():
         adb("shell", "am", "force-stop", PACKAGE)
@@ -114,8 +117,6 @@ def main() -> None:
         )
         screenshot = take_screenshot(output_dir, "android-home")
         return {"matched": node_text(node), "screenshot": str(screenshot)}
-
-    case("APK-03", "Launch app and load live landing page", launch_home)
 
     def open_smart_choice():
         tap = tap_text(
@@ -133,8 +134,6 @@ def main() -> None:
         )
         screenshot = take_screenshot(output_dir, "android-smart-choice-welcome")
         return {"tap": tap, "welcome": node_text(node), "screenshot": str(screenshot)}
-
-    case("APK-04", "Open Smart Choice inside app WebView", open_smart_choice)
 
     def complete_flow():
         evidence = {"start": tap_text(output_dir, "start", ["Seçime başla", "Start choosing", "Начать выбор"]), "steps": []}
@@ -163,8 +162,6 @@ def main() -> None:
         evidence["confirmationScreenshot"] = str(take_screenshot(output_dir, "android-smart-choice-confirmation"))
         return evidence
 
-    case("APK-05", "Complete five Smart Choice steps and select result", complete_flow)
-
     def verify_back():
         adb("shell", "input", "keyevent", "4")
         node = wait_for_text(
@@ -176,7 +173,21 @@ def main() -> None:
         screenshot = take_screenshot(output_dir, "android-back-results")
         return {"returnedTo": node_text(node), "screenshot": str(screenshot)}
 
-    case("APK-06", "Android Back returns to in-app results", verify_back)
+    sequence = [
+        ("APK-02", "Install signed APK", lambda: {"adb": adb("install", "-r", str(apk)).strip()}),
+        ("APK-03", "Launch app and load live landing page", launch_home),
+        ("APK-04", "Open Smart Choice inside app WebView", open_smart_choice),
+        ("APK-05", "Complete five Smart Choice steps and select result", complete_flow),
+        ("APK-06", "Android Back returns to in-app results", verify_back),
+    ]
+
+    blocked_by: str | None = None
+    for case_id, title, action in sequence:
+        if blocked_by:
+            skip(case_id, title, f"Blocked by {blocked_by}")
+            continue
+        if not case(case_id, title, action):
+            blocked_by = case_id
 
     report = {
         "completedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -187,6 +198,8 @@ def main() -> None:
     }
     (output_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
+    if not report["passed"]:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
