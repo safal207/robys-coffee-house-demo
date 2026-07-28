@@ -1,0 +1,96 @@
+name: Manual Web and Android QA
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/manual-web-mobile-qa.yml"
+      - "qa/manual/**"
+      - "scripts/run-web-mobile-manual-qa.mjs"
+      - "scripts/run-android-apk-contract-qa.mjs"
+      - "scripts/run-android-emulator-manual-qa.py"
+      - "downloads/android-v1.1/**"
+      - "index.html"
+      - "menu.html"
+      - "smart-choice/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-web-mobile-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-and-apk-contract:
+    name: Web desktop, mobile web and APK contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact pull-request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: WEB manual journey — desktop
+        run: node scripts/run-web-mobile-manual-qa.mjs desktop
+
+      - name: MOB-WEB manual journey — responsive Android viewport
+        run: node scripts/run-web-mobile-manual-qa.mjs mobile
+
+      - name: APK-01 signed package and WebView contract
+        run: node scripts/run-android-apk-contract-qa.mjs
+
+  android-emulator:
+    name: Android APK install and Smart Choice journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact pull-request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Reconstruct and verify signed APK
+        run: |
+          mkdir -p qa-artifacts/android
+          cat downloads/android-v1.1/part-*.b64 | tr -d '\r\n\t ' | base64 --decode > qa-artifacts/android/robys-coffee-house-v1.1.apk
+          test "$(stat -c%s qa-artifacts/android/robys-coffee-house-v1.1.apk)" = "25231"
+          echo "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6  qa-artifacts/android/robys-coffee-house-v1.1.apk" | sha256sum --check
+
+      - name: Enable Android emulator acceleration
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+          echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
+      - name: Install Android 35 emulator image
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "emulator" "system-images;android-35;google_apis;x86_64"
+          echo no | avdmanager create avd --force --name robys-qa --package "system-images;android-35;google_apis;x86_64" --device "pixel_6"
+
+      - name: Boot clean Android emulator
+        run: |
+          nohup emulator -avd robys-qa -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect > qa-artifacts/android/emulator.log 2>&1 &
+          adb wait-for-device
+          for attempt in $(seq 1 90); do
+            if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; then break; fi
+            sleep 5
+          done
+          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1"
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+
+      - name: APK-02–APK-06 emulator manual journey
+        run: python3 scripts/run-android-emulator-manual-qa.py --apk qa-artifacts/android/robys-coffee-house-v1.1.apk --out qa-artifacts/android
+
+      - name: Stop emulator
+        if: always()
+        run: adb emu kill || true
