@@ -48,6 +48,10 @@ jobs:
             --env ROBYS_QA_OUTPUT=qa-artifacts/cross-browser \
             "$PLAYWRIGHT_IMAGE" \
             bash -lc 'set -euo pipefail
+              HOST_UID=$(stat -c %u /work)
+              HOST_GID=$(stat -c %g /work)
+              trap "chown -R ${HOST_UID}:${HOST_GID} /work/qa-artifacts 2>/dev/null || true" EXIT
+              mkdir -p qa-artifacts/cross-browser
               npm ci --silent
               npm install --silent --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
               node scripts/run-cross-browser-manual-qa.mjs'
