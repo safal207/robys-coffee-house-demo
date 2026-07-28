@@ -11,8 +11,12 @@ PACKAGE = "com.robys.coffeehouse"
 
 
 def run(*args: str, check: bool = True) -> str:
-    completed = subprocess.run(args, check=check, text=True, capture_output=True)
-    return (completed.stdout or "") + (completed.stderr or "")
+    completed = subprocess.run(args, text=True, capture_output=True)
+    output = (completed.stdout or "") + (completed.stderr or "")
+    if check and completed.returncode != 0:
+        command = " ".join(args)
+        raise RuntimeError(f"Command failed ({completed.returncode}): {command}\n{output.strip()}")
+    return output
 
 
 def adb(*args: str, check: bool = True) -> str:
@@ -20,17 +24,35 @@ def adb(*args: str, check: bool = True) -> str:
 
 
 def dump_ui(output_dir: Path, name: str) -> tuple[Path, ET.Element]:
-    remote = "/sdcard/window.xml"
-    adb("shell", "uiautomator", "dump", remote)
-    local = output_dir / f"{name}.xml"
-    adb("pull", remote, str(local))
-    return local, ET.parse(local).getroot()
+    remote = "/data/local/tmp/robys-window.xml"
+    last_error = "UI hierarchy was not produced"
+    for attempt in range(1, 4):
+        dump_output = adb("shell", "uiautomator", "dump", remote, check=False)
+        raw = adb("exec-out", "cat", remote, check=False)
+        xml_start = raw.find("<?xml")
+        if xml_start < 0:
+            xml_start = raw.find("<hierarchy")
+        if xml_start >= 0:
+            xml_text = raw[xml_start:].strip()
+            try:
+                root = ET.fromstring(xml_text)
+                local = output_dir / f"{name}.xml"
+                local.write_text(xml_text + "\n", encoding="utf-8")
+                return local, root
+            except ET.ParseError as exc:
+                last_error = f"Invalid UI XML on attempt {attempt}: {exc}; dump={dump_output.strip()}; raw={raw[:500]!r}"
+        else:
+            last_error = f"Missing UI XML on attempt {attempt}; dump={dump_output.strip()}; cat={raw[:500]!r}"
+        time.sleep(1.5)
+    raise RuntimeError(last_error)
 
 
 def take_screenshot(output_dir: Path, name: str) -> Path:
     local = output_dir / f"{name}.png"
     with local.open("wb") as handle:
-        subprocess.run(["adb", "exec-out", "screencap", "-p"], check=True, stdout=handle)
+        completed = subprocess.run(["adb", "exec-out", "screencap", "-p"], stdout=handle, stderr=subprocess.PIPE)
+    if completed.returncode != 0:
+        raise RuntimeError(f"Could not capture screenshot {name}: {(completed.stderr or b'').decode(errors='replace')}")
     return local
 
 
@@ -58,16 +80,19 @@ def bounds_center(node: ET.Element) -> tuple[int, int]:
 def wait_for_text(output_dir: Path, label: str, candidates: list[str], timeout: int = 45, scroll: bool = False) -> ET.Element:
     deadline = time.time() + timeout
     attempt = 0
+    observed: list[str] = []
     while time.time() < deadline:
         attempt += 1
         _, root = dump_ui(output_dir, f"{label}-{attempt}")
+        observed = [node_text(node) for node in root.iter("node") if node_text(node)]
         node = find_node(root, candidates)
         if node is not None:
             return node
         if scroll:
             adb("shell", "input", "swipe", "200", "700", "200", "250", "350")
         time.sleep(2)
-    raise RuntimeError(f"Could not find UI text for {label}: {candidates}")
+    sample = " | ".join(observed[:80])
+    raise RuntimeError(f"Could not find UI text for {label}: {candidates}; observed: {sample}")
 
 
 def tap_text(output_dir: Path, label: str, candidates: list[str], timeout: int = 30, scroll: bool = False) -> dict:
@@ -99,6 +124,7 @@ def main() -> None:
         except Exception as exc:
             results.append({"id": case_id, "title": title, "status": "FAIL", "seconds": round(time.time() - started, 2), "error": str(exc)})
             print(f"❌ {case_id} {title}: {exc}")
+            take_screenshot(output_dir, f"failure-{case_id.lower()}")
             return False
 
     def skip(case_id: str, title: str, reason: str) -> None:
