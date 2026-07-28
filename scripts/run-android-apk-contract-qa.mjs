@@ -56,11 +56,11 @@ for (const expected of [
 
 const dex = execFileSync("unzip", ["-p", apkPath, "classes.dex"]);
 const dexText = dex.toString("latin1");
+const dexAsciiStrings = dexText.match(/[\x20-\x7E]{5,}/g) ?? [];
 const resources = execFileSync("unzip", ["-p", apkPath, "resources.arsc"]);
 const resourceText = resources.toString("latin1");
 
-assert(dexText.includes(expectedUrl), "Approved live-site URL is not embedded in classes.dex");
-assert(dexText.includes("safal207.github.io"), "Approved host is missing from classes.dex");
+assert(dexAsciiStrings.includes(expectedUrl), "Exact approved live-site URL is not embedded in classes.dex");
 assert(dexText.includes("WebView"), "WebView runtime marker is missing");
 assert(dexText.includes("shouldOverrideUrlLoading"), "URL-routing callback is missing");
 assert(dexText.includes("onReceivedSslError"), "SSL-error handler is missing");
@@ -70,7 +70,7 @@ assert(resourceText.includes("ssl_error"), "SSL error copy resource is missing")
 assert(resourceText.includes("blocked_link"), "Blocked-link copy resource is missing");
 
 const interestingStrings = [...new Set(
-  (dexText.match(/[\x20-\x7E]{5,}/g) ?? []).filter((value) =>
+  dexAsciiStrings.filter((value) =>
     /robys|github|webview|url|http|ssl|error|intent|external|offline|refresh/i.test(value)
   )
 )].slice(0, 200);
@@ -87,6 +87,7 @@ const report = {
   entries,
   evidence: {
     deterministicPackedRepair: true,
+    exactApprovedUrl: true,
     webViewRuntime: true,
     urlRoutingCallback: true,
     sslHandler: true,
@@ -98,4 +99,4 @@ const report = {
 };
 writeFileSync(`${outputDir}/report.json`, `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));
-console.log("✅ APK-01 contract passed: packed payload restored to the exact signed APK; live URL, WebView routing and recovery resources verified.");
+console.log("✅ APK-01 contract passed: packed payload restored to the exact signed APK; exact live URL, WebView routing and recovery resources verified.");
