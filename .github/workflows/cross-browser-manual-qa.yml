@@ -18,22 +18,40 @@ concurrency:
   group: cross-browser-manual-qa-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  PLAYWRIGHT_VERSION: "1.55.0"
+  PLAYWRIGHT_IMAGE: "mcr.microsoft.com/playwright:v1.55.0-noble"
+
 jobs:
   browser-emulation:
-    name: Chrome, Firefox, Safari, Pixel 7 and iPhone 14
+    name: Docker · Chrome, Firefox, Safari, Pixel 7 and iPhone 14
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout exact pull-request head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Install project dependencies
-        run: npm ci
+      - name: Pull pinned Playwright Docker image
+        run: docker pull "$PLAYWRIGHT_IMAGE"
 
-      - name: Install pinned Playwright browsers
+      - name: Run cross-browser guided manual journey in Docker
         run: |
-          npm install --no-save --ignore-scripts playwright@1.55.0
-          npx playwright install --with-deps chromium firefox webkit
+          docker run --rm --init --ipc=host \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            --env CI=true \
+            --env ROBYS_QA_OUTPUT=qa-artifacts/cross-browser \
+            "$PLAYWRIGHT_IMAGE" \
+            bash -lc 'set -euo pipefail
+              npm ci
+              npm install --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
+              node scripts/run-cross-browser-manual-qa.mjs'
 
-      - name: Emulate desktop and mobile customer journeys
-        run: node scripts/run-cross-browser-manual-qa.mjs
+      - name: Upload cross-browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cross-browser-manual-qa
+          path: qa-artifacts/cross-browser
+          if-no-files-found: error
+          retention-days: 14
