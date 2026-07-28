@@ -1,4 +1,5 @@
 name: Smart Choice Integration
+# Re-run after reconciling the deployed owner-approved v4 identity contract.
 
 on:
   pull_request:
