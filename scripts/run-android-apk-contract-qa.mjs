@@ -12,6 +12,9 @@ const packedBytes = 25_927;
 const expectedBytes = 25_231;
 const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
 const expectedUrl = "https://safal207.github.io/robys-coffee-house-demo/";
+const expectedProtocol = "https:";
+const expectedHostname = "safal207.github.io";
+const expectedPathname = "/robys-coffee-house-demo/";
 const apkPath = `${outputDir}/robys-coffee-house-v1.1.apk`;
 const reportPath = `${outputDir}/report.json`;
 
@@ -19,8 +22,6 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-// The public multipart payload is deliberately packed. Keep this byte-for-byte
-// identical to the reviewed repair contract in scripts/verify-android-download.mjs.
 function repairPackedApk(packed) {
   assert(packed.length === packedBytes, `Packed APK size mismatch: ${packed.length}`);
   const repaired = Buffer.alloc(expectedBytes);
@@ -65,6 +66,18 @@ function extractDexStrings(dex) {
   return strings;
 }
 
+function findExactApprovedUrl(dexStrings) {
+  const exactValue = dexStrings.find((value) => value === expectedUrl);
+  assert(exactValue !== undefined, "Exact approved live-site URL is not present in the DEX string table");
+  const parsed = new URL(exactValue);
+  assert(parsed.protocol === expectedProtocol, `APK URL protocol changed: ${parsed.protocol}`);
+  assert(parsed.hostname === expectedHostname, `APK URL hostname changed: ${parsed.hostname}`);
+  assert(parsed.pathname === expectedPathname, `APK URL pathname changed: ${parsed.pathname}`);
+  assert(parsed.username === "" && parsed.password === "" && parsed.port === "", "APK URL must not contain credentials or a custom port");
+  assert(parsed.search === "" && parsed.hash === "", "APK URL must not contain query or fragment data");
+  return parsed.href;
+}
+
 try {
   const base64 = partPaths.map((path) => readFileSync(path, "utf8")).join("").replace(/\s+/g, "");
   const packed = Buffer.from(base64, "base64");
@@ -92,14 +105,14 @@ try {
 
   const dex = execFileSync("unzip", ["-p", apkPath, "classes.dex"]);
   const dexStrings = extractDexStrings(dex);
+  const approvedUrl = findExactApprovedUrl(dexStrings);
   const resources = execFileSync("unzip", ["-p", apkPath, "resources.arsc"]);
   const resourceText = resources.toString("latin1");
 
-  assert(dexStrings.includes(expectedUrl), "Exact approved live-site URL is not present in the DEX string table");
-  assert(dexStrings.includes("Landroid/webkit/WebView;"), "WebView class descriptor is missing");
-  assert(dexStrings.includes("shouldOverrideUrlLoading"), "URL-routing callback is missing");
-  assert(dexStrings.includes("onReceivedSslError"), "SSL-error handler is missing");
-  assert(dexStrings.includes("onReceivedError"), "Network-error handler is missing");
+  assert(dexStrings.some((value) => value === "Landroid/webkit/WebView;"), "WebView class descriptor is missing");
+  assert(dexStrings.some((value) => value === "shouldOverrideUrlLoading"), "URL-routing callback is missing");
+  assert(dexStrings.some((value) => value === "onReceivedSslError"), "SSL-error handler is missing");
+  assert(dexStrings.some((value) => value === "onReceivedError"), "Network-error handler is missing");
   assert(resourceText.includes("offline_title") || resourceText.includes("offline_message"), "Offline copy resources are missing");
   assert(resourceText.includes("ssl_error"), "SSL error copy resource is missing");
   assert(resourceText.includes("blocked_link"), "Blocked-link copy resource is missing");
@@ -117,12 +130,14 @@ try {
     bytes: apk.length,
     sha256,
     expectedUrl,
+    approvedUrl,
     entries,
     dexStringCount: dexStrings.length,
     evidence: {
       deterministicPackedRepair: true,
       parsedDexStringTable: true,
       exactApprovedUrl: true,
+      exactUrlComponents: true,
       webViewRuntime: true,
       urlRoutingCallback: true,
       sslHandler: true,
@@ -134,7 +149,7 @@ try {
   };
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
-  console.log("✅ APK-01 contract passed: packed payload restored to the exact signed APK; parsed DEX proves exact live URL, WebView routing and recovery handlers.");
+  console.log("✅ APK-01 contract passed: packed payload restored to the exact signed APK; parsed DEX proves the exact approved origin/path, WebView routing and recovery handlers.");
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   const report = {
