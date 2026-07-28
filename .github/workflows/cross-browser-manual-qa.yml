@@ -1,0 +1,39 @@
+name: Cross-browser Manual QA
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/cross-browser-manual-qa.yml"
+      - "scripts/run-cross-browser-manual-qa.mjs"
+      - "index.html"
+      - "menu.html"
+      - "smart-choice/**"
+      - "src/social-offer.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-browser-manual-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-emulation:
+    name: Chrome, Firefox, Safari, Pixel 7 and iPhone 14
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact pull-request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install pinned Playwright browsers
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.55.0
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Emulate desktop and mobile customer journeys
+        run: node scripts/run-cross-browser-manual-qa.mjs
