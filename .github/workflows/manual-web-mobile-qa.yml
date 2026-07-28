@@ -8,6 +8,7 @@ on:
       - "scripts/run-web-mobile-manual-qa.mjs"
       - "scripts/run-android-apk-contract-qa.mjs"
       - "scripts/run-android-emulator-manual-qa.py"
+      - "scripts/render-manual-qa-summary.mjs"
       - "downloads/android-v1.1/**"
       - "index.html"
       - "menu.html"
@@ -16,6 +17,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: manual-web-mobile-qa-${{ github.event.pull_request.number || github.ref }}
@@ -38,6 +41,8 @@ jobs:
         run: docker pull "$PLAYWRIGHT_IMAGE"
 
       - name: Run guided web manual journeys and APK contract in Docker
+        id: docker_qa
+        continue-on-error: true
         run: |
           docker run --rm --init --ipc=host \
             --volume "$GITHUB_WORKSPACE:/work" \
@@ -47,11 +52,25 @@ jobs:
             bash -lc 'set -euo pipefail
               apt-get update -qq
               apt-get install -y --no-install-recommends unzip >/dev/null
-              npm ci
-              npm install --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
+              npm ci --silent
+              npm install --silent --no-save --ignore-scripts playwright@'"$PLAYWRIGHT_VERSION"'
               ROBYS_QA_OUTPUT=qa-artifacts/desktop node scripts/run-web-mobile-manual-qa.mjs desktop
               ROBYS_QA_OUTPUT=qa-artifacts/mobile node scripts/run-web-mobile-manual-qa.mjs mobile
               ROBYS_QA_OUTPUT=qa-artifacts/apk node scripts/run-android-apk-contract-qa.mjs'
+
+      - name: Render Docker QA summary
+        if: always()
+        run: |
+          mkdir -p qa-artifacts
+          node scripts/render-manual-qa-summary.mjs qa-artifacts/desktop qa-artifacts/mobile qa-artifacts/apk > qa-artifacts/docker-summary.md
+          cat qa-artifacts/docker-summary.md
+
+      - name: Comment Docker QA result on pull request
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/comments" -F body=@qa-artifacts/docker-summary.md
 
       - name: Upload Docker browser and APK evidence
         if: always()
@@ -62,8 +81,13 @@ jobs:
             qa-artifacts/desktop
             qa-artifacts/mobile
             qa-artifacts/apk
+            qa-artifacts/docker-summary.md
           if-no-files-found: error
           retention-days: 14
+
+      - name: Enforce Docker manual QA result
+        if: always() && steps.docker_qa.outcome != 'success'
+        run: exit 1
 
   android-emulator:
     name: Android APK install and Smart Choice journey
@@ -74,12 +98,17 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Reconstruct and verify signed APK with the shared contract
+        id: apk_contract
+        continue-on-error: true
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends unzip >/dev/null
           ROBYS_QA_OUTPUT=qa-artifacts/android node scripts/run-android-apk-contract-qa.mjs
 
       - name: Enable Android emulator acceleration
+        id: acceleration
+        if: steps.apk_contract.outcome == 'success'
+        continue-on-error: true
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
           echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
@@ -87,36 +116,74 @@ jobs:
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
 
       - name: Install Android 35 emulator image
+        id: android_image
+        if: steps.acceleration.outcome == 'success'
+        continue-on-error: true
         run: |
           yes | sdkmanager --licenses >/dev/null
           sdkmanager "platform-tools" "emulator" "system-images;android-35;google_apis;x86_64"
           echo no | avdmanager create avd --force --name robys-qa --package "system-images;android-35;google_apis;x86_64" --device "pixel_6"
 
       - name: Boot clean Android emulator
+        id: android_boot
+        if: steps.android_image.outcome == 'success'
+        continue-on-error: true
         run: |
-          nohup emulator -avd robys-qa -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect > qa-artifacts/android/emulator.log 2>&1 &
-          adb wait-for-device
+          mkdir -p qa-artifacts/android
+          ACCEL=off
+          if [ -e /dev/kvm ]; then ACCEL=on; fi
+          nohup emulator -avd robys-qa -no-window -no-audio -no-boot-anim -no-snapshot -no-snapshot-save -gpu swiftshader_indirect -accel "$ACCEL" > qa-artifacts/android/emulator.log 2>&1 &
+          if ! timeout 180 adb wait-for-device; then
+            tail -n 120 qa-artifacts/android/emulator.log || true
+            exit 1
+          fi
           for attempt in $(seq 1 90); do
             if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; then break; fi
             sleep 5
           done
-          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1"
+          if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; then
+            tail -n 120 qa-artifacts/android/emulator.log || true
+            exit 1
+          fi
           adb shell settings put global window_animation_scale 0
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
 
       - name: APK-02–APK-06 emulator manual journey
+        id: android_qa
+        if: steps.android_boot.outcome == 'success'
+        continue-on-error: true
         run: python3 scripts/run-android-emulator-manual-qa.py --apk qa-artifacts/android/robys-coffee-house-v1.1.apk --out qa-artifacts/android
+
+      - name: Render Android QA summary
+        if: always()
+        run: |
+          mkdir -p qa-artifacts/android
+          node scripts/render-manual-qa-summary.mjs qa-artifacts/android > qa-artifacts/android-summary.md
+          cat qa-artifacts/android-summary.md
+
+      - name: Comment Android QA result on pull request
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/comments" -F body=@qa-artifacts/android-summary.md
 
       - name: Upload Android emulator evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: android-emulator-manual-qa
-          path: qa-artifacts/android
+          path: |
+            qa-artifacts/android
+            qa-artifacts/android-summary.md
           if-no-files-found: error
           retention-days: 14
 
       - name: Stop emulator
         if: always()
         run: adb emu kill || true
+
+      - name: Enforce Android manual QA result
+        if: always() && (steps.apk_contract.outcome != 'success' || steps.acceleration.outcome != 'success' || steps.android_image.outcome != 'success' || steps.android_boot.outcome != 'success' || steps.android_qa.outcome != 'success')
+        run: exit 1
