@@ -107,7 +107,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends unzip >/dev/null
-          ROBYS_QA_OUTPUT=qa-artifacts/android node scripts/run-android-apk-contract-qa.mjs
+          ROBYS_QA_OUTPUT=qa-artifacts/android/contract node scripts/run-android-apk-contract-qa.mjs
 
       - name: Enable Android emulator acceleration
         id: acceleration
@@ -119,26 +119,32 @@ jobs:
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
 
-      - name: Install Android 35 emulator image
+      - name: Install Android 35 emulator image and AVD
         id: android_image
         if: steps.acceleration.outcome == 'success'
         continue-on-error: true
         run: |
+          AVD_HOME="$RUNNER_TEMP/robys-android-avd"
+          mkdir -p "$AVD_HOME"
+          export ANDROID_AVD_HOME="$AVD_HOME"
+          echo "ANDROID_AVD_HOME=$AVD_HOME" >> "$GITHUB_ENV"
           yes | sdkmanager --licenses >/dev/null
           sdkmanager "platform-tools" "emulator" "system-images;android-35;google_apis;x86_64"
           echo no | avdmanager create avd --force --name robys-qa --package "system-images;android-35;google_apis;x86_64" --device "pixel_6"
+          emulator -list-avds
+          emulator -list-avds | grep -Fx robys-qa
 
       - name: Boot clean Android emulator
         id: android_boot
         if: steps.android_image.outcome == 'success'
         continue-on-error: true
         run: |
-          mkdir -p qa-artifacts/android
+          mkdir -p qa-artifacts/android/emulator
           ACCEL=off
           if [ -e /dev/kvm ]; then ACCEL=on; fi
-          nohup emulator -avd robys-qa -no-window -no-audio -no-boot-anim -no-snapshot -no-snapshot-save -gpu swiftshader_indirect -accel "$ACCEL" > qa-artifacts/android/emulator.log 2>&1 &
+          nohup emulator -avd robys-qa -no-window -no-audio -no-boot-anim -no-snapshot -no-snapshot-save -gpu swiftshader_indirect -accel "$ACCEL" > qa-artifacts/android/emulator/emulator.log 2>&1 &
           if ! timeout 180 adb wait-for-device; then
-            tail -n 120 qa-artifacts/android/emulator.log || true
+            tail -n 120 qa-artifacts/android/emulator/emulator.log || true
             exit 1
           fi
           for attempt in $(seq 1 90); do
@@ -146,18 +152,33 @@ jobs:
             sleep 5
           done
           if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; then
-            tail -n 120 qa-artifacts/android/emulator.log || true
+            tail -n 120 qa-artifacts/android/emulator/emulator.log || true
             exit 1
           fi
           adb shell settings put global window_animation_scale 0
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
 
+      - name: Record Android boot failure
+        if: always() && steps.android_boot.outcome != 'success'
+        run: |
+          mkdir -p qa-artifacts/android/emulator
+          node - <<'NODE'
+          const fs = require('fs');
+          const report = {
+            completedAt: new Date().toISOString(),
+            passed: false,
+            package: 'com.robys.coffeehouse',
+            results: [{ id: 'APK-EMU-BOOT', title: 'Boot clean Android emulator', status: 'FAIL', error: 'Android emulator did not become ready; see emulator.log' }]
+          };
+          fs.writeFileSync('qa-artifacts/android/emulator/report.json', JSON.stringify(report, null, 2) + '\n');
+          NODE
+
       - name: APK-02–APK-06 emulator manual journey
         id: android_qa
         if: steps.android_boot.outcome == 'success'
         continue-on-error: true
-        run: python3 scripts/run-android-emulator-manual-qa.py --apk qa-artifacts/android/robys-coffee-house-v1.1.apk --out qa-artifacts/android
+        run: python3 scripts/run-android-emulator-manual-qa.py --apk qa-artifacts/android/contract/robys-coffee-house-v1.1.apk --out qa-artifacts/android/emulator
 
       - name: Render Android QA summary
         if: always()
