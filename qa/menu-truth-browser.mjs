@@ -54,12 +54,21 @@ try {
   await search.fill("San Sebastian");
   await waitUntil(async () => await chips.nth(0).getAttribute("aria-pressed") === "true", "search did not expand to all categories");
   await page.getByText("San Sebastian", { exact: true }).first().waitFor();
-  await waitUntil(async () => /1 ürün bulundu/i.test(await resultStatus.textContent() ?? ""), "search result status did not settle");
+  await waitUntil(async () => /\d+ ürün bulundu/i.test(await resultStatus.textContent() ?? ""), "search result status did not settle");
+
+  const visibleResults = page.locator("#menu-root .full-menu-item");
+  const visibleCount = await visibleResults.count();
+  const statusText = await resultStatus.innerText();
+  const announcedCount = Number(statusText.match(/(\d+) ürün bulundu/i)?.[1] ?? 0);
 
   assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "true", "search must expand to all categories");
   assert.equal(await page.locator("#menu-empty").isHidden(), true, "cross-category search must not show a false empty state");
   assert.match(await page.locator("#menu-search-scope").innerText(), /tüm menü kategorilerinde/i);
-  assert.match(await resultStatus.innerText(), /1 ürün bulundu/i);
+  assert.ok(visibleCount > 0, "cross-category search must return at least one relevant result");
+  assert.equal(announcedCount, visibleCount, "announced result count must equal rendered result count");
+  for (let index = 0; index < visibleCount; index += 1) {
+    assert.match(await visibleResults.nth(index).innerText(), /San Sebastian/i, `result ${index + 1} must match the query`);
+  }
 
   const hotCoffeeChip = page.getByRole("button", { name: "Sıcak Kahveler" });
   await hotCoffeeChip.click();
@@ -103,7 +112,7 @@ try {
   assert.deepEqual(runtimeErrors, [], `browser runtime errors: ${runtimeErrors.join(" | ")}`);
   assert.deepEqual(failedRequests, [], `failed requests: ${failedRequests.join(" | ")}`);
 
-  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search, explicit category exit, visible truthful pairing actions, barista dialog and TR/EN/RU behavior work in Chromium mobile without weakening CSP.");
+  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search count matches rendered results, explicit category exit works, truthful pairing actions are visible, and the barista dialog works in TR/EN/RU without weakening CSP.");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
