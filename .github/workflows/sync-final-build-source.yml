@@ -1,0 +1,49 @@
+name: Sync final build-only menu source artifacts
+
+on:
+  push:
+    branches:
+      - agent/fix-menu-truth-and-journeys
+    paths:
+      - ".github/workflows/sync-final-build-source.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: agent/fix-menu-truth-and-journeys
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Point traceability at the build-only readable source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('qa/traceability/ui-ux.json')
+          text = path.read_text()
+          text = text.replace('src/menu-page-runtime.js#renderMenu', 'scripts/menu-page-runtime.mjs#renderMenu')
+          text = text.replace('src/menu-page-runtime.js#setLanguage', 'scripts/menu-page-runtime.mjs#setLanguage')
+          path.write_text(text)
+          PY
+      - name: Build official runtime and integrity manifest
+        run: |
+          npm run build
+          npm run integrity:generate
+      - name: Commit generated artifacts
+        run: |
+          git add menu-page.js menu.html sw.js integrity-manifest.json qa/traceability/ui-ux.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: sync final menu source artifacts"
+          git push origin HEAD:agent/fix-menu-truth-and-journeys
