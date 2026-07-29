@@ -1,17 +1,19 @@
+import "./menu-integrity.js";
+import { pairingTruth } from "./menu-truth.js";
+
 const priceMeta = {
   "cool-lime-macaron": {
-    oldPrice: "340 ₺",
     chips: {
       tr: ["Fresh lime", "Fıstıklı makaron", "Perfect match"],
       en: ["Fresh lime", "Pistachio macaron", "Perfect match"],
-      ru: ["Fresh lime", "Pistachio macaron", "Perfect match"]
+      ru: ["Fresh lime", "Фисташковый макарон", "Идеальная пара"]
     }
   },
   "iced-san-sebastian": {
     chips: {
       tr: ["Iced latte", "San Sebastian", "Creamy moment"],
       en: ["Iced latte", "San Sebastian", "Creamy moment"],
-      ru: ["Iced latte", "San Sebastian", "Creamy moment"]
+      ru: ["Айс-латте", "Сан-Себастьян", "Сливочный момент"]
     }
   }
 };
@@ -29,10 +31,10 @@ function splitPairingTitle(title) {
 
 function posterKicker(lang) {
   return {
-    tr: "PAIR OF THE DAY",
-    en: "PAIR OF THE DAY",
-    ru: "PAIR OF THE DAY"
-  }[lang] ?? "PAIR OF THE DAY";
+    tr: "ROBY'S EŞLEŞMESİ",
+    en: "ROBY'S PAIRING",
+    ru: "СОЧЕТАНИЕ ROBY'S"
+  }[lang] ?? "ROBY'S PAIRING";
 }
 
 function createTitle(main, accent) {
@@ -70,6 +72,7 @@ function enhancePairingCards() {
 
     const [main, accent] = splitPairingTitle(name);
     const meta = priceMeta[pairingId] ?? {};
+    const truth = pairingTruth[pairingId];
     const chips = meta.chips?.[lang] ?? meta.chips?.tr ?? ["Roby's", "Coffee", "Perfect match"];
 
     const overlay = document.createElement("div");
@@ -85,11 +88,12 @@ function enhancePairingCards() {
     const priceValue = document.createElement("strong");
     priceValue.textContent = price;
     priceBadge.append(priceValue);
-    if (meta.oldPrice) {
-      const oldPrice = document.createElement("span");
-      oldPrice.className = "pairing-poster-old-price";
-      oldPrice.textContent = meta.oldPrice;
-      priceBadge.append(oldPrice);
+
+    if (truth?.label) {
+      const priceContext = document.createElement("span");
+      priceContext.className = "pairing-poster-price-context";
+      priceContext.textContent = truth.label[lang] ?? truth.label.tr;
+      priceBadge.append(priceContext);
     }
 
     const bottom = document.createElement("div");
