@@ -47,6 +47,7 @@ try {
   await search.fill("San Sebastian");
   await page.waitForFunction(() => document.querySelector("#menu-category-nav .menu-category-chip")?.getAttribute("aria-pressed") === "true");
   await page.waitForFunction(() => document.body.innerText.includes("San Sebastian"));
+  await page.waitForFunction(() => /1 ürün bulundu/i.test(document.querySelector("#menu-results-status")?.textContent ?? ""));
 
   assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "true", "search must expand to all categories");
   assert.equal(await page.locator("#menu-empty").isHidden(), true, "cross-category search must not show a false empty state");
@@ -67,7 +68,9 @@ try {
   assert.match(await firstPairing.innerText(), /290 ₺/);
   assert.match(await firstPairing.innerText(), /ayrı bir eşleşme teklifi/i);
 
-  await firstPairing.getByRole("button", { name: "Baristaya göster" }).click();
+  const showBarista = firstPairing.getByRole("button", { name: /Baristaya göster/ });
+  assert.equal(await showBarista.isVisible(), true, "barista action must be visibly rendered below the poster");
+  await showBarista.click();
   const dialog = page.locator("#pairing-fulfilment-dialog");
   await dialog.waitFor({ state: "visible" });
   assert.equal(await dialog.getAttribute("open"), "", "barista dialog must be open");
@@ -80,12 +83,12 @@ try {
   await page.getByRole("button", { name: "EN" }).click();
   assert.equal(await page.locator("html").getAttribute("lang"), "en");
   assert.match(await page.locator("#menu-search-scope").innerText(), /all menu categories/i);
-  assert.equal(await firstPairing.getByRole("button", { name: "Show barista" }).isVisible(), true);
+  assert.equal(await firstPairing.getByRole("button", { name: /Show barista/ }).isVisible(), true);
 
   await page.getByRole("button", { name: "RU" }).click();
   assert.equal(await page.locator("html").getAttribute("lang"), "ru");
   assert.match(await page.locator("#menu-search-scope").innerText(), /всем категориям меню/i);
-  assert.equal(await firstPairing.getByRole("button", { name: "Показать бариста" }).isVisible(), true);
+  assert.equal(await firstPairing.getByRole("button", { name: /Показать бариста/ }).isVisible(), true);
   assert.match(await page.locator(".menu-truth-note").innerText(), /Версия меню 2026-06-30/);
 
   const storageKeys = await page.evaluate(() => Object.keys(localStorage).sort());
@@ -93,7 +96,7 @@ try {
   assert.deepEqual(runtimeErrors, [], `browser runtime errors: ${runtimeErrors.join(" | ")}`);
   assert.deepEqual(failedRequests, [], `failed requests: ${failedRequests.join(" | ")}`);
 
-  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search, explicit category exit, truthful pairing, barista dialog and TR/EN/RU behavior work in Chromium mobile.");
+  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search, explicit category exit, visible truthful pairing actions, barista dialog and TR/EN/RU behavior work in Chromium mobile.");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
