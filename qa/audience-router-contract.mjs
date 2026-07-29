@@ -1,0 +1,82 @@
+import { existsSync, readFileSync } from "node:fs";
+
+const router = readFileSync("audience-router.js", "utf8");
+const styles = readFileSync("audience-router.css", "utf8");
+const analytics = readFileSync("analytics.js", "utf8");
+const home = readFileSync("index.html", "utf8");
+
+function assert(condition, message) {
+  if (!condition) {
+    console.error(`FAIL ${message}`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`PASS ${message}`);
+}
+
+const routes = {
+  menu: "menu.html",
+  discover: "discover.html",
+  smart: "smart-choice/",
+  chapter: "chapter-01.html"
+};
+
+assert(analytics.startsWith('import "./audience-router.js";'), "homepage module entry loads Audience Router");
+assert(analytics.includes('#audience-router,#about,#menu,#gallery,#visit'), "section analytics observes the Router without replacing existing sections");
+assert(home.includes('href="menu.html"'), "ordinary menu remains available in the original homepage shell");
+assert(home.includes('type="module" src="analytics.js'), "homepage retains its module entry point");
+
+for (const [route, href] of Object.entries(routes)) {
+  assert(router.includes(`id: "${route}"`), `route ${route} is declared`);
+  assert(router.includes(`href: "${href}"`), `route ${route} points to ${href}`);
+}
+
+assert(existsSync("menu.html"), "ordinary menu destination exists");
+assert(existsSync("discover.html"), "introduction destination exists");
+assert(existsSync("smart-choice/index.html"), "Smart Choice destination exists");
+assert(existsSync("chapter-01.html"), "Chapter destination exists on the stacked base");
+
+for (const language of ["tr", "en", "ru"]) {
+  assert(router.includes(`${language}: {`), `${language.toUpperCase()} Router copy exists`);
+}
+
+for (const key of ["route_offered", "route_accepted", "route_preference_reset"]) {
+  assert(router.includes(`"${key}"`), `event ${key} is recorded`);
+}
+
+assert(router.includes('const SCHEMA_VERSION = 1;'), "local state is explicitly versioned");
+assert(router.includes('source: "explicit-home-router"'), "saved preference records explicit intent source");
+assert(router.includes('intentSource: "explicit"'), "accepted route is classified as explicit intent");
+assert(router.includes("robys-audience-router-v1"), "preference uses a dedicated storage key");
+assert(router.includes("robys-audience-router-events-v1"), "local audit events use a dedicated storage key");
+assert(router.includes("safeStorage"), "storage failures have a non-blocking boundary");
+assert(router.includes("route_preference_reset"), "preference can be reset from the visible UI");
+assert(router.includes("aria-live"), "restored preference status is announced accessibly");
+assert(router.includes("MutationObserver"), "Router copy follows language changes");
+assert(!router.includes("innerHTML"), "Router does not require unsafe HTML injection");
+
+for (const forbidden of [
+  "location.replace",
+  "location.assign",
+  "window.location =",
+  "Notification.requestPermission",
+  "fetch(",
+  "XMLHttpRequest",
+  "WebSocket"
+]) {
+  assert(!router.includes(forbidden), `Router excludes ${forbidden}`);
+}
+
+assert(styles.includes("grid-template-columns:repeat(4"), "desktop layout exposes four equal routes");
+assert(styles.includes("grid-template-columns:repeat(2"), "tablet layout preserves route choice");
+assert(styles.includes("grid-template-columns:1fr"), "narrow mobile layout remains readable");
+assert(styles.includes("min-height:40px"), "reset control meets the repository touch-target floor");
+assert(styles.includes("prefers-reduced-motion"), "Router supplies a reduced-motion contract");
+assert(styles.includes(".is-preferred"), "restored preference has a visible but non-blocking state");
+
+if (process.exitCode) {
+  console.error("Audience Router contract failed.");
+  process.exit(process.exitCode);
+}
+
+console.log("Audience Router contract passed.");
