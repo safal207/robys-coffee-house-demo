@@ -6,14 +6,17 @@ on:
       - agent/fix-menu-truth-and-journeys
     paths:
       - "menu-data.js"
-      - "menu-truth.js"
-      - "menu-integrity.js"
+      - "menu-page.js"
+      - "src/menu-page-runtime.js"
+      - "src/menu-data.js"
+      - "src/menu-search-clear.js"
       - "menu-integrity.css"
-      - "menu-search-policy.js"
       - "pairing-posters.js"
       - "menu.html"
       - "menu-pwa.js"
       - "sw.js"
+      - "scripts/build.mjs"
+      - "scripts/menu-truth-model.mjs"
       - "scripts/verify-menu-truth-and-journey.mjs"
       - "scripts/test-menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
@@ -22,14 +25,17 @@ on:
       - main
     paths:
       - "menu-data.js"
-      - "menu-truth.js"
-      - "menu-integrity.js"
+      - "menu-page.js"
+      - "src/menu-page-runtime.js"
+      - "src/menu-data.js"
+      - "src/menu-search-clear.js"
       - "menu-integrity.css"
-      - "menu-search-policy.js"
       - "pairing-posters.js"
       - "menu.html"
       - "menu-pwa.js"
       - "sw.js"
+      - "scripts/build.mjs"
+      - "scripts/menu-truth-model.mjs"
       - "scripts/verify-menu-truth-and-journey.mjs"
       - "scripts/test-menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
@@ -44,7 +50,7 @@ concurrency:
 
 jobs:
   static-contract:
-    name: Pricing, search, fulfilment and PWA contracts
+    name: Pricing, search, fulfilment, performance and PWA contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
