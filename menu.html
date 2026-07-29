@@ -45,6 +45,7 @@
   <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />
   <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />
   <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />
+  <link rel="stylesheet" href="menu-integrity.css?v=menu-truth-20260729-2" data-menu-integrity-style="true" />
   <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />
   <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260726-approved-v4" />
@@ -92,6 +93,7 @@
         <div class="menu-search">
           <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
           <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
+          <p class="menu-search-scope" id="menu-search-scope">Arama tüm menü kategorilerinde yapılır.</p>
         </div>
         <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
       </div>
@@ -99,10 +101,12 @@
 
     <section class="full-menu-wrap">
       <div class="container">
-        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
+        <p class="menu-results-status visually-hidden" id="menu-results-status" role="status" aria-live="polite"></p>
+        <div class="full-menu-grid" id="menu-root"></div>
         <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
         <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
         <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+        <p class="menu-truth-note" data-menu-version="2026-06-30">Menü sürümü 2026-06-30. Kaynak: onaylı basılı kafe menüsü.</p>
       </div>
     </section>
 
@@ -148,7 +152,7 @@
 
   <script type="module" src="menu-ready.js"></script>
   <script type="module" src="menu-page.js"></script>
-  <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>
+  <script type="module" src="pairing-posters.js?v=menu-truth-20260729-2"></script>
   <script type="module" src="menu-actions.js?v=20260627-1"></script>
 </body>
 </html>
