@@ -1,0 +1,115 @@
+name: Advisory browser image canary
+
+on:
+  schedule:
+    - cron: "17 4 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: advisory-browser-image-canary
+  cancel-in-progress: true
+
+jobs:
+  inspect:
+    name: Inspect upstream image drift
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository without credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Inspect current upstream manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/browser-image-canary
+          for image in \
+            "nginx:1.27.5-alpine" \
+            "lscr.io/linuxserver/chromium:latest" \
+            "lscr.io/linuxserver/firefox:latest"
+          do
+            safe_name="$(printf '%s' "$image" | tr '/:@' '____')"
+            docker buildx imagetools inspect "$image" \
+              > ".artifacts/browser-image-canary/${safe_name}.txt" 2>&1 || true
+          done
+
+      - name: Build advisory drift report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          compose = Path("docker-compose.browser-lab.yml").read_text(encoding="utf-8")
+          targets = [
+              ("site", "nginx:1.27.5-alpine", "nginx_1.27.5-alpine.txt"),
+              ("chromium", "lscr.io/linuxserver/chromium:latest", "lscr.io_linuxserver_chromium_latest.txt"),
+              ("firefox", "lscr.io/linuxserver/firefox:latest", "lscr.io_linuxserver_firefox_latest.txt"),
+          ]
+          records = []
+          for service, upstream, filename in targets:
+              pinned_match = re.search(
+                  rf"{re.escape(service)}:.*?image:\s*\"?\$\{{[^:]+:-[^\n]*?@sha256:([0-9a-f]{{64}})\}}\"?",
+                  compose,
+                  flags=re.DOTALL,
+              )
+              pinned = pinned_match.group(1) if pinned_match else None
+              text_path = Path(".artifacts/browser-image-canary", filename)
+              text = text_path.read_text(encoding="utf-8", errors="replace") if text_path.exists() else ""
+              observed_match = re.search(r"^Digest:\s*sha256:([0-9a-f]{64})\s*$", text, flags=re.MULTILINE)
+              observed = observed_match.group(1) if observed_match else None
+              records.append({
+                  "service": service,
+                  "upstream": upstream,
+                  "pinnedDigest": pinned,
+                  "observedUpstreamDigest": observed,
+                  "driftDetected": bool(pinned and observed and pinned != observed),
+                  "inspectionSucceeded": observed is not None,
+                  "rawEvidence": filename,
+              })
+
+          report = {
+              "schema": "robys.browser-image-canary.v1",
+              "advisoryOnly": True,
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "records": records,
+          }
+          out = Path(".artifacts/browser-image-canary/report.json")
+          out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          lines = [
+              "# Advisory browser image canary",
+              "",
+              "This report detects upstream drift only. It never changes pinned digests, baselines, branches or release decisions.",
+              "",
+              "| Service | Pinned digest | Upstream digest | Drift |",
+              "|---|---|---|---|",
+          ]
+          for record in records:
+              lines.append(
+                  f"| {record['service']} | `{record['pinnedDigest'] or 'unresolved'}` | "
+                  f"`{record['observedUpstreamDigest'] or 'unresolved'}` | "
+                  f"{'yes' if record['driftDetected'] else 'no/unknown'} |"
+              )
+          markdown = "\n".join(lines) + "\n"
+          Path(".artifacts/browser-image-canary/report.md").write_text(markdown, encoding="utf-8")
+          with Path(".artifacts/browser-image-canary/report.md").open(encoding="utf-8") as handle:
+              print(handle.read())
+          PY
+          cat .artifacts/browser-image-canary/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload advisory image evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: advisory-browser-image-canary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/browser-image-canary/
+          if-no-files-found: error
+          retention-days: 30
