@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { lstatSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { closeSync, constants, fstatSync, mkdirSync, openSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -13,14 +13,31 @@ function sha256Bytes(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+function readRegularFileNoFollow(absolute) {
+  const descriptor = openSync(absolute, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const metadata = fstatSync(descriptor);
+    if (!metadata.isFile()) throw new Error(`Evidence is not a regular file: ${absolute}`);
+    const content = readFileSync(descriptor);
+    if (content.length !== metadata.size) {
+      throw new Error(`Evidence size changed during read: ${absolute}`);
+    }
+    return { content, bytes: metadata.size };
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
 function walk(directory) {
   const files = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
-    const metadata = lstatSync(absolute);
-    if (metadata.isSymbolicLink()) throw new Error(`Evidence bundle contains a symlink: ${path.relative(bundleRoot, absolute)}`);
+    if (entry.isSymbolicLink()) {
+      throw new Error(`Evidence bundle contains a symlink: ${path.relative(bundleRoot, absolute)}`);
+    }
     if (entry.isDirectory()) files.push(...walk(absolute));
     else if (entry.isFile()) files.push(absolute);
+    else throw new Error(`Unsupported evidence entry: ${path.relative(bundleRoot, absolute)}`);
   }
   return files;
 }
@@ -34,8 +51,8 @@ const files = walk(bundleRoot)
   .filter((file) => !ignored.has(path.basename(file)))
   .map((file) => {
     const relative = path.relative(bundleRoot, file).replaceAll(path.sep, "/");
-    const bytes = readFileSync(file);
-    return { path: relative, bytes: statSync(file).size, sha256: sha256Bytes(bytes) };
+    const { content, bytes } = readRegularFileNoFollow(file);
+    return { path: relative, bytes, sha256: sha256Bytes(content) };
   })
   .sort((left, right) => left.path.localeCompare(right.path));
 
@@ -54,19 +71,18 @@ const manifest = {
 const manifestPath = path.join(bundleRoot, "manifest.json");
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-const parsed = JSON.parse(readFileSync(manifestPath, "utf8"));
+const { content: manifestContent } = readRegularFileNoFollow(manifestPath);
+const parsed = JSON.parse(manifestContent.toString("utf8"));
 for (const record of parsed.files) {
   if (path.isAbsolute(record.path) || record.path.split("/").some((part) => !part || part === "." || part === "..")) {
     throw new Error(`Unsafe manifest path: ${record.path}`);
   }
   const absolute = path.join(bundleRoot, record.path);
-  const metadata = lstatSync(absolute);
-  if (!metadata.isFile() || metadata.isSymbolicLink()) throw new Error(`Manifest member is not a regular file: ${record.path}`);
-  const bytes = readFileSync(absolute);
-  if (bytes.length !== record.bytes) throw new Error(`Byte mismatch: ${record.path}`);
-  if (sha256Bytes(bytes) !== record.sha256) throw new Error(`SHA-256 mismatch: ${record.path}`);
+  const { content, bytes } = readRegularFileNoFollow(absolute);
+  if (bytes !== record.bytes || content.length !== record.bytes) throw new Error(`Byte mismatch: ${record.path}`);
+  if (sha256Bytes(content) !== record.sha256) throw new Error(`SHA-256 mismatch: ${record.path}`);
 }
-const manifestBytes = readFileSync(manifestPath);
+const { content: manifestBytes } = readRegularFileNoFollow(manifestPath);
 const verification = {
   schema: "robys.evidence.verification.v1",
   bundleId,
