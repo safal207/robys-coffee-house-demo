@@ -1,9 +1,12 @@
+import "./audience-router.js";
+
 const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 const eventBuffer = [];
 
 function placementFor(node) {
   if (node.closest(".mobile-cta")) return "mobile_dock";
   if (node.closest(".hero")) return "hero";
+  if (node.closest("#audience-router")) return "audience_router";
   if (node.closest("#visit")) return "visit";
   if (node.closest(".gallery-section")) return "gallery";
   return node.closest("section[id]")?.id || "page";
@@ -71,7 +74,7 @@ function setupSectionViews() {
       observer.unobserve(entry.target);
     });
   }, { threshold: [0.35] });
-  qa("#about,#menu,#gallery,#visit").forEach((section) => observer.observe(section));
+  qa("#audience-router,#about,#menu,#gallery,#visit").forEach((section) => observer.observe(section));
 }
 
 let initialized = false;
