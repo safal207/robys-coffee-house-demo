@@ -129,6 +129,10 @@ function bindText(node, key) {
   return node;
 }
 
+function forwardAnalytics(name, detail) {
+  window.robysAnalytics?.track?.(name, { placement: "audience_router", ...detail });
+}
+
 function recordEvent(name, detail = {}) {
   const payload = {
     event: name,
@@ -139,16 +143,15 @@ function recordEvent(name, detail = {}) {
     ...detail
   };
 
-  safeStorage(localStorage, (storage) => {
+  safeStorage(sessionStorage, (storage) => {
     const events = JSON.parse(storage.getItem(EVENTS_KEY) || "[]");
     events.push(payload);
     storage.setItem(EVENTS_KEY, JSON.stringify(events.slice(-100)));
   });
 
   document.dispatchEvent(new CustomEvent("robys:audience-router", { detail: payload }));
-  setTimeout(() => {
-    window.robysAnalytics?.track?.(name, { placement: "audience_router", ...detail });
-  }, 0);
+  if (window.robysAnalytics?.track) forwardAnalytics(name, detail);
+  else setTimeout(() => forwardAnalytics(name, detail), 0);
 }
 
 function updatePreferenceView(language = currentLanguage()) {
@@ -158,7 +161,6 @@ function updatePreferenceView(language = currentLanguage()) {
   cards.forEach((card) => {
     const selected = card.dataset.routerRoute === preferredRoute;
     card.classList.toggle("is-preferred", selected);
-    card.setAttribute("aria-current", selected ? "true" : "false");
     const badge = card.querySelector(".audience-route-badge");
     if (badge) {
       badge.hidden = !selected;
@@ -195,7 +197,6 @@ function buildRouteCard(route) {
   const card = createElement("a", "audience-route-card");
   card.href = route.href;
   card.dataset.routerRoute = route.id;
-  card.dataset.analyticsAction = "route_accepted";
 
   const marker = createElement("span", "audience-route-marker", route.marker);
   marker.setAttribute("aria-hidden", "true");
@@ -254,12 +255,7 @@ function buildRouter() {
   heading.append(eyebrow, title, lead);
 
   routeGrid = createElement("div", "audience-route-grid");
-  routeGrid.setAttribute("role", "list");
-  ROUTES.forEach((route) => {
-    const card = buildRouteCard(route);
-    card.setAttribute("role", "listitem");
-    routeGrid.append(card);
-  });
+  ROUTES.forEach((route) => routeGrid.append(buildRouteCard(route)));
 
   const preference = createElement("div", "audience-router-preference");
   statusNode = createElement("p", "audience-router-status");
@@ -294,7 +290,7 @@ function buildRouter() {
 function resetRouter() {
   preferredRoute = null;
   safeStorage(localStorage, (storage) => storage.removeItem(STORAGE_KEY));
-  safeStorage(localStorage, (storage) => storage.removeItem(EVENTS_KEY));
+  safeStorage(sessionStorage, (storage) => storage.removeItem(EVENTS_KEY));
   safeStorage(sessionStorage, (storage) => storage.removeItem(OFFERED_KEY));
   updatePreferenceView();
 }
@@ -312,7 +308,7 @@ languageObserver.observe(document.documentElement, { attributes: true, attribute
 
 window.robysAudienceRouter = Object.freeze({
   getState: () => readPreference(),
-  getEvents: () => safeStorage(localStorage, (storage) => JSON.parse(storage.getItem(EVENTS_KEY) || "[]"), []),
+  getEvents: () => safeStorage(sessionStorage, (storage) => JSON.parse(storage.getItem(EVENTS_KEY) || "[]"), []),
   reset: resetRouter,
   routes: () => ROUTES.map((route) => ({ ...route }))
 });
