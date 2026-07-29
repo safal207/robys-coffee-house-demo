@@ -14,6 +14,8 @@ const integrity = readFileSync("menu-integrity.js", "utf8");
 const searchPolicy = readFileSync("menu-search-policy.js", "utf8");
 const styles = readFileSync("menu-integrity.css", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
+const menuPwa = readFileSync("menu-pwa.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8");
 
 assert.equal(menuTruth.schemaVersion, 1);
 assert.match(menuTruth.menuVersion, /^\d{4}-\d{2}-\d{2}$/);
@@ -107,4 +109,28 @@ assert.match(menuHtml, /menu-integrity\.css\?v=menu-truth-20260729-3/);
 assert.match(menuHtml, /pairing-posters\.js\?v=menu-truth-20260729-3/);
 assert.match(menuHtml, /id="menu-root"/);
 
-console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, explicit category choice exits search, pairing actions are visible and accessible, and menu ownership/version metadata is explicit.");
+assert.match(menuPwa, /sw\.js\?v=menu-truth-20260729-1/);
+assert.match(serviceWorker, /robys-offline-v31-20260729-menu-truth/);
+for (const asset of [
+  "menu-truth.js",
+  "menu-integrity.js",
+  "menu-search-policy.js",
+  "menu-integrity.css?v=menu-truth-20260729-3",
+  "pairing-posters.js?v=menu-truth-20260729-3"
+]) {
+  assert.ok(serviceWorker.includes(`./${asset}`), `service worker must precache ${asset}`);
+}
+for (const pathname of [
+  "/pairing-posters.css",
+  "/menu-integrity.css",
+  "/pairing-posters.js",
+  "/menu-integrity.js",
+  "/menu-search-policy.js",
+  "/menu-truth.js"
+]) {
+  assert.ok(serviceWorker.includes(`url.pathname.endsWith("${pathname}")`), `service worker must require an exact revision for ${pathname}`);
+}
+assert.match(serviceWorker, /cache\.match\(request\);/);
+assert.match(serviceWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
+
+console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, search is global and truthful, pairing actions are visible, and the installed PWA cannot silently serve an older menu-truth runtime.");
