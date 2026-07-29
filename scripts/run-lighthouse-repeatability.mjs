@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -9,6 +9,8 @@ const transient = path.join(root, ".lighthouseci");
 const testedCommit = process.env.ROBY_TESTED_COMMIT ?? process.env.GITHUB_SHA ?? "unknown";
 const sourceRunId = process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID ?? "local";
 const budgets = JSON.parse(readFileSync(path.join(root, "lighthouse", "budgets.json"), "utf8"));
+const minimumRunsPerProfile = 6;
+const configuredRunsPerProfile = 6;
 
 function assertExactCommit(value) {
   if (!/^[0-9a-f]{40}$/i.test(value)) {
@@ -95,8 +97,8 @@ function loadRuns(profile) {
       interactive: Number(lhr.audits.interactive?.numericValue)
     });
   }
-  if (runs.length < 6) {
-    throw new Error(`${profile}: expected at least 6 valid Lighthouse runs, found ${runs.length}`);
+  if (runs.length < minimumRunsPerProfile) {
+    throw new Error(`${profile}: expected at least ${minimumRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
   }
   for (const [index, run] of runs.entries()) {
     for (const [metric, value] of Object.entries(run)) {
@@ -189,31 +191,61 @@ function formatMetric(metric, digits = 0) {
   return `${metric.median.toFixed(digits)} (p10 ${metric.p10.toFixed(digits)}, p90 ${metric.p90.toFixed(digits)}, min ${metric.min.toFixed(digits)}, max ${metric.max.toFixed(digits)})`;
 }
 
+function writeCombinedReport(profiles) {
+  const overallVerdict = profiles.some((profile) => profile.verdict === "new_bug")
+    ? "new_bug"
+    : profiles.some((profile) => profile.verdict === "flake")
+      ? "flake"
+      : "stable";
+  const generatedAt = new Date().toISOString();
+  const report = {
+    schema: "robys.lighthouse.repeatability.v1",
+    testedCommit,
+    sourceRunId,
+    generatedAt,
+    minimumRunsPerProfile,
+    configuredRunsPerProfile,
+    overallVerdict,
+    profiles
+  };
+  writeFileSync(path.join(outputRoot, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+  const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Generated: ${generatedAt}\n\n| Profile | Runs | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies repeated exact-head measurements. A median budget breach is a \`new_bug\`; excessive cross-run spread without a median breach is a \`flake\`.\n`;
+  writeFileSync(path.join(outputRoot, "report.md"), markdown, "utf8");
+  console.log(JSON.stringify({ testedCommit, sourceRunId, overallVerdict, profiles: profiles.map(({ profile, runCount, verdict, budgetBreaches, instabilityReasons }) => ({ profile, runCount, verdict, budgetBreaches, instabilityReasons })) }, null, 2));
+}
+
 assertExactCommit(testedCommit);
-rmSync(outputRoot, { recursive: true, force: true });
-mkdirSync(outputRoot, { recursive: true });
-collect("mobile", "lighthouse/lighthouserc.repeatability.mobile.cjs");
-collect("desktop", "lighthouse/lighthouserc.repeatability.desktop.cjs");
+const mode = process.argv[2];
 
-const profiles = ["mobile", "desktop"].map((profile) => summarizeProfile(profile, loadRuns(profile)));
-const overallVerdict = profiles.some((profile) => profile.verdict === "new_bug")
-  ? "new_bug"
-  : profiles.some((profile) => profile.verdict === "flake")
-    ? "flake"
-    : "stable";
-const generatedAt = new Date().toISOString();
-const report = {
-  schema: "robys.lighthouse.repeatability.v1",
-  testedCommit,
-  sourceRunId,
-  generatedAt,
-  minimumRunsPerProfile: 6,
-  configuredRunsPerProfile: 8,
-  overallVerdict,
-  profiles
-};
-writeFileSync(path.join(outputRoot, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
-
-const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Generated: ${generatedAt}\n\n| Profile | Runs | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies repeated exact-head measurements. A median budget breach is a \`new_bug\`; excessive cross-run spread without a median breach is a \`flake\`.\n`;
-writeFileSync(path.join(outputRoot, "report.md"), markdown, "utf8");
-console.log(JSON.stringify({ testedCommit, sourceRunId, overallVerdict, profiles: profiles.map(({ profile, runCount, verdict, budgetBreaches, instabilityReasons }) => ({ profile, runCount, verdict, budgetBreaches, instabilityReasons })) }, null, 2));
+if (mode === "--merge") {
+  const profiles = ["mobile", "desktop"].map((profile) => {
+    const packet = JSON.parse(readFileSync(path.join(outputRoot, profile, "profile-report.json"), "utf8"));
+    if (packet.schema !== "robys.lighthouse.repeatability.profile.v1") {
+      throw new Error(`${profile}: unsupported profile evidence schema`);
+    }
+    if (packet.testedCommit !== testedCommit || packet.sourceRunId !== sourceRunId) {
+      throw new Error(`${profile}: stale or cross-run profile evidence`);
+    }
+    return packet.profileResult;
+  });
+  writeCombinedReport(profiles);
+} else {
+  if (!new Set(["mobile", "desktop"]).has(mode)) {
+    throw new Error("Usage: node scripts/run-lighthouse-repeatability.mjs <mobile|desktop|--merge>");
+  }
+  rmSync(outputRoot, { recursive: true, force: true });
+  mkdirSync(outputRoot, { recursive: true });
+  collect(mode, `lighthouse/lighthouserc.repeatability.${mode}.cjs`);
+  const profileResult = summarizeProfile(mode, loadRuns(mode));
+  const packet = {
+    schema: "robys.lighthouse.repeatability.profile.v1",
+    testedCommit,
+    sourceRunId,
+    generatedAt: new Date().toISOString(),
+    configuredRuns: configuredRunsPerProfile,
+    profileResult
+  };
+  writeFileSync(path.join(outputRoot, mode, "profile-report.json"), `${JSON.stringify(packet, null, 2)}\n`, "utf8");
+  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
+}
