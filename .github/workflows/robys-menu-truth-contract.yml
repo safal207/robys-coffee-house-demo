@@ -12,6 +12,8 @@ on:
       - "menu-search-policy.js"
       - "pairing-posters.js"
       - "menu.html"
+      - "menu-pwa.js"
+      - "sw.js"
       - "scripts/verify-menu-truth-and-journey.mjs"
       - "qa/menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
@@ -26,6 +28,8 @@ on:
       - "menu-search-policy.js"
       - "pairing-posters.js"
       - "menu.html"
+      - "menu-pwa.js"
+      - "sw.js"
       - "scripts/verify-menu-truth-and-journey.mjs"
       - "qa/menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
@@ -40,7 +44,7 @@ concurrency:
 
 jobs:
   static-contract:
-    name: Pricing, search and fulfilment contracts
+    name: Pricing, search, fulfilment and PWA contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
