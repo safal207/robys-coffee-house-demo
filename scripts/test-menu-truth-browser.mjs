@@ -1,0 +1,119 @@
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { chromium } from "playwright";
+
+const PORT = 4187;
+const BASE = `http://127.0.0.1:${PORT}/`;
+const server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], {
+  stdio: ["ignore", "pipe", "pipe"]
+});
+
+async function waitUntil(check, message, attempts = 80) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (await check()) return;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error(message);
+}
+
+async function waitForServer() {
+  await waitUntil(async () => {
+    try {
+      const response = await fetch(BASE);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }, "Static server did not start", 50);
+}
+
+let browser;
+try {
+  await waitForServer();
+  browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: "tr-TR" });
+  const page = await context.newPage();
+  const runtimeErrors = [];
+  const failedRequests = [];
+
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(message.text());
+  });
+  page.on("requestfailed", (request) => failedRequests.push(`${request.failure()?.errorText ?? "failed"} ${request.url()}`));
+
+  await page.goto(`${BASE}menu.html#hot-coffee`, { waitUntil: "domcontentloaded" });
+  await page.locator('body[data-menu-integrity-ready="true"]').waitFor();
+
+  const chips = page.locator("#menu-category-nav .menu-category-chip");
+  assert.ok(await chips.count() > 2, "category navigation did not render");
+  assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "false", "direct hash must begin in the requested category");
+
+  const search = page.locator("#menu-search");
+  const resultStatus = page.locator("#menu-results-status");
+  await search.fill("San Sebastian");
+  await waitUntil(async () => await chips.nth(0).getAttribute("aria-pressed") === "true", "search did not expand to all categories");
+  await page.getByText("San Sebastian", { exact: true }).first().waitFor();
+  await waitUntil(async () => /\d+ ürün bulundu/i.test(await resultStatus.textContent() ?? ""), "search result status did not settle");
+
+  const visibleResults = page.locator("#menu-root .full-menu-item");
+  const visibleCount = await visibleResults.count();
+  const statusText = await resultStatus.innerText();
+  const announcedCount = Number(statusText.match(/(\d+) ürün bulundu/i)?.[1] ?? 0);
+
+  assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "true", "search must expand to all categories");
+  assert.equal(await page.locator("#menu-empty").isHidden(), true, "cross-category search must not show a false empty state");
+  assert.match(await page.locator("#menu-search-scope").innerText(), /tüm menü kategorilerinde/i);
+  assert.ok(visibleCount > 0, "cross-category search must return at least one relevant result");
+  assert.equal(announcedCount, visibleCount, "announced result count must equal rendered result count");
+  for (let index = 0; index < visibleCount; index += 1) {
+    assert.match(await visibleResults.nth(index).innerText(), /San Sebastian/i, `result ${index + 1} must match the query`);
+  }
+
+  const hotCoffeeChip = page.getByRole("button", { name: "Sıcak Kahveler", exact: true });
+  await hotCoffeeChip.click();
+  assert.equal(await search.inputValue(), "", "explicit category selection must exit global search");
+  assert.equal(await hotCoffeeChip.getAttribute("aria-pressed"), "true", "selected category must become active");
+  assert.match(page.url(), /#hot-coffee$/);
+
+  await chips.nth(0).click();
+  const firstPairing = page.locator('.full-menu-item--visual[data-pairing="cool-lime-macaron"]').first();
+  await firstPairing.waitFor();
+  assert.equal(await firstPairing.locator(".pairing-poster-old-price").count(), 0, "fake crossed-out price must not exist");
+  assert.equal((await firstPairing.innerText()).includes("340 ₺"), false, "unsupported 340 ₺ comparison must not be visible");
+  assert.match(await firstPairing.innerText(), /290 ₺/);
+  assert.match(await firstPairing.innerText(), /ayrı bir eşleşme teklifi/i);
+
+  const showBarista = firstPairing.getByRole("button", { name: /Baristaya göster/ });
+  assert.equal(await showBarista.isVisible(), true, "barista action must be visibly rendered below the poster");
+  await showBarista.click();
+  const dialog = page.locator("#pairing-fulfilment-dialog");
+  await dialog.waitFor({ state: "visible" });
+  assert.equal(await dialog.getAttribute("open"), "", "barista dialog must be open");
+  assert.match(await dialog.innerText(), /Cool Lime \+ Makaron/);
+  assert.match(await dialog.innerText(), /290 ₺/);
+  assert.match(await dialog.innerText(), /indirim olarak gösterilmez/i);
+  await dialog.getByRole("button", { name: "Kapat", exact: true }).click();
+  await dialog.waitFor({ state: "hidden" });
+
+  await page.locator('.lang-button[data-lang="en"]').click();
+  assert.equal(await page.locator("html").getAttribute("lang"), "en");
+  assert.match(await page.locator("#menu-search-scope").innerText(), /all menu categories/i);
+  assert.equal(await firstPairing.getByRole("button", { name: /Show barista/ }).isVisible(), true);
+
+  await page.locator('.lang-button[data-lang="ru"]').click();
+  assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+  assert.match(await page.locator("#menu-search-scope").innerText(), /всем категориям меню/i);
+  assert.equal(await firstPairing.getByRole("button", { name: /Показать бариста/ }).isVisible(), true);
+  assert.match(await page.locator(".menu-truth-note").innerText(), /Версия меню 2026-06-30/);
+
+  const storageKeys = await page.evaluate(() => Object.keys(localStorage).sort());
+  assert.deepEqual(storageKeys, ["robys-language"], "menu integrity must not create persistent profile keys");
+  assert.deepEqual(runtimeErrors, [], `browser runtime errors: ${runtimeErrors.join(" | ")}`);
+  assert.deepEqual(failedRequests, [], `failed requests: ${failedRequests.join(" | ")}`);
+
+  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search count matches rendered results, explicit category exit works, truthful pairing actions are visible, and the barista dialog works in TR/EN/RU without weakening CSP.");
+} finally {
+  await browser?.close();
+  server.kill("SIGTERM");
+}
