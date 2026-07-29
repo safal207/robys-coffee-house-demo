@@ -1,0 +1,46 @@
+name: Sync unified menu runtime
+
+on:
+  push:
+    branches:
+      - agent/fix-menu-truth-and-journeys
+    paths:
+      - ".github/workflows/sync-unified-menu-runtime.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-unified-menu-runtime
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: agent/fix-menu-truth-and-journeys
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build and generate integrity manifest
+        run: |
+          npm run build
+          npm run integrity:generate
+      - name: Commit generated files
+        run: |
+          git add menu-page.js menu.html sw.js integrity-manifest.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: sync unified menu runtime"
+          git push origin HEAD:agent/fix-menu-truth-and-journeys
