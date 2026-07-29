@@ -16,8 +16,9 @@ Console/Network, and capture evidence without installing extra browsers.
 - At least 4 GB of free RAM for both browsers
 - Ports `8080`, `3010`, `3011`, `3020`, and `3021` available
 
-The browser GUI containers are powerful local desktop environments. Keep their
-ports bound to your own machine or trusted LAN only. Do not expose them directly
+All published ports bind to `127.0.0.1` by default. The site and browser desktops
+are therefore reachable only from the machine running Docker unless an operator
+explicitly changes `ROBY_QA_BIND_ADDRESS`. Do not expose the browser GUI directly
 to the Internet.
 
 ## Start
@@ -46,18 +47,35 @@ Default local GUI credentials:
 - user: `qa`
 - password: `replace_me_before_lan_use`
 
-The default password is an explicit development placeholder. Override it before
-binding the browser ports to a LAN interface or sharing access with another tester.
+The default password is an explicit development placeholder. It is acceptable
+only while the lab remains bound to loopback. Override it before binding the
+browser ports to a LAN interface or sharing access with another tester.
 
 Inside Chromium and Firefox, Roby's opens at `http://site/`. Do not replace it
 with `localhost`: inside a browser container, `localhost` means that browser
 container, not the site container.
 
-Use custom credentials before sharing the lab on a LAN:
+## Share on a trusted LAN
+
+LAN access must be enabled explicitly. Use a strong unique password, limit access
+with the host firewall, and run this only on a trusted network:
 
 ```bash
+ROBY_QA_BIND_ADDRESS=0.0.0.0 \
 ROBY_QA_USER=alex \
-ROBY_QA_PASSWORD='replace-this-password' \
+ROBY_QA_PASSWORD='replace-with-a-strong-unique-password' \
+npm run qa:browsers:up
+```
+
+`0.0.0.0` publishes the five ports on every host interface. To expose the lab
+only through one LAN interface, set `ROBY_QA_BIND_ADDRESS` to that interface's
+specific IP address instead.
+
+Return to local-only mode by stopping the lab and starting it again without the
+`ROBY_QA_BIND_ADDRESS` override:
+
+```bash
+npm run qa:browsers:down
 npm run qa:browsers:up
 ```
 
