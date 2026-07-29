@@ -93,7 +93,10 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-mark-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-organic-ring.svg");
-  return requiresExactRevision ? cache.match(request) : cache.match(request, { ignoreSearch: true });
+  if (requiresExactRevision) {
+    return cache.match(request);
+  }
+  return cache.match(request, { ignoreSearch: true });
 }
 
 async function runtimeAssetResponse(request) {
