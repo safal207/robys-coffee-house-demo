@@ -72,23 +72,26 @@ assert.match(posters, /import \{ pairingTruth \} from "\.\/menu-truth\.js"/);
 assert.match(integrity, /menu_search_expanded_global/);
 assert.match(integrity, /menu-category-chip/);
 assert.match(integrity, /aria-pressed/);
-assert.match(integrity, /root\.removeAttribute\("aria-live"\)/);
+assert.match(integrity, /menuRoot\.removeAttribute\("aria-live"\)/);
 assert.match(integrity, /menu-results-status/);
 assert.match(integrity, /role", "status"/);
 assert.match(integrity, /pairing_show_barista/);
 assert.match(integrity, /pairing_directions_click/);
 assert.match(integrity, /menu_version: menuTruth\.menuVersion/);
-assert.match(integrity, /data\.menuIntegrityReady/);
+assert.match(integrity, /dataset\.menuIntegrityReady/);
+assert.match(integrity, /menuObserver\?\.disconnect/);
+assert.match(integrity, /setText\(/);
 assert.doesNotMatch(integrity, /fetch\(|XMLHttpRequest|sendBeacon|Notification\.requestPermission/);
 assert.doesNotMatch(integrity, /localStorage|sessionStorage/);
 assert.doesNotMatch(integrity, /\.innerHTML\s*=/);
 
 assert.match(styles, /pairing-card-actions/);
+assert.match(styles, /pairing-poster-price-context/);
 assert.match(styles, /min-height:52px/);
 assert.match(styles, /focus-visible/);
 assert.match(styles, /prefers-reduced-motion/);
 
 assert.match(menuHtml, /type="module" src="pairing-posters\.js/);
-assert.match(menuHtml, /href="menu\.html#pairing-offers"|id="menu-root"/);
+assert.match(menuHtml, /id="menu-root"/);
 
 console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, pairing cards have an offline outcome, and menu ownership/version metadata is explicit.");
