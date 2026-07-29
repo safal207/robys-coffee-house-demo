@@ -64,7 +64,12 @@
     "audit:deps": "node scripts/audit-dependencies.mjs",
     "lighthouse:smoke": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.refresh-smoke.cjs",
     "lighthouse:collect:mobile": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.mobile.cjs",
-    "lighthouse:collect:desktop": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.desktop.cjs"
+    "lighthouse:collect:desktop": "npx --yes @lhci/cli@0.15.1 collect --config=lighthouse/lighthouserc.desktop.cjs",
+    "qa:browsers:config": "docker compose -f docker-compose.browser-lab.yml config -q",
+    "qa:browsers:up": "docker compose -f docker-compose.browser-lab.yml up -d --wait",
+    "qa:browsers:status": "docker compose -f docker-compose.browser-lab.yml ps",
+    "qa:browsers:logs": "docker compose -f docker-compose.browser-lab.yml logs --tail=150",
+    "qa:browsers:down": "docker compose -f docker-compose.browser-lab.yml down --remove-orphans"
   },
   "devDependencies": {
     "esbuild": "0.28.1",

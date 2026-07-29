@@ -1,0 +1,51 @@
+{
+  "suite": "robys-browser-lab",
+  "scope": "PR #292 Docker browser lab and confirmed browser evidence",
+  "tests": [
+    {
+      "name": "docker-browser-lab-smoke",
+      "verdict": "stable",
+      "stability": 1.0,
+      "flake_probability": 0.0,
+      "flake_score": 0.0,
+      "run_count": 2,
+      "evidence": "Cloud runner validated Compose, started nginx, Chromium and Firefox, probed all endpoints, archived logs, and cleaned up successfully."
+    },
+    {
+      "name": "browser-desktop-auth-boundary",
+      "verdict": "stable",
+      "stability": 1.0,
+      "flake_probability": 0.0,
+      "flake_score": 0.0,
+      "run_count": 2,
+      "evidence": "Chromium and Firefox HTTPS desktop endpoints both returned the expected authenticated HTTP 401 boundary."
+    },
+    {
+      "name": "security-contract",
+      "verdict": "stable",
+      "stability": 1.0,
+      "flake_probability": 0.0,
+      "flake_score": 0.0,
+      "run_count": 2,
+      "evidence": "The initial secret-scan finding was caused by a password-like development value; an explicit placeholder was committed and the repeated security contract passed."
+    },
+    {
+      "name": "application-javascript-change-attribution",
+      "verdict": "stable",
+      "stability": 1.0,
+      "flake_probability": 0.0,
+      "flake_score": 0.0,
+      "run_count": 3,
+      "evidence": "The PR changes QA workflow, Compose, nginx configuration, documentation, Lighthouse evidence and npm aliases; it does not change application JavaScript."
+    },
+    {
+      "name": "lighthouse-total-js-budget",
+      "verdict": "stable",
+      "stability": 1.0,
+      "flake_probability": 0.0,
+      "flake_score": 0.0,
+      "run_count": 6,
+      "evidence": "Six mobile and six desktop Lighthouse observations confirmed 22,139 JavaScript bytes on unchanged generated application assets. The stale 21,021-byte baseline was recalibrated to the measured asset set while preserving the 5% future-regression threshold and 170,000-byte hard maximum."
+    }
+  ]
+}
