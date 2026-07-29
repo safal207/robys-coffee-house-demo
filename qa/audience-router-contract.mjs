@@ -74,8 +74,10 @@ for (const forbidden of [
 }
 
 assert(styles.includes("grid-template-columns:repeat(4"), "desktop layout exposes four equal routes");
-assert(styles.includes("grid-template-columns:repeat(2"), "tablet layout preserves route choice");
-assert(styles.includes("grid-template-columns:1fr"), "narrow mobile layout remains readable");
+assert(styles.includes("@media(max-width:980px)"), "tablet breakpoint is explicit");
+assert(styles.includes("@media(max-width:560px)"), "mobile breakpoint is explicit");
+assert(styles.match(/@media\(max-width:560px\)[\s\S]*?\.audience-route-grid\{[\s\S]*?grid-template-columns:repeat\(2/), "mobile layout keeps the Router compact in a two-column grid");
+assert(styles.match(/@media\(max-width:560px\)[\s\S]*?\.audience-route-card\{[\s\S]*?flex-direction:column/), "mobile cards use a readable vertical composition");
 assert(styles.includes("min-height:40px"), "reset control meets the repository touch-target floor");
 assert(styles.includes("prefers-reduced-motion"), "Router supplies a reduced-motion contract");
 assert(styles.includes(".is-preferred"), "restored preference has a visible but non-blocking state");
