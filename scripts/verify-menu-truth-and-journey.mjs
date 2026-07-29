@@ -9,7 +9,7 @@ async function importSource(path) {
 
 const { menuCategories } = await importSource("menu-data.js");
 const menuHtml = readFileSync("menu.html", "utf8");
-const source = readFileSync("src/menu-page-runtime.js", "utf8");
+const source = readFileSync("scripts/menu-page-runtime.mjs", "utf8");
 const posters = readFileSync("pairing-posters.js", "utf8");
 const styles = readFileSync("menu-integrity.css", "utf8");
 const build = readFileSync("scripts/build.mjs", "utf8");
@@ -83,10 +83,14 @@ assert.match(source, /localStorage\.getItem\("robys-language"\)/);
 assert.match(source, /localStorage\.setItem\("robys-language"/);
 assert.match(source, /document\.querySelector\("#menu-truth-config"\)/);
 assert.match(source, /JSON\.parse\(configNode\.textContent/);
+assert.match(source, /directions\.href = mapsUrl/);
+assert.match(source, /directions\.target = "_blank"/);
+assert.match(source, /directions\.rel = "noopener noreferrer"/);
 
-assert.match(build, /src\/menu-page-runtime\.js/);
+assert.match(build, /scripts\/menu-page-runtime\.mjs/);
+assert.match(build, /bundle: true/);
 assert.match(build, /minify: true/);
-assert.match(build, /outfile|writeFileSync\("menu-page\.js"/);
+assert.match(build, /outfile: "menu-page\.js"/);
 assert.match(build, /synchronizeModuleScript\(menuHtml, "menu-page\.js"/);
 assert.match(build, /menuPageAssetPattern/);
 
@@ -99,6 +103,8 @@ assert.match(styles, /prefers-reduced-motion/);
 assert.match(menuHtml, /menu-integrity\.css\?v=menu-truth-20260729-3/);
 assert.match(menuHtml, /pairing-posters\.js\?v=menu-truth-20260729-4/);
 assert.match(menuHtml, /id="pairing-fulfilment-dialog"/);
+assert.match(menuHtml, /<a class="button button-primary" data-dialog-directions><\/a>/);
+assert.doesNotMatch(menuHtml, /<a class="button button-primary"[^>]*href=[^>]*data-dialog-directions/);
 assert.match(menuHtml, /id="menu-results-status" role="status" aria-live="polite"/);
 assert.doesNotMatch(menuHtml, /id="menu-root"[^>]*aria-live/);
 
@@ -109,4 +115,4 @@ assert.match(serviceWorker, /url\.pathname\.endsWith\("\/menu-page\.js"\)/);
 assert.doesNotMatch(serviceWorker, /menu-integrity\.js|menu-search-policy\.js|menu-truth\.js/);
 assert.match(serviceWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
 
-console.log("✅ MENU-TRUTH-001 passed: pricing truth, global search, visible pairing actions, inert configuration and exact PWA delivery are integrated into one minified menu runtime.");
+console.log("✅ MENU-TRUTH-001 passed: pricing truth, global search, visible pairing actions, deferred dialog routing and exact PWA delivery are integrated into one minified runtime built outside the production graph.");
