@@ -30,12 +30,14 @@ jobs:
           mkdir -p .artifacts/browser-image-canary
           for image in \
             "nginx:1.27.5-alpine" \
-            "lscr.io/linuxserver/chromium:latest" \
-            "lscr.io/linuxserver/firefox:latest"
+            "ghcr.io/linuxserver/chromium:latest" \
+            "ghcr.io/linuxserver/firefox:latest"
           do
             safe_name="$(printf '%s' "$image" | tr '/:@' '____')"
             docker buildx imagetools inspect "$image" \
               > ".artifacts/browser-image-canary/${safe_name}.txt" 2>&1 || true
+            docker buildx imagetools inspect --raw "$image" \
+              > ".artifacts/browser-image-canary/${safe_name}.json" 2>&1 || true
           done
 
       - name: Build advisory drift report
@@ -48,60 +50,104 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
+          artifact_root = Path(".artifacts/browser-image-canary")
           compose = Path("docker-compose.browser-lab.yml").read_text(encoding="utf-8")
           targets = [
-              ("site", "nginx:1.27.5-alpine", "nginx_1.27.5-alpine.txt"),
-              ("chromium", "lscr.io/linuxserver/chromium:latest", "lscr.io_linuxserver_chromium_latest.txt"),
-              ("firefox", "lscr.io/linuxserver/firefox:latest", "lscr.io_linuxserver_firefox_latest.txt"),
+              {"service": "site", "upstream": "nginx:1.27.5-alpine", "mode": "index"},
+              {"service": "chromium", "upstream": "ghcr.io/linuxserver/chromium:latest", "mode": "amd64-child"},
+              {"service": "firefox", "upstream": "ghcr.io/linuxserver/firefox:latest", "mode": "amd64-child"},
           ]
-          records = []
-          for service, upstream, filename in targets:
-              pinned_match = re.search(
-                  rf"{re.escape(service)}:.*?image:\s*\"?\$\{{[^:]+:-[^\n]*?@sha256:([0-9a-f]{{64}})\}}\"?",
+
+          def safe_name(image):
+              return image.translate(str.maketrans({"/": "_", ":": "_", "@": "_"}))
+
+          def pinned_reference(service):
+              match = re.search(
+                  rf"(?ms)^  {re.escape(service)}:\n.*?^    image:\s*\"\$\{{[^:]+:-(.*?)\}}\"\s*$",
                   compose,
-                  flags=re.DOTALL,
               )
-              pinned = pinned_match.group(1) if pinned_match else None
-              text_path = Path(".artifacts/browser-image-canary", filename)
+              return match.group(1) if match else None
+
+          def top_level_digest(text):
+              match = re.search(r"^Digest:\s*sha256:([0-9a-f]{64})\s*$", text, flags=re.MULTILINE)
+              return match.group(1) if match else None
+
+          def amd64_child_digest(raw_text):
+              try:
+                  packet = json.loads(raw_text)
+              except json.JSONDecodeError:
+                  return None
+              manifests = packet.get("manifests")
+              if not isinstance(manifests, list):
+                  return None
+              for manifest in manifests:
+                  platform = manifest.get("platform") or {}
+                  if platform.get("os") == "linux" and platform.get("architecture") == "amd64":
+                      digest = manifest.get("digest", "")
+                      if re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+                          return digest.removeprefix("sha256:")
+              return None
+
+          records = []
+          for target in targets:
+              service = target["service"]
+              upstream = target["upstream"]
+              prefix = safe_name(upstream)
+              text_path = artifact_root / f"{prefix}.txt"
+              raw_path = artifact_root / f"{prefix}.json"
               text = text_path.read_text(encoding="utf-8", errors="replace") if text_path.exists() else ""
-              observed_match = re.search(r"^Digest:\s*sha256:([0-9a-f]{64})\s*$", text, flags=re.MULTILINE)
-              observed = observed_match.group(1) if observed_match else None
+              raw_text = raw_path.read_text(encoding="utf-8", errors="replace") if raw_path.exists() else ""
+              pinned_ref = pinned_reference(service)
+              pinned_match = re.search(r"@sha256:([0-9a-f]{64})$", pinned_ref or "")
+              pinned = pinned_match.group(1) if pinned_match else None
+              observed = (
+                  top_level_digest(text)
+                  if target["mode"] == "index"
+                  else amd64_child_digest(raw_text)
+              )
+              status = "unknown"
+              if pinned and observed:
+                  status = "current" if pinned == observed else "drift"
               records.append({
                   "service": service,
                   "upstream": upstream,
+                  "comparisonMode": target["mode"],
+                  "pinnedReference": pinned_ref,
                   "pinnedDigest": pinned,
                   "observedUpstreamDigest": observed,
-                  "driftDetected": bool(pinned and observed and pinned != observed),
+                  "status": status,
+                  "driftDetected": status == "drift",
                   "inspectionSucceeded": observed is not None,
-                  "rawEvidence": filename,
+                  "rawEvidence": [text_path.name, raw_path.name],
               })
 
           report = {
-              "schema": "robys.browser-image-canary.v1",
+              "schema": "robys.browser-image-canary.v2",
               "advisoryOnly": True,
               "generatedAt": datetime.now(timezone.utc).isoformat(),
               "records": records,
           }
-          out = Path(".artifacts/browser-image-canary/report.json")
-          out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          (artifact_root / "report.json").write_text(
+              json.dumps(report, indent=2) + "\n",
+              encoding="utf-8",
+          )
           lines = [
               "# Advisory browser image canary",
               "",
               "This report detects upstream drift only. It never changes pinned digests, baselines, branches or release decisions.",
               "",
-              "| Service | Pinned digest | Upstream digest | Drift |",
-              "|---|---|---|---|",
+              "| Service | Comparison | Pinned digest | Upstream digest | Status |",
+              "|---|---|---|---|---|",
           ]
           for record in records:
               lines.append(
-                  f"| {record['service']} | `{record['pinnedDigest'] or 'unresolved'}` | "
-                  f"`{record['observedUpstreamDigest'] or 'unresolved'}` | "
-                  f"{'yes' if record['driftDetected'] else 'no/unknown'} |"
+                  f"| {record['service']} | {record['comparisonMode']} | "
+                  f"`{record['pinnedDigest'] or 'unresolved'}` | "
+                  f"`{record['observedUpstreamDigest'] or 'unresolved'}` | {record['status']} |"
               )
           markdown = "\n".join(lines) + "\n"
-          Path(".artifacts/browser-image-canary/report.md").write_text(markdown, encoding="utf-8")
-          with Path(".artifacts/browser-image-canary/report.md").open(encoding="utf-8") as handle:
-              print(handle.read())
+          (artifact_root / "report.md").write_text(markdown, encoding="utf-8")
+          print(markdown)
           PY
           cat .artifacts/browser-image-canary/report.md >> "$GITHUB_STEP_SUMMARY"
 
