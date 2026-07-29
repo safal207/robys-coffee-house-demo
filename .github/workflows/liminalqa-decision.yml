@@ -1,0 +1,99 @@
+name: LiminalQA decision packet
+
+on:
+  push:
+    branches:
+      - agent/docker-browser-lab
+    paths:
+      - qa/liminal/**
+      - .github/workflows/liminalqa-decision.yml
+  pull_request:
+    paths:
+      - qa/liminal/**
+      - .github/workflows/liminalqa-decision.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liminalqa-decision-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LIMINALQA_REVISION: 19d1cd72472666df21350c6f2b2e54591eb3f462
+
+jobs:
+  decision:
+    name: Classify Roby's QA evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Roby's
+        uses: actions/checkout@v4
+        with:
+          path: robys
+
+      - name: Checkout pinned LiminalQA engine
+        uses: actions/checkout@v4
+        with:
+          repository: safal207/LiminalQAengineer
+          ref: ${{ env.LIMINALQA_REVISION }}
+          path: liminalqa
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build decision adapter with LiminalQA core
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p adapter/src
+          cp robys/qa/liminal/decision_adapter.rs adapter/src/main.rs
+          cat > adapter/Cargo.toml <<'TOML'
+          [package]
+          name = "robys-liminalqa-adapter"
+          version = "0.1.0"
+          edition = "2021"
+
+          [dependencies]
+          liminalqa-core = { path = "../liminalqa/liminalqa-core" }
+          serde = { version = "1", features = ["derive"] }
+          serde_json = "1"
+          TOML
+          cargo build --locked --manifest-path adapter/Cargo.toml
+
+      - name: Generate advisory decision packet
+        env:
+          ROBY_TESTED_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          adapter/target/debug/robys-liminalqa-adapter \
+            robys/qa/liminal/robys-signals.json \
+            robys/qa/liminal-artifacts
+          cat robys/qa/liminal-artifacts/decision.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify packet boundary and policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          packet = json.loads(Path("robys/qa/liminal-artifacts/decision.json").read_text())
+          assert packet["schema"] == "robys.liminalqa.decision.v1"
+          assert packet["source_revision"] == "19d1cd72472666df21350c6f2b2e54591eb3f462"
+          policy = packet["suite_decision"]["merge_policy"]
+          assert policy in {"allow", "unknown", "allow_with_warning", "block_soft", "block"}
+          assert any(item["name"] == "lighthouse-total-js-budget" for item in packet["test_decisions"])
+          assert any(item["verdict"] == "known_issue" for item in packet["test_decisions"])
+          print(f"LiminalQA packet verified; advisory merge policy={policy}")
+          PY
+
+      - name: Upload LiminalQA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: liminalqa-decision-${{ github.event.pull_request.head.sha || github.sha }}
+          path: robys/qa/liminal-artifacts/
+          if-no-files-found: error
+          retention-days: 14
