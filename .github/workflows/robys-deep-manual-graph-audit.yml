@@ -26,7 +26,7 @@ jobs:
   exploratory-graph:
     name: Chromium + Firefox state-transition audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 45
 
     steps:
       - name: Checkout exact head
@@ -67,12 +67,12 @@ jobs:
       - name: Audit exact-head product graph
         id: exact
         continue-on-error: true
-        run: node qa/deep-manual/robys-deep-graph-audit.mjs exact-head http://127.0.0.1:4173/
+        run: node qa/deep-manual/robys-deep-graph-audit-v2.mjs exact-head http://127.0.0.1:4173/
 
       - name: Audit published product graph
         id: published
         continue-on-error: true
-        run: node qa/deep-manual/robys-deep-graph-audit.mjs published https://safal207.github.io/robys-coffee-house-demo/
+        run: node qa/deep-manual/robys-deep-graph-audit-v2.mjs published https://safal207.github.io/robys-coffee-house-demo/
 
       - name: Preserve runtime evidence
         if: always()
