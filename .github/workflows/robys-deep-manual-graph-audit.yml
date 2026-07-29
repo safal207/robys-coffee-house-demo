@@ -64,10 +64,24 @@ jobs:
           cat /tmp/robys-deep-audit-server.log
           exit 1
 
-      - name: Audit exact-head product graph
+      - name: Audit exact-head product graph and all initial interactions
         id: exact
         continue-on-error: true
-        run: node qa/deep-manual/robys-deep-graph-audit-v2.mjs exact-head http://127.0.0.1:4173/
+        shell: bash
+        run: |
+          set +e
+          rm -rf qa-results/deep-manual/published qa-results/deep-manual/exact-head
+          node qa/deep-manual/robys-deep-graph-audit-v2.mjs published http://127.0.0.1:4173/
+          graph_status=$?
+          if [[ -d qa-results/deep-manual/published ]]; then
+            mv qa-results/deep-manual/published qa-results/deep-manual/exact-head
+          fi
+          node qa/deep-manual/robys-exact-interaction-audit.mjs exact-head http://127.0.0.1:4173/
+          interaction_status=$?
+          echo "graph_status=${graph_status} interaction_status=${interaction_status}"
+          if [[ ${graph_status} -ne 0 || ${interaction_status} -ne 0 ]]; then
+            exit 1
+          fi
 
       - name: Audit published product graph
         id: published
