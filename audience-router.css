@@ -224,31 +224,114 @@
 
 @media(max-width:560px){
   .audience-router{
-    padding:36px 0 42px;
+    padding:30px 0 36px;
   }
 
   .audience-router-inner{
-    gap:19px;
+    gap:16px;
+  }
+
+  .audience-router-heading{
+    gap:6px;
+  }
+
+  .audience-router-heading .eyebrow{
+    margin-top:0;
   }
 
   .audience-router-title{
-    font-size:2.35rem;
+    font-size:2rem;
+    line-height:1;
+  }
+
+  .audience-router-lead{
+    margin-top:8px;
+    font-size:.82rem;
+    line-height:1.5;
   }
 
   .audience-route-grid{
-    grid-template-columns:1fr;
-    gap:10px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
   }
 
   .audience-route-card{
-    min-height:132px;
-    padding:18px;
+    min-height:158px;
+    flex-direction:column;
+    gap:9px;
+    padding:14px;
+    border-radius:18px;
+  }
+
+  .audience-route-marker{
+    width:34px;
+    min-width:34px;
+    height:34px;
+    font-size:.68rem;
+  }
+
+  .audience-route-marker--chapter{
+    border-width:6px;
+    box-shadow:0 0 0 3px rgba(226,27,35,.08);
+  }
+
+  .audience-route-heading-line{
+    display:block;
+  }
+
+  .audience-route-title{
+    font-size:1rem;
+    line-height:1.08;
+  }
+
+  .audience-route-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    max-width:70px;
+    padding:3px 6px;
+    font-size:.48rem;
+  }
+
+  .audience-route-description{
+    display:-webkit-box;
+    margin-top:6px;
+    overflow:hidden;
+    font-size:.68rem;
+    line-height:1.35;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3;
+  }
+
+  .audience-route-action{
+    padding-top:9px;
+    font-size:.67rem;
   }
 
   .audience-router-preference{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:9px;
+    min-height:40px;
+    align-items:center;
+    flex-direction:row;
+    gap:10px;
+  }
+
+  .audience-router-status{
+    font-size:.68rem;
+  }
+
+  .audience-router-reset{
+    flex:0 0 auto;
+  }
+}
+
+@media(max-width:340px){
+  .audience-route-card{
+    min-height:164px;
+    padding:12px;
+  }
+
+  .audience-route-description{
+    -webkit-line-clamp:2;
   }
 }
 
