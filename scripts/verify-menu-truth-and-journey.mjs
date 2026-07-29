@@ -11,6 +11,7 @@ const { menuCategories } = await importSource("menu-data.js");
 const { menuTruth, pairingTruth } = await importSource("menu-truth.js");
 const posters = readFileSync("pairing-posters.js", "utf8");
 const integrity = readFileSync("menu-integrity.js", "utf8");
+const searchPolicy = readFileSync("menu-search-policy.js", "utf8");
 const styles = readFileSync("menu-integrity.css", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
 
@@ -67,6 +68,7 @@ assert.doesNotMatch(posters, /PAIR OF THE DAY/);
 assert.match(posters, /ROBY'S PAIRING/);
 assert.match(posters, /pairing-poster-price-context/);
 assert.match(posters, /import "\.\/menu-integrity\.js"/);
+assert.match(posters, /import "\.\/menu-search-policy\.js"/);
 assert.match(posters, /import \{ pairingTruth \} from "\.\/menu-truth\.js"/);
 
 assert.match(integrity, /menu_search_expanded_global/);
@@ -85,6 +87,12 @@ assert.doesNotMatch(integrity, /fetch\(|XMLHttpRequest|sendBeacon|Notification\.
 assert.doesNotMatch(integrity, /localStorage|sessionStorage/);
 assert.doesNotMatch(integrity, /\.innerHTML\s*=/);
 
+assert.match(searchPolicy, /menu_search_cleared_for_category/);
+assert.match(searchPolicy, /input\.value = ""/);
+assert.match(searchPolicy, /new Event\("input", \{ bubbles: true \}\)/);
+assert.match(searchPolicy, /capture: true/);
+assert.doesNotMatch(searchPolicy, /fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/);
+
 assert.match(styles, /pairing-card-actions/);
 assert.match(styles, /pairing-poster-price-context/);
 assert.match(styles, /min-height:52px/);
@@ -94,4 +102,4 @@ assert.match(styles, /prefers-reduced-motion/);
 assert.match(menuHtml, /type="module" src="pairing-posters\.js/);
 assert.match(menuHtml, /id="menu-root"/);
 
-console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, pairing cards have an offline outcome, and menu ownership/version metadata is explicit.");
+console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, explicit category choice exits search, pairing cards have an offline outcome, and menu ownership/version metadata is explicit.");
