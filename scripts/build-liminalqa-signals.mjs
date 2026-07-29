@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync, statSync, writeFileSync } from "node:fs";
+import { closeSync, constants, fstatSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -19,13 +19,28 @@ function readJson(relativePath) {
   return JSON.parse(readFileSync(path.join(evidenceRoot, relativePath), "utf8"));
 }
 
+function readRegularFileNoFollow(absolute) {
+  const descriptor = openSync(absolute, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const metadata = fstatSync(descriptor);
+    if (!metadata.isFile()) throw new Error(`Evidence is not a regular file: ${absolute}`);
+    const content = readFileSync(descriptor);
+    if (content.length !== metadata.size) {
+      throw new Error(`Evidence size changed during read: ${absolute}`);
+    }
+    return { content, bytes: metadata.size };
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
 function evidence(relativePath, statement) {
   if (path.isAbsolute(relativePath) || relativePath.split(/[\\/]+/).some((part) => !part || part === "." || part === "..")) {
     throw new Error(`Unsafe evidence path: ${relativePath}`);
   }
   const absolute = path.join(evidenceRoot, relativePath);
-  const bytes = statSync(absolute).size;
-  const sha256 = createHash("sha256").update(readFileSync(absolute)).digest("hex");
+  const { content, bytes } = readRegularFileNoFollow(absolute);
+  const sha256 = createHash("sha256").update(content).digest("hex");
   return {
     evidence: statement,
     evidence_path: relativePath.replaceAll("\\", "/"),
