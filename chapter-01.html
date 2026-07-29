@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Закрытый прототип первой главы Roby's: Летний вечер прохлады." />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#241c1b" />
+  <title>Глава №01 · Летний вечер прохлады | Roby's</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="chapter-01.css?v=chapter-01-mvp-1" />
+  <script defer src="chapter-01.js?v=chapter-01-mvp-1"></script>
+</head>
+<body>
+  <a class="skip-link" href="#chapter-main">Перейти к истории</a>
+
+  <header class="chapter-header">
+    <a class="chapter-brand" href="index.html" aria-label="Roby's Coffee House — на главную">
+      <img src="src/brand/robys-primary-master-v1.svg" alt="Roby's Coffee House" width="248" height="88" />
+    </a>
+    <div class="header-actions">
+      <div class="language-switcher" aria-label="Язык главы">
+        <button type="button" class="lang-button" data-lang="tr">TR</button>
+        <button type="button" class="lang-button" data-lang="en">EN</button>
+        <button type="button" class="lang-button active" data-lang="ru" aria-pressed="true">RU</button>
+      </div>
+      <a class="quiet-link" href="menu.html">Обычное меню</a>
+    </div>
+  </header>
+
+  <main id="chapter-main">
+    <section class="chapter-scene hero-scene is-active" data-scene="teaser" aria-labelledby="teaser-title">
+      <div class="hero-media" aria-hidden="true">
+        <img src="src/products/cards/pairing-iced-san-sebastian.webp" alt="" width="1024" height="1024" />
+        <div class="hero-shade"></div>
+      </div>
+
+      <div class="scene-inner hero-inner">
+        <div class="chapter-copy">
+          <p class="chapter-kicker" data-copy="chapterLabel">ROBY’S · ГЛАВА №01</p>
+          <h1 id="teaser-title" data-copy="teaserTitle">В Roby’s приближается новый момент.</h1>
+          <p class="chapter-lead" data-copy="teaserLead">Он прохладный, немного сладкий и лучше работает, когда никуда не торопишься.</p>
+
+          <div class="chapter-actions">
+            <button type="button" class="button button-primary" data-action="open-sign" data-copy="openSign">Увидеть первый знак</button>
+            <a class="button button-ghost" href="menu.html" data-copy="viewMenu">Посмотреть обычное меню</a>
+          </div>
+
+          <div class="sign-reveal" data-sign-reveal hidden>
+            <p data-copy="signOpened"><strong>Первый знак открыт.</strong><br />Теперь эта история ждёт твоего выбора.</p>
+            <button type="button" class="text-button" data-action="to-mood" data-copy="continueStory">Продолжить историю →</button>
+          </div>
+        </div>
+
+        <button class="wonder-ring" type="button" data-action="open-sign" aria-label="Открыть первый знак главы">
+          <span class="ring-wave" aria-hidden="true"></span>
+          <span class="ring-label" data-copy="firstSign">Первый знак</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="chapter-scene" data-scene="mood" aria-labelledby="mood-title" hidden>
+      <div class="scene-inner narrow-inner">
+        <p class="chapter-kicker" data-copy="stepOne">ШАГ 1 · ТВОЙ МОМЕНТ</p>
+        <h2 id="mood-title" data-copy="moodTitle">Какого момента тебе сейчас не хватает?</h2>
+        <p class="section-intro" data-copy="moodLead">Здесь нет неправильного ответа. Выбери состояние, в которое хочется перейти.</p>
+
+        <div class="mood-grid" role="radiogroup" aria-label="Выбор желаемого состояния">
+          <button class="choice-card" type="button" data-mood="cool" role="radio" aria-checked="false">
+            <span class="choice-symbol" aria-hidden="true">≈</span>
+            <strong data-copy="moodCool">Прохлада</strong>
+            <span data-copy="moodCoolLead">Хочу немного выдохнуть из жаркого дня.</span>
+          </button>
+          <button class="choice-card" type="button" data-mood="calm" role="radio" aria-checked="false">
+            <span class="choice-symbol" aria-hidden="true">○</span>
+            <strong data-copy="moodCalm">Спокойствие</strong>
+            <span data-copy="moodCalmLead">Хочу остановиться и никуда не торопиться.</span>
+          </button>
+          <button class="choice-card" type="button" data-mood="energy" role="radio" aria-checked="false">
+            <span class="choice-symbol" aria-hidden="true">↗</span>
+            <strong data-copy="moodEnergy">Энергия</strong>
+            <span data-copy="moodEnergyLead">Хочу мягко вернуться в день.</span>
+          </button>
+          <button class="choice-card" type="button" data-mood="celebration" role="radio" aria-checked="false">
+            <span class="choice-symbol" aria-hidden="true">✦</span>
+            <strong data-copy="moodCelebration">Маленький праздник</strong>
+            <span data-copy="moodCelebrationLead">Хочу что-то хорошее без особого повода.</span>
+          </button>
+        </div>
+
+        <div class="selection-response" data-mood-response role="status" aria-live="polite"></div>
+        <button type="button" class="button button-primary next-button" data-action="to-vote" disabled data-copy="continueStory">Продолжить историю</button>
+      </div>
+    </section>
+
+    <section class="chapter-scene" data-scene="vote" aria-labelledby="vote-title" hidden>
+      <div class="scene-inner narrow-inner">
+        <p class="chapter-kicker" data-copy="stepTwo">ШАГ 2 · ТВОЙ ГОЛОС</p>
+        <h2 id="vote-title" data-copy="voteTitle">Что должно завершить этот момент?</h2>
+        <p class="section-intro" data-copy="voteLead">Выбери спутника холодного латте. В реальном запуске победит голос гостей Roby’s.</p>
+
+        <div class="vote-grid" role="radiogroup" aria-label="Выбор десерта">
+          <button class="product-choice" type="button" data-vote="san-sebastian" role="radio" aria-checked="false">
+            <span class="product-image product-image--cake" aria-hidden="true"></span>
+            <span class="product-copy">
+              <strong>San Sebastian</strong>
+              <span data-copy="cakeLead">Сливочный, мягкий и созданный для медленного вечера.</span>
+              <span class="product-cta" data-copy="chooseThis">Выбираю это</span>
+            </span>
+          </button>
+          <button class="product-choice" type="button" data-vote="pistachio-macaron" role="radio" aria-checked="false">
+            <span class="product-image product-image--macaron" aria-hidden="true"></span>
+            <span class="product-copy">
+              <strong data-copy="macaron">Фисташковый макарон</strong>
+              <span data-copy="macaronLead">Лёгкий, яркий и немного неожиданный.</span>
+              <span class="product-cta" data-copy="chooseThis">Выбираю это</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="vote-confirmation" data-vote-confirmation hidden>
+          <p data-copy="voteAccepted"><strong>Твой голос принят.</strong><br />Мы сохранили его на этом устройстве. Результаты в прототипе не выдумываются.</p>
+          <fieldset class="channel-fieldset">
+            <legend data-copy="notifyLegend">Как сообщить продолжение?</legend>
+            <label><input type="radio" name="channel" value="telegram" /> Telegram</label>
+            <label><input type="radio" name="channel" value="push" /> <span data-copy="phoneNotification">Уведомление на телефон</span></label>
+            <label><input type="radio" name="channel" value="whatsapp" /> WhatsApp</label>
+            <label><input type="radio" name="channel" value="none" checked /> <span data-copy="noSubscription">Без подписки — сохранить только здесь</span></label>
+          </fieldset>
+          <p class="privacy-note" data-copy="privacyNote">На MVP-этапе выбор канала сохраняется локально. Реальная подписка не выполняется.</p>
+          <button type="button" class="button button-primary" data-action="to-waiting" data-copy="seeWaiting">Перейти к ожиданию</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter-scene waiting-scene" data-scene="waiting" aria-labelledby="waiting-title" hidden>
+      <div class="scene-inner centered-inner">
+        <div class="progress-ring" aria-hidden="true"><span>70%</span></div>
+        <p class="chapter-kicker" data-copy="betweenChapters">МЕЖДУ ГЛАВАМИ</p>
+        <h2 id="waiting-title" data-copy="waitingTitle">Теперь осталось немного подождать.</h2>
+        <p class="chapter-lead" data-copy="waitingLead">Первое раскрытие запланировано на пятницу, 31 июля, после 16:00.</p>
+        <p class="personal-choice" data-personal-choice></p>
+
+        <article class="story-note">
+          <h3 data-copy="whyWorks">Почему это сочетание может сработать?</h3>
+          <p data-copy="whyWorksLead">Холодный кофе возвращает лёгкость. Сливочный десерт замедляет момент. Вместе они создают паузу между жарким днём и спокойным вечером.</p>
+        </article>
+
+        <div class="chapter-actions centered-actions">
+          <button type="button" class="button button-primary" data-action="to-reveal" data-copy="openRevealDemo">Открыть reveal в прототипе</button>
+          <button type="button" class="button button-secondary" data-action="back-to-vote" data-copy="changeChoice">Изменить выбор</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter-scene reveal-scene" data-scene="reveal" aria-labelledby="reveal-title" hidden>
+      <div class="reveal-media" aria-hidden="true">
+        <img src="src/products/cards/pairing-iced-san-sebastian.webp" alt="" width="1024" height="1024" />
+      </div>
+      <div class="scene-inner reveal-inner">
+        <div class="reveal-card">
+          <p class="chapter-kicker" data-copy="chapterOpened">ГЛАВА №01 ОТКРЫТА</p>
+          <h2 id="reveal-title" data-copy="chapterTitle">Летний вечер прохлады</h2>
+          <p class="chapter-lead" data-copy="chapterPromise">Холодный латте возвращает лёгкость. San Sebastian разрешает никуда не торопиться.</p>
+
+          <div class="pairing-list" aria-label="Состав сочетания">
+            <div><strong>Iced Latte</strong><span data-copy="latteLead">Мягкий холодный кофе.</span></div>
+            <span class="pairing-plus" aria-hidden="true">+</span>
+            <div><strong>San Sebastian</strong><span data-copy="cakeShort">Сливочный чизкейк.</span></div>
+          </div>
+
+          <div class="price-block">
+            <strong>370 ₺</strong>
+            <span data-copy="priceTruth">Цена равна стоимости двух позиций меню. Скидка не заявлена.</span>
+          </div>
+
+          <div class="availability-note">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span data-copy="availabilityPrototype">Прототип: реальная доступность и часы события ещё не подключены.</span>
+          </div>
+
+          <div class="chapter-actions">
+            <button type="button" class="button button-primary" data-action="save-moment" data-copy="wantMoment">Хочу этот момент</button>
+            <button type="button" class="button button-secondary" data-action="share-chapter" data-copy="sendFriend">Отправить другу</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter-scene pass-scene" data-scene="saved" aria-labelledby="pass-title" hidden>
+      <div class="scene-inner pass-inner">
+        <div class="moment-pass" data-moment-pass>
+          <div class="pass-topline">
+            <span>ROBY’S MOMENT PASS</span>
+            <span data-copy="chapterNumber">Глава №01</span>
+          </div>
+          <div class="pass-symbol" aria-hidden="true"><span></span></div>
+          <h2 id="pass-title" data-copy="chapterTitle">Летний вечер прохлады</h2>
+          <div class="pass-products"><span>Iced Latte</span><span>San Sebastian</span></div>
+          <strong class="pass-price">370 ₺</strong>
+          <p data-copy="passTime">Пятница · после 16:00</p>
+          <div class="pass-code" data-pass-code>RBY-000</div>
+          <div class="qr-placeholder" aria-label="Место будущего QR-кода">
+            <span data-copy="qrLater">QR будет подключён после staff-flow</span>
+          </div>
+          <p class="pass-warning" data-copy="passWarning">Это прототип, а не подтверждение заказа или резервирования.</p>
+        </div>
+
+        <div class="pass-actions">
+          <button type="button" class="button button-primary" data-action="show-barista" data-copy="showBarista">Показать бариста</button>
+          <button type="button" class="button button-secondary" data-action="share-pass" data-copy="sendFriend">Отправить другу</button>
+          <a class="button button-secondary" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-action="route" data-copy="getRoute">Построить маршрут</a>
+          <button type="button" class="text-button" data-action="complete-demo" data-copy="simulateVisit">Демо: отметить визит</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter-scene completed-scene" data-scene="completed" aria-labelledby="completed-title" hidden>
+      <div class="scene-inner centered-inner">
+        <div class="memory-mark" aria-hidden="true">✓</div>
+        <p class="chapter-kicker" data-copy="momentComplete">МОМЕНТ СОХРАНЁН</p>
+        <h2 id="completed-title" data-copy="completedTitle">Ты открыл первую главу Roby’s.</h2>
+        <p class="chapter-lead" data-copy="completedLead">В боевой версии это состояние появится только после подтверждённого визита или покупки.</p>
+
+        <article class="memory-card">
+          <span data-copy="myMoment">МОЙ МОМЕНТ №01</span>
+          <strong data-copy="chapterTitle">Летний вечер прохлады</strong>
+          <small>31 июля 2026 · Iced Latte + San Sebastian</small>
+        </article>
+
+        <fieldset class="reaction-fieldset">
+          <legend data-copy="reactionQuestion">Каким был этот момент?</legend>
+          <label><input type="radio" name="reaction" value="needed" /> <span data-copy="reactionNeeded">Именно то, что было нужно</span></label>
+          <label><input type="radio" name="reaction" value="repeat" /> <span data-copy="reactionRepeat">Хочу повторить</span></label>
+          <label><input type="radio" name="reaction" value="different" /> <span data-copy="reactionDifferent">Хочу другое сочетание</span></label>
+        </fieldset>
+
+        <button type="button" class="button button-primary" data-action="to-post-credit" data-copy="seeNextSign">Увидеть следующий знак</button>
+      </div>
+    </section>
+
+    <section class="chapter-scene post-credit-scene" data-scene="post-credit" aria-labelledby="post-credit-title" hidden>
+      <div class="scene-inner centered-inner">
+        <div class="post-credit-ring" aria-hidden="true"><span>✦</span></div>
+        <p class="chapter-kicker" data-copy="afterStory">ПОСЛЕ ИСТОРИИ</p>
+        <h2 id="post-credit-title" data-copy="postCreditTitle">На следующей неделе кольцо станет теплее.</h2>
+        <p class="chapter-lead" data-copy="postCreditLead">Первые, кто заметит новый знак, смогут повлиять на следующую главу.</p>
+        <div class="chapter-actions centered-actions">
+          <button type="button" class="button button-primary" data-action="next-optin" data-copy="seeFirst">Увидеть первым</button>
+          <a class="button button-ghost" href="index.html" data-copy="returnCafe">Вернуться в Roby’s</a>
+        </div>
+        <p class="selection-response" data-next-response role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <aside class="prototype-console" aria-label="Навигация прототипа">
+    <div>
+      <strong>Chapter 01 prototype</strong>
+      <span data-prototype-state>TEASER</span>
+    </div>
+    <button type="button" data-action="prototype-prev" aria-label="Предыдущее состояние">←</button>
+    <button type="button" data-action="prototype-next" aria-label="Следующее состояние">→</button>
+    <button type="button" data-action="reset" data-copy="reset">Сбросить</button>
+  </aside>
+
+  <dialog class="barista-dialog" data-barista-dialog aria-labelledby="barista-dialog-title">
+    <button type="button" class="dialog-close" data-action="close-barista" aria-label="Закрыть">×</button>
+    <p class="chapter-kicker">ROBY’S MOMENT PASS</p>
+    <h2 id="barista-dialog-title" data-copy="showBaristaTitle">Покажите этот экран бариста</h2>
+    <div class="barista-code" data-barista-code>RBY-000</div>
+    <p data-copy="prototypeNoOrder">Прототип не создаёт заказ, оплату или резерв.</p>
+  </dialog>
+
+  <div class="toast" data-toast role="status" aria-live="polite" hidden></div>
+</body>
+</html>
