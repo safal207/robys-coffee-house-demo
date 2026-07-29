@@ -36,7 +36,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-page.js?v=000000000000",
+  "./menu-page.js?v=5155ba7888a7",
   "./menu-pwa.js",
   "./menu-data.js",
   "./pairing-posters.js?v=menu-truth-20260729-4",
