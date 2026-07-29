@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v30-20260727-platform-install-cta-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v31-20260729-menu-truth-c814bfb5";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -20,6 +20,8 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu.css",
+  "./pairing-posters.css?v=poster-20260708-1",
+  "./menu-integrity.css?v=menu-truth-20260729-3",
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
@@ -37,6 +39,10 @@ const CORE_ASSETS = [
   "./menu-page.js",
   "./menu-pwa.js",
   "./menu-data.js",
+  "./menu-truth.js",
+  "./menu-integrity.js",
+  "./menu-search-policy.js",
+  "./pairing-posters.js?v=menu-truth-20260729-3",
   "./menu-search-clear.js",
   "./menu-actions.js",
   "./discover.js",
@@ -89,6 +95,12 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css") ||
     url.pathname.endsWith("/brand-photo-logo.css") ||
+    url.pathname.endsWith("/pairing-posters.css") ||
+    url.pathname.endsWith("/menu-integrity.css") ||
+    url.pathname.endsWith("/pairing-posters.js") ||
+    url.pathname.endsWith("/menu-integrity.js") ||
+    url.pathname.endsWith("/menu-search-policy.js") ||
+    url.pathname.endsWith("/menu-truth.js") ||
     url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-header-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
