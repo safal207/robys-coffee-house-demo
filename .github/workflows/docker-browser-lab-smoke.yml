@@ -1,0 +1,103 @@
+name: Docker browser lab smoke
+
+on:
+  push:
+    branches:
+      - agent/docker-browser-lab
+    paths:
+      - docker-compose.browser-lab.yml
+      - qa/docker/**
+      - qa/manual/ROBYS_BROWSER_LAB.md
+      - .github/workflows/docker-browser-lab-smoke.yml
+  pull_request:
+    paths:
+      - docker-compose.browser-lab.yml
+      - qa/docker/**
+      - qa/manual/ROBYS_BROWSER_LAB.md
+      - .github/workflows/docker-browser-lab-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-browser-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Start nginx, Chromium and Firefox
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      ROBY_QA_USER: qa
+      ROBY_QA_PASSWORD: test_only_browser_lab
+      TZ: UTC
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Compose configuration
+        run: |
+          docker compose version
+          docker compose -f docker-compose.browser-lab.yml config -q
+
+      - name: Pull browser lab images
+        run: docker compose -f docker-compose.browser-lab.yml pull
+
+      - name: Start browser lab
+        run: docker compose -f docker-compose.browser-lab.yml up -d --wait
+
+      - name: Probe site and browser desktops
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          probe_http() {
+            local url="$1"
+            local label="$2"
+            local code="000"
+
+            for _ in $(seq 1 60); do
+              code="$(curl --insecure --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" || true)"
+              if [[ "$code" =~ ^[1-4][0-9][0-9]$ ]]; then
+                echo "${label} responded with HTTP ${code}"
+                return 0
+              fi
+              sleep 2
+            done
+
+            echo "${label} did not become reachable; last HTTP code: ${code}" >&2
+            return 1
+          }
+
+          test "$(curl --fail --silent http://localhost:8080/healthz)" = "ok"
+          curl --fail --silent http://localhost:8080/ > /tmp/robys-index.html
+          grep --ignore-case --quiet "rob[y’']" /tmp/robys-index.html
+
+          probe_http "https://localhost:3011/" "Chromium desktop"
+          probe_http "https://localhost:3021/" "Firefox desktop"
+
+          docker compose -f docker-compose.browser-lab.yml ps
+
+      - name: Collect runtime evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p qa/browser-lab-artifacts
+          docker compose -f docker-compose.browser-lab.yml ps --all > qa/browser-lab-artifacts/compose-ps.txt 2>&1 || true
+          docker compose -f docker-compose.browser-lab.yml logs --no-color > qa/browser-lab-artifacts/compose.log 2>&1 || true
+          cp /tmp/robys-index.html qa/browser-lab-artifacts/index.html 2>/dev/null || true
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-browser-lab-${{ github.sha }}
+          path: qa/browser-lab-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Stop browser lab
+        if: always()
+        run: docker compose -f docker-compose.browser-lab.yml down --volumes --remove-orphans
