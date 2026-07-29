@@ -1,0 +1,47 @@
+name: Roby's Audience Router contract
+
+on:
+  push:
+    branches:
+      - agent/robys-audience-router-mvp
+    paths:
+      - "audience-router.js"
+      - "audience-router.css"
+      - "analytics.js"
+      - "qa/audience-router-contract.mjs"
+      - ".github/workflows/robys-audience-router-contract.yml"
+  pull_request:
+    paths:
+      - "audience-router.js"
+      - "audience-router.css"
+      - "analytics.js"
+      - "qa/audience-router-contract.mjs"
+      - ".github/workflows/robys-audience-router-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-audience-router-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Freedom, route and persistence contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Audience Router contracts
+        run: node qa/audience-router-contract.mjs
