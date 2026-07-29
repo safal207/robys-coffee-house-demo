@@ -21,6 +21,28 @@ are therefore reachable only from the machine running Docker unless an operator
 explicitly changes `ROBY_QA_BIND_ADDRESS`. Do not expose the browser GUI directly
 to the Internet.
 
+## Reproducible image policy
+
+The default nginx, Chromium and Firefox images are pinned by immutable SHA-256
+digest. Chromium and Firefox also default to `linux/amd64`, matching the GitHub
+hosted QA runner. This means that the same repository commit resolves the same
+browser-lab bytes instead of silently following a moving `latest` tag.
+
+On an ARM host Docker may use emulation for the default browser platform. An
+operator may override the platform and images explicitly:
+
+```bash
+ROBY_QA_BROWSER_PLATFORM=linux/arm64 \
+ROBY_QA_CHROMIUM_IMAGE='lscr.io/linuxserver/chromium@sha256:<reviewed-arm64-digest>' \
+ROBY_QA_FIREFOX_IMAGE='lscr.io/linuxserver/firefox@sha256:<reviewed-arm64-digest>' \
+npm run qa:browsers:up
+```
+
+A run using an override is reproducible evidence only when every override is also
+digest-pinned and the resolved image references are retained with the test
+artifact. Mutable tags such as `latest` belong only in the separate advisory image
+canary and must not be used for release acceptance.
+
 ## Start
 
 From the repository root:
@@ -30,7 +52,7 @@ npm run qa:browsers:config
 npm run qa:browsers:up
 ```
 
-First startup pulls the browser images and can be large.
+First startup pulls the pinned browser images and can be large.
 
 Open:
 
@@ -156,6 +178,7 @@ For every defect, capture:
 ```text
 ID:
 Commit / build:
+Browser image digest:
 Browser + version:
 Viewport:
 URL:
@@ -171,16 +194,15 @@ Suspected layer: source | build | cache | render | external dependency
 ```
 
 A finding is not considered confirmed until it reproduces in a named browser and
-viewport with the tested commit recorded. Cross-browser differences should be
-reported separately rather than merged into one vague issue.
+viewport with the tested commit and resolved image digest recorded. Cross-browser
+differences should be reported separately rather than merged into one vague issue.
 
 ## Resource and compatibility notes
 
-- Browser images intentionally track their current `latest` release for manual
-  compatibility checks. Override `ROBY_QA_CHROMIUM_IMAGE` or
-  `ROBY_QA_FIREFOX_IMAGE` with a pinned tag or digest when reproducing a historical
-  defect.
-- Both images support x86-64 and ARM64.
+- CI stores expanded Compose configuration, resolved image information, runtime
+  status, logs and the served page in an artifact named with commit, run ID and
+  run attempt.
+- Exact-run browser-lab artifacts are retained for 90 days.
 - If an older Linux host blocks GUI syscalls, LinuxServer documents
   `security_opt: seccomp=unconfined` as a compatibility fallback. Do not enable it
   by default; it weakens container isolation.
