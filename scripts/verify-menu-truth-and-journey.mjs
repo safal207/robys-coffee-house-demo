@@ -15,8 +15,9 @@ const styles = readFileSync("menu-integrity.css", "utf8");
 const build = readFileSync("scripts/build.mjs", "utf8");
 const menuPwa = readFileSync("menu-pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
-const configMatch = menuHtml.match(/<script type="application\/json" id="menu-truth-config">([\s\S]*?)<\/script>/);
-assert.ok(configMatch, "menu truth config must be embedded as inert JSON");
+const configMatch = menuHtml.match(/<div id="menu-truth-config" hidden>([\s\S]*?)<\/div>/);
+assert.ok(configMatch, "menu truth config must be embedded in an inert hidden DOM node");
+assert.doesNotMatch(menuHtml, /<script[^>]*id="menu-truth-config"/);
 const config = JSON.parse(configMatch[1]);
 
 assert.equal(config.schemaVersion, menuTruth.schemaVersion);
@@ -80,6 +81,8 @@ for (const token of [
 assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|sendBeacon|Notification\.requestPermission|innerHTML\s*=/);
 assert.match(source, /localStorage\.getItem\("robys-language"\)/);
 assert.match(source, /localStorage\.setItem\("robys-language"/);
+assert.match(source, /document\.querySelector\("#menu-truth-config"\)/);
+assert.match(source, /JSON\.parse\(configNode\.textContent/);
 
 assert.match(build, /src\/menu-page-runtime\.js/);
 assert.match(build, /minify: true/);
@@ -106,4 +109,4 @@ assert.match(serviceWorker, /url\.pathname\.endsWith\("\/menu-page\.js"\)/);
 assert.doesNotMatch(serviceWorker, /menu-integrity\.js|menu-search-policy\.js|menu-truth\.js/);
 assert.match(serviceWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
 
-console.log("✅ MENU-TRUTH-001 passed: pricing truth, global search, visible pairing actions and exact PWA delivery are integrated into one minified menu runtime.");
+console.log("✅ MENU-TRUTH-001 passed: pricing truth, global search, visible pairing actions, inert configuration and exact PWA delivery are integrated into one minified menu runtime.");
