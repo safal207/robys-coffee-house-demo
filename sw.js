@@ -36,13 +36,10 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-page.js",
+  "./menu-page.js?v=000000000000",
   "./menu-pwa.js",
   "./menu-data.js",
-  "./menu-truth.js",
-  "./menu-integrity.js",
-  "./menu-search-policy.js",
-  "./pairing-posters.js?v=menu-truth-20260729-3",
+  "./pairing-posters.js?v=menu-truth-20260729-4",
   "./menu-search-clear.js",
   "./menu-actions.js",
   "./discover.js",
@@ -69,19 +66,11 @@ const CORE_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(CORE_ASSETS))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
 });
 
 async function cachedResponse(request) {
@@ -98,24 +87,18 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-integrity.css") ||
     url.pathname.endsWith("/pairing-posters.js") ||
-    url.pathname.endsWith("/menu-integrity.js") ||
-    url.pathname.endsWith("/menu-search-policy.js") ||
-    url.pathname.endsWith("/menu-truth.js") ||
+    url.pathname.endsWith("/menu-page.js") ||
     url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-header-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-mark-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-organic-ring.svg");
-  if (requiresExactRevision) {
-    return cache.match(request);
-  }
-  return cache.match(request, { ignoreSearch: true });
+  return requiresExactRevision ? cache.match(request) : cache.match(request, { ignoreSearch: true });
 }
 
 async function runtimeAssetResponse(request) {
   const cached = await cachedResponse(request);
   if (cached) return cached;
-
   const network = await fetch(request);
   if (network.ok) {
     const cache = await caches.open(CACHE_VERSION);
@@ -133,7 +116,6 @@ async function navigationResponse(request) {
   const isMenu = url.pathname.endsWith("/menu.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isHome = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
-
   try {
     const network = await fetch(request);
     if (network.ok) {
@@ -146,7 +128,6 @@ async function navigationResponse(request) {
   } catch {
     // Fall through to a deterministic cached page.
   }
-
   if (isMenu) return cachedPage("menu.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isHome) return cachedPage("index.html");
@@ -157,11 +138,9 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   if (event.request.mode === "navigate") {
     event.respondWith(navigationResponse(event.request));
     return;
   }
-
   event.respondWith(runtimeAssetResponse(event.request));
 });
