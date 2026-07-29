@@ -1,5 +1,6 @@
 use liminalqa_core::{
     decision::{DecisionEngine, SuiteDecision, TestDecision, TestSignals},
+    evaluate_suite_strict,
     triage::TriageVerdict,
 };
 use serde::{Deserialize, Serialize};
@@ -174,10 +175,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
-    let suite_decision = DecisionEngine::evaluate_suite(&input.suite, &decisions);
+    let suite_decision = evaluate_suite_strict(&input.suite, &decisions);
     let packet = OutputPacket {
         schema: "robys.liminalqa.decision.v1",
-        source_engine: "safal207/LiminalQAengineer::liminalqa-core::DecisionEngine",
+        source_engine: "safal207/LiminalQAengineer::liminalqa-core::evaluate_suite_strict",
         source_revision,
         tested_commit,
         scope: input.scope,
