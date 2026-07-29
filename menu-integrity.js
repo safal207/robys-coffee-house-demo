@@ -9,7 +9,9 @@ const copy = {
     searchScope: "Arama tüm menü kategorilerinde yapılır.",
     result: (count) => count === 0 ? "Hiç ürün bulunamadı." : count === 1 ? "1 ürün bulundu." : `${count} ürün bulundu.`,
     showBarista: "Baristaya göster",
+    showBaristaLabel: (name, price) => `Baristaya göster: ${name}, ${price} ₺`,
     directions: "Yol tarifi al",
+    directionsLabel: (name) => `${name} için Roby's yol tarifini aç`,
     dialogTitle: "Seçtiğiniz eşleşme",
     close: "Kapat",
     truthNote: `Menü sürümü ${menuTruth.menuVersion}. Kaynak: onaylı basılı kafe menüsü.`,
@@ -19,7 +21,9 @@ const copy = {
     searchScope: "Search covers all menu categories.",
     result: (count) => count === 0 ? "No items found." : count === 1 ? "1 item found." : `${count} items found.`,
     showBarista: "Show barista",
+    showBaristaLabel: (name, price) => `Show barista: ${name}, ${price} ₺`,
     directions: "Get directions",
+    directionsLabel: (name) => `Open directions to Roby's for ${name}`,
     dialogTitle: "Your selected pairing",
     close: "Close",
     truthNote: `Menu version ${menuTruth.menuVersion}. Source: approved printed café menu.`,
@@ -29,7 +33,9 @@ const copy = {
     searchScope: "Поиск выполняется по всем категориям меню.",
     result: (count) => count === 0 ? "Ничего не найдено." : count === 1 ? "Найдена 1 позиция." : `Найдено позиций: ${count}.`,
     showBarista: "Показать бариста",
+    showBaristaLabel: (name, price) => `Показать бариста: ${name}, ${price} ₺`,
     directions: "Построить маршрут",
+    directionsLabel: (name) => `Построить маршрут в Roby's для сочетания ${name}`,
     dialogTitle: "Выбранное сочетание",
     close: "Закрыть",
     truthNote: `Версия меню ${menuTruth.menuVersion}. Источник: утверждённое печатное меню кафе.`,
@@ -52,6 +58,10 @@ function localized(value) {
 
 function setText(element, value) {
   if (element && element.textContent !== value) element.textContent = value;
+}
+
+function setAttribute(element, name, value) {
+  if (element && element.getAttribute(name) !== value) element.setAttribute(name, value);
 }
 
 function pairingItem(pairingId) {
@@ -78,7 +88,7 @@ function ensureStylesheet() {
   if (document.querySelector('link[data-menu-integrity-style="true"]')) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "menu-integrity.css?v=menu-truth-20260729-2";
+  link.href = "menu-integrity.css?v=menu-truth-20260729-3";
   link.dataset.menuIntegrityStyle = "true";
   document.head.append(link);
 }
@@ -157,6 +167,11 @@ function element(tag, className, marker) {
   return node;
 }
 
+function closeDialog(dialog) {
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+}
+
 function ensureDialog() {
   let dialog = document.querySelector("#pairing-fulfilment-dialog");
   if (dialog) return dialog;
@@ -184,9 +199,9 @@ function ensureDialog() {
   dialog.append(card);
   document.body.append(dialog);
 
-  close.addEventListener("click", () => dialog.close());
+  close.addEventListener("click", () => closeDialog(dialog));
   dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+    if (event.target === dialog) closeDialog(dialog);
   });
   directions.addEventListener("click", () => {
     track("pairing_directions_click", { pairing_id: dialog.dataset.pairingId ?? "unknown" });
@@ -200,12 +215,14 @@ function openPairingDialog(pairingId) {
   if (!truth || !item) return;
 
   const dialog = ensureDialog();
+  const name = localized(item.name);
   dialog.dataset.pairingId = pairingId;
   setText(dialog.querySelector("[data-dialog-kicker]"), copy[language()].dialogTitle);
-  setText(dialog.querySelector("[data-dialog-title]"), localized(item.name));
+  setText(dialog.querySelector("[data-dialog-title]"), name);
   setText(dialog.querySelector("[data-dialog-price]"), `${item.price} ₺`);
   setText(dialog.querySelector("[data-dialog-explanation]"), localized(truth.explanation));
   setText(dialog.querySelector("[data-dialog-directions]"), copy[language()].directions);
+  setAttribute(dialog.querySelector("[data-dialog-directions]"), "aria-label", copy[language()].directionsLabel(name));
   setText(dialog.querySelector("[data-dialog-close]"), copy[language()].close);
 
   if (typeof dialog.showModal === "function") dialog.showModal();
@@ -217,8 +234,9 @@ function enhancePairingCards() {
   document.querySelectorAll(".full-menu-item--visual[data-pairing]").forEach((card) => {
     const pairingId = card.dataset.pairing;
     const truth = pairingTruth[pairingId];
+    const item = pairingItem(pairingId);
     const details = card.querySelector(".full-menu-item-details");
-    if (!truth || !details) return;
+    if (!truth || !item || !details) return;
 
     let explanation = details.querySelector(".pairing-price-explanation");
     if (!explanation) {
@@ -242,8 +260,13 @@ function enhancePairingCards() {
       details.append(actions);
     }
 
-    setText(actions.querySelector(".pairing-show-barista"), copy[language()].showBarista);
-    setText(actions.querySelector(".pairing-route-link"), `${copy[language()].directions} ↗`);
+    const name = localized(item.name);
+    const show = actions.querySelector(".pairing-show-barista");
+    const route = actions.querySelector(".pairing-route-link");
+    setText(show, copy[language()].showBarista);
+    setAttribute(show, "aria-label", copy[language()].showBaristaLabel(name, item.price));
+    setText(route, `${copy[language()].directions} ↗`);
+    setAttribute(route, "aria-label", copy[language()].directionsLabel(name));
     card.dataset.pricingMode = truth.pricingMode;
     card.dataset.menuVersion = menuTruth.menuVersion;
   });
