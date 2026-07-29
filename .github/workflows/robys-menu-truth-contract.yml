@@ -7,9 +7,7 @@ on:
     paths:
       - "menu-data.js"
       - "menu-page.js"
-      - "src/menu-page-runtime.js"
-      - "src/menu-data.js"
-      - "src/menu-search-clear.js"
+      - "scripts/menu-page-runtime.mjs"
       - "menu-integrity.css"
       - "pairing-posters.js"
       - "menu.html"
@@ -26,9 +24,7 @@ on:
     paths:
       - "menu-data.js"
       - "menu-page.js"
-      - "src/menu-page-runtime.js"
-      - "src/menu-data.js"
-      - "src/menu-search-clear.js"
+      - "scripts/menu-page-runtime.mjs"
       - "menu-integrity.css"
       - "pairing-posters.js"
       - "menu.html"
@@ -80,7 +76,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        uses: actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
 
