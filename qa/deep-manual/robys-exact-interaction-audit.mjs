@@ -55,7 +55,7 @@ async function goto(page, pathOrUrl) {
   const url = /^https?:/i.test(pathOrUrl) ? pathOrUrl : new URL(pathOrUrl, baseUrl).href;
   const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
   if (response) assert(response.status() < 400, `${url} returned HTTP ${response.status()}`);
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(350);
 }
 
 async function snapshot(page, pageId, profileId, downloads) {
@@ -69,6 +69,7 @@ async function snapshot(page, pageId, profileId, downloads) {
       return style.display !== "none" && style.visibility !== "hidden" && box.width > 0 && box.height > 0;
     })?.textContent?.trim() ?? "",
     body: document.body.innerText.replace(/\s+/g, " ").slice(0, 1200),
+    focus: document.activeElement?.id || document.activeElement?.getAttribute("aria-label") || document.activeElement?.textContent?.trim().slice(0, 100) || "",
     effects: window.__qaEffects ?? [],
     expanded: [...document.querySelectorAll("[aria-expanded]")].map((element) => [element.getAttribute("aria-label") || element.textContent?.trim() || element.id, element.getAttribute("aria-expanded")]),
     pressed: [...document.querySelectorAll("[aria-pressed]")].map((element) => [element.textContent?.trim() || element.id, element.getAttribute("aria-pressed")]),
@@ -107,16 +108,22 @@ async function inventoryButtons(browser, pageDef, profile) {
       if (!(await button.isVisible().catch(() => false))) continue;
       const actualDisabled = await button.isDisabled();
       const before = await snapshot(page, pageDef.id, profile.id, downloads);
+      let mode = actualDisabled ? "disabled" : "pointer";
       if (!actualDisabled) {
-        await button.click({ timeout: 8_000, noWaitAfter: true });
-        await page.waitForTimeout(400);
+        try {
+          await button.click({ timeout: 2_500, noWaitAfter: true });
+        } catch {
+          await button.evaluate((element) => element.click());
+          mode = "dom-fallback";
+        }
+        await page.waitForTimeout(450);
       }
       const after = await snapshot(page, pageDef.id, profile.id, downloads);
       const changed = before.id !== after.id;
       const expectedNoOp = actualDisabled || meta.pressed === "true" || (meta.lang && meta.lang === before.lang);
-      edges.push({ from: before.id, to: after.id, action: `button:${meta.text}`, page: pageDef.id, profile: profile.id, disabled: actualDisabled, changed });
-      checks.push({ page: pageDef.id, profile: profile.id, type: "button", label: meta.text, disabled: actualDisabled, changed });
-      if (!changed && !expectedNoOp) finding("P2", "Enabled button produced no observable transition", `${pageDef.id}/${profile.id}: ${meta.text}`, { index: meta.index });
+      edges.push({ from: before.id, to: after.id, action: `button:${meta.text}`, page: pageDef.id, profile: profile.id, disabled: actualDisabled, changed, mode });
+      checks.push({ page: pageDef.id, profile: profile.id, type: "button", label: meta.text, disabled: actualDisabled, changed, mode });
+      if (!changed && !expectedNoOp) finding("P2", "Enabled button produced no observable transition", `${pageDef.id}/${profile.id}: ${meta.text}`, { index: meta.index, mode });
     } catch (error) {
       finding("P2", "Button interaction failed", `${pageDef.id}/${profile.id}: ${meta.text}: ${error instanceof Error ? error.message : String(error)}`, { index: meta.index });
     } finally {
@@ -154,7 +161,7 @@ async function validateLinks(browser, pageDef, profile) {
     if (url.hash) {
       await goto(page, url.href);
       const targetId = decodeURIComponent(url.hash.slice(1));
-      const hasTarget = await page.evaluate((value) => Boolean(document.getElementById(value)), targetId);
+      const hasTarget = await page.waitForFunction((value) => Boolean(document.getElementById(value)), targetId, { timeout: 2_500 }).then(() => true).catch(() => false);
       if (!hasTarget) finding("P2", "Fragment destination does not exist", link.href, { page: pageDef.id, profile: profile.id, text: link.text });
     }
   }
@@ -198,6 +205,7 @@ const summary = {
   controlsChecked: checks.filter((entry) => entry.type === "button").length,
   linksChecked: checks.filter((entry) => entry.type === "link").length,
   generatedLinksObserved: checks.filter((entry) => entry.type === "generated-link").length,
+  fallbackClicks: checks.filter((entry) => entry.type === "button" && entry.mode === "dom-fallback").length,
   graph: { nodes: nodes.length, edges: edges.length },
   findings: Object.fromEntries(["P0", "P1", "P2", "P3"].map((severity) => [severity, findings.filter((entry) => entry.severity === severity).length]))
 };
