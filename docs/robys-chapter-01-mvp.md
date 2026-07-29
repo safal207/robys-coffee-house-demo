@@ -4,7 +4,7 @@
 
 This branch contains a closed, unlinked prototype of the first Roby's story chapter:
 
-**Chapter 01 — A Cool Summer Evening / Летний вечер прохлады / Serin Bir Yaz Akşamı**
+### Chapter 01 — A Cool Summer Evening / Летний вечер прохлады / Serin Bir Yaz Akşamı
 
 The prototype tests whether a visitor can move from curiosity to emotional participation, anticipation, psychological ownership, a simulated visit and interest in the next chapter.
 
