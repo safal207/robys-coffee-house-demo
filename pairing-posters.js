@@ -1,7 +1,3 @@
-import "./menu-integrity.js";
-import "./menu-search-policy.js";
-import { pairingTruth } from "./menu-truth.js";
-
 const priceMeta = {
   "cool-lime-macaron": {
     chips: {
@@ -41,19 +37,15 @@ function posterKicker(lang) {
 function createTitle(main, accent) {
   const title = document.createElement("div");
   title.className = "pairing-poster-title";
-
   const titleMain = document.createElement("span");
   titleMain.className = "pairing-poster-title-main";
   titleMain.textContent = main;
-
   const plus = document.createElement("span");
   plus.className = "pairing-poster-title-plus";
   plus.textContent = "+";
-
   const titleAccent = document.createElement("span");
   titleAccent.className = "pairing-poster-title-accent";
   titleAccent.textContent = accent;
-
   title.append(titleMain, plus, titleAccent);
   return title;
 }
@@ -65,7 +57,7 @@ function enhancePairingCards() {
     const name = card.querySelector(".full-menu-item-copy strong")?.textContent?.trim() ?? "";
     const price = card.querySelector(".full-menu-price")?.textContent?.trim() ?? "";
     const pairingId = card.dataset.pairing ?? "";
-    const renderKey = `${lang}|${name}|${price}|${pairingId}`;
+    const renderKey = `${lang}|${name}|${price}|${pairingId}|${card.dataset.priceLabel ?? ""}`;
     if (!media || !name || !price || card.dataset.posterReady === renderKey) return;
 
     card.classList.add("pairing-poster-card");
@@ -73,27 +65,23 @@ function enhancePairingCards() {
 
     const [main, accent] = splitPairingTitle(name);
     const meta = priceMeta[pairingId] ?? {};
-    const truth = pairingTruth[pairingId];
     const chips = meta.chips?.[lang] ?? meta.chips?.tr ?? ["Roby's", "Coffee", "Perfect match"];
-
     const overlay = document.createElement("div");
     overlay.className = "pairing-poster-overlay";
     overlay.setAttribute("aria-hidden", "true");
-
     const kicker = document.createElement("span");
     kicker.className = "pairing-poster-kicker";
     kicker.textContent = posterKicker(lang);
-
     const priceBadge = document.createElement("div");
     priceBadge.className = "pairing-poster-price";
     const priceValue = document.createElement("strong");
     priceValue.textContent = price;
     priceBadge.append(priceValue);
 
-    if (truth?.label) {
+    if (card.dataset.priceLabel) {
       const priceContext = document.createElement("span");
       priceContext.className = "pairing-poster-price-context";
-      priceContext.textContent = truth.label[lang] ?? truth.label.tr;
+      priceContext.textContent = card.dataset.priceLabel;
       priceBadge.append(priceContext);
     }
 
@@ -122,8 +110,6 @@ if (menuRoot) {
       enhancePairingCards();
     });
   };
-
-  const observer = new MutationObserver(scheduleEnhance);
-  observer.observe(menuRoot, { childList: true, subtree: true });
+  new MutationObserver(scheduleEnhance).observe(menuRoot, { childList: true, subtree: true });
   scheduleEnhance();
 }
