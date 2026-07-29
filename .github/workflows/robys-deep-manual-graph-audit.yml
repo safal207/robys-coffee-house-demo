@@ -1,0 +1,100 @@
+name: Roby's deep manual graph audit
+
+on:
+  push:
+    branches:
+      - qa/deep-manual-graph-audit-v1
+    paths:
+      - "qa/deep-manual/**"
+      - ".github/workflows/robys-deep-manual-graph-audit.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "qa/deep-manual/**"
+      - ".github/workflows/robys-deep-manual-graph-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-deep-manual-graph-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exploratory-graph:
+    name: Chromium + Firefox state-transition audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Execute deterministic business-logic suites and build
+        run: npm run build
+
+      - name: Install Chromium and Firefox
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.54.1
+          npx playwright install --with-deps chromium firefox
+
+      - name: Start exact-head static server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/robys-deep-audit-server.log 2>&1 &
+          echo $! > /tmp/robys-deep-audit-server.pid
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/robys-deep-audit-server.log
+          exit 1
+
+      - name: Audit exact-head product graph
+        id: exact
+        continue-on-error: true
+        run: node qa/deep-manual/robys-deep-graph-audit.mjs exact-head http://127.0.0.1:4173/
+
+      - name: Audit published product graph
+        id: published
+        continue-on-error: true
+        run: node qa/deep-manual/robys-deep-graph-audit.mjs published https://safal207.github.io/robys-coffee-house-demo/
+
+      - name: Preserve runtime evidence
+        if: always()
+        run: |
+          mkdir -p qa-results/deep-manual/runtime
+          cp /tmp/robys-deep-audit-server.log qa-results/deep-manual/runtime/local-server.log || true
+          ps -ef > qa-results/deep-manual/runtime/processes.txt || true
+
+      - name: Upload deep manual audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-deep-manual-graph-${{ github.sha }}
+          path: qa-results/deep-manual/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce audit outcome
+        if: always()
+        run: |
+          echo "Exact-head outcome: ${{ steps.exact.outcome }}"
+          echo "Published outcome:  ${{ steps.published.outcome }}"
+          if [[ "${{ steps.exact.outcome }}" != "success" || "${{ steps.published.outcome }}" != "success" ]]; then
+            exit 1
+          fi
