@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LIMINALQA_REVISION: 19d1cd72472666df21350c6f2b2e54591eb3f462
+  LIMINALQA_REVISION: edd4442c850170f83ac9aa354b77a4238bda84ed
 
 jobs:
   decision:
@@ -82,11 +82,17 @@ jobs:
 
           packet = json.loads(Path("robys/qa/liminal-artifacts/decision.json").read_text())
           assert packet["schema"] == "robys.liminalqa.decision.v1"
-          assert packet["source_revision"] == "19d1cd72472666df21350c6f2b2e54591eb3f462"
+          assert packet["source_revision"] == "edd4442c850170f83ac9aa354b77a4238bda84ed"
           policy = packet["suite_decision"]["merge_policy"]
-          assert policy in {"allow", "unknown", "allow_with_warning", "block_soft", "block"}
+          assert policy == "allow_with_warning", policy
+          assert "warning" in packet["suite_decision"]["block_reason"]
           assert any(item["name"] == "lighthouse-total-js-budget" for item in packet["test_decisions"])
-          assert any(item["verdict"] == "known_issue" for item in packet["test_decisions"])
+          assert any(
+              item["name"] == "lighthouse-total-js-budget"
+              and item["verdict"] == "known_issue"
+              and item["merge_policy"] == "allow_with_warning"
+              for item in packet["test_decisions"]
+          )
           print(f"LiminalQA packet verified; advisory merge policy={policy}")
           PY
 
