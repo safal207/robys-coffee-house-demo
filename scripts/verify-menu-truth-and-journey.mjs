@@ -83,6 +83,9 @@ assert.match(integrity, /menu_version: menuTruth\.menuVersion/);
 assert.match(integrity, /dataset\.menuIntegrityReady/);
 assert.match(integrity, /menuObserver\?\.disconnect/);
 assert.match(integrity, /setText\(/);
+assert.match(integrity, /setAttribute\(/);
+assert.match(integrity, /function closeDialog/);
+assert.match(integrity, /showBaristaLabel/);
 assert.doesNotMatch(integrity, /fetch\(|XMLHttpRequest|sendBeacon|Notification\.requestPermission/);
 assert.doesNotMatch(integrity, /localStorage|sessionStorage/);
 assert.doesNotMatch(integrity, /\.innerHTML\s*=/);
@@ -93,13 +96,15 @@ assert.match(searchPolicy, /new Event\("input", \{ bubbles: true \}\)/);
 assert.match(searchPolicy, /capture: true/);
 assert.doesNotMatch(searchPolicy, /fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/);
 
+assert.match(styles, /\.full-menu-item--visual\.pairing-poster-card \.full-menu-item-details\{\s*display:block/);
 assert.match(styles, /pairing-card-actions/);
 assert.match(styles, /pairing-poster-price-context/);
 assert.match(styles, /min-height:52px/);
 assert.match(styles, /focus-visible/);
 assert.match(styles, /prefers-reduced-motion/);
 
-assert.match(menuHtml, /type="module" src="pairing-posters\.js/);
+assert.match(menuHtml, /menu-integrity\.css\?v=menu-truth-20260729-3/);
+assert.match(menuHtml, /pairing-posters\.js\?v=menu-truth-20260729-3/);
 assert.match(menuHtml, /id="menu-root"/);
 
-console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, explicit category choice exits search, pairing cards have an offline outcome, and menu ownership/version metadata is explicit.");
+console.log("✅ MENU-TRUTH-001 passed: pairing prices are explainable, global search escapes active categories, explicit category choice exits search, pairing actions are visible and accessible, and menu ownership/version metadata is explicit.");
