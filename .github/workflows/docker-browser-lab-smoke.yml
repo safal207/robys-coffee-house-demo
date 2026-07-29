@@ -5,6 +5,7 @@ on:
     branches:
       - agent/docker-browser-lab
       - agent/secure-browser-lab-bind
+      - agent/harden-evidence-chain
     paths:
       - docker-compose.browser-lab.yml
       - qa/docker/**
@@ -27,18 +28,21 @@ concurrency:
 
 jobs:
   smoke:
-    name: Start nginx, Chromium and Firefox
+    name: Start pinned nginx, Chromium and Firefox
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       ROBY_QA_USER: qa
       ROBY_QA_PASSWORD: test_only_browser_lab
+      ROBY_QA_BROWSER_PLATFORM: linux/amd64
       TZ: UTC
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout exact repository head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
-      - name: Validate Compose configuration and loopback binding
+      - name: Validate Compose policy
         run: |
           set -euo pipefail
           docker compose version
@@ -51,7 +55,11 @@ jobs:
           config = json.loads(Path('/tmp/browser-lab-compose.json').read_text())
           expected_counts = {'site': 1, 'chromium': 2, 'firefox': 2}
           for service_name, expected_count in expected_counts.items():
-              ports = config['services'][service_name].get('ports', [])
+              service = config['services'][service_name]
+              image = service.get('image', '')
+              assert '@sha256:' in image, f'{service_name}: image is not digest-pinned: {image}'
+              assert ':latest' not in image, f'{service_name}: mutable latest tag is forbidden: {image}'
+              ports = service.get('ports', [])
               assert len(ports) == expected_count, (
                   f'{service_name}: expected {expected_count} published ports, got {len(ports)}'
               )
@@ -61,11 +69,16 @@ jobs:
                       f"{service_name}:{port.get('published')} is bound to {host_ip!r}, "
                       "expected loopback-only 127.0.0.1"
                   )
-          print('All browser-lab ports are loopback-only by default.')
+          assert config['services']['chromium'].get('platform') == 'linux/amd64'
+          assert config['services']['firefox'].get('platform') == 'linux/amd64'
+          print('All browser-lab images are immutable and all ports are loopback-only by default.')
           PY
 
-      - name: Pull browser lab images
-        run: docker compose -f docker-compose.browser-lab.yml pull
+      - name: Pull pinned browser lab images
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.browser-lab.yml pull
+          docker compose -f docker-compose.browser-lab.yml images --format json > /tmp/browser-lab-images.json
 
       - name: Start browser lab
         run: docker compose -f docker-compose.browser-lab.yml up -d --wait
@@ -107,18 +120,20 @@ jobs:
         shell: bash
         run: |
           mkdir -p qa/browser-lab-artifacts
+          docker compose -f docker-compose.browser-lab.yml config --format json > qa/browser-lab-artifacts/compose-config.json 2>&1 || true
           docker compose -f docker-compose.browser-lab.yml ps --all > qa/browser-lab-artifacts/compose-ps.txt 2>&1 || true
           docker compose -f docker-compose.browser-lab.yml logs --no-color > qa/browser-lab-artifacts/compose.log 2>&1 || true
+          cp /tmp/browser-lab-images.json qa/browser-lab-artifacts/images.json 2>/dev/null || true
           cp /tmp/robys-index.html qa/browser-lab-artifacts/index.html 2>/dev/null || true
 
-      - name: Upload runtime evidence
+      - name: Upload exact-run runtime evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: docker-browser-lab-${{ github.sha }}
+          name: docker-browser-lab-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: qa/browser-lab-artifacts/
-          if-no-files-found: warn
-          retention-days: 14
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Stop browser lab
         if: always()
