@@ -25,11 +25,9 @@ Priority meanings:
 - **P3** — useful experiment or enhancement.
 - **Research** — decision requires evidence before implementation.
 
----
+## A. Immediate truth and integrity
 
-# A. Immediate truth and integrity
-
-## P1 — Resolve pairing price anomaly
+### P1 — Resolve pairing price anomaly
 
 Known example from the audit:
 
@@ -40,8 +38,8 @@ Known component total: 220 ₺
 
 Tasks:
 
-- confirm authoritative source of both component prices;
-- determine whether 290 ₺ is a data defect, different size, or a distinct offer;
+- confirm the authoritative source of both component prices;
+- determine whether 290 ₺ is a data defect, different size, or distinct offer;
 - remove or explain the mismatch;
 - add an automated invariant comparing pairing price with its declared pricing mode;
 - show savings only when a real offer exists.
@@ -52,7 +50,7 @@ Acceptance:
 - displayed price agrees with authoritative menu data;
 - no unexplained premium or fake discount.
 
-## P1 — Define menu truth ownership
+### P1 — Define menu truth ownership
 
 Tasks:
 
@@ -61,27 +59,25 @@ Tasks:
 - define expiry behaviour for saved choices and Moment Passes;
 - define what happens when a price changes after save.
 
-## P1 — Separate prototype and production claims
+### P1 — Separate prototype and production claims
 
 Tasks:
 
 - keep Chapter 01 closed and unlinked until release inputs are confirmed;
 - preserve `noindex,nofollow` while it remains a prototype;
-- visually label simulated visit, local vote, local consent, and unconnected availability;
+- visibly label simulated visits, local votes, local consent, and unconnected availability;
 - prevent demonstration codes from being interpreted as reservations.
 
----
+## B. Existing menu and homepage integrity
 
-# B. Existing menu and homepage integrity
-
-## P1 — Remove dead-end pairing cards
+### P1 — Remove dead-end pairing cards
 
 Current pairing cards provide image, copy, and price but no complete commercial action.
 
 Tasks:
 
 - add one primary next action;
-- candidate actions: save pairing, show barista, get directions, or choose pairing;
+- consider save pairing, show barista, get directions, or choose pairing;
 - define the minimal offline fulfilment path;
 - add event attribution.
 
@@ -93,7 +89,7 @@ pairing viewed
 → offline or digital outcome
 ```
 
-## P1 — Fix search/category false-empty state
+### P1 — Fix search/category false-empty state
 
 Current search remains constrained by the active category. Searching for a product in another category can incorrectly show no results.
 
@@ -104,7 +100,7 @@ Tasks:
 - reset or expand category when global search begins;
 - add cross-category tests.
 
-## P2 — Synchronise category state with browser history
+### P2 — Synchronise category state with browser history
 
 Tasks:
 
@@ -112,16 +108,16 @@ Tasks:
 - confirm back, forward, reload, and direct hash entry;
 - preserve search and category contracts.
 
-## P2 — Replace reconstructed CSS brand mark
+### P2 — Replace reconstructed CSS brand mark
 
 Tasks:
 
-- use approved master SVG across homepage, menu, Chapter, and future modules;
+- use the approved master SVG across homepage, menu, Chapter, and future modules;
 - remove pseudo-element logo reconstruction;
-- prevent multiple unofficial red shades from becoming logo geometry;
+- prevent unofficial red shades from becoming logo geometry;
 - add brand-boundary tests.
 
-## P2 — Improve mobile touch targets
+### P2 — Improve mobile touch targets
 
 Known risk areas:
 
@@ -134,7 +130,7 @@ Tasks:
 - test one-handed mobile use;
 - preserve visual density without reducing accessibility.
 
-## P2 — Reduce screen-reader announcement noise
+### P2 — Reduce screen-reader announcement noise
 
 Current menu root uses `aria-live="polite"` while full menu content can rerender during search.
 
@@ -144,7 +140,7 @@ Tasks:
 - avoid announcing the entire menu on every input;
 - test with screen-reader navigation.
 
-## P2 — Clarify booking path
+### P2 — Clarify booking path
 
 Current CTA opens a generic Instagram profile.
 
@@ -155,7 +151,7 @@ Tasks:
 - show that booking is valid only after café confirmation;
 - add WhatsApp or another channel only after operational ownership is confirmed.
 
-## P2 — Validate time-sensitive claims
+### P2 — Validate time-sensitive claims
 
 Examples:
 
@@ -169,17 +165,15 @@ Tasks:
 - otherwise rewrite them as stable editorial content;
 - add expiry and fallback states.
 
----
+## C. Design-system alignment
 
-# C. Design-system alignment
-
-## P1 — Align Chapter visual language with the existing Roby’s shell
+### P1 — Align Chapter visual language with the existing Roby’s shell
 
 Prototype feedback: emotionally promising, but visibly different from the current homepage.
 
 Tasks:
 
-- derive exact shared header, typography, spacing, buttons, cards, and responsive rules;
+- derive the exact shared header, typography, spacing, buttons, cards, and responsive rules;
 - use the same photographic treatment;
 - preserve increased cinematic intensity only inside chapter-specific moments;
 - prevent the chapter from feeling like an unrelated microsite.
@@ -188,7 +182,7 @@ Acceptance:
 
 > Familiar Roby’s on entry; deeper emotional intensity after voluntary entry.
 
-## P2 — Create experience design tokens
+### P2 — Create experience design tokens
 
 Tokens needed:
 
@@ -200,16 +194,16 @@ Tokens needed:
 - emotional background treatments;
 - reduced-motion alternatives.
 
-## P2 — Define red-ring governance
+### P2 — Define red-ring governance
 
 Research and brand tasks:
 
-- determine whether the ring is a chapter symbol, loading/progress state, or brand extension;
+- determine whether the ring is a chapter symbol, progress state, or brand extension;
 - ensure it does not alter or replace the official logo;
 - test recognition and meaning with users;
 - define closed, marked, approaching, open, and completed states.
 
-## P3 — Create original seasonal symbol library
+### P3 — Create original seasonal symbol library
 
 Potential symbol classes:
 
@@ -222,11 +216,9 @@ Potential symbol classes:
 
 Do not create character merchandise until the world and symbols demonstrate real audience pull.
 
----
+## D. Audience Router MVP
 
-# D. Audience Router MVP
-
-## P1 — Add an explicit four-route chooser
+### P1 — Add an explicit four-route chooser
 
 Candidate prompt:
 
@@ -244,9 +236,9 @@ Constraints:
 - compact block, not a homepage takeover;
 - ordinary menu remains the primary safe route;
 - store choice locally;
-- visible option to change the choice.
+- provide a visible option to change the choice.
 
-## P1 — Define router state schema and versioning
+### P1 — Define router state schema and versioning
 
 Tasks:
 
@@ -256,7 +248,7 @@ Tasks:
 - define expiry for unfinished states;
 - distinguish local, account, analytics, and operational data.
 
-## P1 — Implement deterministic route policy
+### P1 — Implement deterministic route policy
 
 First policy should use:
 
@@ -268,7 +260,7 @@ First policy should use:
 
 Do not use machine learning in MVP.
 
-## P2 — Add continuation of unfinished useful state
+### P2 — Add continuation of unfinished useful state
 
 Examples:
 
@@ -285,7 +277,7 @@ Each continuation card needs:
 - dismiss action;
 - expiry.
 
-## P2 — Add cooldown and rejection memory
+### P2 — Add cooldown and rejection memory
 
 Initial rule hypothesis:
 
@@ -296,9 +288,9 @@ notification ignored twice → reduce frequency
 promotional continuation rejected → stop chain
 ```
 
-Validate with real user behaviour before making permanent.
+Validate with real user behaviour before making the rule permanent.
 
-## P2 — Add transparent route diagnostics for QA
+### P2 — Add transparent route diagnostics for QA
 
 Developer-only view should show:
 
@@ -310,9 +302,9 @@ Developer-only view should show:
 - experiment variant;
 - cooldown decisions.
 
-Never expose a creepy behavioural profile to ordinary visitors or staff.
+Never expose a behavioural profile to ordinary visitors or staff.
 
-## Research — Relationship-level thresholds
+### Research — Relationship-level thresholds
 
 Investigate whether Chapters should be invited after:
 
@@ -324,11 +316,9 @@ Investigate whether Chapters should be invited after:
 
 Avoid a hard purchase-count rule if earlier behaviour provides stronger evidence.
 
----
+## E. Smart Choice
 
-# E. Smart Choice
-
-## P1 — Expand product data model
+### P1 — Expand product data model
 
 Current menu data is too thin for trustworthy personalisation.
 
@@ -350,16 +340,16 @@ Add structured fields where operationally known:
 
 Unknown fields must remain unknown rather than guessed.
 
-## P1 — Define recommendation explanation
+### P1 — Define recommendation explanation
 
 Every recommendation should explain:
 
 - which stated preference mattered;
 - why the product fits;
 - what could be changed;
-- alternative fast route to the full menu.
+- the fast alternative to the full menu.
 
-## P2 — Add compatibility graph
+### P2 — Add compatibility graph
 
 Example edges:
 
@@ -378,7 +368,7 @@ Constraints:
 - already-selected items;
 - current menu version.
 
-## P2 — Add “repeat or surprise me” return path
+### P2 — Add “repeat or surprise me” return path
 
 For a returning user with a known successful choice:
 
@@ -387,17 +377,15 @@ For a returning user with a known successful choice:
 [Show me something new]
 ```
 
-## Research — Weather and context value
+### Research — Weather and context value
 
 Measure whether weather, time, and day improve recommendation acceptance after explicit preferences are already known.
 
 Do not assume contextual data is automatically useful.
 
----
+## F. Commerce and checkout-inspired mechanics
 
-# F. Commerce and checkout-inspired mechanics
-
-## P1 — Define one-click selection without online payment
+### P1 — Define one-click selection without online payment
 
 MVP flow:
 
@@ -409,7 +397,7 @@ select
 → show barista / get directions
 ```
 
-## P2 — Implement central order-bump rules
+### P2 — Implement central order-bump rules
 
 Rules should be centrally managed rather than hardcoded into every card.
 
@@ -423,7 +411,7 @@ and not already selected
 and no known conflict
 ```
 
-## P2 — Implement upgrade semantics
+### P2 — Implement upgrade semantics
 
 An upgrade replaces the base item and shows only the incremental price.
 
@@ -435,7 +423,7 @@ Tests:
 - existing bump remains compatible;
 - analytics distinguishes upgrade from an added item.
 
-## P2 — Define one upsell and one meaningful downsell maximum
+### P2 — Limit upsell and downsell depth
 
 Guardrail:
 
@@ -443,7 +431,9 @@ Guardrail:
 two offer rejections → STOP
 ```
 
-## P2 — Recover abandoned choices locally
+Allow at most one relevant upsell and one meaningful downsell.
+
+### P2 — Recover abandoned choices locally
 
 Tasks:
 
@@ -452,7 +442,7 @@ Tasks:
 - expire after menu change or operational cutoff;
 - never message externally without consent.
 
-## Research — Actual purchase confirmation
+### Research — Actual purchase confirmation
 
 Candidate methods:
 
@@ -464,11 +454,9 @@ Candidate methods:
 
 Compare reliability, staff cost, fraud risk, and privacy.
 
----
+## G. Chapters and desire system
 
-# G. Chapters and desire system
-
-## P1 — Complete Chapter 01 product decisions
+### P1 — Complete Chapter 01 product decisions
 
 Required before customer-facing release:
 
@@ -483,11 +471,11 @@ Required before customer-facing release:
 - fallback if product sells out;
 - privacy and retention rules.
 
-## P1 — Integrate Chapter with the shared design system
+### P1 — Integrate Chapter with the shared design system
 
 Keep the state graph, but rebuild presentation using production components.
 
-## P2 — Add chapter truth object
+### P2 — Add chapter truth object
 
 Suggested fields:
 
@@ -505,7 +493,7 @@ Suggested fields:
 }
 ```
 
-## P2 — Build real voting service or explicitly keep voting local
+### P2 — Build real voting service or explicitly keep voting local
 
 Decide:
 
@@ -517,7 +505,7 @@ Decide:
 - auditability;
 - what happens when the losing choice still appears elsewhere.
 
-## P2 — Build Moment Pass lifecycle
+### P2 — Build Moment Pass lifecycle
 
 States:
 
@@ -530,7 +518,7 @@ created
 → invalidated
 ```
 
-## P2 — Build post-visit memory
+### P2 — Build post-visit memory
 
 Only after outcome confirmation:
 
@@ -540,7 +528,7 @@ Only after outcome confirmation:
 - optional reaction;
 - next-chapter invitation.
 
-## P3 — Create annual season framework
+### P3 — Create annual season framework
 
 Working themes:
 
@@ -551,7 +539,7 @@ Working themes:
 
 Treat these as narrative containers, not launch commitments.
 
-## Research — Chapter length
+### Research — Chapter length
 
 Test whether users prefer:
 
@@ -560,11 +548,9 @@ Test whether users prefer:
 - full eight-state chapter;
 - different lengths by relationship stage.
 
----
+## H. Continuation channels
 
-# H. Continuation channels
-
-## P1 — Choose first production channel
+### P1 — Choose first production channel
 
 Candidates:
 
@@ -582,7 +568,7 @@ Evaluation:
 - staff workload;
 - regional user preference.
 
-## P1 — Define message eligibility contract
+### P1 — Define message eligibility contract
 
 A message may be sent only when it is:
 
@@ -591,7 +577,7 @@ A message may be sent only when it is:
 - operationally useful;
 - tied to a joined relationship.
 
-## P2 — Implement frequency and suppression rules
+### P2 — Implement frequency and suppression rules
 
 Track:
 
@@ -602,7 +588,7 @@ Track:
 - unsubscribed;
 - converted to real outcome.
 
-## P2 — Build channel-specific roles
+### P2 — Build channel-specific roles
 
 Working model:
 
@@ -613,11 +599,9 @@ Working model:
 
 Avoid duplicating every message across every channel.
 
----
+## I. Analytics and experiments
 
-# I. Analytics and experiments
-
-## P1 — Create common event taxonomy
+### P1 — Create common event taxonomy
 
 Core events:
 
@@ -633,11 +617,11 @@ Core events:
 - chapter completed;
 - next-step intent.
 
-## P1 — Define offline attribution
+### P1 — Define offline attribution
 
 Do not declare funnel success based only on clicks or saved passes.
 
-## P2 — First homepage route experiment
+### P2 — Run first homepage route experiment
 
 Variants:
 
@@ -654,7 +638,7 @@ Guardrails:
 - notification rejection;
 - customer complaints.
 
-## P2 — Test invitation timing
+### P2 — Test invitation timing
 
 Compare Chapter invitation:
 
@@ -664,7 +648,7 @@ Compare Chapter invitation:
 - after third confirmed purchase;
 - after prior chapter participation.
 
-## P2 — Test chapter depth
+### P2 — Test chapter depth
 
 Measure:
 
@@ -675,15 +659,13 @@ Measure:
 - confirmed visit;
 - next-chapter intent.
 
-## P2 — Build experiment contracts in repository
+### P2 — Build experiment contracts in repository
 
 Each experiment gets a versioned Markdown or JSON contract with hypothesis, variants, metrics, guardrails, and stopping rule.
 
----
+## J. Operations and staff
 
-# J. Operations and staff
-
-## P1 — Define barista experience
+### P1 — Define barista experience
 
 Tasks:
 
@@ -694,7 +676,7 @@ Tasks:
 - how long the interaction may take;
 - how training is delivered.
 
-## P1 — Create offline fallback
+### P1 — Create offline fallback
 
 The system must still work if:
 
@@ -704,7 +686,7 @@ The system must still work if:
 - saved pass is a screenshot;
 - staff panel is unavailable.
 
-## P2 — Create event readiness checklist
+### P2 — Create event readiness checklist
 
 Before a chapter opens:
 
@@ -718,7 +700,7 @@ Before a chapter opens:
 - fallback ready;
 - owner assigned.
 
-## P2 — Define cancellation and change policy
+### P2 — Define cancellation and change policy
 
 If a chapter changes or cannot be fulfilled:
 
@@ -728,11 +710,9 @@ If a chapter changes or cannot be fulfilled:
 - offer a truthful alternative;
 - preserve trust over short-term conversion.
 
----
+## K. Privacy, accessibility, and governance
 
-# K. Privacy, accessibility, and governance
-
-## P1 — Data map
+### P1 — Create data map
 
 Document every field by:
 
@@ -743,7 +723,7 @@ Document every field by:
 - deletion;
 - access.
 
-## P1 — Consent separation
+### P1 — Separate consent types
 
 Do not merge consent for:
 
@@ -754,7 +734,7 @@ Do not merge consent for:
 - WhatsApp;
 - user-generated content.
 
-## P2 — Router reset and explanation
+### P2 — Add router reset and explanation
 
 Provide:
 
@@ -763,7 +743,7 @@ Provide:
 - disable continuation suggestions;
 - basic explanation of why a block appeared.
 
-## P2 — Accessibility across experience modules
+### P2 — Validate accessibility across modules
 
 Test:
 
@@ -777,11 +757,9 @@ Test:
 - cognitive load;
 - error recovery.
 
----
+## L. Universal product extraction
 
-# L. Universal product extraction
-
-## P2 — Extract product-agnostic schema
+### P2 — Extract product-agnostic schema
 
 Separate:
 
@@ -794,7 +772,7 @@ Separate:
 - consent adapter;
 - fulfilment confirmation.
 
-## P2 — Create a second reference domain
+### P2 — Create a second reference domain
 
 Choose one domain beyond café, such as:
 
@@ -806,7 +784,7 @@ Choose one domain beyond café, such as:
 
 Map the same relationship depths and identify which components remain universal.
 
-## P3 — Package a reusable router library
+### P3 — Package a reusable router library
 
 Only after the first production test validates the architecture.
 
@@ -822,7 +800,7 @@ resolveTruth()
 assignExperiment()
 ```
 
-## Research — Product name and positioning
+### Research — Product name and positioning
 
 Working concepts:
 
@@ -834,18 +812,16 @@ Working concepts:
 
 Do not finalise the name before proving the system on at least two domains.
 
----
+## Suggested first delivery sequence
 
-# Suggested first delivery sequence
-
-## Release 0 — Documentation and integrity
+### Release 0 — Documentation and integrity
 
 - preserve this product memory;
 - disposition current P1 menu issues;
 - keep Chapter prototype closed;
 - define truth ownership.
 
-## Release 1 — Explicit Audience Router
+### Release 1 — Explicit Audience Router
 
 - compact four-route block;
 - local preference;
@@ -853,20 +829,20 @@ Do not finalise the name before proving the system on at least two domains.
 - route analytics;
 - ordinary menu always available.
 
-## Release 2 — Smart continuation
+### Release 2 — Smart continuation
 
 - resume last product or Smart Choice;
-- “repeat or surprise me”;
-- cooldowns;
-- stable experiment assignment.
+- add “repeat or surprise me”;
+- implement cooldowns;
+- preserve stable experiment assignment.
 
-## Release 3 — Confirmed offline outcome
+### Release 3 — Confirmed offline outcome
 
 - staff/POS/QR proof of purchase;
 - real Moment Pass lifecycle;
 - price/menu versioning.
 
-## Release 4 — First real Chapter
+### Release 4 — First real Chapter
 
 - shared Roby’s design system;
 - real event date and availability;
@@ -874,15 +850,13 @@ Do not finalise the name before proving the system on at least two domains.
 - operational readiness gate;
 - post-visit memory.
 
-## Release 5 — Universal extraction
+### Release 5 — Universal extraction
 
 - reusable schemas and interfaces;
 - second-domain reference implementation;
 - comparison report and product decision.
 
----
-
-# Definition of success
+## Definition of success
 
 The system succeeds when:
 
