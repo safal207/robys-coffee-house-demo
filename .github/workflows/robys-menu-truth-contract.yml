@@ -75,10 +75,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020
-        with:
-          node-version: 22
+      - name: Verify runner Node.js
+        run: >-
+          node -e "const major=Number(process.versions.node.split('.')[0]);
+          console.log('Node', process.versions.node);
+          if (major < 22) process.exit(1)"
 
       - name: Install isolated Playwright runtime
         run: npm install --no-save --ignore-scripts playwright@1.54.2
