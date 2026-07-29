@@ -1,0 +1,81 @@
+name: Roby's exact interaction inventory
+
+on:
+  push:
+    branches:
+      - qa/deep-manual-graph-audit-v1
+    paths:
+      - "qa/deep-manual/robys-exact-interaction-audit.mjs"
+      - ".github/workflows/robys-exact-interaction-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-exact-interactions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inventory:
+    name: Every initial button and internal link
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install project dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.54.1
+          npx playwright install --with-deps chromium
+
+      - name: Start exact-head site
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/robys-interaction-server.log 2>&1 &
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/robys-interaction-server.log
+          exit 1
+
+      - name: Inventory exact-head interactions
+        id: audit
+        continue-on-error: true
+        run: node qa/deep-manual/robys-exact-interaction-audit.mjs exact-head http://127.0.0.1:4173/
+
+      - name: Upload interaction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-exact-interactions-${{ github.sha }}
+          path: |
+            qa-results/deep-manual/exact-head/interaction-report.json
+            qa-results/deep-manual/exact-head/interaction-graph.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce finding gate
+        if: always()
+        run: |
+          echo "Audit outcome: ${{ steps.audit.outcome }}"
+          if [[ "${{ steps.audit.outcome }}" != "success" ]]; then
+            exit 1
+          fi
