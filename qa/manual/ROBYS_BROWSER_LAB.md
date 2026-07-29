@@ -44,7 +44,10 @@ The GUI certificate is self-signed. Accept the local certificate warning.
 Default local GUI credentials:
 
 - user: `qa`
-- password: `robys-local-only`
+- password: `replace_me_before_lan_use`
+
+The default password is an explicit development placeholder. Override it before
+binding the browser ports to a LAN interface or sharing access with another tester.
 
 Inside Chromium and Firefox, Roby's opens at `http://site/`. Do not replace it
 with `localhost`: inside a browser container, `localhost` means that browser
