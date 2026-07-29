@@ -15,7 +15,7 @@ on:
       - "menu-pwa.js"
       - "sw.js"
       - "scripts/verify-menu-truth-and-journey.mjs"
-      - "qa/menu-truth-browser.mjs"
+      - "scripts/test-menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
   pull_request:
     branches:
@@ -31,7 +31,7 @@ on:
       - "menu-pwa.js"
       - "sw.js"
       - "scripts/verify-menu-truth-and-journey.mjs"
-      - "qa/menu-truth-browser.mjs"
+      - "scripts/test-menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
   workflow_dispatch:
 
@@ -85,4 +85,4 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Validate exact browser journey
-        run: node qa/menu-truth-browser.mjs
+        run: node scripts/test-menu-truth-browser.mjs
