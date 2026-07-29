@@ -8,17 +8,23 @@ const server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "1
   stdio: ["ignore", "pipe", "pipe"]
 });
 
-async function waitForServer() {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    try {
-      const response = await fetch(BASE);
-      if (response.ok) return;
-    } catch {
-      // Server is still starting.
-    }
+async function waitUntil(check, message, attempts = 80) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (await check()) return;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  throw new Error("Static server did not start");
+  throw new Error(message);
+}
+
+async function waitForServer() {
+  await waitUntil(async () => {
+    try {
+      const response = await fetch(BASE);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }, "Static server did not start", 50);
 }
 
 let browser;
@@ -44,15 +50,16 @@ try {
   assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "false", "direct hash must begin in the requested category");
 
   const search = page.locator("#menu-search");
+  const resultStatus = page.locator("#menu-results-status");
   await search.fill("San Sebastian");
-  await page.waitForFunction(() => document.querySelector("#menu-category-nav .menu-category-chip")?.getAttribute("aria-pressed") === "true");
-  await page.waitForFunction(() => document.body.innerText.includes("San Sebastian"));
-  await page.waitForFunction(() => /1 ürün bulundu/i.test(document.querySelector("#menu-results-status")?.textContent ?? ""));
+  await waitUntil(async () => await chips.nth(0).getAttribute("aria-pressed") === "true", "search did not expand to all categories");
+  await page.getByText("San Sebastian", { exact: true }).first().waitFor();
+  await waitUntil(async () => /1 ürün bulundu/i.test(await resultStatus.textContent() ?? ""), "search result status did not settle");
 
   assert.equal(await chips.nth(0).getAttribute("aria-pressed"), "true", "search must expand to all categories");
   assert.equal(await page.locator("#menu-empty").isHidden(), true, "cross-category search must not show a false empty state");
   assert.match(await page.locator("#menu-search-scope").innerText(), /tüm menü kategorilerinde/i);
-  assert.match(await page.locator("#menu-results-status").innerText(), /1 ürün bulundu/i);
+  assert.match(await resultStatus.innerText(), /1 ürün bulundu/i);
 
   const hotCoffeeChip = page.getByRole("button", { name: "Sıcak Kahveler" });
   await hotCoffeeChip.click();
@@ -96,7 +103,7 @@ try {
   assert.deepEqual(runtimeErrors, [], `browser runtime errors: ${runtimeErrors.join(" | ")}`);
   assert.deepEqual(failedRequests, [], `failed requests: ${failedRequests.join(" | ")}`);
 
-  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search, explicit category exit, visible truthful pairing actions, barista dialog and TR/EN/RU behavior work in Chromium mobile.");
+  console.log("✅ MENU-TRUTH-BROWSER-001 passed: global search, explicit category exit, visible truthful pairing actions, barista dialog and TR/EN/RU behavior work in Chromium mobile without weakening CSP.");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
