@@ -4,7 +4,7 @@ services:
   site:
     image: nginx:1.27.5-alpine
     ports:
-      - "${ROBY_QA_SITE_PORT:-8080}:80"
+      - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_SITE_PORT:-8080}:80"
     volumes:
       - ./:/usr/share/nginx/html:ro
       - ./qa/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
@@ -29,8 +29,8 @@ services:
       TITLE: "Roby's QA — Chromium"
       CHROME_CLI: "http://site/?qa-browser=chromium"
     ports:
-      - "${ROBY_QA_CHROMIUM_HTTP_PORT:-3010}:3000"
-      - "${ROBY_QA_CHROMIUM_HTTPS_PORT:-3011}:3001"
+      - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_CHROMIUM_HTTP_PORT:-3010}:3000"
+      - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_CHROMIUM_HTTPS_PORT:-3011}:3001"
     volumes:
       - chromium-config:/config
     shm_size: "1gb"
@@ -53,8 +53,8 @@ services:
       TITLE: "Roby's QA — Firefox"
       FIREFOX_CLI: "http://site/?qa-browser=firefox"
     ports:
-      - "${ROBY_QA_FIREFOX_HTTP_PORT:-3020}:3000"
-      - "${ROBY_QA_FIREFOX_HTTPS_PORT:-3021}:3001"
+      - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_FIREFOX_HTTP_PORT:-3020}:3000"
+      - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_FIREFOX_HTTPS_PORT:-3021}:3001"
     volumes:
       - firefox-config:/config
     shm_size: "1gb"
