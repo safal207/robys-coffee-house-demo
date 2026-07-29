@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v31-20260729-menu-truth-92a9675d52fb-0fc93f29d4c6-fab1cb2461f8";
+const CACHE_VERSION = "robys-offline-v31-20260729-menu-truth-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
