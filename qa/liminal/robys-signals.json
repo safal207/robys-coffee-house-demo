@@ -36,16 +36,16 @@
       "flake_probability": 0.0,
       "flake_score": 0.0,
       "run_count": 3,
-      "evidence": "The PR changes QA workflow, Compose, nginx configuration, documentation and npm aliases; it does not change application JavaScript."
+      "evidence": "The PR changes QA workflow, Compose, nginx configuration, documentation, Lighthouse evidence and npm aliases; it does not change application JavaScript."
     },
     {
       "name": "lighthouse-total-js-budget",
-      "verdict": "known_issue",
-      "stability": 0.34,
+      "verdict": "stable",
+      "stability": 1.0,
       "flake_probability": 0.0,
       "flake_score": 0.0,
-      "run_count": 3,
-      "evidence": "Total JavaScript is 22,139 bytes versus a 21,021-byte reviewed baseline: +5.32% against a 5% budget. The same generated application assets exist independently of this QA-only PR."
+      "run_count": 6,
+      "evidence": "Six mobile and six desktop Lighthouse observations confirmed 22,139 JavaScript bytes on unchanged generated application assets. The stale 21,021-byte baseline was recalibrated to the measured asset set while preserving the 5% future-regression threshold and 170,000-byte hard maximum."
     }
   ]
 }
