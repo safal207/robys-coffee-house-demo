@@ -48,12 +48,18 @@ assert(router.includes('const SCHEMA_VERSION = 1;'), "local state is explicitly 
 assert(router.includes('source: "explicit-home-router"'), "saved preference records explicit intent source");
 assert(router.includes('intentSource: "explicit"'), "accepted route is classified as explicit intent");
 assert(router.includes("robys-audience-router-v1"), "preference uses a dedicated storage key");
-assert(router.includes("robys-audience-router-events-v1"), "local audit events use a dedicated storage key");
+assert(router.includes("robys-audience-router-events-v1"), "audit events use a dedicated key");
+assert(router.includes("safeStorage(localStorage"), "explicit preference can persist locally");
+assert(router.includes("safeStorage(sessionStorage"), "audit events and offer suppression are session-scoped");
+assert(router.includes("getEvents: () => safeStorage(sessionStorage"), "event diagnostics do not create persistent behavioural history");
 assert(router.includes("safeStorage"), "storage failures have a non-blocking boundary");
 assert(router.includes("route_preference_reset"), "preference can be reset from the visible UI");
 assert(router.includes("aria-live"), "restored preference status is announced accessibly");
 assert(router.includes("MutationObserver"), "Router copy follows language changes");
 assert(!router.includes("innerHTML"), "Router does not require unsafe HTML injection");
+assert(!router.includes('setAttribute("role", "listitem")'), "route anchors retain native link semantics");
+assert(!router.includes("aria-current"), "past preference is not misrepresented as current-page state");
+assert(!router.includes("dataset.analyticsAction"), "route acceptance is not double-counted by generic click analytics");
 
 for (const forbidden of [
   "location.replace",
