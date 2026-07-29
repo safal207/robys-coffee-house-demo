@@ -1,49 +1,51 @@
 name: Lighthouse Live Audit
-# Verification trigger: latest deployed code
 
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - lighthouse-live-summary.json
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: lighthouse-live
+  group: lighthouse-live-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout exact repository head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Read expected build
         id: build
         shell: bash
         run: |
+          set -euo pipefail
           BUILD=$(grep -oP 'name="robys-build" content="\K[^"]+' index.html)
           test -n "$BUILD"
           echo "value=$BUILD" >> "$GITHUB_OUTPUT"
           echo "Auditing build: $BUILD"
 
-      - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+      - name: Verify available Chrome
+        run: |
+          set -euo pipefail
+          google-chrome --version
 
-      - name: Install Lighthouse
+      - name: Install exact Lighthouse version
         run: npm install --global lighthouse@12.8.2
 
       - name: Wait for current Pages build
         env:
           BUILD_ID: ${{ steps.build.outputs.value }}
         run: |
+          set -euo pipefail
           for attempt in {1..24}; do
             if curl --silent --fail "https://safal207.github.io/robys-coffee-house-demo/?deploy=${GITHUB_SHA}" | grep -q "$BUILD_ID"; then
               echo "Build $BUILD_ID is live"
@@ -57,6 +59,7 @@ jobs:
 
       - name: Run mobile Lighthouse
         run: |
+          set -euo pipefail
           lighthouse "https://safal207.github.io/robys-coffee-house-demo/?audit=${GITHUB_SHA}" \
             --chrome-flags="--headless --no-sandbox --disable-gpu" \
             --only-categories=performance,accessibility,best-practices,seo \
@@ -66,6 +69,7 @@ jobs:
 
       - name: Run desktop Lighthouse
         run: |
+          set -euo pipefail
           lighthouse "https://safal207.github.io/robys-coffee-house-demo/?audit=${GITHUB_SHA}" \
             --preset=desktop \
             --chrome-flags="--headless --no-sandbox --disable-gpu" \
@@ -74,9 +78,11 @@ jobs:
             --output-path=lh-desktop.json \
             --quiet
 
-      - name: Build compact summary
+      - name: Build exact-run compact summary
         env:
           BUILD_ID: ${{ steps.build.outputs.value }}
+          AUDITED_SHA: ${{ github.sha }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -100,27 +106,41 @@ jobs:
           const mobile = read('lh-mobile.json');
           const desktop = read('lh-desktop.json');
           const summary = {
+            schema: 'robys.lighthouse.live.v2',
             generatedAt: new Date().toISOString(),
             lighthouseVersion: mobile.lighthouseVersion,
             testedUrl: mobile.finalDisplayedUrl || mobile.finalUrl,
-            commit: process.env.GITHUB_SHA,
+            testedCommit: process.env.AUDITED_SHA,
+            sourceRunId: process.env.SOURCE_RUN_ID,
             build: process.env.BUILD_ID,
             mobile: pick(mobile),
             desktop: pick(desktop)
           };
           fs.writeFileSync('lighthouse-live-summary.json', JSON.stringify(summary, null, 2) + '\n');
+          const markdown = [
+            '# Lighthouse live audit',
+            '',
+            `- Tested commit: \`${summary.testedCommit}\``,
+            `- Source run: \`${summary.sourceRunId}\``,
+            `- Build: \`${summary.build}\``,
+            `- Mobile performance: **${summary.mobile.categories.performance}**`,
+            `- Desktop performance: **${summary.desktop.categories.performance}**`,
+            '',
+            'This artifact describes the deployed site observed during this run. It does not mutate `main` and does not by itself prove byte-equivalence between deployment and source.'
+          ].join('\n') + '\n';
+          fs.writeFileSync('lighthouse-live-summary.md', markdown);
           console.log(JSON.stringify(summary, null, 2));
           NODE
+          cat lighthouse-live-summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit summary
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lighthouse-live-summary.json
-          if git diff --cached --quiet; then
-            echo "Lighthouse summary is unchanged"
-            exit 0
-          fi
-          git commit -m "chore: update live Lighthouse summary [skip ci]"
-          git pull --rebase origin main
-          git push origin HEAD:main
+      - name: Upload immutable live Lighthouse evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lighthouse-live-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            lh-mobile.json
+            lh-desktop.json
+            lighthouse-live-summary.json
+            lighthouse-live-summary.md
+          if-no-files-found: error
+          retention-days: 90
