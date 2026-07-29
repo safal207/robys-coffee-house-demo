@@ -1,0 +1,49 @@
+name: Roby's Chapter 01 contract
+
+on:
+  push:
+    branches:
+      - agent/robys-chapter-01-wireframe
+    paths:
+      - "chapter-01.html"
+      - "chapter-01.css"
+      - "chapter-01.js"
+      - "qa/chapter-01-contract.mjs"
+      - ".github/workflows/robys-chapter-01-contract.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "chapter-01.html"
+      - "chapter-01.css"
+      - "chapter-01.js"
+      - "qa/chapter-01-contract.mjs"
+      - ".github/workflows/robys-chapter-01-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-chapter-01-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Story, truth and safety contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Chapter 01 contracts
+        run: node qa/chapter-01-contract.mjs
