@@ -61,7 +61,7 @@ jobs:
           serde = { version = "1", features = ["derive"] }
           serde_json = "1"
           TOML
-          cargo build --locked --manifest-path adapter/Cargo.toml
+          cargo build --manifest-path adapter/Cargo.toml
 
       - name: Generate advisory decision packet
         env:
