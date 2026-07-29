@@ -138,6 +138,10 @@ async function validateLinks(browser, pageDef, profile) {
 
   for (const link of links) {
     const url = new URL(link.href);
+    if (!["http:", "https:"].includes(url.protocol)) {
+      checks.push({ page: pageDef.id, profile: profile.id, type: "generated-link", label: link.text, href: link.href, protocol: url.protocol });
+      continue;
+    }
     if (url.origin !== baseUrl.origin) {
       if (url.protocol !== "https:") finding("P1", "External link is not HTTPS", link.href, { page: pageDef.id, profile: profile.id, text: link.text });
       if (link.target === "_blank" && !(link.rel.includes("noopener") && link.rel.includes("noreferrer"))) finding("P2", "External new-tab link lacks rel protection", link.href, { page: pageDef.id, profile: profile.id, text: link.text, rel: link.rel });
@@ -193,6 +197,7 @@ const summary = {
   profiles: profiles.length,
   controlsChecked: checks.filter((entry) => entry.type === "button").length,
   linksChecked: checks.filter((entry) => entry.type === "link").length,
+  generatedLinksObserved: checks.filter((entry) => entry.type === "generated-link").length,
   graph: { nodes: nodes.length, edges: edges.length },
   findings: Object.fromEntries(["P0", "P1", "P2", "P3"].map((severity) => [severity, findings.filter((entry) => entry.severity === severity).length]))
 };
