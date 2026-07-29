@@ -2,67 +2,69 @@ import { menuCategories } from "./menu-data.js";
 import { menuTruth, pairingTruth } from "./menu-truth.js";
 
 const MAPS_URL = "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving";
-const SUPPORTED_LANGUAGES = ["tr", "en", "ru"];
+const LANGUAGES = ["tr", "en", "ru"];
 
-const copy = Object.freeze({
-  tr: Object.freeze({
+const copy = {
+  tr: {
     searchScope: "Arama tüm menü kategorilerinde yapılır.",
-    resultOne: "1 ürün bulundu.",
-    resultMany: (count) => `${count} ürün bulundu.`,
-    resultNone: "Hiç ürün bulunamadı.",
+    result: (count) => count === 0 ? "Hiç ürün bulunamadı." : count === 1 ? "1 ürün bulundu." : `${count} ürün bulundu.`,
     showBarista: "Baristaya göster",
     directions: "Yol tarifi al",
     dialogTitle: "Seçtiğiniz eşleşme",
     close: "Kapat",
     truthNote: `Menü sürümü ${menuTruth.menuVersion}. Kaynak: onaylı basılı kafe menüsü.`,
     globalSearchActivated: "Arama tüm kategorilere genişletildi."
-  }),
-  en: Object.freeze({
+  },
+  en: {
     searchScope: "Search covers all menu categories.",
-    resultOne: "1 item found.",
-    resultMany: (count) => `${count} items found.`,
-    resultNone: "No items found.",
+    result: (count) => count === 0 ? "No items found." : count === 1 ? "1 item found." : `${count} items found.`,
     showBarista: "Show barista",
     directions: "Get directions",
     dialogTitle: "Your selected pairing",
     close: "Close",
     truthNote: `Menu version ${menuTruth.menuVersion}. Source: approved printed café menu.`,
     globalSearchActivated: "Search expanded to all categories."
-  }),
-  ru: Object.freeze({
+  },
+  ru: {
     searchScope: "Поиск выполняется по всем категориям меню.",
-    resultOne: "Найдена 1 позиция.",
-    resultMany: (count) => `Найдено позиций: ${count}.`,
-    resultNone: "Ничего не найдено.",
+    result: (count) => count === 0 ? "Ничего не найдено." : count === 1 ? "Найдена 1 позиция." : `Найдено позиций: ${count}.`,
     showBarista: "Показать бариста",
     directions: "Построить маршрут",
     dialogTitle: "Выбранное сочетание",
     close: "Закрыть",
     truthNote: `Версия меню ${menuTruth.menuVersion}. Источник: утверждённое печатное меню кафе.`,
     globalSearchActivated: "Поиск расширен на все категории."
-  })
-});
+  }
+};
 
-function currentLanguage() {
-  const language = document.documentElement.lang;
-  return SUPPORTED_LANGUAGES.includes(language) ? language : "tr";
+const menuRoot = document.querySelector("#menu-root");
+let menuObserver = null;
+let refreshQueued = false;
+
+function language() {
+  const value = document.documentElement.lang;
+  return LANGUAGES.includes(value) ? value : "tr";
 }
 
 function localized(value) {
-  const language = currentLanguage();
-  return value?.[language] ?? value?.tr ?? "";
+  return value?.[language()] ?? value?.tr ?? "";
 }
 
-function menuItemForPairing(pairingId) {
-  const category = menuCategories.find((entry) => entry.id === "pairing-offers");
-  return category?.items?.find((item) => item.journeyId === pairingId) ?? null;
+function setText(element, value) {
+  if (element && element.textContent !== value) element.textContent = value;
+}
+
+function pairingItem(pairingId) {
+  return menuCategories
+    .find((category) => category.id === "pairing-offers")
+    ?.items?.find((item) => item.journeyId === pairingId) ?? null;
 }
 
 function track(action, details = {}) {
   const payload = {
     event: "robys_action",
     action,
-    language: currentLanguage(),
+    language: language(),
     path: window.location.pathname,
     placement: "menu_pairing",
     ...details
@@ -76,18 +78,31 @@ function ensureStylesheet() {
   if (document.querySelector('link[data-menu-integrity-style="true"]')) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "menu-integrity.css?v=menu-truth-20260729-1";
+  link.href = "menu-integrity.css?v=menu-truth-20260729-2";
   link.dataset.menuIntegrityStyle = "true";
   document.head.append(link);
+}
+
+function activateAllCategoriesWithoutScroll() {
+  const allButton = document.querySelector("#menu-category-nav .menu-category-chip");
+  if (!allButton || allButton.getAttribute("aria-pressed") === "true") return false;
+
+  const original = Element.prototype.scrollIntoView;
+  try {
+    Element.prototype.scrollIntoView = function suppressSearchScroll() {};
+    allButton.click();
+  } finally {
+    Element.prototype.scrollIntoView = original;
+  }
+  return true;
 }
 
 function ensureSearchSupport() {
   const search = document.querySelector(".menu-search");
   const input = document.querySelector("#menu-search");
-  const root = document.querySelector("#menu-root");
-  if (!search || !input || !root) return;
+  if (!search || !input || !menuRoot) return;
 
-  root.removeAttribute("aria-live");
+  menuRoot.removeAttribute("aria-live");
 
   let scope = document.querySelector("#menu-search-scope");
   if (!scope) {
@@ -104,7 +119,7 @@ function ensureSearchSupport() {
     status.className = "menu-results-status visually-hidden";
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
-    root.before(status);
+    menuRoot.before(status);
   }
 
   if (input.dataset.globalSearchReady !== "true") {
@@ -112,72 +127,64 @@ function ensureSearchSupport() {
     input.addEventListener("input", () => {
       if (!input.value.trim()) return;
       queueMicrotask(() => {
-        const allButton = document.querySelector("#menu-category-nav .menu-category-chip");
-        if (!allButton || allButton.getAttribute("aria-pressed") === "true") return;
-
-        const originalScrollIntoView = Element.prototype.scrollIntoView;
-        try {
-          Element.prototype.scrollIntoView = function suppressRouterScroll() {};
-          allButton.click();
-        } finally {
-          Element.prototype.scrollIntoView = originalScrollIntoView;
-        }
-        status.textContent = copy[currentLanguage()].globalSearchActivated;
+        if (!activateAllCategoriesWithoutScroll()) return;
+        setText(status, copy[language()].globalSearchActivated);
         track("menu_search_expanded_global");
       });
     });
   }
+
+  setText(scope, copy[language()].searchScope);
 }
 
 function ensureTruthNote() {
-  const existing = document.querySelector(".menu-truth-note");
   const anchor = document.querySelector(".menu-page-note");
   if (!anchor) return;
-  const note = existing ?? document.createElement("p");
-  note.className = "menu-truth-note";
+  let note = document.querySelector(".menu-truth-note");
+  if (!note) {
+    note = document.createElement("p");
+    note.className = "menu-truth-note";
+    anchor.after(note);
+  }
   note.dataset.menuVersion = menuTruth.menuVersion;
-  note.textContent = copy[currentLanguage()].truthNote;
-  if (!existing) anchor.after(note);
+  setText(note, copy[language()].truthNote);
 }
 
-function createDialogElement(tag, className, dataAttribute) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (dataAttribute) element.setAttribute(dataAttribute, "");
-  return element;
+function element(tag, className, marker) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (marker) node.setAttribute(marker, "");
+  return node;
 }
 
 function ensureDialog() {
   let dialog = document.querySelector("#pairing-fulfilment-dialog");
   if (dialog) return dialog;
 
-  dialog = document.createElement("dialog");
+  dialog = element("dialog", "pairing-fulfilment-dialog");
   dialog.id = "pairing-fulfilment-dialog";
-  dialog.className = "pairing-fulfilment-dialog";
   dialog.setAttribute("aria-labelledby", "pairing-dialog-title");
 
-  const card = createDialogElement("div", "pairing-dialog-card");
-  const kicker = createDialogElement("p", "eyebrow", "data-dialog-kicker");
-  const title = createDialogElement("h2", "", "data-dialog-title");
+  const card = element("div", "pairing-dialog-card");
+  const kicker = element("p", "eyebrow", "data-dialog-kicker");
+  const title = element("h2", "", "data-dialog-title");
   title.id = "pairing-dialog-title";
-  const price = createDialogElement("p", "pairing-dialog-price", "data-dialog-price");
-  const explanation = createDialogElement("p", "pairing-dialog-explanation", "data-dialog-explanation");
-  const actions = createDialogElement("div", "pairing-dialog-actions");
+  const price = element("p", "pairing-dialog-price", "data-dialog-price");
+  const explanation = element("p", "pairing-dialog-explanation", "data-dialog-explanation");
+  const actions = element("div", "pairing-dialog-actions");
+  const directions = element("a", "button button-primary", "data-dialog-directions");
+  const close = element("button", "button menu-secondary-button", "data-dialog-close");
 
-  const directions = createDialogElement("a", "button button-primary", "data-dialog-directions");
   directions.href = MAPS_URL;
   directions.target = "_blank";
   directions.rel = "noopener noreferrer";
-
-  const closeButton = createDialogElement("button", "button menu-secondary-button", "data-dialog-close");
-  closeButton.type = "button";
-
-  actions.append(directions, closeButton);
+  close.type = "button";
+  actions.append(directions, close);
   card.append(kicker, title, price, explanation, actions);
   dialog.append(card);
   document.body.append(dialog);
 
-  closeButton.addEventListener("click", () => dialog.close());
+  close.addEventListener("click", () => dialog.close());
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
@@ -189,17 +196,17 @@ function ensureDialog() {
 
 function openPairingDialog(pairingId) {
   const truth = pairingTruth[pairingId];
-  const item = menuItemForPairing(pairingId);
+  const item = pairingItem(pairingId);
   if (!truth || !item) return;
 
   const dialog = ensureDialog();
   dialog.dataset.pairingId = pairingId;
-  dialog.querySelector("[data-dialog-kicker]").textContent = copy[currentLanguage()].dialogTitle;
-  dialog.querySelector("[data-dialog-title]").textContent = localized(item.name);
-  dialog.querySelector("[data-dialog-price]").textContent = `${item.price} ₺`;
-  dialog.querySelector("[data-dialog-explanation]").textContent = localized(truth.explanation);
-  dialog.querySelector("[data-dialog-directions]").textContent = copy[currentLanguage()].directions;
-  dialog.querySelector("[data-dialog-close]").textContent = copy[currentLanguage()].close;
+  setText(dialog.querySelector("[data-dialog-kicker]"), copy[language()].dialogTitle);
+  setText(dialog.querySelector("[data-dialog-title]"), localized(item.name));
+  setText(dialog.querySelector("[data-dialog-price]"), `${item.price} ₺`);
+  setText(dialog.querySelector("[data-dialog-explanation]"), localized(truth.explanation));
+  setText(dialog.querySelector("[data-dialog-directions]"), copy[language()].directions);
+  setText(dialog.querySelector("[data-dialog-close]"), copy[language()].close);
 
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
@@ -210,43 +217,33 @@ function enhancePairingCards() {
   document.querySelectorAll(".full-menu-item--visual[data-pairing]").forEach((card) => {
     const pairingId = card.dataset.pairing;
     const truth = pairingTruth[pairingId];
-    if (!truth) return;
-
     const details = card.querySelector(".full-menu-item-details");
-    if (!details) return;
+    if (!truth || !details) return;
 
     let explanation = details.querySelector(".pairing-price-explanation");
     if (!explanation) {
-      explanation = document.createElement("p");
-      explanation.className = "pairing-price-explanation";
+      explanation = element("p", "pairing-price-explanation");
       details.append(explanation);
     }
-    explanation.textContent = localized(truth.explanation);
+    setText(explanation, localized(truth.explanation));
 
     let actions = details.querySelector(".pairing-card-actions");
     if (!actions) {
-      actions = document.createElement("div");
-      actions.className = "pairing-card-actions";
-
-      const showButton = document.createElement("button");
-      showButton.type = "button";
-      showButton.className = "button button-primary pairing-show-barista";
-      showButton.dataset.pairingId = pairingId;
-      showButton.addEventListener("click", () => openPairingDialog(pairingId));
-
-      const route = document.createElement("a");
-      route.className = "pairing-route-link";
+      actions = element("div", "pairing-card-actions");
+      const show = element("button", "button button-primary pairing-show-barista");
+      const route = element("a", "pairing-route-link");
+      show.type = "button";
+      show.addEventListener("click", () => openPairingDialog(pairingId));
       route.href = MAPS_URL;
       route.target = "_blank";
       route.rel = "noopener noreferrer";
       route.addEventListener("click", () => track("pairing_directions_click", { pairing_id: pairingId }));
-
-      actions.append(showButton, route);
+      actions.append(show, route);
       details.append(actions);
     }
 
-    actions.querySelector(".pairing-show-barista").textContent = copy[currentLanguage()].showBarista;
-    actions.querySelector(".pairing-route-link").textContent = `${copy[currentLanguage()].directions} ↗`;
+    setText(actions.querySelector(".pairing-show-barista"), copy[language()].showBarista);
+    setText(actions.querySelector(".pairing-route-link"), `${copy[language()].directions} ↗`);
     card.dataset.pricingMode = truth.pricingMode;
     card.dataset.menuVersion = menuTruth.menuVersion;
   });
@@ -254,41 +251,35 @@ function enhancePairingCards() {
 
 function updateResultStatus() {
   const status = document.querySelector("#menu-results-status");
-  const scope = document.querySelector("#menu-search-scope");
-  if (!status || !scope) return;
-  const localizedCopy = copy[currentLanguage()];
-  scope.textContent = localizedCopy.searchScope;
-  const count = document.querySelectorAll("#menu-root .full-menu-item").length;
-  status.textContent = count === 0 ? localizedCopy.resultNone : count === 1 ? localizedCopy.resultOne : localizedCopy.resultMany(count);
+  if (!status) return;
+  setText(status, copy[language()].result(document.querySelectorAll("#menu-root .full-menu-item").length));
 }
 
 function refreshIntegrityUi() {
+  menuObserver?.disconnect();
   ensureSearchSupport();
   ensureTruthNote();
+  ensureDialog();
   enhancePairingCards();
   updateResultStatus();
   document.body.dataset.menuIntegrityReady = "true";
+  if (menuRoot) menuObserver?.observe(menuRoot, { childList: true, subtree: true });
+}
+
+function scheduleRefresh() {
+  if (refreshQueued) return;
+  refreshQueued = true;
+  window.requestAnimationFrame(() => {
+    refreshQueued = false;
+    refreshIntegrityUi();
+  });
 }
 
 ensureStylesheet();
-ensureSearchSupport();
-ensureDialog();
+if (menuRoot) menuObserver = new MutationObserver(scheduleRefresh);
 refreshIntegrityUi();
 
-const menuRoot = document.querySelector("#menu-root");
-if (menuRoot) {
-  let queued = false;
-  new MutationObserver(() => {
-    if (queued) return;
-    queued = true;
-    window.requestAnimationFrame(() => {
-      queued = false;
-      refreshIntegrityUi();
-    });
-  }).observe(menuRoot, { childList: true, subtree: true });
-}
-
-new MutationObserver(refreshIntegrityUi).observe(document.documentElement, {
+new MutationObserver(scheduleRefresh).observe(document.documentElement, {
   attributes: true,
   attributeFilter: ["lang"]
 });
