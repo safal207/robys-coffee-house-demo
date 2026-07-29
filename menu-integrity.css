@@ -13,11 +13,33 @@
   line-height:1.5;
 }
 
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details{
+  display:block;
+  padding:18px 20px 20px;
+  color:var(--ink,#2f2725);
+  background:var(--paper,#fffdf9);
+  border-top:1px solid rgba(47,39,37,.12);
+}
+
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details>.full-menu-item-copy,
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details>.full-menu-price{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+
 .pairing-price-explanation{
-  margin:10px 0 0;
+  margin:0;
   color:var(--muted,#756b67);
   font-size:.78rem;
-  line-height:1.45;
+  line-height:1.5;
 }
 
 .pairing-poster-price-context{
@@ -29,7 +51,7 @@
   font-weight:700;
   letter-spacing:.06em;
   line-height:1.25;
-  text-align:right;
+  text-align:center;
   text-transform:uppercase;
 }
 
@@ -38,7 +60,7 @@
   flex-wrap:wrap;
   align-items:center;
   gap:12px;
-  margin-top:18px;
+  margin-top:16px;
 }
 
 .pairing-card-actions .button{
@@ -114,17 +136,26 @@
 }
 
 @media(max-width:680px){
+  .full-menu-item--visual.pairing-poster-card .full-menu-item-details{
+    padding:16px;
+  }
+
   .pairing-card-actions{
+    display:grid;
+    grid-template-columns:1fr;
     align-items:stretch;
+    gap:8px;
+    margin-top:14px;
   }
 
   .pairing-card-actions .button{
-    flex:1 1 100%;
+    width:100%;
     min-height:52px;
   }
 
   .pairing-route-link{
-    min-height:48px;
+    min-height:46px;
+    justify-content:center;
   }
 
   .pairing-dialog-card{
