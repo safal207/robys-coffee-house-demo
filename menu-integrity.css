@@ -20,6 +20,19 @@
   line-height:1.45;
 }
 
+.pairing-poster-price-context{
+  display:block;
+  max-width:150px;
+  margin-top:4px;
+  color:rgba(255,255,255,.82);
+  font-size:.52rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  line-height:1.25;
+  text-align:right;
+  text-transform:uppercase;
+}
+
 .pairing-card-actions{
   display:flex;
   flex-wrap:wrap;
