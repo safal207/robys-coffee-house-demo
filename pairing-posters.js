@@ -1,4 +1,5 @@
 import "./menu-integrity.js";
+import "./menu-search-policy.js";
 import { pairingTruth } from "./menu-truth.js";
 
 const priceMeta = {
