@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
-import { build, transform } from "esbuild";
+import { build } from "esbuild";
 import ts from "typescript";
 
 await build({
@@ -79,14 +79,16 @@ await build({
   legalComments: "none"
 });
 
-const menuPageRuntime = await transform(readFileSync("src/menu-page-runtime.js", "utf8"), {
-  loader: "js",
+await build({
+  entryPoints: ["scripts/menu-page-runtime.mjs"],
+  bundle: true,
   minify: true,
   format: "esm",
+  platform: "browser",
   target: "es2020",
+  outfile: "menu-page.js",
   legalComments: "none"
 });
-writeFileSync("menu-page.js", menuPageRuntime.code);
 
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
