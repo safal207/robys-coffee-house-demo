@@ -140,6 +140,13 @@ function ensureTruthNote() {
   if (!existing) anchor.after(note);
 }
 
+function createDialogElement(tag, className, dataAttribute) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (dataAttribute) element.setAttribute(dataAttribute, "");
+  return element;
+}
+
 function ensureDialog() {
   let dialog = document.querySelector("#pairing-fulfilment-dialog");
   if (dialog) return dialog;
@@ -147,26 +154,34 @@ function ensureDialog() {
   dialog = document.createElement("dialog");
   dialog.id = "pairing-fulfilment-dialog";
   dialog.className = "pairing-fulfilment-dialog";
-  dialog.innerHTML = [
-    '<div class="pairing-dialog-card">',
-    '<p class="eyebrow" data-dialog-kicker></p>',
-    '<h2 id="pairing-dialog-title" data-dialog-title></h2>',
-    '<p class="pairing-dialog-price" data-dialog-price></p>',
-    '<p class="pairing-dialog-explanation" data-dialog-explanation></p>',
-    '<div class="pairing-dialog-actions">',
-    `<a class="button button-primary" href="${MAPS_URL}" target="_blank" rel="noopener noreferrer" data-dialog-directions></a>`,
-    '<button class="button menu-secondary-button" type="button" data-dialog-close></button>',
-    "</div>",
-    "</div>"
-  ].join("");
   dialog.setAttribute("aria-labelledby", "pairing-dialog-title");
+
+  const card = createDialogElement("div", "pairing-dialog-card");
+  const kicker = createDialogElement("p", "eyebrow", "data-dialog-kicker");
+  const title = createDialogElement("h2", "", "data-dialog-title");
+  title.id = "pairing-dialog-title";
+  const price = createDialogElement("p", "pairing-dialog-price", "data-dialog-price");
+  const explanation = createDialogElement("p", "pairing-dialog-explanation", "data-dialog-explanation");
+  const actions = createDialogElement("div", "pairing-dialog-actions");
+
+  const directions = createDialogElement("a", "button button-primary", "data-dialog-directions");
+  directions.href = MAPS_URL;
+  directions.target = "_blank";
+  directions.rel = "noopener noreferrer";
+
+  const closeButton = createDialogElement("button", "button menu-secondary-button", "data-dialog-close");
+  closeButton.type = "button";
+
+  actions.append(directions, closeButton);
+  card.append(kicker, title, price, explanation, actions);
+  dialog.append(card);
   document.body.append(dialog);
 
-  dialog.querySelector("[data-dialog-close]")?.addEventListener("click", () => dialog.close());
+  closeButton.addEventListener("click", () => dialog.close());
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
-  dialog.querySelector("[data-dialog-directions]")?.addEventListener("click", () => {
+  directions.addEventListener("click", () => {
     track("pairing_directions_click", { pairing_id: dialog.dataset.pairingId ?? "unknown" });
   });
   return dialog;
