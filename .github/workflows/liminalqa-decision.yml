@@ -44,6 +44,9 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Run pinned LiminalQA core tests
+        run: cargo test -p liminalqa-core --manifest-path liminalqa/Cargo.toml
+
       - name: Build decision adapter with LiminalQA core
         shell: bash
         run: |
