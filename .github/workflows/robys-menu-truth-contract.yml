@@ -13,6 +13,7 @@ on:
       - "pairing-posters.js"
       - "menu.html"
       - "scripts/verify-menu-truth-and-journey.mjs"
+      - "qa/menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
   pull_request:
     branches:
@@ -26,6 +27,7 @@ on:
       - "pairing-posters.js"
       - "menu.html"
       - "scripts/verify-menu-truth-and-journey.mjs"
+      - "qa/menu-truth-browser.mjs"
       - ".github/workflows/robys-menu-truth-contract.yml"
   workflow_dispatch:
 
@@ -37,7 +39,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  contract:
+  static-contract:
     name: Pricing, search and fulfilment contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -55,3 +57,28 @@ jobs:
 
       - name: Validate menu truth and journey contracts
         run: node scripts/verify-menu-truth-and-journey.mjs
+
+  browser-contract:
+    name: Global search and barista browser journey
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+
+      - name: Install isolated Playwright runtime
+        run: npm install --no-save --ignore-scripts playwright@1.54.2
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate exact browser journey
+        run: node qa/menu-truth-browser.mjs
