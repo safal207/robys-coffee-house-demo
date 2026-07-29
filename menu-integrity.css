@@ -1,0 +1,132 @@
+.menu-search-scope{
+  margin:8px 2px 0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.4;
+}
+
+.menu-truth-note{
+  max-width:760px;
+  margin:8px 0 0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+.pairing-price-explanation{
+  margin:10px 0 0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.45;
+}
+
+.pairing-card-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-top:18px;
+}
+
+.pairing-card-actions .button{
+  min-height:48px;
+  padding:12px 18px;
+}
+
+.pairing-route-link{
+  display:inline-flex;
+  min-height:44px;
+  align-items:center;
+  padding:8px 2px;
+  color:var(--ink,#2f2725);
+  font-size:.82rem;
+  font-weight:700;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+
+.pairing-route-link:hover{
+  color:var(--ruby,#e21b23);
+}
+
+.pairing-route-link:focus-visible,
+.pairing-show-barista:focus-visible,
+.pairing-fulfilment-dialog button:focus-visible,
+.pairing-fulfilment-dialog a:focus-visible{
+  outline:4px solid rgba(226,27,35,.3);
+  outline-offset:3px;
+}
+
+.pairing-fulfilment-dialog{
+  width:min(560px,calc(100% - 28px));
+  padding:0;
+  color:var(--ink,#2f2725);
+  border:0;
+  border-radius:28px;
+  background:var(--paper,#fffdf9);
+  box-shadow:0 28px 90px rgba(36,28,27,.3);
+}
+
+.pairing-fulfilment-dialog::backdrop{
+  background:rgba(20,15,15,.72);
+  backdrop-filter:blur(6px);
+}
+
+.pairing-dialog-card{
+  padding:30px;
+}
+
+.pairing-dialog-card h2{
+  margin-bottom:14px;
+  font-size:clamp(2.1rem,8vw,3.6rem);
+}
+
+.pairing-dialog-price{
+  margin:0 0 12px;
+  color:var(--ruby,#e21b23);
+  font:700 2rem/1 var(--display,"Oswald",Arial,sans-serif);
+}
+
+.pairing-dialog-explanation{
+  margin:0;
+  color:var(--muted,#756b67);
+}
+
+.pairing-dialog-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:24px;
+}
+
+@media(max-width:680px){
+  .pairing-card-actions{
+    align-items:stretch;
+  }
+
+  .pairing-card-actions .button{
+    flex:1 1 100%;
+    min-height:52px;
+  }
+
+  .pairing-route-link{
+    min-height:48px;
+  }
+
+  .pairing-dialog-card{
+    padding:24px 20px;
+  }
+
+  .pairing-dialog-actions .button{
+    flex:1 1 100%;
+    min-height:52px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .pairing-fulfilment-dialog,
+  .pairing-fulfilment-dialog::backdrop{
+    scroll-behavior:auto;
+  }
+}
