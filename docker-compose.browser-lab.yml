@@ -18,7 +18,7 @@ services:
       - qa-browser-lab
 
   chromium:
-    image: "${ROBY_QA_CHROMIUM_IMAGE:-lscr.io/linuxserver/chromium@sha256:8237c6d377f06b253784a6f888658525f637739b0134ce70a47ee95cb95a5ed2}"
+    image: "${ROBY_QA_CHROMIUM_IMAGE:-ghcr.io/linuxserver/chromium:version-11e602ae@sha256:6d35963fd7903bcfb944f3b70999a27ed44b729db94813da6be983a69a5bad06}"
     platform: "${ROBY_QA_BROWSER_PLATFORM:-linux/amd64}"
     pull_policy: always
     environment:
@@ -43,7 +43,7 @@ services:
       - qa-browser-lab
 
   firefox:
-    image: "${ROBY_QA_FIREFOX_IMAGE:-lscr.io/linuxserver/firefox@sha256:9420388b3cbfa3a27367c994e30cfb55cac853454276bc4603c2e50284134bd2}"
+    image: "${ROBY_QA_FIREFOX_IMAGE:-ghcr.io/linuxserver/firefox:version-136.0build3-0ubuntu0.24.04.1mt1@sha256:aa9f6468a0bdb3362a99a97d445b2afdb92dfcbceb2093b8f7b61530bc9703ef}"
     platform: "${ROBY_QA_BROWSER_PLATFORM:-linux/amd64}"
     pull_policy: always
     environment:
