@@ -56,6 +56,10 @@ Open:
 
 The browser desktops use self-signed HTTPS certificates, so a local browser warning is expected.
 
+## Evidence collection
+
+The CI smoke workflow retains exact-run Compose configuration, resolved image metadata, service state, probes and logs. The final exact-head evidence workflow retains the current-run LiminalQA inputs and decision, all Lighthouse raw results, the SHA-256 manifest, the fresh-runner quality report, the verifier record, and a deterministic compressed archive with its checksum.
+
 ## Stop
 
 ```bash
