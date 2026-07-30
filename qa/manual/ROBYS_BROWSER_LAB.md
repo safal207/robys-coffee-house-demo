@@ -1,35 +1,18 @@
 # Roby's Docker browser lab
 
-This lab starts the current repository as a local website and opens two isolated,
-interactive desktop browsers:
+This lab serves the repository through a pinned nginx image and exposes pinned Chromium and Firefox desktop containers for manual browser QA.
 
-- Chromium (Blink engine)
-- Firefox (Gecko engine)
+## Safety boundary
 
-The browser desktops are streamed to the host through a local HTTPS web UI, so a
-tester can click through the product, open DevTools, resize the viewport, inspect
-Console/Network, and capture evidence without installing extra browsers.
+All five published ports bind to `127.0.0.1` by default and are therefore reachable only from the machine running Docker unless an operator explicitly changes `ROBY_QA_BIND_ADDRESS`. Do not expose the browser GUI directly to the Internet.
 
-## Prerequisites
-
-- Docker Desktop or Docker Engine with Docker Compose v2
-- At least 4 GB of free RAM for both browsers
-- Ports `8080`, `3010`, `3011`, `3020`, and `3021` available
-
-All published ports bind to `127.0.0.1` by default. The site and browser desktops
-are therefore reachable only from the machine running Docker unless an operator
-explicitly changes `ROBY_QA_BIND_ADDRESS`. Do not expose the browser GUI directly
-to the Internet.
+The default credentials are test-only. Set `ROBY_QA_USER` and `ROBY_QA_PASSWORD` explicitly before any intentional non-loopback use.
 
 ## Reproducible image policy
 
-The default nginx, Chromium and Firefox images are pinned by immutable SHA-256
-digest. Chromium and Firefox also default to `linux/amd64`, matching the GitHub
-hosted QA runner. This means that the same repository commit resolves the same
-browser-lab bytes instead of silently following a moving `latest` tag.
+The default nginx, Chromium and Firefox images are pinned by immutable SHA-256 digest. Chromium and Firefox also default to `linux/amd64`, matching the GitHub hosted QA runner. This means that the same repository commit resolves the same browser-lab bytes instead of silently following a moving `latest` tag.
 
-On an ARM host Docker may use emulation for the default browser platform. An
-operator may override the platform and images explicitly:
+On an ARM host Docker may use emulation for the default browser platform. An operator may override the platform and images explicitly:
 
 ```bash
 ROBY_QA_BROWSER_PLATFORM=linux/arm64 \
@@ -38,10 +21,19 @@ ROBY_QA_FIREFOX_IMAGE='lscr.io/linuxserver/firefox@sha256:<reviewed-arm64-digest
 npm run qa:browsers:up
 ```
 
-A run using an override is reproducible evidence only when every override is also
-digest-pinned and the resolved image references are retained with the test
-artifact. Mutable tags such as `latest` belong only in the separate advisory image
-canary and must not be used for release acceptance.
+A run using an override is reproducible evidence only when every override is also digest-pinned and the resolved image references are retained with the test artifact. Mutable tags such as `latest` belong only in the separate advisory image canary and must not be used for release acceptance.
+
+## Exact-head evidence chain
+
+The blocking technical evidence workflow uses three execution boundaries:
+
+1. **Measurement runners** collect one explicit cold-start warm-up plus six steady-state Lighthouse observations for both mobile and desktop.
+2. **Producer runner** binds current-run security, performance, Compose and Lighthouse evidence to the exact commit and GitHub run, produces the LiminalQA decision and seals a SHA-256 manifest. It cannot emit the final `verification.json`.
+3. **Fresh verifier runner** downloads the sealed candidate into a new workspace, verifies every manifest member, rejects symlinks/path escapes/duplicate raw hashes, recomputes Lighthouse statistics from all raw results, verifies that only the first chronological run is treated as warm-up, rechecks exact-head/run/engine bindings and only then publishes the 90-day final evidence artifact.
+
+The warm-up result remains in the final bundle. It is not silently deleted or selected after seeing the measurements. The measured set is deterministically the six chronological runs following the first cold-start observation.
+
+This is an independent **technical execution boundary**, not an independent human approval. Human review policy remains a separate repository control.
 
 ## Start
 
@@ -62,150 +54,16 @@ Open:
 | Chromium desktop | `https://localhost:3011` |
 | Firefox desktop | `https://localhost:3021` |
 
-The GUI certificate is self-signed. Accept the local certificate warning.
+The browser desktops use self-signed HTTPS certificates, so a local browser warning is expected.
 
-Default local GUI credentials:
-
-- user: `qa`
-- password: `replace_me_before_lan_use`
-
-The default password is an explicit development placeholder. It is acceptable
-only while the lab remains bound to loopback. Override it before binding the
-browser ports to a LAN interface or sharing access with another tester.
-
-Inside Chromium and Firefox, Roby's opens at `http://site/`. Do not replace it
-with `localhost`: inside a browser container, `localhost` means that browser
-container, not the site container.
-
-## Share on a trusted LAN
-
-LAN access must be enabled explicitly. Use a strong unique password, limit access
-with the host firewall, and run this only on a trusted network:
-
-```bash
-ROBY_QA_BIND_ADDRESS=0.0.0.0 \
-ROBY_QA_USER=alex \
-ROBY_QA_PASSWORD='replace-with-a-strong-unique-password' \
-npm run qa:browsers:up
-```
-
-`0.0.0.0` publishes the five ports on every host interface. To expose the lab
-only through one LAN interface, set `ROBY_QA_BIND_ADDRESS` to that interface's
-specific IP address instead.
-
-Return to local-only mode by stopping the lab and starting it again without the
-`ROBY_QA_BIND_ADDRESS` override:
+## Stop
 
 ```bash
 npm run qa:browsers:down
-npm run qa:browsers:up
 ```
 
-## Stop and inspect
+The named Chromium and Firefox profile volumes remain until explicitly removed. To remove them together with the lab:
 
 ```bash
-npm run qa:browsers:status
-npm run qa:browsers:logs
-npm run qa:browsers:down
+docker compose -f docker-compose.browser-lab.yml down -v
 ```
-
-To remove persisted browser profiles too:
-
-```bash
-docker compose -f docker-compose.browser-lab.yml down --volumes --remove-orphans
-```
-
-## Manual test matrix
-
-Run the critical path in both engines.
-
-| Surface | Desktop | Mobile viewport |
-|---|---:|---:|
-| Chromium | `1440 × 900` | `390 × 844`, `412 × 915` |
-| Firefox | `1440 × 900` | `390 × 844`, `412 × 915` |
-
-Use DevTools responsive mode for the mobile viewports. This validates responsive
-layout and browser-engine compatibility; it is not a substitute for a physical
-Android device or iPhone/Safari.
-
-## Critical manual scenarios
-
-1. **Load and integrity**
-   - Home page and key subpages return the expected content.
-   - No broken images, missing fonts, accidental HTML responses for assets, or
-     uncaught Console errors.
-   - Hard refresh does not expose stale branding or stale JavaScript.
-
-2. **Brand and responsive layout**
-   - Primary, compact, mobile, and mark logo variants render sharply.
-   - Header, cards, menu sections, prices, and CTA buttons do not overlap.
-   - No horizontal scroll at the mobile viewports.
-   - Long Russian and Turkish labels do not clip.
-
-3. **Language switching**
-   - Turkish, English, and Russian copy changes consistently.
-   - The selected language survives navigation and refresh where intended.
-   - Links, accessible names, and visible labels stay in the same language.
-
-4. **Menu and Smart Choice**
-   - Products, prices, modifiers, pairings, combos, and recommendations match
-     the source catalogue.
-   - Add/remove/update quantity works.
-   - Empty, minimum, maximum, repeated-click, and back-navigation paths are safe.
-   - Decision explanations do not contradict the actual cart result.
-
-5. **External actions**
-   - Google Maps, Instagram, share, download, WhatsApp/contact, and other
-     outbound actions use the correct target and do not break the current page.
-   - New-tab behavior is consistent and keyboard-accessible.
-
-6. **Accessibility and interaction**
-   - Entire critical path works with keyboard only.
-   - Focus is visible and follows a logical order.
-   - Buttons are buttons, links are links, and disabled states are understandable.
-   - Reduced-motion preference does not hide content or block actions.
-
-7. **PWA/cache**
-   - Test installability, service-worker updates, offline behavior, and cache
-     invalidation against the deployed HTTPS URL. `http://site` is intended for
-     local functional checks and is not a trusted secure origin for complete PWA
-     validation.
-
-## Evidence protocol
-
-For every defect, capture:
-
-```text
-ID:
-Commit / build:
-Browser image digest:
-Browser + version:
-Viewport:
-URL:
-Preconditions:
-Steps:
-Expected:
-Actual:
-Console / Network evidence:
-Screenshot or recording:
-Reproducibility:
-Severity:
-Suspected layer: source | build | cache | render | external dependency
-```
-
-A finding is not considered confirmed until it reproduces in a named browser and
-viewport with the tested commit and resolved image digest recorded. Cross-browser
-differences should be reported separately rather than merged into one vague issue.
-
-## Resource and compatibility notes
-
-- CI stores expanded Compose configuration, resolved image information, runtime
-  status, logs and the served page in an artifact named with commit, run ID and
-  run attempt.
-- Exact-run browser-lab artifacts are retained for 90 days.
-- If an older Linux host blocks GUI syscalls, LinuxServer documents
-  `security_opt: seccomp=unconfined` as a compatibility fallback. Do not enable it
-  by default; it weakens container isolation.
-- Microsoft Edge and Safari are not included. Chromium covers the Blink engine,
-  but release-critical Edge and Safari checks still require Edge on Windows and
-  Safari/WebKit on Apple hardware or a dedicated cloud device service.
