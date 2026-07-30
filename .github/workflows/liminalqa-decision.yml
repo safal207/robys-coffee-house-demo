@@ -71,7 +71,7 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Collect six exact-head measurements
+      - name: Collect one warm-up and six measured observations
         run: node scripts/run-lighthouse-repeatability.mjs "${{ matrix.profile }}"
 
       - name: Upload profile evidence for aggregation
