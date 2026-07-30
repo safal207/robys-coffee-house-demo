@@ -84,7 +84,7 @@ jobs:
           retention-days: 7
 
   decision:
-    name: Build and classify exact-head evidence
+    name: Build and seal exact-head evidence
     needs: measure
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -290,10 +290,10 @@ jobs:
             "$ROBY_EVIDENCE_ROOT/input-signals.json" \
             "$ROBY_EVIDENCE_ROOT"
 
-      - name: Seal and independently verify evidence bundle
+      - name: Seal evidence bundle with producer self-check
         run: node scripts/seal-liminalqa-evidence.mjs "$ROBY_EVIDENCE_ROOT"
 
-      - name: Publish reports to workflow summary
+      - name: Publish producer reports to workflow summary
         if: always()
         shell: bash
         run: |
@@ -306,7 +306,7 @@ jobs:
           fi
           exit 0
 
-      - name: Enforce exact-head evidence policy
+      - name: Enforce producer decision invariants
         shell: bash
         run: |
           set -euo pipefail
@@ -317,25 +317,87 @@ jobs:
 
           root = Path(os.environ["ROBY_EVIDENCE_ROOT"])
           packet = json.loads((root / "decision.json").read_text())
-          verification = json.loads((root / "verification.json").read_text())
+          manifest = json.loads((root / "manifest.json").read_text())
           assert packet["schema"] == "robys.liminalqa.decision.v2"
           assert packet["input_schema"] == "robys.liminalqa.input.v2"
           assert packet["tested_commit"] == os.environ["ROBY_TESTED_COMMIT"]
           assert packet["source_run_id"] == os.environ["ROBY_SOURCE_RUN_ID"]
           assert packet["source_revision"] == os.environ["LIMINALQA_REVISION"]
           assert all(item["verified"] for item in packet["evidence"])
-          assert verification["verified"] is True
-          policy = packet["suite_decision"]["merge_policy"]
-          assert policy == "allow", policy
+          assert packet["suite_decision"]["merge_policy"] == "allow"
           assert packet["suite_decision"]["block_reason"] == ""
-          print(f"Exact-head evidence verified; advisory merge policy={policy}")
+          assert manifest["testedCommit"] == os.environ["ROBY_TESTED_COMMIT"]
+          assert manifest["sourceRunId"] == os.environ["ROBY_SOURCE_RUN_ID"]
+          assert not (root / "verification.json").exists()
+          assert not (root / "evidence-quality.json").exists()
+          print("Producer decision and seal are internally consistent")
           PY
 
-      - name: Upload immutable exact-run evidence
-        if: always()
+      - name: Upload sealed evidence candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: qa/liminal-artifacts/
+          if-no-files-found: error
+          retention-days: 7
+
+  verify:
+    name: Verify sealed evidence on fresh runner
+    needs: decision
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact Roby's head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.ROBY_TESTED_COMMIT }}
+          persist-credentials: false
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Download sealed producer candidate
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: qa/liminal-artifacts
+
+      - name: Recompute and verify evidence on fresh runner
+        run: node scripts/verify-liminalqa-evidence.mjs "$ROBY_EVIDENCE_ROOT"
+
+      - name: Build deterministic evidence archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/final
+          archive=".artifacts/final/exact-head-evidence-${ROBY_TESTED_COMMIT}-${ROBY_SOURCE_RUN_ID}-${GITHUB_RUN_ATTEMPT}.tar.gz"
+          tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \
+            -C "$ROBY_EVIDENCE_ROOT" -cf - . | gzip -n > "$archive"
+          sha256sum "$archive" > "$archive.sha256"
+
+      - name: Publish verifier report to workflow summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '# Fresh-runner evidence verification\n\n'
+            printf '```json\n'
+            cat "$ROBY_EVIDENCE_ROOT/verification.json"
+            printf '```\n\n'
+            printf '```json\n'
+            cat "$ROBY_EVIDENCE_ROOT/evidence-quality.json"
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verified immutable exact-run evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: qa/liminal-artifacts/
+          path: |
+            qa/liminal-artifacts/
+            .artifacts/final/*.tar.gz
+            .artifacts/final/*.sha256
           if-no-files-found: error
           retention-days: 90
