@@ -10,7 +10,8 @@ const testedCommit = process.env.ROBY_TESTED_COMMIT ?? process.env.GITHUB_SHA ??
 const sourceRunId = process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID ?? "local";
 const budgets = JSON.parse(readFileSync(path.join(root, "lighthouse", "budgets.json"), "utf8"));
 const minimumRunsPerProfile = 6;
-const configuredRunsPerProfile = 6;
+const warmupRunsPerProfile = 1;
+const configuredRunsPerProfile = minimumRunsPerProfile + warmupRunsPerProfile;
 
 function assertExactCommit(value) {
   if (!/^[0-9a-f]{40}$/i.test(value)) {
@@ -97,8 +98,9 @@ function loadRuns(profile) {
       interactive: Number(lhr.audits.interactive?.numericValue)
     });
   }
-  if (runs.length < minimumRunsPerProfile) {
-    throw new Error(`${profile}: expected at least ${minimumRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
+  runs.sort((left, right) => left.source.localeCompare(right.source));
+  if (runs.length !== configuredRunsPerProfile) {
+    throw new Error(`${profile}: expected exactly ${configuredRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
   }
   for (const [index, run] of runs.entries()) {
     for (const [metric, value] of Object.entries(run)) {
@@ -106,7 +108,12 @@ function loadRuns(profile) {
       if (!Number.isFinite(value)) throw new Error(`${profile} run ${index + 1}: invalid ${metric}`);
     }
   }
-  return runs;
+  const warmupRuns = runs.slice(0, warmupRunsPerProfile);
+  const measuredRuns = runs.slice(warmupRunsPerProfile);
+  if (measuredRuns.length !== minimumRunsPerProfile) {
+    throw new Error(`${profile}: expected ${minimumRunsPerProfile} measured runs after warm-up, found ${measuredRuns.length}`);
+  }
+  return { warmupRuns, measuredRuns };
 }
 
 function quantile(values, q) {
@@ -204,15 +211,16 @@ function writeCombinedReport(profiles) {
     sourceRunId,
     generatedAt,
     minimumRunsPerProfile,
+    warmupRunsPerProfile,
     configuredRunsPerProfile,
     overallVerdict,
     profiles
   };
   writeFileSync(path.join(outputRoot, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
-  const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Generated: ${generatedAt}\n\n| Profile | Runs | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies repeated exact-head measurements. A median budget breach is a \`new_bug\`; excessive cross-run spread without a median breach is a \`flake\`.\n`;
+  const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Warm-up policy: first chronological run per profile is retained as cold-start evidence and excluded from steady-state statistics.\n- Generated: ${generatedAt}\n\n| Profile | Warm-up | Measured | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.warmupRuns.length} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Warm-up source: ${profile.warmupRuns.map((run) => `\`${run.source}\``).join(", ")}\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies six steady-state exact-head measurements per profile while retaining the first cold-start run as explicit warm-up evidence. A median budget breach is a \`new_bug\`; excessive measured-run spread without a median breach is a \`flake\`.\n`;
   writeFileSync(path.join(outputRoot, "report.md"), markdown, "utf8");
-  console.log(JSON.stringify({ testedCommit, sourceRunId, overallVerdict, profiles: profiles.map(({ profile, runCount, verdict, budgetBreaches, instabilityReasons }) => ({ profile, runCount, verdict, budgetBreaches, instabilityReasons })) }, null, 2));
+  console.log(JSON.stringify({ testedCommit, sourceRunId, overallVerdict, profiles: profiles.map(({ profile, warmupRuns, runCount, verdict, budgetBreaches, instabilityReasons }) => ({ profile, warmupRuns: warmupRuns.length, runCount, verdict, budgetBreaches, instabilityReasons })) }, null, 2));
 }
 
 assertExactCommit(testedCommit);
@@ -227,7 +235,10 @@ if (mode === "--merge") {
     if (packet.testedCommit !== testedCommit || packet.sourceRunId !== sourceRunId) {
       throw new Error(`${profile}: stale or cross-run profile evidence`);
     }
-    return packet.profileResult;
+    if (packet.configuredRuns !== configuredRunsPerProfile || packet.warmupRuns !== warmupRunsPerProfile || packet.measuredRuns !== minimumRunsPerProfile) {
+      throw new Error(`${profile}: unexpected warm-up or measured run policy`);
+    }
+    return { ...packet.profileResult, warmupRuns: packet.warmupEvidence };
   });
   writeCombinedReport(profiles);
 } else {
@@ -237,15 +248,19 @@ if (mode === "--merge") {
   rmSync(outputRoot, { recursive: true, force: true });
   mkdirSync(outputRoot, { recursive: true });
   collect(mode, `lighthouse/lighthouserc.repeatability.${mode}.cjs`);
-  const profileResult = summarizeProfile(mode, loadRuns(mode));
+  const { warmupRuns, measuredRuns } = loadRuns(mode);
+  const profileResult = summarizeProfile(mode, measuredRuns);
   const packet = {
     schema: "robys.lighthouse.repeatability.profile.v1",
     testedCommit,
     sourceRunId,
     generatedAt: new Date().toISOString(),
     configuredRuns: configuredRunsPerProfile,
+    warmupRuns: warmupRunsPerProfile,
+    measuredRuns: minimumRunsPerProfile,
+    warmupEvidence: warmupRuns,
     profileResult
   };
   writeFileSync(path.join(outputRoot, mode, "profile-report.json"), `${JSON.stringify(packet, null, 2)}\n`, "utf8");
-  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
+  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, warmupSource: warmupRuns[0].source, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
 }
