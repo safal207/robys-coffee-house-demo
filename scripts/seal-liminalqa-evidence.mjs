@@ -46,7 +46,7 @@ if (!/^[0-9a-f]{40}$/i.test(testedCommit)) throw new Error("ROBY_TESTED_COMMIT m
 if (!sourceRunId.trim()) throw new Error("ROBY_SOURCE_RUN_ID must not be empty");
 mkdirSync(bundleRoot, { recursive: true });
 
-const ignored = new Set(["manifest.json", "verification.json"]);
+const ignored = new Set(["manifest.json", "verification.json", "evidence-quality.json"]);
 const files = walk(bundleRoot)
   .filter((file) => !ignored.has(path.basename(file)))
   .map((file) => {
@@ -82,17 +82,15 @@ for (const record of parsed.files) {
   if (bytes !== record.bytes || content.length !== record.bytes) throw new Error(`Byte mismatch: ${record.path}`);
   if (sha256Bytes(content) !== record.sha256) throw new Error(`SHA-256 mismatch: ${record.path}`);
 }
-const { content: manifestBytes } = readRegularFileNoFollow(manifestPath);
-const verification = {
-  schema: "robys.evidence.verification.v1",
+
+console.log(JSON.stringify({
+  schema: "robys.evidence.producer-seal.v1",
   bundleId,
   testedCommit,
   sourceRunId,
-  verified: true,
-  verifiedFiles: parsed.files.length,
-  manifestBytes: manifestBytes.length,
-  manifestSha256: sha256Bytes(manifestBytes),
-  verifiedAt: new Date().toISOString()
-};
-writeFileSync(path.join(bundleRoot, "verification.json"), `${JSON.stringify(verification, null, 2)}\n`, "utf8");
-console.log(JSON.stringify(verification, null, 2));
+  runAttempt,
+  producerSelfCheck: true,
+  sealedFiles: parsed.files.length,
+  manifestBytes: manifestContent.length,
+  manifestSha256: sha256Bytes(manifestContent)
+}, null, 2));
