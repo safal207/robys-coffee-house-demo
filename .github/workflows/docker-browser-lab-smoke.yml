@@ -78,10 +78,13 @@ jobs:
         run: |
           set -euo pipefail
           docker compose -f docker-compose.browser-lab.yml pull
-          docker compose -f docker-compose.browser-lab.yml images --format json > /tmp/browser-lab-images.json
 
-      - name: Start browser lab
-        run: docker compose -f docker-compose.browser-lab.yml up -d --wait
+      - name: Start browser lab and capture resolved image inventory
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.browser-lab.yml up -d --wait
+          docker compose -f docker-compose.browser-lab.yml images --format json > /tmp/browser-lab-images.json
+          test -s /tmp/browser-lab-images.json
 
       - name: Probe site and browser desktops
         shell: bash
