@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v30-20260727-platform-install-cta-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v31-20260729-menu-truth-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const APK_PARTS = Array.from({ length: 6 }, (_, index) => `./downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
 const CORE_ASSETS = [
   "./",
@@ -20,6 +20,8 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu.css",
+  "./pairing-posters.css?v=poster-20260708-1",
+  "./menu-integrity.css?v=menu-truth-20260729-3",
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
@@ -34,9 +36,10 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-page.js",
+  "./menu-page.js?v=a6cffe741bd3",
   "./menu-pwa.js",
   "./menu-data.js",
+  "./pairing-posters.js?v=menu-truth-20260729-4",
   "./menu-search-clear.js",
   "./menu-actions.js",
   "./discover.js",
@@ -63,19 +66,11 @@ const CORE_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(CORE_ASSETS))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
 });
 
 async function cachedResponse(request) {
@@ -89,6 +84,10 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css") ||
     url.pathname.endsWith("/brand-photo-logo.css") ||
+    url.pathname.endsWith("/pairing-posters.css") ||
+    url.pathname.endsWith("/menu-integrity.css") ||
+    url.pathname.endsWith("/pairing-posters.js") ||
+    url.pathname.endsWith("/menu-page.js") ||
     url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-header-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||
@@ -103,7 +102,6 @@ async function cachedResponse(request) {
 async function runtimeAssetResponse(request) {
   const cached = await cachedResponse(request);
   if (cached) return cached;
-
   const network = await fetch(request);
   if (network.ok) {
     const cache = await caches.open(CACHE_VERSION);
@@ -121,7 +119,6 @@ async function navigationResponse(request) {
   const isMenu = url.pathname.endsWith("/menu.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isHome = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
-
   try {
     const network = await fetch(request);
     if (network.ok) {
@@ -134,7 +131,6 @@ async function navigationResponse(request) {
   } catch {
     // Fall through to a deterministic cached page.
   }
-
   if (isMenu) return cachedPage("menu.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isHome) return cachedPage("index.html");
@@ -145,11 +141,9 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   if (event.request.mode === "navigate") {
     event.respondWith(navigationResponse(event.request));
     return;
   }
-
   event.respondWith(runtimeAssetResponse(event.request));
 });

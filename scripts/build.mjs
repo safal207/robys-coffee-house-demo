@@ -79,6 +79,17 @@ await build({
   legalComments: "none"
 });
 
+await build({
+  entryPoints: ["scripts/menu-page-runtime.mjs"],
+  bundle: true,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2020",
+  outfile: "menu-page.js",
+  legalComments: "none"
+});
+
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
   const bundle = ts.transpileModule(source, {
@@ -133,41 +144,35 @@ function synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
   posterScriptRevision,
-  cssRevision
+  cssRevision,
+  menuPageRevision
 ) {
   const versionPattern = /const CACHE_VERSION = "(robys-offline-[^"]+?)(?:-[a-f0-9]{12}){2,3}";/;
   const versionMatch = serviceWorker.match(versionPattern);
   const discoverRuntimeAssetPattern = /"\.\/discover-v2\.js(?:\?v=[a-f0-9]{12})?"/;
   const posterScriptAssetPattern = /"\.\/discover-rotation-v3\.js(?:\?v=[a-f0-9]{12})?"/;
   const cssAssetPattern = /"\.\/discover-rotation\.css(?:\?v=[a-f0-9]{12})?"/;
+  const menuPageAssetPattern = /"\.\/menu-page\.js(?:\?v=[a-f0-9]{12})?"/;
 
-  if (!versionMatch) {
-    throw new Error("Service worker does not contain a revisioned Roby's cache version marker");
-  }
-  if (!discoverRuntimeAssetPattern.test(serviceWorker)) {
-    throw new Error("Service worker does not contain the Discover runtime cache entry");
-  }
-  if (!posterScriptAssetPattern.test(serviceWorker)) {
-    throw new Error("Service worker does not contain the v3 renderer cache entry");
-  }
-  if (!cssAssetPattern.test(serviceWorker)) {
-    throw new Error("Service worker does not contain the poster stylesheet cache entry");
-  }
+  if (!versionMatch) throw new Error("Service worker does not contain a revisioned Roby's cache version marker");
+  if (!discoverRuntimeAssetPattern.test(serviceWorker)) throw new Error("Service worker does not contain the Discover runtime cache entry");
+  if (!posterScriptAssetPattern.test(serviceWorker)) throw new Error("Service worker does not contain the v3 renderer cache entry");
+  if (!cssAssetPattern.test(serviceWorker)) throw new Error("Service worker does not contain the poster stylesheet cache entry");
+  if (!menuPageAssetPattern.test(serviceWorker)) throw new Error("Service worker does not contain the menu runtime cache entry");
 
   const cacheVersionPrefix = versionMatch[1];
   return serviceWorker
-    .replace(
-      versionPattern,
-      `const CACHE_VERSION = "${cacheVersionPrefix}-${discoverRuntimeRevision}-${posterScriptRevision}-${cssRevision}";`
-    )
+    .replace(versionPattern, `const CACHE_VERSION = "${cacheVersionPrefix}-${discoverRuntimeRevision}-${posterScriptRevision}-${cssRevision}";`)
     .replace(discoverRuntimeAssetPattern, `"./discover-v2.js?v=${discoverRuntimeRevision}"`)
     .replace(posterScriptAssetPattern, `"./discover-rotation-v3.js?v=${posterScriptRevision}"`)
-    .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
+    .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`)
+    .replace(menuPageAssetPattern, `"./menu-page.js?v=${menuPageRevision}"`);
 }
 
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const menuPageRevision = revisionFor("menu-page.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
@@ -187,6 +192,10 @@ html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
+
+let menuHtml = readFileSync("menu.html", "utf8");
+menuHtml = synchronizeModuleScript(menuHtml, "menu-page.js", menuPageRevision);
+writeFileSync("menu.html", menuHtml);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
 discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
@@ -212,12 +221,13 @@ serviceWorker = synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
   discoverRotationRevision,
-  discoverRotationCssRevision
+  discoverRotationCssRevision,
+  menuPageRevision
 );
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
-  `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
+  `Built app.js (${appRevision}), menu-page.js (${menuPageRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice experiments.js (${smartChoiceExperimentsRevision}), ` +
   `Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), ` +
   `Smart Choice release-qa.js (${smartChoiceReleaseQaRevision}), featured-gallery.js (${galleryRevision}), ` +

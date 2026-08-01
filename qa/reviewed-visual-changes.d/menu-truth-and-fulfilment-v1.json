@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "menu-truth-and-fulfilment-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/304#issuecomment-5123386063",
+      "contentBindings": {
+        "menu.html": "ee0306a37131b267f13a0a542611216c281057b4",
+        "menu-integrity.css": "fab1cb2461f889463a581088a4d5b96644b8f434",
+        "pairing-posters.css": "38f39a7306f130fe6b012989f7f11dc199b6dbb3",
+        "menu-page.js": "45f00b210f12d5b9d776c51fda748a4bea1274dc"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6367 vs 320x6857"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x533 vs 280x534"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 162560,
+          "maxDiffPixelRatio": 0.042
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6171 vs 390x6622"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7118 vs 768x7421"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x430 vs 728x431"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "totalPixels": 370520,
+          "maxDiffPixelRatio": 0.0074
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4868 vs 1440x5064"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1180x319 vs 1180x320"
+        }
+      ]
+    }
+  ]
+}
