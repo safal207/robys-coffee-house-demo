@@ -1,70 +1,129 @@
-# Roby's Coffee House — Website Demo
+# Roby's Coffee House
 
-A fast, mobile-first multilingual landing page concept for **Roby's Coffee House in Gazipaşa**.
+A production-oriented, mobile-first web experience for **Roby's Coffee House in Gazipaşa, Antalya**.
 
-## Live features
+**Live site:** <https://safal207.github.io/robys-coffee-house-demo/>
 
-- Turkish, English and Russian language switcher
-- Responsive mobile and desktop layout
-- Coffee, atmosphere and menu sections
-- Google Maps and Instagram calls to action
-- Accessible navigation and reduced-motion support
-- No build step or external JavaScript dependencies
+The repository is no longer a one-page mockup. It contains a multilingual storefront, a structured menu, product pairings, discovery journeys, a Smart Choice recommendation flow, PWA support, analytics hooks, accessibility contracts, security checks and an extensive evidence-driven QA pipeline.
 
-## Run locally
+## Product surfaces
 
-Open `index.html` in a browser, or start a small local server:
+- `index.html` — multilingual storefront and visit conversion journey
+- `menu.html` — menu, prices, categories and pairing offers
+- `discover.html` — rotating discovery and taste-journey experience
+- `smart-choice/` — recommendation, cart, experiment, decision-trace and revenue-simulation flows
+- `instagram-tools.html` — content support tools
+- `qa/` — test fixtures, evidence contracts, browser-lab documentation and review artifacts
+
+The customer-facing experience supports **Turkish, English and Russian**, responsive layouts, reduced-motion preferences, keyboard navigation, structured SEO data, installable PWA behavior, offline caching, Google Maps and Instagram entry points.
+
+## Technology
+
+- Semantic HTML and modular CSS
+- TypeScript and browser JavaScript
+- esbuild for production bundles
+- Node.js verification and test scripts
+- GitHub Actions quality gates
+- Lighthouse performance contracts
+- Docker Compose browser lab with Chromium and Firefox
+
+Runtime assets are served as static files. The repository still has a real build step: TypeScript sources are compiled, browser bundles are minified, and asset revision keys are synchronized across HTML and the service worker.
+
+## Local setup
+
+### Requirements
+
+- Node.js 22
+- npm
+- Python 3 or another static file server
+- Docker with Compose only for the optional browser lab
+
+### Install and run
 
 ```bash
+npm ci --no-audit --no-fund
 python3 -m http.server 8080
 ```
 
-Then open `http://localhost:8080`.
+Open `http://localhost:8080`.
+
+Do not rely on `file://` for final verification. Service workers, module loading, routing and several browser security behaviors require an HTTP origin.
+
+## Build
+
+```bash
+npm run typecheck
+npm run build
+```
+
+The build compiles source files such as `src/app.ts` and `src/smart-choice/*.ts`, writes generated browser bundles, and updates revisioned references in HTML and `sw.js`.
+
+Generated JavaScript should not be edited by hand when an equivalent TypeScript source exists.
+
+## Quality gates
+
+### Full repository check
+
+```bash
+npm run check
+```
+
+This is the broad local gate. It covers type checking, builds, Smart Choice tests, catalog and menu contracts, traceability, review routing, integrity, security-sensitive browser behavior and regression checks.
+
+### Focused checks
+
+```bash
+npm run verify:security
+npm run verify:performance
+npm run verify:integrity
+npm run verify:menu-content
+npm run verify:smart-choice
+npm run test:smart-choice
+npm run verify:regression
+npm run security:audit
+```
+
+### Browser lab
+
+```bash
+npm run qa:browsers:config
+npm run qa:browsers:up
+npm run qa:browsers:status
+npm run qa:browsers:logs
+npm run qa:browsers:down
+```
+
+The browser-lab defaults are intended for local QA only. Published ports must remain bound to loopback, image references must remain digest-pinned, and test credentials must never be reused outside the isolated lab.
+
+## Repository rules
+
+1. Treat menu prices, product names, opening hours, location and approved brand assets as owned business data.
+2. Change TypeScript sources first, then rebuild generated JavaScript.
+3. Keep security-sensitive actions and container images pinned to immutable revisions.
+4. Never commit mutable Lighthouse summaries as release evidence; retain exact-run artifacts instead.
+5. Do not weaken a failing contract merely to make CI green. Fix the product, test or evidence binding.
+6. Preserve Turkish, English and Russian behavior when changing customer-facing copy or navigation.
 
 ## Deploy
 
-### Vercel
+The site can be deployed from the repository root as static assets. GitHub Pages currently matches the canonical production URL.
 
-1. Import this GitHub repository into Vercel.
-2. Choose **Other** as the framework preset.
-3. Leave the build command empty.
-4. Set the output directory to `.`.
-5. Deploy.
+For hosts that support response headers, configure security headers at the HTTP layer as well as the document-level CSP. Directives such as `frame-ancestors` cannot be enforced reliably through a `<meta>` tag alone.
 
-### GitHub Pages
+After deployment, run the live smoke, integrity and performance checks against the exact published revision.
 
-In repository **Settings → Pages**, select **Deploy from a branch**, choose `main` and `/ (root)`.
+## Business-truth checklist
 
-## Before showing the final version to the owner
+Before a commercial release, confirm with the café owner:
 
-Please confirm or replace:
+- opening hours and holiday exceptions
+- exact address and map destination
+- menu categories, names, availability and prices
+- official Instagram, telephone and WhatsApp details
+- permission to publish every photograph, video and logo asset
+- translations and allergy-related wording
+- analytics and consent requirements
 
-- Opening hours
-- Exact street address
-- Menu categories and product names
-- Official phone or WhatsApp number
-- Original high-resolution photographs
-- Permission to publish the café's photographs and logo
+## Project status
 
-The current hero image is used only for a private design demonstration and should be replaced with an owner-approved local file before commercial launch.
-
-Suggested file path for the final photo:
-
-```text
-assets/robys-hero.webp
-```
-
-Then replace the image URL in `index.html` with `/assets/robys-hero.webp`.
-
-## Recommended next version
-
-- Real menu with prices
-- WhatsApp quick-contact button
-- Review cards based on approved public reviews
-- SEO title and description in three languages
-- Custom domain
-- Simple analytics
-
----
-
-Concept built as a local-business MVP: one clear page, one strong visual identity and direct actions that bring customers to the café.
+This repository is an advanced product and QA demonstration, not a finished ordering backend. Customer orders, payments, inventory and personal-data processing must not be implied unless a separately reviewed production service actually provides them.
