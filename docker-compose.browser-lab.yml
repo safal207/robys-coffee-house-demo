@@ -2,7 +2,7 @@ name: robys-browser-lab
 
 services:
   site:
-    image: nginx:1.27.5-alpine
+    image: "${ROBY_QA_SITE_IMAGE:-nginx:1.27.5-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10}"
     ports:
       - "${ROBY_QA_BIND_ADDRESS:-127.0.0.1}:${ROBY_QA_SITE_PORT:-8080}:80"
     volumes:
@@ -18,7 +18,8 @@ services:
       - qa-browser-lab
 
   chromium:
-    image: "${ROBY_QA_CHROMIUM_IMAGE:-lscr.io/linuxserver/chromium:latest}"
+    image: "${ROBY_QA_CHROMIUM_IMAGE:-ghcr.io/linuxserver/chromium:version-11e602ae@sha256:6d35963fd7903bcfb944f3b70999a27ed44b729db94813da6be983a69a5bad06}"
+    platform: "${ROBY_QA_BROWSER_PLATFORM:-linux/amd64}"
     pull_policy: always
     environment:
       PUID: "${PUID:-1000}"
@@ -42,7 +43,8 @@ services:
       - qa-browser-lab
 
   firefox:
-    image: "${ROBY_QA_FIREFOX_IMAGE:-lscr.io/linuxserver/firefox:latest}"
+    image: "${ROBY_QA_FIREFOX_IMAGE:-ghcr.io/linuxserver/firefox:version-136.0build3-0ubuntu0.24.04.1mt1@sha256:aa9f6468a0bdb3362a99a97d445b2afdb92dfcbceb2093b8f7b61530bc9703ef}"
+    platform: "${ROBY_QA_BROWSER_PLATFORM:-linux/amd64}"
     pull_policy: always
     environment:
       PUID: "${PUID:-1000}"
