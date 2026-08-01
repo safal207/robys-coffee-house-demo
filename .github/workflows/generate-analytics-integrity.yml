@@ -9,6 +9,12 @@ on:
       - scripts/verify-analytics-destination-boundaries.mjs
       - .github/workflows/security.yml
       - .github/workflows/generate-analytics-integrity.yml
+  pull_request:
+    paths:
+      - analytics.js
+      - scripts/verify-analytics-destination-boundaries.mjs
+      - .github/workflows/security.yml
+      - .github/workflows/generate-analytics-integrity.yml
   workflow_dispatch:
 
 permissions:
