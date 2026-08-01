@@ -8,6 +8,7 @@ const evidenceRoot = path.resolve(root, process.env.ROBY_EVIDENCE_ROOT ?? "qa/li
 const outputPath = path.join(evidenceRoot, "input-signals.json");
 const testedCommit = process.env.ROBY_TESTED_COMMIT ?? process.env.GITHUB_SHA ?? "unknown";
 const sourceRunId = process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID ?? "local";
+const evidenceCache = new Map();
 
 function assertExactCommit(value) {
   if (!/^[0-9a-f]{40}$/i.test(value)) {
@@ -15,8 +16,11 @@ function assertExactCommit(value) {
   }
 }
 
-function readJson(relativePath) {
-  return JSON.parse(readFileSync(path.join(evidenceRoot, relativePath), "utf8"));
+function normalizeEvidencePath(relativePath) {
+  if (path.isAbsolute(relativePath) || relativePath.split(/[\\/]+/).some((part) => !part || part === "." || part === "..")) {
+    throw new Error(`Unsafe evidence path: ${relativePath}`);
+  }
+  return relativePath.replaceAll("\\", "/");
 }
 
 function readRegularFileNoFollow(absolute) {
@@ -28,25 +32,46 @@ function readRegularFileNoFollow(absolute) {
     if (content.length !== metadata.size) {
       throw new Error(`Evidence size changed during read: ${absolute}`);
     }
-    return { content, bytes: metadata.size };
+    return { content, bytes: content.length };
   } finally {
     closeSync(descriptor);
   }
 }
 
-function evidence(relativePath, statement) {
-  if (path.isAbsolute(relativePath) || relativePath.split(/[\\/]+/).some((part) => !part || part === "." || part === "..")) {
-    throw new Error(`Unsafe evidence path: ${relativePath}`);
+function readEvidence(relativePath) {
+  const normalized = normalizeEvidencePath(relativePath);
+  if (!evidenceCache.has(normalized)) {
+    const absolute = path.join(evidenceRoot, normalized);
+    const { content, bytes } = readRegularFileNoFollow(absolute);
+    evidenceCache.set(normalized, {
+      content,
+      bytes,
+      sha256: createHash("sha256").update(content).digest("hex")
+    });
   }
-  const absolute = path.join(evidenceRoot, relativePath);
-  const { content, bytes } = readRegularFileNoFollow(absolute);
-  const sha256 = createHash("sha256").update(content).digest("hex");
+  return { normalized, ...evidenceCache.get(normalized) };
+}
+
+function readJson(relativePath) {
+  return JSON.parse(readEvidence(relativePath).content.toString("utf8"));
+}
+
+function evidence(relativePath, statement) {
+  const { normalized, bytes, sha256 } = readEvidence(relativePath);
   return {
     evidence: statement,
-    evidence_path: relativePath.replaceAll("\\", "/"),
+    evidence_path: normalized,
     evidence_sha256: sha256,
     evidence_bytes: bytes
   };
+}
+
+function probability(value, label) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
+    throw new Error(`Lighthouse ${label} must be a finite probability, got ${JSON.stringify(value)}`);
+  }
+  return parsed;
 }
 
 function stableSignal(name, relativePath, statement, runCount = 1) {
@@ -82,9 +107,9 @@ if (!Array.isArray(lighthouse.profiles) || lighthouse.profiles.length !== 2) {
   throw new Error("Lighthouse evidence must contain mobile and desktop profiles");
 }
 const lighthouseRunCount = lighthouse.profiles.reduce((sum, profile) => sum + Number(profile.runCount ?? 0), 0);
-if (lighthouseRunCount < 12) throw new Error(`Lighthouse evidence has only ${lighthouseRunCount} runs`);
-const lighthouseStability = Math.min(...lighthouse.profiles.map((profile) => Number(profile.stability)));
-const lighthouseFlakeProbability = Math.max(...lighthouse.profiles.map((profile) => Number(profile.flakeProbability)));
+if (lighthouseRunCount !== 12) throw new Error(`Lighthouse evidence must contain exactly 12 measured runs, got ${lighthouseRunCount}`);
+const lighthouseStability = Math.min(...lighthouse.profiles.map((profile) => probability(profile.stability, `${profile.profile}.stability`)));
+const lighthouseFlakeProbability = Math.max(...lighthouse.profiles.map((profile) => probability(profile.flakeProbability, `${profile.profile}.flakeProbability`)));
 const lighthouseVerdict = lighthouse.overallVerdict;
 if (!["stable", "flake", "known_issue", "new_bug"].includes(lighthouseVerdict)) {
   throw new Error(`Unsupported Lighthouse verdict: ${lighthouseVerdict}`);
