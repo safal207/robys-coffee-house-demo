@@ -22,7 +22,7 @@ function readRegularFileNoFollow(absolute) {
     if (content.length !== metadata.size) {
       throw new Error(`Evidence size changed during read: ${absolute}`);
     }
-    return { content, bytes: metadata.size };
+    return { content, bytes: content.length };
   } finally {
     closeSync(descriptor);
   }
@@ -48,9 +48,12 @@ mkdirSync(bundleRoot, { recursive: true });
 
 const ignored = new Set(["manifest.json", "verification.json", "evidence-quality.json"]);
 const files = walk(bundleRoot)
-  .filter((file) => !ignored.has(path.basename(file)))
-  .map((file) => {
-    const relative = path.relative(bundleRoot, file).replaceAll(path.sep, "/");
+  .map((file) => ({
+    file,
+    relative: path.relative(bundleRoot, file).replaceAll(path.sep, "/")
+  }))
+  .filter(({ relative }) => !ignored.has(relative))
+  .map(({ file, relative }) => {
     const { content, bytes } = readRegularFileNoFollow(file);
     return { path: relative, bytes, sha256: sha256Bytes(content) };
   })
