@@ -46,33 +46,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .artifacts
-          npm run verify:security 2>&1 | tee .artifacts/security-contract.log
+          mkdir -p security-evidence
+          npm run verify:security 2>&1 | tee security-evidence/security-contract.log
 
       - name: Verify analytics destination boundaries
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .artifacts
+          mkdir -p security-evidence
           node scripts/verify-analytics-destination-boundaries.mjs 2>&1 \
-            | tee .artifacts/analytics-destination-contract.log
+            | tee security-evidence/analytics-destination-contract.log
 
       - name: Block high and critical dependency advisories
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .artifacts
-          npm audit --audit-level=high 2>&1 | tee .artifacts/npm-audit.log
+          mkdir -p security-evidence
+          npm audit --audit-level=high 2>&1 | tee security-evidence/npm-audit.log
 
       - name: Upload exact-run security evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: security-contract-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .artifacts/security-contract.log
-            .artifacts/analytics-destination-contract.log
-            .artifacts/npm-audit.log
-            .artifacts/*security*.json
+          path: security-evidence/
           if-no-files-found: error
           retention-days: 30
