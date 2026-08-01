@@ -31,15 +31,35 @@ window.robysAnalytics = {
   clear: () => { eventBuffer.length = 0; }
 };
 
+function classifyDestination(href) {
+  try {
+    const parsedUrl = new URL(href, window.location.href);
+    const host = parsedUrl.hostname.toLowerCase();
+    const path = parsedUrl.pathname;
+    const isHttp = parsedUrl.protocol === "https:" || parsedUrl.protocol === "http:";
+    const isGoogleHost = host === "google.com" || host.endsWith(".google.com");
+    const isInstagramHost = host === "instagram.com" || host.endsWith(".instagram.com");
+    const isMapsPath = path === "/maps" || path.startsWith("/maps/");
+
+    return {
+      route: isHttp && isGoogleHost && isMapsPath,
+      instagram: isHttp && isInstagramHost
+    };
+  } catch {
+    return { route: false, instagram: false };
+  }
+}
+
 function setupClicks() {
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a");
     if (link) {
-      const href = link.href || "";
       const analyticsAction = link.dataset.analyticsAction;
       if (analyticsAction) track(analyticsAction, { placement: placementFor(link) });
-      if (href.includes("google.com/maps")) track("route_click", { placement: placementFor(link) });
-      if (href.includes("instagram.com")) track("instagram_click", { placement: placementFor(link) });
+
+      const destination = classifyDestination(link.href || "");
+      if (destination.route) track("route_click", { placement: placementFor(link) });
+      if (destination.instagram) track("instagram_click", { placement: placementFor(link) });
     }
 
     const languageButton = event.target.closest(".lang-button");
