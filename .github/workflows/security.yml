@@ -18,23 +18,24 @@ concurrency:
 jobs:
   security-contract:
     name: Security foundation gates
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
 
     steps:
-      - name: Checkout full history
-        uses: actions/checkout@v4
+      - name: Checkout full history without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
 
       - name: Install locked dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Build generated runtime
         run: npm run build
@@ -44,14 +45,17 @@ jobs:
           SECURITY_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
         run: npm run verify:security
 
+      - name: Verify analytics destination boundaries
+        run: node scripts/verify-analytics-destination-boundaries.mjs
+
       - name: Block high and critical dependency advisories
         run: npm audit --audit-level=high
 
       - name: Upload security evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: security-contract-${{ github.run_id }}
+          name: security-contract-${{ github.run_id }}-${{ github.run_attempt }}
           path: .artifacts/*security*.json
           if-no-files-found: warn
           retention-days: 30
