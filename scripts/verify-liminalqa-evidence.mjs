@@ -10,6 +10,7 @@ const runId = String(process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID
 const attempt = String(process.env.GITHUB_RUN_ATTEMPT ?? "1");
 const engineRevision = process.env.LIMINALQA_REVISION ?? "unknown";
 const signalNames = ["exact-head-binding", "security-contract", "performance-contract", "browser-lab-policy", "lighthouse-repeatability"];
+const requiredBudgetKeys = ["performance", "lcp", "tbt", "cls", "fcp", "speed_index"];
 
 function fail(message) { throw new Error(message); }
 function eq(actual, expected, label) {
@@ -36,7 +37,7 @@ function readAbsolute(absolute) {
     if (!stat.isFile()) fail(`Not a regular file: ${absolute}`);
     const content = readFileSync(fd);
     if (content.length !== stat.size) fail(`File changed during read: ${absolute}`);
-    return { content, bytes: stat.size, sha256: sha(content) };
+    return { content, bytes: content.length, sha256: sha(content) };
   } finally {
     closeSync(fd);
   }
@@ -83,9 +84,14 @@ function lhr(value) {
 function runFrom(relative) {
   const value = lhr(JSON.parse(read(relative).content.toString("utf8")));
   if (!value) fail(`${relative}: not an LHR`);
+  const fetchTime = String(value.fetchTime ?? "");
+  const fetchTimestamp = Date.parse(fetchTime);
+  if (!fetchTime || !Number.isFinite(fetchTimestamp)) fail(`${relative}: invalid fetchTime`);
   const result = {
     source: relative.slice("lighthouse-raw/".length),
-    finalUrl: value.finalUrl ?? value.requestedUrl ?? "",
+    finalUrl: value.finalDisplayedUrl ?? value.finalUrl ?? value.mainDocumentUrl ?? value.requestedUrl ?? "",
+    fetchTime,
+    fetchTimestamp,
     performance: Number(value.categories.performance.score) * 100,
     lcp: Number(value.audits["largest-contentful-paint"]?.numericValue),
     tbt: Number(value.audits["total-blocking-time"]?.numericValue),
@@ -96,9 +102,17 @@ function runFrom(relative) {
   };
   if (!result.finalUrl.includes("index.html") && !result.finalUrl.endsWith("/")) fail(`${relative}: unexpected URL`);
   for (const [name, value2] of Object.entries(result)) {
-    if (!["source", "finalUrl"].includes(name) && !Number.isFinite(value2)) fail(`${relative}: invalid ${name}`);
+    if (!["source", "finalUrl", "fetchTime"].includes(name) && !Number.isFinite(value2)) fail(`${relative}: invalid ${name}`);
   }
   return result;
+}
+function requireBudgets(profile, budgets) {
+  const hard = budgets[profile];
+  if (!hard || typeof hard !== "object") fail(`lighthouse/budgets.json is missing the ${JSON.stringify(profile)} profile`);
+  for (const key of requiredBudgetKeys) {
+    if (!Number.isFinite(hard[key])) fail(`lighthouse/budgets.json ${profile}.${key} must be a finite number`);
+  }
+  return hard;
 }
 function classify(profile, metrics, budgets) {
   const instability = [];
@@ -106,7 +120,7 @@ function classify(profile, metrics, budgets) {
   if (metrics.tbt.p90 - metrics.tbt.p10 > 500) instability.push(`TBT p90-p10 spread ${(metrics.tbt.p90 - metrics.tbt.p10).toFixed(0)} ms exceeds 500 ms`);
   if (metrics.tbt.mean > 100 && metrics.tbt.coefficientOfVariation > 0.35) instability.push(`TBT coefficient of variation ${metrics.tbt.coefficientOfVariation.toFixed(2)} exceeds 0.35`);
   if (metrics.lcp.p90 - metrics.lcp.p10 > 1000) instability.push(`LCP p90-p10 spread ${(metrics.lcp.p90 - metrics.lcp.p10).toFixed(0)} ms exceeds 1000 ms`);
-  const hard = budgets[profile];
+  const hard = requireBudgets(profile, budgets);
   const breaches = [];
   if (metrics.performance.median / 100 < hard.performance) breaches.push(`performance median ${metrics.performance.median.toFixed(1)} < ${hard.performance * 100}`);
   if (metrics.lcp.median > hard.lcp) breaches.push(`LCP median ${metrics.lcp.median.toFixed(0)} ms > ${hard.lcp} ms`);
@@ -201,17 +215,25 @@ eq(report.configuredRunsPerProfile, 7, "configured runs policy");
 eq(JSON.stringify(report.profiles.map((profile) => profile.profile).sort()), JSON.stringify(["desktop", "mobile"]), "profile set");
 
 const qualityProfiles = report.profiles.map((profile) => {
+  requireBudgets(profile.profile, budgets);
   const prefix = `lighthouse-raw/${profile.profile}/raw/`;
-  const rawPaths = [...byPath.keys()].filter((candidate) => candidate.startsWith(prefix) && candidate.endsWith(".json")).sort();
+  const rawPaths = [...byPath.keys()].filter((candidate) => candidate.startsWith(prefix) && candidate.endsWith(".json"));
   eq(rawPaths.length, 7, `${profile.profile} raw run count`);
   unique(rawPaths.map((relative) => byPath.get(relative).sha256), `${profile.profile} raw SHA values`);
-  const allRuns = rawPaths.map(runFrom);
+  const allRuns = rawPaths.map(runFrom)
+    .sort((left, right) => left.fetchTimestamp - right.fetchTimestamp || left.source.localeCompare(right.source))
+    .map((run, index) => ({ ...run, ordinal: index + 1 }));
   eq(profile.warmupRuns.length, 1, `${profile.profile} warm-up count`);
   eq(profile.runs.length, 6, `${profile.profile} measured count`);
   eq(profile.runCount, 6, `${profile.profile} reported count`);
-  eq(profile.warmupRuns[0].source, allRuns[0].source, `${profile.profile} first-run warm-up binding`);
-  eq(JSON.stringify(profile.runs.map((run) => run.source).sort()), JSON.stringify(allRuns.slice(1).map((run) => run.source).sort()), `${profile.profile} measured source binding`);
+  const warmup = allRuns[0];
   const measured = allRuns.slice(1);
+  eq(profile.warmupRuns[0].source, warmup.source, `${profile.profile} warm-up source binding`);
+  eq(profile.warmupRuns[0].fetchTime, warmup.fetchTime, `${profile.profile} warm-up time binding`);
+  eq(profile.warmupRuns[0].ordinal, warmup.ordinal, `${profile.profile} warm-up ordinal binding`);
+  const reportedMeasuredOrder = profile.runs.map(({ source, fetchTime, ordinal }) => ({ source, fetchTime, ordinal }));
+  const recomputedMeasuredOrder = measured.map(({ source, fetchTime, ordinal }) => ({ source, fetchTime, ordinal }));
+  eq(JSON.stringify(reportedMeasuredOrder), JSON.stringify(recomputedMeasuredOrder), `${profile.profile} measured chronological binding`);
   const metrics = {
     performance: stats(measured.map((run) => run.performance)), lcp: stats(measured.map((run) => run.lcp)),
     tbt: stats(measured.map((run) => run.tbt)), cls: stats(measured.map((run) => run.cls)),
@@ -227,7 +249,7 @@ const qualityProfiles = report.profiles.map((profile) => {
   eq(JSON.stringify(profile.instabilityReasons), JSON.stringify(recomputed.instability), `${profile.profile} instability`);
   return {
     profile: profile.profile, warmupRuns: 1, measuredRuns: 6, uniqueRawHashes: 7,
-    warmup: { source: allRuns[0].source, performance: allRuns[0].performance, lcp: allRuns[0].lcp, tbt: allRuns[0].tbt },
+    warmup: { source: warmup.source, fetchTime: warmup.fetchTime, ordinal: warmup.ordinal, performance: warmup.performance, lcp: warmup.lcp, tbt: warmup.tbt },
     verdict: recomputed.verdict,
     medians: Object.fromEntries(Object.entries(metrics).map(([name, value]) => [name, value.median]))
   };
@@ -243,8 +265,8 @@ eq(decision.tested_commit, commit, "decision commit");
 eq(String(decision.source_run_id), runId, "decision run");
 eq(decision.source_revision, engineRevision, "engine revision");
 eq(decision.suite_decision.suite, input.suite, "suite");
-eq(decision.suite_decision.merge_policy, "allow", "decision policy");
-eq(decision.suite_decision.block_reason, "", "block reason");
+if (typeof decision.suite_decision.merge_policy !== "string" || !decision.suite_decision.merge_policy.trim()) fail("Missing decision policy");
+if (typeof decision.suite_decision.block_reason !== "string") fail("Invalid block reason");
 if (!Number.isFinite(decision.suite_decision.confidence) || decision.suite_decision.confidence < 0 || decision.suite_decision.confidence > 1) fail("Invalid decision confidence");
 const decisionNames = decision.test_decisions.map((test) => test.name);
 unique(decisionNames, "decision names");
@@ -267,24 +289,26 @@ for (const item of decision.evidence) {
   eq(item.bytes, source.evidence_bytes, `${item.name} bytes`);
   eq(item.sha256, source.evidence_sha256, `${item.name} SHA`);
 }
-eq(overall, "stable", "accepted Lighthouse verdict");
-eq(input.tests.every((test) => test.verdict === "stable"), true, "stable signal set");
 
+const allSignalsStable = input.tests.every((test) => test.verdict === "stable");
+const releaseGatePassed = overall === "stable" && allSignalsStable &&
+  decision.suite_decision.merge_policy === "allow" && decision.suite_decision.block_reason === "";
 const quality = {
   schema: "robys.evidence.quality.v2", bundleId: manifest.bundleId, testedCommit: commit,
   sourceRunId: runId, runAttempt: attempt, evaluatedAt: new Date().toISOString(),
-  overall: "pass", freshRunnerRecomputation: true,
+  overall: "pass", freshRunnerRecomputation: true, releaseGate: releaseGatePassed ? "pass" : "block",
   manifest: { files: manifest.files.length, bytes: manifest.files.reduce((sum, record) => sum + record.bytes, 0), sha256: manifestRead.sha256, complete: true },
   bindings: { requiredSignals: signalNames.length, inputSignals: input.tests.length, adapterEvidence: decision.evidence.length, exactHead: true, exactRun: true, sourceRevision: engineRevision },
   lighthouse: { overallVerdict: overall, warmupPolicy: "first-chronological-run", profiles: qualityProfiles },
-  decision: { policy: decision.suite_decision.merge_policy, confidence: decision.suite_decision.confidence, stableTests: decision.suite_decision.summary.stable_tests, totalTests: decision.suite_decision.summary.total_tests },
+  decision: { policy: decision.suite_decision.merge_policy, blockReason: decision.suite_decision.block_reason, confidence: decision.suite_decision.confidence, stableTests: decision.suite_decision.summary.stable_tests, totalTests: decision.suite_decision.summary.total_tests, allSignalsStable },
   verifier: { workflowRunId: process.env.GITHUB_RUN_ID ?? null, job: process.env.GITHUB_JOB ?? null, runnerName: process.env.RUNNER_NAME ?? null, runnerOs: process.env.RUNNER_OS ?? null }
 };
 const qualityBytes = Buffer.from(`${JSON.stringify(quality, null, 2)}\n`);
 writeFileSync(path.join(bundleRoot, "evidence-quality.json"), qualityBytes);
 const verification = {
   schema: "robys.evidence.verification.v2", bundleId: manifest.bundleId, testedCommit: commit,
-  sourceRunId: runId, runAttempt: attempt, verified: true,
+  sourceRunId: runId, runAttempt: attempt, verified: true, releaseGatePassed,
+  observedPolicy: decision.suite_decision.merge_policy, observedLighthouseVerdict: overall,
   verificationMode: "fresh-runner-recomputation", verifiedFiles: manifest.files.length,
   manifestBytes: manifestRead.bytes, manifestSha256: manifestRead.sha256,
   qualityReportBytes: qualityBytes.length, qualityReportSha256: sha(qualityBytes),
@@ -292,4 +316,4 @@ const verification = {
   verifierRunner: process.env.RUNNER_NAME ?? "local"
 };
 writeFileSync(path.join(bundleRoot, "verification.json"), `${JSON.stringify(verification, null, 2)}\n`);
-console.log(JSON.stringify({ bundleId: manifest.bundleId, verifiedFiles: manifest.files.length, profiles: qualityProfiles, policy: decision.suite_decision.merge_policy }, null, 2));
+console.log(JSON.stringify({ bundleId: manifest.bundleId, verifiedFiles: manifest.files.length, profiles: qualityProfiles, policy: decision.suite_decision.merge_policy, releaseGatePassed }, null, 2));
