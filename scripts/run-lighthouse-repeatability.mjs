@@ -12,6 +12,7 @@ const budgets = JSON.parse(readFileSync(path.join(root, "lighthouse", "budgets.j
 const minimumRunsPerProfile = 6;
 const warmupRunsPerProfile = 1;
 const configuredRunsPerProfile = minimumRunsPerProfile + warmupRunsPerProfile;
+const requiredBudgetKeys = ["performance", "lcp", "tbt", "cls", "fcp", "speed_index"];
 
 function assertExactCommit(value) {
   if (!/^[0-9a-f]{40}$/i.test(value)) {
@@ -84,11 +85,18 @@ function loadRuns(profile) {
     }
     const lhr = lhrFromJson(parsed);
     if (!lhr) continue;
-    const finalUrl = lhr.finalUrl ?? lhr.requestedUrl ?? "";
+    const finalUrl = lhr.finalDisplayedUrl ?? lhr.finalUrl ?? lhr.mainDocumentUrl ?? lhr.requestedUrl ?? "";
     if (!finalUrl.includes("index.html") && !finalUrl.endsWith("/")) continue;
+    const fetchTime = String(lhr.fetchTime ?? "");
+    const fetchTimestamp = Date.parse(fetchTime);
+    if (!fetchTime || !Number.isFinite(fetchTimestamp)) {
+      throw new Error(`${profile}: Lighthouse result ${path.relative(root, file)} has an invalid fetchTime`);
+    }
     runs.push({
       source: path.relative(outputRoot, file).replaceAll(path.sep, "/"),
       finalUrl,
+      fetchTime,
+      fetchTimestamp,
       performance: Number(lhr.categories.performance.score) * 100,
       lcp: Number(lhr.audits["largest-contentful-paint"]?.numericValue),
       tbt: Number(lhr.audits["total-blocking-time"]?.numericValue),
@@ -98,18 +106,19 @@ function loadRuns(profile) {
       interactive: Number(lhr.audits.interactive?.numericValue)
     });
   }
-  runs.sort((left, right) => left.source.localeCompare(right.source));
+  runs.sort((left, right) => left.fetchTimestamp - right.fetchTimestamp || left.source.localeCompare(right.source));
   if (runs.length !== configuredRunsPerProfile) {
     throw new Error(`${profile}: expected exactly ${configuredRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
   }
-  for (const [index, run] of runs.entries()) {
+  const orderedRuns = runs.map((run, index) => ({ ...run, ordinal: index + 1 }));
+  for (const [index, run] of orderedRuns.entries()) {
     for (const [metric, value] of Object.entries(run)) {
-      if (["source", "finalUrl"].includes(metric)) continue;
+      if (["source", "finalUrl", "fetchTime"].includes(metric)) continue;
       if (!Number.isFinite(value)) throw new Error(`${profile} run ${index + 1}: invalid ${metric}`);
     }
   }
-  const warmupRuns = runs.slice(0, warmupRunsPerProfile);
-  const measuredRuns = runs.slice(warmupRunsPerProfile);
+  const warmupRuns = orderedRuns.slice(0, warmupRunsPerProfile);
+  const measuredRuns = orderedRuns.slice(warmupRunsPerProfile);
   if (measuredRuns.length !== minimumRunsPerProfile) {
     throw new Error(`${profile}: expected ${minimumRunsPerProfile} measured runs after warm-up, found ${measuredRuns.length}`);
   }
@@ -142,8 +151,21 @@ function stats(values) {
   };
 }
 
-function summarizeProfile(profile, runs) {
+function requireBudgets(profile) {
   const hard = budgets[profile];
+  if (!hard || typeof hard !== "object") {
+    throw new Error(`lighthouse/budgets.json is missing the ${JSON.stringify(profile)} profile`);
+  }
+  for (const key of requiredBudgetKeys) {
+    if (!Number.isFinite(hard[key])) {
+      throw new Error(`lighthouse/budgets.json ${profile}.${key} must be a finite number`);
+    }
+  }
+  return hard;
+}
+
+function summarizeProfile(profile, runs) {
+  const hard = requireBudgets(profile);
   const metrics = {
     performance: stats(runs.map((run) => run.performance)),
     lcp: stats(runs.map((run) => run.lcp)),
@@ -218,7 +240,7 @@ function writeCombinedReport(profiles) {
   };
   writeFileSync(path.join(outputRoot, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
-  const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Warm-up policy: first chronological run per profile is retained as cold-start evidence and excluded from steady-state statistics.\n- Generated: ${generatedAt}\n\n| Profile | Warm-up | Measured | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.warmupRuns.length} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Warm-up source: ${profile.warmupRuns.map((run) => `\`${run.source}\``).join(", ")}\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies six steady-state exact-head measurements per profile while retaining the first cold-start run as explicit warm-up evidence. A median budget breach is a \`new_bug\`; excessive measured-run spread without a median breach is a \`flake\`.\n`;
+  const markdown = `# Lighthouse repeatability — Roby's\n\n- Tested commit: \`${testedCommit}\`\n- Source run: \`${sourceRunId}\`\n- Verdict: **${overallVerdict}**\n- Warm-up policy: first chronological run per profile is retained as cold-start evidence and excluded from steady-state statistics.\n- Generated: ${generatedAt}\n\n| Profile | Warm-up | Measured | Verdict | Performance | LCP | TBT | Interactive |\n|---|---:|---:|---|---:|---:|---:|---:|\n${profiles.map((profile) => `| ${profile.profile} | ${profile.warmupRuns.length} | ${profile.runCount} | ${profile.verdict} | ${formatMetric(profile.metrics.performance, 1)} | ${formatMetric(profile.metrics.lcp)} ms | ${formatMetric(profile.metrics.tbt)} ms | ${formatMetric(profile.metrics.interactive)} ms |`).join("\n")}\n\n## Classification\n\n${profiles.map((profile) => `### ${profile.profile}\n\n- Warm-up source: ${profile.warmupRuns.map((run) => `\`${run.source}\` at \`${run.fetchTime}\``).join(", ")}\n- Budget breaches: ${profile.budgetBreaches.length ? profile.budgetBreaches.join("; ") : "none"}\n- Instability: ${profile.instabilityReasons.length ? profile.instabilityReasons.join("; ") : "none"}`).join("\n\n")}\n\nThis report classifies six steady-state exact-head measurements per profile while retaining the first cold-start run as explicit warm-up evidence. A median budget breach is a \`new_bug\`; excessive measured-run spread without a median breach is a \`flake\`.\n`;
   writeFileSync(path.join(outputRoot, "report.md"), markdown, "utf8");
   console.log(JSON.stringify({ testedCommit, sourceRunId, overallVerdict, profiles: profiles.map(({ profile, warmupRuns, runCount, verdict, budgetBreaches, instabilityReasons }) => ({ profile, warmupRuns: warmupRuns.length, runCount, verdict, budgetBreaches, instabilityReasons })) }, null, 2));
 }
@@ -245,8 +267,8 @@ if (mode === "--merge") {
   if (!new Set(["mobile", "desktop"]).has(mode)) {
     throw new Error("Usage: node scripts/run-lighthouse-repeatability.mjs <mobile|desktop|--merge>");
   }
-  rmSync(outputRoot, { recursive: true, force: true });
-  mkdirSync(outputRoot, { recursive: true });
+  rmSync(path.join(outputRoot, mode), { recursive: true, force: true });
+  mkdirSync(path.join(outputRoot, mode), { recursive: true });
   collect(mode, `lighthouse/lighthouserc.repeatability.${mode}.cjs`);
   const { warmupRuns, measuredRuns } = loadRuns(mode);
   const profileResult = summarizeProfile(mode, measuredRuns);
@@ -262,5 +284,5 @@ if (mode === "--merge") {
     profileResult
   };
   writeFileSync(path.join(outputRoot, mode, "profile-report.json"), `${JSON.stringify(packet, null, 2)}\n`, "utf8");
-  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, warmupSource: warmupRuns[0].source, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
+  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, warmupSource: warmupRuns[0].source, warmupFetchTime: warmupRuns[0].fetchTime, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
 }
