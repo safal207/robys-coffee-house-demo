@@ -124,14 +124,16 @@ fn file_sha256(path: &Path) -> Result<(u64, String), Error> {
     let mut file = fs::File::open(path)?;
     let mut digest = Sha256::new();
     let mut buffer = [0_u8; 64 * 1024];
+    let mut hashed_bytes: u64 = 0;
     loop {
         let read = file.read(&mut buffer)?;
         if read == 0 {
             break;
         }
+        hashed_bytes += read as u64;
         digest.update(&buffer[..read]);
     }
-    Ok((metadata.len(), format!("{:x}", digest.finalize())))
+    Ok((hashed_bytes, format!("{:x}", digest.finalize())))
 }
 
 fn verify_evidence(root: &Path, signal: &InputSignal) -> Result<EvidenceRecord, Error> {
