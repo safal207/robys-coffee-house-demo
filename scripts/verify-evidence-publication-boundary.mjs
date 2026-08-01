@@ -6,17 +6,25 @@ const root = process.cwd();
 const workflowRoot = path.join(root, ".github", "workflows");
 const findings = [];
 
+function referencesLighthouseEvidence(text) {
+  const lower = text.toLowerCase();
+  return [
+    /@lhci\/cli/,
+    /\.lighthouseci(?:\/|\b)/,
+    /(?:^|[\s"'/:_.-])lighthouse(?:[\s"'/:_.-]|$)/,
+    /lighthouserc/,
+    /lighthouse-repeatability/,
+    /(?:^|[\s"'])lhr(?:[\s"'.:/_-]|$)/,
+    /\.artifacts\/lighthouse/,
+    /qa\/liminal-artifacts\/lighthouse/
+  ].some((pattern) => pattern.test(lower));
+}
+
 for (const entry of readdirSync(workflowRoot, { withFileTypes: true })) {
   if (!entry.isFile() || !/\.ya?ml$/i.test(entry.name)) continue;
   const absolute = path.join(workflowRoot, entry.name);
   const text = readFileSync(absolute, "utf8");
-  const lower = text.toLowerCase();
-  const referencesLighthouseEvidence =
-    lower.includes("lighthouse-live-summary.json") ||
-    lower.includes("lighthouse-summary.json") ||
-    lower.includes("update live lighthouse summary") ||
-    lower.includes("update lighthouse audit summary");
-  if (!referencesLighthouseEvidence) continue;
+  if (!referencesLighthouseEvidence(text)) continue;
 
   const mutationSignals = [];
   if (/contents\s*:\s*write/i.test(text)) mutationSignals.push("contents: write");
