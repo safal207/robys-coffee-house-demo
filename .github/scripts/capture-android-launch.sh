@@ -26,14 +26,14 @@ adb shell am force-stop "$PACKAGE"
 adb logcat -c
 adb shell rm -f "$DEVICE_VIDEO"
 
-# Record long enough to cover both the branded launch motion and a first-run
-# WebView provider/page load on a completely cold emulator.
-adb shell screenrecord --time-limit 20 --bit-rate 6000000 "$DEVICE_VIDEO" >"$OUT/screenrecord.log" 2>&1 &
+# Diagnostic capture: keep recording well beyond the cold WebView visual-state
+# commit so we can distinguish a delayed fade from a genuinely stuck overlay.
+adb shell screenrecord --time-limit 30 --bit-rate 6000000 "$DEVICE_VIDEO" >"$OUT/screenrecord.log" 2>&1 &
 RECORDER_PID=$!
 sleep 0.35
 adb shell am start -n "$PACKAGE/$ACTIVITY"
 
-sleep 20.2
+sleep 30.2
 wait "$RECORDER_PID" || true
 adb pull "$DEVICE_VIDEO" "$OUT/robys-launch.mp4"
 adb shell dumpsys window windows > "$OUT/window-state.txt"
