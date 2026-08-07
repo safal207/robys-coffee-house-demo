@@ -15,7 +15,7 @@ val releaseSigningReady =
 
 android {
     namespace = "com.robys.coffeehouse"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.robys.coffeehouse"
