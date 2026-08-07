@@ -32,7 +32,9 @@ public final class MainActivity extends ComponentActivity {
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
     private static final long SPLASH_MIN_MS = 1850L;
+    private static final long WEBVIEW_WARMUP_DELAY_MS = 90L;
 
+    private FrameLayout root;
     private WebView webView;
     private RobysSplashView splashView;
     private TextView errorView;
@@ -43,13 +45,7 @@ public final class MainActivity extends ComponentActivity {
         super.onCreate(savedInstanceState);
         configureSystemBars();
 
-        FrameLayout root = new FrameLayout(this);
-
-        webView = new WebView(this);
-        root.addView(webView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
+        root = new FrameLayout(this);
 
         errorView = buildErrorView();
         errorView.setVisibility(View.GONE);
@@ -64,11 +60,27 @@ public final class MainActivity extends ComponentActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
+        splashStartedAt = SystemClock.uptimeMillis();
         setContentView(root);
-        configureWebView();
         configureBackNavigation();
 
-        splashStartedAt = SystemClock.uptimeMillis();
+        // Render the native Roby's surface before cold-starting the WebView provider.
+        // WebView construction can take seconds on a fresh device and otherwise keeps
+        // Android's system starting window on screen instead of our branded animation.
+        root.postDelayed(this::initializeWebView, WEBVIEW_WARMUP_DELAY_MS);
+    }
+
+    private void initializeWebView() {
+        if (isFinishing() || isDestroyed() || webView != null) {
+            return;
+        }
+
+        webView = new WebView(this);
+        root.addView(webView, 0, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        configureWebView();
         webView.loadUrl(APP_URL);
     }
 
@@ -87,13 +99,19 @@ public final class MainActivity extends ComponentActivity {
         int padding = dp(32);
         view.setPadding(padding, padding, padding, padding);
         view.setBackgroundColor(Color.WHITE);
-        view.setOnClickListener(v -> {
-            view.setVisibility(View.GONE);
-            splashView.resetAndShow();
-            splashStartedAt = SystemClock.uptimeMillis();
-            webView.reload();
-        });
+        view.setOnClickListener(v -> retryWebView());
         return view;
+    }
+
+    private void retryWebView() {
+        errorView.setVisibility(View.GONE);
+        splashView.resetAndShow();
+        splashStartedAt = SystemClock.uptimeMillis();
+        if (webView == null) {
+            initializeWebView();
+        } else {
+            webView.reload();
+        }
     }
 
     private void configureWebView() {
@@ -247,6 +265,7 @@ public final class MainActivity extends ComponentActivity {
             webView.setWebChromeClient(null);
             webView.setWebViewClient(null);
             webView.destroy();
+            webView = null;
         }
         super.onDestroy();
     }
