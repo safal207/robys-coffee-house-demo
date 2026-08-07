@@ -9,6 +9,7 @@ const excludedDirectories = new Set([
   ".git",
   ".github",
   ".artifacts",
+  "android-native",
   "coverage",
   "dist",
   "docs",
