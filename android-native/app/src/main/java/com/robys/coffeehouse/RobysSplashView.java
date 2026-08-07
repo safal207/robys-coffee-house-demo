@@ -22,7 +22,7 @@ public final class RobysSplashView extends View {
     private final Drawable brandWordmark;
 
     private long startedAt;
-    private boolean motionStartDispatched;
+    private boolean motionStarted;
     private boolean dismissed;
     private Runnable motionStartedListener;
 
@@ -45,10 +45,22 @@ public final class RobysSplashView extends View {
     public void resetAndShow() {
         animate().cancel();
         dismissed = false;
-        motionStartDispatched = false;
+        motionStarted = false;
         startedAt = 0L;
         setAlpha(1f);
         setVisibility(VISIBLE);
+        invalidate();
+    }
+
+    public void startMotion() {
+        if (dismissed || motionStarted) {
+            return;
+        }
+        motionStarted = true;
+        startedAt = SystemClock.uptimeMillis();
+        if (motionStartedListener != null) {
+            motionStartedListener.run();
+        }
         invalidate();
     }
 
@@ -82,19 +94,11 @@ public final class RobysSplashView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float progress;
-        if (reducedMotion()) {
-            progress = 1f;
-            dispatchMotionStartIfNeeded(false);
-        } else if (startedAt == 0L) {
-            // The first app-owned frame is intentionally progress=0. Android may hold
-            // its system splash for an arbitrary cold-start interval; starting our
-            // clock in onCreate would burn the animation while that window is hidden.
-            progress = 0f;
-            dispatchMotionStartIfNeeded(true);
-        } else {
-            progress = clamp((SystemClock.uptimeMillis() - startedAt) / (float) DURATION_MS);
-        }
+        float progress = reducedMotion()
+                ? 1f
+                : startedAt == 0L
+                        ? 0f
+                        : clamp((SystemClock.uptimeMillis() - startedAt) / (float) DURATION_MS);
 
         float cx = getWidth() * 0.5f;
         float cy = getHeight() * 0.43f;
@@ -107,27 +111,6 @@ public final class RobysSplashView extends View {
 
         if (!reducedMotion() && startedAt != 0L && progress < 1f && !dismissed) {
             postInvalidateOnAnimation();
-        }
-    }
-
-    private void dispatchMotionStartIfNeeded(boolean nextFrame) {
-        if (motionStartDispatched) {
-            return;
-        }
-        motionStartDispatched = true;
-
-        Runnable start = () -> {
-            startedAt = SystemClock.uptimeMillis();
-            if (motionStartedListener != null) {
-                motionStartedListener.run();
-            }
-            invalidate();
-        };
-
-        if (nextFrame) {
-            postOnAnimation(start);
-        } else {
-            post(start);
         }
     }
 
