@@ -14,8 +14,16 @@ adb install -r "$APK"
 adb shell settings put global window_animation_scale 1
 adb shell settings put global transition_animation_scale 1
 adb shell settings put global animator_duration_scale 1
-adb logcat -c
+
+# A fresh install emits asynchronous package-added/modified work for several
+# seconds on a clean emulator. Launching during that churn can make the shell
+# starting window disappear and be requested again, which is not a real user
+# cold start. Let PackageManager/Launcher settle, then force a fresh app process.
+sleep 8
+adb shell input keyevent HOME
+sleep 1
 adb shell am force-stop "$PACKAGE"
+adb logcat -c
 adb shell rm -f "$DEVICE_VIDEO"
 
 # Record the real device surface in one persistent shell. Frame extraction is done
