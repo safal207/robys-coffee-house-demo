@@ -185,7 +185,17 @@ public final class MainActivity extends ComponentActivity {
             }
 
             @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                // The new main-frame content has committed and is ready to draw.
+                // Reveal it now instead of waiting for every heavy subresource.
+                if (isTrusted(Uri.parse(url))) {
+                    splashView.dismissWhenMotionComplete();
+                }
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
+                // Keep the later callback as a conservative fallback.
                 if (isTrusted(Uri.parse(url))) {
                     splashView.dismissWhenMotionComplete();
                 }
