@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
-const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
+const expectedSha256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
 
 async function waitForAttribute(locator, name, expected, timeout = 15000) {
   const deadline = Date.now() + timeout;
@@ -55,11 +55,11 @@ try {
     page.waitForEvent("download"),
     downloadLink.click()
   ]);
-  assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.1.apk");
+  assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.2.apk");
   const downloadPath = await download.path();
   assert.ok(downloadPath, "APK download did not create a file");
   const apk = await readFile(downloadPath);
-  assert.equal(apk.length, 25231, "Downloaded APK byte size changed");
+  assert.equal(apk.length, 1086268, "Downloaded APK byte size changed");
   assert.equal(apk.subarray(0, 2).toString("ascii"), "PK", "Downloaded file is not an APK/ZIP");
   assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
 
