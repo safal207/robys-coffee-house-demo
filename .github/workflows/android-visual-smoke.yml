@@ -37,13 +37,8 @@ jobs:
         with:
           packages: platform-tools
 
-      - name: Install Android 16 emulator image
-        run: |
-          sdkmanager "platforms;android-36" "emulator" "system-images;android-36;google_apis;x86_64"
-          echo no | avdmanager create avd \
-            --force \
-            --name robys-api36 \
-            --package "system-images;android-36;google_apis;x86_64"
+      - name: Install Android platform 36
+        run: sdkmanager "platforms;android-36"
 
       - name: Set up Gradle 9.5.0
         uses: gradle/actions/setup-gradle@v4
@@ -53,67 +48,55 @@ jobs:
       - name: Build debug APK
         run: gradle -p android-native :app:assembleDebug --stacktrace
 
-      - name: Boot emulator
-        run: |
-          sudo chmod 666 /dev/kvm || true
-          nohup emulator \
-            -avd robys-api36 \
-            -no-window \
-            -noaudio \
-            -no-boot-anim \
-            -no-snapshot \
-            -gpu swiftshader_indirect \
-            -camera-back none \
-            -camera-front none \
-            > android-emulator.log 2>&1 &
-          adb wait-for-device
-          timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
-          adb shell input keyevent 82 || true
-          adb shell settings put global window_animation_scale 1
-          adb shell settings put global transition_animation_scale 1
-          adb shell settings put global animator_duration_scale 1
+      - name: Launch API 36 emulator and capture evidence
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: |
+            mkdir -p android-native/build/visual-evidence
+            adb install -r android-native/app/build/outputs/apk/debug/app-debug.apk
+            adb shell settings put global window_animation_scale 1
+            adb shell settings put global transition_animation_scale 1
+            adb shell settings put global animator_duration_scale 1
+            adb logcat -c
+            adb shell am force-stop com.robys.coffeehouse.debug
+            adb shell rm -f /sdcard/robys-launch.mp4
 
-      - name: Install app
-        run: adb install -r android-native/app/build/outputs/apk/debug/app-debug.apk
+            adb shell screenrecord --time-limit 6 --bit-rate 4000000 /sdcard/robys-launch.mp4 >/tmp/robys-screenrecord.log 2>&1 &
+            RECORDER_PID=$!
+            sleep 0.25
 
-      - name: Capture launch video and key frames
-        run: |
-          mkdir -p android-native/build/visual-evidence
-          adb shell am force-stop com.robys.coffeehouse.debug
-          adb shell rm -f /sdcard/robys-launch.mp4
+            adb shell am start -n com.robys.coffeehouse.debug/com.robys.coffeehouse.MainActivity
+            sleep 0.35
+            adb exec-out screencap -p > android-native/build/visual-evidence/01-bean.png
+            sleep 0.55
+            adb exec-out screencap -p > android-native/build/visual-evidence/02-cup.png
+            sleep 0.55
+            adb exec-out screencap -p > android-native/build/visual-evidence/03-brand.png
+            sleep 1.30
+            adb exec-out screencap -p > android-native/build/visual-evidence/04-app.png
 
-          adb shell screenrecord --time-limit 6 --bit-rate 4000000 /sdcard/robys-launch.mp4 >/tmp/robys-screenrecord.log 2>&1 &
-          RECORDER_PID=$!
-          sleep 0.25
+            wait "$RECORDER_PID" || true
+            adb pull /sdcard/robys-launch.mp4 android-native/build/visual-evidence/robys-launch.mp4
+            adb shell dumpsys window windows > android-native/build/visual-evidence/window-state.txt
+            adb logcat -d -t 600 > android-native/build/visual-evidence/logcat.txt
 
-          adb shell am start -n com.robys.coffeehouse.debug/com.robys.coffeehouse.MainActivity
-          sleep 0.35
-          adb exec-out screencap -p > android-native/build/visual-evidence/01-bean.png
-          sleep 0.55
-          adb exec-out screencap -p > android-native/build/visual-evidence/02-cup.png
-          sleep 0.55
-          adb exec-out screencap -p > android-native/build/visual-evidence/03-brand.png
-          sleep 1.30
-          adb exec-out screencap -p > android-native/build/visual-evidence/04-app.png
-
-          wait "$RECORDER_PID" || true
-          adb pull /sdcard/robys-launch.mp4 android-native/build/visual-evidence/robys-launch.mp4
-          adb shell dumpsys window windows > android-native/build/visual-evidence/window-state.txt
-          adb logcat -d -t 600 > android-native/build/visual-evidence/logcat.txt
-
-          test -s android-native/build/visual-evidence/01-bean.png
-          test -s android-native/build/visual-evidence/02-cup.png
-          test -s android-native/build/visual-evidence/03-brand.png
-          test -s android-native/build/visual-evidence/04-app.png
-          test -s android-native/build/visual-evidence/robys-launch.mp4
+            test -s android-native/build/visual-evidence/01-bean.png
+            test -s android-native/build/visual-evidence/02-cup.png
+            test -s android-native/build/visual-evidence/03-brand.png
+            test -s android-native/build/visual-evidence/04-app.png
+            test -s android-native/build/visual-evidence/robys-launch.mp4
 
       - name: Upload launch evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: robys-v1.2-launch-evidence-${{ github.sha }}
-          path: |
-            android-native/build/visual-evidence/**
-            android-emulator.log
+          path: android-native/build/visual-evidence/**
           if-no-files-found: warn
           retention-days: 14
