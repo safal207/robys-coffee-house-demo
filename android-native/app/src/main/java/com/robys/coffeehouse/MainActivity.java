@@ -62,10 +62,23 @@ public final class MainActivity extends ComponentActivity {
 
         setContentView(root);
         configureBackNavigation();
+        startBrandMotionAfterSystemSplash();
+    }
 
-        // RobysSplashView owns the cold-start clock. It notifies us only after the
-        // first app-owned frame has been drawn, so Android's system splash can never
-        // consume the branded 1.85 s sequence while the activity is still hidden.
+    private void startBrandMotionAfterSystemSplash() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ may keep its system splash visible while the activity is
+            // already drawing underneath it. Start Roby's motion only when that
+            // actual system surface exits, otherwise the first part is invisible.
+            getSplashScreen().setOnExitAnimationListener(splashScreenView -> {
+                splashScreenView.remove();
+                splashView.postOnAnimation(splashView::startMotion);
+            });
+        } else {
+            // Pre-Android 12 has no platform splash overlay; the first app frame is
+            // the first visible frame, so begin on the next vsync.
+            splashView.postOnAnimation(splashView::startMotion);
+        }
     }
 
     private void warmUpOrReloadWebView() {
@@ -112,6 +125,7 @@ public final class MainActivity extends ComponentActivity {
     private void retryWebView() {
         errorView.setVisibility(View.GONE);
         splashView.resetAndShow();
+        splashView.postOnAnimation(splashView::startMotion);
     }
 
     private void configureWebView() {
