@@ -12,7 +12,7 @@ Roby's launch experience. It does **not** reuse the experimental Kotlin/Compose 
 - versionName: `1.2`
 - minSdk: `23`
 - targetSdk: `36`
-- compileSdk: `37`
+- compileSdk: `36`
 - primary URL: `https://safal207.github.io/robys-coffee-house-demo/`
 
 The release must continue the v1.0/v1.1 signer lineage. The expected historical
@@ -55,7 +55,7 @@ The wrapper keeps the old v1.1 security posture:
 
 ## Debug build
 
-Use Java 17 and an Android SDK containing platform 37.
+Use Java 17 and an Android SDK containing platform 36.
 
 ```bash
 gradle :app:assembleDebug
