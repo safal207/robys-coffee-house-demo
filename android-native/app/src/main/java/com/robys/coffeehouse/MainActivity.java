@@ -241,9 +241,12 @@ public final class MainActivity extends ComponentActivity {
 
         revealRequested = true;
         long requestId = SystemClock.uptimeMillis();
-        view.postVisualStateCallback(requestId, ignoredRequestId ->
-                splashView.dismissWhenMotionComplete()
-        );
+        view.postVisualStateCallback(requestId, new WebView.VisualStateCallback() {
+            @Override
+            public void onComplete(long ignoredRequestId) {
+                splashView.dismissWhenMotionComplete();
+            }
+        });
     }
 
     private void configureBackNavigation() {
