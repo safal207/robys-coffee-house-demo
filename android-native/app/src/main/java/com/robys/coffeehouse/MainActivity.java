@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +30,12 @@ public final class MainActivity extends ComponentActivity {
     private static final String APP_URL = "https://safal207.github.io/robys-coffee-house-demo/";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
-    private static final long SPLASH_MOTION_MS = 1850L;
     private static final long WEBVIEW_WARMUP_DELAY_MS = 2000L;
 
     private FrameLayout root;
     private WebView webView;
     private RobysSplashView splashView;
     private TextView errorView;
-    private long splashStartedAt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,20 +52,28 @@ public final class MainActivity extends ComponentActivity {
         ));
 
         splashView = new RobysSplashView(this);
+        splashView.setOnMotionStartedListener(() ->
+                splashView.postDelayed(this::warmUpOrReloadWebView, WEBVIEW_WARMUP_DELAY_MS)
+        );
         root.addView(splashView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        splashStartedAt = SystemClock.uptimeMillis();
         setContentView(root);
         configureBackNavigation();
 
-        // The native motion gets the UI thread to itself. On a cold device WebView
-        // construction can block for seconds, so it starts only after the 1.85 s
-        // Roby's sequence has resolved to its final static brand frame. That frame
-        // then safely covers WebView warm-up until the trusted page is ready.
-        root.postDelayed(this::initializeWebView, WEBVIEW_WARMUP_DELAY_MS);
+        // RobysSplashView owns the cold-start clock. It notifies us only after the
+        // first app-owned frame has been drawn, so Android's system splash can never
+        // consume the branded 1.85 s sequence while the activity is still hidden.
+    }
+
+    private void warmUpOrReloadWebView() {
+        if (webView == null) {
+            initializeWebView();
+        } else {
+            webView.reload();
+        }
     }
 
     private void initializeWebView() {
@@ -107,12 +112,6 @@ public final class MainActivity extends ComponentActivity {
     private void retryWebView() {
         errorView.setVisibility(View.GONE);
         splashView.resetAndShow();
-        splashStartedAt = SystemClock.uptimeMillis();
-        if (webView == null) {
-            root.postDelayed(this::initializeWebView, WEBVIEW_WARMUP_DELAY_MS);
-        } else {
-            webView.reload();
-        }
     }
 
     private void configureWebView() {
@@ -174,7 +173,7 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isTrusted(Uri.parse(url))) {
-                    dismissSplashAfterMotion();
+                    splashView.dismissWhenMotionComplete();
                 }
             }
 
@@ -244,12 +243,6 @@ public final class MainActivity extends ComponentActivity {
         } catch (ActivityNotFoundException ignored) {
             // Ignore unsupported schemes instead of exposing them to the WebView.
         }
-    }
-
-    private void dismissSplashAfterMotion() {
-        long elapsed = SystemClock.uptimeMillis() - splashStartedAt;
-        long delay = Math.max(0L, SPLASH_MOTION_MS - elapsed);
-        splashView.postDelayed(splashView::dismiss, delay);
     }
 
     private void showLoadError() {
