@@ -40,7 +40,7 @@ function replaceButton(section) {
   }
   link.type = "application/vnd.android.package-archive";
   link.setAttribute("aria-disabled", "true");
-  link.tabIndex = -1;
+  link.tabIndex = 0;
   while (current.firstChild) link.append(current.firstChild);
   current.replaceWith(link);
   return link;
@@ -108,10 +108,11 @@ function upgradeAndroidDownload() {
   link.addEventListener("click", (event) => {
     if (link.getAttribute("aria-disabled") !== "true") return;
     event.preventDefault();
-    void prepareApk(link, status);
+    void prepareApk(link, status)
+      .then(() => link.click())
+      .catch(() => {});
   });
 
-  void prepareApk(link, status);
   return true;
 }
 
