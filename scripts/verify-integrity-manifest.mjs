@@ -1,7 +1,27 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
 
 const manifestPath = "integrity-manifest.json";
+const canonicalTextExtensions = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".svg",
+  ".txt",
+  ".webmanifest",
+  ".xml"
+]);
+
+function canonicalBytes(file, bytes) {
+  const extension = path.extname(file).toLowerCase();
+  if (!canonicalTextExtensions.has(extension)) return bytes;
+
+  const text = bytes.toString("utf8").replace(/\r\n?/g, "\n");
+  return Buffer.from(text.replace(/\n/g, "\r\n"), "utf8");
+}
+
 if (!existsSync(manifestPath)) throw new Error(`INTEGRITY-001: ${manifestPath} is missing`);
 
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -28,7 +48,7 @@ for (const entry of manifest.files) {
     failures.push(`${entry.path}: missing file`);
     continue;
   }
-  const bytes = readFileSync(entry.path);
+  const bytes = canonicalBytes(entry.path, readFileSync(entry.path));
   const sha256 = createHash("sha256").update(bytes).digest("hex");
   if (bytes.byteLength !== entry.bytes) failures.push(`${entry.path}: size ${bytes.byteLength} != ${entry.bytes}`);
   if (sha256 !== entry.sha256) failures.push(`${entry.path}: sha256 ${sha256} != ${entry.sha256}`);
