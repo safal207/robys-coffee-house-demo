@@ -26,8 +26,8 @@ adb shell am force-stop "$PACKAGE"
 adb logcat -c
 adb shell rm -f "$DEVICE_VIDEO"
 
-# Diagnostic capture: keep recording well beyond the cold WebView visual-state
-# commit so we can distinguish a delayed fade from a genuinely stuck overlay.
+# Keep enough capture headroom for the branded motion plus a worst-case first-run
+# WebView provider/page load on a completely cold Android emulator.
 adb shell screenrecord --time-limit 30 --bit-rate 6000000 "$DEVICE_VIDEO" >"$OUT/screenrecord.log" 2>&1 &
 RECORDER_PID=$!
 sleep 0.35
