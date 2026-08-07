@@ -1,0 +1,88 @@
+name: Android wrapper rebuild
+
+on:
+  push:
+    branches:
+      - agent/android-v1.2-rebuild-splash
+    paths:
+      - "android-native/**"
+      - ".github/workflows/android-wrapper-rebuild.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-wrapper-rebuild-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-debug:
+    name: Build and lint Android wrapper
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform 37
+        run: sdkmanager "platforms;android-37"
+
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Build debug APK and run lint
+        run: gradle -p android-native :app:assembleDebug :app:lintDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-v1.2-rebuild-debug-${{ github.sha }}
+          path: android-native/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Android lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robys-v1.2-rebuild-lint-${{ github.sha }}
+          path: android-native/app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
+          retention-days: 14
+
+  web-contracts:
+    name: Preserve existing web and security contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run repository checks
+        run: npm run check
+
+      - name: Run security contracts
+        run: npm run verify:security
