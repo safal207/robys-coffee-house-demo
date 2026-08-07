@@ -77,15 +77,17 @@ public final class RobysSplashView extends View {
             return;
         }
         dismissed = true;
-        animate()
-                .alpha(0f)
-                .setDuration(220L)
-                .withEndAction(() -> {
-                    setVisibility(GONE);
-                    Log.i(TAG, "splash fadeEnd alpha=" + getAlpha()
-                            + " visibility=" + getVisibility());
-                })
-                .start();
+
+        // The WebView visual-state callback already guarantees that a committed
+        // frame is ready to be drawn. On a cold WebView, a ViewPropertyAnimator
+        // can be starved for several seconds by main-thread/browser work, turning
+        // a nominal 220 ms fade into a visibly stuck launch screen. Reveal the
+        // confirmed frame atomically instead; the branded motion itself remains
+        // smooth and complete before this handoff.
+        animate().cancel();
+        setAlpha(0f);
+        setVisibility(GONE);
+        Log.i(TAG, "splash hidden alpha=" + getAlpha() + " visibility=" + getVisibility());
     }
 
     public void dismissWhenMotionComplete() {
@@ -102,7 +104,11 @@ public final class RobysSplashView extends View {
         long elapsed = SystemClock.uptimeMillis() - startedAt;
         long delay = Math.max(0L, DURATION_MS - elapsed);
         Log.i(TAG, "splash dismissWhenMotionComplete elapsed=" + elapsed + " delay=" + delay);
-        postDelayed(this::dismiss, delay);
+        if (delay == 0L) {
+            dismiss();
+        } else {
+            postDelayed(this::dismiss, delay);
+        }
     }
 
     @Override
