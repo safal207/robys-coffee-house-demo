@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Roby’s Coffee House</string>
+    <string name="load_error">Roby’s is temporarily unavailable. Check your connection and tap to retry.</string>
+</resources>
