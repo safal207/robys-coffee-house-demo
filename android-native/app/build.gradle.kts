@@ -63,6 +63,10 @@ android {
     }
 }
 
+dependencies {
+    implementation("androidx.activity:activity:1.13.0")
+}
+
 tasks.matching { it.name == "packageRelease" || it.name == "assembleRelease" }.configureEach {
     doFirst {
         check(releaseSigningReady) {
