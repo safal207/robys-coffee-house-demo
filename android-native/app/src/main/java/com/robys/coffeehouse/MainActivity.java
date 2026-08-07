@@ -1,6 +1,5 @@
 package com.robys.coffeehouse;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,7 +24,10 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public final class MainActivity extends Activity {
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
+
+public final class MainActivity extends ComponentActivity {
     private static final String APP_URL = "https://safal207.github.io/robys-coffee-house-demo/";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
@@ -64,6 +66,7 @@ public final class MainActivity extends Activity {
 
         setContentView(root);
         configureWebView();
+        configureBackNavigation();
 
         splashStartedAt = SystemClock.uptimeMillis();
         webView.loadUrl(APP_URL);
@@ -72,9 +75,7 @@ public final class MainActivity extends Activity {
     private void configureSystemBars() {
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().setNavigationBarColor(Color.WHITE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
 
     private TextView buildErrorView() {
@@ -112,9 +113,7 @@ public final class MainActivity extends Activity {
         }
 
         CookieManager.getInstance().setAcceptCookie(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
-        }
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -179,6 +178,21 @@ public final class MainActivity extends Activity {
         });
     }
 
+    private void configureBackNavigation() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (webView != null && webView.canGoBack()) {
+                    webView.goBack();
+                    return;
+                }
+
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+    }
+
     private boolean isTrusted(Uri uri) {
         if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) {
             return false;
@@ -224,16 +238,6 @@ public final class MainActivity extends Activity {
             splashView.dismiss();
             errorView.setVisibility(View.VISIBLE);
         }, 350L);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
