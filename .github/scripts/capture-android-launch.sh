@@ -16,10 +16,10 @@ adb shell settings put global transition_animation_scale 1
 adb shell settings put global animator_duration_scale 1
 
 # A fresh install emits asynchronous package-added/modified work for several
-# seconds on a clean emulator. Launching during that churn can make the shell
-# starting window disappear and be requested again, which is not a real user
-# cold start. Let PackageManager/Launcher settle, then force a fresh app process.
-sleep 8
+# seconds on a clean emulator. Previous evidence showed launcher/package callbacks
+# continuing for ~16-18 s after install, so wait beyond that observed window before
+# measuring a real user cold start.
+sleep 20
 adb shell input keyevent HOME
 sleep 1
 adb shell am force-stop "$PACKAGE"
