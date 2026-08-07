@@ -11,11 +11,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 
 public final class RobysSplashView extends View {
-    private static final String TAG = "RobysLaunch";
     private static final long DURATION_MS = 1850L;
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -51,19 +49,15 @@ public final class RobysSplashView extends View {
         startedAt = 0L;
         setAlpha(1f);
         setVisibility(VISIBLE);
-        Log.i(TAG, "splash resetAndShow alpha=" + getAlpha() + " visibility=" + getVisibility());
         invalidate();
     }
 
     public void startMotion() {
         if (dismissed || motionStarted) {
-            Log.i(TAG, "splash startMotion skipped dismissed=" + dismissed
-                    + " motionStarted=" + motionStarted);
             return;
         }
         motionStarted = true;
         startedAt = SystemClock.uptimeMillis();
-        Log.i(TAG, "splash startMotion startedAt=" + startedAt);
         if (motionStartedListener != null) {
             motionStartedListener.run();
         }
@@ -71,8 +65,6 @@ public final class RobysSplashView extends View {
     }
 
     public void dismiss() {
-        Log.i(TAG, "splash dismiss called dismissed=" + dismissed
-                + " alpha=" + getAlpha() + " visibility=" + getVisibility());
         if (dismissed) {
             return;
         }
@@ -81,29 +73,25 @@ public final class RobysSplashView extends View {
         // The WebView visual-state callback already guarantees that a committed
         // frame is ready to be drawn. On a cold WebView, a ViewPropertyAnimator
         // can be starved for several seconds by main-thread/browser work, turning
-        // a nominal 220 ms fade into a visibly stuck launch screen. Reveal the
+        // a nominal short fade into a visibly stuck launch screen. Reveal the
         // confirmed frame atomically instead; the branded motion itself remains
         // smooth and complete before this handoff.
         animate().cancel();
         setAlpha(0f);
         setVisibility(GONE);
-        Log.i(TAG, "splash hidden alpha=" + getAlpha() + " visibility=" + getVisibility());
     }
 
     public void dismissWhenMotionComplete() {
         if (reducedMotion()) {
-            Log.i(TAG, "splash dismissWhenMotionComplete reducedMotion=true");
             dismiss();
             return;
         }
         if (startedAt == 0L) {
-            Log.i(TAG, "splash dismissWhenMotionComplete waitingForStart");
             postDelayed(this::dismissWhenMotionComplete, 16L);
             return;
         }
         long elapsed = SystemClock.uptimeMillis() - startedAt;
         long delay = Math.max(0L, DURATION_MS - elapsed);
-        Log.i(TAG, "splash dismissWhenMotionComplete elapsed=" + elapsed + " delay=" + delay);
         if (delay == 0L) {
             dismiss();
         } else {
