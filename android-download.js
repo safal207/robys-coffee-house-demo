@@ -1,8 +1,8 @@
-const APK_NAME = "robys-coffee-house-v1.1.apk";
-const APK_BYTES = 25231;
-const PACKED_APK_BYTES = 25927;
-const APK_SHA256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
-const APK_PARTS = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`);
+const APK_NAME = "robys-coffee-house-v1.2.apk";
+const APK_BYTES = 1086268;
+const PACKED_APK_BYTES = 1086268;
+const APK_SHA256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
+const APK_PARTS = Array.from({ length: 6 }, (_, index) => `downloads/android-v1.2/part-${String(index + 1).padStart(2, "0")}.b64`);
 
 let preparedUrl = "";
 let preparePromise;
@@ -40,7 +40,7 @@ function replaceButton(section) {
   }
   link.type = "application/vnd.android.package-archive";
   link.setAttribute("aria-disabled", "true");
-  link.tabIndex = -1;
+  link.tabIndex = 0;
   while (current.firstChild) link.append(current.firstChild);
   current.replaceWith(link);
   return link;
@@ -56,12 +56,7 @@ function repairPackedApk(packed) {
     throw new Error(`APK packed size mismatch: ${packed.byteLength}`);
   }
 
-  const repaired = new Uint8Array(APK_BYTES);
-  repaired.set(packed.subarray(0, 3145), 0);
-  repaired.set(packed.subarray(3145, 16372), 3157);
-  repaired.set(packed.subarray(17242, 25248), 16384);
-  repaired.set(packed.subarray(25248), 24552);
-  return repaired;
+  return packed;
 }
 
 async function prepareApk(link, status) {
@@ -113,10 +108,11 @@ function upgradeAndroidDownload() {
   link.addEventListener("click", (event) => {
     if (link.getAttribute("aria-disabled") !== "true") return;
     event.preventDefault();
-    void prepareApk(link, status);
+    void prepareApk(link, status)
+      .then(() => link.click())
+      .catch(() => {});
   });
 
-  void prepareApk(link, status);
   return true;
 }
 

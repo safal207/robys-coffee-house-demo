@@ -112,6 +112,12 @@ async function stabilize(page) {
     });
     const year = document.querySelector("#current-year");
     if (year) year.textContent = "2026";
+
+    // Download status is transient UI state. Keep visual baselines independent
+    // from APK preparation timing so lazy delivery cannot create screenshot races.
+    const androidStatus = document.querySelector("#android-download-status");
+    if (androidStatus) androidStatus.textContent = "İndirmeye hazır";
+
     if (document.fonts?.ready) await document.fonts.ready;
 
     const poster = new Image();

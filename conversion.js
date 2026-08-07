@@ -27,11 +27,11 @@ const androidStatusCopy = {
 
 const androidApkParts = Array.from(
   { length: 6 },
-  (_, index) => `downloads/android-v1.1/part-${String(index + 1).padStart(2, "0")}.b64`
+  (_, index) => `downloads/android-v1.2/part-${String(index + 1).padStart(2, "0")}.b64`
 );
-const androidApkBytes = 25231;
-const androidApkSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
-const androidApkFileName = "robys-coffee-house-v1.1.apk";
+const androidApkBytes = 1086268;
+const androidApkSha256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
+const androidApkFileName = "robys-coffee-house-v1.2.apk";
 
 function updateSeoLanguage() {
   const language = document.documentElement.lang || "tr";
@@ -266,7 +266,7 @@ function createAndroidDownloadSection() {
 
   const meta = document.createElement("span");
   meta.className = "android-app-meta";
-  meta.textContent = "APK · v1.1";
+  meta.textContent = "APK · v1.2";
   actions.append(button, meta);
   copy.append(actions);
 

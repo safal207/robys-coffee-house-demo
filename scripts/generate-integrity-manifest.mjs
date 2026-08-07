@@ -43,6 +43,16 @@ const publicExtensions = new Set([
   ".webp",
   ".xml"
 ]);
+const canonicalTextExtensions = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".svg",
+  ".txt",
+  ".webmanifest",
+  ".xml"
+]);
 
 function normalized(relativePath) {
   return relativePath.split(path.sep).join("/");
@@ -60,6 +70,14 @@ function walk(directory) {
   });
 }
 
+function canonicalBytes(file, bytes) {
+  const extension = path.extname(file).toLowerCase();
+  if (!canonicalTextExtensions.has(extension)) return bytes;
+
+  const text = bytes.toString("utf8").replace(/\r\n?/g, "\n");
+  return Buffer.from(text.replace(/\n/g, "\r\n"), "utf8");
+}
+
 function digest(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }
@@ -72,7 +90,7 @@ const files = walk(ROOT)
   .filter((file) => statSync(path.join(ROOT, file)).isFile())
   .sort((left, right) => left.localeCompare(right, "en"))
   .map((file) => {
-    const bytes = readFileSync(path.join(ROOT, file));
+    const bytes = canonicalBytes(file, readFileSync(path.join(ROOT, file)));
     return { path: file, bytes: bytes.byteLength, sha256: digest(bytes) };
   });
 

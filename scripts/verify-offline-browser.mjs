@@ -4,16 +4,7 @@ import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
-const expectedSha256 = "f188c2f0ab820d514c9c1bd75734e3d76f8203f89d4a1604fd08da43fd7910a6";
-
-async function waitForAttribute(locator, name, expected, timeout = 15000) {
-  const deadline = Date.now() + timeout;
-  while (Date.now() < deadline) {
-    if (await locator.getAttribute(name) === expected) return;
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  throw new Error(`Timed out waiting for ${name}=${expected}`);
-}
+const expectedSha256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
 
 async function waitForServiceWorker(context, timeout = 30000) {
   const existing = context.serviceWorkers()[0];
@@ -40,26 +31,45 @@ const browser = await chromium.launch({
 const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
 const browserMessages = [];
+const apkPartRequests = [];
+
 page.on("console", (message) => browserMessages.push(`${message.type()}: ${message.text()}`));
 page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
+page.on("request", (request) => {
+  if (/\/downloads\/android-v1\.2\/part-\d+\.b64(?:\?|$)/.test(request.url())) {
+    apkPartRequests.push(request.url());
+  }
+});
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
-  await waitForAttribute(downloadLink, "data-apk-download", "verified-blob");
-  assert.match(await downloadLink.getAttribute("href"), /^blob:/, "APK link is not a prepared Blob URL");
+
+  await page.waitForTimeout(300);
+  assert.equal(
+    apkPartRequests.length,
+    0,
+    `APK parts must stay lazy before user intent, saw ${JSON.stringify(apkPartRequests)}`
+  );
+  assert.equal(await downloadLink.getAttribute("data-apk-download"), null, "APK must not be prepared before user intent");
+  assert.doesNotMatch(await downloadLink.getAttribute("href") ?? "", /^blob:/, "APK Blob URL appeared before user intent");
 
   const [download] = await Promise.all([
-    page.waitForEvent("download"),
+    page.waitForEvent("download", { timeout: 15000 }),
     downloadLink.click()
   ]);
-  assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.1.apk");
+
+  const uniqueApkParts = new Set(apkPartRequests.map((url) => new URL(url).pathname));
+  assert.equal(uniqueApkParts.size, 6, `Expected six APK parts after click, got ${JSON.stringify([...uniqueApkParts])}`);
+  assert.equal(await downloadLink.getAttribute("data-apk-download"), "verified-blob");
+  assert.match(await downloadLink.getAttribute("href"), /^blob:/, "APK link is not a prepared Blob URL");
+  assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.2.apk");
   const downloadPath = await download.path();
   assert.ok(downloadPath, "APK download did not create a file");
   const apk = await readFile(downloadPath);
-  assert.equal(apk.length, 25231, "Downloaded APK byte size changed");
+  assert.equal(apk.length, 1086268, "Downloaded APK byte size changed");
   assert.equal(apk.subarray(0, 2).toString("ascii"), "PK", "Downloaded file is not an APK/ZIP");
   assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
 
@@ -86,7 +96,7 @@ try {
 
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: verified APK click, branded 404 fallback and interactive cached menu.");
+  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu remains interactive offline.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();
