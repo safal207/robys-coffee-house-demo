@@ -19,28 +19,36 @@ public final class RobysSplashView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path steamPath = new Path();
-    private final Drawable organicMark;
+    private final Drawable brandWordmark;
 
     private long startedAt;
+    private boolean motionStartDispatched;
     private boolean dismissed;
+    private Runnable motionStartedListener;
 
     public RobysSplashView(Context context) {
         super(context);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
         setBackgroundColor(Color.WHITE);
-        organicMark = context.getDrawable(R.drawable.ic_robys_mark);
+        brandWordmark = context.getDrawable(R.drawable.ic_robys_wordmark);
 
-        textPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+        textPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
         textPaint.setTextAlign(Paint.Align.CENTER);
 
         resetAndShow();
     }
 
+    public void setOnMotionStartedListener(Runnable listener) {
+        motionStartedListener = listener;
+    }
+
     public void resetAndShow() {
+        animate().cancel();
         dismissed = false;
+        motionStartDispatched = false;
+        startedAt = 0L;
         setAlpha(1f);
         setVisibility(VISIBLE);
-        startedAt = SystemClock.uptimeMillis();
         invalidate();
     }
 
@@ -56,13 +64,37 @@ public final class RobysSplashView extends View {
                 .start();
     }
 
+    public void dismissWhenMotionComplete() {
+        if (reducedMotion()) {
+            dismiss();
+            return;
+        }
+        if (startedAt == 0L) {
+            postDelayed(this::dismissWhenMotionComplete, 16L);
+            return;
+        }
+        long elapsed = SystemClock.uptimeMillis() - startedAt;
+        long delay = Math.max(0L, DURATION_MS - elapsed);
+        postDelayed(this::dismiss, delay);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float progress = reducedMotion()
-                ? 1f
-                : clamp((SystemClock.uptimeMillis() - startedAt) / (float) DURATION_MS);
+        float progress;
+        if (reducedMotion()) {
+            progress = 1f;
+            dispatchMotionStartIfNeeded(false);
+        } else if (startedAt == 0L) {
+            // The first app-owned frame is intentionally progress=0. Android may hold
+            // its system splash for an arbitrary cold-start interval; starting our
+            // clock in onCreate would burn the animation while that window is hidden.
+            progress = 0f;
+            dispatchMotionStartIfNeeded(true);
+        } else {
+            progress = clamp((SystemClock.uptimeMillis() - startedAt) / (float) DURATION_MS);
+        }
 
         float cx = getWidth() * 0.5f;
         float cy = getHeight() * 0.43f;
@@ -73,8 +105,29 @@ public final class RobysSplashView extends View {
         drawSteam(canvas, cx, cy, unit, progress);
         drawBrand(canvas, cx, cy, unit, progress);
 
-        if (!reducedMotion() && progress < 1f && !dismissed) {
+        if (!reducedMotion() && startedAt != 0L && progress < 1f && !dismissed) {
             postInvalidateOnAnimation();
+        }
+    }
+
+    private void dispatchMotionStartIfNeeded(boolean nextFrame) {
+        if (motionStartDispatched) {
+            return;
+        }
+        motionStartDispatched = true;
+
+        Runnable start = () -> {
+            startedAt = SystemClock.uptimeMillis();
+            if (motionStartedListener != null) {
+                motionStartedListener.run();
+            }
+            invalidate();
+        };
+
+        if (nextFrame) {
+            postOnAnimation(start);
+        } else {
+            post(start);
         }
     }
 
@@ -194,29 +247,28 @@ public final class RobysSplashView extends View {
             return;
         }
 
-        int markWidth = Math.round(unit * 0.52f);
-        int markHeight = Math.round(unit * 0.60f);
-        int markLeft = Math.round(cx - markWidth / 2f);
-        int markTop = Math.round(cy + unit * 1.55f);
+        int wordmarkWidth = Math.round(unit * 2.90f);
+        int wordmarkHeight = Math.round(wordmarkWidth * (79f / 251f));
+        int wordmarkLeft = Math.round(cx - wordmarkWidth / 2f);
+        int wordmarkTop = Math.round(cy + unit * 1.82f);
 
-        if (organicMark != null) {
-            organicMark.setAlpha(Math.round(255f * reveal));
-            organicMark.setBounds(markLeft, markTop, markLeft + markWidth, markTop + markHeight);
-            organicMark.draw(canvas);
+        if (brandWordmark != null) {
+            brandWordmark.setAlpha(Math.round(255f * reveal));
+            brandWordmark.setBounds(
+                    wordmarkLeft,
+                    wordmarkTop,
+                    wordmarkLeft + wordmarkWidth,
+                    wordmarkTop + wordmarkHeight
+            );
+            brandWordmark.draw(canvas);
         }
 
-        textPaint.setColor(Color.rgb(22, 17, 15));
         textPaint.setAlpha(Math.round(255f * reveal));
-        textPaint.setTextSize(unit * 0.58f);
-        canvas.drawText("ROBY’S", cx, cy + unit * 2.65f, textPaint);
-
-        textPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
         textPaint.setLetterSpacing(0.18f);
         textPaint.setTextSize(unit * 0.20f);
         textPaint.setColor(Color.rgb(106, 67, 50));
         canvas.drawText("COFFEE HOUSE", cx, cy + unit * 3.12f, textPaint);
         textPaint.setLetterSpacing(0f);
-        textPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
     }
 
     private boolean reducedMotion() {
