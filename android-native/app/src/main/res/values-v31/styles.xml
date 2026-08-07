@@ -9,7 +9,7 @@
         <item name="android:windowBackground">@color/robys_white</item>
         <item name="android:colorAccent">@color/robys_red</item>
         <item name="android:windowSplashScreenBackground">@color/robys_white</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_robys_mark</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_robys_splash_mark</item>
         <item name="android:windowSplashScreenAnimationDuration">180</item>
     </style>
 </resources>
