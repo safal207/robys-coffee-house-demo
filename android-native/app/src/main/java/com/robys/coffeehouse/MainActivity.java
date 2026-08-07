@@ -31,8 +31,8 @@ public final class MainActivity extends ComponentActivity {
     private static final String APP_URL = "https://safal207.github.io/robys-coffee-house-demo/";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
-    private static final long SPLASH_MIN_MS = 1850L;
-    private static final long WEBVIEW_WARMUP_DELAY_MS = 90L;
+    private static final long SPLASH_MOTION_MS = 1850L;
+    private static final long WEBVIEW_WARMUP_DELAY_MS = 2000L;
 
     private FrameLayout root;
     private WebView webView;
@@ -64,9 +64,10 @@ public final class MainActivity extends ComponentActivity {
         setContentView(root);
         configureBackNavigation();
 
-        // Render the native Roby's surface before cold-starting the WebView provider.
-        // WebView construction can take seconds on a fresh device and otherwise keeps
-        // Android's system starting window on screen instead of our branded animation.
+        // The native motion gets the UI thread to itself. On a cold device WebView
+        // construction can block for seconds, so it starts only after the 1.85 s
+        // Roby's sequence has resolved to its final static brand frame. That frame
+        // then safely covers WebView warm-up until the trusted page is ready.
         root.postDelayed(this::initializeWebView, WEBVIEW_WARMUP_DELAY_MS);
     }
 
@@ -108,7 +109,7 @@ public final class MainActivity extends ComponentActivity {
         splashView.resetAndShow();
         splashStartedAt = SystemClock.uptimeMillis();
         if (webView == null) {
-            initializeWebView();
+            root.postDelayed(this::initializeWebView, WEBVIEW_WARMUP_DELAY_MS);
         } else {
             webView.reload();
         }
@@ -173,7 +174,7 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isTrusted(Uri.parse(url))) {
-                    dismissSplashAfterMinimum();
+                    dismissSplashAfterMotion();
                 }
             }
 
@@ -245,9 +246,9 @@ public final class MainActivity extends ComponentActivity {
         }
     }
 
-    private void dismissSplashAfterMinimum() {
+    private void dismissSplashAfterMotion() {
         long elapsed = SystemClock.uptimeMillis() - splashStartedAt;
-        long delay = Math.max(0L, SPLASH_MIN_MS - elapsed);
+        long delay = Math.max(0L, SPLASH_MOTION_MS - elapsed);
         splashView.postDelayed(splashView::dismiss, delay);
     }
 
