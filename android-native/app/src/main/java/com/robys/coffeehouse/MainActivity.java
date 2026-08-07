@@ -8,7 +8,6 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 
 public final class MainActivity extends ComponentActivity {
-    private static final String TAG = "RobysLaunch";
     private static final String APP_URL = "https://safal207.github.io/robys-coffee-house-demo/";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
@@ -45,7 +43,6 @@ public final class MainActivity extends ComponentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate");
         configureSystemBars();
 
         root = new FrameLayout(this);
@@ -58,10 +55,9 @@ public final class MainActivity extends ComponentActivity {
         ));
 
         splashView = new RobysSplashView(this);
-        splashView.setOnMotionStartedListener(() -> {
-            Log.i(TAG, "brandMotionStarted; scheduling WebView warmup");
-            splashView.postDelayed(this::warmUpOrReloadWebView, WEBVIEW_WARMUP_DELAY_MS);
-        });
+        splashView.setOnMotionStartedListener(() ->
+                splashView.postDelayed(this::warmUpOrReloadWebView, WEBVIEW_WARMUP_DELAY_MS)
+        );
         root.addView(splashView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -74,25 +70,22 @@ public final class MainActivity extends ComponentActivity {
 
     private void startBrandMotionAfterSystemSplash() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ may keep its system splash visible while the activity is
+            // already drawing underneath it. Start Roby's motion only when that
+            // actual system surface exits, otherwise the first part is invisible.
             getSplashScreen().setOnExitAnimationListener(splashScreenView -> {
-                Log.i(TAG, "systemSplashExit");
                 splashScreenView.remove();
-                splashView.postOnAnimation(() -> {
-                    Log.i(TAG, "starting brand motion after system splash exit");
-                    splashView.startMotion();
-                });
+                splashView.postOnAnimation(splashView::startMotion);
             });
         } else {
-            splashView.postOnAnimation(() -> {
-                Log.i(TAG, "starting brand motion on pre-S device");
-                splashView.startMotion();
-            });
+            // Pre-Android 12 has no platform splash overlay; the first app frame is
+            // the first visible frame, so begin on the next vsync.
+            splashView.postOnAnimation(splashView::startMotion);
         }
     }
 
     private void warmUpOrReloadWebView() {
         revealRequested = false;
-        Log.i(TAG, "warmUpOrReloadWebView existing=" + (webView != null));
         if (webView == null) {
             initializeWebView();
         } else {
@@ -102,19 +95,15 @@ public final class MainActivity extends ComponentActivity {
 
     private void initializeWebView() {
         if (isFinishing() || isDestroyed() || webView != null) {
-            Log.i(TAG, "initializeWebView skipped finishing=" + isFinishing()
-                    + " destroyed=" + isDestroyed() + " existing=" + (webView != null));
             return;
         }
 
-        Log.i(TAG, "initializeWebView begin");
         webView = new WebView(this);
         root.addView(webView, 0, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         configureWebView();
-        Log.i(TAG, "loadUrl " + APP_URL);
         webView.loadUrl(APP_URL);
     }
 
@@ -138,7 +127,6 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void retryWebView() {
-        Log.i(TAG, "retryWebView");
         errorView.setVisibility(View.GONE);
         revealRequested = false;
         splashView.resetAndShow();
@@ -180,9 +168,8 @@ public final class MainActivity extends ComponentActivity {
 
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                Log.i(TAG, "progress=" + newProgress + " url=" + view.getUrl());
                 if (newProgress >= VISUAL_REVEAL_PROGRESS) {
-                    requestRevealWhenVisualStateReady(view, "progress:" + newProgress);
+                    requestRevealWhenVisualStateReady(view);
                 }
             }
         });
@@ -211,23 +198,20 @@ public final class MainActivity extends ComponentActivity {
 
             @Override
             public void onPageCommitVisible(WebView view, String url) {
-                Log.i(TAG, "pageCommitVisible url=" + url);
                 if (isTrusted(Uri.parse(url))) {
-                    requestRevealWhenVisualStateReady(view, "pageCommitVisible");
+                    requestRevealWhenVisualStateReady(view);
                 }
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                Log.i(TAG, "pageFinished url=" + url);
                 if (isTrusted(Uri.parse(url))) {
-                    requestRevealWhenVisualStateReady(view, "pageFinished");
+                    requestRevealWhenVisualStateReady(view);
                 }
             }
 
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                Log.e(TAG, "sslError primary=" + error.getPrimaryError());
                 handler.cancel();
                 showLoadError();
             }
@@ -239,38 +223,28 @@ public final class MainActivity extends ComponentActivity {
                     WebResourceError error
             ) {
                 if (request.isForMainFrame()) {
-                    Log.e(TAG, "mainFrameError code=" + error.getErrorCode()
-                            + " url=" + request.getUrl());
                     showLoadError();
                 }
             }
         });
     }
 
-    private void requestRevealWhenVisualStateReady(WebView view, String source) {
+    private void requestRevealWhenVisualStateReady(WebView view) {
         if (revealRequested || view == null) {
-            Log.i(TAG, "revealRequest skipped source=" + source
-                    + " alreadyRequested=" + revealRequested + " viewNull=" + (view == null));
             return;
         }
 
         String currentUrl = view.getUrl();
         if (currentUrl == null || !isTrusted(Uri.parse(currentUrl))) {
-            Log.i(TAG, "revealRequest blocked source=" + source + " url=" + currentUrl);
             return;
         }
 
         revealRequested = true;
         long requestId = SystemClock.uptimeMillis();
-        Log.i(TAG, "visualStateRequest id=" + requestId + " source=" + source
-                + " progress=" + view.getProgress() + " url=" + currentUrl);
         view.postVisualStateCallback(requestId, new WebView.VisualStateCallback() {
             @Override
-            public void onComplete(long completedRequestId) {
-                Log.i(TAG, "visualStateComplete id=" + completedRequestId
-                        + " progress=" + view.getProgress() + " url=" + view.getUrl());
+            public void onComplete(long ignoredRequestId) {
                 splashView.dismissWhenMotionComplete();
-                Log.i(TAG, "dismissWhenMotionComplete invoked");
             }
         });
     }
@@ -326,7 +300,6 @@ public final class MainActivity extends ComponentActivity {
 
     private void showLoadError() {
         splashView.postDelayed(() -> {
-            Log.i(TAG, "showLoadError dismissing splash");
             splashView.dismiss();
             errorView.setVisibility(View.VISIBLE);
         }, 350L);
@@ -334,7 +307,6 @@ public final class MainActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy");
         if (webView != null) {
             webView.stopLoading();
             webView.setWebChromeClient(null);
