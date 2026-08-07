@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +32,13 @@ public final class MainActivity extends ComponentActivity {
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
     private static final long WEBVIEW_WARMUP_DELAY_MS = 2000L;
+    private static final int VISUAL_REVEAL_PROGRESS = 35;
 
     private FrameLayout root;
     private WebView webView;
     private RobysSplashView splashView;
     private TextView errorView;
+    private boolean revealRequested;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +85,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void warmUpOrReloadWebView() {
+        revealRequested = false;
         if (webView == null) {
             initializeWebView();
         } else {
@@ -124,6 +128,7 @@ public final class MainActivity extends ComponentActivity {
 
     private void retryWebView() {
         errorView.setVisibility(View.GONE);
+        revealRequested = false;
         splashView.resetAndShow();
         splashView.postOnAnimation(splashView::startMotion);
     }
@@ -160,6 +165,13 @@ public final class MainActivity extends ComponentActivity {
             ) {
                 callback.invoke(origin, false, false);
             }
+
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress >= VISUAL_REVEAL_PROGRESS) {
+                    requestRevealWhenVisualStateReady(view);
+                }
+            }
         });
 
         webView.setWebViewClient(new WebViewClient() {
@@ -186,18 +198,15 @@ public final class MainActivity extends ComponentActivity {
 
             @Override
             public void onPageCommitVisible(WebView view, String url) {
-                // The new main-frame content has committed and is ready to draw.
-                // Reveal it now instead of waiting for every heavy subresource.
                 if (isTrusted(Uri.parse(url))) {
-                    splashView.dismissWhenMotionComplete();
+                    requestRevealWhenVisualStateReady(view);
                 }
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                // Keep the later callback as a conservative fallback.
                 if (isTrusted(Uri.parse(url))) {
-                    splashView.dismissWhenMotionComplete();
+                    requestRevealWhenVisualStateReady(view);
                 }
             }
 
@@ -218,6 +227,23 @@ public final class MainActivity extends ComponentActivity {
                 }
             }
         });
+    }
+
+    private void requestRevealWhenVisualStateReady(WebView view) {
+        if (revealRequested || view == null) {
+            return;
+        }
+
+        String currentUrl = view.getUrl();
+        if (currentUrl == null || !isTrusted(Uri.parse(currentUrl))) {
+            return;
+        }
+
+        revealRequested = true;
+        long requestId = SystemClock.uptimeMillis();
+        view.postVisualStateCallback(requestId, ignoredRequestId ->
+                splashView.dismissWhenMotionComplete()
+        );
     }
 
     private void configureBackNavigation() {
