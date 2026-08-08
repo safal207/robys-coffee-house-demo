@@ -18,19 +18,48 @@ function startServer() {
   });
 }
 
-async function waitForServer(attempts = 40) {
+async function waitForServer(server, attempts = 40) {
   let lastError;
+  let spawnError;
+  let stderr = "";
+  server.once("error", (error) => {
+    spawnError = error;
+  });
+  server.stderr?.on("data", (chunk) => {
+    stderr += chunk.toString();
+  });
+
+  const assertServerAlive = () => {
+    if (spawnError) {
+      throw new Error(`Local handoff server failed to start: ${spawnError.message}`);
+    }
+    if (server.exitCode !== null || server.signalCode !== null) {
+      throw new Error(
+        `Local handoff server exited before readiness (code=${server.exitCode}, signal=${server.signalCode ?? "none"}). ${stderr.trim()}`
+      );
+    }
+  };
+
   for (let attempt = 0; attempt < attempts; attempt += 1) {
+    assertServerAlive();
     try {
       const response = await fetch(baseUrl, { cache: "no-store" });
-      if (response.ok) return;
+      if (response.ok) {
+        // A foreign listener can answer the configured port while our child is
+        // still failing asynchronously. Give the spawned server one turn to
+        // prove it owns a live process before accepting HTTP readiness.
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        assertServerAlive();
+        return;
+      }
       lastError = new Error(`Server returned ${response.status}`);
     } catch (error) {
       lastError = error;
     }
     await new Promise((resolve) => setTimeout(resolve, 150));
   }
-  throw lastError;
+  assertServerAlive();
+  throw lastError ?? new Error("Local handoff server did not become ready");
 }
 
 async function readContract(page) {
@@ -62,7 +91,7 @@ mkdirSync(resultsDir, { recursive: true });
 const server = startServer();
 let browser;
 try {
-  await waitForServer();
+  await waitForServer(server);
   browser = await chromium.launch({ headless: true });
 
   const context = await browser.newContext({
