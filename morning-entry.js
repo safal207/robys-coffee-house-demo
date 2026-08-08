@@ -172,13 +172,14 @@ function createMorningEntry() {
   const logoStage = applyStyles(document.createElement("div"), {
     position: "absolute",
     left: "50%",
-    top: "44%",
-    width: "min(66vw, 272px)",
-    transform: "translate(-50%, -42%) scale(.92)",
+    top: "45%",
+    width: "min(72vw, 296px)",
+    transform: "translate(-50%, -38%) scale(.9)",
     opacity: "0",
     display: "grid",
     justifyItems: "center",
-    gap: "14px",
+    gap: "12px",
+    isolation: "isolate",
     willChange: "transform, opacity",
     pointerEvents: "none"
   });
@@ -187,51 +188,71 @@ function createMorningEntry() {
   const logoHalo = applyStyles(document.createElement("div"), {
     position: "absolute",
     left: "50%",
-    top: "50%",
-    width: "150%",
-    height: "240%",
+    top: "52%",
+    width: "164%",
+    height: "254%",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(255,226,180,.78) 0%, rgba(225,153,81,.36) 30%, rgba(119,54,27,.16) 52%, rgba(23,10,8,0) 74%)",
-    filter: "blur(18px)",
-    transform: "translate(-50%, -50%) scale(.72)",
+    background: "radial-gradient(ellipse at center, rgba(255,217,157,.5) 0%, rgba(226,151,78,.3) 34%, rgba(112,48,24,.12) 58%, rgba(23,10,8,0) 76%)",
+    filter: "blur(20px)",
+    transform: "translate(-50%, -50%) scale(.68)",
     opacity: "0",
-    zIndex: "-1"
+    zIndex: "0"
   });
+  logoHalo.className = "robys-entry-logo-halo";
+
+  const logoFocus = applyStyles(document.createElement("div"), {
+    position: "absolute",
+    left: "50%",
+    top: "58%",
+    width: "118%",
+    height: "132%",
+    borderRadius: "50%",
+    background: "radial-gradient(ellipse at center, rgba(255,242,218,.92) 0%, rgba(255,224,181,.72) 30%, rgba(211,132,67,.34) 52%, rgba(77,28,16,.08) 72%, rgba(23,10,8,0) 84%)",
+    filter: "blur(16px)",
+    transform: "translate(-50%, -50%) scale(.66)",
+    opacity: "0",
+    zIndex: "1"
+  });
+  logoFocus.className = "robys-entry-logo-focus";
 
   const mark = document.createElement("img");
   mark.src = "src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4";
   mark.alt = "";
-  mark.width = 42;
-  mark.height = 48;
+  mark.width = 46;
+  mark.height = 53;
   mark.decoding = "async";
   mark.setAttribute("aria-hidden", "true");
   applyStyles(mark, {
-    width: "42px",
-    height: "48px",
+    position: "relative",
+    zIndex: "2",
+    width: "46px",
+    height: "53px",
     objectFit: "contain",
     opacity: "0",
-    transform: "translateY(10px) scale(.9)",
-    filter: "drop-shadow(0 8px 22px rgba(226,27,35,.18))"
+    transform: "translateY(14px) scale(.82)",
+    filter: "drop-shadow(0 8px 22px rgba(226,27,35,.2))"
   });
 
   const wordmark = document.createElement("img");
   wordmark.src = "src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4";
   wordmark.alt = "";
-  wordmark.width = 220;
-  wordmark.height = 70;
+  wordmark.width = 230;
+  wordmark.height = 72;
   wordmark.decoding = "async";
   wordmark.setAttribute("aria-hidden", "true");
   applyStyles(wordmark, {
+    position: "relative",
+    zIndex: "2",
     display: "block",
-    width: "min(56vw, 220px)",
+    width: "min(60vw, 230px)",
     height: "auto",
     objectFit: "contain",
     opacity: "0",
-    transform: "translateY(12px) scale(.96)",
-    filter: "drop-shadow(0 8px 28px rgba(255,224,180,.18))"
+    transform: "translateY(14px) scale(.95)",
+    filter: "drop-shadow(0 1px 0 rgba(255,247,235,.12)) drop-shadow(0 8px 20px rgba(0,0,0,.18))"
   });
 
-  logoStage.append(logoHalo, mark, wordmark);
+  logoStage.append(logoHalo, logoFocus, mark, wordmark);
   overlay.append(ambient, redSurface, brownRibbon, goldArc, lightVeil, vignette, logoStage);
 
   return {
@@ -243,6 +264,7 @@ function createMorningEntry() {
     lightVeil,
     logoStage,
     logoHalo,
+    logoFocus,
     mark,
     wordmark
   };
@@ -295,6 +317,7 @@ function runMorningEntry({ forced }) {
     lightVeil,
     logoStage,
     logoHalo,
+    logoFocus,
     mark,
     wordmark
   } = scene;
@@ -303,6 +326,7 @@ function runMorningEntry({ forced }) {
   document.documentElement.style.visibility = "";
   document.documentElement.dataset.robysEntryScene = "morning";
   document.documentElement.dataset.robysEntryPoseCount = String(MOTION_POSE_COUNT);
+  document.documentElement.dataset.robysEntryBrandReveal = "integrated-v1";
   emitEntryState("brand-frame", variant);
 
   const cold = variant === "cold";
@@ -316,74 +340,91 @@ function runMorningEntry({ forced }) {
 
     animateSafe(ambient, poseSeries((t) => {
       const p = smoothPose(t);
+      const settle = phase(t, .7, 1);
       return {
-        opacity: phase(t, 0, .34),
-        transform: `scale(${mix(1.035, 1, p).toFixed(4)})`
+        opacity: phase(t, 0, .34) * mix(1, .9, settle),
+        transform: `scale(${mix(1.035, .998, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(redSurface, poseSeries((t) => {
       const p = smoothPose(t);
       const lift = Math.sin(Math.PI * t) * .28;
+      const settle = phase(t, .7, 1);
       return {
-        opacity: phase(t, 0, .2),
-        transform: `rotate(${mix(-11, -7, p).toFixed(3)}deg) translate3d(${mix(-3, 2, p).toFixed(3)}vw,${(mix(5, -1, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, 1.015, p).toFixed(4)})`
+        opacity: phase(t, 0, .2) * mix(1, .82, settle),
+        transform: `rotate(${mix(-11, -6.5, p).toFixed(3)}deg) translate3d(${mix(-3, 2.4, p).toFixed(3)}vw,${(mix(5, -1.5, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, .998, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(brownRibbon, poseSeries((t) => {
       const p = smoothPose(t);
+      const settle = phase(t, .72, 1);
       return {
-        opacity: .98 * phase(t, .03, .28),
-        transform: `rotate(${mix(8, 5, p).toFixed(3)}deg) translate3d(${mix(7, 1, p).toFixed(3)}vw,${mix(-4, 1, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.01, p).toFixed(4)})`
+        opacity: .98 * phase(t, .03, .28) * mix(1, .86, settle),
+        transform: `rotate(${mix(8, 4.7, p).toFixed(3)}deg) translate3d(${mix(7, .6, p).toFixed(3)}vw,${mix(-4, 1.4, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.004, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(goldArc, poseSeries((t) => {
       const p = smoothPose(t);
       return {
-        opacity: peak(t, .05, .56, 1, .92, .68),
-        transform: `rotate(${mix(19, 14, p).toFixed(3)}deg) translate3d(${mix(8, -1, p).toFixed(3)}vw,${mix(-4, 2, p).toFixed(3)}vh,0) scale(${mix(1.08, 1, p).toFixed(4)})`
+        opacity: peak(t, .05, .54, 1, .94, .42),
+        transform: `rotate(${mix(19, 13.5, p).toFixed(3)}deg) translate3d(${mix(8, -1.5, p).toFixed(3)}vw,${mix(-4, 2.4, p).toFixed(3)}vh,0) scale(${mix(1.08, .995, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(lightVeil, poseSeries((t) => {
       const p = smoothPose(t);
       return {
-        opacity: peak(t, .08, .55, 1, .82, .48),
-        transform: `translate3d(${mix(14, -5, p).toFixed(3)}%,0,0) rotate(${mix(7, 3, p).toFixed(3)}deg)`
+        opacity: peak(t, .08, .52, 1, .84, .32),
+        transform: `translate3d(${mix(14, -6, p).toFixed(3)}%,0,0) rotate(${mix(7, 2.6, p).toFixed(3)}deg)`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoStage, poseSeries((t) => {
-      const p = phase(t, .48, .78);
+      const p = phase(t, .46, .78);
       return {
         opacity: p,
-        transform: `translate(-50%, ${mix(-38, -42, p).toFixed(3)}%) scale(${mix(.92, 1, p).toFixed(4)})`
+        transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) scale(${mix(.9, 1, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoHalo, poseSeries((t) => {
-      const p = phase(t, .44, .82);
+      const rise = phase(t, .4, .7);
+      const settle = phase(t, .78, 1);
       return {
-        opacity: .72 * p,
-        transform: `translate(-50%, -50%) scale(${mix(.72, 1, p).toFixed(4)})`
+        opacity: mix(0, .78, rise) * mix(1, .78, settle),
+        transform: `translate(-50%, -50%) scale(${mix(.68, 1.04, rise).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
+    animateSafe(logoFocus, poseSeries((t) => {
+      const rise = phase(t, .48, .76);
+      const settle = phase(t, .86, 1);
+      return {
+        opacity: mix(0, .94, rise) * mix(1, .9, settle),
+        transform: `translate(-50%, -50%) scale(${mix(.66, 1, rise).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(mark, poseSeries((t) => {
-      const p = phase(t, .5, .74);
+      const rise = phase(t, .5, .7);
+      const settle = phase(t, .7, .84);
+      const scale = settle > 0
+        ? mix(1.035, 1, settle)
+        : mix(.82, 1.035, rise);
       return {
-        opacity: p,
-        transform: `translateY(${mix(10, 0, p).toFixed(3)}px) scale(${mix(.9, 1, p).toFixed(4)})`
+        opacity: rise,
+        transform: `translateY(${mix(14, 0, rise).toFixed(3)}px) scale(${scale.toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(wordmark, poseSeries((t) => {
-      const p = phase(t, .58, .86);
+      const rise = phase(t, .6, .84);
       return {
-        opacity: p,
-        transform: `translateY(${mix(12, 0, p).toFixed(3)}px) scale(${mix(.96, 1, p).toFixed(4)})`
+        opacity: rise,
+        transform: `translateY(${mix(14, 0, rise).toFixed(3)}px) scale(${mix(.95, 1, rise).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
   });
