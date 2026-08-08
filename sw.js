@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v31-20260807-lazy-android-apk-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v32-20260808-morning-entry-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
