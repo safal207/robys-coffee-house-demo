@@ -1,0 +1,40 @@
+name: Temporary logo reveal integrity refresh
+
+on:
+  push:
+    branches:
+      - agent/logo-reveal-contrast-v3
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-integrity:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/logo-reveal-contrast-v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate canonical integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Commit refreshed manifest
+        run: |
+          if git diff --quiet -- integrity-manifest.json; then
+            echo "Integrity manifest is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git commit -m "chore(integrity): refresh logo reveal runtime hash"
+          git push origin HEAD:agent/logo-reveal-contrast-v3
