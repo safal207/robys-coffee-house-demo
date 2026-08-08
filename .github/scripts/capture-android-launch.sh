@@ -70,7 +70,7 @@ fi
 
 first_state_line() {
   local pattern="$1"
-  grep -nE "$pattern" "$OUT/handoff-states.txt" | head -n 1 | cut -d: -f1
+  grep -nE "$pattern" "$OUT/handoff-states.txt" | head -n 1 | cut -d: -f1 || true
 }
 
 native_line="$(first_state_line 'RobysHandoff.*NATIVE_SURFACE')"
