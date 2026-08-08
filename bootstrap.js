@@ -54,7 +54,6 @@ function loadMorningEntryIfEligible() {
   if (!morningEntryEligible()) return;
 
   window.__robysMorningEntryAborted = false;
-  document.documentElement.style.visibility = "hidden";
   document.documentElement.style.backgroundColor = "#170a08";
 
   import("./morning-entry.js?v=20260808-volumetric-v2")
