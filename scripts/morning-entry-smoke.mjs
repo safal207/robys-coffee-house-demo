@@ -96,12 +96,18 @@ function summarizeSmoothness(samples) {
 
   const uniqueTransforms = new Set(samples.map((sample) => sample.transform)).size;
   const frameIntervals = samples.slice(1).map((sample, index) => sample.at - samples[index].at);
+  const sortedIntervals = [...frameIntervals].sort((left, right) => left - right);
+  const middle = Math.floor(sortedIntervals.length / 2);
+  const medianFrameIntervalMs = sortedIntervals.length % 2 === 0
+    ? (sortedIntervals[middle - 1] + sortedIntervals[middle]) / 2
+    : sortedIntervals[middle];
 
   return {
     requestedFrames: samples.length,
     uniqueTransforms,
     changingTransitions,
     longestIdenticalRun,
+    medianFrameIntervalMs,
     frameIntervalsMs: frameIntervals,
     samples
   };
@@ -173,6 +179,10 @@ try {
     smoothness.longestIdenticalRun <= 2,
     `60 Hz capture held one transform for ${smoothness.longestIdenticalRun} consecutive frames`
   );
+  assert(
+    smoothness.medianFrameIntervalMs <= 20.5,
+    `60 Hz capture median frame interval regressed to ${smoothness.medianFrameIntervalMs.toFixed(2)} ms`
+  );
   writeFileSync(
     path.join(resultsDir, "morning-entry-60hz-evidence.json"),
     `${JSON.stringify(smoothness, null, 2)}\n`
@@ -232,7 +242,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: 20-pose cold/warm choreography, 60 Hz interpolation evidence, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
