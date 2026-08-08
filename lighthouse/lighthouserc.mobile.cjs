@@ -6,8 +6,8 @@ module.exports = {
     collect: {
       staticDistDir: '.',
       url: [
-        'http://localhost/index.html',
-        'http://localhost/menu.html'
+        'http://localhost/index.html?entry=off',
+        'http://localhost/menu.html?entry=off'
       ],
       numberOfRuns: 3,
       settings: {
