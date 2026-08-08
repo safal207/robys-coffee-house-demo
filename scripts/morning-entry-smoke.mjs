@@ -52,8 +52,12 @@ async function readEvents(page) {
   return page.evaluate(() => globalThis.__robysEntryEvents ?? []);
 }
 
+async function waitForDone(page, timeout) {
+  await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout });
+}
+
 async function assertDone(page, timeout = 3500) {
-  await page.waitForFunction(() => document.documentElement.dataset.robysEntryState === "done", null, { timeout });
+  await waitForDone(page, timeout);
   assert(await page.locator(".robys-morning-entry").count() === 0, "Entry overlay remained after DONE");
   const visibility = await page.evaluate(() => getComputedStyle(document.documentElement).visibility);
   assert(visibility === "visible", `Document remained hidden after handoff: ${visibility}`);
@@ -110,7 +114,7 @@ try {
   await page.waitForTimeout(220);
   const skipStarted = Date.now();
   await page.locator(".robys-morning-entry").dispatchEvent("pointerdown");
-  await page.waitForFunction(() => document.documentElement.dataset.robysEntryState === "done", null, { timeout: 1200 });
+  await waitForDone(page, 1200);
   assert(Date.now() - skipStarted < 1000, "Pointer skip did not hand off promptly");
 
   await page.goto(`${baseUrl}?entry=off`, { waitUntil: "domcontentloaded" });
