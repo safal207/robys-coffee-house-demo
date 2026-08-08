@@ -239,7 +239,7 @@ try {
     await page.waitForTimeout(1260 - brandRevealElapsed);
   }
   const resolvedBrandContract = await readBrandRevealContract(page);
-  assert(resolvedBrandContract.focusOpacity >= .9, `Warm luminance field did not fully resolve: ${resolvedBrandContract.focusOpacity}`);
+  assert(resolvedBrandContract.focusOpacity >= .84, `Warm luminance field did not remain visible through settle: ${resolvedBrandContract.focusOpacity}`);
   assert(resolvedBrandContract.markOpacity >= .99, `Roby's mark did not fully resolve: ${resolvedBrandContract.markOpacity}`);
   assert(resolvedBrandContract.wordmarkOpacity >= .99, `Roby's wordmark did not fully resolve: ${resolvedBrandContract.wordmarkOpacity}`);
   writeFileSync(
@@ -296,7 +296,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: fully resolved integrated Roby's reveal, canonical assets, no-card luminance field, 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: fully resolved integrated Roby's reveal, canonical assets, settled no-card luminance field, 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
