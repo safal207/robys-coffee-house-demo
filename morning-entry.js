@@ -248,6 +248,39 @@ function createMorningEntry() {
   };
 }
 
+const MOTION_POSE_COUNT = 20;
+
+function clamp01(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function mix(from, to, progress) {
+  return from + (to - from) * progress;
+}
+
+function smoothPose(progress) {
+  const t = clamp01(progress);
+  return t * t * (3 - 2 * t);
+}
+
+function phase(progress, start, end) {
+  if (end <= start) return progress >= end ? 1 : 0;
+  return smoothPose((progress - start) / (end - start));
+}
+
+function poseSeries(factory) {
+  return Array.from({ length: MOTION_POSE_COUNT }, (_, index) => {
+    const offset = index / (MOTION_POSE_COUNT - 1);
+    return { offset, ...factory(offset) };
+  });
+}
+
+function peak(progress, start, peakAt, end, peakValue, endValue) {
+  if (progress <= start) return 0;
+  if (progress <= peakAt) return peakValue * phase(progress, start, peakAt);
+  return mix(peakValue, endValue, phase(progress, peakAt, end));
+}
+
 function runMorningEntry({ forced }) {
   if (!document.body || window.__robysMorningEntryAborted) return;
 
@@ -269,6 +302,7 @@ function runMorningEntry({ forced }) {
   document.body.append(overlay);
   document.documentElement.style.visibility = "";
   document.documentElement.dataset.robysEntryScene = "morning";
+  document.documentElement.dataset.robysEntryPoseCount = String(MOTION_POSE_COUNT);
   emitEntryState("brand-frame", variant);
 
   const cold = variant === "cold";
@@ -278,94 +312,80 @@ function runMorningEntry({ forced }) {
   let canSkip = false;
 
   requestAnimationFrame(() => {
-    animateSafe(ambient, [
-      { opacity: 0, transform: "scale(1.035)" },
-      { opacity: 1, transform: "scale(1)" }
-    ], {
-      duration: cold ? 780 : 280,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    const duration = cold ? 1_420 : 560;
 
-    animateSafe(redSurface, [
-      { opacity: 0, transform: "rotate(-11deg) translate3d(-3vw,5vh,0) scale(1.08)" },
-      { opacity: 1, offset: .44, transform: "rotate(-9deg) translate3d(0,1vh,0) scale(1.045)" },
-      { opacity: 1, transform: "rotate(-7deg) translate3d(2vw,-1vh,0) scale(1.015)" }
-    ], {
-      duration: cold ? 1_360 : 520,
-      easing: "cubic-bezier(.2,.7,.2,1)",
-      fill: "forwards"
-    });
+    animateSafe(ambient, poseSeries((t) => {
+      const p = smoothPose(t);
+      return {
+        opacity: phase(t, 0, .34),
+        transform: `scale(${mix(1.035, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(brownRibbon, [
-      { opacity: 0, transform: "rotate(8deg) translate3d(7vw,-4vh,0) scale(1.06)" },
-      { opacity: .98, transform: "rotate(5deg) translate3d(1vw,1vh,0) scale(1.01)" }
-    ], {
-      duration: cold ? 1_180 : 460,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    animateSafe(redSurface, poseSeries((t) => {
+      const p = smoothPose(t);
+      const lift = Math.sin(Math.PI * t) * .28;
+      return {
+        opacity: phase(t, 0, .2),
+        transform: `rotate(${mix(-11, -7, p).toFixed(3)}deg) translate3d(${mix(-3, 2, p).toFixed(3)}vw,${(mix(5, -1, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, 1.015, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(goldArc, [
-      { opacity: 0, transform: "rotate(19deg) translate3d(8vw,-4vh,0) scale(1.08)" },
-      { opacity: .92, offset: .58, transform: "rotate(16deg) translate3d(2vw,0,0) scale(1.02)" },
-      { opacity: .68, transform: "rotate(14deg) translate3d(-1vw,2vh,0) scale(1)" }
-    ], {
-      duration: cold ? 1_260 : 480,
-      easing: "cubic-bezier(.2,.7,.2,1)",
-      fill: "forwards"
-    });
+    animateSafe(brownRibbon, poseSeries((t) => {
+      const p = smoothPose(t);
+      return {
+        opacity: .98 * phase(t, .03, .28),
+        transform: `rotate(${mix(8, 5, p).toFixed(3)}deg) translate3d(${mix(7, 1, p).toFixed(3)}vw,${mix(-4, 1, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.01, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(lightVeil, [
-      { opacity: 0, transform: "translate3d(14%,0,0) rotate(7deg)" },
-      { opacity: .82, offset: .56, transform: "translate3d(2%,0,0) rotate(5deg)" },
-      { opacity: .48, transform: "translate3d(-5%,0,0) rotate(3deg)" }
-    ], {
-      duration: cold ? 1_180 : 420,
-      delay: cold ? 120 : 40,
-      easing: "cubic-bezier(.2,.7,.2,1)",
-      fill: "forwards"
-    });
+    animateSafe(goldArc, poseSeries((t) => {
+      const p = smoothPose(t);
+      return {
+        opacity: peak(t, .05, .56, 1, .92, .68),
+        transform: `rotate(${mix(19, 14, p).toFixed(3)}deg) translate3d(${mix(8, -1, p).toFixed(3)}vw,${mix(-4, 2, p).toFixed(3)}vh,0) scale(${mix(1.08, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(logoStage, [
-      { opacity: 0, transform: "translate(-50%, -38%) scale(.92)" },
-      { opacity: 1, transform: "translate(-50%, -42%) scale(1)" }
-    ], {
-      duration: cold ? 520 : 230,
-      delay: cold ? 760 : 210,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    animateSafe(lightVeil, poseSeries((t) => {
+      const p = smoothPose(t);
+      return {
+        opacity: peak(t, .08, .55, 1, .82, .48),
+        transform: `translate3d(${mix(14, -5, p).toFixed(3)}%,0,0) rotate(${mix(7, 3, p).toFixed(3)}deg)`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(logoHalo, [
-      { opacity: 0, transform: "translate(-50%, -50%) scale(.72)" },
-      { opacity: .72, transform: "translate(-50%, -50%) scale(1)" }
-    ], {
-      duration: cold ? 620 : 260,
-      delay: cold ? 700 : 180,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    animateSafe(logoStage, poseSeries((t) => {
+      const p = phase(t, .48, .78);
+      return {
+        opacity: p,
+        transform: `translate(-50%, ${mix(-38, -42, p).toFixed(3)}%) scale(${mix(.92, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(mark, [
-      { opacity: 0, transform: "translateY(10px) scale(.9)" },
-      { opacity: 1, transform: "translateY(0) scale(1)" }
-    ], {
-      duration: cold ? 420 : 190,
-      delay: cold ? 760 : 210,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    animateSafe(logoHalo, poseSeries((t) => {
+      const p = phase(t, .44, .82);
+      return {
+        opacity: .72 * p,
+        transform: `translate(-50%, -50%) scale(${mix(.72, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(wordmark, [
-      { opacity: 0, transform: "translateY(12px) scale(.96)" },
-      { opacity: 1, transform: "translateY(0) scale(1)" }
-    ], {
-      duration: cold ? 500 : 210,
-      delay: cold ? 880 : 260,
-      easing: "cubic-bezier(.16,1,.3,1)",
-      fill: "forwards"
-    });
+    animateSafe(mark, poseSeries((t) => {
+      const p = phase(t, .5, .74);
+      return {
+        opacity: p,
+        transform: `translateY(${mix(10, 0, p).toFixed(3)}px) scale(${mix(.9, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
+    animateSafe(wordmark, poseSeries((t) => {
+      const p = phase(t, .58, .86);
+      return {
+        opacity: p,
+        transform: `translateY(${mix(12, 0, p).toFixed(3)}px) scale(${mix(.96, 1, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
   });
 
   const finish = () => {
