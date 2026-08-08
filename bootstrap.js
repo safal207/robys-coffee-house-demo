@@ -57,11 +57,8 @@ function loadMorningEntryIfEligible() {
   document.documentElement.style.visibility = "hidden";
   document.documentElement.style.backgroundColor = "#170a08";
 
-  const script = document.createElement("script");
-  script.src = "morning-entry.js?v=20260808-volumetric-v2";
-  script.async = true;
-  script.addEventListener("error", revealProductAfterEntryFailure, { once: true });
-  document.head.append(script);
+  import("./morning-entry.js?v=20260808-volumetric-v2")
+    .catch(revealProductAfterEntryFailure);
 
   window.setTimeout(() => {
     const overlay = document.querySelector(".robys-morning-entry");
