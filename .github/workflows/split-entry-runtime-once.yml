@@ -1,0 +1,185 @@
+name: Split entry runtime once
+
+on:
+  push:
+    branches:
+      - agent/morning-entry-v1
+    paths:
+      - .github/workflows/split-entry-runtime-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/morning-entry-v1
+          fetch-depth: 1
+
+      - name: Split motion runtime from critical bootstrap
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          bootstrap_path = Path('bootstrap.js')
+          text = bootstrap_path.read_text()
+
+          block_start = text.index('function readSessionFlag(key) {')
+          install_marker = 'installAppleTouchIcon();'
+          install_index = text.index(install_marker, block_start)
+          entry_start = text.index('const entryMode = morningEntryMode();', install_index)
+          android_start = text.index('if (!installAndroidButtonLogo()) {', entry_start)
+
+          motion_block = text[block_start:install_index].rstrip()
+          motion_block = motion_block.replace('    filter: "blur(34px)",\n', '')
+
+          motion_runtime = '''const MORNING_ENTRY_SESSION_KEY = "robys-morning-entry-v2";
+          const MORNING_ENTRY_HARD_STOP_MS = 2_300;
+
+          ''' + motion_block + '''
+
+          const entryMode = morningEntryMode();
+          if (entryMode.enabled && !window.__robysMorningEntryAborted) {
+            document.readyState === "loading"
+              ? document.addEventListener("DOMContentLoaded", () => runMorningEntry(entryMode), { once: true })
+              : runMorningEntry(entryMode);
+          }
+          '''
+          Path('morning-entry.js').write_text(motion_runtime)
+
+          prefix = text[:block_start]
+          for line in [
+              'const MORNING_ENTRY_SESSION_KEY = "robys-morning-entry-v2";\n',
+              'const MORNING_ENTRY_PREPAINT_TIMEOUT_MS = 2_600;\n',
+              'const MORNING_ENTRY_HARD_STOP_MS = 2_300;\n',
+          ]:
+              prefix = prefix.replace(line, '')
+
+          loader = '''const MORNING_ENTRY_PREPAINT_TIMEOUT_MS = 2_600;
+
+          function morningEntryEligible() {
+            const mode = new URLSearchParams(window.location.search).get("entry");
+            if (mode === "off") return false;
+            if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+            if (mode === "morning") return true;
+
+            const navigation = performance.getEntriesByType?.("navigation")?.[0];
+            if (navigation?.type === "back_forward") return false;
+
+            const hour = new Date().getHours();
+            return hour >= 5 && hour < 12;
+          }
+
+          function revealProductAfterEntryFailure() {
+            window.__robysMorningEntryAborted = true;
+            document.documentElement.style.visibility = "";
+            document.documentElement.style.backgroundColor = "";
+            document.querySelector(".robys-morning-entry")?.remove();
+          }
+
+          function loadMorningEntryIfEligible() {
+            if (!morningEntryEligible()) return;
+
+            window.__robysMorningEntryAborted = false;
+            document.documentElement.style.visibility = "hidden";
+            document.documentElement.style.backgroundColor = "#170a08";
+
+            const script = document.createElement("script");
+            script.src = "morning-entry.js?v=20260808-volumetric-v2";
+            script.async = true;
+            script.addEventListener("error", revealProductAfterEntryFailure, { once: true });
+            document.head.append(script);
+
+            window.setTimeout(() => {
+              const overlay = document.querySelector(".robys-morning-entry");
+              if (!overlay) revealProductAfterEntryFailure();
+              else {
+                document.documentElement.style.visibility = "";
+                document.documentElement.style.backgroundColor = "";
+                overlay.remove();
+              }
+            }, MORNING_ENTRY_PREPAINT_TIMEOUT_MS);
+          }
+
+          '''
+
+          suffix = text[android_start:]
+          bootstrap = prefix + loader + install_marker + '\n\nloadMorningEntryIfEligible();\n\n' + suffix
+          bootstrap_path.write_text(bootstrap)
+
+          sw_path = Path('sw.js')
+          sw = sw_path.read_text()
+          sw = sw.replace(
+              'robys-offline-v34-20260808-volumetric-entry-v2',
+              'robys-offline-v35-20260808-volumetric-entry-v2'
+          )
+          needle = '  "./bootstrap.js",\n'
+          if needle not in sw:
+              raise SystemExit('bootstrap cache entry not found')
+          sw = sw.replace(needle, needle + '  "./morning-entry.js",\n', 1)
+          sw_path.write_text(sw)
+
+          for config_name in ['mobile', 'desktop']:
+              path = Path(f'lighthouse/lighthouserc.{config_name}.cjs')
+              config = path.read_text()
+              config = config.replace("'http://localhost/index.html'", "'http://localhost/index.html?entry=off'")
+              config = config.replace("'http://localhost/menu.html'", "'http://localhost/menu.html?entry=off'")
+              path.write_text(config)
+
+          for config_name in ['mobile', 'desktop']:
+              path = Path(f'lighthouse/lighthouserc.repeatability.{config_name}.cjs')
+              config = path.read_text()
+              config = config.replace("['http://localhost/index.html']", "['http://localhost/index.html?entry=off']")
+              path.write_text(config)
+
+          smoke_path = Path('scripts/morning-entry-smoke.mjs')
+          smoke = smoke_path.read_text()
+          forced_assert = '''  assert(
+            await page.evaluate(() => document.documentElement.dataset.robysEntryState) === "brand-frame",
+            "Forced entry did not enter BRAND_FRAME"
+          );
+          '''
+          forced_extra = forced_assert + '''  assert(
+            await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("morning-entry.js"))),
+            "Forced Morning entry did not lazy-load morning-entry.js"
+          );
+          '''
+          if forced_assert not in smoke:
+              raise SystemExit('forced entry assertion marker not found')
+          smoke = smoke.replace(forced_assert, forced_extra, 1)
+
+          off_assert = '  assert(await page.locator(".robys-morning-entry").count() === 0, "entry=off still rendered the overlay");\n'
+          off_extra = off_assert + '''  assert(
+            !(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("morning-entry.js")))),
+            "entry=off still loaded the lazy Morning motion runtime"
+          );
+          '''
+          if off_assert not in smoke:
+              raise SystemExit('entry=off assertion marker not found')
+          smoke = smoke.replace(off_assert, off_extra, 1)
+          smoke_path.write_text(smoke)
+          PY
+
+          node --check bootstrap.js
+          node --check morning-entry.js
+          node --check sw.js
+          node --check scripts/morning-entry-smoke.mjs
+          node scripts/generate-integrity-manifest.mjs
+          git diff --check
+
+      - name: Commit runtime split
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bootstrap.js morning-entry.js sw.js integrity-manifest.json \
+            lighthouse/lighthouserc.mobile.cjs lighthouse/lighthouserc.desktop.cjs \
+            lighthouse/lighthouserc.repeatability.mobile.cjs lighthouse/lighthouserc.repeatability.desktop.cjs \
+            scripts/morning-entry-smoke.mjs
+          git commit -m "perf(motion): lazy-load Morning entry runtime"
+          git push origin HEAD:agent/morning-entry-v1
