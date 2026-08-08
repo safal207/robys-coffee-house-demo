@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 
@@ -52,6 +52,67 @@ async function readEvents(page) {
   return page.evaluate(() => globalThis.__robysEntryEvents ?? []);
 }
 
+async function sampleSplineFrames(page, frameCount = 24) {
+  return page.evaluate((count) => new Promise((resolve, reject) => {
+    const layer = document.querySelector(".robys-entry-red-surface");
+    if (!layer) {
+      reject(new Error("Red spline surface missing during smoothness capture"));
+      return;
+    }
+
+    const samples = [];
+    const sample = (at) => {
+      const style = getComputedStyle(layer);
+      samples.push({
+        at,
+        transform: style.transform,
+        opacity: Number(style.opacity)
+      });
+      if (samples.length >= count) {
+        resolve(samples);
+        return;
+      }
+      requestAnimationFrame(sample);
+    };
+
+    requestAnimationFrame(sample);
+  }), frameCount);
+}
+
+function summarizeSmoothness(samples) {
+  let longestIdenticalRun = 1;
+  let currentRun = 1;
+  let changingTransitions = 0;
+
+  for (let index = 1; index < samples.length; index += 1) {
+    if (samples[index].transform === samples[index - 1].transform) {
+      currentRun += 1;
+      longestIdenticalRun = Math.max(longestIdenticalRun, currentRun);
+    } else {
+      currentRun = 1;
+      changingTransitions += 1;
+    }
+  }
+
+  const uniqueTransforms = new Set(samples.map((sample) => sample.transform)).size;
+  const frameIntervals = samples.slice(1).map((sample, index) => sample.at - samples[index].at);
+  const sortedIntervals = [...frameIntervals].sort((left, right) => left - right);
+  const middle = Math.floor(sortedIntervals.length / 2);
+  const medianFrameIntervalMs = sortedIntervals.length % 2 === 0
+    ? (sortedIntervals[middle - 1] + sortedIntervals[middle]) / 2
+    : sortedIntervals[middle];
+
+  return {
+    requestedFrames: samples.length,
+    uniqueTransforms,
+    changingTransitions,
+    longestIdenticalRun,
+    medianFrameIntervalMs,
+    frameIntervalsMs: frameIntervals,
+    samples
+  };
+}
+
 async function waitForDone(page, timeout) {
   await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout });
 }
@@ -93,13 +154,44 @@ try {
     await page.evaluate(() => document.documentElement.dataset.robysEntryState) === "brand-frame",
     "Forced entry did not enter BRAND_FRAME"
   );
+  assert(
+    await page.evaluate(() => document.documentElement.dataset.robysEntryPoseCount) === "20",
+    "Morning entry did not expose the 20-pose choreography contract"
+  );
   const brandFrameVisibility = await page.evaluate(() => getComputedStyle(document.documentElement).visibility);
   assert(
     brandFrameVisibility === "visible",
     `Entry blocked document paint during BRAND_FRAME: ${brandFrameVisibility}`
   );
 
-  await page.waitForTimeout(780);
+  const coldCaptureStartedAt = Date.now();
+  const smoothnessSamples = await sampleSplineFrames(page, 24);
+  const smoothness = summarizeSmoothness(smoothnessSamples);
+  assert(
+    smoothness.uniqueTransforms >= 20,
+    `60 Hz capture exposed too few interpolated transforms: ${smoothness.uniqueTransforms}/${smoothness.requestedFrames}`
+  );
+  assert(
+    smoothness.changingTransitions >= 20,
+    `60 Hz capture exposed visible stepping: only ${smoothness.changingTransitions} changing transitions`
+  );
+  assert(
+    smoothness.longestIdenticalRun <= 2,
+    `60 Hz capture held one transform for ${smoothness.longestIdenticalRun} consecutive frames`
+  );
+  assert(
+    smoothness.medianFrameIntervalMs <= 20.5,
+    `60 Hz capture median frame interval regressed to ${smoothness.medianFrameIntervalMs.toFixed(2)} ms`
+  );
+  writeFileSync(
+    path.join(resultsDir, "morning-entry-60hz-evidence.json"),
+    `${JSON.stringify(smoothness, null, 2)}\n`
+  );
+
+  const coldCaptureElapsed = Date.now() - coldCaptureStartedAt;
+  if (coldCaptureElapsed < 780) {
+    await page.waitForTimeout(780 - coldCaptureElapsed);
+  }
   await page.screenshot({ path: path.join(resultsDir, "morning-entry-cold-mid.png"), animations: "allow" });
   await assertDone(page);
 
@@ -150,7 +242,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: cold/warm, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
