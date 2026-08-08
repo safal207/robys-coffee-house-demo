@@ -71,7 +71,6 @@ public final class MainActivity extends ComponentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        configureLaunchSystemBars();
 
         root = new FrameLayout(this);
         root.setBackgroundColor(LAUNCH_COLOR);
@@ -290,8 +289,9 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void setLightSystemBarAppearance(boolean light) {
+        View decorView = getWindow().getDecorView();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowInsetsController controller = getWindow().getInsetsController();
+            WindowInsetsController controller = decorView.getWindowInsetsController();
             if (controller != null) {
                 int mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                         | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
@@ -304,7 +304,7 @@ public final class MainActivity extends ComponentActivity {
         if (light && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         }
-        getWindow().getDecorView().setSystemUiVisibility(flags);
+        decorView.setSystemUiVisibility(flags);
     }
 
     private TextView buildErrorView() {
