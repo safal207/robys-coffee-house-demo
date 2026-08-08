@@ -67,7 +67,9 @@ dependencies {
     implementation("androidx.activity:activity:1.13.0")
 }
 
-tasks.matching { it.name == "packageRelease" || it.name == "assembleRelease" }.configureEach {
+tasks.matching {
+    it.name == "packageRelease" || it.name == "assembleRelease" || it.name == "bundleRelease"
+}.configureEach {
     doFirst {
         check(releaseSigningReady) {
             "Release signing is not configured. Set ROBYS_KEYSTORE_PATH, ROBYS_STORE_PASSWORD, ROBYS_KEY_ALIAS and ROBYS_KEY_PASSWORD."
