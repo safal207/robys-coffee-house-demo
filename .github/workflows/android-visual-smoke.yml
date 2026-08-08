@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "android-native/**"
+      - "android-handoff.js"
+      - "bootstrap.js"
+      - "sw.js"
       - "integrity-manifest.json"
       - ".github/scripts/capture-android-launch.sh"
       - ".github/workflows/android-visual-smoke.yml"
@@ -12,6 +15,9 @@ on:
       - agent/android-webview-atomic-handoff-v1
     paths:
       - "android-native/**"
+      - "android-handoff.js"
+      - "bootstrap.js"
+      - "sw.js"
       - "integrity-manifest.json"
       - ".github/scripts/capture-android-launch.sh"
       - ".github/workflows/android-visual-smoke.yml"
