@@ -1,0 +1,36 @@
+name: Apply 20-state motion once
+
+on:
+  push:
+    branches:
+      - agent/motion-entry-20-state
+    paths:
+      - .github/workflows/apply-20-state-motion-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/motion-entry-20-state
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply and verify
+        run: |
+          python3 scripts/apply-20-state-motion-once.py
+          node --check morning-entry.js
+          node scripts/generate-integrity-manifest.mjs
+          git diff --check
+      - name: Commit generated motion
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add morning-entry.js integrity-manifest.json
+          git commit -m "feat(motion): add 20-state spline choreography"
+          git push origin HEAD:agent/motion-entry-20-state
