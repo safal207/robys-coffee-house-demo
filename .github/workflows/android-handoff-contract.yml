@@ -6,6 +6,7 @@ on:
       - "bootstrap.js"
       - "android-handoff.js"
       - "sw.js"
+      - "android-native/**"
       - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/android-handoff-contract.yml"
   push:
@@ -15,6 +16,7 @@ on:
       - "bootstrap.js"
       - "android-handoff.js"
       - "sw.js"
+      - "android-native/**"
       - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/android-handoff-contract.yml"
   workflow_dispatch:
