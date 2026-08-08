@@ -282,7 +282,7 @@ function createMorningEntry() {
 function runMorningEntry({ forced }) {
   if (!document.body || window.__robysMorningEntryAborted) return;
 
-  const variant = forced || !readSessionFlag(MORNING_ENTRY_SESSION_KEY) ? "cold" : "warm";
+  const variant = !readSessionFlag(MORNING_ENTRY_SESSION_KEY) ? "cold" : "warm";
   const scene = createMorningEntry();
   const {
     overlay,
