@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v35-20260808-volumetric-entry-v2-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v36-20260808-volumetric-entry-v2-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
