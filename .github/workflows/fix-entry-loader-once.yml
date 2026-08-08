@@ -1,0 +1,66 @@
+name: Fix entry loader once
+
+on:
+  push:
+    branches:
+      - agent/morning-entry-v1
+    paths:
+      - .github/workflows/fix-entry-loader-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/morning-entry-v1
+          fetch-depth: 1
+
+      - name: Replace Trusted Types script sink with dynamic import
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          bootstrap = Path('bootstrap.js')
+          text = bootstrap.read_text()
+          old = '''  const script = document.createElement("script");
+  script.src = "morning-entry.js?v=20260808-volumetric-v2";
+  script.async = true;
+  script.addEventListener("error", revealProductAfterEntryFailure, { once: true });
+  document.head.append(script);
+'''
+          new = '''  import("./morning-entry.js?v=20260808-volumetric-v2")
+    .catch(revealProductAfterEntryFailure);
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one dynamic-script loader block, found {text.count(old)}')
+          bootstrap.write_text(text.replace(old, new))
+
+          sw = Path('sw.js')
+          sw_text = sw.read_text()
+          old_prefix = 'robys-offline-v35-20260808-volumetric-entry-v2'
+          new_prefix = 'robys-offline-v36-20260808-volumetric-entry-v2'
+          if sw_text.count(old_prefix) != 1:
+              raise SystemExit(f'Expected one v35 cache prefix, found {sw_text.count(old_prefix)}')
+          sw.write_text(sw_text.replace(old_prefix, new_prefix))
+          PY
+
+          node --check bootstrap.js
+          node --check morning-entry.js
+          node --check sw.js
+          node scripts/generate-integrity-manifest.mjs
+          git diff --check
+
+      - name: Commit Trusted Types compatible loader
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bootstrap.js sw.js integrity-manifest.json
+          git commit -m "fix(motion): lazy-load entry without Trusted Types sink"
+          git push origin HEAD:agent/morning-entry-v1
