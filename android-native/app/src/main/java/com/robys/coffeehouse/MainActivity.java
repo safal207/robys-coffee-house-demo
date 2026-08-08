@@ -33,7 +33,7 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 
 public final class MainActivity extends ComponentActivity {
-    private static final String APP_URL = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";
+    private static final String APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
     private static final String HANDOFF_TAG = "RobysHandoff";
@@ -54,26 +54,11 @@ public final class MainActivity extends ComponentActivity {
     private boolean handoffComplete;
     private boolean bridgeReadyAtReveal;
     private long bridgeDeadlineAt;
-
-    private final Runnable loadCommitSlow = () -> {
-        if (!handoffComplete && !mainFrameCommitted) {
-            debugState("LOAD_COMMIT_SLOW");
-        }
-    };
-
-    private final Runnable loadCommitHardTimeout = () -> {
-        if (!handoffComplete && !mainFrameCommitted) {
-            debugState("LOAD_COMMIT_TIMEOUT");
-            showLoadError();
-        }
-    };
-
-    private final Runnable bridgeReadyTimeout = () -> {
-        if (!handoffComplete && mainFrameCommitted && !visualStateRequested) {
-            debugState("WEB_READY_TIMEOUT");
-            requestRevealWhenVisualStateReady(webView, false);
-        }
-    };
+    private int activeLoadGeneration;
+    private Runnable loadCommitSlow;
+    private Runnable loadCommitHardTimeout;
+    private Runnable bridgeReadyTimeout;
+    private Runnable visualStateTimeout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +95,7 @@ public final class MainActivity extends ComponentActivity {
 
     private void beginTrustedLoad() {
         cancelHandoffCallbacks();
+        final int generation = ++activeLoadGeneration;
         mainFrameCommitted = false;
         visualStateRequested = false;
         handoffComplete = false;
@@ -117,9 +103,24 @@ public final class MainActivity extends ComponentActivity {
         bridgeDeadlineAt = 0L;
         errorView.setVisibility(View.GONE);
         splashView.resetAndShow();
+        splashView.bringToFront();
         configureLaunchSystemBars();
         debugState("NATIVE_SURFACE");
-        webView.loadUrl(APP_URL);
+
+        webView.stopLoading();
+        webView.loadUrl(appUrlForGeneration(generation));
+
+        loadCommitSlow = () -> {
+            if (isActiveGeneration(generation) && !handoffComplete && !mainFrameCommitted) {
+                debugState("LOAD_COMMIT_SLOW");
+            }
+        };
+        loadCommitHardTimeout = () -> {
+            if (isActiveGeneration(generation) && !handoffComplete && !mainFrameCommitted) {
+                debugState("LOAD_COMMIT_TIMEOUT");
+                showLoadError(generation);
+            }
+        };
         mainHandler.postDelayed(loadCommitSlow, LOAD_COMMIT_SLOW_MS);
         mainHandler.postDelayed(loadCommitHardTimeout, LOAD_COMMIT_HARD_TIMEOUT_MS);
     }
@@ -190,8 +191,10 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
+                int generation = generationFromUrl(error != null ? error.getUrl() : null);
+                if (!isActiveGeneration(generation)) return;
                 debugState("SSL_ERROR");
-                showLoadError();
+                showLoadError(generation);
             }
 
             @Override
@@ -200,56 +203,73 @@ public final class MainActivity extends ComponentActivity {
                     WebResourceRequest request,
                     WebResourceError error
             ) {
-                if (request.isForMainFrame()) {
-                    debugState("MAIN_FRAME_ERROR");
-                    showLoadError();
-                }
+                if (!request.isForMainFrame()) return;
+                int generation = generationFromUri(request.getUrl());
+                if (!isActiveGeneration(generation)) return;
+                debugState("MAIN_FRAME_ERROR");
+                showLoadError(generation);
             }
         });
     }
 
     private void markTrustedFrameCommitted(WebView view, String url) {
-        if (handoffComplete || url == null || !isTrusted(Uri.parse(url))) return;
+        if (handoffComplete || url == null) return;
+        Uri uri = Uri.parse(url);
+        int generation = generationFromUri(uri);
+        if (!isActiveGeneration(generation) || !isTrusted(uri)) return;
 
         if (!mainFrameCommitted) {
             mainFrameCommitted = true;
             bridgeDeadlineAt = SystemClock.uptimeMillis() + BRIDGE_READY_TIMEOUT_MS;
-            mainHandler.removeCallbacks(loadCommitSlow);
-            mainHandler.removeCallbacks(loadCommitHardTimeout);
+            removeCallback(loadCommitSlow);
+            removeCallback(loadCommitHardTimeout);
+            bridgeReadyTimeout = () -> {
+                if (isActiveGeneration(generation)
+                        && !handoffComplete
+                        && mainFrameCommitted
+                        && !visualStateRequested) {
+                    debugState("WEB_READY_TIMEOUT");
+                    requestRevealWhenVisualStateReady(view, false, generation);
+                }
+            };
             mainHandler.postDelayed(bridgeReadyTimeout, BRIDGE_READY_TIMEOUT_MS);
             debugState("WEB_COMMITTED");
         }
-        pollBridgeReady(view);
+        pollBridgeReady(view, generation);
     }
 
-    private void pollBridgeReady(WebView view) {
-        if (handoffComplete || visualStateRequested || !mainFrameCommitted || view == null) return;
+    private void pollBridgeReady(WebView view, int generation) {
+        if (!isActiveGeneration(generation)
+                || handoffComplete
+                || visualStateRequested
+                || !mainFrameCommitted
+                || view == null) return;
         String currentUrl = view.getUrl();
-        if (currentUrl == null || !isTrusted(Uri.parse(currentUrl))) return;
+        if (!isCurrentGenerationUrl(currentUrl, generation)) return;
 
         if (SystemClock.uptimeMillis() >= bridgeDeadlineAt) {
-            bridgeReadyTimeout.run();
+            if (bridgeReadyTimeout != null) bridgeReadyTimeout.run();
             return;
         }
 
         view.evaluateJavascript(
                 "(function(){var d=document.documentElement;return d&&d.dataset?(d.dataset.robysAndroidHandoff||''):'';})()",
                 value -> {
-                    if (handoffComplete || visualStateRequested) return;
+                    if (!isActiveGeneration(generation) || handoffComplete || visualStateRequested) return;
+                    if (!isCurrentGenerationUrl(view.getUrl(), generation)) return;
                     if ("\"ready\"".equals(value)) {
                         debugState("WEB_READY");
-                        requestRevealWhenVisualStateReady(view, true);
+                        requestRevealWhenVisualStateReady(view, true, generation);
                     } else {
-                        mainHandler.postDelayed(() -> pollBridgeReady(view), BRIDGE_POLL_MS);
+                        mainHandler.postDelayed(() -> pollBridgeReady(view, generation), BRIDGE_POLL_MS);
                     }
                 }
         );
     }
 
-    private void requestRevealWhenVisualStateReady(WebView view, boolean bridgeReady) {
-        if (visualStateRequested || handoffComplete || view == null) return;
-        String currentUrl = view.getUrl();
-        if (currentUrl == null || !isTrusted(Uri.parse(currentUrl))) return;
+    private void requestRevealWhenVisualStateReady(WebView view, boolean bridgeReady, int generation) {
+        if (!isActiveGeneration(generation) || visualStateRequested || handoffComplete || view == null) return;
+        if (!isCurrentGenerationUrl(view.getUrl(), generation)) return;
 
         visualStateRequested = true;
         bridgeReadyAtReveal = bridgeReady;
@@ -258,30 +278,42 @@ public final class MainActivity extends ComponentActivity {
         view.postVisualStateCallback(requestId, new WebView.VisualStateCallback() {
             @Override
             public void onComplete(long ignoredRequestId) {
-                completeHandoff(view);
+                completeHandoff(view, generation);
             }
         });
-        mainHandler.postDelayed(() -> completeHandoff(view), VISUAL_CALLBACK_TIMEOUT_MS);
+        visualStateTimeout = () -> {
+            if (isActiveGeneration(generation) && !handoffComplete && visualStateRequested) {
+                debugState("VISUAL_STATE_TIMEOUT");
+                showLoadError(generation);
+            }
+        };
+        mainHandler.postDelayed(visualStateTimeout, VISUAL_CALLBACK_TIMEOUT_MS);
     }
 
-    private void completeHandoff(WebView view) {
-        if (handoffComplete || view == null || !mainFrameCommitted) return;
-        String currentUrl = view.getUrl();
-        if (currentUrl == null || !isTrusted(Uri.parse(currentUrl))) return;
+    private void completeHandoff(WebView view, int generation) {
+        if (!isActiveGeneration(generation)
+                || handoffComplete
+                || view == null
+                || !mainFrameCommitted
+                || !isCurrentGenerationUrl(view.getUrl(), generation)) return;
 
         handoffComplete = true;
+        cancelHandoffCallbacks();
         debugState("VISUAL_STATE_CONFIRMED");
         splashView.dismiss();
         configureProductSystemBars();
-        releaseWebHandoff(view);
+        releaseWebHandoff(view, generation);
         debugState(bridgeReadyAtReveal ? "HANDOFF_COMPLETE_WEB_READY" : "HANDOFF_COMPLETE_FALLBACK");
         debugState("HANDOFF_COMPLETE");
     }
 
-    private void releaseWebHandoff(WebView view) {
+    private void releaseWebHandoff(WebView view, int generation) {
+        if (!isActiveGeneration(generation) || !isCurrentGenerationUrl(view.getUrl(), generation)) return;
         view.evaluateJavascript(
                 "typeof window.__robysAndroidHandoffRelease==='function'?(window.__robysAndroidHandoffRelease(),'released'):'missing'",
-                null
+                ignored -> {
+                    if (!isActiveGeneration(generation)) return;
+                }
         );
     }
 
@@ -319,29 +351,69 @@ public final class MainActivity extends ComponentActivity {
     private TextView buildErrorView() {
         TextView view = new TextView(this);
         view.setText(R.string.load_error);
-        view.setTextColor(getColor(R.color.robys_ink));
+        view.setTextColor(getColor(R.color.robys_white));
         view.setTextSize(18f);
         view.setGravity(Gravity.CENTER);
         int padding = dp(32);
         view.setPadding(padding, padding, padding, padding);
-        view.setBackgroundColor(Color.WHITE);
+        view.setBackgroundColor(Color.TRANSPARENT);
+        view.setShadowLayer(dp(6), 0f, dp(2), Color.argb(160, 0, 0, 0));
         view.setOnClickListener(v -> beginTrustedLoad());
         return view;
     }
 
-    private void showLoadError() {
-        if (handoffComplete) return;
+    private void showLoadError(int generation) {
+        if (!isActiveGeneration(generation) || handoffComplete) return;
         handoffComplete = true;
         cancelHandoffCallbacks();
-        splashView.dismiss();
+        webView.stopLoading();
+        splashView.resetAndShow();
         errorView.setVisibility(View.VISIBLE);
-        configureProductSystemBars();
+        errorView.bringToFront();
+        configureLaunchSystemBars();
     }
 
     private void cancelHandoffCallbacks() {
-        mainHandler.removeCallbacks(loadCommitSlow);
-        mainHandler.removeCallbacks(loadCommitHardTimeout);
-        mainHandler.removeCallbacks(bridgeReadyTimeout);
+        removeCallback(loadCommitSlow);
+        removeCallback(loadCommitHardTimeout);
+        removeCallback(bridgeReadyTimeout);
+        removeCallback(visualStateTimeout);
+        loadCommitSlow = null;
+        loadCommitHardTimeout = null;
+        bridgeReadyTimeout = null;
+        visualStateTimeout = null;
+    }
+
+    private void removeCallback(Runnable callback) {
+        if (callback != null) mainHandler.removeCallbacks(callback);
+    }
+
+    private String appUrlForGeneration(int generation) {
+        return APP_URL_BASE + "&handoff-gen=" + generation;
+    }
+
+    private int generationFromUrl(String url) {
+        if (url == null) return -1;
+        return generationFromUri(Uri.parse(url));
+    }
+
+    private int generationFromUri(Uri uri) {
+        if (uri == null || !isTrusted(uri)) return -1;
+        String value = uri.getQueryParameter("handoff-gen");
+        if (value == null) return -1;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ignored) {
+            return -1;
+        }
+    }
+
+    private boolean isCurrentGenerationUrl(String url, int generation) {
+        return isActiveGeneration(generation) && generationFromUrl(url) == generation;
+    }
+
+    private boolean isActiveGeneration(int generation) {
+        return generation > 0 && generation == activeLoadGeneration;
     }
 
     private void configureBackNavigation() {
@@ -394,6 +466,7 @@ public final class MainActivity extends ComponentActivity {
     @Override
     protected void onDestroy() {
         cancelHandoffCallbacks();
+        ++activeLoadGeneration;
         mainHandler.removeCallbacksAndMessages(null);
         if (webView != null) {
             webView.stopLoading();
