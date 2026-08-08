@@ -68,13 +68,34 @@ if [[ "$handoff_complete" -ne 1 ]]; then
   exit 1
 fi
 
-grep -q "NATIVE_SURFACE" "$OUT/handoff-states.txt"
-grep -q "WEB_COMMITTED" "$OUT/handoff-states.txt"
-grep -Eq "WEB_READY|WEB_READY_TIMEOUT" "$OUT/handoff-states.txt"
-grep -q "VISUAL_STATE_CONFIRMED" "$OUT/handoff-states.txt"
-grep -q "HANDOFF_COMPLETE" "$OUT/handoff-states.txt"
+first_state_line() {
+  local pattern="$1"
+  grep -nE "$pattern" "$OUT/handoff-states.txt" | head -n 1 | cut -d: -f1
+}
+
+native_line="$(first_state_line 'RobysHandoff.*NATIVE_SURFACE')"
+commit_line="$(first_state_line 'RobysHandoff.*WEB_COMMITTED')"
+ready_line="$(first_state_line 'RobysHandoff.*WEB_READY(_TIMEOUT)?')"
+visual_line="$(first_state_line 'RobysHandoff.*VISUAL_STATE_CONFIRMED')"
+complete_line="$(first_state_line 'RobysHandoff.*HANDOFF_COMPLETE$')"
+
+if [[ -z "$native_line" || -z "$commit_line" || -z "$ready_line" || -z "$visual_line" || -z "$complete_line" ]]; then
+  echo "ANDROID-HANDOFF-002: required handoff state is missing." >&2
+  cat "$OUT/handoff-states.txt" >&2
+  exit 1
+fi
+
+if ! (( native_line < commit_line && commit_line < ready_line && ready_line < visual_line && visual_line < complete_line )); then
+  echo "ANDROID-HANDOFF-002: handoff states occurred out of order." >&2
+  printf 'NATIVE_SURFACE=%s WEB_COMMITTED=%s WEB_READY_OR_TIMEOUT=%s VISUAL_STATE_CONFIRMED=%s HANDOFF_COMPLETE=%s\n' \
+    "$native_line" "$commit_line" "$ready_line" "$visual_line" "$complete_line" >&2
+  cat "$OUT/handoff-states.txt" >&2
+  exit 1
+fi
 
 printf 'video_bytes=%s\n' "$VIDEO_BYTES" > "$OUT/evidence-summary.txt"
 printf 'package=%s\nactivity=%s\n' "$PACKAGE" "$ACTIVITY" >> "$OUT/evidence-summary.txt"
 printf 'handoff_wait_seconds=%s\n' "$HANDOFF_WAIT_SECONDS" >> "$OUT/evidence-summary.txt"
+printf 'state_lines=NATIVE_SURFACE:%s,WEB_COMMITTED:%s,WEB_READY_OR_FALLBACK:%s,VISUAL_STATE_CONFIRMED:%s,HANDOFF_COMPLETE:%s\n' \
+  "$native_line" "$commit_line" "$ready_line" "$visual_line" "$complete_line" >> "$OUT/evidence-summary.txt"
 printf 'contract=SYSTEM_SPLASH->NATIVE_SURFACE->WEB_COMMITTED->WEB_READY_OR_FALLBACK->VISUAL_STATE_CONFIRMED->HANDOFF_COMPLETE\n' >> "$OUT/evidence-summary.txt"
