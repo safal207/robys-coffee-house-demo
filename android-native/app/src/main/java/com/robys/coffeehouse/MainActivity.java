@@ -37,7 +37,8 @@ public final class MainActivity extends ComponentActivity {
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
     private static final String HANDOFF_TAG = "RobysHandoff";
-    private static final long LOAD_COMMIT_TIMEOUT_MS = 8_000L;
+    private static final long LOAD_COMMIT_SLOW_MS = 8_000L;
+    private static final long LOAD_COMMIT_HARD_TIMEOUT_MS = 24_000L;
     private static final long BRIDGE_READY_TIMEOUT_MS = 3_500L;
     private static final long BRIDGE_POLL_MS = 48L;
     private static final long VISUAL_CALLBACK_TIMEOUT_MS = 1_500L;
@@ -54,7 +55,13 @@ public final class MainActivity extends ComponentActivity {
     private boolean bridgeReadyAtReveal;
     private long bridgeDeadlineAt;
 
-    private final Runnable loadCommitTimeout = () -> {
+    private final Runnable loadCommitSlow = () -> {
+        if (!handoffComplete && !mainFrameCommitted) {
+            debugState("LOAD_COMMIT_SLOW");
+        }
+    };
+
+    private final Runnable loadCommitHardTimeout = () -> {
         if (!handoffComplete && !mainFrameCommitted) {
             debugState("LOAD_COMMIT_TIMEOUT");
             showLoadError();
@@ -113,7 +120,8 @@ public final class MainActivity extends ComponentActivity {
         configureLaunchSystemBars();
         debugState("NATIVE_SURFACE");
         webView.loadUrl(APP_URL);
-        mainHandler.postDelayed(loadCommitTimeout, LOAD_COMMIT_TIMEOUT_MS);
+        mainHandler.postDelayed(loadCommitSlow, LOAD_COMMIT_SLOW_MS);
+        mainHandler.postDelayed(loadCommitHardTimeout, LOAD_COMMIT_HARD_TIMEOUT_MS);
     }
 
     private void configureWebView() {
@@ -206,7 +214,8 @@ public final class MainActivity extends ComponentActivity {
         if (!mainFrameCommitted) {
             mainFrameCommitted = true;
             bridgeDeadlineAt = SystemClock.uptimeMillis() + BRIDGE_READY_TIMEOUT_MS;
-            mainHandler.removeCallbacks(loadCommitTimeout);
+            mainHandler.removeCallbacks(loadCommitSlow);
+            mainHandler.removeCallbacks(loadCommitHardTimeout);
             mainHandler.postDelayed(bridgeReadyTimeout, BRIDGE_READY_TIMEOUT_MS);
             debugState("WEB_COMMITTED");
         }
@@ -321,6 +330,8 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void showLoadError() {
+        if (handoffComplete) return;
+        handoffComplete = true;
         cancelHandoffCallbacks();
         splashView.dismiss();
         errorView.setVisibility(View.VISIBLE);
@@ -328,7 +339,8 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void cancelHandoffCallbacks() {
-        mainHandler.removeCallbacks(loadCommitTimeout);
+        mainHandler.removeCallbacks(loadCommitSlow);
+        mainHandler.removeCallbacks(loadCommitHardTimeout);
         mainHandler.removeCallbacks(bridgeReadyTimeout);
     }
 
