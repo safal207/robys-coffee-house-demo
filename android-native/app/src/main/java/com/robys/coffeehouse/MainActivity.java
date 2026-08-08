@@ -246,7 +246,12 @@ public final class MainActivity extends ComponentActivity {
         bridgeReadyAtReveal = bridgeReady;
         cancelHandoffCallbacks();
         long requestId = SystemClock.uptimeMillis();
-        view.postVisualStateCallback(requestId, ignoredRequestId -> completeHandoff(view));
+        view.postVisualStateCallback(requestId, new WebView.VisualStateCallback() {
+            @Override
+            public void onComplete(long ignoredRequestId) {
+                completeHandoff(view);
+            }
+        });
         mainHandler.postDelayed(() -> completeHandoff(view), VISUAL_CALLBACK_TIMEOUT_MS);
     }
 
