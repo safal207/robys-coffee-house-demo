@@ -113,6 +113,26 @@ function summarizeSmoothness(samples) {
   };
 }
 
+async function readBrandRevealContract(page) {
+  return page.evaluate(() => {
+    const stage = document.querySelector(".robys-entry-logo-stage");
+    const focus = document.querySelector(".robys-entry-logo-focus");
+    const mark = stage?.querySelector('img[src*="robys-mark-master-v1.svg"]');
+    const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
+
+    return {
+      reveal: document.documentElement.dataset.robysEntryBrandReveal ?? "",
+      stageBackground: stage ? getComputedStyle(stage).backgroundColor : "missing",
+      focusBackground: focus ? getComputedStyle(focus).backgroundImage : "missing",
+      focusOpacity: focus ? Number(getComputedStyle(focus).opacity) : -1,
+      markOpacity: mark ? Number(getComputedStyle(mark).opacity) : -1,
+      wordmarkOpacity: wordmark ? Number(getComputedStyle(wordmark).opacity) : -1,
+      markPath: mark ? new URL(mark.src).pathname : "",
+      wordmarkPath: wordmark ? new URL(wordmark.src).pathname : ""
+    };
+  });
+}
+
 async function waitForDone(page, timeout) {
   await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout });
 }
@@ -158,6 +178,26 @@ try {
     await page.evaluate(() => document.documentElement.dataset.robysEntryPoseCount) === "20",
     "Morning entry did not expose the 20-pose choreography contract"
   );
+
+  const initialBrandContract = await readBrandRevealContract(page);
+  assert(initialBrandContract.reveal === "integrated-v1", "Integrated Roby's reveal contract is missing");
+  assert(
+    initialBrandContract.markPath.endsWith("/src/brand/robys-mark-master-v1.svg"),
+    `Unexpected Roby's mark asset: ${initialBrandContract.markPath}`
+  );
+  assert(
+    initialBrandContract.wordmarkPath.endsWith("/src/brand/robys-compact-master-v1.svg"),
+    `Unexpected Roby's wordmark asset: ${initialBrandContract.wordmarkPath}`
+  );
+  assert(
+    initialBrandContract.stageBackground === "rgba(0, 0, 0, 0)",
+    `Logo stage introduced a card background: ${initialBrandContract.stageBackground}`
+  );
+  assert(
+    initialBrandContract.focusBackground.includes("radial-gradient"),
+    "Logo reveal is missing the local warm luminance field"
+  );
+
   const brandFrameVisibility = await page.evaluate(() => getComputedStyle(document.documentElement).visibility);
   assert(
     brandFrameVisibility === "visible",
@@ -193,6 +233,20 @@ try {
     await page.waitForTimeout(780 - coldCaptureElapsed);
   }
   await page.screenshot({ path: path.join(resultsDir, "morning-entry-cold-mid.png"), animations: "allow" });
+
+  const brandRevealElapsed = Date.now() - coldCaptureStartedAt;
+  if (brandRevealElapsed < 1120) {
+    await page.waitForTimeout(1120 - brandRevealElapsed);
+  }
+  const resolvedBrandContract = await readBrandRevealContract(page);
+  assert(resolvedBrandContract.focusOpacity >= .72, `Warm luminance field did not resolve: ${resolvedBrandContract.focusOpacity}`);
+  assert(resolvedBrandContract.markOpacity >= .92, `Roby's mark did not resolve cleanly: ${resolvedBrandContract.markOpacity}`);
+  assert(resolvedBrandContract.wordmarkOpacity >= .72, `Roby's wordmark did not resolve cleanly: ${resolvedBrandContract.wordmarkOpacity}`);
+  writeFileSync(
+    path.join(resultsDir, "morning-entry-brand-reveal-evidence.json"),
+    `${JSON.stringify(resolvedBrandContract, null, 2)}\n`
+  );
+  await page.screenshot({ path: path.join(resultsDir, "morning-entry-brand-reveal.png"), animations: "allow" });
   await assertDone(page);
 
   let events = await readEvents(page);
@@ -242,7 +296,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: integrated Roby's reveal, canonical assets, no-card luminance field, 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
