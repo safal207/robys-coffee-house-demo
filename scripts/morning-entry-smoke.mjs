@@ -235,13 +235,13 @@ try {
   await page.screenshot({ path: path.join(resultsDir, "morning-entry-cold-mid.png"), animations: "allow" });
 
   const brandRevealElapsed = Date.now() - coldCaptureStartedAt;
-  if (brandRevealElapsed < 1120) {
-    await page.waitForTimeout(1120 - brandRevealElapsed);
+  if (brandRevealElapsed < 1260) {
+    await page.waitForTimeout(1260 - brandRevealElapsed);
   }
   const resolvedBrandContract = await readBrandRevealContract(page);
-  assert(resolvedBrandContract.focusOpacity >= .72, `Warm luminance field did not resolve: ${resolvedBrandContract.focusOpacity}`);
-  assert(resolvedBrandContract.markOpacity >= .92, `Roby's mark did not resolve cleanly: ${resolvedBrandContract.markOpacity}`);
-  assert(resolvedBrandContract.wordmarkOpacity >= .72, `Roby's wordmark did not resolve cleanly: ${resolvedBrandContract.wordmarkOpacity}`);
+  assert(resolvedBrandContract.focusOpacity >= .9, `Warm luminance field did not fully resolve: ${resolvedBrandContract.focusOpacity}`);
+  assert(resolvedBrandContract.markOpacity >= .99, `Roby's mark did not fully resolve: ${resolvedBrandContract.markOpacity}`);
+  assert(resolvedBrandContract.wordmarkOpacity >= .99, `Roby's wordmark did not fully resolve: ${resolvedBrandContract.wordmarkOpacity}`);
   writeFileSync(
     path.join(resultsDir, "morning-entry-brand-reveal-evidence.json"),
     `${JSON.stringify(resolvedBrandContract, null, 2)}\n`
@@ -296,7 +296,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: integrated Roby's reveal, canonical assets, no-card luminance field, 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: fully resolved integrated Roby's reveal, canonical assets, no-card luminance field, 20-pose cold/warm choreography, measured ~60 Hz interpolation, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
