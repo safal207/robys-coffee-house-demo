@@ -1,0 +1,35 @@
+name: Regenerate 20-state integrity
+
+on:
+  push:
+    branches:
+      - agent/motion-entry-20-state-v2
+    paths:
+      - .github/workflows/regenerate-20-state-integrity.yml
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/motion-entry-20-state-v2
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          node --check morning-entry.js
+          node --check scripts/morning-entry-smoke.mjs
+          node scripts/generate-integrity-manifest.mjs
+          git diff --check
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: refresh integrity for 20-state motion"
+          git push origin HEAD:agent/motion-entry-20-state-v2
