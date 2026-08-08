@@ -1,0 +1,58 @@
+name: Fix entry session semantics once
+
+on:
+  push:
+    branches:
+      - agent/morning-entry-v1
+    paths:
+      - .github/workflows/fix-entry-session-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/morning-entry-v1
+          fetch-depth: 1
+
+      - name: Apply exact cold/warm fix and cache rotation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          bootstrap = Path('bootstrap.js')
+          text = bootstrap.read_text()
+          old = 'const variant = forced || !readSessionFlag(MORNING_ENTRY_SESSION_KEY) ? "cold" : "warm";'
+          new = 'const variant = !readSessionFlag(MORNING_ENTRY_SESSION_KEY) ? "cold" : "warm";'
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected exactly one old variant expression, found {text.count(old)}')
+          bootstrap.write_text(text.replace(old, new))
+
+          sw = Path('sw.js')
+          sw_text = sw.read_text()
+          old_prefix = 'robys-offline-v33-20260808-volumetric-entry-v2'
+          new_prefix = 'robys-offline-v34-20260808-volumetric-entry-v2'
+          if sw_text.count(old_prefix) != 1:
+              raise SystemExit(f'Expected exactly one v33 cache prefix, found {sw_text.count(old_prefix)}')
+          sw.write_text(sw_text.replace(old_prefix, new_prefix))
+          PY
+
+          node --check bootstrap.js
+          node --check sw.js
+          node scripts/generate-integrity-manifest.mjs
+
+      - name: Commit exact fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bootstrap.js sw.js integrity-manifest.json
+          git diff --cached --check
+          git commit -m "fix(motion): preserve warm entry under forced QA mode"
+          git push origin HEAD:agent/morning-entry-v1
