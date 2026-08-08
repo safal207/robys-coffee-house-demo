@@ -2,6 +2,7 @@ package com.robys.coffeehouse;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -373,7 +374,9 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void debugState(String state) {
-        if (BuildConfig.DEBUG) Log.d(HANDOFF_TAG, state);
+        if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+            Log.d(HANDOFF_TAG, state);
+        }
     }
 
     @Override
