@@ -1,0 +1,45 @@
+name: Regenerate entry integrity
+
+on:
+  push:
+    branches:
+      - agent/morning-entry-v1
+    paths:
+      - bootstrap.js
+      - sw.js
+      - .github/workflows/regenerate-entry-integrity.yml
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.ref == 'refs/heads/agent/morning-entry-v1'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/morning-entry-v1
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate canonical integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Commit exact-byte manifest
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Integrity manifest already current."
+            exit 0
+          fi
+          git commit -m "chore: refresh integrity manifest for volumetric entry"
+          git push origin HEAD:agent/morning-entry-v1
