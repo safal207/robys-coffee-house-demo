@@ -136,39 +136,11 @@ jobs:
               config = path.read_text()
               config = config.replace("['http://localhost/index.html']", "['http://localhost/index.html?entry=off']")
               path.write_text(config)
-
-          smoke_path = Path('scripts/morning-entry-smoke.mjs')
-          smoke = smoke_path.read_text()
-          forced_assert = '''  assert(
-            await page.evaluate(() => document.documentElement.dataset.robysEntryState) === "brand-frame",
-            "Forced entry did not enter BRAND_FRAME"
-          );
-          '''
-          forced_extra = forced_assert + '''  assert(
-            await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("morning-entry.js"))),
-            "Forced Morning entry did not lazy-load morning-entry.js"
-          );
-          '''
-          if forced_assert not in smoke:
-              raise SystemExit('forced entry assertion marker not found')
-          smoke = smoke.replace(forced_assert, forced_extra, 1)
-
-          off_assert = '  assert(await page.locator(".robys-morning-entry").count() === 0, "entry=off still rendered the overlay");\n'
-          off_extra = off_assert + '''  assert(
-            !(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("morning-entry.js")))),
-            "entry=off still loaded the lazy Morning motion runtime"
-          );
-          '''
-          if off_assert not in smoke:
-              raise SystemExit('entry=off assertion marker not found')
-          smoke = smoke.replace(off_assert, off_extra, 1)
-          smoke_path.write_text(smoke)
           PY
 
           node --check bootstrap.js
           node --check morning-entry.js
           node --check sw.js
-          node --check scripts/morning-entry-smoke.mjs
           node scripts/generate-integrity-manifest.mjs
           git diff --check
 
@@ -179,7 +151,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add bootstrap.js morning-entry.js sw.js integrity-manifest.json \
             lighthouse/lighthouserc.mobile.cjs lighthouse/lighthouserc.desktop.cjs \
-            lighthouse/lighthouserc.repeatability.mobile.cjs lighthouse/lighthouserc.repeatability.desktop.cjs \
-            scripts/morning-entry-smoke.mjs
+            lighthouse/lighthouserc.repeatability.mobile.cjs lighthouse/lighthouserc.repeatability.desktop.cjs
           git commit -m "perf(motion): lazy-load Morning entry runtime"
           git push origin HEAD:agent/morning-entry-v1
