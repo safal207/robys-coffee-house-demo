@@ -93,6 +93,11 @@ try {
     await page.evaluate(() => document.documentElement.dataset.robysEntryState) === "brand-frame",
     "Forced entry did not enter BRAND_FRAME"
   );
+  const brandFrameVisibility = await page.evaluate(() => getComputedStyle(document.documentElement).visibility);
+  assert(
+    brandFrameVisibility === "visible",
+    `Entry blocked document paint during BRAND_FRAME: ${brandFrameVisibility}`
+  );
 
   await page.waitForTimeout(780);
   await page.screenshot({ path: path.join(resultsDir, "morning-entry-cold-mid.png"), animations: "allow" });
@@ -145,7 +150,7 @@ try {
   await reducedPage.screenshot({ path: path.join(resultsDir, "reduced-motion-product.png") });
   await reducedContext.close();
 
-  console.log("✅ MOTION-ENTRY-001 passed: cold/warm, force/off, skip, handoff, and reduced-motion paths are deterministic.");
+  console.log("✅ MOTION-ENTRY-001 passed: cold/warm, force/off, skip, non-blocking paint, handoff, and reduced-motion paths are deterministic.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
