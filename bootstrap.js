@@ -2,6 +2,7 @@ document.documentElement.classList.add("js");
 
 const ANDROID_LOGO_OBSERVER_TIMEOUT_MS = 10_000;
 const ANDROID_LOGO_MAX_ATTEMPTS = 100;
+const ANDROID_HANDOFF_ENTRY_MODE = "android-handoff";
 
 function installAppleTouchIcon() {
   if (document.head.querySelector('link[rel="apple-touch-icon"]')) return;
@@ -30,9 +31,13 @@ function installAndroidButtonLogo() {
 
 const MORNING_ENTRY_PREPAINT_TIMEOUT_MS = 2_600;
 
+function requestedEntryMode() {
+  return new URLSearchParams(window.location.search).get("entry");
+}
+
 function morningEntryEligible() {
-  const mode = new URLSearchParams(window.location.search).get("entry");
-  if (mode === "off") return false;
+  const mode = requestedEntryMode();
+  if (mode === "off" || mode === ANDROID_HANDOFF_ENTRY_MODE) return false;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
   if (mode === "morning") return true;
 
@@ -48,6 +53,25 @@ function revealProductAfterEntryFailure() {
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
   document.querySelector(".robys-morning-entry")?.remove();
+}
+
+function revealProductAfterAndroidHandoffFailure() {
+  window.__robysAndroidHandoffAborted = true;
+  document.documentElement.style.visibility = "";
+  document.documentElement.style.backgroundColor = "";
+  document.querySelector(".robys-android-handoff")?.remove();
+  delete document.documentElement.dataset.robysAndroidHandoff;
+  delete window.__robysAndroidHandoffRelease;
+}
+
+function loadAndroidHandoffIfRequested() {
+  if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
+
+  window.__robysAndroidHandoffAborted = false;
+  document.documentElement.style.backgroundColor = "#241c1b";
+  import("./android-handoff.js?v=20260808-atomic-v1")
+    .catch(revealProductAfterAndroidHandoffFailure);
+  return true;
 }
 
 function loadMorningEntryIfEligible() {
@@ -72,7 +96,9 @@ function loadMorningEntryIfEligible() {
 
 installAppleTouchIcon();
 
-loadMorningEntryIfEligible();
+if (!loadAndroidHandoffIfRequested()) {
+  loadMorningEntryIfEligible();
+}
 
 if (!installAndroidButtonLogo()) {
   let attempts = 0;
