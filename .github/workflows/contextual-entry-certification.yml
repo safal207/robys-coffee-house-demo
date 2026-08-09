@@ -1,0 +1,96 @@
+name: Contextual entry certification
+
+on:
+  pull_request:
+    paths:
+      - "bootstrap.js"
+      - "morning-entry.js"
+      - "day-night-entry.js"
+      - "sw.js"
+      - "integrity-manifest.json"
+      - "src/brand/**"
+      - "scripts/morning-entry-smoke.mjs"
+      - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/generate-integrity-manifest.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/contextual-entry-certification.yml"
+  push:
+    branches:
+      - agent/day-night-motion-v1
+    paths:
+      - "bootstrap.js"
+      - "morning-entry.js"
+      - "day-night-entry.js"
+      - "sw.js"
+      - "integrity-manifest.json"
+      - "src/brand/**"
+      - "scripts/morning-entry-smoke.mjs"
+      - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/generate-integrity-manifest.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/contextual-entry-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contextual-entry-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    name: MOTION-CONTEXT-001 Day/Night matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify contextual runtime syntax
+        run: |
+          node --check bootstrap.js
+          node --check morning-entry.js
+          node --check day-night-entry.js
+          node --check sw.js
+          node --check scripts/contextual-entry-smoke.mjs
+
+      - name: Verify canonical integrity before browser evidence
+        run: node scripts/generate-integrity-manifest.mjs --check
+
+      - name: Re-run certified Morning baseline
+        env:
+          MORNING_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/morning-entry
+        run: node scripts/morning-entry-smoke.mjs
+
+      - name: Certify Day and Night contextual variants
+        env:
+          CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
+        run: node scripts/contextual-entry-smoke.mjs
+
+      - name: Upload contextual motion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contextual-entry-certification-${{ github.sha }}
+          path: visual-results/**
+          if-no-files-found: error
+          retention-days: 14
