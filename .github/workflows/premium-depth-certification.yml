@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   certify:
-    name: MOTION-DEPTH-001 spatial premium gate
+    name: MOTION-DEPTH-001 premium optics v2.2 gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -72,7 +72,7 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
-      - name: Certify perspective depth and late logo focus
+      - name: Certify perspective depth, focal hold and late logo focus
         env:
           PREMIUM_DEPTH_RESULTS_DIR: ${{ github.workspace }}/visual-results/premium-depth
         run: node scripts/premium-depth-smoke.mjs
