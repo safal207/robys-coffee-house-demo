@@ -39,6 +39,16 @@ const SCENE_THEMES = {
     focus: "radial-gradient(ellipse at center, rgba(255,250,238,.96) 0%, rgba(255,235,203,.82) 30%, rgba(230,164,95,.4) 52%, rgba(105,40,21,.08) 72%, rgba(45,13,12,0) 84%)",
     markFilter: "drop-shadow(0 8px 22px rgba(238,49,56,.22))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,252,245,.18)) drop-shadow(0 8px 18px rgba(32,8,7,.16))",
+    depthHaze: "radial-gradient(ellipse at 74% 34%, rgba(255,220,167,.18) 0%, rgba(167,72,34,.09) 34%, rgba(45,13,12,0) 66%), linear-gradient(145deg, rgba(74,26,18,.62), rgba(45,13,12,.1) 54%, rgba(82,29,18,.48))",
+    depthHazeBlur: "blur(8px)",
+    foregroundVolume: "radial-gradient(ellipse at 68% 26%, rgba(240,69,61,.42) 0%, rgba(143,16,28,.72) 35%, rgba(58,9,12,.94) 72%, rgba(32,7,8,.98) 100%)",
+    foregroundBlur: "blur(14px)",
+    foregroundPeak: .5,
+    specularEdge: "linear-gradient(98deg, rgba(255,231,194,0) 4%, rgba(255,226,181,.14) 31%, rgba(255,244,221,.9) 51%, rgba(246,174,94,.52) 64%, rgba(255,231,194,0) 94%)",
+    specularShadow: "0 0 12px rgba(255,235,205,.36), 0 0 34px rgba(238,163,83,.22)",
+    specularPeak: .8,
+    haloBlur: "blur(22px)",
+    focusBlur: "blur(13px)",
     coldDuration: 1_180,
     warmDuration: 460,
     coldExit: 280,
@@ -79,9 +89,19 @@ const SCENE_THEMES = {
     lightVeil: "linear-gradient(102deg, rgba(242,190,119,0) 4%, rgba(231,171,100,.08) 40%, rgba(244,195,126,.24) 66%, rgba(250,214,158,.38) 81%, rgba(242,190,119,0) 100%)",
     vignette: "radial-gradient(circle at 54% 45%, rgba(0,0,0,0) 24%, rgba(4,1,2,.2) 64%, rgba(2,1,1,.7) 100%)",
     halo: "radial-gradient(ellipse at center, rgba(246,192,119,.36) 0%, rgba(179,103,51,.24) 34%, rgba(84,32,18,.12) 58%, rgba(13,5,5,0) 76%)",
-    focus: "radial-gradient(ellipse at center, rgba(255,226,179,.78) 0%, rgba(242,191,126,.56) 30%, rgba(165,88,44,.28) 52%, rgba(55,19,12,.08) 72%, rgba(13,5,5,0) 84%)",
+    focus: "radial-gradient(ellipse at center, rgba(255,226,179,.88) 0%, rgba(242,191,126,.66) 28%, rgba(165,88,44,.34) 50%, rgba(55,19,12,.08) 72%, rgba(13,5,5,0) 84%)",
     markFilter: "drop-shadow(0 8px 24px rgba(133,13,24,.28))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,232,197,.08)) drop-shadow(0 10px 24px rgba(0,0,0,.32))",
+    depthHaze: "radial-gradient(ellipse at 76% 36%, rgba(232,169,96,.12) 0%, rgba(113,48,25,.08) 36%, rgba(13,5,5,0) 68%), linear-gradient(145deg, rgba(31,10,8,.72), rgba(13,5,5,.18) 54%, rgba(42,15,10,.58))",
+    depthHazeBlur: "blur(11px)",
+    foregroundVolume: "radial-gradient(ellipse at 66% 24%, rgba(151,27,36,.3) 0%, rgba(92,8,19,.72) 36%, rgba(28,4,7,.96) 72%, rgba(10,3,4,.995) 100%)",
+    foregroundBlur: "blur(18px)",
+    foregroundPeak: .62,
+    specularEdge: "linear-gradient(98deg, rgba(248,199,132,0) 4%, rgba(238,181,111,.08) 31%, rgba(255,218,162,.66) 51%, rgba(197,105,51,.36) 64%, rgba(248,199,132,0) 94%)",
+    specularShadow: "0 0 10px rgba(244,193,124,.22), 0 0 38px rgba(157,81,36,.2)",
+    specularPeak: .62,
+    haloBlur: "blur(24px)",
+    focusBlur: "blur(15px)",
     coldDuration: 1_480,
     warmDuration: 600,
     coldExit: 340,
@@ -194,11 +214,21 @@ function createContextualEntry(sceneName) {
   overlay.className = `robys-contextual-entry robys-${sceneName}-entry`;
   overlay.setAttribute("aria-hidden", "true");
 
+  const depthHaze = createSplineLayer({
+    inset: "-22%",
+    background: theme.depthHaze,
+    filter: theme.depthHazeBlur,
+    opacity: "0",
+    transform: "translate3d(-1.6vw,.8vh,0) scale(1.08)",
+    zIndex: "0"
+  }, "robys-entry-depth-haze");
+
   const ambient = createSplineLayer({
     inset: "-18%",
     background: theme.ambient,
     opacity: "0",
-    transform: "scale(1.035)"
+    transform: "scale(1.035)",
+    zIndex: "1"
   }, "robys-entry-ambient");
 
   const redSurface = createSplineLayer({
@@ -210,8 +240,23 @@ function createContextualEntry(sceneName) {
     background: theme.redSurface,
     boxShadow: theme.redShadow,
     opacity: "0",
-    transform: "rotate(-11deg) scale(1.08)"
+    transform: "rotate(-11deg) scale(1.08)",
+    zIndex: "3"
   }, "robys-entry-red-surface");
+
+  const specularEdge = createSplineLayer({
+    left: "-18vw",
+    bottom: "7vh",
+    width: "94vw",
+    height: "22vh",
+    borderRadius: "50%",
+    background: theme.specularEdge,
+    boxShadow: theme.specularShadow,
+    opacity: "0",
+    transform: "rotate(-8deg) translate3d(5vw,4vh,0) scale(1.04)",
+    transformOrigin: "50% 50%",
+    zIndex: "4"
+  }, "robys-entry-specular-edge");
 
   const brownRibbon = createSplineLayer({
     left: "-30vw",
@@ -222,7 +267,8 @@ function createContextualEntry(sceneName) {
     background: theme.brownRibbon,
     boxShadow: theme.brownShadow,
     opacity: "0",
-    transform: "rotate(8deg) translate3d(5vw,-2vh,0) scale(1.04)"
+    transform: "rotate(8deg) translate3d(5vw,-2vh,0) scale(1.04)",
+    zIndex: "2"
   }, "robys-entry-brown-ribbon");
 
   const goldArc = createSplineLayer({
@@ -235,7 +281,8 @@ function createContextualEntry(sceneName) {
     background: theme.goldBackground,
     boxShadow: theme.goldShadow,
     opacity: "0",
-    transform: "rotate(19deg) translate3d(4vw,-3vh,0) scale(1.08)"
+    transform: "rotate(19deg) translate3d(4vw,-3vh,0) scale(1.08)",
+    zIndex: "5"
   }, "robys-entry-gold-arc");
 
   const lightVeil = createSplineLayer({
@@ -245,13 +292,29 @@ function createContextualEntry(sceneName) {
     height: "142%",
     background: theme.lightVeil,
     opacity: "0",
-    transform: "translate3d(11%,0,0) rotate(7deg)"
+    transform: "translate3d(11%,0,0) rotate(7deg)",
+    zIndex: "6"
   }, "robys-entry-light-veil");
+
+  const foregroundOccluder = createSplineLayer({
+    left: "-38vw",
+    bottom: "-24vh",
+    width: "92vw",
+    height: "78vh",
+    borderRadius: "52% 48% 46% 54%",
+    background: theme.foregroundVolume,
+    filter: theme.foregroundBlur,
+    opacity: "0",
+    transform: "rotate(-18deg) translate3d(-8vw,7vh,0) scale(1.16)",
+    transformOrigin: "50% 50%",
+    zIndex: "7"
+  }, "robys-entry-foreground-occluder");
 
   const vignette = createSplineLayer({
     inset: "0",
     background: theme.vignette,
-    opacity: ".85"
+    opacity: ".85",
+    zIndex: "8"
   }, "robys-entry-vignette");
 
   const logoStage = applyStyles(document.createElement("div"), {
@@ -266,7 +329,8 @@ function createContextualEntry(sceneName) {
     gap: "12px",
     isolation: "isolate",
     willChange: "transform, opacity",
-    pointerEvents: "none"
+    pointerEvents: "none",
+    zIndex: "10"
   });
   logoStage.className = "robys-entry-logo-stage";
 
@@ -278,7 +342,7 @@ function createContextualEntry(sceneName) {
     height: "254%",
     borderRadius: "50%",
     background: theme.halo,
-    filter: "blur(20px)",
+    filter: theme.haloBlur,
     transform: "translate(-50%, -50%) scale(.68)",
     opacity: "0",
     zIndex: "0"
@@ -293,7 +357,7 @@ function createContextualEntry(sceneName) {
     height: "132%",
     borderRadius: "50%",
     background: theme.focus,
-    filter: "blur(16px)",
+    filter: theme.focusBlur,
     transform: "translate(-50%, -50%) scale(.66)",
     opacity: "0",
     zIndex: "1"
@@ -338,15 +402,18 @@ function createContextualEntry(sceneName) {
   });
 
   logoStage.append(logoHalo, logoFocus, mark, wordmark);
-  overlay.append(ambient, redSurface, brownRibbon, goldArc, lightVeil, vignette, logoStage);
+  overlay.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil, foregroundOccluder, vignette, logoStage);
 
   return {
     overlay,
+    depthHaze,
     ambient,
     redSurface,
     brownRibbon,
+    specularEdge,
     goldArc,
     lightVeil,
+    foregroundOccluder,
     logoStage,
     logoHalo,
     logoFocus,
@@ -394,11 +461,14 @@ function runContextualEntry({ scene: sceneName }) {
   const scene = createContextualEntry(sceneName);
   const {
     overlay,
+    depthHaze,
     ambient,
     redSurface,
     brownRibbon,
+    specularEdge,
     goldArc,
     lightVeil,
+    foregroundOccluder,
     logoStage,
     logoHalo,
     logoFocus,
@@ -413,6 +483,8 @@ function runContextualEntry({ scene: sceneName }) {
   document.documentElement.dataset.robysEntryBrandReveal = "integrated-v1";
   document.documentElement.dataset.robysEntryFamily = "contextual-v1";
   document.documentElement.dataset.robysEntryTempo = sceneName;
+  document.documentElement.dataset.robysEntryDepth = "premium-v1";
+  document.documentElement.dataset.robysEntryDepthPlanes = "3";
   emitEntryState(sceneName, "brand-frame", variant);
 
   const cold = variant === "cold";
@@ -424,6 +496,15 @@ function runContextualEntry({ scene: sceneName }) {
   const lifecycle = new AbortController();
 
   requestAnimationFrame(() => {
+    animateSafe(depthHaze, poseSeries((t) => {
+      const p = smoothPose(t);
+      const settle = phase(t, .72, 1);
+      return {
+        opacity: phase(t, 0, .38) * mix(.78, .62, settle),
+        transform: `translate3d(${mix(-1.6, .7, p).toFixed(3)}vw,${mix(.8, -.4, p).toFixed(3)}vh,0) scale(${mix(1.08, 1.025, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
     animateSafe(ambient, poseSeries((t) => {
       const p = smoothPose(t);
       const settle = phase(t, .7, 1);
@@ -440,6 +521,14 @@ function runContextualEntry({ scene: sceneName }) {
       return {
         opacity: phase(t, 0, .2) * mix(1, .82, settle),
         transform: `rotate(${mix(-11, -6.5, p).toFixed(3)}deg) translate3d(${mix(-3, 2.4, p).toFixed(3)}vw,${(mix(5, -1.5, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, .998, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
+    animateSafe(specularEdge, poseSeries((t) => {
+      const p = smoothPose(t);
+      return {
+        opacity: peak(t, .1, .56, 1, theme.specularPeak, .28),
+        transform: `rotate(${mix(-8, -4.8, p).toFixed(3)}deg) translate3d(${mix(5, -1.2, p).toFixed(3)}vw,${mix(4, .4, p).toFixed(3)}vh,0) scale(${mix(1.04, 1.005, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -465,6 +554,15 @@ function runContextualEntry({ scene: sceneName }) {
       return {
         opacity: peak(t, .08, .52, 1, .84, .32),
         transform: `translate3d(${mix(14, -6, p).toFixed(3)}%,0,0) rotate(${mix(7, 2.6, p).toFixed(3)}deg)`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
+    animateSafe(foregroundOccluder, poseSeries((t) => {
+      const p = smoothPose(t);
+      const settle = phase(t, .72, 1);
+      return {
+        opacity: phase(t, .04, .34) * mix(theme.foregroundPeak, theme.foregroundPeak * .74, settle),
+        transform: `rotate(${mix(-18, -12.5, p).toFixed(3)}deg) translate3d(${mix(-8, 3.2, p).toFixed(3)}vw,${mix(7, 1.2, p).toFixed(3)}vh,0) scale(${mix(1.16, 1.045, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
