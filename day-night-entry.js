@@ -40,10 +40,10 @@ const SCENE_THEMES = {
     markFilter: "drop-shadow(0 8px 22px rgba(238,49,56,.22))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,252,245,.18)) drop-shadow(0 8px 18px rgba(32,8,7,.16))",
     depthHaze: "radial-gradient(ellipse at 74% 34%, rgba(255,220,167,.18) 0%, rgba(167,72,34,.09) 34%, rgba(45,13,12,0) 66%), linear-gradient(145deg, rgba(74,26,18,.62), rgba(45,13,12,.1) 54%, rgba(82,29,18,.48))",
-    depthHazeBlur: "blur(8px)",
+    depthHazeBlur: "none",
     foregroundVolume: "radial-gradient(ellipse at 68% 26%, rgba(240,69,61,.42) 0%, rgba(143,16,28,.72) 35%, rgba(58,9,12,.94) 72%, rgba(32,7,8,.98) 100%)",
-    foregroundBlur: "blur(14px)",
-    foregroundPeak: .5,
+    foregroundBlur: "blur(12px)",
+    foregroundPeak: .42,
     specularEdge: "linear-gradient(98deg, rgba(255,231,194,0) 4%, rgba(255,226,181,.14) 31%, rgba(255,244,221,.9) 51%, rgba(246,174,94,.52) 64%, rgba(255,231,194,0) 94%)",
     specularShadow: "0 0 12px rgba(255,235,205,.36), 0 0 34px rgba(238,163,83,.22)",
     specularPeak: .8,
@@ -93,10 +93,10 @@ const SCENE_THEMES = {
     markFilter: "drop-shadow(0 8px 24px rgba(133,13,24,.28))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,232,197,.08)) drop-shadow(0 10px 24px rgba(0,0,0,.32))",
     depthHaze: "radial-gradient(ellipse at 76% 36%, rgba(232,169,96,.12) 0%, rgba(113,48,25,.08) 36%, rgba(13,5,5,0) 68%), linear-gradient(145deg, rgba(31,10,8,.72), rgba(13,5,5,.18) 54%, rgba(42,15,10,.58))",
-    depthHazeBlur: "blur(11px)",
+    depthHazeBlur: "none",
     foregroundVolume: "radial-gradient(ellipse at 66% 24%, rgba(151,27,36,.3) 0%, rgba(92,8,19,.72) 36%, rgba(28,4,7,.96) 72%, rgba(10,3,4,.995) 100%)",
-    foregroundBlur: "blur(18px)",
-    foregroundPeak: .62,
+    foregroundBlur: "blur(14px)",
+    foregroundPeak: .5,
     specularEdge: "linear-gradient(98deg, rgba(248,199,132,0) 4%, rgba(238,181,111,.08) 31%, rgba(255,218,162,.66) 51%, rgba(197,105,51,.36) 64%, rgba(248,199,132,0) 94%)",
     specularShadow: "0 0 10px rgba(244,193,124,.22), 0 0 38px rgba(157,81,36,.2)",
     specularPeak: .62,
@@ -215,11 +215,11 @@ function createContextualEntry(sceneName) {
   overlay.setAttribute("aria-hidden", "true");
 
   const depthHaze = createSplineLayer({
-    inset: "-22%",
+    inset: "-10%",
     background: theme.depthHaze,
     filter: theme.depthHazeBlur,
-    opacity: "0",
-    transform: "translate3d(-1.6vw,.8vh,0) scale(1.08)",
+    opacity: ".64",
+    transform: "scale(1.025)",
     zIndex: "0"
   }, "robys-entry-depth-haze");
 
@@ -297,15 +297,15 @@ function createContextualEntry(sceneName) {
   }, "robys-entry-light-veil");
 
   const foregroundOccluder = createSplineLayer({
-    left: "-38vw",
-    bottom: "-24vh",
-    width: "92vw",
-    height: "78vh",
+    left: "-22vw",
+    bottom: "-10vh",
+    width: "66vw",
+    height: "54vh",
     borderRadius: "52% 48% 46% 54%",
     background: theme.foregroundVolume,
     filter: theme.foregroundBlur,
     opacity: "0",
-    transform: "rotate(-18deg) translate3d(-8vw,7vh,0) scale(1.16)",
+    transform: "rotate(-18deg) translate3d(-4vw,4vh,0) scale(1.08)",
     transformOrigin: "50% 50%",
     zIndex: "7"
   }, "robys-entry-foreground-occluder");
@@ -496,15 +496,6 @@ function runContextualEntry({ scene: sceneName }) {
   const lifecycle = new AbortController();
 
   requestAnimationFrame(() => {
-    animateSafe(depthHaze, poseSeries((t) => {
-      const p = smoothPose(t);
-      const settle = phase(t, .72, 1);
-      return {
-        opacity: phase(t, 0, .38) * mix(.78, .62, settle),
-        transform: `translate3d(${mix(-1.6, .7, p).toFixed(3)}vw,${mix(.8, -.4, p).toFixed(3)}vh,0) scale(${mix(1.08, 1.025, p).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
     animateSafe(ambient, poseSeries((t) => {
       const p = smoothPose(t);
       const settle = phase(t, .7, 1);
@@ -562,7 +553,7 @@ function runContextualEntry({ scene: sceneName }) {
       const settle = phase(t, .72, 1);
       return {
         opacity: phase(t, .04, .34) * mix(theme.foregroundPeak, theme.foregroundPeak * .74, settle),
-        transform: `rotate(${mix(-18, -12.5, p).toFixed(3)}deg) translate3d(${mix(-8, 3.2, p).toFixed(3)}vw,${mix(7, 1.2, p).toFixed(3)}vh,0) scale(${mix(1.16, 1.045, p).toFixed(4)})`
+        transform: `rotate(${mix(-18, -13.5, p).toFixed(3)}deg) translate3d(${mix(-4, 1.8, p).toFixed(3)}vw,${mix(4, .6, p).toFixed(3)}vh,0) scale(${mix(1.08, 1.02, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 

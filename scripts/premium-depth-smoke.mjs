@@ -149,9 +149,9 @@ async function captureScene(browser, scene) {
   const depthBlur = parseBlurPx(evidence.depthHaze?.filter);
   const foregroundBlur = parseBlurPx(evidence.foreground?.filter);
   const focusBlur = parseBlurPx(evidence.logoFocus?.filter);
-  assert(depthBlur >= 6 && depthBlur <= 12, `${scene}: background haze blur out of range: ${depthBlur}px`);
-  assert(foregroundBlur >= 12 && foregroundBlur <= 20, `${scene}: foreground blur out of range: ${foregroundBlur}px`);
-  assert(foregroundBlur > depthBlur, `${scene}: foreground must be softer than background haze`);
+  assert(depthBlur === 0, `${scene}: background haze must stay gradient-softened without a large CSS blur texture`);
+  assert(foregroundBlur >= 12 && foregroundBlur <= 16, `${scene}: foreground blur out of range: ${foregroundBlur}px`);
+  assert(foregroundBlur > depthBlur, `${scene}: foreground must be softer than the far plane`);
   assert(focusBlur >= 10 && focusBlur <= 16, `${scene}: focus pocket blur out of range: ${focusBlur}px`);
 
   assert(evidence.depthHaze.zIndex < evidence.redSurface.zIndex, `${scene}: background plane is not behind hero surface`);
@@ -159,7 +159,8 @@ async function captureScene(browser, scene) {
   assert(evidence.foreground.zIndex < evidence.logoStage.zIndex, `${scene}: foreground may occlude the logo`);
   assert(evidence.specularEdge.zIndex > evidence.redSurface.zIndex, `${scene}: specular edge must sit above hero material`);
 
-  assertTransformOpacityOnly(evidence.depthHaze, `${scene} depth haze`);
+  assert(evidence.depthHaze.animationKeyframes.length === 0, `${scene}: far haze should be static to avoid full-screen filtered animation cost`);
+  assert(String(evidence.depthHaze.background).includes("radial-gradient"), `${scene}: far haze must retain soft gradient depth`);
   assertTransformOpacityOnly(evidence.foreground, `${scene} foreground`);
   assertTransformOpacityOnly(evidence.specularEdge, `${scene} specular edge`);
 
@@ -199,12 +200,12 @@ try {
 
   const summary = {
     contract: "MOTION-DEPTH-001",
-    depthModel: "background haze -> hero material/specular -> foreground occluder -> sharp logo",
+    depthModel: "static gradient-softened background haze -> hero material/specular -> compact blurred foreground occluder -> sharp logo",
     day: { depthBlurPx: day.depthBlurPx, foregroundBlurPx: day.foregroundBlurPx, focusBlurPx: day.focusBlurPx },
     night: { depthBlurPx: night.depthBlurPx, foregroundBlurPx: night.foregroundBlurPx, focusBlurPx: night.focusBlurPx }
   };
   writeFileSync(path.join(resultsDir, "premium-depth-evidence.json"), `${JSON.stringify(summary, null, 2)}\n`);
-  console.log(`✅ MOTION-DEPTH-001 passed: Day ${day.depthBlurPx}/${day.foregroundBlurPx}px depth/foreground blur, Night ${night.depthBlurPx}/${night.foregroundBlurPx}px; sharp canonical logo, static blur, three-plane z hierarchy and specular focus are certified.`);
+  console.log(`✅ MOTION-DEPTH-001 passed: gradient-softened far plane + Day ${day.foregroundBlurPx}px / Night ${night.foregroundBlurPx}px foreground DOF; sharp canonical logo, static blur, three-plane z hierarchy and specular focus are certified.`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
