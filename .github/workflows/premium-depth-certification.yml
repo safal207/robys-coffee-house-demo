@@ -72,7 +72,7 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
-      - name: Certify three-plane premium depth
+      - name: Certify perspective depth and late logo focus
         env:
           PREMIUM_DEPTH_RESULTS_DIR: ${{ github.workspace }}/visual-results/premium-depth
         run: node scripts/premium-depth-smoke.mjs
