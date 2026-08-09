@@ -52,7 +52,7 @@ const SCENE_THEMES = {
     goldArcEnd: .05,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
-    coldDuration: 1_140,
+    coldDuration: 1_100,
     warmDuration: 460,
     coldExit: 280,
     warmExit: 150,
