@@ -1,0 +1,34 @@
+name: Temporary contextual integrity refresh
+
+on:
+  push:
+    branches:
+      - agent/day-night-motion-v1
+    paths:
+      - ".github/workflows/contextual-integrity-refresh-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate exact public integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+      - name: Verify generated manifest
+        run: node scripts/generate-integrity-manifest.mjs --check
+      - name: Commit exact manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "build(motion): refresh contextual entry integrity"
+          git push origin HEAD:agent/day-night-motion-v1
