@@ -3,7 +3,7 @@ document.documentElement.classList.add("js");
 const ANDROID_LOGO_OBSERVER_TIMEOUT_MS = 10_000;
 const ANDROID_LOGO_MAX_ATTEMPTS = 100;
 const ANDROID_HANDOFF_ENTRY_MODE = "android-handoff";
-const ENTRY_PREPAINT_TIMEOUT_MS = 2_600;
+const ENTRY_PREPAINT_TIMEOUT_MS = 2_800;
 
 function installAppleTouchIcon() {
   if (document.head.querySelector('link[rel="apple-touch-icon"]')) return;
