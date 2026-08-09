@@ -40,7 +40,7 @@ concurrency:
 
 jobs:
   certify:
-    name: MOTION-DEPTH-001 premium optics v2.3 clean-head gate
+    name: MOTION-DEPTH-001 hybrid premium 3D exact-head gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -78,7 +78,7 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
-      - name: Certify real 3D perspective, focal hold and late logo focus
+      - name: Certify hybrid 3D material stage, focal hold and logo focus
         env:
           PREMIUM_DEPTH_RESULTS_DIR: ${{ github.workspace }}/visual-results/premium-depth
         run: node scripts/premium-depth-smoke.mjs
@@ -87,7 +87,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: premium-depth-v23-clean-${{ github.event.pull_request.head.sha || github.sha }}
+          name: premium-depth-hybrid-final-${{ github.event.pull_request.head.sha || github.sha }}
           path: visual-results/**
           if-no-files-found: error
           retention-days: 14
