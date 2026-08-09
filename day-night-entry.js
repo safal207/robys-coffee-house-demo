@@ -49,7 +49,7 @@ const SCENE_THEMES = {
     specularPeak: .8,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
-    coldDuration: 1_180,
+    coldDuration: 1_140,
     warmDuration: 460,
     coldExit: 280,
     warmExit: 150,
