@@ -215,13 +215,20 @@ function createContextualEntry(sceneName) {
     background: theme.background,
     opacity: "1",
     touchAction: "manipulation",
-    isolation: "isolate",
-    perspective: "980px",
-    perspectiveOrigin: "52% 44%",
-    transformStyle: "preserve-3d"
+    isolation: "isolate"
   });
   overlay.className = `robys-contextual-entry robys-${sceneName}-entry`;
   overlay.setAttribute("aria-hidden", "true");
+
+  const sceneStage = applyStyles(document.createElement("div"), {
+    position: "absolute",
+    inset: "0",
+    perspective: "980px",
+    perspectiveOrigin: "52% 44%",
+    transformStyle: "preserve-3d",
+    pointerEvents: "none"
+  });
+  sceneStage.className = "robys-entry-scene-stage";
 
   const depthHaze = createSplineLayer({
     inset: "-10%",
@@ -325,6 +332,7 @@ function createContextualEntry(sceneName) {
     inset: "0",
     background: theme.vignette,
     opacity: ".85",
+    transform: "translateZ(46px)",
     zIndex: "8"
   }, "robys-entry-vignette");
 
@@ -413,10 +421,12 @@ function createContextualEntry(sceneName) {
   });
 
   logoStage.append(logoHalo, logoFocus, mark, wordmark);
-  overlay.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil, foregroundOccluder, vignette, logoStage);
+  sceneStage.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil, foregroundOccluder, vignette, logoStage);
+  overlay.append(sceneStage);
 
   return {
     overlay,
+    sceneStage,
     depthHaze,
     ambient,
     redSurface,

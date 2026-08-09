@@ -20,7 +20,7 @@ function startServer() {
   return spawn(
     "python3",
     ["-m", "http.server", String(port), "--bind", "127.0.0.1"],
-    { cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"] }
+    { cwd: process.cwd(), stdio: ["ignore", "ignore", "inherit"] }
   );
 }
 
@@ -84,6 +84,8 @@ async function readDepthEvidence(page) {
       };
     };
 
+    const overlay = select(".robys-contextual-entry");
+    const sceneStage = select(".robys-entry-scene-stage");
     const stage = select(".robys-entry-logo-stage");
     const mark = stage?.querySelector('img[src*="robys-mark-master-v1.svg"]');
     const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
@@ -94,10 +96,13 @@ async function readDepthEvidence(page) {
       scene: document.documentElement.dataset.robysEntryScene ?? "",
       depth: document.documentElement.dataset.robysEntryDepth ?? "",
       optics: document.documentElement.dataset.robysEntryOptics ?? "",
-      overlayPerspective: getComputedStyle(document.querySelector(".robys-contextual-entry")).perspective,
-      overlayOpacity: Number(getComputedStyle(document.querySelector(".robys-contextual-entry")).opacity),
-      overlayAnimationCount: document.querySelector(".robys-contextual-entry")?.getAnimations().length ?? -1,
+      overlayPresent: Boolean(overlay),
+      overlayOpacity: overlay ? Number(getComputedStyle(overlay).opacity) : 0,
+      overlayAnimationCount: overlay?.getAnimations().length ?? -1,
       entryState: document.documentElement.dataset.robysEntryState ?? "",
+      scenePerspective: sceneStage ? getComputedStyle(sceneStage).perspective : "",
+      sceneTransformStyle: sceneStage ? getComputedStyle(sceneStage).transformStyle : "",
+      outerOverflow: overlay ? getComputedStyle(overlay).overflow : "",
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
@@ -105,6 +110,7 @@ async function readDepthEvidence(page) {
       goldArc: style(".robys-entry-gold-arc"),
       specularEdge: style(".robys-entry-specular-edge"),
       foreground: style(".robys-entry-foreground-occluder"),
+      vignette: style(".robys-entry-vignette"),
       logoStage: stage ? {
         zIndex: Number(getComputedStyle(stage).zIndex || 0),
         backgroundColor: getComputedStyle(stage).backgroundColor
@@ -152,7 +158,9 @@ async function captureScene(browser, scene) {
   assert(evidence.scene === scene, `${scene}: wrong resolved scene ${evidence.scene}`);
   assert(evidence.depth === "premium-v2", `${scene}: premium depth v2 dataset missing`);
   assert(evidence.optics === "perspective-dof-v2", `${scene}: perspective optics dataset missing`);
-  assert(evidence.overlayPerspective !== "none", `${scene}: CSS perspective is not active`);
+  assert(evidence.scenePerspective !== "none" && evidence.scenePerspective !== "", `${scene}: inner CSS perspective is not active`);
+  assert(evidence.sceneTransformStyle === "preserve-3d", `${scene}: inner scene is not a preserve-3d context: ${evidence.sceneTransformStyle}`);
+  assert(evidence.outerOverflow === "hidden", `${scene}: outer clipping wrapper contract changed`);
   assert(evidence.depthPlanes === "3", `${scene}: expected exactly three logical depth planes`);
 
   const depthBlur = parseBlurPx(evidence.depthHaze?.filter);
@@ -166,6 +174,9 @@ async function captureScene(browser, scene) {
 
   assert(evidence.depthHaze.zIndex < evidence.redSurface.zIndex, `${scene}: background plane is not behind hero surface`);
   assert(evidence.redSurface.zIndex < evidence.foreground.zIndex, `${scene}: foreground plane is not in front of hero surface`);
+  assert(evidence.foreground.zIndex < evidence.vignette.zIndex, `${scene}: vignette must remain on/above foreground plane`);
+  assert(evidence.vignette.zIndex < evidence.logoStage.zIndex, `${scene}: vignette may occlude the logo focal plane`);
+  assert(evidence.vignette.transform !== "none", `${scene}: vignette is not assigned to the foreground 3D plane`);
   assert(evidence.foreground.zIndex < evidence.logoStage.zIndex, `${scene}: foreground may occlude the logo`);
   assert(evidence.specularEdge.zIndex > evidence.redSurface.zIndex, `${scene}: specular edge must sit above hero material`);
 
@@ -190,6 +201,7 @@ async function captureScene(browser, scene) {
   const focusStartedAt = Date.now();
   while (Date.now() - focusStartedAt < 1_350) {
     focusEvidence = await readDepthEvidence(page);
+    if (!focusEvidence.overlayPresent) break;
     if ((focusEvidence.mark?.opacity ?? 0) >= .98
       && (focusEvidence.wordmark?.opacity ?? 0) >= .95
       && (focusEvidence.logoFocus?.opacity ?? 0) >= .8
@@ -250,12 +262,12 @@ try {
 
   const summary = {
     contract: "MOTION-DEPTH-001",
-    depthModel: "perspective far-plane parallax -> espresso depth -> hero/specular material -> cinematic blurred foreground -> sharp logo focal plane",
+    depthModel: "outer clip -> inner preserve-3d perspective -> far-plane parallax -> espresso/hero/specular material -> cinematic blurred foreground/vignette -> sharp pre-handoff logo focal plane",
     day: { depthBlurPx: day.depthBlurPx, foregroundBlurPx: day.foregroundBlurPx, focusBlurPx: day.focusBlurPx, focus: day.focus },
     night: { depthBlurPx: night.depthBlurPx, foregroundBlurPx: night.foregroundBlurPx, focusBlurPx: night.focusBlurPx, focus: night.focus }
   };
   writeFileSync(path.join(resultsDir, "premium-depth-evidence.json"), `${JSON.stringify(summary, null, 2)}\n`);
-  console.log(`✅ MOTION-DEPTH-001 passed: perspective far plane + Day ${day.foregroundBlurPx}px / Night ${night.foregroundBlurPx}px foreground DOF; late sharp-logo focus frames, subdued ribbon/ring, static blur and material specular hierarchy are certified.`);
+  console.log(`✅ MOTION-DEPTH-001 passed: real inner preserve-3d perspective + Day ${day.foregroundBlurPx}px / Night ${night.foregroundBlurPx}px foreground DOF; strict pre-handoff sharp-logo focal hold, subdued ribbon/ring, static blur and material hierarchy are certified.`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");

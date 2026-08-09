@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v38-20260809-contextual-entry-v1-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v39-20260809-premium-optics-v23-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -32,7 +32,7 @@ const CORE_ASSETS = [
   "./bootstrap.js",
   "./android-handoff.js",
   "./morning-entry.js",
-  "./day-night-entry.js",
+  "./day-night-entry.js?v=20260809-premium-optics-v23",
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
@@ -83,6 +83,7 @@ async function cachedResponse(request) {
   const cache = await caches.open(CACHE_VERSION);
   const url = new URL(request.url);
   const requiresExactRevision =
+    url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
