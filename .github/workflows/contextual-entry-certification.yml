@@ -11,6 +11,7 @@ on:
       - "src/brand/**"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
@@ -27,6 +28,7 @@ on:
       - "src/brand/**"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
@@ -72,6 +74,7 @@ jobs:
           node --check day-night-entry.js
           node --check sw.js
           node --check scripts/contextual-entry-smoke.mjs
+          node --check scripts/contextual-sw-offline-smoke.mjs
 
       - name: Verify canonical integrity before browser evidence
         run: node scripts/generate-integrity-manifest.mjs --check
@@ -85,6 +88,11 @@ jobs:
         env:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
+
+      - name: Certify service-worker contextual precache offline
+        env:
+          CONTEXTUAL_SW_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-sw
+        run: node scripts/contextual-sw-offline-smoke.mjs
 
       - name: Upload contextual motion evidence
         if: always()
