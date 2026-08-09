@@ -1,0 +1,40 @@
+name: Temporary premium v2.3 performance tune
+
+on:
+  push:
+    branches:
+      - agent/premium-depth-v1
+    paths:
+      - ".github/scripts/premium-v23-perf-temp.py"
+      - ".github/workflows/premium-v23-perf-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: agent/premium-depth-v1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Apply real-3d DOF performance tune
+        run: python3 .github/scripts/premium-v23-perf-temp.py
+      - name: Verify and seal integrity
+        run: |
+          node --check day-night-entry.js
+          npm run integrity:generate
+          npm run verify:integrity
+      - name: Commit tuned runtime and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add day-night-entry.js integrity-manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "perf(motion): keep real 3d optics at 60hz"
+          git push origin HEAD:agent/premium-depth-v1
