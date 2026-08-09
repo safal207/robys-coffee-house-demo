@@ -126,20 +126,61 @@ async function readPaletteEvidence(page) {
     const overlay = document.querySelector(".robys-morning-entry");
     if (!overlay) return { colors: [], coolDrift: [], rubyPresent: false };
 
-    const cssText = [overlay, ...overlay.querySelectorAll("*")]
-      .map((element) => element.getAttribute("style") ?? "")
-      .join("\n");
+    const elements = [overlay, ...overlay.querySelectorAll("*")];
+    const paintProperties = [
+      "color",
+      "background-color",
+      "background-image",
+      "border-top-color",
+      "border-right-color",
+      "border-bottom-color",
+      "border-left-color",
+      "outline-color",
+      "box-shadow",
+      "text-shadow",
+      "fill",
+      "stroke",
+      "stop-color",
+      "flood-color",
+      "lighting-color"
+    ];
+    const paintAttributes = [
+      "fill",
+      "stroke",
+      "stop-color",
+      "flood-color",
+      "lighting-color"
+    ];
+    const paintValues = [];
 
+    for (const element of elements) {
+      const computed = getComputedStyle(element);
+      for (const property of paintProperties) {
+        const value = computed.getPropertyValue(property);
+        if (value) paintValues.push(value);
+      }
+      const inlineStyle = element.getAttribute("style");
+      if (inlineStyle) paintValues.push(inlineStyle);
+      for (const attribute of paintAttributes) {
+        const value = element.getAttribute(attribute);
+        if (value) paintValues.push(value);
+      }
+    }
+
+    const paintText = paintValues.join("\n");
     const colors = [];
     const rgbPattern = /rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/gi;
-    const hexPattern = /#([0-9a-f]{6})\b/gi;
+    const hexPattern = /#([0-9a-f]{6}|[0-9a-f]{3})\b/gi;
     let match;
 
-    while ((match = rgbPattern.exec(cssText))) {
+    while ((match = rgbPattern.exec(paintText))) {
       colors.push([Number(match[1]), Number(match[2]), Number(match[3])]);
     }
-    while ((match = hexPattern.exec(cssText))) {
-      const hex = match[1];
+    while ((match = hexPattern.exec(paintText))) {
+      const raw = match[1];
+      const hex = raw.length === 3
+        ? raw.split("").map((digit) => `${digit}${digit}`).join("")
+        : raw;
       colors.push([
         Number.parseInt(hex.slice(0, 2), 16),
         Number.parseInt(hex.slice(2, 4), 16),
@@ -147,14 +188,15 @@ async function readPaletteEvidence(page) {
       ]);
     }
 
-    const coolDrift = colors.filter(([r, g, b]) => {
+    const uniqueColors = [...new Map(colors.map((color) => [color.join(","), color])).values()];
+    const coolDrift = uniqueColors.filter(([r, g, b]) => {
       const greenDominant = g > 80 && g >= r * 1.25 && g >= b * 1.15;
       const blueDominant = b > 80 && b >= r * 1.25 && b >= g * 1.15;
       return greenDominant || blueDominant;
     });
 
-    const rubyPresent = colors.some(([r, g, b]) => r >= 180 && g <= 80 && b <= 95);
-    return { colors, coolDrift, rubyPresent };
+    const rubyPresent = uniqueColors.some(([r, g, b]) => r >= 180 && g <= 80 && b <= 95);
+    return { colors: uniqueColors, coolDrift, rubyPresent };
   });
 }
 
@@ -211,36 +253,48 @@ try {
   await waitForServer(server);
   browser = await chromium.launch({ headless: true });
 
-  // Cold + warm timing, visual surface, palette and accessibility.
+  // Keep timing measurements free from screenshots and diagnostic DOM work.
+  const timingContext = await newMotionContext(browser);
+  const timingPage = await timingContext.newPage();
+
+  await timingPage.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
+  const coldPrepaint = await timingPage.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+  assert(coldPrepaint === DARK_PREPAINT, `Cold prepaint was not Roby's dark surface: ${coldPrepaint}`);
+  await waitForOverlay(timingPage);
+  const coldStartedAt = Date.now();
+  await waitForDone(timingPage);
+  const coldMs = Date.now() - coldStartedAt;
+  assert(coldMs >= COLD_MIN_MS, `Cold entry became implausibly short: ${coldMs} ms`);
+  assert(coldMs <= COLD_MAX_MS, `Cold entry exceeded release budget: ${coldMs} ms`);
+
+  await timingPage.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
+  await waitForOverlay(timingPage);
+  const warmStartedAt = Date.now();
+  await waitForDone(timingPage, 2_000);
+  const warmMs = Date.now() - warmStartedAt;
+  assert(warmMs >= WARM_MIN_MS, `Warm entry became implausibly short: ${warmMs} ms`);
+  assert(warmMs <= WARM_MAX_MS, `Warm entry exceeded release budget: ${warmMs} ms`);
+  await timingContext.close();
+
+  evidence.warm = { durationMs: warmMs };
+
+  // Use a fresh session for cold visual/accessibility evidence so diagnostics do
+  // not contaminate the release timing measurement above.
   const primaryContext = await newMotionContext(browser);
   const page = await primaryContext.newPage();
-
   await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
-  const coldPrepaint = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
-  assert(coldPrepaint === DARK_PREPAINT, `Cold prepaint was not Roby's dark surface: ${coldPrepaint}`);
+  const visualPrepaint = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+  assert(visualPrepaint === DARK_PREPAINT, `Cold visual prepaint was not Roby's dark surface: ${visualPrepaint}`);
   await waitForOverlay(page);
-  const coldStartedAt = Date.now();
   const coldSurface = await readSurface(page);
   assertEntrySurface(coldSurface, "cold");
   await assertCanonicalLogo(page);
   const palette = await readPaletteEvidence(page);
-  assert(palette.rubyPresent, "Roby's red/ruby family disappeared from the entry palette");
-  assert(palette.coolDrift.length === 0, `Green/blue palette drift detected: ${JSON.stringify(palette.coolDrift)}`);
+  assert(palette.rubyPresent, "Roby's red/ruby family disappeared from the rendered entry palette");
+  assert(palette.coolDrift.length === 0, `Green/blue rendered palette drift detected: ${JSON.stringify(palette.coolDrift)}`);
   await page.screenshot({ path: path.join(resultsDir, "cold-entry.png"), animations: "allow" });
   await waitForDone(page);
-  const coldMs = Date.now() - coldStartedAt;
-  assert(coldMs >= COLD_MIN_MS, `Cold entry became implausibly short: ${coldMs} ms`);
-  assert(coldMs <= COLD_MAX_MS, `Cold entry exceeded release budget: ${coldMs} ms`);
   evidence.cold = { durationMs: coldMs, prepaint: coldPrepaint, surface: coldSurface, palette };
-
-  await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
-  await waitForOverlay(page);
-  const warmStartedAt = Date.now();
-  await waitForDone(page, 2_000);
-  const warmMs = Date.now() - warmStartedAt;
-  assert(warmMs >= WARM_MIN_MS, `Warm entry became implausibly short: ${warmMs} ms`);
-  assert(warmMs <= WARM_MAX_MS, `Warm entry exceeded release budget: ${warmMs} ms`);
-  evidence.warm = { durationMs: warmMs };
 
   // Escape must hand off promptly and never trap the product.
   await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
@@ -283,11 +337,14 @@ try {
   // an unstyled white surface, and the bounded entry must still recover to product.
   const slowContext = await newMotionContext(browser);
   const slowPage = await slowContext.newPage();
+  let delayedModuleRequests = 0;
   await slowPage.route("**/morning-entry.js*", async (route) => {
+    delayedModuleRequests += 1;
     await sleep(900);
     await route.continue();
   });
   await slowPage.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
+  assert(delayedModuleRequests > 0, "Slow-network route did not intercept the entry module");
   const slowSurfaceBeforeModule = await readSurface(slowPage);
   assert(slowSurfaceBeforeModule.htmlVisibility === "visible", "Slow network hid the product document");
   assert(
@@ -299,6 +356,7 @@ try {
   await waitForDone(slowPage, 4_500);
   evidence.slowNetwork = {
     moduleDelayMs: 900,
+    interceptedModuleRequests: delayedModuleRequests,
     prepaint: slowSurfaceBeforeModule.htmlBackground,
     productPaintable: slowSurfaceBeforeModule.productPaintable
   };
@@ -307,8 +365,13 @@ try {
   // Offline lazy-module failure must fail open immediately to usable product.
   const offlineContext = await newMotionContext(browser);
   const offlinePage = await offlineContext.newPage();
-  await offlinePage.route("**/morning-entry.js*", (route) => route.abort("failed"));
+  let abortedModuleRequests = 0;
+  await offlinePage.route("**/morning-entry.js*", (route) => {
+    abortedModuleRequests += 1;
+    return route.abort("failed");
+  });
   await offlinePage.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
+  assert(abortedModuleRequests > 0, "Offline route did not intercept the entry module");
   await offlinePage.waitForTimeout(350);
   const offlineState = await offlinePage.evaluate(() => ({
     aborted: globalThis.__robysMorningEntryAborted === true,
@@ -322,7 +385,7 @@ try {
   assert(offlineState.visibility === "visible", "Offline module failure left the product hidden");
   assert(offlineState.inlineBackground === "", "Offline module failure left the temporary prepaint background pinned");
   assert(offlineState.bodyDisplay !== "none" && offlineState.bodyDisplay !== "missing", "Offline module failure hid product content");
-  evidence.offline = offlineState;
+  evidence.offline = { ...offlineState, interceptedModuleRequests: abortedModuleRequests };
   await offlinePage.screenshot({ path: path.join(resultsDir, "offline-fail-open-product.png") });
   await offlineContext.close();
 
