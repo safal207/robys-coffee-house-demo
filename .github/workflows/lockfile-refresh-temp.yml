@@ -1,0 +1,37 @@
+name: Temporary lockfile refresh
+
+on:
+  push:
+    branches:
+      - agent/motion-release-certification-v1
+    paths:
+      - "package.json"
+      - ".github/workflows/lockfile-refresh-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Regenerate lockfile without lifecycle scripts
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Verify exact Playwright lock
+        run: |
+          node -e "const p=require('./package-lock.json'); if(p.packages['node_modules/playwright']?.version!=='1.52.0'||p.packages['node_modules/playwright-core']?.version!=='1.52.0') process.exit(1)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: refreshed-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 1
