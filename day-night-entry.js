@@ -26,7 +26,7 @@ const SCENE_THEMES = {
       "inset 0 18px 34px rgba(236,163,91,.14)",
       "0 18px 62px rgba(18,5,4,.28)"
     ].join(","),
-    goldBorder: "2px solid rgba(255,230,187,.96)",
+    goldBorder: "1px solid rgba(255,230,187,.68)",
     goldBackground: "radial-gradient(circle at 35% 70%, rgba(255,241,215,.24), rgba(226,155,76,.1) 36%, rgba(0,0,0,0) 68%)",
     goldShadow: [
       "0 0 16px rgba(255,231,190,.62)",
@@ -46,7 +46,10 @@ const SCENE_THEMES = {
     foregroundPeak: .42,
     specularEdge: "linear-gradient(98deg, rgba(255,231,194,0) 4%, rgba(255,226,181,.14) 31%, rgba(255,244,221,.9) 51%, rgba(246,174,94,.52) 64%, rgba(255,231,194,0) 94%)",
     specularShadow: "0 0 12px rgba(255,235,205,.36), 0 0 34px rgba(238,163,83,.22)",
-    specularPeak: .8,
+    specularPeak: .84,
+    ribbonPeak: .78,
+    goldArcPeak: .72,
+    goldArcEnd: .24,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
     coldDuration: 1_140,
@@ -79,7 +82,7 @@ const SCENE_THEMES = {
       "inset 0 18px 38px rgba(181,99,46,.08)",
       "0 20px 78px rgba(0,0,0,.5)"
     ].join(","),
-    goldBorder: "2px solid rgba(247,191,113,.72)",
+    goldBorder: "1px solid rgba(247,191,113,.46)",
     goldBackground: "radial-gradient(circle at 35% 70%, rgba(250,201,127,.14), rgba(177,95,42,.06) 36%, rgba(0,0,0,0) 68%)",
     goldShadow: [
       "0 0 13px rgba(245,185,106,.34)",
@@ -89,7 +92,7 @@ const SCENE_THEMES = {
     lightVeil: "linear-gradient(102deg, rgba(242,190,119,0) 4%, rgba(231,171,100,.08) 40%, rgba(244,195,126,.24) 66%, rgba(250,214,158,.38) 81%, rgba(242,190,119,0) 100%)",
     vignette: "radial-gradient(circle at 54% 45%, rgba(0,0,0,0) 24%, rgba(4,1,2,.2) 64%, rgba(2,1,1,.7) 100%)",
     halo: "radial-gradient(ellipse at center, rgba(246,192,119,.36) 0%, rgba(179,103,51,.24) 34%, rgba(84,32,18,.12) 58%, rgba(13,5,5,0) 76%)",
-    focus: "radial-gradient(ellipse at center, rgba(255,226,179,.88) 0%, rgba(242,191,126,.66) 28%, rgba(165,88,44,.34) 50%, rgba(55,19,12,.08) 72%, rgba(13,5,5,0) 84%)",
+    focus: "radial-gradient(ellipse at center, rgba(255,231,190,.95) 0%, rgba(246,197,132,.73) 28%, rgba(172,92,46,.38) 50%, rgba(55,19,12,.08) 72%, rgba(13,5,5,0) 84%)",
     markFilter: "drop-shadow(0 8px 24px rgba(133,13,24,.28))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,232,197,.08)) drop-shadow(0 10px 24px rgba(0,0,0,.32))",
     depthHaze: "radial-gradient(ellipse at 76% 36%, rgba(232,169,96,.12) 0%, rgba(113,48,25,.08) 36%, rgba(13,5,5,0) 68%), linear-gradient(145deg, rgba(31,10,8,.72), rgba(13,5,5,.18) 54%, rgba(42,15,10,.58))",
@@ -99,7 +102,10 @@ const SCENE_THEMES = {
     foregroundPeak: .5,
     specularEdge: "linear-gradient(98deg, rgba(248,199,132,0) 4%, rgba(238,181,111,.08) 31%, rgba(255,218,162,.66) 51%, rgba(197,105,51,.36) 64%, rgba(248,199,132,0) 94%)",
     specularShadow: "0 0 10px rgba(244,193,124,.22), 0 0 38px rgba(157,81,36,.2)",
-    specularPeak: .62,
+    specularPeak: .68,
+    ribbonPeak: .7,
+    goldArcPeak: .58,
+    goldArcEnd: .18,
     haloBlur: "blur(24px)",
     focusBlur: "blur(15px)",
     coldDuration: 1_480,
@@ -527,7 +533,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = smoothPose(t);
       const settle = phase(t, .72, 1);
       return {
-        opacity: .98 * phase(t, .03, .28) * mix(1, .86, settle),
+        opacity: theme.ribbonPeak * phase(t, .03, .28) * mix(1, .82, settle),
         transform: `rotate(${mix(8, 4.7, p).toFixed(3)}deg) translate3d(${mix(7, .6, p).toFixed(3)}vw,${mix(-4, 1.4, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.004, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
@@ -535,7 +541,7 @@ function runContextualEntry({ scene: sceneName }) {
     animateSafe(goldArc, poseSeries((t) => {
       const p = smoothPose(t);
       return {
-        opacity: peak(t, .05, .54, 1, .94, .42),
+        opacity: peak(t, .05, .54, 1, theme.goldArcPeak, theme.goldArcEnd),
         transform: `rotate(${mix(19, 13.5, p).toFixed(3)}deg) translate3d(${mix(8, -1.5, p).toFixed(3)}vw,${mix(-4, 2.4, p).toFixed(3)}vh,0) scale(${mix(1.08, .995, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
