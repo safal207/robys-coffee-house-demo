@@ -133,6 +133,20 @@ async function readBrandRevealContract(page) {
   });
 }
 
+async function waitForResolvedBrandReveal(page, timeout = 900) {
+  await page.waitForFunction(() => {
+    const stage = document.querySelector(".robys-entry-logo-stage");
+    const focus = document.querySelector(".robys-entry-logo-focus");
+    const mark = stage?.querySelector('img[src*="robys-mark-master-v1.svg"]');
+    const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
+    if (!focus || !mark || !wordmark) return false;
+
+    return Number(getComputedStyle(focus).opacity) >= .84
+      && Number(getComputedStyle(mark).opacity) >= .99
+      && Number(getComputedStyle(wordmark).opacity) >= .99;
+  }, undefined, { timeout, polling: "raf" });
+}
+
 async function waitForDone(page, timeout) {
   await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout });
 }
@@ -234,10 +248,11 @@ try {
   }
   await page.screenshot({ path: path.join(resultsDir, "morning-entry-cold-mid.png"), animations: "allow" });
 
-  const brandRevealElapsed = Date.now() - coldCaptureStartedAt;
-  if (brandRevealElapsed < 1260) {
-    await page.waitForTimeout(1260 - brandRevealElapsed);
-  }
+  // Observe the actual resolved visual state instead of sampling at a wall-clock
+  // offset relative to the test harness. The motion starts before the harness
+  // finishes its initial assertions, so a fixed 1260 ms delay can race the
+  // handoff on a busy runner even when the reveal itself is correct.
+  await waitForResolvedBrandReveal(page);
   const resolvedBrandContract = await readBrandRevealContract(page);
   assert(resolvedBrandContract.focusOpacity >= .84, `Warm luminance field did not remain visible through settle: ${resolvedBrandContract.focusOpacity}`);
   assert(resolvedBrandContract.markOpacity >= .99, `Roby's mark did not fully resolve: ${resolvedBrandContract.markOpacity}`);
