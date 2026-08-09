@@ -42,7 +42,7 @@ const SCENE_THEMES = {
     depthHaze: "radial-gradient(ellipse at 78% 28%, rgba(255,225,181,.15) 0%, rgba(171,78,39,.07) 30%, rgba(45,13,12,0) 64%), radial-gradient(ellipse at 24% 76%, rgba(119,28,24,.18) 0%, rgba(45,13,12,0) 58%), linear-gradient(145deg, rgba(69,24,17,.54), rgba(45,13,12,.08) 52%, rgba(77,29,18,.42))",
     depthHazeBlur: "none",
     foregroundVolume: "radial-gradient(ellipse at 58% 18%, rgba(255,108,78,.24) 0%, rgba(177,29,40,.45) 31%, rgba(83,10,18,.72) 62%, rgba(31,6,8,.9) 100%)",
-    foregroundBlur: "blur(18px)",
+    foregroundBlur: "blur(12px)",
     foregroundPeak: .34,
     specularEdge: "linear-gradient(96deg, rgba(255,231,194,0) 8%, rgba(255,226,181,.08) 34%, rgba(255,246,225,.92) 49%, rgba(246,174,94,.32) 58%, rgba(255,231,194,0) 82%)",
     specularShadow: "0 0 10px rgba(255,238,211,.34), 0 0 28px rgba(238,163,83,.16)",
@@ -98,7 +98,7 @@ const SCENE_THEMES = {
     depthHaze: "radial-gradient(ellipse at 78% 32%, rgba(222,151,84,.1) 0%, rgba(98,39,23,.06) 32%, rgba(13,5,5,0) 66%), radial-gradient(ellipse at 22% 78%, rgba(92,10,20,.16) 0%, rgba(13,5,5,0) 58%), linear-gradient(145deg, rgba(27,9,7,.68), rgba(13,5,5,.14) 54%, rgba(36,13,9,.52))",
     depthHazeBlur: "none",
     foregroundVolume: "radial-gradient(ellipse at 56% 18%, rgba(174,38,44,.18) 0%, rgba(100,10,22,.42) 34%, rgba(37,4,9,.76) 66%, rgba(8,2,3,.94) 100%)",
-    foregroundBlur: "blur(24px)",
+    foregroundBlur: "blur(16px)",
     foregroundPeak: .36,
     specularEdge: "linear-gradient(96deg, rgba(248,199,132,0) 8%, rgba(238,181,111,.05) 34%, rgba(255,221,170,.64) 49%, rgba(197,105,51,.22) 58%, rgba(248,199,132,0) 82%)",
     specularShadow: "0 0 8px rgba(244,193,124,.18), 0 0 30px rgba(157,81,36,.14)",
@@ -315,15 +315,15 @@ function createContextualEntry(sceneName) {
   }, "robys-entry-light-veil");
 
   const foregroundOccluder = createSplineLayer({
-    left: "-42vw",
-    bottom: "-28vh",
-    width: "92vw",
-    height: "74vh",
+    left: "-30vw",
+    bottom: "-18vh",
+    width: "74vw",
+    height: "60vh",
     borderRadius: "50%",
     background: theme.foregroundVolume,
     filter: theme.foregroundBlur,
     opacity: "0",
-    transform: "translateZ(46px) rotateX(-1.2deg) rotateY(2.2deg) rotate(-14deg) translate3d(-5vw,5vh,0) scale(1.06)",
+    transform: "translateZ(46px) rotateX(-.8deg) rotateY(1.4deg) rotate(-14deg) translate3d(-3vw,3vh,0) scale(1.04)",
     transformOrigin: "50% 50%",
     zIndex: "7"
   }, "robys-entry-foreground-occluder");
