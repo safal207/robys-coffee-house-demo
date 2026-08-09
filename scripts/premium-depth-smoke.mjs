@@ -86,6 +86,8 @@ async function readDepthEvidence(page) {
 
     const overlay = select(".robys-contextual-entry");
     const sceneStage = select(".robys-entry-scene-stage");
+    const foregroundElement = select(".robys-entry-foreground-occluder");
+    const vignetteElement = select(".robys-entry-vignette");
     const stage = select(".robys-entry-logo-stage");
     const mark = stage?.querySelector('img[src*="robys-mark-master-v1.svg"]');
     const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
@@ -103,6 +105,11 @@ async function readDepthEvidence(page) {
       scenePerspective: sceneStage ? getComputedStyle(sceneStage).perspective : "",
       sceneTransformStyle: sceneStage ? getComputedStyle(sceneStage).transformStyle : "",
       outerOverflow: overlay ? getComputedStyle(overlay).overflow : "",
+      sceneParentClass: sceneStage?.parentElement?.className ?? "",
+      depthParentClass: select(".robys-entry-depth-haze")?.parentElement?.className ?? "",
+      foregroundParentClass: foregroundElement?.parentElement?.className ?? "",
+      vignetteParentClass: vignetteElement?.parentElement?.className ?? "",
+      logoParentClass: stage?.parentElement?.className ?? "",
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
@@ -161,22 +168,26 @@ async function captureScene(browser, scene) {
   assert(evidence.scenePerspective !== "none" && evidence.scenePerspective !== "", `${scene}: inner CSS perspective is not active`);
   assert(evidence.sceneTransformStyle === "preserve-3d", `${scene}: inner scene is not a preserve-3d context: ${evidence.sceneTransformStyle}`);
   assert(evidence.outerOverflow === "hidden", `${scene}: outer clipping wrapper contract changed`);
+  assert(String(evidence.sceneParentClass).includes("robys-contextual-entry"), `${scene}: 3D stage escaped clipping wrapper`);
+  assert(evidence.depthParentClass === "robys-entry-scene-stage", `${scene}: material plane is not inside 3D stage`);
+  assert(String(evidence.foregroundParentClass).includes("robys-contextual-entry"), `${scene}: blurred foreground must stay outside preserve-3d`);
+  assert(String(evidence.vignetteParentClass).includes("robys-contextual-entry"), `${scene}: vignette must stay outside preserve-3d`);
+  assert(String(evidence.logoParentClass).includes("robys-contextual-entry"), `${scene}: sharp logo must stay outside preserve-3d`);
   assert(evidence.depthPlanes === "3", `${scene}: expected exactly three logical depth planes`);
 
   const depthBlur = parseBlurPx(evidence.depthHaze?.filter);
   const foregroundBlur = parseBlurPx(evidence.foreground?.filter);
   const focusBlur = parseBlurPx(evidence.logoFocus?.filter);
   assert(depthBlur === 0, `${scene}: far plane must stay gradient-softened without a full-screen CSS blur`);
-  const expectedForegroundBlur = scene === "night" ? 24 : 18;
+  const expectedForegroundBlur = scene === "night" ? 16 : 12;
   assert(foregroundBlur === expectedForegroundBlur, `${scene}: foreground blur must match the cinematic DOF target: ${foregroundBlur}px`);
   assert(foregroundBlur > depthBlur, `${scene}: foreground must be softer than the far plane`);
   assert(focusBlur >= 10 && focusBlur <= 16, `${scene}: focus pocket blur out of range: ${focusBlur}px`);
 
   assert(evidence.depthHaze.zIndex < evidence.redSurface.zIndex, `${scene}: background plane is not behind hero surface`);
   assert(evidence.redSurface.zIndex < evidence.foreground.zIndex, `${scene}: foreground plane is not in front of hero surface`);
-  assert(evidence.foreground.zIndex < evidence.vignette.zIndex, `${scene}: vignette must remain on/above foreground plane`);
-  assert(evidence.vignette.zIndex < evidence.logoStage.zIndex, `${scene}: vignette may occlude the logo focal plane`);
-  assert(evidence.vignette.transform !== "none", `${scene}: vignette is not assigned to the foreground 3D plane`);
+  assert(evidence.foreground.zIndex < evidence.vignette.zIndex, `${scene}: vignette must remain above foreground optical plane`);
+  assert(evidence.vignette.zIndex < evidence.logoStage.zIndex, `${scene}: vignette may occlude logo focal plane`);
   assert(evidence.foreground.zIndex < evidence.logoStage.zIndex, `${scene}: foreground may occlude the logo`);
   assert(evidence.specularEdge.zIndex > evidence.redSurface.zIndex, `${scene}: specular edge must sit above hero material`);
 
@@ -184,6 +195,12 @@ async function captureScene(browser, scene) {
   assert(String(evidence.depthHaze.filter) === "none", `${scene}: far plane may parallax but must not animate/filter a full-screen blur surface`);
   assert(String(evidence.depthHaze.background).includes("radial-gradient"), `${scene}: far haze must retain soft gradient depth`);
   assertTransformOpacityOnly(evidence.foreground, `${scene} foreground`);
+  for (const frame of evidence.foreground.animationKeyframes) {
+    const transform = String(frame.transform ?? "");
+    assert(!transform.includes("translateZ"), `${scene}: blurred foreground re-entered 3D compositor`);
+    assert(!transform.includes("rotateX"), `${scene}: blurred foreground animates rotateX`);
+    assert(!transform.includes("rotateY"), `${scene}: blurred foreground animates rotateY`);
+  }
   assertTransformOpacityOnly(evidence.specularEdge, `${scene} specular edge`);
 
   assert(evidence.logoStage.backgroundColor === "rgba(0, 0, 0, 0)", `${scene}: logo stage gained a card/background`);

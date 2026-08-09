@@ -226,7 +226,8 @@ function createContextualEntry(sceneName) {
     perspective: "980px",
     perspectiveOrigin: "52% 44%",
     transformStyle: "preserve-3d",
-    pointerEvents: "none"
+    pointerEvents: "none",
+    zIndex: "0"
   });
   sceneStage.className = "robys-entry-scene-stage";
 
@@ -323,7 +324,7 @@ function createContextualEntry(sceneName) {
     background: theme.foregroundVolume,
     filter: theme.foregroundBlur,
     opacity: "0",
-    transform: "translateZ(46px) rotateX(-.8deg) rotateY(1.4deg) rotate(-14deg) translate3d(-3vw,3vh,0) scale(1.04)",
+    transform: "rotate(-14deg) translate3d(-3vw,3vh,0) scale(1.04)",
     transformOrigin: "50% 50%",
     zIndex: "7"
   }, "robys-entry-foreground-occluder");
@@ -332,7 +333,6 @@ function createContextualEntry(sceneName) {
     inset: "0",
     background: theme.vignette,
     opacity: ".85",
-    transform: "translateZ(46px)",
     zIndex: "8"
   }, "robys-entry-vignette");
 
@@ -341,7 +341,7 @@ function createContextualEntry(sceneName) {
     left: "50%",
     top: "45%",
     width: "min(72vw, 296px)",
-    transform: "translate(-50%, -38%) translateZ(76px) scale(.86)",
+    transform: "translate(-50%, -38%) scale(.86)",
     opacity: "0",
     display: "grid",
     justifyItems: "center",
@@ -421,8 +421,8 @@ function createContextualEntry(sceneName) {
   });
 
   logoStage.append(logoHalo, logoFocus, mark, wordmark);
-  sceneStage.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil, foregroundOccluder, vignette, logoStage);
-  overlay.append(sceneStage);
+  sceneStage.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil);
+  overlay.append(sceneStage, foregroundOccluder, vignette, logoStage);
 
   return {
     overlay,
@@ -584,7 +584,7 @@ function runContextualEntry({ scene: sceneName }) {
       const settle = phase(t, .72, 1);
       return {
         opacity: phase(t, .04, .34) * mix(theme.foregroundPeak, theme.foregroundPeak * .74, settle),
-        transform: `translateZ(46px) rotateX(${mix(-1.2, -.4, p).toFixed(3)}deg) rotateY(${mix(2.2, .8, p).toFixed(3)}deg) rotate(${mix(-14, -10.5, p).toFixed(3)}deg) translate3d(${mix(-5, 1.2, p).toFixed(3)}vw,${mix(5, 1.2, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.015, p).toFixed(4)})`
+        transform: `rotate(${mix(-14, -11, p).toFixed(3)}deg) translate3d(${mix(-3, .8, p).toFixed(3)}vw,${mix(3, .8, p).toFixed(3)}vh,0) scale(${mix(1.04, 1.01, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -592,7 +592,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = phase(t, .36, .64);
       return {
         opacity: p,
-        transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) translateZ(76px) scale(${mix(.86, .94, p).toFixed(4)})`
+        transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) scale(${mix(.86, .94, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
