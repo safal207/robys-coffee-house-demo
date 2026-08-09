@@ -12,6 +12,7 @@ on:
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
       - "scripts/contextual-sw-offline-smoke.mjs"
+      - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
@@ -29,6 +30,7 @@ on:
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
       - "scripts/contextual-sw-offline-smoke.mjs"
+      - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
@@ -75,6 +77,7 @@ jobs:
           node --check sw.js
           node --check scripts/contextual-entry-smoke.mjs
           node --check scripts/contextual-sw-offline-smoke.mjs
+          node --check scripts/contextual-routing-smoke.mjs
 
       - name: Verify canonical integrity before browser evidence
         run: node scripts/generate-integrity-manifest.mjs --check
@@ -88,6 +91,11 @@ jobs:
         env:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
+
+      - name: Certify automatic scene routing and history bypass
+        env:
+          CONTEXTUAL_ROUTING_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-routing
+        run: node scripts/contextual-routing-smoke.mjs
 
       - name: Certify service-worker contextual precache offline
         env:
