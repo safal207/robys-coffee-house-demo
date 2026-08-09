@@ -1,0 +1,41 @@
+name: Temporary premium depth performance apply
+
+on:
+  push:
+    branches:
+      - agent/premium-depth-v1
+    paths:
+      - "scripts/premium-depth-perf-apply-temp.py"
+      - ".github/workflows/premium-depth-perf-apply-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply compositor-safe premium depth tune
+        run: python3 scripts/premium-depth-perf-apply-temp.py
+      - name: Verify runtime and depth test syntax
+        run: |
+          node --check day-night-entry.js
+          node --check scripts/premium-depth-smoke.mjs
+      - name: Regenerate and verify integrity
+        run: |
+          npm run integrity:generate
+          npm run verify:integrity
+      - name: Commit tuned runtime, test and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add day-night-entry.js scripts/premium-depth-smoke.mjs integrity-manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "perf(motion): keep premium depth at 60hz"
+          git push origin HEAD:agent/premium-depth-v1
