@@ -67,7 +67,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Verify canonical integrity before browser evidence
-        run: npm run verify:integrity
+        run: node scripts/generate-integrity-manifest.mjs --check
 
       - name: Re-run baseline Morning contract
         env:
