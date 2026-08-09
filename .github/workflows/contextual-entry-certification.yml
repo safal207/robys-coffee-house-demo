@@ -14,6 +14,7 @@ on:
       - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
+      - "scripts/verify-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/contextual-entry-certification.yml"
@@ -32,6 +33,7 @@ on:
       - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
+      - "scripts/verify-integrity-manifest.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/contextual-entry-certification.yml"
@@ -75,12 +77,14 @@ jobs:
           node --check morning-entry.js
           node --check day-night-entry.js
           node --check sw.js
+          node --check scripts/generate-integrity-manifest.mjs
+          node --check scripts/verify-integrity-manifest.mjs
           node --check scripts/contextual-entry-smoke.mjs
           node --check scripts/contextual-sw-offline-smoke.mjs
           node --check scripts/contextual-routing-smoke.mjs
 
       - name: Verify canonical integrity before browser evidence
-        run: node scripts/generate-integrity-manifest.mjs --check
+        run: npm run verify:integrity
 
       - name: Re-run certified Morning baseline
         env:
