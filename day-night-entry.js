@@ -47,9 +47,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(255,231,194,0) 8%, rgba(255,226,181,.08) 34%, rgba(255,246,225,.92) 49%, rgba(246,174,94,.32) 58%, rgba(255,231,194,0) 82%)",
     specularShadow: "0 0 10px rgba(255,238,211,.34), 0 0 28px rgba(238,163,83,.16)",
     specularPeak: .78,
-    ribbonPeak: .24,
-    goldArcPeak: .28,
-    goldArcEnd: .05,
+    ribbonPeak: .14,
+    goldArcPeak: .22,
+    goldArcEnd: .04,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
     coldDuration: 1_100,
@@ -103,9 +103,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(248,199,132,0) 8%, rgba(238,181,111,.05) 34%, rgba(255,221,170,.64) 49%, rgba(197,105,51,.22) 58%, rgba(248,199,132,0) 82%)",
     specularShadow: "0 0 8px rgba(244,193,124,.18), 0 0 30px rgba(157,81,36,.14)",
     specularPeak: .62,
-    ribbonPeak: .2,
-    goldArcPeak: .22,
-    goldArcEnd: .04,
+    ribbonPeak: .12,
+    goldArcPeak: .18,
+    goldArcEnd: .03,
     haloBlur: "blur(24px)",
     focusBlur: "blur(15px)",
     coldDuration: 1_480,
@@ -579,7 +579,7 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoStage, poseSeries((t) => {
-      const p = phase(t, .42, .7);
+      const p = phase(t, .36, .64);
       return {
         opacity: p,
         transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) translateZ(76px) scale(${mix(.86, .94, p).toFixed(4)})`
@@ -587,8 +587,8 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoHalo, poseSeries((t) => {
-      const rise = phase(t, .36, .64);
-      const settle = phase(t, .8, 1);
+      const rise = phase(t, .32, .58);
+      const settle = phase(t, .82, 1);
       return {
         opacity: mix(0, .78, rise) * mix(1, .78, settle),
         transform: `translate(-50%, -50%) scale(${mix(.68, 1.04, rise).toFixed(4)})`
@@ -596,7 +596,7 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoFocus, poseSeries((t) => {
-      const rise = phase(t, .4, .66);
+      const rise = phase(t, .34, .6);
       const settle = phase(t, .84, 1);
       return {
         opacity: mix(0, .94, rise) * mix(1, .9, settle),
@@ -605,8 +605,8 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(mark, poseSeries((t) => {
-      const rise = phase(t, .44, .62);
-      const settle = phase(t, .62, .76);
+      const rise = phase(t, .38, .54);
+      const settle = phase(t, .54, .66);
       const scale = settle > 0 ? mix(1.035, 1, settle) : mix(.82, 1.035, rise);
       return {
         opacity: rise,
@@ -615,7 +615,7 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(wordmark, poseSeries((t) => {
-      const rise = phase(t, .54, .76);
+      const rise = phase(t, .46, .66);
       return {
         opacity: rise,
         transform: `translateY(${mix(14, 0, rise).toFixed(3)}px) scale(${mix(.95, 1, rise).toFixed(4)})`

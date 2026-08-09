@@ -96,6 +96,8 @@ async function readDepthEvidence(page) {
       optics: document.documentElement.dataset.robysEntryOptics ?? "",
       overlayPerspective: getComputedStyle(document.querySelector(".robys-contextual-entry")).perspective,
       overlayOpacity: Number(getComputedStyle(document.querySelector(".robys-contextual-entry")).opacity),
+      overlayAnimationCount: document.querySelector(".robys-contextual-entry")?.getAnimations().length ?? -1,
+      entryState: document.documentElement.dataset.robysEntryState ?? "",
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
@@ -191,7 +193,9 @@ async function captureScene(browser, scene) {
     if ((focusEvidence.mark?.opacity ?? 0) >= .98
       && (focusEvidence.wordmark?.opacity ?? 0) >= .95
       && (focusEvidence.logoFocus?.opacity ?? 0) >= .8
-      && (focusEvidence.overlayOpacity ?? 0) >= .98) {
+      && (focusEvidence.overlayOpacity ?? 0) >= .98
+      && (focusEvidence.overlayAnimationCount ?? -1) === 0
+      && focusEvidence.entryState === "brand-frame") {
       break;
     }
     await new Promise((resolve) => setTimeout(resolve, 24));
@@ -201,8 +205,10 @@ async function captureScene(browser, scene) {
   assert((focusEvidence?.wordmark?.opacity ?? 0) >= .95, `${scene}: focal wordmark never reached its sharp hold`);
   assert((focusEvidence?.logoFocus?.opacity ?? 0) >= .8, `${scene}: amber focus pocket never reached focal hold`);
   assert((focusEvidence?.overlayOpacity ?? 0) >= .98, `${scene}: focus screenshot drifted into handoff fade`);
-  assert((focusEvidence?.brownRibbon?.opacity ?? 1) <= .25, `${scene}: espresso ribbon still dominates focal hold: ${focusEvidence?.brownRibbon?.opacity}`);
-  assert((focusEvidence?.goldArc?.opacity ?? 1) <= .29, `${scene}: vector gold arc still dominates focal hold: ${focusEvidence?.goldArc?.opacity}`);
+  assert((focusEvidence?.overlayAnimationCount ?? -1) === 0, `${scene}: overlay exit animation already started during focal hold`);
+  assert(focusEvidence?.entryState === "brand-frame", `${scene}: focal hold is not inside brand-frame state: ${focusEvidence?.entryState}`);
+  assert((focusEvidence?.brownRibbon?.opacity ?? 1) <= .16, `${scene}: espresso ribbon still dominates focal hold: ${focusEvidence?.brownRibbon?.opacity}`);
+  assert((focusEvidence?.goldArc?.opacity ?? 1) <= .23, `${scene}: vector gold arc still dominates focal hold: ${focusEvidence?.goldArc?.opacity}`);
 
   await page.screenshot({
     path: path.join(resultsDir, `premium-depth-${scene}-focus.png`),
@@ -220,6 +226,8 @@ async function captureScene(browser, scene) {
       wordmarkOpacity: focusEvidence.wordmark.opacity,
       focusOpacity: focusEvidence.logoFocus.opacity,
       overlayOpacity: focusEvidence.overlayOpacity,
+      overlayAnimationCount: focusEvidence.overlayAnimationCount,
+      entryState: focusEvidence.entryState,
       brownRibbonOpacity: focusEvidence.brownRibbon.opacity,
       goldArcOpacity: focusEvidence.goldArc.opacity
     },
