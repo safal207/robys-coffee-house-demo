@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v37-20260808-android-atomic-handoff-v1-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v38-20260809-contextual-entry-v1-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -32,6 +32,7 @@ const CORE_ASSETS = [
   "./bootstrap.js",
   "./android-handoff.js",
   "./morning-entry.js",
+  "./day-night-entry.js",
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
