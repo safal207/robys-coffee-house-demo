@@ -95,6 +95,7 @@ async function readDepthEvidence(page) {
       depth: document.documentElement.dataset.robysEntryDepth ?? "",
       optics: document.documentElement.dataset.robysEntryOptics ?? "",
       overlayPerspective: getComputedStyle(document.querySelector(".robys-contextual-entry")).perspective,
+      overlayOpacity: Number(getComputedStyle(document.querySelector(".robys-contextual-entry")).opacity),
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
@@ -187,19 +188,21 @@ async function captureScene(browser, scene) {
   const focusStartedAt = Date.now();
   while (Date.now() - focusStartedAt < 1_350) {
     focusEvidence = await readDepthEvidence(page);
-    if ((focusEvidence.mark?.opacity ?? 0) >= .92
-      && (focusEvidence.wordmark?.opacity ?? 0) >= .72
-      && (focusEvidence.logoFocus?.opacity ?? 0) >= .68) {
+    if ((focusEvidence.mark?.opacity ?? 0) >= .98
+      && (focusEvidence.wordmark?.opacity ?? 0) >= .95
+      && (focusEvidence.logoFocus?.opacity ?? 0) >= .8
+      && (focusEvidence.overlayOpacity ?? 0) >= .98) {
       break;
     }
     await new Promise((resolve) => setTimeout(resolve, 24));
   }
 
-  assert((focusEvidence?.mark?.opacity ?? 0) >= .92, `${scene}: late focal mark never resolved`);
-  assert((focusEvidence?.wordmark?.opacity ?? 0) >= .72, `${scene}: late focal wordmark never resolved`);
-  assert((focusEvidence?.logoFocus?.opacity ?? 0) >= .68, `${scene}: late amber focus pocket never resolved`);
-  assert((focusEvidence?.brownRibbon?.opacity ?? 1) <= .43, `${scene}: espresso ribbon still dominates late focus: ${focusEvidence?.brownRibbon?.opacity}`);
-  assert((focusEvidence?.goldArc?.opacity ?? 1) <= .37, `${scene}: vector gold arc still dominates late focus: ${focusEvidence?.goldArc?.opacity}`);
+  assert((focusEvidence?.mark?.opacity ?? 0) >= .98, `${scene}: focal mark never reached its sharp hold`);
+  assert((focusEvidence?.wordmark?.opacity ?? 0) >= .95, `${scene}: focal wordmark never reached its sharp hold`);
+  assert((focusEvidence?.logoFocus?.opacity ?? 0) >= .8, `${scene}: amber focus pocket never reached focal hold`);
+  assert((focusEvidence?.overlayOpacity ?? 0) >= .98, `${scene}: focus screenshot drifted into handoff fade`);
+  assert((focusEvidence?.brownRibbon?.opacity ?? 1) <= .25, `${scene}: espresso ribbon still dominates focal hold: ${focusEvidence?.brownRibbon?.opacity}`);
+  assert((focusEvidence?.goldArc?.opacity ?? 1) <= .29, `${scene}: vector gold arc still dominates focal hold: ${focusEvidence?.goldArc?.opacity}`);
 
   await page.screenshot({
     path: path.join(resultsDir, `premium-depth-${scene}-focus.png`),
@@ -216,6 +219,7 @@ async function captureScene(browser, scene) {
       markOpacity: focusEvidence.mark.opacity,
       wordmarkOpacity: focusEvidence.wordmark.opacity,
       focusOpacity: focusEvidence.logoFocus.opacity,
+      overlayOpacity: focusEvidence.overlayOpacity,
       brownRibbonOpacity: focusEvidence.brownRibbon.opacity,
       goldArcOpacity: focusEvidence.goldArc.opacity
     },

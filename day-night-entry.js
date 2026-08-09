@@ -20,7 +20,7 @@ const SCENE_THEMES = {
       "0 -2px 0 rgba(255,169,92,.8)",
       "0 -20px 52px rgba(238,49,56,.18)"
     ].join(","),
-    brownRibbon: "linear-gradient(154deg, rgba(54,17,11,.78) 10%, rgba(91,39,22,.72) 48%, rgba(127,62,31,.62) 76%, rgba(49,15,10,.8) 100%)",
+    brownRibbon: "linear-gradient(154deg, rgba(54,17,11,.5) 10%, rgba(91,39,22,.42) 48%, rgba(127,62,31,.32) 76%, rgba(49,15,10,.52) 100%)",
     brownShadow: [
       "inset 0 2px 0 rgba(255,222,166,.34)",
       "inset 0 16px 32px rgba(236,163,91,.07)",
@@ -47,9 +47,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(255,231,194,0) 8%, rgba(255,226,181,.08) 34%, rgba(255,246,225,.92) 49%, rgba(246,174,94,.32) 58%, rgba(255,231,194,0) 82%)",
     specularShadow: "0 0 10px rgba(255,238,211,.34), 0 0 28px rgba(238,163,83,.16)",
     specularPeak: .78,
-    ribbonPeak: .42,
-    goldArcPeak: .36,
-    goldArcEnd: .08,
+    ribbonPeak: .24,
+    goldArcPeak: .28,
+    goldArcEnd: .05,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
     coldDuration: 1_140,
@@ -76,7 +76,7 @@ const SCENE_THEMES = {
       "0 -2px 0 rgba(215,119,65,.52)",
       "0 -24px 64px rgba(118,10,20,.2)"
     ].join(","),
-    brownRibbon: "linear-gradient(154deg, rgba(17,6,5,.8) 10%, rgba(38,15,10,.7) 48%, rgba(67,31,17,.58) 76%, rgba(20,7,6,.82) 100%)",
+    brownRibbon: "linear-gradient(154deg, rgba(17,6,5,.52) 10%, rgba(38,15,10,.4) 48%, rgba(67,31,17,.3) 76%, rgba(20,7,6,.54) 100%)",
     brownShadow: [
       "inset 0 2px 0 rgba(236,177,105,.22)",
       "inset 0 18px 38px rgba(181,99,46,.04)",
@@ -103,9 +103,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(248,199,132,0) 8%, rgba(238,181,111,.05) 34%, rgba(255,221,170,.64) 49%, rgba(197,105,51,.22) 58%, rgba(248,199,132,0) 82%)",
     specularShadow: "0 0 8px rgba(244,193,124,.18), 0 0 30px rgba(157,81,36,.14)",
     specularPeak: .62,
-    ribbonPeak: .36,
-    goldArcPeak: .28,
-    goldArcEnd: .06,
+    ribbonPeak: .2,
+    goldArcPeak: .22,
+    goldArcEnd: .04,
     haloBlur: "blur(24px)",
     focusBlur: "blur(15px)",
     coldDuration: 1_480,
@@ -579,7 +579,7 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoStage, poseSeries((t) => {
-      const p = phase(t, .46, .78);
+      const p = phase(t, .42, .7);
       return {
         opacity: p,
         transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) translateZ(76px) scale(${mix(.86, .94, p).toFixed(4)})`
@@ -587,8 +587,8 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoHalo, poseSeries((t) => {
-      const rise = phase(t, .4, .7);
-      const settle = phase(t, .78, 1);
+      const rise = phase(t, .36, .64);
+      const settle = phase(t, .8, 1);
       return {
         opacity: mix(0, .78, rise) * mix(1, .78, settle),
         transform: `translate(-50%, -50%) scale(${mix(.68, 1.04, rise).toFixed(4)})`
@@ -596,8 +596,8 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(logoFocus, poseSeries((t) => {
-      const rise = phase(t, .48, .76);
-      const settle = phase(t, .86, 1);
+      const rise = phase(t, .4, .66);
+      const settle = phase(t, .84, 1);
       return {
         opacity: mix(0, .94, rise) * mix(1, .9, settle),
         transform: `translate(-50%, -50%) scale(${mix(.66, 1, rise).toFixed(4)})`
@@ -605,8 +605,8 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(mark, poseSeries((t) => {
-      const rise = phase(t, .5, .7);
-      const settle = phase(t, .7, .84);
+      const rise = phase(t, .44, .62);
+      const settle = phase(t, .62, .76);
       const scale = settle > 0 ? mix(1.035, 1, settle) : mix(.82, 1.035, rise);
       return {
         opacity: rise,
@@ -615,7 +615,7 @@ function runContextualEntry({ scene: sceneName }) {
     }), { duration, easing: "linear", fill: "forwards" });
 
     animateSafe(wordmark, poseSeries((t) => {
-      const rise = phase(t, .6, .84);
+      const rise = phase(t, .54, .76);
       return {
         opacity: rise,
         transform: `translateY(${mix(14, 0, rise).toFixed(3)}px) scale(${mix(.95, 1, rise).toFixed(4)})`
