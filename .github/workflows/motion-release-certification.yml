@@ -1,0 +1,94 @@
+name: Motion release certification
+
+on:
+  pull_request:
+    paths:
+      - "bootstrap.js"
+      - "morning-entry.js"
+      - "android-handoff.js"
+      - "sw.js"
+      - "integrity-manifest.json"
+      - "src/brand/**"
+      - "scripts/morning-entry-smoke.mjs"
+      - "scripts/motion-release-certification.mjs"
+      - "scripts/android-handoff-smoke.mjs"
+      - ".github/workflows/motion-release-certification.yml"
+  push:
+    branches:
+      - agent/motion-release-certification-v1
+    paths:
+      - "bootstrap.js"
+      - "morning-entry.js"
+      - "android-handoff.js"
+      - "sw.js"
+      - "integrity-manifest.json"
+      - "src/brand/**"
+      - "scripts/morning-entry-smoke.mjs"
+      - "scripts/motion-release-certification.mjs"
+      - "scripts/android-handoff-smoke.mjs"
+      - ".github/workflows/motion-release-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: motion-release-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    name: MOTION-RELEASE-001 release matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install repository dependencies
+        run: npm ci
+
+      # Follow-up #322 tracks moving Playwright into the lockfile. Keep the same
+      # exact browser tooling version already used by the visual contracts until
+      # that dependency-hygiene change lands independently.
+      - name: Install deterministic browser tooling
+        run: npm install --no-save --package-lock=false playwright@1.52.0
+
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify canonical integrity before browser evidence
+        run: npm run verify:integrity
+
+      - name: Re-run baseline Morning contract
+        env:
+          MORNING_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/morning-entry
+        run: node scripts/morning-entry-smoke.mjs
+
+      - name: Certify extended motion release matrix
+        env:
+          MOTION_RELEASE_RESULTS_DIR: ${{ github.workspace }}/visual-results/motion-release
+        run: node scripts/motion-release-certification.mjs
+
+      - name: Re-certify browser Android handoff bridge
+        env:
+          ANDROID_HANDOFF_RESULTS_DIR: ${{ github.workspace }}/visual-results/android-handoff
+        run: node scripts/android-handoff-smoke.mjs
+
+      - name: Upload motion certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motion-release-certification-${{ github.sha }}
+          path: visual-results/**
+          if-no-files-found: warn
+          retention-days: 14
