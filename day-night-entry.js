@@ -20,18 +20,18 @@ const SCENE_THEMES = {
       "0 -2px 0 rgba(255,169,92,.8)",
       "0 -20px 52px rgba(238,49,56,.18)"
     ].join(","),
-    brownRibbon: "linear-gradient(154deg, rgba(54,17,11,.99) 10%, rgba(91,39,22,.98) 48%, rgba(127,62,31,.96) 76%, rgba(49,15,10,.99) 100%)",
+    brownRibbon: "linear-gradient(154deg, rgba(54,17,11,.78) 10%, rgba(91,39,22,.72) 48%, rgba(127,62,31,.62) 76%, rgba(49,15,10,.8) 100%)",
     brownShadow: [
-      "inset 0 3px 0 rgba(255,222,166,.88)",
-      "inset 0 18px 34px rgba(236,163,91,.14)",
-      "0 18px 62px rgba(18,5,4,.28)"
+      "inset 0 2px 0 rgba(255,222,166,.34)",
+      "inset 0 16px 32px rgba(236,163,91,.07)",
+      "0 20px 72px rgba(18,5,4,.18)"
     ].join(","),
-    goldBorder: "1px solid rgba(255,230,187,.68)",
-    goldBackground: "radial-gradient(circle at 35% 70%, rgba(255,241,215,.24), rgba(226,155,76,.1) 36%, rgba(0,0,0,0) 68%)",
+    goldBorder: "1px solid rgba(255,230,187,.3)",
+    goldBackground: "radial-gradient(circle at 35% 70%, rgba(255,241,215,.12), rgba(226,155,76,.04) 36%, rgba(0,0,0,0) 68%)",
     goldShadow: [
-      "0 0 16px rgba(255,231,190,.62)",
-      "0 0 52px rgba(230,157,82,.36)",
-      "inset 0 0 48px rgba(255,228,181,.14)"
+      "0 0 10px rgba(255,231,190,.3)",
+      "0 0 34px rgba(230,157,82,.16)",
+      "inset 0 0 38px rgba(255,228,181,.06)"
     ].join(","),
     lightVeil: "linear-gradient(102deg, rgba(255,233,198,0) 4%, rgba(255,224,181,.2) 39%, rgba(255,239,214,.52) 66%, rgba(255,250,238,.78) 82%, rgba(255,233,198,0) 100%)",
     vignette: "radial-gradient(circle at 54% 45%, rgba(0,0,0,0) 34%, rgba(20,6,5,.08) 68%, rgba(15,4,4,.38) 100%)",
@@ -47,9 +47,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(255,231,194,0) 8%, rgba(255,226,181,.08) 34%, rgba(255,246,225,.92) 49%, rgba(246,174,94,.32) 58%, rgba(255,231,194,0) 82%)",
     specularShadow: "0 0 10px rgba(255,238,211,.34), 0 0 28px rgba(238,163,83,.16)",
     specularPeak: .78,
-    ribbonPeak: .78,
-    goldArcPeak: .72,
-    goldArcEnd: .24,
+    ribbonPeak: .42,
+    goldArcPeak: .36,
+    goldArcEnd: .08,
     haloBlur: "blur(22px)",
     focusBlur: "blur(13px)",
     coldDuration: 1_140,
@@ -76,18 +76,18 @@ const SCENE_THEMES = {
       "0 -2px 0 rgba(215,119,65,.52)",
       "0 -24px 64px rgba(118,10,20,.2)"
     ].join(","),
-    brownRibbon: "linear-gradient(154deg, rgba(17,6,5,.995) 10%, rgba(38,15,10,.99) 48%, rgba(67,31,17,.97) 76%, rgba(20,7,6,.995) 100%)",
+    brownRibbon: "linear-gradient(154deg, rgba(17,6,5,.8) 10%, rgba(38,15,10,.7) 48%, rgba(67,31,17,.58) 76%, rgba(20,7,6,.82) 100%)",
     brownShadow: [
-      "inset 0 2px 0 rgba(236,177,105,.58)",
-      "inset 0 18px 38px rgba(181,99,46,.08)",
-      "0 20px 78px rgba(0,0,0,.5)"
+      "inset 0 2px 0 rgba(236,177,105,.22)",
+      "inset 0 18px 38px rgba(181,99,46,.04)",
+      "0 22px 82px rgba(0,0,0,.34)"
     ].join(","),
-    goldBorder: "1px solid rgba(247,191,113,.46)",
-    goldBackground: "radial-gradient(circle at 35% 70%, rgba(250,201,127,.14), rgba(177,95,42,.06) 36%, rgba(0,0,0,0) 68%)",
+    goldBorder: "1px solid rgba(247,191,113,.2)",
+    goldBackground: "radial-gradient(circle at 35% 70%, rgba(250,201,127,.07), rgba(177,95,42,.025) 36%, rgba(0,0,0,0) 68%)",
     goldShadow: [
-      "0 0 13px rgba(245,185,106,.34)",
-      "0 0 54px rgba(157,81,36,.28)",
-      "inset 0 0 54px rgba(235,169,92,.08)"
+      "0 0 8px rgba(245,185,106,.18)",
+      "0 0 32px rgba(157,81,36,.14)",
+      "inset 0 0 44px rgba(235,169,92,.035)"
     ].join(","),
     lightVeil: "linear-gradient(102deg, rgba(242,190,119,0) 4%, rgba(231,171,100,.08) 40%, rgba(244,195,126,.24) 66%, rgba(250,214,158,.38) 81%, rgba(242,190,119,0) 100%)",
     vignette: "radial-gradient(circle at 54% 45%, rgba(0,0,0,0) 24%, rgba(4,1,2,.2) 64%, rgba(2,1,1,.7) 100%)",
@@ -103,9 +103,9 @@ const SCENE_THEMES = {
     specularEdge: "linear-gradient(96deg, rgba(248,199,132,0) 8%, rgba(238,181,111,.05) 34%, rgba(255,221,170,.64) 49%, rgba(197,105,51,.22) 58%, rgba(248,199,132,0) 82%)",
     specularShadow: "0 0 8px rgba(244,193,124,.18), 0 0 30px rgba(157,81,36,.14)",
     specularPeak: .62,
-    ribbonPeak: .7,
-    goldArcPeak: .58,
-    goldArcEnd: .18,
+    ribbonPeak: .36,
+    goldArcPeak: .28,
+    goldArcEnd: .06,
     haloBlur: "blur(24px)",
     focusBlur: "blur(15px)",
     coldDuration: 1_480,

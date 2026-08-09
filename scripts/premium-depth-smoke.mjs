@@ -98,6 +98,8 @@ async function readDepthEvidence(page) {
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
+      brownRibbon: style(".robys-entry-brown-ribbon"),
+      goldArc: style(".robys-entry-gold-arc"),
       specularEdge: style(".robys-entry-specular-edge"),
       foreground: style(".robys-entry-foreground-occluder"),
       logoStage: stage ? {
@@ -180,6 +182,29 @@ async function captureScene(browser, scene) {
     path: path.join(resultsDir, `premium-depth-${scene}-mid.png`),
     fullPage: false
   });
+
+  let focusEvidence = null;
+  const focusStartedAt = Date.now();
+  while (Date.now() - focusStartedAt < 1_350) {
+    focusEvidence = await readDepthEvidence(page);
+    if ((focusEvidence.mark?.opacity ?? 0) >= .92
+      && (focusEvidence.wordmark?.opacity ?? 0) >= .72
+      && (focusEvidence.logoFocus?.opacity ?? 0) >= .68) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 24));
+  }
+
+  assert((focusEvidence?.mark?.opacity ?? 0) >= .92, `${scene}: late focal mark never resolved`);
+  assert((focusEvidence?.wordmark?.opacity ?? 0) >= .72, `${scene}: late focal wordmark never resolved`);
+  assert((focusEvidence?.logoFocus?.opacity ?? 0) >= .68, `${scene}: late amber focus pocket never resolved`);
+  assert((focusEvidence?.brownRibbon?.opacity ?? 1) <= .43, `${scene}: espresso ribbon still dominates late focus: ${focusEvidence?.brownRibbon?.opacity}`);
+  assert((focusEvidence?.goldArc?.opacity ?? 1) <= .37, `${scene}: vector gold arc still dominates late focus: ${focusEvidence?.goldArc?.opacity}`);
+
+  await page.screenshot({
+    path: path.join(resultsDir, `premium-depth-${scene}-focus.png`),
+    fullPage: false
+  });
   await context.close();
 
   return {
@@ -187,6 +212,13 @@ async function captureScene(browser, scene) {
     depthBlurPx: depthBlur,
     foregroundBlurPx: foregroundBlur,
     focusBlurPx: focusBlur,
+    focus: {
+      markOpacity: focusEvidence.mark.opacity,
+      wordmarkOpacity: focusEvidence.wordmark.opacity,
+      focusOpacity: focusEvidence.logoFocus.opacity,
+      brownRibbonOpacity: focusEvidence.brownRibbon.opacity,
+      goldArcOpacity: focusEvidence.goldArc.opacity
+    },
     evidence
   };
 }
@@ -207,11 +239,11 @@ try {
   const summary = {
     contract: "MOTION-DEPTH-001",
     depthModel: "perspective far-plane parallax -> espresso depth -> hero/specular material -> cinematic blurred foreground -> sharp logo focal plane",
-    day: { depthBlurPx: day.depthBlurPx, foregroundBlurPx: day.foregroundBlurPx, focusBlurPx: day.focusBlurPx },
-    night: { depthBlurPx: night.depthBlurPx, foregroundBlurPx: night.foregroundBlurPx, focusBlurPx: night.focusBlurPx }
+    day: { depthBlurPx: day.depthBlurPx, foregroundBlurPx: day.foregroundBlurPx, focusBlurPx: day.focusBlurPx, focus: day.focus },
+    night: { depthBlurPx: night.depthBlurPx, foregroundBlurPx: night.foregroundBlurPx, focusBlurPx: night.focusBlurPx, focus: night.focus }
   };
   writeFileSync(path.join(resultsDir, "premium-depth-evidence.json"), `${JSON.stringify(summary, null, 2)}\n`);
-  console.log(`✅ MOTION-DEPTH-001 passed: gradient-softened far plane + Day ${day.foregroundBlurPx}px / Night ${night.foregroundBlurPx}px foreground DOF; sharp canonical logo, static blur, three-plane z hierarchy and specular focus are certified.`);
+  console.log(`✅ MOTION-DEPTH-001 passed: perspective far plane + Day ${day.foregroundBlurPx}px / Night ${night.foregroundBlurPx}px foreground DOF; late sharp-logo focus frames, subdued ribbon/ring, static blur and material specular hierarchy are certified.`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
