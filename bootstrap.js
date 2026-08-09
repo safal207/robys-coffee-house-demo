@@ -3,6 +3,7 @@ document.documentElement.classList.add("js");
 const ANDROID_LOGO_OBSERVER_TIMEOUT_MS = 10_000;
 const ANDROID_LOGO_MAX_ATTEMPTS = 100;
 const ANDROID_HANDOFF_ENTRY_MODE = "android-handoff";
+const ENTRY_PREPAINT_TIMEOUT_MS = 2_600;
 
 function installAppleTouchIcon() {
   if (document.head.querySelector('link[rel="apple-touch-icon"]')) return;
@@ -29,30 +30,31 @@ function installAndroidButtonLogo() {
   return true;
 }
 
-const MORNING_ENTRY_PREPAINT_TIMEOUT_MS = 2_600;
-
 function requestedEntryMode() {
   return new URLSearchParams(window.location.search).get("entry");
 }
 
-function morningEntryEligible() {
+function resolveEntryScene() {
   const mode = requestedEntryMode();
-  if (mode === "off" || mode === ANDROID_HANDOFF_ENTRY_MODE) return false;
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
-  if (mode === "morning") return true;
+  if (mode === "off" || mode === ANDROID_HANDOFF_ENTRY_MODE) return null;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return null;
+  if (mode === "morning" || mode === "day" || mode === "night") return mode;
 
   const navigation = performance.getEntriesByType?.("navigation")?.[0];
-  if (navigation?.type === "back_forward") return false;
+  if (navigation?.type === "back_forward") return null;
 
   const hour = new Date().getHours();
-  return hour >= 5 && hour < 12;
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 18) return "day";
+  return "night";
 }
 
 function revealProductAfterEntryFailure() {
   window.__robysMorningEntryAborted = true;
+  window.__robysContextualEntryAborted = true;
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
-  document.querySelector(".robys-morning-entry")?.remove();
+  document.querySelector(".robys-morning-entry, .robys-contextual-entry")?.remove();
 }
 
 function revealProductAfterAndroidHandoffFailure() {
@@ -74,30 +76,39 @@ function loadAndroidHandoffIfRequested() {
   return true;
 }
 
-function loadMorningEntryIfEligible() {
-  if (!morningEntryEligible()) return;
+function loadEntryIfEligible() {
+  const scene = resolveEntryScene();
+  if (!scene) return;
 
   window.__robysMorningEntryAborted = false;
-  document.documentElement.style.backgroundColor = "#170a08";
+  window.__robysContextualEntryAborted = false;
+  document.documentElement.style.backgroundColor = scene === "morning"
+    ? "#170a08"
+    : scene === "day"
+      ? "#2d0d0c"
+      : "#0d0505";
 
-  import("./morning-entry.js?v=20260808-volumetric-v2")
-    .catch(revealProductAfterEntryFailure);
+  const entryImport = scene === "morning"
+    ? import("./morning-entry.js?v=20260808-volumetric-v2")
+    : import("./day-night-entry.js?v=20260809-contextual-v1");
+
+  entryImport.catch(revealProductAfterEntryFailure);
 
   window.setTimeout(() => {
-    const overlay = document.querySelector(".robys-morning-entry");
+    const overlay = document.querySelector(".robys-morning-entry, .robys-contextual-entry");
     if (!overlay) revealProductAfterEntryFailure();
     else {
       document.documentElement.style.visibility = "";
       document.documentElement.style.backgroundColor = "";
       overlay.remove();
     }
-  }, MORNING_ENTRY_PREPAINT_TIMEOUT_MS);
+  }, ENTRY_PREPAINT_TIMEOUT_MS);
 }
 
 installAppleTouchIcon();
 
 if (!loadAndroidHandoffIfRequested()) {
-  loadMorningEntryIfEligible();
+  loadEntryIfEligible();
 }
 
 if (!installAndroidButtonLogo()) {
