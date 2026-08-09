@@ -54,7 +54,7 @@ async function waitForDepthReady(page, timeoutMs = 1_700) {
       const specular = document.querySelector(".robys-entry-specular-edge");
       const depth = document.querySelector(".robys-entry-depth-haze");
       if (!foreground || !specular || !depth) return false;
-      return root.dataset.robysEntryDepth === "premium-v1"
+      return root.dataset.robysEntryDepth === "premium-v2"
         && root.dataset.robysEntryDepthPlanes === "3"
         && Number(getComputedStyle(foreground).opacity) > .08
         && Number(getComputedStyle(specular).opacity) > .08
@@ -93,6 +93,8 @@ async function readDepthEvidence(page) {
     return {
       scene: document.documentElement.dataset.robysEntryScene ?? "",
       depth: document.documentElement.dataset.robysEntryDepth ?? "",
+      optics: document.documentElement.dataset.robysEntryOptics ?? "",
+      overlayPerspective: getComputedStyle(document.querySelector(".robys-contextual-entry")).perspective,
       depthPlanes: document.documentElement.dataset.robysEntryDepthPlanes ?? "",
       depthHaze: style(".robys-entry-depth-haze"),
       redSurface: style(".robys-entry-red-surface"),
@@ -143,14 +145,17 @@ async function captureScene(browser, scene) {
 
   const evidence = await readDepthEvidence(page);
   assert(evidence.scene === scene, `${scene}: wrong resolved scene ${evidence.scene}`);
-  assert(evidence.depth === "premium-v1", `${scene}: premium depth dataset missing`);
+  assert(evidence.depth === "premium-v2", `${scene}: premium depth v2 dataset missing`);
+  assert(evidence.optics === "perspective-dof-v2", `${scene}: perspective optics dataset missing`);
+  assert(evidence.overlayPerspective !== "none", `${scene}: CSS perspective is not active`);
   assert(evidence.depthPlanes === "3", `${scene}: expected exactly three logical depth planes`);
 
   const depthBlur = parseBlurPx(evidence.depthHaze?.filter);
   const foregroundBlur = parseBlurPx(evidence.foreground?.filter);
   const focusBlur = parseBlurPx(evidence.logoFocus?.filter);
-  assert(depthBlur === 0, `${scene}: background haze must stay gradient-softened without a large CSS blur texture`);
-  assert(foregroundBlur >= 12 && foregroundBlur <= 16, `${scene}: foreground blur out of range: ${foregroundBlur}px`);
+  assert(depthBlur === 0, `${scene}: far plane must stay gradient-softened without a full-screen CSS blur`);
+  const expectedForegroundBlur = scene === "night" ? 24 : 18;
+  assert(foregroundBlur === expectedForegroundBlur, `${scene}: foreground blur must match the cinematic DOF target: ${foregroundBlur}px`);
   assert(foregroundBlur > depthBlur, `${scene}: foreground must be softer than the far plane`);
   assert(focusBlur >= 10 && focusBlur <= 16, `${scene}: focus pocket blur out of range: ${focusBlur}px`);
 
@@ -159,7 +164,8 @@ async function captureScene(browser, scene) {
   assert(evidence.foreground.zIndex < evidence.logoStage.zIndex, `${scene}: foreground may occlude the logo`);
   assert(evidence.specularEdge.zIndex > evidence.redSurface.zIndex, `${scene}: specular edge must sit above hero material`);
 
-  assert(evidence.depthHaze.animationKeyframes.length === 0, `${scene}: far haze should be static to avoid full-screen filtered animation cost`);
+  assertTransformOpacityOnly(evidence.depthHaze, `${scene} far depth plane`);
+  assert(String(evidence.depthHaze.filter) === "none", `${scene}: far plane may parallax but must not animate/filter a full-screen blur surface`);
   assert(String(evidence.depthHaze.background).includes("radial-gradient"), `${scene}: far haze must retain soft gradient depth`);
   assertTransformOpacityOnly(evidence.foreground, `${scene} foreground`);
   assertTransformOpacityOnly(evidence.specularEdge, `${scene} specular edge`);
@@ -200,7 +206,7 @@ try {
 
   const summary = {
     contract: "MOTION-DEPTH-001",
-    depthModel: "static gradient-softened background haze -> hero material/specular -> compact blurred foreground occluder -> sharp logo",
+    depthModel: "perspective far-plane parallax -> espresso depth -> hero/specular material -> cinematic blurred foreground -> sharp logo focal plane",
     day: { depthBlurPx: day.depthBlurPx, foregroundBlurPx: day.foregroundBlurPx, focusBlurPx: day.focusBlurPx },
     night: { depthBlurPx: night.depthBlurPx, foregroundBlurPx: night.foregroundBlurPx, focusBlurPx: night.focusBlurPx }
   };

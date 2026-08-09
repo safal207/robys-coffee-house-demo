@@ -39,14 +39,14 @@ const SCENE_THEMES = {
     focus: "radial-gradient(ellipse at center, rgba(255,250,238,.96) 0%, rgba(255,235,203,.82) 30%, rgba(230,164,95,.4) 52%, rgba(105,40,21,.08) 72%, rgba(45,13,12,0) 84%)",
     markFilter: "drop-shadow(0 8px 22px rgba(238,49,56,.22))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,252,245,.18)) drop-shadow(0 8px 18px rgba(32,8,7,.16))",
-    depthHaze: "radial-gradient(ellipse at 74% 34%, rgba(255,220,167,.18) 0%, rgba(167,72,34,.09) 34%, rgba(45,13,12,0) 66%), linear-gradient(145deg, rgba(74,26,18,.62), rgba(45,13,12,.1) 54%, rgba(82,29,18,.48))",
+    depthHaze: "radial-gradient(ellipse at 78% 28%, rgba(255,225,181,.15) 0%, rgba(171,78,39,.07) 30%, rgba(45,13,12,0) 64%), radial-gradient(ellipse at 24% 76%, rgba(119,28,24,.18) 0%, rgba(45,13,12,0) 58%), linear-gradient(145deg, rgba(69,24,17,.54), rgba(45,13,12,.08) 52%, rgba(77,29,18,.42))",
     depthHazeBlur: "none",
-    foregroundVolume: "radial-gradient(ellipse at 68% 26%, rgba(240,69,61,.42) 0%, rgba(143,16,28,.72) 35%, rgba(58,9,12,.94) 72%, rgba(32,7,8,.98) 100%)",
-    foregroundBlur: "blur(12px)",
-    foregroundPeak: .42,
-    specularEdge: "linear-gradient(98deg, rgba(255,231,194,0) 4%, rgba(255,226,181,.14) 31%, rgba(255,244,221,.9) 51%, rgba(246,174,94,.52) 64%, rgba(255,231,194,0) 94%)",
-    specularShadow: "0 0 12px rgba(255,235,205,.36), 0 0 34px rgba(238,163,83,.22)",
-    specularPeak: .84,
+    foregroundVolume: "radial-gradient(ellipse at 58% 18%, rgba(255,108,78,.24) 0%, rgba(177,29,40,.45) 31%, rgba(83,10,18,.72) 62%, rgba(31,6,8,.9) 100%)",
+    foregroundBlur: "blur(18px)",
+    foregroundPeak: .34,
+    specularEdge: "linear-gradient(96deg, rgba(255,231,194,0) 8%, rgba(255,226,181,.08) 34%, rgba(255,246,225,.92) 49%, rgba(246,174,94,.32) 58%, rgba(255,231,194,0) 82%)",
+    specularShadow: "0 0 10px rgba(255,238,211,.34), 0 0 28px rgba(238,163,83,.16)",
+    specularPeak: .78,
     ribbonPeak: .78,
     goldArcPeak: .72,
     goldArcEnd: .24,
@@ -95,14 +95,14 @@ const SCENE_THEMES = {
     focus: "radial-gradient(ellipse at center, rgba(255,231,190,.95) 0%, rgba(246,197,132,.73) 28%, rgba(172,92,46,.38) 50%, rgba(55,19,12,.08) 72%, rgba(13,5,5,0) 84%)",
     markFilter: "drop-shadow(0 8px 24px rgba(133,13,24,.28))",
     wordmarkFilter: "drop-shadow(0 1px 0 rgba(255,232,197,.08)) drop-shadow(0 10px 24px rgba(0,0,0,.32))",
-    depthHaze: "radial-gradient(ellipse at 76% 36%, rgba(232,169,96,.12) 0%, rgba(113,48,25,.08) 36%, rgba(13,5,5,0) 68%), linear-gradient(145deg, rgba(31,10,8,.72), rgba(13,5,5,.18) 54%, rgba(42,15,10,.58))",
+    depthHaze: "radial-gradient(ellipse at 78% 32%, rgba(222,151,84,.1) 0%, rgba(98,39,23,.06) 32%, rgba(13,5,5,0) 66%), radial-gradient(ellipse at 22% 78%, rgba(92,10,20,.16) 0%, rgba(13,5,5,0) 58%), linear-gradient(145deg, rgba(27,9,7,.68), rgba(13,5,5,.14) 54%, rgba(36,13,9,.52))",
     depthHazeBlur: "none",
-    foregroundVolume: "radial-gradient(ellipse at 66% 24%, rgba(151,27,36,.3) 0%, rgba(92,8,19,.72) 36%, rgba(28,4,7,.96) 72%, rgba(10,3,4,.995) 100%)",
-    foregroundBlur: "blur(14px)",
-    foregroundPeak: .5,
-    specularEdge: "linear-gradient(98deg, rgba(248,199,132,0) 4%, rgba(238,181,111,.08) 31%, rgba(255,218,162,.66) 51%, rgba(197,105,51,.36) 64%, rgba(248,199,132,0) 94%)",
-    specularShadow: "0 0 10px rgba(244,193,124,.22), 0 0 38px rgba(157,81,36,.2)",
-    specularPeak: .68,
+    foregroundVolume: "radial-gradient(ellipse at 56% 18%, rgba(174,38,44,.18) 0%, rgba(100,10,22,.42) 34%, rgba(37,4,9,.76) 66%, rgba(8,2,3,.94) 100%)",
+    foregroundBlur: "blur(24px)",
+    foregroundPeak: .36,
+    specularEdge: "linear-gradient(96deg, rgba(248,199,132,0) 8%, rgba(238,181,111,.05) 34%, rgba(255,221,170,.64) 49%, rgba(197,105,51,.22) 58%, rgba(248,199,132,0) 82%)",
+    specularShadow: "0 0 8px rgba(244,193,124,.18), 0 0 30px rgba(157,81,36,.14)",
+    specularPeak: .62,
     ribbonPeak: .7,
     goldArcPeak: .58,
     goldArcEnd: .18,
@@ -215,7 +215,10 @@ function createContextualEntry(sceneName) {
     background: theme.background,
     opacity: "1",
     touchAction: "manipulation",
-    isolation: "isolate"
+    isolation: "isolate",
+    perspective: "980px",
+    perspectiveOrigin: "52% 44%",
+    transformStyle: "preserve-3d"
   });
   overlay.className = `robys-contextual-entry robys-${sceneName}-entry`;
   overlay.setAttribute("aria-hidden", "true");
@@ -224,8 +227,9 @@ function createContextualEntry(sceneName) {
     inset: "-10%",
     background: theme.depthHaze,
     filter: theme.depthHazeBlur,
-    opacity: ".64",
-    transform: "scale(1.025)",
+    opacity: ".58",
+    transform: "translateZ(-90px) scale(1.12)",
+    transformOrigin: "52% 44%",
     zIndex: "0"
   }, "robys-entry-depth-haze");
 
@@ -251,10 +255,10 @@ function createContextualEntry(sceneName) {
   }, "robys-entry-red-surface");
 
   const specularEdge = createSplineLayer({
-    left: "-18vw",
-    bottom: "7vh",
-    width: "94vw",
-    height: "22vh",
+    left: "-28vw",
+    bottom: "12vh",
+    width: "112vw",
+    height: "14vh",
     borderRadius: "50%",
     background: theme.specularEdge,
     boxShadow: theme.specularShadow,
@@ -292,26 +296,27 @@ function createContextualEntry(sceneName) {
   }, "robys-entry-gold-arc");
 
   const lightVeil = createSplineLayer({
-    right: "-28%",
-    top: "-18%",
-    width: "72%",
-    height: "142%",
+    right: "-58%",
+    top: "-30%",
+    width: "124%",
+    height: "160%",
+    borderRadius: "50%",
     background: theme.lightVeil,
     opacity: "0",
-    transform: "translate3d(11%,0,0) rotate(7deg)",
+    transform: "translate3d(8%,0,0) translateZ(18px) rotate(5deg)",
     zIndex: "6"
   }, "robys-entry-light-veil");
 
   const foregroundOccluder = createSplineLayer({
-    left: "-22vw",
-    bottom: "-10vh",
-    width: "66vw",
-    height: "54vh",
-    borderRadius: "52% 48% 46% 54%",
+    left: "-42vw",
+    bottom: "-28vh",
+    width: "92vw",
+    height: "74vh",
+    borderRadius: "50%",
     background: theme.foregroundVolume,
     filter: theme.foregroundBlur,
     opacity: "0",
-    transform: "rotate(-18deg) translate3d(-4vw,4vh,0) scale(1.08)",
+    transform: "translateZ(46px) rotateX(-1.2deg) rotateY(2.2deg) rotate(-14deg) translate3d(-5vw,5vh,0) scale(1.06)",
     transformOrigin: "50% 50%",
     zIndex: "7"
   }, "robys-entry-foreground-occluder");
@@ -328,7 +333,7 @@ function createContextualEntry(sceneName) {
     left: "50%",
     top: "45%",
     width: "min(72vw, 296px)",
-    transform: "translate(-50%, -38%) scale(.9)",
+    transform: "translate(-50%, -38%) translateZ(76px) scale(.86)",
     opacity: "0",
     display: "grid",
     justifyItems: "center",
@@ -489,7 +494,8 @@ function runContextualEntry({ scene: sceneName }) {
   document.documentElement.dataset.robysEntryBrandReveal = "integrated-v1";
   document.documentElement.dataset.robysEntryFamily = "contextual-v1";
   document.documentElement.dataset.robysEntryTempo = sceneName;
-  document.documentElement.dataset.robysEntryDepth = "premium-v1";
+  document.documentElement.dataset.robysEntryDepth = "premium-v2";
+  document.documentElement.dataset.robysEntryOptics = "perspective-dof-v2";
   document.documentElement.dataset.robysEntryDepthPlanes = "3";
   emitEntryState(sceneName, "brand-frame", variant);
 
@@ -502,6 +508,15 @@ function runContextualEntry({ scene: sceneName }) {
   const lifecycle = new AbortController();
 
   requestAnimationFrame(() => {
+    animateSafe(depthHaze, poseSeries((t) => {
+      const p = smoothPose(t);
+      const settle = phase(t, .72, 1);
+      return {
+        opacity: mix(.58, .52, settle),
+        transform: `translateZ(-90px) translate3d(${mix(-.5, .35, p).toFixed(3)}vw,${mix(-.35, .2, p).toFixed(3)}vh,0) scale(${mix(1.12, 1.105, p).toFixed(4)})`
+      };
+    }), { duration, easing: "linear", fill: "forwards" });
+
     animateSafe(ambient, poseSeries((t) => {
       const p = smoothPose(t);
       const settle = phase(t, .7, 1);
@@ -517,7 +532,7 @@ function runContextualEntry({ scene: sceneName }) {
       const settle = phase(t, .7, 1);
       return {
         opacity: phase(t, 0, .2) * mix(1, .82, settle),
-        transform: `rotate(${mix(-11, -6.5, p).toFixed(3)}deg) translate3d(${mix(-3, 2.4, p).toFixed(3)}vw,${(mix(5, -1.5, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, .998, p).toFixed(4)})`
+        transform: `translateZ(0px) rotate(${mix(-11, -6.5, p).toFixed(3)}deg) translate3d(${mix(-3, 2.4, p).toFixed(3)}vw,${(mix(5, -1.5, p) - lift).toFixed(3)}vh,0) scale(${mix(1.08, .998, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -525,7 +540,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = smoothPose(t);
       return {
         opacity: peak(t, .1, .56, 1, theme.specularPeak, .28),
-        transform: `rotate(${mix(-8, -4.8, p).toFixed(3)}deg) translate3d(${mix(5, -1.2, p).toFixed(3)}vw,${mix(4, .4, p).toFixed(3)}vh,0) scale(${mix(1.04, 1.005, p).toFixed(4)})`
+        transform: `translateZ(16px) rotate(${mix(-8, -4.8, p).toFixed(3)}deg) translate3d(${mix(5, -1.2, p).toFixed(3)}vw,${mix(4, .4, p).toFixed(3)}vh,0) scale(${mix(1.04, 1.005, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -534,7 +549,7 @@ function runContextualEntry({ scene: sceneName }) {
       const settle = phase(t, .72, 1);
       return {
         opacity: theme.ribbonPeak * phase(t, .03, .28) * mix(1, .82, settle),
-        transform: `rotate(${mix(8, 4.7, p).toFixed(3)}deg) translate3d(${mix(7, .6, p).toFixed(3)}vw,${mix(-4, 1.4, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.004, p).toFixed(4)})`
+        transform: `translateZ(-38px) rotate(${mix(8, 4.7, p).toFixed(3)}deg) translate3d(${mix(7, .6, p).toFixed(3)}vw,${mix(-4, 1.4, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.004, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -542,7 +557,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = smoothPose(t);
       return {
         opacity: peak(t, .05, .54, 1, theme.goldArcPeak, theme.goldArcEnd),
-        transform: `rotate(${mix(19, 13.5, p).toFixed(3)}deg) translate3d(${mix(8, -1.5, p).toFixed(3)}vw,${mix(-4, 2.4, p).toFixed(3)}vh,0) scale(${mix(1.08, .995, p).toFixed(4)})`
+        transform: `translateZ(8px) rotate(${mix(19, 13.5, p).toFixed(3)}deg) translate3d(${mix(8, -1.5, p).toFixed(3)}vw,${mix(-4, 2.4, p).toFixed(3)}vh,0) scale(${mix(1.08, .995, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -550,7 +565,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = smoothPose(t);
       return {
         opacity: peak(t, .08, .52, 1, .84, .32),
-        transform: `translate3d(${mix(14, -6, p).toFixed(3)}%,0,0) rotate(${mix(7, 2.6, p).toFixed(3)}deg)`
+        transform: `translate3d(${mix(10, -4, p).toFixed(3)}%,0,0) translateZ(18px) rotate(${mix(5, 2, p).toFixed(3)}deg)`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -559,7 +574,7 @@ function runContextualEntry({ scene: sceneName }) {
       const settle = phase(t, .72, 1);
       return {
         opacity: phase(t, .04, .34) * mix(theme.foregroundPeak, theme.foregroundPeak * .74, settle),
-        transform: `rotate(${mix(-18, -13.5, p).toFixed(3)}deg) translate3d(${mix(-4, 1.8, p).toFixed(3)}vw,${mix(4, .6, p).toFixed(3)}vh,0) scale(${mix(1.08, 1.02, p).toFixed(4)})`
+        transform: `translateZ(46px) rotateX(${mix(-1.2, -.4, p).toFixed(3)}deg) rotateY(${mix(2.2, .8, p).toFixed(3)}deg) rotate(${mix(-14, -10.5, p).toFixed(3)}deg) translate3d(${mix(-5, 1.2, p).toFixed(3)}vw,${mix(5, 1.2, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.015, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -567,7 +582,7 @@ function runContextualEntry({ scene: sceneName }) {
       const p = phase(t, .46, .78);
       return {
         opacity: p,
-        transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) scale(${mix(.9, 1, p).toFixed(4)})`
+        transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) translateZ(76px) scale(${mix(.86, .94, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
