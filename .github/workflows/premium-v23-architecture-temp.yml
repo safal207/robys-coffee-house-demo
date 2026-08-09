@@ -33,11 +33,11 @@ jobs:
           node --check scripts/premium-depth-smoke.mjs
           npm run integrity:generate
           npm run verify:integrity
-      - name: Commit architecture and manifest
+      - name: Commit runtime architecture and manifest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add bootstrap.js day-night-entry.js sw.js scripts/premium-depth-smoke.mjs .github/workflows/premium-depth-certification.yml integrity-manifest.json
+          git add bootstrap.js day-night-entry.js sw.js scripts/premium-depth-smoke.mjs integrity-manifest.json
           git diff --cached --quiet && exit 0
           git commit -m "fix(motion): make premium optics a real 3d context"
           git push origin HEAD:agent/premium-depth-v1
