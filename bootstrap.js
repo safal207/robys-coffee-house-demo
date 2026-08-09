@@ -38,10 +38,11 @@ function resolveEntryScene() {
   const mode = requestedEntryMode();
   if (mode === "off" || mode === ANDROID_HANDOFF_ENTRY_MODE) return null;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return null;
-  if (mode === "morning" || mode === "day" || mode === "night") return mode;
 
   const navigation = performance.getEntriesByType?.("navigation")?.[0];
   if (navigation?.type === "back_forward") return null;
+
+  if (mode === "morning" || mode === "day" || mode === "night") return mode;
 
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) return "morning";
