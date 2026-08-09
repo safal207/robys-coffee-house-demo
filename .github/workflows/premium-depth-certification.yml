@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   certify:
-    name: MOTION-DEPTH-001 premium optics v2.2 gate
+    name: MOTION-DEPTH-001 premium optics v2.2 final gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: premium-depth-v22-certification-${{ github.sha }}
+          name: premium-depth-v22-final-${{ github.sha }}
           path: visual-results/**
           if-no-files-found: error
           retention-days: 14
