@@ -1,0 +1,39 @@
+name: Temporary premium depth art polish
+
+on:
+  push:
+    branches:
+      - agent/premium-depth-v1
+    paths:
+      - "scripts/premium-depth-art-polish-temp.py"
+      - ".github/workflows/premium-depth-art-polish-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply art polish
+        run: python3 scripts/premium-depth-art-polish-temp.py
+      - name: Verify runtime syntax
+        run: node --check day-night-entry.js
+      - name: Regenerate and verify integrity
+        run: |
+          npm run integrity:generate
+          npm run verify:integrity
+      - name: Commit art polish and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add day-night-entry.js integrity-manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "style(motion): refine premium material focus"
+          git push origin HEAD:agent/premium-depth-v1
