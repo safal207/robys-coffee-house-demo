@@ -134,17 +134,25 @@ async function readBrandRevealContract(page) {
 }
 
 async function waitForResolvedBrandReveal(page, timeout = 900) {
-  await page.waitForFunction(() => {
-    const stage = document.querySelector(".robys-entry-logo-stage");
-    const focus = document.querySelector(".robys-entry-logo-focus");
-    const mark = stage?.querySelector('img[src*="robys-mark-master-v1.svg"]');
-    const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
-    if (!focus || !mark || !wordmark) return false;
+  const deadline = Date.now() + timeout;
+  let latest = await readBrandRevealContract(page);
 
-    return Number(getComputedStyle(focus).opacity) >= .84
-      && Number(getComputedStyle(mark).opacity) >= .99
-      && Number(getComputedStyle(wordmark).opacity) >= .99;
-  }, undefined, { timeout, polling: "raf" });
+  while (Date.now() <= deadline) {
+    latest = await readBrandRevealContract(page);
+    if (
+      latest.focusOpacity >= .84
+      && latest.markOpacity >= .99
+      && latest.wordmarkOpacity >= .99
+    ) {
+      return latest;
+    }
+    await page.waitForTimeout(16);
+  }
+
+  throw new Error(
+    `[MOTION-ENTRY-001] Roby's resolved reveal state was not observed before handoff: `
+      + `focus=${latest.focusOpacity}, mark=${latest.markOpacity}, wordmark=${latest.wordmarkOpacity}`
+  );
 }
 
 async function waitForDone(page, timeout) {
@@ -251,9 +259,10 @@ try {
   // Observe the actual resolved visual state instead of sampling at a wall-clock
   // offset relative to the test harness. The motion starts before the harness
   // finishes its initial assertions, so a fixed 1260 ms delay can race the
-  // handoff on a busy runner even when the reveal itself is correct.
-  await waitForResolvedBrandReveal(page);
-  const resolvedBrandContract = await readBrandRevealContract(page);
+  // handoff on a busy runner even when the reveal itself is correct. Poll via
+  // page.evaluate rather than waitForFunction so strict script-src 'self' CSP
+  // remains fully enforced without introducing an unsafe-eval test exception.
+  const resolvedBrandContract = await waitForResolvedBrandReveal(page);
   assert(resolvedBrandContract.focusOpacity >= .84, `Warm luminance field did not remain visible through settle: ${resolvedBrandContract.focusOpacity}`);
   assert(resolvedBrandContract.markOpacity >= .99, `Roby's mark did not fully resolve: ${resolvedBrandContract.markOpacity}`);
   assert(resolvedBrandContract.wordmarkOpacity >= .99, `Roby's wordmark did not fully resolve: ${resolvedBrandContract.wordmarkOpacity}`);
