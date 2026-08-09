@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: premium-depth-certification-${{ github.sha }}
+          name: premium-depth-v22-certification-${{ github.sha }}
           path: visual-results/**
           if-no-files-found: error
           retention-days: 14
