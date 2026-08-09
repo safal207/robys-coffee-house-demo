@@ -8,19 +8,24 @@ on:
       - "bootstrap.js"
       - "sw.js"
       - "integrity-manifest.json"
+      - "scripts/motion-release-certification.mjs"
       - ".github/scripts/capture-android-launch.sh"
       - ".github/workflows/android-visual-smoke.yml"
+      - ".github/workflows/motion-release-certification.yml"
   push:
     branches:
       - agent/android-webview-atomic-handoff-v1
+      - agent/motion-release-certification-v1
     paths:
       - "android-native/**"
       - "android-handoff.js"
       - "bootstrap.js"
       - "sw.js"
       - "integrity-manifest.json"
+      - "scripts/motion-release-certification.mjs"
       - ".github/scripts/capture-android-launch.sh"
       - ".github/workflows/android-visual-smoke.yml"
+      - ".github/workflows/motion-release-certification.yml"
   workflow_dispatch:
 
 permissions:
