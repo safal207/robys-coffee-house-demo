@@ -1,0 +1,39 @@
+name: Temporary premium depth v2.3 focal hold
+
+on:
+  push:
+    branches:
+      - agent/premium-depth-v1
+    paths:
+      - ".github/workflows/premium-depth-v23-polish-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/premium-depth-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply premium focal hold v2.3
+        run: |
+          python3 .github/scripts/premium-depth-v23-temp.py
+          node --check day-night-entry.js
+          node --check scripts/premium-depth-smoke.mjs
+          npm run integrity:generate
+          npm run verify:integrity
+      - name: Commit premium focal hold v2.3
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add day-night-entry.js scripts/premium-depth-smoke.mjs integrity-manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "feat(motion): hold premium focus before handoff"
+          git push origin HEAD:agent/premium-depth-v1
