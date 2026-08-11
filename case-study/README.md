@@ -1,7 +1,7 @@
 # Applied SEO / AEO / GEO Case Study — Roby's Coffee House
 
 **Started:** 2026-08-11  
-**Live site:** https://safal207.github.io/robys-coffee-house-demo/  
+**Live site:** [Roby's Coffee House](https://safal207.github.io/robys-coffee-house-demo/)  
 **Market angle:** Russian-language discovery + Yandex-oriented technical/local SEO for a real service website.
 
 > This is a current applied portfolio case. It is not presented as prior 3+ years of commercial SEO experience. Results are recorded only after they are actually measured.
