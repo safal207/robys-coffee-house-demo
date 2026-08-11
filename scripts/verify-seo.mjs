@@ -25,7 +25,7 @@ check('menu has Menu structured data', menu.includes('"@type": "Menu"'));
 
 check('Russian page declares lang=ru', /<html\s+lang="ru">/i.test(ru));
 check('Russian page has exactly one H1', count(ru, /<h1\b/gi) === 1);
-check('Russian page has title', /<title>[^<]{20,}\/title>/i.test(ru));
+check('Russian page has title', /<title>[^<]{20,}<\/title>/i.test(ru));
 check('Russian page has meta description', /<meta\s+name="description"\s+content="[^"]{60,}"/i.test(ru));
 check('Russian page has self canonical', ru.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/ru/coffee-gazipasa.html"'));
 check('Russian page has ru hreflang', ru.includes('hreflang="ru"'));
