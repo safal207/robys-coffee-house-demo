@@ -12,6 +12,21 @@ function count(source, pattern) {
   return [...source.matchAll(pattern)].length;
 }
 
+function attrFromTag(tag, attr) {
+  const match = tag.match(new RegExp(`\\b${attr}\\s*=\\s*["']([^"']*)["']`, 'i'));
+  return match?.[1] ?? '';
+}
+
+function anchorHrefs(html) {
+  return [...html.matchAll(/<a\b[^>]*>/gi)]
+    .map((match) => attrFromTag(match[0], 'href'))
+    .filter(Boolean);
+}
+
+function homeLikeHrefs(html) {
+  return anchorHrefs(html).filter((href) => /^(?:\.\/|\.\.\/)?(?:index\.html?)?$/i.test(href));
+}
+
 function normalizeText(value = '') {
   return String(value)
     .replace(/<[^>]+>/g, ' ')
@@ -78,12 +93,14 @@ const jsonLd = parseJsonLd(ru);
 const faqPage = findFaqPage(jsonLd);
 const faqStructured = structuredFaqEntries(faqPage);
 const faqVisible = visibleFaqEntries(ru);
+const menuHomeHrefs = homeLikeHrefs(menu);
+const ruHomeHrefs = homeLikeHrefs(ru);
 
 check('homepage has canonical', index.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/"'));
 check('homepage has local business structured data', index.includes('"@type": "CafeOrCoffeeShop"'));
 check('menu has canonical', menu.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html"'));
 check('menu has Menu structured data', menu.includes('"@type": "Menu"'));
-check('menu links to canonical homepage URL', !menu.includes('href="index.html"') && menu.includes('href="./"'));
+check('menu links to canonical homepage URL', menuHomeHrefs.length >= 2 && menuHomeHrefs.every((href) => href === './'));
 check('menu exposes ordinary link to Russian landing', menu.includes('href="ru/coffee-gazipasa.html"'));
 
 check('Russian page declares lang=ru', /<html\s+lang="ru">/i.test(ru));
@@ -96,7 +113,7 @@ check('Russian page has valid FAQ structured data', Boolean(faqPage) && faqStruc
 check('Russian page has visible FAQ entries', faqVisible.length > 0);
 check('Russian FAQ structured data matches visible Q&A', JSON.stringify(faqStructured) === JSON.stringify(faqVisible));
 check('Russian page links to menu', ru.includes('href="../menu.html"'));
-check('Russian page links to canonical homepage URL', !ru.includes('../index.html') && ru.includes('href="../"'));
+check('Russian page links to canonical homepage URL', ruHomeHrefs.length >= 2 && ruHomeHrefs.every((href) => href === '../'));
 check('Russian page exposes visible address', ru.includes('<address>'));
 
 check('robots allows crawling', /User-agent:\s*\*/i.test(robots) && /Allow:\s*\//i.test(robots));
