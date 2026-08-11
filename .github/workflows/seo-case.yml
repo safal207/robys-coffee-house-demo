@@ -1,0 +1,32 @@
+name: SEO Case Verification
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'menu.html'
+      - 'ru/**'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'scripts/verify-seo.mjs'
+      - 'case-study/**'
+      - '.github/workflows/seo-case.yml'
+  push:
+    branches:
+      - seo-yandex-case-2026-08-11
+
+permissions:
+  contents: read
+
+jobs:
+  verify-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify static SEO contracts
+        run: node scripts/verify-seo.mjs
