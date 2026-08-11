@@ -20,6 +20,7 @@ function normalizeText(value = '') {
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:])/g, '$1')
     .trim();
 }
 
