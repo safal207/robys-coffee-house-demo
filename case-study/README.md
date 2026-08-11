@@ -31,6 +31,17 @@ The site already has a real customer-facing surface rather than a blank demo: mu
 4. Add machine-verifiable SEO checks to the repository.
 5. Record every change and its intended metric before measuring outcomes.
 
+## Evidence checklist
+
+- [x] Baseline state documented before deployment.
+- [x] Intended search intent and non-claims documented.
+- [x] Static SEO contract implemented in `scripts/verify-seo.mjs`.
+- [x] Dedicated SEO Case Verification workflow added.
+- [x] Sitemap and canonical invariants covered by automation.
+- [x] Visible FAQ and structured-data facts kept aligned.
+- [x] Ranking, traffic, CTR and GEO uplift left unclaimed until observed.
+- [ ] Post-deployment provider observations to be recorded at T+7 / T+14 / T+30.
+
 ## Success criteria
 
 The case is successful when a reviewer can independently answer:
