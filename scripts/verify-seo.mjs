@@ -83,6 +83,8 @@ check('homepage has canonical', index.includes('rel="canonical" href="https://sa
 check('homepage has local business structured data', index.includes('"@type": "CafeOrCoffeeShop"'));
 check('menu has canonical', menu.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html"'));
 check('menu has Menu structured data', menu.includes('"@type": "Menu"'));
+check('menu links to canonical homepage URL', !menu.includes('href="index.html"') && menu.includes('href="./"'));
+check('menu exposes ordinary link to Russian landing', menu.includes('href="ru/coffee-gazipasa.html"'));
 
 check('Russian page declares lang=ru', /<html\s+lang="ru">/i.test(ru));
 check('Russian page has exactly one H1', count(ru, /<h1\b/gi) === 1);
@@ -94,6 +96,7 @@ check('Russian page has valid FAQ structured data', Boolean(faqPage) && faqStruc
 check('Russian page has visible FAQ entries', faqVisible.length > 0);
 check('Russian FAQ structured data matches visible Q&A', JSON.stringify(faqStructured) === JSON.stringify(faqVisible));
 check('Russian page links to menu', ru.includes('href="../menu.html"'));
+check('Russian page links to canonical homepage URL', !ru.includes('../index.html') && ru.includes('href="../"'));
 check('Russian page exposes visible address', ru.includes('<address>'));
 
 check('robots allows crawling', /User-agent:\s*\*/i.test(robots) && /Allow:\s*\//i.test(robots));
