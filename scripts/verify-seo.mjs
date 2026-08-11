@@ -15,10 +15,6 @@ function count(source, pattern) {
 function normalizeText(value = '') {
   return String(value)
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/\s+([.,!?;:])/g, '$1')
     .trim();
