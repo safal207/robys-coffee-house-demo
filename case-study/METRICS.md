@@ -16,16 +16,16 @@ Record at:
 
 ## Search metrics
 
-| Metric | Source | T0 | T+7 | T+14 | T+30 |
-|---|---|---:|---:|---:|---:|
-| Indexed target URLs | Yandex Webmaster | — | — | — | — |
-| Impressions | Yandex Webmaster | — | — | — | — |
-| Clicks | Yandex Webmaster | — | — | — | — |
-| CTR | Yandex Webmaster | — | — | — | — |
-| Avg / observed query position | Yandex Webmaster | — | — | — | — |
-| Target-page organic sessions | analytics | — | — | — | — |
-| Organic menu clicks | analytics | — | — | — | — |
-| Organic route/map clicks | analytics | — | — | — | — |
+| Metric | Source | T0 | T+7 | T+14 | T+30 | T+60 |
+|---|---|---:|---:|---:|---:|---:|
+| Indexed target URLs | Yandex Webmaster | — | — | — | — | — |
+| Impressions | Yandex Webmaster | — | — | — | — | — |
+| Clicks | Yandex Webmaster | — | — | — | — | — |
+| CTR | Yandex Webmaster | — | — | — | — | — |
+| Avg / observed query position | Yandex Webmaster | — | — | — | — | — |
+| Target-page organic sessions | analytics | — | — | — | — | — |
+| Organic menu clicks | analytics | — | — | — | — | — |
+| Organic route/map clicks | analytics | — | — | — | — | — |
 
 `—` means not measured, not zero.
 
