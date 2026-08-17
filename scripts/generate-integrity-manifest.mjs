@@ -74,8 +74,10 @@ function canonicalBytes(file, bytes) {
   const extension = path.extname(file).toLowerCase();
   if (!canonicalTextExtensions.has(extension)) return bytes;
 
-  const text = bytes.toString("utf8").replace(/\r\n?/g, "\n");
-  return Buffer.from(text.replace(/\n/g, "\r\n"), "utf8");
+  // Repository text files are explicitly checked out as LF via .gitattributes.
+  // Normalize legacy/foreign CRLF input to that same canonical Git/deployable form
+  // so generator, raw HEAD blobs and the independent verifier share one byte truth.
+  return Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
 }
 
 function digest(buffer) {
