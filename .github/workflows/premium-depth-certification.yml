@@ -8,7 +8,6 @@ on:
       - "sw.js"
       - "integrity-manifest.json"
       - "scripts/premium-depth-smoke.mjs"
-      - "scripts/contextual-entry-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/verify-integrity-manifest.mjs"
       - "package.json"
@@ -23,7 +22,6 @@ on:
       - "sw.js"
       - "integrity-manifest.json"
       - "scripts/premium-depth-smoke.mjs"
-      - "scripts/contextual-entry-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/verify-integrity-manifest.mjs"
       - "package.json"
@@ -73,11 +71,8 @@ jobs:
       - name: Verify full integrity contract
         run: npm run verify:integrity
 
-      - name: Re-run contextual Day/Night baseline
-        env:
-          CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
-        run: node scripts/contextual-entry-smoke.mjs
-
+      # MOTION-CONTEXT-001, including the 60 Hz cadence gate, is certified
+      # independently on the same exact PR head by contextual-entry-certification.yml.
       - name: Certify hybrid 3D material stage, focal hold and logo focus
         env:
           PREMIUM_DEPTH_RESULTS_DIR: ${{ github.workspace }}/visual-results/premium-depth
