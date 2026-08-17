@@ -74,7 +74,7 @@
     "qa:browsers:down": "docker compose -f docker-compose.browser-lab.yml down --remove-orphans"
   },
   "devDependencies": {
-    "esbuild": "0.28.1",
+    "esbuild": "0.28.2",
     "typescript": "5.8.3"
   }
 }
