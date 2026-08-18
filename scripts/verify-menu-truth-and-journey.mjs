@@ -109,7 +109,7 @@ assert.match(menuHtml, /id="menu-results-status" role="status" aria-live="polite
 assert.doesNotMatch(menuHtml, /id="menu-root"[^>]*aria-live/);
 
 assert.match(menuPwa, /sw\.js\?v=menu-truth-20260729-2/);
-assert.match(serviceWorker, /robys-offline-v31-20260729-menu-truth/);
+assert.match(serviceWorker, /const CACHE_VERSION = "robys-offline-v\d+-\d{8}-menu-truth(?:-[a-f0-9]{12}){2,3}";/);
 assert.match(serviceWorker, /\.\/menu-page\.js\?v=[a-f0-9]{12}/);
 assert.match(serviceWorker, /url\.pathname\.endsWith\("\/menu-page\.js"\)/);
 assert.doesNotMatch(serviceWorker, /menu-integrity\.js|menu-search-policy\.js|menu-truth\.js/);
