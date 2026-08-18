@@ -75,17 +75,17 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Verify runner Node.js
-        run: >-
-          node -e "const major=Number(process.versions.node.split('.')[0]);
-          console.log('Node', process.versions.node);
-          if (major < 22) process.exit(1)"
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
 
-      - name: Install isolated Playwright runtime
-        run: npm install --no-save --ignore-scripts playwright@1.54.2
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install locked Chromium
+        run: npx playwright install chromium
 
       - name: Validate exact browser journey
         run: node scripts/test-menu-truth-browser.mjs
