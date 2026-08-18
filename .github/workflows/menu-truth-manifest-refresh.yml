@@ -1,0 +1,41 @@
+name: One-shot menu truth integrity refresh
+
+on:
+  push:
+    branches:
+      - agent/menu-truth-current-main-v2
+    paths:
+      - ".github/workflows/menu-truth-manifest-refresh.yml"
+      - "menu.html"
+      - "menu-page.js"
+      - "menu-pwa.js"
+      - "menu-integrity.css"
+      - "pairing-posters.js"
+      - "sw.js"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/menu-truth-current-main-v2
+
+      - name: Generate canonical LF integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+
+      - name: Commit generated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "Manifest already current"
+            exit 0
+          fi
+          git commit -m "chore(integrity): refresh manifest for menu truth rebuild"
+          git push origin HEAD:agent/menu-truth-current-main-v2
