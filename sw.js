@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v40-20260818-menu-truth-current-main-v2";
+const CACHE_VERSION = "robys-offline-v40-20260818-menu-truth-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
