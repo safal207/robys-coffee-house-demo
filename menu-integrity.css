@@ -1,0 +1,176 @@
+.menu-search-scope{
+  margin:8px 2px 0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.4;
+}
+
+.menu-truth-note{
+  max-width:760px;
+  margin:8px 0 0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details{
+  display:block;
+  padding:18px 20px 20px;
+  color:var(--ink,#2f2725);
+  background:var(--paper,#fffdf9);
+  border-top:1px solid rgba(47,39,37,.12);
+}
+
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details>.full-menu-item-copy,
+.full-menu-item--visual.pairing-poster-card .full-menu-item-details>.full-menu-price{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+
+.pairing-price-explanation{
+  margin:0;
+  color:var(--muted,#756b67);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+.pairing-poster-price-context{
+  display:block;
+  max-width:150px;
+  margin-top:4px;
+  color:rgba(255,255,255,.82);
+  font-size:.52rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  line-height:1.25;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+.pairing-card-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-top:16px;
+}
+
+.pairing-card-actions .button{
+  min-height:48px;
+  padding:12px 18px;
+}
+
+.pairing-route-link{
+  display:inline-flex;
+  min-height:44px;
+  align-items:center;
+  padding:8px 2px;
+  color:var(--ink,#2f2725);
+  font-size:.82rem;
+  font-weight:700;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+
+.pairing-route-link:hover{
+  color:var(--ruby,#e21b23);
+}
+
+.pairing-route-link:focus-visible,
+.pairing-show-barista:focus-visible,
+.pairing-fulfilment-dialog button:focus-visible,
+.pairing-fulfilment-dialog a:focus-visible{
+  outline:4px solid rgba(226,27,35,.3);
+  outline-offset:3px;
+}
+
+.pairing-fulfilment-dialog{
+  width:min(560px,calc(100% - 28px));
+  padding:0;
+  color:var(--ink,#2f2725);
+  border:0;
+  border-radius:28px;
+  background:var(--paper,#fffdf9);
+  box-shadow:0 28px 90px rgba(36,28,27,.3);
+}
+
+.pairing-fulfilment-dialog::backdrop{
+  background:rgba(20,15,15,.72);
+  backdrop-filter:blur(6px);
+}
+
+.pairing-dialog-card{
+  padding:30px;
+}
+
+.pairing-dialog-card h2{
+  margin-bottom:14px;
+  font-size:clamp(2.1rem,8vw,3.6rem);
+}
+
+.pairing-dialog-price{
+  margin:0 0 12px;
+  color:var(--ruby,#e21b23);
+  font:700 2rem/1 var(--display,"Oswald",Arial,sans-serif);
+}
+
+.pairing-dialog-explanation{
+  margin:0;
+  color:var(--muted,#756b67);
+}
+
+.pairing-dialog-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:24px;
+}
+
+@media(max-width:680px){
+  .full-menu-item--visual.pairing-poster-card .full-menu-item-details{
+    padding:16px;
+  }
+
+  .pairing-card-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    align-items:stretch;
+    gap:8px;
+    margin-top:14px;
+  }
+
+  .pairing-card-actions .button{
+    width:100%;
+    min-height:52px;
+  }
+
+  .pairing-route-link{
+    min-height:46px;
+    justify-content:center;
+  }
+
+  .pairing-dialog-card{
+    padding:24px 20px;
+  }
+
+  .pairing-dialog-actions .button{
+    flex:1 1 100%;
+    min-height:52px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .pairing-fulfilment-dialog,
+  .pairing-fulfilment-dialog::backdrop{
+    scroll-behavior:auto;
+  }
+}
