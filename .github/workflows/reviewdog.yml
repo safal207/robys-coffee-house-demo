@@ -45,12 +45,37 @@ jobs:
       - name: Checkout pull request
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Review changed Markdown
-        uses: reviewdog/action-markdownlint@6f0e0e8703a9e840ffefa37a2775832c51c1c640 # v0.28.0
+      # The pinned Docker action intermittently starts without its reviewdog
+      # binary. Run both tools on the hosted runner instead.
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          filter_mode: added
-          level: error
-          fail_level: error
-          markdownlint_flags: "."
+          node-version: 20
+
+      - name: Install markdownlint
+        run: npm install --global --no-audit --no-fund markdownlint-cli@0.41.0
+
+      - name: Setup reviewdog
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252 # v1.4.0
+        with:
+          reviewdog_version: v0.21.0
+
+      - name: Verify review tools
+        run: |
+          markdownlint --version
+          reviewdog -version
+
+      - name: Review changed Markdown
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -o pipefail
+          markdownlint . 2>&1 | reviewdog \
+            -efm="%f:%l:%c %m" \
+            -efm="%f:%l %m" \
+            -name="markdownlint" \
+            -reporter="github-pr-review" \
+            -filter-mode="added" \
+            -fail-level="error" \
+            -level="error"
