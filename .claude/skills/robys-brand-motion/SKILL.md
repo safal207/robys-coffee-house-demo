@@ -26,13 +26,14 @@ Before proposing visual or motion values, read the references in this skill and 
 
 Authority order:
 
-1. current approved Roby's brand assets and runtime tokens in the repository;
-2. [brand and motion tokens](references/tokens.md);
-3. [localization contract](references/localization.md);
-4. [motion state machine](references/motion-states.md);
-5. this skill's qualitative guidance.
+1. [`docs/brand-reference-policy.md`](../../../docs/brand-reference-policy.md) and the approved-source hierarchy it defines;
+2. current approved Roby's brand assets and runtime tokens in the repository;
+3. [brand and motion tokens](references/tokens.md);
+4. [localization contract](references/localization.md);
+5. [motion state machine](references/motion-states.md);
+6. this skill's qualitative guidance.
 
-If a reference conflicts with newer approved repository assets, the newer approved repository source wins. Update the reference instead of silently inventing a replacement value.
+If a reference conflicts with newer approved repository assets, the newer source wins only when its provenance and approval satisfy the brand-reference policy. Never promote a reconstructed CSS or SVG treatment to a master asset. Update the reference instead of silently inventing a replacement value.
 
 ## Core principle
 
@@ -70,7 +71,12 @@ Treat motion as a state system, not a decorative video.
 
 Canonical product journey:
 
-`ENTRY -> LOADING -> READY -> ACTION -> PAYMENT -> SUCCESS | ERROR`
+```text
+ENTRY_BOOT -> BRAND_FRAME -> WEB_LOADING -> FIRST_MEANINGFUL_FRAME -> HANDOFF -> READY
+WEB_LOADING -> LOAD_ERROR -> RETRY | EXIT
+PAYMENT_READY -> PROCESSING -> SUCCESS
+PAYMENT_READY -> PROCESSING -> ERROR -> RECOVERY -> PAYMENT_READY | EXIT
+```
 
 Every animation must define:
 
@@ -137,8 +143,7 @@ Day should feel brighter and slightly quicker:
 
 Night should feel deeper and quieter:
 
-- warm low-light atmosphere;
-- restrained amber warmth where compatible with approved palette;
+- warm low-light atmosphere using approved semantic tokens such as `color.surface.dark`, `color.surface.cream`, and `color.text.ink`;
 - calmer ambient movement;
 - no loss of text contrast or payment-state clarity.
 

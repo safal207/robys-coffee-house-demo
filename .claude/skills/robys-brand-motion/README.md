@@ -13,7 +13,7 @@ It is stored under `.claude/skills/robys-brand-motion/` so Claude Code can disco
 
 ## Source of truth
 
-Current approved repository brand assets and runtime values remain authoritative. The references in this skill capture them for repeatable agent work and must be updated when the approved source changes.
+`docs/brand-reference-policy.md` governs the approved-source hierarchy. Current approved repository brand assets and runtime values are authoritative only within that policy; reconstructed site treatments must not become master assets. The references in this skill capture approved values for repeatable agent work and must be updated when the approved source changes.
 
 ## Scope
 
