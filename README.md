@@ -79,6 +79,9 @@ npm run verify:integrity
 npm run verify:menu-content
 npm run verify:smart-choice
 npm run test:smart-choice
+npm run verify:causal-refactoring
+npm run test:causal-refactoring
+npm run causal:report
 npm run verify:regression
 npm run security:audit
 ```
@@ -111,6 +114,20 @@ The site can be deployed from the repository root as static assets. GitHub Pages
 For hosts that support response headers, configure security headers at the HTTP layer as well as the document-level CSP. Directives such as `frame-ancestors` cannot be enforced reliably through a `<meta>` tag alone.
 
 After deployment, run the live smoke, integrity and performance checks against the exact published revision.
+
+## Fractal causal refactoring
+
+The repository includes a testable causal-refactoring contract for recurring problems that appear across business truth, customer experience, product code, delivery and team decisions.
+
+The first active pattern is **business-truth drift**: a customer-facing value can exist in the canonical profile before its owner-confirmation state is explicit. The new gate keeps the repository in `demo` publication mode and fails closed if `production` is selected while an owner-critical field remains unconfirmed.
+
+See [`docs/causal-refactoring/README.md`](docs/causal-refactoring/README.md) and run:
+
+```bash
+npm run causal:report
+```
+
+The registry records hypotheses and controlled risks, not mystical or scientific claims. A mechanism trace explains how a result was produced; it does not by itself prove a customer or revenue effect.
 
 ## Business-truth checklist
 

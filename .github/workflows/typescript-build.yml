@@ -11,6 +11,9 @@ on:
       - '**/*.html'
       - 'src/**'
       - 'scripts/**'
+      - 'qa/business-profile.json'
+      - 'qa/causal-refactoring/**'
+      - 'docs/causal-refactoring/**'
       - 'app.js'
       - 'index.html'
       - 'package.json'
@@ -27,6 +30,9 @@ on:
       - '**/*.html'
       - 'src/**'
       - 'scripts/**'
+      - 'qa/business-profile.json'
+      - 'qa/causal-refactoring/**'
+      - 'docs/causal-refactoring/**'
       - 'app.js'
       - 'index.html'
       - 'package.json'
@@ -43,8 +49,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout repository
+      - name: Checkout exact proposed revision
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -54,6 +63,11 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci
+
+      - name: Verify causal refactoring and business truth gate
+        run: |
+          npm run verify:causal-refactoring
+          npm run test:causal-refactoring
 
       - name: Ensure ffprobe is available
         run: |
@@ -72,7 +86,7 @@ jobs:
       - name: Upload generated runtime for inspection
         uses: actions/upload-artifact@v4
         with:
-          name: generated-runtime-${{ github.sha }}
+          name: generated-runtime-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             app.js
             index.html
@@ -104,7 +118,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-graph-${{ github.sha }}
+          name: dependency-graph-${{ github.event.pull_request.head.sha || github.sha }}
           path: .artifacts/dependency-graph.json
           retention-days: 7
 
