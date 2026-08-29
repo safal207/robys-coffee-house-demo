@@ -60,15 +60,16 @@ assert(
 const productionTruth = structuredClone(truthStatus);
 productionTruth.publication_mode = 'production';
 const productionErrors = validateBusinessTruthStatus(productionTruth, profile);
+const ownerCriticalFieldCount = truthStatus.fields.filter((field) => field.owner_critical).length;
 assert.equal(
   productionErrors.filter((error) => error.includes('blocks production')).length,
-  truthStatus.fields.length
+  ownerCriticalFieldCount
 );
 
 const confirmedProductionTruth = structuredClone(productionTruth);
 confirmedProductionTruth.fields = confirmedProductionTruth.fields.map((field) => ({
   ...field,
-  attestation: 'owner-confirmed'
+  attestation: field.owner_critical ? 'owner-confirmed' : field.attestation
 }));
 assert.deepEqual(validateBusinessTruthStatus(confirmedProductionTruth, profile), []);
 
@@ -78,6 +79,19 @@ missingSourceKey.fields[0].source_pointer = '/inventedField';
 assert(
   validateBusinessTruthStatus(missingSourceKey, profile)
     .some((error) => error.includes('missing from the business profile'))
+);
+
+const incompleteLedger = structuredClone(truthStatus);
+incompleteLedger.fields = incompleteLedger.fields.filter((field) => field.key !== 'imageUrl');
+assert(
+  validateBusinessTruthStatus(incompleteLedger, profile)
+    .includes('business profile field is missing from the status ledger: imageUrl')
+);
+
+const profileWithNewField = { ...profile, phoneUrl: 'tel:+900000000000' };
+assert(
+  validateBusinessTruthStatus(truthStatus, profileWithNewField)
+    .includes('business profile field is missing from the status ledger: phoneUrl')
 );
 
 const report = renderCausalReport(registry, truthStatus);
