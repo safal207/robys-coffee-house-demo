@@ -9,11 +9,39 @@
   },
   "fields": [
     {
+      "key": "version",
+      "source_pointer": "/version",
+      "owner_critical": false,
+      "attestation": "source-verified",
+      "note": "Repository-controlled schema metadata; it is not a café-owner business fact."
+    },
+    {
       "key": "name",
       "source_pointer": "/name",
       "owner_critical": true,
       "attestation": "unverified",
       "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "siteUrl",
+      "source_pointer": "/siteUrl",
+      "owner_critical": false,
+      "attestation": "source-verified",
+      "note": "Repository-controlled canonical deployment URL; café-owner attestation is not required for this technical locator."
+    },
+    {
+      "key": "menuUrl",
+      "source_pointer": "/menuUrl",
+      "owner_critical": false,
+      "attestation": "source-verified",
+      "note": "Repository-controlled menu route; café-owner attestation is not required for this technical locator."
+    },
+    {
+      "key": "imageUrl",
+      "source_pointer": "/imageUrl",
+      "owner_critical": false,
+      "attestation": "source-verified",
+      "note": "The asset location is repository-controlled; permission to publish the underlying image remains a separate owner approval outside this profile field."
     },
     {
       "key": "streetAddress",
