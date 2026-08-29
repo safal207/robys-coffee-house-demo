@@ -1,5 +1,5 @@
 import {
-  DOMAINS, STAGES, STAGE_EVIDENCE, TRANSITION_GATES, contains, exactKeys,
+  DOMAINS, STAGES, STAGE_CLAIMS, STAGE_EVIDENCE, TRANSITION_GATES, contains, exactKeys,
   exactStringSet, ok, text, uniqueStrings
 } from "./causal-refactoring-core.mjs";
 
@@ -62,7 +62,10 @@ export function validateRefactor(model) {
     ok(stage.id === STAGES[index], `stage ${index} must be ${STAGES[index]}, got ${stage.id}`);
     ok(stage.domain === DOMAINS[index], `${stage.id} domain must be ${DOMAINS[index]}`);
     exactStringSet(stage.evidence_required, STAGE_EVIDENCE[stage.id], `${stage.id}.evidence_required`);
-    text(stage.claim_allowed, `${stage.id}.claim_allowed`);
+    ok(
+      stage.claim_allowed === STAGE_CLAIMS[stage.id],
+      `${stage.id}.claim_allowed must be ${STAGE_CLAIMS[stage.id]}`
+    );
   });
   ok(Array.isArray(model.refactor.transitions) && model.refactor.transitions.length === STAGES.length - 1, "refactor.transitions must connect every adjacent stage exactly once");
   model.refactor.transitions.forEach((transition, index) => {

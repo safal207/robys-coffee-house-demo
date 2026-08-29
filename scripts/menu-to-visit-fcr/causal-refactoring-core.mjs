@@ -28,6 +28,15 @@ export const STAGE_EVIDENCE = Object.freeze({
   CONTRIBUTION: Object.freeze(["sale_value_minus_declared_variable_and_campaign_costs"]),
   LEARNING: Object.freeze(["pre_registered_decision_rule_applied"])
 });
+export const STAGE_CLAIMS = Object.freeze({
+  DISCOVERY: "The eligible digital experience was exposed.",
+  INTENT: "A product or moment preference was expressed.",
+  COMMITMENT: "A visit-oriented digital action occurred.",
+  ARRIVAL: "A physical cafe-side handoff was observed.",
+  SALE: "An attributed sale occurred.",
+  CONTRIBUTION: "The attributed sale produced measured positive or negative net contribution.",
+  LEARNING: "The intervention may be kept, revised, scaled, or rolled back under the declared rule."
+});
 export const TRANSITION_GATES = Object.freeze([
   "explicit_selection_event",
   "explicit_visit_or_handoff_action",

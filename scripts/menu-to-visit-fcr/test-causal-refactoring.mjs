@@ -165,6 +165,14 @@ const negativeCases = [
     }
   },
   {
+    name: "reject stage claim promotion",
+    expected: /DISCOVERY\.claim_allowed must be The eligible digital experience was exposed\./,
+    mutate(model) {
+      const discovery = model.refactor.stages.find((stage) => stage.id === "DISCOVERY");
+      discovery.claim_allowed = "A page view increased sales.";
+    }
+  },
+  {
     name: "reject substituted non-FMD transition gate",
     expected: /DISCOVERY->INTENT gate must be explicit_selection_event/,
     mutate(model) {
