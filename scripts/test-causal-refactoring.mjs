@@ -13,6 +13,27 @@ import {
 } from './causal-refactoring-lib.mjs';
 import { isSafeRepositoryPath } from './repository-path-lib.mjs';
 
+const EXPECTED_OWNER_CRITICAL_KEYS = Object.freeze([
+  'closes',
+  'country',
+  'displayHours',
+  'instagramHandle',
+  'instagramUrl',
+  'locality',
+  'mapUrl',
+  'name',
+  'opens',
+  'region',
+  'streetAddress'
+]);
+
+const EXPECTED_REPOSITORY_CONTROLLED_KEYS = Object.freeze([
+  'imageUrl',
+  'menuUrl',
+  'siteUrl',
+  'version'
+]);
+
 const registry = JSON.parse(
   await readFile('qa/causal-refactoring/registry.json', 'utf8')
 );
@@ -29,10 +50,17 @@ assert.equal(
   digestBusinessValue({ b: 2, a: 1 }),
   digestBusinessValue({ a: 1, b: 2 })
 );
-assert.equal(
-  Object.values(BUSINESS_TRUTH_CRITICALITY_POLICY).filter(Boolean).length,
-  11
-);
+
+const ownerCriticalKeys = Object.entries(BUSINESS_TRUTH_CRITICALITY_POLICY)
+  .filter(([, ownerCritical]) => ownerCritical)
+  .map(([key]) => key)
+  .sort((left, right) => left.localeCompare(right, 'en'));
+const repositoryControlledKeys = Object.entries(BUSINESS_TRUTH_CRITICALITY_POLICY)
+  .filter(([, ownerCritical]) => !ownerCritical)
+  .map(([key]) => key)
+  .sort((left, right) => left.localeCompare(right, 'en'));
+assert.deepEqual(ownerCriticalKeys, EXPECTED_OWNER_CRITICAL_KEYS);
+assert.deepEqual(repositoryControlledKeys, EXPECTED_REPOSITORY_CONTROLLED_KEYS);
 
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
 assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);
@@ -80,8 +108,7 @@ assert(
 const productionTruth = structuredClone(truthStatus);
 productionTruth.publication_mode = 'production';
 const productionErrors = validateBusinessTruthStatus(productionTruth, profile);
-const ownerCriticalFieldCount = Object.values(BUSINESS_TRUTH_CRITICALITY_POLICY)
-  .filter(Boolean).length;
+const ownerCriticalFieldCount = EXPECTED_OWNER_CRITICAL_KEYS.length;
 assert.equal(
   productionErrors.filter((error) => error.includes('blocks production')).length,
   ownerCriticalFieldCount
