@@ -1,0 +1,319 @@
+{
+  "schema": "robys-fractal-causal-refactoring/v0.1",
+  "status": "draft-operational-contract",
+  "business_context": {
+    "venue": "Roby's Coffee House",
+    "location": "Gazipaşa, Antalya",
+    "repository": "safal207/robys-coffee-house-demo",
+    "customer_languages": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "current_surfaces": [
+      "storefront",
+      "menu",
+      "discover",
+      "smart-choice"
+    ],
+    "non_capabilities": [
+      "ordering",
+      "payment",
+      "reservation",
+      "inventory-guarantee"
+    ]
+  },
+  "visible_symptom": {
+    "id": "SYM-ROBY-001",
+    "statement": "The digital experience can observe engagement and recommendation events, but the repository cannot yet prove that they caused an in-cafe visit, an attributed sale, or positive net contribution.",
+    "observed_proxies": [
+      "page_view",
+      "menu_view",
+      "smart_choice_selection",
+      "directions_open"
+    ],
+    "unproven_outcomes": [
+      "physical_arrival",
+      "attributed_sale",
+      "positive_net_contribution"
+    ]
+  },
+  "first_meaningful_divergence": {
+    "id": "FMD-ROBY-001",
+    "from_state": "COMMITMENT",
+    "to_state": "ARRIVAL",
+    "statement": "A digital visit-oriented action is not yet bound to an independent cafe-side observation and downstream sale record.",
+    "why_first": "All earlier evidence can originate in the browser; this transition is the first one that requires evidence from the physical cafe.",
+    "not_at": [
+      "visual_polish",
+      "copy_intensity",
+      "recommendation_variety"
+    ]
+  },
+  "root_rule": {
+    "id": "RULE-ROBY-001",
+    "current": "Treat upstream engagement proxies as if they establish downstream physical or economic outcomes.",
+    "replacement": "Promote every state only with evidence native to that state and preserve unsupported downstream claims as unproven."
+  },
+  "unsafe_patches": [
+    {
+      "patch": "add_more_animation",
+      "why_unsafe": "Visual intensity may change attention but does not create independent arrival or sale evidence."
+    },
+    {
+      "patch": "strengthen_the_call_to_action",
+      "why_unsafe": "A stronger prompt can increase clicks while leaving the cafe-side evidence boundary unchanged."
+    },
+    {
+      "patch": "count_generated_code_as_visit",
+      "why_unsafe": "A browser-generated display code proves only code generation."
+    },
+    {
+      "patch": "count_gross_revenue_as_profit",
+      "why_unsafe": "Revenue omits product, promotion, staff-handling, and measurement costs."
+    }
+  ],
+  "refactor": {
+    "principle": "Preserve the current customer experience while separating discovery, intent, commitment, arrival, sale, contribution, and learning into evidence-gated states.",
+    "preserve": [
+      "tr-en-ru customer experience",
+      "menu-truth ownership boundary",
+      "accessibility and reduced-motion behavior",
+      "static-site non-capability boundary"
+    ],
+    "stages": [
+      {
+        "id": "DISCOVERY",
+        "domain": "digital",
+        "evidence_required": [
+          "eligible_session_or_exposure"
+        ],
+        "claim_allowed": "The eligible digital experience was exposed."
+      },
+      {
+        "id": "INTENT",
+        "domain": "digital",
+        "evidence_required": [
+          "explicit_pairing_or_moment_selection"
+        ],
+        "claim_allowed": "A product or moment preference was expressed."
+      },
+      {
+        "id": "COMMITMENT",
+        "domain": "digital",
+        "evidence_required": [
+          "directions_or_show_barista_action"
+        ],
+        "claim_allowed": "A visit-oriented digital action occurred."
+      },
+      {
+        "id": "ARRIVAL",
+        "domain": "physical",
+        "evidence_required": [
+          "cafe_side_token_observation"
+        ],
+        "claim_allowed": "A physical cafe-side handoff was observed."
+      },
+      {
+        "id": "SALE",
+        "domain": "operational",
+        "evidence_required": [
+          "approved_sale_record_joined_to_token"
+        ],
+        "claim_allowed": "An attributed sale occurred."
+      },
+      {
+        "id": "CONTRIBUTION",
+        "domain": "economic",
+        "evidence_required": [
+          "sale_value_minus_declared_variable_and_campaign_costs"
+        ],
+        "claim_allowed": "The attributed sale produced measured positive or negative net contribution."
+      },
+      {
+        "id": "LEARNING",
+        "domain": "decision",
+        "evidence_required": [
+          "pre_registered_decision_rule_applied"
+        ],
+        "claim_allowed": "The intervention may be kept, revised, scaled, or rolled back under the declared rule."
+      }
+    ],
+    "transitions": [
+      {
+        "from": "DISCOVERY",
+        "to": "INTENT",
+        "gate": "explicit_selection_event"
+      },
+      {
+        "from": "INTENT",
+        "to": "COMMITMENT",
+        "gate": "explicit_visit_or_handoff_action"
+      },
+      {
+        "from": "COMMITMENT",
+        "to": "ARRIVAL",
+        "gate": "independent_cafe_side_token_observation"
+      },
+      {
+        "from": "ARRIVAL",
+        "to": "SALE",
+        "gate": "approved_sale_record_join_within_predeclared_window"
+      },
+      {
+        "from": "SALE",
+        "to": "CONTRIBUTION",
+        "gate": "declared_cost_model_applied"
+      },
+      {
+        "from": "CONTRIBUTION",
+        "to": "LEARNING",
+        "gate": "pre_registered_rule_and_guardrails_applied"
+      }
+    ],
+    "forbidden_state_substitutions": [
+      "DISCOVERY!=INTENT",
+      "INTENT!=ARRIVAL",
+      "COMMITMENT!=ARRIVAL",
+      "ARRIVAL!=SALE",
+      "SALE!=CONTRIBUTION"
+    ]
+  },
+  "measurement_contract": {
+    "linkage": {
+      "status": "BLOCKED_PENDING_OWNER_INPUT",
+      "mode": "privacy_safe_opaque_token",
+      "pii_required": false,
+      "display_code_is_proof": false,
+      "required_bindings": [
+        "web_moment",
+        "cafe_side_observation",
+        "approved_sale_record"
+      ]
+    },
+    "metrics": {
+      "proxies": [
+        "page_view",
+        "menu_view",
+        "smart_choice_selection",
+        "directions_open",
+        "handoff_open"
+      ],
+      "outcomes": [
+        "verified_arrival_rate",
+        "attributed_sale_rate",
+        "net_contribution_per_eligible_session"
+      ],
+      "primary": "net_contribution_per_eligible_session"
+    },
+    "forbidden_substitutions": [
+      "page_view!=visit",
+      "directions_open!=arrival",
+      "token_generated!=sale",
+      "gross_revenue!=net_contribution"
+    ],
+    "attribution_window": "OWNER_DEFINED_BEFORE_PILOT",
+    "cost_inputs": [
+      "product_variable_cost",
+      "promotion_cost",
+      "staff_handling_cost",
+      "measurement_operating_cost"
+    ],
+    "privacy_guardrails": [
+      "no_name_required",
+      "no_phone_required",
+      "no_email_required",
+      "token_retention_defined_before_pilot"
+    ]
+  },
+  "experiment": {
+    "id": "FCR-ROBY-001",
+    "name": "Roby's Moment menu-to-visit bridge",
+    "candidate_pairing": "Iced Latte + San Sebastian",
+    "price_source": "approved menu truth at pilot start",
+    "hypothesis": "A privacy-safe Roby's Moment handoff will improve verified attributed sales and net contribution per eligible session versus a pre-registered baseline.",
+    "baseline": "Current digital journey without an attributable cafe-side handoff.",
+    "treatment": "Roby's Moment selection plus a privacy-safe handoff token, approved cafe-side observation, and approved sale reconciliation.",
+    "assignment": "randomized_session_or_pre_registered_time_block",
+    "primary_metric": "net_contribution_per_eligible_session",
+    "secondary_metrics": [
+      "verified_arrival_rate",
+      "attributed_sale_rate"
+    ],
+    "guardrails": [
+      "menu_truth_mismatch",
+      "token_collision_or_reuse",
+      "barista_workflow_delay",
+      "customer_confusion",
+      "privacy_violation"
+    ],
+    "pre_registration_required": true
+  },
+  "decision_gates": [
+    {
+      "id": "MODEL",
+      "result": "MODEL_DEFINED",
+      "requires": [
+        "executable_contract_passes",
+        "falsification_tests_pass"
+      ]
+    },
+    {
+      "id": "PILOT",
+      "result": "BLOCKED_UNTIL_BUSINESS_INPUTS_EXIST",
+      "requires": [
+        "named_operational_owner",
+        "approved_menu_truth_at_pilot_start",
+        "cafe_staff_workflow_acceptance",
+        "approved_token_to_sale_reconciliation",
+        "predeclared_attribution_and_retention_window",
+        "declared_cost_inputs",
+        "pre_registered_sample_size_and_stop_rule"
+      ]
+    },
+    {
+      "id": "SCALE",
+      "result": "ALLOWED_ONLY_AFTER_CAUSAL_AND_ECONOMIC_EVIDENCE",
+      "requires": [
+        "causal_uplift_over_pre_registered_baseline",
+        "positive_net_contribution",
+        "all_guardrails_within_limits",
+        "operational_owner_approval"
+      ]
+    },
+    {
+      "id": "ROLLBACK",
+      "result": "REQUIRED_ON_MATERIAL_BREACH",
+      "requires": [
+        "truth_privacy_or_workflow_breach_or_negative_contribution"
+      ]
+    }
+  ],
+  "claim_boundary": {
+    "current_status": "MODEL_DEFINED_NOT_EMPIRICALLY_VERIFIED",
+    "can_claim": [
+      "The repository defines an evidence-gated causal model for a Roby's menu-to-visit pilot.",
+      "The model distinguishes digital proxies, physical outcomes, sales, and net contribution.",
+      "The executable verifier rejects unsupported state promotion and unsafe scale claims."
+    ],
+    "cannot_claim": [
+      "The current website caused additional cafe visits.",
+      "The current website increased revenue.",
+      "The current website increased profit.",
+      "A production token-to-POS integration exists.",
+      "Cafe staff accepted the proposed workflow.",
+      "Customer ordering, payment, reservation, or inventory guarantees are available."
+    ]
+  },
+  "open_business_inputs": [
+    "named_operational_owner",
+    "approved_menu_truth_at_pilot_start",
+    "cafe_staff_workflow_acceptance",
+    "approved_token_to_sale_reconciliation",
+    "attribution_window",
+    "token_retention_rule",
+    "product_and_campaign_costs",
+    "sample_size_and_stop_rule"
+  ],
+  "next_falsifiable_question": "Can an anonymous Roby's Moment handoff increase verified attributed sales and net contribution versus a pre-registered baseline without worsening menu truth, privacy, customer clarity, or barista handling time?"
+}

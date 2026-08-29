@@ -1,0 +1,45 @@
+name: Roby's menu-to-visit causal profile
+
+on:
+  pull_request:
+    paths:
+      - "docs/causal-refactoring/menu-to-visit-pilot.md"
+      - "qa/causal-refactoring/robys-fcr-v0.1.schema.json"
+      - "qa/fixtures/causal-refactoring/robys-menu-to-visit-v0.1.json"
+      - "scripts/menu-to-visit-fcr/**"
+      - ".github/workflows/menu-to-visit-causal-profile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/causal-refactoring/menu-to-visit-pilot.md"
+      - "qa/causal-refactoring/robys-fcr-v0.1.schema.json"
+      - "qa/fixtures/causal-refactoring/robys-menu-to-visit-v0.1.json"
+      - "scripts/menu-to-visit-fcr/**"
+      - ".github/workflows/menu-to-visit-causal-profile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: FCR-ROBY-001 menu-to-visit contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Check verifier syntax
+        run: |
+          for file in scripts/menu-to-visit-fcr/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Verify canonical model
+        run: node scripts/menu-to-visit-fcr/verify-causal-refactoring.mjs
+
+      - name: Run falsification cases
+        run: node scripts/menu-to-visit-fcr/test-causal-refactoring.mjs
