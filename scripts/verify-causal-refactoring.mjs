@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { readFile, realpath } from 'node:fs/promises';
 import {
+  CANONICAL_BUSINESS_PROFILE_PATH,
   rankPatterns,
   renderCausalReport,
   validateBusinessTruthStatus,
@@ -66,7 +67,7 @@ try {
 
   const registry = await readJson(REGISTRY_PATH);
   const truthStatus = await readJson(TRUTH_STATUS_PATH);
-  const profile = await readJson(truthStatus.source);
+  const profile = await readJson(CANONICAL_BUSINESS_PROFILE_PATH);
 
   const errors = [
     ...validateRegistry(registry),

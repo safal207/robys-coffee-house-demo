@@ -13,105 +13,120 @@
       "source_pointer": "/version",
       "owner_critical": false,
       "attestation": "source-verified",
-      "note": "Repository-controlled schema metadata; it is not a café-owner business fact."
+      "note": "Repository-controlled schema metadata; it is not a café-owner business fact.",
+      "value_sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
     },
     {
       "key": "name",
       "source_pointer": "/name",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "siteUrl",
       "source_pointer": "/siteUrl",
       "owner_critical": false,
       "attestation": "source-verified",
-      "note": "Repository-controlled canonical deployment URL; café-owner attestation is not required for this technical locator."
+      "note": "Repository-controlled canonical deployment URL; café-owner attestation is not required for this technical locator.",
+      "value_sha256": "sha256:33c523f90d5ec2ef34eca87d6a56fc0d1da99c34ecbcc0dabffb44f469d825d9"
     },
     {
       "key": "menuUrl",
       "source_pointer": "/menuUrl",
       "owner_critical": false,
       "attestation": "source-verified",
-      "note": "Repository-controlled menu route; café-owner attestation is not required for this technical locator."
+      "note": "Repository-controlled menu route; café-owner attestation is not required for this technical locator.",
+      "value_sha256": "sha256:b75e79575047ab7084d49bca16b4406cf238a289d7e6b657cd7563ba63c25485"
     },
     {
       "key": "imageUrl",
       "source_pointer": "/imageUrl",
       "owner_critical": false,
       "attestation": "source-verified",
-      "note": "The asset location is repository-controlled; permission to publish the underlying image remains a separate owner approval outside this profile field."
+      "note": "The asset location is repository-controlled; permission to publish the underlying image remains a separate owner approval outside this profile field.",
+      "value_sha256": "sha256:8f28bc34bc74914b1cea4e8692dcfd82e7871ce03b048cf9e52f19834a2bfbb4"
     },
     {
       "key": "streetAddress",
       "source_pointer": "/streetAddress",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "locality",
       "source_pointer": "/locality",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "region",
       "source_pointer": "/region",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "country",
       "source_pointer": "/country",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "displayHours",
       "source_pointer": "/displayHours",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "opens",
       "source_pointer": "/opens",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "closes",
       "source_pointer": "/closes",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "instagramUrl",
       "source_pointer": "/instagramUrl",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "instagramHandle",
       "source_pointer": "/instagramHandle",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     },
     {
       "key": "mapUrl",
       "source_pointer": "/mapUrl",
       "owner_critical": true,
       "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
+      "value_sha256": null
     }
   ]
 }

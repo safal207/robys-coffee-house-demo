@@ -72,7 +72,9 @@ The repository has a canonical business profile and a separate owner-confirmatio
 
 The first refactoring introduces:
 
-- `business-truth-status.json` as the attestation ledger;
+- `business-truth-status.json` as the attestation ledger, pinned to `qa/business-profile.json`;
+- complete two-way field coverage: every business-profile key must be classified;
+- SHA-256 binding for every `owner-confirmed` or `source-verified` value, so edits invalidate stale attestations;
 - explicit `demo` versus `production` publication mode;
 - a fail-closed production rule;
 - a report that exposes unresolved owner-critical fields.
@@ -103,8 +105,12 @@ npm run causal:report
 - recurrence across at least two scales;
 - interventions across at least two scales;
 - bounded scores, metrics, guardrails, falsification and rollback;
-- business-profile field coverage;
+- the canonical business-profile source path;
+- two-way business-profile field coverage, including rejection of newly added unclassified keys;
+- value-digest binding for confirmed and source-verified attestations;
 - the fail-closed production attestation rule.
+
+The existing `Verify generated runtime` workflow runs these focused checks when the canonical profile, ledger, validator, tests, package scripts or workflow contract changes.
 
 `causal:report` ranks patterns with:
 
@@ -122,9 +128,10 @@ For each owner-critical field:
 
 1. confirm the exact value with the café owner;
 2. retain accountable evidence outside secrets or personal data;
-3. change its attestation to `owner-confirmed`;
-4. run the verifier and full repository checks;
-5. bind release evidence to the exact current commit.
+3. compute the canonical value digest with `digestBusinessValue` and store it in `value_sha256`;
+4. change its attestation to `owner-confirmed`;
+5. run the verifier and full repository checks;
+6. bind release evidence to the exact current commit.
 
 The production gate fails while any owner-critical field remains unconfirmed.
 

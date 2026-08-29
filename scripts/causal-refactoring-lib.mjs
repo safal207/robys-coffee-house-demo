@@ -1,5 +1,9 @@
+import { createHash } from 'node:crypto';
+import { isSafeRepositoryPath } from './repository-path-lib.mjs';
+
 const REGISTRY_SCHEMA = 'robys.fractal-causal-refactoring.v1';
 const BUSINESS_TRUTH_SCHEMA = 'robys.business-truth-status.v1';
+export const CANONICAL_BUSINESS_PROFILE_PATH = 'qa/business-profile.json';
 
 const ALLOWED_SCALES = new Set([
   'business_truth',
@@ -41,6 +45,7 @@ const ALLOWED_ATTESTATIONS = new Set([
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 const SAFE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SHA256_DIGEST = /^sha256:[a-f0-9]{64}$/;
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -52,12 +57,32 @@ function isDateOnly(value) {
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
-function isSafeRelativePath(value) {
-  return typeof value === 'string'
-    && value.length > 0
-    && !value.startsWith('/')
-    && !value.startsWith('\\')
-    && !value.split(/[\\/]/u).includes('..');
+function canonicalJson(value) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') {
+    return JSON.stringify(value);
+  }
+
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new TypeError('business value must be valid JSON');
+    return JSON.stringify(value);
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => canonicalJson(item)).join(',')}]`;
+  }
+
+  if (isObject(value)) {
+    const entries = Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`);
+    return `{${entries.join(',')}}`;
+  }
+
+  throw new TypeError('business value must be valid JSON');
+}
+
+export function digestBusinessValue(value) {
+  return `sha256:${createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex')}`;
 }
 
 function requireString(value, path, errors) {
@@ -107,7 +132,7 @@ function validateEvidence(evidence, path, errors) {
       return;
     }
 
-    if (!isSafeRelativePath(item.path)) {
+    if (!isSafeRepositoryPath(item.path)) {
       errors.push(`${itemPath}.path must be a safe repository-relative path`);
     }
     if (!ALLOWED_EVIDENCE_KINDS.has(item.kind)) {
@@ -290,8 +315,11 @@ export function validateBusinessTruthStatus(status, profile) {
   if (!['demo', 'production'].includes(status.publication_mode)) {
     errors.push('publication_mode must be demo or production');
   }
-  if (!isSafeRelativePath(status.source)) {
+  if (!isSafeRepositoryPath(status.source)) {
     errors.push('source must be a safe repository-relative path');
+  }
+  if (status.source !== CANONICAL_BUSINESS_PROFILE_PATH) {
+    errors.push(`source must equal ${CANONICAL_BUSINESS_PROFILE_PATH}`);
   }
   if (!isDateOnly(status.reviewed_at)) {
     errors.push('reviewed_at must be a valid YYYY-MM-DD date');
@@ -326,7 +354,9 @@ export function validateBusinessTruthStatus(status, profile) {
     if (requireString(field.key, `${path}.key`, errors)) {
       if (keys.has(field.key)) errors.push(`${path}.key is duplicated: ${field.key}`);
       keys.add(field.key);
-      if (!(field.key in profile)) errors.push(`${path}.key is missing from the business profile: ${field.key}`);
+      if (!Object.hasOwn(profile, field.key)) {
+        errors.push(`${path}.key is missing from the business profile: ${field.key}`);
+      }
       if (field.source_pointer !== `/${field.key}`) {
         errors.push(`${path}.source_pointer must equal /${field.key}`);
       }
@@ -341,6 +371,29 @@ export function validateBusinessTruthStatus(status, profile) {
       errors.push(`${path}.attestation is unsupported: ${field.attestation}`);
     }
     requireString(field.note, `${path}.note`, errors);
+
+    const bindsCurrentValue = field.attestation === 'owner-confirmed'
+      || field.attestation === 'source-verified';
+    if (bindsCurrentValue) {
+      if (!SHA256_DIGEST.test(field.value_sha256)) {
+        errors.push(
+          `${path}.value_sha256 must be sha256:<64 lowercase hex> for ${field.attestation}`
+        );
+      } else if (typeof field.key === 'string' && Object.hasOwn(profile, field.key)) {
+        const expectedDigest = digestBusinessValue(profile[field.key]);
+        if (field.value_sha256 !== expectedDigest) {
+          errors.push(
+            `${path} (${field.key}) value_sha256 does not match the current business profile value`
+          );
+        }
+      }
+    } else if (field.value_sha256 !== null) {
+      errors.push(`${path}.value_sha256 must be null for ${field.attestation}`);
+    }
+
+    if (field.attestation === 'not-applicable' && field.owner_critical !== false) {
+      errors.push(`${path}.owner_critical must be false when attestation is not-applicable`);
+    }
 
     if (
       status.publication_mode === 'production'
@@ -396,6 +449,7 @@ export function renderCausalReport(registry, truthStatus) {
 export const causalRefactoringConstants = Object.freeze({
   REGISTRY_SCHEMA,
   BUSINESS_TRUTH_SCHEMA,
+  canonicalBusinessProfilePath: CANONICAL_BUSINESS_PROFILE_PATH,
   scales: [...ALLOWED_SCALES],
   patternStatuses: [...ALLOWED_PATTERN_STATUSES],
   claimLevels: [...ALLOWED_CLAIM_LEVELS],
