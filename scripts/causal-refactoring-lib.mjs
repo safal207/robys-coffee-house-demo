@@ -353,6 +353,12 @@ export function validateBusinessTruthStatus(status, profile) {
     }
   });
 
+  for (const profileKey of Object.keys(profile)) {
+    if (!keys.has(profileKey)) {
+      errors.push(`business profile field is missing from the status ledger: ${profileKey}`);
+    }
+  }
+
   if (ownerCriticalCount === 0) {
     errors.push('fields must contain at least one owner-critical value');
   }
