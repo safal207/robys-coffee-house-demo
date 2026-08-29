@@ -1,17 +1,28 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { validateModel } from "./verify-causal-refactoring.mjs";
+import { validateModel, validateModelFile } from "./verify-causal-refactoring.mjs";
+import {
+  DEFAULT_SHAPE_SCHEMA,
+  parseJsonDocument,
+  validateInstanceAgainstSchema
+} from "./json-schema-contract.mjs";
 
 const ROOT = path.resolve(process.cwd());
 const MODEL_PATH = path.resolve(
   ROOT,
   "qa/fixtures/causal-refactoring/robys-menu-to-visit-v0.1.json"
 );
+const SHAPE_SCHEMA_PATH = path.resolve(ROOT, DEFAULT_SHAPE_SCHEMA);
 const canonical = JSON.parse(readFileSync(MODEL_PATH, "utf8"));
+const canonicalSchema = JSON.parse(readFileSync(SHAPE_SCHEMA_PATH, "utf8"));
 
 function cloneModel() {
   return JSON.parse(JSON.stringify(canonical));
+}
+
+function cloneSchema() {
+  return JSON.parse(JSON.stringify(canonicalSchema));
 }
 
 function expectFailure(name, mutate, expected) {
@@ -28,11 +39,31 @@ function expectFailure(name, mutate, expected) {
   );
 }
 
+function expectShapeFailure(name, schema, model, expected) {
+  assert.throws(
+    () => validateInstanceAgainstSchema(schema, model),
+    (error) => {
+      assert.equal(error.code, "FCR-001", `${name}: expected FCR-001`);
+      assert.match(error.message, expected, `${name}: unexpected shape failure reason`);
+      return true;
+    },
+    name
+  );
+}
+
+const canonicalShapeResult = validateInstanceAgainstSchema(canonicalSchema, cloneModel());
+assert.equal(canonicalShapeResult.result, "PASS");
+assert.equal(canonicalShapeResult.validator, "dependency-free-supported-subset");
+
 const canonicalResult = validateModel(cloneModel());
 assert.equal(canonicalResult.contract, "FCR-001");
 assert.equal(canonicalResult.experiment, "FCR-ROBY-001");
 assert.equal(canonicalResult.first_meaningful_divergence, "COMMITMENT->ARRIVAL");
 assert.equal(canonicalResult.model_status, "MODEL_DEFINED_NOT_EMPIRICALLY_VERIFIED");
+
+const canonicalFileResult = validateModelFile();
+assert.equal(canonicalFileResult.shape_schema, canonicalSchema.$id);
+assert.equal(canonicalFileResult.shape_validator, "dependency-free-supported-subset");
 
 const negativeCases = [
   {
@@ -117,11 +148,54 @@ for (const testCase of negativeCases) {
   expectFailure(testCase.name, testCase.mutate, testCase.expected);
 }
 
+assert.throws(
+  () => parseJsonDocument("{", "shape schema"),
+  (error) => error.code === "FCR-001" && /not valid JSON/.test(error.message),
+  "reject malformed shape schema JSON"
+);
+
+const schemaWithUnknownKeyword = cloneSchema();
+schemaWithUnknownKeyword.properties.status.pattern = "^draft";
+expectShapeFailure(
+  "reject unsupported schema keywords",
+  schemaWithUnknownKeyword,
+  cloneModel(),
+  /unsupported JSON Schema keyword pattern/
+);
+
+const schemaWithDriftedConst = cloneSchema();
+schemaWithDriftedConst.properties.status.const = "production-ready";
+expectShapeFailure(
+  "reject schema and canonical fixture drift",
+  schemaWithDriftedConst,
+  cloneModel(),
+  /value must equal const "production-ready"/
+);
+
+const modelWithSchemaOnlyExtraField = cloneModel();
+modelWithSchemaOnlyExtraField.shape_bypass = true;
+expectShapeFailure(
+  "reject additional fields through the published shape contract",
+  cloneSchema(),
+  modelWithSchemaOnlyExtraField,
+  /shape_bypass: additional property is not allowed/
+);
+
+const schemaWithBrokenReference = cloneSchema();
+schemaWithBrokenReference.properties.visible_symptom.$ref = "#/$defs/missing";
+expectShapeFailure(
+  "reject unresolved schema references",
+  schemaWithBrokenReference,
+  cloneModel(),
+  /cannot resolve #\/$defs\/missing/
+);
+
 process.stdout.write(
   `${JSON.stringify({
     contract: "FCR-001",
-    canonical_cases: 1,
+    canonical_cases: 2,
     falsification_cases: negativeCases.length,
+    shape_contract_cases: 5,
     result: "PASS"
   }, null, 2)}\n`
 );

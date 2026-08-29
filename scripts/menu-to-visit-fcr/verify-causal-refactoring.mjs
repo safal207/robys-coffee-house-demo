@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
-  CONTRACT, DEFAULT_MODEL, TOP_KEYS, exactKeys, fail, ok, text
+  CONTRACT, DEFAULT_MODEL, TOP_KEYS, exactKeys, ok, text
 } from "./causal-refactoring-core.mjs";
 import {
   validateBusiness, validateDiagnosis, validateRefactor
@@ -10,8 +10,24 @@ import {
 import {
   validateClaims, validateExperiment, validateGates, validateMeasurement
 } from "./causal-refactoring-evidence.mjs";
+import {
+  DEFAULT_SHAPE_SCHEMA, parseJsonDocument, validateInstanceAgainstSchema
+} from "./json-schema-contract.mjs";
 
 const ROOT = path.resolve(process.cwd());
+
+function readRepositoryJson(relativePath, label) {
+  text(relativePath, `${label} path`);
+  ok(!path.isAbsolute(relativePath), `${label} path must be repository-relative`);
+  const absolute = path.resolve(ROOT, relativePath);
+  const relative = path.relative(ROOT, absolute);
+  ok(
+    relative !== ".." && !relative.startsWith(`..${path.sep}`),
+    `${label} path escapes repository root`
+  );
+  ok(existsSync(absolute), `missing ${relativePath}`);
+  return parseJsonDocument(readFileSync(absolute, "utf8"), relativePath);
+}
 
 export function validateModel(model) {
   exactKeys(model, TOP_KEYS, "model");
@@ -42,16 +58,14 @@ export function validateModel(model) {
 }
 
 export function validateModelFile(relativePath = DEFAULT_MODEL) {
-  text(relativePath, "model path");
-  ok(!path.isAbsolute(relativePath), "model path must be repository-relative");
-  const absolute = path.resolve(ROOT, relativePath);
-  const relative = path.relative(ROOT, absolute);
-  ok(relative !== ".." && !relative.startsWith(`..${path.sep}`), "model path escapes repository root");
-  ok(existsSync(absolute), `missing ${relativePath}`);
-  let model;
-  try { model = JSON.parse(readFileSync(absolute, "utf8")); }
-  catch (error) { fail(`${relativePath} is not valid JSON: ${error.message}`); }
-  return validateModel(model);
+  const schema = readRepositoryJson(DEFAULT_SHAPE_SCHEMA, "shape schema");
+  const model = readRepositoryJson(relativePath, "model");
+  const shape = validateInstanceAgainstSchema(schema, model);
+  return {
+    ...validateModel(model),
+    shape_schema: shape.schema_id,
+    shape_validator: shape.validator
+  };
 }
 
 const invoked = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
