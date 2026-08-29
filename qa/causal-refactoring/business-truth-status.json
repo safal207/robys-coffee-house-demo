@@ -1,0 +1,89 @@
+{
+  "schema_version": "robys.business-truth-status.v1",
+  "publication_mode": "demo",
+  "source": "qa/business-profile.json",
+  "reviewed_at": "2026-08-29",
+  "production_policy": {
+    "required_attestation": "owner-confirmed",
+    "unknown_values_fail_closed": true
+  },
+  "fields": [
+    {
+      "key": "name",
+      "source_pointer": "/name",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "streetAddress",
+      "source_pointer": "/streetAddress",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "locality",
+      "source_pointer": "/locality",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "region",
+      "source_pointer": "/region",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "country",
+      "source_pointer": "/country",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "displayHours",
+      "source_pointer": "/displayHours",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "opens",
+      "source_pointer": "/opens",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "closes",
+      "source_pointer": "/closes",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "instagramUrl",
+      "source_pointer": "/instagramUrl",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "instagramHandle",
+      "source_pointer": "/instagramHandle",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    },
+    {
+      "key": "mapUrl",
+      "source_pointer": "/mapUrl",
+      "owner_critical": true,
+      "attestation": "unverified",
+      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence."
+    }
+  ]
+}

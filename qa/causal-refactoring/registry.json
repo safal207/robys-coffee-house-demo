@@ -1,0 +1,219 @@
+{
+  "schema_version": "robys.fractal-causal-refactoring.v1",
+  "updated_at": "2026-08-29",
+  "system": "Roby's Coffee House",
+  "claim_boundary": "The registry records testable repository-supported causal hypotheses and controlled risks. A configured mechanism does not prove a customer or revenue effect; effect claims require owner-accepted metrics and controlled evidence.",
+  "scales": [
+    "business_truth",
+    "customer_experience",
+    "product_system",
+    "delivery_system",
+    "team_system"
+  ],
+  "patterns": [
+    {
+      "id": "business-truth-drift",
+      "title": "Business truth can drift across customer-facing surfaces",
+      "status": "active",
+      "claim_level": "repository-supported-hypothesis",
+      "root_rule": "A value can become customer-facing before its provenance and owner-confirmation state are explicit.",
+      "scores": {
+        "impact": 5,
+        "recurrence": 4,
+        "confidence": 4,
+        "effort": 2
+      },
+      "evidence": [
+        {
+          "path": "README.md",
+          "kind": "repository-contract",
+          "note": "The commercial-release checklist requires owner confirmation for hours, address, menu, contacts, assets, translations and consent."
+        },
+        {
+          "path": "qa/business-profile.json",
+          "kind": "repository-data",
+          "note": "The canonical profile stores publishable values but does not encode their owner-attestation state."
+        }
+      ],
+      "symptoms": [
+        {
+          "scale": "business_truth",
+          "description": "A repository value and an owner-confirmed fact are not machine-distinguishable."
+        },
+        {
+          "scale": "customer_experience",
+          "description": "A guest can read a polished demo value as current café truth."
+        },
+        {
+          "scale": "delivery_system",
+          "description": "CI can validate format and consistency while remaining unable to reject an unconfirmed commercial fact."
+        }
+      ],
+      "intervention": {
+        "new_rule": "No owner-critical value is production-ready until its attestation is explicit and machine-checked.",
+        "actions": [
+          {
+            "scale": "business_truth",
+            "action": "Maintain a versioned status ledger for every owner-critical field in the canonical business profile.",
+            "owner": "café owner and product maintainer"
+          },
+          {
+            "scale": "delivery_system",
+            "action": "Fail closed when publication mode is production and any owner-critical value is not owner-confirmed.",
+            "owner": "QA gate"
+          },
+          {
+            "scale": "customer_experience",
+            "action": "Keep the release in explicit demo mode until the production truth gate can pass.",
+            "owner": "product maintainer"
+          }
+        ],
+        "success_metrics": [
+          {
+            "name": "unconfirmed_owner_critical_values_in_production",
+            "target": "0",
+            "measurement": "npm run verify:causal-refactoring"
+          },
+          {
+            "name": "production_truth_gate_bypasses",
+            "target": "0",
+            "measurement": "exact-head CI and release evidence"
+          }
+        ],
+        "guardrails": [
+          "Do not infer owner approval from the mere presence of a value in Git.",
+          "Do not weaken the production gate to make CI green.",
+          "Do not label demo data as commercially verified."
+        ],
+        "rollback": "Keep publication_mode=demo and remove any production-readiness claim until owner confirmation is encoded."
+      },
+      "falsification": "Reject or downgrade this hypothesis if another canonical, machine-enforced owner-attestation source already covers every customer-facing business value."
+    },
+    {
+      "id": "mechanism-effect-overclaim",
+      "title": "An explained mechanism can be mistaken for a proven business effect",
+      "status": "monitoring",
+      "claim_level": "controlled-risk",
+      "root_rule": "A deterministic recommendation trace may be treated as evidence that the recommendation caused conversion or revenue.",
+      "scores": {
+        "impact": 4,
+        "recurrence": 3,
+        "confidence": 5,
+        "effort": 2
+      },
+      "evidence": [
+        {
+          "path": "docs/smart-choice/decision-trace-contract.md",
+          "kind": "repository-contract",
+          "note": "The existing contract explicitly limits the trace to mechanism-only causality and requires controlled evidence for effect claims."
+        }
+      ],
+      "symptoms": [
+        {
+          "scale": "product_system",
+          "description": "The system can explain ranking, eligibility and observed transitions without estimating treatment effect."
+        },
+        {
+          "scale": "business_truth",
+          "description": "A readable trace can still invite an unsupported claim about uplift, conversion or revenue."
+        }
+      ],
+      "intervention": {
+        "new_rule": "Mechanism evidence explains how; controlled outcome evidence is required to claim that it caused a business result.",
+        "actions": [
+          {
+            "scale": "product_system",
+            "action": "Preserve the mechanism-only claim level in every Smart Choice trace and report.",
+            "owner": "Smart Choice maintainer"
+          },
+          {
+            "scale": "business_truth",
+            "action": "Require a predefined experiment, metric, guardrail and uncertainty statement before publishing an effect claim.",
+            "owner": "product owner"
+          },
+          {
+            "scale": "delivery_system",
+            "action": "Treat effect-language without an experiment reference as an actionable review finding.",
+            "owner": "reviewer"
+          }
+        ],
+        "success_metrics": [
+          {
+            "name": "unsupported_effect_claims",
+            "target": "0",
+            "measurement": "release review and experiment evidence"
+          }
+        ],
+        "guardrails": [
+          "Do not translate deterministic traceability into causal uplift.",
+          "Do not hide uncertainty or failed experiment guardrails."
+        ],
+        "rollback": "Revert the statement to mechanism-only language and keep outcome changes as observations, not attributed effects."
+      },
+      "falsification": "Resolve this risk for a specific claim only when a correctly controlled design supports that exact claim and population."
+    },
+    {
+      "id": "exact-head-completion-drift",
+      "title": "Completion evidence can drift away from the exact branch head",
+      "status": "monitoring",
+      "claim_level": "controlled-risk",
+      "root_rule": "A change may be treated as complete using review or checks produced before the latest commit.",
+      "scores": {
+        "impact": 4,
+        "recurrence": 3,
+        "confidence": 4,
+        "effort": 2
+      },
+      "evidence": [
+        {
+          "path": ".github/pull_request_template.md",
+          "kind": "repository-contract",
+          "note": "The PR contract says a new commit invalidates earlier review evidence, dispositions and the proof seal."
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "repository-contract",
+          "note": "Repository instructions require checks, generated-file discipline and independent review after the latest commit."
+        }
+      ],
+      "symptoms": [
+        {
+          "scale": "delivery_system",
+          "description": "A green result can describe an earlier SHA rather than the code proposed for merge."
+        },
+        {
+          "scale": "team_system",
+          "description": "Maintainer intent, automated advice and independent approval can be conflated."
+        }
+      ],
+      "intervention": {
+        "new_rule": "Done means the complete evidence chain is bound to the exact current head and maintainer authority remains explicit.",
+        "actions": [
+          {
+            "scale": "delivery_system",
+            "action": "Bind CI, generated artifacts, dispositions and review evidence to the full current commit SHA.",
+            "owner": "CI and reviewer"
+          },
+          {
+            "scale": "team_system",
+            "action": "Keep automated reviews advisory and require explicit human or accountable maintainer authorization.",
+            "owner": "maintainer"
+          }
+        ],
+        "success_metrics": [
+          {
+            "name": "merge_authorizations_bound_to_stale_heads",
+            "target": "0",
+            "measurement": "PR exact-head evidence contract"
+          }
+        ],
+        "guardrails": [
+          "A new commit invalidates earlier readiness evidence.",
+          "An AI review never owns merge authority."
+        ],
+        "rollback": "Revoke readiness for the stale SHA, rerun exact-head checks and obtain a new explicit decision."
+      },
+      "falsification": "Resolve the risk only when the release path cryptographically or procedurally rejects all stale-head evidence."
+    }
+  ]
+}

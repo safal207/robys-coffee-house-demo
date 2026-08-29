@@ -1,0 +1,97 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import {
+  priorityScore,
+  rankPatterns,
+  renderCausalReport,
+  validateBusinessTruthStatus,
+  validateRegistry
+} from './causal-refactoring-lib.mjs';
+
+const registry = JSON.parse(
+  await readFile('qa/causal-refactoring/registry.json', 'utf8')
+);
+const truthStatus = JSON.parse(
+  await readFile('qa/causal-refactoring/business-truth-status.json', 'utf8')
+);
+const profile = JSON.parse(await readFile(truthStatus.source, 'utf8'));
+
+assert.deepEqual(validateRegistry(registry), []);
+assert.deepEqual(validateBusinessTruthStatus(truthStatus, profile), []);
+
+const ranked = rankPatterns(registry);
+assert.equal(ranked[0].id, 'business-truth-drift');
+assert.equal(priorityScore(ranked[0]), 40);
+assert.deepEqual(
+  ranked.map((pattern) => pattern.priority_score),
+  [...ranked.map((pattern) => pattern.priority_score)].sort((a, b) => b - a)
+);
+
+const duplicate = structuredClone(registry);
+duplicate.patterns.push(structuredClone(duplicate.patterns[0]));
+assert(
+  validateRegistry(duplicate).some((error) => error.includes('is duplicated'))
+);
+
+const singleScale = structuredClone(registry);
+singleScale.patterns[0].intervention.actions = singleScale.patterns[0].intervention.actions
+  .map((action) => ({ ...action, scale: 'business_truth' }));
+assert(
+  validateRegistry(singleScale)
+    .includes('patterns[0].intervention.actions must change at least two distinct scales')
+);
+
+const missingEvidence = structuredClone(registry);
+missingEvidence.patterns[0].evidence = [];
+assert(
+  validateRegistry(missingEvidence)
+    .includes('patterns[0].evidence must contain at least one evidence reference')
+);
+
+const productionTruth = structuredClone(truthStatus);
+productionTruth.publication_mode = 'production';
+const productionErrors = validateBusinessTruthStatus(productionTruth, profile);
+assert.equal(
+  productionErrors.filter((error) => error.includes('blocks production')).length,
+  truthStatus.fields.length
+);
+
+const confirmedProductionTruth = structuredClone(productionTruth);
+confirmedProductionTruth.fields = confirmedProductionTruth.fields.map((field) => ({
+  ...field,
+  attestation: 'owner-confirmed'
+}));
+assert.deepEqual(validateBusinessTruthStatus(confirmedProductionTruth, profile), []);
+
+const missingSourceKey = structuredClone(truthStatus);
+missingSourceKey.fields[0].key = 'inventedField';
+missingSourceKey.fields[0].source_pointer = '/inventedField';
+assert(
+  validateBusinessTruthStatus(missingSourceKey, profile)
+    .some((error) => error.includes('missing from the business profile'))
+);
+
+const report = renderCausalReport(registry, truthStatus);
+assert.match(report, /Publication mode: demo/);
+assert.match(report, /Business truth can drift/);
+assert.match(report, /mechanism does not prove a customer or revenue effect/i);
+
+const verifier = spawnSync(
+  process.execPath,
+  ['scripts/verify-causal-refactoring.mjs', '--report'],
+  { encoding: 'utf8' }
+);
+assert.equal(verifier.status, 0, verifier.stderr);
+assert.match(verifier.stdout, /Fractal causal refactoring valid/);
+assert.match(verifier.stdout, /Claim boundary/);
+
+const invalidOption = spawnSync(
+  process.execPath,
+  ['scripts/verify-causal-refactoring.mjs', '--invented'],
+  { encoding: 'utf8' }
+);
+assert.equal(invalidOption.status, 1);
+assert.match(invalidOption.stderr, /Unknown option/);
+
+console.log('Fractal causal refactoring tests passed.');
