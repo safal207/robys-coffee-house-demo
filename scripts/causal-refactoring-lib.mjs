@@ -5,6 +5,24 @@ const REGISTRY_SCHEMA = 'robys.fractal-causal-refactoring.v1';
 const BUSINESS_TRUTH_SCHEMA = 'robys.business-truth-status.v1';
 export const CANONICAL_BUSINESS_PROFILE_PATH = 'qa/business-profile.json';
 
+export const BUSINESS_TRUTH_CRITICALITY_POLICY = Object.freeze({
+  version: false,
+  name: true,
+  siteUrl: false,
+  menuUrl: false,
+  imageUrl: false,
+  streetAddress: true,
+  locality: true,
+  region: true,
+  country: true,
+  displayHours: true,
+  opens: true,
+  closes: true,
+  instagramUrl: true,
+  instagramHandle: true,
+  mapUrl: true
+});
+
 const ALLOWED_SCALES = new Set([
   'business_truth',
   'customer_experience',
@@ -351,6 +369,7 @@ export function validateBusinessTruthStatus(status, profile) {
       return;
     }
 
+    let expectedCriticality;
     if (requireString(field.key, `${path}.key`, errors)) {
       if (keys.has(field.key)) errors.push(`${path}.key is duplicated: ${field.key}`);
       keys.add(field.key);
@@ -360,12 +379,27 @@ export function validateBusinessTruthStatus(status, profile) {
       if (field.source_pointer !== `/${field.key}`) {
         errors.push(`${path}.source_pointer must equal /${field.key}`);
       }
+
+      if (!Object.hasOwn(BUSINESS_TRUTH_CRITICALITY_POLICY, field.key)) {
+        errors.push(`${path}.key has no independent criticality policy: ${field.key}`);
+      } else {
+        expectedCriticality = BUSINESS_TRUTH_CRITICALITY_POLICY[field.key];
+      }
     }
 
     if (field.owner_critical !== true && field.owner_critical !== false) {
       errors.push(`${path}.owner_critical must be a boolean`);
     }
-    if (field.owner_critical === true) ownerCriticalCount += 1;
+    if (
+      expectedCriticality !== undefined
+      && field.owner_critical !== expectedCriticality
+    ) {
+      errors.push(
+        `${path}.owner_critical must equal independent policy value `
+        + `${expectedCriticality} for ${field.key}`
+      );
+    }
+    if (expectedCriticality === true) ownerCriticalCount += 1;
 
     if (!ALLOWED_ATTESTATIONS.has(field.attestation)) {
       errors.push(`${path}.attestation is unsupported: ${field.attestation}`);
@@ -391,13 +425,13 @@ export function validateBusinessTruthStatus(status, profile) {
       errors.push(`${path}.value_sha256 must be null for ${field.attestation}`);
     }
 
-    if (field.attestation === 'not-applicable' && field.owner_critical !== false) {
-      errors.push(`${path}.owner_critical must be false when attestation is not-applicable`);
+    if (field.attestation === 'not-applicable' && expectedCriticality !== false) {
+      errors.push(`${path}.attestation cannot be not-applicable for ${field.key}`);
     }
 
     if (
       status.publication_mode === 'production'
-      && field.owner_critical === true
+      && expectedCriticality === true
       && field.attestation !== 'owner-confirmed'
     ) {
       errors.push(
@@ -407,13 +441,22 @@ export function validateBusinessTruthStatus(status, profile) {
   });
 
   for (const profileKey of Object.keys(profile)) {
+    if (!Object.hasOwn(BUSINESS_TRUTH_CRITICALITY_POLICY, profileKey)) {
+      errors.push(`business profile field has no independent criticality policy: ${profileKey}`);
+    }
     if (!keys.has(profileKey)) {
       errors.push(`business profile field is missing from the status ledger: ${profileKey}`);
     }
   }
 
+  for (const policyKey of Object.keys(BUSINESS_TRUTH_CRITICALITY_POLICY)) {
+    if (!Object.hasOwn(profile, policyKey)) {
+      errors.push(`criticality policy field is missing from the business profile: ${policyKey}`);
+    }
+  }
+
   if (ownerCriticalCount === 0) {
-    errors.push('fields must contain at least one owner-critical value');
+    errors.push('fields must contain at least one independently owner-critical value');
   }
 
   return errors;
@@ -422,7 +465,8 @@ export function validateBusinessTruthStatus(status, profile) {
 export function renderCausalReport(registry, truthStatus) {
   const ranked = rankPatterns(registry);
   const unresolvedOwnerCritical = truthStatus.fields.filter(
-    (field) => field.owner_critical && field.attestation !== 'owner-confirmed'
+    (field) => BUSINESS_TRUTH_CRITICALITY_POLICY[field.key] === true
+      && field.attestation !== 'owner-confirmed'
   );
 
   const lines = [
@@ -450,6 +494,7 @@ export const causalRefactoringConstants = Object.freeze({
   REGISTRY_SCHEMA,
   BUSINESS_TRUTH_SCHEMA,
   canonicalBusinessProfilePath: CANONICAL_BUSINESS_PROFILE_PATH,
+  businessTruthCriticalityPolicy: { ...BUSINESS_TRUTH_CRITICALITY_POLICY },
   scales: [...ALLOWED_SCALES],
   patternStatuses: [...ALLOWED_PATTERN_STATUSES],
   claimLevels: [...ALLOWED_CLAIM_LEVELS],

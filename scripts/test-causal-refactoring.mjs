@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import {
+  BUSINESS_TRUTH_CRITICALITY_POLICY,
   CANONICAL_BUSINESS_PROFILE_PATH,
   digestBusinessValue,
   priorityScore,
@@ -27,6 +28,10 @@ assert.equal(truthStatus.source, CANONICAL_BUSINESS_PROFILE_PATH);
 assert.equal(
   digestBusinessValue({ b: 2, a: 1 }),
   digestBusinessValue({ a: 1, b: 2 })
+);
+assert.equal(
+  Object.values(BUSINESS_TRUTH_CRITICALITY_POLICY).filter(Boolean).length,
+  11
 );
 
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
@@ -75,7 +80,8 @@ assert(
 const productionTruth = structuredClone(truthStatus);
 productionTruth.publication_mode = 'production';
 const productionErrors = validateBusinessTruthStatus(productionTruth, profile);
-const ownerCriticalFieldCount = truthStatus.fields.filter((field) => field.owner_critical).length;
+const ownerCriticalFieldCount = Object.values(BUSINESS_TRUTH_CRITICALITY_POLICY)
+  .filter(Boolean).length;
 assert.equal(
   productionErrors.filter((error) => error.includes('blocks production')).length,
   ownerCriticalFieldCount
@@ -90,6 +96,24 @@ confirmedProductionTruth.fields = confirmedProductionTruth.fields.map((field) =>
     : field.value_sha256
 }));
 assert.deepEqual(validateBusinessTruthStatus(confirmedProductionTruth, profile), []);
+
+const criticalityBypass = structuredClone(productionTruth);
+criticalityBypass.fields = criticalityBypass.fields.map((field) => ({
+  ...field,
+  owner_critical: field.key === 'version',
+  attestation: field.key === 'version' ? 'owner-confirmed' : 'source-verified',
+  value_sha256: digestBusinessValue(profile[field.key])
+}));
+const criticalityBypassErrors = validateBusinessTruthStatus(criticalityBypass, profile);
+assert(
+  criticalityBypassErrors.some((error) => (
+    error.includes('owner_critical must equal independent policy value false for version')
+  ))
+);
+assert.equal(
+  criticalityBypassErrors.filter((error) => error.includes('blocks production')).length,
+  ownerCriticalFieldCount
+);
 
 const driftedConfirmedProfile = { ...profile, opens: '10:00' };
 assert(
@@ -144,9 +168,19 @@ assert(
 );
 
 const profileWithNewField = { ...profile, phoneUrl: 'tel:+900000000000' };
+const newFieldErrors = validateBusinessTruthStatus(truthStatus, profileWithNewField);
 assert(
-  validateBusinessTruthStatus(truthStatus, profileWithNewField)
-    .includes('business profile field is missing from the status ledger: phoneUrl')
+  newFieldErrors.includes('business profile field is missing from the status ledger: phoneUrl')
+);
+assert(
+  newFieldErrors.includes('business profile field has no independent criticality policy: phoneUrl')
+);
+
+const profileMissingPolicyField = { ...profile };
+delete profileMissingPolicyField.mapUrl;
+assert(
+  validateBusinessTruthStatus(truthStatus, profileMissingPolicyField)
+    .includes('criticality policy field is missing from the business profile: mapUrl')
 );
 
 const report = renderCausalReport(registry, truthStatus);
