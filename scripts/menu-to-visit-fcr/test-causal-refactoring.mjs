@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { REPOSITORY_ROOT } from "./causal-refactoring-core.mjs";
 import { validateModel, validateModelFile } from "./verify-causal-refactoring.mjs";
 import {
   DEFAULT_SHAPE_SCHEMA,
@@ -8,12 +11,16 @@ import {
   validateInstanceAgainstSchema
 } from "./json-schema-contract.mjs";
 
-const ROOT = path.resolve(process.cwd());
+const ROOT = REPOSITORY_ROOT;
 const MODEL_PATH = path.resolve(
   ROOT,
   "qa/fixtures/causal-refactoring/robys-menu-to-visit-v0.1.json"
 );
 const SHAPE_SCHEMA_PATH = path.resolve(ROOT, DEFAULT_SHAPE_SCHEMA);
+const VERIFY_PATH = path.resolve(
+  ROOT,
+  "scripts/menu-to-visit-fcr/verify-causal-refactoring.mjs"
+);
 const canonical = JSON.parse(readFileSync(MODEL_PATH, "utf8"));
 const canonicalSchema = JSON.parse(readFileSync(SHAPE_SCHEMA_PATH, "utf8"));
 
@@ -64,6 +71,13 @@ assert.equal(canonicalResult.model_status, "MODEL_DEFINED_NOT_EMPIRICALLY_VERIFI
 const canonicalFileResult = validateModelFile();
 assert.equal(canonicalFileResult.shape_schema, canonicalSchema.$id);
 assert.equal(canonicalFileResult.shape_validator, "dependency-free-supported-subset");
+
+const outsideCwd = spawnSync(process.execPath, [VERIFY_PATH], {
+  cwd: tmpdir(),
+  encoding: "utf8"
+});
+assert.equal(outsideCwd.status, 0, outsideCwd.stderr || outsideCwd.stdout);
+assert.match(outsideCwd.stdout, /"shape_validator": "dependency-free-supported-subset"/);
 
 const negativeCases = [
   {
@@ -121,9 +135,16 @@ const negativeCases = [
   },
   {
     name: "reject unsupported empirical claim",
-    expected: /unsupported empirical claim appears in can_claim/,
+    expected: /claim_boundary\.can_claim must be exactly/,
     mutate(model) {
       model.claim_boundary.can_claim.push("The current website increased profit.");
+    }
+  },
+  {
+    name: "reject causal paraphrase in permitted claims",
+    expected: /claim_boundary\.can_claim must be exactly/,
+    mutate(model) {
+      model.claim_boundary.can_claim.push("The treatment caused more cafe visits.");
     }
   },
   {
@@ -136,10 +157,46 @@ const negativeCases = [
     }
   },
   {
+    name: "reject substituted ARRIVAL evidence",
+    expected: /ARRIVAL\.evidence_required must be exactly/,
+    mutate(model) {
+      const arrival = model.refactor.stages.find((stage) => stage.id === "ARRIVAL");
+      arrival.evidence_required = ["directions_open"];
+    }
+  },
+  {
+    name: "reject substituted non-FMD transition gate",
+    expected: /DISCOVERY->INTENT gate must be explicit_selection_event/,
+    mutate(model) {
+      model.refactor.transitions[0].gate = "page_view";
+    }
+  },
+  {
     name: "reject frozen candidate price",
     expected: /candidate_pairing must not freeze a price/,
     mutate(model) {
       model.experiment.candidate_pairing = "Iced Latte + San Sebastian 370 TRY";
+    }
+  },
+  {
+    name: "reject prefix-form frozen candidate price",
+    expected: /candidate_pairing must not freeze a price/,
+    mutate(model) {
+      model.experiment.candidate_pairing = "Iced Latte + San Sebastian ₺370";
+    }
+  },
+  {
+    name: "reject empty experiment name",
+    expected: /experiment\.name must be a non-empty string/,
+    mutate(model) {
+      model.experiment.name = "";
+    }
+  },
+  {
+    name: "reject non-string experiment treatment",
+    expected: /experiment\.treatment must be a non-empty string/,
+    mutate(model) {
+      model.experiment.treatment = null;
     }
   }
 ];
@@ -193,9 +250,10 @@ expectShapeFailure(
 process.stdout.write(
   `${JSON.stringify({
     contract: "FCR-001",
-    canonical_cases: 2,
+    canonical_cases: 4,
     falsification_cases: negativeCases.length,
     shape_contract_cases: 5,
+    path_contract_cases: 1,
     result: "PASS"
   }, null, 2)}\n`
 );

@@ -1,7 +1,15 @@
 import {
-  REQUIRED_COSTS, REQUIRED_OPEN_INPUTS, REQUIRED_PILOT, REQUIRED_SCALE,
-  contains, exactKeys, getGate, ok, text, uniqueStrings
+  CAN_CLAIM_ALLOWLIST, REQUIRED_COSTS, REQUIRED_OPEN_INPUTS, REQUIRED_PILOT,
+  REQUIRED_SCALE, contains, exactKeys, exactStringSet, getGate, ok, text,
+  uniqueStrings
 } from "./causal-refactoring-core.mjs";
+
+const PRICE_AMOUNT = String.raw`\d+(?:[\s.,]\d+)*`;
+const PRICE_CURRENCY = String.raw`(?:₺|try|tl|lira)`;
+const FROZEN_PRICE = new RegExp(
+  String.raw`(?<![\p{L}\p{N}])(?:${PRICE_CURRENCY}\s*${PRICE_AMOUNT}|${PRICE_AMOUNT}\s*${PRICE_CURRENCY})(?![\p{L}\p{N}])`,
+  "iu"
+);
 
 export function validateMeasurement(model, observed) {
   exactKeys(model.measurement_contract, [
@@ -43,8 +51,12 @@ export function validateExperiment(model) {
   ], "experiment");
   const experiment = model.experiment;
   ok(experiment.id === "FCR-ROBY-001", "experiment.id must be FCR-ROBY-001");
+  text(experiment.name, "experiment.name");
   text(experiment.candidate_pairing, "experiment.candidate_pairing");
-  ok(!/\b\d+(?:[.,]\d+)?\s*(?:₺|try|tl)\b/i.test(experiment.candidate_pairing), "candidate_pairing must not freeze a price");
+  text(experiment.hypothesis, "experiment.hypothesis");
+  text(experiment.baseline, "experiment.baseline");
+  text(experiment.treatment, "experiment.treatment");
+  ok(!FROZEN_PRICE.test(experiment.candidate_pairing), "candidate_pairing must not freeze a price");
   ok(experiment.price_source === "approved menu truth at pilot start", "price must come from approved menu truth at pilot start");
   ok(experiment.assignment === "randomized_session_or_pre_registered_time_block", "assignment must be randomized or pre-registered time blocks");
   ok(experiment.primary_metric === model.measurement_contract.metrics.primary, "experiment primary metric must match measurement contract");
@@ -77,10 +89,8 @@ export function validateGates(model) {
 export function validateClaims(model) {
   exactKeys(model.claim_boundary, ["current_status", "can_claim", "cannot_claim"], "claim_boundary");
   ok(model.claim_boundary.current_status === "MODEL_DEFINED_NOT_EMPIRICALLY_VERIFIED", "claim boundary must remain MODEL_DEFINED_NOT_EMPIRICALLY_VERIFIED");
-  const canClaim = uniqueStrings(model.claim_boundary.can_claim, "claim_boundary.can_claim");
+  exactStringSet(model.claim_boundary.can_claim, CAN_CLAIM_ALLOWLIST, "claim_boundary.can_claim");
   const cannotClaim = uniqueStrings(model.claim_boundary.cannot_claim, "claim_boundary.cannot_claim");
-  const dangerous = /\b(?:caused additional|increased revenue|increased profit|production token-to-pos|staff accepted)\b/i;
-  for (const claim of canClaim) ok(!dangerous.test(claim), `unsupported empirical claim appears in can_claim: ${claim}`);
   const cannotText = [...cannotClaim].join("\n").toLowerCase();
   for (const phrase of [
     "caused additional cafe visits", "increased revenue", "increased profit",

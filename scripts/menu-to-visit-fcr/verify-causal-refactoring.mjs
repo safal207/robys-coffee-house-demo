@@ -1,8 +1,8 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
-  CONTRACT, DEFAULT_MODEL, TOP_KEYS, exactKeys, ok, text
+  CONTRACT, DEFAULT_MODEL, REPOSITORY_ROOT, TOP_KEYS, exactKeys, ok, text
 } from "./causal-refactoring-core.mjs";
 import {
   validateBusiness, validateDiagnosis, validateRefactor
@@ -14,19 +14,21 @@ import {
   DEFAULT_SHAPE_SCHEMA, parseJsonDocument, validateInstanceAgainstSchema
 } from "./json-schema-contract.mjs";
 
-const ROOT = path.resolve(process.cwd());
+const ROOT = realpathSync(REPOSITORY_ROOT);
+
+function isWithinRoot(candidate) {
+  return candidate === ROOT || candidate.startsWith(`${ROOT}${path.sep}`);
+}
 
 function readRepositoryJson(relativePath, label) {
   text(relativePath, `${label} path`);
   ok(!path.isAbsolute(relativePath), `${label} path must be repository-relative`);
   const absolute = path.resolve(ROOT, relativePath);
-  const relative = path.relative(ROOT, absolute);
-  ok(
-    relative !== ".." && !relative.startsWith(`..${path.sep}`),
-    `${label} path escapes repository root`
-  );
+  ok(isWithinRoot(absolute), `${label} path escapes repository root`);
   ok(existsSync(absolute), `missing ${relativePath}`);
-  return parseJsonDocument(readFileSync(absolute, "utf8"), relativePath);
+  const resolved = realpathSync(absolute);
+  ok(isWithinRoot(resolved), `${label} path resolves outside repository root`);
+  return parseJsonDocument(readFileSync(resolved, "utf8"), relativePath);
 }
 
 export function validateModel(model) {

@@ -1,4 +1,11 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 export const CONTRACT = "FCR-001";
+export const REPOSITORY_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../.."
+);
 export const DEFAULT_MODEL = "qa/fixtures/causal-refactoring/robys-menu-to-visit-v0.1.json";
 export const TOP_KEYS = [
   "business_context", "claim_boundary", "decision_gates", "experiment",
@@ -6,8 +13,34 @@ export const TOP_KEYS = [
   "next_falsifiable_question", "open_business_inputs", "refactor",
   "root_rule", "schema", "status", "unsafe_patches", "visible_symptom"
 ];
-export const STAGES = ["DISCOVERY", "INTENT", "COMMITMENT", "ARRIVAL", "SALE", "CONTRIBUTION", "LEARNING"];
-export const DOMAINS = ["digital", "digital", "digital", "physical", "operational", "economic", "decision"];
+export const STAGES = [
+  "DISCOVERY", "INTENT", "COMMITMENT", "ARRIVAL", "SALE", "CONTRIBUTION", "LEARNING"
+];
+export const DOMAINS = [
+  "digital", "digital", "digital", "physical", "operational", "economic", "decision"
+];
+export const STAGE_EVIDENCE = Object.freeze({
+  DISCOVERY: Object.freeze(["eligible_session_or_exposure"]),
+  INTENT: Object.freeze(["explicit_pairing_or_moment_selection"]),
+  COMMITMENT: Object.freeze(["directions_or_show_barista_action"]),
+  ARRIVAL: Object.freeze(["cafe_side_token_observation"]),
+  SALE: Object.freeze(["approved_sale_record_joined_to_token"]),
+  CONTRIBUTION: Object.freeze(["sale_value_minus_declared_variable_and_campaign_costs"]),
+  LEARNING: Object.freeze(["pre_registered_decision_rule_applied"])
+});
+export const TRANSITION_GATES = Object.freeze([
+  "explicit_selection_event",
+  "explicit_visit_or_handoff_action",
+  "independent_cafe_side_token_observation",
+  "approved_sale_record_join_within_predeclared_window",
+  "declared_cost_model_applied",
+  "pre_registered_rule_and_guardrails_applied"
+]);
+export const CAN_CLAIM_ALLOWLIST = Object.freeze([
+  "The repository defines an evidence-gated causal model for a Roby's menu-to-visit pilot.",
+  "The model distinguishes digital proxies, physical outcomes, sales, and net contribution.",
+  "The executable verifier rejects unsupported state promotion and unsafe scale claims."
+]);
 export const REQUIRED_COSTS = [
   "product_variable_cost", "promotion_cost", "staff_handling_cost",
   "measurement_operating_cost"
@@ -42,7 +75,10 @@ export function exactKeys(value, expected, label) {
   ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
   const actual = Object.keys(value).sort();
   const wanted = [...expected].sort();
-  ok(JSON.stringify(actual) === JSON.stringify(wanted), `${label} keys must be exactly [${wanted.join(", ")}], got [${actual.join(", ")}]`);
+  ok(
+    JSON.stringify(actual) === JSON.stringify(wanted),
+    `${label} keys must be exactly [${wanted.join(", ")}], got [${actual.join(", ")}]`
+  );
 }
 export function uniqueStrings(value, label, min = 1) {
   ok(Array.isArray(value) && value.length >= min, `${label} must contain at least ${min} item(s)`);
@@ -53,6 +89,17 @@ export function uniqueStrings(value, label, min = 1) {
     set.add(item);
   }
   return set;
+}
+export function exactStringSet(value, expected, label) {
+  const actual = uniqueStrings(value, label);
+  const missing = expected.filter((item) => !actual.has(item));
+  const unexpected = [...actual].filter((item) => !expected.includes(item));
+  ok(
+    missing.length === 0 && unexpected.length === 0,
+    `${label} must be exactly [${expected.join(", ")}]; `
+      + `missing [${missing.join(", ")}], unexpected [${unexpected.join(", ")}]`
+  );
+  return actual;
 }
 export function contains(set, required, label) {
   for (const item of required) ok(set.has(item), `${label} is missing required item ${item}`);

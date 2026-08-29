@@ -1,5 +1,6 @@
 import {
-  DOMAINS, STAGES, contains, exactKeys, ok, text, uniqueStrings
+  DOMAINS, STAGES, STAGE_EVIDENCE, TRANSITION_GATES, contains, exactKeys,
+  exactStringSet, ok, text, uniqueStrings
 } from "./causal-refactoring-core.mjs";
 
 export function validateBusiness(model) {
@@ -60,16 +61,18 @@ export function validateRefactor(model) {
     exactKeys(stage, ["id", "domain", "evidence_required", "claim_allowed"], `refactor.stages[${index}]`);
     ok(stage.id === STAGES[index], `stage ${index} must be ${STAGES[index]}, got ${stage.id}`);
     ok(stage.domain === DOMAINS[index], `${stage.id} domain must be ${DOMAINS[index]}`);
-    uniqueStrings(stage.evidence_required, `${stage.id}.evidence_required`);
+    exactStringSet(stage.evidence_required, STAGE_EVIDENCE[stage.id], `${stage.id}.evidence_required`);
     text(stage.claim_allowed, `${stage.id}.claim_allowed`);
   });
   ok(Array.isArray(model.refactor.transitions) && model.refactor.transitions.length === STAGES.length - 1, "refactor.transitions must connect every adjacent stage exactly once");
   model.refactor.transitions.forEach((transition, index) => {
     exactKeys(transition, ["from", "to", "gate"], `refactor.transitions[${index}]`);
-    ok(transition.from === STAGES[index] && transition.to === STAGES[index + 1], `transition ${index} must be ${STAGES[index]}->${STAGES[index + 1]}`);
-    text(transition.gate, `refactor.transitions[${index}].gate`);
+    const expectedFrom = STAGES[index];
+    const expectedTo = STAGES[index + 1];
+    const expectedGate = TRANSITION_GATES[index];
+    ok(transition.from === expectedFrom && transition.to === expectedTo, `transition ${index} must be ${expectedFrom}->${expectedTo}`);
+    ok(transition.gate === expectedGate, `${expectedFrom}->${expectedTo} gate must be ${expectedGate}`);
   });
-  ok(model.refactor.transitions[2].gate === "independent_cafe_side_token_observation", "First Meaningful Divergence must require independent cafe-side observation");
   contains(uniqueStrings(model.refactor.forbidden_state_substitutions, "refactor.forbidden_state_substitutions"), [
     "DISCOVERY!=INTENT", "INTENT!=ARRIVAL", "COMMITMENT!=ARRIVAL", "ARRIVAL!=SALE", "SALE!=CONTRIBUTION"
   ], "refactor.forbidden_state_substitutions");
