@@ -57,7 +57,7 @@ is explicit and machine-checked
 The repository does not make a scientific claim about subtle bodies. As a private thinking aid only:
 
 | Metaphor | Repository meaning |
-|---|---|
+| --- | --- |
 | Causal layer | assumption, policy or rule that generates decisions |
 | Subtle layer | copy, decision path, workflow and interpretation |
 | Physical layer | customer UI, code, data and café operation |
