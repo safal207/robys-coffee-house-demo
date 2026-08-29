@@ -187,7 +187,7 @@ expectShapeFailure(
   "reject unresolved schema references",
   schemaWithBrokenReference,
   cloneModel(),
-  /cannot resolve #\/$defs\/missing/
+  /cannot resolve #\/\$defs\/missing/
 );
 
 process.stdout.write(
