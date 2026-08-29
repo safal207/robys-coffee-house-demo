@@ -8,6 +8,7 @@ import {
   validateBusinessTruthStatus,
   validateRegistry
 } from './causal-refactoring-lib.mjs';
+import { isSafeRepositoryPath } from './repository-path-lib.mjs';
 
 const registry = JSON.parse(
   await readFile('qa/causal-refactoring/registry.json', 'utf8')
@@ -19,6 +20,13 @@ const profile = JSON.parse(await readFile(truthStatus.source, 'utf8'));
 
 assert.deepEqual(validateRegistry(registry), []);
 assert.deepEqual(validateBusinessTruthStatus(truthStatus, profile), []);
+
+assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
+assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);
+assert.equal(isSafeRepositoryPath('../outside.json'), false);
+assert.equal(isSafeRepositoryPath('/tmp/outside.json'), false);
+assert.equal(isSafeRepositoryPath('C:\\outside.json'), false);
+assert.equal(isSafeRepositoryPath('qa/../../outside.json'), false);
 
 const ranked = rankPatterns(registry);
 assert.equal(ranked[0].id, 'business-truth-drift');

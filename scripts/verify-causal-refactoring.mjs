@@ -1,16 +1,41 @@
-import { access, readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { readFile, realpath } from 'node:fs/promises';
 import {
   rankPatterns,
   renderCausalReport,
   validateBusinessTruthStatus,
   validateRegistry
 } from './causal-refactoring-lib.mjs';
+import { isSafeRepositoryPath } from './repository-path-lib.mjs';
 
 const REGISTRY_PATH = 'qa/causal-refactoring/registry.json';
 const TRUTH_STATUS_PATH = 'qa/causal-refactoring/business-truth-status.json';
+const ROOT = await realpath(process.cwd());
 
-async function readJson(path) {
-  return JSON.parse(await readFile(path, 'utf8'));
+function isWithinRoot(candidate) {
+  return candidate === ROOT || candidate.startsWith(`${ROOT}${path.sep}`);
+}
+
+async function resolveRepositoryFile(candidate) {
+  if (!isSafeRepositoryPath(candidate)) {
+    throw new Error(`unsafe repository-relative path: ${candidate}`);
+  }
+
+  const absolute = path.resolve(ROOT, candidate);
+  if (!isWithinRoot(absolute)) {
+    throw new Error(`path escapes repository root: ${candidate}`);
+  }
+
+  const resolved = await realpath(absolute);
+  if (!isWithinRoot(resolved)) {
+    throw new Error(`path resolves outside repository root: ${candidate}`);
+  }
+  return resolved;
+}
+
+async function readJson(candidate) {
+  const resolved = await resolveRepositoryFile(candidate);
+  return JSON.parse(await readFile(resolved, 'utf8'));
 }
 
 async function verifyEvidencePaths(registry) {
@@ -23,11 +48,11 @@ async function verifyEvidencePaths(registry) {
     }
   }
 
-  for (const path of paths) {
+  for (const candidate of paths) {
     try {
-      await access(path);
-    } catch {
-      errors.push(`evidence path does not exist: ${path}`);
+      await resolveRepositoryFile(candidate);
+    } catch (error) {
+      errors.push(`invalid evidence path ${candidate}: ${error.message}`);
     }
   }
   return errors;
