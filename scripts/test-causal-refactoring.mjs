@@ -5,7 +5,6 @@ import {
   BUSINESS_TRUTH_CRITICALITY_POLICY,
   CANONICAL_BUSINESS_PROFILE_PATH,
   digestBusinessValue,
-  digestEvidenceText,
   priorityScore,
   rankPatterns,
   renderCausalReport,
@@ -47,7 +46,10 @@ const ownerAttestationText = await readFile(truthStatus.owner_attestation.path, 
 
 assert.deepEqual(validateRegistry(registry), []);
 assert.deepEqual(validateBusinessTruthStatus(truthStatus, profile), []);
-assert.deepEqual(validateOwnerAttestationEvidence(truthStatus, ownerAttestationText), []);
+assert.deepEqual(
+  validateOwnerAttestationEvidence(truthStatus, ownerAttestationText, profile),
+  []
+);
 
 assert.equal(truthStatus.source, CANONICAL_BUSINESS_PROFILE_PATH);
 assert.equal(
@@ -76,17 +78,41 @@ assert(
     && field.value_sha256 === digestBusinessValue(profile[field.key])
   ))
 );
+const ownerAttestationRecord = JSON.parse(ownerAttestationText);
 assert.equal(
-  truthStatus.owner_attestation.canonical_text_sha256,
-  digestEvidenceText(ownerAttestationText)
+  truthStatus.owner_attestation.canonical_json_sha256,
+  digestBusinessValue(ownerAttestationRecord)
 );
 
-const staleOwnerAttestationText = `${ownerAttestationText}\nStale mutation.`;
+const staleOwnerAttestationRecord = structuredClone(ownerAttestationRecord);
+staleOwnerAttestationRecord.claim_boundary += ' Stale mutation.';
 assert(
-  validateOwnerAttestationEvidence(truthStatus, staleOwnerAttestationText)
+  validateOwnerAttestationEvidence(
+    truthStatus,
+    JSON.stringify(staleOwnerAttestationRecord),
+    profile
+  )
     .includes(
-      'owner_attestation canonical_text_sha256 does not match the exact attestation record'
+      'owner_attestation canonical_json_sha256 does not match the exact attestation manifest'
     )
+);
+
+const ownerEvidenceDriftedProfile = { ...profile, opens: '10:00' };
+const ownerEvidenceDriftedLedger = structuredClone(truthStatus);
+ownerEvidenceDriftedLedger.fields.find((field) => field.key === 'opens').value_sha256 =
+  digestBusinessValue(ownerEvidenceDriftedProfile.opens);
+assert.deepEqual(
+  validateBusinessTruthStatus(ownerEvidenceDriftedLedger, ownerEvidenceDriftedProfile),
+  []
+);
+assert(
+  validateOwnerAttestationEvidence(
+    ownerEvidenceDriftedLedger,
+    ownerAttestationText,
+    ownerEvidenceDriftedProfile
+  ).includes(
+    'owner attestation field opens does not match production ledger and business profile'
+  )
 );
 
 const missingOwnerAttestation = structuredClone(truthStatus);

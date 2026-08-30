@@ -79,7 +79,7 @@ The first refactoring introduces:
 - a fail-closed production rule;
 - a report that exposes unresolved owner-critical fields.
 
-The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The production ledger also binds the exact canonical text of [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md), which preserves the durable scope and claim boundary. Any later value or attestation-record change invalidates its digest and must fail closed until the owner confirms the replacement.
+The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The production ledger also binds the canonical JSON digest of `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`, whose complete field set is compared with both the ledger and business profile. The human-readable [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md) preserves provenance and the claim boundary. Any later value or attestation-manifest change invalidates the gate until the owner confirms the replacement.
 
 ### 2. Mechanism/effect overclaim — monitoring
 

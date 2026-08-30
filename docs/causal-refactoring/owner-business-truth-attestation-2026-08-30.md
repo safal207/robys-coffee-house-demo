@@ -6,13 +6,15 @@ Canonical source: `qa/business-profile.json`
 
 Machine-checked ledger: `qa/causal-refactoring/business-truth-status.json`
 
-Binding rule: the ledger stores the SHA-256 digest of this record's canonical UTF-8 text (with line endings normalized to LF). Any content change requires a renewed owner review and a replacement digest.
+Machine-readable owner manifest: `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`
+
+Binding rule: the ledger stores the canonical JSON SHA-256 digest of the owner manifest. The verifier compares every manifest field, value and value digest with both the production ledger and canonical business profile. Any manifest or confirmed-value change requires a renewed owner review and a replacement digest.
 
 ## Authority and provenance
 
 During the owner-attestation step of the Roby's Codex task on 2026-08-30, the repository maintainer explicitly confirmed that they were authorized to confirm the café's business-profile facts and that every owner-critical value listed below was correct.
 
-This record intentionally does not copy private conversation content or personal data. The exact values, their canonical digests, and the ledger's digest of this record define the attested scope; review and merge of the associated pull request provide durable repository-account accountability.
+This record intentionally does not copy private conversation content or personal data. The machine-readable manifest is authoritative for the exact attested values; this document presents the same scope for human review. Review and merge of the associated pull request provide durable repository-account accountability.
 
 ## Confirmed values
 

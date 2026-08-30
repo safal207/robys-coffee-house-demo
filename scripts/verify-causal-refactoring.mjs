@@ -60,7 +60,7 @@ async function verifyEvidencePaths(registry) {
   return errors;
 }
 
-async function verifyOwnerAttestation(registry, truthStatus) {
+async function verifyOwnerAttestation(registry, truthStatus, profile) {
   const errors = [];
   const reference = truthStatus.owner_attestation;
   if (reference === null || typeof reference !== 'object') return errors;
@@ -80,7 +80,7 @@ async function verifyOwnerAttestation(registry, truthStatus) {
   try {
     const resolved = await resolveRepositoryFile(reference.path);
     const evidenceText = await readFile(resolved, 'utf8');
-    errors.push(...validateOwnerAttestationEvidence(truthStatus, evidenceText));
+    errors.push(...validateOwnerAttestationEvidence(truthStatus, evidenceText, profile));
   } catch (error) {
     errors.push(`invalid owner attestation ${reference.path}: ${error.message}`);
   }
@@ -101,7 +101,7 @@ try {
     ...validateRegistry(registry),
     ...validateBusinessTruthStatus(truthStatus, profile),
     ...await verifyEvidencePaths(registry),
-    ...await verifyOwnerAttestation(registry, truthStatus)
+    ...await verifyOwnerAttestation(registry, truthStatus, profile)
   ];
 
   if (errors.length > 0) {

@@ -40,9 +40,14 @@
           "note": "The machine-checked ledger binds each confirmed value to the canonical business profile by SHA-256 digest."
         },
         {
-          "path": "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
+          "path": "qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json",
           "kind": "owner-attestation",
-          "note": "The accountable owner confirmed the exact eleven owner-critical values and the record preserves the claim boundary."
+          "note": "The machine-readable owner manifest binds all eleven confirmed values and digests to the production ledger."
+        },
+        {
+          "path": "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
+          "kind": "repository-contract",
+          "note": "The human-readable attestation record preserves provenance, scope, rollback and the claim boundary."
         }
       ],
       "symptoms": [
