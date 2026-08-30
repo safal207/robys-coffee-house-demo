@@ -122,6 +122,26 @@ assert(
     .includes('owner_attestation must be an object in production publication mode')
 );
 
+const incompleteRevocation = structuredClone(truthStatus);
+incompleteRevocation.publication_mode = 'demo';
+const incompleteRevokedField = incompleteRevocation.fields.find((field) => field.key === 'opens');
+incompleteRevokedField.attestation = 'unverified';
+incompleteRevokedField.value_sha256 = null;
+assert.deepEqual(validateBusinessTruthStatus(incompleteRevocation, profile), []);
+assert(
+  validateOwnerAttestationEvidence(
+    incompleteRevocation,
+    ownerAttestationText,
+    profile
+  ).includes(
+    'owner attestation field opens does not match production ledger and business profile'
+  )
+);
+
+const completeRevocation = structuredClone(incompleteRevocation);
+delete completeRevocation.owner_attestation;
+assert.deepEqual(validateBusinessTruthStatus(completeRevocation, profile), []);
+
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
 assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);
 assert.equal(isSafeRepositoryPath('../outside.json'), false);
