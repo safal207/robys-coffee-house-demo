@@ -45,241 +45,170 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
+          import json
           from pathlib import Path
 
-          def replace_once(path: str, old: str, new: str) -> None:
-              target = Path(path)
-              text = target.read_text(encoding="utf-8")
+          def read(path):
+              return Path(path).read_text(encoding="utf-8")
+
+          def write(path, text):
+              Path(path).write_text(text, encoding="utf-8")
+
+          def replace_once(path, old, new):
+              text = read(path)
               count = text.count(old)
               if count != 1:
                   raise SystemExit(f"{path}: expected one exact match, found {count}")
-              target.write_text(text.replace(old, new, 1), encoding="utf-8")
+              write(path, text.replace(old, new, 1))
+
+          lib_path = "scripts/causal-refactoring-lib.mjs"
+          evidence_marker = "  if (typeof evidenceText !== 'string') {\n"
+          evidence_guard = (
+              "  if (!isDateOnly(reference.confirmed_at)) {\n"
+              "    return [\n"
+              "      'owner_attestation.confirmed_at must be a valid YYYY-MM-DD date before evidence validation'\n"
+              "    ];\n"
+              "  }\n"
+          )
+          replace_once(lib_path, evidence_marker, evidence_guard + evidence_marker)
 
           replace_once(
-              "scripts/causal-refactoring-lib.mjs",
-              """  if (!isObject(reference) || !SHA256_DIGEST.test(reference.canonical_json_sha256)) {
-            return ['owner_attestation must contain a valid canonical_json_sha256 before evidence validation'];
+              lib_path,
+              "  if (record.confirmed_at !== status.reviewed_at) {\n"
+              "    errors.push('owner attestation confirmed_at must equal business-truth reviewed_at');\n"
+              "  }\n",
+              "  if (record.confirmed_at !== reference.confirmed_at) {\n"
+              "    errors.push(\n"
+              "      'owner attestation confirmed_at must equal owner_attestation.confirmed_at'\n"
+              "    );\n"
+              "  }\n"
+          )
+
+          digest_marker = (
+              "      if (!SHA256_DIGEST.test(ownerAttestation.canonical_json_sha256)) {\n"
+          )
+          date_validation = (
+              "      if (!isDateOnly(ownerAttestation.confirmed_at)) {\n"
+              "        errors.push('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date');\n"
+              "      } else if (\n"
+              "        isDateOnly(status.reviewed_at)\n"
+              "        && ownerAttestation.confirmed_at > status.reviewed_at\n"
+              "      ) {\n"
+              "        errors.push('owner_attestation.confirmed_at cannot be later than reviewed_at');\n"
+              "      }\n"
+          )
+          replace_once(lib_path, digest_marker, date_validation + digest_marker)
+
+          status_path = Path("qa/causal-refactoring/business-truth-status.json")
+          status = json.loads(status_path.read_text(encoding="utf-8"))
+          current_reference = status["owner_attestation"]
+          status["owner_attestation"] = {
+              "path": current_reference["path"],
+              "confirmed_at": "2026-08-30",
+              "canonical_json_sha256": current_reference["canonical_json_sha256"]
           }
-          if (typeof evidenceText !== 'string') {
-          """,
-              """  if (!isObject(reference) || !SHA256_DIGEST.test(reference.canonical_json_sha256)) {
-            return ['owner_attestation must contain a valid canonical_json_sha256 before evidence validation'];
-          }
-          if (!isDateOnly(reference.confirmed_at)) {
-            return [
-              'owner_attestation.confirmed_at must be a valid YYYY-MM-DD date before evidence validation'
-            ];
-          }
-          if (typeof evidenceText !== 'string') {
-          """,
+          status_path.write_text(
+              json.dumps(status, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
           )
 
-          replace_once(
-              "scripts/causal-refactoring-lib.mjs",
-              """  if (record.confirmed_at !== status.reviewed_at) {
-            errors.push('owner attestation confirmed_at must equal business-truth reviewed_at');
-          }
-          """,
-              """  if (record.confirmed_at !== reference.confirmed_at) {
-            errors.push(
-              'owner attestation confirmed_at must equal owner_attestation.confirmed_at'
-            );
-          }
-          """,
+          test_path = "scripts/test-causal-refactoring.mjs"
+          date_assertion_marker = (
+              "const staleOwnerAttestationRecord = structuredClone(ownerAttestationRecord);\n"
           )
-
-          replace_once(
-              "scripts/causal-refactoring-lib.mjs",
-              """      if (!isSafeRepositoryPath(ownerAttestation.path)) {
-                errors.push('owner_attestation.path must be a safe repository-relative path');
-              }
-              if (!SHA256_DIGEST.test(ownerAttestation.canonical_json_sha256)) {
-          """,
-              """      if (!isSafeRepositoryPath(ownerAttestation.path)) {
-                errors.push('owner_attestation.path must be a safe repository-relative path');
-              }
-              if (!isDateOnly(ownerAttestation.confirmed_at)) {
-                errors.push('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date');
-              } else if (
-                isDateOnly(status.reviewed_at)
-                && ownerAttestation.confirmed_at > status.reviewed_at
-              ) {
-                errors.push('owner_attestation.confirmed_at cannot be later than reviewed_at');
-              }
-              if (!SHA256_DIGEST.test(ownerAttestation.canonical_json_sha256)) {
-          """,
+          date_assertion = (
+              "assert.equal(\n"
+              "  truthStatus.owner_attestation.confirmed_at,\n"
+              "  ownerAttestationRecord.confirmed_at\n"
+              ");\n\n"
           )
+          replace_once(test_path, date_assertion_marker, date_assertion + date_assertion_marker)
 
-          replace_once(
-              "qa/causal-refactoring/business-truth-status.json",
-              """  \"owner_attestation\": {
-                \"path\": \"qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json\",
-                \"canonical_json_sha256\": \"sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916\"
-              },
-          """,
-              """  \"owner_attestation\": {
-                \"path\": \"qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json\",
-                \"confirmed_at\": \"2026-08-30\",
-                \"canonical_json_sha256\": \"sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916\"
-              },
-          """,
+          lifecycle_marker = "const missingOwnerAttestation = structuredClone(truthStatus);\n"
+          lifecycle_tests = (
+              "const technicalMetadataProfile = { ...profile, version: profile.version + 1 };\n"
+              "const technicalMetadataLedger = structuredClone(truthStatus);\n"
+              "technicalMetadataLedger.reviewed_at = '2026-08-31';\n"
+              "const technicalVersionField = technicalMetadataLedger.fields.find(\n"
+              "  (field) => field.key === 'version'\n"
+              ");\n"
+              "technicalVersionField.value_sha256 = digestBusinessValue(\n"
+              "  technicalMetadataProfile.version\n"
+              ");\n"
+              "assert.deepEqual(\n"
+              "  validateBusinessTruthStatus(technicalMetadataLedger, technicalMetadataProfile),\n"
+              "  []\n"
+              ");\n"
+              "assert.deepEqual(\n"
+              "  validateOwnerAttestationEvidence(\n"
+              "    technicalMetadataLedger,\n"
+              "    ownerAttestationText,\n"
+              "    technicalMetadataProfile\n"
+              "  ),\n"
+              "  []\n"
+              ");\n\n"
+              "const mismatchedOwnerConfirmationDate = structuredClone(truthStatus);\n"
+              "mismatchedOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-29';\n"
+              "assert(\n"
+              "  validateOwnerAttestationEvidence(\n"
+              "    mismatchedOwnerConfirmationDate,\n"
+              "    ownerAttestationText,\n"
+              "    profile\n"
+              "  ).includes(\n"
+              "    'owner attestation confirmed_at must equal owner_attestation.confirmed_at'\n"
+              "  )\n"
+              ");\n\n"
+              "const missingOwnerConfirmationDate = structuredClone(truthStatus);\n"
+              "delete missingOwnerConfirmationDate.owner_attestation.confirmed_at;\n"
+              "assert(\n"
+              "  validateBusinessTruthStatus(missingOwnerConfirmationDate, profile)\n"
+              "    .includes('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date')\n"
+              ");\n\n"
+              "const futureOwnerConfirmationDate = structuredClone(truthStatus);\n"
+              "futureOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-31';\n"
+              "assert(\n"
+              "  validateBusinessTruthStatus(futureOwnerConfirmationDate, profile)\n"
+              "    .includes('owner_attestation.confirmed_at cannot be later than reviewed_at')\n"
+              ");\n\n"
           )
+          replace_once(test_path, lifecycle_marker, lifecycle_tests + lifecycle_marker)
 
-          replace_once(
-              "scripts/test-causal-refactoring.mjs",
-              """const ownerAttestationRecord = JSON.parse(ownerAttestationText);
-          assert.equal(
-            truthStatus.owner_attestation.canonical_json_sha256,
-            digestBusinessValue(ownerAttestationRecord)
-          );
-          """,
-              """const ownerAttestationRecord = JSON.parse(ownerAttestationText);
-          assert.equal(
-            truthStatus.owner_attestation.canonical_json_sha256,
-            digestBusinessValue(ownerAttestationRecord)
-          );
-          assert.equal(
-            truthStatus.owner_attestation.confirmed_at,
-            ownerAttestationRecord.confirmed_at
-          );
-          """,
+          owner_doc_path = "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md"
+          owner_doc = read(owner_doc_path)
+          owner_heading = "## Owner confirmation lifecycle"
+          if owner_heading in owner_doc:
+              raise SystemExit(f"{owner_doc_path}: lifecycle section already exists")
+          owner_doc += (
+              "\n## Owner confirmation lifecycle\n\n"
+              "The top-level `reviewed_at` records the latest technical review of the ledger. "
+              "It may advance when repository-controlled fields change and does not renew owner approval. "
+              "The current owner event remains pinned by `owner_attestation.confirmed_at`, which must equal "
+              "the immutable manifest's `confirmed_at` and must not be later than `reviewed_at`.\n\n"
+              "A renewal or replacement is a new evidence event. Before production mode is restored, create "
+              "a new immutable JSON manifest at a new repository path, register that path in "
+              "`qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace all three "
+              "ledger reference fields: `owner_attestation.path`, `owner_attestation.confirmed_at`, and "
+              "`owner_attestation.canonical_json_sha256`. Then update the affected field attestations and "
+              "digests and rerun exact-head verification. The historical manifest is never rewritten.\n"
           )
+          write(owner_doc_path, owner_doc)
 
-          replace_once(
-              "scripts/test-causal-refactoring.mjs",
-              """assert(
-            validateOwnerAttestationEvidence(
-              ownerEvidenceDriftedLedger,
-              ownerAttestationText,
-              ownerEvidenceDriftedProfile
-            ).includes(
-              'owner attestation field opens does not match production ledger and business profile'
-            )
-          );
-
-          const missingOwnerAttestation = structuredClone(truthStatus);
-          """,
-              """assert(
-            validateOwnerAttestationEvidence(
-              ownerEvidenceDriftedLedger,
-              ownerAttestationText,
-              ownerEvidenceDriftedProfile
-            ).includes(
-              'owner attestation field opens does not match production ledger and business profile'
-            )
-          );
-
-          const technicalMetadataProfile = { ...profile, version: profile.version + 1 };
-          const technicalMetadataLedger = structuredClone(truthStatus);
-          technicalMetadataLedger.reviewed_at = '2026-08-31';
-          const technicalVersionField = technicalMetadataLedger.fields.find(
-            (field) => field.key === 'version'
-          );
-          technicalVersionField.value_sha256 = digestBusinessValue(
-            technicalMetadataProfile.version
-          );
-          assert.deepEqual(
-            validateBusinessTruthStatus(technicalMetadataLedger, technicalMetadataProfile),
-            []
-          );
-          assert.deepEqual(
-            validateOwnerAttestationEvidence(
-              technicalMetadataLedger,
-              ownerAttestationText,
-              technicalMetadataProfile
-            ),
-            []
-          );
-
-          const mismatchedOwnerConfirmationDate = structuredClone(truthStatus);
-          mismatchedOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-29';
-          assert(
-            validateOwnerAttestationEvidence(
-              mismatchedOwnerConfirmationDate,
-              ownerAttestationText,
-              profile
-            ).includes(
-              'owner attestation confirmed_at must equal owner_attestation.confirmed_at'
-            )
-          );
-
-          const missingOwnerConfirmationDate = structuredClone(truthStatus);
-          delete missingOwnerConfirmationDate.owner_attestation.confirmed_at;
-          assert(
-            validateBusinessTruthStatus(missingOwnerConfirmationDate, profile)
-              .includes('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date')
-          );
-
-          const futureOwnerConfirmationDate = structuredClone(truthStatus);
-          futureOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-31';
-          assert(
-            validateBusinessTruthStatus(futureOwnerConfirmationDate, profile)
-              .includes('owner_attestation.confirmed_at cannot be later than reviewed_at')
-          );
-
-          const missingOwnerAttestation = structuredClone(truthStatus);
-          """,
+          readme_path = "docs/causal-refactoring/README.md"
+          readme = read(readme_path)
+          readme_heading = "## Owner confirmation lifecycle"
+          if readme_heading in readme:
+              raise SystemExit(f"{readme_path}: lifecycle section already exists")
+          readme += (
+              "\n## Owner confirmation lifecycle\n\n"
+              "`reviewed_at` is technical ledger-review time; `owner_attestation.confirmed_at` is owner-event "
+              "time. Updating repository-controlled metadata may advance the former without changing the "
+              "latter or implying renewed owner confirmation.\n\n"
+              "Every renewed or replacement attestation must use a new immutable manifest path, be registered "
+              "in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace the ledger's "
+              "attestation path, confirmation date, and canonical manifest digest before "
+              "`publication_mode=production` is restored.\n"
           )
-
-          replace_once(
-              "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
-              """Binding rule: the ledger stores the canonical JSON SHA-256 digest of the owner manifest. The verifier compares every manifest field, value and value digest with both the production ledger and canonical business profile. Any manifest or confirmed-value change requires a renewed owner review and a replacement digest.
-          """,
-              """Binding rule: the ledger stores the canonical JSON SHA-256 digest and owner-specific `confirmed_at` date of the owner manifest. The verifier compares every manifest field, value and value digest with both the production ledger and canonical business profile. Any manifest or confirmed-value change requires a renewed owner review and a replacement digest.
-
-          The ledger's top-level `reviewed_at` is the date of the latest ledger review and may advance when repository-controlled fields change. It does not renew owner confirmation. `owner_attestation.confirmed_at` remains pinned to the immutable manifest's `confirmed_at` until the owner performs a new confirmation event.
-          """,
-          )
-
-          replace_once(
-              "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
-              """The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
-          """,
-              """The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger.
-
-          Renewal is a new evidence event. Before restoring production publication:
-
-          1. create a new immutable JSON manifest at a new repository path with the renewed exact values, value digests and owner confirmation date;
-          2. register that new path in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`;
-          3. set `owner_attestation.path`, `owner_attestation.confirmed_at` and `owner_attestation.canonical_json_sha256` in the status ledger to the new manifest;
-          4. update the affected field attestations and digests, then restore `publication_mode=production` only after the verifier and exact-head checks pass.
-          """,
-          )
-
-          replace_once(
-              "docs/causal-refactoring/README.md",
-              """The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The production ledger also binds the canonical JSON digest of `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`, whose complete field set is compared with both the ledger and business profile. The human-readable [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md) preserves provenance and the claim boundary. Any later value or attestation-manifest change invalidates the gate until the owner confirms the replacement.
-          """,
-              """The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The production ledger also binds the canonical JSON digest and owner-specific confirmation date of `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`, whose complete field set is compared with both the ledger and business profile. The human-readable [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md) preserves provenance and the claim boundary. Any later value or attestation-manifest change invalidates the gate until the owner confirms the replacement. The ledger's `reviewed_at` may advance for repository-controlled metadata without changing `owner_attestation.confirmed_at` or implying renewed owner approval.
-          """,
-          )
-
-          replace_once(
-              "docs/causal-refactoring/README.md",
-              """For each owner-critical field:
-
-          1. confirm the exact value with the café owner;
-          2. retain accountable evidence outside secrets or personal data;
-          3. compute the canonical value digest with `digestBusinessValue` and store it in `value_sha256`;
-          4. change its attestation to `owner-confirmed`;
-          5. run the verifier and full repository checks;
-          6. bind release evidence to the exact current commit.
-
-          The production gate fails while any owner-critical field remains unconfirmed.
-          """,
-              """For each owner confirmation event:
-
-          1. confirm the exact owner-critical values with the café owner;
-          2. create a new immutable machine-readable manifest at a new repository path with its own `confirmed_at` date, exact values and canonical value digests;
-          3. register that new manifest path in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`;
-          4. set the ledger's `owner_attestation.path`, `owner_attestation.confirmed_at` and `owner_attestation.canonical_json_sha256` to that registered manifest;
-          5. store each canonical value digest in `value_sha256` and change the corresponding field attestation to `owner-confirmed`;
-          6. run the verifier and full repository checks;
-          7. bind release evidence to the exact current commit.
-
-          The production gate fails while any owner-critical field remains unconfirmed. A replacement or renewed manifest must use a new immutable path, be registered as owner-attestation evidence, and replace all three ledger reference fields before production mode is restored.
-          """,
-          )
+          write(readme_path, readme)
           PY
 
       - name: Install dependencies
