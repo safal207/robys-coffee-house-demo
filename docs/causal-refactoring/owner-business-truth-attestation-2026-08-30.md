@@ -44,4 +44,13 @@ This attestation confirms only the exact business-profile values above. It does 
 
 ## Drift and revocation rule
 
-Any change to a confirmed value causes its digest to mismatch and blocks the gate. If the owner withdraws or cannot renew confirmation, the affected field must return to `unverified`, its digest must be cleared, and `publication_mode` must return to `demo` until the exact replacement value is confirmed.
+Any change to a confirmed value causes its digest to mismatch and blocks the gate. The machine-readable manifest is immutable historical evidence and must not be edited to represent a replacement value.
+
+If the owner withdraws or cannot renew confirmation, the rollback must perform all four status changes together:
+
+1. return every affected field to `unverified`;
+2. clear each affected field's `value_sha256`;
+3. return `publication_mode` to `demo`;
+4. remove the top-level `owner_attestation` reference from `qa/causal-refactoring/business-truth-status.json`.
+
+The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
