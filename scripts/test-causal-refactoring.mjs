@@ -62,6 +62,17 @@ const repositoryControlledKeys = Object.entries(BUSINESS_TRUTH_CRITICALITY_POLIC
 assert.deepEqual(ownerCriticalKeys, EXPECTED_OWNER_CRITICAL_KEYS);
 assert.deepEqual(repositoryControlledKeys, EXPECTED_REPOSITORY_CONTROLLED_KEYS);
 
+assert.equal(truthStatus.publication_mode, 'production');
+const canonicalOwnerCriticalFields = truthStatus.fields
+  .filter((field) => field.owner_critical);
+assert.equal(canonicalOwnerCriticalFields.length, EXPECTED_OWNER_CRITICAL_KEYS.length);
+assert(
+  canonicalOwnerCriticalFields.every((field) => (
+    field.attestation === 'owner-confirmed'
+    && field.value_sha256 === digestBusinessValue(profile[field.key])
+  ))
+);
+
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
 assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);
 assert.equal(isSafeRepositoryPath('../outside.json'), false);
@@ -105,16 +116,20 @@ assert(
     .includes('patterns[0].evidence must contain at least one evidence reference')
 );
 
-const productionTruth = structuredClone(truthStatus);
-productionTruth.publication_mode = 'production';
-const productionErrors = validateBusinessTruthStatus(productionTruth, profile);
 const ownerCriticalFieldCount = EXPECTED_OWNER_CRITICAL_KEYS.length;
+const unconfirmedProductionTruth = structuredClone(truthStatus);
+unconfirmedProductionTruth.fields = unconfirmedProductionTruth.fields.map((field) => ({
+  ...field,
+  attestation: field.owner_critical ? 'unverified' : field.attestation,
+  value_sha256: field.owner_critical ? null : field.value_sha256
+}));
+const productionErrors = validateBusinessTruthStatus(unconfirmedProductionTruth, profile);
 assert.equal(
   productionErrors.filter((error) => error.includes('blocks production')).length,
   ownerCriticalFieldCount
 );
 
-const confirmedProductionTruth = structuredClone(productionTruth);
+const confirmedProductionTruth = structuredClone(unconfirmedProductionTruth);
 confirmedProductionTruth.fields = confirmedProductionTruth.fields.map((field) => ({
   ...field,
   attestation: field.owner_critical ? 'owner-confirmed' : field.attestation,
@@ -124,7 +139,7 @@ confirmedProductionTruth.fields = confirmedProductionTruth.fields.map((field) =>
 }));
 assert.deepEqual(validateBusinessTruthStatus(confirmedProductionTruth, profile), []);
 
-const criticalityBypass = structuredClone(productionTruth);
+const criticalityBypass = structuredClone(unconfirmedProductionTruth);
 criticalityBypass.fields = criticalityBypass.fields.map((field) => ({
   ...field,
   owner_critical: field.key === 'version',
@@ -211,7 +226,8 @@ assert(
 );
 
 const report = renderCausalReport(registry, truthStatus);
-assert.match(report, /Publication mode: demo/);
+assert.match(report, /Publication mode: production/);
+assert.match(report, /Owner-critical fields awaiting encoded confirmation: 0/);
 assert.match(report, /Business truth can drift/);
 assert.match(report, /mechanism does not prove a customer or revenue effect/i);
 

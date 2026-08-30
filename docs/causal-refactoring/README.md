@@ -79,7 +79,7 @@ The first refactoring introduces:
 - a fail-closed production rule;
 - a report that exposes unresolved owner-critical fields.
 
-All current owner-critical fields are conservatively marked `unverified`. This does not assert that a value is wrong. It states that machine-verifiable owner approval is not present in the repository.
+The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The durable scope and claim boundary are recorded in [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md). Any later value change invalidates its digest and must fail closed until the owner confirms the replacement.
 
 ### 2. Mechanism/effect overclaim — monitoring
 
@@ -134,6 +134,8 @@ For each owner-critical field:
 6. bind release evidence to the exact current commit.
 
 The production gate fails while any owner-critical field remains unconfirmed.
+
+The current production-mode ledger confirms only the fields enumerated in the attestation record. It does not establish menu availability, prices, asset rights, POS integration, staff acceptance, pilot results, revenue, or profit.
 
 ## Adding a causal pattern
 

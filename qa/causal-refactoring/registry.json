@@ -1,6 +1,6 @@
 {
   "schema_version": "robys.fractal-causal-refactoring.v1",
-  "updated_at": "2026-08-29",
+  "updated_at": "2026-08-30",
   "system": "Roby's Coffee House",
   "claim_boundary": "The registry records testable repository-supported causal hypotheses and controlled risks. A configured mechanism does not prove a customer or revenue effect; effect claims require owner-accepted metrics and controlled evidence.",
   "scales": [
@@ -33,6 +33,16 @@
           "path": "qa/business-profile.json",
           "kind": "repository-data",
           "note": "The canonical profile stores publishable values but does not encode their owner-attestation state."
+        },
+        {
+          "path": "qa/causal-refactoring/business-truth-status.json",
+          "kind": "repository-data",
+          "note": "The machine-checked ledger binds each confirmed value to the canonical business profile by SHA-256 digest."
+        },
+        {
+          "path": "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
+          "kind": "owner-attestation",
+          "note": "The accountable owner confirmed the exact eleven owner-critical values and the record preserves the claim boundary."
         }
       ],
       "symptoms": [
