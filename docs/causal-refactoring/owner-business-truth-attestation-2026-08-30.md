@@ -54,3 +54,9 @@ If the owner withdraws or cannot renew confirmation, the rollback must perform a
 4. remove the top-level `owner_attestation` reference from `qa/causal-refactoring/business-truth-status.json`.
 
 The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
+
+## Owner confirmation lifecycle
+
+The top-level `reviewed_at` records the latest technical review of the ledger. It may advance when repository-controlled fields change and does not renew owner approval. The current owner event remains pinned by `owner_attestation.confirmed_at`, which must equal the immutable manifest's `confirmed_at` and must not be later than `reviewed_at`.
+
+A renewal or replacement is a new evidence event. Before production mode is restored, create a new immutable JSON manifest at a new repository path, register that path in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace all three ledger reference fields: `owner_attestation.path`, `owner_attestation.confirmed_at`, and `owner_attestation.canonical_json_sha256`. Then update the affected field attestations and digests and rerun exact-head verification. The historical manifest is never rewritten.

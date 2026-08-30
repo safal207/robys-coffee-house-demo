@@ -109,6 +109,11 @@ export function validateOwnerAttestationEvidence(status, evidenceText, profile) 
   if (!isObject(reference) || !SHA256_DIGEST.test(reference.canonical_json_sha256)) {
     return ['owner_attestation must contain a valid canonical_json_sha256 before evidence validation'];
   }
+  if (!isDateOnly(reference.confirmed_at)) {
+    return [
+      'owner_attestation.confirmed_at must be a valid YYYY-MM-DD date before evidence validation'
+    ];
+  }
   if (typeof evidenceText !== 'string') {
     return ['owner attestation evidence must be UTF-8 JSON text'];
   }
@@ -132,8 +137,10 @@ export function validateOwnerAttestationEvidence(status, evidenceText, profile) 
       'owner attestation schema_version must equal robys.owner-business-truth-attestation.v1'
     );
   }
-  if (record.confirmed_at !== status.reviewed_at) {
-    errors.push('owner attestation confirmed_at must equal business-truth reviewed_at');
+  if (record.confirmed_at !== reference.confirmed_at) {
+    errors.push(
+      'owner attestation confirmed_at must equal owner_attestation.confirmed_at'
+    );
   }
   if (record.source !== status.source) {
     errors.push('owner attestation source must equal business-truth source');
@@ -458,6 +465,14 @@ export function validateBusinessTruthStatus(status, profile) {
     } else {
       if (!isSafeRepositoryPath(ownerAttestation.path)) {
         errors.push('owner_attestation.path must be a safe repository-relative path');
+      }
+      if (!isDateOnly(ownerAttestation.confirmed_at)) {
+        errors.push('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date');
+      } else if (
+        isDateOnly(status.reviewed_at)
+        && ownerAttestation.confirmed_at > status.reviewed_at
+      ) {
+        errors.push('owner_attestation.confirmed_at cannot be later than reviewed_at');
       }
       if (!SHA256_DIGEST.test(ownerAttestation.canonical_json_sha256)) {
         errors.push(

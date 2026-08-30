@@ -9,6 +9,7 @@
   },
   "owner_attestation": {
     "path": "qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json",
+    "confirmed_at": "2026-08-30",
     "canonical_json_sha256": "sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916"
   },
   "fields": [

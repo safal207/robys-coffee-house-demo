@@ -84,6 +84,11 @@ assert.equal(
   digestBusinessValue(ownerAttestationRecord)
 );
 
+assert.equal(
+  truthStatus.owner_attestation.confirmed_at,
+  ownerAttestationRecord.confirmed_at
+);
+
 const staleOwnerAttestationRecord = structuredClone(ownerAttestationRecord);
 staleOwnerAttestationRecord.claim_boundary += ' Stale mutation.';
 assert(
@@ -113,6 +118,54 @@ assert(
   ).includes(
     'owner attestation field opens does not match production ledger and business profile'
   )
+);
+
+const technicalMetadataProfile = { ...profile, version: profile.version + 1 };
+const technicalMetadataLedger = structuredClone(truthStatus);
+technicalMetadataLedger.reviewed_at = '2026-08-31';
+const technicalVersionField = technicalMetadataLedger.fields.find(
+  (field) => field.key === 'version'
+);
+technicalVersionField.value_sha256 = digestBusinessValue(
+  technicalMetadataProfile.version
+);
+assert.deepEqual(
+  validateBusinessTruthStatus(technicalMetadataLedger, technicalMetadataProfile),
+  []
+);
+assert.deepEqual(
+  validateOwnerAttestationEvidence(
+    technicalMetadataLedger,
+    ownerAttestationText,
+    technicalMetadataProfile
+  ),
+  []
+);
+
+const mismatchedOwnerConfirmationDate = structuredClone(truthStatus);
+mismatchedOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-29';
+assert(
+  validateOwnerAttestationEvidence(
+    mismatchedOwnerConfirmationDate,
+    ownerAttestationText,
+    profile
+  ).includes(
+    'owner attestation confirmed_at must equal owner_attestation.confirmed_at'
+  )
+);
+
+const missingOwnerConfirmationDate = structuredClone(truthStatus);
+delete missingOwnerConfirmationDate.owner_attestation.confirmed_at;
+assert(
+  validateBusinessTruthStatus(missingOwnerConfirmationDate, profile)
+    .includes('owner_attestation.confirmed_at must be a valid YYYY-MM-DD date')
+);
+
+const futureOwnerConfirmationDate = structuredClone(truthStatus);
+futureOwnerConfirmationDate.owner_attestation.confirmed_at = '2026-08-31';
+assert(
+  validateBusinessTruthStatus(futureOwnerConfirmationDate, profile)
+    .includes('owner_attestation.confirmed_at cannot be later than reviewed_at')
 );
 
 const missingOwnerAttestation = structuredClone(truthStatus);

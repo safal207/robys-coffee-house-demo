@@ -161,3 +161,9 @@ FCR does not:
 - prove revenue causality from traces;
 - permit production claims from demo data;
 - override normal security, accessibility, privacy or exact-head review gates.
+
+## Owner confirmation lifecycle
+
+`reviewed_at` is technical ledger-review time; `owner_attestation.confirmed_at` is owner-event time. Updating repository-controlled metadata may advance the former without changing the latter or implying renewed owner confirmation.
+
+Every renewed or replacement attestation must use a new immutable manifest path, be registered in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace the ledger's attestation path, confirmation date, and canonical manifest digest before `publication_mode=production` is restored.
