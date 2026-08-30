@@ -1,2 +1,2 @@
 Apply the bounded owner-attestation review fixes from PR #336.
-Trigger: one-shot PR synchronize run.
+Trigger: one-shot PR synchronize run, hardened replacement pass.
