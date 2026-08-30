@@ -5,6 +5,7 @@ import {
   rankPatterns,
   renderCausalReport,
   validateBusinessTruthStatus,
+  validateOwnerAttestationEvidence,
   validateRegistry
 } from './causal-refactoring-lib.mjs';
 import { isSafeRepositoryPath } from './repository-path-lib.mjs';
@@ -59,6 +60,33 @@ async function verifyEvidencePaths(registry) {
   return errors;
 }
 
+async function verifyOwnerAttestation(registry, truthStatus) {
+  const errors = [];
+  const reference = truthStatus.owner_attestation;
+  if (reference === null || typeof reference !== 'object') return errors;
+  if (typeof reference.path !== 'string') return errors;
+
+  const registered = (registry.patterns ?? []).some((pattern) => (
+    (pattern.evidence ?? []).some((evidence) => (
+      evidence.kind === 'owner-attestation' && evidence.path === reference.path
+    ))
+  ));
+  if (!registered) {
+    errors.push(
+      'owner_attestation.path must be registered as owner-attestation causal evidence'
+    );
+  }
+
+  try {
+    const resolved = await resolveRepositoryFile(reference.path);
+    const evidenceText = await readFile(resolved, 'utf8');
+    errors.push(...validateOwnerAttestationEvidence(truthStatus, evidenceText));
+  } catch (error) {
+    errors.push(`invalid owner attestation ${reference.path}: ${error.message}`);
+  }
+  return errors;
+}
+
 try {
   const args = process.argv.slice(2);
   const allowed = new Set(['--report']);
@@ -72,7 +100,8 @@ try {
   const errors = [
     ...validateRegistry(registry),
     ...validateBusinessTruthStatus(truthStatus, profile),
-    ...await verifyEvidencePaths(registry)
+    ...await verifyEvidencePaths(registry),
+    ...await verifyOwnerAttestation(registry, truthStatus)
   ];
 
   if (errors.length > 0) {

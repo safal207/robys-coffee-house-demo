@@ -103,6 +103,28 @@ export function digestBusinessValue(value) {
   return `sha256:${createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex')}`;
 }
 
+export function digestEvidenceText(value) {
+  if (typeof value !== 'string') {
+    throw new TypeError('owner attestation evidence must be UTF-8 text');
+  }
+  const canonicalText = value.replace(/\r\n/g, '\n');
+  return `sha256:${createHash('sha256').update(canonicalText, 'utf8').digest('hex')}`;
+}
+
+export function validateOwnerAttestationEvidence(status, evidenceText) {
+  const reference = status?.owner_attestation;
+  if (!isObject(reference) || !SHA256_DIGEST.test(reference.canonical_text_sha256)) {
+    return ['owner_attestation must contain a valid canonical_text_sha256 before evidence validation'];
+  }
+  if (typeof evidenceText !== 'string') {
+    return ['owner attestation evidence must be UTF-8 text'];
+  }
+  if (digestEvidenceText(evidenceText) !== reference.canonical_text_sha256) {
+    return ['owner_attestation canonical_text_sha256 does not match the exact attestation record'];
+  }
+  return [];
+}
+
 function requireString(value, path, errors) {
   if (typeof value !== 'string' || value.trim().length === 0) {
     errors.push(`${path} must be a non-empty string`);
@@ -352,6 +374,22 @@ export function validateBusinessTruthStatus(status, profile) {
     }
     if (policy.unknown_values_fail_closed !== true) {
       errors.push('production_policy.unknown_values_fail_closed must be true');
+    }
+  }
+
+  const ownerAttestation = status.owner_attestation;
+  if (status.publication_mode === 'production' || ownerAttestation !== undefined) {
+    if (!isObject(ownerAttestation)) {
+      errors.push('owner_attestation must be an object in production publication mode');
+    } else {
+      if (!isSafeRepositoryPath(ownerAttestation.path)) {
+        errors.push('owner_attestation.path must be a safe repository-relative path');
+      }
+      if (!SHA256_DIGEST.test(ownerAttestation.canonical_text_sha256)) {
+        errors.push(
+          'owner_attestation.canonical_text_sha256 must be sha256:<64 lowercase hex>'
+        );
+      }
     }
   }
 

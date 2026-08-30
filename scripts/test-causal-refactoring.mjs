@@ -5,10 +5,12 @@ import {
   BUSINESS_TRUTH_CRITICALITY_POLICY,
   CANONICAL_BUSINESS_PROFILE_PATH,
   digestBusinessValue,
+  digestEvidenceText,
   priorityScore,
   rankPatterns,
   renderCausalReport,
   validateBusinessTruthStatus,
+  validateOwnerAttestationEvidence,
   validateRegistry
 } from './causal-refactoring-lib.mjs';
 import { isSafeRepositoryPath } from './repository-path-lib.mjs';
@@ -41,9 +43,11 @@ const truthStatus = JSON.parse(
   await readFile('qa/causal-refactoring/business-truth-status.json', 'utf8')
 );
 const profile = JSON.parse(await readFile(truthStatus.source, 'utf8'));
+const ownerAttestationText = await readFile(truthStatus.owner_attestation.path, 'utf8');
 
 assert.deepEqual(validateRegistry(registry), []);
 assert.deepEqual(validateBusinessTruthStatus(truthStatus, profile), []);
+assert.deepEqual(validateOwnerAttestationEvidence(truthStatus, ownerAttestationText), []);
 
 assert.equal(truthStatus.source, CANONICAL_BUSINESS_PROFILE_PATH);
 assert.equal(
@@ -71,6 +75,25 @@ assert(
     field.attestation === 'owner-confirmed'
     && field.value_sha256 === digestBusinessValue(profile[field.key])
   ))
+);
+assert.equal(
+  truthStatus.owner_attestation.canonical_text_sha256,
+  digestEvidenceText(ownerAttestationText)
+);
+
+const staleOwnerAttestationText = `${ownerAttestationText}\nStale mutation.`;
+assert(
+  validateOwnerAttestationEvidence(truthStatus, staleOwnerAttestationText)
+    .includes(
+      'owner_attestation canonical_text_sha256 does not match the exact attestation record'
+    )
+);
+
+const missingOwnerAttestation = structuredClone(truthStatus);
+delete missingOwnerAttestation.owner_attestation;
+assert(
+  validateBusinessTruthStatus(missingOwnerAttestation, profile)
+    .includes('owner_attestation must be an object in production publication mode')
 );
 
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);

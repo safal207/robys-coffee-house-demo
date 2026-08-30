@@ -7,6 +7,10 @@
     "required_attestation": "owner-confirmed",
     "unknown_values_fail_closed": true
   },
+  "owner_attestation": {
+    "path": "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
+    "canonical_text_sha256": "sha256:9167237b5f7867ef1bd92a7071f496067a0dd586f88828e37c3e7cdbcb98ff0e"
+  },
   "fields": [
     {
       "key": "version",
