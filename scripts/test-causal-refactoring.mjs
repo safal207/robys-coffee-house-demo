@@ -227,9 +227,9 @@ assert(
     .includes('owner attestation source must be a safe repository-relative path')
 );
 
-const duplicateTopLevelAuthority = ownerAttestationText.replace(
-  '{',
-  '{"auth\\u006frity":"untrusted",'
+const canonicalOwnerAttestationJson = JSON.stringify(ownerAttestationRecord);
+const duplicateTopLevelAuthority = (
+  `{"auth\\u006frity":"untrusted",${canonicalOwnerAttestationJson.slice(1)}`
 );
 assert.equal(
   digestBusinessValue(JSON.parse(duplicateTopLevelAuthority)),
@@ -240,9 +240,18 @@ assert(
     .includes('owner attestation evidence contains duplicate object key: $.authority')
 );
 
-const duplicateNestedFieldKey = JSON.stringify(ownerAttestationRecord).replace(
-  '"key":"name"',
-  '"k\\u0065y":"ambiguous","key":"name"'
+const firstManifestFieldMarker = '"fields":[{';
+const firstManifestFieldIndex = canonicalOwnerAttestationJson.indexOf(
+  firstManifestFieldMarker
+);
+assert.notEqual(firstManifestFieldIndex, -1);
+const firstManifestFieldMemberIndex = (
+  firstManifestFieldIndex + firstManifestFieldMarker.length
+);
+const duplicateNestedFieldKey = (
+  canonicalOwnerAttestationJson.slice(0, firstManifestFieldMemberIndex)
+  + '"k\\u0065y":"ambiguous",'
+  + canonicalOwnerAttestationJson.slice(firstManifestFieldMemberIndex)
 );
 assert.equal(
   digestBusinessValue(JSON.parse(duplicateNestedFieldKey)),
