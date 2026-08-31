@@ -119,7 +119,7 @@ After deployment, run the live smoke, integrity and performance checks against t
 
 The repository includes a testable causal-refactoring contract for recurring problems that appear across business truth, customer experience, product code, delivery and team decisions.
 
-The first active pattern is **business-truth drift**: a customer-facing value can exist in the canonical profile before its owner-confirmation state is explicit. The new gate keeps the repository in `demo` publication mode and fails closed if `production` is selected while an owner-critical field remains unconfirmed.
+The first active pattern is **business-truth drift**: a customer-facing value can exist in the canonical profile before its owner-confirmation state is explicit. The current ledger binds all eleven owner-confirmed profile values and the exact owner-attestation record to SHA-256 digests in `production` publication mode, and the gate fails closed if a value, evidence record, or owner-critical confirmation drifts.
 
 See [`docs/causal-refactoring/README.md`](docs/causal-refactoring/README.md) and run:
 

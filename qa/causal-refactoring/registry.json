@@ -1,6 +1,6 @@
 {
   "schema_version": "robys.fractal-causal-refactoring.v1",
-  "updated_at": "2026-08-29",
+  "updated_at": "2026-08-31",
   "system": "Roby's Coffee House",
   "claim_boundary": "The registry records testable repository-supported causal hypotheses and controlled risks. A configured mechanism does not prove a customer or revenue effect; effect claims require owner-accepted metrics and controlled evidence.",
   "scales": [
@@ -33,6 +33,22 @@
           "path": "qa/business-profile.json",
           "kind": "repository-data",
           "note": "The canonical profile stores publishable values but does not encode their owner-attestation state."
+        },
+        {
+          "path": "qa/causal-refactoring/business-truth-status.json",
+          "kind": "repository-data",
+          "note": "The machine-checked ledger binds each confirmed value to the canonical business profile by SHA-256 digest."
+        },
+        {
+          "path": "qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json",
+          "kind": "owner-attestation",
+          "canonical_json_sha256": "sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916",
+          "note": "The machine-readable owner manifest binds all eleven confirmed values and digests to the production ledger."
+        },
+        {
+          "path": "docs/causal-refactoring/owner-business-truth-attestation-2026-08-30.md",
+          "kind": "repository-contract",
+          "note": "The human-readable attestation record preserves provenance, scope, rollback and the claim boundary."
         }
       ],
       "symptoms": [

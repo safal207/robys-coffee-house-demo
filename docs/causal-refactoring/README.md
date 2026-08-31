@@ -79,7 +79,9 @@ The first refactoring introduces:
 - a fail-closed production rule;
 - a report that exposes unresolved owner-critical fields.
 
-All current owner-critical fields are conservatively marked `unverified`. This does not assert that a value is wrong. It states that machine-verifiable owner approval is not present in the repository.
+The eleven current owner-critical fields were confirmed on 2026-08-30 and are bound to their exact canonical values by SHA-256 digests. The production ledger also binds the canonical JSON digest of `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`, whose complete field set is compared with both the ledger and business profile. The human-readable [`owner-business-truth-attestation-2026-08-30.md`](owner-business-truth-attestation-2026-08-30.md) preserves provenance and the claim boundary. Any later value or attestation-manifest change invalidates the gate until the owner confirms the replacement.
+
+Each `owner-attestation` evidence entry in the causal registry also pins that manifest's canonical JSON SHA-256 digest. An independent `OWNER_ATTESTATION_HISTORY_POLICY` in the validator pins the same path-to-digest identity and requires exactly one matching registry entry. The verifier checks each policy or registry manifest's intrinsic v1 structure, field-level value digests and canonical manifest digest even when no manifest is active in the business-truth ledger, so deleting or reclassifying the registry entry cannot silently discard the historical tombstone.
 
 ### 2. Mechanism/effect overclaim — monitoring
 
@@ -108,6 +110,7 @@ npm run causal:report
 - the canonical business-profile source path;
 - two-way business-profile field coverage, including rejection of newly added unclassified keys;
 - value-digest binding for confirmed and source-verified attestations;
+- independent path-to-digest policy, intrinsic structure and canonical digest binding for every owner-attestation manifest, active or historical;
 - the fail-closed production attestation rule.
 
 The existing `Verify generated runtime` workflow runs these focused checks when the canonical profile, ledger, validator, tests, package scripts or workflow contract changes.
@@ -135,6 +138,8 @@ For each owner-critical field:
 
 The production gate fails while any owner-critical field remains unconfirmed.
 
+The current production-mode ledger confirms only the fields enumerated in the attestation record. It does not establish menu availability, prices, asset rights, POS integration, staff acceptance, pilot results, revenue, or profit.
+
 ## Adding a causal pattern
 
 Add one entry to `qa/causal-refactoring/registry.json`.
@@ -159,3 +164,11 @@ FCR does not:
 - prove revenue causality from traces;
 - permit production claims from demo data;
 - override normal security, accessibility, privacy or exact-head review gates.
+
+## Owner confirmation lifecycle
+
+`reviewed_at` is technical ledger-review time; `owner_attestation.confirmed_at` is owner-event time. Updating repository-controlled metadata may advance the former without changing the latter or implying renewed owner confirmation.
+
+Every renewed or replacement attestation must use a new immutable manifest path, add its exact path-to-digest pair to the validator's `OWNER_ATTESTATION_HISTORY_POLICY`, be registered in `qa/causal-refactoring/registry.json` with `kind: owner-attestation` and the same `canonical_json_sha256`, and replace the ledger's attestation path, confirmation date, and canonical manifest digest before `publication_mode=production` is restored. Each history-policy path must appear exactly once across all registry evidence entries and that entry must use `kind: owner-attestation`; missing, reclassified, unrecognized, duplicate or conflicting registrations fail closed.
+
+The active manifest is shared evidence for all fields currently marked `owner-confirmed`. Removing its ledger reference is therefore a full rollback: every owner-critical field must return to `unverified` and every corresponding value digest must be cleared. The verifier rejects both partial confirmation and `source-verified` substitution without active owner-attestation evidence. It still parses and digest-checks every historical manifest registered in the causal registry after that rollback.

@@ -1,11 +1,16 @@
 {
   "schema_version": "robys.business-truth-status.v1",
-  "publication_mode": "demo",
+  "publication_mode": "production",
   "source": "qa/business-profile.json",
-  "reviewed_at": "2026-08-29",
+  "reviewed_at": "2026-08-30",
   "production_policy": {
     "required_attestation": "owner-confirmed",
     "unknown_values_fail_closed": true
+  },
+  "owner_attestation": {
+    "path": "qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json",
+    "confirmed_at": "2026-08-30",
+    "canonical_json_sha256": "sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916"
   },
   "fields": [
     {
@@ -20,9 +25,9 @@
       "key": "name",
       "source_pointer": "/name",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:1c5100826c2112ef573ccd491128aab688d0028255cff4ccc77dd85b4c970956"
     },
     {
       "key": "siteUrl",
@@ -52,81 +57,81 @@
       "key": "streetAddress",
       "source_pointer": "/streetAddress",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:983fca9de03a30f0183f2a2f90909e8d74996b332a94639f0d21d0c7c20d9e94"
     },
     {
       "key": "locality",
       "source_pointer": "/locality",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:67849064737d6635ec44ac9882902debfc55fb20f7c51ebd790f09a3330c05bd"
     },
     {
       "key": "region",
       "source_pointer": "/region",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:b60a61467b63806dc0abc361cd63a435c44d535f7c252d02607769e7d2027851"
     },
     {
       "key": "country",
       "source_pointer": "/country",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:0cd931f9187b9a15994e155538dad62d946a5aadcd928ce01e4c88209972f6d0"
     },
     {
       "key": "displayHours",
       "source_pointer": "/displayHours",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:ec1684fae4ddb7e65e383cc7e9f67bfcf0a12c189bf52761e744a05e97ea86fe"
     },
     {
       "key": "opens",
       "source_pointer": "/opens",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:805883f1ab872f7bca7ce872bb5c92654c5642a2dee780ae6a1b4d38bc5299ee"
     },
     {
       "key": "closes",
       "source_pointer": "/closes",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:1f5b236d123bea231f5c28f42ecf4503fa3c0ca678b7898f7d1ddcba93f137f5"
     },
     {
       "key": "instagramUrl",
       "source_pointer": "/instagramUrl",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:e53918281071505ebbe54c14af8b7c0a1363c539cb4490b059c0a9b61ebcf4bc"
     },
     {
       "key": "instagramHandle",
       "source_pointer": "/instagramHandle",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:b8a6ec62f80ad0550ab9b91cad9a91dd1addffdd172401a11342e848bddd769a"
     },
     {
       "key": "mapUrl",
       "source_pointer": "/mapUrl",
       "owner_critical": true,
-      "attestation": "unverified",
-      "note": "The value exists in the repository; owner confirmation is not encoded as machine-verifiable evidence.",
-      "value_sha256": null
+      "attestation": "owner-confirmed",
+      "note": "Confirmed by the accountable owner on 2026-08-30; the digest binds this attestation to the exact canonical value.",
+      "value_sha256": "sha256:0c1cf3b1131b226ebceb249eb9c5bec7ace4fea3482daaebb5ee1b634ba37321"
     }
   ]
 }
