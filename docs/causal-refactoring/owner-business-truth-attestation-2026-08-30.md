@@ -8,7 +8,7 @@ Machine-checked ledger: `qa/causal-refactoring/business-truth-status.json`
 
 Machine-readable owner manifest: `qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json`
 
-Binding rule: the ledger stores the canonical JSON SHA-256 digest of the owner manifest. The verifier compares every manifest field, value and value digest with both the production ledger and canonical business profile. Any manifest or confirmed-value change requires a renewed owner review and a replacement digest.
+Binding rule: the active ledger reference, the causal-registry evidence entry and the validator's independent `OWNER_ATTESTATION_HISTORY_POLICY` store the same path-to-digest identity for the owner manifest. The verifier compares every active manifest field, value and value digest with both the production ledger and canonical business profile. Even after rollback, it validates the manifest's intrinsic structure and field digests and checks its canonical digest against the independent history policy. Any manifest or confirmed-value change requires a renewed owner review and a replacement manifest at a new path.
 
 ## Authority and provenance
 
@@ -53,10 +53,10 @@ The active manifest is shared evidence for the complete owner-confirmed field se
 3. return `publication_mode` to `demo`;
 4. remove the top-level `owner_attestation` reference from `qa/causal-refactoring/business-truth-status.json`.
 
-The verifier requires every owner-critical field to be `unverified` with a null digest when that shared reference is absent; `source-verified` is not a substitute for owner evidence. The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
+The verifier requires every owner-critical field to be `unverified` with a null digest when that shared reference is absent; `source-verified` is not a substitute for owner evidence. The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. The independent history policy and registry retain the manifest's canonical digest as a tombstone, and the verifier continues to parse, intrinsically validate and hash-check it while inactive. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
 
 ## Owner confirmation lifecycle
 
 The top-level `reviewed_at` records the latest technical review of the ledger. It may advance when repository-controlled fields change and does not renew owner approval. The current owner event remains pinned by `owner_attestation.confirmed_at`, which must equal the immutable manifest's `confirmed_at` and must not be later than `reviewed_at`.
 
-A renewal or replacement is a new evidence event. Before production mode is restored, create a new immutable JSON manifest at a new repository path, register that path in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace all three ledger reference fields: `owner_attestation.path`, `owner_attestation.confirmed_at`, and `owner_attestation.canonical_json_sha256`. Then update the affected field attestations and digests and rerun exact-head verification. The historical manifest is never rewritten.
+A renewal or replacement is a new evidence event. Before production mode is restored, create a new immutable JSON manifest at a new repository path, add its exact path and canonical digest to `OWNER_ATTESTATION_HISTORY_POLICY`, register that path in `qa/causal-refactoring/registry.json` with `kind: owner-attestation` and the same `canonical_json_sha256`, and replace all three ledger reference fields: `owner_attestation.path`, `owner_attestation.confirmed_at`, and `owner_attestation.canonical_json_sha256`. Then update the affected field attestations and digests and rerun exact-head verification. The historical manifest, independent policy entry and registry digest are never rewritten.

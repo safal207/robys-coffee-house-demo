@@ -23,6 +23,11 @@ export const BUSINESS_TRUTH_CRITICALITY_POLICY = Object.freeze({
   mapUrl: true
 });
 
+export const OWNER_ATTESTATION_HISTORY_POLICY = Object.freeze({
+  'qa/causal-refactoring/owner-business-truth-attestation-2026-08-30.json':
+    'sha256:796292cb408fbe333adf542e252a6e0de23a0b7abf1947dfaed7e0b7a6e13916'
+});
+
 const ALLOWED_SCALES = new Set([
   'business_truth',
   'customer_experience',
@@ -103,6 +108,200 @@ export function digestBusinessValue(value) {
   return `sha256:${createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex')}`;
 }
 
+function duplicateJsonObjectKeyPaths(text) {
+  const duplicates = [];
+  let index = 0;
+
+  function skipWhitespace() {
+    while (/\s/u.test(text[index] ?? '')) index += 1;
+  }
+
+  function readString() {
+    const start = index;
+    index += 1;
+    while (index < text.length) {
+      const character = text[index];
+      index += 1;
+      if (character === '\\') {
+        index += 1;
+      } else if (character === '"') {
+        break;
+      }
+    }
+    return JSON.parse(text.slice(start, index));
+  }
+
+  function propertyPath(parent, key) {
+    return /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)
+      ? `${parent}.${key}`
+      : `${parent}[${JSON.stringify(key)}]`;
+  }
+
+  function scanArray(parent) {
+    index += 1;
+    skipWhitespace();
+    let itemIndex = 0;
+    while (text[index] !== ']') {
+      scanValue(`${parent}[${itemIndex}]`);
+      itemIndex += 1;
+      skipWhitespace();
+      if (text[index] === ',') {
+        index += 1;
+        skipWhitespace();
+      }
+    }
+    index += 1;
+  }
+
+  function scanObject(parent) {
+    index += 1;
+    skipWhitespace();
+    const keys = new Set();
+    while (text[index] !== '}') {
+      const key = readString();
+      const childPath = propertyPath(parent, key);
+      if (keys.has(key)) duplicates.push(childPath);
+      keys.add(key);
+      skipWhitespace();
+      index += 1;
+      scanValue(childPath);
+      skipWhitespace();
+      if (text[index] === ',') {
+        index += 1;
+        skipWhitespace();
+      }
+    }
+    index += 1;
+  }
+
+  function scanValue(parent) {
+    skipWhitespace();
+    if (text[index] === '{') {
+      scanObject(parent);
+    } else if (text[index] === '[') {
+      scanArray(parent);
+    } else if (text[index] === '"') {
+      readString();
+    } else {
+      while (index < text.length && !/[\s,}\]]/u.test(text[index])) index += 1;
+    }
+  }
+
+  scanValue('$');
+  return duplicates;
+}
+
+function parseOwnerAttestationManifest(evidenceText) {
+  const errors = [];
+  if (typeof evidenceText !== 'string') {
+    return {
+      errors: ['owner attestation evidence must be UTF-8 JSON text'],
+      fieldsByKey: new Map(),
+      record: null
+    };
+  }
+
+  let record;
+  try {
+    record = JSON.parse(evidenceText);
+  } catch (error) {
+    return {
+      errors: [`owner attestation evidence must be valid JSON: ${error.message}`],
+      fieldsByKey: new Map(),
+      record: null
+    };
+  }
+  if (!isObject(record)) {
+    return {
+      errors: ['owner attestation evidence must be a JSON object'],
+      fieldsByKey: new Map(),
+      record: null
+    };
+  }
+
+  for (const duplicatePath of duplicateJsonObjectKeyPaths(evidenceText)) {
+    errors.push(`owner attestation evidence contains duplicate object key: ${duplicatePath}`);
+  }
+
+  const expectedRecordKeys = [
+    'authority',
+    'claim_boundary',
+    'confirmed_at',
+    'fields',
+    'schema_version',
+    'source'
+  ];
+  if (JSON.stringify(Object.keys(record).sort()) !== JSON.stringify(expectedRecordKeys)) {
+    errors.push('owner attestation evidence must contain exact manifest keys');
+  }
+  if (record.schema_version !== 'robys.owner-business-truth-attestation.v1') {
+    errors.push(
+      'owner attestation schema_version must equal robys.owner-business-truth-attestation.v1'
+    );
+  }
+  if (!isDateOnly(record.confirmed_at)) {
+    errors.push('owner attestation confirmed_at must be a valid YYYY-MM-DD date');
+  }
+  if (!isSafeRepositoryPath(record.source)) {
+    errors.push('owner attestation source must be a safe repository-relative path');
+  }
+  if (record.authority !== 'accountable-owner') {
+    errors.push('owner attestation authority must equal accountable-owner');
+  }
+  if (typeof record.claim_boundary !== 'string' || record.claim_boundary.trim().length === 0) {
+    errors.push('owner attestation claim_boundary must be a non-empty string');
+  }
+
+  const fieldsByKey = new Map();
+  if (!Array.isArray(record.fields) || record.fields.length === 0) {
+    errors.push('owner attestation fields must be a non-empty array');
+    return { errors, fieldsByKey, record };
+  }
+
+  record.fields.forEach((field, index) => {
+    if (!isObject(field)) {
+      errors.push(`owner attestation fields[${index}] must be an object`);
+      return;
+    }
+    const expectedKeys = ['key', 'source_pointer', 'value', 'value_sha256'];
+    if (JSON.stringify(Object.keys(field).sort()) !== JSON.stringify(expectedKeys)) {
+      errors.push(`owner attestation fields[${index}] must contain exact field keys`);
+    }
+    if (typeof field.key !== 'string' || field.key.trim().length === 0) {
+      errors.push(`owner attestation fields[${index}].key must be a non-empty string`);
+      return;
+    }
+    if (field.source_pointer !== `/${field.key}`) {
+      errors.push(
+        `owner attestation fields[${index}].source_pointer must equal /${field.key}`
+      );
+    }
+    if (!SHA256_DIGEST.test(field.value_sha256)) {
+      errors.push(
+        `owner attestation fields[${index}].value_sha256 must be sha256:<64 lowercase hex>`
+      );
+    } else if (
+      Object.hasOwn(field, 'value')
+      && field.value_sha256 !== digestBusinessValue(field.value)
+    ) {
+      errors.push(
+        `owner attestation field ${field.key} value_sha256 does not match its value`
+      );
+    }
+    if (fieldsByKey.has(field.key)) {
+      errors.push(`owner attestation field is duplicated: ${field.key}`);
+    } else {
+      fieldsByKey.set(field.key, field);
+    }
+  });
+
+  return { errors, fieldsByKey, record };
+}
+
+export function validateOwnerAttestationManifest(evidenceText) {
+  return parseOwnerAttestationManifest(evidenceText).errors;
+}
+
 export function validateOwnerAttestationEvidence(status, evidenceText, profile) {
   const errors = [];
   const reference = status?.owner_attestation;
@@ -114,27 +313,15 @@ export function validateOwnerAttestationEvidence(status, evidenceText, profile) 
       'owner_attestation.confirmed_at must be a valid YYYY-MM-DD date before evidence validation'
     ];
   }
-  if (typeof evidenceText !== 'string') {
-    return ['owner attestation evidence must be UTF-8 JSON text'];
-  }
-
-  let record;
-  try {
-    record = JSON.parse(evidenceText);
-  } catch (error) {
-    return [`owner attestation evidence must be valid JSON: ${error.message}`];
-  }
-  if (!isObject(record)) return ['owner attestation evidence must be a JSON object'];
+  const manifest = parseOwnerAttestationManifest(evidenceText);
+  errors.push(...manifest.errors);
+  const { fieldsByKey: evidenceByKey, record } = manifest;
+  if (!record) return errors;
   if (!isObject(profile)) return ['owner attestation profile must be an object'];
 
   if (digestBusinessValue(record) !== reference.canonical_json_sha256) {
     errors.push(
       'owner_attestation canonical_json_sha256 does not match the exact attestation manifest'
-    );
-  }
-  if (record.schema_version !== 'robys.owner-business-truth-attestation.v1') {
-    errors.push(
-      'owner attestation schema_version must equal robys.owner-business-truth-attestation.v1'
     );
   }
   if (record.confirmed_at !== reference.confirmed_at) {
@@ -145,36 +332,7 @@ export function validateOwnerAttestationEvidence(status, evidenceText, profile) 
   if (record.source !== status.source) {
     errors.push('owner attestation source must equal business-truth source');
   }
-  if (record.authority !== 'accountable-owner') {
-    errors.push('owner attestation authority must equal accountable-owner');
-  }
-  if (typeof record.claim_boundary !== 'string' || record.claim_boundary.trim().length === 0) {
-    errors.push('owner attestation claim_boundary must be a non-empty string');
-  }
-  if (!Array.isArray(record.fields)) {
-    errors.push('owner attestation fields must be an array');
-    return errors;
-  }
-
-  const evidenceByKey = new Map();
-  record.fields.forEach((field, index) => {
-    if (!isObject(field)) {
-      errors.push(`owner attestation fields[${index}] must be an object`);
-      return;
-    }
-    const expectedKeys = ['key', 'source_pointer', 'value', 'value_sha256'];
-    if (JSON.stringify(Object.keys(field).sort()) !== JSON.stringify(expectedKeys)) {
-      errors.push(`owner attestation fields[${index}] must contain exact field keys`);
-    }
-    if (typeof field.key !== 'string') {
-      errors.push(`owner attestation fields[${index}].key must be a string`);
-      return;
-    }
-    if (evidenceByKey.has(field.key)) {
-      errors.push(`owner attestation field is duplicated: ${field.key}`);
-    }
-    evidenceByKey.set(field.key, field);
-  });
+  if (!Array.isArray(record.fields) || record.fields.length === 0) return errors;
 
   const ownerCriticalLedgerFields = Array.isArray(status.fields)
     ? status.fields.filter((field) => BUSINESS_TRUTH_CRITICALITY_POLICY[field.key] === true)
@@ -258,6 +416,15 @@ function validateEvidence(evidence, path, errors) {
     }
     if (!ALLOWED_EVIDENCE_KINDS.has(item.kind)) {
       errors.push(`${itemPath}.kind is unsupported: ${item.kind}`);
+    }
+    if (
+      item.kind === 'owner-attestation'
+      && !SHA256_DIGEST.test(item.canonical_json_sha256)
+    ) {
+      errors.push(
+        `${itemPath}.canonical_json_sha256 must be sha256:<64 lowercase hex> `
+        + 'for owner-attestation evidence'
+      );
     }
     requireString(item.note, `${itemPath}.note`, errors);
   });
