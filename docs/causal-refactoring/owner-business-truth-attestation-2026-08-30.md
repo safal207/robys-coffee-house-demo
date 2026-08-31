@@ -46,14 +46,14 @@ This attestation confirms only the exact business-profile values above. It does 
 
 Any change to a confirmed value causes its digest to mismatch and blocks the gate. The machine-readable manifest is immutable historical evidence and must not be edited to represent a replacement value.
 
-If the owner withdraws or cannot renew confirmation, the rollback must perform all four status changes together:
+The active manifest is shared evidence for the complete owner-confirmed field set. If the owner withdraws or cannot renew confirmation and the ledger removes that shared reference, the rollback must perform all four status changes together:
 
-1. return every affected field to `unverified`;
-2. clear each affected field's `value_sha256`;
+1. return every owner-critical field to `unverified`;
+2. clear every owner-critical field's `value_sha256`;
 3. return `publication_mode` to `demo`;
 4. remove the top-level `owner_attestation` reference from `qa/causal-refactoring/business-truth-status.json`.
 
-The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
+The verifier rejects any `owner-confirmed` field when that shared reference is absent. The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
 
 ## Owner confirmation lifecycle
 

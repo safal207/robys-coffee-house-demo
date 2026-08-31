@@ -191,9 +191,39 @@ assert(
   )
 );
 
-const completeRevocation = structuredClone(incompleteRevocation);
-delete completeRevocation.owner_attestation;
-assert.deepEqual(validateBusinessTruthStatus(completeRevocation, profile), []);
+const partialRevocationProfile = {
+  ...profile,
+  name: `${profile.name} after partial revocation`
+};
+const partialRevocationWithoutEvidence = structuredClone(incompleteRevocation);
+delete partialRevocationWithoutEvidence.owner_attestation;
+const unboundConfirmedName = partialRevocationWithoutEvidence.fields.find(
+  (field) => field.key === 'name'
+);
+unboundConfirmedName.value_sha256 = digestBusinessValue(partialRevocationProfile.name);
+assert(
+  validateBusinessTruthStatus(
+    partialRevocationWithoutEvidence,
+    partialRevocationProfile
+  ).includes('owner_attestation must be an object while any field is owner-confirmed')
+);
+
+const completeRevocation = structuredClone(partialRevocationWithoutEvidence);
+for (const field of completeRevocation.fields.filter((candidate) => candidate.owner_critical)) {
+  field.attestation = 'unverified';
+  field.value_sha256 = null;
+}
+assert.deepEqual(
+  validateBusinessTruthStatus(completeRevocation, partialRevocationProfile),
+  []
+);
+
+const invalidDemoOwnerAttestation = structuredClone(completeRevocation);
+invalidDemoOwnerAttestation.owner_attestation = null;
+assert(
+  validateBusinessTruthStatus(invalidDemoOwnerAttestation, partialRevocationProfile)
+    .includes('owner_attestation must be an object when present')
+);
 
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
 assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);

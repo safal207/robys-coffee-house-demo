@@ -459,9 +459,23 @@ export function validateBusinessTruthStatus(status, profile) {
   }
 
   const ownerAttestation = status.owner_attestation;
-  if (status.publication_mode === 'production' || ownerAttestation !== undefined) {
+  const hasOwnerConfirmedFields = Array.isArray(status.fields)
+    && status.fields.some(
+      (field) => isObject(field) && field.attestation === 'owner-confirmed'
+    );
+  if (
+    status.publication_mode === 'production'
+    || hasOwnerConfirmedFields
+    || ownerAttestation !== undefined
+  ) {
     if (!isObject(ownerAttestation)) {
-      errors.push('owner_attestation must be an object in production publication mode');
+      if (status.publication_mode === 'production') {
+        errors.push('owner_attestation must be an object in production publication mode');
+      } else if (hasOwnerConfirmedFields) {
+        errors.push('owner_attestation must be an object while any field is owner-confirmed');
+      } else {
+        errors.push('owner_attestation must be an object when present');
+      }
     } else {
       if (!isSafeRepositoryPath(ownerAttestation.path)) {
         errors.push('owner_attestation.path must be a safe repository-relative path');
