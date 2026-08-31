@@ -53,7 +53,7 @@ The active manifest is shared evidence for the complete owner-confirmed field se
 3. return `publication_mode` to `demo`;
 4. remove the top-level `owner_attestation` reference from `qa/causal-refactoring/business-truth-status.json`.
 
-The verifier rejects any `owner-confirmed` field when that shared reference is absent. The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
+The verifier requires every owner-critical field to be `unverified` with a null digest when that shared reference is absent; `source-verified` is not a substitute for owner evidence. The existing JSON manifest and this human-readable record remain registered in the repository as historical evidence, but they no longer authorize the current status ledger. A renewed confirmation requires a replacement manifest and digest before `owner_attestation` is added back and production publication is restored.
 
 ## Owner confirmation lifecycle
 

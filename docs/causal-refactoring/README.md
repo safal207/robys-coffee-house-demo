@@ -168,4 +168,4 @@ FCR does not:
 
 Every renewed or replacement attestation must use a new immutable manifest path, be registered in `qa/causal-refactoring/registry.json` with `kind: owner-attestation`, and replace the ledger's attestation path, confirmation date, and canonical manifest digest before `publication_mode=production` is restored.
 
-The active manifest is shared evidence for all fields currently marked `owner-confirmed`. Removing its ledger reference is therefore a full rollback: every owner-critical field must return to `unverified` and every corresponding value digest must be cleared. The verifier rejects partial confirmation without active owner-attestation evidence.
+The active manifest is shared evidence for all fields currently marked `owner-confirmed`. Removing its ledger reference is therefore a full rollback: every owner-critical field must return to `unverified` and every corresponding value digest must be cleared. The verifier rejects both partial confirmation and `source-verified` substitution without active owner-attestation evidence.

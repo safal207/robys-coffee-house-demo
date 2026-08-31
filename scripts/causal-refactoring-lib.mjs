@@ -571,6 +571,16 @@ export function validateBusinessTruthStatus(status, profile) {
     }
 
     if (
+      ownerAttestation === undefined
+      && expectedCriticality === true
+      && field.attestation !== 'unverified'
+    ) {
+      errors.push(
+        `${path} (${field.key}) must be unverified when owner_attestation is absent`
+      );
+    }
+
+    if (
       status.publication_mode === 'production'
       && expectedCriticality === true
       && field.attestation !== 'owner-confirmed'

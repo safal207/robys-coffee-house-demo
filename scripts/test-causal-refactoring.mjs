@@ -225,6 +225,19 @@ assert(
     .includes('owner_attestation must be an object when present')
 );
 
+const sourceVerifiedRollbackBypass = structuredClone(completeRevocation);
+const sourceVerifiedOwnerField = sourceVerifiedRollbackBypass.fields.find(
+  (field) => field.key === 'name'
+);
+sourceVerifiedOwnerField.attestation = 'source-verified';
+sourceVerifiedOwnerField.value_sha256 = digestBusinessValue(partialRevocationProfile.name);
+assert(
+  validateBusinessTruthStatus(sourceVerifiedRollbackBypass, partialRevocationProfile)
+    .some((error) => (
+      error.includes('(name) must be unverified when owner_attestation is absent')
+    ))
+);
+
 assert.equal(isSafeRepositoryPath('qa/business-profile.json'), true);
 assert.equal(isSafeRepositoryPath('.github/pull_request_template.md'), true);
 assert.equal(isSafeRepositoryPath('../outside.json'), false);
