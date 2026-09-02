@@ -1,5 +1,6 @@
 import {
   menuCategories,
+  pairingOfferCatalog,
   type MenuCategorySource,
   type MenuItemSource,
   type MenuLocalizedText
@@ -118,9 +119,6 @@ interface ComboRule {
   componentIds: readonly string[];
   intents: readonly SmartChoiceIntent[];
   tags: readonly string[];
-  availability: AvailabilityStatus;
-  sourceStatus: SourceStatus;
-  blockedReason?: string;
   extraValue?: MenuLocalizedText;
 }
 
@@ -157,8 +155,12 @@ function flattenMenu(categories: readonly MenuCategorySource[]): FlattenedMenuIt
   });
 }
 
+const SMART_CHOICE_SOURCE_CATEGORIES = menuCategories.map((category) =>
+  category.id === "pairing-offers" ? { ...category, items: pairingOfferCatalog } : category
+);
+
 const MENU_INDEX = new Map<string, FlattenedMenuItem>();
-for (const entry of flattenMenu(menuCategories)) {
+for (const entry of flattenMenu(SMART_CHOICE_SOURCE_CATEGORIES)) {
   if (MENU_INDEX.has(entry.sourceId)) {
     throw new Error(`[SMART-CHOICE-CATALOG] Duplicate public-menu source id: ${entry.sourceId}`);
   }
@@ -294,19 +296,14 @@ const COMBO_RULES: readonly ComboRule[] = [
     sourceOfferId: "iced-san-sebastian-pairing",
     componentIds: ["cold-coffee--iced-caffe-latte", "desserts--san-sebastian-cheesecake"],
     intents: ["coffee", "dessert", "snack", "refresh"],
-    tags: ["signature", "cold", "sweet"],
-    availability: "available",
-    sourceStatus: "confirmed"
+    tags: ["signature", "cold", "sweet"]
   },
   {
     id: "combo-cool-lime-macaron",
     sourceOfferId: "cool-lime-macaron-pairing",
     componentIds: ["refreshers--cool-lime", "desserts--macaron"],
     intents: ["refresh", "dessert", "snack"],
-    tags: ["cold", "light", "sweet"],
-    availability: "unavailable",
-    sourceStatus: "provisional",
-    blockedReason: "offer-price-exceeds-components-without-declared-extra-value"
+    tags: ["cold", "light", "sweet"]
   }
 ];
 
@@ -348,6 +345,8 @@ const ITEM_INDEX = new Map(ITEMS.map((item) => [item.id, item]));
 
 function buildCombo(rule: ComboRule): SmartChoiceCombo {
   const source = requireSource(rule.sourceOfferId);
+  const availability = source.item.availability ?? "unavailable";
+  const sourceStatus = source.item.sourceStatus ?? "provisional";
   return {
     id: rule.id,
     sourceOfferId: rule.sourceOfferId,
@@ -360,11 +359,11 @@ function buildCombo(rule: ComboRule): SmartChoiceCombo {
     upgrades: [],
     intents: rule.intents,
     tags: rule.tags,
-    availability: rule.availability,
-    sourceStatus: rule.sourceStatus,
+    availability,
+    sourceStatus,
     pricingMode: source.item.pricingMode ?? "unspecified",
     ...(rule.extraValue ? { extraValue: rule.extraValue } : {}),
-    ...(rule.blockedReason ? { blockedReason: rule.blockedReason } : {})
+    ...(source.item.availabilityReason ? { blockedReason: source.item.availabilityReason } : {})
   };
 }
 

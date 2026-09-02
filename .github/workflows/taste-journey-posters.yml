@@ -8,9 +8,15 @@ on:
       - "discover-rotation.js"
       - "discover-rotation-v2.js"
       - "discover-rotation-v3.js"
+      - "discover-runtime-entry.js"
+      - "discover-runtime.js"
+      - "discover-v2.js"
+      - "discover-copy.js"
+      - "discover-journeys-v2.js"
       - "discover.html"
       - "integrity-manifest.json"
       - "menu-data.js"
+      - "menu-data.d.ts"
       - "package.json"
       - "qa/menu-content-baseline.json"
       - "scripts/build.mjs"
@@ -66,11 +72,26 @@ jobs:
           retention-days: 7
 
       - name: Reject stale generated files
-        run: >-
-          git diff --exit-code --
-          discover-rotation.js
-          discover-rotation-v2.js
-          discover-rotation-v3.js
-          discover.html
-          sw.js
-          integrity-manifest.json
+        run: |
+          generated_files=(
+            discover-rotation.js
+            discover-rotation-v2.js
+            discover-rotation-v3.js
+            discover-runtime.js
+            discover.html
+            smart-choice/app-runtime.js
+            smart-choice/cart-runtime.js
+            smart-choice/experiments-runtime.js
+            smart-choice/analytics-runtime.js
+            smart-choice/decision-trace-runtime.js
+            smart-choice/simulator-runtime.js
+            smart-choice/index.html
+            smart-choice/simulator.html
+            sw.js
+            integrity-manifest.json
+          )
+          generated_status="$(git status --porcelain=v1 --untracked-files=all -- "${generated_files[@]}")"
+          if [[ -n "$generated_status" ]]; then
+            printf 'Generated files are missing from Git or stale after build:\n%s\n' "$generated_status"
+            exit 1
+          fi

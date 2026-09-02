@@ -1,4 +1,6 @@
-const ACTIVE_PAIRING_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
+import { isPublicPairingEligible } from "./menu-data.js";
+
+const ACTIVE_PAIRING_IDS = ["cool-lime-macaron", "iced-san-sebastian"].filter(isPublicPairingEligible);
 const text = (tr, en, ru) => ({ tr, en, ru });
 
 function installDiscoverInteractionGuard() {
@@ -104,7 +106,7 @@ const allContexts = [
   "late:hot", "late:mild", "late:cool", "late:rain", "late:unavailable"
 ];
 
-export const journeys = [
+export const journeyCatalog = [
   {
     id: "cool-lime-macaron",
     contexts: allContexts,
@@ -156,6 +158,8 @@ export const journeys = [
     )
   }
 ];
+
+export const journeys = journeyCatalog.filter((journey) => isPublicPairingEligible(journey.id));
 
 export const imageAlt = {
   "Iced Caffè Latte": text("Roby's buzlu latte", "Roby's iced latte", "Айс-латте Roby's"),

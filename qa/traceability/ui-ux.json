@@ -367,9 +367,9 @@
       },
       "evidence": [
         "index.html#daily-offer",
-        "social-offer.js#SOCIAL_OFFER",
-        "social-offer.js#renderSocialOffer",
-        "social-offer.js#renderTasteJourneyLink"
+        "home-menu-entry.js#SOCIAL_OFFER",
+        "home-menu-entry.js#renderSocialOffer",
+        "home-menu-entry.js#renderTasteJourneyLink"
       ],
       "tests": [
         "npm run verify:social-offer"

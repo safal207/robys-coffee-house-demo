@@ -1,5 +1,13 @@
 export type MenuLanguage = "tr" | "en" | "ru";
 export type MenuLocalizedText = Record<MenuLanguage, string>;
+export type PairingAvailability = "available" | "unavailable";
+export type PairingSourceStatus = "confirmed" | "provisional";
+
+export interface PairingCommercialStatus {
+  availability: PairingAvailability;
+  sourceStatus: PairingSourceStatus;
+  availabilityReason?: string;
+}
 
 export interface MenuItemSource {
   id?: string;
@@ -10,6 +18,9 @@ export interface MenuItemSource {
   image?: string;
   imageAlt?: MenuLocalizedText;
   price: number;
+  availability?: PairingAvailability;
+  sourceStatus?: PairingSourceStatus;
+  availabilityReason?: string;
 }
 
 export interface MenuGroupSource {
@@ -27,4 +38,7 @@ export interface MenuCategorySource {
 }
 
 export const menuCopy: Record<MenuLanguage, Record<string, string>>;
+export const pairingCommercialPolicy: Readonly<Record<string, Readonly<PairingCommercialStatus>>>;
+export function isPublicPairingEligible(journeyId: string | undefined): boolean;
+export const pairingOfferCatalog: MenuItemSource[];
 export const menuCategories: MenuCategorySource[];

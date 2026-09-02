@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v39-20260809-premium-optics-v23-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v39-20260809-premium-optics-v23-78efd00b201f-fac98685082e-08a6bd177dd9-1187a820476c-6f094d839b47-25fd84b39b59-a0686de99563-d27720e5102f-76a94cbbe8a3-02776b67594c-519d029e4825-3719610b1f4e-07d31353dd2a-83cb209e0175";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -15,14 +15,15 @@ const CORE_ASSETS = [
   "./mobile-install.css",
   "./styles.css",
   "./mobile.css",
+  "./home-menu-entry.css?v=a0686de99563",
   "./conversion.css",
   "./final-qa.css",
-  "./social-offer.css",
-  "./menu.css",
+  "./social-offer.css?v=d27720e5102f",
+  "./menu-runtime.css?v=6f094d839b47",
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
-  "./discover-rotation.css?v=96b566c9731e",
+  "./discover-rotation.css?v=08a6bd177dd9",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260726-approved-v4",
   "./src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4",
@@ -34,27 +35,19 @@ const CORE_ASSETS = [
   "./morning-entry.js",
   "./day-night-entry.js?v=20260809-premium-optics-v23",
   "./app.js",
+  "./home-menu-entry.js?v=25fd84b39b59",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-page.js",
+  "./menu-runtime.js?v=1187a820476c",
   "./menu-pwa.js",
-  "./menu-data.js",
-  "./menu-search-clear.js",
   "./menu-actions.js",
-  "./discover.js",
-  "./discover-v2.js?v=10750cdfa32c",
-  "./discover-copy.js",
-  "./discover-journeys.js",
-  "./discover-journeys-v2.js",
+  "./discover-runtime.js?v=78efd00b201f",
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
-  "./discover-rotation-v3.js?v=58d387ca0c01",
+  "./discover-rotation-v3.js?v=fac98685082e",
   "./src/brand/robys-organic-ring.svg?v=20260720-1",
-  "./src/pairings-data/final/cool-lime-macaron-hq.webp",
   "./src/pairings-data/approved/iced-san-sebastian-hq.png",
-  "./src/products/cards/pairing-cool-lime-macaron.webp",
   "./src/products/cards/pairing-iced-san-sebastian.webp",
-  "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
   "./icon-maskable.svg",
@@ -84,9 +77,20 @@ async function cachedResponse(request) {
   const url = new URL(request.url);
   const requiresExactRevision =
     url.pathname.endsWith("/day-night-entry.js") ||
-    url.pathname.endsWith("/discover-v2.js") ||
+    url.pathname.endsWith("/discover-runtime.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
+    url.pathname.endsWith("/menu-runtime.js") ||
+    url.pathname.endsWith("/menu-runtime.css") ||
+    url.pathname.endsWith("/home-menu-entry.js") ||
+    url.pathname.endsWith("/home-menu-entry.css") ||
+    url.pathname.endsWith("/social-offer.css") ||
+    url.pathname.endsWith("/smart-choice/app-runtime.js") ||
+    url.pathname.endsWith("/smart-choice/cart-runtime.js") ||
+    url.pathname.endsWith("/smart-choice/experiments-runtime.js") ||
+    url.pathname.endsWith("/smart-choice/analytics-runtime.js") ||
+    url.pathname.endsWith("/smart-choice/decision-trace-runtime.js") ||
+    url.pathname.endsWith("/smart-choice/simulator-runtime.js") ||
     url.pathname.endsWith("/qa.js") ||
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css") ||

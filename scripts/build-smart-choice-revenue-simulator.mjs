@@ -9,7 +9,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/simulator.js",
+  outfile: "smart-choice/simulator-runtime.js",
   legalComments: "none"
 });
 
@@ -29,10 +29,10 @@ function synchronizeStylesheet(html, fileName, revision) {
   return html.replace(pattern, `href="${fileName}?v=${revision}"`);
 }
 
-const scriptRevision = revisionFor("smart-choice/simulator.js");
+const scriptRevision = revisionFor("smart-choice/simulator-runtime.js");
 const cssRevision = revisionFor("smart-choice/simulator.css");
 let html = readFileSync("smart-choice/simulator.html", "utf8");
-html = synchronizeModuleScript(html, "simulator.js", scriptRevision);
+html = synchronizeModuleScript(html, "simulator-runtime.js", scriptRevision);
 html = synchronizeStylesheet(html, "simulator.css", cssRevision);
 writeFileSync("smart-choice/simulator.html", html);
 

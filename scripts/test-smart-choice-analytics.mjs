@@ -126,9 +126,9 @@ try {
   assert(runtimeSource.includes("MutationObserver"));
   assert(runtimeSource.includes("dedupeKey"));
   assert(runtimeSource.includes("bump-skipped-by-handoff"));
-  assert(html.includes('src="analytics.js?v='), "Smart Choice HTML must load a revisioned analytics bundle");
+  assert(html.includes('src="analytics-runtime.js?v='), "Smart Choice HTML must load a revisioned analytics bundle");
   assert(buildSource.includes('entryPoints: ["src/smart-choice/analytics.ts"]'));
-  assert(buildSource.includes('revisionFor("smart-choice/analytics.js")'));
+  assert(buildSource.includes('revisionFor("smart-choice/analytics-runtime.js")'));
   assert(!runtimeSource.includes("innerHTML"));
   assert(!runtimeSource.includes("fetch("));
   assert(!runtimeSource.includes("phoneNumber"));

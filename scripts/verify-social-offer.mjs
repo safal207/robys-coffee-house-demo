@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 const html = readFileSync("index.html", "utf8");
 const css = readFileSync("social-offer.css", "utf8");
 const source = readFileSync("src/social-offer.ts", "utf8");
-const runtime = readFileSync("social-offer.js", "utf8");
+const runtime = readFileSync("home-menu-entry.js", "utf8");
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[SOCIAL-OFFER-001] ${message}`);
@@ -13,7 +13,8 @@ const roots = html.match(/<aside\b[^>]*\bid=["']daily-offer["'][^>]*>/gi) ?? [];
 assert(roots.length === 1, `Expected exactly one #daily-offer root, found ${roots.length}`);
 assert(roots[0].includes("hidden"), "The offer root must stay hidden until the typed runtime renders it");
 assert(html.includes('href="social-offer.css?v='), "index.html must load the social-offer stylesheet");
-assert(html.includes('src="social-offer.js?v='), "index.html must load the generated social-offer runtime");
+assert(html.includes('src="home-menu-entry.js?v='), "index.html must load the first-load-safe generated social-offer runtime");
+assert(!html.includes('src="social-offer.js?v='), "index.html must not load the stale-cache-prone legacy runtime path");
 assert(html.indexOf('id="daily-offer"') > html.indexOf('id="visit"'), "The offer must follow the visit/map section");
 assert(html.indexOf('id="daily-offer"') < html.indexOf('class="site-footer"'), "The offer must remain above the footer");
 

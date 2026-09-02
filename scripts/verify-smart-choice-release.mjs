@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -18,8 +19,20 @@ const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
+const buildSource = read("scripts/build.mjs");
+const simulatorBuildSource = read("scripts/build-smart-choice-revenue-simulator.mjs");
+const serviceWorker = read("sw.js");
 
 const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
+const revisionFor = (file) => createHash("sha256").update(readFileSync(path.join(root, file))).digest("hex").slice(0, 12);
+const clientRuntimeFiles = [
+  "app-runtime.js",
+  "cart-runtime.js",
+  "experiments-runtime.js",
+  "analytics-runtime.js",
+  "decision-trace-runtime.js"
+];
+const allRuntimeFiles = [...clientRuntimeFiles, "simulator-runtime.js"];
 
 function requireText(haystack, needle, message) {
   assert.ok(haystack.includes(needle), message ?? `Missing required text: ${needle}`);
@@ -92,8 +105,8 @@ requireText(brandCss, `robys-compact-master-v1.svg?v=${APPROVED_IDENTITY_REVISIO
 assert.ok(!/<a class="sim-brand"[^>]*>\s*ROBY'S\s*<\/a>/i.test(simulatorHtml), "owner simulator must not render a text-only wordmark");
 
 const releaseIndex = html.indexOf("release-qa.js");
-const appIndex = html.indexOf("app.js");
-const analyticsIndex = html.indexOf("analytics.js");
+const appIndex = html.indexOf("app-runtime.js");
+const analyticsIndex = html.indexOf("analytics-runtime.js");
 assert.ok(releaseIndex >= 0 && releaseIndex < appIndex, "release QA runtime must load before the app");
 assert.ok(appIndex >= 0 && appIndex < analyticsIndex, "app must load before analytics");
 
@@ -118,13 +131,43 @@ assert.ok(packageJson.scripts["verify:smart-choice"], "verify:smart-choice scrip
 assert.ok(packageJson.scripts["test:smart-choice"], "test:smart-choice script is required");
 requireText(packageJson.scripts.check, "verify:smart-choice", "npm run check must include verify:smart-choice");
 requireText(packageJson.scripts.check, "test:smart-choice", "npm run check must include test:smart-choice");
+assert.ok(
+  packageJson.scripts.build.indexOf("build-smart-choice-revenue-simulator.mjs") < packageJson.scripts.build.indexOf("node scripts/build.mjs"),
+  "simulator runtime must be built before the main build derives the service-worker cache version"
+);
+
+for (const fileName of clientRuntimeFiles) {
+  const repoPath = `smart-choice/${fileName}`;
+  const legacyName = fileName.replace("-runtime", "");
+  requireText(html, `src="${fileName}?v=${revisionFor(repoPath)}"`, `${fileName} must use its byte-derived revision`);
+  assert.ok(!html.includes(`src="${legacyName}?`), `${legacyName} must not remain a deploy-time script pathname`);
+  requireText(buildSource, `outfile: "${repoPath}"`, `${fileName} must be a canonical direct build output`);
+  requireText(serviceWorker, `url.pathname.endsWith("/${repoPath}")`, `${fileName} must require exact-query cache matching`);
+  requireText(packageJson.scripts.check, repoPath, `${fileName} must be syntax-checked`);
+}
+requireText(
+  simulatorHtml,
+  `src="simulator-runtime.js?v=${revisionFor("smart-choice/simulator-runtime.js")}"`,
+  "simulator runtime must use its byte-derived revision"
+);
+assert.ok(!simulatorHtml.includes('src="simulator.js?'), "legacy simulator.js must not remain a deploy-time pathname");
+requireText(simulatorBuildSource, 'outfile: "smart-choice/simulator-runtime.js"', "simulator runtime must be a canonical direct build output");
+requireText(serviceWorker, 'url.pathname.endsWith("/smart-choice/simulator-runtime.js")', "simulator runtime must require exact-query cache matching");
+const runtimeRevisionSuffix = allRuntimeFiles
+  .map((fileName) => revisionFor(`smart-choice/${fileName}`))
+  .join("-");
+assert.match(
+  serviceWorker,
+  new RegExp(`const CACHE_VERSION = "[^"]*-${runtimeRevisionSuffix}";`),
+  "service-worker cache generation must be coupled to all six Smart Choice runtime bytes"
+);
 
 const jsFiles = [
-  "smart-choice/app.js",
-  "smart-choice/cart.js",
-  "smart-choice/experiments.js",
-  "smart-choice/analytics.js",
-  "smart-choice/decision-trace.js",
+  "smart-choice/app-runtime.js",
+  "smart-choice/cart-runtime.js",
+  "smart-choice/experiments-runtime.js",
+  "smart-choice/analytics-runtime.js",
+  "smart-choice/decision-trace-runtime.js",
   "smart-choice/release-qa.js"
 ];
 const cssFiles = [

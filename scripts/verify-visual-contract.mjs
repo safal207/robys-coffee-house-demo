@@ -76,6 +76,7 @@ assert(/pull_request:/i.test(workflow), "Visual workflow must run on pull reques
 assert(workflow.includes("github.event.pull_request.base.sha"), "Visual workflow must compare against the PR base SHA");
 assert(workflow.includes("scripts/visual-regression.mjs"), "Visual workflow must execute the comparator");
 assert(workflow.includes("scripts/ui-ux-matrix.mjs"), "Visual workflow must execute the UI/UX matrix");
+assert(workflow.includes("npm run test:menu-ux"), "Visual workflow must execute the menu UX regression suite");
 assert(workflow.includes("scripts/verify-social-network-live.mjs"), "Visual workflow must recheck the live social destination");
 assert(workflow.includes("playwright install --with-deps chromium"), "Visual workflow must install deterministic Chromium");
 assert(workflow.includes("upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b"), "Visual workflow must pin the artifact uploader");

@@ -15,6 +15,7 @@ const excludedDirectories = new Set([
   "lighthouse",
   "node_modules",
   "qa",
+  "qa-artifacts",
   "scripts",
   "visual-results"
 ]);

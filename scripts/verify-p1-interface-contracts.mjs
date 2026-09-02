@@ -4,6 +4,7 @@ import path from "node:path";
 const indexHtml = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
 const mobileCss = readFileSync("mobile.css", "utf8");
+const homeMenuEntryCss = readFileSync("home-menu-entry.css", "utf8");
 const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu.css", "utf8");
@@ -57,6 +58,8 @@ assert(conversionCss.includes("safe-area-inset-bottom"), "MOBILE-001", "Safe-are
 assert(conversionCss.includes("padding-bottom:calc(98px + env(safe-area-inset-bottom))"), "MOBILE-001", "Fixed CTA spacing changed");
 assert(conversionCss.includes("min-height:48px") && conversionCss.includes("min-height:46px"), "MOBILE-001", "Mobile CTA targets are too small");
 assert(menuCss.includes("overflow-x:auto"), "MOBILE-001", "Category chips must stay scrollable");
+assert(menuCss.includes(".menu-route-quick{"), "MOBILE-001", "Sticky menu controls must keep a compact route action");
+assert(homeMenuEntryCss.includes('.hero-actions .button[href="menu.html"]'), "MOBILE-001", "First-load-safe mobile full-menu priority is missing");
 assert(menuCss.includes(".full-menu-grid{grid-template-columns:1fr}"), "MOBILE-001", "Menu must collapse to one column");
 assert(menuCss.includes("grid-template-columns:minmax(0,1fr) auto"), "MOBILE-001", "Product/price columns changed");
 const menuDocumentRule = cssRule(menuCss, "html", "MOBILE-001");
@@ -73,7 +76,8 @@ for (const [selector, expectedBackground] of [
 }
 assert(menuCss.includes("@media(hover:none) and (pointer:coarse){"), "MOBILE-001", "Coarse-pointer raster safe mode is missing");
 for (const contract of [
-  ".menu-page .site-header,.menu-controls{position:static;top:auto;z-index:auto;box-shadow:none}",
+  ".menu-page .site-header{position:static;top:auto;z-index:auto;box-shadow:none}",
+  ".menu-controls{position:sticky;top:0;z-index:80",
   ".full-menu-grid{display:block}",
   ".full-menu-panel{box-shadow:none}",
   ".full-menu-panel+.full-menu-panel{margin-top:18px}"
@@ -128,12 +132,19 @@ const criticalFiles = [
   "icon.svg",
   "styles.css",
   "mobile.css",
+  "home-menu-entry.css",
+  "home-menu-entry.js",
   "conversion.css",
   "final-qa.css",
   "gallery-clean.css",
   "map-live.css",
   "menu-preview.css",
   "menu.css",
+  "menu-runtime-entry.js",
+  "menu-runtime.css",
+  "menu-runtime.js",
+  "discover-runtime-entry.js",
+  "discover-runtime.js",
   "app.js",
   "conversion.js",
   "analytics.js",

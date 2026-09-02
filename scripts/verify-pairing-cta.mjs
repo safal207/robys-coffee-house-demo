@@ -81,8 +81,8 @@ function verifyAnalyticsBehavior() {
 verifyAnalyticsBehavior();
 
 const heroActions = index.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1] ?? "";
-assert.match(heroActions, /class="button button-primary"/);
-assert.match(heroActions, /class="button button-ghost" href="menu\.html"/);
+assert.match(heroActions, /class="button button-primary" href="menu\.html" data-i18n="viewMenu"/);
+assert.match(heroActions, /class="button button-ghost" href="menu\.html#pairing-offers" data-analytics-action="pairing_click"/);
 
 const firstCategory = menuData.match(/export const menuCategories = \[\s*\{\s*id: "([^"]+)"/)?.[1];
 assert.equal(firstCategory, "pairing-offers", "Pairing offers must remain the first menu category");

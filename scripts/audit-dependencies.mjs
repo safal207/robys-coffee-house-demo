@@ -9,6 +9,11 @@ const IGNORED_DIRECTORIES = new Set([".git", "node_modules", ".artifacts", "dist
 const TRAVERSABLE_EXTENSIONS = new Set([".html", ".htm", ".css", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".json", ".webmanifest"]);
 const RUNTIME_EXTENSIONS = new Set([".css", ".js", ".mjs", ".cjs"]);
 const RESOLUTION_EXTENSIONS = ["", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".css", ".json", ".webmanifest", ".html"];
+const BUILD_INPUT_OWNERSHIP = [
+  { output: "menu-runtime.js", inputs: ["menu-runtime-entry.js"] },
+  { output: "discover-runtime.js", inputs: ["discover-runtime-entry.js"] },
+  { output: "menu-runtime.css", inputs: ["menu.css", "pairing-posters.css"] }
+];
 
 function toRepoPath(path) {
   return relative(ROOT, path).split(sep).join("/");
@@ -133,39 +138,70 @@ const suspicious = [];
 const suspiciousMatches = new Set();
 const queue = [...roots];
 
-while (queue.length) {
-  const source = queue.shift();
-  if (!source || reachable.has(source) || !fileSet.has(source)) continue;
-  reachable.add(source);
+function traverseQueue() {
+  while (queue.length) {
+    const source = queue.shift();
+    if (!source || reachable.has(source) || !fileSet.has(source)) continue;
+    reachable.add(source);
 
-  const extension = extname(source).toLowerCase();
-  if (!TRAVERSABLE_EXTENSIONS.has(extension)) continue;
+    const extension = extname(source).toLowerCase();
+    if (!TRAVERSABLE_EXTENSIONS.has(extension)) continue;
 
-  let content;
-  try {
-    content = readFileSync(join(ROOT, source), "utf8");
-  } catch {
+    let content;
+    try {
+      content = readFileSync(join(ROOT, source), "utf8");
+    } catch {
+      continue;
+    }
+
+    for (const reference of literalReferences(content)) {
+      const targets = candidatePaths(source, reference);
+      if (!targets.length) {
+        unresolved.push({ source, reference });
+        continue;
+      }
+      for (const target of targets) {
+        edges.push({ source, target, kind: "literal", reference });
+        if (!reachable.has(target)) queue.push(target);
+      }
+    }
+
+    for (const template of templateReferences(content)) {
+      const matches = templateMatches(source, template);
+      matches.forEach((path) => suspiciousMatches.add(path));
+      suspicious.push({ source, template, matches });
+    }
+  }
+}
+
+traverseQueue();
+
+const buildOwnershipErrors = [];
+const activeBuildOwnership = [];
+for (const ownership of BUILD_INPUT_OWNERSHIP) {
+  if (!fileSet.has(ownership.output)) {
+    buildOwnershipErrors.push(`missing output: ${ownership.output}`);
     continue;
   }
 
-  for (const reference of literalReferences(content)) {
-    const targets = candidatePaths(source, reference);
-    if (!targets.length) {
-      unresolved.push({ source, reference });
-      continue;
-    }
-    for (const target of targets) {
-      edges.push({ source, target, kind: "literal", reference });
-      if (!reachable.has(target)) queue.push(target);
-    }
+  const missingInputs = ownership.inputs.filter((input) => !fileSet.has(input));
+  if (missingInputs.length) {
+    buildOwnershipErrors.push(`${ownership.output} missing inputs: ${missingInputs.join(", ")}`);
+    continue;
   }
 
-  for (const template of templateReferences(content)) {
-    const matches = templateMatches(source, template);
-    matches.forEach((path) => suspiciousMatches.add(path));
-    suspicious.push({ source, template, matches });
+  // Inputs are owned only while their built output is already reachable from a
+  // runtime root. This preserves fail-closed detection for abandoned outputs.
+  if (!reachable.has(ownership.output)) continue;
+
+  activeBuildOwnership.push(ownership);
+  for (const input of ownership.inputs) {
+    edges.push({ source: ownership.output, target: input, kind: "build-input", reference: input });
+    if (!reachable.has(input)) queue.push(input);
   }
 }
+
+traverseQueue();
 
 function isRuntimeCandidate(path) {
   if (!RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) return false;
@@ -189,9 +225,12 @@ const report = {
     reachableRuntime: reachableRuntime.length,
     suspiciousRuntime: suspiciousRuntime.length,
     provenOrphans: provenOrphans.length,
+    buildOwnershipErrors: buildOwnershipErrors.length,
     unresolvedLiteralReferences: unresolved.length,
     suspiciousReferences: suspicious.length
   },
+  activeBuildOwnership,
+  buildOwnershipErrors,
   reachableRuntime,
   suspiciousRuntime,
   provenOrphans,
@@ -208,9 +247,10 @@ console.log(`Runtime CSS/JS: ${runtimeCandidates.length}`);
 console.log(`Reachable runtime: ${reachableRuntime.length}`);
 console.log(`Suspicious runtime: ${suspiciousRuntime.length}`);
 console.log(`Proven orphan runtime: ${provenOrphans.length}`);
+if (buildOwnershipErrors.length) console.log(`BUILD_OWNERSHIP_ERRORS\n${buildOwnershipErrors.join("\n")}`);
 if (provenOrphans.length) console.log(`PROVEN_ORPHANS\n${provenOrphans.join("\n")}`);
 if (suspicious.length) console.log(`SUSPICIOUS_REFERENCES\n${suspicious.map(({ source, template, matches }) => `${source}: ${template} -> ${matches.join(", ") || "no current matches"}`).join("\n")}`);
 if (unresolved.length) console.log(`UNRESOLVED_LITERAL_REFERENCES\n${unresolved.map(({ source, reference }) => `${source}: ${reference}`).join("\n")}`);
 console.log(`Report: ${toRepoPath(REPORT_PATH)}`);
 
-if (CHECK_MODE && provenOrphans.length) process.exitCode = 1;
+if (CHECK_MODE && (provenOrphans.length || buildOwnershipErrors.length)) process.exitCode = 1;

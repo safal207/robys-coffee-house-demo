@@ -1,0 +1,11 @@
+/* First-load-safe mobile order for the two primary customer decisions. */
+@media(max-width:680px){
+  .hero-actions{display:flex;flex-direction:column}
+  .hero-actions .button[href="menu.html"]{display:inline-flex;order:1;color:#fff;background:var(--ruby);border-color:transparent;box-shadow:0 12px 34px rgba(226,27,35,.25)}
+  .hero-actions [data-smart-choice-entry]{display:inline-flex;order:2;color:#fff;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.35);box-shadow:none}
+  .hero-actions [data-analytics-action="pairing_click"]{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-actions .button{transition:none}
+}

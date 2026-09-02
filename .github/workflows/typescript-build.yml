@@ -8,6 +8,7 @@ on:
       - '**/*.js'
       - '**/*.mjs'
       - '**/*.cjs'
+      - '**/*.d.ts'
       - '**/*.html'
       - 'src/**'
       - 'scripts/**'
@@ -27,6 +28,7 @@ on:
       - '**/*.js'
       - '**/*.mjs'
       - '**/*.cjs'
+      - '**/*.d.ts'
       - '**/*.html'
       - 'src/**'
       - 'scripts/**'
@@ -89,20 +91,47 @@ jobs:
           name: generated-runtime-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             app.js
+            featured-gallery.js
+            home-menu-entry.js
+            home-menu-entry.css
             index.html
+            menu-runtime.js
+            menu-runtime.css
+            menu.html
+            discover-runtime.js
             discover-rotation.js
             discover-rotation-v2.js
             discover-rotation-v3.js
             discover.html
+            smart-choice/app-runtime.js
+            smart-choice/cart-runtime.js
+            smart-choice/experiments-runtime.js
+            smart-choice/analytics-runtime.js
+            smart-choice/decision-trace-runtime.js
+            smart-choice/release-qa.js
+            smart-choice/simulator-runtime.js
+            smart-choice/index.html
+            smart-choice/simulator.html
             sw.js
           retention-days: 3
 
       - name: Verify JavaScript syntax
         run: |
           node --check app.js
+          node --check featured-gallery.js
+          node --check home-menu-entry.js
+          node --check menu-runtime.js
+          node --check discover-runtime.js
           node --check discover-rotation.js
           node --check discover-rotation-v2.js
           node --check discover-rotation-v3.js
+          node --check smart-choice/app-runtime.js
+          node --check smart-choice/cart-runtime.js
+          node --check smart-choice/experiments-runtime.js
+          node --check smart-choice/analytics-runtime.js
+          node --check smart-choice/decision-trace-runtime.js
+          node --check smart-choice/release-qa.js
+          node --check smart-choice/simulator-runtime.js
           node --check sw.js
 
       - name: Verify IIFE and deferred loading contract
@@ -122,13 +151,38 @@ jobs:
           path: .artifacts/dependency-graph.json
           retention-days: 7
 
+      - name: Regenerate integrity evidence
+        run: npm run integrity:generate
+
       - name: Reject stale generated files
-        run: >-
-          git diff --exit-code --
-          app.js
-          index.html
-          discover-rotation.js
-          discover-rotation-v2.js
-          discover-rotation-v3.js
-          discover.html
-          sw.js
+        run: |
+          generated_files=(
+            app.js
+            featured-gallery.js
+            home-menu-entry.js
+            index.html
+            menu-runtime.js
+            menu-runtime.css
+            menu.html
+            discover-runtime.js
+            discover-rotation.js
+            discover-rotation-v2.js
+            discover-rotation-v3.js
+            discover.html
+            smart-choice/app-runtime.js
+            smart-choice/cart-runtime.js
+            smart-choice/experiments-runtime.js
+            smart-choice/analytics-runtime.js
+            smart-choice/decision-trace-runtime.js
+            smart-choice/release-qa.js
+            smart-choice/simulator-runtime.js
+            smart-choice/index.html
+            smart-choice/simulator.html
+            sw.js
+            integrity-manifest.json
+          )
+          generated_status="$(git status --porcelain=v1 --untracked-files=all -- "${generated_files[@]}")"
+          if [[ -n "$generated_status" ]]; then
+            printf 'Generated files are missing from Git or stale after build:\n%s\n' "$generated_status"
+            exit 1
+          fi

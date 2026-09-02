@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { journeys } from "../discover-journeys-v2.js";
 
 const ROOT = path.join("src", "pairings-data");
 const FINAL = path.join(ROOT, "final");
@@ -9,21 +10,22 @@ const APPROVED_ICED_POSTER = path.join(APPROVED, "iced-san-sebastian-hq.png");
 const APPROVED_ICED_MANIFEST_PATH = "src/pairings-data/approved/iced-san-sebastian-hq.png";
 const APPROVED_ICED_WIDTH = 1254;
 const APPROVED_ICED_HEIGHT = 1254;
-const EXPECTED_IDS = [
+const ASSET_IDS = [
   "latte-nutella",
   "iced-san-sebastian",
   "filter-lotus",
   "relax-lotus",
   "cool-lime-macaron"
 ];
-const ACTIVE_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
-const BASE64_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`);
+const RENDERER_IDS = ["latte-nutella", "iced-san-sebastian", "filter-lotus", "relax-lotus"];
+const ACTIVE_IDS = ["iced-san-sebastian"];
+const BASE64_FILES = ASSET_IDS.map((id) => `${id}.webp.b64.txt`);
 const FINAL_DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
 const EXPECTED_FINAL_FILES = [...BASE64_FILES, ...FINAL_DIRECT_FILES].sort();
 const DESCRIPTIVE_ALTS = [
-  "Cool Lime ve Makaron eşleşmesi posteri",
-  "Cool Lime and Macaron pairing poster",
-  "Постер сочетания Cool Lime и макарона"
+  "Buzlu Latte ve San Sebastian eşleşmesi posteri",
+  "Iced Latte and San Sebastian pairing poster",
+  "Постер сочетания айс-латте и Сан-Себастьяна"
 ];
 const ACCESSIBLE_PRICES = ["Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺"];
 const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
@@ -119,7 +121,7 @@ const approvedImage = verifyApprovedPng(readFileSync(APPROVED_ICED_POSTER), APPR
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtimeBuffer = readFileSync("discover-rotation-v3.js");
 const runtime = runtimeBuffer.toString("utf8");
-const discoverRuntimeBuffer = readFileSync("discover-v2.js");
+const discoverRuntimeBuffer = readFileSync("discover-runtime.js");
 const discoverRuntime = discoverRuntimeBuffer.toString("utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
@@ -133,18 +135,18 @@ const expectedSources = {
   "latte-nutella": 'posterSource("latte-nutella")',
   "iced-san-sebastian": 'source: "src/pairings-data/approved/iced-san-sebastian-hq.png"',
   "filter-lotus": 'posterSource("filter-lotus")',
-  "relax-lotus": 'posterSource("relax-lotus")',
-  "cool-lime-macaron": 'source: "src/pairings-data/final/cool-lime-macaron-hq.webp"'
+  "relax-lotus": 'posterSource("relax-lotus")'
 };
 
 for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
-  for (const id of EXPECTED_IDS) {
+  for (const id of RENDERER_IDS) {
     if (!text.includes(expectedSources[id])) fail(`${label} renderer does not map ${id} to ${expectedSources[id]}`);
     if (!text.includes(`"${id}": {`)) fail(`${label} renderer is not keyed by journey id ${id}`);
   }
+  if (text.includes('"cool-lime-macaron": {')) fail(`${label} renderer must not map the quarantined Cool Lime + Macaron offer`);
   if (!text.includes('/\\.(?:png|webp)$/i.test(source)')) fail(`${label} renderer does not support direct PNG and WebP poster sources`);
   for (const altText of DESCRIPTIVE_ALTS) if (!text.includes(`"${altText}"`)) fail(`${label} renderer lost descriptive localized alt text`);
-  for (const priceText of ACCESSIBLE_PRICES) if (!text.includes(`"${priceText}"`)) fail(`${label} renderer lost localized semantic pricing`);
+  for (const priceText of ACCESSIBLE_PRICES) if (text.includes(`"${priceText}"`)) fail(`${label} renderer contains quarantined Cool Lime pricing`);
   if (!text.includes('caption.className = "pairing-poster-price"')) fail(`${label} renderer does not create the semantic price caption`);
   if (!text.includes('image.setAttribute("aria-describedby", caption.id)')) fail(`${label} renderer does not associate image and price`);
   if (!text.includes("caption.textContent = poster.price[currentLanguage()]")) fail(`${label} renderer does not refresh localized pricing`);
@@ -153,41 +155,51 @@ for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
 if (!source.includes("price?: PosterLocalizedText;")) fail("typed poster model lost optional localized commercial data");
 if (!source.includes("if (image.complete)") || !runtime.includes("if (image.complete)")) fail("poster renderer lost completed-image decode handling");
 
-const journeysBlock = journeysSource.match(/export const journeys\s*=\s*\[([\s\S]*?)\n\];\s*\n\s*export const imageAlt/)?.[1];
-if (!journeysBlock) fail("could not isolate the exported journeys array");
-const actualIds = [...journeysBlock.matchAll(/^\s{4}id:\s*"([^"]+)"/gm)].map((match) => match[1]);
+const actualIds = journeys.map((journey) => journey.id);
 if (JSON.stringify(actualIds) !== JSON.stringify(ACTIVE_IDS)) fail(`discover page must expose only ${ACTIVE_IDS.join(", ")}; found ${actualIds.join(", ")}`);
-if (!journeysSource.includes('const ACTIVE_PAIRING_IDS = ["cool-lime-macaron", "iced-san-sebastian"];')) fail("journey guard active IDs changed");
-if (!discoverRuntime.includes("el.products.dataset.pairingId=journey.id")) fail("Discover runtime does not publish the active journey id");
+if (!journeysSource.includes('["cool-lime-macaron", "iced-san-sebastian"].filter(isPublicPairingEligible)')) fail("journey guard must derive active IDs from commercial eligibility");
+if (!journeysSource.includes("journeyCatalog.filter((journey) => isPublicPairingEligible(journey.id))")) fail("public journeys must use the commercial eligibility gate");
+if (!discoverRuntime.includes(".products.dataset.pairingId=")) fail("Discover runtime does not publish the active journey id");
 if (!journeysSource.includes('resolvedUrl.origin !== "https://api.open-meteo.com"')) fail("weather guard origin allowlist changed");
 if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGuard.includes("window.fetch =")) fail("standalone weather guard must remain a no-op placeholder");
 
 for (const asset of [
-  "discover-journeys-v2.js",
-  "src/pairings-data/final/cool-lime-macaron-hq.webp",
   "src/pairings-data/approved/iced-san-sebastian-hq.png"
 ]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
+}
+for (const asset of [
+  "src/pairings-data/final/cool-lime-macaron-hq.webp",
+  "src/products/cards/pairing-cool-lime-macaron.webp",
+  "src/pairings-data/final/cool-lime-macaron.webp.b64.txt"
+]) {
+  if (serviceWorker.includes(`"./${asset}"`)) fail(`offline cache must not ship quarantined commercial artwork ${asset}`);
 }
 
 const discoverRuntimeRevision = revisionFor(discoverRuntimeBuffer);
 const scriptRevision = revisionFor(runtimeBuffer);
 const cssRevision = revisionFor(cssBuffer);
-const discoverRuntimeRevisionMatch = html.match(/src="discover-v2\.js\?v=([a-f0-9]{12})"/);
+const discoverRuntimeRevisionMatch = html.match(/src="discover-runtime\.js\?v=([a-f0-9]{12})"/);
 const scriptRevisionMatch = html.match(/src="discover-rotation-v3\.js\?v=([a-f0-9]{12})"/);
 const cssRevisionMatch = html.match(/href="discover-rotation\.css\?v=([a-f0-9]{12})"/);
 if (!discoverRuntimeRevisionMatch || discoverRuntimeRevisionMatch[1] !== discoverRuntimeRevision) fail(`discover.html runtime revision must be ${discoverRuntimeRevision}`);
 if (!scriptRevisionMatch || scriptRevisionMatch[1] !== scriptRevision) fail(`discover.html JS revision must be ${scriptRevision}`);
 if (!cssRevisionMatch || cssRevisionMatch[1] !== cssRevision) fail(`discover.html CSS revision must be ${cssRevision}`);
-if (!serviceWorker.includes(`"./discover-v2.js?v=${discoverRuntimeRevision}"`)) fail("service worker Discover runtime revision is stale");
+if (!serviceWorker.includes(`"./discover-runtime.js?v=${discoverRuntimeRevision}"`)) fail("service worker Discover runtime revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation-v3.js?v=${scriptRevision}"`)) fail("service worker poster JS revision is stale");
 if (!serviceWorker.includes(`"./discover-rotation.css?v=${cssRevision}"`)) fail("service worker CSS revision is stale");
-const cacheRevisionSuffix = `-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`;
+const cacheRevisionSegment = `-${discoverRuntimeRevision}-${scriptRevision}-${cssRevision}`;
 const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
-if (!cacheVersion || !cacheVersion.endsWith(cacheRevisionSuffix)) {
+if (!cacheVersion || !cacheVersion.includes(cacheRevisionSegment)) {
   fail("service-worker cache version does not include current Discover runtime and poster revisions");
 }
-if (!buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision)')) fail("build does not synchronize the Discover interaction runtime revision");
+if (!buildScript.includes('entryPoints: ["discover-runtime-entry.js"]')) fail("build does not bundle the complete Discover dependency graph");
+if (!buildScript.includes('synchronizeModuleScript(discoverHtml, "discover-runtime.js", discoverRuntimeRevision)')) fail("build does not synchronize the Discover interaction runtime revision");
+if (html.includes('src="discover-v2.js')) fail("Discover HTML still loads the stale-cache-prone source module path");
+for (const legacyAsset of ["menu-data.js", "discover-copy.js", "discover-journeys-v2.js"]) {
+  if (serviceWorker.includes(`"./${legacyAsset}"`)) fail(`offline shell must use the self-contained Discover bundle instead of ${legacyAsset}`);
+}
+if (/\b(?:import|from)\b[^;]*\.\/(?:menu-data|discover-copy|discover-journeys-v2)\.js/.test(discoverRuntime)) fail("deployed Discover runtime still has generation-mixable module imports");
 if (!buildScript.includes('transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js")')) fail("build does not generate the active renderer");
 if (!buildScript.includes('synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision)')) fail("build does not synchronize the renderer revision");
 if (!buildScript.includes('synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision)')) fail("build does not synchronize the stylesheet revision");
@@ -197,4 +209,4 @@ if (!css.includes("object-fit: contain")) fail("posters must render without crop
 if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor approved artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("Discover page must keep the no-script fallback");
 
-console.log(`✅ TASTE-POSTER-001 verified the approved ${approvedImage.width}x${approvedImage.height} Iced Latte + San Sebastian PNG (${approvedImage.bytes} bytes, SHA-256 ${approvedImage.digest}), source/runtime mapping, offline delivery and synchronized cache revisions.`);
+console.log(`✅ TASTE-POSTER-001 verified the approved ${approvedImage.width}x${approvedImage.height} Iced Latte + San Sebastian PNG (${approvedImage.bytes} bytes, SHA-256 ${approvedImage.digest}), quarantined Cool Lime commercial artwork, source/runtime mapping, offline delivery and synchronized cache revisions.`);

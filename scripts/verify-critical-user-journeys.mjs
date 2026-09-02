@@ -96,12 +96,13 @@ function searchMenu(query, categoryId = "all") {
   const results = [];
   for (const category of menuCategories) {
     if (categoryId !== "all" && category.id !== categoryId) continue;
+    const categoryMatches = normalized(Object.values(category.name ?? {}).join(" ")).includes(needle);
     for (const item of flattenItems(category)) {
       const haystack = [
         ...Object.values(item.name ?? {}),
         ...Object.values(item.description ?? {})
       ].join(" ");
-      if (normalized(haystack).includes(needle)) results.push({ categoryId: category.id, item });
+      if (categoryMatches || normalized(haystack).includes(needle)) results.push({ categoryId: category.id, item });
     }
   }
   return results;
@@ -181,10 +182,10 @@ contractById("I18N-001");
 assert(menuPageRuntime.includes("function normalize"), "SEARCH-001", "Search normalization function is missing");
 assert(menuPageRuntime.includes("function filteredItems"), "SEARCH-001", "Item filtering function is missing");
 assert(menuPageRuntime.includes('searchInput.addEventListener("input"'), "SEARCH-001", "Search input listener is missing");
-assert(menuPageRuntime.includes("emptyState.hidden = rendered > 0"), "SEARCH-001", "Empty search state contract is missing");
+assert(menuPageRuntime.includes("emptyState.hidden = renderedItems > 0"), "SEARCH-001", "Empty search state contract is missing");
 assert(menuPageRuntime.includes("activeCategory === \"all\" || activeCategory === category.id"), "SEARCH-001", "Category and search filters must compose");
 assert(!menuPageRuntime.includes("innerHTML"), "SEARCH-001", "Menu rendering must not use innerHTML with searchable content");
-assert(menuPageRuntime.includes("textContent = localized(item.name)"), "SEARCH-001", "Item names must render through textContent");
+assert(menuPageRuntime.includes("name.textContent = itemName"), "SEARCH-001", "Item names must render through textContent");
 assert(clearSearchRuntime.includes('event.key !== "Escape"'), "SEARCH-001", "Escape-to-clear behavior is missing");
 assert(clearSearchRuntime.includes('new Event("input", { bubbles: true })'), "SEARCH-001", "Clear button must dispatch the normal input flow");
 assert(clearSearchRuntime.includes("searchInput.focus()"), "SEARCH-001", "Focus must return to search after clearing");
@@ -194,6 +195,9 @@ assert(searchMenu("ЧИЗКЕЙК").length > 0, "SEARCH-001", "Russian case-inse
 assert(searchMenu("çikolata").length > 0, "SEARCH-001", "Turkish search fixture no longer finds chocolate products");
 assert(searchMenu("yuzu").length === 1, "SEARCH-001", "Yuzu fixture must return exactly one item");
 assert(searchMenu("lotus", "desserts").length === 1, "SEARCH-001", "Category + search fixture must find Lotus Cheesecake once");
+for (const categoryQuery of ["Tatlılar", "Desserts", "Десерты"]) {
+  assert(searchMenu(categoryQuery).length > 0, "SEARCH-001", `${categoryQuery} category-name search returned no items`);
+}
 assert(searchMenu("definitely-not-on-the-menu").length === 0, "SEARCH-001", "Unknown search fixture must return no results");
 contractById("SEARCH-001");
 

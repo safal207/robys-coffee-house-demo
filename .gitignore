@@ -1,5 +1,7 @@
 node_modules/
 .artifacts/
+qa-artifacts/
+visual-results/
 .lighthouseci/
 lighthouse/reports/
 lighthouse/regression-report*.json

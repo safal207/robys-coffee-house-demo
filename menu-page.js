@@ -7,6 +7,28 @@ const categoryNav = document.querySelector("#menu-category-nav");
 const menuRoot = document.querySelector("#menu-root");
 const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
+const resultsStatus = document.querySelector("#menu-results-status");
+const showAllButton = document.querySelector("#menu-show-all");
+const routeQuick = document.querySelector(".menu-route-quick");
+const routeQuickShort = routeQuick?.querySelector(".menu-route-quick-short");
+
+const behaviorCopy = {
+  tr: {
+    showAll: "Tüm menüyü göster",
+    routeShort: "Yol",
+    results: (count) => `${count} ürün gösteriliyor.`
+  },
+  en: {
+    showAll: "Show full menu",
+    routeShort: "Route",
+    results: (count) => `Showing ${count} menu ${count === 1 ? "item" : "items"}.`
+  },
+  ru: {
+    showAll: "Показать всё меню",
+    routeShort: "Карта",
+    results: (count) => `Показано позиций: ${count}.`
+  }
+};
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
@@ -43,6 +65,7 @@ function syncCategoryHash(categoryId) {
 function normalize(value) {
   return value
     .toLocaleLowerCase(language === "tr" ? "tr-TR" : language)
+    .replace(/ı/g, "i")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
@@ -62,22 +85,26 @@ function createItem(item, { priority = false } = {}) {
   row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
   if (visual) row.dataset.pairing = item.journeyId ?? item.id;
 
+  const itemName = localized(item.name);
+  const itemDescription = item.description ? localized(item.description) : "";
+  const itemPrice = formatPrice(item.price);
+
   const copy = document.createElement("div");
   copy.className = "full-menu-item-copy";
 
   const name = document.createElement("strong");
-  name.textContent = localized(item.name);
+  name.textContent = itemName;
   copy.append(name);
 
   if (item.description) {
     const description = document.createElement("p");
-    description.textContent = localized(item.description);
+    description.textContent = itemDescription;
     copy.append(description);
   }
 
   const price = document.createElement("strong");
   price.className = "full-menu-price";
-  price.textContent = formatPrice(item.price);
+  price.textContent = itemPrice;
 
   if (visual) {
     const media = document.createElement("div");
@@ -122,26 +149,15 @@ function createGroup(group) {
   return wrapper;
 }
 
-function categoryItems(category) {
-  if (category.items) return category.items;
-  return category.groups.flatMap((group) => group.items);
-}
-
-function matchesSearch(category) {
-  if (!searchTerm) return true;
+function categoryNameMatchesSearch(category) {
+  if (!searchTerm) return false;
   const query = normalize(searchTerm);
-  const haystack = [
-    ...Object.values(category.name),
-    ...categoryItems(category).flatMap((item) => [
-      ...Object.values(item.name),
-      ...(item.description ? Object.values(item.description) : [])
-    ])
-  ].join(" ");
+  const haystack = Object.values(category.name).join(" ");
   return normalize(haystack).includes(query);
 }
 
-function filteredItems(items) {
-  if (!searchTerm) return items;
+function filteredItems(items, includeAll = false) {
+  if (!searchTerm || includeAll) return items;
   const query = normalize(searchTerm);
   return items.filter((item) => {
     const haystack = [
@@ -182,8 +198,14 @@ function createCategory(category) {
   header.append(icon, heading);
   section.append(header);
 
+  const includeAllItems = categoryNameMatchesSearch(category);
+  let itemCount = 0;
+
   if (category.items) {
-    const items = filteredItems(category.items);
+    const publicItems = category.id === "pairing-offers"
+      ? category.items.filter((item) => item.sourceStatus === "confirmed" && item.availability === "available")
+      : category.items;
+    const items = filteredItems(publicItems, includeAllItems);
     if (!items.length) return null;
     const list = document.createElement("div");
     list.className = "full-menu-list";
@@ -192,18 +214,63 @@ function createCategory(category) {
       list.append(createItem(item, { priority }));
     });
     section.append(list);
+    itemCount = items.length;
   } else {
     let renderedGroups = 0;
     category.groups.forEach((group) => {
-      const items = filteredItems(group.items);
+      const items = filteredItems(group.items, includeAllItems);
       if (!items.length) return;
       section.append(createGroup({ ...group, items }));
       renderedGroups += 1;
+      itemCount += items.length;
     });
     if (!renderedGroups) return null;
   }
 
-  return section;
+  return { section, itemCount };
+}
+
+function updateCategoryNavState() {
+  categoryNav.querySelectorAll(".menu-category-chip").forEach((button) => {
+    const active = button.dataset.categoryId === activeCategory;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  showAllButton.hidden = activeCategory === "all";
+}
+
+function revealActiveCategory() {
+  const activeChip = Array.from(categoryNav.querySelectorAll(".menu-category-chip"))
+    .find((button) => button.dataset.categoryId === activeCategory);
+  if (!activeChip) return;
+
+  const navRect = categoryNav.getBoundingClientRect();
+  const chipRect = activeChip.getBoundingClientRect();
+  const centeredScrollLeft = categoryNav.scrollLeft + chipRect.left - navRect.left - ((navRect.width - chipRect.width) / 2);
+  categoryNav.scrollTo({
+    left: Math.max(0, centeredScrollLeft),
+    behavior: "auto",
+  });
+}
+
+function selectCategory(categoryId, { focusActiveChip = false } = {}) {
+  activeCategory = categoryId;
+  syncCategoryHash(categoryId);
+  updateCategoryNavState();
+  revealActiveCategory();
+  renderMenu();
+
+  if (focusActiveChip) {
+    const activeChip = Array.from(categoryNav.querySelectorAll(".menu-category-chip"))
+      .find((button) => button.dataset.categoryId === activeCategory);
+    activeChip?.focus({ preventScroll: true });
+  }
+
+  const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  document.querySelector(".full-menu-wrap")?.scrollIntoView({
+    behavior: prefersReducedMotion ? "auto" : "smooth",
+    block: "start"
+  });
 }
 
 function renderCategoryNav() {
@@ -218,36 +285,34 @@ function renderCategoryNav() {
     button.type = "button";
     button.className = "menu-category-chip";
     button.textContent = option.label;
+    button.dataset.categoryId = option.id;
     const active = option.id === activeCategory;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
-      activeCategory = option.id;
-      syncCategoryHash(option.id);
-      renderCategoryNav();
-      renderMenu();
-      document.querySelector(".full-menu-wrap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      selectCategory(option.id);
     });
     categoryNav.append(button);
   });
+
+  updateCategoryNavState();
+  revealActiveCategory();
 }
 
 function renderMenu() {
   menuRoot.replaceChildren();
-  const categories = menuCategories.filter((category) => {
-    const matchesCategory = activeCategory === "all" || activeCategory === category.id;
-    return matchesCategory && matchesSearch(category);
-  });
+  const categories = menuCategories.filter((category) => activeCategory === "all" || activeCategory === category.id);
 
-  let rendered = 0;
+  let renderedItems = 0;
   categories.forEach((category) => {
-    const section = createCategory(category);
-    if (!section) return;
-    menuRoot.append(section);
-    rendered += 1;
+    const renderedCategory = createCategory(category);
+    if (!renderedCategory) return;
+    menuRoot.append(renderedCategory.section);
+    renderedItems += renderedCategory.itemCount;
   });
 
-  emptyState.hidden = rendered > 0;
+  emptyState.hidden = renderedItems > 0;
+  resultsStatus.textContent = behaviorCopy[language].results(renderedItems);
 }
 
 function translateStaticPage() {
@@ -263,6 +328,9 @@ function translateStaticPage() {
   searchInput.setAttribute("aria-label", copy.searchLabel);
   searchInput.placeholder = copy.searchPlaceholder;
   categoryNav.setAttribute("aria-label", copy.categories);
+  showAllButton.textContent = behaviorCopy[language].showAll;
+  routeQuick?.setAttribute("aria-label", copy.route);
+  if (routeQuickShort) routeQuickShort.textContent = behaviorCopy[language].routeShort;
 
   languageButtons.forEach((button) => {
     const active = button.dataset.lang === language;
@@ -287,6 +355,12 @@ languageButtons.forEach((button) => {
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value;
   renderMenu();
+});
+
+showAllButton.addEventListener("click", () => {
+  searchInput.value = "";
+  searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+  selectCategory("all", { focusActiveChip: true });
 });
 
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());

@@ -55,6 +55,12 @@
   margin: 0;
 }
 
+/* The later brand layer styles this exact control as inline-flex. */
+#next-pairing.quiet-button[hidden],
+#mark-discovered.text-button[hidden] {
+  display: none !important;
+}
+
 @keyframes pairing-poster-reveal {
   from {
     opacity: 0;

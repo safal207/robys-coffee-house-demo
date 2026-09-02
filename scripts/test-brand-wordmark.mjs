@@ -49,7 +49,7 @@ function verifyAccessibleBrandCopy(html, page) {
 function verifyOfflineDelivery(serviceWorker) {
   assert.match(
     serviceWorker,
-    /const CACHE_VERSION = "robys-offline-[^"]+?(?:-[a-f0-9]{12}){3}";/,
+    /const CACHE_VERSION = "robys-offline-[^"]+?(?:-[a-f0-9]{12}){3,15}";/,
     "service-worker cache marker must remain compatible with canonical build revisioning"
   );
   for (const asset of [

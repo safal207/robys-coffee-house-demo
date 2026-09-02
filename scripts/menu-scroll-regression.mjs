@@ -166,7 +166,7 @@ try {
     const initial = await readMetrics(page);
     assert(initial.touchSafe, viewport.id, "coarse-pointer safe mode did not activate");
     assert(initial.headerPosition === "static", viewport.id, `header position is ${initial.headerPosition}, expected static`);
-    assert(initial.controlsPosition === "static", viewport.id, `menu controls position is ${initial.controlsPosition}, expected static`);
+    assert(initial.controlsPosition === "sticky", viewport.id, `menu controls position is ${initial.controlsPosition}, expected sticky`);
     assert(initial.scrollWidth <= initial.clientWidth + 1, viewport.id, `horizontal overflow: ${initial.scrollWidth}px > ${initial.clientWidth}px`);
     assert(initial.scrollHeight > initial.innerHeight * 3, viewport.id, "menu is unexpectedly short or failed to render");
     assert(initial.panels.length === expectedPanelCount, viewport.id, `expected ${expectedPanelCount} menu panels from menu-data.js, found ${initial.panels.length}`);

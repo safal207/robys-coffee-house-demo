@@ -53,13 +53,17 @@ jobs:
         working-directory: baseline
         run: npm run build
 
-      - name: Install visual comparison tools
+      - name: Install image comparison tools
         working-directory: current
-        run: npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+        run: npm install --no-save --package-lock=false pixelmatch@6.0.0 pngjs@7.0.0
 
       - name: Install deterministic Chromium
         working-directory: current
         run: npx playwright install --with-deps chromium
+
+      - name: Verify menu interaction and accessibility
+        working-directory: current
+        run: npm run test:menu-ux
 
       - name: Compare screenshots with base branch
         id: screenshot_compare

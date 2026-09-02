@@ -37,52 +37,73 @@ export const menuCopy = {
   }
 };
 
+// A pairing is public only when both its availability and source evidence are explicit.
+// Missing policy entries fail closed so a newly added pairing cannot be promoted by accident.
+export const pairingCommercialPolicy = Object.freeze({
+  "cool-lime-macaron": Object.freeze({
+    availability: "unavailable",
+    sourceStatus: "provisional",
+    availabilityReason: "offer-price-exceeds-components-without-declared-extra-value"
+  }),
+  "iced-san-sebastian": Object.freeze({
+    availability: "available",
+    sourceStatus: "confirmed"
+  })
+});
+
+export function isPublicPairingEligible(journeyId) {
+  const status = journeyId ? pairingCommercialPolicy[journeyId] : undefined;
+  return status?.availability === "available" && status?.sourceStatus === "confirmed";
+}
+
+export const pairingOfferCatalog = [
+  {
+    id: "cool-lime-macaron-pairing",
+    journeyId: "cool-lime-macaron",
+    pricingMode: "provisional-offer",
+    name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
+    description: {
+      tr: "Ferah lime ve yumuşak fıstıklı makaron.",
+      en: "Bright lime and a delicate pistachio macaron.",
+      ru: "Освежающий лайм и нежный фисташковый макарон."
+    },
+    image: "src/products/cards/pairing-cool-lime-macaron.webp",
+    imageAlt: {
+      tr: "Buzlu Cool Lime ve fıstıklı makaron",
+      en: "Iced Cool Lime with a pistachio macaron",
+      ru: "Cool Lime со льдом и фисташковый макарон"
+    },
+    price: 290,
+    ...pairingCommercialPolicy["cool-lime-macaron"]
+  },
+  {
+    id: "iced-san-sebastian-pairing",
+    journeyId: "iced-san-sebastian",
+    pricingMode: "menu-total",
+    name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
+    description: {
+      tr: "Klasik buzlu latte ve kremamsı San Sebastian.",
+      en: "Classic iced latte with creamy San Sebastian cheesecake.",
+      ru: "Классический айс-латте и кремовый чизкейк Сан-Себастьян."
+    },
+    image: "src/products/cards/pairing-iced-san-sebastian.webp",
+    imageAlt: {
+      tr: "Buzlu latte ve San Sebastian cheesecake",
+      en: "Iced latte with San Sebastian cheesecake",
+      ru: "Айс-латте и чизкейк Сан-Себастьян"
+    },
+    price: 370,
+    ...pairingCommercialPolicy["iced-san-sebastian"]
+  }
+];
+
 export const menuCategories = [
   {
     id: "pairing-offers",
     icon: "✨",
     name: { tr: "Taste Journey Eşleşmeleri", en: "Taste Journey Pairings", ru: "Сочетания Taste Journey" },
     lead: { tr: "Anınız için seçilmiş içecek ve tatlı eşleşmeleri.", en: "Drink and dessert pairings selected for your moment.", ru: "Идеальные сочетания напитков и десертов для вашего момента." },
-    items: [
-
-{
-  id: "cool-lime-macaron-pairing",
-  journeyId: "cool-lime-macaron",
-  pricingMode: "approved-offer",
-  name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
-  description: {
-    tr: "Ferah lime ve yumuşak fıstıklı makaron.",
-    en: "Bright lime and a delicate pistachio macaron.",
-    ru: "Освежающий лайм и нежный фисташковый макарон."
-  },
-  image: "src/products/cards/pairing-cool-lime-macaron.webp",
-  imageAlt: {
-    tr: "Buzlu Cool Lime ve fıstıklı makaron",
-    en: "Iced Cool Lime with a pistachio macaron",
-    ru: "Cool Lime со льдом и фисташковый макарон"
-  },
-  price: 290
-},
-
-{
-  id: "iced-san-sebastian-pairing",
-  journeyId: "iced-san-sebastian",
-  pricingMode: "menu-total",
-  name: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
-  description: {
-    tr: "Klasik buzlu latte ve kremamsı San Sebastian.",
-    en: "Classic iced latte with creamy San Sebastian cheesecake.",
-    ru: "Классический айс-латте и кремовый чизкейк Сан-Себастьян."
-  },
-  image: "src/products/cards/pairing-iced-san-sebastian.webp",
-  imageAlt: {
-    tr: "Buzlu latte ve San Sebastian cheesecake",
-    en: "Iced latte with San Sebastian cheesecake",
-    ru: "Айс-латте и чизкейк Сан-Себастьян"
-  },
-  price: 370
-}
-    ]
+    items: pairingOfferCatalog.filter((offer) => isPublicPairingEligible(offer.journeyId))
   },
   {
     id: "hot-coffee",

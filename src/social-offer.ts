@@ -167,11 +167,10 @@ function renderSmartChoiceEntry() {
   const heroActions = document.querySelector<HTMLElement>(".hero-actions");
   if (!heroActions || heroActions.querySelector("[data-smart-choice-entry]")) return;
 
-  const existingPrimary = heroActions.querySelector<HTMLElement>(".button-primary");
-  existingPrimary?.classList.replace("button-primary", "button-ghost");
+  const fullMenuLink = heroActions.querySelector<HTMLElement>('[href="menu.html"]');
 
   const link = document.createElement("a");
-  link.className = "button button-primary";
+  link.className = "button button-ghost";
   link.href = "smart-choice/";
   link.dataset.smartChoiceEntry = "";
   link.dataset.analyticsAction = "smart_choice_start";
@@ -179,7 +178,8 @@ function renderSmartChoiceEntry() {
   const label = localizedElement("span", "smart-choice-entry-label", SMART_CHOICE_LINK);
   label.textContent = SMART_CHOICE_LINK[storedLanguage()];
   link.append(label);
-  heroActions.prepend(link);
+  if (fullMenuLink) fullMenuLink.after(link);
+  else heroActions.append(link);
 }
 
 function renderHomepageEnhancements() {

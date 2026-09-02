@@ -11,6 +11,8 @@ const baselineDir = path.resolve(process.env.VISUAL_BASELINE_DIR ?? path.join(pr
 const resultsDir = path.resolve(process.env.VISUAL_RESULTS_DIR ?? path.join(process.cwd(), "visual-results"));
 const currentPort = Number(process.env.VISUAL_CURRENT_PORT ?? 4173);
 const baselinePort = Number(process.env.VISUAL_BASELINE_PORT ?? 4174);
+const pythonExecutable = process.env.VISUAL_PYTHON?.trim()
+  || (process.platform === "win32" ? "python" : "python3");
 const fixedNow = Date.parse("2026-07-01T12:00:00+03:00");
 
 const output = {
@@ -24,7 +26,7 @@ Object.values(output).forEach((directory) => mkdirSync(directory, { recursive: t
 
 function startServer(directory, port) {
   const processHandle = spawn(
-    "python3",
+    pythonExecutable,
     ["-m", "http.server", String(port), "--bind", "127.0.0.1"],
     { cwd: directory, stdio: ["ignore", "pipe", "pipe"] }
   );

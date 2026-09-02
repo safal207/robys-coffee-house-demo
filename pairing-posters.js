@@ -1,12 +1,4 @@
 const priceMeta = {
-  "cool-lime-macaron": {
-    oldPrice: "340 ₺",
-    chips: {
-      tr: ["Fresh lime", "Fıstıklı makaron", "Perfect match"],
-      en: ["Fresh lime", "Pistachio macaron", "Perfect match"],
-      ru: ["Fresh lime", "Pistachio macaron", "Perfect match"]
-    }
-  },
   "iced-san-sebastian": {
     chips: {
       tr: ["Iced latte", "San Sebastian", "Creamy moment"],

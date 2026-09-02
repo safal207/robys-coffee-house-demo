@@ -6,7 +6,7 @@ const required = [
   "src/smart-choice/revenue-simulator.ts",
   "smart-choice/simulator.html",
   "smart-choice/simulator.css",
-  "smart-choice/simulator.js"
+  "smart-choice/simulator-runtime.js"
 ];
 for (const file of required) assert.ok(existsSync(file), `${file} is missing`);
 
@@ -14,12 +14,13 @@ const html = readFileSync("smart-choice/simulator.html", "utf8");
 const css = readFileSync("smart-choice/simulator.css", "utf8");
 const source = readFileSync("src/smart-choice/revenue-simulator.ts", "utf8");
 const domain = readFileSync("src/smart-choice/revenue-simulator-domain.ts", "utf8");
-const bundle = readFileSync("smart-choice/simulator.js", "utf8");
+const bundle = readFileSync("smart-choice/simulator-runtime.js", "utf8");
+const buildSource = readFileSync("scripts/build-smart-choice-revenue-simulator.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 
 assert.match(html, /meta name="robots" content="noindex,nofollow,noarchive"/, "owner tool must not be indexed");
 assert.match(html, /connect-src 'none'/, "simulator must not send data to a network endpoint");
-assert.match(html, /src="simulator\.js\?v=[a-f0-9]{12}"/, "simulator bundle revision must be synchronized");
+assert.match(html, /src="simulator-runtime\.js\?v=[a-f0-9]{12}"/, "simulator bundle revision must be synchronized");
 assert.match(html, /href="simulator\.css\?v=[a-f0-9]{12}"/, "simulator CSS revision must be synchronized");
 assert.match(html, /id="revenue-simulator-form"/, "owner input form is missing");
 assert.match(html, /id="revenue-simulator-status"[^>]*role="status"[^>]*aria-live="polite"/, "accessible live status is missing");
@@ -63,9 +64,10 @@ assert.ok(packageJson.scripts["test:smart-choice-revenue-simulator"], "revenue s
 assert.ok(packageJson.scripts["verify:smart-choice-revenue-simulator"], "revenue simulator verify command is missing");
 assert.ok(packageJson.scripts.build.includes("test:smart-choice-revenue-simulator"), "build must execute simulator arithmetic tests");
 assert.ok(packageJson.scripts.build.includes("verify:smart-choice-revenue-simulator"), "build must verify generated simulator assets");
-assert.ok(packageJson.scripts.check.includes("smart-choice/simulator.js"), "check must syntax-check simulator bundle");
+assert.ok(packageJson.scripts.check.includes("smart-choice/simulator-runtime.js"), "check must syntax-check simulator bundle");
+assert.ok(buildSource.includes('outfile: "smart-choice/simulator-runtime.js"'), "simulator builder must emit the novel rollout pathname directly");
 
-assert.ok(statSync("smart-choice/simulator.js").size <= 100_000, "simulator JS exceeds the 100 KB owner-tool budget");
+assert.ok(statSync("smart-choice/simulator-runtime.js").size <= 100_000, "simulator JS exceeds the 100 KB owner-tool budget");
 assert.ok(statSync("smart-choice/simulator.css").size <= 80_000, "simulator CSS exceeds the 80 KB owner-tool budget");
 assert.ok(statSync("smart-choice/simulator.html").size <= 30_000, "simulator HTML exceeds the 30 KB owner-tool budget");
 assert.ok(bundle.length > 5_000, "generated simulator bundle is unexpectedly small");

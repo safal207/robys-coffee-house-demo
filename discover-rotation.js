@@ -23,12 +23,6 @@ const posters = {
         id: "relax-lotus",
         source: posterSource("relax-lotus"),
         alt: localized("Relax Tea ve Lotus Cheesecake eşleşmesi posteri", "Relax Tea and Lotus Cheesecake pairing poster", "Постер сочетания Relax Tea и чизкейка Lotus")
-    },
-    "cool-lime-macaron": {
-        id: "cool-lime-macaron",
-        source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
-        alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона"),
-        price: localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")
     }
 };
 function currentLanguage() {

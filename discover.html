@@ -16,7 +16,7 @@
   <link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />
   <link rel="stylesheet" href="styles.css?v=20260627-discovery-1" />
   <link rel="stylesheet" href="discover.css?v=27f4dfa8c27e" />
-  <link rel="stylesheet" href="discover-rotation.css?v=96b566c9731e" />
+  <link rel="stylesheet" href="discover-rotation.css?v=08a6bd177dd9" />
   <link id="robys-wordmark-responsive" rel="stylesheet" href="wordmark-responsive.css?v=20260704-1" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260726-approved-v4" />
 </head>
@@ -68,7 +68,7 @@
             <p class="discover-eyebrow" data-copy="todayEyebrow">BUGÜNÜN TANIŞMASI</p>
             <h2 id="pairing-title" data-copy="todayTitle">Şu an için güzel bir ikili</h2>
           </div>
-          <button class="quiet-button" id="next-pairing" type="button" data-copy="another">Başka bir eşleşme</button>
+          <button class="quiet-button" id="next-pairing" type="button" data-copy="another" hidden>Başka bir eşleşme</button>
         </div>
 
         <article class="pairing-card" id="pairing-card" aria-live="polite">
@@ -88,7 +88,7 @@
               <p id="pairing-reason"></p>
               <div class="pairing-actions">
                 <a class="button button-primary" id="pairing-menu-link" href="menu.html" data-copy="seeInMenu">Menüde gör</a>
-                <button class="text-button" id="mark-discovered" type="button" data-copy="markDiscovered">Bunu tanıdım</button>
+                <button class="text-button" id="mark-discovered" type="button" data-copy="markDiscovered" hidden>Bunu tanıdım</button>
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@
   </footer>
 
   <script defer src="discover-weather-guard.js?v=20260629-1"></script>
-  <script type="module" src="discover-v2.js?v=10750cdfa32c"></script>
-  <script defer src="discover-rotation-v3.js?v=58d387ca0c01"></script>
+  <script type="module" src="discover-runtime.js?v=78efd00b201f"></script>
+  <script defer src="discover-rotation-v3.js?v=fac98685082e"></script>
 </body>
 </html>

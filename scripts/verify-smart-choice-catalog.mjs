@@ -1,4 +1,5 @@
 import { build } from "esbuild";
+import { readFileSync } from "node:fs";
 import ts from "typescript";
 
 function assert(condition, message) {
@@ -58,6 +59,24 @@ const {
 const diagnostics = validateSmartChoiceCatalog(SMART_CHOICE_CATALOG);
 const errors = diagnostics.filter((entry) => entry.severity === "error");
 const warnings = diagnostics.filter((entry) => entry.severity === "warning");
+
+const menuSource = readFileSync("menu-data.js", "utf8");
+const menuModuleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
+const { pairingOfferCatalog, isPublicPairingEligible } = await import(menuModuleUrl);
+const sourceCoolLime = pairingOfferCatalog.find((offer) => offer.journeyId === "cool-lime-macaron");
+const smartChoiceCoolLime = SMART_CHOICE_CATALOG.combos.find(
+  (combo) => combo.id === "combo-cool-lime-macaron"
+);
+
+assert(sourceCoolLime, "Cool Lime + Macaron source evidence is missing");
+assert(smartChoiceCoolLime, "Cool Lime + Macaron Smart Choice combo is missing");
+assert(
+  smartChoiceCoolLime.sourceStatus === sourceCoolLime.sourceStatus &&
+    smartChoiceCoolLime.availability === sourceCoolLime.availability &&
+    smartChoiceCoolLime.blockedReason === sourceCoolLime.availabilityReason,
+  "Smart Choice must derive Cool Lime commercial status from menu-data.js"
+);
+assert(!isPublicPairingEligible(sourceCoolLime.journeyId), "Cool Lime source must fail public eligibility");
 
 assert(errors.length === 0, `Current catalog has errors:\n${JSON.stringify(errors, null, 2)}`);
 assert(
@@ -119,7 +138,7 @@ assert(
 );
 
 const provisionalLeak = clone(SMART_CHOICE_CATALOG);
-provisionalLeak.combos[1].availability = "available";
+provisionalLeak.combos.find((combo) => combo.id === "combo-cool-lime-macaron").availability = "available";
 assert(
   validateSmartChoiceCatalog(provisionalLeak).some(
     (entry) => entry.code === "SC-CATALOG-ELIGIBILITY-002" && entry.severity === "error"

@@ -8,6 +8,7 @@ const port = Number(process.env.UI_UX_PORT ?? 4191);
 const resultsDir = path.resolve(process.env.UI_UX_RESULTS_DIR ?? "visual-results/ui-ux-matrix");
 const requestedProfile = process.env.UI_UX_PROFILE?.trim();
 const maxAttempts = Number(process.env.UI_UX_ATTEMPTS ?? config.maxAttempts ?? 2);
+const pythonExecutable = process.env.UI_UX_PYTHON?.trim() || (process.platform === "win32" ? "python" : "python3");
 const canonicalInstagram = "https://www.instagram.com/robyscoffeehouse/";
 const fixedNow = Date.parse("2026-07-01T12:00:00+03:00");
 
@@ -36,7 +37,7 @@ rmSync(resultsDir, { recursive: true, force: true });
 mkdirSync(resultsDir, { recursive: true });
 
 function startServer() {
-  const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "127.0.0.1"], {
+  const server = spawn(pythonExecutable, ["-m", "http.server", String(port), "--bind", "127.0.0.1"], {
     cwd: process.cwd(),
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -289,16 +290,24 @@ async function exerciseDiscover(page) {
   const pairing = page.locator("#pairing-products");
   const firstId = await pairing.getAttribute("data-pairing-id");
   assert(firstId, "discover: initial pairing id is missing");
-  await page.locator("#next-pairing").click();
-  await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, firstId);
-  const secondId = await pairing.getAttribute("data-pairing-id");
-  assert(secondId && secondId !== firstId, "discover: another-pairing action did not change the pairing");
+  const nextPairing = page.locator("#next-pairing");
+  const hasRotation = await nextPairing.isVisible();
+  if (hasRotation) {
+    await nextPairing.click();
+    await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, firstId);
+    const secondId = await pairing.getAttribute("data-pairing-id");
+    assert(secondId && secondId !== firstId, "discover: another-pairing action did not change the pairing");
+  }
   const mark = page.locator("#mark-discovered");
   if (!(await mark.isDisabled())) await mark.click();
-  const beforeRecheck = await pairing.getAttribute("data-pairing-id");
-  await page.locator("#next-pairing").click();
-  await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, beforeRecheck);
-  assert(await pairing.getAttribute("data-pairing-id") !== beforeRecheck, "discover: rotation collapsed after discovery");
+  if (hasRotation) {
+    const beforeRecheck = await pairing.getAttribute("data-pairing-id");
+    await nextPairing.click();
+    await page.waitForFunction((previous) => document.querySelector("#pairing-products")?.getAttribute("data-pairing-id") !== previous, beforeRecheck);
+    assert(await pairing.getAttribute("data-pairing-id") !== beforeRecheck, "discover: rotation collapsed after discovery");
+  } else {
+    assert(await nextPairing.isHidden(), "discover: inactive single-journey rotation control must stay hidden");
+  }
   await page.locator('.lang-button[data-lang="ru"]').click();
   assert(await page.evaluate(() => document.documentElement.lang === "ru"), "discover: RU language switch failed");
 }
