@@ -75,6 +75,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toStrin
 const { menuCategories } = await import(moduleUrl);
 const menuRuntime = readFileSync("menu-page.js", "utf8");
 const menuStyles = readFileSync("menu.css", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
 const expectedMenuFiles = productCategories.flatMap((category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
@@ -105,7 +106,8 @@ for (const fragment of [
   "src/products/menu-v1/${categoryId}--${imageSlug(item.name.en)}.webp",
   '"full-menu-item full-menu-item--product"',
   "createGroup({ ...group, items }, category.id)",
-  "image.loading = priority ? \"eager\" : \"lazy\""
+  "image.loading = priority ? \"eager\" : \"lazy\"",
+  'image.alt = pairing ? localized(item.imageAlt ?? item.name) : ""'
 ]) {
   if (!menuRuntime.includes(fragment)) fail(`menu-page.js does not wire product photos: ${fragment}`);
 }
@@ -123,6 +125,22 @@ for (const id of ["cool-lime-macaron", "iced-san-sebastian"]) {
   if (item?.image !== `src/products/sets-v1/${id}.webp`) {
     fail(`active pairing ${id} does not use its clean set photo`);
   }
+  if (!serviceWorker.includes(`"./src/products/sets-v1/${id}.webp"`)) {
+    fail(`service worker does not precache active pairing ${id}`);
+  }
+}
+
+for (const fileName of expectedMenuFiles) {
+  if (!serviceWorker.includes(`"./src/products/menu-v1/${fileName}"`)) {
+    fail(`service worker does not precache individual menu photo ${fileName}`);
+  }
+}
+if (serviceWorker.includes("./src/products/cards/pairing-")) {
+  fail("service worker retains obsolete pairing-card precache paths");
+}
+const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "robys-offline-v(\d+)-(\d{8})-[a-z0-9-]+";/)?.slice(1).map(Number);
+if (!cacheVersion || cacheVersion[0] < 40 || cacheVersion[1] < 20260903) {
+  fail("service-worker cache was not advanced for the complete menu photography rollout");
 }
 
 const digests = new Map();

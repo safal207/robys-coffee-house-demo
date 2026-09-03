@@ -103,7 +103,7 @@ function createItem(item, { priority = false, categoryId } = {}) {
 
     const image = document.createElement("img");
     image.src = productImage(categoryId, item);
-    image.alt = localized(item.imageAlt ?? item.name);
+    image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
     image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
     if (priority) image.fetchPriority = "high";
