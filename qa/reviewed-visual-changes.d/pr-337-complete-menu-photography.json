@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-337-complete-branded-menu-photography",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/337#issuecomment-5526776927",
+      "contentBindings": {
+        "menu-data.js": "a1cb94bbdab0352412dd2edf4c3afac98bb8a716",
+        "menu-page.js": "706e5211586442cdf62213709d7480d97c179204",
+        "menu.css": "b8caa118b84f974759d40e8fa2279093976448f8",
+        "src/products/menu-v1/brew-hot--black-tea.webp": "d670e391badd6d822dbcac32e7e12a0e49ffdd43",
+        "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "9f83f8e9dc127b3327e69e66c1916e63724c3f83",
+        "src/products/menu-v1/brew-hot--filter-coffee.webp": "2a1713ab0be689516f5b5ec74244bbb691825a9d",
+        "src/products/menu-v1/brew-hot--hot-chocolate.webp": "64d740c4175d600ed2fec960bca2e53c353135da",
+        "src/products/menu-v1/brew-hot--milk.webp": "0f5f0cdee1f71ed8e72b564792c3c9e6fe44f170",
+        "src/products/menu-v1/brew-hot--salep.webp": "e4918578c5c0d961f8c17d8c44b705741c6c7fcb",
+        "src/products/menu-v1/brew-hot--turkish-coffee.webp": "cd09128bca95f1fe1ae66dfdd7a9d7023de8ff19",
+        "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp": "783724d456e646095a6d8cd9971f3a4da56be806",
+        "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp": "3a21e214c4eb0245522c7de925d296969bd8790b",
+        "src/products/menu-v1/cold-coffee--iced-americano.webp": "5e862838b1272633edc6f288555d2fcce5861d1d",
+        "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": "b68f148133697d190551d3ca36c02d3ac70b6662",
+        "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": "97ed4219f03ba9741b68e70f8233035efe4fe2ad",
+        "src/products/menu-v1/cold-coffee--iced-mocha.webp": "8cf53b16f7b5c4e91b284ea530bc6dbaa702748e",
+        "src/products/menu-v1/cold-coffee--milkshake.webp": "4cef8963bed6869026bfd85dff18d718fbc755c2",
+        "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp": "ebf4ac67a4c2de73d0c9508a8b3934b28f90a3c2",
+        "src/products/menu-v1/desserts--almond-tart.webp": "42569edb231e5a0aa68a25601cf2fb0c552af326",
+        "src/products/menu-v1/desserts--brownie.webp": "a152f245b19724d4db8eff389268f25d6875b2ee",
+        "src/products/menu-v1/desserts--cake-roll.webp": "4e55458cf7566b2a210f2af9a09513c824fc39fb",
+        "src/products/menu-v1/desserts--chocolate-cake.webp": "9d8309446574d0397f654ac238e6155b9b760615",
+        "src/products/menu-v1/desserts--cookie.webp": "6de63cc5b29ec67bebbeaf1ec4b51ecf6453d09d",
+        "src/products/menu-v1/desserts--lotus-cheesecake.webp": "8bf7ffc18ae523f682ceb1f605d51d1c31591e10",
+        "src/products/menu-v1/desserts--macaron.webp": "fc7f833f3eb91910926a80c2515cca00ff32f3e2",
+        "src/products/menu-v1/desserts--mosaic-cake.webp": "ad9ac222169e3d60c4dec513be14c490f8a6166a",
+        "src/products/menu-v1/desserts--raspberry-cheesecake.webp": "524d4a7bf40ec87269b7c0aabf2abf9ba707b9f7",
+        "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": "cd13536a793388fa3e3fe9b39a097a0da456cadd",
+        "src/products/menu-v1/desserts--savoury-cookie.webp": "a2d664e9db8f5337f545eb97814d3c2bd5f885d6",
+        "src/products/menu-v1/desserts--tiramisu.webp": "0cf8725669332239c80d4d340f5e0b993aa470c8",
+        "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": "0e6958af46149ea068bc1f3a47ce2ebd025ed13a",
+        "src/products/menu-v1/food--nutella-croissant.webp": "19b026ec4fdac8afc1625fb607e3ae8a0e71d6ff",
+        "src/products/menu-v1/food--sesame-simit.webp": "8217a24ad37ba9401f8226cfa80d2c9eaeb15308",
+        "src/products/menu-v1/food--three-cheese-croissant.webp": "b11e6a92ea44cc842079427594c85e1aab67d080",
+        "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": "2355e7e17c75e4cea54947d8d0d4aab16f33ce05",
+        "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": "a262aa89b36b3709566e43a180cc639f563d146d",
+        "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp": "af8995270b6b777189793897b34d615de5849494",
+        "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp": "ddfb1ecc149201f348221cfc2655f08e24721326",
+        "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": "8c0636b0aa88eb236389e98f7370cff3078ad756",
+        "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp": "ab2120cfaa3f97000bf5075c50c27a43c69f6f64",
+        "src/products/menu-v1/hot-coffee--americano.webp": "d301b03cc9d2cf2cb06baefba8f028f4278bbf04",
+        "src/products/menu-v1/hot-coffee--caffe-latte.webp": "6702e3b3527bd8344edecb2a254d9184c64cef92",
+        "src/products/menu-v1/hot-coffee--caffe-mocha.webp": "88fef6fc9da5cdd462199340de983a4f4fa6c45b",
+        "src/products/menu-v1/hot-coffee--cappuccino.webp": "60dc20655eeb07fe0607f8d50b13a98cf52cd286",
+        "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": "6d09c966e48b2e581a2eea9ee630b5e0bccfa668",
+        "src/products/menu-v1/hot-coffee--caramel-latte.webp": "dd0afb6d5b2ba2c4348f4c547fd0d2a2bf835330",
+        "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": "3b0a52b0f997289a8e057e6cb118c655fecbf653",
+        "src/products/menu-v1/hot-coffee--cinnamon-latte.webp": "09d11cb972e9fc383e70e8f94e3c553686963085",
+        "src/products/menu-v1/hot-coffee--cortado.webp": "285dac10b17d4a7fed459a18d12ac59c776bedb7",
+        "src/products/menu-v1/hot-coffee--espresso-macchiato.webp": "48776a57c92644c830e902f8c3fd6f9f207ee3ef",
+        "src/products/menu-v1/hot-coffee--espresso.webp": "a0dd681d1fc560b794d3e6d5d23bbfc25f0d4d18",
+        "src/products/menu-v1/hot-coffee--flat-white.webp": "9be0e89d67f40e8beed730be395b7c2ffa8fb740",
+        "src/products/menu-v1/hot-coffee--hazelnut-latte.webp": "d4e59a4de7ab99efd86a718b3c663218120dc4fa",
+        "src/products/menu-v1/hot-coffee--vanilla-latte.webp": "ee387a80ba93212ca6a41fcd05e94c496d6e09c3",
+        "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": "bd83e49882a9cc70d9ce3c31924cb88bddd19832",
+        "src/products/menu-v1/refreshers--berry-hibiscus.webp": "75b04752bf74e35307632f006258c5d66f2da3b0",
+        "src/products/menu-v1/refreshers--berry-lemonade.webp": "22d5405759d6d3b66e9cfacd7eeb64dc35199df7",
+        "src/products/menu-v1/refreshers--cool-lime.webp": "0795da16dd7c4f68062cbb4dbaeb44d650b38ae1",
+        "src/products/menu-v1/refreshers--mango-passionfruit.webp": "6324ee071cfed13d1d86d0f6f91cb45ea9e1127f",
+        "src/products/menu-v1/refreshers--pineapple-berry.webp": "b249eade545182451af0457d787e5a3f807e1ff2",
+        "src/products/menu-v1/refreshers--strawberry-lime.webp": "a025a3d86f19ec1135a9841ce1ccdbbf62ae11e7",
+        "src/products/menu-v1/refreshers--summer-pine.webp": "cf30ebadb6211e42612ac44f2d768933c5901ec0",
+        "src/products/menu-v1/refreshers--tropical-mango.webp": "c92608ab411c2df31ded50fcecb3b7a007b90c6a",
+        "src/products/menu-v1/refreshers--yuzu-popcorn.webp": "3553883a50116faee4358809a1e45190fd7be4f5",
+        "src/products/sets-v1/cool-lime-macaron.webp": "dd7147898ce753bed4e477d3d25177594d8f3d82",
+        "src/products/sets-v1/filter-lotus.webp": "3eb32f0ecafa2d0f7c1869574b4d1ba6020f0d2f",
+        "src/products/sets-v1/iced-san-sebastian.webp": "5b97fce642c626311b77af03f1482e4dc9517bd5",
+        "src/products/sets-v1/latte-nutella.webp": "1949d0a0b927237e208f3ac5a971d23b8fb57e2e",
+        "src/products/sets-v1/relax-lotus.webp": "18a6bc096e572b54ac2dc803c329a413ea29b059"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x6407 vs 320x11632"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x533 vs 280x534"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 162560,
+          "maxDiffPixelRatio": 0.00455
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x6211 vs 390x11366"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 177800,
+          "maxDiffPixelRatio": 0.01356
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7118 vs 768x13145"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 728x430 vs 728x431"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1180x314 vs 1180x313"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x4868 vs 1440x9046"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1180x319 vs 1180x320"
+        }
+      ]
+    }
+  ]
+}
