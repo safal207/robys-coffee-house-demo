@@ -72,7 +72,7 @@ function productImage(categoryId, item) {
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = Boolean(item.image);
   const visual = pairing || Boolean(categoryId);
-  const row = document.createElement(visual ? "article" : "div");
+  const row = document.createElement(pairing ? "article" : "div");
   row.className = pairing
     ? "full-menu-item full-menu-item--visual"
     : visual

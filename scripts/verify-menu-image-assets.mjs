@@ -104,6 +104,7 @@ if (JSON.stringify(actualSetFiles) !== JSON.stringify(expectedSetFiles)) {
 for (const fragment of [
   "function productImage(categoryId, item)",
   "src/products/menu-v1/${categoryId}--${imageSlug(item.name.en)}.webp",
+  'document.createElement(pairing ? "article" : "div")',
   '"full-menu-item full-menu-item--product"',
   "createGroup({ ...group, items }, category.id)",
   "image.loading = priority ? \"eager\" : \"lazy\"",

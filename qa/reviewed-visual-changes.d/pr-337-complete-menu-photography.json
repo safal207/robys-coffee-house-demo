@@ -3,10 +3,10 @@
   "reviewedChanges": [
     {
       "id": "pr-337-complete-branded-menu-photography",
-      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/337#issuecomment-5526883039",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/337#issuecomment-5527094701",
       "contentBindings": {
         "menu-data.js": "a1cb94bbdab0352412dd2edf4c3afac98bb8a716",
-        "menu-page.js": "b2caecebaaad7341317e740b455e687c90a65b38",
+        "menu-page.js": "44b78ba82509b3cda59862b8eef1cdecff3b61b6",
         "menu.css": "b8caa118b84f974759d40e8fa2279093976448f8",
         "src/products/menu-v1/brew-hot--black-tea.webp": "d670e391badd6d822dbcac32e7e12a0e49ffdd43",
         "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "9f83f8e9dc127b3327e69e66c1916e63724c3f83",
