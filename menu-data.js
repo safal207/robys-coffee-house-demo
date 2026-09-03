@@ -55,7 +55,7 @@ export const menuCategories = [
     en: "Bright lime and a delicate pistachio macaron.",
     ru: "Освежающий лайм и нежный фисташковый макарон."
   },
-  image: "src/products/cards/pairing-cool-lime-macaron.webp",
+  image: "src/products/sets-v1/cool-lime-macaron.webp",
   imageAlt: {
     tr: "Buzlu Cool Lime ve fıstıklı makaron",
     en: "Iced Cool Lime with a pistachio macaron",
@@ -74,7 +74,7 @@ export const menuCategories = [
     en: "Classic iced latte with creamy San Sebastian cheesecake.",
     ru: "Классический айс-латте и кремовый чизкейк Сан-Себастьян."
   },
-  image: "src/products/cards/pairing-iced-san-sebastian.webp",
+  image: "src/products/sets-v1/iced-san-sebastian.webp",
   imageAlt: {
     tr: "Buzlu latte ve San Sebastian cheesecake",
     en: "Iced latte with San Sebastian cheesecake",

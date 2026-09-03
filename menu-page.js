@@ -56,11 +56,29 @@ function formatPrice(price) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} ₺`;
 }
 
-function createItem(item, { priority = false } = {}) {
-  const visual = Boolean(item.image);
-  const row = document.createElement(visual ? "article" : "div");
-  row.className = visual ? "full-menu-item full-menu-item--visual" : "full-menu-item";
-  if (visual) row.dataset.pairing = item.journeyId ?? item.id;
+function imageSlug(value) {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function productImage(categoryId, item) {
+  return item.image ?? `src/products/menu-v1/${categoryId}--${imageSlug(item.name.en)}.webp`;
+}
+
+function createItem(item, { priority = false, categoryId } = {}) {
+  const pairing = Boolean(item.image);
+  const visual = pairing || Boolean(categoryId);
+  const row = document.createElement(pairing ? "article" : "div");
+  row.className = pairing
+    ? "full-menu-item full-menu-item--visual"
+    : visual
+      ? "full-menu-item full-menu-item--product"
+      : "full-menu-item";
+  if (pairing) row.dataset.pairing = item.journeyId ?? item.id;
 
   const copy = document.createElement("div");
   copy.className = "full-menu-item-copy";
@@ -84,8 +102,8 @@ function createItem(item, { priority = false } = {}) {
     media.className = "full-menu-item-media";
 
     const image = document.createElement("img");
-    image.src = item.image;
-    image.alt = localized(item.imageAlt ?? item.name);
+    image.src = productImage(categoryId, item);
+    image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
     image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
     if (priority) image.fetchPriority = "high";
@@ -107,7 +125,7 @@ function createItem(item, { priority = false } = {}) {
   return row;
 }
 
-function createGroup(group) {
+function createGroup(group, categoryId) {
   const wrapper = document.createElement("div");
   wrapper.className = "full-menu-group";
 
@@ -117,7 +135,7 @@ function createGroup(group) {
 
   const list = document.createElement("div");
   list.className = "full-menu-list";
-  group.items.forEach((item) => list.append(createItem(item)));
+  group.items.forEach((item) => list.append(createItem(item, { categoryId })));
   wrapper.append(list);
   return wrapper;
 }
@@ -189,7 +207,7 @@ function createCategory(category) {
     list.className = "full-menu-list";
     items.forEach((item, index) => {
       const priority = category.id === "pairing-offers" && index === 0;
-      list.append(createItem(item, { priority }));
+      list.append(createItem(item, { priority, categoryId: category.id }));
     });
     section.append(list);
   } else {
@@ -197,7 +215,7 @@ function createCategory(category) {
     category.groups.forEach((group) => {
       const items = filteredItems(group.items);
       if (!items.length) return;
-      section.append(createGroup({ ...group, items }));
+      section.append(createGroup({ ...group, items }, category.id));
       renderedGroups += 1;
     });
     if (!renderedGroups) return null;

@@ -112,6 +112,28 @@ async function scrollToRatio(page, ratio) {
   }, ratio);
 }
 
+async function settleViewportImages(page) {
+  await page.waitForFunction(() => {
+    const visibleImages = Array.from(document.querySelectorAll(".full-menu-item-media img"))
+      .filter((image) => {
+        const rect = image.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
+      });
+    return visibleImages.length > 0
+      && visibleImages.every((image) => image.complete && image.naturalWidth > 0);
+  }, null, { timeout: 15000 });
+
+  await page.evaluate(async () => {
+    const visibleImages = Array.from(document.querySelectorAll(".full-menu-item-media img"))
+      .filter((image) => {
+        const rect = image.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
+      });
+    await Promise.all(visibleImages.map((image) => image.decode()));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+}
+
 function compareScreenshots(beforeBuffer, afterBuffer, diffPath) {
   const before = PNG.sync.read(beforeBuffer);
   const after = PNG.sync.read(afterBuffer);
@@ -180,7 +202,7 @@ try {
     });
 
     await scrollToRatio(page, 0.55);
-    await page.waitForTimeout(80);
+    await settleViewportImages(page);
     const beforePath = path.join(resultsDir, `${viewport.id}-before.png`);
     const afterPath = path.join(resultsDir, `${viewport.id}-after.png`);
     const diffPath = path.join(resultsDir, `${viewport.id}-diff.png`);
@@ -196,7 +218,7 @@ try {
     }
 
     await scrollToRatio(page, 0.55);
-    await page.waitForTimeout(80);
+    await settleViewportImages(page);
     const afterBuffer = await page.screenshot({ path: afterPath, animations: "disabled" });
     const comparison = compareScreenshots(beforeBuffer, afterBuffer, diffPath);
     assert(comparison.passed, viewport.id, `same-position screenshot changed by ${(comparison.diffPixelRatio * 100).toFixed(4)}% after rapid scrolling`);
