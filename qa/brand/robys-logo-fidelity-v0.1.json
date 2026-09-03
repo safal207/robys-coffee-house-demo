@@ -8,7 +8,7 @@
     "scope": "Primary ROBY'S wordmark row normalized into a review mask"
   },
   "target": {
-    "url": "http://127.0.0.1:4173/menu.html",
+    "url": "http://127.0.0.1:4173/menu.html?entry=off",
     "selector": ".menu-page-brand .brand-copy"
   },
   "profiles": [

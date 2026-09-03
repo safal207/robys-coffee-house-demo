@@ -1,0 +1,91 @@
+name: Roby's Menu Truth contract
+
+on:
+  push:
+    branches:
+      - agent/fix-menu-truth-and-journeys
+    paths:
+      - "menu-data.js"
+      - "menu-page.js"
+      - "scripts/menu-page-runtime.mjs"
+      - "menu-integrity.css"
+      - "pairing-posters.js"
+      - "menu.html"
+      - "menu-pwa.js"
+      - "sw.js"
+      - "scripts/build.mjs"
+      - "scripts/menu-truth-model.mjs"
+      - "scripts/verify-menu-truth-and-journey.mjs"
+      - "scripts/test-menu-truth-browser.mjs"
+      - ".github/workflows/robys-menu-truth-contract.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "menu-data.js"
+      - "menu-page.js"
+      - "scripts/menu-page-runtime.mjs"
+      - "menu-integrity.css"
+      - "pairing-posters.js"
+      - "menu.html"
+      - "menu-pwa.js"
+      - "sw.js"
+      - "scripts/build.mjs"
+      - "scripts/menu-truth-model.mjs"
+      - "scripts/verify-menu-truth-and-journey.mjs"
+      - "scripts/test-menu-truth-browser.mjs"
+      - ".github/workflows/robys-menu-truth-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: robys-menu-truth-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Pricing, search, fulfilment, performance and PWA contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+
+      - name: Validate menu truth and journey contracts
+        run: node scripts/verify-menu-truth-and-journey.mjs
+
+  browser-contract:
+    name: Global search and barista browser journey
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install locked Chromium
+        run: npx playwright install chromium
+
+      - name: Validate exact browser journey
+        run: node scripts/test-menu-truth-browser.mjs

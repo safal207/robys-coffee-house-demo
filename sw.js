@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v39-20260809-premium-optics-v23-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v40-20260818-menu-truth-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -19,6 +19,7 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu.css",
+  "./menu-integrity.css",
   "./menu-stability.css",
   "./menu-security.css",
   "./discover.css",
@@ -36,8 +37,8 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-page.js",
-  "./menu-pwa.js",
+  "./menu-page.js?v=a6cffe741bd3",
+  "./menu-pwa.js?v=menu-truth-20260729-2",
   "./menu-data.js",
   "./menu-search-clear.js",
   "./menu-actions.js",
@@ -84,6 +85,8 @@ async function cachedResponse(request) {
   const url = new URL(request.url);
   const requiresExactRevision =
     url.pathname.endsWith("/day-night-entry.js") ||
+    url.pathname.endsWith("/menu-page.js") ||
+    url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
