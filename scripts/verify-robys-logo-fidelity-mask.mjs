@@ -97,6 +97,7 @@ async function capture(browser,cfg,p,out){
 async function main(){
   const a=parse(process.argv.slice(2));for(const k of ['config','chrome','output-dir'])if(!a[k])throw new Error(`--${k} required`);
   const cfg=JSON.parse(await fs.readFile(a.config,'utf8'));assert.equal(cfg.authority.merge,false);assert.equal(cfg.authority.deployment,false);assert(Number.isInteger(cfg.glyph_tolerance_radius_px)&&cfg.glyph_tolerance_radius_px>=0&&cfg.glyph_tolerance_radius_px<=2);
+  assert.equal(new URL(cfg.target.url).searchParams.get('entry'),'off','logo fidelity capture must isolate the wordmark from the independently certified entry overlay');
   const refBytes=await fs.readFile(cfg.reference.mask_path);assert.equal(hash(refBytes),cfg.reference.mask_sha256);const rp=JSON.parse(refBytes);assert.equal(rp.source_sha256,cfg.reference.source_sha256);
   const ref={glyphs:Object.fromEntries(cfg.glyph_order.map(g=>[g,unpack(rp.glyphs[g])])),wordmark:unpack(rp.wordmark)};
   const out=a['output-dir'];await fs.mkdir(out,{recursive:true});const refFile=path.join(out,'reference-normalized.png');await writeMask(ref.wordmark,refFile);
