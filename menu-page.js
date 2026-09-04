@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-data.js";
+import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -7,10 +7,33 @@ const categoryNav = document.querySelector("#menu-category-nav");
 const menuRoot = document.querySelector("#menu-root");
 const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
+const cartTrigger = document.querySelector("#menu-cart-trigger");
+const cartCount = document.querySelector("#menu-cart-count");
+const cartTriggerTotal = document.querySelector("#menu-cart-total");
+const cartStatus = document.querySelector("#menu-cart-status");
+const productDialog = document.querySelector("#menu-product-dialog");
+const productDialogImage = document.querySelector("#menu-product-image");
+const productDialogCategory = document.querySelector("#menu-product-category");
+const productDialogTitle = document.querySelector("#menu-product-title");
+const productDialogDescription = document.querySelector("#menu-product-description");
+const productDialogPrice = document.querySelector("#menu-product-price");
+const productQuantityOutput = document.querySelector("#menu-product-quantity");
+const productDecrease = document.querySelector("#menu-quantity-decrease");
+const productIncrease = document.querySelector("#menu-quantity-increase");
+const addToCartButton = document.querySelector("#menu-add-to-cart");
+const cartDialog = document.querySelector("#menu-cart-dialog");
+const cartLinesRoot = document.querySelector("#menu-cart-lines");
+const cartEmpty = document.querySelector("#menu-cart-empty");
+const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
+
+const CART_STORAGE_KEY = "robys-menu-order.v1";
+const MAX_ITEM_QUANTITY = 99;
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
 let searchTerm = "";
+let selectedProductId = "";
+let selectedProductQuantity = 1;
 
 function readStoredLanguage() {
   try {
@@ -69,6 +92,215 @@ function productImage(categoryId, item) {
   return item.image ?? `src/products/menu-v1/${categoryId}--${imageSlug(item.name.en)}.webp`;
 }
 
+function productId(categoryId, item) {
+  return `${categoryId}:${item.id ?? imageSlug(item.name.en)}`;
+}
+
+function buildProductIndex() {
+  const index = new Map();
+  menuCategories.forEach((category) => {
+    const items = category.items ?? category.groups.flatMap((group) => group.items);
+    items.forEach((item) => {
+      const id = productId(category.id, item);
+      index.set(id, {
+        id,
+        category,
+        item,
+        image: productImage(category.id, item)
+      });
+    });
+  });
+  return index;
+}
+
+const productIndex = buildProductIndex();
+
+function readCart() {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
+    if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
+    const validLines = parsed.lines.filter((line) => (
+      productIndex.has(line?.id) &&
+      Number.isInteger(line.quantity) &&
+      line.quantity > 0 &&
+      line.quantity <= MAX_ITEM_QUANTITY
+    ));
+    return new Map(validLines.map((line) => [line.id, line.quantity]));
+  } catch {
+    return new Map();
+  }
+}
+
+let cart = readCart();
+
+function saveCart() {
+  try {
+    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      lines: Array.from(cart, ([id, quantity]) => ({ id, quantity }))
+    }));
+  } catch {
+    // The order calculator still works when session persistence is unavailable.
+  }
+}
+
+function cartSummary() {
+  let quantity = 0;
+  let total = 0;
+  cart.forEach((lineQuantity, id) => {
+    const product = productIndex.get(id);
+    if (!product) return;
+    quantity += lineQuantity;
+    total += product.item.price * lineQuantity;
+  });
+  return { quantity, total };
+}
+
+function createButton(className, label, listener) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener("click", listener);
+  return button;
+}
+
+function setCartQuantity(id, quantity) {
+  const normalized = Math.max(0, Math.min(MAX_ITEM_QUANTITY, quantity));
+  if (normalized === 0) cart.delete(id);
+  else cart.set(id, normalized);
+  saveCart();
+  renderCart();
+}
+
+function announceCart(message) {
+  cartStatus.textContent = "";
+  window.requestAnimationFrame(() => {
+    cartStatus.textContent = message;
+  });
+}
+
+function renderCart() {
+  const copy = menuCopy[language];
+  const summary = cartSummary();
+  cartCount.textContent = String(summary.quantity);
+  cartTriggerTotal.textContent = formatPrice(summary.total);
+  cartDialogTotal.textContent = formatPrice(summary.total);
+  cartTrigger.classList.toggle("has-items", summary.quantity > 0);
+  cartTrigger.setAttribute(
+    "aria-label",
+    `${copy.cart}: ${summary.quantity} ${copy.itemCount}, ${copy.total} ${formatPrice(summary.total)}`
+  );
+
+  cartLinesRoot.replaceChildren();
+  cartEmpty.hidden = cart.size > 0;
+
+  cart.forEach((lineQuantity, id) => {
+    const product = productIndex.get(id);
+    if (!product) return;
+    const name = localized(product.item.name);
+    const line = document.createElement("article");
+    line.className = "menu-cart-line";
+    line.setAttribute("aria-label", name);
+
+    const image = document.createElement("img");
+    image.src = product.image;
+    image.alt = "";
+    image.width = 128;
+    image.height = 128;
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    const details = document.createElement("div");
+    details.className = "menu-cart-line-details";
+    const title = document.createElement("strong");
+    title.textContent = name;
+    const unit = document.createElement("span");
+    unit.textContent = `${formatPrice(product.item.price)} × ${lineQuantity}`;
+    details.append(title, unit);
+
+    const controls = document.createElement("div");
+    controls.className = "menu-cart-line-controls";
+    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1));
+    decrease.setAttribute("aria-label", `${copy.decrease}: ${name}`);
+    const count = document.createElement("span");
+    count.textContent = String(lineQuantity);
+    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1));
+    increase.setAttribute("aria-label", `${copy.increase}: ${name}`);
+    increase.disabled = lineQuantity >= MAX_ITEM_QUANTITY;
+    const remove = createButton("menu-cart-remove", copy.remove, () => {
+      setCartQuantity(id, 0);
+      announceCart(`${copy.remove}: ${name}`);
+    });
+    remove.setAttribute("aria-label", `${copy.remove}: ${name}`);
+    controls.append(decrease, count, increase, remove);
+
+    const lineTotal = document.createElement("strong");
+    lineTotal.className = "menu-cart-line-total";
+    lineTotal.textContent = formatPrice(product.item.price * lineQuantity);
+    line.append(image, details, controls, lineTotal);
+    cartLinesRoot.append(line);
+  });
+}
+
+function openDialog(dialog) {
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+  document.body.classList.add("menu-dialog-open");
+}
+
+function closeDialog(dialog) {
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+  if (!document.querySelector(".menu-dialog[open]")) {
+    document.body.classList.remove("menu-dialog-open");
+  }
+}
+
+function updateProductQuantity() {
+  const product = productIndex.get(selectedProductId);
+  if (!product) return;
+  const copy = menuCopy[language];
+  productQuantityOutput.textContent = String(selectedProductQuantity);
+  productDecrease.disabled = selectedProductQuantity <= 1;
+  productIncrease.disabled = selectedProductQuantity >= MAX_ITEM_QUANTITY;
+  addToCartButton.textContent = `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
+}
+
+function hydrateProductDialog() {
+  const product = productIndex.get(selectedProductId);
+  if (!product) return;
+  productDialogImage.src = product.image;
+  productDialogImage.alt = localized(product.item.imageAlt ?? product.item.name);
+  productDialogCategory.textContent = localized(product.category.name);
+  productDialogTitle.textContent = localized(product.item.name);
+  productDialogPrice.textContent = formatPrice(product.item.price);
+  const description = localized(product.item.description);
+  productDialogDescription.textContent = description;
+  productDialogDescription.hidden = !description;
+  updateProductQuantity();
+}
+
+function openProduct(id) {
+  if (!productIndex.has(id)) return;
+  selectedProductId = id;
+  selectedProductQuantity = 1;
+  hydrateProductDialog();
+  openDialog(productDialog);
+}
+
+function addSelectedProduct() {
+  const product = productIndex.get(selectedProductId);
+  if (!product) return;
+  const currentQuantity = cart.get(selectedProductId) ?? 0;
+  setCartQuantity(selectedProductId, currentQuantity + selectedProductQuantity);
+  const copy = menuCopy[language];
+  announceCart(`${copy.added}: ${localized(product.item.name)} × ${selectedProductQuantity}`);
+  closeDialog(productDialog);
+  cartTrigger.classList.add("is-emphasized");
+  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
+}
+
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = Boolean(item.image);
   const visual = pairing || Boolean(categoryId);
@@ -98,8 +330,14 @@ function createItem(item, { priority = false, categoryId } = {}) {
   price.textContent = formatPrice(item.price);
 
   if (visual) {
-    const media = document.createElement("div");
+    const id = productId(categoryId, item);
+    row.dataset.productId = id;
+
+    const media = document.createElement("button");
+    media.type = "button";
     media.className = "full-menu-item-media";
+    media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(item.name)}`);
+    media.addEventListener("click", () => openProduct(id));
 
     const image = document.createElement("img");
     image.src = productImage(categoryId, item);
@@ -281,12 +519,20 @@ function translateStaticPage() {
   searchInput.setAttribute("aria-label", copy.searchLabel);
   searchInput.placeholder = copy.searchPlaceholder;
   categoryNav.setAttribute("aria-label", copy.categories);
+  productDecrease.setAttribute("aria-label", copy.decrease);
+  productIncrease.setAttribute("aria-label", copy.increase);
+  document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
+    button.setAttribute("aria-label", copy.close);
+  });
 
   languageButtons.forEach((button) => {
     const active = button.dataset.lang === language;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+
+  if (selectedProductId) hydrateProductDialog();
+  renderCart();
 }
 
 function setLanguage(next) {
@@ -305,6 +551,40 @@ languageButtons.forEach((button) => {
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value;
   renderMenu();
+});
+
+cartTrigger.addEventListener("click", () => {
+  renderCart();
+  openDialog(cartDialog);
+});
+
+productDecrease.addEventListener("click", () => {
+  selectedProductQuantity = Math.max(1, selectedProductQuantity - 1);
+  updateProductQuantity();
+});
+
+productIncrease.addEventListener("click", () => {
+  selectedProductQuantity = Math.min(MAX_ITEM_QUANTITY, selectedProductQuantity + 1);
+  updateProductQuantity();
+});
+
+addToCartButton.addEventListener("click", addSelectedProduct);
+
+document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
+  button.addEventListener("click", () => {
+    closeDialog(button.dataset.menuDialogClose === "product" ? productDialog : cartDialog);
+  });
+});
+
+[productDialog, cartDialog].forEach((dialog) => {
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) closeDialog(dialog);
+  });
+  dialog.addEventListener("close", () => {
+    if (!document.querySelector(".menu-dialog[open]")) {
+      document.body.classList.remove("menu-dialog-open");
+    }
+  });
 });
 
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());

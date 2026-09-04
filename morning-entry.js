@@ -434,6 +434,8 @@ function runMorningEntry({ forced }) {
     exiting = true;
     emitEntryState("handoff", variant);
     writeSessionFlag(MORNING_ENTRY_SESSION_KEY);
+    delete document.documentElement.dataset.robysEntryPending;
+    document.documentElement.style.visibility = "";
 
     animateSafe(overlay, [
       { opacity: 1, transform: "scale(1)" },

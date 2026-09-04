@@ -45,6 +45,30 @@ const { SMART_CHOICE_CATALOG } = await import(catalogUrl);
 const baseCombo = SMART_CHOICE_CATALOG.combos.find((combo) => combo.id === "combo-iced-san-sebastian");
 assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
 
+{
+  const restoredEverydayChoice = recommendSmartChoice({
+    intent: "coffee",
+    temperature: "hot",
+    taste: "neutral",
+    partySize: "one",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(restoredEverydayChoice.status === "ok", "Everyday hot-coffee choice under 250 TRY must not dead-end");
+  assert(restoredEverydayChoice.top, "Everyday hot-coffee choice must return a recommendation");
+  assert(restoredEverydayChoice.top.priceMinor <= 25_000, "Everyday top recommendation must respect the 250 TRY ceiling");
+  assert(restoredEverydayChoice.top.componentItemIds.length >= 1, "Everyday recommendation must reference a verified menu item");
+  assert(
+    restoredEverydayChoice.economy === null ||
+      restoredEverydayChoice.economy.priceMinor < restoredEverydayChoice.top.priceMinor,
+    "An everyday economy alternative must be strictly cheaper than the top recommendation"
+  );
+  assert(
+    !restoredEverydayChoice.top.componentItemIds.includes("herbal-tea--relax-tea-lavender-rooibos"),
+    "Coffee intent must not resolve to herbal tea"
+  );
+}
+
 function combo(id, priceMinor, componentItemIds, tags = ["cold", "sweet"], intents = ["dessert", "snack"]) {
   return {
     ...clone(baseCombo),
@@ -111,6 +135,7 @@ const happyInput = {
   assert(first.status === "ok", "Happy path must return ok");
   assert(first.top?.candidateId === "combo-top", "Morning-fit combo must be the top recommendation");
   assert(first.economy?.candidateId === "combo-economy", "Cheapest remaining fit must be the economy alternative");
+  assert(first.economy.priceMinor < first.top.priceMinor, "Economy alternative must be strictly cheaper than top");
   assert(first.premium?.candidateId === "combo-premium", "Higher-priced in-budget fit must be the premium alternative");
   assert(first.premium?.premiumStretch === false, "In-budget premium must not be labeled as a stretch");
   assert(JSON.stringify(first) === JSON.stringify(second), "Identical input must produce byte-stable JSON output");

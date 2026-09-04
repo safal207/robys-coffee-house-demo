@@ -645,6 +645,8 @@ function runContextualEntry({ scene: sceneName }) {
     lifecycle.abort();
     emitEntryState(sceneName, "handoff", variant);
     writeSeenEntry();
+    delete document.documentElement.dataset.robysEntryPending;
+    document.documentElement.style.visibility = "";
 
     animateSafe(overlay, [
       { opacity: 1, transform: "scale(1)" },

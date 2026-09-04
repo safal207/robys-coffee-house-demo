@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v40-20260903-complete-menu-photos-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v41-20260904-premium-menu-order-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -95,7 +95,7 @@ const CORE_ASSETS = [
   "./bootstrap.js",
   "./android-handoff.js",
   "./morning-entry.js",
-  "./day-night-entry.js?v=20260809-premium-optics-v23",
+  "./day-night-entry.js?v=20260904-handoff-v24",
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",

@@ -86,6 +86,10 @@ assert(
   "Iced Latte + San Sebastian must be an eligible confirmed combo"
 );
 assert(
+  eligibleCombos.some((combo) => combo.id === "single-brew-hot--filter-coffee"),
+  "Verified single menu items must be eligible recommendation candidates"
+);
+assert(
   !eligibleCombos.some((combo) => combo.id === "combo-cool-lime-macaron"),
   "Cool Lime + Macaron must remain blocked until pricing is explained or corrected"
 );

@@ -625,7 +625,13 @@ export function recommendSmartChoice(
 
   const topCandidate = regularCandidates[0];
   const economyCandidate = topCandidate
-    ? [...regularCandidates].filter((candidate) => candidate.combo.id !== topCandidate.combo.id).sort(economyComparator)[0]
+    ? [...regularCandidates]
+        .filter(
+          (candidate) =>
+            candidate.combo.id !== topCandidate.combo.id &&
+            candidate.combo.priceMinor < topCandidate.combo.priceMinor
+        )
+        .sort(economyComparator)[0]
     : undefined;
 
   const usedIds = new Set([topCandidate?.combo.id, economyCandidate?.combo.id].filter((value): value is string => Boolean(value)));
