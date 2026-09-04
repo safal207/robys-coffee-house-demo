@@ -69,7 +69,7 @@ function applyCopy() {
   if (shareStatus) shareStatus.textContent = "";
 }
 
-function track(action) {
+export function track(action) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: "robys_action",
@@ -97,7 +97,7 @@ function androidShareIntent(payload) {
   ].join(";");
 }
 
-async function shareMenu(event) {
+export async function shareMenu(event) {
   event?.preventDefault();
   if (shareStatus) shareStatus.textContent = "";
 
@@ -136,9 +136,6 @@ async function shareMenu(event) {
     window.prompt(localized.copyPrompt, canonical);
   }
 }
-
-shareButton?.addEventListener("click", shareMenu);
-document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => track("instagram_booking_click"));
 
 document.querySelectorAll(".lang-button").forEach((button) => {
   button.addEventListener("click", () => window.requestAnimationFrame(applyCopy));

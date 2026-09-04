@@ -525,6 +525,7 @@ function renderCategoryNav() {
     });
     categoryNav.append(button);
   });
+  categoryNav.dataset.ready = "true";
 }
 
 function renderMenu() {
@@ -543,6 +544,19 @@ function renderMenu() {
   });
 
   emptyState.hidden = rendered > 0;
+  menuRoot.dataset.ready = "true";
+}
+
+let menuActionsPromise;
+function loadMenuActions() {
+  menuActionsPromise ??= import("./menu-actions.js?v=20260904-interaction-v2");
+  return menuActionsPromise;
+}
+
+let menuPwaPromise;
+function loadMenuPwa() {
+  menuPwaPromise ??= import("./menu-pwa.js?v=platform-install-20260727-1");
+  return menuPwaPromise;
 }
 
 function translateStaticPage() {
@@ -584,7 +598,10 @@ function setLanguage(next) {
 }
 
 languageButtons.forEach((button) => {
-  button.addEventListener("click", () => setLanguage(button.dataset.lang));
+  button.addEventListener("click", () => {
+    setLanguage(button.dataset.lang);
+    void loadMenuActions();
+  });
 });
 
 searchInput.addEventListener("input", () => {
@@ -595,6 +612,15 @@ searchInput.addEventListener("input", () => {
 cartTrigger.addEventListener("click", () => {
   renderCart();
   openDialog(cartDialog);
+});
+
+document.querySelector("#menu-share-button")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  void loadMenuActions().then(({ shareMenu }) => shareMenu(event));
+});
+
+document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => {
+  void loadMenuActions().then(({ track }) => track("instagram_booking_click"));
 });
 
 productDecrease.addEventListener("click", () => {
@@ -630,6 +656,12 @@ document.querySelector("#current-year").textContent = String(new Date().getFullY
 translateStaticPage();
 renderCategoryNav();
 renderMenu();
+
+if (language !== "tr") void loadMenuActions();
+for (const eventName of ["pointerdown", "keydown"]) {
+  window.addEventListener(eventName, loadMenuPwa, { once: true, passive: eventName === "pointerdown" });
+}
+window.setTimeout(loadMenuPwa, 30_000);
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {

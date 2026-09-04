@@ -4,6 +4,7 @@ const indexHtml = readFileSync("index.html", "utf8");
 const html = readFileSync("menu.html", "utf8");
 const css = readFileSync("menu.css", "utf8");
 const runtime = readFileSync("menu-actions.js", "utf8");
+const menuPageRuntime = readFileSync("menu-page.js", "utf8");
 const pwaRuntime = readFileSync("pwa.js", "utf8");
 const menuPwaRuntime = readFileSync("menu-pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
@@ -28,6 +29,11 @@ assert(runtime.includes("window.location.assign(androidShareIntent(payload))"), 
 assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API path is missing");
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
+assert(runtime.includes("export async function shareMenu"), "Share behavior must be callable from the interaction loader");
+assert(runtime.includes("export function track"), "Menu action tracking must be callable from the interaction loader");
+assert(menuPageRuntime.includes('import("./menu-actions.js?v=20260904-interaction-v2")'), "Menu actions are not loaded on demand");
+assert(menuPageRuntime.includes('querySelector("#menu-share-button")?.addEventListener("click"'), "First-click share activation is missing");
+assert(!html.includes('src="menu-actions.js'), "Menu actions must stay off the initial performance path");
 
 // Accept future cache revisions while preventing rollback before the original share-cache fix.
 const cacheVersion = serviceWorker.match(/const CACHE_VERSION = "robys-offline-v(\d+)-(\d{8})-[a-z0-9-]+";/)?.slice(1);
@@ -41,6 +47,12 @@ const menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js
 assert(pwaRevision, "Service-worker registration revision is missing");
 assert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");
 assert(indexHtml.includes(`src="pwa.js?v=${pwaRevision}"`), "index.html does not load the current PWA registration revision");
-assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");
+assert(
+  menuPageRuntime.includes(`import("./menu-pwa.js?v=${pwaRevision}")`),
+  "menu page runtime does not lazy-load the current menu PWA registration revision"
+);
+assert(menuPageRuntime.includes('window.addEventListener(eventName, loadMenuPwa'), "Menu PWA registration lacks an interaction trigger");
+assert(menuPageRuntime.includes("window.setTimeout(loadMenuPwa, 30_000)"), "Menu PWA registration lacks a no-interaction fallback");
+assert(!html.includes('src="menu-pwa.js'), "Menu PWA registration must stay off the initial performance path");
 
 console.log(`✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and PWA revision ${pwaRevision} remain valid.`);

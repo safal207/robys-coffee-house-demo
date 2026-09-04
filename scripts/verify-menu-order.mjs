@@ -86,6 +86,8 @@ for (const contract of [
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
   "function renderCart(focusTarget = null)",
+  'categoryNav.dataset.ready = "true"',
+  'menuRoot.dataset.ready = "true"',
   "setCartQuantity(id, lineQuantity - 1, \"decrease\", true)",
   "setCartQuantity(id, lineQuantity + 1, \"increase\", true)",
   "setCartQuantity(id, 0, \"remove\", true)",
@@ -100,6 +102,7 @@ for (const contract of [
 }
 assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must follow the selected language locale");
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
+assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an extra render-blocking request");
 
 for (const contract of [
   "/* PREMIUM-MENU-ORDER-V1 */",
