@@ -19,8 +19,44 @@ const {
   validateRevenueSimulationInput,
   exportRevenueSimulationJson,
   exportRevenueSimulationMarkdown,
-  formatSimulationMoney
+  formatSimulationMoney,
+  deriveAvailableMechanisms
 } = domain;
+
+const catalogMechanisms = deriveAvailableMechanisms({
+  combos: [
+    {
+      id: "combo-confirmed-pairing",
+      sourceStatus: "confirmed",
+      availability: "available",
+      pricingMode: "set-price",
+      upgrades: [{ id: "upgrade-confirmed" }]
+    },
+    {
+      id: "single-confirmed-item",
+      sourceStatus: "confirmed",
+      availability: "available",
+      pricingMode: "menu-item",
+      upgrades: []
+    },
+    {
+      id: "combo-provisional",
+      sourceStatus: "provisional",
+      availability: "available",
+      pricingMode: "set-price",
+      upgrades: []
+    }
+  ],
+  bumps: [
+    { id: "bump-confirmed", sourceStatus: "confirmed", availability: "available" },
+    { id: "bump-unavailable", sourceStatus: "confirmed", availability: "unavailable" }
+  ]
+});
+assert.deepEqual(catalogMechanisms, {
+  comboIds: ["combo-confirmed-pairing"],
+  upgradeIds: ["upgrade-confirmed"],
+  bumpIds: ["bump-confirmed"]
+}, "owner mechanisms must include only confirmed pairing combos, never single menu-item candidates");
 
 const baseInput = {
   currency: "TRY",

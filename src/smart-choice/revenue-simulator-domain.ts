@@ -17,6 +17,37 @@ export interface AvailableMechanisms {
   bumpIds: readonly string[];
 }
 
+export interface RevenueMechanismCatalog {
+  combos: readonly {
+    id: string;
+    sourceStatus: string;
+    availability: string;
+    pricingMode: string;
+    upgrades: readonly { id: string }[];
+  }[];
+  bumps: readonly {
+    id: string;
+    sourceStatus: string;
+    availability: string;
+  }[];
+}
+
+export function deriveAvailableMechanisms(catalog: RevenueMechanismCatalog): AvailableMechanisms {
+  const pairingCombos = catalog.combos.filter(
+    (combo) =>
+      combo.sourceStatus === "confirmed" &&
+      combo.availability === "available" &&
+      combo.pricingMode !== "menu-item"
+  );
+  return {
+    comboIds: pairingCombos.map((combo) => combo.id),
+    upgradeIds: pairingCombos.flatMap((combo) => combo.upgrades.map((upgrade) => upgrade.id)),
+    bumpIds: catalog.bumps
+      .filter((bump) => bump.sourceStatus === "confirmed" && bump.availability === "available")
+      .map((bump) => bump.id)
+  };
+}
+
 export interface RevenueSimulationInput {
   currency: string;
   locale: SimulationLocale;

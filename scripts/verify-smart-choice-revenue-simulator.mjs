@@ -33,8 +33,10 @@ assert.ok(!/<style\b/i.test(html), "inline styles are forbidden");
 assert.ok(!/style\s*=/i.test(html), "inline style attributes are forbidden");
 
 assert.ok(source.includes('from "./catalog.js"'), "simulator must use the verified catalog");
-assert.ok(source.includes('sourceStatus === "confirmed"'), "only confirmed mechanisms may be used");
-assert.ok(source.includes('availability === "available"'), "only available mechanisms may be used");
+assert.ok(source.includes("deriveAvailableMechanisms"), "simulator must use the tested mechanism classifier");
+assert.ok(domain.includes('sourceStatus === "confirmed"'), "only confirmed mechanisms may be used");
+assert.ok(domain.includes('availability === "available"'), "only available mechanisms may be used");
+assert.ok(domain.includes('pricingMode !== "menu-item"'), "single menu items must not be classified as pairing mechanisms");
 assert.ok(source.includes("exportRevenueSimulationJson"), "JSON export is missing");
 assert.ok(source.includes("exportRevenueSimulationMarkdown"), "Markdown export is missing");
 assert.ok(source.includes("Blob"), "local export must use a browser Blob");
