@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "../sw.js?v=premium-a11y-20260904-1";
+const SERVICE_WORKER_URL = "../sw.js?v=premium-cache-new-20260904-1";
 const root = document.documentElement;
 
 function reflectConnection() {

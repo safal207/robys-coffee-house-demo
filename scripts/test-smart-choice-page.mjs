@@ -8,7 +8,7 @@ function assert(condition, message) {
 for (const path of [
   "smart-choice/index.html",
   "smart-choice/style.css",
-  "smart-choice/app.js",
+  "smart-choice/app-v2.js",
   "src/smart-choice/page.ts"
 ]) {
   assert(existsSync(path), `${path} is missing`);
@@ -17,13 +17,13 @@ for (const path of [
 const html = readFileSync("smart-choice/index.html", "utf8");
 const css = readFileSync("smart-choice/style.css", "utf8");
 const source = readFileSync("src/smart-choice/page.ts", "utf8");
-const bundle = readFileSync("smart-choice/app.js", "utf8");
+const bundle = readFileSync("smart-choice/app-v2.js", "utf8");
 const homepageEnhancements = readFileSync("src/social-offer.ts", "utf8");
 
 assert(/<main\b[^>]*id="smart-choice-main"/.test(html), "Smart Choice main landmark is missing");
 assert(/id="smart-choice-app"/.test(html), "Smart Choice app root is missing");
 assert(/href="\.\.\/menu\.html"/.test(html), "Safe full-menu exit is missing");
-assert(/src="app\.js\?v=[a-f0-9]{12}"/.test(html), "Smart Choice app revision is not synchronized");
+assert(/src="app-v2\.js\?v=[a-f0-9]{12}"/.test(html), "Smart Choice app revision is not synchronized");
 assert(/href="style\.css\?v=[a-f0-9]{12}"/.test(html), "Smart Choice stylesheet revision is not synchronized");
 assert(!/<script(?![^>]*src=)[^>]*>\s*[^<]/i.test(html), "Inline executable script is not allowed");
 assert(!/<style\b/i.test(html), "Inline styles are not allowed");

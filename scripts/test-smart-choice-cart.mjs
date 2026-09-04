@@ -57,7 +57,7 @@ try {
   const source = await readFile("src/smart-choice/cart.ts", "utf8");
   const html = await readFile("smart-choice/index.html", "utf8");
   const buildSource = await readFile("scripts/build.mjs", "utf8");
-  assert(html.includes('src="cart.js'));
+  assert(html.includes('src="cart-v2.js'));
   assert(html.includes('href="cart.css'));
   assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
   assert(source.includes("MutationObserver"));

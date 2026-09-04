@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 import ts from "typescript";
 
@@ -78,6 +78,19 @@ await build({
   outfile: "smart-choice/release-qa.js",
   legalComments: "none"
 });
+
+// Cache-new aliases are a one-time migration boundary for clients still
+// controlled by the legacy worker, which matched Smart Choice assets with
+// ignoreSearch. A new pathname cannot resolve to its cached legacy bundle.
+for (const [legacyName, cacheNewName] of [
+  ["app.js", "app-v2.js"],
+  ["cart.js", "cart-v2.js"],
+  ["experiments.js", "experiments-v2.js"],
+  ["analytics.js", "analytics-v2.js"],
+  ["decision-trace.js", "decision-trace-v2.js"]
+]) {
+  copyFileSync(`smart-choice/${legacyName}`, `smart-choice/${cacheNewName}`);
+}
 
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
@@ -180,11 +193,11 @@ const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
-const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
-const smartChoiceCartRevision = revisionFor("smart-choice/cart.js");
-const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments.js");
-const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics.js");
-const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace.js");
+const smartChoiceAppRevision = revisionFor("smart-choice/app-v2.js");
+const smartChoiceCartRevision = revisionFor("smart-choice/cart-v2.js");
+const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments-v2.js");
+const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics-v2.js");
+const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace-v2.js");
 const smartChoiceReleaseQaRevision = revisionFor("smart-choice/release-qa.js");
 const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
 const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
@@ -205,11 +218,11 @@ writeFileSync("discover.html", discoverHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "release-qa.js", smartChoiceReleaseQaRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart.js", smartChoiceCartRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments.js", smartChoiceExperimentsRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics.js", smartChoiceAnalyticsRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace.js", smartChoiceDecisionTraceRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app-v2.js", smartChoiceAppRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart-v2.js", smartChoiceCartRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments-v2.js", smartChoiceExperimentsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics-v2.js", smartChoiceAnalyticsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace-v2.js", smartChoiceDecisionTraceRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
@@ -225,11 +238,11 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
-  ["smart-choice/app.js", smartChoiceAppRevision],
-  ["smart-choice/cart.js", smartChoiceCartRevision],
-  ["smart-choice/experiments.js", smartChoiceExperimentsRevision],
-  ["smart-choice/analytics.js", smartChoiceAnalyticsRevision],
-  ["smart-choice/decision-trace.js", smartChoiceDecisionTraceRevision],
+  ["smart-choice/app-v2.js", smartChoiceAppRevision],
+  ["smart-choice/cart-v2.js", smartChoiceCartRevision],
+  ["smart-choice/experiments-v2.js", smartChoiceExperimentsRevision],
+  ["smart-choice/analytics-v2.js", smartChoiceAnalyticsRevision],
+  ["smart-choice/decision-trace-v2.js", smartChoiceDecisionTraceRevision],
   ["smart-choice/style.css", smartChoiceCssRevision],
   ["smart-choice/cart.css", smartChoiceCartCssRevision],
   ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
@@ -240,9 +253,9 @@ for (const [filePath, revision] of [
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
-  `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
-  `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice experiments.js (${smartChoiceExperimentsRevision}), ` +
-  `Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), ` +
+  `Built app.js (${appRevision}), Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
+  `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
+  `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +
   `Smart Choice release-qa.js (${smartChoiceReleaseQaRevision}), featured-gallery.js (${galleryRevision}), ` +
   `social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), ` +
   `discover-rotation-v3.js (${discoverRotationRevision}), Smart Choice style.css (${smartChoiceCssRevision}), ` +

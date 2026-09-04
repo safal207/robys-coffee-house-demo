@@ -208,9 +208,9 @@ try {
   assert(runtimeSource.includes("ANALYTICS_ASSIGNMENT_KEY"));
   assert(runtimeSource.includes("killSwitch"));
   assert(analyticsSource.includes('const EXPERIMENT_KEY = "robys-smart-choice-experiment.v1"'));
-  assert(html.indexOf('src="experiments.js') < html.indexOf('src="analytics.js'), "experiment assignment must load before analytics");
+  assert(html.indexOf('src="experiments-v2.js') < html.indexOf('src="analytics-v2.js'), "experiment assignment must load before analytics");
   assert(buildSource.includes('entryPoints: ["src/smart-choice/experiments.ts"]'));
-  assert(buildSource.includes('revisionFor("smart-choice/experiments.js")'));
+  assert(buildSource.includes('revisionFor("smart-choice/experiments-v2.js")'));
 
   console.log("✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.");
 } finally {

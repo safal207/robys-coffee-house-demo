@@ -43,6 +43,25 @@ page.on("request", (request) => {
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
+  const legacyCacheIsolation = await page.evaluate(async () => {
+    const cacheName = "robys-test-legacy-smart-choice-v40";
+    const cache = await caches.open(cacheName);
+    const smartChoiceRoot = new URL("smart-choice/", location.href);
+    const legacyFiles = ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js"];
+    const cacheNewFiles = legacyFiles.map((file) => file.replace(".js", "-v2.js"));
+    await Promise.all(legacyFiles.map((file) => cache.put(
+      new Request(new URL(`${file}?v=legacy`, smartChoiceRoot)),
+      new Response(`legacy:${file}`, { headers: { "Content-Type": "text/javascript" } })
+    )));
+    const collisions = [];
+    for (const file of cacheNewFiles) {
+      const matched = await cache.match(new Request(new URL(`${file}?v=current`, smartChoiceRoot)), { ignoreSearch: true });
+      if (matched) collisions.push(file);
+    }
+    await caches.delete(cacheName);
+    return collisions;
+  });
+  assert.deepEqual(legacyCacheIsolation, [], "Cache-new Smart Choice paths collided with legacy ignoreSearch entries");
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
