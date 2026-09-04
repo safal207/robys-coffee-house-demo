@@ -153,7 +153,7 @@ const TIMES: readonly TimeOfDay[] = ["morning", "day", "evening", "late"];
 const TEMPORAL_TAGS = new Set<string>(TIMES);
 
 export const DEFAULT_RECOMMENDATION_CONFIG: RecommendationConfig = {
-  version: "smart-choice-recommendation-config.v0.1.0",
+  version: "smart-choice-recommendation-config.v0.2.0",
   weights: {
     intent: 30,
     temperature: 15,

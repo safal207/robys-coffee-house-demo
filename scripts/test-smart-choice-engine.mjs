@@ -42,6 +42,11 @@ const catalogModule = await build({
 const catalogUrl = `data:text/javascript;base64,${Buffer.from(catalogModule.outputFiles[0].text).toString("base64")}`;
 const { SMART_CHOICE_CATALOG } = await import(catalogUrl);
 
+assert(
+  DEFAULT_RECOMMENDATION_CONFIG.version === "smart-choice-recommendation-config.v0.2.0",
+  "Party-size hard constraints must carry a new replayable recommendation-config version"
+);
+
 const baseCombo = SMART_CHOICE_CATALOG.combos.find((combo) => combo.id === "combo-iced-san-sebastian");
 assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
 

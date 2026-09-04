@@ -47,6 +47,11 @@ try {
   }
 
   append({ name: "smart_choice_viewed", fromState: "S0", toState: "S0" }, 0);
+  assert.equal(
+    events[0].configVersion,
+    "smart-choice-recommendation-config.v0.2.0",
+    "analytics must distinguish the party-size hard-constraint decision logic"
+  );
   append({ name: "smart_choice_started", fromState: "S0", toState: "S1" }, 1_000);
   append({ name: "question_answered", fromState: "S1", toState: "S1", questionId: "intent", answerCode: "coffee" }, 2_000);
   append({ name: "question_answered", fromState: "S1", toState: "S1", questionId: "temperature", answerCode: "cold" }, 3_000);
