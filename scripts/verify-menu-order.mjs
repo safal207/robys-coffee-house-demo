@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("menu.html", "utf8");
-const runtime = readFileSync("menu-page.js", "utf8");
+const runtime = readFileSync("menu-app.js", "utf8");
 const styles = readFileSync("menu.css", "utf8");
 const menuSource = readFileSync("menu-data.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;

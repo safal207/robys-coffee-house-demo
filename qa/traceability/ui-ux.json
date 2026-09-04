@@ -174,8 +174,8 @@
       "evidence": [
         "menu.html#menu-root",
         "menu.html#menu-search",
-        "menu-page.js#renderMenu",
-        "menu-page.js#setLanguage",
+        "menu-app.js#renderMenu",
+        "menu-app.js#setLanguage",
         "menu-data.js"
       ],
       "tests": [
@@ -245,8 +245,8 @@
       "evidence": [
         "menu.html#menu-share-button",
         "menu.html#[data-instagram-booking]",
-        "menu-actions.js#shareMenu",
-        "menu-actions.js#androidShareIntent"
+        "menu-interactions.js#shareMenu",
+        "menu-interactions.js#androidShareIntent"
       ],
       "tests": [
         "npm run verify:menu-share"

@@ -8,7 +8,7 @@ const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
-const menuRuntime = readFileSync("menu-page.js", "utf8");
+const menuRuntime = readFileSync("menu-app.js", "utf8");
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
@@ -138,7 +138,7 @@ const criticalFiles = [
   "conversion.js",
   "analytics.js",
   "qa.js",
-  "menu-page.js",
+  "menu-app.js",
   "menu-data.js",
   "menu-search-clear.js",
   "hero-balance.css",

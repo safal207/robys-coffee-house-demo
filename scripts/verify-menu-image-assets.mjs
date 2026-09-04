@@ -73,7 +73,7 @@ function verifyAsset(filePath, digests) {
 const menuSource = readFileSync("menu-data.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
-const menuRuntime = readFileSync("menu-page.js", "utf8");
+const menuRuntime = readFileSync("menu-app.js", "utf8");
 const menuStyles = readFileSync("menu.css", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
@@ -110,7 +110,7 @@ for (const fragment of [
   "image.loading = priority ? \"eager\" : \"lazy\"",
   'image.alt = pairing ? localized(item.imageAlt ?? item.name) : ""'
 ]) {
-  if (!menuRuntime.includes(fragment)) fail(`menu-page.js does not wire product photos: ${fragment}`);
+  if (!menuRuntime.includes(fragment)) fail(`menu-app.js does not wire product photos: ${fragment}`);
 }
 for (const fragment of [
   ".full-menu-item--product{display:grid;grid-template-columns:104px",

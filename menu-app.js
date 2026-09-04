@@ -7,6 +7,7 @@ const categoryNav = document.querySelector("#menu-category-nav");
 const menuRoot = document.querySelector("#menu-root");
 const searchInput = document.querySelector("#menu-search");
 const emptyState = document.querySelector("#menu-empty");
+const menuShareButton = document.querySelector("#menu-share-button");
 const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
@@ -549,7 +550,7 @@ function renderMenu() {
 
 let menuActionsPromise;
 function loadMenuActions() {
-  menuActionsPromise ??= import("./menu-actions.js?v=20260904-interaction-v2");
+  menuActionsPromise ??= import("./menu-interactions.js?v=20260904-interaction-v3");
   return menuActionsPromise;
 }
 
@@ -608,9 +609,38 @@ cartTrigger.addEventListener("click", () => {
   openDialog(cartDialog);
 });
 
-document.querySelector("#menu-share-button")?.addEventListener("click", (event) => {
+function isAndroidWebView() {
+  const userAgent = navigator.userAgent || "";
+  return /Android/i.test(userAgent) && (/(?:^|[;\s])wv(?:[;)\s]|$)/i.test(userAgent) || /Version\/4\.0/i.test(userAgent));
+}
+
+function runLazyShare(skipNative = false) {
+  void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
+}
+
+menuShareButton?.addEventListener("click", (event) => {
   event.preventDefault();
-  void loadMenuActions().then(({ shareMenu }) => shareMenu(event));
+  if (isAndroidWebView() || typeof navigator.share !== "function") {
+    runLazyShare();
+    return;
+  }
+
+  const payload = {
+    title: document.title,
+    text: menuShareButton.getAttribute(`data-share-text-${language}`) ?? "",
+    url: document.querySelector('link[rel="canonical"]')?.href || window.location.href
+  };
+
+  try {
+    const nativeShare = navigator.share(payload);
+    void nativeShare
+      .then(() => loadMenuActions().then(({ completeNativeShare }) => completeNativeShare()))
+      .catch((error) => {
+        if (error?.name !== "AbortError") runLazyShare(true);
+      });
+  } catch {
+    runLazyShare(true);
+  }
 });
 
 document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => {

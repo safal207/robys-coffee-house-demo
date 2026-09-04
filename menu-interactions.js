@@ -97,7 +97,13 @@ function androidShareIntent(payload) {
   ].join(";");
 }
 
-export async function shareMenu(event) {
+export function completeNativeShare() {
+  const localized = copy[currentLanguage()];
+  if (shareStatus) shareStatus.textContent = localized.shared;
+  track("menu_share");
+}
+
+export async function shareMenu(event, { skipNative = false } = {}) {
   event?.preventDefault();
   if (shareStatus) shareStatus.textContent = "";
 
@@ -115,10 +121,9 @@ export async function shareMenu(event) {
       return;
     }
 
-    if (typeof navigator.share === "function") {
+    if (!skipNative && typeof navigator.share === "function") {
       await navigator.share(payload);
-      if (shareStatus) shareStatus.textContent = localized.shared;
-      track("menu_share");
+      completeNativeShare();
       return;
     }
 

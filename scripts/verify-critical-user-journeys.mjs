@@ -4,7 +4,7 @@ import path from "node:path";
 const REQUIRED_LANGUAGES = ["tr", "en", "ru"];
 const indexHtml = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
-const menuPageRuntime = readFileSync("menu-page.js", "utf8");
+const menuPageRuntime = readFileSync("menu-app.js", "utf8");
 const clearSearchRuntime = readFileSync("menu-search-clear.js", "utf8");
 const appRuntime = readFileSync("src/app.ts", "utf8");
 const menuDataSource = readFileSync("menu-data.js", "utf8");
