@@ -69,6 +69,26 @@ assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
   );
 }
 
+{
+  const sweetCoffeeChoice = recommendSmartChoice({
+    intent: "coffee",
+    temperature: "hot",
+    taste: "sweet",
+    partySize: "one",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(sweetCoffeeChoice.status === "ok", "Sweet hot-coffee choice under 250 TRY must not dead-end");
+  assert(
+    sweetCoffeeChoice.top?.componentItemIds.includes("hot-coffee--caramel-latte"),
+    "Sweet coffee intent must resolve to an actual coffee"
+  );
+  assert(
+    !sweetCoffeeChoice.top?.componentItemIds.includes("brew-hot--hot-chocolate"),
+    "Coffee intent must not resolve to Hot Chocolate"
+  );
+}
+
 function combo(id, priceMinor, componentItemIds, tags = ["cold", "sweet"], intents = ["dessert", "snack"]) {
   return {
     ...clone(baseCombo),

@@ -35,7 +35,8 @@ for (const language of ["tr", "en", "ru"]) {
     "quantity",
     "addToCart",
     "orderDraft",
-    "openProduct"
+    "openProduct",
+    "maxQuantity"
   ]) {
     assert(menuCopy[language]?.[key]?.trim(), `Missing ${language}.${key} menu order copy`);
   }
@@ -54,6 +55,9 @@ for (const contract of [
   "media.addEventListener(\"click\", () => openProduct(id))",
   "total += product.item.price * lineQuantity",
   "product.item.price * selectedProductQuantity",
+  "const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity)",
+  "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
+  "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
   "typeof dialog.showModal === \"function\"",
   "cartLinesRoot.replaceChildren()",
   "document.createElement(\"button\")"

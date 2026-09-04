@@ -81,6 +81,12 @@ const eligibleCombos = getEligibleCombos();
 const eligibleBumps = getEligibleBumps();
 
 assert(eligibleItems.length > 0, "Expected confirmed Smart Choice items");
+const hotChocolate = SMART_CHOICE_CATALOG.items.find((item) => item.id === "brew-hot--hot-chocolate");
+assert(hotChocolate, "Expected Hot Chocolate in the verified catalog");
+assert(
+  !hotChocolate.intents.includes("coffee"),
+  "Hot Chocolate must not be eligible for the coffee intent"
+);
 assert(
   eligibleCombos.some((combo) => combo.id === "combo-iced-san-sebastian"),
   "Iced Latte + San Sebastian must be an eligible confirmed combo"

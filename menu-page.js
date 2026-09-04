@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v1";
+import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v2";
 import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -261,10 +261,18 @@ function updateProductQuantity() {
   const product = productIndex.get(selectedProductId);
   if (!product) return;
   const copy = menuCopy[language];
+  const currentQuantity = cart.get(selectedProductId) ?? 0;
+  const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity);
+  selectedProductQuantity = availableQuantity === 0
+    ? 0
+    : Math.max(1, Math.min(selectedProductQuantity, availableQuantity));
   productQuantityOutput.textContent = String(selectedProductQuantity);
-  productDecrease.disabled = selectedProductQuantity <= 1;
-  productIncrease.disabled = selectedProductQuantity >= MAX_ITEM_QUANTITY;
-  addToCartButton.textContent = `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
+  productDecrease.disabled = availableQuantity === 0 || selectedProductQuantity <= 1;
+  productIncrease.disabled = availableQuantity === 0 || selectedProductQuantity >= availableQuantity;
+  addToCartButton.disabled = availableQuantity === 0;
+  addToCartButton.textContent = availableQuantity === 0
+    ? copy.maxQuantity
+    : `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
 }
 
 function hydrateProductDialog() {
@@ -293,9 +301,15 @@ function addSelectedProduct() {
   const product = productIndex.get(selectedProductId);
   if (!product) return;
   const currentQuantity = cart.get(selectedProductId) ?? 0;
-  setCartQuantity(selectedProductId, currentQuantity + selectedProductQuantity);
   const copy = menuCopy[language];
-  announceCart(`${copy.added}: ${localized(product.item.name)} × ${selectedProductQuantity}`);
+  const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
+  if (addedQuantity <= 0) {
+    announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
+    updateProductQuantity();
+    return;
+  }
+  setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
+  announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
   closeDialog(productDialog);
   cartTrigger.classList.add("is-emphasized");
   window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);

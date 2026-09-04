@@ -209,7 +209,7 @@ const ITEM_RULES: readonly ItemRule[] = [
   {
     sourceId: "brew-hot--hot-chocolate",
     tags: ["chocolate", "sweet", "comfort"],
-    intents: ["coffee", "snack", "dessert"],
+    intents: ["snack", "dessert"],
     temperature: "hot",
     taste: "sweet",
     partySizes: ["one", "two"],

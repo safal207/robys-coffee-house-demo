@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v41-20260904-premium-menu-order-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v42-20260904-premium-menu-order-v2-10750cdfa32c-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",

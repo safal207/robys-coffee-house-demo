@@ -25,6 +25,7 @@ export const menuCopy = {
     orderDraft: "Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.",
     openProduct: "Fotoğrafı büyüt ve siparişe ekle",
     added: "Siparişe eklendi",
+    maxQuantity: "Bir ürün için en fazla 99 adet",
     itemCount: "ürün"
   },
   en: {
@@ -53,6 +54,7 @@ export const menuCopy = {
     orderDraft: "This is an order draft; it is not sent automatically to the café or payment system.",
     openProduct: "Enlarge photo and add to order",
     added: "Added to your order",
+    maxQuantity: "Maximum 99 per item",
     itemCount: "items"
   },
   ru: {
@@ -81,6 +83,7 @@ export const menuCopy = {
     orderDraft: "Это предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
     openProduct: "Увеличить фото и добавить в заказ",
     added: "Добавлено в заказ",
+    maxQuantity: "Максимум 99 штук одного товара",
     itemCount: "позиций"
   }
 };
