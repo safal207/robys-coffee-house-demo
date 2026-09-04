@@ -165,12 +165,12 @@ function createButton(className, label, listener) {
   return button;
 }
 
-function setCartQuantity(id, quantity) {
+function setCartQuantity(id, quantity, focusControl = null) {
   const normalized = Math.max(0, Math.min(MAX_ITEM_QUANTITY, quantity));
   if (normalized === 0) cart.delete(id);
   else cart.set(id, normalized);
   saveCart();
-  renderCart();
+  renderCart(focusControl ? { id, control: focusControl } : null);
 }
 
 function announceCart(message) {
@@ -180,9 +180,10 @@ function announceCart(message) {
   });
 }
 
-function renderCart() {
+function renderCart(focusTarget = null) {
   const copy = menuCopy[language];
   const summary = cartSummary();
+  let focusCandidate = null;
   cartCount.textContent = String(summary.quantity);
   cartTriggerTotal.textContent = formatPrice(summary.total);
   cartDialogTotal.textContent = formatPrice(summary.total);
@@ -221,15 +222,15 @@ function renderCart() {
 
     const controls = document.createElement("div");
     controls.className = "menu-cart-line-controls";
-    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1));
+    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1, "decrease"));
     decrease.setAttribute("aria-label", `${copy.decrease}: ${name}`);
     const count = document.createElement("span");
     count.textContent = String(lineQuantity);
-    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1));
+    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1, "increase"));
     increase.setAttribute("aria-label", `${copy.increase}: ${name}`);
     increase.disabled = lineQuantity >= MAX_ITEM_QUANTITY;
     const remove = createButton("menu-cart-remove", copy.remove, () => {
-      setCartQuantity(id, 0);
+      setCartQuantity(id, 0, "remove");
       announceCart(`${copy.remove}: ${name}`);
     });
     remove.setAttribute("aria-label", `${copy.remove}: ${name}`);
@@ -240,7 +241,17 @@ function renderCart() {
     lineTotal.textContent = formatPrice(product.item.price * lineQuantity);
     line.append(image, details, controls, lineTotal);
     cartLinesRoot.append(line);
+
+    if (focusTarget?.id === id) {
+      focusCandidate = focusTarget.control === "increase" && !increase.disabled ? increase : decrease;
+    }
   });
+
+  if (focusTarget) {
+    const fallback = cartLinesRoot.querySelector("button:not([disabled])")
+      ?? cartDialog.querySelector("[data-menu-dialog-close]");
+    (focusCandidate ?? fallback)?.focus({ preventScroll: true });
+  }
 }
 
 function openDialog(dialog) {

@@ -58,6 +58,9 @@ for (const contract of [
   "const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity)",
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
+  "function renderCart(focusTarget = null)",
+  "setCartQuantity(id, lineQuantity + 1, \"increase\")",
+  "(focusCandidate ?? fallback)?.focus({ preventScroll: true })",
   "typeof dialog.showModal === \"function\"",
   "cartLinesRoot.replaceChildren()",
   "document.createElement(\"button\")"
