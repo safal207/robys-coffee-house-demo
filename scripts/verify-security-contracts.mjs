@@ -13,6 +13,7 @@ const RUNTIME_FILES = [
   "menu-interactions.js",
   "menu-search-clear.js",
   "menu-ready.js",
+  "smart-choice/pwa.js",
   "android-download.js",
   "pwa.js",
   "sw.js",

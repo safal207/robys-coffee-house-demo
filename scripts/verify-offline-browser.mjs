@@ -94,9 +94,13 @@ try {
   await page.locator("#menu-search").fill("latte");
   assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
 
+  await page.goto(`${baseUrl}/smart-choice/`, { waitUntil: "domcontentloaded" });
+  await page.locator("#smart-choice-app[aria-busy='false']").waitFor({ state: "visible", timeout: 15000 });
+  assert.match(await page.title(), /Roby's Smart Choice/, "Offline Smart Choice route returned the wrong page");
+
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu remains interactive offline.");
+  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu plus Smart Choice remain interactive offline.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();

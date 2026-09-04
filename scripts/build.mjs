@@ -165,6 +165,15 @@ function synchronizeServiceWorker(
     .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
 }
 
+function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
+  const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`"\\./${escapedPath}(?:\\?v=[a-f0-9]{12})?"`);
+  if (!pattern.test(serviceWorker)) {
+    throw new Error(`Service worker does not contain the revisioned ${filePath} cache entry`);
+  }
+  return serviceWorker.replace(pattern, `"./${filePath}?v=${revision}"`);
+}
+
 const appRevision = revisionFor("app.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
@@ -214,6 +223,20 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationRevision,
   discoverRotationCssRevision
 );
+for (const [filePath, revision] of [
+  ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
+  ["smart-choice/app.js", smartChoiceAppRevision],
+  ["smart-choice/cart.js", smartChoiceCartRevision],
+  ["smart-choice/experiments.js", smartChoiceExperimentsRevision],
+  ["smart-choice/analytics.js", smartChoiceAnalyticsRevision],
+  ["smart-choice/decision-trace.js", smartChoiceDecisionTraceRevision],
+  ["smart-choice/style.css", smartChoiceCssRevision],
+  ["smart-choice/cart.css", smartChoiceCartCssRevision],
+  ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
+  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision]
+]) {
+  serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
+}
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
