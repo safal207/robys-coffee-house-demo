@@ -358,6 +358,9 @@ function evaluateHardConstraints(
   if (!items.some((item) => item.partySizes.includes(input.partySize))) {
     rejections.push({ code: "hard.party-size-mismatch", detail: input.partySize });
   }
+  if (combo.pricingMode === "menu-item" && input.partySize !== "one") {
+    rejections.push({ code: "hard.single-item-party-size-mismatch", detail: input.partySize });
+  }
   if (!combo.name[input.locale]?.trim() || items.some((item) => !item.name[input.locale]?.trim())) {
     rejections.push({ code: "hard.locale-content-missing", detail: input.locale });
   }
@@ -545,6 +548,7 @@ function emptyTrace(
       "temperature",
       "taste",
       "party-size",
+      "single-item-party-size",
       "locale-content",
       "budget-ceiling"
     ],

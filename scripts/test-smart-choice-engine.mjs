@@ -108,6 +108,25 @@ assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
   );
 }
 
+{
+  const familyRefreshChoice = recommendSmartChoice({
+    intent: "refresh",
+    temperature: "cold",
+    taste: "sweet",
+    partySize: "family",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(familyRefreshChoice.status === "no-match", "A one-unit refresher must not satisfy a family request");
+  const coolLimeTrace = familyRefreshChoice.trace.candidates.find(
+    (candidate) => candidate.candidateId === "single-refreshers--cool-lime"
+  );
+  assert(
+    coolLimeTrace?.rejectedBy.some((entry) => entry.code === "hard.single-item-party-size-mismatch"),
+    "Multi-person requests must hard-reject unscaled single-item candidates"
+  );
+}
+
 function combo(id, priceMinor, componentItemIds, tags = ["cold", "sweet"], intents = ["dessert", "snack"]) {
   return {
     ...clone(baseCombo),
