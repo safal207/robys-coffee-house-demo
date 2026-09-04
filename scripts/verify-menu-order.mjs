@@ -41,6 +41,8 @@ for (const language of ["tr", "en", "ru"]) {
     "addToCart",
     "orderDraft",
     "openProduct",
+    "quantityUpdated",
+    "removedFromCart",
     "maxQuantity"
   ]) {
     assert(menuCopy[language]?.[key]?.trim(), `Missing ${language}.${key} menu order copy`);
@@ -66,7 +68,11 @@ for (const contract of [
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
   "function renderCart(focusTarget = null)",
-  "setCartQuantity(id, lineQuantity + 1, \"increase\")",
+  "setCartQuantity(id, lineQuantity - 1, \"decrease\", true)",
+  "setCartQuantity(id, lineQuantity + 1, \"increase\", true)",
+  "setCartQuantity(id, 0, \"remove\", true)",
+  "copy.removedFromCart",
+  "copy.quantityUpdated",
   "(focusCandidate ?? fallback)?.focus({ preventScroll: true })",
   "typeof dialog.showModal === \"function\"",
   "cartLinesRoot.replaceChildren()",

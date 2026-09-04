@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v2";
+import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v3";
 import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -166,12 +166,20 @@ function createButton(className, label, listener) {
   return button;
 }
 
-function setCartQuantity(id, quantity, focusControl = null) {
+function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = false) {
   const normalized = Math.max(0, Math.min(MAX_ITEM_QUANTITY, quantity));
   if (normalized === 0) cart.delete(id);
   else cart.set(id, normalized);
   saveCart();
   renderCart(focusControl ? { id, control: focusControl } : null);
+  const product = productIndex.get(id);
+  if (shouldAnnounce && product) {
+    const copy = menuCopy[language];
+    const name = localized(product.item.name);
+    announceCart(normalized === 0
+      ? `${copy.removedFromCart}: ${name}`
+      : `${copy.quantityUpdated}: ${name} × ${normalized}`);
+  }
 }
 
 function announceCart(message) {
@@ -223,16 +231,15 @@ function renderCart(focusTarget = null) {
 
     const controls = document.createElement("div");
     controls.className = "menu-cart-line-controls";
-    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1, "decrease"));
+    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1, "decrease", true));
     decrease.setAttribute("aria-label", `${copy.decrease}: ${name}`);
     const count = document.createElement("span");
     count.textContent = String(lineQuantity);
-    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1, "increase"));
+    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1, "increase", true));
     increase.setAttribute("aria-label", `${copy.increase}: ${name}`);
     increase.disabled = lineQuantity >= MAX_ITEM_QUANTITY;
     const remove = createButton("menu-cart-remove", copy.remove, () => {
-      setCartQuantity(id, 0, "remove");
-      announceCart(`${copy.remove}: ${name}`);
+      setCartQuantity(id, 0, "remove", true);
     });
     remove.setAttribute("aria-label", `${copy.remove}: ${name}`);
     controls.append(decrease, count, increase, remove);
