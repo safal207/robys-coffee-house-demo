@@ -176,7 +176,7 @@
         "menu.html#menu-search",
         "menu-app.js#renderMenu",
         "menu-app.js#setLanguage",
-        "menu-data.js"
+        "menu-catalog.js"
       ],
       "tests": [
         "npm run verify:menu-content",

@@ -3,7 +3,7 @@ import {
   type MenuCategorySource,
   type MenuItemSource,
   type MenuLocalizedText
-} from "../../menu-data.js";
+} from "../../menu-catalog.js";
 
 export type SmartChoiceLanguage = "tr" | "en" | "ru";
 export type SourceStatus = "confirmed" | "provisional" | "unavailable";

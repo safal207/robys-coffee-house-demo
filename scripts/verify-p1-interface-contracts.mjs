@@ -139,7 +139,7 @@ const criticalFiles = [
   "analytics.js",
   "qa.js",
   "menu-app.js",
-  "menu-data.js",
+  "menu-catalog.js",
   "menu-search-clear.js",
   "hero-balance.css",
   "src/robys-hero-poster.jpg",

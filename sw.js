@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v51-20260904-smart-choice-offline-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v52-20260904-menu-catalog-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -72,7 +72,7 @@ const CORE_ASSETS = [
   "./mobile-install-copy.json",
   "./mobile-install.js",
   "./offline.css",
-  "./pwa.js?v=smart-choice-offline-20260904-1",
+  "./pwa.js?v=menu-catalog-20260904-1",
   "./android-download.js",
   "./android-app.css",
   "./mobile-install.css",
@@ -99,13 +99,13 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js",
   "./menu-ready.js",
-  "./menu-app.js?v=20260904-premium-order-v9",
-  "./menu-pwa.js?v=smart-choice-offline-20260904-1",
-  "./menu-data.js",
+  "./menu-app.js?v=20260904-premium-order-v10",
+  "./menu-pwa.js?v=menu-catalog-20260904-1",
+  "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260904-interaction-v3",
   "./smart-choice/index.html",
-  "./smart-choice/pwa.js?v=smart-choice-offline-20260904-1",
+  "./smart-choice/pwa.js?v=menu-catalog-20260904-1",
   "./smart-choice/style.css?v=824dd6ec9c5f",
   "./smart-choice/cart.css?v=4fcc327520f5",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
@@ -118,7 +118,7 @@ const CORE_ASSETS = [
   "./smart-choice/analytics.js?v=6199fc8c54af",
   "./smart-choice/decision-trace.js?v=785ed918ca6f",
   "./discover.js",
-  "./discover-v2.js?v=10750cdfa32c",
+  "./discover-v2.js?v=d16fc23e122d",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
@@ -168,6 +168,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||

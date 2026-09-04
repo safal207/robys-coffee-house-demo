@@ -6,7 +6,7 @@ import vm from "node:vm";
 
 const analytics = readFileSync("analytics.js", "utf8");
 const index = readFileSync("index.html", "utf8");
-const menuData = readFileSync("menu-data.js", "utf8");
+const menuData = readFileSync("menu-catalog.js", "utf8");
 const menuRuntime = readFileSync("menu-app.js", "utf8");
 
 function verifyAnalyticsBehavior() {

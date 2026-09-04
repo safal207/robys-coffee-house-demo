@@ -70,7 +70,7 @@ function verifyAsset(filePath, digests) {
   digests.set(digest, filePath);
 }
 
-const menuSource = readFileSync("menu-data.js", "utf8");
+const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
 const menuRuntime = readFileSync("menu-app.js", "utf8");

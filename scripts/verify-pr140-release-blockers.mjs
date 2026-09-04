@@ -12,7 +12,7 @@ const assert = (condition, message) => {
 const revisionFor = (path) =>
   createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 12);
 
-const menuSource = readFileSync("menu-data.js", "utf8");
+const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
 
@@ -26,8 +26,8 @@ const pairingOffer = pairingCategory?.items?.find(
 const coolLime = allItems.find((item) => item.name?.tr === "Cool Lime" && item.price === 190);
 const macaron = allItems.find((item) => item.name?.tr === "Makaron" && item.price === 30);
 
-assert(pairingCategory, "menu-data.js does not define the pairing-offers category");
-assert(pairingOffer, "menu-data.js does not define the Cool Lime + Macaron pairing offer");
+assert(pairingCategory, "menu-catalog.js does not define the pairing-offers category");
+assert(pairingOffer, "menu-catalog.js does not define the Cool Lime + Macaron pairing offer");
 assert(pairingOffer.price === 290, `pairing offer must cost 290 TRY, found ${pairingOffer.price}`);
 assert(coolLime, "individual Cool Lime price must remain explicitly verified at 190 TRY");
 assert(macaron, "individual Macaron price must remain explicitly verified at 30 TRY");

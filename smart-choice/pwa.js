@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "../sw.js?v=smart-choice-offline-20260904-1";
+const SERVICE_WORKER_URL = "../sw.js?v=menu-catalog-20260904-1";
 const root = document.documentElement;
 
 function reflectConnection() {

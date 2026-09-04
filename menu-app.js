@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v4";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];

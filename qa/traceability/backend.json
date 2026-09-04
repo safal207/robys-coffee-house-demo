@@ -58,7 +58,7 @@
           "api-primary --retire--> retired"
         ]
       },
-      "evidence": ["menu-data.js", "social-offer.js#SOCIAL_OFFER"],
+      "evidence": ["menu-catalog.js", "social-offer.js#SOCIAL_OFFER"],
       "tests": ["contract test (planned)", "consumer test (planned)"],
       "history": [["2026-07-01", "planned", "matrix:TRACE-001"]],
       "risks": ["Remote content can diverge from approved prices", "Editorial tooling adds operational duties"],
