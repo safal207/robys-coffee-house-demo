@@ -85,7 +85,6 @@ function loadEntryIfEligible() {
   window.__robysMorningEntryAborted = false;
   window.__robysContextualEntryAborted = false;
   document.documentElement.dataset.robysEntryPending = scene;
-  document.documentElement.style.visibility = "hidden";
   document.documentElement.style.backgroundColor = scene === "morning"
     ? "#170a08"
     : scene === "day"

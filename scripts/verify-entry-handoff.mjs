@@ -9,12 +9,15 @@ const serviceWorker = readFileSync("sw.js", "utf8");
 
 const pendingMarker = "document.documentElement.dataset.robysEntryPending = scene";
 const hiddenMarker = 'document.documentElement.style.visibility = "hidden"';
+const prepaintMarker = "document.documentElement.style.backgroundColor = scene";
 const importMarker = "const entryImport = scene === \"morning\"";
 assert(bootstrap.includes(pendingMarker), "Entry bootstrap must mark the pre-paint handoff");
-assert(bootstrap.includes(hiddenMarker), "Entry bootstrap must suppress the product-page flash");
+assert(!bootstrap.includes(hiddenMarker), "Slow entry delivery must keep the product document paintable");
+assert(bootstrap.includes(prepaintMarker), "Entry bootstrap must apply the branded pre-paint surface");
 assert(
-  bootstrap.indexOf(hiddenMarker) < bootstrap.indexOf(importMarker),
-  "Pre-paint visibility must be applied before the async scene import"
+  bootstrap.indexOf(pendingMarker) < bootstrap.indexOf(importMarker) &&
+    bootstrap.indexOf(prepaintMarker) < bootstrap.indexOf(importMarker),
+  "Pending state and branded pre-paint must be applied before the async scene import"
 );
 assert(
   bootstrap.includes("if (document.documentElement.dataset.robysEntryPending)"),
@@ -45,4 +48,4 @@ assert(
   "Day/night entry revision must be synchronized with offline delivery"
 );
 
-console.log("✅ ENTRY-HANDOFF-001 passed: flash-free pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.");
+console.log("✅ ENTRY-HANDOFF-001 passed: paintable branded pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.");
