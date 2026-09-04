@@ -23,6 +23,11 @@ for (const id of [
 
 assert.match(html, /<dialog\b[^>]*id="menu-product-dialog"/, "Product detail must use a native dialog");
 assert.match(html, /<dialog\b[^>]*id="menu-cart-dialog"/, "Cart summary must use a native dialog");
+assert.match(
+  html,
+  /<img\b(?=[^>]*id=["']menu-product-image["'])(?=[^>]*src=["']src\/products\/menu-v1\/[^"']+\.webp["'])[^>]*>/,
+  "The closed product dialog must expose a decodable branded image source before its first interaction"
+);
 assert.match(html, /href="smart-choice\/"/, "Full menu must expose the Smart Choice route");
 assert(!/<form\b/i.test(html), "Order calculator must not imply that it submits an order");
 

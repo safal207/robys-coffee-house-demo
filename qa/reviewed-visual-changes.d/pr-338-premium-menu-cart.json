@@ -5,7 +5,7 @@
       "id": "pr-338-premium-menu-cart-recovery",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/338#issuecomment-5537060739",
       "contentBindings": {
-        "menu.html": "ee776a628bf810cccf0016c99b982c8c3b343e74",
+        "menu.html": "4e269ceb422f6e9565e5f7be3682ce789e6e22c0",
         "menu.css": "5c47219c0586aecf92e85caa2a1f7e013c30434a",
         "menu-page.js": "015734c5aac3bad67a2a52531405758c84f6e9a4",
         "menu-data.js": "a23586aaebd5be18e81f0825a100734a21908893"
