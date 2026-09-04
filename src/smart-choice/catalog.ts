@@ -530,19 +530,25 @@ export function validateSmartChoiceCatalog(
     validateMoney(combo.priceMinor, `${path}.priceMinor`, list);
     if (!MENU_INDEX.has(combo.sourceOfferId)) diagnostic(list, "SC-CATALOG-SOURCE-002", "error", `${path}.sourceOfferId`, `Unknown offer source: ${combo.sourceOfferId}`);
     const isSingleItemCandidate = combo.pricingMode === "menu-item";
+    const singleItemComponent = combo.components.length === 1 ? combo.components[0] : undefined;
+    const singleItem = singleItemComponent ? itemIndex.get(singleItemComponent.itemId) : undefined;
     if (!isSingleItemCandidate && combo.components.length < 2) {
       diagnostic(list, "SC-CATALOG-COMBO-001", "error", `${path}.components`, "A combo needs at least two components.");
     }
     if (
       isSingleItemCandidate &&
-      (combo.components.length !== 1 || combo.components[0]?.itemId !== combo.sourceOfferId)
+      (
+        !singleItemComponent ||
+        singleItemComponent.quantity !== 1 ||
+        singleItem?.sourceId !== combo.sourceOfferId
+      )
     ) {
       diagnostic(
         list,
         "SC-CATALOG-ITEM-CANDIDATE-001",
         "error",
         `${path}.components`,
-        "A menu-item candidate must contain exactly its verified source item."
+        "A menu-item candidate must contain exactly one unit of its verified source item."
       );
     }
 
