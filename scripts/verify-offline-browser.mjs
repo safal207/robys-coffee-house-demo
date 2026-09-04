@@ -47,7 +47,7 @@ try {
     const cacheName = "robys-test-legacy-smart-choice-v40";
     const cache = await caches.open(cacheName);
     const smartChoiceRoot = new URL("smart-choice/", location.href);
-    const legacyFiles = ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js"];
+    const legacyFiles = ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js", "simulator.js"];
     const cacheNewFiles = legacyFiles.map((file) => file.replace(".js", "-v2.js"));
     await Promise.all(legacyFiles.map((file) => cache.put(
       new Request(new URL(`${file}?v=legacy`, smartChoiceRoot)),

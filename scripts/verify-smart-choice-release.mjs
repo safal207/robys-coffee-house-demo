@@ -154,6 +154,8 @@ requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', "Smart Choice as
 requireText(serviceWorker, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
 requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");
 requireText(buildScript, "synchronizeServiceWorkerAsset", "Smart Choice build must synchronize worker asset revisions");
+requireText(simulatorHtml, 'src="simulator-v2.js?', "owner simulator must load its cache-new runtime pathname");
+assert.ok(!simulatorHtml.includes('src="simulator.js'), "owner simulator must not request the legacy cache-colliding runtime");
 
 for (const legacyFile of ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js"]) {
   assert.ok(!html.includes(`src="${legacyFile}`), `Smart Choice HTML must not request legacy cache-colliding ${legacyFile}`);
