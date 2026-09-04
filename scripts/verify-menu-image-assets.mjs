@@ -74,7 +74,7 @@ const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
 const menuRuntime = readFileSync("menu-app.js", "utf8");
-const menuStyles = readFileSync("menu.css", "utf8");
+const menuStyles = readFileSync("menu-premium.css", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
 const expectedMenuFiles = productCategories.flatMap((category) => {
@@ -117,7 +117,7 @@ for (const fragment of [
   ".full-menu-item--product .full-menu-item-media img{display:block;width:100%;height:100%;object-fit:cover",
   "@media(max-width:680px){.full-menu-item--product{grid-template-columns:88px"
 ]) {
-  if (!menuStyles.includes(fragment)) fail(`menu.css is missing responsive product-photo styling: ${fragment}`);
+  if (!menuStyles.includes(fragment)) fail(`menu-premium.css is missing responsive product-photo styling: ${fragment}`);
 }
 
 const pairings = menuCategories.find((category) => category.id === "pairing-offers")?.items ?? [];

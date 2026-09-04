@@ -6,7 +6,7 @@ const menuHtml = readFileSync("menu.html", "utf8");
 const mobileCss = readFileSync("mobile.css", "utf8");
 const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
-const menuCss = readFileSync("menu.css", "utf8");
+const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
 const menuRuntime = readFileSync("menu-app.js", "utf8");
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
@@ -133,7 +133,7 @@ const criticalFiles = [
   "gallery-clean.css",
   "map-live.css",
   "menu-preview.css",
-  "menu.css",
+  "menu-premium.css",
   "app.js",
   "conversion.js",
   "analytics.js",

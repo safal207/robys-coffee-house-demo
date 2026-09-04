@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 
 const html = readFileSync("menu.html", "utf8");
 const runtime = readFileSync("menu-app.js", "utf8");
-const styles = readFileSync("menu.css", "utf8");
+const styles = readFileSync("menu-premium.css", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories, menuCopy } = await import(moduleUrl);

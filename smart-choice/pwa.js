@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "../sw.js?v=menu-catalog-20260904-1";
+const SERVICE_WORKER_URL = "../sw.js?v=premium-styles-20260904-1";
 const root = document.documentElement;
 
 function reflectConnection() {
