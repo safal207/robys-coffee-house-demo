@@ -33,7 +33,7 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 }
 
 const upgrade = readFileSync("android-download.js", "utf8");
-const bootstrap = readFileSync("bootstrap.js", "utf8");
+const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
 const mobileInstall = readFileSync("mobile-install.js", "utf8");
 const mobileInstallCss = readFileSync("mobile-install.css", "utf8");

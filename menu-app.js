@@ -36,6 +36,7 @@ let activeCategory = readInitialCategory();
 let searchTerm = "";
 let selectedProductId = "";
 let selectedProductQuantity = 1;
+const dialogReturnFocus = new WeakMap();
 
 function readStoredLanguage() {
   try {
@@ -270,18 +271,65 @@ function renderCart(focusTarget = null) {
 }
 
 function openDialog(dialog) {
-  if (typeof dialog.showModal === "function") dialog.showModal();
-  else dialog.setAttribute("open", "");
+  dialogReturnFocus.set(dialog, document.activeElement);
+  if (typeof dialog.showModal === "function") {
+    dialog.showModal();
+  } else {
+    dialog.classList.add("menu-dialog--fallback");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("open", "");
+    window.requestAnimationFrame(() => {
+      dialog.querySelector("[data-menu-dialog-close]")?.focus({ preventScroll: true });
+    });
+  }
   document.body.classList.add("menu-dialog-open");
 }
 
 function closeDialog(dialog) {
-  if (typeof dialog.close === "function") dialog.close();
+  const isFallback = dialog.classList.contains("menu-dialog--fallback");
+  if (!isFallback && typeof dialog.close === "function" && dialog.hasAttribute("open")) dialog.close();
   else dialog.removeAttribute("open");
+  dialog.classList.remove("menu-dialog--fallback");
+  dialog.removeAttribute("aria-modal");
   if (!document.querySelector(".menu-dialog[open]")) {
     document.body.classList.remove("menu-dialog-open");
   }
+  const returnFocus = dialogReturnFocus.get(dialog);
+  dialogReturnFocus.delete(dialog);
+  if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
 }
+
+function fallbackFocusableControls(dialog) {
+  return Array.from(dialog.querySelectorAll(
+    'button:not([disabled]):not([hidden]),a[href]:not([hidden]),input:not([disabled]):not([hidden]),[tabindex]:not([tabindex="-1"]):not([hidden])'
+  ));
+}
+
+document.addEventListener("keydown", (event) => {
+  const dialog = document.querySelector(".menu-dialog--fallback[open]");
+  if (!dialog) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeDialog(dialog);
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const controls = fallbackFocusableControls(dialog);
+  if (controls.length === 0) {
+    event.preventDefault();
+    return;
+  }
+  const first = controls[0];
+  const last = controls[controls.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
 
 function updateProductQuantity() {
   const product = productIndex.get(selectedProductId);

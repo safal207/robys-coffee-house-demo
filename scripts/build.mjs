@@ -167,7 +167,7 @@ function synchronizeServiceWorker(
 
 function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
   const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(`"\\./${escapedPath}(?:\\?v=[a-f0-9]{12})?"`);
+  const pattern = new RegExp(`"\\./${escapedPath}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(serviceWorker)) {
     throw new Error(`Service worker does not contain the revisioned ${filePath} cache entry`);
   }
@@ -175,6 +175,9 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 }
 
 const appRevision = revisionFor("app.js");
+const bootstrapRevision = revisionFor("bootstrap-v2.js");
+const baseStylesRevision = revisionFor("styles-v2.css");
+const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
@@ -192,16 +195,30 @@ const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-t
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
 
 let html = readFileSync("index.html", "utf8");
+html = synchronizeScript(html, "bootstrap-v2.js", bootstrapRevision);
+html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
+discoverHtml = synchronizeScript(discoverHtml, "bootstrap-v2.js", bootstrapRevision);
+discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);
 discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
+
+let menuHtml = readFileSync("menu.html", "utf8");
+menuHtml = synchronizeScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
+writeFileSync("menu.html", menuHtml);
+
+let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "release-qa.js", smartChoiceReleaseQaRevision);
@@ -224,6 +241,9 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationCssRevision
 );
 for (const [filePath, revision] of [
+  ["bootstrap-v2.js", bootstrapRevision],
+  ["styles-v2.css", baseStylesRevision],
+  ["menu-security-v2.css", menuSecurityRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],
@@ -240,7 +260,9 @@ for (const [filePath, revision] of [
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
-  `Built app.js (${appRevision}), Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
+  `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), styles-v2.css (${baseStylesRevision}), ` +
+  `menu-security-v2.css (${menuSecurityRevision}), ` +
+  `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
   `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +
   `Smart Choice release-qa.js (${smartChoiceReleaseQaRevision}), featured-gallery.js (${galleryRevision}), ` +

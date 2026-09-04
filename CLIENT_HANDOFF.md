@@ -50,6 +50,6 @@ Olaylar şu anda dışarıya gönderilmez. Tarayıcıdaki `window.dataLayer` ve 
 - Metinler: `src/i18n.js`
 - Ana sayfa yapısı: `index.html`
 - Mobil düzen: `mobile.css`
-- Premium efektler: `styles.css`
+- Premium efektler: `styles-v2.css`
 - Conversion bileşenleri: `conversion.css`, `conversion.js`
 - QA ve event hooks: `final-qa.css`, `qa.js`, `analytics.js`

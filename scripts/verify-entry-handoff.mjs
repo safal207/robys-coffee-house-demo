@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const bootstrap = readFileSync("bootstrap.js", "utf8");
+const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const morning = readFileSync("morning-entry.js", "utf8");
 const contextual = readFileSync("day-night-entry.js", "utf8");
-const styles = readFileSync("styles.css", "utf8");
+const styles = readFileSync("styles-v2.css", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
+const entryPages = ["index.html", "menu.html", "discover.html"].map((file) => readFileSync(file, "utf8"));
 
 const pendingMarker = "document.documentElement.dataset.robysEntryPending = scene";
 const hiddenMarker = 'document.documentElement.style.visibility = "hidden"';
@@ -46,6 +47,20 @@ assert(
 assert(
   bootstrap.includes("20260904-compositor-v25") && serviceWorker.includes("20260904-compositor-v25"),
   "Day/night entry revision must be synchronized with offline delivery"
+);
+for (const page of entryPages) {
+  assert(/src="bootstrap-v2\.js\?v=[a-f0-9]{12}"/.test(page), "Entry pages must load the cache-new revisioned bootstrap");
+  assert(/href="styles-v2\.css\?v=[a-f0-9]{12}"/.test(page), "Entry pages must load the cache-new revisioned base stylesheet");
+  assert(!page.includes('src="bootstrap.js') && !page.includes('href="styles.css'), "Entry pages must not request legacy cache-colliding assets");
+}
+assert(
+  serviceWorker.includes('"./bootstrap-v2.js?v=') && serviceWorker.includes('"./styles-v2.css?v='),
+  "Service worker must precache both entry assets at their exact cache-new revisions"
+);
+assert(
+  serviceWorker.includes('url.pathname.endsWith("/bootstrap-v2.js")') &&
+    serviceWorker.includes('url.pathname.endsWith("/styles-v2.css")'),
+  "Entry assets must use exact revision matching in the service worker"
 );
 
 console.log("✅ ENTRY-HANDOFF-001 passed: paintable branded pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.");

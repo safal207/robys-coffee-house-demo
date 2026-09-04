@@ -5,7 +5,7 @@ on:
     paths:
       - "android-native/**"
       - "android-handoff.js"
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "sw.js"
       - "integrity-manifest.json"
       - "scripts/motion-release-certification.mjs"
@@ -19,7 +19,7 @@ on:
     paths:
       - "android-native/**"
       - "android-handoff.js"
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "sw.js"
       - "integrity-manifest.json"
       - "scripts/motion-release-certification.mjs"

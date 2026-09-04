@@ -104,8 +104,8 @@
         ]
       },
       "evidence": [
-        "styles.css#.reveal-item",
-        "styles.css#.menu-section",
+        "styles-v2.css#.reveal-item",
+        "styles-v2.css#.menu-section",
         "app.js",
         "conversion.css#.mobile-cta",
         "conversion.js#setupMobileCta"

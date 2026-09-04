@@ -126,7 +126,7 @@ gate("A11Y-001");
 // ASSET-001
 const criticalFiles = [
   "icon.svg",
-  "styles.css",
+  "styles-v2.css",
   "mobile.css",
   "conversion.css",
   "final-qa.css",

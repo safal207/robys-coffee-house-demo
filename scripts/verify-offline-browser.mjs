@@ -49,19 +49,32 @@ try {
     const smartChoiceRoot = new URL("smart-choice/", location.href);
     const legacyFiles = ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js", "simulator.js"];
     const cacheNewFiles = legacyFiles.map((file) => file.replace(".js", "-v2.js"));
+    const entryPathPairs = [
+      ["bootstrap.js", "bootstrap-v2.js"],
+      ["styles.css", "styles-v2.css"],
+      ["menu-security.css", "menu-security-v2.css"]
+    ];
     await Promise.all(legacyFiles.map((file) => cache.put(
       new Request(new URL(`${file}?v=legacy`, smartChoiceRoot)),
       new Response(`legacy:${file}`, { headers: { "Content-Type": "text/javascript" } })
+    )));
+    await Promise.all(entryPathPairs.map(([legacyFile]) => cache.put(
+      new Request(new URL(`${legacyFile}?v=legacy`, location.href)),
+      new Response(`legacy:${legacyFile}`)
     )));
     const collisions = [];
     for (const file of cacheNewFiles) {
       const matched = await cache.match(new Request(new URL(`${file}?v=current`, smartChoiceRoot)), { ignoreSearch: true });
       if (matched) collisions.push(file);
     }
+    for (const [, cacheNewFile] of entryPathPairs) {
+      const matched = await cache.match(new Request(new URL(`${cacheNewFile}?v=current`, location.href)), { ignoreSearch: true });
+      if (matched) collisions.push(cacheNewFile);
+    }
     await caches.delete(cacheName);
     return collisions;
   });
-  assert.deepEqual(legacyCacheIsolation, [], "Cache-new Smart Choice paths collided with legacy ignoreSearch entries");
+  assert.deepEqual(legacyCacheIsolation, [], "Cache-new entry or Smart Choice paths collided with legacy ignoreSearch entries");
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });

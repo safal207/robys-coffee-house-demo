@@ -3,7 +3,7 @@ name: Motion release certification
 on:
   pull_request:
     paths:
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "morning-entry.js"
       - "android-handoff.js"
       - "sw.js"
@@ -20,7 +20,7 @@ on:
     branches:
       - agent/motion-release-certification-v1
     paths:
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "morning-entry.js"
       - "android-handoff.js"
       - "sw.js"

@@ -182,6 +182,66 @@ try {
     cartLiveEvidence
   );
 
+  const fallbackMenu = await context.newPage();
+  const fallbackErrors = [];
+  fallbackMenu.on("pageerror", (error) => fallbackErrors.push(error.message));
+  try {
+    await fallbackMenu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
+    await fallbackMenu.locator("#menu-root .full-menu-item-media").first().waitFor({ state: "visible" });
+    const initiallyHidden = await fallbackMenu.locator("#menu-product-dialog").evaluate(
+      (dialog) => getComputedStyle(dialog).display === "none" && !dialog.hasAttribute("open")
+    );
+    await fallbackMenu.evaluate(() => {
+      document.querySelectorAll("dialog").forEach((dialog) => {
+        Object.defineProperty(dialog, "showModal", { configurable: true, value: undefined });
+      });
+    });
+    const opener = fallbackMenu.locator("#menu-root .full-menu-item-media").first();
+    await opener.click();
+    await fallbackMenu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
+    await fallbackMenu.waitForTimeout(50);
+    const openedFallback = await fallbackMenu.locator("#menu-product-dialog").evaluate((dialog) => ({
+      fallbackClass: dialog.classList.contains("menu-dialog--fallback"),
+      ariaModal: dialog.getAttribute("aria-modal"),
+      position: getComputedStyle(dialog).position,
+      display: getComputedStyle(dialog).display,
+      focusInside: dialog.contains(document.activeElement)
+    }));
+    await fallbackMenu.keyboard.press("Escape");
+    await fallbackMenu.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+    const closedFallback = await fallbackMenu.locator("#menu-product-dialog").evaluate((dialog) => ({
+      open: dialog.hasAttribute("open"),
+      display: getComputedStyle(dialog).display,
+      bodyLocked: document.body.classList.contains("menu-dialog-open"),
+      focusReturned: document.activeElement?.classList.contains("full-menu-item-media") ?? false
+    }));
+    check(
+      "A11Y-DIALOG-FALLBACK-001",
+      initiallyHidden &&
+        openedFallback.fallbackClass &&
+        openedFallback.ariaModal === "true" &&
+        openedFallback.position === "fixed" &&
+        openedFallback.display === "grid" &&
+        openedFallback.focusInside &&
+        !closedFallback.open &&
+        closedFallback.display === "none" &&
+        !closedFallback.bodyLocked &&
+        closedFallback.focusReturned &&
+        fallbackErrors.length === 0,
+      "Dialog fallback stays hidden at first paint, behaves modally, closes with Escape and restores focus",
+      { initiallyHidden, openedFallback, closedFallback, errors: fallbackErrors }
+    );
+  } catch (error) {
+    check(
+      "A11Y-DIALOG-FALLBACK-001",
+      false,
+      "Dialog fallback failed in a browser without showModal",
+      { error: String(error?.stack ?? error), errors: fallbackErrors }
+    );
+  } finally {
+    await fallbackMenu.close().catch(() => {});
+  }
+
   const smartChoice = await context.newPage();
   smartChoice.setDefaultTimeout(7_000);
   const smartChoiceErrors = [];

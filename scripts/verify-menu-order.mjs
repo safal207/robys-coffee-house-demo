@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 
 const html = readFileSync("menu.html", "utf8");
 const runtime = readFileSync("menu-app.js", "utf8");
-const styles = readFileSync("menu-premium.css", "utf8");
+const styles = `${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")}`;
+const serviceWorker = readFileSync("sw.js", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories, menuCopy } = await import(moduleUrl);
@@ -102,6 +103,9 @@ for (const contract of [
   "copy.quantityUpdated",
   "(focusCandidate ?? fallback)?.focus({ preventScroll: true })",
   "typeof dialog.showModal === \"function\"",
+  "dialog.classList.add(\"menu-dialog--fallback\")",
+  "fallbackFocusableControls(dialog)",
+  "event.key === \"Escape\"",
   "cartLinesRoot.replaceChildren()",
   "document.createElement(\"button\")"
 ]) {
@@ -115,6 +119,7 @@ for (const contract of [
   "/* PREMIUM-MENU-ORDER-V1 */",
   ".full-menu-item-media{appearance:none",
   ".menu-dialog::backdrop",
+  ".menu-dialog:not([open]){display:none}",
   ".menu-product-shell{display:grid",
   ".menu-cart-line{display:grid",
   "@media(max-width:760px)",
@@ -131,6 +136,15 @@ assert.doesNotMatch(
   styles,
   /\.menu-product-shell\{[^}]*overflow:hidden/,
   "Product dialog shell must not clip the add-to-order controls"
+);
+assert(
+  /href="menu-security-v2\.css\?v=[a-f0-9]{12}"/.test(html),
+  "Menu must load the cache-new dialog fallback stylesheet at its content revision"
+);
+assert(
+  serviceWorker.includes('"./menu-security-v2.css?v=') &&
+    serviceWorker.includes('url.pathname.endsWith("/menu-security-v2.css")'),
+  "Dialog fallback stylesheet must be precached and matched at its exact revision"
 );
 
 console.log(`✅ MENU-ORDER-001 passed: ${visualItemCount} clickable photos, localized modal, session cart, quantity controls and total calculator are wired.`);
