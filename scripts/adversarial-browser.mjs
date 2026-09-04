@@ -157,6 +157,59 @@ try {
   }));
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
+  const smartChoice = await context.newPage();
+  smartChoice.setDefaultTimeout(7_000);
+  const smartChoiceErrors = [];
+  smartChoice.on("pageerror", (error) => smartChoiceErrors.push(error.message));
+  try {
+    await smartChoice.goto(new URL("smart-choice/", BASE_URL).href, { waitUntil: "domcontentloaded" });
+    await smartChoice.locator('#smart-choice-app[aria-busy="false"]').waitFor({ state: "visible" });
+    await smartChoice.locator('.lang-button[data-lang="ru"]').click();
+    await smartChoice.locator(".smart-card .primary-button").click();
+
+    for (const optionIndex of [0, 0, 2, 0, 0]) {
+      await smartChoice.locator(".option-button").nth(optionIndex).click();
+      await smartChoice.locator(".actions .primary-button").click();
+    }
+
+    const smartChoiceEvidence = await smartChoice.evaluate(() => ({
+      language: document.documentElement.lang,
+      heading: document.querySelector("#smart-choice-app h1")?.textContent?.trim() ?? "",
+      cards: [...document.querySelectorAll(".result-card")].map((card) => ({
+        role: card.querySelector(".result-badge")?.textContent?.trim() ?? "",
+        name: card.querySelector("h2")?.textContent?.trim() ?? "",
+        price: Number(card.querySelector(".result-price")?.textContent?.match(/\d+/)?.[0] ?? NaN),
+        top: card.classList.contains("result-card--top")
+      })),
+      experiment: document.documentElement.dataset.smartChoiceExperiment ?? ""
+    }));
+    const top = smartChoiceEvidence.cards.find((card) => card.top);
+    const economy = smartChoiceEvidence.cards.find((card) => card.role === "Экономнее");
+    check(
+      "SMART-CHOICE-BROWSER-001",
+      smartChoiceEvidence.language === "ru" &&
+        smartChoiceEvidence.heading === "Ваш выбор Roby's готов." &&
+        top?.name === "Карамельный латте" &&
+        Number.isFinite(top.price) &&
+        Number.isFinite(economy?.price) &&
+        economy.price < top.price &&
+        !smartChoiceEvidence.cards.some((card) => card.name === "Hot Chocolate") &&
+        Boolean(smartChoiceEvidence.experiment) &&
+        smartChoiceErrors.length === 0,
+      "Smart Choice remains interactive under its experiment observer and returns a cheaper coffee-safe result",
+      { ...smartChoiceEvidence, errors: smartChoiceErrors }
+    );
+  } catch (error) {
+    check(
+      "SMART-CHOICE-BROWSER-001",
+      false,
+      "Smart Choice interaction stalled or failed",
+      { error: String(error?.stack ?? error), errors: smartChoiceErrors }
+    );
+  } finally {
+    await smartChoice.close().catch(() => {});
+  }
+
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`❌ [${failure.id}] ${failure.message}`));
     throw new Error(`Adversarial browser checks failed: ${report.failures.length}`);

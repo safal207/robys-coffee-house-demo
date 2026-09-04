@@ -44,7 +44,7 @@ assert(
   "Header must not flash through the splash"
 );
 assert(
-  bootstrap.includes("20260904-handoff-v24") && serviceWorker.includes("20260904-handoff-v24"),
+  bootstrap.includes("20260904-compositor-v25") && serviceWorker.includes("20260904-compositor-v25"),
   "Day/night entry revision must be synchronized with offline delivery"
 );
 

@@ -187,6 +187,10 @@ try {
   assert(!domainSource.includes("document."), "experiment analysis domain must not read DOM state");
   assert(!domainSource.includes("sessionStorage"), "experiment analysis domain must not read browser storage");
   assert(!runtimeSource.includes("fetch("), "MVP experiment runtime must not depend on an external endpoint");
+  assert(
+    runtimeSource.includes("if (lead.textContent !== nextCopy) lead.textContent = nextCopy"),
+    "experiment copy writes must be idempotent inside the observed Smart Choice subtree"
+  );
   for (const stalePromise of [
     "doğrulanmış bir Roby's eşleşmesi",
     "verified Roby's pairing",

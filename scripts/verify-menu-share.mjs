@@ -13,7 +13,7 @@ function assert(condition, message) {
   if (!condition) throw new Error(`[SHARE-001] ${message}`);
 }
 
-const statusRule = css.match(/\.menu-share-status\s*\{([^}]*)\}/i)?.[1]?.replace(/\s+/g, "").toLowerCase() ?? "";
+const statusRule = css.match(/(?:^|})\s*\.menu-share-status\s*\{([^}]*)\}/i)?.[1]?.replace(/\s+/g, "").toLowerCase() ?? "";
 
 assert(html.includes('id="menu-share-button"'), "Menu share button is missing");
 assert(html.includes('id="menu-share-status"') && html.includes('aria-live="polite"'), "Accessible share status is missing");
@@ -40,13 +40,13 @@ assert(menuPageRuntime.includes("runLazyShare(true)"), "Rejected native share la
 assert(html.includes('data-share-text-tr=') && html.includes('data-share-text-en=') && html.includes('data-share-text-ru='), "Activation-safe share copy lacks TR/EN/RU coverage");
 assert(!html.includes('src="menu-interactions.js'), "Menu interactions must stay off the initial performance path");
 assert(html.includes('src="menu-app.js?v=20260904-premium-order-v10"'), "Menu must load the current cache-safe runtime path");
-assert(html.includes('href="menu-premium.css?v=20260904-premium-order-v1"'), "Menu must load the cache-new premium stylesheet path");
+assert(html.includes('href="menu-premium.css?v=20260904-premium-scroll-v2"'), "Menu must load the cache-new premium stylesheet path");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
 assert(menuPageRuntime.includes('from "./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu runtime must use the cache-new catalog pathname");
 assert(serviceWorker.includes('"./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu catalog is not precached at its runtime revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-catalog.js")'), "Menu catalog is not exact-revision cached");
 assert(!serviceWorker.includes('"./menu-data.js"'), "Legacy unversioned menu catalog must not remain in the cache manifest");
-assert(serviceWorker.includes('"./menu-premium.css?v=20260904-premium-order-v1"'), "Premium menu stylesheet is not precached at its HTML revision");
+assert(serviceWorker.includes('"./menu-premium.css?v=20260904-premium-scroll-v2"'), "Premium menu stylesheet is not precached at its HTML revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-premium.css")'), "Premium menu stylesheet is not exact-revision cached");
 assert(!serviceWorker.includes('"./menu.css"'), "Legacy menu stylesheet must not remain in the cache manifest");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-interactions.js")'), "Menu interactions are not exact-revision cached");

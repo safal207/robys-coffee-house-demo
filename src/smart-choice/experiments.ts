@@ -165,7 +165,8 @@ function applyTreatment(): void {
   const lead = document.querySelector<HTMLElement>("#smart-choice-app .smart-card .smart-lead");
   if (!lead) return;
   const code = currentPayload()?.benefitCopyCode ?? "verified-fit";
-  lead.textContent = benefitCopy[code][currentLanguage()];
+  const nextCopy = benefitCopy[code][currentLanguage()];
+  if (lead.textContent !== nextCopy) lead.textContent = nextCopy;
   document.documentElement.dataset.smartChoiceExperiment = current.assignment?.experimentId ?? "disabled";
   document.documentElement.dataset.smartChoiceVariant = current.assignment?.variantId ?? "control-no-experiment";
 }
