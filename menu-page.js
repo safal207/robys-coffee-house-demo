@@ -28,6 +28,7 @@ const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
 
 const CART_STORAGE_KEY = "robys-menu-order.v1";
 const MAX_ITEM_QUANTITY = 99;
+const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
@@ -76,7 +77,7 @@ function localized(value) {
 }
 
 function formatPrice(price) {
-  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} ₺`;
+  return `${new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 }).format(price)} ₺`;
 }
 
 function imageSlug(value) {

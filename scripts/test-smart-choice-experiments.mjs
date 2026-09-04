@@ -187,6 +187,20 @@ try {
   assert(!domainSource.includes("document."), "experiment analysis domain must not read DOM state");
   assert(!domainSource.includes("sessionStorage"), "experiment analysis domain must not read browser storage");
   assert(!runtimeSource.includes("fetch("), "MVP experiment runtime must not depend on an external endpoint");
+  for (const stalePromise of [
+    "doğrulanmış bir Roby's eşleşmesi",
+    "verified Roby's pairing",
+    "подтверждённое сочетание Roby's"
+  ]) {
+    assert(!runtimeSource.includes(stalePromise), `single-item recommendations must not be described as pairing-only: ${stalePromise}`);
+  }
+  for (const honestPromise of [
+    "doğrulanmış bir Roby's seçimi",
+    "verified Roby's menu choice",
+    "подтверждённую позицию или сочетание Roby's"
+  ]) {
+    assert(runtimeSource.includes(honestPromise), `experiment copy must cover a menu item or pairing: ${honestPromise}`);
+  }
   assert(runtimeSource.includes("ANALYTICS_ASSIGNMENT_KEY"));
   assert(runtimeSource.includes("killSwitch"));
   assert(analyticsSource.includes('const EXPERIMENT_KEY = "robys-smart-choice-experiment.v1"'));

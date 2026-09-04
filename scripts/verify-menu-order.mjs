@@ -55,6 +55,8 @@ for (const contract of [
   "media.addEventListener(\"click\", () => openProduct(id))",
   "total += product.item.price * lineQuantity",
   "product.item.price * selectedProductQuantity",
+  'const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }',
+  "new Intl.NumberFormat(localeTag[language]",
   "const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity)",
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
@@ -67,6 +69,7 @@ for (const contract of [
 ]) {
   assert(runtime.includes(contract), `Menu order runtime contract is missing: ${contract}`);
 }
+assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must follow the selected language locale");
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
 
 for (const contract of [
