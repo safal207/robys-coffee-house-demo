@@ -13,7 +13,7 @@ async function registerOfflineRuntime() {
 
   try {
     const registration = await navigator.serviceWorker.register(SERVICE_WORKER_URL, { scope: "../" });
-    await registration.update();
+    await registration.update().catch(() => {});
     await navigator.serviceWorker.ready;
     root.dataset.offlineReady = "true";
   } catch {
