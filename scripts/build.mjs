@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 import ts from "typescript";
 
@@ -20,7 +20,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/app.js",
+  outfile: "smart-choice/app-v2.js",
   legalComments: "none"
 });
 
@@ -31,7 +31,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/cart.js",
+  outfile: "smart-choice/cart-v2.js",
   legalComments: "none"
 });
 
@@ -42,7 +42,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/experiments.js",
+  outfile: "smart-choice/experiments-v2.js",
   legalComments: "none"
 });
 
@@ -53,7 +53,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/analytics.js",
+  outfile: "smart-choice/analytics-v2.js",
   legalComments: "none"
 });
 
@@ -64,7 +64,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/decision-trace.js",
+  outfile: "smart-choice/decision-trace-v2.js",
   legalComments: "none"
 });
 
@@ -78,19 +78,6 @@ await build({
   outfile: "smart-choice/release-qa.js",
   legalComments: "none"
 });
-
-// Cache-new aliases are a one-time migration boundary for clients still
-// controlled by the legacy worker, which matched Smart Choice assets with
-// ignoreSearch. A new pathname cannot resolve to its cached legacy bundle.
-for (const [legacyName, cacheNewName] of [
-  ["app.js", "app-v2.js"],
-  ["cart.js", "cart-v2.js"],
-  ["experiments.js", "experiments-v2.js"],
-  ["analytics.js", "analytics-v2.js"],
-  ["decision-trace.js", "decision-trace-v2.js"]
-]) {
-  copyFileSync(`smart-choice/${legacyName}`, `smart-choice/${cacheNewName}`);
-}
 
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
