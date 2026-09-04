@@ -178,7 +178,7 @@ body.menu-dialog-open{overflow:hidden}
 .menu-dialog-close:hover{background:var(--ruby);transform:rotate(4deg) scale(1.04)}
 .menu-dialog-close:focus-visible,.menu-quantity-stepper button:focus-visible,.menu-cart-step:focus-visible,.menu-cart-remove:focus-visible{outline:3px solid rgba(226,27,35,.42);outline-offset:2px}
 
-.menu-product-shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);overflow:hidden}
+.menu-product-shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);overflow:auto}
 .menu-product-visual{position:relative;min-height:600px;overflow:hidden;background:#2b201e}
 .menu-product-visual img{width:100%;height:100%;object-fit:cover}
 .menu-product-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 58%,rgba(22,12,11,.62));pointer-events:none}

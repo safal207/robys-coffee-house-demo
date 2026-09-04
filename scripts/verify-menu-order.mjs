@@ -77,5 +77,15 @@ for (const contract of [
 ]) {
   assert(styles.includes(contract), `Menu order responsive styling is missing: ${contract}`);
 }
+assert.match(
+  styles,
+  /\.menu-product-shell\{[^}]*overflow:auto/,
+  "Product dialog must remain vertically scrollable on short and mobile viewports"
+);
+assert.doesNotMatch(
+  styles,
+  /\.menu-product-shell\{[^}]*overflow:hidden/,
+  "Product dialog shell must not clip the add-to-order controls"
+);
 
 console.log(`✅ MENU-ORDER-001 passed: ${visualItemCount} clickable photos, localized modal, session cart, quantity controls and total calculator are wired.`);
