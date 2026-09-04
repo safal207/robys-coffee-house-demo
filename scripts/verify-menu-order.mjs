@@ -23,6 +23,11 @@ for (const id of [
 
 assert.match(html, /<dialog\b[^>]*id="menu-product-dialog"/, "Product detail must use a native dialog");
 assert.match(html, /<dialog\b[^>]*id="menu-cart-dialog"/, "Cart summary must use a native dialog");
+assert.equal((html.match(/data-menu-cart-status/g) ?? []).length, 3, "Cart announcements need outside, product-dialog and cart-dialog live regions");
+const productDialogMarkup = html.match(/<dialog\b[^>]*id="menu-product-dialog"[\s\S]*?<\/dialog>/)?.[0] ?? "";
+const cartDialogMarkup = html.match(/<dialog\b[^>]*id="menu-cart-dialog"[\s\S]*?<\/dialog>/)?.[0] ?? "";
+assert.match(productDialogMarkup, /data-menu-cart-status[^>]*role="status"[^>]*aria-live="polite"/, "Product dialog needs an active cart live region");
+assert.match(cartDialogMarkup, /data-menu-cart-status[^>]*role="status"[^>]*aria-live="polite"/, "Cart dialog needs an active cart live region");
 assert.match(
   html,
   /<img\b(?=[^>]*id=["']menu-product-image["'])(?=[^>]*src=["']src\/products\/menu-v1\/[^"']+\.webp["'])[^>]*>/,
@@ -85,6 +90,8 @@ for (const contract of [
   "const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity)",
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",
+  'document.querySelectorAll("[data-menu-cart-status]")',
+  "cartStatuses.forEach((status) =>",
   "function renderCart(focusTarget = null)",
   'categoryNav.dataset.ready = "true"',
   'menuRoot.dataset.ready = "true"',

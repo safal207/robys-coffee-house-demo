@@ -157,6 +157,31 @@ try {
   }));
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
+  await menu.locator("#menu-search").fill("");
+  await menu.locator(".full-menu-item-media").first().click();
+  await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
+  await menu.locator("#menu-add-to-cart").click();
+  await menu.locator("#menu-cart-trigger").click();
+  await menu.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
+  await menu.waitForFunction(() => document.querySelector("#menu-cart-dialog[open] [data-menu-cart-status]")?.textContent?.includes("× 2"));
+  const cartLiveEvidence = await menu.evaluate(() => {
+    const dialog = document.querySelector("#menu-cart-dialog");
+    const status = dialog?.querySelector("[data-menu-cart-status]");
+    return {
+      dialogOpen: dialog?.hasAttribute("open") ?? false,
+      statusInsideDialog: Boolean(status && dialog?.contains(status)),
+      statusText: status?.textContent?.trim() ?? "",
+      atomic: status?.getAttribute("aria-atomic") ?? ""
+    };
+  });
+  check(
+    "A11Y-CART-LIVE-001",
+    cartLiveEvidence.dialogOpen && cartLiveEvidence.statusInsideDialog && cartLiveEvidence.statusText.includes("× 2") && cartLiveEvidence.atomic === "true",
+    "Cart quantity changes are announced from inside the active modal dialog",
+    cartLiveEvidence
+  );
+
   const smartChoice = await context.newPage();
   smartChoice.setDefaultTimeout(7_000);
   const smartChoiceErrors = [];

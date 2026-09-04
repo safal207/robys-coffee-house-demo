@@ -11,7 +11,7 @@ const menuShareButton = document.querySelector("#menu-share-button");
 const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
-const cartStatus = document.querySelector("#menu-cart-status");
+const cartStatuses = Array.from(document.querySelectorAll("[data-menu-cart-status]"));
 const productDialog = document.querySelector("#menu-product-dialog");
 const productDialogImage = document.querySelector("#menu-product-image");
 const productDialogCategory = document.querySelector("#menu-product-category");
@@ -190,9 +190,9 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
 }
 
 function announceCart(message) {
-  cartStatus.textContent = "";
+  cartStatuses.forEach((status) => { status.textContent = ""; });
   window.requestAnimationFrame(() => {
-    cartStatus.textContent = message;
+    cartStatuses.forEach((status) => { status.textContent = message; });
   });
 }
 

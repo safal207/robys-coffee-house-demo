@@ -48,7 +48,7 @@
   <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />
   <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260726-approved-v4" />
-  <script defer src="menu-pwa.js?v=premium-scroll-20260904-1"></script>
+  <script defer src="menu-pwa.js?v=premium-a11y-20260904-1"></script>
 </head>
 <body class="menu-page">
   <a class="skip-link" href="#menu-root">İçeriğe geç</a>
@@ -158,7 +158,7 @@
     </div>
   </footer>
 
-  <p class="visually-hidden" id="menu-cart-status" role="status" aria-live="polite"></p>
+  <p class="visually-hidden" id="menu-cart-status" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
 
   <dialog class="menu-dialog menu-product-dialog" id="menu-product-dialog" aria-labelledby="menu-product-title" aria-describedby="menu-product-draft-note">
     <div class="menu-dialog-shell menu-product-shell">
@@ -181,6 +181,7 @@
           </div>
         </div>
         <button class="button button-primary menu-add-button" id="menu-add-to-cart" type="button" data-menu-copy="addToCart">Siparişe ekle</button>
+        <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
         <p class="menu-order-draft-note" id="menu-product-draft-note" data-menu-copy="orderDraft">Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.</p>
       </div>
     </div>
@@ -195,6 +196,7 @@
       </header>
       <p class="menu-cart-empty" id="menu-cart-empty" data-menu-copy="cartEmpty">Henüz bir seçim eklemediniz.</p>
       <div class="menu-cart-lines" id="menu-cart-lines"></div>
+      <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
       <footer class="menu-cart-footer">
         <div class="menu-cart-grand-total">
           <span data-menu-copy="total">Toplam</span>
@@ -206,7 +208,7 @@
     </div>
   </dialog>
 
-  <script type="module" src="menu-app.js?v=20260904-premium-order-v10"></script>
+  <script type="module" src="menu-app.js?v=20260904-premium-order-v11"></script>
   <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>
 </body>
 </html>
