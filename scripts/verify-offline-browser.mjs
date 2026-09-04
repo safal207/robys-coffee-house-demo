@@ -51,6 +51,7 @@ try {
     const cacheNewFiles = legacyFiles.map((file) => file.replace(".js", "-v2.js"));
     const entryPathPairs = [
       ["bootstrap.js", "bootstrap-v2.js"],
+      ["morning-entry.js", "morning-entry-v2.js"],
       ["styles.css", "styles-v2.css"],
       ["menu-security.css", "menu-security-v2.css"]
     ];

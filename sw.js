@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v59-20260904-entry-cache-new-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v60-20260904-entry-deps-cache-new-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -83,7 +83,7 @@ const CORE_ASSETS = [
   "./social-offer.css",
   "./menu-premium.css?v=20260904-premium-scroll-v2",
   "./menu-stability.css",
-  "./menu-security-v2.css?v=e4c66df66f3c",
+  "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
@@ -92,9 +92,9 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4",
-  "./bootstrap-v2.js?v=7bbb84cfab20",
+  "./bootstrap-v2.js?v=45fbf33f0155",
   "./android-handoff.js",
-  "./morning-entry.js",
+  "./morning-entry-v2.js?v=8a158515f4de",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
   "./conversion.js",
@@ -165,6 +165,7 @@ async function cachedResponse(request) {
   const requiresExactRevision =
     isVersionedSmartChoiceAsset ||
     url.pathname.endsWith("/bootstrap-v2.js") ||
+    url.pathname.endsWith("/morning-entry-v2.js") ||
     url.pathname.endsWith("/styles-v2.css") ||
     url.pathname.endsWith("/menu-security-v2.css") ||
     url.pathname.endsWith("/pwa.js") ||

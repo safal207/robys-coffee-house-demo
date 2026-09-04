@@ -10,6 +10,7 @@
 /* Progressive modal fallback for browsers without HTMLDialogElement.showModal. */
 .menu-dialog:not([open]){display:none}
 .menu-dialog.menu-dialog--fallback[open]{position:fixed;inset:0;z-index:1000;display:grid;width:100%;height:100%;max-width:none;max-height:none;box-sizing:border-box;margin:0;padding:16px;place-items:center;overflow:auto;background:rgba(17,10,10,.82);backdrop-filter:blur(18px) saturate(.72)}
+.menu-dialog.menu-dialog--fallback[open] .menu-dialog-shell{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto}
 .menu-product-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(980px,calc(100vw - 32px))}
 .menu-cart-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(760px,calc(100vw - 32px))}
-@media(max-width:390px){.menu-dialog.menu-dialog--fallback[open]{padding:6px}.menu-dialog--fallback[open] .menu-dialog-shell{width:calc(100vw - 12px)}}
+@media(max-width:390px){.menu-dialog.menu-dialog--fallback[open]{padding:6px}.menu-dialog--fallback[open] .menu-dialog-shell{width:calc(100vw - 12px);max-height:calc(100vh - 12px);max-height:calc(100dvh - 12px)}}

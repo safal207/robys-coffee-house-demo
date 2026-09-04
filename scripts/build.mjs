@@ -117,6 +117,12 @@ function synchronizeScript(html, fileName, revision) {
   return html.slice(0, open) + tag + html.slice(close + 9);
 }
 
+function synchronizeBlockingScript(html, fileName, revision) {
+  const { open, close } = locateScript(html, fileName);
+  const tag = "<" + `script src="${fileName}?v=${revision}">` + "</" + "script>";
+  return html.slice(0, open) + tag + html.slice(close + 9);
+}
+
 function synchronizeModuleScript(html, fileName, revision) {
   const pattern = new RegExp(`src="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
@@ -127,6 +133,13 @@ function synchronizeStylesheet(html, fileName, revision) {
   const pattern = new RegExp(`href="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
   return html.replace(pattern, `href="${fileName}?v=${revision}"`);
+}
+
+function synchronizeModuleImport(source, fileName, revision) {
+  const escapedName = fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`import\\("\\./${escapedName}(?:\\?v=[^"]*)?"\\)`);
+  if (!pattern.test(source)) throw new Error(`Runtime does not import ${fileName}`);
+  return source.replace(pattern, `import("./${fileName}?v=${revision}")`);
 }
 
 function synchronizeServiceWorker(
@@ -174,6 +187,11 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
   return serviceWorker.replace(pattern, `"./${filePath}?v=${revision}"`);
 }
 
+const morningEntryRevision = revisionFor("morning-entry-v2.js");
+let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
+bootstrapSource = synchronizeModuleImport(bootstrapSource, "morning-entry-v2.js", morningEntryRevision);
+writeFileSync("bootstrap-v2.js", bootstrapSource);
+
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
@@ -195,7 +213,7 @@ const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-t
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
 
 let html = readFileSync("index.html", "utf8");
-html = synchronizeScript(html, "bootstrap-v2.js", bootstrapRevision);
+html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -203,7 +221,7 @@ html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
-discoverHtml = synchronizeScript(discoverHtml, "bootstrap-v2.js", bootstrapRevision);
+discoverHtml = synchronizeBlockingScript(discoverHtml, "bootstrap-v2.js", bootstrapRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);
 discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
@@ -211,7 +229,7 @@ discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discov
 writeFileSync("discover.html", discoverHtml);
 
 let menuHtml = readFileSync("menu.html", "utf8");
-menuHtml = synchronizeScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
+menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 writeFileSync("menu.html", menuHtml);
@@ -242,6 +260,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["bootstrap-v2.js", bootstrapRevision],
+  ["morning-entry-v2.js", morningEntryRevision],
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
@@ -260,7 +279,7 @@ for (const [filePath, revision] of [
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
-  `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), styles-v2.css (${baseStylesRevision}), ` +
+  `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +
   `menu-security-v2.css (${menuSecurityRevision}), ` +
   `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +

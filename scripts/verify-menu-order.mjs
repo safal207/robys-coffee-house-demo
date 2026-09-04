@@ -120,6 +120,7 @@ for (const contract of [
   ".full-menu-item-media{appearance:none",
   ".menu-dialog::backdrop",
   ".menu-dialog:not([open]){display:none}",
+  "max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px)",
   ".menu-product-shell{display:grid",
   ".menu-cart-line{display:grid",
   "@media(max-width:760px)",
