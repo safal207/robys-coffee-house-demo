@@ -41,6 +41,20 @@ assert(!source.includes("fetch("), "MVP flow must not depend on network requests
 assert(!source.includes("Math.random"), "Flow must remain deterministic");
 assert(!source.includes(".style."), "Strict CSP forbids runtime inline style writes");
 assert(source.includes("heading.tabIndex = -1"), "Rendered headings must receive programmatic focus");
+for (const breakfastPromise of [
+  "İçecek veya doyurucu eşlikçi",
+  "A drink or a satisfying bite",
+  "Напиток или сытное дополнение"
+]) {
+  assert(source.includes(breakfastPromise), `Breakfast copy must allow a single-item recommendation: ${breakfastPromise}`);
+}
+for (const staleBreakfastPromise of [
+  "İçecek ve doyurucu eşlikçi",
+  "Drink and a satisfying bite",
+  "Напиток и сытное дополнение"
+]) {
+  assert(!source.includes(staleBreakfastPromise), `Breakfast copy must not promise a two-item pairing: ${staleBreakfastPromise}`);
+}
 
 assert(css.includes(":focus-visible"), "Visible keyboard focus styling is missing");
 assert(css.includes("prefers-reduced-motion"), "Reduced-motion support is missing");

@@ -191,7 +191,7 @@ const questions: readonly QuestionDefinition[] = [
     },
     options: [
       { value: "coffee", label: { tr: "Kahve", en: "Coffee", ru: "Кофе" }, note: { tr: "Hızlı bir kahve anı", en: "A quick coffee moment", ru: "Быстрый кофейный момент" } },
-      { value: "breakfast", label: { tr: "Kahvaltı", en: "Breakfast", ru: "Завтрак" }, note: { tr: "İçecek ve doyurucu eşlikçi", en: "Drink and a satisfying bite", ru: "Напиток и сытное дополнение" } },
+      { value: "breakfast", label: { tr: "Kahvaltı", en: "Breakfast", ru: "Завтрак" }, note: { tr: "İçecek veya doyurucu eşlikçi", en: "A drink or a satisfying bite", ru: "Напиток или сытное дополнение" } },
       { value: "snack", label: { tr: "Atıştırmalık", en: "Snack", ru: "Перекус" }, note: { tr: "Hafif bir mola", en: "A light break", ru: "Лёгкая пауза" } },
       { value: "dessert", label: { tr: "Tatlı", en: "Dessert", ru: "Десерт" }, note: { tr: "Tatlı bir Roby's anı", en: "A sweet Roby's moment", ru: "Сладкий момент Roby's" } },
       { value: "refresh", label: { tr: "Serinlemek", en: "Refresh", ru: "Освежиться" }, note: { tr: "Soğuk ve ferah", en: "Cold and refreshing", ru: "Холодное и освежающее" } }
