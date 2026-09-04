@@ -49,6 +49,22 @@ for (const language of ["tr", "en", "ru"]) {
   }
 }
 
+const pluralCases = [
+  ["tr", 1, "ürün"],
+  ["tr", 2, "ürün"],
+  ["en", 1, "item"],
+  ["en", 2, "items"],
+  ["ru", 1, "позиция"],
+  ["ru", 2, "позиции"],
+  ["ru", 5, "позиций"],
+  ["ru", 21, "позиция"]
+];
+for (const [language, quantity, expected] of pluralCases) {
+  const forms = menuCopy[language]?.itemCount;
+  const category = new Intl.PluralRules({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language]).select(quantity);
+  assert((forms?.[category] ?? forms?.other) === expected, `Wrong ${language} cart noun for ${quantity}`);
+}
+
 const visualItemCount = menuCategories.reduce((total, category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
   return total + items.length;
@@ -64,6 +80,8 @@ for (const contract of [
   "product.item.price * selectedProductQuantity",
   'const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }',
   "new Intl.NumberFormat(localeTag[language]",
+  "new Intl.PluralRules(localeTag[language]).select(count)",
+  "formatItemCount(summary.quantity)",
   "const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity)",
   "const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity)",
   "announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`)",

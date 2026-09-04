@@ -28,7 +28,7 @@ export const menuCopy = {
     quantityUpdated: "Sepet adedi güncellendi",
     removedFromCart: "Sepetten kaldırıldı",
     maxQuantity: "Bir ürün için en fazla 99 adet",
-    itemCount: "ürün"
+    itemCount: { one: "ürün", other: "ürün" }
   },
   en: {
     pageTitle: "Full Menu",
@@ -59,7 +59,7 @@ export const menuCopy = {
     quantityUpdated: "Order quantity updated",
     removedFromCart: "Removed from your order",
     maxQuantity: "Maximum 99 per item",
-    itemCount: "items"
+    itemCount: { one: "item", other: "items" }
   },
   ru: {
     pageTitle: "Полное меню",
@@ -90,7 +90,7 @@ export const menuCopy = {
     quantityUpdated: "Количество в заказе изменено",
     removedFromCart: "Убрано из заказа",
     maxQuantity: "Максимум 99 штук одного товара",
-    itemCount: "позиций"
+    itemCount: { one: "позиция", few: "позиции", many: "позиций", other: "позиции" }
   }
 };
 

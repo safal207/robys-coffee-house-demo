@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v3";
+import { menuCategories, menuCopy } from "./menu-data.js?v=20260904-premium-order-v4";
 import "./menu-search-clear.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -78,6 +78,12 @@ function localized(value) {
 
 function formatPrice(price) {
   return `${new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 }).format(price)} ₺`;
+}
+
+function formatItemCount(count) {
+  const copy = menuCopy[language].itemCount;
+  const category = new Intl.PluralRules(localeTag[language]).select(count);
+  return copy[category] ?? copy.other;
 }
 
 function imageSlug(value) {
@@ -199,7 +205,7 @@ function renderCart(focusTarget = null) {
   cartTrigger.classList.toggle("has-items", summary.quantity > 0);
   cartTrigger.setAttribute(
     "aria-label",
-    `${copy.cart}: ${summary.quantity} ${copy.itemCount}, ${copy.total} ${formatPrice(summary.total)}`
+    `${copy.cart}: ${summary.quantity} ${formatItemCount(summary.quantity)}, ${copy.total} ${formatPrice(summary.total)}`
   );
 
   cartLinesRoot.replaceChildren();

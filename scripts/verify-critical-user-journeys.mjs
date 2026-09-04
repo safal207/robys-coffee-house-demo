@@ -164,7 +164,15 @@ assert(JSON.stringify(copyKeys.tr) === JSON.stringify(copyKeys.en), "I18N-001", 
 assert(JSON.stringify(copyKeys.tr) === JSON.stringify(copyKeys.ru), "I18N-001", "Russian menuCopy keys differ from Turkish");
 for (const language of REQUIRED_LANGUAGES) {
   for (const [key, value] of Object.entries(menuCopy[language])) {
-    assert(typeof value === "string" && value.trim(), "I18N-001", `menuCopy.${language}.${key} is empty`);
+    const isPopulated = typeof value === "string"
+      ? Boolean(value.trim())
+      : key === "itemCount" &&
+        value &&
+        typeof value === "object" &&
+        typeof value.other === "string" &&
+        Boolean(value.other.trim()) &&
+        Object.values(value).every((form) => typeof form === "string" && form.trim());
+    assert(isPopulated, "I18N-001", `menuCopy.${language}.${key} is empty`);
   }
 }
 
