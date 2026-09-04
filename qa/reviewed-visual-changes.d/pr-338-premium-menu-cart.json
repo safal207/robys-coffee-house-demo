@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-338-premium-menu-cart-recovery",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/338#issuecomment-5537060739",
+      "contentBindings": {
+        "menu.html": "ee776a628bf810cccf0016c99b982c8c3b343e74",
+        "menu.css": "5c47219c0586aecf92e85caa2a1f7e013c30434a",
+        "menu-page.js": "015734c5aac3bad67a2a52531405758c84f6e9a4",
+        "menu-data.js": "a23586aaebd5be18e81f0825a100734a21908893"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11632 vs 320x11703"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "totalPixels": 149520,
+          "maxDiffPixelRatio": 0.0204
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 162560,
+          "maxDiffPixelRatio": 0.0863
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x11366 vs 390x11437"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 177800,
+          "maxDiffPixelRatio": 0.0136
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13145 vs 768x13217"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1180x313 vs 1180x314"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x9046 vs 1440x9109"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1180x320 vs 1180x319"
+        }
+      ]
+    }
+  ]
+}
