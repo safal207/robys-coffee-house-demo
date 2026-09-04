@@ -47,12 +47,7 @@ const menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js
 assert(pwaRevision, "Service-worker registration revision is missing");
 assert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");
 assert(indexHtml.includes(`src="pwa.js?v=${pwaRevision}"`), "index.html does not load the current PWA registration revision");
-assert(
-  menuPageRuntime.includes(`import("./menu-pwa.js?v=${pwaRevision}")`),
-  "menu page runtime does not lazy-load the current menu PWA registration revision"
-);
-assert(menuPageRuntime.includes('window.addEventListener(eventName, loadMenuPwa'), "Menu PWA registration lacks an interaction trigger");
-assert(menuPageRuntime.includes("window.setTimeout(loadMenuPwa, 30_000)"), "Menu PWA registration lacks a no-interaction fallback");
-assert(!html.includes('src="menu-pwa.js'), "Menu PWA registration must stay off the initial performance path");
+assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");
+assert(!menuPageRuntime.includes('import("./menu-pwa.js'), "Menu PWA registration must have one deterministic bootstrap path");
 
 console.log(`✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and PWA revision ${pwaRevision} remain valid.`);

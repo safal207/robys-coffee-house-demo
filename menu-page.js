@@ -553,12 +553,6 @@ function loadMenuActions() {
   return menuActionsPromise;
 }
 
-let menuPwaPromise;
-function loadMenuPwa() {
-  menuPwaPromise ??= import("./menu-pwa.js?v=platform-install-20260727-1");
-  return menuPwaPromise;
-}
-
 function translateStaticPage() {
   const copy = menuCopy[language];
   document.documentElement.lang = language;
@@ -658,10 +652,6 @@ renderCategoryNav();
 renderMenu();
 
 if (language !== "tr") void loadMenuActions();
-for (const eventName of ["pointerdown", "keydown"]) {
-  window.addEventListener(eventName, loadMenuPwa, { once: true, passive: eventName === "pointerdown" });
-}
-window.setTimeout(loadMenuPwa, 30_000);
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {
