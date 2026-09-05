@@ -18,6 +18,8 @@ jobs:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - name: Reject stale or edited generated menu runtime
+        run: node scripts/test-menu-runtime-contract.mjs
       - run: npx playwright install --with-deps chromium
       - run: node scripts/premium-feedback-regression.mjs
       - uses: actions/upload-artifact@v4
