@@ -1,3 +1,4 @@
+import { installOrderDock } from "./order-dock.js";
 import { order, resolveOrderProduct, type Language } from '@robys/order';
 const words = {
   tr: {cart:'Sepetim',total:'Toplam',empty:'Sepetiniz boş',back:'Seçime devam',remove:'Kaldır',undo:'Geri al',close:'Kapat',add:'Ekle',minus:'Azalt',draft:'Ön hesaplama. Sipariş gönderilmedi, ödeme alınmadı.',storage:'Bu sekmede kayıt kullanılamıyor. Sayfadan ayrılırsanız seçiminiz kaybolabilir.',invalid:'Eski seçim okunamadı. Lütfen sepetinizi kontrol edin.',legacy:'Smart Choice içindeki eski seçimi de eklemek ister misiniz?',keep:'Mevcut sepeti koru',import:'Eski seçimi ekle',error:'İşlem tamamlanamadı. Miktarı ve seçimi kontrol edin.'},
@@ -26,6 +27,7 @@ function start(): void {
   const draft=element('p','order-note');
   dialog.append(close,heading,notice,migration,lines,total,status,undo,back,draft);
   root.append(bar,dialog);document.body.append(root);document.body.classList.add('has-unified-order');
+  installOrderDock(bar);
   let returnFocus: HTMLElement|null=null;const inerted: HTMLElement[]=[];
   function act(action:()=>void):void {try{action();status.textContent=words[lang()].total+': '+money(order.summary().totalMinor);}catch{status.textContent=words[lang()].error;}}
   function open():void {

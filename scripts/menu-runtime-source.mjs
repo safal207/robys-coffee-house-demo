@@ -1,3 +1,4 @@
+import { orderCatalogURL } from "./order-catalog-boundary.mjs";
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,9 +9,13 @@ import { transformSync } from "esbuild";
 export function compileMenuRuntime(source = readFileSync("src/menu-app.js", "utf8")) {
   const revision = createHash("sha256").update(readFileSync("order-store.js")).digest("hex").slice(0,12);
   source = source.replace('from "./order-store.js"', `from "./order-store.js?v=${revision}"`);
+  // Do not request the catalog a second time under the previous query string.
+  if (/from "\.\/menu-catalog\.js(?:\?[^"\n]*)?"/.test(source)) {
+    source = source.replace(/from "\.\/menu-catalog\.js(?:\?[^"\n]*)?"/, `from "${orderCatalogURL()}"`);
+  }
   return transformSync(source, {
     loader: "js", format: "esm", target: "es2020",
-    minify: true, legalComments: "none"
+    minify: true, charset: "utf8", legalComments: "none"
   }).code;
 }
 

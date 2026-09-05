@@ -1,21 +1,22 @@
+import { orderCatalogPlugin, orderCatalogURL } from "./order-catalog-boundary.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
-await build({entryPoints: ["src/order-store.ts"], bundle: true, minify: true, format: "esm", target: "es2020", outfile: "order-store.js", legalComments: "none"});
+await build({entryPoints: ["src/order-store.ts"], bundle: true, minify: true, charset: "utf8", format: "esm", target: "es2020", outfile: "order-store.js", legalComments: "none", plugins: [orderCatalogPlugin()] });
 const orderRevision = createHash("sha256").update(readFileSync("order-store.js")).digest("hex").slice(0,12);
 const orderPlugin = { name: "shared-order-runtime", setup(builder) {
   builder.onResolve({filter: /^@robys\/order$/}, () => ({path: `${builder.initialOptions.outfile.startsWith("smart-choice/") ? "../" : "./"}order-store.js?v=${orderRevision}`, external: true}));
 }};
-await build({entryPoints: ["src/order-shell.ts"], bundle: true, minify: true, format: "esm", target: "es2020", outfile: "order-shell.js", legalComments: "none", plugins:[orderPlugin]});
+await build({entryPoints: ["src/order-shell.ts"], bundle: true, minify: true, charset: "utf8", format: "esm", target: "es2020", outfile: "order-shell.js", legalComments: "none", plugins:[orderPlugin]});
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "iife",
   target: "es2020",
   outfile: "app.js",
@@ -25,7 +26,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -37,7 +38,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -49,7 +50,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -60,7 +61,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -71,7 +72,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -82,7 +83,7 @@ await build({
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
   bundle: true,
-  minify: true,
+  minify: true, charset: "utf8",
   format: "esm",
   platform: "browser",
   target: "es2020",
@@ -103,7 +104,7 @@ function transpileClassicScript(sourcePath, outputPath) {
   // Keep stable public identifiers while avoiding shipping development whitespace.
   // No bundling, execution-order changes or business-logic substitutions.
   const compact = transformSync(bundle, {
-    target: "es2020", minifyWhitespace: true, minifySyntax: true,
+    target: "es2020", minifyWhitespace: true, charset: "utf8", minifySyntax: true,
     minifyIdentifiers: false, legalComments: "none"
   }).code;
   writeFileSync(outputPath, sourcePath === "src/discover-rotation.ts" ? bundle : compact);
@@ -221,7 +222,7 @@ const androidStylePattern = /android-app\.css\?v=[^"']+/;
 if (!androidStylePattern.test(conversionSource)) throw new Error("Missing Android stylesheet loader");
 conversionSource = conversionSource.replace(androidStylePattern, `android-app.css?v=${androidStylesRevision}`);
 writeFileSync("conversion.js", transformSync(conversionSource, {
-  minify: true, format: "esm", target: "es2020", legalComments: "none"
+  minify: true, charset: "utf8", format: "esm", target: "es2020", legalComments: "none"
 }).code);
 const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
@@ -311,10 +312,17 @@ for (const [filePath, revision] of [
 ]) {
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
+serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, "menu-catalog.js", orderCatalogURL().split("?v=")[1]);
 const orderShellRevision = revisionFor("order-shell.js");
 const orderShellCssRevision = revisionFor("order-shell.css");
 const launcher = readFileSync("src/order-launcher.ts", "utf8").replace("order-shell.js?v=000000000000", `order-shell.js?v=${orderShellRevision}`);
-writeFileSync("order-launcher.js", transformSync(launcher, {loader:"ts",minify:true,format:"esm",target:"es2020"}).code);
+// Bundle the small dock helper into the lazy launcher, never the order store.
+const launcherBuild = await build({
+  stdin: { contents: launcher, resolveDir: process.cwd() + "/src", sourcefile: "order-launcher.ts", loader: "ts" },
+  bundle: true, write: false, minify: true, charset: "utf8", format: "esm", target: "es2020", legalComments: "none",
+  external: ["./order-shell.js?*"]
+});
+writeFileSync("order-launcher.js", launcherBuild.outputFiles[0].text);
 const orderLauncherRevision = revisionFor("order-launcher.js");
 for (const pagePath of ["index.html", "menu.html", "discover.html", "smart-choice/index.html"]) {
   const prefix = pagePath.startsWith("smart-choice/") ? "../" : "";
