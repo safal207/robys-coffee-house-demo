@@ -1,0 +1,48 @@
+name: PR341 dock and loading workspace
+on:
+  push:
+    branches: [qa/pr341-dock-performance]
+    paths: [.github/workflows/qa-dock-performance.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8387e10d9c60742239edf076a620ca1fd51371a7
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Export tracked text and locked build tools only
+        shell: bash
+        run: |
+          mkdir -p /tmp/robys-qa-export
+          python3 - <<'PY'
+          import subprocess, pathlib, shutil, json, hashlib
+          root=pathlib.Path('/tmp/robys-qa-export')
+          files=subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          hashes={}
+          for name in files:
+              if not name: continue
+              path=pathlib.Path(name)
+              if path.suffix not in {'.ts','.js','.mjs','.cjs','.css','.html','.json','.yml','.yaml','.py','.sh','.md'}: continue
+              if name.startswith(('downloads/','releases/','node_modules/')): continue
+              if path.stat().st_size>2000000: continue
+              dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
+              hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+          (root/'PINNED.json').write_text(json.dumps({'head':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'sha256':hashes},indent=2))
+          for name in ['esbuild','@esbuild/linux-x64','typescript']:
+              shutil.copytree(pathlib.Path('node_modules')/name,root/'node_modules'/name)
+          PY
+          tar -C /tmp/robys-qa-export -czf /tmp/robys-qa-source.tgz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robys-pr341-pinned-source-8387e10
+          path: /tmp/robys-qa-source.tgz
+          retention-days: 3
+          if-no-files-found: error
