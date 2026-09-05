@@ -203,6 +203,14 @@ const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
+const menuAppRevision = revisionFor("menu-app.js");
+const androidStylesRevision = revisionFor("android-app.css");
+let conversionSource = readFileSync("conversion.js", "utf8");
+const androidStylePattern = /android-app\.css\?v=[^"']+/;
+if (!androidStylePattern.test(conversionSource)) throw new Error("Missing Android stylesheet loader");
+conversionSource = conversionSource.replace(androidStylePattern, `android-app.css?v=${androidStylesRevision}`);
+writeFileSync("conversion.js", conversionSource);
+const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
@@ -225,6 +233,7 @@ html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
+html = synchronizeModuleScript(html, "conversion.js", conversionRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
@@ -240,6 +249,7 @@ menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevis
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 writeFileSync("menu.html", menuHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
@@ -272,6 +282,9 @@ for (const [filePath, revision] of [
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-premium.css", menuPremiumRevision],
+  ["menu-app.js", menuAppRevision],
+  ["conversion.js", conversionRevision],
+  ["android-app.css", androidStylesRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],

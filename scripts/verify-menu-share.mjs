@@ -41,7 +41,9 @@ assert(menuPageRuntime.includes("const nativeShare = navigator.share(payload)"),
 assert(menuPageRuntime.includes("runLazyShare(true)"), "Rejected native share lacks a non-native fallback");
 assert(html.includes('data-share-text-tr=') && html.includes('data-share-text-en=') && html.includes('data-share-text-ru='), "Activation-safe share copy lacks TR/EN/RU coverage");
 assert(!html.includes('src="menu-interactions.js'), "Menu interactions must stay off the initial performance path");
-assert(html.includes('src="menu-app.js?v=20260904-premium-order-v11"'), "Menu must load the current cache-safe runtime path");
+const menuRuntimeRevision = createHash("sha256").update(menuPageRuntime).digest("hex").slice(0, 12);
+assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must load the exact runtime content revision");
+assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
 assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
 assert(menuPageRuntime.includes('from "./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu runtime must use the cache-new catalog pathname");
