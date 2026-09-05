@@ -1,0 +1,129 @@
+name: Published premium release smoke
+on:
+  push:
+    branches: [fix/source-first-dependency-edges]
+    paths: [.github/workflows/qa-live-release-smoke.yml]
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify public deployment and browser journeys without submitting orders
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          import { chromium } from 'playwright';
+          import { verifyGeometry } from './scripts/premium-ui-regression.mjs';
+          const expected='a2fbce66f716b1b99e924239d5dd118cf37c5eef';
+          const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          assert.equal(source,expected);
+          const base='https://safal207.github.io/robys-coffee-house-demo/';
+          const out='.artifacts/live-release'; mkdirSync(out,{recursive:true});
+          const report={source,base,startedAt:new Date().toISOString(),files:[],checks:[],passed:false,
+            boundary:'Real public Pages in Chromium, CSP unchanged, service workers allowed. Fresh browser sessions and same-session reload; no real order, message or payment is submitted. No physical-device FPS or exhaustive old-cache claim.'};
+          const hash=data=>createHash('sha256').update(data).digest('hex');
+          const money=text=>Number(String(text).replace(/[^0-9]/g,''));
+          const settle=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+          let browser;
+          try {
+            for(const path of ['index.html','menu.html','menu-app.js','menu-premium.css','conversion.js','sw.js','integrity-manifest.json']){
+              const wanted=hash(readFileSync(path)); let actual,status;
+              for(let attempt=0;attempt<3;attempt++){
+                const response=await fetch(new URL(path,base),{cache:'no-store',signal:AbortSignal.timeout(20000)});
+                status=response.status; actual=hash(Buffer.from(await response.arrayBuffer()));
+                if(status===200&&actual===wanted)break;
+                if(attempt<2)await new Promise(resolve=>setTimeout(resolve,5000));
+              }
+              const result={path,status,expectedSha256:wanted,receivedSha256:actual,passed:status===200&&actual===wanted};
+              report.files.push(result); assert.ok(result.passed,'Published bytes differ: '+path);
+            }
+            report.checks.push({id:'published-bytes',passed:true,count:report.files.length});
+            browser=await chromium.launch({headless:true});
+            for(const language of ['tr','en','ru']){
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'allow'});
+              const page=await context.newPage(),errors=[]; page.on('pageerror',error=>errors.push(error.message));
+              try{
+                await page.goto(base+'menu.html?entry=off',{waitUntil:'domcontentloaded'});
+                await page.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
+                await page.locator(`[data-lang="${language}"]`).click(); await settle(page);
+                await page.evaluate(()=>document.fonts.ready);
+                const geometry=await verifyGeometry(page,language);
+                report.checks.push({id:'live-geometry-'+language,passed:true,result:geometry});
+                const row=page.locator('.full-menu-item--product').first();
+                const unit=money(await row.locator('.menu-price').textContent()); assert.ok(unit>0);
+                await row.locator('.product-photo-button').click();
+                const photo=page.locator('.product-photo-dialog'); await photo.waitFor({state:'visible'});
+                await photo.locator('[data-product-quantity]').fill('2');
+                await photo.locator('[data-product-add]').click(); await photo.waitFor({state:'hidden'});
+                assert.equal((await page.locator('[data-order-count]').first().textContent()).trim(),'2');
+                await page.reload({waitUntil:'domcontentloaded'});
+                await page.locator('[data-order-count]').filter({hasText:/^2$/}).first().waitFor({state:'attached'});
+                await page.locator('[data-open-order]').first().click();
+                const order=page.locator('.order-dialog'); await order.waitFor({state:'visible'});
+                assert.equal(money(await order.locator('[data-order-total]').textContent()),unit*2);
+                await order.locator('[data-cart-change="1"]').first().click();
+                assert.equal(money(await order.locator('[data-order-total]').textContent()),unit*3);
+                await page.screenshot({path:`${out}/live-cart-${language}-390.png`});
+                await order.locator('[data-cart-remove]').first().click();
+                assert.equal(money(await order.locator('[data-order-total]').textContent()),0);
+                await page.keyboard.press('Escape');
+                assert.deepEqual(errors,[]);
+                report.checks.push({id:'live-cart-session-'+language,passed:true,unit,quantities:[2,3,0]});
+              }catch(error){await page.screenshot({path:`${out}/failure-${language}.png`}).catch(()=>{});throw error;}
+              finally{await context.close();}
+            }
+            const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'allow'});
+            const page=await context.newPage();
+            await page.goto(base+'?entry=off',{waitUntil:'domcontentloaded'});
+            const menu=page.locator('.site-header [data-i18n="nav_full_menu"]');
+            await menu.waitFor({state:'visible'}); await page.screenshot({path:out+'/live-home-390.png'});
+            await menu.click(); await page.waitForURL('**/menu.html');
+            await page.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
+            report.checks.push({id:'live-home-menu-navigation',passed:true});
+            await page.goto(base+'smart-choice/',{waitUntil:'domcontentloaded'});
+            for(const value of ['quick-stop','takeaway','solo','drink','caramel-frappe']){
+              await page.locator(`[data-option="${value}"]`).click(); await settle(page);
+            }
+            await page.locator('[data-result]').waitFor({state:'visible'});
+            assert.match(await page.locator('[data-result]').innerText(),/Caramel Frappe/);
+            await page.screenshot({path:out+'/live-smart-choice-390.png'});
+            report.checks.push({id:'live-smart-choice',passed:true}); await context.close();
+            const desktop=await browser.newContext({viewport:{width:1440,height:900},bypassCSP:false,serviceWorkers:'allow'});
+            const dp=await desktop.newPage(); await dp.goto(base+'menu.html?entry=off',{waitUntil:'domcontentloaded'});
+            await dp.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
+            await dp.locator('[data-lang="en"]').click(); await settle(dp); await dp.evaluate(()=>document.fonts.ready);
+            const geometry=await verifyGeometry(dp,'en');
+            await dp.screenshot({path:out+'/live-menu-1440.png'});
+            report.checks.push({id:'live-desktop-geometry',passed:true,result:geometry}); await desktop.close();
+            report.passed=report.checks.length===10&&report.files.every(row=>row.passed);
+            assert.ok(report.passed,'Incomplete live verification');
+          }catch(error){report.error=error.stack;process.exitCode=1;}
+          finally{
+            if(browser)await browser.close();
+            report.finishedAt=new Date().toISOString();
+            writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');
+            console.log(JSON.stringify({passed:report.passed,source,files:report.files.length,checks:report.checks.length,error:report.error},null,2));
+          }
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-release-a2fbce6
+          path: .artifacts/live-release/
+          retention-days: 14
+          if-no-files-found: warn
