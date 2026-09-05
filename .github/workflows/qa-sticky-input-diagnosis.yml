@@ -1,0 +1,76 @@
+name: Pinned menu input-profile diagnosis
+
+on:
+  push:
+    branches: [fix/source-first-dependency-edges]
+    paths: [.github/workflows/qa-sticky-input-diagnosis.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e103e6e995f060c697dfb3954033aaeb4d694aae
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Observe actual scroll, hit testing and input media queries
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import { createServer } from 'node:http';
+          import { readFile, stat } from 'node:fs/promises';
+          import { resolve, extname } from 'node:path';
+          import { chromium } from 'playwright';
+          import { writeFileSync, mkdirSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const root=process.cwd(), out='.artifacts/sticky-input-profile';
+          const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          if(source!=='e103e6e995f060c697dfb3954033aaeb4d694aae')throw Error('wrong source');
+          mkdirSync(out,{recursive:true});
+          const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.woff':'font/woff','.webmanifest':'application/manifest+json'};
+          const server=createServer(async(req,res)=>{try{let p=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://local').pathname));if(!p.startsWith(root+'/'))throw Error('bad path');if((await stat(p)).isDirectory())p+='/index.html';res.setHeader('Content-Type',types[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.statusCode=404;res.end('missing');}});
+          await new Promise(r=>server.listen(4191,'127.0.0.1',r));
+          const browser=await chromium.launch({headless:true});const results=[];
+          try {
+            for(const width of [320,390])for(const touch of [false,true]){
+              const context=await browser.newContext({viewport:{width,height:900},hasTouch:touch,isMobile:touch,reducedMotion:'reduce',locale:'tr-TR',serviceWorkers:'block'});
+              const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+              await page.goto('http://127.0.0.1:4191/menu.html?entry=off',{waitUntil:'networkidle',timeout:20000});
+              await page.evaluate(()=>document.fonts.ready);
+              const geometry=async()=>page.evaluate(()=>{
+                const data={scrollY,coarse:matchMedia('(pointer:coarse)').matches,viewport:{width:innerWidth,height:innerHeight}};
+                for(const s of ['.site-header','.menu-controls','.menu-share-card','.menu-share-copy .eyebrow','.full-menu-wrap','.full-menu-panel-header']){
+                  const e=document.querySelector(s);if(!e)continue;
+                  const b=e.getBoundingClientRect(),x=b.left+Math.min(15,b.width/2),y=b.top+Math.min(8,b.height/2);
+                  const topmost=y>=0&&y<innerHeight?document.elementFromPoint(x,y):null;
+                  data[s]={top:b.top,bottom:b.bottom,height:b.height,position:getComputedStyle(e).position,scrollMarginTop:getComputedStyle(e).scrollMarginTop,unoccluded:!!topmost&&(e===topmost||e.contains(topmost)),topmost:topmost?.className??null};
+                }return data;
+              });
+              await page.locator('.menu-share-card').scrollIntoViewIfNeeded();await page.waitForTimeout(150);
+              const share=await geometry();await page.screenshot({path:`${out}/share-${touch?'touch':'fine'}-${width}.png`});
+              const button=page.locator('[data-category]').nth(2),categoryId=await button.getAttribute('data-category');
+              await button.click();await page.waitForTimeout(150);
+              const category=await geometry();await page.screenshot({path:`${out}/category-${touch?'touch':'fine'}-${width}.png`});
+              results.push({width,touch,categoryId,errors,share,category});await context.close();
+            }
+            writeFileSync(out+'/diagnosis.json',JSON.stringify({source,results,nonClaims:['Diagnostic observations, not visual-change approval.','Desktop Chromium mobile emulation, not a physical device.']},null,2));
+            console.log(JSON.stringify(results,null,2));
+            if(results.some(r=>r.errors.length))throw Error('Unexpected page errors');
+          } finally { await browser.close();await new Promise(r=>server.close(r)); }
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sticky-input-profile-e103e6e
+          path: .artifacts/sticky-input-profile/
+          retention-days: 7
+          if-no-files-found: warn
