@@ -30,6 +30,16 @@ elif case == 'out_of_order':
     states[2], states[3] = states[3], states[2]
 elif case == 'missing_commit':
     states.remove('WEB_COMMITTED')
+elif case == 'timeout_then_complete':
+    states.insert(3, 'VISUAL_STATE_TIMEOUT')
+elif case == 'error_then_complete':
+    states.insert(1, 'MAIN_FRAME_ERROR')
+elif case == 'error_after_complete':
+    states.append('SSL_ERROR')
+if args[:2] == ['shell', 'screenrecord'] and case == 'recording_error':
+    sys.exit(17)
+if args[:1] == ['pull'] and case == 'pull_error':
+    sys.exit(19)
 if args[:1] == ['install'] and case == 'install_error':
     sys.exit(23)
 if args[:4] == ['shell', 'am', 'start', '-W']:
@@ -50,7 +60,9 @@ elif args[:3] == ['shell', 'dumpsys', 'webviewupdate']:
 
 CASES = {'success': 0, 'fallback': 0, 'timeout': 1, 'missing_visual': 1,
          'out_of_order': 1, 'missing_commit': 1, 'short_video': 1,
-         'install_error': 23, 'interrupted': 143}
+         'install_error': 23, 'interrupted': 143, 'recording_error': 17,
+         'pull_error': 19, 'timeout_then_complete': 1,
+         'error_then_complete': 1, 'error_after_complete': 1}
 selection = os.environ.get("CAPTURE_CASES")
 if selection:
     CASES = {key: CASES[key] for key in selection.split(",")}
@@ -83,6 +95,14 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
         assert (evidence / 'native-source.sha').read_text().strip() == head, case
         assert (evidence / 'handoff-states.txt').is_file(), case
         assert (evidence / 'evidence-summary.txt').exists() == (expected == 0), case
+        if case not in {'install_error', 'interrupted'}:
+            recorder_exit = 17 if case == 'recording_error' else 0
+            assert (evidence / 'recorder-exit.txt').read_text().strip() == f'exit_code={recorder_exit}', case
+        if case == 'recording_error':
+            assert (evidence / 'robys-atomic-handoff.mp4').stat().st_size > 50000, case
+            assert 'screen recording failed' in run.stderr, case
+        if case in {'timeout_then_complete', 'error_then_complete', 'error_after_complete'}:
+            assert 'terminal launch failure' in run.stderr, case
         print(f'{case}: PASS ({run.returncode})', file=sys.stderr, flush=True)
         results.append({'case': case, 'expectedExit': expected, 'actualExit': run.returncode,
                         'diagnosticsPreserved': True, 'passed': True})
