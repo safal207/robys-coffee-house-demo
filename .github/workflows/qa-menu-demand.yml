@@ -96,7 +96,7 @@ jobs:
             const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
             if(current.data.object.sha!==expected)throw new Error('PR source moved; retain evidence but refuse stale candidate');
             const ignored=new Set(['scripts/prepare-menu-demand.py','scripts/prepare-demand-contracts.py','.github/workflows/qa-menu-demand.yml']);
-            const allowed=new Set(['src/menu-app.js','src/order-launcher.ts','scripts/menu-runtime-source.mjs','scripts/build.mjs','scripts/verify-menu-order.mjs','scripts/menu-demand-browser.mjs','.github/workflows/unified-order-regression.yml','menu-app.js','menu.html','index.html','discover.html','order-launcher.js','sw.js','integrity-manifest.json','featured-gallery.js','social-offer.js']);
+            const allowed=new Set(['src/menu-app.js','src/order-launcher.ts','scripts/menu-runtime-source.mjs','scripts/build.mjs','scripts/verify-menu-order.mjs','scripts/verify-regression-contracts.mjs','scripts/menu-demand-browser.mjs','.github/workflows/unified-order-regression.yml','menu-app.js','menu.html','index.html','discover.html','order-launcher.js','sw.js','integrity-manifest.json','featured-gallery.js','social-offer.js']);
             const changed=cp.execFileSync('git',['diff',expected,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(p=>p&&!ignored.has(p));
             for(const p of changed)if(!allowed.has(p))throw new Error('Unapproved path: '+p);
             if(!changed.includes('src/menu-app.js')||!changed.includes('scripts/menu-demand-browser.mjs'))throw new Error('Missing source or permanent test');
