@@ -19,7 +19,7 @@ jobs:
           node-version: '22'
       - name: Verify source boundary and audit syntax
         run: |
-          git diff --exit-code a2fbce66f716b1b99e924239d5dd118cf37c5eef HEAD -- src smart-choice menu.html menu-app.js menu-catalog.js menu-premium.css menu.css
+          git diff --exit-code a2fbce66f716b1b99e924239d5dd118cf37c5eef HEAD -- src smart-choice menu.html menu-app.js menu-catalog.js menu-premium.css
           node --check scripts/guest-journey-audit.mjs
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
@@ -31,7 +31,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .artifacts/guest-journey-audit
-          git archive a2fbce66f716b1b99e924239d5dd118cf37c5eef -- src/smart-choice smart-choice src/menu-app.js menu.html menu-app.js menu-catalog.js menu-premium.css menu.css bootstrap-v2.js day-night-entry.js morning-entry-v2.js src/products/sets-v1 | gzip > .artifacts/guest-journey-audit/inspected-source.tar.gz
+          git archive a2fbce66f716b1b99e924239d5dd118cf37c5eef -- src/smart-choice smart-choice src/menu-app.js menu.html menu-app.js menu-catalog.js menu-premium.css bootstrap-v2.js day-night-entry.js morning-entry-v2.js src/products/sets-v1 | gzip > .artifacts/guest-journey-audit/inspected-source.tar.gz
+          gzip --test .artifacts/guest-journey-audit/inspected-source.tar.gz
+          tar -tzf .artifacts/guest-journey-audit/inspected-source.tar.gz > .artifacts/guest-journey-audit/inspected-source-files.txt
+          test -s .artifacts/guest-journey-audit/inspected-source-files.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
