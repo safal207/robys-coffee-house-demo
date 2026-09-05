@@ -1,0 +1,120 @@
+name: Unified order integration candidate
+on:
+  push:
+    branches: [feat/unified-order-flow]
+    paths:
+      - .github/workflows/qa-unified-order-integration.yml
+      - .github/qa/prepare-unified-order.py
+      - scripts/unified-order-browser.mjs
+      - scripts/test-unified-order.mjs
+permissions:
+  contents: read
+concurrency:
+  group: robys-unified-order-candidate
+  cancel-in-progress: false
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Apply guarded readable sources only
+        run: |
+          mkdir -p .artifacts/order-integration
+          git rev-parse HEAD > .artifacts/order-integration/input-head.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          script = Path('.github/qa/prepare-unified-order.py').read_text()
+          # The precache stores the explicit index path, not the directory alias.
+          old = "marker='  \"./smart-choice/\",';"
+          new = "marker='  \"./smart-choice/index.html\",';"
+          assert script.count(old) == 1
+          exec(compile(script.replace(old,new), 'prepare-unified-order.py', 'exec'))
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Rebuild and regenerate integrity
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee .artifacts/order-integration/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/order-integration/integrity.log
+      - name: Complete repository checks
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee .artifacts/order-integration/check.log
+          npm run verify:security 2>&1 | tee .artifacts/order-integration/security.log
+          node scripts/test-unified-order.mjs > .artifacts/order-integration/domain.json
+          git diff --check
+      - name: Install locked Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify integrated order journeys under enforcing CSP
+        env:
+          ORDER_RESULTS_DIR: .artifacts/order-integration/browser
+        run: node scripts/unified-order-browser.mjs
+      - name: Recheck pre-existing premium UI
+        env:
+          PREMIUM_UI_RESULTS_DIR: .artifacts/order-integration/premium-ui
+        run: node scripts/premium-ui-regression.mjs
+      - name: Recheck pre-existing cart feedback
+        env:
+          PREMIUM_FEEDBACK_RESULTS_DIR: .artifacts/order-integration/feedback
+        run: node scripts/premium-feedback-contract.mjs
+      - name: Create verified detached candidate, never move a branch
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'),cp=require('child_process');
+            const {owner,repo}=context.repo;
+            const parent=context.sha;
+            const ref=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(ref.data.object.sha!==parent)throw new Error('Branch moved; candidate not created');
+            // Remove preparation helpers from the final integration, not prior evidence.
+            const temporary=['.github/qa/prepare-unified-order.py','.github/workflows/qa-unified-order-integration.yml'];
+            temporary.forEach(path=>fs.unlinkSync(path));
+            const changed=cp.execFileSync('git',['status','--porcelain','-z','--untracked-files=all'],{encoding:'utf8'}).split('\0').filter(Boolean).map(row=>row.slice(3));
+            const allowed=new Set([...temporary,'src/order-store.ts','src/menu-app.js','src/smart-choice/page.ts','src/smart-choice/cart.ts','scripts/build.mjs','scripts/menu-runtime-source.mjs','scripts/test-smart-choice-cart.mjs','scripts/test-smart-choice-page.mjs','scripts/verify-menu-order.mjs','scripts/verify-smart-choice-release.mjs','package.json','tsconfig.json','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json','menu-app.js','order-store.js','order-shell.js','order-launcher.js','smart-choice/app-v2.js','smart-choice/cart-v2.js']);
+            const paths=changed.filter(path=>!path.startsWith('.artifacts/')&&!path.startsWith('visual-results/'));
+            for(const path of paths)if(!allowed.has(path))throw new Error('Unapproved output: '+path);
+            const base=await github.rest.git.getCommit({owner,repo,commit_sha:parent});
+            const entries=paths.map(path=>fs.existsSync(path)?{path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}:{path,mode:'100644',type:'blob',sha:null});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:base.data.tree.sha,tree:entries});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'feat(order): integrate shared cart, explicit welcome and cross-route state',tree:tree.data.sha,parents:[parent]});
+            fs.writeFileSync('.artifacts/order-integration/candidate.json',JSON.stringify({input:parent,candidate:commit.data.sha,tree:tree.data.sha,paths,branchUpdated:false,merged:false,published:false},null,2));
+            core.info('Detached candidate '+commit.data.sha+'; no branch or deployment updated.');
+      - name: Preserve evidence and source patch on success or failure
+        if: always()
+        run: |
+          mkdir -p .artifacts/order-integration
+          git diff --stat > .artifacts/order-integration/diff-stat.txt
+          git diff --binary > .artifacts/order-integration/source.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,hashlib,tarfile,subprocess
+          out=Path('.artifacts/order-integration')
+          names=subprocess.check_output(['git','ls-files','-z'],text=True).split('\0')
+          names += ['order-store.js','order-shell.js','order-launcher.js']
+          hashes={}
+          # Inspection archive: source, tests and generated text only. No assets/fonts/secrets.
+          with tarfile.open(out/'inspection-source.tar.gz','w:gz') as tar:
+            for name in sorted(set(names)):
+              p=Path(name)
+              if not p.is_file() or p.suffix not in {'.js','.mjs','.ts','.json','.html','.css','.yml','.py'}: continue
+              if name.startswith(('node_modules/','src/brand/')) or p.stat().st_size>300000:continue
+              hashes[name]=hashlib.sha256(p.read_bytes()).hexdigest();tar.add(p,arcname=name)
+          (out/'file-hashes.json').write_text(json.dumps(hashes,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: unified-order-integration-${{ github.sha }}
+          path: .artifacts/order-integration/
+          retention-days: 14
+          if-no-files-found: error
