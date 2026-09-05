@@ -1,0 +1,51 @@
+name: Order delivery profile
+on:
+  push:
+    branches: [fix/order-release-recovery-20260905]
+    paths: [.github/workflows/qa-order-build-profile.yml]
+permissions:
+  contents: read
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7b072b461bcd810238ea563d998d7e06ab50bbf0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Compare bundling costs without changing application files
+        run: |
+          mkdir -p .artifacts/order-delivery
+          node --input-type=module <<'JS'
+          import { build } from 'esbuild';
+          import { gzipSync, brotliCompressSync } from 'node:zlib';
+          import { readFileSync,writeFileSync } from 'node:fs';
+          const report={source:'7b072b461bcd810238ea563d998d7e06ab50bbf0',variants:[]};
+          for(const charset of ['ascii','utf8'])for(const external of [false,true]){
+            const plugins=external?[{name:'same-menu-catalog',setup(b){b.onResolve({filter:/menu-catalog\.js$/},()=>({path:'./menu-catalog.js?v=20260904-premium-order-v1',external:true}));}}]:[];
+            const result=await build({entryPoints:['src/order-store.ts'],bundle:true,write:false,minify:true,format:'esm',target:'es2020',charset,metafile:true,plugins});
+            const bytes=result.outputFiles[0].contents;
+            report.variants.push({charset,external,raw:bytes.length,gzip:gzipSync(bytes).length,brotli:brotliCompressSync(bytes).length,inputs:Object.entries(result.metafile.inputs).map(([path,v])=>({path,bytes:v.bytes})),outputs:result.metafile.outputs});
+          }
+          writeFileSync('.artifacts/order-delivery/profile.json',JSON.stringify(report,null,2));
+          console.log(JSON.stringify(report.variants.map(({inputs,outputs,...v})=>v),null,2));
+          JS
+      - name: Preserve source and locked build tools for offline inspection
+        run: |
+          git archive HEAD | gzip > .artifacts/order-delivery/source.tar.gz
+          tar -czf .artifacts/order-delivery/locked-build-tools.tar.gz node_modules
+          git rev-parse HEAD > .artifacts/order-delivery/source.sha
+          sha256sum package-lock.json .artifacts/order-delivery/*.tar.gz > .artifacts/order-delivery/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-delivery-7b072b4
+          path: .artifacts/order-delivery/
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: error
