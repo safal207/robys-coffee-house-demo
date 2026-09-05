@@ -167,6 +167,21 @@ while (queue.length) {
   }
 }
 
+// These readable inputs compile to root-level ES modules. Follow a build edge
+// only AFTER the emitted module is reached from an entry point. Do not whitelist
+// src/** or make every build output a root: detached source/output pairs must fail.
+// Runtime imports are resolved from the emitted module, not from the source dir.
+// Exact source/output byte parity remains enforced by the generated-runtime gate.
+for (const [runtime, input] of [
+  ["conversion.js", "src/conversion.js"],
+  ["menu-app.js", "src/menu-app.js"]
+]) {
+  if (reachable.has(runtime) && fileSet.has(input)) {
+    reachable.add(input);
+    edges.push({ source: runtime, target: input, kind: "build-source", reference: input });
+  }
+}
+
 function isRuntimeCandidate(path) {
   if (!RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) return false;
   if (path.startsWith("scripts/") || path.startsWith(".github/") || path.startsWith("lighthouse/") || path.startsWith("tests/") || path.startsWith("test/") || path.startsWith("e2e/")) return false;
