@@ -1,0 +1,67 @@
+name: Order viewport overflow diagnosis
+on:
+  push:
+    branches: [fix/order-release-recovery-20260905]
+    paths: [.github/workflows/qa-order-overflow-probe.yml]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7b072b461bcd810238ea563d998d7e06ab50bbf0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Inspect original layout without changing its CSS
+        run: |
+          mkdir -p .artifacts/overflow
+          node --input-type=module <<'JS'
+          import { spawn } from 'node:child_process';
+          import { mkdirSync,writeFileSync } from 'node:fs';
+          import { chromium } from 'playwright';
+          const server=spawn('python3',['-m','http.server','4197','--bind','127.0.0.1'],{stdio:'ignore'});
+          const out='.artifacts/overflow',report={source:'7b072b461bcd810238ea563d998d7e06ab50bbf0',scope:'Read-only diagnosis of root text enlargement and layout viewport; not release approval',cases:[]};
+          let browser;
+          try{
+            for(let i=0;i<40;i++){try{if((await fetch('http://127.0.0.1:4197/')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+            browser=await chromium.launch({headless:true});
+            for(const width of [320,390])for(const font of [16,32]){
+              const context=await browser.newContext({viewport:{width,height:900},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'block'});
+              const page=await context.newPage();
+              await page.goto('http://127.0.0.1:4197/index.html?entry=off',{waitUntil:'networkidle'});
+              await page.evaluate(size=>{document.documentElement.style.fontSize=size+'px';},font);
+              await page.evaluate(()=>document.fonts.ready);
+              await page.locator('.featured-strip').scrollIntoViewIfNeeded();
+              await page.waitForTimeout(500);
+              const data=await page.evaluate(()=>{
+                const limit=document.documentElement.clientWidth;
+                const rows=Array.from(document.body.querySelectorAll('*')).map(node=>{
+                  const r=node.getBoundingClientRect(),s=getComputedStyle(node);
+                  if(!r.width||!r.height||s.visibility==='hidden'||s.display==='none'||s.opacity==='0'||Math.max(r.right,r.left+node.scrollWidth)<=limit+1)return null;
+                  return{tag:node.tagName,id:node.id,className:typeof node.className==='string'?node.className:'',text:node.textContent?.trim().slice(0,70),rect:{left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom},scroll:node.scrollWidth,client:node.clientWidth,font:s.fontSize,whiteSpace:s.whiteSpace,minWidth:s.minWidth,position:s.position,overflow:s.overflow,grid:s.gridTemplateColumns,parent:node.parentElement?.className};
+                }).filter(Boolean);
+                return{innerWidth,innerHeight,clientWidth:limit,scrollWidth:document.documentElement.scrollWidth,visualWidth:visualViewport?.width,visualHeight:visualViewport?.height,offenders:rows.slice(0,120)};
+              });
+              report.cases.push({width,font,...data});
+              await page.screenshot({path:`${out}/gallery-${width}-${font}.png`});
+              await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:`${out}/home-${width}-${font}.png`});
+              await context.close();
+            }
+          }catch(error){report.error=String(error.stack);process.exitCode=1;}
+          finally{await browser?.close();server.kill('SIGTERM');writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));}
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-overflow-7b072b4
+          path: .artifacts/overflow/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
