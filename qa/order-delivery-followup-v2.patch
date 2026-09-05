@@ -1,0 +1,38 @@
+--- a/scripts/order-delivery-browser.mjs
++++ b/scripts/order-delivery-browser.mjs
+@@ -21,8 +21,11 @@
+     await page.goto(base+'index.html?entry=off',{waitUntil:'domcontentloaded'});
+     await page.locator(`[data-lang="${language}"]`).click();
+     await page.evaluate(size=>{document.documentElement.style.fontSize=size+'px';},font);
++    // Apply enlarged text and settle the real font before positioning the gallery.
++    await page.evaluate(()=>document.fonts.ready);await frames(page);
+     await page.locator('.featured-strip').scrollIntoViewIfNeeded();
+-    await page.locator('.order-bar').waitFor({state:'visible'});await page.evaluate(()=>document.fonts.ready);await frames(page);
++    await page.locator('body.featured-gallery-active').waitFor({state:'attached'});
++    await page.locator('.order-bar').waitFor({state:'visible'});await frames(page);
+     for(const selector of ['.mobile-cta-route','.mobile-cta-instagram','.order-bar'])await page.locator(selector).click({trial:true});
+     const bounds=await page.evaluate(()=>{
+      const dock=document.querySelector('.mobile-cta').getBoundingClientRect(),order=document.querySelector('.order-bar').getBoundingClientRect();
+@@ -30,6 +33,10 @@
+     });
+     assert.ok(bounds.orderBottom<=bounds.dockTop-4,JSON.stringify(bounds));assert.ok(bounds.orderTop>=0);assert.ok(bounds.orderRight<=bounds.width);
+     if(language==='ru'&&font===16)await page.screenshot({path:`${out}/home-bars-${width}.png`});
++   }catch(error){
++    await page.screenshot({path:`${out}/failure-home-${width}-${language}-${font}.png`}).catch(()=>{});
++    report.failedGeometry=await page.evaluate(()=>({bodyClass:document.body.className,scrollY,innerWidth,innerHeight,visualViewport:{width:visualViewport?.width,height:visualViewport?.height,scale:visualViewport?.scale},inset:document.documentElement.style.getPropertyValue('--order-bottom-clearance'),elements:['.featured-strip','.mobile-cta','.mobile-cta-route','.order-bar'].map(selector=>{const node=document.querySelector(selector),r=node.getBoundingClientRect(),s=getComputedStyle(node);return{selector,rect:{top:r.top,bottom:r.bottom,left:r.left,right:r.right},opacity:s.opacity,pointerEvents:s.pointerEvents,position:s.position,transform:s.transform,bottom:s.bottom};})})).catch(()=>null);
++    throw error;
+    }finally{await context.close();}
+   });
+  }
+--- a/order-shell.css
++++ b/order-shell.css
+@@ -15,3 +15,9 @@
+ .has-unified-order :is(.selected-summary,.cart-builder,.cart-line-list){grid-template-columns:minmax(0,1fr)}
+ .has-unified-order :is(.selected-summary,.cart-builder) :is(h2,h3,strong,p,li,button,summary){overflow-wrap:anywhere;min-width:0}
+ .has-unified-order .cart-choice{flex-wrap:wrap}
++
++/* Enlarged action labels must wrap instead of widening the mobile layout viewport. */
++.has-unified-order .mobile-cta{grid-template-columns:repeat(2,minmax(0,1fr))}
++.has-unified-order .mobile-cta :is(a,button){white-space:normal}
++.has-unified-order .mobile-cta :is(a,button)>span{min-width:0;overflow-wrap:anywhere}
++.has-unified-order .mobile-cta-icon{flex:0 0 auto}
