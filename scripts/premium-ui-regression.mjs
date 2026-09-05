@@ -50,6 +50,10 @@ export async function verifyOrder(page, label) {
   await increase.click();
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 3);
   assert.equal(await cart.locator('.menu-cart-step').last().evaluate(node => document.activeElement === node), true);
+  // announceCart deliberately writes on the next animation frame so repeated
+  // announcements are exposed to assistive technology; wait for its observable result.
+  await page.waitForFunction(() => document.querySelector(
+    '#menu-cart-dialog [data-menu-cart-status]')?.textContent.includes('3'), null, {timeout:2000});
   assert.ok((await cart.locator('[data-menu-cart-status]').innerText()).includes('3'), `${label}: in-dialog announcement`);
   await page.mouse.move(0, 0);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
