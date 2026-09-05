@@ -4,6 +4,7 @@
     {"sha":"b81744881bc18b00286993fa99ee538845e36e5c","gzip":true,"sha256":"94bbaf07e8fa699eebb4078ea2d1904395c253ec29bd126cad4da121a4495212"},
     {"sha":"2db45e2d3ff89b4f84eaf04697642be016922857","gzip":false},
     {"sha":"ba95fa99ad602ffef6169d2bfd1325f56a4bac15","gzip":false},
-    {"sha":"57b966f8b561a927000339ea564a8ac0ee92ba88","gzip":false}
+    {"sha":"57b966f8b561a927000339ea564a8ac0ee92ba88","gzip":false},
+    {"sha":"dd9e6ca11effe3ef14603ab2f4cdf27fc7bdcfb8","gzip":false}
   ]
 }
