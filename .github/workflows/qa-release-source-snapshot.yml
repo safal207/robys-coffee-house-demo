@@ -1,0 +1,58 @@
+name: Pinned premium UI source fixture
+
+on:
+  push:
+    branches: [fix/source-first-dependency-edges]
+    paths: [.github/workflows/qa-release-source-snapshot.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e103e6e995f060c697dfb3954033aaeb4d694aae
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install pinned build and browser clients
+        run: npm ci --no-audit --no-fund
+      - name: Package tracked web sources without credentials or large motion media
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib, subprocess, tarfile
+          root = pathlib.Path.cwd()
+          sha = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert sha == 'e103e6e995f060c697dfb3954033aaeb4d694aae'
+          paths = subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          excluded_suffixes = {'.mp4','.webm','.mov','.apk','.aab','.zip','.pdf','.mp3','.wav'}
+          included, excluded = [], []
+          out = root / 'source-fixture'
+          out.mkdir()
+          with tarfile.open(out/'source-and-clients.tar.gz','w:gz') as archive:
+            for name in paths:
+              if not name: continue
+              p = root/name
+              if p.is_symlink() or not p.is_file() or p.suffix.lower() in excluded_suffixes or p.stat().st_size > 8_000_000:
+                excluded.append(name); continue
+              archive.add(p,arcname=name,recursive=False)
+              included.append({'path':name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+            archive.add(root/'node_modules',arcname='node_modules')
+          manifest = {'source_commit':sha,'included_tracked':included,'excluded':excluded,
+            'non_claims':['Not a complete source archive: excluded media are listed.','Not deployment evidence.','Offline rendering must report missing resources.']}
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print(json.dumps({'source_commit':sha,'included':len(included),'excluded':len(excluded),'archive_bytes':(out/'source-and-clients.tar.gz').stat().st_size}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: premium-source-e103e6e
+          path: source-fixture/
+          retention-days: 3
+          if-no-files-found: error
