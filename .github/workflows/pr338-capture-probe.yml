@@ -1,0 +1,223 @@
+name: PR338 pinned capture diagnosis
+on:
+  push:
+    branches: [qa/pr338-capture-probe-20260905]
+    paths: [.github/workflows/pr338-capture-probe.yml]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2fbf3437cee0fb3788a14d20f21f1b528f39687f
+          path: current
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 04b3ce7549a2fc111bcc13ca9cf92adabb29dd4a
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install locked dependencies and build both inputs
+        run: |
+          cd current
+          mkdir -p capture-evidence/files
+          git rev-parse HEAD > capture-evidence/input-head.txt
+          git ls-tree -r HEAD > capture-evidence/input-tree.txt
+          npm ci --no-audit --no-fund
+          npm run build
+          cd ../baseline
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Prepare bounded capture candidate without changing product bytes
+        working-directory: current
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess, tarfile
+          Path('scripts/capture-document-region.mjs').write_text('''/** Capture document-flow layout without locator auto-scroll moving sticky UI over it.
+          * This is layout evidence, not a viewport interaction check; test reachability separately.
+          * No nodes, styles, sticky positioning, viewport dimensions or thresholds are changed.
+          */
+          export async function captureDocumentRegion(page, locator, filePath) {
+            await locator.waitFor({ state: "visible", timeout: 10000 });
+            await page.evaluate(async () => {
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            });
+            const box = await locator.boundingBox();
+            if (!box || box.width <= 0 || box.height <= 0 || box.x < 0 || box.y < 0) {
+              throw new Error("VISUAL-REGION-001: target has no valid document rectangle");
+            }
+            return page.screenshot({
+              ...(filePath ? { path: filePath } : {}), fullPage: true, clip: box,
+              animations: "disabled", scale: "css"
+            });
+          }
+          ''')
+          p = Path('scripts/visual-regression.mjs')
+          s = p.read_text()
+          old = 'import { PNG } from "pngjs";'
+          assert s.count(old) == 1
+          s = s.replace(old, old + '\nimport { captureDocumentRegion } from "./capture-document-region.mjs";')
+          old = '        await locator.scrollIntoViewIfNeeded();\n        await page.waitForTimeout(80);\n        await locator.screenshot({ path: filePath, animations: "disabled" });'
+          assert s.count(old) == 1
+          new = '''        if (capture.id === "menu-share") {
+                    // Document-flow component. Reachability is tested separately;
+                    // locator auto-scroll can move the sticky filters over this crop.
+                    await captureDocumentRegion(page, locator, filePath);
+                  } else {
+                    await locator.scrollIntoViewIfNeeded();
+                    await page.waitForTimeout(80);
+                    await locator.screenshot({ path: filePath, animations: "disabled" });
+                  }'''
+          s = s.replace(old, new)
+          p.write_text(s)
+          Path('scripts/test-menu-share-capture.mjs').write_text('''import assert from "node:assert/strict";
+          import { mkdirSync, writeFileSync } from "node:fs";
+          import { spawn } from "node:child_process";
+          import { chromium } from "playwright";
+          import { PNG } from "pngjs";
+          import { captureDocumentRegion } from "./capture-document-region.mjs";
+
+          const out = process.env.CAPTURE_RESULTS_DIR || "capture-evidence/reachability";
+          mkdirSync(out, { recursive: true });
+          const checks = [];
+          const record = (name, data = {}) => checks.push({ name, passed: true, ...data });
+          const browser = await chromium.launch({ headless: true });
+          const server = spawn("python3", ["-m", "http.server", "4199", "--bind", "127.0.0.1"], { stdio: "ignore" });
+          try {
+            for (let attempt = 0; ; attempt++) {
+              try { if ((await fetch("http://127.0.0.1:4199/menu.html")).ok) break; } catch {}
+              if (attempt >= 40) throw new Error("probe server not ready");
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            // Independent fixture demonstrates the old obstruction and exact crop recovery.
+            // DPR 2 proves output dimensions remain CSS pixels, not device pixels.
+            for (const height of [640, 900, 1000]) {
+              for (const dpr of [1, 2]) {
+                const page = await browser.newPage({ viewport: { width: 320, height }, deviceScaleFactor: dpr });
+                await page.setContent('<style>html,body{margin:0}header{position:sticky;top:0;height:240px;background:rgb(255,0,0);z-index:3}main{height:1200px}section{margin:0 20px;width:280px;height:512px;background:rgb(0,255,0)}footer{height:600px}</style><header></header><main></main><section id="target"></section><footer></footer>');
+                const target = page.locator("#target");
+                const old = PNG.sync.read(await target.screenshot({ scale: "css" }));
+                const image = PNG.sync.read(await captureDocumentRegion(page, target));
+                assert.deepEqual([image.width, image.height], [280, 512]);
+                assert.deepEqual([...image.data.subarray(0, 3)], [0, 255, 0]);
+                assert.deepEqual([...image.data.subarray(image.data.length - 4, image.data.length - 1)], [0, 255, 0]);
+                if (height < 1000) assert.deepEqual([...old.data.subarray(0, 3)], [255, 0, 0]);
+                assert.equal(await page.locator("header").evaluate(el => getComputedStyle(el).position), "sticky");
+                record(`fixture-${height}-dpr${dpr}`, { oldTopPixel: [...old.data.subarray(0, 3)], fixedTopPixel: [...image.data.subarray(0, 3)] });
+                await page.close();
+              }
+            }
+            for (const [width, height] of [[320, 900], [360, 640], [390, 1000], [768, 1024], [1366, 768], [1440, 1100]]) {
+              for (const touch of [false, true]) {
+                const label = `${width}-${touch ? "touch" : "fine"}`;
+                const context = await browser.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch, deviceScaleFactor: 1, reducedMotion: "reduce", bypassCSP: true, serviceWorkers: "block", locale: "tr-TR" });
+                await context.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+                const page = await context.newPage();
+                await page.goto("http://127.0.0.1:4199/menu.html", { waitUntil: "domcontentloaded" });
+                await page.locator(".full-menu-item").first().waitFor();
+                await page.evaluate(async () => { await document.fonts.ready; });
+                await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;scroll-behavior:auto!important}html{scrollbar-width:none!important}' });
+                const card = page.locator(".menu-share-card");
+                await card.screenshot({ path: `${out}/${label}-locator.png`, animations: "disabled" });
+                const before = await card.evaluate(el => {
+                  const b = el.getBoundingClientRect();
+                  const controls = document.querySelector(".menu-controls");
+                  const c = controls.getBoundingClientRect();
+                  return { cardTop: b.top, controlsBottom: c.bottom, controlsPosition: getComputedStyle(controls).position };
+                });
+                await captureDocumentRegion(page, card, `${out}/${label}-document.png`);
+                // Actual viewport reachability: center each action by scrolling the page,
+                // then hit-test it without hiding/repositioning any overlay or clicking an external link.
+                const actions = card.locator("button, a[href]");
+                const count = await actions.count();
+                assert.ok(count >= 2, `${label}: missing share actions`);
+                for (let index = 0; index < count; index++) {
+                  const action = actions.nth(index);
+                  const hit = await action.evaluate(el => {
+                    el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+                    const b = el.getBoundingClientRect();
+                    const x = b.left + b.width / 2, y = b.top + b.height / 2;
+                    const top = document.elementFromPoint(x, y);
+                    return { text: el.textContent.trim(), hit: !!top && (el === top || el.contains(top)), x, y };
+                  });
+                  assert.ok(hit.hit, `${label}: action obstructed: ${JSON.stringify(hit)}`);
+                }
+                const headingHit = await card.locator("h2").evaluate(el => {
+                  el.scrollIntoView({ block: "center", behavior: "instant" });
+                  const b = el.getBoundingClientRect();
+                  const top = document.elementFromPoint(b.left + b.width/2, b.top + b.height/2);
+                  return !!top && (el === top || el.contains(top));
+                });
+                assert.ok(headingHit, `${label}: heading permanently obscured`);
+                record(`product-${label}`, { before, actionCount: count, headingReachable: headingHit });
+                await context.close();
+              }
+            }
+            writeFileSync(`${out}/summary.json`, JSON.stringify({ scope: "capture layout and separately tested viewport reachability; not full app certification", passed: checks.length, checks }, null, 2) + "\\n");
+            console.log(`CAPTURE-REGION: ${checks.length}/${checks.length} PASS`);
+          } finally {
+            await browser.close();
+            server.kill("SIGTERM");
+          }
+          ''')
+          # Preserve exact candidate source and input tree, no executable ref mutation.
+          for file in ['scripts/capture-document-region.mjs', 'scripts/visual-regression.mjs', 'scripts/test-menu-share-capture.mjs']:
+              dest = Path('capture-evidence/files') / file
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              dest.write_bytes(Path(file).read_bytes())
+          names = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
+          with tarfile.open('capture-evidence/text-source.tar.gz', 'w:gz') as archive:
+              for name in names:
+                  if name and Path(name).suffix in ['.js', '.mjs', '.css', '.html', '.ts', '.json', '.yml', '.md']:
+                      archive.add(name, arcname=name)
+          PY
+      - name: Run unchanged repository checks
+        working-directory: current
+        run: |
+          set -euo pipefail
+          npm run check 2>&1 | tee capture-evidence/check.log
+          npm run verify:security 2>&1 | tee capture-evidence/security.log
+      - name: Install matching visual tools
+        working-directory: current
+        run: |
+          npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Test sticky obstruction and real share-action reachability
+        working-directory: current
+        run: node scripts/test-menu-share-capture.mjs
+      - name: Compare pinned current and main using candidate capture
+        id: compare
+        continue-on-error: true
+        working-directory: current
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/capture-evidence/visual
+        run: node scripts/visual-regression.mjs
+      - name: Record exact source and observed differences, not approval
+        if: always()
+        working-directory: current
+        env:
+          COMPARE_OUTCOME: ${{ steps.compare.outcome }}
+        run: |
+          mkdir -p capture-evidence
+          git diff --check
+          git diff > capture-evidence/candidate.patch
+          printf 'compare_outcome=%s\nreviewed_or_approved=false\nref_updated=false\n' "$COMPARE_OUTCOME" > capture-evidence/boundary.txt
+          git hash-object scripts/capture-document-region.mjs scripts/visual-regression.mjs scripts/test-menu-share-capture.mjs > capture-evidence/candidate-blobs.txt
+      - name: Upload bounded evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr338-capture-diagnosis-${{ github.sha }}
+          path: current/capture-evidence/
+          retention-days: 7
+          if-no-files-found: error
