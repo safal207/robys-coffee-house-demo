@@ -1,0 +1,34 @@
+name: Order flow pinned workspace
+on:
+  push:
+    branches: [feat/unified-order-flow]
+    paths: [.github/workflows/qa-order-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Package only tracked public source and locked node dependencies
+        run: |
+          mkdir -p /tmp/order-workspace
+          git archive --format=tar HEAD > /tmp/order-workspace/source.tar
+          tar -czf /tmp/order-workspace/node-deps.tar.gz node_modules
+          git rev-parse HEAD > /tmp/order-workspace/source.sha
+          git ls-files '*AGENTS.md' > /tmp/order-workspace/agent-guides.txt
+          sha256sum /tmp/order-workspace/source.tar /tmp/order-workspace/node-deps.tar.gz > /tmp/order-workspace/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: order-workspace-a2fbce6
+          path: /tmp/order-workspace/
+          retention-days: 3
+          if-no-files-found: error
