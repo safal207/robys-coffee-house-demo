@@ -8,9 +8,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: release-source-snapshot
+  cancel-in-progress: true
+
 jobs:
   snapshot:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -20,14 +24,15 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: npm ci --no-audit --no-fund
-      - name: Capture tracked public source and locked build tools, never Git credentials
+      - name: Install locked Linux tools for the offline Linux workspace
+        run: npm ci --ignore-scripts --os=linux --cpu=x64 --no-audit --no-fund
+      - name: Capture tracked public source and locked tools, never Git credentials
         run: |
           mkdir -p release-source
           git rev-parse HEAD > release-source/HEAD.txt
           git archive --format=tar.gz HEAD > release-source/source.tar.gz
           tar -czf release-source/build-tools.tar.gz node_modules
-          sha256sum release-source/*.tar.gz > release-source/SHA256SUMS
+          shasum -a 256 release-source/*.tar.gz > release-source/SHA256SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: release-source-${{ github.sha }}
