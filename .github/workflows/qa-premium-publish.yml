@@ -1,0 +1,70 @@
+name: Apply validated premium repair
+
+on:
+  push:
+    branches: [feat/premium-menu-cart-recovery]
+    paths: [.github/workflows/qa-premium-publish.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: premium-repair-publish
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.repository == 'safal207/robys-coffee-house-demo' && github.ref == 'refs/heads/feat/premium-menu-cart-recovery' && github.actor == 'safal207'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact source parent and patch integrity
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = 2d21f32a7bbf03c799a9a79cb2ece6f26c10ecb8
+          mkdir -p .artifacts/premium-publish
+          python3 - <<'PY'
+          import base64, gzip, hashlib
+          from pathlib import Path
+          data = gzip.decompress(base64.b64decode(Path('.qa/premium-repair.patch.gz.b64').read_text()))
+          assert hashlib.sha256(data).hexdigest() == 'a7ba8da2d6bcbef8c9be5a7447f371615ef7ec60bea5e6ec3bff78677adcb01e'
+          Path('.artifacts/premium-publish/source.patch').write_bytes(data)
+          PY
+          git apply --check .artifacts/premium-publish/source.patch
+          git apply .artifacts/premium-publish/source.patch
+      - run: npm ci --no-audit --no-fund
+      - name: Generate and validate source-first outputs
+        run: |
+          set -euo pipefail
+          npm run build 2>&1 | tee .artifacts/premium-publish/build.log
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/premium-publish/check.log
+          npm run verify:security 2>&1 | tee .artifacts/premium-publish/security.log
+          npm run verify:performance 2>&1 | tee .artifacts/premium-publish/performance.log
+          npm run audit:deps -- --check
+          node --check scripts/premium-ui-regression.mjs
+          git diff --exit-code -- menu-catalog.js menu-app.js src/smart-choice/catalog.ts src/smart-choice/engine.ts android-native/
+      - name: Fast-forward only the requested feature branch
+        run: |
+          set -euo pipefail
+          git add -- menu-premium.css styles-v2.css smart-choice/style.css scripts/build.mjs scripts/verify-menu-share.mjs scripts/premium-ui-regression.mjs docs/qa/premium-repair-2026-09-05.md sw.js index.html discover.html menu.html ru/coffee-gazipasa.html smart-choice/index.html featured-gallery.js social-offer.js integrity-manifest.json
+          git diff --cached --stat
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix(ui): bound menu photos and add accessible premium interaction feedback'
+          git push origin HEAD:refs/heads/feat/premium-menu-cart-recovery
+          git rev-parse HEAD > .artifacts/premium-publish/HEAD.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-publish-${{ github.sha }}
+          path: .artifacts/premium-publish/
+          include-hidden-files: true
+          retention-days: 3
