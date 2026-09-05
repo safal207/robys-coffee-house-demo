@@ -1,0 +1,151 @@
+name: Robys bounded repair candidate
+
+on:
+  push:
+    branches: [feat/premium-menu-cart-recovery]
+    paths: [.github/workflows/robys-bounded-repair.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: robys-bounded-repair
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Assert the reviewed parent and prepare evidence
+        run: |
+          test "$(git rev-parse HEAD^)" = f7625fcc41d57677038828a7cb0ae66b1383cff4
+          mkdir -p repair-evidence
+          git rev-parse HEAD > repair-evidence/input-head.txt
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Apply bounded source and test changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          p = Path('scripts/build.mjs')
+          s = p.read_text()
+          old = 'minifyIdentifiers: false, legalComments: "none"'
+          assert s.count(old) == 1, 'unexpected minifier configuration'
+          s = s.replace(old, 'minifyIdentifiers: true, legalComments: "none"')
+          s = s.replace('// Keep stable public identifiers while avoiding shipping development whitespace.\n  // No bundling, execution-order changes or business-logic substitutions.', '// Without a format or bundling, esbuild preserves top-level declarations.\n  // Compact local bindings only; do not mangle properties or change script order.')
+          p.write_text(s)
+          p = Path('package.json')
+          s = p.read_text()
+          old = 'node --check social-offer.js && node --check smart-choice/app-v2.js'
+          assert s.count(old) == 2, 'unexpected check/bundle commands'
+          s = s.replace(old, 'node --check social-offer.js && node scripts/test-classic-runtime-contract.mjs && node --check smart-choice/app-v2.js')
+          p.write_text(s)
+          Path('scripts/test-classic-runtime-contract.mjs').write_text('''import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          import { gzipSync } from "node:zlib";
+          import ts from "typescript";
+          import { transformSync } from "esbuild";
+
+          // Classic scripts share a global lexical scope. Internal identifiers may
+          // shrink, but their top-level bindings must remain stable across builds.
+          function topLevelBindings(code) {
+            const ast = ts.createSourceFile("runtime.js", code, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JS);
+            const bindings = [];
+            function collect(name) {
+              if (ts.isIdentifier(name)) bindings.push(name.text);
+              else for (const element of name.elements) {
+                if (!ts.isOmittedExpression(element)) collect(element.name);
+              }
+            }
+            for (const statement of ast.statements) {
+              if (ts.isVariableStatement(statement)) {
+                for (const declaration of statement.declarationList.declarations) collect(declaration.name);
+              } else if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name) {
+                collect(statement.name);
+              }
+            }
+            return bindings.sort();
+          }
+
+          for (const name of ["featured-gallery", "social-offer"]) {
+            const source = readFileSync(`src/${name}.ts`, "utf8");
+            const plain = ts.transpileModule(source, {
+              compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.None, strict: true, removeComments: false }
+            }).outputText;
+            const options = { target: "es2020", minifyWhitespace: true, minifySyntax: true, legalComments: "none" };
+            const previous = transformSync(plain, { ...options, minifyIdentifiers: false }).code;
+            const expected = transformSync(plain, { ...options, minifyIdentifiers: true }).code;
+            const actual = readFileSync(`${name}.js`, "utf8");
+            assert.equal(actual, expected, `${name}: runtime must be reproducible from source`);
+            assert.deepEqual(topLevelBindings(actual), topLevelBindings(plain), `${name}: public classic bindings changed`);
+            assert.ok(Buffer.byteLength(actual) < Buffer.byteLength(previous), `${name}: no byte reduction`);
+            assert.ok(gzipSync(actual).length < gzipSync(previous).length, `${name}: no compressed byte reduction`);
+            console.log(JSON.stringify({ name, publicBindings: topLevelBindings(actual), previousBytes: Buffer.byteLength(previous), bytes: Buffer.byteLength(actual), previousGzip: gzipSync(previous).length, gzip: gzipSync(actual).length }));
+          }
+          console.log("Classic runtime contract: PASS (source parity, public bindings, raw/gzip reduction)");
+          ''')
+          # The transport workflow is excluded from the candidate tree.
+          Path('.github/workflows/robys-bounded-repair.yml').unlink()
+          PY
+      - name: Rebuild and refresh protected-byte evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build 2>&1 | tee repair-evidence/build.log
+          npm run integrity:generate 2>&1 | tee repair-evidence/integrity.log
+      - name: Verify without weakening existing gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run check 2>&1 | tee repair-evidence/check.log
+          npm run verify:security 2>&1 | tee repair-evidence/security.log
+          npm run verify:performance 2>&1 | tee repair-evidence/performance.log
+          node scripts/test-classic-runtime-contract.mjs > repair-evidence/classic-runtime.log
+          git diff --check
+      - name: Create detached commit object only
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs = require('fs');
+            const cp = require('child_process');
+            const owner = context.repo.owner, repo = context.repo.repo;
+            const expected = context.sha;
+            const ref = await github.rest.git.getRef({owner, repo, ref:'heads/feat/premium-menu-cart-recovery'});
+            if (ref.data.object.sha !== expected) throw new Error('Branch moved; refuse stale candidate');
+            const changed = cp.execFileSync('git',['diff','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
+            changed.push('scripts/test-classic-runtime-contract.mjs');
+            const allowed = new Set(['.github/workflows/robys-bounded-repair.yml','scripts/build.mjs','scripts/test-classic-runtime-contract.mjs','package.json','featured-gallery.js','social-offer.js','index.html','integrity-manifest.json']);
+            for (const path of changed) if (!allowed.has(path)) throw new Error('Unexpected generated path: '+path);
+            const parent = await github.rest.git.getCommit({owner,repo,commit_sha:expected});
+            const tree = changed.map(path => fs.existsSync(path) ? {path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')} : {path,mode:'100644',type:'blob',sha:null});
+            const createdTree = await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree});
+            const commit = await github.rest.git.createCommit({owner,repo,message:'perf: compact private classic-script bindings with compatibility regression checks',tree:createdTree.data.sha,parents:[expected]});
+            fs.writeFileSync('repair-evidence/candidate.json',JSON.stringify({inputHead:expected,candidate:commit.data.sha,tree:createdTree.data.sha,changed,refUpdated:false},null,2)+'\n');
+            core.info('Detached candidate '+commit.data.sha+'; branch was NOT updated.');
+      - name: Collect patch even on failure
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p repair-evidence
+          git diff --stat > repair-evidence/diff-stat.txt
+          git diff > repair-evidence/candidate.patch
+          if test -f scripts/test-classic-runtime-contract.mjs; then cp scripts/test-classic-runtime-contract.mjs repair-evidence/; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robys-bounded-repair-${{ github.sha }}
+          path: repair-evidence/
+          retention-days: 7
+          if-no-files-found: error
