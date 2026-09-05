@@ -190,14 +190,32 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
   }
 }
 
+let cartNoticeTimer;
 function announceCart(message) {
+  window.clearTimeout(cartNoticeTimer);
   cartStatuses.forEach((status) => { status.textContent = ""; });
   window.requestAnimationFrame(() => {
     cartStatuses.forEach((status) => { status.textContent = message; });
+    const notice = document.querySelector("#menu-cart-status");
+    notice?.classList.add("is-visible");
+    cartNoticeTimer = window.setTimeout(() => notice?.classList.remove("is-visible"), 3200);
+  });
+}
+
+function syncMenuCartState() {
+  menuRoot.querySelectorAll("[data-product-id]").forEach((row) => {
+    const quantity = cart.get(row.dataset.productId) ?? 0;
+    const media = row.querySelector(".full-menu-item-media");
+    row.classList.toggle("is-in-cart", quantity > 0);
+    if (!media) return;
+    media.dataset.cartQuantity = String(quantity);
+    const product = productIndex.get(row.dataset.productId);
+    if (product) media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(product.item.name)}${quantity ? ` · ${menuCopy[language].cart}: ${quantity}` : ""}`);
   });
 }
 
 function renderCart(focusTarget = null) {
+  syncMenuCartState();
   const copy = menuCopy[language];
   const summary = cartSummary();
   let focusCandidate = null;
@@ -550,8 +568,10 @@ function createCategory(category) {
   return section;
 }
 
-function renderCategoryNav() {
+function renderCategoryNav(focusId = null) {
+  const previousScrollLeft = categoryNav.scrollLeft;
   categoryNav.replaceChildren();
+  let focusButton = null;
   const options = [
     { id: "all", label: menuCopy[language].all },
     ...menuCategories.map((category) => ({ id: category.id, label: localized(category.name) }))
@@ -561,6 +581,8 @@ function renderCategoryNav() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "menu-category-chip";
+    button.dataset.category = option.id;
+    if (option.id === focusId) focusButton = button;
     button.textContent = option.label;
     const active = option.id === activeCategory;
     button.classList.toggle("active", active);
@@ -568,13 +590,15 @@ function renderCategoryNav() {
     button.addEventListener("click", () => {
       activeCategory = option.id;
       syncCategoryHash(option.id);
-      renderCategoryNav();
+      renderCategoryNav(option.id);
       renderMenu();
-      document.querySelector(".full-menu-wrap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector(".full-menu-wrap")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
     categoryNav.append(button);
   });
   categoryNav.dataset.ready = "true";
+  categoryNav.scrollLeft = previousScrollLeft;
+  focusButton?.focus({ preventScroll: true });
 }
 
 function renderMenu() {
@@ -594,6 +618,7 @@ function renderMenu() {
 
   emptyState.hidden = rendered > 0;
   menuRoot.dataset.ready = "true";
+  syncMenuCartState();
 }
 
 let menuActionsPromise;

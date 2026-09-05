@@ -190,12 +190,17 @@ function appendAndroidBrand(screen) {
   const brand = document.createElement("div");
   brand.className = "android-app-screen-brand";
 
-  const mark = document.createElement("span");
+  const mark = document.createElement("img");
   mark.className = "android-app-screen-mark";
-  mark.textContent = "R";
+  mark.src = "src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4";
+  mark.alt = "Roby's Coffee House";
+  mark.width = 132;
+  mark.height = 64;
+  mark.decoding = "async";
 
   const name = document.createElement("span");
   name.className = "android-app-screen-name";
+  name.hidden = true;
   const strong = document.createElement("strong");
   strong.textContent = "ROBY'S";
   const small = document.createElement("span");
@@ -358,7 +363,7 @@ function setupAndroidAppDownload() {
   if (!q('link[href^="android-app.css"]')) {
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
-    stylesheet.href = "android-app.css?v=android-download-20260627-2";
+    stylesheet.href = "android-app.css?v=01b7f55a3fdc";
     document.head.append(stylesheet);
   }
 
