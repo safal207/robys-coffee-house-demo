@@ -6,7 +6,9 @@ on:
       - .github/workflows/qa-unified-order-integration.yml
       - .github/qa/prepare-unified-order.py
       - scripts/unified-order-browser.mjs
+      - scripts/order-layout-regression.mjs
       - scripts/test-unified-order.mjs
+      - order-shell.css
 permissions:
   contents: read
 concurrency:
@@ -58,6 +60,10 @@ jobs:
           git diff --check
       - name: Install locked Chromium
         run: npx playwright install --with-deps chromium
+      - name: Verify enlarged-text geometry and unforced touch hit targets
+        env:
+          ORDER_LAYOUT_RESULTS_DIR: .artifacts/order-integration/layout
+        run: node scripts/order-layout-regression.mjs
       - name: Verify integrated order journeys under enforcing CSP
         env:
           ORDER_RESULTS_DIR: .artifacts/order-integration/browser
