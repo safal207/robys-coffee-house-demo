@@ -80,12 +80,20 @@ export function createOrderStore(
   let persistent = storage !== null;
   // Preserve bytes which this instance could not read; keep edits in memory.
   let safeToWrite = storage !== null;
+  let orderRecordPresent = false;
   let notice = '';
   let pendingLegacy: OrderLine[] | null = null;
   let undo: { line: OrderLine; index: number } | null = null;
   const listeners = new Set<() => void>();
   const read = (key: string): unknown => {
-    try { const text = storage?.getItem(key); return text ? JSON.parse(text) : null; }
+    try {
+      const text = storage?.getItem(key);
+      if (key === ORDER_KEY) {
+        orderRecordPresent = text !== null && text !== undefined;
+        return orderRecordPresent ? JSON.parse(text!) : null;
+      }
+      return text ? JSON.parse(text) : null;
+    }
     catch { notice = 'storage'; persistent = false; safeToWrite = false; return null; }
   };
   const emit = () => {
@@ -96,18 +104,23 @@ export function createOrderStore(
     }
   };
   const save = () => {
-    if (!safeToWrite || !storage) { persistent = false; notice = 'storage'; return; }
+    if (!safeToWrite || !storage) { persistent = false; if (!notice) notice = 'storage'; return; }
     try {
       storage.setItem(ORDER_KEY, JSON.stringify(snapshot)); persistent = true;
       if (notice === 'storage') notice = '';
     } catch { persistent = false; notice = 'storage'; }
   };
   const existing = read(ORDER_KEY) as Partial<OrderSnapshot> | null;
-  if (existing) {
+  if (orderRecordPresent && safeToWrite) {
     try {
-      if (existing.version !== 2 || !Number.isSafeInteger(existing.revision) || Number(existing.revision) < 0) throw new Error('Invalid order schema');
+      if (!existing || existing.version !== 2 || !Number.isSafeInteger(existing.revision) || Number(existing.revision) < 0) throw new Error('Invalid order schema');
       snapshot = { version: 2, revision: Number(existing.revision), lines: validLines(existing.lines), migrationDone: existing.migrationDone === true };
-    } catch { notice = 'invalid-order'; snapshot.migrationDone = true; }
+    } catch {
+      // Invalid or newer data is not an empty basket. Preserve its original
+      // bytes; edits in this document remain an explicitly unsaved draft.
+      notice = 'invalid-order'; persistent = false; safeToWrite = false;
+      snapshot.migrationDone = true;
+    }
   } else if (safeToWrite) {
     const legacy = read(LEGACY_MENU_KEY) as { version?: number; lines?: unknown } | null;
     if (legacy?.version === 1) {
@@ -196,15 +209,20 @@ export function createOrderStore(
     reload() {
       const stored = read(ORDER_KEY) as OrderSnapshot | null;
       if (!safeToWrite) { emit(); return; }
-      if (stored?.version !== 2 && stored !== null) return;
-      if (stored && Number.isSafeInteger(stored.revision) && stored.revision >= snapshot.revision) {
-        try {
-          const next: OrderSnapshot = { version: 2, revision: stored.revision, lines: validLines(stored.lines), migrationDone: stored.migrationDone === true };
-          if (JSON.stringify(next) !== JSON.stringify(snapshot)) undo = null;
-          snapshot = next;
-          if (snapshot.migrationDone) pendingLegacy = null;
-          emit();
-        } catch { notice = 'invalid-order'; emit(); }
+      if (!orderRecordPresent) return;
+      try {
+        if (!stored || stored.version !== 2 || !Number.isSafeInteger(stored.revision) || stored.revision < 0) throw new Error('Invalid order schema');
+        const next: OrderSnapshot = { version: 2, revision: stored.revision, lines: validLines(stored.lines), migrationDone: stored.migrationDone === true };
+        if (next.revision < snapshot.revision) return;
+        if (JSON.stringify(next) !== JSON.stringify(snapshot)) undo = null;
+        snapshot = next;
+        if (snapshot.migrationDone) pendingLegacy = null;
+        emit();
+      } catch {
+        // A restored page must not overwrite unreadable/newer stored data
+        // on its next edit, either. Keep the current in-memory order intact.
+        notice = 'invalid-order'; persistent = false; safeToWrite = false;
+        emit();
       }
     }
   };

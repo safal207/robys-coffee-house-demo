@@ -79,7 +79,7 @@
     "qa:browsers:logs": "docker compose -f docker-compose.browser-lab.yml logs --tail=150",
     "qa:browsers:down": "docker compose -f docker-compose.browser-lab.yml down --remove-orphans",
     "test:unified-order": "node scripts/test-unified-order.mjs",
-    "test:order-recovery": "node scripts/test-order-recovery.mjs"
+    "test:order-recovery": "node scripts/test-order-recovery.mjs && node scripts/test-order-invalid-storage.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.1",
