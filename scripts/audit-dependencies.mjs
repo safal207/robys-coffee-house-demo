@@ -123,6 +123,13 @@ function templateMatches(source, template) {
   return [...new Set(candidates)];
 }
 
+// Build inputs are reachable only when their emitted public module is reachable.
+// Do not make every src/ file a root: an abandoned source/output pair must still fail.
+const generatedSources = new Map([
+  ["conversion.js", "src/conversion.js"],
+  ["menu-app.js", "src/menu-app.js"]
+]);
+
 const htmlRoots = allFiles.filter((path) => /\.html?$/i.test(path));
 const buildRoots = ["src/app.ts"].filter((path) => fileSet.has(path));
 const roots = [...new Set([...htmlRoots, ...buildRoots])];
@@ -137,6 +144,12 @@ while (queue.length) {
   const source = queue.shift();
   if (!source || reachable.has(source) || !fileSet.has(source)) continue;
   reachable.add(source);
+
+  const buildSource = generatedSources.get(source);
+  if (buildSource && fileSet.has(buildSource)) {
+    edges.push({ source, target: buildSource, kind: "build-source", reference: buildSource });
+    if (!reachable.has(buildSource)) queue.push(buildSource);
+  }
 
   const extension = extname(source).toLowerCase();
   if (!TRAVERSABLE_EXTENSIONS.has(extension)) continue;

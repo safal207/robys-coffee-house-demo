@@ -1,0 +1,36 @@
+name: Dependency source contract
+
+on:
+  pull_request:
+    paths:
+      - scripts/audit-dependencies.mjs
+      - scripts/test-dependency-source-contract.mjs
+      - .github/workflows/dependency-source-contract.yml
+  push:
+    branches: [fix/release-audit-20260905]
+    paths:
+      - scripts/audit-dependencies.mjs
+      - scripts/test-dependency-source-contract.mjs
+      - .github/workflows/dependency-source-contract.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-source-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-and-orphans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: node scripts/test-dependency-source-contract.mjs
+      - run: node scripts/audit-dependencies.mjs --check
