@@ -1,0 +1,122 @@
+name: Bounded release candidate
+on:
+  push:
+    branches: [fix/release-audit-20260905]
+    paths: [.github/workflows/qa-release-candidate.yml]
+permissions:
+  contents: read
+concurrency:
+  group: bounded-release-candidate
+  cancel-in-progress: true
+jobs:
+  candidate:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: macos-15
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    env:
+      BASE: 2fbf3437cee0fb3788a14d20f21f1b528f39687f
+      EXPECTED_TREE: 5c8091b46987e48cd4ba358bf4bee85b1628e47c
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Decode exact reviewed patch into runner scratch space
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64,hashlib,os,pathlib,zlib
+          encoded=''.join(pathlib.Path(f'.qa-release-patch/part-{n}.b64').read_text().strip() for n in (1,2,3))
+          patch=zlib.decompress(base64.b64decode(encoded,validate=True))
+          assert hashlib.sha256(patch).hexdigest()=='a35bdca80e3e4a0896c08ad10c84eb6a381c65b3d432e129b3b88b1d14c6dd34'
+          pathlib.Path(os.environ['RUNNER_TEMP'],'release-source.patch').write_bytes(patch)
+          PY
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2fbf3437cee0fb3788a14d20f21f1b528f39687f
+          persist-credentials: false
+      - name: Apply source repair while preserving concurrent recorder cases
+        shell: bash
+        run: |
+          git apply --index --exclude=scripts/test-android-capture-contract.py "$RUNNER_TEMP/release-source.patch"
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          f=Path('scripts/test-android-capture-contract.py')
+          assert subprocess.check_output(['git','hash-object',str(f)],text=True).strip()=='7d94ea2d0613a3c7788f7c61723730df5ee9d2ba'
+          s=f.read_text()
+          s=s.replace("elif case == 'timeout':", "elif case == 'exact_fallback':\n    states[2] = 'WEB_READY_TIMEOUT'\n    states[4] = 'HANDOFF_COMPLETE_FALLBACK'\nelif case == 'timeout':")
+          s=s.replace("if args[:1] == ['install']", "if case.startswith('exact_') and case != 'exact_missing_source':\n    revision = '0' * 40 if case == 'exact_wrong_source' else os.environ['CAPTURE_SOURCE_SHA']\n    states.insert(0, 'DEBUG_WEB_SOURCE ' + revision)\nif args[:1] == ['install']")
+          s=s.replace("'error_then_complete': 1, 'error_after_complete': 1}", "'error_then_complete': 1, 'error_after_complete': 1,\n         'exact_success': 0, 'exact_missing_source': 1, 'exact_wrong_source': 1, 'exact_fallback': 1}")
+          s=s.replace("env = dict(os.environ, PATH=str(shims) + os.pathsep + os.environ['PATH'], CAPTURE_TEST_CASE=case)", "head = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()\n        if case.startswith('exact_'):\n            source = work / '.artifacts/android-debug-assets/robys-debug-source.json'\n            source.parent.mkdir(parents=True)\n            source.write_text(json.dumps({'schema': 1, 'sourceCommit': head}))\n        env = dict(os.environ, PATH=str(shims) + os.pathsep + os.environ['PATH'],\n                   CAPTURE_TEST_CASE=case, CAPTURE_SOURCE_SHA=head)")
+          s=s.replace("assert 'web_bytes_pinned_to_pr=false' in (evidence / 'source-boundary.txt').read_text(), case", "expected_pinned = 'true' if case.startswith('exact_') else 'false'\n        assert f'web_bytes_pinned_to_pr={expected_pinned}' in (evidence / 'source-boundary.txt').read_text(), case")
+          f.write_text(s)
+          assert subprocess.check_output(['git','hash-object',str(f)],text=True).strip()=='c333829c3e0bd15f99a930fec888196136bda22c'
+          f=Path('docs/qa/release-closeout-2026-09-05.md')
+          f.write_text(f.read_text().replace('thirteen fake-adb capture cases','eighteen fake-adb capture cases'))
+          PY
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Rebuild and verify the complete candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/release-candidate
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/release-candidate/check.log
+          npm run verify:security 2>&1 | tee .artifacts/release-candidate/security.log
+          npm run verify:performance 2>&1 | tee .artifacts/release-candidate/performance.log
+          node scripts/audit-dependencies.mjs --check | tee .artifacts/release-candidate/dependency-audit.log
+          node scripts/test-audit-dependencies.mjs | tee .artifacts/release-candidate/prior-audit-tests.log
+          node scripts/test-android-debug-site.mjs | tee .artifacts/release-candidate/android-source-tests.json
+          node scripts/test-android-debug-path.mjs | tee .artifacts/release-candidate/android-path-tests.json
+          python3 scripts/test-android-capture-contract.py | tee .artifacts/release-candidate/capture-tests.json
+          git add featured-gallery.js social-offer.js index.html integrity-manifest.json scripts/test-android-capture-contract.py docs/qa/release-closeout-2026-09-05.md
+          git diff --cached --check
+          test "$(git write-tree)" = "$EXPECTED_TREE"
+          git diff --cached --binary > .artifacts/release-candidate/repair.patch
+      - name: Persist only detached Git objects; no branch or deployment mutation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess,urllib.request
+          base=os.environ['BASE']; expected=os.environ['EXPECTED_TREE']
+          assert subprocess.check_output(['git','write-tree'],text=True).strip()==expected
+          root='https://api.github.com/repos/safal207/robys-coffee-house-demo/git/'
+          def request(path,data=None):
+              req=urllib.request.Request(root+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as response:return json.load(response)
+          base_tree=request('commits/'+base)['tree']['sha']
+          files=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
+          assert len(files)==25 and not any(p.startswith(('.qa-release-patch/','node_modules/')) for p in files)
+          tree=[]
+          for p in files:
+              mode=subprocess.check_output(['git','ls-files','-s','--',p],text=True).split()[0]
+              assert mode=='100644' or mode=='100755'
+              tree.append({'path':p,'mode':mode,'type':'blob','content':subprocess.check_output(['git','show',':'+p]).decode('utf-8')})
+          result=request('trees',{'base_tree':base_tree,'tree':tree})
+          assert result['sha']==expected
+          commit=request('commits',{'message':'fix(release): compact classic runtimes and pin Android debug verification\n\nPreserve concurrent capture failures and scoped owner review instructions.\nNo price, visual baseline, threshold, TLS policy, main branch or deployment change.\nFull check, security, static performance and negative fixture contracts pass.','tree':expected,'parents':[base]})
+          evidence={'base':base,'candidate':commit['sha'],'tree':expected,'changedFiles':files,'workflowRun':os.environ['GITHUB_RUN_ID'],'published':False,'nativeEmulatorVerified':False,'browserNavigationVerified':False}
+          pathlib.Path('.artifacts/release-candidate/candidate.json').write_text(json.dumps(evidence,indent=2)+'\n')
+          print(json.dumps(evidence,indent=2))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: release-candidate-${{ github.sha }}
+          path: .artifacts/release-candidate/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: warn
