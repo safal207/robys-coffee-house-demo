@@ -60,7 +60,10 @@ try {
   assert(html.includes('src="cart-v2.js'));
   assert(html.includes('href="cart.css'));
   assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
-  assert(source.includes("MutationObserver"));
+  assert(source.includes('window.addEventListener("robys:choice-state"'));
+  assert(source.includes("const flow = currentFlow"));
+  assert(source.includes("lineFromChoice(cart, partySize)"));
+  assert(source.includes("order.add(line.id, line.quantity)"));
   assert(source.includes("robys-smart-choice-order.v1"));
   assert(source.includes("https://wa.me/?text="));
   assert(!source.includes("innerHTML"));

@@ -4,6 +4,12 @@ import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
+await build({entryPoints: ["src/order-store.ts"], bundle: true, minify: true, format: "esm", target: "es2020", outfile: "order-store.js", legalComments: "none"});
+const orderRevision = createHash("sha256").update(readFileSync("order-store.js")).digest("hex").slice(0,12);
+const orderPlugin = { name: "shared-order-runtime", setup(builder) {
+  builder.onResolve({filter: /^@robys\/order$/}, () => ({path: `${builder.initialOptions.outfile.startsWith("smart-choice/") ? "../" : "./"}order-store.js?v=${orderRevision}`, external: true}));
+}};
+await build({entryPoints: ["src/order-shell.ts"], bundle: true, minify: true, format: "esm", target: "es2020", outfile: "order-shell.js", legalComments: "none", plugins:[orderPlugin]});
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
@@ -24,6 +30,7 @@ await build({
   platform: "browser",
   target: "es2020",
   outfile: "smart-choice/app-v2.js",
+  plugins: [orderPlugin],
   legalComments: "none"
 });
 
@@ -35,6 +42,7 @@ await build({
   platform: "browser",
   target: "es2020",
   outfile: "smart-choice/cart-v2.js",
+  plugins: [orderPlugin],
   legalComments: "none"
 });
 
@@ -301,6 +309,23 @@ for (const [filePath, revision] of [
   ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
   ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision]
 ]) {
+  serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
+}
+const orderShellRevision = revisionFor("order-shell.js");
+const orderShellCssRevision = revisionFor("order-shell.css");
+const launcher = readFileSync("src/order-launcher.ts", "utf8").replace("order-shell.js?v=000000000000", `order-shell.js?v=${orderShellRevision}`);
+writeFileSync("order-launcher.js", transformSync(launcher, {loader:"ts",minify:true,format:"esm",target:"es2020"}).code);
+const orderLauncherRevision = revisionFor("order-launcher.js");
+for (const pagePath of ["index.html", "menu.html", "discover.html", "smart-choice/index.html"]) {
+  const prefix = pagePath.startsWith("smart-choice/") ? "../" : "";
+  let page = readFileSync(pagePath, "utf8");
+  const launcherOnly = pagePath === "index.html" || pagePath === "discover.html";
+  page = synchronizeModuleScript(page, `${prefix}${launcherOnly ? "order-launcher.js" : "order-shell.js"}`, launcherOnly ? orderLauncherRevision : orderShellRevision);
+  if (pagePath.startsWith("smart-choice/")) page = synchronizeStylesheet(page, "../order-store.js", orderRevision);
+  page = synchronizeStylesheet(page, `${prefix}order-shell.css`, orderShellCssRevision);
+  writeFileSync(pagePath, page);
+}
+for (const [filePath, revision] of [["order-launcher.js", orderLauncherRevision], ["order-store.js", orderRevision], ["order-shell.js", orderShellRevision], ["order-shell.css", orderShellCssRevision]]) {
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
 writeFileSync("sw.js", serviceWorker);

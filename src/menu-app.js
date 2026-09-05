@@ -1,3 +1,4 @@
+import { order, resolveOrderProduct, ORDER_KEY } from "./order-store.js";
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
 
@@ -27,7 +28,7 @@ const cartLinesRoot = document.querySelector("#menu-cart-lines");
 const cartEmpty = document.querySelector("#menu-cart-empty");
 const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
 
-const CART_STORAGE_KEY = "robys-menu-order.v1";
+
 const MAX_ITEM_QUANTITY = 99;
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
@@ -124,40 +125,15 @@ function buildProductIndex() {
 
 const productIndex = buildProductIndex();
 
-function readCart() {
-  try {
-    const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
-    if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
-    const validLines = parsed.lines.filter((line) => (
-      productIndex.has(line?.id) &&
-      Number.isInteger(line.quantity) &&
-      line.quantity > 0 &&
-      line.quantity <= MAX_ITEM_QUANTITY
-    ));
-    return new Map(validLines.map((line) => [line.id, line.quantity]));
-  } catch {
-    return new Map();
-  }
-}
-
+function readCart() { return new Map(order.get().lines.map(line => [line.id, line.quantity])); }
 let cart = readCart();
-
-function saveCart() {
-  try {
-    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      lines: Array.from(cart, ([id, quantity]) => ({ id, quantity }))
-    }));
-  } catch {
-    // The order calculator still works when session persistence is unavailable.
-  }
-}
+function saveCart() { order.replace(Array.from(cart, ([id, quantity]) => ({ id, quantity }))); }
 
 function cartSummary() {
   let quantity = 0;
   let total = 0;
   cart.forEach((lineQuantity, id) => {
-    const product = productIndex.get(id);
+    const product = resolveOrderProduct(id);
     if (!product) return;
     quantity += lineQuantity;
     total += product.item.price * lineQuantity;
@@ -180,7 +156,7 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
   else cart.set(id, normalized);
   saveCart();
   renderCart(focusControl ? { id, control: focusControl } : null);
-  const product = productIndex.get(id);
+  const product = resolveOrderProduct(id);
   if (shouldAnnounce && product) {
     const copy = menuCopy[language];
     const name = localized(product.item.name);
@@ -204,12 +180,12 @@ function announceCart(message) {
 
 function syncMenuCartState() {
   menuRoot.querySelectorAll("[data-product-id]").forEach((row) => {
-    const quantity = cart.get(row.dataset.productId) ?? 0;
+    const quantity = Array.from(cart).filter(([id]) => id.split("|")[0] === row.dataset.productId).reduce((sum, [, count]) => sum + count, 0);
     const media = row.querySelector(".full-menu-item-media");
     row.classList.toggle("is-in-cart", quantity > 0);
     if (!media) return;
     media.dataset.cartQuantity = String(quantity);
-    const product = productIndex.get(row.dataset.productId);
+    const product = resolveOrderProduct(row.dataset.productId);
     if (product) media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(product.item.name)}${quantity ? ` · ${menuCopy[language].cart}: ${quantity}` : ""}`);
   });
 }
@@ -232,7 +208,7 @@ function renderCart(focusTarget = null) {
   cartEmpty.hidden = cart.size > 0;
 
   cart.forEach((lineQuantity, id) => {
-    const product = productIndex.get(id);
+    const product = resolveOrderProduct(id);
     if (!product) return;
     const name = localized(product.item.name);
     const line = document.createElement("article");
@@ -350,7 +326,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 function updateProductQuantity() {
-  const product = productIndex.get(selectedProductId);
+  const product = resolveOrderProduct(selectedProductId);
   if (!product) return;
   const copy = menuCopy[language];
   const currentQuantity = cart.get(selectedProductId) ?? 0;
@@ -368,7 +344,7 @@ function updateProductQuantity() {
 }
 
 function hydrateProductDialog() {
-  const product = productIndex.get(selectedProductId);
+  const product = resolveOrderProduct(selectedProductId);
   if (!product) return;
   productDialogImage.src = product.image;
   productDialogImage.alt = localized(product.item.imageAlt ?? product.item.name);
@@ -390,7 +366,7 @@ function openProduct(id) {
 }
 
 function addSelectedProduct() {
-  const product = productIndex.get(selectedProductId);
+  const product = resolveOrderProduct(selectedProductId);
   if (!product) return;
   const currentQuantity = cart.get(selectedProductId) ?? 0;
   const copy = menuCopy[language];
@@ -796,3 +772,8 @@ if (activeCategory !== "all") {
     document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
   });
 }
+
+// Shared state also refreshes menu views after edits made through the global drawer.
+order.subscribe(() => { cart = readCart(); renderCart(); });
+
+if (new URLSearchParams(window.location.search).get("order") === "open") openDialog(cartDialog);

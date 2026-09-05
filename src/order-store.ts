@@ -115,6 +115,9 @@ export function createOrderStore(storage: Pick<Storage, 'getItem' | 'setItem'> |
   save();
   const replace = (lines: OrderLine[]) => {
     const next = validLines(lines);
+    const remaining = new Set(next.map(line => line.id));
+    const removed = snapshot.lines.filter(line => !remaining.has(line.id));
+    if (removed.length === 1) undo = { ...removed[0] };
     snapshot = { ...snapshot, revision: snapshot.revision + 1, lines: next };
     save(); emit();
   };
@@ -160,7 +163,11 @@ export function createOrderStore(storage: Pick<Storage, 'getItem' | 'setItem'> |
       const stored = read(ORDER_KEY) as OrderSnapshot | null;
       if (stored?.version !== 2 && stored !== null) return;
       if (stored && Number.isSafeInteger(stored.revision) && stored.revision >= snapshot.revision) {
-        try { snapshot = { ...stored, lines: validLines(stored.lines) }; emit(); } catch { notice = 'invalid-order'; emit(); }
+        try {
+          snapshot = { version: 2, revision: stored.revision, lines: validLines(stored.lines), migrationDone: stored.migrationDone === true };
+          if (snapshot.migrationDone) pendingLegacy = null;
+          emit();
+        } catch { notice = 'invalid-order'; emit(); }
       }
     }
   };
