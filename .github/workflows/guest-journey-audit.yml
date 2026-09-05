@@ -1,0 +1,38 @@
+name: Guest journey read-only audit
+on:
+  push:
+    branches: [qa/guest-journey-review-20260905]
+    paths: [scripts/guest-journey-audit.mjs, .github/workflows/guest-journey-audit.yml]
+permissions:
+  contents: read
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify source boundary and audit syntax
+        run: |
+          git diff --exit-code a2fbce66f716b1b99e924239d5dd118cf37c5eef HEAD -- src smart-choice menu.html menu-app.js menu-catalog.js menu-premium.css menu.css
+          node --check scripts/guest-journey-audit.mjs
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Observe public guest journeys without sending orders
+        run: node scripts/guest-journey-audit.mjs
+      - name: Preserve inspected source for reproducible diagnosis
+        if: always()
+        run: |
+          mkdir -p .artifacts/guest-journey-audit
+          git archive a2fbce66f716b1b99e924239d5dd118cf37c5eef -- src/smart-choice smart-choice src/menu-app.js menu.html menu-app.js menu-catalog.js menu-premium.css menu.css bootstrap-v2.js day-night-entry.js morning-entry-v2.js src/products/sets-v1 | gzip > .artifacts/guest-journey-audit/inspected-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: guest-journey-audit-${{ github.sha }}
+          path: .artifacts/guest-journey-audit/
+          if-no-files-found: error
+          retention-days: 7
