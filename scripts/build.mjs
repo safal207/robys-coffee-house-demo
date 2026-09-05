@@ -205,11 +205,13 @@ const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
 const androidStylesRevision = revisionFor("android-app.css");
-let conversionSource = readFileSync("conversion.js", "utf8");
+let conversionSource = readFileSync("src/conversion.js", "utf8");
 const androidStylePattern = /android-app\.css\?v=[^"']+/;
 if (!androidStylePattern.test(conversionSource)) throw new Error("Missing Android stylesheet loader");
 conversionSource = conversionSource.replace(androidStylePattern, `android-app.css?v=${androidStylesRevision}`);
-writeFileSync("conversion.js", conversionSource);
+writeFileSync("conversion.js", transformSync(conversionSource, {
+  minify: true, format: "esm", target: "es2020", legalComments: "none"
+}).code);
 const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");

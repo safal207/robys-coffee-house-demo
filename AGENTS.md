@@ -13,6 +13,7 @@ Work source-first. Do not hand-edit generated runtime files without updating the
 source and rebuilding them.
 
 - `src/app.ts` generates `app.js`.
+- `src/conversion.js` generates `conversion.js`; its Android stylesheet revision is injected during build.
 - `src/featured-gallery.ts` generates `featured-gallery.js`.
 - `src/social-offer.ts` generates `social-offer.js`.
 - `src/discover-rotation.ts` generates `discover-rotation.js`.

@@ -43,7 +43,7 @@
         "index.html#.hero",
         "index.html#.language-switcher",
         "app.js",
-        "conversion.js#setupHeaderAndProgress"
+        "src/conversion.js#setupHeaderAndProgress"
       ],
       "tests": [
         "npm run verify:regression"
@@ -108,7 +108,7 @@
         "styles-v2.css#.menu-section",
         "app.js",
         "conversion.css#.mobile-cta",
-        "conversion.js#setupMobileCta"
+        "src/conversion.js#setupMobileCta"
       ],
       "tests": [
         "manual:cold-load-first-scroll (missing)"
