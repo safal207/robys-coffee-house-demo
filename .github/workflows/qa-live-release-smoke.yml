@@ -65,22 +65,24 @@ jobs:
                 const geometry=await verifyGeometry(page,language);
                 report.checks.push({id:'live-geometry-'+language,passed:true,result:geometry});
                 const row=page.locator('.full-menu-item--product').first();
-                const unit=money(await row.locator('.menu-price').textContent()); assert.ok(unit>0);
-                await row.locator('.product-photo-button').click();
-                const photo=page.locator('.product-photo-dialog'); await photo.waitFor({state:'visible'});
-                await photo.locator('[data-product-quantity]').fill('2');
-                await photo.locator('[data-product-add]').click(); await photo.waitFor({state:'hidden'});
-                assert.equal((await page.locator('[data-order-count]').first().textContent()).trim(),'2');
+                const unit=money(await row.locator('.full-menu-price').innerText()); assert.ok(unit>0);
+                await row.locator('button').click();
+                const photo=page.locator('#menu-product-dialog'); await photo.waitFor({state:'visible'});
+                await page.locator('#menu-quantity-increase').click();
+                assert.equal((await page.locator('#menu-product-quantity').innerText()).trim(),'2');
+                await page.locator('#menu-add-to-cart').click(); await photo.waitFor({state:'hidden'});
+                assert.equal((await page.locator('#menu-cart-count').innerText()).trim(),'2');
                 await page.reload({waitUntil:'domcontentloaded'});
-                await page.locator('[data-order-count]').filter({hasText:/^2$/}).first().waitFor({state:'attached'});
-                await page.locator('[data-open-order]').first().click();
-                const order=page.locator('.order-dialog'); await order.waitFor({state:'visible'});
-                assert.equal(money(await order.locator('[data-order-total]').textContent()),unit*2);
-                await order.locator('[data-cart-change="1"]').first().click();
-                assert.equal(money(await order.locator('[data-order-total]').textContent()),unit*3);
+                await page.locator('#menu-cart-count').filter({hasText:/^2$/}).waitFor({state:'attached'});
+                await page.locator('#menu-cart-trigger').click();
+                const order=page.locator('#menu-cart-dialog'); await order.waitFor({state:'visible'});
+                assert.equal(money(await page.locator('#menu-cart-dialog-total').innerText()),unit*2);
+                await order.locator('.menu-cart-step').last().click();
+                assert.equal(money(await page.locator('#menu-cart-dialog-total').innerText()),unit*3);
+                await order.locator('[data-menu-cart-status]').filter({hasText:'3'}).waitFor({state:'attached'});
                 await page.screenshot({path:`${out}/live-cart-${language}-390.png`});
-                await order.locator('[data-cart-remove]').first().click();
-                assert.equal(money(await order.locator('[data-order-total]').textContent()),0);
+                await order.locator('.menu-cart-remove').click();
+                assert.equal(money(await page.locator('#menu-cart-dialog-total').innerText()),0);
                 await page.keyboard.press('Escape');
                 assert.deepEqual(errors,[]);
                 report.checks.push({id:'live-cart-session-'+language,passed:true,unit,quantities:[2,3,0]});
@@ -89,20 +91,27 @@ jobs:
             }
             const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'allow'});
             const page=await context.newPage();
-            await page.goto(base+'?entry=off',{waitUntil:'domcontentloaded'});
-            const menu=page.locator('.site-header [data-i18n="nav_full_menu"]');
-            await menu.waitFor({state:'visible'}); await page.screenshot({path:out+'/live-home-390.png'});
+            await page.goto(base+'index.html?entry=off',{waitUntil:'domcontentloaded'});
+            const menu=page.locator('.hero-actions a[href="menu.html"]');
+            await menu.waitFor({state:'visible'}); await page.evaluate(()=>document.fonts.ready);
+            await page.locator('.hero-content').evaluate(async node=>{
+              await Promise.all(node.getAnimations({subtree:true}).filter(a=>Number.isFinite(a.effect.getComputedTiming().endTime)).map(a=>a.finished.catch(()=>{})));
+            });
+            await page.screenshot({path:out+'/live-home-390.png'});
             await menu.click(); await page.waitForURL('**/menu.html');
             await page.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
             report.checks.push({id:'live-home-menu-navigation',passed:true});
             await page.goto(base+'smart-choice/',{waitUntil:'domcontentloaded'});
-            for(const value of ['quick-stop','takeaway','solo','drink','caramel-frappe']){
-              await page.locator(`[data-option="${value}"]`).click(); await settle(page);
+            await page.locator('[data-lang="en"]').click();
+            await page.locator('.primary-button').first().click();
+            for(const choice of ['Coffee','Hot','Sweet','One','250']){
+              await page.locator('.option-button').filter({hasText:choice}).first().click();
+              assert.equal(await page.locator('.option-button[aria-pressed="true"]').count(),1);
+              await page.locator('.primary-button').click(); await settle(page);
             }
-            await page.locator('[data-result]').waitFor({state:'visible'});
-            assert.match(await page.locator('[data-result]').innerText(),/Caramel Frappe/);
+            await page.locator('#smart-choice-app').filter({hasText:'Caramel Latte'}).waitFor({state:'visible'});
             await page.screenshot({path:out+'/live-smart-choice-390.png'});
-            report.checks.push({id:'live-smart-choice',passed:true}); await context.close();
+            report.checks.push({id:'live-smart-choice',passed:true,result:'Caramel Latte'}); await context.close();
             const desktop=await browser.newContext({viewport:{width:1440,height:900},bypassCSP:false,serviceWorkers:'allow'});
             const dp=await desktop.newPage(); await dp.goto(base+'menu.html?entry=off',{waitUntil:'domcontentloaded'});
             await dp.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
