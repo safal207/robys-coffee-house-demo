@@ -17,16 +17,20 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 2
+          fetch-depth: 20
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Require exact reviewed parent and unmodified menu source
+      - name: Require unchanged reviewed source despite transport-only commits
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = 4c72672c4bd0ccfe83fbd30137c6c1e2e62c366a
-          test "$(git diff --name-only HEAD^ HEAD)" = .github/workflows/qa-menu-runtime-compact.yml
+          mkdir -p .artifacts/menu-compaction
+          git rev-parse HEAD > .artifacts/menu-compaction/input-head.txt
+          git cat-file -e 4c72672c4bd0ccfe83fbd30137c6c1e2e62c366a^{commit}
+          git diff --name-only 4c72672c4bd0ccfe83fbd30137c6c1e2e62c366a HEAD > .artifacts/menu-compaction/intervening-paths.txt
+          unexpected=$(grep -vE '^\.github/workflows/(qa-menu-runtime-compact|robys-bounded-repair)\.yml$' .artifacts/menu-compaction/intervening-paths.txt || true)
+          test -z "$unexpected"
           test "$(git hash-object menu-app.js)" = 486bf7878873afd2118daf754588d743c0407409
           test ! -e src/menu-app.js
       - name: Prepare source-first runtime and bind contracts to emitted bytes
@@ -103,7 +107,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .artifacts/menu-compaction
           npm ci --no-audit --no-fund
           npm run build 2>&1 | tee .artifacts/menu-compaction/build.log
           npm run integrity:generate
