@@ -2,7 +2,7 @@ name: PR341 dock and loading workspace
 on:
   push:
     branches: [qa/pr341-dock-performance]
-    paths: [.github/workflows/qa-dock-performance.yml]
+    paths: [.github/workflows/qa-dock-performance.yml, .github/qa/pr341-dock-input.json]
 permissions:
   contents: write
 concurrency:
@@ -20,25 +20,25 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Apply pinned source repair and readiness correction
+      - name: Apply exact manifest against pinned input
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
         with:
           script: |
             const fs=require('fs'),zlib=require('zlib'),crypto=require('crypto'),cp=require('child_process');
             const input='8387e10d9c60742239edf076a620ca1fd51371a7';
-            if(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==input)throw Error('Wrong checkout');
+            const file=await github.rest.repos.getContent({...context.repo,path:'.github/qa/pr341-dock-input.json',ref:context.sha});
+            const manifest=JSON.parse(Buffer.from(file.data.content,'base64').toString());
+            if(manifest.inputHead!==input || cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==input)throw Error('Wrong input');
             fs.mkdirSync('.artifacts/dock-repair',{recursive:true});
             fs.writeFileSync('.artifacts/dock-repair/input-head.txt',input+'\n');
-            const first=await github.rest.git.getBlob({...context.repo,file_sha:'b81744881bc18b00286993fa99ee538845e36e5c'});
-            const patch=zlib.gunzipSync(Buffer.from(first.data.content,'base64'));
-            if(crypto.createHash('sha256').update(patch).digest('hex')!=='94bbaf07e8fa699eebb4078ea2d1904395c253ec29bd126cad4da121a4495212')throw Error('Patch hash mismatch');
-            fs.writeFileSync('.artifacts/dock-repair/source.patch',patch);
-            cp.execFileSync('git',['apply','--check','.artifacts/dock-repair/source.patch']);
-            cp.execFileSync('git',['apply','.artifacts/dock-repair/source.patch']);
-            const correction=await github.rest.git.getBlob({...context.repo,file_sha:'2db45e2d3ff89b4f84eaf04697642be016922857'});
-            fs.writeFileSync('.artifacts/dock-repair/correction.patch',Buffer.from(correction.data.content,'base64'));
-            cp.execFileSync('git',['apply','--check','.artifacts/dock-repair/correction.patch']);
-            cp.execFileSync('git',['apply','.artifacts/dock-repair/correction.patch']);
+            fs.writeFileSync('.artifacts/dock-repair/manifest.json',JSON.stringify(manifest,null,2));
+            for(const [i,entry] of manifest.patches.entries()){
+              const blob=await github.rest.git.getBlob({...context.repo,file_sha:entry.sha});
+              let patch=Buffer.from(blob.data.content,'base64');if(entry.gzip)patch=zlib.gunzipSync(patch);
+              if(entry.sha256&&crypto.createHash('sha256').update(patch).digest('hex')!==entry.sha256)throw Error('Patch hash mismatch');
+              const path='.artifacts/dock-repair/source-'+i+'.patch';fs.writeFileSync(path,patch);
+              cp.execFileSync('git',['apply','--check',path]);cp.execFileSync('git',['apply',path]);
+            }
       - run: npm ci --no-audit --no-fund
       - name: Rebuild and verify all existing source and preservation contracts
         run: |
