@@ -294,3 +294,8 @@ body.menu-dialog-open{overflow:hidden}
 .menu-dialog-close:active:not(:disabled){transform:scale(.96)}
 .menu-dialog-shell{overscroll-behavior:contain}
 @media(prefers-reduced-motion:reduce){.menu-order-status{transition:none;transform:none}.menu-page :is(.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link):active,.menu-dialog-close:active:not(:disabled){transform:none}}
+
+/* SCROLL-CLEARANCE-001: no hard-coded guess for sticky header + order tools. */
+html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
+.menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}
+.menu-scroll-aware .menu-share-card{scroll-margin-block:12px}
