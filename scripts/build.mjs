@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
-import { build } from "esbuild";
+import { build, transformSync } from "esbuild";
 import ts from "typescript";
 
 await build({
@@ -89,7 +89,13 @@ function transpileClassicScript(sourcePath, outputPath) {
       removeComments: false
     }
   }).outputText;
-  writeFileSync(outputPath, bundle);
+  // Keep stable public identifiers while avoiding shipping development whitespace.
+  // No bundling, execution-order changes or business-logic substitutions.
+  const compact = transformSync(bundle, {
+    target: "es2020", minifyWhitespace: true, minifySyntax: true,
+    minifyIdentifiers: false, legalComments: "none"
+  }).code;
+  writeFileSync(outputPath, sourcePath === "src/discover-rotation.ts" ? bundle : compact);
 }
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
@@ -196,6 +202,7 @@ const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
+const menuPremiumRevision = revisionFor("menu-premium.css");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
@@ -232,6 +239,7 @@ let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 writeFileSync("menu.html", menuHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
@@ -263,6 +271,7 @@ for (const [filePath, revision] of [
   ["morning-entry-v2.js", morningEntryRevision],
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
+  ["menu-premium.css", menuPremiumRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],

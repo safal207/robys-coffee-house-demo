@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v60-20260904-entry-deps-cache-new-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v61-20260904-entry-deps-cache-new-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -76,12 +76,12 @@ const CORE_ASSETS = [
   "./android-download.js",
   "./android-app.css",
   "./mobile-install.css",
-  "./styles-v2.css?v=68d386eda9c9",
+  "./styles-v2.css?v=a008bb8274b9",
   "./mobile.css",
   "./conversion.css",
   "./final-qa.css",
   "./social-offer.css",
-  "./menu-premium.css?v=20260904-premium-scroll-v2",
+  "./menu-premium.css?v=904ed8fcdc8f",
   "./menu-stability.css",
   "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",
@@ -106,7 +106,7 @@ const CORE_ASSETS = [
   "./menu-interactions.js?v=20260904-interaction-v3",
   "./smart-choice/index.html",
   "./smart-choice/pwa.js?v=premium-cache-new-20260904-1",
-  "./smart-choice/style.css?v=824dd6ec9c5f",
+  "./smart-choice/style.css?v=93af186a5b11",
   "./smart-choice/cart.css?v=4fcc327520f5",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=9d9afd5b512c",
