@@ -1,0 +1,89 @@
+name: PR341 dock and catalogue candidate
+on:
+  push:
+    branches: [feat/unified-order-flow]
+    paths:
+      - .github/workflows/pr341-dock-candidate.yml
+      - .github/maintenance/pr341-dock*
+permissions:
+  contents: write
+concurrency:
+  group: pr341-dock-candidate
+  cancel-in-progress: false
+jobs:
+  candidate:
+    if: github.repository == 'safal207/robys-coffee-house-demo' && github.ref == 'refs/heads/feat/unified-order-flow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Apply the reviewed exact-source patch
+        run: python3 .github/maintenance/pr341-dock-candidate.py apply
+      - name: Build and run full repository checks
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee .artifacts/dock-candidate/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/dock-candidate/integrity.log
+          npm run check 2>&1 | tee .artifacts/dock-candidate/check.log
+          npm run verify:security 2>&1 | tee .artifacts/dock-candidate/security.log
+          npm run verify:performance 2>&1 | tee .artifacts/dock-candidate/performance-static.log
+          node scripts/test-unified-order.mjs > .artifacts/dock-candidate/domain.json
+      - name: Verify actual emitted catalogue imports
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { orderCatalogURL } from './scripts/order-catalog-boundary.mjs';
+          const expected = orderCatalogURL();
+          const results = {};
+          for (const file of ['order-store.js', 'menu-app.js']) {
+            const text = readFileSync(file, 'utf8');
+            const urls = [...text.matchAll(/["'](\.\/menu-catalog\.js[^"']*)["']/g)].map(match => match[1]);
+            assert.deepEqual(urls, [expected], file + ' must use one canonical catalogue URL');
+            results[file] = urls;
+          }
+          assert.ok(readFileSync('sw.js', 'utf8').includes('"' + expected + '"'));
+          assert.ok(!readFileSync('order-launcher.js', 'utf8').includes('order-store.js'));
+          writeFileSync('.artifacts/dock-candidate/emitted-imports.json', JSON.stringify({expected, results, lazyLauncher: true}, null, 2));
+          JS
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Existing cross-route browser journeys
+        env:
+          ORDER_RESULTS_DIR: .artifacts/dock-candidate/journeys
+        run: node scripts/unified-order-browser.mjs
+      - name: Existing enlarged-text and touch layout regression
+        env:
+          ORDER_LAYOUT_RESULTS_DIR: .artifacts/dock-candidate/layout
+        run: node scripts/order-layout-regression.mjs
+      - name: Install the existing gallery test runner without changing the lockfile
+        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+      - run: npx --no-install playwright install --with-deps webkit chromium
+      - name: Existing complete gallery mobile matrix
+        run: |
+          set -o pipefail
+          npx --no-install playwright test --config=qa/playwright.config.ts 2>&1 | tee .artifacts/dock-candidate/gallery.log
+      - name: Store verified candidate objects without moving any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/maintenance/pr341-dock-candidate.py store
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr341-dock-candidate-${{ github.sha }}
+          path: |
+            .artifacts/dock-candidate/
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: error
