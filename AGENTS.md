@@ -68,8 +68,25 @@ run the complete commands above before merge.
 - Treat visual changes as behavior changes: attach reproducible screenshot evidence.
 - Never merge a red or still-running required check.
 - After the latest commit, add separate top-level PR comments:
-  `@codex review` and `@jules review`.
+  `@codex review` and `@jules review`, subject to the scoped owner instruction below.
 - Resolve actionable review findings or document why they are not applicable.
+
+## PR #338: owner opted out of Codex review
+
+On 5 September 2026 the owner instructed: "Го без ревью кодекс".
+This scoped instruction is recorded in PR #338, comment 5549467834.
+
+For PR #338 only, do not request or re-request Codex review, and do not wait for
+Codex quota or approval. This exception applies to subsequent commits in the PR,
+not just the head that existed when the instruction was given.
+
+This is not a Codex approval, an independent review, or a waiver of findings.
+The current provider-neutral route already treats AI reviewers as advisory and
+retains the human maintainer as the binding approval authority. Keep existing
+non-Codex evidence; do not invent approvals from unavailable or skipped reviewers.
+Required CI, visual-change verification, security, integrity, performance budgets,
+current-head maintainer authorization and post-deployment checks remain required.
+Do not change repository-wide protection settings or paid-provider limits.
 
 ## Pull request evidence
 
