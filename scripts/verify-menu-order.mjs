@@ -1,8 +1,9 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("menu.html", "utf8");
-const runtime = readFileSync("menu-app.js", "utf8");
+const runtime = readVerifiedMenuSource();
 const styles = `${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")}`;
 const serviceWorker = readFileSync("sw.js", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");

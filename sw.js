@@ -99,7 +99,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=bbea03459a71",
   "./menu-ready.js",
-  "./menu-app.js?v=5f9ccc0dd278",
+  "./menu-app.js?v=e813981e38cb",
   "./menu-pwa.js?v=premium-cache-new-20260904-1",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",

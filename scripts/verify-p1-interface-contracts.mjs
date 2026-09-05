@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -8,7 +9,7 @@ const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
-const menuRuntime = readFileSync("menu-app.js", "utf8");
+const menuRuntime = readVerifiedMenuSource();
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));

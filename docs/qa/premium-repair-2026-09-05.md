@@ -64,3 +64,23 @@ silently rebound. Lighthouse transfer measurements must be rerun; static byte
 savings are not a new performance score. The existing native APK visual-handoff
 failure is separate from browser navigation and is not claimed fixed here.
 Request independent Codex and Jules reviews after the final head is published.
+
+## Follow-up: delivery cost and reproducible menu runtime
+
+The readable menu source now lives in `src/menu-app.js`. The build emits the same
+root `menu-app.js` ES module, preserving catalog URLs, lazy interaction imports,
+DOM hooks, cart arithmetic, language behavior and event names. Only private
+identifiers, whitespace and equivalent syntax are compacted by pinned esbuild.
+Edit the source, not the generated runtime.
+
+Source-level contracts call `readVerifiedMenuSource()`: it first asserts exact
+byte equality between the shipped runtime and a fresh compilation, then checks
+the readable implementation. A changed or stale generated file is a failure, not
+a test exemption. Runtime security checks cover both source and emitted output;
+content revisions and integrity continue to bind the actual emitted bytes.
+The performance budgets and baselines are unchanged.
+
+The pinned Markdown linter now runs on the Ubuntu runner with the same versions,
+added-line filtering and error threshold. This avoids the upstream container's
+unavailable Bullseye package without disabling the review. Setup/configuration
+failures remain blocking.

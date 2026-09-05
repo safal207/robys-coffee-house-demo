@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -73,7 +74,7 @@ function verifyAsset(filePath, digests) {
 const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
-const menuRuntime = readFileSync("menu-app.js", "utf8");
+const menuRuntime = readVerifiedMenuSource();
 const menuStyles = readFileSync("menu-premium.css", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");

@@ -10,6 +10,7 @@ const RUNTIME_FILES = [
   "analytics.js",
   "qa.js",
   "menu-app.js",
+  "src/menu-app.js",
   "menu-interactions.js",
   "menu-search-clear.js",
   "menu-ready.js",

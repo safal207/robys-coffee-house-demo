@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -6,7 +7,7 @@ const html = readFileSync("menu.html", "utf8");
 const css = readFileSync("menu-premium.css", "utf8");
 const premiumRevision = createHash("sha256").update(css).digest("hex").slice(0, 12);
 const runtime = readFileSync("menu-interactions.js", "utf8");
-const menuPageRuntime = readFileSync("menu-app.js", "utf8");
+const menuPageRuntime = readVerifiedMenuSource();
 const pwaRuntime = readFileSync("pwa.js", "utf8");
 const menuPwaRuntime = readFileSync("menu-pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
@@ -41,7 +42,7 @@ assert(menuPageRuntime.includes("const nativeShare = navigator.share(payload)"),
 assert(menuPageRuntime.includes("runLazyShare(true)"), "Rejected native share lacks a non-native fallback");
 assert(html.includes('data-share-text-tr=') && html.includes('data-share-text-en=') && html.includes('data-share-text-ru='), "Activation-safe share copy lacks TR/EN/RU coverage");
 assert(!html.includes('src="menu-interactions.js'), "Menu interactions must stay off the initial performance path");
-const menuRuntimeRevision = createHash("sha256").update(menuPageRuntime).digest("hex").slice(0, 12);
+const menuRuntimeRevision = createHash("sha256").update(readFileSync("menu-app.js")).digest("hex").slice(0, 12);
 assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must load the exact runtime content revision");
 assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
 assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");

@@ -174,8 +174,8 @@
       "evidence": [
         "menu.html#menu-root",
         "menu.html#menu-search",
-        "menu-app.js#renderMenu",
-        "menu-app.js#setLanguage",
+        "src/menu-app.js#renderMenu",
+        "src/menu-app.js#setLanguage",
         "menu-catalog.js"
       ],
       "tests": [

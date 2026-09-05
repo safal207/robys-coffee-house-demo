@@ -1,10 +1,11 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const REQUIRED_LANGUAGES = ["tr", "en", "ru"];
 const indexHtml = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
-const menuPageRuntime = readFileSync("menu-app.js", "utf8");
+const menuPageRuntime = readVerifiedMenuSource();
 const clearSearchRuntime = readFileSync("menu-search-clear.js", "utf8");
 const appRuntime = readFileSync("src/app.ts", "utf8");
 const menuDataSource = readFileSync("menu-catalog.js", "utf8");

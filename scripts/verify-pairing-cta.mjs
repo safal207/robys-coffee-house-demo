@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import "./verify-pairing-cta-static.mjs";
 import "./verify-pairing-catalog-parity.mjs";
 import assert from "node:assert/strict";
@@ -7,7 +8,7 @@ import vm from "node:vm";
 const analytics = readFileSync("analytics.js", "utf8");
 const index = readFileSync("index.html", "utf8");
 const menuData = readFileSync("menu-catalog.js", "utf8");
-const menuRuntime = readFileSync("menu-app.js", "utf8");
+const menuRuntime = readVerifiedMenuSource();
 
 function verifyAnalyticsBehavior() {
   const windowListeners = new Map();

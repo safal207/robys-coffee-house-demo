@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
+import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+
+writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
