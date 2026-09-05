@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-338-f38487e-premium-repair-reviewed",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/338#issuecomment-5549650611",
+      "reviewKind": "assistant-qa-not-human-approval",
+      "summary": "Observed direct mobile menu entry, corrected product geometry, and unobscured share-section positioning. This records assistant visual inspection under the requested repair scope, not exact-head human approval or release authorization. Baselines and global thresholds remain unchanged. The pinned public integrity manifest and required integrity checks cover the full public corpus.",
+      "evidence": {
+        "sourceCommit": "f38487ec64f60e0721ae5b23074527497886eca1",
+        "workflowRun": 33946751968,
+        "artifactId": 9963612324,
+        "summarySha256": "5d4a0a5940ae8c30ba64b9c5b8cecc48565b64fabc7f302ee19a73478ab6953c",
+        "comparisons": 43,
+        "rawUnchangedComparisons": 30,
+        "reviewedDeltas": 13
+      },
+      "contentBindings": {
+        "index.html": "4ecfea299bab10eedcf8a6dc35748681fc7b06ff",
+        "menu.html": "ddff0faa003e8d29a0f221e4e7707bca80f15c87",
+        "menu-premium.css": "23ad9d979c3d010d45fba799537784ff2dfb720f",
+        "integrity-manifest.json": "f95af9cb5df6676d55c68c52ac9a802a71b08dc1"
+      },
+      "expectedFailures": [
+        {"capture":"landing-full","viewport":"phone-320","totalPixels":2604160,"maxDiffPixelRatio":0.015106983},
+        {"capture":"menu-full","viewport":"phone-320","reason":"dimension mismatch 320x11632 vs 320x11681"},
+        {"capture":"menu-share","viewport":"phone-320","reason":"dimension mismatch 280x534 vs 280x512"},
+        {"capture":"hero","viewport":"phone-360-short","totalPixels":230400,"maxDiffPixelRatio":0.155603299},
+        {"capture":"menu-share","viewport":"phone-360-short","reason":"dimension mismatch 320x508 vs 320x498"},
+        {"capture":"landing-full","viewport":"phone-390","totalPixels":3340350,"maxDiffPixelRatio":0.013804841},
+        {"capture":"menu-full","viewport":"phone-390","reason":"dimension mismatch 390x11366 vs 390x11436"},
+        {"capture":"hero","viewport":"phone-390","totalPixels":390000,"maxDiffPixelRatio":0.099258975},
+        {"capture":"menu-share","viewport":"phone-390","reason":"dimension mismatch 350x508 vs 350x506"},
+        {"capture":"menu-full","viewport":"tablet-768","reason":"dimension mismatch 768x13145 vs 768x13217"},
+        {"capture":"menu-share","viewport":"laptop-1366","reason":"dimension mismatch 1180x313 vs 1180x314"},
+        {"capture":"menu-full","viewport":"desktop-1440","reason":"dimension mismatch 1440x9046 vs 1440x9109"},
+        {"capture":"menu-share","viewport":"desktop-1440","reason":"dimension mismatch 1180x320 vs 1180x319"}
+      ]
+    }
+  ]
+}
