@@ -1,0 +1,82 @@
+name: Order domain and original route diagnostics
+on:
+  push:
+    branches: [feat/unified-order-flow]
+    paths: [.github/workflows/qa-order-domain-diagnostics.yml]
+permissions:
+  contents: read
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 75a45d94eadca9f9c90029a25d1571c3cf42aadb
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify staged order domain only
+        run: |
+          mkdir -p .artifacts/order-diagnostics
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {build} from 'esbuild';
+          import {writeFileSync} from 'node:fs';
+          const built=await build({entryPoints:['src/order-store.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+          const d=await import('data:text/javascript;base64,'+Buffer.from(built.outputFiles[0].text).toString('base64'));
+          const memory=(values={})=>{const data=new Map(Object.entries(values));return{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)}};
+          const cases=[];
+          function test(name,run){run();cases.push({name,passed:true});}
+          const e='hot-coffee:espresso',l='hot-coffee:caramel-latte';
+          test('same-session totals and restore',()=>{const m=memory(),s=d.createOrderStore(m);s.add(e,2);s.add(l);assert.equal(s.summary().totalMinor,42000);assert.equal(d.createOrderStore(m).summary().quantity,3)});
+          test('invalid quantities rejected',()=>{const s=d.createOrderStore(memory());for(const n of [-1,0,.5,100])assert.throws(()=>s.add(e,n));assert.equal(s.summary().quantity,0)});
+          test('unknown product rejected',()=>assert.throws(()=>d.createOrderStore(memory()).add('unknown')));
+          test('unknown option rejected',()=>assert.equal(d.resolveOrderProduct(e+'|free'),undefined));
+          test('approved offer price preserved',()=>{const s=d.createOrderStore(memory());s.add('pairing-offers:cool-lime-macaron-pairing');assert.equal(s.summary().totalMinor,29000)});
+          test('single choice identity',()=>assert.equal(d.lineFromChoice(d.createInitialCart('single-hot-coffee--caramel-latte'),'one').id,l));
+          test('old menu not reimported after clear',()=>{const m=memory({[d.LEGACY_MENU_KEY]:JSON.stringify({version:1,lines:[{id:e,quantity:2}]})}),s=d.createOrderStore(m);s.setQuantity(e,0);assert.equal(d.createOrderStore(m).summary().quantity,0)});
+          test('old choice import requires consent',()=>{const m=memory({[d.LEGACY_CHOICE_KEY]:JSON.stringify(d.createInitialCart('single-hot-coffee--caramel-latte'))}),s=d.createOrderStore(m);assert.equal(s.summary().quantity,0);assert.ok(s.status().pendingLegacy);s.resolveMigration('import');assert.equal(d.createOrderStore(m).summary().totalMinor,20000)});
+          test('storage denial preserves in-memory order',()=>{const s=d.createOrderStore({getItem(){throw Error('denied')},setItem(){throw Error('denied')}});s.add(l);assert.equal(s.summary().totalMinor,20000);assert.equal(s.status().persistent,false)});
+          test('undo is not repeated',()=>{const s=d.createOrderStore(memory());s.add(e,2);s.setQuantity(e,0);s.undoRemoval();s.undoRemoval();assert.equal(s.summary().quantity,2)});
+          writeFileSync('.artifacts/order-diagnostics/domain.json',JSON.stringify({source:'75a45d94eadca9f9c90029a25d1571c3cf42aadb',boundary:'Staged domain module only; consumers are not integrated or published',cases,passed:cases.length,total:cases.length},null,2));
+          console.log('Domain: '+cases.length+'/'+cases.length);
+          JS
+      - name: Diagnose original served application with saved state
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {spawn} from 'node:child_process';
+          import {writeFileSync} from 'node:fs';
+          import {chromium} from 'playwright';
+          const out='.artifacts/order-diagnostics',base='http://127.0.0.1:4188/';
+          const server=spawn('python3',['-m','http.server','4188','--bind','127.0.0.1'],{stdio:'ignore'});
+          const report={source:'75a45d94eadca9f9c90029a25d1571c3cf42aadb',webSource:'a2fbce66f716b1b99e924239d5dd118cf37c5eef',boundary:'Original application bytes; new order modules are not loaded by its HTML. No product changes or public deployment.',checks:[],passed:false};
+          let browser;
+          try{
+            for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break}catch{}await new Promise(r=>setTimeout(r,100))}
+            browser=await chromium.launch({headless:true});const c=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'block'});const p=await c.newPage();
+            await p.goto(base+'smart-choice/#welcome',{waitUntil:'domcontentloaded'});
+            await p.locator('[data-lang="en"]').click();await p.locator('.primary-button').first().click();
+            for(let i=0;i<5;i++){await p.locator('.option-button').first().click();await p.locator('.primary-button').click()}
+            await p.locator('.result-card .primary-button').first().click();await p.locator('.selected-card').waitFor({state:'visible'});
+            await p.goto(base+'menu.html',{waitUntil:'domcontentloaded'});await p.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});
+            const count=(await p.locator('#menu-cart-count').innerText()).trim();assert.equal(count,'0');
+            report.checks.push({id:'selection-does-not-reach-menu',actualCount:count,reproduced:true});
+            await p.goto(base+'smart-choice/#welcome',{waitUntil:'domcontentloaded'});await p.locator('.selected-card').waitFor({state:'visible'});
+            const title=await p.locator('#smart-choice-app h1').innerText();assert.equal(await p.locator('.smart-title').count(),0);
+            report.checks.push({id:'explicit-welcome-restores-selected-screen',actualTitle:title,reproduced:true});
+            await p.screenshot({path:out+'/original-welcome.png'});report.passed=true;await c.close();
+          }catch(error){report.error=String(error.stack);process.exitCode=1}
+          finally{await browser?.close();server.kill();writeFileSync(out+'/baseline.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2))}
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-domain-original-route
+          path: .artifacts/order-diagnostics/
+          retention-days: 14
+          if-no-files-found: error
