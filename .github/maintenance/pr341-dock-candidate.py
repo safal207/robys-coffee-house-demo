@@ -26,9 +26,9 @@ def bound_context():
     assert os.environ['GITHUB_REPOSITORY'] == REPO
     assert os.environ['GITHUB_REF'] == 'refs/heads/' + BRANCH
     assert git('rev-parse', 'HEAD') == os.environ['GITHUB_SHA']
-    assert git('rev-parse', 'HEAD^') == '492e5a8090103d2d940a4183cc33c0da5ace210d'
-    # The only follow-up source change is SHARE-001's content-bound cache assertion.
-    assert git('rev-parse', 'HEAD:scripts/verify-menu-share.mjs') == '12a70d5cf7fc952f91c6ef7003a066125641ecfe'
+    assert git('rev-parse', 'HEAD^') == os.environ['EXPECTED_PREPARATION_PARENT']
+    # Bind the supplementary content-based SHARE-001 assertion to its reviewed bytes.
+    assert git('rev-parse', 'HEAD:scripts/verify-menu-share.mjs') == os.environ['EXPECTED_SHARE_BLOB']
 
 def apply():
     bound_context()
