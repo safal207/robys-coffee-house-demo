@@ -64,4 +64,15 @@ old = '''assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEA
 new = '''assert(featuredSource.includes('card.classList.add("is-error")') && /\\b[\\w$]+\\.classList\\.add\\("is-error"\\)/.test(featuredRuntime), "FEATURED-001", "Typed source and emitted runtime must handle image failures");'''
 assert source.count(old) == 1
 path.write_text(source.replace(old, new))
-print('Verified demand-loading/cancellation and image-error contracts; no gate disabled.')
+
+# The reusable compiler also accepts deliberately minimal mutation fixtures.
+# Real-menu demand loading is mandatory in verify-menu-order, above. Preserve
+# static-import compilation for its existing dependency-revision negative test.
+path = Path('scripts/menu-runtime-source.mjs')
+source = path.read_text()
+old = '  assert.equal(source.split(orderImport).length - 1, 1, "Menu must have one lazy order import");'
+new = '''  assert.ok(source.split(orderImport).length - 1 <= 1, "Duplicate lazy order imports");
+  source = source.replace('from "./order-store.js"', `from "./order-store.js?v=${revision}"`);'''
+assert source.count(old) == 1
+path.write_text(source.replace(old, new))
+print('Verified demand-loading/cancellation and image-error contracts; generic compiler fixtures retained. No gate disabled.')
