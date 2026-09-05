@@ -10,7 +10,7 @@ const out=path.resolve(process.env.ORDER_RESULTS_DIR??'.artifacts/order-v2/brows
 const port=Number(process.env.ORDER_TEST_PORT??4198),base=`http://127.0.0.1:${port}/`;
 mkdirSync(out,{recursive:true});
 const report={source:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),siteRoot:root,baseline,checks:[],failures:[],passed:false,boundary:'Headless Chromium against local static server; original CSP enforced. Source identifies checkout; file hashes identify tested working-tree bytes. Not a physical device or public deployment.',files:{}};
-for(const file of ['order-store.js','order-shell.js','menu-app.js','smart-choice/app-v2.js','smart-choice/cart-v2.js']){
+for(const file of ['order-store.js','order-shell.js','order-shell.css','menu-app.js','smart-choice/app-v2.js','smart-choice/cart-v2.js']){
  try{report.files[file]=createHash('sha256').update(readFileSync(path.join(root,file))).digest('hex');}catch{if(!baseline)throw Error('Missing runtime '+file);}
 }
 const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{cwd:root,stdio:'ignore'});
@@ -40,9 +40,11 @@ try{
   for(const language of ['tr','en','ru']){
    const c=await launchContext(),p=await c.newPage(),errors=[];p.on('pageerror',error=>errors.push(error.message));
    try{
-    await check(language+' recommendation adds to shared order',async()=>{
+    await check(language+' recommendation adds to shared order and the bar accepts a real press',async()=>{
      await choose(p,language);await p.locator('#smart-choice-add-order').click();
-     await p.locator('#robys-order-trigger').filter({hasText:'200'}).waitFor({state:'visible'});
+     const bar=p.locator('#robys-order-trigger');await bar.filter({hasText:'200'}).waitFor({state:'visible'});
+     await bar.click();await p.locator('#robys-order-dialog').waitFor({state:'visible'});
+     await p.locator('.order-total').filter({hasText:'200'}).waitFor({state:'visible'});await p.keyboard.press('Escape');
     });
     await check(language+' full menu preserves selection, then adds Espresso',async()=>{
      await menu(p);assert.equal((await p.locator('#menu-cart-count').innerText()).trim(),'1');
@@ -66,6 +68,7 @@ try{
      for(const route of ['index.html?entry=off','discover.html?entry=off']){await p.goto(base+route,{waitUntil:'domcontentloaded'});await p.locator('#robys-order-trigger').filter({hasText:'420'}).waitFor({state:'visible'});}
      await p.goto(base+'smart-choice/#welcome',{waitUntil:'domcontentloaded'});await p.locator('.smart-title').waitFor({state:'visible'});
      await p.locator('#robys-order-trigger').filter({hasText:'420'}).waitFor({state:'visible'});
+     await p.screenshot({path:path.join(out,`welcome-${language}-390.png`)});
     });
     await check(language+' no runtime errors',async()=>assert.deepEqual(errors,[]));
    }catch(error){await p.screenshot({path:path.join(out,`failure-${language}.png`)}).catch(()=>{});throw error;}
@@ -80,9 +83,11 @@ try{
   });
   await check('storage denial keeps flow and current-page basket usable',async()=>{
    const c=await launchContext();await c.addInitScript(()=>{for(const method of ['getItem','setItem','removeItem'])Storage.prototype[method]=()=>{throw new DOMException('Denied','SecurityError');};});
-   const p=await c.newPage();await choose(p);await p.locator('#smart-choice-add-order').click();
-   await p.locator('#robys-order-trigger').filter({hasText:'200'}).waitFor({state:'visible'});await p.locator('#robys-order-trigger').click();
-   await p.locator('.order-note').filter({hasText:'Storage is unavailable'}).waitFor({state:'visible'});await c.close();
+   const p=await c.newPage();try{await choose(p);await p.locator('#smart-choice-add-order').click();
+    await p.locator('#robys-order-trigger').filter({hasText:'200'}).waitFor({state:'visible'});await p.locator('#robys-order-trigger').click();
+    await p.locator('.order-note').filter({hasText:'Storage is unavailable'}).waitFor({state:'visible'});
+    await p.screenshot({path:path.join(out,'storage-denied-order.png')});
+   }catch(error){await p.screenshot({path:path.join(out,'failure-storage.png')});throw error;}finally{await c.close();}
   });
   await check('malformed flow does not produce blank screen or invalid deep-link step',async()=>{
    const c=await launchContext();await c.addInitScript(()=>sessionStorage.setItem('robys-smart-choice-session.v1',JSON.stringify({version:1,screen:'results',questionIndex:90,answers:{intent:'missing'},locale:'en'})));
