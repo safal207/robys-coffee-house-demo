@@ -104,9 +104,9 @@ async function main() {
     const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,serviceWorkers:'block'});
     const page = await context.newPage();
     await page.goto(`${base}index.html?entry=off`,{waitUntil:'domcontentloaded'});
-    await page.locator('.hero-actions .button-ghost').waitFor({state:'visible'});
+    await page.locator('.hero-actions a[href="menu.html"]').waitFor({state:'visible'});
     await page.screenshot({path:`${out}/home-390.png`});
-    await page.locator('.hero-actions .button-ghost').click();
+    await page.locator('.hero-actions a[href="menu.html"]').click();
     await page.waitForURL('**/menu.html');
     await page.locator('.full-menu-item--product').first().waitFor();
     const control = page.locator('#menu-cart-trigger');
