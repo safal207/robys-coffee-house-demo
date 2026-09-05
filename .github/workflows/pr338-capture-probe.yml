@@ -17,7 +17,7 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          ref: 2fbf3437cee0fb3788a14d20f21f1b528f39687f
+          ref: f38487ec64f60e0721ae5b23074527497886eca1
           path: current
           persist-credentials: false
       - uses: actions/checkout@v4
@@ -64,6 +64,19 @@ jobs:
                     await locator.screenshot({ path: filePath, animations: "disabled" });
                   }'''
           p.write_text(s.replace(old, new))
+          # Put the companion viewport test into the actual future PR workflow.
+          p = Path('.github/workflows/visual-regression.yml')
+          s = p.read_text()
+          old = '      - name: Compare screenshots with base branch\n'
+          assert s.count(old) == 1
+          step = '''      - name: Verify document capture and share-action reachability
+                  working-directory: current
+                  env:
+                    CAPTURE_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/capture-reachability
+                  run: node scripts/test-menu-share-capture.mjs
+
+          '''
+          p.write_text(s.replace(old, step + old))
           PY
       - name: Verify unchanged public bytes and repository checks
         working-directory: current
@@ -71,7 +84,8 @@ jobs:
           set -euo pipefail
           npm run check 2>&1 | tee visual-results/capture-evidence/check.log
           npm run verify:security 2>&1 | tee visual-results/capture-evidence/security.log
-          git diff --exit-code -- integrity-manifest.json index.html menu.html menu-app.js menu-premium.css
+          git diff --exit-code -- integrity-manifest.json index.html menu.html menu-app.js menu-premium.css sw.js
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/visual-regression.yml')"
       - name: Install pinned visual tools
         working-directory: current
         run: |
@@ -95,12 +109,13 @@ jobs:
         env:
           COMPARE_OUTCOME: ${{ steps.compare.outcome }}
         run: |
-          mkdir -p visual-results/capture-evidence/files/scripts
+          mkdir -p visual-results/capture-evidence/files/scripts visual-results/capture-evidence/files/.github/workflows
           cp scripts/capture-document-region.mjs scripts/visual-regression.mjs scripts/test-menu-share-capture.mjs visual-results/capture-evidence/files/scripts/
+          cp .github/workflows/visual-regression.yml visual-results/capture-evidence/files/.github/workflows/
           git diff --check
           git diff > visual-results/capture-evidence/candidate.patch
           printf 'compare_outcome=%s\nreviewed_or_approved=false\nref_updated=false\n' "$COMPARE_OUTCOME" > visual-results/capture-evidence/boundary.txt
-          git hash-object scripts/capture-document-region.mjs scripts/visual-regression.mjs scripts/test-menu-share-capture.mjs > visual-results/capture-evidence/candidate-blobs.txt
+          git hash-object scripts/capture-document-region.mjs scripts/visual-regression.mjs scripts/test-menu-share-capture.mjs .github/workflows/visual-regression.yml > visual-results/capture-evidence/candidate-blobs.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
