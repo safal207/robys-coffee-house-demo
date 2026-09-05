@@ -9,3 +9,9 @@ body.has-unified-order{padding-bottom:calc(6rem + env(safe-area-inset-bottom,0px
 
 .has-unified-order .menu-order-status{bottom:calc(6rem + env(safe-area-inset-bottom,0px))}
 a.order-bar{text-align:center;text-decoration:none}
+/* Intrinsic grid minima must not enlarge the mobile layout viewport when text is doubled. */
+.has-unified-order .smart-main{grid-template-columns:minmax(0,1fr)}
+.has-unified-order :is(.smart-shell,.smart-app,.selected-card,.selected-summary,.cart-builder,.cart-line-list,.cart-total-row,.cart-total){min-width:0;max-width:100%}
+.has-unified-order :is(.selected-summary,.cart-builder,.cart-line-list){grid-template-columns:minmax(0,1fr)}
+.has-unified-order :is(.selected-summary,.cart-builder) :is(h2,h3,strong,p,li,button,summary){overflow-wrap:anywhere;min-width:0}
+.has-unified-order .cart-choice{flex-wrap:wrap}
