@@ -22,7 +22,46 @@ jobs:
           npm ci --no-audit --no-fund
           npm install --no-save --package-lock=false playwright@1.52.0
           npx playwright install --with-deps chromium
-      - name: Run original live check once for immediate diagnostic evidence
+      - name: Instrument test only; preserve deployed source and assertions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/live-smoke.mjs');s=p.read_text()
+          marker='  const page = await context.newPage();'
+          assert s.count(marker)==1
+          s=s.replace(marker, marker+'''\n  const stage = name => { console.log("LIVE_STAGE " + name); writeFileSync("live-stage.txt", name + "\\n"); };\n  stage("browser-created");''')
+          replacements={
+            '    await page.goto(landingUrl.href,': '    stage("landing-navigation");\n    await page.goto(landingUrl.href,',
+            '    await page.locator(\'html[data-offline-ready="true"]\')': '    stage("offline-ready");\n    await page.locator(\'html[data-offline-ready="true"]\')',
+            '    const mobileCta = page.locator': '    stage("mobile-cta");\n    const mobileCta = page.locator',
+            '    const videoState = await page.locator': '    stage("hero-video");\n    const videoState = await page.locator',
+            '    await page.goto(menuUrl.href,': '    stage("menu-navigation");\n    await page.goto(menuUrl.href,',
+            '    const search = page.locator': '    stage("menu-search");\n    const search = page.locator',
+            '    await page.locator(\'.lang-button[data-lang="en"]\').click();': '    stage("language-switch");\n    await page.locator(\'.lang-button[data-lang="en"]\').click();',
+            '    await context.close();': '    stage("context-cleanup");\n    await context.close().catch(error => console.warn("CONTEXT_CLEANUP " + error.message));'
+          }
+          for old,new in replacements.items():
+            assert s.count(old)==1,old
+            s=s.replace(old,new)
+          old='        await video.play();'
+          assert s.count(old)==1
+          s=s.replace(old,'''        const playResult = await Promise.race([
+                    video.play().then(() => "started"),
+                    new Promise(resolve => setTimeout(() => resolve("timeout"), 8000))
+                  ]);
+                  if (playResult !== "started") return {
+                    started: false, reason: "play-promise-timeout", readyState: video.readyState,
+                    networkState: video.networkState, paused: video.paused, currentTime: video.currentTime,
+                    currentSrc: video.currentSrc, sources: [...video.querySelectorAll("source")].map(s => ({src:s.src,type:s.type})),
+                    visibility: getComputedStyle(video).visibility,
+                    documentVisibility: document.visibilityState, error: video.error?.message ?? null
+                  };''')
+          p.write_text(s)
+          PY
+          node --check scripts/live-smoke.mjs
+          git diff --check
+          git diff > live-smoke-diagnostic.patch
+      - name: Run diagnostic live check once
         id: smoke
         continue-on-error: true
         env:
@@ -30,14 +69,14 @@ jobs:
           ROBYS_LIVE_ATTEMPTS: 1
           ROBYS_LIVE_DELAY_MS: 0
           ROBYS_LIVE_REPORT: live-smoke-report.json
-        run: timeout 75s node scripts/live-smoke.mjs
+        run: timeout 110s node scripts/live-smoke.mjs
       - name: Preserve diagnostic result and source boundary
         if: always()
         env:
           OUTCOME: ${{ steps.smoke.outcome }}
         run: |
           git rev-parse HEAD > live-source.sha
-          printf 'original_smoke_outcome=%s\nrole=diagnosis-only\nmain_unchanged=true\n' "$OUTCOME" > live-diagnosis.txt
+          printf 'diagnostic_smoke_outcome=%s\nrole=diagnosis-only\nmain_unchanged=true\n' "$OUTCOME" > live-diagnosis.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -46,6 +85,8 @@ jobs:
             live-smoke-report.json
             live-source.sha
             live-diagnosis.txt
+            live-stage.txt
+            live-smoke-diagnostic.patch
           retention-days: 14
           if-no-files-found: error
       - name: Preserve failure status
