@@ -568,6 +568,40 @@ function createCategory(category) {
   return section;
 }
 
+
+// Scrolling must clear the measured toolbar, including translated or zoomed text.
+// CSS scroll padding also keeps browser focus/scrollIntoView below sticky controls.
+function initializeMenuScrollMetrics() {
+  const root = document.documentElement;
+  const header = document.querySelector(".site-header");
+  const controls = document.querySelector(".menu-controls");
+  if (!header || !controls) return;
+  const pinned = (element) => ["sticky", "fixed"].includes(getComputedStyle(element).position);
+  const measure = () => {
+    const headerHeight = pinned(header) ? Math.ceil(header.getBoundingClientRect().height) : 0;
+    const controlsHeight = Math.ceil(controls.getBoundingClientRect().height);
+    const controlsPinned = pinned(controls);
+    for (const [name, value] of [
+      ["--menu-header-height", headerHeight],
+      ["--menu-sticky-inset", headerHeight + (controlsPinned ? controlsHeight : 0)],
+      ["--menu-anchor-gap", controlsPinned ? 12 : controlsHeight + 12]
+    ]) {
+      const next = value + "px";
+      if (root.style.getPropertyValue(name) !== next) root.style.setProperty(name, next);
+    }
+    root.classList.add("menu-scroll-aware");
+  };
+  measure();
+  if (typeof ResizeObserver === "function") {
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    observer.observe(controls);
+  }
+  window.addEventListener("resize", measure, { passive: true });
+  window.matchMedia("(hover: none) and (pointer: coarse)").addEventListener?.("change", measure);
+  document.fonts?.ready.then(measure);
+}
+
 function renderCategoryNav(focusId = null) {
   const previousScrollLeft = categoryNav.scrollLeft;
   categoryNav.replaceChildren();
@@ -753,6 +787,7 @@ document.querySelector("#current-year").textContent = String(new Date().getFullY
 translateStaticPage();
 renderCategoryNav();
 renderMenu();
+initializeMenuScrollMetrics();
 
 if (language !== "tr") void loadMenuActions();
 
