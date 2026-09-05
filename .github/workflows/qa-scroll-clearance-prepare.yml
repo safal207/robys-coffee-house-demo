@@ -1,0 +1,64 @@
+name: Prepare measured menu scroll clearance
+on:
+  push:
+    branches: [fix/premium-menu-scroll-clearance]
+    paths: [.github/workflows/qa-scroll-clearance-prepare.yml, scripts/apply-menu-scroll-clearance.mjs, scripts/menu-scroll-clearance.mjs]
+permissions:
+  contents: write
+concurrency:
+  group: prepare-menu-scroll-clearance
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Apply reviewed source-only fix and remove preparation machinery
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/fix/premium-menu-scroll-clearance
+          node scripts/apply-menu-scroll-clearance.mjs
+          rm scripts/apply-menu-scroll-clearance.mjs .github/workflows/qa-scroll-clearance-prepare.yml
+          npm run check
+          npm run verify:security
+          node scripts/test-audit-dependencies.mjs
+          node scripts/audit-dependencies.mjs --check
+      - run: npx playwright install --with-deps chromium
+      - name: Verify scroll clearance, original failure detection, cart and feedback
+        run: |
+          node scripts/menu-scroll-clearance.mjs
+          node scripts/premium-ui-regression.mjs
+          node scripts/premium-feedback-regression.mjs
+      - name: Publish validated candidate only to its isolated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/fix/premium-menu-scroll-clearance
+          test "$(git ls-remote origin refs/heads/fix/premium-menu-scroll-clearance | cut -f1)" = "$GITHUB_SHA"
+          git diff --check
+          git add -- src/menu-app.js menu-app.js menu-premium.css menu.html index.html sw.js integrity-manifest.json scripts/menu-scroll-clearance.mjs .github/workflows/menu-scroll-clearance.yml scripts/apply-menu-scroll-clearance.mjs .github/workflows/qa-scroll-clearance-prepare.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(ui): keep menu headings clear of measured sticky controls' -m 'Source-first rebuild. Verified 48 pointer/viewport/language/text-size cases, a detected original-offset negative control, premium UI and feedback. No visual approval, price or release threshold changes.'
+          git push origin HEAD:refs/heads/fix/premium-menu-scroll-clearance
+          git rev-parse HEAD > .artifacts/validated-candidate.sha
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: menu-scroll-clearance-preparation-${{ github.sha }}
+          path: |
+            .artifacts/menu-scroll-clearance/
+            .artifacts/premium-ui/
+            .artifacts/premium-feedback/
+            .artifacts/validated-candidate.sha
+          retention-days: 14
+          if-no-files-found: warn

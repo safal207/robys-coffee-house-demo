@@ -1,0 +1,29 @@
+name: Menu scroll clearance
+on:
+  pull_request:
+    paths: ['**/*.css', '**/*.html', '**/*.js', 'src/**', 'scripts/**', '.github/workflows/menu-scroll-clearance.yml']
+permissions:
+  contents: read
+jobs:
+  clearance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/menu-scroll-clearance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: menu-scroll-clearance-${{ github.event.pull_request.head.sha }}
+          path: .artifacts/menu-scroll-clearance/
+          retention-days: 14
+          if-no-files-found: warn
