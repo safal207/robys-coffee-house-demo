@@ -1,0 +1,123 @@
+name: Bounded menu demand-loading candidate
+on:
+  push:
+    branches: [fix/pr341-lazy-menu-20260906]
+    paths: [scripts/prepare-menu-demand.py, scripts/menu-demand-browser.mjs, .github/workflows/qa-menu-demand.yml]
+permissions:
+  contents: read
+concurrency:
+  group: pr341-menu-demand-candidate
+  cancel-in-progress: true
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Assert exact source boundary
+        env:
+          EXPECTED: 9ad682884f7ae4fb040650b6860cceb9e61ad6bb
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$EXPECTED" HEAD
+          mkdir -p .artifacts/menu-demand-candidate
+          git rev-parse HEAD > .artifacts/menu-demand-candidate/input-head.txt
+          git diff "$EXPECTED" --stat > .artifacts/menu-demand-candidate/preparation-stat.txt
+      - run: npm ci --no-audit --no-fund
+      - name: Apply the guarded source patch
+        run: python3 scripts/prepare-menu-demand.py
+      - name: Rebuild, verify full contracts and retain exact code evidence
+        run: |
+          set -euo pipefail
+          npm run build 2>&1 | tee .artifacts/menu-demand-candidate/build.log
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/menu-demand-candidate/check.log
+          npm run verify:security 2>&1 | tee .artifacts/menu-demand-candidate/security.log
+          npm run verify:performance 2>&1 | tee .artifacts/menu-demand-candidate/static-performance.log
+          node scripts/test-order-dock.mjs > .artifacts/menu-demand-candidate/dock.log
+          node scripts/test-order-catalog-boundary.mjs > .artifacts/menu-demand-candidate/catalogue.log
+          git diff --check
+      - name: Verify classic globals survive local-name compaction
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import ts from 'typescript';
+          const names=code=>{
+            const result=[];
+            const collect=name=>{if(ts.isIdentifier(name))result.push(name.text);else for(const e of name.elements)if(!ts.isOmittedExpression(e))collect(e.name);};
+            for(const statement of ts.createSourceFile('runtime.js',code,ts.ScriptTarget.ES2020,true,ts.ScriptKind.JS).statements){
+              if(ts.isVariableStatement(statement))for(const d of statement.declarationList.declarations)collect(d.name);
+              else if((ts.isFunctionDeclaration(statement)||ts.isClassDeclaration(statement))&&statement.name)collect(statement.name);
+            }
+            return result.sort();
+          };
+          const rows=[];
+          for(const file of ['featured-gallery','social-offer']){
+            const original=ts.transpileModule(readFileSync('src/'+file+'.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.None}}).outputText;
+            const output=readFileSync(file+'.js','utf8');assert.deepEqual(names(output),names(original));rows.push({file,publicBindings:names(output),passed:true});
+          }
+          writeFileSync('.artifacts/menu-demand-candidate/classic-bindings.json',JSON.stringify(rows,null,2));
+          JS
+      - run: npx playwright install --with-deps chromium
+      - name: Enforcing-CSP cold menu, loading failure and first-order journeys
+        env:
+          MENU_DEMAND_RESULTS_DIR: .artifacts/menu-demand-candidate/demand
+        run: node scripts/menu-demand-browser.mjs
+      - name: Existing cross-route and touch regression
+        env:
+          ORDER_RESULTS_DIR: .artifacts/menu-demand-candidate/journeys
+          ORDER_LAYOUT_RESULTS_DIR: .artifacts/menu-demand-candidate/layout
+        run: |
+          node scripts/unified-order-browser.mjs
+          node scripts/order-layout-regression.mjs
+      - name: Existing product and feedback regressions
+        run: |
+          node scripts/premium-ui-regression.mjs
+          node scripts/premium-feedback-regression.mjs
+      - name: Store detached candidate after successful verification only
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'),cp=require('child_process'),crypto=require('crypto');
+            const {owner,repo}=context.repo;
+            const expected='9ad682884f7ae4fb040650b6860cceb9e61ad6bb';
+            const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(current.data.object.sha!==expected)throw new Error('PR source moved; retain evidence but refuse stale candidate');
+            const ignored=new Set(['scripts/prepare-menu-demand.py','.github/workflows/qa-menu-demand.yml']);
+            const allowed=new Set(['src/menu-app.js','src/order-launcher.ts','scripts/menu-runtime-source.mjs','scripts/build.mjs','scripts/menu-demand-browser.mjs','.github/workflows/unified-order-regression.yml','menu-app.js','menu.html','index.html','discover.html','order-launcher.js','sw.js','integrity-manifest.json','featured-gallery.js','social-offer.js']);
+            const changed=cp.execFileSync('git',['diff',expected,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(p=>p&&!ignored.has(p));
+            for(const p of changed)if(!allowed.has(p))throw new Error('Unapproved path: '+p);
+            if(!changed.includes('src/menu-app.js')||!changed.includes('scripts/menu-demand-browser.mjs'))throw new Error('Missing source or permanent test');
+            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:expected});
+            const entries=changed.map(p=>({path:p,mode:'100644',type:'blob',content:fs.readFileSync(p,'utf8')}));
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:entries});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'perf(order): load menu order runtime on demand with first-action and failure regression',tree:tree.data.sha,parents:[expected]});
+            const files=changed.map(path=>({path,sha256:crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex')}));
+            fs.writeFileSync('.artifacts/menu-demand-candidate/candidate.json',JSON.stringify({inputHead:context.sha,parent:expected,candidate:commit.data.sha,tree:tree.data.sha,files,refUpdated:false},null,2)+'\n');
+            core.info('Detached candidate '+commit.data.sha+'; no branch/main/Pages update');
+      - name: Preserve source patch and reports including failure
+        if: always()
+        run: |
+          mkdir -p .artifacts/menu-demand-candidate
+          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!scripts/prepare-menu-demand.py' ':!.github/workflows/qa-menu-demand.yml' > .artifacts/menu-demand-candidate/candidate.patch
+          git status --short > .artifacts/menu-demand-candidate/status.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: menu-demand-candidate-${{ github.sha }}
+          path: |
+            .artifacts/menu-demand-candidate/
+            .artifacts/premium-ui/
+            .artifacts/premium-feedback/
+          retention-days: 14
+          if-no-files-found: error
