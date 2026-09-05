@@ -45,8 +45,14 @@ jobs:
           assert changed==allowed,(changed-allowed,allowed-changed)
           subprocess.run(['git','apply','--check','--unidiff-zero','.artifacts/order-delivery/reviewed-source.patch'],check=True)
           subprocess.run(['git','apply','--unidiff-zero','.artifacts/order-delivery/reviewed-source.patch'],check=True)
+          followup=Path('../transport/qa/order-delivery-followup.patch').read_bytes()
+          followup_hash=hashlib.sha256(followup).hexdigest()
+          assert followup_hash=='dcb32c9e743a412c48f021158d62e061abb5e64596dbe96da8500f47538a34a3',followup_hash
+          Path('.artifacts/order-delivery/test-readiness.patch').write_bytes(followup)
+          subprocess.run(['git','apply','--check','.artifacts/order-delivery/test-readiness.patch'],check=True)
+          subprocess.run(['git','apply','.artifacts/order-delivery/test-readiness.patch'],check=True)
           subprocess.run(['git','add','-N','scripts/order-delivery-browser.mjs','src/order-layout.ts'],check=True)
-          Path('.artifacts/order-delivery/patch-provenance.json').write_text(json.dumps({'parent':'7b072b461bcd810238ea563d998d7e06ab50bbf0','patchSha256':digest,'sourcePaths':sorted(changed)},indent=2)+'\n')
+          Path('.artifacts/order-delivery/patch-provenance.json').write_text(json.dumps({'parent':'7b072b461bcd810238ea563d998d7e06ab50bbf0','patchSha256':digest,'testReadinessSha256':followup_hash,'sourcePaths':sorted(changed)},indent=2)+'\n')
           PY
       - name: Build and enforce source/security contracts without changing thresholds
         working-directory: candidate
