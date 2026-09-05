@@ -52,4 +52,16 @@ old = 'if (!productDialog.hasAttribute("open") || selectedProductId !== requeste
 assert source.count(old) == 1
 source = source.replace(old, 'if (!productDialog.hasAttribute("open") || selectedProductId !== requestedProductId || productIntentRevision !== requestedIntent) return;')
 path.write_text(source)
-print('Menu contracts now verify demand loading and exact revision; cancellation guards updated. No gate was disabled.')
+
+# The gallery check used a private parameter name in the generated output.
+# Keep the precise readable-source action plus the emitted classList.add action;
+# the unchanged browser suite still exercises the actual failed-image fallback.
+path = Path('scripts/verify-regression-contracts.mjs')
+data = path.read_bytes()
+assert hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() == 'ab62c3ae386a5b87ea09ec270b3dd95180fbd0b3'
+source = data.decode()
+old = '''assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");'''
+new = '''assert(featuredSource.includes('card.classList.add("is-error")') && /\\b[\\w$]+\\.classList\\.add\\("is-error"\\)/.test(featuredRuntime), "FEATURED-001", "Typed source and emitted runtime must handle image failures");'''
+assert source.count(old) == 1
+path.write_text(source.replace(old, new))
+print('Verified demand-loading/cancellation and image-error contracts; no gate disabled.')
