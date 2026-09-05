@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+          fetch-depth: 16
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
@@ -26,7 +27,9 @@ jobs:
         run: node scripts/guest-journey-audit.mjs
       - name: Preserve inspected source for reproducible diagnosis
         if: always()
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p .artifacts/guest-journey-audit
           git archive a2fbce66f716b1b99e924239d5dd118cf37c5eef -- src/smart-choice smart-choice src/menu-app.js menu.html menu-app.js menu-catalog.js menu-premium.css menu.css bootstrap-v2.js day-night-entry.js morning-entry-v2.js src/products/sets-v1 | gzip > .artifacts/guest-journey-audit/inspected-source.tar.gz
       - uses: actions/upload-artifact@v4
