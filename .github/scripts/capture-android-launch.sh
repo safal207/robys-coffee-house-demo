@@ -70,14 +70,36 @@ done
 
 adb exec-out screencap -p > "$OUT/post-handoff.png"
 
-wait "$RECORDER_PID" || true
-adb pull "$DEVICE_VIDEO" "$OUT/robys-atomic-handoff.mp4"
+# A recorder can fail after writing a large partial file. Preserve its status
+# while retrieving available evidence; file size alone must not turn it green.
+recorder_exit=0
+wait "$RECORDER_PID" || recorder_exit=$?
+printf 'exit_code=%s\n' "$recorder_exit" > "$OUT/recorder-exit.txt"
+pull_exit=0
+adb pull "$DEVICE_VIDEO" "$OUT/robys-atomic-handoff.mp4" || pull_exit=$?
+if [[ "$recorder_exit" -ne 0 ]]; then
+  echo "ANDROID-HANDOFF-002: screen recording failed (exit ${recorder_exit}); partial evidence retained." >&2
+  exit "$recorder_exit"
+fi
+if [[ "$pull_exit" -ne 0 ]]; then
+  echo "ANDROID-HANDOFF-002: recording could not be retrieved (exit ${pull_exit})." >&2
+  exit "$pull_exit"
+fi
 adb shell dumpsys window windows > "$OUT/window-state.txt"
 adb logcat -d > "$OUT/logcat.txt"
 grep "RobysHandoff" "$OUT/logcat.txt" > "$OUT/handoff-states.txt" || true
 
 VIDEO_BYTES="$(wc -c < "$OUT/robys-atomic-handoff.mp4")"
 test "$VIDEO_BYTES" -gt 50000
+
+# This is a single cold-launch contract, not an eventual-recovery contract.
+# The documented WEB_READY_TIMEOUT fallback remains allowed; terminal failures
+# cannot be hidden by a later completion marker from another attempt.
+if grep -Eq 'RobysHandoff.*: (LOAD_COMMIT_TIMEOUT|VISUAL_STATE_TIMEOUT|MAIN_FRAME_ERROR|SSL_ERROR)$' "$OUT/handoff-states.txt"; then
+  echo "ANDROID-HANDOFF-002: terminal launch failure observed; completion markers cannot override it." >&2
+  cat "$OUT/handoff-states.txt" >&2
+  exit 1
+fi
 
 if [[ "$handoff_complete" -ne 1 ]]; then
   echo "ANDROID-HANDOFF-002: HANDOFF_COMPLETE was not observed within ${HANDOFF_WAIT_SECONDS}s after activity start." >&2
