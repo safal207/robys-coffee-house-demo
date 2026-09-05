@@ -101,25 +101,42 @@ async function main() {
       assert.deepEqual(errors,[],`${language}: unhandled browser exceptions`);
       await context.close();
     }
-    const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,serviceWorkers:'block'});
+    const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,reducedMotion:'no-preference',serviceWorkers:'block'});
     const page = await context.newPage();
     await page.goto(`${base}index.html?entry=off`,{waitUntil:'domcontentloaded'});
     await page.locator('.hero-actions a[href="menu.html"]').waitFor({state:'visible'});
+    await page.evaluate(() => document.fonts.ready);
+    await page.locator('.hero-content').evaluate(async node => {
+      await Promise.all(node.getAnimations({subtree:true})
+        .filter(a => Number.isFinite(a.effect.getComputedTiming().endTime))
+        .map(a => a.finished.catch(() => {})));
+    });
     await page.screenshot({path:`${out}/home-390.png`});
     await page.locator('.hero-actions a[href="menu.html"]').click();
     await page.waitForURL('**/menu.html');
     await page.locator('.full-menu-item--product').first().waitFor();
     const control = page.locator('#menu-cart-trigger');
-    await control.scrollIntoViewIfNeeded();
-    const box = await control.boundingBox();
-    await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => document.fonts.ready);
+    // Use actionability/stability checks after fonts settle, not stale raw coordinates.
+    await control.click({trial:true});
+    await control.hover();
+    await page.mouse.down();
     await page.waitForTimeout(220);
-    assert.notEqual(await control.evaluate(node=>getComputedStyle(node).transform),'none');
+    const pressed = await control.evaluate(node => ({active:node.matches(':active'),
+      transform:getComputedStyle(node).transform, reduced:matchMedia('(prefers-reduced-motion: reduce)').matches}));
     await page.screenshot({path:`${out}/pressed-cart-390.png`});
+    assert.equal(pressed.active,true,`physical pointer must press the intended control: ${JSON.stringify(pressed)}`);
+    assert.notEqual(pressed.transform,'none',`press must visibly respond: ${JSON.stringify(pressed)}`);
     await page.mouse.move(0,0);await page.mouse.up();
     await page.emulateMedia({reducedMotion:'reduce'});
     await control.focus();
-    assert.equal(await control.evaluate(node=>getComputedStyle(node).transitionDuration),'0s');
+    const reduced = await control.evaluate(node => ({durations:getComputedStyle(node).transitionDuration,
+      transform:getComputedStyle(node).transform, animation:getComputedStyle(node).animationName}));
+    // The pre-existing global reduced-motion rule uses a sub-frame .01ms duration.
+    assert.ok(reduced.durations.split(',').every(value => parseFloat(value) <= .00001),JSON.stringify(reduced));
+    assert.equal(reduced.transform,'none');
+    assert.equal(reduced.animation,'none');
     report.checks.push({label:'mobile direct-menu navigation, pressed feedback and reduced motion',passed:true});
     await page.goto(`${base}smart-choice/`,{waitUntil:'networkidle'});
     await page.locator('[data-lang="en"]').click();
