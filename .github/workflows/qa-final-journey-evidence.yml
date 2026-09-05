@@ -1,0 +1,55 @@
+name: Pinned final-head journey evidence
+on:
+  push:
+    branches: [fix/source-first-dependency-edges]
+    paths: [.github/workflows/qa-final-journey-evidence.yml]
+permissions:
+  contents: read
+jobs:
+  journeys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: f38487ec64f60e0721ae5b23074527497886eca1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Verify source identity and generated parity
+        run: |
+          test "$(git rev-parse HEAD)" = f38487ec64f60e0721ae5b23074527497886eca1
+          npm run build
+          npm run verify:integrity
+          git diff --exit-code
+          mkdir -p visual-results/pinned-journeys
+          git rev-parse HEAD > visual-results/pinned-journeys/HEAD.txt
+          printf '%s\n' 'This is additional exact-checkout journey evidence, not visual acceptance, human authorization, or a deployment gate override.' > visual-results/pinned-journeys/BOUNDARY.txt
+      - name: Match the existing visual workflow browser toolchain
+        run: npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+      - run: npx playwright install --with-deps chromium
+      - name: Execute expanded UI UX matrix
+        env:
+          UI_UX_RESULTS_DIR: visual-results/pinned-journeys/ui-ux-matrix
+          UI_UX_ATTEMPTS: 2
+        run: node scripts/ui-ux-matrix.mjs
+      - name: Audit rapid scroll and retain both attempts if recheck is needed
+        shell: bash
+        run: |
+          set +e
+          SCROLL_RESULTS_DIR=visual-results/pinned-journeys/scroll-attempt-1 node scripts/menu-scroll-regression.mjs
+          first=$?
+          set -e
+          if [ "$first" -ne 0 ]; then
+            echo '::warning::Initial rapid-scroll attempt failed; its evidence is retained.'
+            SCROLL_RESULTS_DIR=visual-results/pinned-journeys/scroll-attempt-2 node scripts/menu-scroll-regression.mjs
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-journeys-f38487e
+          path: visual-results/pinned-journeys/
+          retention-days: 14
+          if-no-files-found: warn
