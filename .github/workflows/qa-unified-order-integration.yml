@@ -34,11 +34,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           script = Path('.github/qa/prepare-unified-order.py').read_text()
-          # The precache stores the explicit index path, not the directory alias.
-          old = "marker='  \"./smart-choice/\",';"
-          new = "marker='  \"./smart-choice/index.html\",';"
-          assert script.count(old) == 1
-          exec(compile(script.replace(old,new), 'prepare-unified-order.py', 'exec'))
+          replacements = {
+            "marker='  \"./smart-choice/\",';": "marker='  \"./smart-choice/index.html\",';",
+            "'const CACHE_VERSION = \"robys-offline-', 'const CACHE_VERSION = \"robys-offline-order-v2-'": "'const CACHE_VERSION = \"robys-offline-v62-', 'const CACHE_VERSION = \"robys-offline-v63-'"
+          }
+          for old,new in replacements.items():
+            assert script.count(old)==1
+            script=script.replace(old,new)
+          exec(compile(script, 'prepare-unified-order.py', 'exec'))
           PY
       - run: npm ci --no-audit --no-fund
       - name: Rebuild and regenerate integrity
@@ -61,12 +64,10 @@ jobs:
         run: node scripts/unified-order-browser.mjs
       - name: Recheck pre-existing premium UI
         env:
-          PREMIUM_UI_RESULTS_DIR: .artifacts/order-integration/premium-ui
+          PREMIUM_RESULTS_DIR: .artifacts/order-integration/premium-ui
         run: node scripts/premium-ui-regression.mjs
       - name: Recheck pre-existing cart feedback
-        env:
-          PREMIUM_FEEDBACK_RESULTS_DIR: .artifacts/order-integration/feedback
-        run: node scripts/premium-feedback-contract.mjs
+        run: node scripts/premium-feedback-regression.mjs
       - name: Create verified detached candidate, never move a branch
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
         with:
@@ -76,7 +77,6 @@ jobs:
             const parent=context.sha;
             const ref=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
             if(ref.data.object.sha!==parent)throw new Error('Branch moved; candidate not created');
-            // Remove preparation helpers from the final integration, not prior evidence.
             const temporary=['.github/qa/prepare-unified-order.py','.github/workflows/qa-unified-order-integration.yml'];
             temporary.forEach(path=>fs.unlinkSync(path));
             const changed=cp.execFileSync('git',['status','--porcelain','-z','--untracked-files=all'],{encoding:'utf8'}).split('\0').filter(Boolean).map(row=>row.slice(3));
@@ -93,6 +93,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .artifacts/order-integration
+          if test -d .artifacts/premium-feedback; then cp -R .artifacts/premium-feedback .artifacts/order-integration/feedback; fi
           git diff --stat > .artifacts/order-integration/diff-stat.txt
           git diff --binary > .artifacts/order-integration/source.patch
           python3 - <<'PY'
@@ -102,7 +103,6 @@ jobs:
           names=subprocess.check_output(['git','ls-files','-z'],text=True).split('\0')
           names += ['order-store.js','order-shell.js','order-launcher.js']
           hashes={}
-          # Inspection archive: source, tests and generated text only. No assets/fonts/secrets.
           with tarfile.open(out/'inspection-source.tar.gz','w:gz') as tar:
             for name in sorted(set(names)):
               p=Path(name)
