@@ -1,0 +1,125 @@
+name: PR338 published premium smoke
+on:
+  push:
+    branches: [qa/pr338-capture-probe-20260905]
+    paths: [.github/workflows/pr338-published-premium-smoke.yml]
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false playwright@1.52.0
+          npx playwright install --with-deps chromium
+      - name: Verify published customer interactions with original CSP and service worker
+        run: |
+          mkdir -p .artifacts/published-premium
+          cat > .artifacts/published-premium/smoke.mjs <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          import { chromium } from 'playwright';
+          const base = 'https://safal207.github.io/robys-coffee-house-demo/';
+          const out = '.artifacts/published-premium';
+          const report = { source: execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(), base, startedAt: new Date().toISOString(), boundary: 'Live public browser with CSP enforced and service workers allowed. Local order draft only; no message, order or payment is sent. No external CTA activated.', checks: [], failures: [] };
+          const browser = await chromium.launch({ headless: true });
+          const record = (name, evidence = {}) => report.checks.push({ name, passed: true, ...evidence });
+          const persist = () => writeFileSync(`${out}/report.json`, JSON.stringify(report,null,2)+'\n');
+          const money = async locator => Number((await locator.textContent()).replace(/\D/g,''));
+          async function scenario(name, run) {
+            const context = await browser.newContext({ viewport: {width:390,height:844}, hasTouch:true,isMobile:true,locale:'tr-TR',timezoneId:'Europe/Istanbul',serviceWorkers:'allow',bypassCSP:false });
+            const page = await context.newPage();
+            page.setDefaultTimeout(15000);
+            const errors = []; page.on('pageerror', error => errors.push(error.message));
+            try { await run(page); assert.deepEqual(errors, [], `${name}: uncaught page errors`); record(name, {pageErrors: errors}); }
+            catch(error) { report.failures.push({name,error:String(error.stack || error),pageErrors:errors,url:page.url()}); process.exitCode=1; }
+            finally {
+              await page.screenshot({path:`${out}/${name}.png`,timeout:10000}).catch(()=>{});
+              await context.close(); persist();
+            }
+          }
+          try {
+            for (const path of ['index.html','menu.html','menu-app.js','menu-premium.css','smart-choice/app-v2.js']) {
+              const response=await fetch(`${base}${path}?release-proof=${Date.now()}`);
+              assert.ok(response.ok, `${path}: HTTP ${response.status}`);
+              const bytes=Buffer.from(await response.arrayBuffer());
+              assert.equal(createHash('sha256').update(bytes).digest('hex'),createHash('sha256').update(readFileSync(path)).digest('hex'),`${path}: published bytes differ from merged source`);
+              record(`digest/${path}`,{bytes:bytes.length});
+            }
+            await scenario('landing', async page => {
+              await page.goto(base+'index.html',{waitUntil:'domcontentloaded'});
+              await page.locator('.hero h1').waitFor({state:'visible'});
+              await page.locator('.hero-actions a[href="menu.html"]').waitFor({state:'visible'});
+              await page.locator('.hero-actions a[href="menu.html"]').click();
+              await page.waitForURL('**/menu.html');
+              await page.locator('.full-menu-item--product').first().waitFor();
+            });
+            for (const lang of ['tr','en','ru']) await scenario(`cart-${lang}`, async page => {
+              await page.goto(base+'menu.html',{waitUntil:'domcontentloaded'});
+              await page.locator('#menu-root[data-ready="true"]').waitFor();
+              await page.locator(`.lang-button[data-lang="${lang}"]`).click();
+              assert.equal(await page.locator('html').getAttribute('lang'),lang);
+              const product=page.locator('.full-menu-item--product').first();
+              const unit=await money(product.locator('.full-menu-price'));
+              const id=await product.getAttribute('data-product-id');
+              await product.locator('.full-menu-item-media').click();
+              await page.locator('#menu-product-dialog[open]').waitFor();
+              await page.locator('#menu-quantity-increase').click();
+              assert.equal((await page.locator('#menu-product-quantity').textContent()).trim(),'2');
+              await page.locator('#menu-add-to-cart').click();
+              assert.equal(await money(page.locator('#menu-cart-count')),2);
+              await page.locator('#menu-cart-trigger').click();
+              await page.locator('#menu-cart-dialog[open]').waitFor();
+              assert.equal(await money(page.locator('#menu-cart-dialog-total')),unit*2);
+              await page.locator('#menu-cart-dialog .menu-cart-step').last().click();
+              await page.locator('#menu-cart-dialog[open] [data-menu-cart-status]').filter({hasText:'× 3'}).waitFor({state:'attached'});
+              assert.equal(await money(page.locator('#menu-cart-dialog-total')),unit*3);
+              await page.keyboard.press('Escape');
+              await page.locator('#menu-cart-dialog').waitFor({state:'hidden'});
+              await page.reload({waitUntil:'domcontentloaded'});
+              await page.locator('#menu-root[data-ready="true"]').waitFor();
+              assert.equal(await money(page.locator('#menu-cart-count')),3);
+              assert.equal(await page.locator('html').getAttribute('lang'),lang);
+              await page.locator('#menu-cart-trigger').click();
+              await page.locator('#menu-cart-dialog[open]').waitFor();
+              assert.equal(await money(page.locator('#menu-cart-dialog-total')),unit*3);
+              await page.locator('#menu-cart-dialog .menu-cart-remove').click();
+              assert.equal(await money(page.locator('#menu-cart-dialog-total')),0);
+              record(`${lang}/quantity-total-session`,{productId:id,unitPrice:unit,added:2,increased:3,restored:3,removedTotal:0});
+            });
+            await scenario('smart-choice', async page => {
+              await page.goto(base+'smart-choice/',{waitUntil:'domcontentloaded'});
+              await page.locator('#smart-choice-app[aria-busy="false"]').waitFor();
+              await page.locator('.lang-button[data-lang="ru"]').click();
+              await page.locator('.smart-card .primary-button').click();
+              for (const index of [0,0,2,0,0]) {
+                await page.locator('.option-button').nth(index).click();
+                await page.locator('.actions .primary-button').click();
+              }
+              const top=page.locator('.result-card--top h2');
+              assert.equal((await top.textContent()).trim(),'Карамельный латте');
+              assert.ok(await page.locator('.result-card').count()>=2);
+            });
+          } catch(error) { report.failures.push({name:'setup-or-digest',error:String(error.stack||error)}); process.exitCode=1; }
+          finally { report.completedAt=new Date().toISOString(); report.passed=report.failures.length===0; persist(); console.log(JSON.stringify(report,null,2)); await browser.close(); }
+          JS
+          node .artifacts/published-premium/smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robys-published-premium-${{ github.run_id }}
+          path: .artifacts/published-premium/
+          retention-days: 14
+          if-no-files-found: error
