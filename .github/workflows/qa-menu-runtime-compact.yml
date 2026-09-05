@@ -1,0 +1,157 @@
+name: Validate and apply compact menu runtime
+
+on:
+  push:
+    branches: [feat/premium-menu-cart-recovery]
+    paths: [.github/workflows/qa-menu-runtime-compact.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Require exact reviewed parent and unmodified menu source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = 4c72672c4bd0ccfe83fbd30137c6c1e2e62c366a
+          test "$(git diff --name-only HEAD^ HEAD)" = .github/workflows/qa-menu-runtime-compact.yml
+          test "$(git hash-object menu-app.js)" = 486bf7878873afd2118daf754588d743c0407409
+          test ! -e src/menu-app.js
+      - name: Prepare source-first runtime and bind contracts to emitted bytes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('src/menu-app.js')
+          source.write_text(Path('menu-app.js').read_text())
+          helper = '''import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          import { transformSync } from "esbuild";
+
+          // This module is emitted at the repository root. Keep runtime-relative imports;
+          // do not bundle the shared catalog or move interaction-only code into startup.
+          export function compileMenuRuntime(source = readFileSync("src/menu-app.js", "utf8")) {
+            return transformSync(source, {
+              loader: "js", format: "esm", target: "es2020",
+              minify: true, legalComments: "none"
+            }).code;
+          }
+
+          export function readVerifiedMenuSource() {
+            const source = readFileSync("src/menu-app.js", "utf8");
+            assert.equal(readFileSync("menu-app.js", "utf8"), compileMenuRuntime(source),
+              "Generated menu-app.js is stale or differs from its verified source; run npm run build");
+            return source;
+          }
+          '''
+          Path('scripts/menu-runtime-source.mjs').write_text(helper)
+          p = Path('scripts/build.mjs'); s = p.read_text()
+          assert s.count('import ts from "typescript";') == 1
+          s = s.replace('import ts from "typescript";', 'import ts from "typescript";\nimport { compileMenuRuntime } from "./menu-runtime-source.mjs";\n\nwriteFileSync("menu-app.js", compileMenuRuntime());')
+          p.write_text(s)
+          for f in ['verify-menu-order.mjs', 'verify-critical-user-journeys.mjs', 'verify-menu-image-assets.mjs', 'verify-pairing-cta.mjs', 'verify-p1-interface-contracts.mjs', 'verify-menu-share.mjs']:
+            p = Path('scripts') / f; s = p.read_text()
+            assert 'readFileSync("menu-app.js", "utf8")' in s
+            s = 'import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";\n' + s.replace('readFileSync("menu-app.js", "utf8")', 'readVerifiedMenuSource()')
+            if f == 'verify-menu-share.mjs':
+              assert 'createHash("sha256").update(menuPageRuntime)' in s
+              s = s.replace('createHash("sha256").update(menuPageRuntime)', 'createHash("sha256").update(readFileSync("menu-app.js"))')
+            p.write_text(s)
+          p = Path('scripts/verify-security-contracts.mjs'); s = p.read_text()
+          p.write_text(s.replace('  "menu-app.js",', '  "menu-app.js",\n  "src/menu-app.js",'))
+          p = Path('qa/traceability/ui-ux.json'); s = p.read_text()
+          p.write_text(s.replace('"menu-app.js#renderMenu"', '"src/menu-app.js#renderMenu"').replace('"menu-app.js#setLanguage"', '"src/menu-app.js#setLanguage"'))
+          p = Path('AGENTS.md'); s = p.read_text()
+          p.write_text(s.replace('- `src/app.ts` generates `app.js`.', '- `src/app.ts` generates `app.js`.\n- `src/menu-app.js` generates `menu-app.js`; source contracts also verify emitted-byte equality.'))
+          p = Path('docs/qa/premium-repair-2026-09-05.md'); s = p.read_text()
+          s += '''
+          ## Follow-up: delivery cost and reproducible menu runtime
+
+          The readable menu source now lives in `src/menu-app.js`. The build emits the same
+          root `menu-app.js` ES module, preserving catalog URLs, lazy interaction imports,
+          DOM hooks, cart arithmetic, language behavior and event names. Only private
+          identifiers, whitespace and equivalent syntax are compacted by pinned esbuild.
+          Edit the source, not the generated runtime.
+
+          Source-level contracts call `readVerifiedMenuSource()`: it first asserts exact
+          byte equality between the shipped runtime and a fresh compilation, then checks
+          the readable implementation. A changed or stale generated file is a failure, not
+          a test exemption. Runtime security checks cover both source and emitted output;
+          content revisions and integrity continue to bind the actual emitted bytes.
+          The performance budgets and baselines are unchanged.
+
+          The pinned Markdown linter now runs on the Ubuntu runner with the same versions,
+          added-line filtering and error threshold. This avoids the upstream container's
+          unavailable Bullseye package without disabling the review. Setup/configuration
+          failures remain blocking.
+          '''
+          p.write_text(s)
+          PY
+      - name: Build and validate without weakening budgets or security
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/menu-compaction
+          npm ci --no-audit --no-fund
+          npm run build 2>&1 | tee .artifacts/menu-compaction/build.log
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/menu-compaction/check.log
+          npm run verify:security 2>&1 | tee .artifacts/menu-compaction/security.log
+          npm run verify:performance 2>&1 | tee .artifacts/menu-compaction/performance.log
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { readVerifiedMenuSource } from './scripts/menu-runtime-source.mjs';
+          readVerifiedMenuSource();
+          const original = readFileSync('menu-app.js', 'utf8');
+          let rejected = false;
+          try {
+            writeFileSync('menu-app.js', original + '\n// generated-byte mutation\n');
+            try { readVerifiedMenuSource(); } catch { rejected = true; }
+          } finally { writeFileSync('menu-app.js', original); }
+          if (!rejected) throw new Error('Generated-runtime tampering was not rejected');
+          console.log('Negative check passed: changed runtime rejected and original restored');
+          JS
+      - name: Install real browser
+        run: npx playwright install --with-deps chromium
+      - name: Recheck geometry, order arithmetic, interaction and reduced motion
+        run: node scripts/premium-ui-regression.mjs
+      - name: Recheck visible cart feedback and session restoration
+        run: node scripts/premium-feedback-regression.mjs
+      - name: Publish only this validated feature change and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/qa-menu-runtime-compact.yml
+          git add AGENTS.md docs/qa/premium-repair-2026-09-05.md integrity-manifest.json menu-app.js menu.html qa/traceability/ui-ux.json scripts/build.mjs scripts/menu-runtime-source.mjs scripts/verify-critical-user-journeys.mjs scripts/verify-menu-image-assets.mjs scripts/verify-menu-order.mjs scripts/verify-menu-share.mjs scripts/verify-p1-interface-contracts.mjs scripts/verify-pairing-cta.mjs scripts/verify-security-contracts.mjs src/menu-app.js sw.js
+          test -z "$(git diff --name-only)"
+          git diff --cached --binary > .artifacts/menu-compaction/source.patch
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'perf(menu): preserve premium feedback with a smaller verified runtime'
+          git rev-parse HEAD > .artifacts/menu-compaction/HEAD.txt
+          git rev-parse HEAD^{tree} > .artifacts/menu-compaction/TREE.txt
+          git push origin HEAD:feat/premium-menu-cart-recovery
+      - name: Preserve verification evidence without credentials
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-compaction-${{ github.sha }}
+          path: |
+            .artifacts/menu-compaction/
+            .artifacts/premium-ui/
+            .artifacts/premium-feedback/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
