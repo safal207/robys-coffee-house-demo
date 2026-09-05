@@ -26,7 +26,9 @@ def bound_context():
     assert os.environ['GITHUB_REPOSITORY'] == REPO
     assert os.environ['GITHUB_REF'] == 'refs/heads/' + BRANCH
     assert git('rev-parse', 'HEAD') == os.environ['GITHUB_SHA']
-    assert git('rev-parse', 'HEAD^') == MANIFEST['base']
+    assert git('rev-parse', 'HEAD^') == '492e5a8090103d2d940a4183cc33c0da5ace210d'
+    # The only follow-up source change is SHARE-001's content-bound cache assertion.
+    assert git('rev-parse', 'HEAD:scripts/verify-menu-share.mjs') == '12a70d5cf7fc952f91c6ef7003a066125641ecfe'
 
 def apply():
     bound_context()
@@ -53,7 +55,7 @@ def apply():
 def store():
     bound_context()
     # No catalogue, price, persistence-domain, lockfile, budget, CSP-policy or baseline edits.
-    subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', 'menu-catalog.js', 'src/order-store.ts', 'package-lock.json'], check=True)
+    subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', 'menu-catalog.js', 'src/order-store.ts', 'package-lock.json', 'scripts/verify-menu-share.mjs'], check=True)
     changed = git('diff', '--name-only', 'HEAD').splitlines()
     allowed = set(MANIFEST['changedSha256']) | GENERATED
     assert changed and set(changed) <= allowed, 'Unexpected changes: ' + repr(changed)
