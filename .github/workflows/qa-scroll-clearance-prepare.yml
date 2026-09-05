@@ -28,6 +28,8 @@ jobs:
           test "$GITHUB_REF" = refs/heads/fix/premium-menu-scroll-clearance
           node scripts/apply-menu-scroll-clearance.mjs
           rm scripts/apply-menu-scroll-clearance.mjs .github/workflows/qa-scroll-clearance-prepare.yml
+          npm run build
+          npm run integrity:generate
           npm run check
           npm run verify:security
           node scripts/test-audit-dependencies.mjs
