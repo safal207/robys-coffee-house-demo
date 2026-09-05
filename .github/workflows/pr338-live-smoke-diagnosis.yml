@@ -1,0 +1,55 @@
+name: PR338 live smoke diagnosis
+on:
+  push:
+    branches: [qa/pr338-capture-probe-20260905]
+    paths: [.github/workflows/pr338-live-smoke-diagnosis.yml]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install original pinned smoke tools
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false playwright@1.52.0
+          npx playwright install --with-deps chromium
+      - name: Run original live check once for immediate diagnostic evidence
+        id: smoke
+        continue-on-error: true
+        env:
+          ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
+          ROBYS_LIVE_ATTEMPTS: 1
+          ROBYS_LIVE_DELAY_MS: 0
+          ROBYS_LIVE_REPORT: live-smoke-report.json
+        run: timeout 75s node scripts/live-smoke.mjs
+      - name: Preserve diagnostic result and source boundary
+        if: always()
+        env:
+          OUTCOME: ${{ steps.smoke.outcome }}
+        run: |
+          git rev-parse HEAD > live-source.sha
+          printf 'original_smoke_outcome=%s\nrole=diagnosis-only\nmain_unchanged=true\n' "$OUTCOME" > live-diagnosis.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robys-live-diagnosis-${{ github.run_id }}
+          path: |
+            live-smoke-report.json
+            live-source.sha
+            live-diagnosis.txt
+          retention-days: 14
+          if-no-files-found: error
+      - name: Preserve failure status
+        if: always()
+        env:
+          OUTCOME: ${{ steps.smoke.outcome }}
+        run: test "$OUTCOME" = success
