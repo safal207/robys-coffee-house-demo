@@ -1,0 +1,132 @@
+name: Bounded order delivery candidate
+on:
+  push:
+    branches: [fix/order-release-recovery-20260905]
+    paths: [.github/workflows/qa-order-delivery-candidate.yml]
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: transport
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7b072b461bcd810238ea563d998d7e06ab50bbf0
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify exact-parent source patch before applying it
+        working-directory: candidate
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 7b072b461bcd810238ea563d998d7e06ab50bbf0
+          mkdir -p .artifacts/order-delivery
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,gzip,hashlib,subprocess,json
+          encoded=''.join(''.join(Path(f'../transport/qa/order-delivery-source.part{i}').read_text().split()) for i in range(1,5))
+          patch=gzip.decompress(base64.b64decode(encoded,validate=True))
+          digest=hashlib.sha256(patch).hexdigest()
+          assert digest=='ed21e8d0082a1b0033d194598bcecab3218e99b6ab71dcd9fc9aa2085998cd03',digest
+          Path('.artifacts/order-delivery/reviewed-source.patch').write_bytes(patch)
+          allowed={'.github/workflows/unified-order-regression.yml','menu.html','order-shell.css','scripts/build.mjs','scripts/menu-runtime-source.mjs','scripts/order-delivery-browser.mjs','scripts/test-menu-runtime-contract.mjs','scripts/test-unified-order.mjs','scripts/verify-menu-order.mjs','src/menu-app.js','src/order-launcher.ts','src/order-layout.ts','src/order-shell.ts'}
+          changed={line.split('\t')[-1] for line in subprocess.check_output(['git','apply','--numstat','.artifacts/order-delivery/reviewed-source.patch'],text=True).splitlines()}
+          assert changed==allowed,(changed-allowed,allowed-changed)
+          subprocess.run(['git','apply','--check','--unidiff-zero','.artifacts/order-delivery/reviewed-source.patch'],check=True)
+          subprocess.run(['git','apply','--unidiff-zero','.artifacts/order-delivery/reviewed-source.patch'],check=True)
+          subprocess.run(['git','add','-N','scripts/order-delivery-browser.mjs','src/order-layout.ts'],check=True)
+          Path('.artifacts/order-delivery/patch-provenance.json').write_text(json.dumps({'parent':'7b072b461bcd810238ea563d998d7e06ab50bbf0','patchSha256':digest,'sourcePaths':sorted(changed)},indent=2)+'\n')
+          PY
+      - name: Build and enforce source/security contracts without changing thresholds
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build > .artifacts/order-delivery/build.log 2>&1
+          npm run integrity:generate > .artifacts/order-delivery/integrity.log 2>&1
+          npm run check > .artifacts/order-delivery/check.log 2>&1
+          npm run verify:security > .artifacts/order-delivery/security.log 2>&1
+          node scripts/test-order-recovery.mjs > .artifacts/order-delivery/recovery.json
+          node scripts/test-unified-order.mjs > .artifacts/order-delivery/domain.json
+          git diff --check
+      - name: Install locked Chromium
+        working-directory: candidate
+        run: npx playwright install --with-deps chromium
+      - name: Exercise mobile toolbar clearance, lazy loading and interrupted adds
+        working-directory: candidate
+        env:
+          ORDER_DELIVERY_RESULTS_DIR: .artifacts/order-delivery/delivery-browser
+        run: node scripts/order-delivery-browser.mjs
+      - name: Shared guest-order regression
+        working-directory: candidate
+        env:
+          ORDER_RESULTS_DIR: .artifacts/order-delivery/journeys
+        run: node scripts/unified-order-browser.mjs
+      - name: Touch and enlarged-text regression
+        working-directory: candidate
+        env:
+          ORDER_LAYOUT_RESULTS_DIR: .artifacts/order-delivery/layout
+        run: node scripts/order-layout-regression.mjs
+      - name: Existing premium UI and feedback
+        working-directory: candidate
+        run: |
+          node scripts/premium-ui-regression.mjs > .artifacts/order-delivery/premium-ui.log 2>&1
+          node scripts/premium-feedback-regression.mjs > .artifacts/order-delivery/premium-feedback.log 2>&1
+      - name: Install the existing gallery test runner without lock changes
+        working-directory: candidate
+        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+      - name: Install the gallery browser engines
+        working-directory: candidate
+        run: npx playwright install --with-deps webkit chromium
+      - name: Re-run the existing mobile gallery and footer matrix
+        working-directory: candidate
+        run: npx playwright test --config=qa/playwright.config.ts
+      - name: Create detached tested candidate; leave feature/main refs unchanged
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'),cp=require('child_process');
+            const owner=context.repo.owner,repo=context.repo.repo,parent='7b072b461bcd810238ea563d998d7e06ab50bbf0';
+            const ref=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(ref.data.object.sha!==parent)throw new Error('Feature branch moved; do not publish stale candidate');
+            const paths=cp.execFileSync('git',['diff','--name-only','-z'],{cwd:'candidate',encoding:'utf8'}).split('\0').filter(Boolean);
+            const allowed=new Set(['.github/workflows/unified-order-regression.yml','app.js','discover.html','index.html','integrity-manifest.json','menu-app.js','menu.html','order-launcher.js','order-shell.css','order-shell.js','scripts/build.mjs','scripts/menu-runtime-source.mjs','scripts/order-delivery-browser.mjs','scripts/test-menu-runtime-contract.mjs','scripts/test-unified-order.mjs','scripts/verify-menu-order.mjs','smart-choice/index.html','src/menu-app.js','src/order-launcher.ts','src/order-layout.ts','src/order-shell.ts','sw.js']);
+            for(const p of paths)if(!allowed.has(p))throw new Error('Unexpected changed file: '+p);
+            cp.execFileSync('git',['diff','--check'],{cwd:'candidate'});
+            const previous=await github.rest.git.getCommit({owner,repo,commit_sha:parent});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:previous.data.tree.sha,tree:paths.map(p=>({path:p,mode:'100644',type:'blob',content:fs.readFileSync('candidate/'+p,'utf8')}))});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'fix(order): keep mobile actions reachable and defer empty-menu order runtime',tree:tree.data.sha,parents:[parent]});
+            fs.writeFileSync('candidate/.artifacts/order-delivery/candidate.json',JSON.stringify({inputHead:context.sha,parent,candidate:commit.data.sha,tree:tree.data.sha,paths,refUpdated:false},null,2)+'\n');
+            core.info('Tested candidate '+commit.data.sha+'; no branch ref changed.');
+      - name: Preserve evidence on both success and failure
+        if: always()
+        working-directory: candidate
+        run: |
+          mkdir -p .artifacts/order-delivery
+          git diff > .artifacts/order-delivery/source-and-generated.patch
+          git diff --stat > .artifacts/order-delivery/diff-stat.txt
+          sha256sum menu-app.js order-store.js order-launcher.js order-shell.js order-shell.css > .artifacts/order-delivery/tested-files.sha256
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-delivery-candidate-${{ github.sha }}
+          path: |
+            candidate/.artifacts/order-delivery/
+            candidate/.artifacts/premium-ui/
+            candidate/.artifacts/premium-feedback/
+            candidate/test-results/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
