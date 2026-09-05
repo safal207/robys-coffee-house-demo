@@ -1,0 +1,40 @@
+name: QA workspace snapshot
+
+on:
+  push:
+    branches: [feat/premium-menu-cart-recovery]
+    paths: [.github/workflows/qa-workspace-snapshot.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned development dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Archive public tracked source and development dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/qa-workspace"
+          git archive --format=tar HEAD | gzip -1 > "$RUNNER_TEMP/qa-workspace/source.tar.gz"
+          tar -czf "$RUNNER_TEMP/qa-workspace/dependencies.tar.gz" node_modules
+          git rev-parse HEAD > "$RUNNER_TEMP/qa-workspace/HEAD.txt"
+          sha256sum "$RUNNER_TEMP/qa-workspace/"*.tar.gz > "$RUNNER_TEMP/qa-workspace/SHA256SUMS.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qa-workspace-${{ github.sha }}
+          path: ${{ runner.temp }}/qa-workspace/
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
