@@ -97,7 +97,7 @@ const CORE_ASSETS = [
   "./morning-entry-v2.js?v=8a158515f4de",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
-  "./conversion.js?v=ca3c5e95035a",
+  "./conversion.js?v=bbea03459a71",
   "./menu-ready.js",
   "./menu-app.js?v=5f9ccc0dd278",
   "./menu-pwa.js?v=premium-cache-new-20260904-1",
