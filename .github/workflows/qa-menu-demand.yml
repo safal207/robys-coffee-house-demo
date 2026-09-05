@@ -2,7 +2,7 @@ name: Bounded menu demand-loading candidate
 on:
   push:
     branches: [fix/pr341-lazy-menu-20260906]
-    paths: [scripts/prepare-menu-demand.py, scripts/menu-demand-browser.mjs, .github/workflows/qa-menu-demand.yml]
+    paths: [scripts/prepare-menu-demand.py, scripts/prepare-demand-contracts.py, scripts/menu-demand-browser.mjs, .github/workflows/qa-menu-demand.yml]
 permissions:
   contents: read
 concurrency:
@@ -33,8 +33,10 @@ jobs:
           git rev-parse HEAD > .artifacts/menu-demand-candidate/input-head.txt
           git diff "$EXPECTED" --stat > .artifacts/menu-demand-candidate/preparation-stat.txt
       - run: npm ci --no-audit --no-fund
-      - name: Apply the guarded source patch
-        run: python3 scripts/prepare-menu-demand.py
+      - name: Apply the guarded source patch and matching contract
+        run: |
+          python3 scripts/prepare-menu-demand.py
+          python3 scripts/prepare-demand-contracts.py
       - name: Rebuild, verify full contracts and retain exact code evidence
         run: |
           set -euo pipefail
@@ -93,8 +95,8 @@ jobs:
             const expected='9ad682884f7ae4fb040650b6860cceb9e61ad6bb';
             const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
             if(current.data.object.sha!==expected)throw new Error('PR source moved; retain evidence but refuse stale candidate');
-            const ignored=new Set(['scripts/prepare-menu-demand.py','.github/workflows/qa-menu-demand.yml']);
-            const allowed=new Set(['src/menu-app.js','src/order-launcher.ts','scripts/menu-runtime-source.mjs','scripts/build.mjs','scripts/menu-demand-browser.mjs','.github/workflows/unified-order-regression.yml','menu-app.js','menu.html','index.html','discover.html','order-launcher.js','sw.js','integrity-manifest.json','featured-gallery.js','social-offer.js']);
+            const ignored=new Set(['scripts/prepare-menu-demand.py','scripts/prepare-demand-contracts.py','.github/workflows/qa-menu-demand.yml']);
+            const allowed=new Set(['src/menu-app.js','src/order-launcher.ts','scripts/menu-runtime-source.mjs','scripts/build.mjs','scripts/verify-menu-order.mjs','scripts/menu-demand-browser.mjs','.github/workflows/unified-order-regression.yml','menu-app.js','menu.html','index.html','discover.html','order-launcher.js','sw.js','integrity-manifest.json','featured-gallery.js','social-offer.js']);
             const changed=cp.execFileSync('git',['diff',expected,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(p=>p&&!ignored.has(p));
             for(const p of changed)if(!allowed.has(p))throw new Error('Unapproved path: '+p);
             if(!changed.includes('src/menu-app.js')||!changed.includes('scripts/menu-demand-browser.mjs'))throw new Error('Missing source or permanent test');
@@ -109,7 +111,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .artifacts/menu-demand-candidate
-          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!scripts/prepare-menu-demand.py' ':!.github/workflows/qa-menu-demand.yml' > .artifacts/menu-demand-candidate/candidate.patch
+          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!scripts/prepare-menu-demand.py' ':!scripts/prepare-demand-contracts.py' ':!.github/workflows/qa-menu-demand.yml' > .artifacts/menu-demand-candidate/candidate.patch
           git status --short > .artifacts/menu-demand-candidate/status.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
