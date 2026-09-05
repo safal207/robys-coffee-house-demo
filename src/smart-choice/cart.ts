@@ -1,15 +1,16 @@
+import { order, lineFromChoice } from "@robys/order";
 import {
   SMART_CHOICE_CATALOG,
   type PartySize,
   type SmartChoiceIntent,
   type SmartChoiceLanguage
-} from "./catalog.js";
+} from "@robys/order";
 import {
   recommendSmartChoice,
   type RecommendationInput,
   type RequestedTaste,
   type RequestedTemperature
-} from "./engine.js";
+} from "@robys/order";
 import {
   buildStableOrderPayload,
   buildWhatsAppDraftMessage,
@@ -19,7 +20,7 @@ import {
   reconcileCart,
   stableSerializeOrderPayload,
   type CartState
-} from "./cart-domain.js";
+} from "@robys/order";
 import { CART_COPY } from "./cart-copy.js";
 
 interface FlowStateSnapshot {
@@ -108,10 +109,12 @@ function loadCart(candidateId: string): CartState {
     : createInitialCart(candidateId);
 }
 
+let currentFlow: FlowStateSnapshot | null = null;
+
 function mountCart(): void {
   const selectedCard = document.querySelector<HTMLElement>(".selected-card");
   if (!selectedCard || selectedCard.dataset.cartMounted === "true") return;
-  const flow = readJson<FlowStateSnapshot>(FLOW_STORAGE_KEY);
+  const flow = currentFlow;
   if (!flow || flow.screen !== "selected" || !flow.selectedCandidateId || !recommendationFor(flow)) return;
   const combo = comboIndex.get(flow.selectedCandidateId);
   if (!combo) return;
@@ -252,7 +255,23 @@ function mountCart(): void {
       handoff.removeAttribute("href");
       handoff.removeAttribute("target");
     }
-    footer.append(total, handoff);
+    const addText = {tr:"Ortak sepete ekle",en:"Add to my order",ru:"В общий заказ"};
+    const addedText = {tr:"Ortak sepete eklendi",en:"Added to your order",ru:"Добавлено в общий заказ"};
+    const failedText = {tr:"Eklenemedi; miktarı kontrol edin.",en:"Could not add; check the quantity.",ru:"Не удалось добавить; проверьте количество."};
+    const addShared = create("button", "primary-button", addText[language]);
+    addShared.id = "smart-choice-add-order"; addShared.type = "button"; addShared.disabled = !calculation.canHandoff;
+    const addStatus = create("p", "cart-notice");addStatus.setAttribute("role", "status");addStatus.setAttribute("aria-live", "polite");
+    addShared.addEventListener("click", () => {
+      try { const line = lineFromChoice(cart, partySize); order.add(line.id, line.quantity); addStatus.textContent = addedText[language];
+        window.dispatchEvent(new Event("robys:order-added")); }
+      catch { addStatus.textContent = failedText[language]; }
+    });
+    footer.append(total, addShared);
+    // Per-selection sharing remains secondary and does not claim to send the shared order.
+    const shareDetails = create("details", "cart-payload");
+    const shareLabel = {tr:"Yalnızca bu seçimi paylaş",en:"Share only this selection",ru:"Поделиться только этим вариантом"};
+    shareDetails.append(create("summary", "", shareLabel[language]), handoff);
+    root.append(addStatus, shareDetails);
     root.append(footer, create("p", "cart-draft-note", text.draftNote));
 
     const details = create("details", "cart-payload");
@@ -269,7 +288,11 @@ function mountCart(): void {
 function start(): void {
   const app = document.querySelector("#smart-choice-app");
   if (!app) return;
-  new MutationObserver(mountCart).observe(app, { childList: true, subtree: true });
+  window.addEventListener("robys:choice-state", (event) => {
+    currentFlow = (event as CustomEvent<FlowStateSnapshot>).detail;
+    mountCart();
+  });
+  window.dispatchEvent(new Event("robys:choice-request"));
   mountCart();
 }
 

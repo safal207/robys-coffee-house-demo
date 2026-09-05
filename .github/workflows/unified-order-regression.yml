@@ -1,0 +1,49 @@
+name: Unified order regression
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: unified-order-regression-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  guest-order:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact proposed head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Check complete source and generated runtime parity
+        run: |
+          mkdir -p .artifacts/unified-order
+          git rev-parse HEAD > .artifacts/unified-order/HEAD.txt
+          set -o pipefail
+          npm run check 2>&1 | tee .artifacts/unified-order/check.log
+          npm run verify:security 2>&1 | tee .artifacts/unified-order/security.log
+          git diff --exit-code
+          node scripts/test-unified-order.mjs > .artifacts/unified-order/domain.json
+      - name: Install locked Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Real touch and enlarged text geometry
+        env:
+          ORDER_LAYOUT_RESULTS_DIR: .artifacts/unified-order/layout
+        run: node scripts/order-layout-regression.mjs
+      - name: Shared order and Smart Choice end-to-end
+        env:
+          ORDER_RESULTS_DIR: .artifacts/unified-order/journeys
+        run: node scripts/unified-order-browser.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: unified-order-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/unified-order/
+          retention-days: 14
+          if-no-files-found: error

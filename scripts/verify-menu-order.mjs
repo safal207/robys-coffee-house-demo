@@ -79,9 +79,9 @@ const visualItemCount = menuCategories.reduce((total, category) => {
 assert.equal(visualItemCount, 63, "Every current menu item and pairing must remain available to the product dialog");
 
 for (const contract of [
-  'const CART_STORAGE_KEY = "robys-menu-order.v1"',
-  "sessionStorage.getItem(CART_STORAGE_KEY)",
-  "sessionStorage.setItem(CART_STORAGE_KEY",
+  'from "./order-store.js"',
+  "order.get().lines",
+  "order.replace(",
   "media.addEventListener(\"click\", () => openProduct(id))",
   "total += product.item.price * lineQuantity",
   "product.item.price * selectedProductQuantity",
