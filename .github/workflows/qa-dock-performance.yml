@@ -4,11 +4,14 @@ on:
     branches: [qa/pr341-dock-performance]
     paths: [.github/workflows/qa-dock-performance.yml]
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: pr341-dock-workspace
+  cancel-in-progress: false
 jobs:
-  inspect:
+  candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -17,32 +20,97 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: npm ci --no-audit --no-fund
-      - name: Export tracked text and locked build tools only
-        shell: bash
-        run: |
-          mkdir -p /tmp/robys-qa-export
-          python3 - <<'PY'
-          import subprocess, pathlib, shutil, json, hashlib
-          root=pathlib.Path('/tmp/robys-qa-export')
-          files=subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
-          hashes={}
-          for name in files:
-              if not name: continue
-              path=pathlib.Path(name)
-              if path.suffix not in {'.ts','.js','.mjs','.cjs','.css','.html','.json','.yml','.yaml','.py','.sh','.md'}: continue
-              if name.startswith(('downloads/','releases/','node_modules/')): continue
-              if path.stat().st_size>2000000: continue
-              dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
-              hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
-          (root/'PINNED.json').write_text(json.dumps({'head':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'sha256':hashes},indent=2))
-          for name in ['esbuild','@esbuild/linux-x64','typescript']:
-              shutil.copytree(pathlib.Path('node_modules')/name,root/'node_modules'/name)
-          PY
-          tar -C /tmp/robys-qa-export -czf /tmp/robys-qa-source.tgz .
-      - uses: actions/upload-artifact@v4
+      - name: Apply exact source-only repair against its pinned input
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
         with:
-          name: robys-pr341-pinned-source-8387e10
-          path: /tmp/robys-qa-source.tgz
-          retention-days: 3
+          script: |
+            const fs=require('fs'),zlib=require('zlib'),crypto=require('crypto'),cp=require('child_process');
+            const input='8387e10d9c60742239edf076a620ca1fd51371a7';
+            if(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==input)throw Error('Wrong checkout');
+            fs.mkdirSync('.artifacts/dock-repair',{recursive:true});
+            fs.writeFileSync('.artifacts/dock-repair/input-head.txt',input+'\n');
+            const blob=await github.rest.git.getBlob({...context.repo,file_sha:'b81744881bc18b00286993fa99ee538845e36e5c'});
+            const patch=zlib.gunzipSync(Buffer.from(blob.data.content,'base64'));
+            if(crypto.createHash('sha256').update(patch).digest('hex')!=='94bbaf07e8fa699eebb4078ea2d1904395c253ec29bd126cad4da121a4495212')throw Error('Patch hash mismatch');
+            fs.writeFileSync('.artifacts/dock-repair/source.patch',patch);
+            cp.execFileSync('git',['apply','--check','.artifacts/dock-repair/source.patch']);
+            cp.execFileSync('git',['apply','.artifacts/dock-repair/source.patch']);
+      - run: npm ci --no-audit --no-fund
+      - name: Rebuild and verify all existing source and preservation contracts
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee .artifacts/dock-repair/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/dock-repair/integrity.log
+          npm run check 2>&1 | tee .artifacts/dock-repair/check.log
+          npm run verify:security 2>&1 | tee .artifacts/dock-repair/security.log
+          node scripts/test-unified-order.mjs > .artifacts/dock-repair/domain.json
+          node scripts/test-order-invalid-storage.mjs > .artifacts/dock-repair/storage.json
+          git diff --check
+      - name: Install locked Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Prove dock targets and real intent-only loading
+        env:
+          ORDER_DOCK_RESULTS_DIR: .artifacts/dock-repair/dock-loading
+        run: node scripts/order-dock-loading-browser.mjs
+      - name: Repeat shared order routes and layout
+        run: |
+          ORDER_RESULTS_DIR=.artifacts/dock-repair/journeys node scripts/unified-order-browser.mjs
+          ORDER_LAYOUT_RESULTS_DIR=.artifacts/dock-repair/layout node scripts/order-layout-regression.mjs
+      - name: Repeat existing premium UI and feedback
+        run: |
+          PREMIUM_UI_RESULTS_DIR=.artifacts/dock-repair/premium-ui node scripts/premium-ui-regression.mjs
+          PREMIUM_FEEDBACK_RESULTS_DIR=.artifacts/dock-repair/feedback node scripts/premium-feedback-regression.mjs
+      - name: Install original gallery test version and WebKit
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
+          npx playwright install --with-deps webkit chromium
+      - name: Original mobile gallery gate with unforced activation
+        run: npx playwright test --config=qa/playwright.config.ts
+      - name: Measure unchanged mobile performance budget
+        id: lighthouse
+        continue-on-error: true
+        env:
+          LIGHTHOUSE_ENFORCE: 'true'
+        run: node scripts/run-lighthouse-profile.mjs mobile
+      - name: Record candidate without moving any branch
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        env:
+          LIGHTHOUSE_OUTCOME: ${{ steps.lighthouse.outcome }}
+        with:
+          script: |
+            const fs=require('fs'),cp=require('child_process'),crypto=require('crypto');
+            const parent='8387e10d9c60742239edf076a620ca1fd51371a7';
+            const ref=await github.rest.git.getRef({...context.repo,ref:'heads/feat/unified-order-flow'});
+            if(ref.data.object.sha!==parent)throw Error('PR moved; refuse stale candidate');
+            const tracked=cp.execFileSync('git',['diff','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
+            const changed=[...new Set([...tracked,'src/order-dock.ts','scripts/order-dock-loading-browser.mjs'])];
+            const allowed=new Set(['.github/workflows/unified-order-regression.yml','order-shell.css','src/order-dock.ts','src/order-launcher.ts','src/order-shell.ts','src/menu-app.js','scripts/build.mjs','scripts/menu-runtime-source.mjs','scripts/test-menu-runtime-contract.mjs','scripts/test-unified-order.mjs','scripts/verify-menu-order.mjs','scripts/order-dock-loading-browser.mjs','discover.html','index.html','menu-app.js','menu.html','order-launcher.js','order-shell.js','smart-choice/index.html','sw.js','integrity-manifest.json']);
+            for(const path of changed)if(!allowed.has(path))throw Error('Unexpected changed path '+path);
+            const base=await github.rest.git.getCommit({...context.repo,commit_sha:parent});
+            const tree=await github.rest.git.createTree({...context.repo,base_tree:base.data.tree.sha,tree:changed.map(path=>({path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}))});
+            const commit=await github.rest.git.createCommit({...context.repo,message:'fix(order): separate mobile actions and defer model loading until guest intent',tree:tree.data.sha,parents:[parent]});
+            const report={inputHead:parent,outputCommit:commit.data.sha,outputTree:tree.data.sha,refUpdated:false,functionalChecksPassed:true,lighthouseOutcome:process.env.LIGHTHOUSE_OUTCOME,releaseApproved:false,files:Object.fromEntries(changed.map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))};
+            fs.writeFileSync('.artifacts/dock-repair/candidate.json',JSON.stringify(report,null,2)+'\n');
+            core.info('Detached candidate '+commit.data.sha+'; no branch or release was changed.');
+      - name: Retain readable patch and diagnostic outputs
+        if: always()
+        run: |
+          mkdir -p .artifacts/dock-repair
+          git diff > .artifacts/dock-repair/generated-and-source.patch
+          git status --short > .artifacts/dock-repair/worktree-status.txt
+          cp -r lighthouse/reports .artifacts/dock-repair/lighthouse-reports 2>/dev/null || true
+          cp -r .lighthouseci .artifacts/dock-repair/lighthouse-raw 2>/dev/null || true
+          printf '%s\n' '${{ steps.lighthouse.outcome }}' > .artifacts/dock-repair/lighthouse-outcome.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robys-dock-candidate-${{ github.run_id }}
+          path: |
+            .artifacts/dock-repair/
+            playwright-report/
+            test-results/
+          retention-days: 7
           if-no-files-found: error
+      - name: Keep a red performance outcome red
+        if: steps.lighthouse.outcome == 'failure'
+        run: exit 1
