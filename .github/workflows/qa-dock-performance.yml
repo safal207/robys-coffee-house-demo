@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Apply exact source-only repair against its pinned input
+      - name: Apply pinned source repair and readiness correction
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
         with:
           script: |
@@ -29,12 +29,16 @@ jobs:
             if(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==input)throw Error('Wrong checkout');
             fs.mkdirSync('.artifacts/dock-repair',{recursive:true});
             fs.writeFileSync('.artifacts/dock-repair/input-head.txt',input+'\n');
-            const blob=await github.rest.git.getBlob({...context.repo,file_sha:'b81744881bc18b00286993fa99ee538845e36e5c'});
-            const patch=zlib.gunzipSync(Buffer.from(blob.data.content,'base64'));
+            const first=await github.rest.git.getBlob({...context.repo,file_sha:'b81744881bc18b00286993fa99ee538845e36e5c'});
+            const patch=zlib.gunzipSync(Buffer.from(first.data.content,'base64'));
             if(crypto.createHash('sha256').update(patch).digest('hex')!=='94bbaf07e8fa699eebb4078ea2d1904395c253ec29bd126cad4da121a4495212')throw Error('Patch hash mismatch');
             fs.writeFileSync('.artifacts/dock-repair/source.patch',patch);
             cp.execFileSync('git',['apply','--check','.artifacts/dock-repair/source.patch']);
             cp.execFileSync('git',['apply','.artifacts/dock-repair/source.patch']);
+            const correction=await github.rest.git.getBlob({...context.repo,file_sha:'2db45e2d3ff89b4f84eaf04697642be016922857'});
+            fs.writeFileSync('.artifacts/dock-repair/correction.patch',Buffer.from(correction.data.content,'base64'));
+            cp.execFileSync('git',['apply','--check','.artifacts/dock-repair/correction.patch']);
+            cp.execFileSync('git',['apply','.artifacts/dock-repair/correction.patch']);
       - run: npm ci --no-audit --no-fund
       - name: Rebuild and verify all existing source and preservation contracts
         run: |
@@ -58,8 +62,8 @@ jobs:
           ORDER_LAYOUT_RESULTS_DIR=.artifacts/dock-repair/layout node scripts/order-layout-regression.mjs
       - name: Repeat existing premium UI and feedback
         run: |
-          PREMIUM_UI_RESULTS_DIR=.artifacts/dock-repair/premium-ui node scripts/premium-ui-regression.mjs
-          PREMIUM_FEEDBACK_RESULTS_DIR=.artifacts/dock-repair/feedback node scripts/premium-feedback-regression.mjs
+          node scripts/premium-ui-regression.mjs
+          node scripts/premium-feedback-regression.mjs
       - name: Install original gallery test version and WebKit
         run: |
           npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
@@ -107,6 +111,8 @@ jobs:
           name: robys-dock-candidate-${{ github.run_id }}
           path: |
             .artifacts/dock-repair/
+            .artifacts/premium-ui/
+            .artifacts/premium-feedback/
             playwright-report/
             test-results/
           retention-days: 7
