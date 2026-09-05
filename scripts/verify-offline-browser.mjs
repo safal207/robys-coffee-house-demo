@@ -43,6 +43,39 @@ page.on("request", (request) => {
 
 try {
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
+  const legacyCacheIsolation = await page.evaluate(async () => {
+    const cacheName = "robys-test-legacy-smart-choice-v40";
+    const cache = await caches.open(cacheName);
+    const smartChoiceRoot = new URL("smart-choice/", location.href);
+    const legacyFiles = ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js", "simulator.js"];
+    const cacheNewFiles = legacyFiles.map((file) => file.replace(".js", "-v2.js"));
+    const entryPathPairs = [
+      ["bootstrap.js", "bootstrap-v2.js"],
+      ["morning-entry.js", "morning-entry-v2.js"],
+      ["styles.css", "styles-v2.css"],
+      ["menu-security.css", "menu-security-v2.css"]
+    ];
+    await Promise.all(legacyFiles.map((file) => cache.put(
+      new Request(new URL(`${file}?v=legacy`, smartChoiceRoot)),
+      new Response(`legacy:${file}`, { headers: { "Content-Type": "text/javascript" } })
+    )));
+    await Promise.all(entryPathPairs.map(([legacyFile]) => cache.put(
+      new Request(new URL(`${legacyFile}?v=legacy`, location.href)),
+      new Response(`legacy:${legacyFile}`)
+    )));
+    const collisions = [];
+    for (const file of cacheNewFiles) {
+      const matched = await cache.match(new Request(new URL(`${file}?v=current`, smartChoiceRoot)), { ignoreSearch: true });
+      if (matched) collisions.push(file);
+    }
+    for (const [, cacheNewFile] of entryPathPairs) {
+      const matched = await cache.match(new Request(new URL(`${cacheNewFile}?v=current`, location.href)), { ignoreSearch: true });
+      if (matched) collisions.push(cacheNewFile);
+    }
+    await caches.delete(cacheName);
+    return collisions;
+  });
+  assert.deepEqual(legacyCacheIsolation, [], "Cache-new entry or Smart Choice paths collided with legacy ignoreSearch entries");
   const downloadLink = page.locator("a.android-download-button");
   await downloadLink.waitFor({ state: "visible", timeout: 15000 });
   await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
@@ -94,9 +127,13 @@ try {
   await page.locator("#menu-search").fill("latte");
   assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
 
+  await page.goto(`${baseUrl}/smart-choice/`, { waitUntil: "domcontentloaded" });
+  await page.locator("#smart-choice-app[aria-busy='false']").waitFor({ state: "visible", timeout: 15000 });
+  assert.match(await page.title(), /Roby's Smart Choice/, "Offline Smart Choice route returned the wrong page");
+
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu remains interactive offline.");
+  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu plus Smart Choice remain interactive offline.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();

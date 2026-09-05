@@ -81,9 +81,19 @@ const eligibleCombos = getEligibleCombos();
 const eligibleBumps = getEligibleBumps();
 
 assert(eligibleItems.length > 0, "Expected confirmed Smart Choice items");
+const hotChocolate = SMART_CHOICE_CATALOG.items.find((item) => item.id === "brew-hot--hot-chocolate");
+assert(hotChocolate, "Expected Hot Chocolate in the verified catalog");
+assert(
+  !hotChocolate.intents.includes("coffee"),
+  "Hot Chocolate must not be eligible for the coffee intent"
+);
 assert(
   eligibleCombos.some((combo) => combo.id === "combo-iced-san-sebastian"),
   "Iced Latte + San Sebastian must be an eligible confirmed combo"
+);
+assert(
+  eligibleCombos.some((combo) => combo.id === "single-brew-hot--filter-coffee"),
+  "Verified single menu items must be eligible recommendation candidates"
 );
 assert(
   !eligibleCombos.some((combo) => combo.id === "combo-cool-lime-macaron"),
@@ -107,6 +117,28 @@ assert(
     (entry) => entry.code === "SC-CATALOG-REFERENCE-001" && entry.severity === "error"
   ),
   "Unknown combo component references must fail validation"
+);
+
+const doubledSingleItem = clone(SMART_CHOICE_CATALOG);
+const doubledSingleCandidate = doubledSingleItem.combos.find((combo) => combo.id === "single-brew-hot--hot-chocolate");
+assert(doubledSingleCandidate, "Expected the Hot Chocolate single-item candidate");
+doubledSingleCandidate.components[0].quantity = 2;
+assert(
+  validateSmartChoiceCatalog(doubledSingleItem).some(
+    (entry) => entry.code === "SC-CATALOG-ITEM-CANDIDATE-001" && entry.severity === "error"
+  ),
+  "A single-item candidate with quantity other than one must fail validation"
+);
+
+const externalItemIds = clone(SMART_CHOICE_CATALOG);
+const externalHotChocolate = externalItemIds.items.find((item) => item.id === "brew-hot--hot-chocolate");
+const externalSingleCandidate = externalItemIds.combos.find((combo) => combo.id === "single-brew-hot--hot-chocolate");
+assert(externalHotChocolate && externalSingleCandidate, "Expected the Hot Chocolate item and single-item candidate");
+externalHotChocolate.id = "external-hot-chocolate-id";
+externalSingleCandidate.components[0].itemId = externalHotChocolate.id;
+assert(
+  !validateSmartChoiceCatalog(externalItemIds).some((entry) => entry.code === "SC-CATALOG-ITEM-CANDIDATE-001"),
+  "A valid single-item source relationship must not depend on equal internal and external IDs"
 );
 
 const contradictoryCombo = clone(SMART_CHOICE_CATALOG);

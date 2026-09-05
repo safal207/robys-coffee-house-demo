@@ -22,6 +22,13 @@ try {
   let calculation = domain.calculateCart(base, "one");
   assert.equal(calculation.totalMinor, 37000);
 
+  const singleItem = domain.createInitialCart("single-brew-hot--filter-coffee");
+  const singleItemCalculation = domain.calculateCart(singleItem, "one");
+  assert.equal(singleItemCalculation.totalMinor, 16000);
+  assert.equal(singleItemCalculation.lines.length, 1);
+  assert.equal(singleItemCalculation.lines[0].itemId, "brew-hot--filter-coffee");
+  assert.equal(singleItemCalculation.canHandoff, true);
+
   const substituted = { ...base, substitutionIds: [rules.substitutions[0].id] };
   calculation = domain.calculateCart(substituted, "one");
   assert.equal(calculation.totalMinor, 37000);
@@ -50,7 +57,7 @@ try {
   const source = await readFile("src/smart-choice/cart.ts", "utf8");
   const html = await readFile("smart-choice/index.html", "utf8");
   const buildSource = await readFile("scripts/build.mjs", "utf8");
-  assert(html.includes('src="cart.js'));
+  assert(html.includes('src="cart-v2.js'));
   assert(html.includes('href="cart.css'));
   assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
   assert(source.includes("MutationObserver"));

@@ -1,0 +1,74 @@
+name: Premium UI regression
+
+on:
+  pull_request:
+    paths: ['**/*.css', '**/*.html', '**/*.js', 'src/**', 'scripts/**', '.github/workflows/premium-ui-regression.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  premium:
+    name: Geometry, order and interaction states
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/premium-ui-regression.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-ui-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/premium-ui/
+          include-hidden-files: true
+          retention-days: 14
+  independent-matrix:
+    name: Independent UI UX and scrolling
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm install --no-save --package-lock=false pixelmatch@6.0.0 pngjs@7.0.0
+      - run: npx playwright install --with-deps chromium
+      - name: Expanded matrix (not conditional on visual approval)
+        id: matrix
+        continue-on-error: true
+        env:
+          UI_UX_RESULTS_DIR: visual-results/premium-ui-matrix
+        run: node scripts/ui-ux-matrix.mjs
+      - name: Rapid menu scrolling (independent of matrix outcome)
+        id: scrolling
+        continue-on-error: true
+        env:
+          SCROLL_RESULTS_DIR: visual-results/premium-scroll
+        run: node scripts/menu-scroll-regression.mjs
+      - name: Enforce both results
+        if: always()
+        env:
+          MATRIX: ${{ steps.matrix.outcome }}
+          SCROLLING: ${{ steps.scrolling.outcome }}
+        run: test "$MATRIX" = success && test "$SCROLLING" = success
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-matrix-${{ github.event.pull_request.head.sha || github.sha }}
+          path: visual-results/
+          retention-days: 14

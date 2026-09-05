@@ -161,10 +161,10 @@ try {
   assert(!runtimeSource.includes("fetch("));
   assert(runtimeSource.includes("traceDebug"));
   assert(runtimeSource.includes("RobysSmartChoiceDecisionTrace"));
-  assert(html.includes('src="decision-trace.js'));
+  assert(html.includes('src="decision-trace-v2.js'));
   assert(html.includes('href="decision-trace.css'));
   assert(buildSource.includes('entryPoints: ["src/smart-choice/decision-trace.ts"]'));
-  assert(buildSource.includes('revisionFor("smart-choice/decision-trace.js")'));
+  assert(buildSource.includes('revisionFor("smart-choice/decision-trace-v2.js")'));
 
   console.log("✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.");
 } finally {

@@ -4,6 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
+import { captureDocumentRegion } from "./capture-document-region.mjs";
 
 const config = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const currentDir = path.resolve(process.env.VISUAL_CURRENT_DIR ?? process.cwd());
@@ -207,9 +208,15 @@ async function captureMatrix(browser, baseUrl, destination) {
       if (capture.selector) {
         const locator = page.locator(capture.selector).first();
         await locator.waitFor({ state: "visible", timeout: 10000 });
-        await locator.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(80);
-        await locator.screenshot({ path: filePath, animations: "disabled" });
+        if (capture.id === "menu-share") {
+          // Document-flow component. Reachability is tested separately;
+          // locator auto-scroll can move the sticky filters over this crop.
+          await captureDocumentRegion(page, locator, filePath);
+        } else {
+          await locator.scrollIntoViewIfNeeded();
+          await page.waitForTimeout(80);
+          await locator.screenshot({ path: filePath, animations: "disabled" });
+        }
       } else {
         await page.screenshot({ path: filePath, fullPage: Boolean(capture.fullPage), animations: "disabled" });
       }

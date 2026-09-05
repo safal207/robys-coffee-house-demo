@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const baseline = JSON.parse(readFileSync("qa/menu-content-baseline.json", "utf8"));
-const source = readFileSync("menu-data.js", "utf8");
+const source = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
 const { menuCopy, menuCategories } = await import(moduleUrl);
 

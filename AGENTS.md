@@ -13,6 +13,8 @@ Work source-first. Do not hand-edit generated runtime files without updating the
 source and rebuilding them.
 
 - `src/app.ts` generates `app.js`.
+- `src/menu-app.js` generates `menu-app.js`; source contracts also verify emitted-byte equality.
+- `src/conversion.js` generates `conversion.js`; its Android stylesheet revision is injected during build.
 - `src/featured-gallery.ts` generates `featured-gallery.js`.
 - `src/social-offer.ts` generates `social-offer.js`.
 - `src/discover-rotation.ts` generates `discover-rotation.js`.
@@ -66,8 +68,25 @@ run the complete commands above before merge.
 - Treat visual changes as behavior changes: attach reproducible screenshot evidence.
 - Never merge a red or still-running required check.
 - After the latest commit, add separate top-level PR comments:
-  `@codex review` and `@jules review`.
+  `@codex review` and `@jules review`, subject to the scoped owner instruction below.
 - Resolve actionable review findings or document why they are not applicable.
+
+## PR #338: owner opted out of Codex review
+
+On 5 September 2026 the owner instructed: "Го без ревью кодекс".
+This scoped instruction is recorded in PR #338, comment 5549467834.
+
+For PR #338 only, do not request or re-request Codex review, and do not wait for
+Codex quota or approval. This exception applies to subsequent commits in the PR,
+not just the head that existed when the instruction was given.
+
+This is not a Codex approval, an independent review, or a waiver of findings.
+The current provider-neutral route already treats AI reviewers as advisory and
+retains the human maintainer as the binding approval authority. Keep existing
+non-Codex evidence; do not invent approvals from unavailable or skipped reviewers.
+Required CI, visual-change verification, security, integrity, performance budgets,
+current-head maintainer authorization and post-deployment checks remain required.
+Do not change repository-wide protection settings or paid-provider limits.
 
 ## Pull request evidence
 

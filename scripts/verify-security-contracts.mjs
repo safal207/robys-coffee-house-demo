@@ -4,14 +4,17 @@ import path from "node:path";
 const RUNTIME_FILES = [
   "index.html",
   "menu.html",
-  "bootstrap.js",
+  "bootstrap-v2.js",
   "app.js",
   "conversion.js",
   "analytics.js",
   "qa.js",
-  "menu-page.js",
+  "menu-app.js",
+  "src/menu-app.js",
+  "menu-interactions.js",
   "menu-search-clear.js",
   "menu-ready.js",
+  "smart-choice/pwa.js",
   "android-download.js",
   "pwa.js",
   "sw.js",
@@ -109,7 +112,7 @@ for (const file of HTML_FILES) {
     must("CSP-001", !executableInline, `${file} contains an executable inline script`);
   }
   must("CSP-001", !/\sstyle=["']/i.test(html), `${file} contains an inline style attribute`);
-  must("CSP-001", /<script\b[^>]*src=["']bootstrap\.js/i.test(html), `${file} does not load the external bootstrap`);
+  must("CSP-001", /<script\b[^>]*src=["']bootstrap-v2\.js\?v=[a-f0-9]{12}/i.test(html), `${file} does not load the cache-new external bootstrap`);
 
   const blankLinks = Array.from(html.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0]);
   for (const link of blankLinks) {

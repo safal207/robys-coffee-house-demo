@@ -157,6 +157,147 @@ try {
   }));
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
+  await menu.locator("#menu-search").fill("");
+  await menu.locator(".full-menu-item-media").first().click();
+  await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
+  await menu.locator("#menu-add-to-cart").click();
+  await menu.locator("#menu-cart-trigger").click();
+  await menu.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
+  // Observe the live-region text without evaluating a string under the page CSP.
+  // It is visually hidden for accessibility, so wait for attachment, not visibility.
+  await menu.locator("#menu-cart-dialog[open] [data-menu-cart-status]")
+    .filter({ hasText: "× 2" }).waitFor({ state: "attached" });
+  const cartLiveEvidence = await menu.evaluate(() => {
+    const dialog = document.querySelector("#menu-cart-dialog");
+    const status = dialog?.querySelector("[data-menu-cart-status]");
+    return {
+      dialogOpen: dialog?.hasAttribute("open") ?? false,
+      statusInsideDialog: Boolean(status && dialog?.contains(status)),
+      statusText: status?.textContent?.trim() ?? "",
+      atomic: status?.getAttribute("aria-atomic") ?? ""
+    };
+  });
+  check(
+    "A11Y-CART-LIVE-001",
+    cartLiveEvidence.dialogOpen && cartLiveEvidence.statusInsideDialog && cartLiveEvidence.statusText.includes("× 2") && cartLiveEvidence.atomic === "true",
+    "Cart quantity changes are announced from inside the active modal dialog",
+    cartLiveEvidence
+  );
+
+  const fallbackMenu = await context.newPage();
+  const fallbackErrors = [];
+  fallbackMenu.on("pageerror", (error) => fallbackErrors.push(error.message));
+  try {
+    await fallbackMenu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
+    await fallbackMenu.locator("#menu-root .full-menu-item-media").first().waitFor({ state: "visible" });
+    const initiallyHidden = await fallbackMenu.locator("#menu-product-dialog").evaluate(
+      (dialog) => getComputedStyle(dialog).display === "none" && !dialog.hasAttribute("open")
+    );
+    await fallbackMenu.evaluate(() => {
+      document.querySelectorAll("dialog").forEach((dialog) => {
+        Object.defineProperty(dialog, "showModal", { configurable: true, value: undefined });
+      });
+    });
+    const opener = fallbackMenu.locator("#menu-root .full-menu-item-media").first();
+    await opener.click();
+    await fallbackMenu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
+    await fallbackMenu.waitForTimeout(50);
+    const openedFallback = await fallbackMenu.locator("#menu-product-dialog").evaluate((dialog) => ({
+      fallbackClass: dialog.classList.contains("menu-dialog--fallback"),
+      ariaModal: dialog.getAttribute("aria-modal"),
+      position: getComputedStyle(dialog).position,
+      display: getComputedStyle(dialog).display,
+      focusInside: dialog.contains(document.activeElement)
+    }));
+    await fallbackMenu.keyboard.press("Escape");
+    await fallbackMenu.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+    const closedFallback = await fallbackMenu.locator("#menu-product-dialog").evaluate((dialog) => ({
+      open: dialog.hasAttribute("open"),
+      display: getComputedStyle(dialog).display,
+      bodyLocked: document.body.classList.contains("menu-dialog-open"),
+      focusReturned: document.activeElement?.classList.contains("full-menu-item-media") ?? false
+    }));
+    check(
+      "A11Y-DIALOG-FALLBACK-001",
+      initiallyHidden &&
+        openedFallback.fallbackClass &&
+        openedFallback.ariaModal === "true" &&
+        openedFallback.position === "fixed" &&
+        openedFallback.display === "grid" &&
+        openedFallback.focusInside &&
+        !closedFallback.open &&
+        closedFallback.display === "none" &&
+        !closedFallback.bodyLocked &&
+        closedFallback.focusReturned &&
+        fallbackErrors.length === 0,
+      "Dialog fallback stays hidden at first paint, behaves modally, closes with Escape and restores focus",
+      { initiallyHidden, openedFallback, closedFallback, errors: fallbackErrors }
+    );
+  } catch (error) {
+    check(
+      "A11Y-DIALOG-FALLBACK-001",
+      false,
+      "Dialog fallback failed in a browser without showModal",
+      { error: String(error?.stack ?? error), errors: fallbackErrors }
+    );
+  } finally {
+    await fallbackMenu.close().catch(() => {});
+  }
+
+  const smartChoice = await context.newPage();
+  smartChoice.setDefaultTimeout(7_000);
+  const smartChoiceErrors = [];
+  smartChoice.on("pageerror", (error) => smartChoiceErrors.push(error.message));
+  try {
+    await smartChoice.goto(new URL("smart-choice/", BASE_URL).href, { waitUntil: "domcontentloaded" });
+    await smartChoice.locator('#smart-choice-app[aria-busy="false"]').waitFor({ state: "visible" });
+    await smartChoice.locator('.lang-button[data-lang="ru"]').click();
+    await smartChoice.locator(".smart-card .primary-button").click();
+
+    for (const optionIndex of [0, 0, 2, 0, 0]) {
+      await smartChoice.locator(".option-button").nth(optionIndex).click();
+      await smartChoice.locator(".actions .primary-button").click();
+    }
+
+    const smartChoiceEvidence = await smartChoice.evaluate(() => ({
+      language: document.documentElement.lang,
+      heading: document.querySelector("#smart-choice-app h1")?.textContent?.trim() ?? "",
+      cards: [...document.querySelectorAll(".result-card")].map((card) => ({
+        role: card.querySelector(".result-badge")?.textContent?.trim() ?? "",
+        name: card.querySelector("h2")?.textContent?.trim() ?? "",
+        price: Number(card.querySelector(".result-price")?.textContent?.match(/\d+/)?.[0] ?? NaN),
+        top: card.classList.contains("result-card--top")
+      })),
+      experiment: document.documentElement.dataset.smartChoiceExperiment ?? ""
+    }));
+    const top = smartChoiceEvidence.cards.find((card) => card.top);
+    const economy = smartChoiceEvidence.cards.find((card) => card.role === "Экономнее");
+    check(
+      "SMART-CHOICE-BROWSER-001",
+      smartChoiceEvidence.language === "ru" &&
+        smartChoiceEvidence.heading === "Ваш выбор Roby's готов." &&
+        top?.name === "Карамельный латте" &&
+        Number.isFinite(top.price) &&
+        Number.isFinite(economy?.price) &&
+        economy.price < top.price &&
+        !smartChoiceEvidence.cards.some((card) => card.name === "Hot Chocolate") &&
+        Boolean(smartChoiceEvidence.experiment) &&
+        smartChoiceErrors.length === 0,
+      "Smart Choice remains interactive under its experiment observer and returns a cheaper coffee-safe result",
+      { ...smartChoiceEvidence, errors: smartChoiceErrors }
+    );
+  } catch (error) {
+    check(
+      "SMART-CHOICE-BROWSER-001",
+      false,
+      "Smart Choice interaction stalled or failed",
+      { error: String(error?.stack ?? error), errors: smartChoiceErrors }
+    );
+  } finally {
+    await smartChoice.close().catch(() => {});
+  }
+
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`❌ [${failure.id}] ${failure.message}`));
     throw new Error(`Adversarial browser checks failed: ${report.failures.length}`);

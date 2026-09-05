@@ -42,8 +42,95 @@ const catalogModule = await build({
 const catalogUrl = `data:text/javascript;base64,${Buffer.from(catalogModule.outputFiles[0].text).toString("base64")}`;
 const { SMART_CHOICE_CATALOG } = await import(catalogUrl);
 
+assert(
+  DEFAULT_RECOMMENDATION_CONFIG.version === "smart-choice-recommendation-config.v0.2.0",
+  "Party-size hard constraints must carry a new replayable recommendation-config version"
+);
+
 const baseCombo = SMART_CHOICE_CATALOG.combos.find((combo) => combo.id === "combo-iced-san-sebastian");
 assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
+
+{
+  const restoredEverydayChoice = recommendSmartChoice({
+    intent: "coffee",
+    temperature: "hot",
+    taste: "neutral",
+    partySize: "one",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(restoredEverydayChoice.status === "ok", "Everyday hot-coffee choice under 250 TRY must not dead-end");
+  assert(restoredEverydayChoice.top, "Everyday hot-coffee choice must return a recommendation");
+  assert(restoredEverydayChoice.top.priceMinor <= 25_000, "Everyday top recommendation must respect the 250 TRY ceiling");
+  assert(restoredEverydayChoice.top.componentItemIds.length >= 1, "Everyday recommendation must reference a verified menu item");
+  assert(
+    restoredEverydayChoice.economy === null ||
+      restoredEverydayChoice.economy.priceMinor < restoredEverydayChoice.top.priceMinor,
+    "An everyday economy alternative must be strictly cheaper than the top recommendation"
+  );
+  assert(
+    !restoredEverydayChoice.top.componentItemIds.includes("herbal-tea--relax-tea-lavender-rooibos"),
+    "Coffee intent must not resolve to herbal tea"
+  );
+}
+
+{
+  const sweetCoffeeChoice = recommendSmartChoice({
+    intent: "coffee",
+    temperature: "hot",
+    taste: "sweet",
+    partySize: "one",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(sweetCoffeeChoice.status === "ok", "Sweet hot-coffee choice under 250 TRY must not dead-end");
+  assert(
+    sweetCoffeeChoice.top?.componentItemIds.includes("hot-coffee--caramel-latte"),
+    "Sweet coffee intent must resolve to an actual coffee"
+  );
+  assert(
+    !sweetCoffeeChoice.top?.componentItemIds.includes("brew-hot--hot-chocolate"),
+    "Coffee intent must not resolve to Hot Chocolate"
+  );
+}
+
+{
+  const unsupportedFamilyChoice = recommendSmartChoice({
+    intent: "breakfast",
+    temperature: "hot",
+    taste: "sweet",
+    partySize: "family",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(unsupportedFamilyChoice.status === "no-match", "Family choice must not return a one- or two-person item");
+  const caramelLatteTrace = unsupportedFamilyChoice.trace.candidates.find(
+    (candidate) => candidate.candidateId === "single-hot-coffee--caramel-latte"
+  );
+  assert(
+    caramelLatteTrace?.rejectedBy.some((entry) => entry.code === "hard.party-size-mismatch"),
+    "Unsupported family candidates must expose the party-size hard rejection"
+  );
+}
+
+{
+  const familyRefreshChoice = recommendSmartChoice({
+    intent: "refresh",
+    temperature: "cold",
+    taste: "sweet",
+    partySize: "family",
+    budget: { maxMinor: 25_000 },
+    locale: "ru"
+  });
+  assert(familyRefreshChoice.status === "no-match", "A one-unit refresher must not satisfy a family request");
+  const coolLimeTrace = familyRefreshChoice.trace.candidates.find(
+    (candidate) => candidate.candidateId === "single-refreshers--cool-lime"
+  );
+  assert(
+    coolLimeTrace?.rejectedBy.some((entry) => entry.code === "hard.single-item-party-size-mismatch"),
+    "Multi-person requests must hard-reject unscaled single-item candidates"
+  );
+}
 
 function combo(id, priceMinor, componentItemIds, tags = ["cold", "sweet"], intents = ["dessert", "snack"]) {
   return {
@@ -111,6 +198,7 @@ const happyInput = {
   assert(first.status === "ok", "Happy path must return ok");
   assert(first.top?.candidateId === "combo-top", "Morning-fit combo must be the top recommendation");
   assert(first.economy?.candidateId === "combo-economy", "Cheapest remaining fit must be the economy alternative");
+  assert(first.economy.priceMinor < first.top.priceMinor, "Economy alternative must be strictly cheaper than top");
   assert(first.premium?.candidateId === "combo-premium", "Higher-priced in-budget fit must be the premium alternative");
   assert(first.premium?.premiumStretch === false, "In-budget premium must not be labeled as a stretch");
   assert(JSON.stringify(first) === JSON.stringify(second), "Identical input must produce byte-stable JSON output");

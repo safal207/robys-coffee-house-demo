@@ -1,0 +1,31 @@
+name: Premium feedback contract
+on:
+  pull_request:
+    paths: ['**/*.css', '**/*.html', '**/*.js', 'src/**', 'scripts/**', '.github/workflows/premium-feedback-contract.yml']
+permissions:
+  contents: read
+jobs:
+  feedback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Reject stale or edited generated menu runtime
+        run: node scripts/test-menu-runtime-contract.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/premium-feedback-regression.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: premium-feedback-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/premium-feedback/
+          include-hidden-files: true
+          retention-days: 14

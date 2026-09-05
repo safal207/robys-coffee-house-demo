@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { menuCategories } from "../menu-data.js";
+import { menuCategories } from "../menu-catalog.js";
 import { journeys } from "../discover-journeys-v2.js";
 
 const baseline = JSON.parse(readFileSync("qa/menu-content-baseline.json", "utf8"));

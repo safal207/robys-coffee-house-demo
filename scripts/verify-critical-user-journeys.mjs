@@ -1,13 +1,14 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const REQUIRED_LANGUAGES = ["tr", "en", "ru"];
 const indexHtml = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
-const menuPageRuntime = readFileSync("menu-page.js", "utf8");
+const menuPageRuntime = readVerifiedMenuSource();
 const clearSearchRuntime = readFileSync("menu-search-clear.js", "utf8");
 const appRuntime = readFileSync("src/app.ts", "utf8");
-const menuDataSource = readFileSync("menu-data.js", "utf8");
+const menuDataSource = readFileSync("menu-catalog.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const menuModuleUrl = `data:text/javascript;base64,${Buffer.from(menuDataSource).toString("base64")}`;
 const { menuCategories, menuCopy } = await import(menuModuleUrl);
@@ -164,7 +165,15 @@ assert(JSON.stringify(copyKeys.tr) === JSON.stringify(copyKeys.en), "I18N-001", 
 assert(JSON.stringify(copyKeys.tr) === JSON.stringify(copyKeys.ru), "I18N-001", "Russian menuCopy keys differ from Turkish");
 for (const language of REQUIRED_LANGUAGES) {
   for (const [key, value] of Object.entries(menuCopy[language])) {
-    assert(typeof value === "string" && value.trim(), "I18N-001", `menuCopy.${language}.${key} is empty`);
+    const isPopulated = typeof value === "string"
+      ? Boolean(value.trim())
+      : key === "itemCount" &&
+        value &&
+        typeof value === "object" &&
+        typeof value.other === "string" &&
+        Boolean(value.other.trim()) &&
+        Object.values(value).every((form) => typeof form === "string" && form.trim());
+    assert(isPopulated, "I18N-001", `menuCopy.${language}.${key} is empty`);
   }
 }
 

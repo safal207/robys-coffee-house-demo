@@ -53,6 +53,7 @@ function resolveEntryScene() {
 function revealProductAfterEntryFailure() {
   window.__robysMorningEntryAborted = true;
   window.__robysContextualEntryAborted = true;
+  delete document.documentElement.dataset.robysEntryPending;
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
   document.querySelector(".robys-morning-entry, .robys-contextual-entry")?.remove();
@@ -83,6 +84,7 @@ function loadEntryIfEligible() {
 
   window.__robysMorningEntryAborted = false;
   window.__robysContextualEntryAborted = false;
+  document.documentElement.dataset.robysEntryPending = scene;
   document.documentElement.style.backgroundColor = scene === "morning"
     ? "#170a08"
     : scene === "day"
@@ -90,18 +92,14 @@ function loadEntryIfEligible() {
       : "#0d0505";
 
   const entryImport = scene === "morning"
-    ? import("./morning-entry.js?v=20260808-volumetric-v2")
-    : import("./day-night-entry.js?v=20260809-premium-optics-v23");
+    ? import("./morning-entry-v2.js?v=8a158515f4de")
+    : import("./day-night-entry.js?v=20260904-compositor-v25");
 
   entryImport.catch(revealProductAfterEntryFailure);
 
   window.setTimeout(() => {
-    const overlay = document.querySelector(".robys-morning-entry, .robys-contextual-entry");
-    if (!overlay) revealProductAfterEntryFailure();
-    else {
-      document.documentElement.style.visibility = "";
-      document.documentElement.style.backgroundColor = "";
-      overlay.remove();
+    if (document.documentElement.dataset.robysEntryPending) {
+      revealProductAfterEntryFailure();
     }
   }, ENTRY_PREPAINT_TIMEOUT_MS);
 }

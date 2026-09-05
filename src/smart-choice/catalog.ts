@@ -3,7 +3,7 @@ import {
   type MenuCategorySource,
   type MenuItemSource,
   type MenuLocalizedText
-} from "../../menu-data.js";
+} from "../../menu-catalog.js";
 
 export type SmartChoiceLanguage = "tr" | "en" | "ru";
 export type SourceStatus = "confirmed" | "provisional" | "unavailable";
@@ -169,7 +169,7 @@ const ITEM_RULES: readonly ItemRule[] = [
   {
     sourceId: "hot-coffee--caffe-latte",
     tags: ["coffee", "milk", "morning"],
-    intents: ["coffee", "breakfast"],
+    intents: ["coffee", "breakfast", "snack"],
     temperature: "hot",
     taste: "neutral",
     partySizes: ["one", "two"],
@@ -187,6 +187,16 @@ const ITEM_RULES: readonly ItemRule[] = [
     sourceStatus: "confirmed"
   },
   {
+    sourceId: "hot-coffee--caramel-latte",
+    tags: ["coffee", "milk", "sweet", "morning"],
+    intents: ["coffee", "breakfast", "dessert"],
+    temperature: "hot",
+    taste: "sweet",
+    partySizes: ["one", "two"],
+    availability: "available",
+    sourceStatus: "confirmed"
+  },
+  {
     sourceId: "brew-hot--filter-coffee",
     tags: ["coffee", "black-coffee", "morning"],
     intents: ["coffee", "breakfast", "snack"],
@@ -197,11 +207,41 @@ const ITEM_RULES: readonly ItemRule[] = [
     sourceStatus: "confirmed"
   },
   {
+    sourceId: "brew-hot--hot-chocolate",
+    tags: ["chocolate", "sweet", "comfort"],
+    intents: ["snack", "dessert"],
+    temperature: "hot",
+    taste: "sweet",
+    partySizes: ["one", "two"],
+    availability: "available",
+    sourceStatus: "confirmed"
+  },
+  {
     sourceId: "cold-coffee--iced-caffe-latte",
     tags: ["coffee", "milk", "cold"],
-    intents: ["coffee", "refresh", "dessert"],
+    intents: ["coffee", "breakfast", "snack", "refresh", "dessert"],
     temperature: "cold",
     taste: "neutral",
+    partySizes: ["one", "two"],
+    availability: "available",
+    sourceStatus: "confirmed"
+  },
+  {
+    sourceId: "cold-coffee--flavoured-iced-caffe-latte",
+    tags: ["coffee", "milk", "cold", "sweet"],
+    intents: ["coffee", "breakfast", "dessert", "refresh"],
+    temperature: "cold",
+    taste: "sweet",
+    partySizes: ["one", "two"],
+    availability: "available",
+    sourceStatus: "confirmed"
+  },
+  {
+    sourceId: "cold-coffee--iced-mocha",
+    tags: ["coffee", "chocolate", "cold", "sweet"],
+    intents: ["coffee", "snack", "dessert", "refresh"],
+    temperature: "cold",
+    taste: "sweet",
     partySizes: ["one", "two"],
     availability: "available",
     sourceStatus: "confirmed"
@@ -219,7 +259,7 @@ const ITEM_RULES: readonly ItemRule[] = [
   {
     sourceId: "herbal-tea--relax-tea-lavender-rooibos",
     tags: ["tea", "herbal", "evening"],
-    intents: ["coffee", "snack", "dessert"],
+    intents: ["snack", "dessert"],
     temperature: "hot",
     taste: "neutral",
     partySizes: ["one", "two"],
@@ -368,7 +408,29 @@ function buildCombo(rule: ComboRule): SmartChoiceCombo {
   };
 }
 
-const COMBOS = COMBO_RULES.map(buildCombo);
+function buildSingleItemCombo(item: SmartChoiceItem): SmartChoiceCombo {
+  return {
+    id: `single-${item.id}`,
+    sourceOfferId: item.sourceId,
+    name: item.name,
+    ...(item.description ? { description: item.description } : {}),
+    priceMinor: item.priceMinor,
+    currency: item.currency,
+    components: [{ itemId: item.id, quantity: 1 }],
+    allowedSubstitutions: [],
+    upgrades: [],
+    intents: item.intents,
+    tags: ["single-item", ...item.tags],
+    availability: item.availability,
+    sourceStatus: item.sourceStatus,
+    pricingMode: "menu-item"
+  };
+}
+
+const COMBOS = [
+  ...COMBO_RULES.map(buildCombo),
+  ...ITEMS.map(buildSingleItemCombo)
+];
 const MACARON_PRICE_MINOR = ITEM_INDEX.get("desserts--macaron")?.priceMinor ?? 0;
 
 const BUMPS: readonly SmartChoiceBump[] = [
@@ -384,7 +446,7 @@ const BUMPS: readonly SmartChoiceBump[] = [
 ];
 
 export const SMART_CHOICE_CATALOG: SmartChoiceCatalog = {
-  version: "smart-choice-catalog.v0.1.0",
+  version: "smart-choice-catalog.v0.2.0",
   currency: "TRY",
   minorUnitScale: 100,
   items: ITEMS,
@@ -467,7 +529,28 @@ export function validateSmartChoiceCatalog(
     if (combo.extraValue) validateLocalized(combo.extraValue, `${path}.extraValue`, list);
     validateMoney(combo.priceMinor, `${path}.priceMinor`, list);
     if (!MENU_INDEX.has(combo.sourceOfferId)) diagnostic(list, "SC-CATALOG-SOURCE-002", "error", `${path}.sourceOfferId`, `Unknown offer source: ${combo.sourceOfferId}`);
-    if (combo.components.length < 2) diagnostic(list, "SC-CATALOG-COMBO-001", "error", `${path}.components`, "A combo needs at least two components.");
+    const isSingleItemCandidate = combo.pricingMode === "menu-item";
+    const singleItemComponent = combo.components.length === 1 ? combo.components[0] : undefined;
+    const singleItem = singleItemComponent ? itemIndex.get(singleItemComponent.itemId) : undefined;
+    if (!isSingleItemCandidate && combo.components.length < 2) {
+      diagnostic(list, "SC-CATALOG-COMBO-001", "error", `${path}.components`, "A combo needs at least two components.");
+    }
+    if (
+      isSingleItemCandidate &&
+      (
+        !singleItemComponent ||
+        singleItemComponent.quantity !== 1 ||
+        singleItem?.sourceId !== combo.sourceOfferId
+      )
+    ) {
+      diagnostic(
+        list,
+        "SC-CATALOG-ITEM-CANDIDATE-001",
+        "error",
+        `${path}.components`,
+        "A menu-item candidate must contain exactly one unit of its verified source item."
+      );
+    }
 
     const seenComponents = new Set<string>();
     let componentTotalMinor = 0;

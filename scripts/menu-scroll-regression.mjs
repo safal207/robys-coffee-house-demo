@@ -4,7 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
-import { menuCategories } from "../menu-data.js";
+import { menuCategories } from "../menu-catalog.js";
 
 const port = Number(process.env.SCROLL_AUDIT_PORT ?? 4183);
 const resultsDir = path.resolve(process.env.SCROLL_RESULTS_DIR ?? "visual-results/scroll-audit");
@@ -191,7 +191,7 @@ try {
     assert(initial.controlsPosition === "static", viewport.id, `menu controls position is ${initial.controlsPosition}, expected static`);
     assert(initial.scrollWidth <= initial.clientWidth + 1, viewport.id, `horizontal overflow: ${initial.scrollWidth}px > ${initial.clientWidth}px`);
     assert(initial.scrollHeight > initial.innerHeight * 3, viewport.id, "menu is unexpectedly short or failed to render");
-    assert(initial.panels.length === expectedPanelCount, viewport.id, `expected ${expectedPanelCount} menu panels from menu-data.js, found ${initial.panels.length}`);
+    assert(initial.panels.length === expectedPanelCount, viewport.id, `expected ${expectedPanelCount} menu panels from menu-catalog.js, found ${initial.panels.length}`);
     assert(initial.htmlBackground !== "rgba(0, 0, 0, 0)", viewport.id, "html background is transparent");
     assert(initial.bodyBackground !== "rgba(0, 0, 0, 0)", viewport.id, "body background is transparent");
 

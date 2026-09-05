@@ -248,8 +248,8 @@ function createContextualEntry(sceneName) {
   const ambient = createSplineLayer({
     inset: "-18%",
     background: theme.ambient,
-    opacity: "0",
-    transform: "scale(1.035)",
+    opacity: ".9",
+    transform: "scale(.998)",
     zIndex: "1"
   }, "robys-entry-ambient");
 
@@ -288,8 +288,8 @@ function createContextualEntry(sceneName) {
     borderRadius: "50%",
     background: theme.brownRibbon,
     boxShadow: theme.brownShadow,
-    opacity: "0",
-    transform: "rotate(8deg) translate3d(5vw,-2vh,0) scale(1.04)",
+    opacity: String(theme.ribbonPeak * .82),
+    transform: "translateZ(-38px) rotate(4.7deg) translate3d(.6vw,1.4vh,0) scale(1.004)",
     zIndex: "2"
   }, "robys-entry-brown-ribbon");
 
@@ -302,8 +302,8 @@ function createContextualEntry(sceneName) {
     border: theme.goldBorder,
     background: theme.goldBackground,
     boxShadow: theme.goldShadow,
-    opacity: "0",
-    transform: "rotate(19deg) translate3d(4vw,-3vh,0) scale(1.08)",
+    opacity: String(theme.goldArcEnd),
+    transform: "translateZ(8px) rotate(13.5deg) translate3d(-1.5vw,2.4vh,0) scale(.995)",
     zIndex: "5"
   }, "robys-entry-gold-arc");
 
@@ -314,8 +314,8 @@ function createContextualEntry(sceneName) {
     height: "160%",
     borderRadius: "50%",
     background: theme.lightVeil,
-    opacity: "0",
-    transform: "translate3d(8%,0,0) translateZ(18px) rotate(5deg)",
+    opacity: ".32",
+    transform: "translate3d(-4%,0,0) translateZ(18px) rotate(2deg)",
     zIndex: "6"
   }, "robys-entry-light-veil");
 
@@ -366,8 +366,8 @@ function createContextualEntry(sceneName) {
     borderRadius: "50%",
     background: theme.halo,
     filter: theme.haloBlur,
-    transform: "translate(-50%, -50%) scale(.68)",
-    opacity: "0",
+    transform: "translate(-50%, -50%) scale(1.04)",
+    opacity: ".61",
     zIndex: "0"
   });
   logoHalo.className = "robys-entry-logo-halo";
@@ -381,8 +381,8 @@ function createContextualEntry(sceneName) {
     borderRadius: "50%",
     background: theme.focus,
     filter: theme.focusBlur,
-    transform: "translate(-50%, -50%) scale(.66)",
-    opacity: "0",
+    transform: "translate(-50%, -50%) scale(1)",
+    opacity: ".85",
     zIndex: "1"
   });
   logoFocus.className = "robys-entry-logo-focus";
@@ -523,22 +523,14 @@ function runContextualEntry({ scene: sceneName }) {
   let canSkip = false;
   const lifecycle = new AbortController();
 
-  requestAnimationFrame(() => {
+  // Register compositor work before the first paint so the reveal never spends
+  // its opening frame constructing animations on a busy or low-power device.
     animateSafe(depthHaze, poseSeries((t) => {
       const p = smoothPose(t);
       const settle = phase(t, .72, 1);
       return {
         opacity: mix(.58, .52, settle),
         transform: `translateZ(-90px) translate3d(${mix(-.5, .35, p).toFixed(3)}vw,${mix(-.35, .2, p).toFixed(3)}vh,0) scale(${mix(1.12, 1.105, p).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
-    animateSafe(ambient, poseSeries((t) => {
-      const p = smoothPose(t);
-      const settle = phase(t, .7, 1);
-      return {
-        opacity: phase(t, 0, .34) * mix(1, .9, settle),
-        transform: `scale(${mix(1.035, .998, p).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -560,31 +552,6 @@ function runContextualEntry({ scene: sceneName }) {
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
-    animateSafe(brownRibbon, poseSeries((t) => {
-      const p = smoothPose(t);
-      const settle = phase(t, .72, 1);
-      return {
-        opacity: theme.ribbonPeak * phase(t, .03, .28) * mix(1, .82, settle),
-        transform: `translateZ(-38px) rotate(${mix(8, 4.7, p).toFixed(3)}deg) translate3d(${mix(7, .6, p).toFixed(3)}vw,${mix(-4, 1.4, p).toFixed(3)}vh,0) scale(${mix(1.06, 1.004, p).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
-    animateSafe(goldArc, poseSeries((t) => {
-      const p = smoothPose(t);
-      return {
-        opacity: peak(t, .05, .54, 1, theme.goldArcPeak, theme.goldArcEnd),
-        transform: `translateZ(8px) rotate(${mix(19, 13.5, p).toFixed(3)}deg) translate3d(${mix(8, -1.5, p).toFixed(3)}vw,${mix(-4, 2.4, p).toFixed(3)}vh,0) scale(${mix(1.08, .995, p).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
-    animateSafe(lightVeil, poseSeries((t) => {
-      const p = smoothPose(t);
-      return {
-        opacity: peak(t, .08, .52, 1, .84, .32),
-        transform: `translate3d(${mix(10, -4, p).toFixed(3)}%,0,0) translateZ(18px) rotate(${mix(5, 2, p).toFixed(3)}deg)`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
     animateSafe(foregroundOccluder, poseSeries((t) => {
       const p = smoothPose(t);
       const settle = phase(t, .72, 1);
@@ -599,24 +566,6 @@ function runContextualEntry({ scene: sceneName }) {
       return {
         opacity: p,
         transform: `translate(-50%, ${mix(-34, -42, p).toFixed(3)}%) scale(${mix(.86, .94, p).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
-    animateSafe(logoHalo, poseSeries((t) => {
-      const rise = phase(t, .32, .58);
-      const settle = phase(t, .82, 1);
-      return {
-        opacity: mix(0, .78, rise) * mix(1, .78, settle),
-        transform: `translate(-50%, -50%) scale(${mix(.68, 1.04, rise).toFixed(4)})`
-      };
-    }), { duration, easing: "linear", fill: "forwards" });
-
-    animateSafe(logoFocus, poseSeries((t) => {
-      const rise = phase(t, .34, .6);
-      const settle = phase(t, .84, 1);
-      return {
-        opacity: mix(0, .94, rise) * mix(1, .9, settle),
-        transform: `translate(-50%, -50%) scale(${mix(.66, 1, rise).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
 
@@ -637,14 +586,14 @@ function runContextualEntry({ scene: sceneName }) {
         transform: `translateY(${mix(14, 0, rise).toFixed(3)}px) scale(${mix(.95, 1, rise).toFixed(4)})`
       };
     }), { duration, easing: "linear", fill: "forwards" });
-  });
-
   const finish = () => {
     if (exiting) return;
     exiting = true;
     lifecycle.abort();
     emitEntryState(sceneName, "handoff", variant);
     writeSeenEntry();
+    delete document.documentElement.dataset.robysEntryPending;
+    document.documentElement.style.visibility = "";
 
     animateSafe(overlay, [
       { opacity: 1, transform: "scale(1)" },

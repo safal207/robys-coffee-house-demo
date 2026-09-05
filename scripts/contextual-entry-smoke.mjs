@@ -140,6 +140,7 @@ async function readSceneEvidence(page) {
       markPath: mark ? new URL(mark.src).pathname : "",
       wordmarkPath: wordmark ? new URL(wordmark.src).pathname : "",
       stageBackground: stage ? getComputedStyle(stage).backgroundColor : "missing",
+      animationCount: overlay?.getAnimations({ subtree: true }).length ?? -1,
       paintValues
     };
   });
@@ -229,6 +230,7 @@ async function captureScene(browser, scene) {
   assert(evidence.markPath.endsWith("/src/brand/robys-mark-master-v1.svg"), `${scene} mark asset drifted: ${evidence.markPath}`);
   assert(evidence.wordmarkPath.endsWith("/src/brand/robys-compact-master-v1.svg"), `${scene} wordmark asset drifted: ${evidence.wordmarkPath}`);
   assert(evidence.stageBackground === "rgba(0, 0, 0, 0)", `${scene} introduced a logo card background`);
+  assert(evidence.animationCount === 7, `${scene} exceeded the seven-layer compositor budget: ${evidence.animationCount}`);
 
   const colors = evidence.paintValues.flatMap(parsePaints);
   const coolDrift = colors.filter(isCoolDrift);
@@ -327,11 +329,13 @@ try {
     runtimeBytes,
     day: {
       overlayBackground: day.evidence.overlayBackground,
+      animationCount: day.evidence.animationCount,
       uniqueTransforms: day.smoothness.uniqueTransforms,
       medianFrameIntervalMs: day.smoothness.medianFrameIntervalMs
     },
     night: {
       overlayBackground: night.evidence.overlayBackground,
+      animationCount: night.evidence.animationCount,
       uniqueTransforms: night.smoothness.uniqueTransforms,
       medianFrameIntervalMs: night.smoothness.medianFrameIntervalMs
     },
@@ -345,7 +349,7 @@ try {
 
   console.log(
     `✅ MOTION-CONTEXT-001 passed: Day ${dayColdMs} ms, Night ${nightColdMs} ms, cross-scene warm ${crossSceneWarmMs} ms; `
-    + "same 20-pose Roby's family, canonical assets, warm-only palette, 60 Hz interpolation, reduced-motion bypass and contextual luminance hierarchy are certified."
+    + "same 20-pose Roby's family, seven-layer compositor budget, canonical assets, warm-only palette, 60 Hz interpolation, reduced-motion bypass and contextual luminance hierarchy are certified."
   );
 } finally {
   await browser?.close().catch(() => {});

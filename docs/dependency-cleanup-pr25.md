@@ -19,7 +19,7 @@ The retained runtime files are:
 - `qa.js`
 - `shop.css`
 - `shop.js`
-- `styles.css`
+- `styles-v2.css`
 - `sw.js`
 
 The initial source-level report also showed `src/app.ts -> ./sw.js` as unresolved because the source file lives under `src/`. This is not a runtime break: esbuild emits `app.js` at repository root, where `./sw.js` correctly resolves to root `sw.js`; the generated bundle edge is present.

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v40-20260903-complete-menu-photos-10750cdfa32c-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v62-20260905-cart-feedback-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -72,18 +72,18 @@ const CORE_ASSETS = [
   "./mobile-install-copy.json",
   "./mobile-install.js",
   "./offline.css",
-  "./pwa.js",
+  "./pwa.js?v=premium-cache-new-20260904-1",
   "./android-download.js",
-  "./android-app.css",
+  "./android-app.css?v=01b7f55a3fdc",
   "./mobile-install.css",
-  "./styles.css",
+  "./styles-v2.css?v=a008bb8274b9",
   "./mobile.css",
   "./conversion.css",
   "./final-qa.css",
   "./social-offer.css",
-  "./menu.css",
+  "./menu-premium.css?v=8057fd0f208f",
   "./menu-stability.css",
-  "./menu-security.css",
+  "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
@@ -92,20 +92,33 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4",
-  "./bootstrap.js",
+  "./bootstrap-v2.js?v=45fbf33f0155",
   "./android-handoff.js",
-  "./morning-entry.js",
-  "./day-night-entry.js?v=20260809-premium-optics-v23",
+  "./morning-entry-v2.js?v=8a158515f4de",
+  "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
-  "./conversion.js",
+  "./conversion.js?v=bbea03459a71",
   "./menu-ready.js",
-  "./menu-page.js",
-  "./menu-pwa.js",
-  "./menu-data.js",
+  "./menu-app.js?v=785fafe14d32",
+  "./menu-pwa.js?v=premium-cache-new-20260904-1",
+  "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
-  "./menu-actions.js",
+  "./menu-interactions.js?v=20260904-interaction-v3",
+  "./smart-choice/index.html",
+  "./smart-choice/pwa.js?v=premium-cache-new-20260904-1",
+  "./smart-choice/style.css?v=93af186a5b11",
+  "./smart-choice/cart.css?v=4fcc327520f5",
+  "./smart-choice/decision-trace.css?v=caa831d49b1f",
+  "./smart-choice/release-qa.css?v=9d9afd5b512c",
+  "./smart-choice/brand-v4.css?v=20260728-1",
+  "./smart-choice/release-qa.js?v=8741e7ebc72b",
+  "./smart-choice/app-v2.js?v=5da253018750",
+  "./smart-choice/cart-v2.js?v=f8e10c173a2d",
+  "./smart-choice/experiments-v2.js?v=4852fc7c9115",
+  "./smart-choice/analytics-v2.js?v=9cd3b5dd0fc2",
+  "./smart-choice/decision-trace-v2.js?v=923446e45093",
   "./discover.js",
-  "./discover-v2.js?v=10750cdfa32c",
+  "./discover-v2.js?v=d16fc23e122d",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
@@ -146,8 +159,22 @@ self.addEventListener("activate", (event) => {
 async function cachedResponse(request) {
   const cache = await caches.open(CACHE_VERSION);
   const url = new URL(request.url);
+  const smartChoiceRoot = new URL("smart-choice/", self.registration.scope).pathname;
+  const isVersionedSmartChoiceAsset = url.pathname.startsWith(smartChoiceRoot) &&
+    (url.pathname.endsWith(".js") || url.pathname.endsWith(".css"));
   const requiresExactRevision =
+    isVersionedSmartChoiceAsset ||
+    url.pathname.endsWith("/bootstrap-v2.js") ||
+    url.pathname.endsWith("/morning-entry-v2.js") ||
+    url.pathname.endsWith("/styles-v2.css") ||
+    url.pathname.endsWith("/menu-security-v2.css") ||
+    url.pathname.endsWith("/pwa.js") ||
+    url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
+    url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-catalog.js") ||
+    url.pathname.endsWith("/menu-premium.css") ||
+    url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
@@ -184,14 +211,17 @@ async function cachedPage(name) {
 
 async function navigationResponse(request) {
   const url = new URL(request.url);
+  const scopePath = new URL(self.registration.scope).pathname;
   const isMenu = url.pathname.endsWith("/menu.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
-  const isHome = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+  const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
+    url.pathname === `${scopePath}smart-choice/index.html`;
+  const isHome = url.pathname === scopePath || url.pathname === `${scopePath}index.html`;
 
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isDiscover || isHome) {
+      if (isMenu || isDiscover || isSmartChoice || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -203,6 +233,7 @@ async function navigationResponse(request) {
 
   if (isMenu) return cachedPage("menu.html");
   if (isDiscover) return cachedPage("discover.html");
+  if (isSmartChoice) return cachedPage("smart-choice/index.html");
   if (isHome) return cachedPage("index.html");
   return cachedPage("404.html");
 }

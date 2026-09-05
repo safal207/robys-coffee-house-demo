@@ -338,7 +338,7 @@ try {
   const slowContext = await newMotionContext(browser);
   const slowPage = await slowContext.newPage();
   let delayedModuleRequests = 0;
-  await slowPage.route("**/morning-entry.js*", async (route) => {
+  await slowPage.route("**/morning-entry-v2.js*", async (route) => {
     delayedModuleRequests += 1;
     await sleep(900);
     await route.continue();
@@ -366,7 +366,7 @@ try {
   const offlineContext = await newMotionContext(browser);
   const offlinePage = await offlineContext.newPage();
   let abortedModuleRequests = 0;
-  await offlinePage.route("**/morning-entry.js*", (route) => {
+  await offlinePage.route("**/morning-entry-v2.js*", (route) => {
     abortedModuleRequests += 1;
     return route.abort("failed");
   });

@@ -3,8 +3,8 @@ name: Contextual entry certification
 on:
   pull_request:
     paths:
-      - "bootstrap.js"
-      - "morning-entry.js"
+      - "bootstrap-v2.js"
+      - "morning-entry-v2.js"
       - "day-night-entry.js"
       - "sw.js"
       - "integrity-manifest.json"
@@ -22,8 +22,8 @@ on:
     branches:
       - agent/day-night-motion-v1
     paths:
-      - "bootstrap.js"
-      - "morning-entry.js"
+      - "bootstrap-v2.js"
+      - "morning-entry-v2.js"
       - "day-night-entry.js"
       - "sw.js"
       - "integrity-manifest.json"
@@ -73,8 +73,8 @@ jobs:
 
       - name: Verify contextual runtime syntax
         run: |
-          node --check bootstrap.js
-          node --check morning-entry.js
+          node --check bootstrap-v2.js
+          node --check morning-entry-v2.js
           node --check day-night-entry.js
           node --check sw.js
           node --check scripts/generate-integrity-manifest.mjs

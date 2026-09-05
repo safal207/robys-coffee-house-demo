@@ -11,14 +11,36 @@ HANDOFF_WAIT_SECONDS=30
 mkdir -p "$OUT"
 rm -f "$OUT"/*
 
+# Evidence identifies the APK source, not the mutable public web deployment.
+git rev-parse HEAD > "$OUT/native-source.sha"
+sha256sum "$APK" > "$OUT/apk-sha256.txt"
+printf 'web_source=public-github-pages\nweb_url=https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff\nweb_bytes_pinned_to_pr=false\n' > "$OUT/source-boundary.txt"
+date -u '+captured_at=%Y-%m-%dT%H:%M:%SZ' >> "$OUT/source-boundary.txt"
+
+# Keep useful diagnostics on failure/cancellation, without turning either into
+# a successful handoff. Bounded cleanup must not block runner cancellation.
+collect_diagnostics() {
+  local result=$?
+  trap - EXIT
+  set +e
+  timeout 6s adb logcat -d > "$OUT/logcat.txt"
+  grep "RobysHandoff" "$OUT/logcat.txt" > "$OUT/handoff-states.txt"
+  timeout 6s adb shell dumpsys window windows > "$OUT/window-state.txt"
+  timeout 6s adb shell dumpsys webviewupdate > "$OUT/webview-provider.txt"
+  printf 'exit_code=%s\n' "$result" > "$OUT/capture-exit.txt"
+  exit "$result"
+}
+trap collect_diagnostics EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 adb install -r "$APK"
 adb shell settings put global window_animation_scale 1
 adb shell settings put global transition_animation_scale 1
 adb shell settings put global animator_duration_scale 1
+adb shell wm size > "$OUT/display-size.txt"
 
-# A clean API 36 emulator may spend several seconds settling package/WebView
-# services after install. Keep the same cold-start preparation used by the
-# previous visual contract.
+# Preserve the cold provider load; only settle unrelated emulator services.
 sleep 20
 adb shell input keyevent HOME
 sleep 1
@@ -26,10 +48,10 @@ adb shell am force-stop "$PACKAGE"
 adb logcat -c
 adb shell rm -f "$DEVICE_VIDEO"
 
-# The first WebView provider load is deliberately cold and can vary widely on
-# hosted runners. Record enough headroom for the real handoff state machine;
-# assertions below are state-driven rather than tied to a fixed launch second.
-adb shell screenrecord --time-limit 40 --bit-rate 6000000 "$DEVICE_VIDEO" >"$OUT/screenrecord.log" 2>&1 &
+# A half-resolution recording reduces encoder contention on software-rendered
+# CI. Screenshots remain full resolution; animations, deadlines and all state
+# assertions are unchanged. This is handoff evidence, not a device FPS claim.
+adb shell screenrecord --size 540x1200 --time-limit 40 --bit-rate 6000000 "$DEVICE_VIDEO" >"$OUT/screenrecord.log" 2>&1 &
 RECORDER_PID=$!
 sleep 0.35
 adb shell am start -W -n "$PACKAGE/$ACTIVITY" > "$OUT/activity-start.txt"
@@ -46,19 +68,38 @@ for ((second = 0; second < HANDOFF_WAIT_SECONDS; second += 1)); do
   sleep 1
 done
 
-# Capture the visual state at the contract boundary. On timeout this screenshot
-# still becomes useful failure evidence instead of silently sampling an arbitrary
-# fixed second before a cold WebView has committed.
 adb exec-out screencap -p > "$OUT/post-handoff.png"
 
-wait "$RECORDER_PID" || true
-adb pull "$DEVICE_VIDEO" "$OUT/robys-atomic-handoff.mp4"
+# A recorder can fail after writing a large partial file. Preserve its status
+# while retrieving available evidence; file size alone must not turn it green.
+recorder_exit=0
+wait "$RECORDER_PID" || recorder_exit=$?
+printf 'exit_code=%s\n' "$recorder_exit" > "$OUT/recorder-exit.txt"
+pull_exit=0
+adb pull "$DEVICE_VIDEO" "$OUT/robys-atomic-handoff.mp4" || pull_exit=$?
+if [[ "$recorder_exit" -ne 0 ]]; then
+  echo "ANDROID-HANDOFF-002: screen recording failed (exit ${recorder_exit}); partial evidence retained." >&2
+  exit "$recorder_exit"
+fi
+if [[ "$pull_exit" -ne 0 ]]; then
+  echo "ANDROID-HANDOFF-002: recording could not be retrieved (exit ${pull_exit})." >&2
+  exit "$pull_exit"
+fi
 adb shell dumpsys window windows > "$OUT/window-state.txt"
 adb logcat -d > "$OUT/logcat.txt"
 grep "RobysHandoff" "$OUT/logcat.txt" > "$OUT/handoff-states.txt" || true
 
 VIDEO_BYTES="$(wc -c < "$OUT/robys-atomic-handoff.mp4")"
 test "$VIDEO_BYTES" -gt 50000
+
+# This is a single cold-launch contract, not an eventual-recovery contract.
+# The documented WEB_READY_TIMEOUT fallback remains allowed; terminal failures
+# cannot be hidden by a later completion marker from another attempt.
+if grep -Eq 'RobysHandoff.*: (LOAD_COMMIT_TIMEOUT|VISUAL_STATE_TIMEOUT|MAIN_FRAME_ERROR|SSL_ERROR)$' "$OUT/handoff-states.txt"; then
+  echo "ANDROID-HANDOFF-002: terminal launch failure observed; completion markers cannot override it." >&2
+  cat "$OUT/handoff-states.txt" >&2
+  exit 1
+fi
 
 if [[ "$handoff_complete" -ne 1 ]]; then
   echo "ANDROID-HANDOFF-002: HANDOFF_COMPLETE was not observed within ${HANDOFF_WAIT_SECONDS}s after activity start." >&2
@@ -95,7 +136,7 @@ fi
 
 printf 'video_bytes=%s\n' "$VIDEO_BYTES" > "$OUT/evidence-summary.txt"
 printf 'package=%s\nactivity=%s\n' "$PACKAGE" "$ACTIVITY" >> "$OUT/evidence-summary.txt"
-printf 'handoff_wait_seconds=%s\n' "$HANDOFF_WAIT_SECONDS" >> "$OUT/evidence-summary.txt"
+printf 'handoff_wait_seconds=%s\nrecording_size=540x1200\nscreenshot_size=native\n' "$HANDOFF_WAIT_SECONDS" >> "$OUT/evidence-summary.txt"
 printf 'state_lines=NATIVE_SURFACE:%s,WEB_COMMITTED:%s,WEB_READY_OR_FALLBACK:%s,VISUAL_STATE_CONFIRMED:%s,HANDOFF_COMPLETE:%s\n' \
   "$native_line" "$commit_line" "$ready_line" "$visual_line" "$complete_line" >> "$OUT/evidence-summary.txt"
 printf 'contract=SYSTEM_SPLASH->NATIVE_SURFACE->WEB_COMMITTED->WEB_READY_OR_FALLBACK->VISUAL_STATE_CONFIRMED->HANDOFF_COMPLETE\n' >> "$OUT/evidence-summary.txt"

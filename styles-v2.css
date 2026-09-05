@@ -81,6 +81,9 @@ h1 em,h2 em{font-style:normal;font-weight:300}
 .js .hero-content>*:nth-child(4){animation-delay:.35s}
 .js .hero-content>*:nth-child(5){animation-delay:.44s}
 @keyframes heroContentIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+html[data-robys-entry-pending] .hero-content>*{animation-play-state:paused}
+html[data-robys-entry-pending] .site-header{opacity:0;transform:translateY(-10px)}
+html:not([data-robys-entry-pending]) .site-header{transition:opacity .52s cubic-bezier(.16,1,.3,1),transform .52s cubic-bezier(.16,1,.3,1)}
 
 main{transition:opacity .16s ease,filter .16s ease}
 main.language-changing{opacity:.68;filter:blur(1.5px)}
@@ -194,4 +197,33 @@ main.language-changing{opacity:.68;filter:blur(1.5px)}
   .js .hero-content>*{animation:none}
   .reveal-item{opacity:1;transform:none}
   main.language-changing{opacity:1;filter:none}
+}
+
+/* PREMIUM-INTERACTION-001: CSS-only response; no layout animation or pointer tracking. */
+:root{--ui-ease:cubic-bezier(.2,.8,.2,1);--ui-focus:#a35b27}
+:root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear){touch-action:manipulation;transition:transform .16s var(--ui-ease),background-color .18s var(--ui-ease),border-color .18s var(--ui-ease),box-shadow .18s var(--ui-ease)}
+:root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):focus-visible{outline:3px solid var(--ui-focus);outline-offset:3px;box-shadow:0 0 0 6px rgba(255,250,243,.8)}
+:root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):not(:disabled):not([aria-disabled="true"]):active{transform:translateY(1px) scale(.975);box-shadow:inset 0 2px 5px rgba(25,15,10,.16)}
+:root .menu-search-clear:not(:disabled):active{transform:translateY(-50%) scale(.94)}
+:root .lang-button[aria-pressed="true"]{box-shadow:inset 0 -3px 0 rgba(255,255,255,.45)}
+:root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):disabled{transform:none;cursor:not-allowed}
+@media(hover:hover) and (pointer:fine){
+ :root :is(.button,.menu-cart-trigger,.menu-smart-choice-link):not(:disabled):hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(45,25,18,.18)}
+ :root :is(.button,.menu-cart-trigger,.menu-smart-choice-link):not(:disabled):active{transform:translateY(1px) scale(.975)}
+}
+@media(hover:none){
+ :root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):hover{transform:none}
+ :root .menu-search-clear:hover{transform:translateY(-50%)}
+ :root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):not(:disabled):active{transform:translateY(1px) scale(.975)}
+ :root .menu-search-clear:not(:disabled):active{transform:translateY(-50%) scale(.94)}
+}
+@media(max-width:680px){
+ :root .hero-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ :root .hero-actions .button-ghost{display:inline-flex;min-height:46px;background:rgba(26,17,14,.3);border:1px solid rgba(255,255,255,.58)}
+ :root .hero-actions .button{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){
+ :root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear){transition:none;animation:none}
+ :root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):not(:disabled):active,:root :is(.button,.lang-button,.menu-toggle,.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link,.menu-quantity-stepper button,.menu-cart-step,.menu-cart-remove,.menu-dialog-close,.menu-search-clear):hover{transform:none}
+ :root .menu-search-clear:not(:disabled):active,:root .menu-search-clear:hover{transform:translateY(-50%)}
 }

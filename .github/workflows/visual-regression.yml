@@ -61,6 +61,12 @@ jobs:
         working-directory: current
         run: npx playwright install --with-deps chromium
 
+      - name: Verify document capture and share-action reachability
+        working-directory: current
+        env:
+          CAPTURE_RESULTS_DIR: visual-results/capture-reachability
+        run: node scripts/test-menu-share-capture.mjs
+
       - name: Compare screenshots with base branch
         id: screenshot_compare
         continue-on-error: true

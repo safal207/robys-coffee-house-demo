@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -6,9 +7,9 @@ const menuHtml = readFileSync("menu.html", "utf8");
 const mobileCss = readFileSync("mobile.css", "utf8");
 const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
-const menuCss = readFileSync("menu.css", "utf8");
+const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
-const menuRuntime = readFileSync("menu-page.js", "utf8");
+const menuRuntime = readVerifiedMenuSource();
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
@@ -126,20 +127,20 @@ gate("A11Y-001");
 // ASSET-001
 const criticalFiles = [
   "icon.svg",
-  "styles.css",
+  "styles-v2.css",
   "mobile.css",
   "conversion.css",
   "final-qa.css",
   "gallery-clean.css",
   "map-live.css",
   "menu-preview.css",
-  "menu.css",
+  "menu-premium.css",
   "app.js",
   "conversion.js",
   "analytics.js",
   "qa.js",
-  "menu-page.js",
-  "menu-data.js",
+  "menu-app.js",
+  "menu-catalog.js",
   "menu-search-clear.js",
   "hero-balance.css",
   "src/robys-hero-poster.jpg",

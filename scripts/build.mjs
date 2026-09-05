@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
-import { build } from "esbuild";
+import { build, transformSync } from "esbuild";
 import ts from "typescript";
+import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+
+writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
@@ -20,7 +23,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/app.js",
+  outfile: "smart-choice/app-v2.js",
   legalComments: "none"
 });
 
@@ -31,7 +34,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/cart.js",
+  outfile: "smart-choice/cart-v2.js",
   legalComments: "none"
 });
 
@@ -42,7 +45,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/experiments.js",
+  outfile: "smart-choice/experiments-v2.js",
   legalComments: "none"
 });
 
@@ -53,7 +56,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/analytics.js",
+  outfile: "smart-choice/analytics-v2.js",
   legalComments: "none"
 });
 
@@ -64,7 +67,7 @@ await build({
   format: "esm",
   platform: "browser",
   target: "es2020",
-  outfile: "smart-choice/decision-trace.js",
+  outfile: "smart-choice/decision-trace-v2.js",
   legalComments: "none"
 });
 
@@ -89,7 +92,13 @@ function transpileClassicScript(sourcePath, outputPath) {
       removeComments: false
     }
   }).outputText;
-  writeFileSync(outputPath, bundle);
+  // Keep stable public identifiers while avoiding shipping development whitespace.
+  // No bundling, execution-order changes or business-logic substitutions.
+  const compact = transformSync(bundle, {
+    target: "es2020", minifyWhitespace: true, minifySyntax: true,
+    minifyIdentifiers: false, legalComments: "none"
+  }).code;
+  writeFileSync(outputPath, sourcePath === "src/discover-rotation.ts" ? bundle : compact);
 }
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
@@ -117,6 +126,12 @@ function synchronizeScript(html, fileName, revision) {
   return html.slice(0, open) + tag + html.slice(close + 9);
 }
 
+function synchronizeBlockingScript(html, fileName, revision) {
+  const { open, close } = locateScript(html, fileName);
+  const tag = "<" + `script src="${fileName}?v=${revision}">` + "</" + "script>";
+  return html.slice(0, open) + tag + html.slice(close + 9);
+}
+
 function synchronizeModuleScript(html, fileName, revision) {
   const pattern = new RegExp(`src="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
@@ -127,6 +142,13 @@ function synchronizeStylesheet(html, fileName, revision) {
   const pattern = new RegExp(`href="${fileName.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`);
   if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);
   return html.replace(pattern, `href="${fileName}?v=${revision}"`);
+}
+
+function synchronizeModuleImport(source, fileName, revision) {
+  const escapedName = fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`import\\("\\./${escapedName}(?:\\?v=[^"]*)?"\\)`);
+  if (!pattern.test(source)) throw new Error(`Runtime does not import ${fileName}`);
+  return source.replace(pattern, `import("./${fileName}?v=${revision}")`);
 }
 
 function synchronizeServiceWorker(
@@ -165,17 +187,45 @@ function synchronizeServiceWorker(
     .replace(cssAssetPattern, `"./discover-rotation.css?v=${cssRevision}"`);
 }
 
+function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
+  const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`"\\./${escapedPath}(?:\\?v=[^"]*)?"`);
+  if (!pattern.test(serviceWorker)) {
+    throw new Error(`Service worker does not contain the revisioned ${filePath} cache entry`);
+  }
+  return serviceWorker.replace(pattern, `"./${filePath}?v=${revision}"`);
+}
+
+const morningEntryRevision = revisionFor("morning-entry-v2.js");
+let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
+bootstrapSource = synchronizeModuleImport(bootstrapSource, "morning-entry-v2.js", morningEntryRevision);
+writeFileSync("bootstrap-v2.js", bootstrapSource);
+
 const appRevision = revisionFor("app.js");
+const bootstrapRevision = revisionFor("bootstrap-v2.js");
+const baseStylesRevision = revisionFor("styles-v2.css");
+const menuSecurityRevision = revisionFor("menu-security-v2.css");
+const menuPremiumRevision = revisionFor("menu-premium.css");
+const menuAppRevision = revisionFor("menu-app.js");
+const androidStylesRevision = revisionFor("android-app.css");
+let conversionSource = readFileSync("src/conversion.js", "utf8");
+const androidStylePattern = /android-app\.css\?v=[^"']+/;
+if (!androidStylePattern.test(conversionSource)) throw new Error("Missing Android stylesheet loader");
+conversionSource = conversionSource.replace(androidStylePattern, `android-app.css?v=${androidStylesRevision}`);
+writeFileSync("conversion.js", transformSync(conversionSource, {
+  minify: true, format: "esm", target: "es2020", legalComments: "none"
+}).code);
+const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
-const smartChoiceAppRevision = revisionFor("smart-choice/app.js");
-const smartChoiceCartRevision = revisionFor("smart-choice/cart.js");
-const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments.js");
-const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics.js");
-const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace.js");
+const smartChoiceAppRevision = revisionFor("smart-choice/app-v2.js");
+const smartChoiceCartRevision = revisionFor("smart-choice/cart-v2.js");
+const smartChoiceExperimentsRevision = revisionFor("smart-choice/experiments-v2.js");
+const smartChoiceAnalyticsRevision = revisionFor("smart-choice/analytics-v2.js");
+const smartChoiceDecisionTraceRevision = revisionFor("smart-choice/decision-trace-v2.js");
 const smartChoiceReleaseQaRevision = revisionFor("smart-choice/release-qa.js");
 const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
 const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
@@ -183,24 +233,41 @@ const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-t
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
 
 let html = readFileSync("index.html", "utf8");
+html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
+html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
+html = synchronizeModuleScript(html, "conversion.js", conversionRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");
+discoverHtml = synchronizeBlockingScript(discoverHtml, "bootstrap-v2.js", bootstrapRevision);
+discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);
 discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
+let menuHtml = readFileSync("menu.html", "utf8");
+menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+writeFileSync("menu.html", menuHtml);
+
+let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
+
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "release-qa.js", smartChoiceReleaseQaRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app.js", smartChoiceAppRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart.js", smartChoiceCartRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments.js", smartChoiceExperimentsRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics.js", smartChoiceAnalyticsRevision);
-smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace.js", smartChoiceDecisionTraceRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app-v2.js", smartChoiceAppRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart-v2.js", smartChoiceCartRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments-v2.js", smartChoiceExperimentsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics-v2.js", smartChoiceAnalyticsRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace-v2.js", smartChoiceDecisionTraceRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
@@ -214,12 +281,36 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationRevision,
   discoverRotationCssRevision
 );
+for (const [filePath, revision] of [
+  ["bootstrap-v2.js", bootstrapRevision],
+  ["morning-entry-v2.js", morningEntryRevision],
+  ["styles-v2.css", baseStylesRevision],
+  ["menu-security-v2.css", menuSecurityRevision],
+  ["menu-premium.css", menuPremiumRevision],
+  ["menu-app.js", menuAppRevision],
+  ["conversion.js", conversionRevision],
+  ["android-app.css", androidStylesRevision],
+  ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
+  ["smart-choice/app-v2.js", smartChoiceAppRevision],
+  ["smart-choice/cart-v2.js", smartChoiceCartRevision],
+  ["smart-choice/experiments-v2.js", smartChoiceExperimentsRevision],
+  ["smart-choice/analytics-v2.js", smartChoiceAnalyticsRevision],
+  ["smart-choice/decision-trace-v2.js", smartChoiceDecisionTraceRevision],
+  ["smart-choice/style.css", smartChoiceCssRevision],
+  ["smart-choice/cart.css", smartChoiceCartCssRevision],
+  ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
+  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision]
+]) {
+  serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
+}
 writeFileSync("sw.js", serviceWorker);
 
 console.log(
-  `Built app.js (${appRevision}), Smart Choice app.js (${smartChoiceAppRevision}), ` +
-  `Smart Choice cart.js (${smartChoiceCartRevision}), Smart Choice experiments.js (${smartChoiceExperimentsRevision}), ` +
-  `Smart Choice analytics.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace.js (${smartChoiceDecisionTraceRevision}), ` +
+  `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +
+  `menu-security-v2.css (${menuSecurityRevision}), ` +
+  `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
+  `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
+  `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +
   `Smart Choice release-qa.js (${smartChoiceReleaseQaRevision}), featured-gallery.js (${galleryRevision}), ` +
   `social-offer.js (${socialOfferRevision}), discover-v2.js (${discoverRuntimeRevision}), ` +
   `discover-rotation-v3.js (${discoverRotationRevision}), Smart Choice style.css (${smartChoiceCssRevision}), ` +

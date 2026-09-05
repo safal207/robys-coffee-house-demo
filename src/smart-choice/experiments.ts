@@ -44,9 +44,9 @@ const CODE_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/;
 
 const benefitCopy: Record<"verified-fit" | "fast-clear-choice", Record<SmartChoiceLanguage, string>> = {
   "verified-fit": {
-    tr: "Beş kısa seçim yapın. Size bütçenize ve isteğinize uyan doğrulanmış bir Roby's eşleşmesi gösterelim.",
-    en: "Make five quick choices and get a verified Roby's pairing that fits your preferences and budget.",
-    ru: "Сделайте пять коротких выборов — и получите подтверждённое сочетание Roby's под ваши предпочтения и бюджет."
+    tr: "Beş kısa seçim yapın. Size bütçenize ve isteğinize uyan doğrulanmış bir Roby's seçimi gösterelim.",
+    en: "Make five quick choices and get a verified Roby's menu choice that fits your preferences and budget.",
+    ru: "Сделайте пять коротких выборов — и получите подтверждённую позицию или сочетание Roby's под ваши предпочтения и бюджет."
   },
   "fast-clear-choice": {
     tr: "Yaklaşık 30–45 saniyede net bir seçim görün; içerik ve fiyat her adımda açık kalsın.",
@@ -165,7 +165,8 @@ function applyTreatment(): void {
   const lead = document.querySelector<HTMLElement>("#smart-choice-app .smart-card .smart-lead");
   if (!lead) return;
   const code = currentPayload()?.benefitCopyCode ?? "verified-fit";
-  lead.textContent = benefitCopy[code][currentLanguage()];
+  const nextCopy = benefitCopy[code][currentLanguage()];
+  if (lead.textContent !== nextCopy) lead.textContent = nextCopy;
   document.documentElement.dataset.smartChoiceExperiment = current.assignment?.experimentId ?? "disabled";
   document.documentElement.dataset.smartChoiceVariant = current.assignment?.variantId ?? "control-no-experiment";
 }

@@ -153,7 +153,7 @@ const TIMES: readonly TimeOfDay[] = ["morning", "day", "evening", "late"];
 const TEMPORAL_TAGS = new Set<string>(TIMES);
 
 export const DEFAULT_RECOMMENDATION_CONFIG: RecommendationConfig = {
-  version: "smart-choice-recommendation-config.v0.1.0",
+  version: "smart-choice-recommendation-config.v0.2.0",
   weights: {
     intent: 30,
     temperature: 15,
@@ -355,6 +355,12 @@ function evaluateHardConstraints(
   if (input.taste !== "any" && !tastes.has(input.taste)) {
     rejections.push({ code: "hard.taste-mismatch", detail: input.taste });
   }
+  if (!items.some((item) => item.partySizes.includes(input.partySize))) {
+    rejections.push({ code: "hard.party-size-mismatch", detail: input.partySize });
+  }
+  if (combo.pricingMode === "menu-item" && input.partySize !== "one") {
+    rejections.push({ code: "hard.single-item-party-size-mismatch", detail: input.partySize });
+  }
   if (!combo.name[input.locale]?.trim() || items.some((item) => !item.name[input.locale]?.trim())) {
     rejections.push({ code: "hard.locale-content-missing", detail: input.locale });
   }
@@ -541,6 +547,8 @@ function emptyTrace(
       "intent",
       "temperature",
       "taste",
+      "party-size",
+      "single-item-party-size",
       "locale-content",
       "budget-ceiling"
     ],
@@ -625,7 +633,13 @@ export function recommendSmartChoice(
 
   const topCandidate = regularCandidates[0];
   const economyCandidate = topCandidate
-    ? [...regularCandidates].filter((candidate) => candidate.combo.id !== topCandidate.combo.id).sort(economyComparator)[0]
+    ? [...regularCandidates]
+        .filter(
+          (candidate) =>
+            candidate.combo.id !== topCandidate.combo.id &&
+            candidate.combo.priceMinor < topCandidate.combo.priceMinor
+        )
+        .sort(economyComparator)[0]
     : undefined;
 
   const usedIds = new Set([topCandidate?.combo.id, economyCandidate?.combo.id].filter((value): value is string => Boolean(value)));

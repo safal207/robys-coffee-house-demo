@@ -1,3 +1,4 @@
+import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -70,11 +71,11 @@ function verifyAsset(filePath, digests) {
   digests.set(digest, filePath);
 }
 
-const menuSource = readFileSync("menu-data.js", "utf8");
+const menuSource = readFileSync("menu-catalog.js", "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories } = await import(moduleUrl);
-const menuRuntime = readFileSync("menu-page.js", "utf8");
-const menuStyles = readFileSync("menu.css", "utf8");
+const menuRuntime = readVerifiedMenuSource();
+const menuStyles = readFileSync("menu-premium.css", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
 const expectedMenuFiles = productCategories.flatMap((category) => {
@@ -110,14 +111,14 @@ for (const fragment of [
   "image.loading = priority ? \"eager\" : \"lazy\"",
   'image.alt = pairing ? localized(item.imageAlt ?? item.name) : ""'
 ]) {
-  if (!menuRuntime.includes(fragment)) fail(`menu-page.js does not wire product photos: ${fragment}`);
+  if (!menuRuntime.includes(fragment)) fail(`menu-app.js does not wire product photos: ${fragment}`);
 }
 for (const fragment of [
   ".full-menu-item--product{display:grid;grid-template-columns:104px",
   ".full-menu-item--product .full-menu-item-media img{display:block;width:100%;height:100%;object-fit:cover",
   "@media(max-width:680px){.full-menu-item--product{grid-template-columns:88px"
 ]) {
-  if (!menuStyles.includes(fragment)) fail(`menu.css is missing responsive product-photo styling: ${fragment}`);
+  if (!menuStyles.includes(fragment)) fail(`menu-premium.css is missing responsive product-photo styling: ${fragment}`);
 }
 
 const pairings = menuCategories.find((category) => category.id === "pairing-offers")?.items ?? [];

@@ -3,6 +3,7 @@ import {
   exportRevenueSimulationJson,
   exportRevenueSimulationMarkdown,
   formatSimulationMoney,
+  deriveAvailableMechanisms,
   simulateRevenueGrowth,
   validateRevenueSimulationInput,
   type RevenueSimulationInput,
@@ -25,16 +26,7 @@ const exportMarkdownButton = requireElement<HTMLButtonElement>("#export-simulati
 let currentResult: RevenueSimulationResult | null = null;
 
 function availableMechanisms() {
-  const combos = SMART_CHOICE_CATALOG.combos.filter(
-    (combo) => combo.sourceStatus === "confirmed" && combo.availability === "available"
-  );
-  return {
-    comboIds: combos.map((combo) => combo.id),
-    upgradeIds: combos.flatMap((combo) => combo.upgrades.map((upgrade) => upgrade.id)),
-    bumpIds: SMART_CHOICE_CATALOG.bumps
-      .filter((bump) => bump.sourceStatus === "confirmed" && bump.availability === "available")
-      .map((bump) => bump.id)
-  };
+  return deriveAvailableMechanisms(SMART_CHOICE_CATALOG);
 }
 
 function parseDecimal(value: FormDataEntryValue | null, field: string, optional = false): number | undefined {

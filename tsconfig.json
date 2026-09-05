@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "useDefineForClassFields": true
   },
-  "include": ["src/**/*.ts", "menu-data.d.ts"]
+  "include": ["src/**/*.ts", "menu-catalog.d.ts"]
 }

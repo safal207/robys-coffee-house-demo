@@ -58,7 +58,7 @@
           "api-primary --retire--> retired"
         ]
       },
-      "evidence": ["menu-data.js", "social-offer.js#SOCIAL_OFFER"],
+      "evidence": ["menu-catalog.js", "social-offer.js#SOCIAL_OFFER"],
       "tests": ["contract test (planned)", "consumer test (planned)"],
       "history": [["2026-07-01", "planned", "matrix:TRACE-001"]],
       "risks": ["Remote content can diverge from approved prices", "Editorial tooling adds operational duties"],
@@ -90,7 +90,7 @@
           "requested --dependency-failure--> service-unavailable"
         ]
       },
-      "evidence": ["menu.html#[data-instagram-booking]", "menu-actions.js#track"],
+      "evidence": ["menu.html#[data-instagram-booking]", "menu-interactions.js#track"],
       "tests": ["state transition test (planned)", "duplicate request test (planned)", "handling review (planned)"],
       "history": [["2026-06-27", "planned", "build:instagram-share-20260627-1"], ["2026-07-01", "planned", "matrix:TRACE-001"]],
       "risks": ["False confirmation harms customers", "Capacity and notifications need an operational owner"],

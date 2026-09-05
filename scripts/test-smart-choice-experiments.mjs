@@ -187,12 +187,30 @@ try {
   assert(!domainSource.includes("document."), "experiment analysis domain must not read DOM state");
   assert(!domainSource.includes("sessionStorage"), "experiment analysis domain must not read browser storage");
   assert(!runtimeSource.includes("fetch("), "MVP experiment runtime must not depend on an external endpoint");
+  assert(
+    runtimeSource.includes("if (lead.textContent !== nextCopy) lead.textContent = nextCopy"),
+    "experiment copy writes must be idempotent inside the observed Smart Choice subtree"
+  );
+  for (const stalePromise of [
+    "doğrulanmış bir Roby's eşleşmesi",
+    "verified Roby's pairing",
+    "подтверждённое сочетание Roby's"
+  ]) {
+    assert(!runtimeSource.includes(stalePromise), `single-item recommendations must not be described as pairing-only: ${stalePromise}`);
+  }
+  for (const honestPromise of [
+    "doğrulanmış bir Roby's seçimi",
+    "verified Roby's menu choice",
+    "подтверждённую позицию или сочетание Roby's"
+  ]) {
+    assert(runtimeSource.includes(honestPromise), `experiment copy must cover a menu item or pairing: ${honestPromise}`);
+  }
   assert(runtimeSource.includes("ANALYTICS_ASSIGNMENT_KEY"));
   assert(runtimeSource.includes("killSwitch"));
   assert(analyticsSource.includes('const EXPERIMENT_KEY = "robys-smart-choice-experiment.v1"'));
-  assert(html.indexOf('src="experiments.js') < html.indexOf('src="analytics.js'), "experiment assignment must load before analytics");
+  assert(html.indexOf('src="experiments-v2.js') < html.indexOf('src="analytics-v2.js'), "experiment assignment must load before analytics");
   assert(buildSource.includes('entryPoints: ["src/smart-choice/experiments.ts"]'));
-  assert(buildSource.includes('revisionFor("smart-choice/experiments.js")'));
+  assert(buildSource.includes('revisionFor("smart-choice/experiments-v2.js")'));
 
   console.log("✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.");
 } finally {

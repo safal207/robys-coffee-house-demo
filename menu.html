@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="robys-build" content="20260711-1" />
+  <meta name="robys-build" content="20260904-1" />
   <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#241c1b" />
@@ -38,17 +38,17 @@
     }
   }
   </script>
-  <script src="bootstrap.js?v=security-20260622-1"></script>
+  <script src="bootstrap-v2.js?v=45fbf33f0155"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=ios-install-20260707-1" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4" as="image" type="image/svg+xml" fetchpriority="high" />
-  <link rel="stylesheet" href="styles.css?v=menu-20260622-1" />
-  <link rel="stylesheet" href="menu.css?v=premium-pairings-20260707-1" />
+  <link rel="stylesheet" href="styles-v2.css?v=a008bb8274b9" />
+  <link rel="stylesheet" href="menu-premium.css?v=8057fd0f208f" />
   <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />
   <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />
-  <link rel="stylesheet" href="menu-security.css?v=security-20260622-1" />
+  <link rel="stylesheet" href="menu-security-v2.css?v=9a74fe13ba64" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260726-approved-v4" />
-  <script defer src="menu-pwa.js?v=platform-install-20260727-1"></script>
+  <script defer src="menu-pwa.js?v=premium-cache-new-20260904-1"></script>
 </head>
 <body class="menu-page">
   <a class="skip-link" href="#menu-root">İçeriğe geç</a>
@@ -89,6 +89,17 @@
 
     <section class="menu-controls" aria-label="Menu controls">
       <div class="container menu-controls-inner">
+        <div class="menu-tools-row">
+          <a class="menu-smart-choice-link" href="smart-choice/">
+            <span class="menu-smart-choice-icon" aria-hidden="true">✦</span>
+            <span data-menu-copy="smartChoice">Akıllı seçim</span>
+          </a>
+          <button class="menu-cart-trigger" id="menu-cart-trigger" type="button" aria-haspopup="dialog" aria-controls="menu-cart-dialog">
+            <span data-menu-copy="cart">Siparişim</span>
+            <span class="menu-cart-count" id="menu-cart-count">0</span>
+            <strong id="menu-cart-total">0 ₺</strong>
+          </button>
+        </div>
         <div class="menu-search">
           <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
           <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
@@ -115,7 +126,7 @@
             <p data-menu-action-copy="shareLead">Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.</p>
           </div>
           <div class="menu-share-actions">
-            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton">Menüyü paylaş</button>
+            <button class="button button-primary" id="menu-share-button" type="button" data-menu-action-copy="shareButton" data-share-text-tr="Roby's Coffee House Gazipaşa menüsüne göz at." data-share-text-en="Take a look at the Roby's Coffee House Gazipaşa menu." data-share-text-ru="Посмотрите меню Roby's Coffee House в Газипаше.">Menüyü paylaş</button>
             <a class="button menu-secondary-button" href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer" data-menu-action-copy="instagramLink">Instagram</a>
             <a class="menu-inline-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-action-copy="mapsLink">Google Maps ↗</a>
           </div>
@@ -147,9 +158,57 @@
     </div>
   </footer>
 
-  <script type="module" src="menu-ready.js"></script>
-  <script type="module" src="menu-page.js"></script>
+  <p class="menu-order-status" id="menu-cart-status" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <dialog class="menu-dialog menu-product-dialog" id="menu-product-dialog" aria-labelledby="menu-product-title" aria-describedby="menu-product-draft-note">
+    <div class="menu-dialog-shell menu-product-shell">
+      <button class="menu-dialog-close" type="button" data-menu-dialog-close="product" aria-label="Kapat">×</button>
+      <div class="menu-product-visual">
+        <img id="menu-product-image" src="src/products/menu-v1/hot-coffee--espresso.webp" alt="" width="1024" height="1024" />
+        <span class="menu-product-brand" aria-hidden="true">ROBY'S · COFFEE HOUSE</span>
+      </div>
+      <div class="menu-product-content">
+        <p class="eyebrow" id="menu-product-category"></p>
+        <h2 id="menu-product-title"></h2>
+        <p class="menu-product-description" id="menu-product-description" hidden></p>
+        <strong class="menu-product-price" id="menu-product-price"></strong>
+        <div class="menu-quantity-control" role="group" aria-labelledby="menu-quantity-label">
+          <span id="menu-quantity-label" data-menu-copy="quantity">Adet</span>
+          <div class="menu-quantity-stepper">
+            <button id="menu-quantity-decrease" type="button" aria-label="Adedi azalt">−</button>
+            <output id="menu-product-quantity" aria-live="polite">1</output>
+            <button id="menu-quantity-increase" type="button" aria-label="Adedi artır">+</button>
+          </div>
+        </div>
+        <button class="button button-primary menu-add-button" id="menu-add-to-cart" type="button" data-menu-copy="addToCart">Siparişe ekle</button>
+        <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+        <p class="menu-order-draft-note" id="menu-product-draft-note" data-menu-copy="orderDraft">Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="menu-dialog menu-cart-dialog" id="menu-cart-dialog" aria-labelledby="menu-cart-title" aria-describedby="menu-cart-draft-note">
+    <div class="menu-dialog-shell menu-cart-shell">
+      <button class="menu-dialog-close" type="button" data-menu-dialog-close="cart" aria-label="Kapat">×</button>
+      <header class="menu-cart-header">
+        <p class="eyebrow">ROBY'S · COFFEE HOUSE</p>
+        <h2 id="menu-cart-title" data-menu-copy="cartTitle">Sipariş özeti</h2>
+      </header>
+      <p class="menu-cart-empty" id="menu-cart-empty" data-menu-copy="cartEmpty">Henüz bir seçim eklemediniz.</p>
+      <div class="menu-cart-lines" id="menu-cart-lines"></div>
+      <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <footer class="menu-cart-footer">
+        <div class="menu-cart-grand-total">
+          <span data-menu-copy="total">Toplam</span>
+          <strong id="menu-cart-dialog-total">0 ₺</strong>
+        </div>
+        <button class="button menu-cart-continue" type="button" data-menu-dialog-close="cart" data-menu-copy="continueMenu">Menüye devam et</button>
+        <p class="menu-order-draft-note" id="menu-cart-draft-note" data-menu-copy="orderDraft">Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.</p>
+      </footer>
+    </div>
+  </dialog>
+
+  <script type="module" src="menu-app.js?v=785fafe14d32"></script>
   <script type="module" src="pairing-posters.js?v=poster-20260708-1"></script>
-  <script type="module" src="menu-actions.js?v=20260627-1"></script>
 </body>
 </html>

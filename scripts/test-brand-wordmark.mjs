@@ -81,7 +81,7 @@ export function verifyBrandWordmark() {
   const index = read("index.html");
   const menu = read("menu.html");
   const discover = read("discover.html");
-  const baseStyles = read("styles.css");
+  const baseStyles = read("styles-v2.css");
   const identityStyles = read("brand-photo-logo.css");
   const responsiveStyles = read("wordmark-responsive.css");
   const discoverGuard = read("discover-weather-guard.js");

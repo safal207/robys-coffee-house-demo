@@ -18,6 +18,9 @@ const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
+const serviceWorker = read("sw.js");
+const buildScript = read("scripts/build.mjs");
+const smartChoicePwa = read("smart-choice/pwa.js");
 
 const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
 
@@ -70,6 +73,7 @@ requireText(html, 'role="alert"', "alert role is required");
 requireText(html, 'aria-live="assertive"', "fatal errors must be announced assertively");
 requireText(html, 'href="../menu.html"', "safe full-menu fallback is required");
 requireText(html, 'class="skip-link"', "skip link is required");
+requireText(html, 'src="pwa.js?v=premium-cache-new-20260904-1"', "Smart Choice must update and observe the shared offline runtime");
 assert.ok(!/<script(?![^>]*src=)[^>]*>/i.test(html), "inline scripts are forbidden");
 assert.ok(!/style\s*=/i.test(html), "inline styles are forbidden");
 assert.ok(!/tabindex\s*=\s*["']?[1-9]/i.test(html), "positive tabindex is forbidden");
@@ -92,8 +96,8 @@ requireText(brandCss, `robys-compact-master-v1.svg?v=${APPROVED_IDENTITY_REVISIO
 assert.ok(!/<a class="sim-brand"[^>]*>\s*ROBY'S\s*<\/a>/i.test(simulatorHtml), "owner simulator must not render a text-only wordmark");
 
 const releaseIndex = html.indexOf("release-qa.js");
-const appIndex = html.indexOf("app.js");
-const analyticsIndex = html.indexOf("analytics.js");
+const appIndex = html.indexOf("app-v2.js");
+const analyticsIndex = html.indexOf("analytics-v2.js");
 assert.ok(releaseIndex >= 0 && releaseIndex < appIndex, "release QA runtime must load before the app");
 assert.ok(appIndex >= 0 && appIndex < analyticsIndex, "app must load before analytics");
 
@@ -120,11 +124,11 @@ requireText(packageJson.scripts.check, "verify:smart-choice", "npm run check mus
 requireText(packageJson.scripts.check, "test:smart-choice", "npm run check must include test:smart-choice");
 
 const jsFiles = [
-  "smart-choice/app.js",
-  "smart-choice/cart.js",
-  "smart-choice/experiments.js",
-  "smart-choice/analytics.js",
-  "smart-choice/decision-trace.js",
+  "smart-choice/app-v2.js",
+  "smart-choice/cart-v2.js",
+  "smart-choice/experiments-v2.js",
+  "smart-choice/analytics-v2.js",
+  "smart-choice/decision-trace-v2.js",
   "smart-choice/release-qa.js"
 ];
 const cssFiles = [
@@ -142,6 +146,28 @@ for (const file of jsFiles) {
 assert.ok(totalJs <= 300_000, `Smart Choice JS total ${totalJs} exceeds the 300 KB pilot budget`);
 assert.ok(totalCss <= 100_000, `Smart Choice CSS total ${totalCss} exceeds the 100 KB pilot budget`);
 assert.ok(size("smart-choice/index.html") <= 30_000, "Smart Choice HTML exceeds the 30 KB pilot budget");
+
+requireText(smartChoicePwa, '../sw.js?v=premium-cache-new-20260904-1', "Smart Choice PWA bootstrap must register the current shared worker");
+requireText(smartChoicePwa, 'scope: "../"', "Smart Choice PWA bootstrap must retain the project-root scope");
+requireText(serviceWorker, '"./smart-choice/index.html"', "Smart Choice page must be precached");
+requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
+requireText(serviceWorker, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
+requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");
+requireText(buildScript, "synchronizeServiceWorkerAsset", "Smart Choice build must synchronize worker asset revisions");
+requireText(simulatorHtml, 'src="simulator-v2.js?', "owner simulator must load its cache-new runtime pathname");
+assert.ok(!simulatorHtml.includes('src="simulator.js'), "owner simulator must not request the legacy cache-colliding runtime");
+
+for (const legacyFile of ["app.js", "cart.js", "experiments.js", "analytics.js", "decision-trace.js"]) {
+  assert.ok(!html.includes(`src="${legacyFile}`), `Smart Choice HTML must not request legacy cache-colliding ${legacyFile}`);
+  assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);
+}
+
+for (const file of [...jsFiles, ...cssFiles.filter((file) => !file.endsWith("brand-v4.css"))]) {
+  const fileName = path.basename(file);
+  const revision = html.match(new RegExp(`(?:src|href)="${fileName.replaceAll(".", "\\.")}\\?v=([a-f0-9]{12})"`))?.[1];
+  assert.ok(revision, `${file} lacks a content revision in Smart Choice HTML`);
+  requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);
+}
 
 console.log(
   `[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: ` +

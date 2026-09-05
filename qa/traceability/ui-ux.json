@@ -43,7 +43,7 @@
         "index.html#.hero",
         "index.html#.language-switcher",
         "app.js",
-        "conversion.js#setupHeaderAndProgress"
+        "src/conversion.js#setupHeaderAndProgress"
       ],
       "tests": [
         "npm run verify:regression"
@@ -104,11 +104,11 @@
         ]
       },
       "evidence": [
-        "styles.css#.reveal-item",
-        "styles.css#.menu-section",
+        "styles-v2.css#.reveal-item",
+        "styles-v2.css#.menu-section",
         "app.js",
         "conversion.css#.mobile-cta",
-        "conversion.js#setupMobileCta"
+        "src/conversion.js#setupMobileCta"
       ],
       "tests": [
         "manual:cold-load-first-scroll (missing)"
@@ -174,9 +174,9 @@
       "evidence": [
         "menu.html#menu-root",
         "menu.html#menu-search",
-        "menu-page.js#renderMenu",
-        "menu-page.js#setLanguage",
-        "menu-data.js"
+        "src/menu-app.js#renderMenu",
+        "src/menu-app.js#setLanguage",
+        "menu-catalog.js"
       ],
       "tests": [
         "npm run verify:menu-content",
@@ -245,8 +245,8 @@
       "evidence": [
         "menu.html#menu-share-button",
         "menu.html#[data-instagram-booking]",
-        "menu-actions.js#shareMenu",
-        "menu-actions.js#androidShareIntent"
+        "menu-interactions.js#shareMenu",
+        "menu-interactions.js#androidShareIntent"
       ],
       "tests": [
         "npm run verify:menu-share"

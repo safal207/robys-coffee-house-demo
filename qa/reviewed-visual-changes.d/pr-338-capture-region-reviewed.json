@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "reviewedChanges": [{
+    "id": "pr-338-premium-menu-capture-20260905",
+    "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/338#issuecomment-5549652273",
+    "reviewKind": "assistant-visual-inspection-not-human-attestation",
+    "summary": "Owner-requested premium UI: mobile menu entry, cart toolbar, readable product cards and document-flow share capture. Viewport reachability is verified separately without hiding sticky controls. Exact public manifest and capture inputs are bound; no global threshold changed.",
+    "sourceHead": "f38487ec64f60e0721ae5b23074527497886eca1",
+    "baselineHead": "04b3ce7549a2fc111bcc13ca9cf92adabb29dd4a",
+    "evidenceRun": 33946953969,
+    "evidenceArtifact": 9963660970,
+    "evidenceSha256": "007add6583827ae18339cb1bc14d1194bb0ed59aa48162da80fefe5bd77bfa29",
+    "contentBindings": {
+      "integrity-manifest.json": "f95af9cb5df6676d55c68c52ac9a802a71b08dc1",
+      "index.html": "4ecfea299bab10eedcf8a6dc35748681fc7b06ff",
+      "styles-v2.css": "bdbd5cc0ff3ecd677ea63acf003c83faf961fc12",
+      "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
+      "menu.html": "ddff0faa003e8d29a0f221e4e7707bca80f15c87",
+      "menu-premium.css": "23ad9d979c3d010d45fba799537784ff2dfb720f",
+      "menu-security-v2.css": "80eb32b55c6bd48f08d3fd9326c320aa67faa1f9",
+      "menu-app.js": "6b375cb0a7637e03ff6ddf9f6c879482d9dca129",
+      "src/menu-app.js": "d644c2674188ff013dd2063e9bbb3551e4f5263d",
+      "menu-catalog.js": "7ad22b92bf27d7e00008557ddaeefa0180384ab5",
+      "conversion.js": "477a749df3e1446af169761969b3414f233015f2",
+      "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+      "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+      "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+      "scripts/test-menu-share-capture.mjs": "c7ab8ea2692a984c0cea846217298501e3e35f40",
+      "scripts/visual-regression.mjs": "6e962975937e638ce0342e868cf0c7667faed598",
+      ".github/workflows/visual-regression.yml": "f0e848eaa83013794dab19fa2549814629b76878"
+    },
+    "expectedFailures": [
+      {"capture":"landing-full","viewport":"phone-320","totalPixels":2604160,"maxDiffPixelRatio":0.015107},
+      {"capture":"menu-full","viewport":"phone-320","reason":"dimension mismatch 320x11632 vs 320x11681"},
+      {"capture":"menu-share","viewport":"phone-320","reason":"dimension mismatch 280x532 vs 280x511"},
+      {"capture":"hero","viewport":"phone-360-short","totalPixels":230400,"maxDiffPixelRatio":0.155604},
+      {"capture":"menu-share","viewport":"phone-360-short","reason":"dimension mismatch 320x507 vs 320x496"},
+      {"capture":"landing-full","viewport":"phone-390","totalPixels":3340350,"maxDiffPixelRatio":0.013805},
+      {"capture":"menu-full","viewport":"phone-390","reason":"dimension mismatch 390x11366 vs 390x11436"},
+      {"capture":"hero","viewport":"phone-390","totalPixels":390000,"maxDiffPixelRatio":0.099259},
+      {"capture":"menu-share","viewport":"phone-390","reason":"dimension mismatch 350x507 vs 350x505"},
+      {"capture":"menu-full","viewport":"tablet-768","reason":"dimension mismatch 768x13145 vs 768x13217"},
+      {"capture":"menu-share","viewport":"laptop-1366","totalPixels":368160,"maxDiffPixelRatio":0.005523},
+      {"capture":"menu-full","viewport":"desktop-1440","reason":"dimension mismatch 1440x9046 vs 1440x9109"},
+      {"capture":"menu-share","viewport":"desktop-1440","totalPixels":375240,"maxDiffPixelRatio":0.005983}
+    ]
+  }]
+}

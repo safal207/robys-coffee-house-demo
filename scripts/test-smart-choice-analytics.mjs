@@ -47,6 +47,11 @@ try {
   }
 
   append({ name: "smart_choice_viewed", fromState: "S0", toState: "S0" }, 0);
+  assert.equal(
+    events[0].configVersion,
+    "smart-choice-recommendation-config.v0.2.0",
+    "analytics must distinguish the party-size hard-constraint decision logic"
+  );
   append({ name: "smart_choice_started", fromState: "S0", toState: "S1" }, 1_000);
   append({ name: "question_answered", fromState: "S1", toState: "S1", questionId: "intent", answerCode: "coffee" }, 2_000);
   append({ name: "question_answered", fromState: "S1", toState: "S1", questionId: "temperature", answerCode: "cold" }, 3_000);
@@ -126,9 +131,9 @@ try {
   assert(runtimeSource.includes("MutationObserver"));
   assert(runtimeSource.includes("dedupeKey"));
   assert(runtimeSource.includes("bump-skipped-by-handoff"));
-  assert(html.includes('src="analytics.js?v='), "Smart Choice HTML must load a revisioned analytics bundle");
+  assert(html.includes('src="analytics-v2.js?v='), "Smart Choice HTML must load a cache-new revisioned analytics bundle");
   assert(buildSource.includes('entryPoints: ["src/smart-choice/analytics.ts"]'));
-  assert(buildSource.includes('revisionFor("smart-choice/analytics.js")'));
+  assert(buildSource.includes('revisionFor("smart-choice/analytics-v2.js")'));
   assert(!runtimeSource.includes("innerHTML"));
   assert(!runtimeSource.includes("fetch("));
   assert(!runtimeSource.includes("phoneNumber"));

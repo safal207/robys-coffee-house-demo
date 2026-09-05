@@ -69,7 +69,7 @@ function applyCopy() {
   if (shareStatus) shareStatus.textContent = "";
 }
 
-function track(action) {
+export function track(action) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: "robys_action",
@@ -97,7 +97,13 @@ function androidShareIntent(payload) {
   ].join(";");
 }
 
-async function shareMenu(event) {
+export function completeNativeShare() {
+  const localized = copy[currentLanguage()];
+  if (shareStatus) shareStatus.textContent = localized.shared;
+  track("menu_share");
+}
+
+export async function shareMenu(event, { skipNative = false } = {}) {
   event?.preventDefault();
   if (shareStatus) shareStatus.textContent = "";
 
@@ -115,10 +121,9 @@ async function shareMenu(event) {
       return;
     }
 
-    if (typeof navigator.share === "function") {
+    if (!skipNative && typeof navigator.share === "function") {
       await navigator.share(payload);
-      if (shareStatus) shareStatus.textContent = localized.shared;
-      track("menu_share");
+      completeNativeShare();
       return;
     }
 
@@ -136,9 +141,6 @@ async function shareMenu(event) {
     window.prompt(localized.copyPrompt, canonical);
   }
 }
-
-shareButton?.addEventListener("click", shareMenu);
-document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => track("instagram_booking_click"));
 
 document.querySelectorAll(".lang-button").forEach((button) => {
   button.addEventListener("click", () => window.requestAnimationFrame(applyCopy));

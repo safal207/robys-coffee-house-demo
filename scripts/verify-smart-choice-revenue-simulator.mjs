@@ -6,7 +6,7 @@ const required = [
   "src/smart-choice/revenue-simulator.ts",
   "smart-choice/simulator.html",
   "smart-choice/simulator.css",
-  "smart-choice/simulator.js"
+  "smart-choice/simulator-v2.js"
 ];
 for (const file of required) assert.ok(existsSync(file), `${file} is missing`);
 
@@ -14,12 +14,13 @@ const html = readFileSync("smart-choice/simulator.html", "utf8");
 const css = readFileSync("smart-choice/simulator.css", "utf8");
 const source = readFileSync("src/smart-choice/revenue-simulator.ts", "utf8");
 const domain = readFileSync("src/smart-choice/revenue-simulator-domain.ts", "utf8");
-const bundle = readFileSync("smart-choice/simulator.js", "utf8");
+const bundle = readFileSync("smart-choice/simulator-v2.js", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 
 assert.match(html, /meta name="robots" content="noindex,nofollow,noarchive"/, "owner tool must not be indexed");
 assert.match(html, /connect-src 'none'/, "simulator must not send data to a network endpoint");
-assert.match(html, /src="simulator\.js\?v=[a-f0-9]{12}"/, "simulator bundle revision must be synchronized");
+assert.match(html, /src="simulator-v2\.js\?v=[a-f0-9]{12}"/, "cache-new simulator bundle revision must be synchronized");
+assert.ok(!html.includes('src="simulator.js'), "owner simulator must not request the legacy cache-colliding bundle");
 assert.match(html, /href="simulator\.css\?v=[a-f0-9]{12}"/, "simulator CSS revision must be synchronized");
 assert.match(html, /id="revenue-simulator-form"/, "owner input form is missing");
 assert.match(html, /id="revenue-simulator-status"[^>]*role="status"[^>]*aria-live="polite"/, "accessible live status is missing");
@@ -32,8 +33,10 @@ assert.ok(!/<style\b/i.test(html), "inline styles are forbidden");
 assert.ok(!/style\s*=/i.test(html), "inline style attributes are forbidden");
 
 assert.ok(source.includes('from "./catalog.js"'), "simulator must use the verified catalog");
-assert.ok(source.includes('sourceStatus === "confirmed"'), "only confirmed mechanisms may be used");
-assert.ok(source.includes('availability === "available"'), "only available mechanisms may be used");
+assert.ok(source.includes("deriveAvailableMechanisms"), "simulator must use the tested mechanism classifier");
+assert.ok(domain.includes('sourceStatus === "confirmed"'), "only confirmed mechanisms may be used");
+assert.ok(domain.includes('availability === "available"'), "only available mechanisms may be used");
+assert.ok(domain.includes('pricingMode !== "menu-item"'), "single menu items must not be classified as pairing mechanisms");
 assert.ok(source.includes("exportRevenueSimulationJson"), "JSON export is missing");
 assert.ok(source.includes("exportRevenueSimulationMarkdown"), "Markdown export is missing");
 assert.ok(source.includes("Blob"), "local export must use a browser Blob");
@@ -63,9 +66,9 @@ assert.ok(packageJson.scripts["test:smart-choice-revenue-simulator"], "revenue s
 assert.ok(packageJson.scripts["verify:smart-choice-revenue-simulator"], "revenue simulator verify command is missing");
 assert.ok(packageJson.scripts.build.includes("test:smart-choice-revenue-simulator"), "build must execute simulator arithmetic tests");
 assert.ok(packageJson.scripts.build.includes("verify:smart-choice-revenue-simulator"), "build must verify generated simulator assets");
-assert.ok(packageJson.scripts.check.includes("smart-choice/simulator.js"), "check must syntax-check simulator bundle");
+assert.ok(packageJson.scripts.check.includes("smart-choice/simulator-v2.js"), "check must syntax-check the cache-new simulator bundle");
 
-assert.ok(statSync("smart-choice/simulator.js").size <= 100_000, "simulator JS exceeds the 100 KB owner-tool budget");
+assert.ok(statSync("smart-choice/simulator-v2.js").size <= 100_000, "simulator JS exceeds the 100 KB owner-tool budget");
 assert.ok(statSync("smart-choice/simulator.css").size <= 80_000, "simulator CSS exceeds the 80 KB owner-tool budget");
 assert.ok(statSync("smart-choice/simulator.html").size <= 30_000, "simulator HTML exceeds the 30 KB owner-tool budget");
 assert.ok(bundle.length > 5_000, "generated simulator bundle is unexpectedly small");

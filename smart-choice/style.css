@@ -628,3 +628,11 @@ button {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* PREMIUM-INTERACTION-003: selected answers and press feedback share the menu language. */
+:root{--smart-ease:cubic-bezier(.2,.8,.2,1)}
+:root :is(.option-button,.primary-button,.secondary-button,.icon-button,.lang-button){touch-action:manipulation;transition:transform .16s var(--smart-ease),background-color .18s var(--smart-ease),border-color .18s var(--smart-ease),box-shadow .18s var(--smart-ease)}
+:root :is(button,a):focus-visible{outline:3px solid #a35b27;outline-offset:3px}
+:root button:not(:disabled):active{transform:scale(.98)}
+:root button[aria-pressed="true"]{box-shadow:inset 0 -3px 0 rgba(163,91,39,.45)}
+@media(prefers-reduced-motion:reduce){:root :is(.option-button,.primary-button,.secondary-button,.icon-button,.lang-button){transition:none}:root button:not(:disabled):active{transform:none}}

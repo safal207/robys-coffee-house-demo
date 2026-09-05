@@ -3,7 +3,7 @@ name: Android WebView handoff contract
 on:
   pull_request:
     paths:
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "android-handoff.js"
       - "sw.js"
       - "android-native/**"
@@ -14,7 +14,7 @@ on:
     branches:
       - agent/android-webview-atomic-handoff-v1
     paths:
-      - "bootstrap.js"
+      - "bootstrap-v2.js"
       - "android-handoff.js"
       - "sw.js"
       - "android-native/**"

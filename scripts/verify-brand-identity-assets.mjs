@@ -131,7 +131,7 @@ assert((manifest.icons ?? []).some((item) => item.src === "icon.svg" && item.pur
 assert((manifest.icons ?? []).some((item) => item.src === "icon-maskable.svg" && item.purpose === "maskable"), "manifest must publish maskable icon");
 assert(!existsSync("src/brand/robys-mobile-master-v1.svg"), "deprecated baked-in mobile SVG must remain absent");
 
-const baseCss = read("styles.css");
+const baseCss = read("styles-v2.css");
 assert(baseCss.includes(`--brand-wordmark-red:${RED}`) && baseCss.includes(`--ruby:${RED}`), "base UI tokens must retain canonical red");
 assert(!baseCss.includes("#b84d58"), "base UI must not retain legacy red");
 for (const path of ["docs/instagram-tools.html", "docs/owner-pitch.html", "404.html"]) {
