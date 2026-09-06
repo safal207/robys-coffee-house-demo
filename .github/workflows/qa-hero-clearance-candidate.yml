@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/qa-hero-clearance-candidate.yml
       - scripts/order-hero-regression.mjs
+      - scripts/prepare-hero-clearance.py
 permissions:
   contents: write
 concurrency:
@@ -29,31 +30,7 @@ jobs:
         run: |
           mkdir -p .artifacts/hero-candidate
           git rev-parse HEAD > .artifacts/hero-candidate/input-head.txt
-          python3 - <<'PY'
-          from pathlib import Path
-          import subprocess
-          base='9ad682884f7ae4fb040650b6860cceb9e61ad6bb'
-          expected={'src/order-dock.ts':'dfbf9fde6045e10f6b47607e4cecda61f3d9f578','order-shell.css':'34f0f23c9ab38a9b56ca5a0449aa7e67ff0638d6','.github/workflows/unified-order-regression.yml':'30a542b9e074af69608faabd9785ed32fc7c38d3'}
-          for path, sha in expected.items():
-              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha, 'Unexpected source: '+path
-          p=Path('src/order-dock.ts'); s=p.read_text()
-          old="const properties = ['--robys-order-obstruction', '--robys-order-page-clearance'];"
-          assert s.count(old)==1
-          s=s.replace(old,"const properties = ['--robys-order-obstruction', '--robys-order-page-clearance', '--robys-order-bar-height'];")
-          old='    set(properties[0], lane);'
-          assert s.count(old)==1
-          s=s.replace(old,"    // Hero padding depends on bar height only, never the scroll-dependent\n    // action-panel lane: otherwise scrolling would resize the hero itself.\n    set(properties[2], Math.max(...heights.map(([, height]) => height)));\n"+old)
-          p.write_text(s)
-          p=Path('order-shell.css'); s=p.read_text()
-          assert 'ORDER-HERO-CLEARANCE:START' not in s
-          s+='\n/* ORDER-HERO-CLEARANCE:START */\n/* Reserve the persistent order bar inside the hero, not only at the page end.\n   Font growth and a wrapped saved-order label use the measured bar height. */\nbody.has-unified-order .hero-content{padding-bottom:max(58px,calc(var(--robys-order-bar-height,54px) + max(14px,env(safe-area-inset-bottom,0px)) + 12px))}\n/* ORDER-HERO-CLEARANCE:END */\n'
-          p.write_text(s)
-          p=Path('.github/workflows/unified-order-regression.yml'); s=p.read_text()
-          old='      - name: Shared order and Smart Choice end-to-end\n'
-          assert s.count(old)==1
-          s=s.replace(old,'      - name: Hero actions remain reachable above the order entry\n        env:\n          HERO_RESULTS_DIR: .artifacts/unified-order/hero\n        run: |\n          HERO_RESULTS_DIR=.artifacts/unified-order/hero-negative node scripts/order-hero-regression.mjs --negative-control\n          node scripts/order-hero-regression.mjs\n'+old)
-          p.write_text(s)
-          PY
+          python3 scripts/prepare-hero-clearance.py
       - run: npm ci --no-audit --no-fund
       - name: Rebuild and verify the complete candidate
         shell: bash
@@ -89,7 +66,8 @@ jobs:
             const base='9ad682884f7ae4fb040650b6860cceb9e61ad6bb';
             const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
             if(current.data.object.sha!==base)throw new Error('PR head moved: do not overwrite concurrent work');
-            const paths=cp.execFileSync('git',['diff',base,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).filter(p=>p!=='.github/workflows/qa-hero-clearance-candidate.yml');
+            const excluded=new Set(['.github/workflows/qa-hero-clearance-candidate.yml','scripts/prepare-hero-clearance.py']);
+            const paths=cp.execFileSync('git',['diff',base,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).filter(p=>!excluded.has(p));
             const allowed=new Set(['src/order-dock.ts','order-shell.css','scripts/order-hero-regression.mjs','.github/workflows/unified-order-regression.yml','order-launcher.js','order-shell.js','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json']);
             for(const p of paths)if(!allowed.has(p))throw new Error('Unexpected changed path '+p);
             for(const p of ['src/order-dock.ts','order-shell.css','scripts/order-hero-regression.mjs','.github/workflows/unified-order-regression.yml'])if(!paths.includes(p))throw new Error('Missing candidate source '+p);
@@ -103,7 +81,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .artifacts/hero-candidate
-          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!.github/workflows/qa-hero-clearance-candidate.yml' > .artifacts/hero-candidate/candidate.patch
+          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!.github/workflows/qa-hero-clearance-candidate.yml' ':!scripts/prepare-hero-clearance.py' > .artifacts/hero-candidate/candidate.patch
           cp scripts/order-hero-regression.mjs .artifacts/hero-candidate/
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
