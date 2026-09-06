@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260905-cart-feedback-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260906-pairing-layout-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -82,6 +82,8 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
+  "./pairing-posters.css?v=eb894c0fbb09",
+  "./pairing-posters.js?v=58982ebf132b",
   "./menu-stability.css",
   "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",

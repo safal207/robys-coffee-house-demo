@@ -216,6 +216,8 @@ const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
+const pairingCssRevision = revisionFor("pairing-posters.css");
+const pairingScriptRevision = revisionFor("pairing-posters.js");
 const androidStylesRevision = revisionFor("android-app.css");
 let conversionSource = readFileSync("src/conversion.js", "utf8");
 const androidStylePattern = /android-app\.css\?v=[^"']+/;
@@ -264,6 +266,8 @@ menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingCssRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingScriptRevision);
 writeFileSync("menu.html", menuHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
@@ -297,6 +301,8 @@ for (const [filePath, revision] of [
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
+  ["pairing-posters.css", pairingCssRevision],
+  ["pairing-posters.js", pairingScriptRevision],
   ["conversion.js", conversionRevision],
   ["android-app.css", androidStylesRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],

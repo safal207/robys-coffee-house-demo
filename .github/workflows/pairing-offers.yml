@@ -1,0 +1,32 @@
+name: Pairing offers regression
+on:
+  pull_request:
+    paths: ['pairing-posters.*', 'menu*', 'src/menu-app.js', 'src/order-*', 'order-*', 'scripts/build.mjs', 'scripts/pairing-offers-regression.mjs', 'scripts/test-pairing-offers-source.mjs', '.github/workflows/pairing-offers.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 60
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check && npm run verify:security && git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/pairing-offers-regression.mjs
+        env:
+          PAIRING_BASE_REF: 0893c361f035e7c6bf6d9456ee82d8dfb14ab601
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pairing-offers-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/pairings/
+          retention-days: 14
