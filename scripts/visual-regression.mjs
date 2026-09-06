@@ -219,7 +219,7 @@ async function captureMatrix(browser, baseUrl, destination) {
                 width: box.width, height: box.height, font: style.font, color: style.color };
             }) };
         });
-        if (["menu-share", "discover-pairing"].includes(capture.id)) {
+        if (["menu-share", "discover-pairing", "menu-preview", "visit-map"].includes(capture.id)) {
           // Document-flow component. Reachability is tested separately;
           // locator auto-scroll can paint fixed navigation/order UI over this crop.
           await captureDocumentRegion(page, locator, filePath);

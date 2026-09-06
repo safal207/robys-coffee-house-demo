@@ -74,6 +74,24 @@ try {
       entry.discover = { marked: true, destination, productRows: await page.locator('.full-menu-item--product').count() };
 
       await prepare('index.html?entry=off');
+      // The last category is where the old locator crop showed the order bar.
+      const category = page.locator('.menu-card-link').last();
+      const categoryDestination = await category.getAttribute('href');
+      await activate(category);
+      await page.waitForURL(url => url.pathname.endsWith('/menu.html'));
+      assert.equal(new URL(page.url()).hash, new URL(categoryDestination, base).hash);
+      await page.locator('.full-menu-item--product').first().waitFor({state:'attached'});
+      entry.menuPreview = { ordinaryNavigation: true, destination: categoryDestination };
+      await prepare('index.html?entry=off');
+      entry.visit = [];
+      for (const selector of ['.visit-actions a', '.map-live-action']) {
+        const action = page.locator(selector).first();
+        const visitPopup = page.waitForEvent('popup');
+        await activate(action);
+        const opened = await visitPopup;
+        await opened.close();
+        entry.visit.push({ selector, ordinaryActivation: true, externalRequestBlocked: true });
+      }
       const offer = page.locator('#daily-offer:not([hidden])');
       await offer.waitFor({state:'visible'});
       assert.equal((await offer.locator('.social-offer-price').innerText()).trim(), '340 ₺');

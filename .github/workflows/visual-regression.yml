@@ -67,7 +67,7 @@ jobs:
           CAPTURE_RESULTS_DIR: visual-results/capture-reachability
         run: node scripts/test-menu-share-capture.mjs
 
-      - name: Verify Discover and social actions independently of document crops
+      - name: Verify page actions independently of document crops
         working-directory: current
         env:
           ORDER_VISUAL_RESULTS_DIR: visual-results/order-reachability
