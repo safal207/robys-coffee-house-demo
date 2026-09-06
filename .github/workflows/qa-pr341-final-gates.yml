@@ -1,0 +1,38 @@
+name: PR341 pinned final-gate analysis
+on:
+  push:
+    branches: [qa/pr341-final-gates-20260906]
+    paths: [.github/workflows/qa-pr341-final-gates.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ae0d022de0ae1878cfcaf7940757896e7e6e54a1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Record pinned public source, without Git credentials or working-directory secrets
+        run: |
+          mkdir -p final-gate-evidence
+          test "$(git rev-parse HEAD)" = ae0d022de0ae1878cfcaf7940757896e7e6e54a1
+          git rev-parse HEAD > final-gate-evidence/source.sha
+          git archive --format=tar HEAD | gzip -n > final-gate-evidence/source.tar.gz
+      - name: Install existing locked build dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve locked public dependency bytes for reproducible offline analysis
+        run: |
+          tar -czf final-gate-evidence/build-dependencies.tar.gz node_modules
+          sha256sum final-gate-evidence/*.tar.gz > final-gate-evidence/SHA256SUMS
+          printf 'scope=source/dependency acquisition only; not app or release certification\n' > final-gate-evidence/scope.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr341-pinned-final-gate-source
+          path: final-gate-evidence/
+          retention-days: 3
+          if-no-files-found: error
