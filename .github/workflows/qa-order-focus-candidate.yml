@@ -38,9 +38,15 @@ jobs:
           assert s.count(old)==1
           s=s.replace(old,'''      const skip = page.locator('.skip-link');
                 await skip.focus();
-                const focusedSkip = await skip.boundingBox();
-                assert.ok(focusedSkip && focusedSkip.y>=0 && focusedSkip.y+focusedSkip.height<=config.height,`${id}: focused skip link unavailable`);
+                await frames(page);
+                const focusedSkip = await skip.evaluate(node => {
+                  const r=node.getBoundingClientRect();
+                  return {x:r.left,y:r.top,width:r.width,height:r.height,focused:document.activeElement===node,viewportHeight:innerHeight};
+                });
+                await writeFile(resolve(out,id+'-focus.json'),JSON.stringify(focusedSkip,null,2));
+                assert.ok(focusedSkip.focused && focusedSkip.y>=0 && focusedSkip.y+focusedSkip.height<=focusedSkip.viewportHeight,`${id}: focused skip link unavailable: ${JSON.stringify(focusedSkip)}`);
                 await page.keyboard.press('Tab');
+                await frames(page);
           '''+old)
           p.write_text(s)
           PY
