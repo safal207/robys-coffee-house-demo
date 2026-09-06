@@ -82,7 +82,7 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
-  "./pairing-posters.css?v=eb894c0fbb09",
+  "./pairing-posters.css?v=14f866f5a3ca",
   "./pairing-posters.js?v=58982ebf132b",
   "./menu-stability.css",
   "./menu-security-v2.css?v=9a74fe13ba64",

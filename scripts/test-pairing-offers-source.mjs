@@ -13,3 +13,7 @@ for (const file of ["pairing-posters.css","pairing-posters.js"]) {
   for (const consumer of ["menu.html","sw.js"]) assert.ok(readFileSync(consumer,"utf8").includes(file+"?v="+revision),consumer+": stale "+file);
 }
 console.log("Pairing source contract: PASS (framing, single price source, actions, content-bound HTML/SW)");
+
+assert.match(css,/max-height: 320px/,'pairing media must stay bounded');
+assert.match(css,/is-in-cart[^{}]*::after\s*\{\s*display: grid/,'selected badge must remain visible');
+assert.match(css,/#menu-product-dialog[^{}]*sets-v1[^{}]*\{[^}]*object-fit: contain/,'set modal must not crop');

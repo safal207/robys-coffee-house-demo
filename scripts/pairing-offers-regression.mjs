@@ -84,6 +84,8 @@ try {
         assert.ok(geometry.details.y>=geometry.media.bottom-1,`${id}: copy overlaps photo`);
         assert.ok(geometry.overflow<=1,`${id}: horizontal overflow`);
         assert.ok(geometry.imageWidth>=geometry.media.w,`${id}: source upscaled`);
+        assert.ok(geometry.media.h<=321,`${id}: pairing photo exceeds 320px bound`);
+        assert.equal(await page.evaluate(()=>innerWidth),width,`${id}: actual viewport differs`);
         assert.equal(money(geometry.priceText),expectedPrice,`${id}: catalogue price changed`);
         const action=row.locator('.pairing-view-set');
         const size=await action.boundingBox(); assert.ok(size.height>=44,`${id}: touch target`);
@@ -91,10 +93,20 @@ try {
         if (width<768) await action.tap(); else await action.click();
         await page.locator('#menu-product-dialog').waitFor({state:'visible'});
         assert.equal(money(await page.locator('#menu-product-price').innerText()),expectedPrice);
+        await page.locator('#menu-product-image').evaluate(img=>img.decode());
+        const modalFit=await page.locator('#menu-product-image').evaluate(img=>getComputedStyle(img).objectFit);
+        assert.equal(modalFit,'contain',`${id}: pairing modal must preserve complete photo`);
+        result.geometry[i].modalFit=modalFit;
+        if(width===390&&lang==='ru'&&font===16) await page.screenshot({path:out+`/dialog-${id}-${i}.png`});
         if(i===0) await page.locator('#menu-quantity-increase').click();
         await page.locator('#menu-add-to-cart').click();
         await page.locator('#menu-product-dialog').waitFor({state:'hidden'});
         assert.ok(await action.evaluate(node=>node===document.activeElement),`${id}: return focus`);
+        const badge=await row.locator('.full-menu-item-media').evaluate(media=>{const style=getComputedStyle(media,'::after');return {quantity:media.dataset.cartQuantity,display:style.display,content:style.content};});
+        assert.equal(badge.quantity,String(i===0?2:1),`${id}: selected quantity`);
+        assert.notEqual(badge.display,'none',`${id}: selected quantity badge is hidden`);
+        assert.ok(badge.content.includes(badge.quantity),`${id}: badge lacks actual quantity`);
+        result.geometry[i].badge=badge;
       }
       await page.locator('#robys-order-trigger').filter({hasText:/3/}).click();
       await page.locator('#robys-order-dialog').waitFor({state:'visible'});
