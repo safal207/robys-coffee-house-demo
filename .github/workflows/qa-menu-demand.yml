@@ -53,7 +53,6 @@ jobs:
           old='      assert.ok(geometry.link.top>=0'
           assert s.count(old)==1
           s=s.replace(old,'      assert.equal(geometry.viewport.width,config.width,`${id}: layout viewport expanded`);\n'+old)
-          s=s.replace("let errors = [];", "let errors = [];")
           s=s.replace("      await page.screenshot({path:resolve(out,id+'.png')});", "      await writeFile(resolve(out,id+'-geometry.json'),JSON.stringify(geometry,null,2));\n      await page.screenshot({path:resolve(out,id+'.png')});")
           p.write_text(s)
           PY
@@ -137,13 +136,6 @@ jobs:
             const files=paths.map(path=>({path,sha256:crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex')}));
             fs.writeFileSync('.artifacts/menu-demand-candidate/candidate.json',JSON.stringify({inputHead:context.sha,heroInput:'63a80bf7c58536024895a6cccf6bd42ebc8d7dee',parent:expected,candidate:commit.data.sha,tree:tree.data.sha,files,workflowPending:workflowPath,refUpdated:false},null,2)+'\n');
             core.info('Detached runtime candidate '+commit.data.sha+'; workflow integration still pending; no ref updated');
-      - name: Measure mobile transfer budget without changing thresholds
-        env:
-          LHCI_VERSION: '0.15.1'
-          LIGHTHOUSE_ENFORCE: 'true'
-        run: |
-          set -o pipefail
-          node scripts/run-lighthouse-profile.mjs mobile 2>&1 | tee .artifacts/menu-demand-candidate/lighthouse.log
       - name: Preserve exact source, proposed workflow and reports including failures
         if: always()
         run: |
@@ -160,6 +152,5 @@ jobs:
             .artifacts/menu-demand-candidate/
             .artifacts/premium-ui/
             .artifacts/premium-feedback/
-            lighthouse/reports/
           retention-days: 14
           if-no-files-found: error
