@@ -1,0 +1,75 @@
+name: PR341 Discover action reachability
+on:
+  push:
+    branches: [qa/pr341-final-gates-20260906]
+    paths: [.github/workflows/qa-pr341-discover-reachability.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7bae774cfffbaeb7f997c6ad7453142d294876f1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Check real actions after the disputed locator capture
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {createServer} from 'node:http';
+          import {readFile,stat,mkdir,writeFile} from 'node:fs/promises';
+          import {resolve,extname,sep} from 'node:path';
+          import {chromium} from 'playwright';
+          import {execFileSync} from 'node:child_process';
+          const root=resolve('.'),out=resolve('.artifacts/discover-reachability');await mkdir(out,{recursive:true});
+          const report={source:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),checks:[],passed:false,scope:'Real unforced clicks/taps on built Discover; CSP enforced, service workers blocked; weather request disabled for deterministic fallback. Not a physical phone, public deployment or changed visual approval.'};
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.mp4':'video/mp4','.woff2':'font/woff2'};
+          const server=createServer(async(req,res)=>{try{let path=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403).end();return;}if((await stat(path)).isDirectory())path=resolve(path,'index.html');res.writeHead(200,{'Content-Type':mime[extname(path)]||'application/octet-stream','Cache-Control':'no-store'});res.end(await readFile(path));}catch{res.writeHead(404).end();}});
+          await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
+          const browser=await chromium.launch({headless:true});
+          const cases=[{width:360,height:640},{width:390,height:844},{width:1440,height:900}].flatMap(viewport=>['tr','en','ru'].flatMap(language=>[16,32].flatMap(size=>[false,true].map(saved=>({viewport,language,size,saved})))));
+          const settle=page=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+          try{for(const config of cases){
+            const id=[config.viewport.width,config.language,config.size,config.saved?'saved':'empty'].join('-');
+            const touch=config.viewport.width<680;
+            const context=await browser.newContext({viewport:config.viewport,isMobile:touch,hasTouch:touch,reducedMotion:config.size===32?'reduce':'no-preference',bypassCSP:false,serviceWorkers:'block'});
+            await context.route('https://api.open-meteo.com/**',route=>route.abort());
+            await context.addInitScript(({language,saved})=>{localStorage.setItem('robys-language',language);if(saved)sessionStorage.setItem('robys:coffee-house:order.v2',JSON.stringify({version:2,revision:1,migrationDone:true,lines:[{id:'hot-coffee:espresso',quantity:99}]}));},config);
+            const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));page.setDefaultTimeout(6000);
+            try{
+              await page.goto(base+'/discover.html?entry=off',{waitUntil:'load'});
+              await page.locator('#pairing-name').filter({hasText:/\S/}).waitFor({state:'attached'});
+              await page.locator('.robys-order .order-bar').waitFor({state:'visible'});
+              if(config.saved)await page.locator('#robys-order-trigger').waitFor({state:'visible'});
+              await page.evaluate(size=>{document.documentElement.style.fontSize=size+'px';},config.size);
+              await page.evaluate(()=>document.fonts.ready);await settle(page);
+              const viewport=await page.evaluate(()=>({width:innerWidth,height:innerHeight}));assert.equal(viewport.width,config.viewport.width,'layout viewport must not silently expand');
+              await page.locator('#pairing-card').screenshot({path:resolve(out,id+'-locator.png')});
+              const prior=await page.evaluate(()=>Object.fromEntries(['pairing-menu-link','mark-discovered'].map(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect(),hit=document.elementFromPoint((r.left+r.right)/2,(r.top+r.bottom)/2);return [id,{visibleCenter:!!hit&&(hit===n||n.contains(hit)),hit:hit?.id||hit?.className,top:r.top,bottom:r.bottom}];})));
+              const done=page.locator('#mark-discovered');assert.equal(await done.isDisabled(),false);
+              if(touch)await done.tap();else await done.click();assert.equal(await done.isDisabled(),true,'mark action must reach real control');
+              await page.screenshot({path:resolve(out,id+'-after-mark.png')});
+              const menu=page.locator('#pairing-menu-link'),href=await menu.getAttribute('href');assert.match(href,/^menu\.html#/);
+              if(touch)await menu.tap();else await menu.click();await page.waitForURL(base+'/'+href);
+              await page.locator('.full-menu-item--product').nth(49).waitFor({state:'attached'});assert.deepEqual(errors,[]);
+              report.checks.push({id,passed:true,locatorCamera:prior,actualNavigation:href});
+            }catch(error){report.checks.push({id,passed:false,error:String(error.stack)});await page.screenshot({path:resolve(out,'failure-'+id+'.png')}).catch(()=>{});}
+            finally{await context.close();}
+          }
+          report.passed=report.checks.length===cases.length&&report.checks.every(c=>c.passed);if(!report.passed)process.exitCode=1;
+          }finally{await browser.close();await new Promise(r=>server.close(r));await writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,count:report.checks.length,failures:report.checks.filter(c=>!c.passed)},null,2));}
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr341-discover-reachability-7bae774
+          path: .artifacts/discover-reachability/
+          retention-days: 7
+          if-no-files-found: error
