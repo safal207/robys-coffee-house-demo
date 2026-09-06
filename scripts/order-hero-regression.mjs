@@ -33,7 +33,8 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch({headless:true});
 const cases = negative ? [{width:390, height:1000, language:'tr', size:16, saved:false}] :
-  [320,390,1440].flatMap(width => ['tr','en','ru'].flatMap(language => [16,32].flatMap(size => [false,true].map(saved => ({width,height:1000,language,size,saved})))));
+  [{width:320,height:1000},{width:360,height:640},{width:390,height:1000},{width:1440,height:1000}]
+    .flatMap(viewport => ['tr','en','ru'].flatMap(language => [16,32].flatMap(size => [false,true].map(saved => ({...viewport,language,size,saved})))));
 const frames = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 try {
   for (const config of cases) {

@@ -1,0 +1,521 @@
+{
+  "generatedAt": "2026-09-06T04:11:30.224Z",
+  "pixelThreshold": 0.12,
+  "comparisons": 43,
+  "failures": 19,
+  "results": [
+    {
+      "id": "landing-full",
+      "viewport": "phone-320",
+      "file": "landing-full__phone-320.png",
+      "passed": false,
+      "reason": "dimension mismatch 320x8138 vs 320x8234",
+      "diffPixels": 2604160,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "passed": false,
+      "reason": "dimension mismatch 320x11681 vs 320x11777",
+      "diffPixels": 3737920,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-320",
+      "file": "discover-full__phone-320.png",
+      "passed": false,
+      "reason": "dimension mismatch 320x2735 vs 320x2831",
+      "diffPixels": 875200,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-320",
+      "file": "social-offer__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 86720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 143080,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-320",
+      "file": "discover-pairing__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 206640,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-320",
+      "file": "mobile-cta__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 17400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-360-short",
+      "file": "hero__phone-360-short.png",
+      "passed": false,
+      "reason": "dimension mismatch 360x640 vs 360x713",
+      "diffPixels": 230400,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-360-short",
+      "file": "social-offer__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 7594.5625,
+          "width": 360,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 216,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 216,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 294,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 7666.984375,
+          "width": 360,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 216,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 216,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 294,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 3572,
+      "totalPixels": 88560,
+      "diffPixelRatio": 0.04033423667570009,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 158720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-360-short",
+      "file": "discover-pairing__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 230400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-360-short",
+      "file": "mobile-cta__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 19720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "phone-390",
+      "file": "landing-full__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x8565 vs 390x8661",
+      "diffPixels": 3340350,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x11436 vs 390x11532",
+      "diffPixels": 4460040,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-390",
+      "file": "discover-full__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x2782 vs 390x2878",
+      "diffPixels": 1084980,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-390",
+      "file": "hero__phone-390.png",
+      "passed": false,
+      "diffPixels": 57098,
+      "totalPixels": 390000,
+      "diffPixelRatio": 0.14640512820512822,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "phone-390",
+      "file": "menu-preview__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 359580,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "phone-390",
+      "file": "visit-map__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 512460,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-390",
+      "file": "social-offer__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 95940,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 176750,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-390",
+      "file": "discover-pairing__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 262500,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-390",
+      "file": "mobile-cta__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 21460,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "tablet-768",
+      "file": "landing-full__tablet-768.png",
+      "passed": false,
+      "reason": "dimension mismatch 768x7577 vs 768x7673",
+      "diffPixels": 5819136,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "passed": false,
+      "reason": "dimension mismatch 768x13217 vs 768x13313",
+      "diffPixels": 10150656,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "discover-full",
+      "viewport": "tablet-768",
+      "file": "discover-full__tablet-768.png",
+      "passed": false,
+      "reason": "dimension mismatch 768x2749 vs 768x2845",
+      "diffPixels": 2111232,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "social-offer",
+      "viewport": "tablet-768",
+      "file": "social-offer__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 168192,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "tablet-768",
+      "file": "menu-share__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 312312,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "tablet-768",
+      "file": "discover-pairing__tablet-768.png",
+      "passed": false,
+      "diffPixels": 24860,
+      "totalPixels": 843024,
+      "diffPixelRatio": 0.029489077416538556,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "hero",
+      "viewport": "laptop-1366",
+      "file": "hero__laptop-1366.png",
+      "passed": false,
+      "diffPixels": 75292,
+      "totalPixels": 1049088,
+      "diffPixelRatio": 0.07176900317227916,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "laptop-1366",
+      "file": "menu-preview__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 976690,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "laptop-1366",
+      "file": "visit-map__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 37,
+      "totalPixels": 1237596,
+      "diffPixelRatio": 2.9896670642115842e-05,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "laptop-1366",
+      "file": "social-offer__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 292324,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "laptop-1366",
+      "file": "menu-share__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 368160,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "laptop-1366",
+      "file": "discover-pairing__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 801220,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "landing-full",
+      "viewport": "desktop-1440",
+      "file": "landing-full__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x6997 vs 1440x7093",
+      "diffPixels": 10075680,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x9109 vs 1440x9205",
+      "diffPixels": 13116960,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "discover-full",
+      "viewport": "desktop-1440",
+      "file": "discover-full__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x2513 vs 1440x2609",
+      "diffPixels": 3618720,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "hero",
+      "viewport": "desktop-1440",
+      "file": "hero__desktop-1440.png",
+      "passed": false,
+      "diffPixels": 76107,
+      "totalPixels": 1584000,
+      "diffPixelRatio": 0.048047348484848484,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "desktop-1440",
+      "file": "menu-preview__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1029600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "desktop-1440",
+      "file": "visit-map__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 37,
+      "totalPixels": 1425600,
+      "diffPixelRatio": 2.595398428731762e-05,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "desktop-1440",
+      "file": "social-offer__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 309600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "desktop-1440",
+      "file": "menu-share__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 375240,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "desktop-1440",
+      "file": "discover-pairing__desktop-1440.png",
+      "passed": false,
+      "diffPixels": 16483,
+      "totalPixels": 801220,
+      "diffPixelRatio": 0.02057237712488455,
+      "maxDiffPixelRatio": 0.003
+    }
+  ],
+  "sourceHead": "da88f49b2d608dcb46220af1a32a779c5c3cbe69",
+  "baselineHead": "a2fbce66f716b1b99e924239d5dd118cf37c5eef",
+  "evidenceRun": 34010630519,
+  "evidenceArtifact": 9982410137,
+  "evidenceSha256": "4510c94f06e190ad831767ae39fe686db68b1a53991affa0e6252cea59c8b40e",
+  "independentAttemptsHaveIdenticalMetrics": true
+}

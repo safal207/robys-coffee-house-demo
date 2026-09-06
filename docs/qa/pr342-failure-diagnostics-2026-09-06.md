@@ -4,6 +4,17 @@ Parent head: `7e9e67f2fd643cff873a824cc94ce4b73956bdda`.
 Comparison base: `0893c361f035e7c6bf6d9456ee82d8dfb14ab601`.
 The adjacent JSON records local observations, not a fresh CI pass or visual approval.
 
+## Base refresh
+
+After closing/reopening the draft PR, GitHub exposed the newer base
+`5b01276b99db719cae2fc72f29d38eb00c9953f4`. The previous clean merge-tree result
+was valid only for the older base above. The new base overlaps our visual
+diagnostics at `captures.push`: retain its `geometry` property as well as our
+incremental diagnostic output. All seven upstream QA changes are retained;
+no public runtime changes or new visual allowances are introduced by this
+conflict resolution. The existing #341 review record is historical and does
+not approve #342's pairing differences. The PR remains draft and unmerged.
+
 ## Repair delivered
 
 - Contextual entry writes all measured frame samples before smoothness assertions.
