@@ -1,0 +1,984 @@
+{
+  "source_sha": "c355c40d6840bfec2109e0a5b410c94908fc82cf",
+  "baseline_sha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+  "run": 34040984018,
+  "artifact": 9991725734,
+  "archive_sha256": "5fe122cc55fcd0edfdb4eee7e13bdd50f21f5f1e107d33c651fa89beadafa15a",
+  "scope": "Four intentional menu dimensions; raw original CI failures retained. Not new-head CI or human approval.",
+  "results": [
+    {
+      "id": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 320x11777 vs 320x12025",
+      "diffPixels": 3768640,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10508.765625,
+          "width": 280,
+          "height": 511.078125,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 238,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 238,
+              "height": 91.21875,
+              "font": "600 30.4px / 30.4px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 164.640625,
+              "width": 238,
+              "height": 76.78125,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 267.421875,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 332.015625,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 83.515625,
+              "y": 396.609375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 466.609375,
+              "width": 238,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10756.4375,
+          "width": 280,
+          "height": 511.078125,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 238,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 238,
+              "height": 91.21875,
+              "font": "600 30.4px / 30.4px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 164.640625,
+              "width": 238,
+              "height": 76.78125,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 267.421875,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 332.015625,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 83.515625,
+              "y": 396.609375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 466.609375,
+              "width": 238,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 1848,
+      "totalPixels": 143080,
+      "diffPixelRatio": 0.012915851272015656,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10360.8125,
+          "width": 320,
+          "height": 496.875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 278,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 278,
+              "height": 102.609375,
+              "font": "600 34.2px / 34.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 176.03125,
+              "width": 278,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 253.21875,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 317.8125,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 103.515625,
+              "y": 382.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 452.40625,
+              "width": 278,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10536.03125,
+          "width": 320,
+          "height": 496.875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 278,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 278,
+              "height": 102.609375,
+              "font": "600 34.2px / 34.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 176.03125,
+              "width": 278,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 253.21875,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 317.8125,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 103.515625,
+              "y": 382.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 452.40625,
+              "width": 278,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 965,
+      "totalPixels": 158720,
+      "diffPixelRatio": 0.006079889112903226,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 390x11532 vs 390x11664",
+      "diffPixels": 4497480,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10344.125,
+          "width": 350,
+          "height": 505.40625,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 308,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 308,
+              "height": 111.140625,
+              "font": "600 37.05px / 37.05px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 184.5625,
+              "width": 308,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 261.75,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 326.34375,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 118.515625,
+              "y": 390.9375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 460.9375,
+              "width": 308,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10476.15625,
+          "width": 350,
+          "height": 505.40625,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 21,
+              "y": 27,
+              "width": 308,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 21,
+              "y": 57.421875,
+              "width": 308,
+              "height": 111.140625,
+              "font": "600 37.05px / 37.05px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 21,
+              "y": 184.5625,
+              "width": 308,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 21,
+              "y": 261.75,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 326.34375,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 118.515625,
+              "y": 390.9375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 460.9375,
+              "width": 308,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 248,
+      "totalPixels": 176750,
+      "diffPixelRatio": 0.001403111739745403,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 768x13313 vs 768x12385",
+      "diffPixels": 10224384,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "tablet-768",
+      "file": "menu-share__tablet-768.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 12231.8125,
+          "width": 728,
+          "height": 429.875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 650,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 650,
+              "height": 35.203125,
+              "font": "600 35.2px / 35.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 120.625,
+              "width": 620,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 39,
+              "y": 172.21875,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 39,
+              "y": 237.8125,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 307.515625,
+              "y": 303.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 373.40625,
+              "width": 650,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 11304,
+          "width": 728,
+          "height": 429.875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 650,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 650,
+              "height": 35.203125,
+              "font": "600 35.2px / 35.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 120.625,
+              "width": 620,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 39,
+              "y": 172.21875,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 39,
+              "y": 237.8125,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 307.515625,
+              "y": 303.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 373.40625,
+              "width": 650,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 1318,
+      "totalPixels": 312312,
+      "diffPixelRatio": 0.004220138835523451,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "laptop-1366",
+      "file": "menu-share__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 93,
+          "documentY": 8340.765625,
+          "width": 1180,
+          "height": 312.765625,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 109.28125,
+              "font": "600 54.64px / 54.64px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 194.703125,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 694.765625,
+              "y": 45.546875,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 111.140625,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 861.40625,
+              "y": 176.734375,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 256.296875,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 93,
+          "documentY": 8317.1875,
+          "width": 1180,
+          "height": 312.765625,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 109.28125,
+              "font": "600 54.64px / 54.64px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 194.703125,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 694.765625,
+              "y": 45.546875,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 111.140625,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 861.40625,
+              "y": 176.734375,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 256.296875,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 2033,
+      "totalPixels": 368160,
+      "diffPixelRatio": 0.0055220556279878315,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 1440x9205 vs 1440x9182",
+      "diffPixels": 13255200,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "desktop-1440",
+      "file": "menu-share__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 130,
+          "documentY": 8346.328125,
+          "width": 1180,
+          "height": 318.671875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 115.1875,
+              "font": "600 57.6px / 57.6px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 200.609375,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 694.765625,
+              "y": 48.5,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 114.09375,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 861.40625,
+              "y": 179.6875,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 262.203125,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 130,
+          "documentY": 8322.75,
+          "width": 1180,
+          "height": 318.671875,
+          "children": [
+            {
+              "text": "MEN\u00dcY\u00dc PAYLA\u015e",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc arkada\u015flar\u0131nla payla\u015f",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 115.1875,
+              "font": "600 57.6px / 57.6px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's men\u00fcs\u00fcn\u00fc tek dokunu\u015fla g\u00f6nder veya sosyal hesaplar\u0131m\u0131z\u0131 a\u00e7.",
+              "x": 39,
+              "y": 200.609375,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Men\u00fcy\u00fc payla\u015f",
+              "x": 694.765625,
+              "y": 48.5,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 114.09375,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps \u2197",
+              "x": 861.40625,
+              "y": 179.6875,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 262.203125,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 2245,
+      "totalPixels": 375240,
+      "diffPixelRatio": 0.005982837650570302,
+      "maxDiffPixelRatio": 0.003
+    }
+  ],
+  "images": {
+    "baseline/menu-full__phone-320.png": "358a41d2a97e2a5699da52473345161da93cc1f1682ca8d57779e2f8bcf58cf5",
+    "current/menu-full__phone-320.png": "383a4682312da2d06bbf411562f5a5ae5f3bd3b4c380e57b2199359874db6e26",
+    "baseline/menu-full__phone-390.png": "3bcf703b57f3a06ee59c0de4729a79c132f06ab2356c7a5aff43b06f8c8fe60f",
+    "current/menu-full__phone-390.png": "68bbec22ef010ec49351b1bff0f1852d31ce61955810ab2c1a20d3ca3586bfc8",
+    "baseline/menu-full__tablet-768.png": "b2675910ea0408f2e599f93b12b7c908325b0193b9a1b13c446c23b80a6c7601",
+    "current/menu-full__tablet-768.png": "28a32e55d39025e9658fef74b19a2a39dfb4e3adc19f8410f3d267956b2a97d3",
+    "baseline/menu-full__desktop-1440.png": "9bea7ecefaeef9d91b83cc73e38e311a8a2904dd6a13b1bed49ff2a4fe5d578a",
+    "current/menu-full__desktop-1440.png": "84167c782a6023430c2dd7966bdf6bd0f0092f6ef190fb2ecdefb1097222f252"
+  }
+}

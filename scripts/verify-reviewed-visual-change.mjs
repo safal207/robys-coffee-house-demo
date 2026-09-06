@@ -57,7 +57,20 @@ function bindingsMatch(change) {
   const bindings = change.contentBindings ?? {};
   const entries = Object.entries(bindings);
   if (entries.length === 0) return false;
-  return entries.every(([file, expected]) => existsSync(file) && blobSha(file) === expected);
+  if (!entries.every(([file, expected]) => existsSync(file) && blobSha(file) === expected)) return false;
+  if (change.baselineBindings) {
+    const directory = summary.baselineDirectory;
+    const baseline = Object.entries(change.baselineBindings);
+    if (!directory || baseline.length === 0) return false;
+    const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: directory, encoding: "utf8" }).trim();
+    if (sha !== change.baselineHead) return false;
+    if (!baseline.every(([file, expected]) => {
+      const target = path.resolve(directory, file);
+      return target.startsWith(path.resolve(directory) + path.sep)
+        && existsSync(target) && blobSha(target) === expected;
+    })) return false;
+  }
+  return true;
 }
 
 function expectedFailureMatches(expected, actual) {

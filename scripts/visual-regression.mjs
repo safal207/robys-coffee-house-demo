@@ -5,6 +5,7 @@ import { chromium } from "playwright";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 import { captureDocumentRegion } from "./capture-document-region.mjs";
+import { captureAlignedShare } from "./capture-aligned-share.mjs";
 
 const config = JSON.parse(readFileSync("qa/visual-regression.json", "utf8"));
 const currentDir = path.resolve(process.env.VISUAL_CURRENT_DIR ?? process.cwd());
@@ -211,7 +212,7 @@ async function captureMatrix(browser, baseUrl, destination) {
       const fileName = captureName(capture, viewport);
       const filePath = path.join(destination, fileName);
 
-      let geometry;
+      let geometry, rasterAlignment;
       if (capture.selector) {
         const locator = page.locator(capture.selector).first();
         await locator.waitFor({ state: "visible", timeout: 10000 });
@@ -228,7 +229,14 @@ async function captureMatrix(browser, baseUrl, destination) {
         if (["menu-share", "discover-pairing", "menu-preview", "visit-map"].includes(capture.id)) {
           // Document-flow component. Reachability is tested separately;
           // locator auto-scroll can paint fixed navigation/order UI over this crop.
-          await captureDocumentRegion(page, locator, filePath);
+          if (capture.id === "menu-share") {
+            const rawDir = path.join(destination, "raw");
+            mkdirSync(rawDir, { recursive: true });
+            await captureDocumentRegion(page, locator, path.join(rawDir, fileName));
+            rasterAlignment = await captureAlignedShare(page, locator, filePath);
+          } else {
+            await captureDocumentRegion(page, locator, filePath);
+          }
         } else {
           await locator.scrollIntoViewIfNeeded();
           await page.waitForTimeout(80);
@@ -240,7 +248,7 @@ async function captureMatrix(browser, baseUrl, destination) {
 
       captures.push({ capture, viewport, fileName, filePath, geometry });
       captureDiagnostics.push({
-        destination: path.basename(destination), fileName, url: url.href,
+        destination: path.basename(destination), fileName, url: url.href, rasterAlignment,
         geometry: await page.evaluate((selector) => {
           const node = selector ? document.querySelector(selector) : document.documentElement;
           const rect = node?.getBoundingClientRect();
