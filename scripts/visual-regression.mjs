@@ -205,12 +205,23 @@ async function captureMatrix(browser, baseUrl, destination) {
       const fileName = captureName(capture, viewport);
       const filePath = path.join(destination, fileName);
 
+      let geometry;
       if (capture.selector) {
         const locator = page.locator(capture.selector).first();
         await locator.waitFor({ state: "visible", timeout: 10000 });
-        if (capture.id === "menu-share") {
+        geometry = await locator.evaluate((element) => {
+          const root = element.getBoundingClientRect();
+          return { documentX: root.x + scrollX, documentY: root.y + scrollY,
+            width: root.width, height: root.height,
+            children: [...element.querySelectorAll("h2,h3,p,a,button")].map((node) => {
+              const box = node.getBoundingClientRect(), style = getComputedStyle(node);
+              return { text: node.textContent.trim(), x: box.x - root.x, y: box.y - root.y,
+                width: box.width, height: box.height, font: style.font, color: style.color };
+            }) };
+        });
+        if (["menu-share", "discover-pairing", "menu-preview", "visit-map"].includes(capture.id)) {
           // Document-flow component. Reachability is tested separately;
-          // locator auto-scroll can move the sticky filters over this crop.
+          // locator auto-scroll can paint fixed navigation/order UI over this crop.
           await captureDocumentRegion(page, locator, filePath);
         } else {
           await locator.scrollIntoViewIfNeeded();
@@ -221,7 +232,7 @@ async function captureMatrix(browser, baseUrl, destination) {
         await page.screenshot({ path: filePath, fullPage: Boolean(capture.fullPage), animations: "disabled" });
       }
 
-      captures.push({ capture, viewport, fileName, filePath });
+      captures.push({ capture, viewport, fileName, filePath, geometry });
     }
 
     await context.close();
@@ -307,6 +318,7 @@ try {
       id: baselineCapture.capture.id,
       viewport: baselineCapture.viewport.id,
       file: baselineCapture.fileName,
+      geometry: { baseline: baselineCapture.geometry, current: currentCapture.geometry },
       ...comparison
     });
   }
