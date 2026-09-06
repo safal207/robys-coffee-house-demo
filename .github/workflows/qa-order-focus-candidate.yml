@@ -1,0 +1,86 @@
+name: Order focus visibility candidate
+on:
+  push:
+    branches: [fix/pr341-lazy-menu-20260906]
+    paths: [.github/workflows/qa-order-focus-candidate.yml]
+permissions:
+  contents: write
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ae0d022de0ae1878cfcaf7940757896e7e6e54a1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Apply exact source fix and permanent focus assertion
+        run: |
+          mkdir -p .artifacts/order-focus
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          assert subprocess.check_output(['git','hash-object','order-shell.css'],text=True).strip()=='dcf3c7116b789777ca08fb6e827ee52eb8f26a1b'
+          p=Path('order-shell.css');s=p.read_text()
+          s+='\n/* Relative hiding works even when the accessible skip label grows past 100px. */\nbody.has-unified-order .skip-link{max-width:calc(100% - 32px);overflow-wrap:anywhere}\nbody.has-unified-order .skip-link:not(:focus){top:0;transform:translateY(-100%)}\n'
+          p.write_text(s)
+          p=Path('scripts/order-hero-regression.mjs');s=p.read_text()
+          old='          viewport:{width:window.innerWidth,height:window.innerHeight},'
+          assert s.count(old)==1
+          s=s.replace(old,old+'\n          skipLinkBottom:document.querySelector(".skip-link").getBoundingClientRect().bottom,')
+          old='      assert.equal(geometry.viewport.width,config.width,`${id}: layout viewport expanded`);'
+          assert s.count(old)==1
+          s=s.replace(old,'      assert.ok(geometry.skipLinkBottom<=0,`${id}: unfocused skip link covers the header`);\n'+old)
+          old='      const link = page.locator(\'.hero-actions a[href="menu.html"]\');'
+          assert s.count(old)==1
+          s=s.replace(old,'''      const skip = page.locator('.skip-link');
+                await skip.focus();
+                const focusedSkip = await skip.boundingBox();
+                assert.ok(focusedSkip && focusedSkip.y>=0 && focusedSkip.y+focusedSkip.height<=config.height,`${id}: focused skip link unavailable`);
+                await page.keyboard.press('Tab');
+          '''+old)
+          p.write_text(s)
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Rebuild, integrity and full source/security contracts
+        run: |
+          set -o pipefail
+          npm run build > .artifacts/order-focus/build.log 2>&1
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/order-focus/check.log
+          npm run verify:security 2>&1 | tee .artifacts/order-focus/security.log
+          git diff --check
+      - run: npx playwright install --with-deps chromium
+      - name: Original obstruction and corrected real-click/focus matrix
+        run: |
+          HERO_RESULTS_DIR=.artifacts/order-focus/negative node scripts/order-hero-regression.mjs --negative-control
+          HERO_RESULTS_DIR=.artifacts/order-focus/hero node scripts/order-hero-regression.mjs
+          ORDER_LAYOUT_RESULTS_DIR=.artifacts/order-focus/layout node scripts/order-layout-regression.mjs
+          ORDER_RESULTS_DIR=.artifacts/order-focus/journeys node scripts/unified-order-browser.mjs
+      - name: Store detached runtime and test commit without workflow changes
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'),cp=require('child_process'),crypto=require('crypto');
+            const {owner,repo}=context.repo,base='ae0d022de0ae1878cfcaf7940757896e7e6e54a1';
+            const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(current.data.object.sha!==base)throw new Error('Head moved; preserve concurrent changes');
+            const changed=cp.execFileSync('git',['diff','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
+            const allowed=new Set(['order-shell.css','scripts/order-hero-regression.mjs','index.html','menu.html','discover.html','smart-choice/index.html','integrity-manifest.json','sw.js']);
+            for(const path of changed)if(!allowed.has(path))throw new Error('Unexpected path '+path);
+            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:base});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:changed.map(path=>({path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}))});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'fix(a11y): preserve skip-link visibility semantics at enlarged text',tree:tree.data.sha,parents:[base]});
+            fs.writeFileSync('.artifacts/order-focus/candidate.json',JSON.stringify({inputHead:base,workflowHead:context.sha,candidate:commit.data.sha,tree:tree.data.sha,files:changed.map(path=>({path,sha256:crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex')})),refUpdated:false},null,2));
+      - name: Preserve source and failure evidence
+        if: always()
+        run: git diff > .artifacts/order-focus/candidate.patch
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-focus-${{ github.sha }}
+          path: .artifacts/order-focus/
+          retention-days: 14
