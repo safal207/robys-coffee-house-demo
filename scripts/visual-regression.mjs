@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -13,6 +13,12 @@ const resultsDir = path.resolve(process.env.VISUAL_RESULTS_DIR ?? path.join(proc
 const currentPort = Number(process.env.VISUAL_CURRENT_PORT ?? 4173);
 const baselinePort = Number(process.env.VISUAL_BASELINE_PORT ?? 4174);
 const fixedNow = Date.parse("2026-07-01T12:00:00+03:00");
+const captureDiagnostics = [];
+const sourceIdentity = (directory) => ({
+  sha: execFileSync("git", ["rev-parse", "HEAD"], { cwd: directory, encoding: "utf8" }).trim(),
+  diff: execFileSync("git", ["diff", "HEAD"], { cwd: directory, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 })
+});
+const sourceIdentities = { baseline: sourceIdentity(baselineDir), current: sourceIdentity(currentDir) };
 
 const output = {
   baseline: path.join(resultsDir, "baseline"),
@@ -222,6 +228,26 @@ async function captureMatrix(browser, baseUrl, destination) {
       }
 
       captures.push({ capture, viewport, fileName, filePath });
+      captureDiagnostics.push({
+        destination: path.basename(destination), fileName, url: url.href,
+        geometry: await page.evaluate((selector) => {
+          const node = selector ? document.querySelector(selector) : document.documentElement;
+          const rect = node?.getBoundingClientRect();
+          return {
+            rect: rect?.toJSON(), scrollX, scrollY, devicePixelRatio,
+            documentWidth: document.documentElement.scrollWidth,
+            documentHeight: document.documentElement.scrollHeight,
+            fontsStatus: document.fonts.status,
+            images: [...document.images].map(image => ({
+              src: image.currentSrc, complete: image.complete,
+              naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight
+            }))
+          };
+        }, capture.selector ?? null)
+      });
+      writeFileSync(path.join(resultsDir, "capture-diagnostics.json"), `${JSON.stringify({
+        sourceIdentities, browserVersion: browser.version(), captures: captureDiagnostics
+      }, null, 2)}\n`);
     }
 
     await context.close();

@@ -1,0 +1,1460 @@
+{
+  "scope": "Local diagnostic working tree over PR342 head; not CI certification or visual approval",
+  "head": "7e9e67f2fd643cff873a824cc94ce4b73956bdda",
+  "base": "0893c361f035e7c6bf6d9456ee82d8dfb14ab601",
+  "contextual": {
+    "head": {
+      "dayColdMs": 1262.6000000014901,
+      "nightColdMs": 1702.2000000029802,
+      "crossSceneWarmMs": 701.8000000044703,
+      "runtimeBytes": 22874,
+      "day": {
+        "overlayBackground": "rgb(45, 13, 12)",
+        "animationCount": 7,
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999
+      },
+      "night": {
+        "overlayBackground": "rgb(13, 5, 5)",
+        "animationCount": 7,
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999
+      },
+      "coldBudgets": {
+        "day": [
+          1000,
+          2100
+        ],
+        "night": [
+          1250,
+          2300
+        ]
+      },
+      "warmMaxMs": 1150
+    },
+    "base": {
+      "dayColdMs": 1262.3999999985099,
+      "nightColdMs": 1702.1000000014901,
+      "crossSceneWarmMs": 701.3999999985099,
+      "runtimeBytes": 22874,
+      "day": {
+        "overlayBackground": "rgb(45, 13, 12)",
+        "animationCount": 7,
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999
+      },
+      "night": {
+        "overlayBackground": "rgb(13, 5, 5)",
+        "animationCount": 7,
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999
+      },
+      "coldBudgets": {
+        "day": [
+          1000,
+          2100
+        ],
+        "night": [
+          1250,
+          2300
+        ]
+      },
+      "warmMaxMs": 1150
+    }
+  },
+  "contextualHeadSamples": {
+    "day": {
+      "evidence": {
+        "scene": "day",
+        "family": "contextual-v1",
+        "poseCount": "20",
+        "state": "brand-frame",
+        "overlayBackground": "rgb(45, 13, 12)",
+        "ariaHidden": "true",
+        "focusables": 0,
+        "markPath": "/src/brand/robys-mark-master-v1.svg",
+        "wordmarkPath": "/src/brand/robys-compact-master-v1.svg",
+        "stageBackground": "rgba(0, 0, 0, 0)",
+        "animationCount": 7,
+        "paintValues": [
+          "rgb(45, 13, 12)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(at 78% 28%, rgba(255, 225, 181, 0.15) 0%, rgba(171, 78, 39, 0.07) 30%, rgba(45, 13, 12, 0) 64%), radial-gradient(at 24% 76%, rgba(119, 28, 24, 0.18) 0%, rgba(45, 13, 12, 0) 58%), linear-gradient(145deg, rgba(69, 24, 17, 0.54), rgba(45, 13, 12, 0.08) 52%, rgba(77, 29, 18, 0.42))",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 82% 20%, rgba(255, 239, 211, 0.72), rgba(238, 174, 97, 0.26) 24%, rgba(86, 29, 15, 0) 57%), radial-gradient(circle at 22% 82%, rgba(238, 49, 56, 0.44), rgba(145, 19, 26, 0.22) 35%, rgba(45, 13, 12, 0) 68%), linear-gradient(150deg, rgb(74, 26, 18) 0%, rgb(45, 13, 12) 48%, rgb(93, 33, 20) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(154deg, rgba(54, 17, 11, 0.5) 10%, rgba(91, 39, 22, 0.42) 48%, rgba(127, 62, 31, 0.32) 76%, rgba(49, 15, 10, 0.52) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(255, 222, 166, 0.34) 0px 2px 0px 0px inset, rgba(236, 163, 91, 0.07) 0px 16px 32px 0px inset, rgba(18, 5, 4, 0.18) 0px 20px 72px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 70% 24%, rgba(255, 139, 76, 0.72), rgba(238, 49, 56, 0.82) 23%, rgba(154, 18, 27, 0.95) 58%, rgba(63, 10, 11, 0.99) 100%), linear-gradient(120deg, rgb(75, 11, 13) 0%, rgb(168, 20, 29) 44%, rgb(238, 49, 56) 72%, rgb(95, 23, 15) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(255, 166, 100, 0.2) -32px 30px 82px 0px inset, rgba(30, 8, 7, 0.48) 30px -42px 112px 0px inset, rgba(255, 169, 92, 0.8) 0px -2px 0px 0px, rgba(238, 49, 56, 0.18) 0px -20px 52px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(96deg, rgba(255, 231, 194, 0) 8%, rgba(255, 226, 181, 0.08) 34%, rgba(255, 246, 225, 0.92) 49%, rgba(246, 174, 94, 0.32) 58%, rgba(255, 231, 194, 0) 82%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(255, 238, 211, 0.34) 0px 0px 10px 0px, rgba(238, 163, 83, 0.16) 0px 0px 28px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 35% 70%, rgba(255, 241, 215, 0.12), rgba(226, 155, 76, 0.04) 36%, rgba(0, 0, 0, 0) 68%)",
+          "rgba(255, 230, 187, 0.3)",
+          "rgba(255, 230, 187, 0.3)",
+          "rgba(255, 230, 187, 0.3)",
+          "rgba(255, 230, 187, 0.3)",
+          "rgba(255, 231, 190, 0.3) 0px 0px 10px 0px, rgba(230, 157, 82, 0.16) 0px 0px 34px 0px, rgba(255, 228, 181, 0.06) 0px 0px 38px 0px inset",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(102deg, rgba(255, 233, 198, 0) 4%, rgba(255, 224, 181, 0.2) 39%, rgba(255, 239, 214, 0.52) 66%, rgba(255, 250, 238, 0.78) 82%, rgba(255, 233, 198, 0) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(at 58% 18%, rgba(255, 108, 78, 0.24) 0%, rgba(177, 29, 40, 0.45) 31%, rgba(83, 10, 18, 0.72) 62%, rgba(31, 6, 8, 0.9) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(12px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 54% 45%, rgba(0, 0, 0, 0) 34%, rgba(20, 6, 5, 0.08) 68%, rgba(15, 4, 4, 0.38) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(rgba(255, 237, 204, 0.58) 0%, rgba(235, 170, 101, 0.34) 34%, rgba(134, 61, 28, 0.12) 58%, rgba(45, 13, 12, 0) 76%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(22px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(rgba(255, 250, 238, 0.96) 0%, rgba(255, 235, 203, 0.82) 30%, rgba(230, 164, 95, 0.4) 52%, rgba(105, 40, 21, 0.08) 72%, rgba(45, 13, 12, 0) 84%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(13px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "drop-shadow(rgba(238, 49, 56, 0.22) 0px 8px 22px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "drop-shadow(rgba(255, 252, 245, 0.18) 0px 1px 0px) drop-shadow(rgba(32, 8, 7, 0.16) 0px 8px 18px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          ""
+        ]
+      },
+      "smoothness": {
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999,
+        "samples": [
+          {
+            "at": 187,
+            "transform": "matrix(1.05984, -0.205614, 0.205614, 1.05984, -3.44459, 43.1705)",
+            "opacity": 0.0985242
+          },
+          {
+            "at": 203.7,
+            "transform": "matrix(1.05968, -0.205383, 0.205383, 1.05968, -3.45032, 42.9265)",
+            "opacity": 0.147939
+          },
+          {
+            "at": 220.4,
+            "transform": "matrix(1.05939, -0.204933, 0.204933, 1.05939, -3.43979, 42.5517)",
+            "opacity": 0.227278
+          },
+          {
+            "at": 253.7,
+            "transform": "matrix(1.05858, -0.203642, 0.203642, 1.05858, -3.38855, 41.5708)",
+            "opacity": 0.439019
+          },
+          {
+            "at": 270.3,
+            "transform": "matrix(1.05817, -0.20298, 0.20298, 1.05817, -3.36092, 41.0716)",
+            "opacity": 0.544267
+          },
+          {
+            "at": 287.1,
+            "transform": "matrix(1.05748, -0.201949, 0.201949, 1.05748, -3.30576, 40.3637)",
+            "opacity": 0.644745
+          },
+          {
+            "at": 303.7,
+            "transform": "matrix(1.0568, -0.200931, 0.200931, 1.0568, -3.25012, 39.6643)",
+            "opacity": 0.744028
+          },
+          {
+            "at": 320.4,
+            "transform": "matrix(1.05611, -0.199908, 0.199908, 1.05611, -3.193, 38.9608)",
+            "opacity": 0.843908
+          },
+          {
+            "at": 337,
+            "transform": "matrix(1.05531, -0.198709, 0.198709, 1.05531, -3.1197, 38.156)",
+            "opacity": 0.904676
+          },
+          {
+            "at": 353.7,
+            "transform": "matrix(1.05441, -0.19737, 0.19737, 1.05441, -3.03297, 37.2693)",
+            "opacity": 0.937647
+          },
+          {
+            "at": 370.3,
+            "transform": "matrix(1.05352, -0.196041, 0.196041, 1.05352, -2.94488, 36.3881)",
+            "opacity": 0.970421
+          },
+          {
+            "at": 387,
+            "transform": "matrix(1.05261, -0.194679, 0.194679, 1.05261, -2.8519, 35.4864)",
+            "opacity": 1
+          },
+          {
+            "at": 403.7,
+            "transform": "matrix(1.05156, -0.193077, 0.193077, 1.05156, -2.73508, 34.4503)",
+            "opacity": 1
+          },
+          {
+            "at": 420.3,
+            "transform": "matrix(1.05051, -0.191488, 0.191488, 1.05051, -2.61631, 33.4208)",
+            "opacity": 1
+          },
+          {
+            "at": 437,
+            "transform": "matrix(1.04945, -0.189893, 0.189893, 1.04945, -2.49415, 32.3855)",
+            "opacity": 1
+          },
+          {
+            "at": 453.7,
+            "transform": "matrix(1.04827, -0.188158, 0.188158, 1.04827, -2.3557, 31.277)",
+            "opacity": 1
+          },
+          {
+            "at": 487,
+            "transform": "matrix(1.04575, -0.184545, 0.184545, 1.04575, -2.05383, 28.9822)",
+            "opacity": 1
+          },
+          {
+            "at": 503.7,
+            "transform": "matrix(1.04448, -0.182713, 0.182713, 1.04448, -1.89424, 27.8186)",
+            "opacity": 1
+          }
+        ]
+      },
+      "events": [
+        {
+          "scene": "day",
+          "state": "brand-frame",
+          "variant": "cold",
+          "at": 18.19999999552965
+        }
+      ]
+    },
+    "night": {
+      "evidence": {
+        "scene": "night",
+        "family": "contextual-v1",
+        "poseCount": "20",
+        "state": "brand-frame",
+        "overlayBackground": "rgb(13, 5, 5)",
+        "ariaHidden": "true",
+        "focusables": 0,
+        "markPath": "/src/brand/robys-mark-master-v1.svg",
+        "wordmarkPath": "/src/brand/robys-compact-master-v1.svg",
+        "stageBackground": "rgba(0, 0, 0, 0)",
+        "animationCount": 7,
+        "paintValues": [
+          "rgb(13, 5, 5)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(at 78% 32%, rgba(222, 151, 84, 0.1) 0%, rgba(98, 39, 23, 0.06) 32%, rgba(13, 5, 5, 0) 66%), radial-gradient(at 22% 78%, rgba(92, 10, 20, 0.16) 0%, rgba(13, 5, 5, 0) 58%), linear-gradient(145deg, rgba(27, 9, 7, 0.68), rgba(13, 5, 5, 0.14) 54%, rgba(36, 13, 9, 0.52))",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 80% 27%, rgba(255, 202, 126, 0.38), rgba(190, 108, 49, 0.16) 23%, rgba(38, 12, 9, 0) 54%), radial-gradient(circle at 21% 83%, rgba(139, 15, 26, 0.34), rgba(74, 8, 15, 0.22) 34%, rgba(13, 5, 5, 0) 68%), linear-gradient(150deg, rgb(27, 9, 7) 0%, rgb(13, 5, 5) 54%, rgb(41, 16, 10) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(154deg, rgba(17, 6, 5, 0.52) 10%, rgba(38, 15, 10, 0.4) 48%, rgba(67, 31, 17, 0.3) 76%, rgba(20, 7, 6, 0.54) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(236, 177, 105, 0.22) 0px 2px 0px 0px inset, rgba(181, 99, 46, 0.04) 0px 18px 38px 0px inset, rgba(0, 0, 0, 0.34) 0px 22px 82px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 70% 25%, rgba(205, 61, 51, 0.42), rgba(133, 13, 24, 0.78) 24%, rgba(79, 8, 17, 0.96) 60%, rgba(25, 4, 6, 0.99) 100%), linear-gradient(120deg, rgb(33, 5, 7) 0%, rgb(101, 11, 21) 46%, rgb(152, 17, 29) 70%, rgb(50, 16, 11) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(196, 74, 49, 0.12) -38px 34px 96px 0px inset, rgba(7, 3, 3, 0.66) 34px -48px 124px 0px inset, rgba(215, 119, 65, 0.52) 0px -2px 0px 0px, rgba(118, 10, 20, 0.2) 0px -24px 64px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(96deg, rgba(248, 199, 132, 0) 8%, rgba(238, 181, 111, 0.05) 34%, rgba(255, 221, 170, 0.64) 49%, rgba(197, 105, 51, 0.22) 58%, rgba(248, 199, 132, 0) 82%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgba(244, 193, 124, 0.18) 0px 0px 8px 0px, rgba(157, 81, 36, 0.14) 0px 0px 30px 0px",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 35% 70%, rgba(250, 201, 127, 0.07), rgba(177, 95, 42, 0.024) 36%, rgba(0, 0, 0, 0) 68%)",
+          "rgba(247, 191, 113, 0.2)",
+          "rgba(247, 191, 113, 0.2)",
+          "rgba(247, 191, 113, 0.2)",
+          "rgba(247, 191, 113, 0.2)",
+          "rgba(245, 185, 106, 0.18) 0px 0px 8px 0px, rgba(157, 81, 36, 0.14) 0px 0px 32px 0px, rgba(235, 169, 92, 0.035) 0px 0px 44px 0px inset",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "linear-gradient(102deg, rgba(242, 190, 119, 0) 4%, rgba(231, 171, 100, 0.08) 40%, rgba(244, 195, 126, 0.24) 66%, rgba(250, 214, 158, 0.38) 81%, rgba(242, 190, 119, 0) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(at 56% 18%, rgba(174, 38, 44, 0.18) 0%, rgba(100, 10, 22, 0.42) 34%, rgba(37, 4, 9, 0.76) 66%, rgba(8, 2, 3, 0.94) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(16px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(circle at 54% 45%, rgba(0, 0, 0, 0) 24%, rgba(4, 1, 2, 0.2) 64%, rgba(2, 1, 1, 0.7) 100%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "none",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(rgba(246, 192, 119, 0.36) 0%, rgba(179, 103, 51, 0.24) 34%, rgba(84, 32, 18, 0.12) 58%, rgba(13, 5, 5, 0) 76%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(24px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "radial-gradient(rgba(255, 231, 190, 0.95) 0%, rgba(246, 197, 132, 0.73) 28%, rgba(172, 92, 46, 0.38) 50%, rgba(55, 19, 12, 0.08) 72%, rgba(13, 5, 5, 0) 84%)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "blur(15px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "drop-shadow(rgba(133, 13, 24, 0.28) 0px 8px 24px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          "",
+          "rgba(0, 0, 0, 0)",
+          "none",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "rgb(47, 39, 37)",
+          "none",
+          "drop-shadow(rgba(255, 232, 197, 0.08) 0px 1px 0px) drop-shadow(rgba(0, 0, 0, 0.32) 0px 10px 24px)",
+          "rgb(0, 0, 0)",
+          "none",
+          "",
+          ""
+        ]
+      },
+      "smoothness": {
+        "uniqueTransforms": 18,
+        "medianFrameIntervalMs": 16.69999999999999,
+        "samples": [
+          {
+            "at": 201.9,
+            "transform": "matrix(1.05992, -0.205731, 0.205731, 1.05992, -3.44164, 43.2947)",
+            "opacity": 0.0733836
+          },
+          {
+            "at": 218.6,
+            "transform": "matrix(1.0598, -0.20556, 0.20556, 1.0598, -3.44594, 43.1133)",
+            "opacity": 0.110111
+          },
+          {
+            "at": 235.2,
+            "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45017, 42.933)",
+            "opacity": 0.146618
+          },
+          {
+            "at": 251.9,
+            "transform": "matrix(1.0595, -0.205117, 0.205117, 1.0595, -3.44691, 42.6912)",
+            "opacity": 0.197174
+          },
+          {
+            "at": 268.5,
+            "transform": "matrix(1.0592, -0.204638, 0.204638, 1.0592, -3.42827, 42.3277)",
+            "opacity": 0.275626
+          },
+          {
+            "at": 285.2,
+            "transform": "matrix(1.0589, -0.204157, 0.204157, 1.0589, -3.40924, 41.9621)",
+            "opacity": 0.35455
+          },
+          {
+            "at": 301.8,
+            "transform": "matrix(1.0586, -0.203678, 0.203678, 1.0586, -3.39004, 41.5987)",
+            "opacity": 0.433001
+          },
+          {
+            "at": 335.2,
+            "transform": "matrix(1.05787, -0.202533, 0.202533, 1.05787, -3.33717, 40.7649)",
+            "opacity": 0.587795
+          },
+          {
+            "at": 351.8,
+            "transform": "matrix(1.05736, -0.201776, 0.201776, 1.05736, -3.2964, 40.245)",
+            "opacity": 0.661586
+          },
+          {
+            "at": 368.5,
+            "transform": "matrix(1.05685, -0.201015, 0.201015, 1.05685, -3.25476, 39.7221)",
+            "opacity": 0.735821
+          },
+          {
+            "at": 385.2,
+            "transform": "matrix(1.05634, -0.200255, 0.200255, 1.05634, -3.21249, 39.1992)",
+            "opacity": 0.810057
+          },
+          {
+            "at": 401.9,
+            "transform": "matrix(1.05583, -0.199495, 0.199495, 1.05583, -3.16958, 38.6764)",
+            "opacity": 0.884292
+          },
+          {
+            "at": 418.5,
+            "transform": "matrix(1.05517, -0.198509, 0.198509, 1.05517, -3.10689, 38.0238)",
+            "opacity": 0.909592
+          },
+          {
+            "at": 435.2,
+            "transform": "matrix(1.05451, -0.197514, 0.197514, 1.05451, -3.0424, 37.3647)",
+            "opacity": 0.934098
+          },
+          {
+            "at": 451.8,
+            "transform": "matrix(1.05385, -0.196526, 0.196526, 1.05385, -2.97726, 36.7098)",
+            "opacity": 0.958457
+          },
+          {
+            "at": 468.5,
+            "transform": "matrix(1.05318, -0.195534, 0.195534, 1.05318, -2.91068, 36.051)",
+            "opacity": 0.982962
+          },
+          {
+            "at": 485.2,
+            "transform": "matrix(1.05248, -0.194481, 0.194481, 1.05248, -2.8376, 35.3583)",
+            "opacity": 1
+          },
+          {
+            "at": 501.9,
+            "transform": "matrix(1.0517, -0.193291, 0.193291, 1.0517, -2.75079, 34.5883)",
+            "opacity": 1
+          }
+        ]
+      },
+      "events": [
+        {
+          "scene": "night",
+          "state": "brand-frame",
+          "variant": "cold",
+          "at": 22.700000002980232
+        }
+      ]
+    }
+  },
+  "negativeControl": {
+    "description": "Temporary script copy strengthens the median limit to 0 ms, then is removed; repository limit stays 21 ms. Chromium136, only failure-persistence semantics tested.",
+    "status": "FAIL",
+    "error": "Error: [MOTION-CONTEXT-001] day median frame interval regressed to 16.70 ms",
+    "preservedSamples": 18
+  },
+  "visualBrowserVersion": "136.0.7103.25",
+  "visualSummary": {
+    "generatedAt": "2026-09-06T14:40:23.916Z",
+    "baselineDirectory": "/workspace/scratch/4e6fa17f4a86/robys-base",
+    "currentDirectory": "/workspace/scratch/4e6fa17f4a86/robys",
+    "pixelThreshold": 0.12,
+    "comparisons": 43,
+    "failures": 8,
+    "results": [
+      {
+        "id": "landing-full",
+        "viewport": "phone-320",
+        "file": "landing-full__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 2679360,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "file": "menu-full__phone-320.png",
+        "passed": false,
+        "reason": "dimension mismatch 320x11907 vs 320x12155",
+        "diffPixels": 3810240,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "discover-full",
+        "viewport": "phone-320",
+        "file": "discover-full__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 957440,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "social-offer",
+        "viewport": "phone-320",
+        "file": "social-offer__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 93760,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "phone-320",
+        "file": "menu-share__phone-320.png",
+        "passed": false,
+        "diffPixels": 973,
+        "totalPixels": 143080,
+        "diffPixelRatio": 0.006800391389432486,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "phone-320",
+        "file": "discover-pairing__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 215040,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "mobile-cta",
+        "viewport": "phone-320",
+        "file": "mobile-cta__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 17400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.002
+      },
+      {
+        "id": "hero",
+        "viewport": "phone-360-short",
+        "file": "hero__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 264240,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "social-offer",
+        "viewport": "phone-360-short",
+        "file": "social-offer__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 95400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "file": "menu-share__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 167040,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "phone-360-short",
+        "file": "discover-pairing__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 249600,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "mobile-cta",
+        "viewport": "phone-360-short",
+        "file": "mobile-cta__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 19720,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.002
+      },
+      {
+        "id": "landing-full",
+        "viewport": "phone-390",
+        "file": "landing-full__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 3478800,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "file": "menu-full__phone-390.png",
+        "passed": false,
+        "reason": "dimension mismatch 390x11638 vs 390x11791",
+        "diffPixels": 4538820,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "discover-full",
+        "viewport": "phone-390",
+        "file": "discover-full__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 1154400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "hero",
+        "viewport": "phone-390",
+        "file": "hero__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 390000,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "phone-390",
+        "file": "menu-preview__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 370110,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "phone-390",
+        "file": "visit-map__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 530400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "social-offer",
+        "viewport": "phone-390",
+        "file": "social-offer__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 95550,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "phone-390",
+        "file": "menu-share__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 176750,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "phone-390",
+        "file": "discover-pairing__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 262850,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "mobile-cta",
+        "viewport": "phone-390",
+        "file": "mobile-cta__phone-390.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 21460,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.002
+      },
+      {
+        "id": "landing-full",
+        "viewport": "tablet-768",
+        "file": "landing-full__tablet-768.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 5892864,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "file": "menu-full__tablet-768.png",
+        "passed": false,
+        "reason": "dimension mismatch 768x13309 vs 768x12402",
+        "diffPixels": 10221312,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "discover-full",
+        "viewport": "tablet-768",
+        "file": "discover-full__tablet-768.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 2214144,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "social-offer",
+        "viewport": "tablet-768",
+        "file": "social-offer__tablet-768.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 168192,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "tablet-768",
+        "file": "menu-share__tablet-768.png",
+        "passed": false,
+        "diffPixels": 1261,
+        "totalPixels": 312312,
+        "diffPixelRatio": 0.004037629037629038,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "tablet-768",
+        "file": "discover-pairing__tablet-768.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 843752,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "hero",
+        "viewport": "laptop-1366",
+        "file": "hero__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 1049088,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "laptop-1366",
+        "file": "menu-preview__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 979422,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "laptop-1366",
+        "file": "visit-map__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 1334582,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "social-offer",
+        "viewport": "laptop-1366",
+        "file": "social-offer__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 293690,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "laptop-1366",
+        "file": "menu-share__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 1744,
+        "totalPixels": 368160,
+        "diffPixelRatio": 0.004737070838765754,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "laptop-1366",
+        "file": "discover-pairing__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 802400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "landing-full",
+        "viewport": "desktop-1440",
+        "file": "landing-full__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 10216800,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "file": "menu-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x9259 vs 1440x9235",
+        "diffPixels": 13332960,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "discover-full",
+        "viewport": "desktop-1440",
+        "file": "discover-full__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 3949920,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "hero",
+        "viewport": "desktop-1440",
+        "file": "hero__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 1584000,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "desktop-1440",
+        "file": "menu-preview__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 1032480,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "desktop-1440",
+        "file": "visit-map__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 665,
+        "totalPixels": 1428480,
+        "diffPixelRatio": 0.00046552979390681004,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "social-offer",
+        "viewport": "desktop-1440",
+        "file": "social-offer__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 308160,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-share",
+        "viewport": "desktop-1440",
+        "file": "menu-share__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 2105,
+        "totalPixels": 443680,
+        "diffPixelRatio": 0.004744410385863686,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "discover-pairing",
+        "viewport": "desktop-1440",
+        "file": "discover-pairing__desktop-1440.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 802400,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      }
+    ]
+  },
+  "shareGeometry": [
+    {
+      "side": "current",
+      "file": "menu-share__phone-320.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10860.96875,
+          "width": 280,
+          "height": 511.078125,
+          "top": 10860.96875,
+          "right": 300,
+          "bottom": 11372.046875,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 320,
+        "documentHeight": 12155,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__phone-320.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10613.296875,
+          "width": 280,
+          "height": 511.078125,
+          "top": 10613.296875,
+          "right": 300,
+          "bottom": 11124.375,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 320,
+        "documentHeight": 11907,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__phone-360-short.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10436.296875,
+          "width": 320,
+          "height": 522.46875,
+          "top": 10436.296875,
+          "right": 340,
+          "bottom": 10958.765625,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 360,
+        "documentHeight": 11706,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "current",
+      "file": "menu-share__phone-360-short.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10654.34375,
+          "width": 320,
+          "height": 522.46875,
+          "top": 10654.34375,
+          "right": 340,
+          "bottom": 11176.8125,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 360,
+        "documentHeight": 11924,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "current",
+      "file": "menu-share__phone-390.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10563.921875,
+          "width": 350,
+          "height": 505.40625,
+          "top": 10563.921875,
+          "right": 370,
+          "bottom": 11069.328125,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 390,
+        "documentHeight": 11791,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__phone-390.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 10410.890625,
+          "width": 350,
+          "height": 505.40625,
+          "top": 10410.890625,
+          "right": 370,
+          "bottom": 10916.296875,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 390,
+        "documentHeight": 11638,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "current",
+      "file": "menu-share__tablet-768.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 11321,
+          "width": 728,
+          "height": 429.875,
+          "top": 11321,
+          "right": 748,
+          "bottom": 11750.875,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 768,
+        "documentHeight": 12402,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__tablet-768.png",
+      "geometry": {
+        "rect": {
+          "x": 20,
+          "y": 12227.8125,
+          "width": 728,
+          "height": 429.875,
+          "top": 12227.8125,
+          "right": 748,
+          "bottom": 12657.6875,
+          "left": 20
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 768,
+        "documentHeight": 13309,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "current",
+      "file": "menu-share__laptop-1366.png",
+      "geometry": {
+        "rect": {
+          "x": 93,
+          "y": 8313.1875,
+          "width": 1180,
+          "height": 312.765625,
+          "top": 8313.1875,
+          "right": 1273,
+          "bottom": 8625.953125,
+          "left": 93
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 1366,
+        "documentHeight": 9159,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__laptop-1366.png",
+      "geometry": {
+        "rect": {
+          "x": 93,
+          "y": 8336.765625,
+          "width": 1180,
+          "height": 312.765625,
+          "top": 8336.765625,
+          "right": 1273,
+          "bottom": 8649.53125,
+          "left": 93
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 1366,
+        "documentHeight": 9183,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "current",
+      "file": "menu-share__desktop-1440.png",
+      "geometry": {
+        "rect": {
+          "x": 130,
+          "y": 8318.75,
+          "width": 1180,
+          "height": 376.265625,
+          "top": 8318.75,
+          "right": 1310,
+          "bottom": 8695.015625,
+          "left": 130
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 1440,
+        "documentHeight": 9235,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    },
+    {
+      "side": "baseline",
+      "file": "menu-share__desktop-1440.png",
+      "geometry": {
+        "rect": {
+          "x": 130,
+          "y": 8342.328125,
+          "width": 1180,
+          "height": 376.265625,
+          "top": 8342.328125,
+          "right": 1310,
+          "bottom": 8718.59375,
+          "left": 130
+        },
+        "scrollX": 0,
+        "scrollY": 0,
+        "devicePixelRatio": 1,
+        "documentWidth": 1440,
+        "documentHeight": 9259,
+        "fontsStatus": "loaded",
+        "imageReadiness": {
+          "total": 64,
+          "notReady": []
+        }
+      }
+    }
+  ],
+  "historicalVisualArtifact": {
+    "id": 9982369016,
+    "sha256": "0f9f32ef500e216c7cb8156c5baf8f8169c9ab9a0c5895f592a982032db2a2dc"
+  },
+  "validation": {
+    "npm run check": "PASS",
+    "npm run verify:security": "PASS: 287 checks and secret scan",
+    "visual": "FAIL: 8/43, unchanged thresholds",
+    "android": "NOT_RUN locally; prior base/head terminal timeout retained"
+  }
+}

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -12,6 +12,17 @@ const DAY_COLD_MAX_MS = 2_100;
 const NIGHT_COLD_MIN_MS = 1_250;
 const NIGHT_COLD_MAX_MS = 2_300;
 const WARM_MAX_MS = 1_150;
+const diagnostics = {
+  sourceSha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  workingTreeDiff: execFileSync("git", ["diff", "HEAD", "--", "scripts/contextual-entry-smoke.mjs"], { encoding: "utf8" }),
+  startedAt: new Date().toISOString(),
+  status: "RUNNING",
+  scenes: {}
+};
+
+function saveDiagnostics() {
+  writeFileSync(path.join(resultsDir, "contextual-entry-diagnostics.json"), `${JSON.stringify(diagnostics, null, 2)}\n`);
+}
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[MOTION-CONTEXT-001] ${message}`);
@@ -237,6 +248,9 @@ async function captureScene(browser, scene) {
   assert(coolDrift.length === 0, `${scene} rendered green/blue-dominant paint drift: ${JSON.stringify(coolDrift.slice(0, 4))}`);
 
   const smoothness = summarizeSmoothness(await sampleSplineFrames(page));
+  // Preserve all frame samples before a performance assertion can abort the run.
+  diagnostics.scenes[scene] = { evidence, smoothness, events: await readEvents(page) };
+  saveDiagnostics();
   assert(smoothness.uniqueTransforms >= 15, `${scene} spline exposed stepping: ${smoothness.uniqueTransforms}/18 unique transforms`);
   assert(smoothness.medianFrameIntervalMs <= 21, `${scene} median frame interval regressed to ${smoothness.medianFrameIntervalMs.toFixed(2)} ms`);
 
@@ -260,9 +274,11 @@ let browser;
 try {
   await waitForServer();
   browser = await chromium.launch({ headless: true });
+  diagnostics.browserVersion = browser.version();
 
   const dayColdMs = await measureCold(browser, "day");
   const nightColdMs = await measureCold(browser, "night");
+  diagnostics.coldDurations = { dayColdMs, nightColdMs };
   assert(dayColdMs >= DAY_COLD_MIN_MS && dayColdMs <= DAY_COLD_MAX_MS, `Day cold duration ${dayColdMs} ms outside ${DAY_COLD_MIN_MS}-${DAY_COLD_MAX_MS} ms`);
   assert(nightColdMs >= NIGHT_COLD_MIN_MS && nightColdMs <= NIGHT_COLD_MAX_MS, `Night cold duration ${nightColdMs} ms outside ${NIGHT_COLD_MIN_MS}-${NIGHT_COLD_MAX_MS} ms`);
 
@@ -351,7 +367,14 @@ try {
     `✅ MOTION-CONTEXT-001 passed: Day ${dayColdMs} ms, Night ${nightColdMs} ms, cross-scene warm ${crossSceneWarmMs} ms; `
     + "same 20-pose Roby's family, seven-layer compositor budget, canonical assets, warm-only palette, 60 Hz interpolation, reduced-motion bypass and contextual luminance hierarchy are certified."
   );
+  diagnostics.status = "PASS";
+} catch (error) {
+  diagnostics.status = "FAIL";
+  diagnostics.error = String(error.stack ?? error);
+  throw error;
 } finally {
+  diagnostics.finishedAt = new Date().toISOString();
+  saveDiagnostics();
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
 }
