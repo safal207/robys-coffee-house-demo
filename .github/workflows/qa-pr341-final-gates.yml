@@ -4,35 +4,101 @@ on:
     branches: [qa/pr341-final-gates-20260906]
     paths: [.github/workflows/qa-pr341-final-gates.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
   inspect:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ae0d022de0ae1878cfcaf7940757896e7e6e54a1
+          ref: ${{ github.sha }}
+          fetch-depth: 4
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Record pinned public source, without Git credentials or working-directory secrets
+      - name: Verify exact source candidate and wire permanent unit checks
         run: |
-          mkdir -p final-gate-evidence
-          test "$(git rev-parse HEAD)" = ae0d022de0ae1878cfcaf7940757896e7e6e54a1
-          git rev-parse HEAD > final-gate-evidence/source.sha
-          git archive --format=tar HEAD | gzip -n > final-gate-evidence/source.tar.gz
-      - name: Install existing locked build dependencies
+          mkdir -p .artifacts/home-copy-candidate
+          test "$(git rev-parse HEAD^)" = 8c712406b3779a5bf9dbaba4fba2e55dbc0305d6
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected={
+            'src/i18n.ts':'47f0b8e2cdea74fe6456d0e48c564252e551a96dcea97f7e7b2f3b3d7bea8265',
+            'scripts/test-home-copy.mjs':'4fa90a07776cdfbafe155a14c477b2e8dad8e7d3984f95f06ab81c79657819c1',
+            'scripts/home-copy-browser.mjs':'bce56dc3a52d8d40c3cab71cf852b1e82d8582c98fd11734832b1f024f60f65b'
+          };
+          for(const [file,digest] of Object.entries(expected)) assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),digest,file);
+          const packagePath='package.json',pack=JSON.parse(readFileSync(packagePath,'utf8'));
+          assert.ok(!pack.scripts['test:home-copy']);
+          pack.scripts['test:home-copy']='node --test scripts/test-home-copy.mjs';
+          pack.scripts.check+=' && npm run test:home-copy';
+          writeFileSync(packagePath,JSON.stringify(pack,null,2)+'\n');
+          JS
+      - name: Install existing locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Preserve locked public dependency bytes for reproducible offline analysis
+      - name: Rebuild, refresh integrity and run full checks
+        shell: bash
         run: |
-          tar -czf final-gate-evidence/build-dependencies.tar.gz node_modules
-          sha256sum final-gate-evidence/*.tar.gz > final-gate-evidence/SHA256SUMS
-          printf 'scope=source/dependency acquisition only; not app or release certification\n' > final-gate-evidence/scope.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+          set -euo pipefail
+          npm run build 2>&1 | tee .artifacts/home-copy-candidate/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/home-copy-candidate/integrity.log
+          npm run check 2>&1 | tee .artifacts/home-copy-candidate/check.log
+          npm run verify:security 2>&1 | tee .artifacts/home-copy-candidate/security.log
+          git diff --check
+      - name: Install locked Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify all live translations and dynamic language changes
+        env:
+          HOME_COPY_RESULTS_DIR: .artifacts/home-copy-candidate/translations
+        run: node scripts/home-copy-browser.mjs
+      - name: Recheck existing guest journeys and hero controls
+        run: |
+          MENU_DEMAND_RESULTS_DIR=.artifacts/home-copy-candidate/demand node scripts/menu-demand-browser.mjs
+          ORDER_RESULTS_DIR=.artifacts/home-copy-candidate/journeys node scripts/unified-order-browser.mjs
+          ORDER_LAYOUT_RESULTS_DIR=.artifacts/home-copy-candidate/layout node scripts/order-layout-regression.mjs
+          HERO_RESULTS_DIR=.artifacts/home-copy-candidate/hero node scripts/order-hero-regression.mjs
+      - name: Store verified runtime commit without moving any branch
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
         with:
-          name: pr341-pinned-final-gate-source
-          path: final-gate-evidence/
-          retention-days: 3
+          script: |
+            const fs=require('fs'),crypto=require('crypto'),cp=require('child_process');
+            const owner=context.repo.owner,repo=context.repo.repo;
+            const parent='ae0d022de0ae1878cfcaf7940757896e7e6e54a1';
+            const live=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(live.data.object.sha!==parent)throw new Error('PR head moved; refuse stale integration');
+            const expected={
+              'src/i18n.ts':'47f0b8e2cdea74fe6456d0e48c564252e551a96dcea97f7e7b2f3b3d7bea8265',
+              'scripts/test-home-copy.mjs':'4fa90a07776cdfbafe155a14c477b2e8dad8e7d3984f95f06ab81c79657819c1',
+              'scripts/home-copy-browser.mjs':'bce56dc3a52d8d40c3cab71cf852b1e82d8582c98fd11734832b1f024f60f65b',
+              'package.json':'4eeff617e19e0918090f99fe7762f23ab20de2e69bcecf591d7d1f7aecd42e13',
+              'app.js':'0a634c2a1ee405e419521de8ba532238e581cb9de155c3c8f85aa7d7fdac5603',
+              'index.html':'a89ac83ce618bcb616f4febd82cb631511130bc8bf33228d73191a8a69e0a088',
+              'integrity-manifest.json':'02e9957b82be9d93b81cbe72a04eb25beb8ae3baee5951cb8c58ba2dff228bdb'
+            };
+            const hash=path=>crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+            for(const [path,wanted] of Object.entries(expected))if(hash(path)!==wanted)throw new Error('Candidate bytes differ: '+path);
+            const changed=cp.execFileSync('git',['diff','--name-only',parent],{encoding:'utf8'}).trim().split('\n');
+            for(const path of changed)if(!Object.hasOwn(expected,path)&&path!=='.github/workflows/qa-pr341-final-gates.yml')throw new Error('Unexpected change: '+path);
+            const base=await github.rest.git.getCommit({owner,repo,commit_sha:parent});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:base.data.tree.sha,tree:Object.keys(expected).map(path=>({path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}))});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'perf(home): remove retired translation payload with live-copy parity tests',tree:tree.data.sha,parents:[parent]});
+            fs.writeFileSync('.artifacts/home-copy-candidate/candidate.json',JSON.stringify({inputHead:context.sha,parent,candidate:commit.data.sha,tree:tree.data.sha,files:expected,refUpdated:false,scope:'Full build and bounded browser tests; no performance collection or release approval'},null,2));
+            core.info('Detached validated candidate '+commit.data.sha+'; PR branch unchanged');
+      - name: Preserve evidence even on failure
+        if: always()
+        run: |
+          mkdir -p .artifacts/home-copy-candidate
+          git rev-parse HEAD > .artifacts/home-copy-candidate/HEAD.txt
+          git diff ae0d022de0ae1878cfcaf7940757896e7e6e54a1 -- src/i18n.ts scripts/test-home-copy.mjs scripts/home-copy-browser.mjs package.json app.js index.html integrity-manifest.json > .artifacts/home-copy-candidate/candidate.patch
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr341-home-copy-candidate-${{ github.sha }}
+          path: .artifacts/home-copy-candidate/
+          retention-days: 7
           if-no-files-found: error
