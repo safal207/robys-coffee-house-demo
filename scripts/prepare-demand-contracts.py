@@ -75,4 +75,36 @@ new = '''  assert.ok(source.split(orderImport).length - 1 <= 1, "Duplicate lazy 
   source = source.replace('from "./order-store.js"', `from "./order-store.js?v=${revision}"`);'''
 assert source.count(old) == 1
 path.write_text(source.replace(old, new))
-print('Verified demand-loading/cancellation and image-error contracts; generic compiler fixtures retained. No gate disabled.')
+
+# Full-site diagnostic 34007190008 identified intrinsic Visit/Android grid
+# minima, unbreakable headings and the enlarged language selector. Do not hide
+# overflow or reduce the user's font: allow tracks, text and actions to reflow.
+path = Path('order-shell.css')
+source = path.read_text()
+assert 'ORDER-HERO-CLEARANCE:START' in source
+assert 'ORDER-HOME-TEXT:START' not in source
+source += '''
+/* ORDER-HOME-TEXT:START */
+@media(max-width:680px){
+ body.has-unified-order main{overflow-wrap:anywhere}
+ body.has-unified-order :is(.visit-grid,.menu-layout,.android-app-card){grid-template-columns:minmax(0,1fr)}
+ body.has-unified-order :is(.visit-card,.menu-intro,.menu-card>div,.android-app-copy,.android-app-actions,.android-download-label){min-width:0;max-width:100%;overflow-wrap:anywhere}
+ body.has-unified-order .header-inner{grid-template-columns:auto minmax(0,1fr)}
+ body.has-unified-order .header-actions{min-width:0;max-width:100%;flex-wrap:wrap;justify-content:flex-end}
+ body.has-unified-order .map-live-bottom{min-width:0;max-width:calc(100% - 28px);flex-wrap:wrap}
+ body.has-unified-order :is(.map-live-place,.map-live-action){min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+ body.has-unified-order .map-live-place span{white-space:normal;overflow-wrap:anywhere}
+}
+/* ORDER-HOME-TEXT:END */
+'''
+path.write_text(source)
+path=Path('scripts/order-hero-regression.mjs')
+source=path.read_text()
+old='          viewport:{width:window.innerWidth,height:window.innerHeight},'
+assert source.count(old)==1
+source=source.replace(old,old+'\n          headerControlsWithin:[...document.querySelectorAll(".header-actions button")].filter(el=>el.getClientRects().length).every(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=window.innerWidth;}),')
+old='      assert.ok(geometry.link.top>=0'
+assert source.count(old)==1
+source=source.replace(old,'      assert.ok(geometry.headerControlsWithin,`${id}: header controls overflow`);\n'+old)
+path.write_text(source)
+print('Verified demand-loading, cancellation, image-error and actual narrow-viewport contracts. No gate disabled.')
