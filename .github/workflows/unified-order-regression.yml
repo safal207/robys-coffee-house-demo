@@ -32,10 +32,20 @@ jobs:
           node scripts/test-unified-order.mjs > .artifacts/unified-order/domain.json
       - name: Install locked Chromium
         run: npx playwright install --with-deps chromium
+      - name: Empty-menu lazy load and first-order failure boundaries
+        env:
+          MENU_DEMAND_RESULTS_DIR: .artifacts/unified-order/menu-demand
+        run: node scripts/menu-demand-browser.mjs
       - name: Real touch and enlarged text geometry
         env:
           ORDER_LAYOUT_RESULTS_DIR: .artifacts/unified-order/layout
         run: node scripts/order-layout-regression.mjs
+      - name: Hero actions remain reachable above the order entry
+        env:
+          HERO_RESULTS_DIR: .artifacts/unified-order/hero
+        run: |
+          HERO_RESULTS_DIR=.artifacts/unified-order/hero-negative node scripts/order-hero-regression.mjs --negative-control
+          node scripts/order-hero-regression.mjs
       - name: Shared order and Smart Choice end-to-end
         env:
           ORDER_RESULTS_DIR: .artifacts/unified-order/journeys
