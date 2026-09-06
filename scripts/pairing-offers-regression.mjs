@@ -28,6 +28,28 @@ const report = { source:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'
 const browser = await chromium.launch({headless:true});
 const money = text => Number(text.replace(/[^0-9]/g,''));
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+// The lazy order model can hydrate the same dialog again while it is opening.
+// Wait for the requested image's actual load state instead of decoding a request
+// which that hydration may replace. Missing/broken/wrong images still fail closed.
+async function waitForImage(page, selector, expectedSrc) {
+  return page.locator(selector).evaluate((image, expected) => new Promise((resolve, reject) => {
+    let timer;
+    const cleanup = () => { clearTimeout(timer); image.removeEventListener('load', check); image.removeEventListener('error', failed); };
+    const failed = () => { cleanup(); reject(new Error('Pairing image failed to load: '+expected)); };
+    const check = () => {
+      const current=image.currentSrc||image.src;
+      if (image.complete && current===expected) {
+        if (image.naturalWidth>0 && image.naturalHeight>0) {
+          cleanup(); resolve({src:current,width:image.naturalWidth,height:image.naturalHeight});
+        } else failed();
+      }
+    };
+    timer=setTimeout(()=>{cleanup();reject(new Error('Requested pairing image did not become ready: '+expected));},4000);
+    image.addEventListener('load',check); image.addEventListener('error',failed);
+    check();
+  }), expectedSrc);
+}
+
 async function open(page, lang, font) {
   await page.goto(base+'/menu.html?entry=off#pairing-offers', {waitUntil:'domcontentloaded'});
   await page.locator('#pairing-offers [data-pairing]').nth(1).waitFor({state:'attached'});
@@ -93,11 +115,17 @@ try {
         if (width<768) await action.tap(); else await action.click();
         await page.locator('#menu-product-dialog').waitFor({state:'visible'});
         assert.equal(money(await page.locator('#menu-product-price').innerText()),expectedPrice);
-        await page.locator('#menu-product-image').evaluate(img=>img.decode());
+        const expectedImage=new URL(await row.locator('img').getAttribute('src'),base+'/menu.html').href;
+        result.geometry[i].modalImage=await waitForImage(page,'#menu-product-image',expectedImage);
         const modalFit=await page.locator('#menu-product-image').evaluate(img=>getComputedStyle(img).objectFit);
         assert.equal(modalFit,'contain',`${id}: pairing modal must preserve complete photo`);
         result.geometry[i].modalFit=modalFit;
-        if(width===390&&lang==='ru'&&font===16) await page.screenshot({path:out+`/dialog-${id}-${i}.png`});
+        if(width===390&&lang==='ru'&&font===16) {
+          await page.locator('#menu-product-dialog').evaluate(async node=>{
+            await Promise.all(node.getAnimations({subtree:true}).filter(a=>Number.isFinite(a.effect?.getComputedTiming().endTime)).map(a=>a.finished.catch(()=>{})));
+          });
+          await page.screenshot({path:out+`/dialog-${id}-${i}.png`});
+        }
         if(i===0) await page.locator('#menu-quantity-increase').click();
         await page.locator('#menu-add-to-cart').click();
         await page.locator('#menu-product-dialog').waitFor({state:'hidden'});
@@ -127,7 +155,19 @@ try {
       await page.screenshot({path:out+`/failure-${id}.png`}).catch(()=>{});
     } finally {report.cases.push(result);await context.close();}
   }
-  report.passed=report.cases.length===24&&report.cases.every(x=>x.passed);
+  // A readiness helper must not turn a broken resource into a pass.
+  const brokenContext=await browser.newContext({bypassCSP:false,serviceWorkers:'block'});
+  try {
+    const page=await brokenContext.newPage();
+    await page.goto(base+'/menu.html?entry=off#pairing-offers',{waitUntil:'domcontentloaded'});
+    const missing=base+'/__pairing_missing_image_control__.webp';
+    await page.evaluate(src=>{
+      const image=document.createElement('img');image.id='pairing-broken-image-control';image.src=src;document.body.append(image);
+    },missing);
+    await assert.rejects(()=>waitForImage(page,'#pairing-broken-image-control',missing),/Pairing image failed to load/);
+    report.brokenImageControl={detected:true,scope:'Deliberate local404 image; readiness rejects it.'};
+  } finally {await brokenContext.close();}
+  report.passed=report.cases.length===24&&report.cases.every(x=>x.passed)&&report.brokenImageControl?.detected===true;
 } finally {
   await browser.close(); await new Promise(resolve=>server.close(resolve));
   report.finishedAt=new Date().toISOString();
