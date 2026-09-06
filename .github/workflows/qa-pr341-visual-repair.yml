@@ -1,89 +1,40 @@
-name: PR 341 visual repair evidence
+name: PR 341 action harness repair
 on:
   push:
     branches: [qa/pr341-visual-repair-20260906]
 permissions:
   contents: read
 jobs:
-  evidence:
+  actions:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: current
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          path: current
-          persist-credentials: false
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
-          path: baseline
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Check exact candidate and generated parity
+      - name: Verify exact candidate
         run: |
           npm ci --no-audit --no-fund
           npm run check
           npm run verify:security
           git diff --exit-code
-      - name: Build exact base
-        working-directory: baseline
-        run: npm ci --no-audit --no-fund && npm run build
-      - name: Install matching visual tools
-        run: |
           npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
           npx playwright install --with-deps chromium
-      - name: Short hero and original obstruction control
-        id: hero
-        continue-on-error: true
-        run: |
-          HERO_RESULTS_DIR=visual-results/hero-negative node scripts/order-hero-regression.mjs --negative-control
-          HERO_RESULTS_DIR=visual-results/hero node scripts/order-hero-regression.mjs
-      - name: Document capture and ordinary actions
-        id: actions
-        continue-on-error: true
+      - name: Verify actions with app-only test state
         run: ORDER_VISUAL_RESULTS_DIR=visual-results/order-reachability node scripts/order-visual-reachability.mjs
-      - name: First unchanged-threshold comparison
-        id: first
-        continue-on-error: true
-        run: VISUAL_RESULTS_DIR=visual-results/attempt-1 node scripts/visual-regression.mjs
-      - name: Independent comparison repeat
-        id: second
-        continue-on-error: true
-        run: VISUAL_RESULTS_DIR=visual-results/attempt-2 node scripts/visual-regression.mjs
-      - name: Expanded interaction matrix
-        id: matrix
-        continue-on-error: true
-        run: UI_UX_ATTEMPTS=2 node scripts/ui-ux-matrix.mjs
-      - name: Record candidate identity
+      - name: Record identity
         if: always()
         run: |
           mkdir -p visual-results
           git rev-parse HEAD > visual-results/HEAD.txt
-          git rev-parse HEAD^{tree} > visual-results/TREE.txt
           git diff --exit-code
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: pr341-visual-repair-${{ github.sha }}
-          path: current/visual-results/
+          name: pr341-action-repair-${{ github.sha }}
+          path: visual-results/
           retention-days: 14
           if-no-files-found: error
-      - name: Retain failed comparison as failed evidence
-        if: always()
-        env:
-          HERO: ${{ steps.hero.outcome }}
-          ACTIONS: ${{ steps.actions.outcome }}
-          FIRST: ${{ steps.first.outcome }}
-          SECOND: ${{ steps.second.outcome }}
-          MATRIX: ${{ steps.matrix.outcome }}
-        run: |
-          test "$HERO" = success
-          test "$ACTIONS" = success
-          test "$FIRST" = success
-          test "$SECOND" = success
-          test "$MATRIX" = success

@@ -32,11 +32,13 @@ try {
       locale: `${language}-${language === 'en' ? 'US' : language.toUpperCase()}`, timezoneId: 'Europe/Istanbul' });
     // External links are still activated normally; their requests are blocked in this test.
     await context.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
-    await context.addInitScript(({language,stress}) => {
+    await context.addInitScript(({language,stress,origin}) => {
+      // Test state belongs to the app's top-level document, not blocked map frames/popups.
+      if (location.origin !== origin || window.top !== window) return;
       localStorage.setItem('robys-language', language);
       if (stress && !sessionStorage.getItem('robys:coffee-house:order.v2')) sessionStorage.setItem('robys:coffee-house:order.v2',
         JSON.stringify({version:2,revision:1,migrationDone:true,lines:[{id:'hot-coffee:espresso',quantity:99}]}));
-    }, {language,stress});
+    }, {language,stress,origin:new URL(base).origin});
     const page = await context.newPage();
     page.setDefaultTimeout(12000);
     const errors = [];
