@@ -2,11 +2,7 @@ name: Prepare pairing layout candidate
 on:
   push:
     branches: [fix/pairing-offers-framing-20260906]
-    paths:
-      - pairing-posters.css
-      - pairing-posters.js
-      - scripts/pairing-offers-regression.mjs
-      - .github/workflows/prepare-pairings-20260906.yml
+    paths: ['pairing-posters.css', 'pairing-posters.js', 'scripts/pairing-offers-regression.mjs', '.github/workflows/prepare-pairings-20260906.yml']
 permissions:
   contents: write
 concurrency:
@@ -36,28 +32,27 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('scripts/build.mjs')
-          s=p.read_text()
-          old='const menuAppRevision = revisionFor("menu-app.js");'
-          assert s.count(old)==1
-          s=s.replace(old, old+'\nconst pairingCssRevision = revisionFor("pairing-posters.css");\nconst pairingScriptRevision = revisionFor("pairing-posters.js");')
-          old='menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);'
-          assert s.count(old)==1
-          s=s.replace(old, old+'\nmenuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingCssRevision);\nmenuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingScriptRevision);')
-          old='  ["menu-app.js", menuAppRevision],'
-          assert s.count(old)==1
-          s=s.replace(old,old+'\n  ["pairing-posters.css", pairingCssRevision],\n  ["pairing-posters.js", pairingScriptRevision],')
-          p.write_text(s)
-          p=Path('package.json'); s=p.read_text()
-          old='node scripts/test-menu-runtime-contract.mjs'
-          assert s.count(old)==1
-          s=s.replace(old,old+' && node scripts/test-pairing-offers-source.mjs')
-          p.write_text(s)
-          p=Path('sw.js'); s=p.read_text()
-          # New cache namespace, without changing caching semantics or resources.
           import re
+          p=Path('scripts/build.mjs'); s=p.read_text()
+          changes={
+            'const menuAppRevision = revisionFor("menu-app.js");': 'const menuAppRevision = revisionFor("menu-app.js");\nconst pairingCssRevision = revisionFor("pairing-posters.css");\nconst pairingScriptRevision = revisionFor("pairing-posters.js");',
+            'menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);': 'menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);\nmenuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingCssRevision);\nmenuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingScriptRevision);',
+            '  ["menu-app.js", menuAppRevision],': '  ["menu-app.js", menuAppRevision],\n  ["pairing-posters.css", pairingCssRevision],\n  ["pairing-posters.js", pairingScriptRevision],'
+          }
+          for old,new in changes.items():
+            assert s.count(old)==1, old
+            s=s.replace(old,new)
+          p.write_text(s)
+          p=Path('package.json'); s=p.read_text(); old='node scripts/test-menu-runtime-contract.mjs'
+          assert s.count(old)==1
+          p.write_text(s.replace(old,old+' && node scripts/test-pairing-offers-source.mjs'))
+          p=Path('sw.js'); s=p.read_text()
           s,n=re.subn(r'robys-offline-v\d+-\d{8}-cart-feedback-', 'robys-offline-v64-20260906-pairing-layout-', s, count=1)
           assert n==1, 'unexpected cache marker'
+          anchor=re.search(r'"\./menu-premium\.css[^"\n]*",',s)
+          assert anchor, 'missing menu CSS offline entry'
+          if '"./pairing-posters.css' not in s:
+            s=s[:anchor.end()]+'\n  "./pairing-posters.css",\n  "./pairing-posters.js",'+s[anchor.end():]
           p.write_text(s)
           Path('scripts/test-pairing-offers-source.mjs').write_text('''import assert from "node:assert/strict";
           import { readFileSync } from "node:fs";
@@ -75,7 +70,7 @@ jobs:
           }
           console.log("Pairing source contract: PASS (framing, single price source, actions, content-bound HTML/SW)");
           ''')
-          Path('.github/workflows/pairing-offers.yml').write_text('''name: Pairing offers regression
+          workflow='''name: Pairing offers regression
           on:
             pull_request:
               paths: ['pairing-posters.*', 'menu*', 'src/menu-app.js', 'src/order-*', 'order-*', 'scripts/build.mjs', 'scripts/pairing-offers-regression.mjs', 'scripts/test-pairing-offers-source.mjs', '.github/workflows/pairing-offers.yml']
@@ -89,14 +84,14 @@ jobs:
               steps:
                 - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
                   with:
-                    ref: ${{ github.event.pull_request.head.sha || github.sha }}
+                    ref: __HEAD__
                     fetch-depth: 60
                     persist-credentials: false
                 - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
                   with:
                     node-version: '22'
                 - run: npm ci --no-audit --no-fund
-                - run: npm run check && npm run verify:security
+                - run: npm run check && npm run verify:security && git diff --exit-code
                 - run: npx playwright install --with-deps chromium
                 - run: node scripts/pairing-offers-regression.mjs
                   env:
@@ -104,10 +99,11 @@ jobs:
                 - uses: actions/upload-artifact@v4
                   if: always()
                   with:
-                    name: pairing-offers-${{ github.event.pull_request.head.sha || github.sha }}
+                    name: pairing-offers-__HEAD__
                     path: .artifacts/pairings/
                     retention-days: 14
-          ''')
+          '''
+          Path('.github/workflows/pairing-offers.yml').write_text(workflow.replace('__HEAD__','$'+'{{ github.event.pull_request.head.sha || github.sha }}'))
           PY
       - name: Build, integrity and full checks
         shell: bash
@@ -133,11 +129,11 @@ jobs:
             const report=JSON.parse(fs.readFileSync('.artifacts/pairings/report.json','utf8'));
             if(!report.passed || report.cases.length!==24 || !report.negativeControl?.detected) throw new Error('Incomplete evidence');
             fs.unlinkSync('.github/workflows/prepare-pairings-20260906.yml');
-            const note='Pairing offers repair — 6 September 2026\n\n'+
+            const note='# Pairing offers repair — 6 September 2026\n\n'+
               'Input checkout '+context.sha+'; full check/security and 24 Chromium configurations passed in run '+context.runId+'.\n'+
-              'The original crop/hidden-copy control was detected. Use candidate.json, source.patch and file hashes together; browser JSON identifies the input working tree, not a later fresh checkout.\n\n'+
-              'Complete photos, no forced crop, readable catalogue copy/price and explicit TR/EN/RU set button. No unsupported old-price badge. Catalogue, agreed prices, order persistence and CSP are unchanged. Content-bound references and cache are rebuilt.\n\n'+
-              'Width320/390/768/1440 x three languages x root16/32; reduced motion is paired with root32. Direct hash, ordinary touch/click, focus, add2+add1=950TRY and same-session reload. SW blocked for deterministic CSS: no cache-upgrade, physical-device or published-site claim.\n\n'+
+              'Original crop/hidden-copy control detected. Use candidate.json, source.patch and hashes together: browser JSON identifies the input working tree, not a later fresh checkout.\n\n'+
+              'Complete photos, no forced crop, readable catalogue copy/price and explicit TR/EN/RU set button. No unsupported old-price badge. Catalogue, agreed prices, order persistence and CSP unchanged. Content-bound references and cache rebuilt.\n\n'+
+              'Width320/390/768/1440 x three languages x root16/32; reduced motion paired with root32. Direct hash, ordinary touch/click, focus, add2+add1=950TRY and same-session reload. SW blocked for deterministic CSS; no cache-upgrade, physical-device or published-site claim.\n\n'+
               'No Codex review requested; no baseline/threshold waiver, merge, deployment or actual order/payment. Final-head CI and review remain separate.\n';
             fs.writeFileSync('docs/qa/pairing-offers-2026-09-06.md',note);
             const changed=cp.execFileSync('git',['diff','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
@@ -145,7 +141,7 @@ jobs:
             const allowed=new Set(['scripts/build.mjs','package.json','sw.js','menu.html','integrity-manifest.json','.github/workflows/prepare-pairings-20260906.yml','scripts/test-pairing-offers-source.mjs','.github/workflows/pairing-offers.yml','docs/qa/pairing-offers-2026-09-06.md']);
             for(const path of changed) if(!allowed.has(path)) throw new Error('Unexpected output '+path);
             const ref=await github.rest.git.getRef({owner,repo,ref:'heads/fix/pairing-offers-framing-20260906'});
-            if(ref.data.object.sha!==context.sha) throw new Error('Branch moved; not committing stale candidate');
+            if(ref.data.object.sha!==context.sha) throw new Error('Branch moved');
             const parent=await github.rest.git.getCommit({owner,repo,commit_sha:context.sha});
             const entries=changed.map(path=>fs.existsSync(path)?{path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}:{path,mode:'100644',type:'blob',sha:null});
             const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:entries});
