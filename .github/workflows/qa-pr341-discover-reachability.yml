@@ -5,6 +5,9 @@ on:
     paths: [.github/workflows/qa-pr341-discover-reachability.yml]
 permissions:
   contents: read
+concurrency:
+  group: pr341-discover-diagnostic
+  cancel-in-progress: true
 jobs:
   inspect:
     runs-on: ubuntu-latest
@@ -63,10 +66,9 @@ jobs:
               const expectedRows=(category.items||[]).length+(category.groups||[]).reduce((sum,group)=>sum+group.items.length,0);
               assert.ok(expectedRows>0);
               if(touch)await menu.tap();else await menu.click();await page.waitForURL(base+'/'+href);
-              // A category deep link intentionally renders only that category,
-              // not fifty unrelated rows from the unfiltered full menu.
-              const section=page.locator('.full-menu-panel').filter({has:page.locator('h2')});
-              await page.locator('#full-menu-grid[data-ready="true"]').waitFor({state:'attached'});
+              // Category deep links intentionally render that category only.
+              await page.locator('#menu-root[data-ready="true"]').waitFor({state:'attached'});
+              const section=page.locator('.full-menu-panel');
               assert.equal(await section.count(),1);assert.equal(await section.getAttribute('id'),categoryId);
               assert.equal(await section.locator('.full-menu-item').count(),expectedRows);assert.deepEqual(errors,[]);
               report.checks.push({id,passed:true,locatorCamera:prior,actualNavigation:href,categoryRows:expectedRows});
