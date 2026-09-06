@@ -58,7 +58,7 @@ final class PinnedWebFixture {
             if (!files.has(path)) return error("MISSING", path, 404);
             if (!"GET".equals(request.getMethod())) return error("METHOD", path, 405);
             JSONObject entry = files.getJSONObject(path);
-            byte[] bytes = read(context.getAssets().open("pinned-web/" + path));
+            byte[] bytes = read(context.getAssets().open("pinned-web/" + entry.getString("asset")));
             StringBuilder digest = new StringBuilder();
             for (byte value : MessageDigest.getInstance("SHA-256").digest(bytes))
                 digest.append(String.format(java.util.Locale.ROOT, "%02x", value & 0xff));

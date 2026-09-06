@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ACTIVITY = "android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java"
 CAPTURE = ".github/scripts/capture-android-launch.sh"
 EXTENSIONS = {".html", ".js", ".css", ".json", ".svg", ".png", ".jpg", ".jpeg",
-              ".webp", ".woff", ".woff2", ".ttf", ".ico", ".mp4", ".webm", ".webmanifest"}
+              ".webp", ".woff", ".woff2", ".ttf", ".ico", ".mp4", ".webm", ".webmanifest", ".txt"}
 EXCLUDED = {"android-native", "docs", "qa", "scripts", "tests", "tools"}
 
 
@@ -51,9 +51,13 @@ def prepare(source, output):
         if name.startswith("android-native/"):
             target = output / name
         elif not path.parts[0].startswith(".") and path.parts[0] not in EXCLUDED and path.suffix in EXTENSIONS:
-            target = output / "android-native/app/src/main/assets/pinned-web" / name
+            # AAPT normally ignores underscore-prefixed directories such as
+            # src/products/menu-v1/_anchors. Flat digest names preserve EVERY
+            # resource without changing Android packaging filters or the URL.
+            asset = sha(data)
+            target = output / "android-native/app/src/main/assets/pinned-web" / asset
             mime = {".js": "application/javascript", ".css": "text/css", ".webmanifest": "application/manifest+json"}.get(path.suffix)
-            files[name] = {"sha256": sha(data), "bytes": len(data),
+            files[name] = {"sha256": sha(data), "asset": asset, "bytes": len(data),
                            "mime": mime or mimetypes.guess_type(name)[0] or "application/octet-stream"}
         else:
             continue

@@ -249,8 +249,18 @@
         "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
         ".github/workflows/visual-regression.yml": "9feef914864d7bfb6d5a5153edfef5d3b4bd4a20",
         "qa/evidence/pr342-pairing-visual-review.json": "97ffb59ccf570b6839edd0baf69abbda5887795f",
-        "docs/qa/pr342-raster-and-pinned-android-2026-09-06.md": "4d8d1f24aafd6cdddcf5d14f8a56c4fb9427b94d",
-        "scripts/test-reviewed-baseline.mjs": "e4e2d86d2a5e0e8306dc7d97ff87f27ca2198a2c"
+        "docs/qa/pr342-raster-and-pinned-android-2026-09-06.md": "a4a965def7a8c882e5c82b92816915871ad79c1c",
+        "scripts/test-reviewed-baseline.mjs": "e4e2d86d2a5e0e8306dc7d97ff87f27ca2198a2c",
+        "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
+        "src/.parts/main.04.txt": "f799f7dcbfd189b0f6f76765e4cc80d56ba829fe",
+        "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "fe02d9dcb0519a147822e1ec8894f2b3f902deb0",
+        "src/pairings-data/final/filter-lotus.webp.b64.txt": "de942d76ec9148f2d9e81c63ac9d792d6cb893d2",
+        "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "723965f3f43ac5d7311c277283158d93a47fd3e2",
+        "src/pairings-data/final/latte-nutella.webp.b64.txt": "a63677d2cf20824615e8b1f6a6bf4d5a8dea1761",
+        "src/pairings-data/final/relax-lotus.webp.b64.txt": "cde1f1956c984fa038637595e8efc338ce431566",
+        "src/products/README.txt": "e2888b098d0157e2637a8b9c7bffb07e956f79ca",
+        "src/products/menu-note.txt": "708673f2806271cb04c6ca0c75b4afa96f90f933",
+        "src/products/san-sebastian.webp.base64.txt": "3710094643ef0e6772523080ad74c844d652d054"
       },
       "baselineBindings": {
         "404.html": "7339741828ab48da9e5f48fd6ddbeba20dcb7ca4",
@@ -480,7 +490,17 @@
         "styles-v2.css": "bdbd5cc0ff3ecd677ea63acf003c83faf961fc12",
         "sw.js": "1443f597cee7db7248e4aa72590ec81bb5179b6a",
         "tsconfig.json": "7d031e2ae644c86778cd2c331b8f8d3c06761ce8",
-        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
+        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf",
+        "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
+        "src/.parts/main.04.txt": "f799f7dcbfd189b0f6f76765e4cc80d56ba829fe",
+        "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "fe02d9dcb0519a147822e1ec8894f2b3f902deb0",
+        "src/pairings-data/final/filter-lotus.webp.b64.txt": "de942d76ec9148f2d9e81c63ac9d792d6cb893d2",
+        "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "723965f3f43ac5d7311c277283158d93a47fd3e2",
+        "src/pairings-data/final/latte-nutella.webp.b64.txt": "a63677d2cf20824615e8b1f6a6bf4d5a8dea1761",
+        "src/pairings-data/final/relax-lotus.webp.b64.txt": "cde1f1956c984fa038637595e8efc338ce431566",
+        "src/products/README.txt": "e2888b098d0157e2637a8b9c7bffb07e956f79ca",
+        "src/products/menu-note.txt": "708673f2806271cb04c6ca0c75b4afa96f90f933",
+        "src/products/san-sebastian.webp.base64.txt": "3710094643ef0e6772523080ad74c844d652d054"
       },
       "expectedFailures": [
         {

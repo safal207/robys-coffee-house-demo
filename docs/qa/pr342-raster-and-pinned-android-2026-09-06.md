@@ -66,7 +66,7 @@ pairing. Frames lasting up to 9950ms suggest severe rendering contention but do
 not distinguish application, emulator and recorder causes.
 
 The new comparison creates separate temporary diagnostic APK sources from exact
-base/head Git archives. Each contains 228 public files with a SHA-256 inventory.
+base/head Git archives. Each contains a complete public-file SHA-256 inventory.
 Only a resource-delivery adapter is injected into the temporary native copy.
 Original URL, origin checks, SSL handling, bridge rules, native deadlines,
 animation settings, emulator profile and recording contract are retained.
@@ -91,4 +91,25 @@ the integrity manifest. No direct homepage byte change is introduced by pairing.
 
 Local environment lacks Android SDK/emulator. Fixture preparation is verified
 locally; APK compilation and actual native handoff require the new CI run.
-Keep PR draft and hold release while the original native gate is failing.
+Keep PR draft; native source identity and handoff remain separate evidence axes.
+
+### First comparison and fixture correction
+
+On `dbc8f7a4`, original public-Pages Android smoke 34054712767 passed and Visual's
+screenshot/review steps passed. Pinned comparison 34054712776 compiled both APKs
+but timed out on both sides; its resource verifier correctly rejected an
+incomplete APK inventory. Those runs cannot certify complete pinned delivery.
+Verified artifacts: head9995678729 SHA-256
+`2ef5d63dcd39ec8c490b1db5f06bef56cda9281e403016035f217dbdd02a8b34`,
+base9995675129 SHA-256
+`52186a5df060c5383836d8398b044275cc80b72fce6ed2566e5767e87854a8b9`.
+
+Inspection found underscore-prefixed `_anchors` resource directories vulnerable
+to AAPT's default exclusions and two .b64.txt resources omitted by the preparer's
+extension selection. Both missing text requests were logged after their terminal
+handoff timeout; this does not explain the earlier timeout. The correction keeps
+those source files, packs all assets under flat SHA-256 names, and retains each
+original URL in the manifest. Exact inventory equality and byte hashes remain
+required; an inventory diff is now retained before assertion failure. Android
+packaging filters and application deadlines are unchanged. Repeat both sides
+after the fixture correction before interpreting delivery-complete results.

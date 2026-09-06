@@ -17,9 +17,13 @@ def verify(directory):
         assert archive.read("assets/pinned-manifest.json") == manifest_bytes, "APK manifest mismatch"
         names = {n.removeprefix("assets/pinned-web/") for n in archive.namelist()
                  if n.startswith("assets/pinned-web/") and not n.endswith("/")}
-        assert names == set(manifest["files"]), "APK resource inventory mismatch"
+        expected = {entry["asset"] for entry in manifest["files"].values()}
+        inventory = {"expected_assets": sorted(expected), "actual_assets": sorted(names),
+                     "missing": sorted(expected - names), "unexpected": sorted(names - expected)}
+        (root / "apk-inventory.json").write_text(json.dumps(inventory, indent=2) + "\n")
+        assert names == expected, f"APK resource inventory mismatch: {inventory['missing']} missing; {inventory['unexpected']} unexpected"
         for path, entry in manifest["files"].items():
-            data = archive.read("assets/pinned-web/" + path)
+            data = archive.read("assets/pinned-web/" + entry["asset"])
             assert len(data) == entry["bytes"], f"APK size mismatch: {path}"
             assert hashlib.sha256(data).hexdigest() == entry["sha256"], f"APK hash mismatch: {path}"
     log = (root / "android-native/build/visual-evidence/logcat.txt").read_text()

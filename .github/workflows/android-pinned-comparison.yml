@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/prepare-android-pinned-fixture.py"
       - "scripts/verify-android-pinned-evidence.py"
+      - "scripts/test-android-pinned-fixture.py"
       - "scripts/qa/PinnedWebFixture.java"
       - ".github/workflows/android-pinned-comparison.yml"
 
@@ -37,6 +38,9 @@ jobs:
 
       - name: Prepare isolated pinned fixture
         run: python3 scripts/prepare-android-pinned-fixture.py --source subject --output "$RUNNER_TEMP/pinned-fixture"
+
+      - name: Verify fixture inventory and negative controls
+        run: python3 scripts/test-android-pinned-fixture.py
 
       - name: Verify original capture failure semantics
         run: python3 scripts/test-android-capture-contract.py
@@ -94,5 +98,6 @@ jobs:
             ${{ runner.temp }}/pinned-fixture/fixture-manifest.json
             ${{ runner.temp }}/pinned-fixture/native-instrumentation.diff
             ${{ runner.temp }}/pinned-fixture/pinned-evidence-summary.json
+            ${{ runner.temp }}/pinned-fixture/apk-inventory.json
           if-no-files-found: warn
           retention-days: 14
