@@ -32,6 +32,10 @@ jobs:
           node scripts/test-unified-order.mjs > .artifacts/unified-order/domain.json
       - name: Install locked Chromium
         run: npx playwright install --with-deps chromium
+      - name: Homepage live translation parity
+        env:
+          HOME_COPY_RESULTS_DIR: .artifacts/unified-order/home-copy
+        run: node scripts/home-copy-browser.mjs
       - name: Empty-menu lazy load and first-order failure boundaries
         env:
           MENU_DEMAND_RESULTS_DIR: .artifacts/unified-order/menu-demand
