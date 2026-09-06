@@ -1,0 +1,167 @@
+name: Prepare pairing layout candidate
+on:
+  push:
+    branches: [fix/pairing-offers-framing-20260906]
+    paths:
+      - pairing-posters.css
+      - pairing-posters.js
+      - scripts/pairing-offers-regression.mjs
+      - .github/workflows/prepare-pairings-20260906.yml
+permissions:
+  contents: write
+concurrency:
+  group: pairing-layout-candidate
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 60
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Record input and install locked tools
+        run: |
+          mkdir -p .artifacts/pairings
+          git rev-parse HEAD > .artifacts/pairings/input-head.txt
+          git merge-base --is-ancestor 0893c361f035e7c6bf6d9456ee82d8dfb14ab601 HEAD
+          npm ci --no-audit --no-fund
+      - name: Add source-bound revisions and permanent validation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/build.mjs')
+          s=p.read_text()
+          old='const menuAppRevision = revisionFor("menu-app.js");'
+          assert s.count(old)==1
+          s=s.replace(old, old+'\nconst pairingCssRevision = revisionFor("pairing-posters.css");\nconst pairingScriptRevision = revisionFor("pairing-posters.js");')
+          old='menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);'
+          assert s.count(old)==1
+          s=s.replace(old, old+'\nmenuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingCssRevision);\nmenuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingScriptRevision);')
+          old='  ["menu-app.js", menuAppRevision],'
+          assert s.count(old)==1
+          s=s.replace(old,old+'\n  ["pairing-posters.css", pairingCssRevision],\n  ["pairing-posters.js", pairingScriptRevision],')
+          p.write_text(s)
+          p=Path('package.json'); s=p.read_text()
+          old='node scripts/test-menu-runtime-contract.mjs'
+          assert s.count(old)==1
+          s=s.replace(old,old+' && node scripts/test-pairing-offers-source.mjs')
+          p.write_text(s)
+          p=Path('sw.js'); s=p.read_text()
+          # New cache namespace, without changing caching semantics or resources.
+          import re
+          s,n=re.subn(r'robys-offline-v\d+-\d{8}-cart-feedback-', 'robys-offline-v64-20260906-pairing-layout-', s, count=1)
+          assert n==1, 'unexpected cache marker'
+          p.write_text(s)
+          Path('scripts/test-pairing-offers-source.mjs').write_text('''import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          import { createHash } from "node:crypto";
+          const css=readFileSync("pairing-posters.css","utf8"), js=readFileSync("pairing-posters.js","utf8");
+          assert.match(css,/object-fit: contain/);
+          assert.match(css,/transform: none/);
+          assert.match(css,/#pairing-offers \\.full-menu-item-details[\\s\\S]*?display: flex/);
+          assert.ok(!/oldPrice|priceMeta|340 ₺/.test(js),"no unsupported discount or duplicate price source");
+          assert.match(js,/aria-haspopup/);
+          assert.match(js,/media\\.click\\(\\)/);
+          for (const file of ["pairing-posters.css","pairing-posters.js"]) {
+            const revision=createHash("sha256").update(readFileSync(file)).digest("hex").slice(0,12);
+            for (const consumer of ["menu.html","sw.js"]) assert.ok(readFileSync(consumer,"utf8").includes(file+"?v="+revision),consumer+": stale "+file);
+          }
+          console.log("Pairing source contract: PASS (framing, single price source, actions, content-bound HTML/SW)");
+          ''')
+          Path('.github/workflows/pairing-offers.yml').write_text('''name: Pairing offers regression
+          on:
+            pull_request:
+              paths: ['pairing-posters.*', 'menu*', 'src/menu-app.js', 'src/order-*', 'order-*', 'scripts/build.mjs', 'scripts/pairing-offers-regression.mjs', 'scripts/test-pairing-offers-source.mjs', '.github/workflows/pairing-offers.yml']
+            workflow_dispatch:
+          permissions:
+            contents: read
+          jobs:
+            regression:
+              runs-on: ubuntu-latest
+              timeout-minutes: 15
+              steps:
+                - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+                  with:
+                    ref: ${{ github.event.pull_request.head.sha || github.sha }}
+                    fetch-depth: 60
+                    persist-credentials: false
+                - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+                  with:
+                    node-version: '22'
+                - run: npm ci --no-audit --no-fund
+                - run: npm run check && npm run verify:security
+                - run: npx playwright install --with-deps chromium
+                - run: node scripts/pairing-offers-regression.mjs
+                  env:
+                    PAIRING_BASE_REF: 0893c361f035e7c6bf6d9456ee82d8dfb14ab601
+                - uses: actions/upload-artifact@v4
+                  if: always()
+                  with:
+                    name: pairing-offers-${{ github.event.pull_request.head.sha || github.sha }}
+                    path: .artifacts/pairings/
+                    retention-days: 14
+          ''')
+          PY
+      - name: Build, integrity and full checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build 2>&1 | tee .artifacts/pairings/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/pairings/integrity.log
+          npm run check 2>&1 | tee .artifacts/pairings/check.log
+          npm run verify:security 2>&1 | tee .artifacts/pairings/security.log
+          git diff --exit-code -- menu-catalog.js src/order-store.ts
+          git diff --check
+      - run: npx playwright install --with-deps chromium
+      - name: Full-site pairings before and after
+        run: node scripts/pairing-offers-regression.mjs
+        env:
+          PAIRING_BASE_REF: 0893c361f035e7c6bf6d9456ee82d8dfb14ab601
+      - name: Preserve successful candidate as detached commit only
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'), cp=require('child_process'), crypto=require('crypto');
+            const owner=context.repo.owner, repo=context.repo.repo;
+            const report=JSON.parse(fs.readFileSync('.artifacts/pairings/report.json','utf8'));
+            if(!report.passed || report.cases.length!==24 || !report.negativeControl?.detected) throw new Error('Incomplete evidence');
+            fs.unlinkSync('.github/workflows/prepare-pairings-20260906.yml');
+            const note='Pairing offers repair — 6 September 2026\n\n'+
+              'Input checkout '+context.sha+'; full check/security and 24 Chromium configurations passed in run '+context.runId+'.\n'+
+              'The original crop/hidden-copy control was detected. Use candidate.json, source.patch and file hashes together; browser JSON identifies the input working tree, not a later fresh checkout.\n\n'+
+              'Complete photos, no forced crop, readable catalogue copy/price and explicit TR/EN/RU set button. No unsupported old-price badge. Catalogue, agreed prices, order persistence and CSP are unchanged. Content-bound references and cache are rebuilt.\n\n'+
+              'Width320/390/768/1440 x three languages x root16/32; reduced motion is paired with root32. Direct hash, ordinary touch/click, focus, add2+add1=950TRY and same-session reload. SW blocked for deterministic CSS: no cache-upgrade, physical-device or published-site claim.\n\n'+
+              'No Codex review requested; no baseline/threshold waiver, merge, deployment or actual order/payment. Final-head CI and review remain separate.\n';
+            fs.writeFileSync('docs/qa/pairing-offers-2026-09-06.md',note);
+            const changed=cp.execFileSync('git',['diff','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
+            changed.push('scripts/test-pairing-offers-source.mjs','.github/workflows/pairing-offers.yml','docs/qa/pairing-offers-2026-09-06.md');
+            const allowed=new Set(['scripts/build.mjs','package.json','sw.js','menu.html','integrity-manifest.json','.github/workflows/prepare-pairings-20260906.yml','scripts/test-pairing-offers-source.mjs','.github/workflows/pairing-offers.yml','docs/qa/pairing-offers-2026-09-06.md']);
+            for(const path of changed) if(!allowed.has(path)) throw new Error('Unexpected output '+path);
+            const ref=await github.rest.git.getRef({owner,repo,ref:'heads/fix/pairing-offers-framing-20260906'});
+            if(ref.data.object.sha!==context.sha) throw new Error('Branch moved; not committing stale candidate');
+            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:context.sha});
+            const entries=changed.map(path=>fs.existsSync(path)?{path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}:{path,mode:'100644',type:'blob',sha:null});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:entries});
+            const commit=await github.rest.git.createCommit({owner,repo,tree:tree.data.sha,parents:[context.sha],message:'fix(pairings): verify complete-photo cards and rebuild content-bound assets'});
+            const hashes={}; for(const path of [...changed,'pairing-posters.css','pairing-posters.js','scripts/pairing-offers-regression.mjs']) if(fs.existsSync(path)) hashes[path]=crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+            fs.writeFileSync('.artifacts/pairings/candidate.json',JSON.stringify({input:context.sha,candidate:commit.data.sha,tree:tree.data.sha,changed,hashes,refUpdated:false},null,2));
+      - name: Preserve patch and diagnostics
+        if: always()
+        run: |
+          mkdir -p .artifacts/pairings
+          git diff > .artifacts/pairings/source.patch
+          git status --short > .artifacts/pairings/git-status.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pairings-candidate-${{ github.sha }}
+          path: .artifacts/pairings/
+          retention-days: 14
+          if-no-files-found: error
