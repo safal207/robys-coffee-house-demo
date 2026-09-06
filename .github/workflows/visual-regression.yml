@@ -67,6 +67,12 @@ jobs:
           CAPTURE_RESULTS_DIR: visual-results/capture-reachability
         run: node scripts/test-menu-share-capture.mjs
 
+      - name: Verify Discover and social actions independently of document crops
+        working-directory: current
+        env:
+          ORDER_VISUAL_RESULTS_DIR: visual-results/order-reachability
+        run: node scripts/order-visual-reachability.mjs
+
       - name: Compare screenshots with base branch
         id: screenshot_compare
         continue-on-error: true
