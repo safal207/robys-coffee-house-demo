@@ -71,6 +71,7 @@ try {
         const hit = document.elementFromPoint((a.left+a.right)/2,(a.top+a.bottom)/2);
         return {link:a,bar:b,gap:b.top-a.bottom,hit:!!hit&&(hit===link||link.contains(hit)),hitClass:hit?.className,
           viewport:{width:window.innerWidth,height:window.innerHeight},
+          skipLinkBottom:document.querySelector(".skip-link").getBoundingClientRect().bottom,
           headerControlsWithin:[...document.querySelectorAll(".header-actions button")].filter(el=>el.getClientRects().length).every(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=window.innerWidth;}),
           heroHeight:document.querySelector('.hero').getBoundingClientRect().height,
           barHeight:getComputedStyle(document.documentElement).getPropertyValue('--robys-order-bar-height')};
@@ -83,10 +84,22 @@ try {
         continue;
       }
       assert.ok(geometry.headerControlsWithin,`${id}: header controls overflow`);
+      assert.ok(geometry.skipLinkBottom<=0,`${id}: unfocused skip link covers the header`);
       assert.equal(geometry.viewport.width,config.width,`${id}: layout viewport expanded`);
       assert.ok(geometry.link.top>=0 && geometry.link.bottom<=geometry.viewport.height,`${id}: CTA not fully on-screen`);
       assert.ok(geometry.gap>=10,`${id}: insufficient menu/cart separation: ${geometry.gap}`);
       assert.ok(geometry.hit,`${id}: menu hit intercepted by ${geometry.hitClass}`);
+      const skip = page.locator('.skip-link');
+      await skip.focus();
+      await frames(page);
+      const focusedSkip = await skip.evaluate(node => {
+        const r=node.getBoundingClientRect();
+        return {x:r.left,y:r.top,width:r.width,height:r.height,focused:document.activeElement===node,viewportHeight:innerHeight};
+      });
+      await writeFile(resolve(out,id+'-focus.json'),JSON.stringify(focusedSkip,null,2));
+      assert.ok(focusedSkip.focused && focusedSkip.y>=0 && focusedSkip.y+focusedSkip.height<=focusedSkip.viewportHeight,`${id}: focused skip link unavailable: ${JSON.stringify(focusedSkip)}`);
+      await page.keyboard.press('Tab');
+      await frames(page);
       const link = page.locator('.hero-actions a[href="menu.html"]');
       if (touch) await link.tap(); else await link.click();
       await page.waitForURL('**/menu.html');

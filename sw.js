@@ -107,7 +107,7 @@ const CORE_ASSETS = [
   "./order-launcher.js?v=5b45395af89a",
   "./order-store.js?v=cba60bee5672",
   "./order-shell.js?v=20394ade5600",
-  "./order-shell.css?v=ca88d9e9e25c",
+  "./order-shell.css?v=1c4bd3f519ca",
   "./smart-choice/index.html",
   "./smart-choice/pwa.js?v=premium-cache-new-20260904-1",
   "./smart-choice/style.css?v=93af186a5b11",

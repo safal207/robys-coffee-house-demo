@@ -41,3 +41,7 @@ body.has-unified-order .hero-content>*{min-width:0;max-width:100%;overflow-wrap:
  body.has-unified-order .map-live-place span{white-space:normal;overflow-wrap:anywhere}
 }
 /* ORDER-HOME-TEXT:END */
+
+/* Relative hiding works even when the accessible skip label grows past 100px. */
+body.has-unified-order .skip-link{max-width:calc(100% - 32px);overflow-wrap:anywhere}
+body.has-unified-order .skip-link:not(:focus){top:0;transform:translateY(-100%)}
