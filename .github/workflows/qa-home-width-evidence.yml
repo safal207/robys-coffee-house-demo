@@ -1,0 +1,56 @@
+name: Home width diagnostic evidence
+on:
+  push:
+    branches: [fix/pr341-hero-clearance-20260906]
+    paths: [.github/workflows/qa-home-width-evidence.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 63a80bf7c58536024895a6cccf6bd42ebc8d7dee
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: python3 scripts/prepare-hero-clearance.py && npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Inspect unmodified full-site boxes at requested narrow widths
+        run: |
+          mkdir -p .artifacts/home-width
+          python3 -m http.server 8765 --bind 127.0.0.1 > .artifacts/home-width/server.log 2>&1 &
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          import {writeFileSync} from 'node:fs';
+          const browser=await chromium.launch();const reports=[];
+          try{
+            for(const width of [320,390])for(const language of ['tr','en','ru']){
+              const context=await browser.newContext({viewport:{width,height:1000},isMobile:true,hasTouch:true,bypassCSP:false,serviceWorkers:'block',reducedMotion:'reduce'});
+              const page=await context.newPage();
+              await page.addInitScript(language=>localStorage.setItem('robys-language',language),language);
+              await page.goto('http://127.0.0.1:8765/index.html?entry=off',{waitUntil:'load'});
+              await page.locator('.robys-order .order-bar').waitFor();
+              await page.evaluate(()=>{document.documentElement.style.fontSize='32px';});
+              await page.evaluate(()=>document.fonts.ready);
+              await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+              const evidence=await page.evaluate(width=>{
+                const box=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return {tag:el.tagName,id:el.id,class:el.className,left:r.left,right:r.right,width:r.width,client:el.clientWidth,scroll:el.scrollWidth,minWidth:s.minWidth,whiteSpace:s.whiteSpace,display:s.display,position:s.position,text:el.children.length?null:el.textContent.slice(0,90)}};
+                const all=[...document.querySelectorAll('body *')].filter(el=>el.getClientRects().length&&!el.closest('dialog:not([open]),.main-nav:not(.is-open)'));
+                return {innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
+                  overflows:all.filter(el=>{const r=el.getBoundingClientRect();return r.right>width+1||el.scrollWidth>el.clientWidth+1;}).map(box).slice(0,130)};
+              },width);
+              reports.push({width,language,evidence});await context.close();
+            }
+          }finally{await browser.close();writeFileSync('.artifacts/home-width/report.json',JSON.stringify(reports,null,2));}
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: home-width-diagnostic
+          path: .artifacts/home-width/
+          retention-days: 14
