@@ -1,0 +1,114 @@
+name: Hero order clearance candidate
+on:
+  push:
+    branches: [fix/pr341-hero-clearance-20260906]
+    paths:
+      - .github/workflows/qa-hero-clearance-candidate.yml
+      - scripts/order-hero-regression.mjs
+permissions:
+  contents: write
+concurrency:
+  group: pr341-hero-clearance-candidate
+  cancel-in-progress: true
+jobs:
+  candidate:
+    if: github.repository == 'safal207/robys-coffee-house-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 8
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Assert exact source and apply the small fix
+        shell: bash
+        run: |
+          mkdir -p .artifacts/hero-candidate
+          git rev-parse HEAD > .artifacts/hero-candidate/input-head.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          base='9ad682884f7ae4fb040650b6860cceb9e61ad6bb'
+          expected={'src/order-dock.ts':'dfbf9fde6045e10f6b47607e4cecda61f3d9f578','order-shell.css':'34f0f23c9ab38a9b56ca5a0449aa7e67ff0638d6','.github/workflows/unified-order-regression.yml':'30a542b9e074af69608faabd9785ed32fc7c38d3'}
+          for path, sha in expected.items():
+              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha, 'Unexpected source: '+path
+          p=Path('src/order-dock.ts'); s=p.read_text()
+          old="const properties = ['--robys-order-obstruction', '--robys-order-page-clearance'];"
+          assert s.count(old)==1
+          s=s.replace(old,"const properties = ['--robys-order-obstruction', '--robys-order-page-clearance', '--robys-order-bar-height'];")
+          old='    set(properties[0], lane);'
+          assert s.count(old)==1
+          s=s.replace(old,"    // Hero padding depends on bar height only, never the scroll-dependent\n    // action-panel lane: otherwise scrolling would resize the hero itself.\n    set(properties[2], Math.max(...heights.map(([, height]) => height)));\n"+old)
+          p.write_text(s)
+          p=Path('order-shell.css'); s=p.read_text()
+          assert 'ORDER-HERO-CLEARANCE:START' not in s
+          s+='\n/* ORDER-HERO-CLEARANCE:START */\n/* Reserve the persistent order bar inside the hero, not only at the page end.\n   Font growth and a wrapped saved-order label use the measured bar height. */\nbody.has-unified-order .hero-content{padding-bottom:max(58px,calc(var(--robys-order-bar-height,54px) + max(14px,env(safe-area-inset-bottom,0px)) + 12px))}\n/* ORDER-HERO-CLEARANCE:END */\n'
+          p.write_text(s)
+          p=Path('.github/workflows/unified-order-regression.yml'); s=p.read_text()
+          old='      - name: Shared order and Smart Choice end-to-end\n'
+          assert s.count(old)==1
+          s=s.replace(old,'      - name: Hero actions remain reachable above the order entry\n        env:\n          HERO_RESULTS_DIR: .artifacts/unified-order/hero\n        run: |\n          HERO_RESULTS_DIR=.artifacts/unified-order/hero-negative node scripts/order-hero-regression.mjs --negative-control\n          node scripts/order-hero-regression.mjs\n'+old)
+          p.write_text(s)
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Rebuild and verify the complete candidate
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee .artifacts/hero-candidate/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/hero-candidate/integrity.log
+          npm run check 2>&1 | tee .artifacts/hero-candidate/check.log
+          npm run verify:security 2>&1 | tee .artifacts/hero-candidate/security.log
+          node --check scripts/order-hero-regression.mjs
+          git diff --check
+      - run: npx playwright install --with-deps chromium
+      - name: Detect the original obstruction without weakening CSP
+        env:
+          HERO_RESULTS_DIR: .artifacts/hero-candidate/negative
+        run: node scripts/order-hero-regression.mjs --negative-control
+      - name: Verify all hero targets with real clicks and taps
+        env:
+          HERO_RESULTS_DIR: .artifacts/hero-candidate/positive
+        run: node scripts/order-hero-regression.mjs
+      - name: Existing shared-order layout and cross-route regression
+        shell: bash
+        run: |
+          set -o pipefail
+          ORDER_LAYOUT_RESULTS_DIR=.artifacts/hero-candidate/layout node scripts/order-layout-regression.mjs 2>&1 | tee .artifacts/hero-candidate/layout.log
+          ORDER_RESULTS_DIR=.artifacts/hero-candidate/journeys node scripts/unified-order-browser.mjs 2>&1 | tee .artifacts/hero-candidate/journeys.log
+      - name: Store a detached verified candidate only
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9
+        with:
+          script: |
+            const fs=require('fs'), cp=require('child_process'), crypto=require('crypto');
+            const owner=context.repo.owner, repo=context.repo.repo;
+            const base='9ad682884f7ae4fb040650b6860cceb9e61ad6bb';
+            const current=await github.rest.git.getRef({owner,repo,ref:'heads/feat/unified-order-flow'});
+            if(current.data.object.sha!==base)throw new Error('PR head moved: do not overwrite concurrent work');
+            const paths=cp.execFileSync('git',['diff',base,'--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).filter(p=>p!=='.github/workflows/qa-hero-clearance-candidate.yml');
+            const allowed=new Set(['src/order-dock.ts','order-shell.css','scripts/order-hero-regression.mjs','.github/workflows/unified-order-regression.yml','order-launcher.js','order-shell.js','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json']);
+            for(const p of paths)if(!allowed.has(p))throw new Error('Unexpected changed path '+p);
+            for(const p of ['src/order-dock.ts','order-shell.css','scripts/order-hero-regression.mjs','.github/workflows/unified-order-regression.yml'])if(!paths.includes(p))throw new Error('Missing candidate source '+p);
+            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:base});
+            const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:paths.map(path=>({path,mode:'100644',type:'blob',content:fs.readFileSync(path,'utf8')}))});
+            const commit=await github.rest.git.createCommit({owner,repo,message:'fix(order): preserve hero menu access above measured cart height',tree:tree.data.sha,parents:[base]});
+            const files=paths.map(path=>({path,sha256:crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex')}));
+            fs.writeFileSync('.artifacts/hero-candidate/candidate.json',JSON.stringify({base,input:context.sha,candidate:commit.data.sha,tree:tree.data.sha,files,refUpdated:false},null,2)+'\n');
+            core.info('Validated detached candidate '+commit.data.sha+'; no ref or publication changed');
+      - name: Preserve original failures and exact source evidence
+        if: always()
+        run: |
+          mkdir -p .artifacts/hero-candidate
+          git diff 9ad682884f7ae4fb040650b6860cceb9e61ad6bb -- . ':!.github/workflows/qa-hero-clearance-candidate.yml' > .artifacts/hero-candidate/candidate.patch
+          cp scripts/order-hero-regression.mjs .artifacts/hero-candidate/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr341-hero-clearance-${{ github.sha }}
+          path: .artifacts/hero-candidate/
+          if-no-files-found: error
+          retention-days: 14
