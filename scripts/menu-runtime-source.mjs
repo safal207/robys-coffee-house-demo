@@ -8,7 +8,10 @@ import { transformSync } from "esbuild";
 // do not bundle the shared catalog or move interaction-only code into startup.
 export function compileMenuRuntime(source = readFileSync("src/menu-app.js", "utf8")) {
   const revision = createHash("sha256").update(readFileSync("order-store.js")).digest("hex").slice(0,12);
+  const orderImport = 'import("./order-store.js")';
+  assert.ok(source.split(orderImport).length - 1 <= 1, "Duplicate lazy order imports");
   source = source.replace('from "./order-store.js"', `from "./order-store.js?v=${revision}"`);
+  source = source.replace(orderImport, `import("./order-store.js?v=${revision}")`);
   // Do not request the catalog a second time under the previous query string.
   if (/from "\.\/menu-catalog\.js(?:\?[^"\n]*)?"/.test(source)) {
     source = source.replace(/from "\.\/menu-catalog\.js(?:\?[^"\n]*)?"/, `from "${orderCatalogURL()}"`);

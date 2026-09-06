@@ -21,3 +21,23 @@ body:is(.menu-open,.lightbox-open,.cart-open,.order-modal-open,.menu-dialog-open
 /* Touch feedback must not obscure text; keep an explicit keyboard focus ring. */
 .robys-order .order-bar{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .robys-order a.order-bar:focus-visible{outline:3px solid #a1572c;outline-offset:3px}
+
+/* ORDER-HERO-CLEARANCE:START */
+/* The hero needs its own clearance, including toolbars which can appear on
+   scroll. The reserve is measured independently of their transient visibility. */
+body.has-unified-order .hero-content{padding-bottom:max(58px,var(--robys-order-hero-clearance,calc(6rem + env(safe-area-inset-bottom,0px))))}
+body.has-unified-order .hero-content>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+/* ORDER-HERO-CLEARANCE:END */
+
+/* ORDER-HOME-TEXT:START */
+@media(max-width:680px){
+ body.has-unified-order main{overflow-wrap:anywhere}
+ body.has-unified-order :is(.visit-grid,.menu-layout,.android-app-card){grid-template-columns:minmax(0,1fr)}
+ body.has-unified-order :is(.visit-card,.menu-intro,.menu-card>div,.android-app-copy,.android-app-actions,.android-download-label){min-width:0;max-width:100%;overflow-wrap:anywhere}
+ body.has-unified-order .header-inner{grid-template-columns:auto minmax(0,1fr)}
+ body.has-unified-order .header-actions{min-width:0;max-width:100%;flex-wrap:wrap;justify-content:flex-end}
+ body.has-unified-order .map-live-bottom{min-width:0;max-width:calc(100% - 28px);flex-wrap:wrap}
+ body.has-unified-order :is(.map-live-place,.map-live-action){min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+ body.has-unified-order .map-live-place span{white-space:normal;overflow-wrap:anywhere}
+}
+/* ORDER-HOME-TEXT:END */

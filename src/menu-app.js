@@ -1,4 +1,3 @@
-import { order, resolveOrderProduct, ORDER_KEY } from "./order-store.js";
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
 
@@ -125,9 +124,51 @@ function buildProductIndex() {
 
 const productIndex = buildProductIndex();
 
-function readCart() { return new Map(order.get().lines.map(line => [line.id, line.quantity])); }
+// Browsing an empty menu needs the catalogue, not the recommendation/order engine.
+// Existing records hydrate before the menu renders; first order intent loads the
+// same versioned module as the shared drawer. No timer or benchmark detection.
+let order = null;
+let orderRuntime = null;
+let orderLoad = null;
+let addingSelectedProduct = false;
+let productIntentRevision = 0;
+productDialog.addEventListener("cancel", () => { productIntentRevision += 1; });
+productDialog.addEventListener("close", () => { productIntentRevision += 1; });
+function resolveOrderProduct(id) {
+  return orderRuntime ? orderRuntime.resolveOrderProduct(id) : productIndex.get(id);
+}
+function hasStoredOrder() {
+  try {
+    const storage = window.sessionStorage;
+    return ["robys:coffee-house:order.v2", "robys-menu-order.v1", "robys-smart-choice-cart.v1"]
+      .some(key => storage.getItem(key) !== null);
+  } catch { return false; }
+}
+function orderUnavailable() {
+  announceCart({
+    tr: "Sepet yüklenemedi. Seçiminiz değiştirilmedi. Bağlantınızı kontrol edip sayfayı yenileyin.",
+    en: "The order could not load. Your selection was not changed. Check your connection and reload.",
+    ru: "Не удалось загрузить заказ. Ваш выбор не изменён. Проверьте связь и обновите страницу."
+  }[language]);
+}
+function ensureMenuOrder() {
+  if (order) return Promise.resolve(order);
+  orderLoad ??= import("./order-store.js").then(runtime => {
+    orderRuntime = runtime;
+    order = runtime.order;
+    cart = readCart();
+    order.subscribe(() => { cart = readCart(); renderCart(); });
+    renderCart();
+    window.dispatchEvent(new Event("robys:order-load"));
+    return order;
+  }).catch(error => { orderLoad = null; throw error; });
+  return orderLoad;
+}
+window.addEventListener("robys:order-ready", () => { void ensureMenuOrder().catch(orderUnavailable); });
+
+function readCart() { return order ? new Map(order.get().lines.map(line => [line.id, line.quantity])) : new Map(); }
 let cart = readCart();
-function saveCart() { order.replace(Array.from(cart, ([id, quantity]) => ({ id, quantity }))); }
+function saveCart() { if (!order) throw new Error("Order is not ready"); order.replace(Array.from(cart, ([id, quantity]) => ({ id, quantity }))); }
 
 function cartSummary() {
   let quantity = 0;
@@ -281,6 +322,7 @@ function openDialog(dialog) {
 }
 
 function closeDialog(dialog) {
+  if (dialog === productDialog) productIntentRevision += 1;
   const isFallback = dialog.classList.contains("menu-dialog--fallback");
   if (!isFallback && typeof dialog.close === "function" && dialog.hasAttribute("open")) dialog.close();
   else dialog.removeAttribute("open");
@@ -337,7 +379,7 @@ function updateProductQuantity() {
   productQuantityOutput.textContent = String(selectedProductQuantity);
   productDecrease.disabled = availableQuantity === 0 || selectedProductQuantity <= 1;
   productIncrease.disabled = availableQuantity === 0 || selectedProductQuantity >= availableQuantity;
-  addToCartButton.disabled = availableQuantity === 0;
+  addToCartButton.disabled = addingSelectedProduct || availableQuantity === 0;
   addToCartButton.textContent = availableQuantity === 0
     ? copy.maxQuantity
     : `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
@@ -359,28 +401,48 @@ function hydrateProductDialog() {
 
 function openProduct(id) {
   if (!productIndex.has(id)) return;
+  productIntentRevision += 1;
   selectedProductId = id;
   selectedProductQuantity = 1;
   hydrateProductDialog();
   openDialog(productDialog);
+  void ensureMenuOrder().then(() => { if (productDialog.open) hydrateProductDialog(); }).catch(() => {});
 }
 
-function addSelectedProduct() {
-  const product = resolveOrderProduct(selectedProductId);
-  if (!product) return;
-  const currentQuantity = cart.get(selectedProductId) ?? 0;
-  const copy = menuCopy[language];
-  const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
-  if (addedQuantity <= 0) {
-    announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
-    updateProductQuantity();
-    return;
+async function addSelectedProduct() {
+  if (addingSelectedProduct) return;
+  addingSelectedProduct = true;
+  const requestedProductId = selectedProductId;
+  const requestedIntent = productIntentRevision;
+  const requestedQuantity = selectedProductQuantity;
+  addToCartButton.disabled = true;
+  addToCartButton.setAttribute("aria-busy", "true");
+  try {
+    await ensureMenuOrder();
+    // Closing/switching the product while loading cancels that pending action.
+    if (!productDialog.hasAttribute("open") || selectedProductId !== requestedProductId || productIntentRevision !== requestedIntent) return;
+    selectedProductQuantity = requestedQuantity;
+    const product = resolveOrderProduct(selectedProductId);
+    if (!product) return;
+    const currentQuantity = cart.get(selectedProductId) ?? 0;
+    const copy = menuCopy[language];
+    const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
+    if (addedQuantity <= 0) {
+      announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
+      updateProductQuantity();
+      return;
+    }
+    setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
+    announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
+    closeDialog(productDialog);
+    cartTrigger.classList.add("is-emphasized");
+    window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
+  } catch { orderUnavailable(); }
+  finally {
+    addingSelectedProduct = false;
+    addToCartButton.removeAttribute("aria-busy");
+    if (productDialog.hasAttribute("open")) updateProductQuantity();
   }
-  setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
-  announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
-  closeDialog(productDialog);
-  cartTrigger.classList.add("is-emphasized");
-  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
 }
 
 function createItem(item, { priority = false, categoryId } = {}) {
@@ -687,10 +749,16 @@ searchInput.addEventListener("input", () => {
   renderMenu();
 });
 
-cartTrigger.addEventListener("click", () => {
-  renderCart();
-  openDialog(cartDialog);
-});
+async function openMenuCart() {
+  cartTrigger.setAttribute("aria-busy", "true");
+  try {
+    await ensureMenuOrder();
+    renderCart();
+    if (!cartDialog.open) openDialog(cartDialog);
+  } catch { orderUnavailable(); }
+  finally { cartTrigger.removeAttribute("aria-busy"); }
+}
+cartTrigger.addEventListener("click", () => { void openMenuCart(); });
 
 function isAndroidWebView() {
   const userAgent = navigator.userAgent || "";
@@ -759,21 +827,22 @@ document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
   });
 });
 
-document.querySelector("#current-year").textContent = String(new Date().getFullYear());
-translateStaticPage();
-renderCategoryNav();
-renderMenu();
-initializeMenuScrollMetrics();
-
-if (language !== "tr") void loadMenuActions();
-
-if (activeCategory !== "all") {
-  window.requestAnimationFrame(() => {
+async function initializeMenuPage() {
+  const requestedOrder = new URLSearchParams(window.location.search).get("order") === "open";
+  if (hasStoredOrder() || requestedOrder) {
+    cartTrigger.setAttribute("aria-busy", "true");
+    try { await ensureMenuOrder(); } catch { orderUnavailable(); }
+    finally { cartTrigger.removeAttribute("aria-busy"); }
+  }
+  document.querySelector("#current-year").textContent = String(new Date().getFullYear());
+  translateStaticPage();
+  renderCategoryNav();
+  renderMenu();
+  initializeMenuScrollMetrics();
+  if (language !== "tr") void loadMenuActions();
+  if (activeCategory !== "all") window.requestAnimationFrame(() => {
     document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
   });
+  if (requestedOrder && order) await openMenuCart();
 }
-
-// Shared state also refreshes menu views after edits made through the global drawer.
-order.subscribe(() => { cart = readCart(); renderCart(); });
-
-if (new URLSearchParams(window.location.search).get("order") === "open") openDialog(cartDialog);
+void initializeMenuPage();

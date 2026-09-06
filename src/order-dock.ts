@@ -29,7 +29,7 @@ export function installOrderDock(node: HTMLElement): () => void {
   let pending: number | null = null;
   let disposed = false;
   const root = doc.documentElement;
-  const properties = ['--robys-order-obstruction', '--robys-order-page-clearance'];
+  const properties = ['--robys-order-obstruction', '--robys-order-page-clearance', '--robys-order-hero-clearance'];
   const set = (key: string, value: number) => {
     const css = `${Math.ceil(value)}px`;
     if (root.style.getPropertyValue(key) !== css) root.style.setProperty(key, css);
@@ -76,6 +76,7 @@ export function installOrderDock(node: HTMLElement): () => void {
     for (const bar of bars) if (!bar.isConnected) { resize?.unobserve(bar); bars.delete(bar); }
     if (!bars.size) { dispose(); return; }
     let lane = 0;
+    let heroLane = 0;
     const heights: Array<[HTMLElement, number]> = [];
     for (const bar of bars) {
       const box = bar.getBoundingClientRect();
@@ -87,6 +88,11 @@ export function installOrderDock(node: HTMLElement): () => void {
           bottom: Number.parseFloat(style.bottom), position: style.position,
           display: style.display, visibility: style.visibility, pointerEvents: style.pointerEvents };
       });
+      // Reserve potential fixed toolbars for the hero even while they are
+      // sliding out. Actual bar position still follows interactive blockers.
+      // This prevents scroll/IntersectionObserver state from resizing the hero.
+      heroLane = Math.max(heroLane, orderDockBottom(box.left, box.right,
+        obstacles.map(item => ({ ...item, visibility: 'visible', pointerEvents: 'auto' }))));
       const next = orderDockBottom(box.left, box.right, obstacles);
       lane = Math.max(lane, next);
       heights.push([bar, box.height]);
@@ -97,6 +103,9 @@ export function installOrderDock(node: HTMLElement): () => void {
     const occupied = Math.max(...heights.map(([bar, height]) =>
       (Number.parseFloat(win!.getComputedStyle(bar).bottom) || 14) + height + 12));
     set(properties[1], occupied);
+    const heroOccupied = Math.max(...heights.map(([bar, height]) =>
+      Math.max(heroLane, Number.parseFloat(win!.getComputedStyle(bar).bottom) || 14) + height + 12));
+    set(properties[2], heroOccupied);
   }
   const controller: DockController = {
     add(bar) {

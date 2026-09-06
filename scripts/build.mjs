@@ -101,11 +101,11 @@ function transpileClassicScript(sourcePath, outputPath) {
       removeComments: false
     }
   }).outputText;
-  // Keep stable public identifiers while avoiding shipping development whitespace.
-  // No bundling, execution-order changes or business-logic substitutions.
+  // Without bundling/format, esbuild preserves classic top-level bindings.
+  // Compact local identifiers only; no property mangling or script-order change.
   const compact = transformSync(bundle, {
     target: "es2020", minifyWhitespace: true, charset: "utf8", minifySyntax: true,
-    minifyIdentifiers: false, legalComments: "none"
+    minifyIdentifiers: true, legalComments: "none"
   }).code;
   writeFileSync(outputPath, sourcePath === "src/discover-rotation.ts" ? bundle : compact);
 }
@@ -327,7 +327,7 @@ const orderLauncherRevision = revisionFor("order-launcher.js");
 for (const pagePath of ["index.html", "menu.html", "discover.html", "smart-choice/index.html"]) {
   const prefix = pagePath.startsWith("smart-choice/") ? "../" : "";
   let page = readFileSync(pagePath, "utf8");
-  const launcherOnly = pagePath === "index.html" || pagePath === "discover.html";
+  const launcherOnly = !pagePath.startsWith("smart-choice/");
   page = synchronizeModuleScript(page, `${prefix}${launcherOnly ? "order-launcher.js" : "order-shell.js"}`, launcherOnly ? orderLauncherRevision : orderShellRevision);
   if (pagePath.startsWith("smart-choice/")) page = synchronizeStylesheet(page, "../order-store.js", orderRevision);
   page = synchronizeStylesheet(page, `${prefix}order-shell.css`, orderShellCssRevision);
