@@ -25,22 +25,25 @@ collect_trace() {
   set +e
   kill "$cpu_sampler_pid" 2>/dev/null
   wait "$cpu_sampler_pid" 2>/dev/null
+  trace_wait_result=1
   if [[ -f trace-evidence/perfetto-pid.txt ]]; then
     trace_pid="$(tr -d '\\r\\n ' < trace-evidence/perfetto-pid.txt)"
     if [[ "$trace_pid" =~ ^[0-9]+$ ]]; then
-      adb shell kill -INT "$trace_pid" 2> trace-evidence/perfetto-stop.log
-      for ((n = 0; n < 20; n++)); do
-        adb shell kill -0 "$trace_pid" 2>/dev/null || break
-        sleep 0.25
-      done
+      # Let the bounded 60-second session finish and its writer close the file.
+      # Signalling then waiting only five seconds previously pulled empty files.
+      timeout 60s adb shell "while kill -0 $trace_pid 2>/dev/null; do sleep 0.25; done" > trace-evidence/perfetto-wait.log 2>&1
+      trace_wait_result=$?
     fi
   fi
   timeout 12s adb pull /data/misc/perfetto-traces/robys-handoff.pftrace trace-evidence/launch.pftrace > trace-evidence/trace-pull.log 2>&1
   pull_result=$?
+  trace_nonempty=0
+  [[ -s trace-evidence/launch.pftrace ]] && trace_nonempty=1
+  timeout 6s adb logcat -d > trace-evidence/collection-logcat.txt
   timeout 6s adb shell dumpsys gfxinfo com.robys.coffeehouse.debug framestats > trace-evidence/gfxinfo.txt
-  printf 'capture_exit=%s\\ntrace_pull_exit=%s\\n' "$result" "$pull_result" > trace-evidence/exits.txt
+  printf 'capture_exit=%s\\ntrace_wait_exit=%s\\ntrace_pull_exit=%s\\ntrace_nonempty=%s\\n' "$result" "$trace_wait_result" "$pull_result" "$trace_nonempty" > trace-evidence/exits.txt
   if [[ "$result" -ne 0 ]]; then exit "$result"; fi
-  if [[ "$pull_result" -ne 0 || ! -s trace-evidence/launch.pftrace ]]; then exit 1; fi
+  if [[ "$trace_wait_result" -ne 0 || "$pull_result" -ne 0 || "$trace_nonempty" -ne 1 ]]; then exit 1; fi
 }
 trap collect_trace EXIT
 trap 'exit 130' INT

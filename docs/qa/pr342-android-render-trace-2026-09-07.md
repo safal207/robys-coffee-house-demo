@@ -36,15 +36,42 @@ stats and verify that NATIVE_SURFACE through the terminal/completion event is
 covered. Missing events or decoder errors are incomplete observation, not proof
 of idleness. Tracing adds overhead and is not an alternative acceptance gate.
 
-Local controls preserve all 14 original capture cases and test four combinations
-of native success/failure and trace retrieval success/failure. Full check and
+Local controls preserve all 14 original capture cases and test ten combinations
+of native success/failure and delayed writer completion, failed wait, failed
+retrieval, empty trace, or missing PID. Full check and
 security remain required before updating the branch. Results belong to the PR
 body once the trace artifacts have been collected and inspected.
 
 Primary documentation:
 - https://perfetto.dev/docs/learning-more/android
 - https://perfetto.dev/docs/reference/perfetto-cli
+- https://perfetto.dev/docs/learning-more/tracing-in-background
 - https://perfetto.dev/docs/data-sources/atrace
 - https://developer.android.com/studio/run/emulator-acceleration
 
 No timeout, threshold, source security setting, merge or deployment changes.
+
+## First collection: incomplete system evidence
+
+Run 34084052432 at tooling head `a8e176f07f2630727d3d33217461ac482bdfee32`
+reproduced VISUAL_STATE_TIMEOUT in all three subjects. Resource identity passed
+in each job. Explicit SwiftShader did not suffice in this observation. However,
+all three `launch.pftrace` files were empty: these runs cannot identify scheduler
+or renderer causes. Native failure remained failure (`capture_exit=1`); a
+successful `adb pull` did not establish successful trace collection.
+
+Verified archive SHA-256:
+
+| Subject | Artifact | SHA-256 |
+| --- | --- | --- |
+| base | 10004706470 | 66e8c9b4d16626d5be76042ebc4fd3f5ef09dad4c0f8e473225f15160cd2ea76 |
+| head | 10004728633 | 6e4526d978a66b129bb5130c10175c16dc1c17c4d0d356c2c4b4fb07efcc3cd6 |
+| head-swiftshader | 10004737130 | f4f82336e5991f0fa78146c35df69e1903deabedb6b168455cea4f0486f47d5d |
+
+The collector now lets the configured 60-second session complete, with a bounded
+wait for the writer process to exit before retrieval. It no longer signals the
+writer and assumes a five-second grace period is sufficient. Wait status, pull
+status and nonempty status are independent evidence. Final collector logcat
+retains any trace-service shutdown errors. This is a collection repair, not an
+Android performance repair; the next trace still needs decoding and coverage
+and loss checks before causal conclusions.

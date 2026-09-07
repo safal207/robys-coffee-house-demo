@@ -30,23 +30,39 @@ with tempfile.TemporaryDirectory() as temporary:
         "        work.mkdir()\n        (work / 'trace-evidence').mkdir()\n        (work / 'trace-evidence/config.pbtx').write_text('duration_ms: 60000')\n")
     (root / 'capture-controls.py').write_text(test)
     subprocess.run(['python3', str(root / 'capture-controls.py'), str(root / 'trace-capture.sh')], check=True)
-    # Exercise the outer collector: a valid trace cannot hide native failure,
-    # and a successful native capture cannot hide a failed trace retrieval.
+    # Exercise the outer collector, including a delayed writer. Pulling before
+    # it closes, an empty trace or a failed wait must never count as collection.
     shims = root / 'bin'
     shims.mkdir()
     adb = shims / 'adb'
     adb.write_text('''#!/usr/bin/env python3
-import os,sys
+import os,sys,time
 from pathlib import Path
+mode=os.environ['PROBE_COLLECTION']
+if sys.argv[1]=='shell' and sys.argv[2].startswith('while kill -0 '):
+    if mode=='wait-failure':sys.exit(12)
+    time.sleep(0.1)
+    Path('writer-closed').write_text('closed')
 if sys.argv[1]=='pull':
-    if os.environ['PROBE_PULL']=='failure':sys.exit(9)
-    Path(sys.argv[-1]).write_bytes(b'fake trace')
+    if mode=='pull-failure':sys.exit(9)
+    if mode not in ('wait-failure','missing-pid') and not Path('writer-closed').exists():sys.exit(19)
+    Path(sys.argv[-1]).write_bytes(b'' if mode=='empty' else b'fake trace')
 ''')
     adb.chmod(0o755)
-    for native, pull, expected in [(0, 'success', 0), (17, 'success', 17), (0, 'failure', 1), (17, 'failure', 17)]:
-        (root / 'trace-capture.sh').write_text(f'#!/bin/bash\nexit {native}\n')
-        env = dict(os.environ, PATH=str(shims)+os.pathsep+os.environ['PATH'], PROBE_PULL=pull)
-        run = subprocess.run(['bash', 'trace-runner.sh'], cwd=root, env=env, capture_output=True, timeout=20)
-        assert run.returncode == expected, (native, pull, expected, run.returncode)
-        assert f'capture_exit={native}\n' in (root / 'trace-evidence/exits.txt').read_text()
-print('Trace controls: 14 original capture cases + 4 independent collector outcomes passed.')
+    for native in (0, 17):
+        for mode in ('success', 'pull-failure', 'wait-failure', 'empty', 'missing-pid'):
+            for path in ('writer-closed', 'trace-evidence/launch.pftrace', 'trace-evidence/perfetto-pid.txt'):
+                (root / path).unlink(missing_ok=True)
+            if mode != 'missing-pid':
+                (root / 'trace-evidence/perfetto-pid.txt').write_text('1234\n')
+            (root / 'trace-capture.sh').write_text(f'#!/bin/bash\nexit {native}\n')
+            env = dict(os.environ, PATH=str(shims)+os.pathsep+os.environ['PATH'], PROBE_COLLECTION=mode)
+            run = subprocess.run(['bash', 'trace-runner.sh'], cwd=root, env=env, capture_output=True, timeout=20)
+            expected = native or (0 if mode == 'success' else 1)
+            assert run.returncode == expected, (native, mode, expected, run.returncode)
+            exits = dict(line.split('=') for line in (root / 'trace-evidence/exits.txt').read_text().splitlines())
+            assert exits['capture_exit'] == str(native)
+            assert exits['trace_wait_exit'] == ('12' if mode == 'wait-failure' else '1' if mode == 'missing-pid' else '0')
+            assert exits['trace_pull_exit'] == ('9' if mode == 'pull-failure' else '0')
+            assert exits['trace_nonempty'] == ('0' if mode in ('pull-failure', 'empty') else '1')
+print('Trace controls: 14 original capture cases + 10 independent collector outcomes passed.')
