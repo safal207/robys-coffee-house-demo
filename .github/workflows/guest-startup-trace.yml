@@ -13,6 +13,8 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Fetch the exact runtime parent for the provenance comparison
+        run: git fetch --no-tags --depth=1 origin 8b1613abc250919d66b2173249b87f417c925883
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
