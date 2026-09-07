@@ -11,6 +11,7 @@ on:
       - "src/brand/**"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/probe-contextual-layers.mjs"
       - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
@@ -30,6 +31,7 @@ on:
       - "src/brand/**"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/contextual-entry-smoke.mjs"
+      - "scripts/probe-contextual-layers.mjs"
       - "scripts/contextual-sw-offline-smoke.mjs"
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
@@ -80,6 +82,7 @@ jobs:
           node --check scripts/generate-integrity-manifest.mjs
           node --check scripts/verify-integrity-manifest.mjs
           node --check scripts/contextual-entry-smoke.mjs
+          node --check scripts/probe-contextual-layers.mjs
           node --check scripts/contextual-sw-offline-smoke.mjs
           node --check scripts/contextual-routing-smoke.mjs
 
@@ -92,9 +95,16 @@ jobs:
         run: node scripts/morning-entry-smoke.mjs
 
       - name: Certify Day and Night contextual variants
+        id: contextual
         env:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
+
+      - name: Diagnose layer costs after contextual failure
+        if: failure() && steps.contextual.outcome == 'failure'
+        env:
+          CONTEXTUAL_PROBE_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-probe
+        run: node scripts/probe-contextual-layers.mjs
 
       - name: Certify automatic scene routing and history bypass
         env:

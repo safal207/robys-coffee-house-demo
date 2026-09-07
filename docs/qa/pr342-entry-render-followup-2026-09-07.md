@@ -70,3 +70,38 @@ order, install failure and cancellation. The original 14-case recording contract
 remains unchanged. Full `npm run check` and `npm run verify:security` passed
 before updating the draft branch. CI experiment results will be linked in the
 PR body after completion. No unproven product repair is proposed here.
+
+## Original-sampler layer experiment
+
+At product/tooling parent `0545cb9aaf6e4b0a0e44601bd36bf223802e1c62`, the
+unchanged contextual gate still fails in CI on Night (33.3 ms, run 34086742409).
+The unchanged gate passes locally even with the process restricted to four
+CPUs. An earlier two-CPU ablation also failed to reproduce the slow median.
+These local passes cannot certify the CI rendering path.
+
+`scripts/probe-contextual-layers.mjs` runs only after the original contextual
+step fails. The failed certification remains failed. The diagnostic imports
+the original gate functions with one declared initialization hook and retains
+the original scene assertions, 18 raw frame samples, 15 unique transforms and
+21 ms limit. It also runs the original two cold launches before each measured
+Day/Night pair. Source and derived script hashes, graphics renderer, assertions
+and frame samples are saved with the existing workflow artifacts.
+
+Two rounds use forward and reverse order across six conditions: unchanged,
+shadows removed, filters removed, perspective flattened, overlay layout/paint
+containment, and covered body content hidden. Each condition uses a fresh
+browser. Removing optical effects is diagnostic only: those conditions are
+not approved designs or product repairs. A consistently faster condition would
+identify an area for a separate appearance-preserving candidate, not justify
+shipping that ablation. `COLLECTED` means all 24 observations contain 18 samples;
+it does not mean certification passed. Missing samples fail collection.
+
+Reproduce the bounded diagnostic from the repository root:
+
+```sh
+node scripts/probe-contextual-layers.mjs
+```
+
+The helper drains its HTTP server log pipes because the longer matrix can fill
+them. This changes diagnostic plumbing only; it does not change the original
+gate, product runtime, screenshot tolerances or Android deadlines.
