@@ -1,0 +1,51 @@
+name: Telegram integration pinned checkout
+
+on:
+  push:
+    branches: [qa/telegram-integration-checkout-20260908]
+    paths: [.github/workflows/telegram-integration-checkout.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fixed product identity and install locked tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          npm ci --no-audit --no-fund
+          npx playwright install chromium
+      - name: Package only product sources and offline test tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/robys-offline"
+          git archive --format=tar HEAD | gzip -1 > "$RUNNER_TEMP/robys-offline/product-7799f80.tar.gz"
+          tar -czf "$RUNNER_TEMP/robys-offline/node_modules.tar.gz" node_modules
+          tar -C "$HOME/.cache" -czf "$RUNNER_TEMP/robys-offline/ms-playwright.tar.gz" ms-playwright
+          git rev-parse HEAD > "$RUNNER_TEMP/robys-offline/product-head.txt"
+          git ls-tree -r HEAD > "$RUNNER_TEMP/robys-offline/product-tree.txt"
+          git cat-file commit HEAD > "$RUNNER_TEMP/robys-offline/product-commit.txt"
+          node --version > "$RUNNER_TEMP/robys-offline/node-version.txt"
+          cd "$RUNNER_TEMP/robys-offline"
+          sha256sum *.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robys-7799f80-offline-integration-inputs
+          path: ${{ runner.temp }}/robys-offline/
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
