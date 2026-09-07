@@ -1,0 +1,4025 @@
+{
+  "schemaVersion": 1,
+  "repository": "safal207/robys-coffee-house-demo",
+  "pr": 342,
+  "subjectHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+  "baseSha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+  "collectedAt": "2026-09-07T14:03:16.022184+00:00",
+  "disposition": "NO_ADDITIONAL_PRODUCT_REPAIR_ESTABLISHED",
+  "scope": "Two sequential local exploratory sweeps; each fresh browser retains original two cold launches, two marked 18-sample gates, three declared prefix insertions. Runs are not randomized, not a failure-frequency estimate, and not a current CI repair proof. Nested trace categories overlap. No timing and screenshot browser jobs ran together.",
+  "observations": [
+    {
+      "sequence": 0,
+      "variant": "baseline",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:54:15.304Z",
+      "finishedAt": "2026-09-07T13:54:26.644Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1264.1000000014901,
+        "night": 1702.2000000029802
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29229312,
+        "sha256": "521c47eb243a9f8ecb4684f4c9f7e0dc1797ab21061cf8dca7b6402800ae8ea8",
+        "eventCount": 142838,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34362685426,
+                "navigationId": "2FC1595DE5F1E208BB50F5C8945DC7AE",
+                "sampleTraceId": 6103998678848209,
+                "startTime": 226.89999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 221,
+            "s": "t",
+            "tid": 221,
+            "ts": 34362685412,
+            "tts": 167437
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34363034320,
+                "navigationId": "2FC1595DE5F1E208BB50F5C8945DC7AE",
+                "sampleTraceId": 6103998678851069,
+                "startTime": 575.7999999970198
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 221,
+            "s": "t",
+            "tid": 221,
+            "ts": 34363034315,
+            "tts": 190929
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34364766534,
+                "navigationId": "BAAC2CEFB12ED647ED3CF4A5A8B953CF",
+                "sampleTraceId": 3349647440035686,
+                "startTime": 217.89999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 285,
+            "s": "t",
+            "tid": 285,
+            "ts": 34364766517,
+            "tts": 157646
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34365131662,
+                "navigationId": "BAAC2CEFB12ED647ED3CF4A5A8B953CF",
+                "sampleTraceId": 3349647440031818,
+                "startTime": 583.1000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 285,
+            "s": "t",
+            "tid": 285,
+            "ts": 34365131658,
+            "tts": 180932
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            33.274,
+            50.0,
+            16.69999999999999,
+            16.700000000000045,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.599999999999966,
+            16.700000000000045,
+            16.69999999999999,
+            16.599999999999966,
+            16.600000000000023,
+            16.80000000000001,
+            16.599999999999966,
+            16.700000000000045,
+            16.600000000000023,
+            16.699999999999932
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.58670588235294,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34362685412,
+            "endTsUs": 34363034315,
+            "windowMs": 348.903,
+            "mainPid": 221,
+            "mainTid": 221,
+            "mainThreadCpuMs": 23.492,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 18.21,
+              "maxWallMs": 27.619,
+              "sumWallMs": 320.96500000000003,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.093,
+              "sumCpuMs": 321.511
+            },
+            "softwareQuads": {
+              "count": 1308,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.0995,
+              "maxWallMs": 3.751,
+              "sumWallMs": 311.36599999999976,
+              "cpuSampleCount": 1308,
+              "medianCpuMs": 0.0995,
+              "sumCpuMs": 313.05199999999974
+            },
+            "rasterTasks": {
+              "count": 24,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.9834999999999999,
+              "maxWallMs": 10.436,
+              "sumWallMs": 50.781000000000006,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.9684999999999999,
+              "sumCpuMs": 50.402
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 24,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.258,
+              "maxWallMs": 0.495,
+              "sumWallMs": 6.285,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.252,
+              "sumCpuMs": 6.187
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 17,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.142,
+              "maxWallMs": 0.333,
+              "sumWallMs": 2.9599999999999995,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 0.142,
+              "sumCpuMs": 2.9519999999999995
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            49.900000000000034,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.69999999999999,
+            33.200000000000045,
+            16.69999999999999,
+            16.69999999999999,
+            16.69999999999999,
+            16.599999999999966,
+            50.0
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 21.56470588235294,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34364766517,
+            "endTsUs": 34365131658,
+            "windowMs": 365.141,
+            "mainPid": 285,
+            "mainTid": 285,
+            "mainThreadCpuMs": 23.286,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.3565,
+              "maxWallMs": 22.475,
+              "sumWallMs": 346.255,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 19.172,
+              "sumCpuMs": 345.546
+            },
+            "softwareQuads": {
+              "count": 1445,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.099,
+              "maxWallMs": 3.554,
+              "sumWallMs": 337.16900000000015,
+              "cpuSampleCount": 1445,
+              "medianCpuMs": 0.098,
+              "sumCpuMs": 338.0679999999996
+            },
+            "rasterTasks": {
+              "count": 38,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.918,
+              "maxWallMs": 7.766,
+              "sumWallMs": 63.144000000000005,
+              "cpuSampleCount": 38,
+              "medianCpuMs": 0.8975,
+              "sumCpuMs": 60.46
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 19,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.286,
+              "maxWallMs": 0.481,
+              "sumWallMs": 5.552000000000001,
+              "cpuSampleCount": 19,
+              "medianCpuMs": 0.281,
+              "sumCpuMs": 5.465000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.148,
+              "maxWallMs": 0.306,
+              "sumWallMs": 2.9880000000000004,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1475,
+              "sumCpuMs": 2.974
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-0-baseline/cause-report.json",
+          "bytes": 40149,
+          "sha256": "69effae26597df947ef13ebd0215135d9616fa62a41f8d649caece9c82ad64b5",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-0-baseline/derived-runtime.mjs",
+          "bytes": 12481,
+          "sha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-0-baseline/chromium-trace.json",
+          "bytes": 29229312,
+          "sha256": "521c47eb243a9f8ecb4684f4c9f7e0dc1797ab21061cf8dca7b6402800ae8ea8",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 1,
+      "variant": "no-material-shadows",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:54:56.315Z",
+      "finishedAt": "2026-09-07T13:55:07.426Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.3000000044703,
+        "night": 1702.2000000029802
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "646a777cb88d0f7fbd3681bb6200a1fcdd139df38ff8bb6e2949ace96ca07a12",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29657154,
+        "sha256": "e6fb8330f11423fe64984b090ee7c3a7b163743c72a4b357d738c0caeb80184d",
+        "eventCount": 145578,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34403594844,
+                "navigationId": "FD2FA60E92D3A76AAAC7C0E53D2E0131",
+                "sampleTraceId": 7443973810075474,
+                "startTime": 208.39999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 210,
+            "s": "t",
+            "tid": 210,
+            "ts": 34403594830,
+            "tts": 148682
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34403938403,
+                "navigationId": "FD2FA60E92D3A76AAAC7C0E53D2E0131",
+                "sampleTraceId": 7443973810075820,
+                "startTime": 552
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 210,
+            "s": "t",
+            "tid": 210,
+            "ts": 34403938398,
+            "tts": 164265
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34405656202,
+                "navigationId": "83CC38E81A5A0754B264B2CA6B00B700",
+                "sampleTraceId": 2253348900152887,
+                "startTime": 200.80000000447035
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 274,
+            "s": "t",
+            "tid": 274,
+            "ts": 34405656190,
+            "tts": 150144
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34405960333,
+                "navigationId": "83CC38E81A5A0754B264B2CA6B00B700",
+                "sampleTraceId": 2253348900153828,
+                "startTime": 505
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 274,
+            "s": "t",
+            "tid": 274,
+            "ts": 34405960329,
+            "tts": 164716
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.599999999999994,
+            16.600000000000023,
+            16.69999999999999,
+            33.39999999999998,
+            33.30000000000001,
+            16.600000000000023,
+            16.80000000000001,
+            16.599999999999966,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.700000000000045,
+            16.600000000000023,
+            16.699999999999932
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 19.605882352941176,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34403594830,
+            "endTsUs": 34403938398,
+            "windowMs": 343.568,
+            "mainPid": 210,
+            "mainTid": 210,
+            "mainThreadCpuMs": 15.583,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 17.0625,
+              "maxWallMs": 23.881,
+              "sumWallMs": 315.93100000000004,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 16.7775,
+              "sumCpuMs": 311.926
+            },
+            "softwareQuads": {
+              "count": 1435,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.075,
+              "maxWallMs": 6.601,
+              "sumWallMs": 302.5820000000004,
+              "cpuSampleCount": 1435,
+              "medianCpuMs": 0.074,
+              "sumCpuMs": 299.9919999999999
+            },
+            "rasterTasks": {
+              "count": 8,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.8009999999999999,
+              "maxWallMs": 1.608,
+              "sumWallMs": 7.908,
+              "cpuSampleCount": 8,
+              "medianCpuMs": 0.784,
+              "sumCpuMs": 7.782
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 22,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.2495,
+              "maxWallMs": 0.463,
+              "sumWallMs": 5.36,
+              "cpuSampleCount": 22,
+              "medianCpuMs": 0.2445,
+              "sumCpuMs": 5.249999999999999
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1465,
+              "maxWallMs": 0.256,
+              "sumWallMs": 2.751,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1455,
+              "sumCpuMs": 2.7310000000000003
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.599999999999966,
+            16.700000000000045,
+            33.299999999999955,
+            16.80000000000001,
+            16.69999999999999,
+            16.600000000000023,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 17.64117647058824,
+          "intervalsAbove21ms": 1,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34405656190,
+            "endTsUs": 34405960329,
+            "windowMs": 304.139,
+            "mainPid": 274,
+            "mainTid": 274,
+            "mainThreadCpuMs": 14.572,
+            "displayDrawAndSwap": {
+              "count": 16,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 16.747999999999998,
+              "maxWallMs": 29.793,
+              "sumWallMs": 283.289,
+              "cpuSampleCount": 16,
+              "medianCpuMs": 16.634,
+              "sumCpuMs": 281.463
+            },
+            "softwareQuads": {
+              "count": 1260,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.071,
+              "maxWallMs": 4.663,
+              "sumWallMs": 275.4519999999996,
+              "cpuSampleCount": 1260,
+              "medianCpuMs": 0.07,
+              "sumCpuMs": 274.6969999999996
+            },
+            "rasterTasks": {
+              "count": 8,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 1.0425,
+              "maxWallMs": 2.519,
+              "sumWallMs": 10.825999999999999,
+              "cpuSampleCount": 8,
+              "medianCpuMs": 1.0255,
+              "sumCpuMs": 10.688
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.196,
+              "maxWallMs": 0.369,
+              "sumWallMs": 4.7780000000000005,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.192,
+              "sumCpuMs": 4.6739999999999995
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.132,
+              "maxWallMs": 0.273,
+              "sumWallMs": 2.534,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.131,
+              "sumCpuMs": 2.527
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-1-no-material-shadows/cause-report.json",
+          "bytes": 39038,
+          "sha256": "cea40aecc0a4fcbaf28ba9375b35dc540da1cacc907db18950c4a3a3bb4edb6c",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-1-no-material-shadows/derived-runtime.mjs",
+          "bytes": 12492,
+          "sha256": "646a777cb88d0f7fbd3681bb6200a1fcdd139df38ff8bb6e2949ace96ca07a12",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-1-no-material-shadows/chromium-trace.json",
+          "bytes": 29657154,
+          "sha256": "e6fb8330f11423fe64984b090ee7c3a7b163743c72a4b357d738c0caeb80184d",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "variant": "no-logo-filters",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:55:07.708Z",
+      "finishedAt": "2026-09-07T13:55:18.985Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1263.5,
+        "night": 1703.1000000014901
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "2003b4c7f81cf12a5b1be3ceb094c32e5e2b7f8955f28f8e2d0d0fec1f7cd888",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 28703552,
+        "sha256": "03e84296ed24cdef7550a3b9b7f36ddceb1c1028326b9f8cec073805d2a51051",
+        "eventCount": 139248,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34415061906,
+                "navigationId": "EB5D7E1918F9DB8E77B74CE2C2167058",
+                "sampleTraceId": 8217826667375151,
+                "startTime": 217.5
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 537,
+            "s": "t",
+            "tid": 537,
+            "ts": 34415061892,
+            "tts": 135720
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34415411969,
+                "navigationId": "EB5D7E1918F9DB8E77B74CE2C2167058",
+                "sampleTraceId": 8217826667373926,
+                "startTime": 567.6000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 537,
+            "s": "t",
+            "tid": 537,
+            "ts": 34415411965,
+            "tts": 154743
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34417172442,
+                "navigationId": "7ABE7B7247B0A7256F2EBB656650422A",
+                "sampleTraceId": 6153450783036858,
+                "startTime": 224.29999999701977
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 603,
+            "s": "t",
+            "tid": 603,
+            "ts": 34417172428,
+            "tts": 145289
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34417564217,
+                "navigationId": "7ABE7B7247B0A7256F2EBB656650422A",
+                "sampleTraceId": 6153450783038037,
+                "startTime": 616.1000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 603,
+            "s": "t",
+            "tid": 603,
+            "ts": 34417564213,
+            "tts": 169822
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.539999999999992,
+            16.69999999999999,
+            16.700000000000017,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            49.89999999999998,
+            16.700000000000045,
+            16.69999999999999,
+            16.69999999999999,
+            33.30000000000001,
+            16.599999999999966,
+            16.700000000000045,
+            16.600000000000023,
+            16.799999999999955,
+            33.200000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.578823529411768,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34415061892,
+            "endTsUs": 34415411965,
+            "windowMs": 350.073,
+            "mainPid": 537,
+            "mainTid": 537,
+            "mainThreadCpuMs": 19.023,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 18.497,
+              "maxWallMs": 24.471,
+              "sumWallMs": 326.83700000000005,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.238,
+              "sumCpuMs": 322.17999999999995
+            },
+            "softwareQuads": {
+              "count": 1293,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.094,
+              "maxWallMs": 4.621,
+              "sumWallMs": 313.5930000000002,
+              "cpuSampleCount": 1293,
+              "medianCpuMs": 0.093,
+              "sumCpuMs": 310.55999999999995
+            },
+            "rasterTasks": {
+              "count": 31,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.85,
+              "maxWallMs": 10.094,
+              "sumWallMs": 61.089,
+              "cpuSampleCount": 31,
+              "medianCpuMs": 0.834,
+              "sumCpuMs": 56.77600000000001
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.272,
+              "maxWallMs": 3.453,
+              "sumWallMs": 8.448999999999998,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.265,
+              "sumCpuMs": 8.348999999999998
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.14100000000000001,
+              "maxWallMs": 0.328,
+              "sumWallMs": 2.862,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.14100000000000001,
+              "sumCpuMs": 2.8580000000000005
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.634000000000015,
+            33.30000000000001,
+            16.69999999999999,
+            16.599999999999966,
+            33.400000000000034,
+            33.30000000000001,
+            16.69999999999999,
+            16.599999999999966,
+            33.30000000000001,
+            16.80000000000001,
+            16.600000000000023,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            16.699999999999932,
+            16.600000000000023
+          ],
+          "medianIntervalMs": 16.700000000000045,
+          "meanIntervalMs": 22.543176470588236,
+          "intervalsAbove21ms": 6,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34417172428,
+            "endTsUs": 34417564213,
+            "windowMs": 391.785,
+            "mainPid": 603,
+            "mainTid": 603,
+            "mainThreadCpuMs": 24.533,
+            "displayDrawAndSwap": {
+              "count": 16,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 19.933,
+              "maxWallMs": 32.588,
+              "sumWallMs": 350.195,
+              "cpuSampleCount": 16,
+              "medianCpuMs": 19.7815,
+              "sumCpuMs": 350.508
+            },
+            "softwareQuads": {
+              "count": 1307,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.096,
+              "maxWallMs": 14.966,
+              "sumWallMs": 342.5889999999994,
+              "cpuSampleCount": 1307,
+              "medianCpuMs": 0.096,
+              "sumCpuMs": 344.1479999999995
+            },
+            "rasterTasks": {
+              "count": 24,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.6975,
+              "maxWallMs": 11.743,
+              "sumWallMs": 50.11800000000001,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.6865,
+              "sumCpuMs": 49.89099999999999
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.336,
+              "maxWallMs": 1.147,
+              "sumWallMs": 7.904,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.33,
+              "sumCpuMs": 7.791000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1825,
+              "maxWallMs": 0.622,
+              "sumWallMs": 3.7630000000000003,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.182,
+              "sumCpuMs": 3.753
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-2-no-logo-filters/cause-report.json",
+          "bytes": 39850,
+          "sha256": "146e01ef468b0d1d3dc18eeffe72597e58208293415164297f756d78dbb9a603",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-2-no-logo-filters/derived-runtime.mjs",
+          "bytes": 12488,
+          "sha256": "2003b4c7f81cf12a5b1be3ceb094c32e5e2b7f8955f28f8e2d0d0fec1f7cd888",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-2-no-logo-filters/chromium-trace.json",
+          "bytes": 28703552,
+          "sha256": "03e84296ed24cdef7550a3b9b7f36ddceb1c1028326b9f8cec073805d2a51051",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "variant": "no-foreground-filter",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:55:19.292Z",
+      "finishedAt": "2026-09-07T13:55:30.610Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.8000000044703,
+        "night": 1702.7000000029802
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "dc9b755f97834d306515818cf2b41fce8a1f23bcf7e817f67ca55542bfed58fd",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29806823,
+        "sha256": "597148f756c78f80ab6c69e4964c740a93abba388e6aae82c6d24fd9ae14adc0",
+        "eventCount": 145037,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34426687758,
+                "navigationId": "E4CB97335DCD72A6309E9860913D1CC9",
+                "sampleTraceId": 6618076911539150,
+                "startTime": 251.39999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 868,
+            "s": "t",
+            "tid": 868,
+            "ts": 34426687737,
+            "tts": 174446
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34426987252,
+                "navigationId": "E4CB97335DCD72A6309E9860913D1CC9",
+                "sampleTraceId": 6618076911538961,
+                "startTime": 550.8000000044703
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 868,
+            "s": "t",
+            "tid": 868,
+            "ts": 34426987248,
+            "tts": 194218
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34428747603,
+                "navigationId": "E2614BC1CA29AB6940A857452D3BCBF1",
+                "sampleTraceId": 2588802067306605,
+                "startTime": 229.10000000149012
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 933,
+            "s": "t",
+            "tid": 933,
+            "ts": 34428747590,
+            "tts": 156784
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34429099858,
+                "navigationId": "E2614BC1CA29AB6940A857452D3BCBF1",
+                "sampleTraceId": 2588802067306244,
+                "startTime": 581.2999999970198
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 933,
+            "s": "t",
+            "tid": 933,
+            "ts": 34429099853,
+            "tts": 183382
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.799999999999955,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.799999999999955,
+            16.600000000000023
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 16.66470588235294,
+          "intervalsAbove21ms": 0,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34426687737,
+            "endTsUs": 34426987248,
+            "windowMs": 299.511,
+            "mainPid": 868,
+            "mainTid": 868,
+            "mainThreadCpuMs": 19.772,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 16.924,
+              "maxWallMs": 18.642,
+              "sumWallMs": 287.84,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 16.818,
+              "sumCpuMs": 285.998
+            },
+            "softwareQuads": {
+              "count": 1261,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.101,
+              "maxWallMs": 2.238,
+              "sumWallMs": 277.0799999999996,
+              "cpuSampleCount": 1261,
+              "medianCpuMs": 0.1,
+              "sumCpuMs": 276.47599999999983
+            },
+            "rasterTasks": {
+              "count": 15,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.427,
+              "maxWallMs": 7.738,
+              "sumWallMs": 20.183000000000003,
+              "cpuSampleCount": 15,
+              "medianCpuMs": 0.419,
+              "sumCpuMs": 19.914999999999996
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.307,
+              "maxWallMs": 0.669,
+              "sumWallMs": 6.493,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.303,
+              "sumCpuMs": 6.402000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1885,
+              "maxWallMs": 0.372,
+              "sumWallMs": 3.5300000000000007,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1885,
+              "sumCpuMs": 3.5239999999999996
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.539999999999992,
+            16.599999999999994,
+            16.69999999999999,
+            33.400000000000034,
+            16.599999999999966,
+            16.80000000000001,
+            16.600000000000023,
+            16.599999999999966,
+            16.700000000000045,
+            16.69999999999999,
+            49.89999999999998,
+            16.80000000000001,
+            16.600000000000023,
+            16.69999999999999,
+            16.599999999999966,
+            33.39999999999998,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.584705882352942,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34428747590,
+            "endTsUs": 34429099853,
+            "windowMs": 352.263,
+            "mainPid": 933,
+            "mainTid": 933,
+            "mainThreadCpuMs": 26.598,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 17.802,
+              "maxWallMs": 45.949,
+              "sumWallMs": 346.52699999999993,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 17.535,
+              "sumCpuMs": 344.61300000000006
+            },
+            "softwareQuads": {
+              "count": 1324,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.098,
+              "maxWallMs": 14.568,
+              "sumWallMs": 332.20599999999973,
+              "cpuSampleCount": 1324,
+              "medianCpuMs": 0.098,
+              "sumCpuMs": 331.5849999999995
+            },
+            "rasterTasks": {
+              "count": 32,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.782,
+              "maxWallMs": 8.525,
+              "sumWallMs": 38.972,
+              "cpuSampleCount": 32,
+              "medianCpuMs": 0.7715000000000001,
+              "sumCpuMs": 38.60400000000001
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.307,
+              "maxWallMs": 0.64,
+              "sumWallMs": 7.092999999999999,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.301,
+              "sumCpuMs": 6.992000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 17,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.201,
+              "maxWallMs": 0.456,
+              "sumWallMs": 3.763,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 0.197,
+              "sumCpuMs": 3.752
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-3-no-foreground-filter/cause-report.json",
+          "bytes": 40149,
+          "sha256": "300c383fbabf394e45c5b52e0daf61d0eaf5b8b8df8fe607bae9a93167f7023c",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-3-no-foreground-filter/derived-runtime.mjs",
+          "bytes": 12493,
+          "sha256": "dc9b755f97834d306515818cf2b41fce8a1f23bcf7e817f67ca55542bfed58fd",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-3-no-foreground-filter/chromium-trace.json",
+          "bytes": 29806823,
+          "sha256": "597148f756c78f80ab6c69e4964c740a93abba388e6aae82c6d24fd9ae14adc0",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "variant": "inner-clip",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:55:30.892Z",
+      "finishedAt": "2026-09-07T13:55:41.618Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.6000000014901,
+        "night": 1702.3999999985099
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "e08eb3f619288ee0be1da176ec13ac2019263814bd2f52fdc7612863abf385a3",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 27162860,
+        "sha256": "bde57e2587853054e1d045f4e7e8685aa2de24406d0f7b702dd97605eb7608e9",
+        "eventCount": 129467,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34438293600,
+                "navigationId": "24123991A43EAEF03E06C33D788FB842",
+                "sampleTraceId": 2002750183066403,
+                "startTime": 251.20000000298023
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 1199,
+            "s": "t",
+            "tid": 1199,
+            "ts": 34438293588,
+            "tts": 154410
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34438653359,
+                "navigationId": "24123991A43EAEF03E06C33D788FB842",
+                "sampleTraceId": 2002750183066592,
+                "startTime": 610.8999999985099
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 1199,
+            "s": "t",
+            "tid": 1199,
+            "ts": 34438653355,
+            "tts": 176257
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34439915123,
+                "navigationId": "034D4CDFF2FD311AFA381D93A30C3539",
+                "sampleTraceId": 7163466066765668,
+                "startTime": 200.60000000149012
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 1263,
+            "s": "t",
+            "tid": 1263,
+            "ts": 34439915106,
+            "tts": 143281
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34440272224,
+                "navigationId": "034D4CDFF2FD311AFA381D93A30C3539",
+                "sampleTraceId": 7163466066765949,
+                "startTime": 557.7000000029802
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 1263,
+            "s": "t",
+            "tid": 1263,
+            "ts": 34440272220,
+            "tts": 170270
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.599999999999966,
+            16.80000000000001,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            50.099999999999966,
+            16.599999999999966,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            16.600000000000023
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 19.605882352941176,
+          "intervalsAbove21ms": 2,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34438293588,
+            "endTsUs": 34438653355,
+            "windowMs": 359.767,
+            "mainPid": 1199,
+            "mainTid": 1199,
+            "mainThreadCpuMs": 21.847,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.764,
+              "maxWallMs": 21.185,
+              "sumWallMs": 329.053,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 20.049,
+              "sumCpuMs": 329.427
+            },
+            "softwareQuads": {
+              "count": 1242,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.1165,
+              "maxWallMs": 4.341,
+              "sumWallMs": 338.9949999999995,
+              "cpuSampleCount": 1242,
+              "medianCpuMs": 0.116,
+              "sumCpuMs": 340.53700000000015
+            },
+            "rasterTasks": {
+              "count": 8,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 1.2069999999999999,
+              "maxWallMs": 2.323,
+              "sumWallMs": 11.100999999999999,
+              "cpuSampleCount": 8,
+              "medianCpuMs": 1.1935,
+              "sumCpuMs": 10.989999999999998
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.237,
+              "maxWallMs": 0.661,
+              "sumWallMs": 5.970999999999999,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.232,
+              "sumCpuMs": 11.612999999999998
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.14150000000000001,
+              "maxWallMs": 0.495,
+              "sumWallMs": 3.08,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.14150000000000001,
+              "sumCpuMs": 3.0749999999999993
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.600000000000023,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            49.900000000000034,
+            16.799999999999955,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            33.30000000000001,
+            16.69999999999999,
+            16.599999999999966,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.582352941176474,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34439915106,
+            "endTsUs": 34440272220,
+            "windowMs": 357.114,
+            "mainPid": 1263,
+            "mainTid": 1263,
+            "mainThreadCpuMs": 26.989,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 18.6935,
+              "maxWallMs": 21.077,
+              "sumWallMs": 338.839,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 18.674999999999997,
+              "sumCpuMs": 339.371
+            },
+            "softwareQuads": {
+              "count": 1280,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.113,
+              "maxWallMs": 3.747,
+              "sumWallMs": 335.4010000000006,
+              "cpuSampleCount": 1280,
+              "medianCpuMs": 0.1125,
+              "sumCpuMs": 337.3260000000008
+            },
+            "rasterTasks": {
+              "count": 36,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.741,
+              "maxWallMs": 9.19,
+              "sumWallMs": 56.856,
+              "cpuSampleCount": 36,
+              "medianCpuMs": 0.733,
+              "sumCpuMs": 56.459
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.3235,
+              "maxWallMs": 1.43,
+              "sumWallMs": 7.736999999999999,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.319,
+              "sumCpuMs": 7.644
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.213,
+              "maxWallMs": 1.135,
+              "sumWallMs": 4.71,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.2125,
+              "sumCpuMs": 4.71
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-4-inner-clip/cause-report.json",
+          "bytes": 40009,
+          "sha256": "3b4b0289058f91589e496926152acbf53964562818904247aaff1fa1a54390ad",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-4-inner-clip/derived-runtime.mjs",
+          "bytes": 12483,
+          "sha256": "e08eb3f619288ee0be1da176ec13ac2019263814bd2f52fdc7612863abf385a3",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-4-inner-clip/chromium-trace.json",
+          "bytes": 27162860,
+          "sha256": "bde57e2587853054e1d045f4e7e8685aa2de24406d0f7b702dd97605eb7608e9",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "variant": "baseline",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:55:41.964Z",
+      "finishedAt": "2026-09-07T13:55:53.503Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.1000000014901,
+        "night": 1702.5
+      },
+      "probeSource": "trace-contextual-layer-cost-v1.mjs",
+      "probeSha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29992598,
+        "sha256": "89852694b255305e30cd6e7f8eeb78284d5c3ad848545f60e0908d045f841c74",
+        "eventCount": 144385,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34449354374,
+                "navigationId": "83DBE39D29544D9A917EA50ED82CDF00",
+                "sampleTraceId": 7687841151723221,
+                "startTime": 215.79999999701977
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 1529,
+            "s": "t",
+            "tid": 1529,
+            "ts": 34449354359,
+            "tts": 161119
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34449742102,
+                "navigationId": "83DBE39D29544D9A917EA50ED82CDF00",
+                "sampleTraceId": 7687841151723934,
+                "startTime": 603.6000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 1529,
+            "s": "t",
+            "tid": 1529,
+            "ts": 34449742097,
+            "tts": 186631
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34451514807,
+                "navigationId": "8A58B4C3E28F64DA0C13C0681FAAB965",
+                "sampleTraceId": 6276281318942529,
+                "startTime": 243.5
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 1595,
+            "s": "t",
+            "tid": 1595,
+            "ts": 34451514794,
+            "tts": 159506
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34451894645,
+                "navigationId": "8A58B4C3E28F64DA0C13C0681FAAB965",
+                "sampleTraceId": 6276281318942747,
+                "startTime": 623.4000000059605
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 1595,
+            "s": "t",
+            "tid": 1595,
+            "ts": 34451894641,
+            "tts": 179018
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.599999999999994,
+            16.599999999999994,
+            33.400000000000034,
+            16.599999999999966,
+            16.69999999999999,
+            33.400000000000034,
+            16.599999999999966,
+            16.700000000000045,
+            16.69999999999999,
+            33.19999999999999,
+            16.80000000000001,
+            16.69999999999999,
+            33.200000000000045,
+            16.699999999999932,
+            16.700000000000045,
+            16.600000000000023,
+            33.39999999999998
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 21.564705882352943,
+          "intervalsAbove21ms": 5,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34449354359,
+            "endTsUs": 34449742097,
+            "windowMs": 387.738,
+            "mainPid": 1529,
+            "mainTid": 1529,
+            "mainThreadCpuMs": 25.512,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 19.689500000000002,
+              "maxWallMs": 21.628,
+              "sumWallMs": 359.742,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 19.616500000000002,
+              "sumCpuMs": 358.481
+            },
+            "softwareQuads": {
+              "count": 1393,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.105,
+              "maxWallMs": 3.014,
+              "sumWallMs": 343.4300000000001,
+              "cpuSampleCount": 1393,
+              "medianCpuMs": 0.104,
+              "sumCpuMs": 343.57799999999963
+            },
+            "rasterTasks": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.574,
+              "maxWallMs": 7.762,
+              "sumWallMs": 34.351,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 0.566,
+              "sumCpuMs": 34.217999999999996
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.3015,
+              "maxWallMs": 0.674,
+              "sumWallMs": 6.391,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.294,
+              "sumCpuMs": 6.264000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1625,
+              "maxWallMs": 0.489,
+              "sumWallMs": 3.6709999999999994,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.162,
+              "sumCpuMs": 3.668999999999999
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.700000000000017,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.600000000000023,
+            33.39999999999998,
+            16.600000000000023,
+            16.599999999999966,
+            33.400000000000034,
+            16.69999999999999,
+            16.599999999999966,
+            33.39999999999998,
+            16.600000000000023,
+            16.700000000000045,
+            16.600000000000023,
+            33.39999999999998,
+            16.600000000000023
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 21.564705882352943,
+          "intervalsAbove21ms": 5,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34451514794,
+            "endTsUs": 34451894641,
+            "windowMs": 379.847,
+            "mainPid": 1595,
+            "mainTid": 1595,
+            "mainThreadCpuMs": 19.512,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.158,
+              "maxWallMs": 23.263,
+              "sumWallMs": 335.56999999999994,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.965,
+              "sumCpuMs": 333.36300000000006
+            },
+            "softwareQuads": {
+              "count": 1412,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.097,
+              "maxWallMs": 4.352,
+              "sumWallMs": 335.246,
+              "cpuSampleCount": 1412,
+              "medianCpuMs": 0.096,
+              "sumCpuMs": 334.2039999999995
+            },
+            "rasterTasks": {
+              "count": 24,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.791,
+              "maxWallMs": 8.039,
+              "sumWallMs": 42.785,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.777,
+              "sumCpuMs": 41.910000000000004
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.309,
+              "maxWallMs": 0.701,
+              "sumWallMs": 6.458999999999998,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.304,
+              "sumCpuMs": 6.367999999999999
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.161,
+              "maxWallMs": 0.525,
+              "sumWallMs": 3.6790000000000003,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1605,
+              "sumCpuMs": 3.6750000000000003
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-5-baseline/cause-report.json",
+          "bytes": 40094,
+          "sha256": "4b691ec7d1c9574c8996000744e679c87c7a91839be6d9542de23ac9a4fd612f",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-5-baseline/derived-runtime.mjs",
+          "bytes": 12481,
+          "sha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-5-baseline/chromium-trace.json",
+          "bytes": 29992598,
+          "sha256": "89852694b255305e30cd6e7f8eeb78284d5c3ad848545f60e0908d045f841c74",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "variant": "vignette-auto",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:57:08.108Z",
+      "finishedAt": "2026-09-07T13:57:19.624Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.8000000044703,
+        "night": 1702.3999999985099
+      },
+      "probeSource": "trace-contextual-layer-cost.mjs",
+      "probeSha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "ba0a3e7c768e183fef56ed31fd48661c7026d38acea2be72dc90ecdf26c5be02",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29571935,
+        "sha256": "8cc109789052850c3a520c181056a9df471f5e2b10eccc5941f296f0365d8d71",
+        "eventCount": 144576,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34535491302,
+                "navigationId": "71C0C8C23EAAE49DBA6BC0A85C53CB38",
+                "sampleTraceId": 6835196624225211,
+                "startTime": 222.59999999403954
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 214,
+            "s": "t",
+            "tid": 214,
+            "ts": 34535491289,
+            "tts": 153402
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34535865385,
+                "navigationId": "71C0C8C23EAAE49DBA6BC0A85C53CB38",
+                "sampleTraceId": 6835196624227566,
+                "startTime": 596.5999999940395
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 214,
+            "s": "t",
+            "tid": 214,
+            "ts": 34535865381,
+            "tts": 179331
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34537663302,
+                "navigationId": "E2135BD6A0D65C9890B3F90350F87AF0",
+                "sampleTraceId": 7083834979911737,
+                "startTime": 253.69999999552965
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 278,
+            "s": "t",
+            "tid": 278,
+            "ts": 34537663287,
+            "tts": 160355
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34538057006,
+                "navigationId": "E2135BD6A0D65C9890B3F90350F87AF0",
+                "sampleTraceId": 7083834979911527,
+                "startTime": 647.3999999985099
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 278,
+            "s": "t",
+            "tid": 278,
+            "ts": 34538057002,
+            "tts": 186312
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            33.400000000000006,
+            16.600000000000023,
+            50.0,
+            16.69999999999999,
+            16.599999999999966,
+            33.400000000000034,
+            16.599999999999966,
+            16.80000000000001,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.699999999999932,
+            16.600000000000023,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.58823529411765,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34535491289,
+            "endTsUs": 34535865381,
+            "windowMs": 374.092,
+            "mainPid": 214,
+            "mainTid": 214,
+            "mainThreadCpuMs": 25.929,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 18.824,
+              "maxWallMs": 29.61,
+              "sumWallMs": 335.57400000000007,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.71,
+              "sumCpuMs": 328.553
+            },
+            "softwareQuads": {
+              "count": 1361,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.094,
+              "maxWallMs": 3.527,
+              "sumWallMs": 339.0560000000001,
+              "cpuSampleCount": 1361,
+              "medianCpuMs": 0.093,
+              "sumCpuMs": 335.59099999999967
+            },
+            "rasterTasks": {
+              "count": 31,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.973,
+              "maxWallMs": 10.232,
+              "sumWallMs": 56.53399999999999,
+              "cpuSampleCount": 31,
+              "medianCpuMs": 0.951,
+              "sumCpuMs": 55.46999999999999
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.3365,
+              "maxWallMs": 0.596,
+              "sumWallMs": 6.619000000000001,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.3315,
+              "sumCpuMs": 6.533
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1795,
+              "maxWallMs": 0.285,
+              "sumWallMs": 3.3529999999999998,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.179,
+              "sumCpuMs": 3.3489999999999998
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            33.39999999999998,
+            16.69999999999999,
+            16.600000000000023,
+            33.30000000000001,
+            16.599999999999966,
+            16.80000000000001,
+            33.30000000000001,
+            16.69999999999999,
+            16.600000000000023,
+            33.30000000000001,
+            16.699999999999932,
+            33.30000000000007,
+            16.699999999999932,
+            33.30000000000007
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 22.54705882352941,
+          "intervalsAbove21ms": 6,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34537663287,
+            "endTsUs": 34538057002,
+            "windowMs": 393.715,
+            "mainPid": 278,
+            "mainTid": 278,
+            "mainThreadCpuMs": 25.957,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 20.351,
+              "maxWallMs": 25.804,
+              "sumWallMs": 353.922,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 20.232,
+              "sumCpuMs": 353.53599999999994
+            },
+            "softwareQuads": {
+              "count": 1385,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.093,
+              "maxWallMs": 4.991,
+              "sumWallMs": 347.74199999999956,
+              "cpuSampleCount": 1385,
+              "medianCpuMs": 0.093,
+              "sumCpuMs": 348.7789999999999
+            },
+            "rasterTasks": {
+              "count": 25,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.837,
+              "maxWallMs": 10.072,
+              "sumWallMs": 45.506999999999984,
+              "cpuSampleCount": 25,
+              "medianCpuMs": 0.829,
+              "sumCpuMs": 45.04800000000001
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.3235,
+              "maxWallMs": 3.963,
+              "sumWallMs": 9.857999999999999,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.3185,
+              "sumCpuMs": 9.767000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1765,
+              "maxWallMs": 3.718,
+              "sumWallMs": 6.816,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1765,
+              "sumCpuMs": 6.817
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-6-vignette-auto/cause-report.json",
+          "bytes": 40126,
+          "sha256": "076007f443f54d3686293502d71eece2579e99c8f0f77a8589a0fc388046c617",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-6-vignette-auto/derived-runtime.mjs",
+          "bytes": 12886,
+          "sha256": "ba0a3e7c768e183fef56ed31fd48661c7026d38acea2be72dc90ecdf26c5be02",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-6-vignette-auto/chromium-trace.json",
+          "bytes": 29571935,
+          "sha256": "8cc109789052850c3a520c181056a9df471f5e2b10eccc5941f296f0365d8d71",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "variant": "ambient-auto",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:57:19.953Z",
+      "finishedAt": "2026-09-07T13:57:31.188Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.4000000059605,
+        "night": 1702.1000000014901
+      },
+      "probeSource": "trace-contextual-layer-cost.mjs",
+      "probeSha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "48456eb67fe9677da3a22fcc104681c1adec0671e7779ff9202fdd7e3518398d",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29447927,
+        "sha256": "b865c150bb0ecf4ed6c6c46aa76ff686d8209643676ca4e425dde8ee502ae0d2",
+        "eventCount": 143492,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34547348071,
+                "navigationId": "0190920F107160AC8DDFD8A8BB427F91",
+                "sampleTraceId": 4118234810078288,
+                "startTime": 213.89999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 543,
+            "s": "t",
+            "tid": 543,
+            "ts": 34547348053,
+            "tts": 146007
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34547677532,
+                "navigationId": "0190920F107160AC8DDFD8A8BB427F91",
+                "sampleTraceId": 4118234810080107,
+                "startTime": 543.3999999985099
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 543,
+            "s": "t",
+            "tid": 543,
+            "ts": 34547677528,
+            "tts": 171271
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34549437706,
+                "navigationId": "8DA0C1AF16624CB5B39D9BD0BCDC67C6",
+                "sampleTraceId": 6285576812313226,
+                "startTime": 212.5
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 607,
+            "s": "t",
+            "tid": 607,
+            "ts": 34549437696,
+            "tts": 148641
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34549775109,
+                "navigationId": "8DA0C1AF16624CB5B39D9BD0BCDC67C6",
+                "sampleTraceId": 6285576812312039,
+                "startTime": 550
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 607,
+            "s": "t",
+            "tid": 607,
+            "ts": 34549775105,
+            "tts": 171234
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.599999999999994,
+            16.69999999999999,
+            16.599999999999994,
+            16.600000000000023,
+            16.69999999999999,
+            33.39999999999998,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.700000000000045,
+            16.599999999999966,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.600000000000023,
+            16.700000000000045,
+            16.699999999999932
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 18.623529411764704,
+          "intervalsAbove21ms": 2,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34547348053,
+            "endTsUs": 34547677528,
+            "windowMs": 329.475,
+            "mainPid": 543,
+            "mainTid": 543,
+            "mainThreadCpuMs": 25.264,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 16.997,
+              "maxWallMs": 18.759,
+              "sumWallMs": 293.623,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 16.874,
+              "sumCpuMs": 293.43699999999995
+            },
+            "softwareQuads": {
+              "count": 1308,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.0775,
+              "maxWallMs": 2.299,
+              "sumWallMs": 285.3719999999989,
+              "cpuSampleCount": 1308,
+              "medianCpuMs": 0.077,
+              "sumCpuMs": 286.4709999999994
+            },
+            "rasterTasks": {
+              "count": 25,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.804,
+              "maxWallMs": 7.703,
+              "sumWallMs": 40.669,
+              "cpuSampleCount": 25,
+              "medianCpuMs": 0.798,
+              "sumCpuMs": 40.24
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.321,
+              "maxWallMs": 0.534,
+              "sumWallMs": 6.518000000000001,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.316,
+              "sumCpuMs": 6.423
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1965,
+              "maxWallMs": 0.413,
+              "sumWallMs": 3.787,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1965,
+              "sumCpuMs": 3.779999999999999
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.700000000000017,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            33.39999999999998,
+            16.600000000000023,
+            16.69999999999999,
+            16.600000000000023,
+            16.80000000000001,
+            16.599999999999966,
+            16.600000000000023,
+            16.69999999999999,
+            16.700000000000045,
+            16.59999999999991
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 18.62941176470588,
+          "intervalsAbove21ms": 2,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34549437696,
+            "endTsUs": 34549775105,
+            "windowMs": 337.409,
+            "mainPid": 607,
+            "mainTid": 607,
+            "mainThreadCpuMs": 22.593,
+            "displayDrawAndSwap": {
+              "count": 16,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 18.217,
+              "maxWallMs": 21.669,
+              "sumWallMs": 297.772,
+              "cpuSampleCount": 16,
+              "medianCpuMs": 18.099,
+              "sumCpuMs": 297.51
+            },
+            "softwareQuads": {
+              "count": 1354,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.078,
+              "maxWallMs": 3.198,
+              "sumWallMs": 301.60199999999963,
+              "cpuSampleCount": 1354,
+              "medianCpuMs": 0.077,
+              "sumCpuMs": 301.38300000000004
+            },
+            "rasterTasks": {
+              "count": 33,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.974,
+              "maxWallMs": 9.913,
+              "sumWallMs": 60.31199999999999,
+              "cpuSampleCount": 33,
+              "medianCpuMs": 0.933,
+              "sumCpuMs": 59.76999999999999
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.29,
+              "maxWallMs": 0.648,
+              "sumWallMs": 6.133999999999999,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.28400000000000003,
+              "sumCpuMs": 6.037
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.152,
+              "maxWallMs": 0.316,
+              "sumWallMs": 3.14,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.152,
+              "sumCpuMs": 3.1290000000000004
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-7-ambient-auto/cause-report.json",
+          "bytes": 40104,
+          "sha256": "fcb877c509e1443e5f0f0390dfa3ad107d47058b4fa2bd2c57482e7381d2fee6",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-7-ambient-auto/derived-runtime.mjs",
+          "bytes": 12885,
+          "sha256": "48456eb67fe9677da3a22fcc104681c1adec0671e7779ff9202fdd7e3518398d",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-7-ambient-auto/chromium-trace.json",
+          "bytes": 29447927,
+          "sha256": "b865c150bb0ecf4ed6c6c46aa76ff686d8209643676ca4e425dde8ee502ae0d2",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 8,
+      "variant": "brown-auto",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:57:31.511Z",
+      "finishedAt": "2026-09-07T13:57:40.847Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.4000000059605,
+        "night": 1702.5
+      },
+      "probeSource": "trace-contextual-layer-cost.mjs",
+      "probeSha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "7f1ace415a940827e03844a1c2c0a345909542aab33d6772a71ae28d66c565c4",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 23272014,
+        "sha256": "d8f1660db21e7ec485431fda48316c34742227a69abfd847704496c766a24042",
+        "eventCount": 110120,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34558900084,
+                "navigationId": "C255AC0E446B4139839C6834B457FB84",
+                "sampleTraceId": 8865898772982613,
+                "startTime": 218.10000000149012
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 875,
+            "s": "t",
+            "tid": 875,
+            "ts": 34558900067,
+            "tts": 158853
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34559281562,
+                "navigationId": "C255AC0E446B4139839C6834B457FB84",
+                "sampleTraceId": 8865898772980744,
+                "startTime": 599.6000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 875,
+            "s": "t",
+            "tid": 875,
+            "ts": 34559281558,
+            "tts": 192523
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34561044566,
+                "navigationId": "50C0440169F019C418FC99B37F15BA8E",
+                "sampleTraceId": 6155579162070348,
+                "startTime": 242.20000000298023
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 939,
+            "s": "t",
+            "tid": 939,
+            "ts": 34561044552,
+            "tts": 162817
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34561503681,
+                "navigationId": "50C0440169F019C418FC99B37F15BA8E",
+                "sampleTraceId": 6155579162067516,
+                "startTime": 701.3000000044703
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 939,
+            "s": "t",
+            "tid": 939,
+            "ts": 34561503678,
+            "tts": 183502
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            33.400000000000006,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            33.30000000000001,
+            16.599999999999966,
+            16.69999999999999,
+            33.400000000000034,
+            16.599999999999966,
+            16.700000000000045,
+            16.699999999999932,
+            16.600000000000023,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.58823529411765,
+          "intervalsAbove21ms": 4,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34558900067,
+            "endTsUs": 34559281558,
+            "windowMs": 381.491,
+            "mainPid": 875,
+            "mainTid": 875,
+            "mainThreadCpuMs": 33.67,
+            "displayDrawAndSwap": {
+              "count": 16,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 19.395,
+              "maxWallMs": 26.663,
+              "sumWallMs": 319.4140000000001,
+              "cpuSampleCount": 16,
+              "medianCpuMs": 19.393,
+              "sumCpuMs": 318.41099999999994
+            },
+            "softwareQuads": {
+              "count": 1283,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.104,
+              "maxWallMs": 9.976,
+              "sumWallMs": 330.2700000000003,
+              "cpuSampleCount": 1283,
+              "medianCpuMs": 0.103,
+              "sumCpuMs": 329.3040000000003
+            },
+            "rasterTasks": {
+              "count": 19,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.554,
+              "maxWallMs": 13.388,
+              "sumWallMs": 42.372,
+              "cpuSampleCount": 19,
+              "medianCpuMs": 0.546,
+              "sumCpuMs": 42.191
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.333,
+              "maxWallMs": 0.52,
+              "sumWallMs": 6.674,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.329,
+              "sumCpuMs": 6.567
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.194,
+              "maxWallMs": 0.324,
+              "sumWallMs": 3.699,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1945,
+              "sumCpuMs": 3.6959999999999993
+            }
+          }
+        },
+        "night": {
+          "error": "[MOTION-CONTEXT-001] night median frame interval regressed to 33.27 ms",
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            33.27400000000003,
+            16.599999999999966,
+            16.69999999999999,
+            33.400000000000034,
+            16.599999999999966,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            16.69999999999999,
+            33.30000000000001,
+            66.60000000000002,
+            33.39999999999998,
+            33.299999999999955,
+            33.39999999999998,
+            16.600000000000023,
+            16.700000000000045,
+            33.299999999999955
+          ],
+          "medianIntervalMs": 33.27400000000003,
+          "meanIntervalMs": 27.445529411764706,
+          "intervalsAbove21ms": 9,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34561044552,
+            "endTsUs": 34561503678,
+            "windowMs": 459.126,
+            "mainPid": 939,
+            "mainTid": 939,
+            "mainThreadCpuMs": 20.685,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 20.869500000000002,
+              "maxWallMs": 49.936,
+              "sumWallMs": 440.53599999999994,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 21.045,
+              "sumCpuMs": 439.336
+            },
+            "softwareQuads": {
+              "count": 1398,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.102,
+              "maxWallMs": 9.923,
+              "sumWallMs": 412.6119999999996,
+              "cpuSampleCount": 1398,
+              "medianCpuMs": 0.102,
+              "sumCpuMs": 413.88900000000064
+            },
+            "rasterTasks": {
+              "count": 24,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 0.8274999999999999,
+              "maxWallMs": 8.066,
+              "sumWallMs": 45.743999999999986,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.8015,
+              "sumCpuMs": 42.998000000000005
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.334,
+              "maxWallMs": 0.593,
+              "sumWallMs": 6.593000000000001,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.3295,
+              "sumCpuMs": 6.505000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 17,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.179,
+              "maxWallMs": 0.407,
+              "sumWallMs": 3.611,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 0.179,
+              "sumCpuMs": 3.6049999999999995
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-8-brown-auto/cause-report.json",
+          "bytes": 39955,
+          "sha256": "e567c9d8ef371e0eab80c7da8b1c1836cd962952a5ef9eccaa8bd4d690f72f9c",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-8-brown-auto/derived-runtime.mjs",
+          "bytes": 12883,
+          "sha256": "7f1ace415a940827e03844a1c2c0a345909542aab33d6772a71ae28d66c565c4",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-8-brown-auto/chromium-trace.json",
+          "bytes": 23272014,
+          "sha256": "d8f1660db21e7ec485431fda48316c34742227a69abfd847704496c766a24042",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 9,
+      "variant": "static-auto",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:57:41.178Z",
+      "finishedAt": "2026-09-07T13:57:52.810Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.3999999985099,
+        "night": 1702.8000000044703
+      },
+      "probeSource": "trace-contextual-layer-cost.mjs",
+      "probeSha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "7510ae1761ea2b9924cf8e34a0d687a2c9cddf9764b33e0a6c7890b65c6deeec",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29859117,
+        "sha256": "fc1340da35009548a6a67733b5fa505a0c823d2ae71ef59490a37ded1f091b7c",
+        "eventCount": 143591,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34568686827,
+                "navigationId": "8161CD4B2E830F66A9733CC12D632FF6",
+                "sampleTraceId": 4114528578437233,
+                "startTime": 237.39999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 1209,
+            "s": "t",
+            "tid": 1209,
+            "ts": 34568686812,
+            "tts": 164375
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34569046939,
+                "navigationId": "8161CD4B2E830F66A9733CC12D632FF6",
+                "sampleTraceId": 4114528578441008,
+                "startTime": 597.6000000014901
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 1209,
+            "s": "t",
+            "tid": 1209,
+            "ts": 34569046934,
+            "tts": 185955
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34570817794,
+                "navigationId": "1CCF1DDA85995B01C190EE51FEB55670",
+                "sampleTraceId": 8597968436134398,
+                "startTime": 231.19999999552965
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 1273,
+            "s": "t",
+            "tid": 1273,
+            "ts": 34570817780,
+            "tts": 161184
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34571132159,
+                "navigationId": "1CCF1DDA85995B01C190EE51FEB55670",
+                "sampleTraceId": 8597968436134208,
+                "startTime": 545.5
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 1273,
+            "s": "t",
+            "tid": 1273,
+            "ts": 34571132155,
+            "tts": 187256
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            50.099999999999994,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.599999999999966,
+            16.700000000000045,
+            16.69999999999999,
+            16.599999999999966,
+            33.39999999999998,
+            16.700000000000045,
+            16.700000000000045,
+            16.59999999999991,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 20.594117647058823,
+          "intervalsAbove21ms": 3,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34568686812,
+            "endTsUs": 34569046934,
+            "windowMs": 360.122,
+            "mainPid": 1209,
+            "mainTid": 1209,
+            "mainThreadCpuMs": 21.58,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 19.708,
+              "maxWallMs": 22.082,
+              "sumWallMs": 332.312,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 19.593,
+              "sumCpuMs": 332.777
+            },
+            "softwareQuads": {
+              "count": 1320,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.0835,
+              "maxWallMs": 3.675,
+              "sumWallMs": 326.4760000000002,
+              "cpuSampleCount": 1320,
+              "medianCpuMs": 0.083,
+              "sumCpuMs": 328.16299999999967
+            },
+            "rasterTasks": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.846,
+              "maxWallMs": 8.028,
+              "sumWallMs": 43.257000000000005,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.839,
+              "sumCpuMs": 42.928000000000004
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 19,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.315,
+              "maxWallMs": 0.558,
+              "sumWallMs": 5.864999999999999,
+              "cpuSampleCount": 19,
+              "medianCpuMs": 0.31,
+              "sumCpuMs": 5.778
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1685,
+              "maxWallMs": 0.327,
+              "sumWallMs": 3.157,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1685,
+              "sumCpuMs": 3.1479999999999992
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            16.700000000000017,
+            16.599999999999966,
+            16.700000000000045,
+            16.599999999999966,
+            33.400000000000034,
+            16.599999999999966,
+            16.69999999999999,
+            16.600000000000023,
+            16.80000000000001,
+            16.599999999999966,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.599999999999966,
+            16.700000000000045
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 17.641176470588235,
+          "intervalsAbove21ms": 1,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34570817780,
+            "endTsUs": 34571132155,
+            "windowMs": 314.375,
+            "mainPid": 1273,
+            "mainTid": 1273,
+            "mainThreadCpuMs": 26.072,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 17.69,
+              "maxWallMs": 19.267,
+              "sumWallMs": 298.36,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 17.575,
+              "sumCpuMs": 298.65999999999997
+            },
+            "softwareQuads": {
+              "count": 1337,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.068,
+              "maxWallMs": 3.529,
+              "sumWallMs": 293.24499999999995,
+              "cpuSampleCount": 1337,
+              "medianCpuMs": 0.068,
+              "sumCpuMs": 294.7300000000002
+            },
+            "rasterTasks": {
+              "count": 14,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.514,
+              "maxWallMs": 7.332,
+              "sumWallMs": 14.370999999999999,
+              "cpuSampleCount": 14,
+              "medianCpuMs": 0.505,
+              "sumCpuMs": 14.263
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.332,
+              "maxWallMs": 0.606,
+              "sumWallMs": 6.529999999999999,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.3265,
+              "sumCpuMs": 6.420000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.157,
+              "maxWallMs": 0.254,
+              "sumWallMs": 3.111,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.156,
+              "sumCpuMs": 3.1029999999999993
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-9-static-auto/cause-report.json",
+          "bytes": 40109,
+          "sha256": "d40d12729b5a1441581ec41b099344c26679300247744ca88903e14a2ec25741",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-9-static-auto/derived-runtime.mjs",
+          "bytes": 12884,
+          "sha256": "7510ae1761ea2b9924cf8e34a0d687a2c9cddf9764b33e0a6c7890b65c6deeec",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-9-static-auto/chromium-trace.json",
+          "bytes": 29859117,
+          "sha256": "fc1340da35009548a6a67733b5fa505a0c823d2ae71ef59490a37ded1f091b7c",
+          "role": "raw Chromium trace"
+        }
+      ]
+    },
+    {
+      "sequence": 10,
+      "variant": "baseline",
+      "sourceHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+      "startedAt": "2026-09-07T13:57:53.134Z",
+      "finishedAt": "2026-09-07T13:58:04.722Z",
+      "browser": "140.0.7339.186",
+      "coldDurations": {
+        "day": 1262.3000000044703,
+        "night": 1702.2000000029802
+      },
+      "probeSource": "trace-contextual-layer-cost.mjs",
+      "probeSha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+      "derivedScriptSha256": "f3ed1e3fc02ac3a2c777d1993d5d910881573c73b09d50ce57c87e7612b468e8",
+      "trace": {
+        "file": "chromium-trace.json",
+        "bytes": 29613268,
+        "sha256": "6894bbdf16a68e873de8faa59c1f1b8a99c2c3a2dfadc83db766128cbc90b385",
+        "eventCount": 142634,
+        "dataLossOccurred": false,
+        "sampleMarks": [
+          {
+            "args": {
+              "data": {
+                "callTime": 34580597905,
+                "navigationId": "F6CA65A2E213BA13807BD78B6DF405D3",
+                "sampleTraceId": 6247562327786284,
+                "startTime": 244.39999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:day",
+            "ph": "I",
+            "pid": 1538,
+            "s": "t",
+            "tid": 1538,
+            "ts": 34580597890,
+            "tts": 160112
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34580969166,
+                "navigationId": "F6CA65A2E213BA13807BD78B6DF405D3",
+                "sampleTraceId": 6247562327788669,
+                "startTime": 615.7000000029802
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:day",
+            "ph": "I",
+            "pid": 1538,
+            "s": "t",
+            "tid": 1538,
+            "ts": 34580969148,
+            "tts": 181543
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34582735615,
+                "navigationId": "397DE444EDADEFF4D5F5E203DA38C0AB",
+                "sampleTraceId": 8765441259394677,
+                "startTime": 247.89999999850988
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:start:night",
+            "ph": "I",
+            "pid": 1602,
+            "s": "t",
+            "tid": 1602,
+            "ts": 34582735603,
+            "tts": 159457
+          },
+          {
+            "args": {
+              "data": {
+                "callTime": 34583175601,
+                "navigationId": "397DE444EDADEFF4D5F5E203DA38C0AB",
+                "sampleTraceId": 8765441259395420,
+                "startTime": 687.8999999985099
+              }
+            },
+            "cat": "blink.user_timing",
+            "name": "pr342:sample:end:night",
+            "ph": "I",
+            "pid": 1602,
+            "s": "t",
+            "tid": 1602,
+            "ts": 34583175596,
+            "tts": 189968
+          }
+        ]
+      },
+      "scenes": {
+        "day": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            33.23399999999998,
+            16.69999999999999,
+            16.600000000000023,
+            16.69999999999999,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.700000000000045,
+            16.599999999999966,
+            16.69999999999999,
+            33.400000000000034,
+            16.599999999999966,
+            16.700000000000045,
+            50.0,
+            16.600000000000023,
+            16.699999999999932,
+            33.30000000000007
+          ],
+          "medianIntervalMs": 16.69999999999999,
+          "meanIntervalMs": 22.543176470588236,
+          "intervalsAbove21ms": 5,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34580597890,
+            "endTsUs": 34580969148,
+            "windowMs": 371.258,
+            "mainPid": 1538,
+            "mainTid": 1538,
+            "mainThreadCpuMs": 21.431,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 20.1175,
+              "maxWallMs": 23.913,
+              "sumWallMs": 361.629,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 20.002499999999998,
+              "sumCpuMs": 359.48199999999997
+            },
+            "softwareQuads": {
+              "count": 1383,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.101,
+              "maxWallMs": 3.83,
+              "sumWallMs": 345.3070000000004,
+              "cpuSampleCount": 1383,
+              "medianCpuMs": 0.1,
+              "sumCpuMs": 344.605
+            },
+            "rasterTasks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.793,
+              "maxWallMs": 8.564,
+              "sumWallMs": 32.203,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.779,
+              "sumCpuMs": 31.859
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 24,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.34450000000000003,
+              "maxWallMs": 0.553,
+              "sumWallMs": 7.314,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.33999999999999997,
+              "sumCpuMs": 7.217
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 17,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.225,
+              "maxWallMs": 0.314,
+              "sumWallMs": 3.5829999999999993,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 0.224,
+              "sumCpuMs": 3.577
+            }
+          }
+        },
+        "night": {
+          "error": null,
+          "uniqueTransforms": 18,
+          "sampleCount": 18,
+          "intervalsMs": [
+            50.00800000000001,
+            16.69999999999999,
+            33.30000000000001,
+            16.599999999999966,
+            16.69999999999999,
+            33.30000000000001,
+            16.69999999999999,
+            16.700000000000045,
+            16.69999999999999,
+            33.19999999999999,
+            16.700000000000045,
+            16.699999999999932,
+            33.39999999999998,
+            16.600000000000023,
+            50.0,
+            33.30000000000007,
+            16.699999999999932
+          ],
+          "medianIntervalMs": 16.700000000000045,
+          "meanIntervalMs": 25.48870588235294,
+          "intervalsAbove21ms": 7,
+          "window": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 34582735603,
+            "endTsUs": 34583175596,
+            "windowMs": 439.993,
+            "mainPid": 1602,
+            "mainTid": 1602,
+            "mainThreadCpuMs": 30.511,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.305500000000002,
+              "maxWallMs": 48.593,
+              "sumWallMs": 396.213,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 19.485,
+              "sumCpuMs": 395.17999999999995
+            },
+            "softwareQuads": {
+              "count": 1462,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.097,
+              "maxWallMs": 24.98,
+              "sumWallMs": 378.625,
+              "cpuSampleCount": 1462,
+              "medianCpuMs": 0.096,
+              "sumCpuMs": 378.26100000000014
+            },
+            "rasterTasks": {
+              "count": 38,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.8835,
+              "maxWallMs": 8.201,
+              "sumWallMs": 60.602999999999994,
+              "cpuSampleCount": 38,
+              "medianCpuMs": 0.8705,
+              "sumCpuMs": 59.91900000000003
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.345,
+              "maxWallMs": 1.657,
+              "sumWallMs": 8.016,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.341,
+              "sumCpuMs": 7.921
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.16799999999999998,
+              "maxWallMs": 1.453,
+              "sumWallMs": 4.606000000000001,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.16799999999999998,
+              "sumCpuMs": 4.602000000000001
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "path": "layer-cost-10-baseline/cause-report.json",
+          "bytes": 40168,
+          "sha256": "5b59cff0443604759439d837638d945f02b9c9eabb8f7124d1a5a70fe1b23ec4",
+          "role": "raw diagnostic report"
+        },
+        {
+          "path": "layer-cost-10-baseline/derived-runtime.mjs",
+          "bytes": 12881,
+          "sha256": "f3ed1e3fc02ac3a2c777d1993d5d910881573c73b09d50ce57c87e7612b468e8",
+          "role": "executed derived module"
+        },
+        {
+          "path": "layer-cost-10-baseline/chromium-trace.json",
+          "bytes": 29613268,
+          "sha256": "6894bbdf16a68e873de8faa59c1f1b8a99c2c3a2dfadc83db766128cbc90b385",
+          "role": "raw Chromium trace"
+        }
+      ]
+    }
+  ],
+  "visual": {
+    "scope": "Separate fixed-pose diagnostic at 390x844, Day/Night, fractions .2/.6/.9; seven animations paused from creation, lifecycle held, images decoded. Exact RGBA comparison is a conservative diagnostic, not the existing Visual regression pixelmatch verdict. Original thresholds are unchanged. No zero-pixel equivalence; no wider appearance acceptance or candidate CI attempted.",
+    "rows": [
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 106391,
+        "maxChannelDelta": 17
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 94608,
+        "maxChannelDelta": 17
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 106378,
+        "maxChannelDelta": 17
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 100750,
+        "maxChannelDelta": 6
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 90090,
+        "maxChannelDelta": 6
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "ambient-auto",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 99316,
+        "maxChannelDelta": 6
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 390,
+        "height": 844,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      }
+    ],
+    "source": "ambient-auto-fixed-poses.mjs",
+    "status": "NOT_PIXEL_IDENTICAL"
+  },
+  "android": {
+    "scope": "Decoded job evidence from workflows associated with subject head; executed source differs by workflow. Binary artifacts not downloaded in this follow-up.",
+    "pinnedComparison": {
+      "runId": 34117214726,
+      "base": {
+        "jobId": 101726731607,
+        "sourceSha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+        "conclusion": "success"
+      },
+      "head": {
+        "jobId": 101726731902,
+        "sourceSha": "357e64a9186f840ae1e92f96b31cda68f207c374",
+        "conclusion": "success"
+      }
+    },
+    "renderTrace": {
+      "runId": 34117214732,
+      "base": {
+        "jobId": 101726730568,
+        "sourceSha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+        "conclusion": "failure",
+        "state": "VISUAL_STATE_TIMEOUT"
+      },
+      "headLabel": {
+        "jobId": 101726730831,
+        "sourceSha": "409eef86b76749c0af35847447012cd13f47e7a6",
+        "conclusion": "success"
+      },
+      "boundary": "The head-labeled render trace is a frozen historical subject, not 357e64a."
+    },
+    "recordingObserver": {
+      "runId": 34117214776,
+      "sourceSha": "07aa407d091f8d37264871eaa330dab6e849c884",
+      "recorded": [
+        {
+          "jobId": 101726731230,
+          "conclusion": "success"
+        },
+        {
+          "jobId": 101726731036,
+          "conclusion": "failure",
+          "state": "VISUAL_STATE_TIMEOUT"
+        }
+      ],
+      "unrecorded": [
+        {
+          "jobId": 101726730890,
+          "conclusion": "failure",
+          "state": "VISUAL_STATE_TIMEOUT"
+        },
+        {
+          "jobId": 101726731301,
+          "conclusion": "failure",
+          "state": "VISUAL_STATE_TIMEOUT"
+        }
+      ],
+      "boundary": "Recording is not necessary for these historical-subject failures; no current-head recorder attribution or rate estimate."
+    },
+    "evidence": "layer-cost-ci-logs/job-excerpts.json"
+  },
+  "verification": {
+    "originalPrefixRestoration": "PASS",
+    "allTraceAndDerivedHashes": "PASS",
+    "independentPythonDisplayCpuRecomputation": "PASS",
+    "all22SceneWindowsComplete": "PASS",
+    "unchangedPixelControls": "6/6 zero differing pixels",
+    "productSourceChanged": false,
+    "removedDisposableRuntimeCount": 11,
+    "localValidation": {
+      "npm run check": "PASS",
+      "npm run verify:security": "PASS: 287 contracts plus secret scan",
+      "markdownlint": "PASS",
+      "git diff --check": "PASS",
+      "scope": "Report-only working tree before commit; no candidate certification or full product repair claim."
+    }
+  },
+  "artifacts": [
+    {
+      "path": "layer-cost-0-baseline/cause-report.json",
+      "bytes": 40149,
+      "sha256": "69effae26597df947ef13ebd0215135d9616fa62a41f8d649caece9c82ad64b5",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-0-baseline/derived-runtime.mjs",
+      "bytes": 12481,
+      "sha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-0-baseline/chromium-trace.json",
+      "bytes": 29229312,
+      "sha256": "521c47eb243a9f8ecb4684f4c9f7e0dc1797ab21061cf8dca7b6402800ae8ea8",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-1-no-material-shadows/cause-report.json",
+      "bytes": 39038,
+      "sha256": "cea40aecc0a4fcbaf28ba9375b35dc540da1cacc907db18950c4a3a3bb4edb6c",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-1-no-material-shadows/derived-runtime.mjs",
+      "bytes": 12492,
+      "sha256": "646a777cb88d0f7fbd3681bb6200a1fcdd139df38ff8bb6e2949ace96ca07a12",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-1-no-material-shadows/chromium-trace.json",
+      "bytes": 29657154,
+      "sha256": "e6fb8330f11423fe64984b090ee7c3a7b163743c72a4b357d738c0caeb80184d",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-2-no-logo-filters/cause-report.json",
+      "bytes": 39850,
+      "sha256": "146e01ef468b0d1d3dc18eeffe72597e58208293415164297f756d78dbb9a603",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-2-no-logo-filters/derived-runtime.mjs",
+      "bytes": 12488,
+      "sha256": "2003b4c7f81cf12a5b1be3ceb094c32e5e2b7f8955f28f8e2d0d0fec1f7cd888",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-2-no-logo-filters/chromium-trace.json",
+      "bytes": 28703552,
+      "sha256": "03e84296ed24cdef7550a3b9b7f36ddceb1c1028326b9f8cec073805d2a51051",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-3-no-foreground-filter/cause-report.json",
+      "bytes": 40149,
+      "sha256": "300c383fbabf394e45c5b52e0daf61d0eaf5b8b8df8fe607bae9a93167f7023c",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-3-no-foreground-filter/derived-runtime.mjs",
+      "bytes": 12493,
+      "sha256": "dc9b755f97834d306515818cf2b41fce8a1f23bcf7e817f67ca55542bfed58fd",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-3-no-foreground-filter/chromium-trace.json",
+      "bytes": 29806823,
+      "sha256": "597148f756c78f80ab6c69e4964c740a93abba388e6aae82c6d24fd9ae14adc0",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-4-inner-clip/cause-report.json",
+      "bytes": 40009,
+      "sha256": "3b4b0289058f91589e496926152acbf53964562818904247aaff1fa1a54390ad",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-4-inner-clip/derived-runtime.mjs",
+      "bytes": 12483,
+      "sha256": "e08eb3f619288ee0be1da176ec13ac2019263814bd2f52fdc7612863abf385a3",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-4-inner-clip/chromium-trace.json",
+      "bytes": 27162860,
+      "sha256": "bde57e2587853054e1d045f4e7e8685aa2de24406d0f7b702dd97605eb7608e9",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-5-baseline/cause-report.json",
+      "bytes": 40094,
+      "sha256": "4b691ec7d1c9574c8996000744e679c87c7a91839be6d9542de23ac9a4fd612f",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-5-baseline/derived-runtime.mjs",
+      "bytes": 12481,
+      "sha256": "28c8537709ba1e3050731587edc5f190a0674f612f6d95d6075b0fcfcd453f9c",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-5-baseline/chromium-trace.json",
+      "bytes": 29992598,
+      "sha256": "89852694b255305e30cd6e7f8eeb78284d5c3ad848545f60e0908d045f841c74",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-6-vignette-auto/cause-report.json",
+      "bytes": 40126,
+      "sha256": "076007f443f54d3686293502d71eece2579e99c8f0f77a8589a0fc388046c617",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-6-vignette-auto/derived-runtime.mjs",
+      "bytes": 12886,
+      "sha256": "ba0a3e7c768e183fef56ed31fd48661c7026d38acea2be72dc90ecdf26c5be02",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-6-vignette-auto/chromium-trace.json",
+      "bytes": 29571935,
+      "sha256": "8cc109789052850c3a520c181056a9df471f5e2b10eccc5941f296f0365d8d71",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-7-ambient-auto/cause-report.json",
+      "bytes": 40104,
+      "sha256": "fcb877c509e1443e5f0f0390dfa3ad107d47058b4fa2bd2c57482e7381d2fee6",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-7-ambient-auto/derived-runtime.mjs",
+      "bytes": 12885,
+      "sha256": "48456eb67fe9677da3a22fcc104681c1adec0671e7779ff9202fdd7e3518398d",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-7-ambient-auto/chromium-trace.json",
+      "bytes": 29447927,
+      "sha256": "b865c150bb0ecf4ed6c6c46aa76ff686d8209643676ca4e425dde8ee502ae0d2",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-8-brown-auto/cause-report.json",
+      "bytes": 39955,
+      "sha256": "e567c9d8ef371e0eab80c7da8b1c1836cd962952a5ef9eccaa8bd4d690f72f9c",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-8-brown-auto/derived-runtime.mjs",
+      "bytes": 12883,
+      "sha256": "7f1ace415a940827e03844a1c2c0a345909542aab33d6772a71ae28d66c565c4",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-8-brown-auto/chromium-trace.json",
+      "bytes": 23272014,
+      "sha256": "d8f1660db21e7ec485431fda48316c34742227a69abfd847704496c766a24042",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-9-static-auto/cause-report.json",
+      "bytes": 40109,
+      "sha256": "d40d12729b5a1441581ec41b099344c26679300247744ca88903e14a2ec25741",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-9-static-auto/derived-runtime.mjs",
+      "bytes": 12884,
+      "sha256": "7510ae1761ea2b9924cf8e34a0d687a2c9cddf9764b33e0a6c7890b65c6deeec",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-9-static-auto/chromium-trace.json",
+      "bytes": 29859117,
+      "sha256": "fc1340da35009548a6a67733b5fa505a0c823d2ae71ef59490a37ded1f091b7c",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "layer-cost-10-baseline/cause-report.json",
+      "bytes": 40168,
+      "sha256": "5b59cff0443604759439d837638d945f02b9c9eabb8f7124d1a5a70fe1b23ec4",
+      "role": "raw diagnostic report"
+    },
+    {
+      "path": "layer-cost-10-baseline/derived-runtime.mjs",
+      "bytes": 12881,
+      "sha256": "f3ed1e3fc02ac3a2c777d1993d5d910881573c73b09d50ce57c87e7612b468e8",
+      "role": "executed derived module"
+    },
+    {
+      "path": "layer-cost-10-baseline/chromium-trace.json",
+      "bytes": 29613268,
+      "sha256": "6894bbdf16a68e873de8faa59c1f1b8a99c2c3a2dfadc83db766128cbc90b385",
+      "role": "raw Chromium trace"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.2-ambient-auto.png",
+      "bytes": 225216,
+      "sha256": "32ad6e4cea31a0a3080094a625029a1efdb4b2c1608157499462de624a303bd8",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.2-baseline-control.png",
+      "bytes": 218837,
+      "sha256": "f59bb9c5d1580523d06462c86f2c01a846ef5b446b914375dc8ea4b85edcd2d3",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.2-baseline.png",
+      "bytes": 218837,
+      "sha256": "f59bb9c5d1580523d06462c86f2c01a846ef5b446b914375dc8ea4b85edcd2d3",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.6-ambient-auto.png",
+      "bytes": 266219,
+      "sha256": "ebf4cae036de8a518d523a31b778c64e06bbb6b326a32d197d1ccc8422d7ce08",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.6-baseline-control.png",
+      "bytes": 260778,
+      "sha256": "7247ad76a41886117b90906ee80d201d9400470d0c0e5e34ae1e67781cb8f7c6",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.6-baseline.png",
+      "bytes": 260778,
+      "sha256": "7247ad76a41886117b90906ee80d201d9400470d0c0e5e34ae1e67781cb8f7c6",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.9-ambient-auto.png",
+      "bytes": 266651,
+      "sha256": "7e46f9eea6a197ed6670f83494bebda4e5ef9b252111c3fff884278f22ec2724",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.9-baseline-control.png",
+      "bytes": 261276,
+      "sha256": "28cd9070ddeae5c8d445ce369849e607f21440cfaca7e25976ebd3824778787d",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-day-0.9-baseline.png",
+      "bytes": 261276,
+      "sha256": "28cd9070ddeae5c8d445ce369849e607f21440cfaca7e25976ebd3824778787d",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.2-ambient-auto.png",
+      "bytes": 193626,
+      "sha256": "e580dc47ecb25c712f2ac387f248ae8cdb60b78b36a3bafea29bfadcbd748413",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.2-baseline-control.png",
+      "bytes": 184693,
+      "sha256": "86091f5a83f2839aa374959db4a61ea2a6b0ac1bd580753f54e6f7ff4f67e9f4",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.2-baseline.png",
+      "bytes": 184693,
+      "sha256": "86091f5a83f2839aa374959db4a61ea2a6b0ac1bd580753f54e6f7ff4f67e9f4",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.6-ambient-auto.png",
+      "bytes": 227483,
+      "sha256": "89a451df206c41fc17c3f959101b3c175d27d5eb479a3b4275049ef4f3f63ddf",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.6-baseline-control.png",
+      "bytes": 220792,
+      "sha256": "3847dcf7f020df301329336c6f74d1c65f20a6076fd78d692e44900ca0362853",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.6-baseline.png",
+      "bytes": 220792,
+      "sha256": "3847dcf7f020df301329336c6f74d1c65f20a6076fd78d692e44900ca0362853",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.9-ambient-auto.png",
+      "bytes": 233877,
+      "sha256": "8766eae8cf1f423b0aca536016e6a10e1b457e21dd0873cad54f6bc6b7fd554e",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.9-baseline-control.png",
+      "bytes": 226441,
+      "sha256": "c25524e992f079aa0c9221bd088428e445212afff13e35dc6d1da7c443e88fe2",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/390-night-0.9-baseline.png",
+      "bytes": 226441,
+      "sha256": "c25524e992f079aa0c9221bd088428e445212afff13e35dc6d1da7c443e88fe2",
+      "role": "separate held-pose screenshot, not timing evidence"
+    },
+    {
+      "path": "trace-contextual-layer-cost-v1.mjs",
+      "bytes": 11222,
+      "sha256": "97f19fc103241627a400d5ee8f2a652c2b3b2119d44f83ae810e2fe4f693d702",
+      "role": "replay source or captured evidence"
+    },
+    {
+      "path": "trace-contextual-layer-cost.mjs",
+      "bytes": 11667,
+      "sha256": "f670315efa029bb087d90271caf48c6570fa86f89d591a6331068bc93d1e7ac1",
+      "role": "replay source or captured evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses.mjs",
+      "bytes": 6602,
+      "sha256": "8a35f9af02552856ec0dba390785555ee67dc32e59393eda2214ae91739f2ccc",
+      "role": "replay source or captured evidence"
+    },
+    {
+      "path": "ambient-auto-fixed-poses/report.json",
+      "bytes": 2852,
+      "sha256": "603fc50882807067b6329fb6fe9c1a8fac52aa68f9306fe78a514408be8c514f",
+      "role": "replay source or captured evidence"
+    },
+    {
+      "path": "layer-cost-ci-logs/job-excerpts.json",
+      "bytes": 62391,
+      "sha256": "9d86b378db9a6f40670a9a69cb4c80dd30309d21352604789286732aa75fabf1",
+      "role": "replay source or captured evidence"
+    }
+  ],
+  "bundle": {
+    "filename": "pr342-layer-cost-evidence-2026-09-07.zip",
+    "bytes": 34986648,
+    "sha256": "a58441317340e252017ab60faa28a7a7e0dfe59973aeb6cbe0cdc9dd636ee178",
+    "verification": "ZIP members, sizes and SHA-256 checked independently after writing",
+    "libraryFileId": "libfile_d4a14563f0948191ab17bf511c89d35d"
+  },
+  "identity": {
+    "initialHead": "357e64a9186f840ae1e92f96b31cda68f207c374",
+    "finalHeadAfterEvidenceCollection": "357e64a9186f840ae1e92f96b31cda68f207c374",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "scope": "Bound to the observed head before any report-only follow-up commit."
+  }
+}

@@ -1,6 +1,7 @@
 # PR #342 causal graph and finding
 
-Latest profiled CI subject: `5aa14b34d5bc61d3aa01e756b81d6db03560720e`.
+Latest local diagnostic subject: `357e64a9186f840ae1e92f96b31cda68f207c374`.
+Latest profiled failing CI subject: `5aa14b34d5bc61d3aa01e756b81d6db03560720e`.
 Exact base: `5b01276b99db719cae2fc72f29d38eb00c9953f4`.
 Initial audit head was `0eeee89db2d7704bde7bc7c84c72b213ca0f5077`.
 This investigation adds diagnostic evidence and reports only. Product bytes,
@@ -20,6 +21,8 @@ flowchart TD
   E["Existing page and Day/Night scene"] -->|"profiled failing CI window"| S["CPU composition: about 24 ms per draw"]
   S -->|"slow callback cadence"| C["Contextual median: 33.3 ms"]
   C -->|"original limit: 21 ms"| F["Contextual failure"]
+  E -.->|"static ambient candidate"| H["Small local CPU change"]
+  H -->|"held-pose comparison"| R["90090–106391 pixels differ: candidate withheld"]
   G["WebView / emulator internal work"] -.->|"precise operation unresolved"| D["Base WebView draw wait: 7.83 s"]
   D -->|"same historical frame"| U["UI postAndWait: 7.85 s"]
   U -->|"trace plus callback code"| A["Readiness delay and visual timeout"]
@@ -30,6 +33,79 @@ Solid edges have controlled-change, code or trace support within their stated
 scope. Dotted edges remain hypotheses. Android durations belong to the historical
 immutable base, not the current-head launch. Desktop SoftwareRenderer and Android
 WebView/emulator rendering are different paths; no shared driver fault is established.
+
+## Follow-up on 357e64a: layer costs and current CI boundaries
+
+All five previously discussed workflows completed successfully on 357e64a:
+Pairing, Visual, Contextual, original Android smoke and pinned base/head Android
+comparison. This report-only head has the same product bytes as 5aa14b3; the
+passes do not establish a product repair. Two additional Android diagnostic
+workflows failed. Their executed subjects differ from their triggering head.
+
+| Android observation | Executed subject | Result and boundary |
+| --- | --- | --- |
+| Pinned comparison, run 34117214726 | Base 5b01276 and actual head 357e64a | Both capture jobs and delivery verifiers pass |
+| Render trace base, run 34117214732 | Base 5b01276 | WEB_READY_TIMEOUT then VISUAL_STATE_TIMEOUT; delivery identity passes |
+| Same trace workflow, job labelled head | Historical 409eef8 | Capture passes; this is not a trace of 357e64a |
+| Recording observer, run 34117214776 | Historical 07aa407 on all four jobs | Recorded: one pass, one timeout; unrecorded: two timeouts; delivery identity passes |
+
+These are decoded job-log observations, not newly downloaded Android trace
+measurements. Recording is not necessary for the observed historical-subject
+failures. Host differences, tracing overhead, internal WebView work and additional
+precache load remain separate possibilities. These counts do not estimate rates.
+The ledger links exact jobs and retains their selected, unmodified log lines.
+
+A local follow-up retained the original two cold launches before each Day/Night
+pair, the original scene assertions, 18 samples and 21 ms limit. Two sampler
+marks and one declared initialization hook are the only prefix insertions;
+removing them reproduces the original gate prefix exactly. Eleven browser traces
+produced 22 complete scene windows. Actual draw CPU was recomputed independently
+from raw Chromium events. No timing and screenshot browsers ran together.
+
+| Execution order / variant | Day median draw CPU | Night median draw CPU |
+| --- | --- | --- |
+| 0: baseline | 18.093 ms | 19.172 ms |
+| 1: material box shadows removed | 16.778 ms | 16.634 ms |
+| 2: logo filters removed | 18.238 ms | 19.782 ms |
+| 3: foreground filter removed | 16.818 ms | 17.535 ms |
+| 4: inner scene overflow clip | 20.049 ms | 18.675 ms |
+| 5: baseline | 19.617 ms | 18.965 ms |
+| 6: static vignette promotion removed | 18.710 ms | 20.232 ms |
+| 7: static ambient promotion removed | 16.874 ms | 18.099 ms |
+| 8: static brown-ribbon promotion removed | 19.393 ms | 21.045 ms |
+| 9: five static promotions removed | 19.593 ms | 17.575 ms |
+| 10: baseline | 20.002 ms | 19.485 ms |
+
+The brown-ribbon candidate also fails the original Night median at 33.27 ms.
+Other sampled medians pass, including every unchanged control. The ordered
+exploratory sweeps are not randomized or a repair-frequency experiment. Single
+variant pairs and different sampled animation phases do not support a reliable
+causal ranking. They give a directional cost signal for material shadows and the
+foreground filter; logo filters are not a dominant contributor in these windows.
+Removing optical effects is not an accepted repair.
+
+The small ambient-only candidate received a separate appearance discriminator:
+Day/Night at fractions 0.2, 0.6 and 0.9, 390 x 844, seven animations paused from
+creation and lifecycle held. It changes 90090–106391 decoded pixels per image,
+with maximum channel deltas of 17 (Day) and 6 (Night). All six unchanged controls
+have zero differing pixels. This does not preserve pixel identity. It is a
+conservative diagnostic, **not a claim that the existing Visual regression
+pixelmatch threshold failed**. No original threshold changed. No broader visual
+acceptance or candidate CI was attempted after this discriminator; no product
+patch remains. The other surface candidates did not show sufficient timing
+benefit to justify expanded appearance testing.
+
+The [layer-cost ledger](../../qa/evidence/pr342-layer-cost-boundary-2026-09-07.json)
+retains all original intervals, timings, exact source and execution-module hashes,
+trace boundaries, image comparisons and Android subject identities. The raw
+traces, executed probe sources and screenshots are preserved in
+`pr342-layer-cost-evidence-2026-09-07.zip` with its digest recorded in that ledger.
+
+This follow-up establishes no additional safe product repair. Keep the demonstrated
+share-origin repair. Further rendering changes must preserve scene/depth contracts
+and show a repeatable CPU reduction plus the original gate under a comparable
+runtime. Android still needs evidence inside its long native WebView draw interval;
+a passing desktop animation or a trace labelled head cannot close that boundary.
 
 ## Findings and causal limits
 
