@@ -20,6 +20,8 @@ async function capture(page, path) {
   await page.screenshot({ path });
 }
 async function openOrder(page, minor) {
+  await page.locator('#menu-cart-total').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#menu-cart-total').innerText(), new RegExp(String(minor / 100)), 'The guest must see the actual total, not only the domain state');
   await page.locator('#menu-cart-trigger').click();
   await page.locator('#robys-order-dialog').waitFor({ state: 'visible' });
   const summary = await page.evaluate(async () => {
@@ -32,7 +34,18 @@ async function layout(page) {
   const result = await page.evaluate(() => {
     const button = document.querySelector('#menu-cart-trigger').getBoundingClientRect();
     const dock = document.querySelector('.compact-order-dock').getBoundingClientRect();
+    const helper = getComputedStyle(document.querySelector('.menu-smart-choice-link'));
+    const luminance = color => {
+      const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(c => {
+        const value = c / 255; return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+    };
+    const fg = luminance(helper.color), bg = luminance(helper.backgroundColor);
+    const price = document.querySelector('#menu-cart-total').getBoundingClientRect();
     return {
+      helperContrast: (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05),
+      price: { width: price.width, height: price.height, left: price.left, right: price.right },
       overflow: document.documentElement.scrollWidth - innerWidth,
       button: { width: button.width, height: button.height, top: button.top, bottom: button.bottom },
       dock: { height: dock.height, top: dock.top, bottom: dock.bottom },
@@ -40,6 +53,8 @@ async function layout(page) {
       duplicateDock: [...document.querySelectorAll('.order-bar')].some(node => node.getClientRects().length > 0)
     };
   });
+  assert.ok(result.helperContrast >= 4.5, 'Helper copy needs at least 4.5:1 contrast');
+  assert.ok(result.price.width > 0 && result.price.height > 0 && result.price.left >= 0 && result.price.right <= page.viewportSize().width, 'Order total must stay visible');
   assert.ok(result.overflow <= 1, `Horizontal overflow: ${JSON.stringify(result)}`);
   assert.ok(result.button.height >= 44 && result.button.width >= 44);
   assert.ok(result.reserved >= result.dock.height);
@@ -63,6 +78,8 @@ try {
       assert.equal(await page.locator('.compact-product-choice').count(), await page.locator('.full-menu-item--product').count());
       await capture(page, `${out}/${language}-${width}-entry.png`);
       result.layout = await layout(page);
+      const pairingColumns = await page.locator('#pairing-offers .full-menu-list').evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+      assert.equal(pairingColumns, width >= 1000 ? 4 : width >= 700 ? 3 : 2, 'Pairings must use the compact grid too');
       await page.locator('[data-category="hot-coffee"]').click();
       const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
       await espresso.locator('.compact-product-choice').waitFor();

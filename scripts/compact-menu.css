@@ -62,3 +62,17 @@ body.compact-menu{background:#f8f4ed;color:#30231e;padding-bottom:var(--compact-
 @media(min-width:1000px){.compact-menu .full-menu-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:360px){.compact-menu .container{width:calc(100% - 24px)}.compact-intro{gap:12px}.compact-intro img{width:56px;height:56px}.compact-menu .full-menu-list{gap:10px}.compact-menu .full-menu-item .full-menu-item-details{padding:10px}.compact-menu .menu-page-back-icon{display:none}}
 @media(prefers-reduced-motion:reduce){.compact-menu *{scroll-behavior:auto!important}.compact-menu :is(button,a,img,dialog){animation:none!important;transition:none!important}}
+/* Keep the helper readable and the actual total visible at mobile breakpoints. */
+.compact-menu .menu-smart-choice-link{color:#5c3021;box-shadow:none}
+.compact-menu .compact-order-dock #menu-cart-trigger{font-size:.9rem;line-height:1.25}
+.compact-menu .compact-order-dock #menu-cart-total{display:block;opacity:1;font-size:.92rem;line-height:1.25}
+/* The canonical pairing view uses wide cards; this opt-in grid stays compact. */
+.compact-menu #pairing-offers .full-menu-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:none}
+.compact-menu #pairing-offers .full-menu-item-media{aspect-ratio:1;max-height:none}
+.compact-menu #pairing-offers .full-menu-item-details{gap:10px;padding:12px}
+.compact-menu #pairing-offers .full-menu-item-copy strong{font-size:.93rem;line-height:1.35}
+.compact-menu #pairing-offers .full-menu-item-copy p{font-size:.76rem;line-height:1.5}
+.compact-menu #pairing-offers .full-menu-price{font-size:1rem;line-height:1.3}
+.compact-menu #pairing-offers .pairing-view-set{min-height:44px;padding:10px 8px;border-radius:12px;font-size:.83rem}
+@media(min-width:700px){.compact-menu #pairing-offers .full-menu-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:1000px){.compact-menu #pairing-offers .full-menu-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
