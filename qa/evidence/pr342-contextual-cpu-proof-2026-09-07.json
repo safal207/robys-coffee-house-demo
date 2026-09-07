@@ -1,0 +1,2763 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-07",
+  "repository": "safal207/robys-coffee-house-demo",
+  "pr": 342,
+  "observedHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+  "base": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+  "run": 34111754032,
+  "job": 101709373167,
+  "artifact": 10014682076,
+  "zipSha256": "f2e44161bbfa8d3bc07b18d7321f90d27aed1eb50935f19f3f128d54f0add8c9",
+  "originalGate": {
+    "status": "FAIL",
+    "sourceSha": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+    "workingTreeDiff": "",
+    "scenes": {
+      "day": {
+        "samples": [
+          {
+            "at": 362.1,
+            "transform": "matrix(1.05816, -0.202977, 0.202977, 1.05816, -3.36071, 41.0689)",
+            "opacity": 0.54465
+          },
+          {
+            "at": 395.5,
+            "transform": "matrix(1.05679, -0.200927, 0.200927, 1.05679, -3.2499, 39.6616)",
+            "opacity": 0.74441
+          },
+          {
+            "at": 412.1,
+            "transform": "matrix(1.05611, -0.19991, 0.19991, 1.05611, -3.19313, 38.9623)",
+            "opacity": 0.843693
+          },
+          {
+            "at": 445.4,
+            "transform": "matrix(1.05442, -0.197373, 0.197373, 1.05442, -3.03316, 37.2712)",
+            "opacity": 0.937576
+          },
+          {
+            "at": 462.1,
+            "transform": "matrix(1.05352, -0.196036, 0.196036, 1.05352, -2.94454, 36.3847)",
+            "opacity": 0.970547
+          },
+          {
+            "at": 478.7,
+            "transform": "matrix(1.05261, -0.194683, 0.194683, 1.05261, -2.85215, 35.4886)",
+            "opacity": 1
+          },
+          {
+            "at": 495.4,
+            "transform": "matrix(1.05156, -0.193081, 0.193081, 1.05156, -2.73534, 34.4526)",
+            "opacity": 1
+          },
+          {
+            "at": 512.1,
+            "transform": "matrix(1.0505, -0.191482, 0.191482, 1.0505, -2.61585, 33.4168)",
+            "opacity": 1
+          },
+          {
+            "at": 528.8,
+            "transform": "matrix(1.04944, -0.189887, 0.189887, 1.04944, -2.49368, 32.3815)",
+            "opacity": 1
+          },
+          {
+            "at": 562.1,
+            "transform": "matrix(1.04701, -0.186348, 0.186348, 1.04701, -2.20632, 30.1284)",
+            "opacity": 1
+          },
+          {
+            "at": 578.8,
+            "transform": "matrix(1.04575, -0.184538, 0.184538, 1.04575, -2.05324, 28.9778)",
+            "opacity": 1
+          },
+          {
+            "at": 595.4,
+            "transform": "matrix(1.04448, -0.182717, 0.182717, 1.04448, -1.89462, 27.8213)",
+            "opacity": 1
+          },
+          {
+            "at": 628.8,
+            "transform": "matrix(1.04176, -0.178796, 0.178796, 1.04176, -1.53026, 25.351)",
+            "opacity": 1
+          },
+          {
+            "at": 645.4,
+            "transform": "matrix(1.04041, -0.176854, 0.176854, 1.04041, -1.34327, 24.1243)",
+            "opacity": 1
+          },
+          {
+            "at": 712.1,
+            "transform": "matrix(1.03456, -0.168615, 0.168615, 1.03456, -0.495564, 18.9864)",
+            "opacity": 1
+          },
+          {
+            "at": 745.4,
+            "transform": "matrix(1.03151, -0.164389, 0.164389, 1.03151, -0.0233039, 16.367)",
+            "opacity": 1
+          },
+          {
+            "at": 778.8,
+            "transform": "matrix(1.02844, -0.160162, 0.160162, 1.02844, 0.473676, 13.748)",
+            "opacity": 1
+          },
+          {
+            "at": 795.4,
+            "transform": "matrix(1.02691, -0.158061, 0.158061, 1.02691, 0.731654, 12.4518)",
+            "opacity": 1
+          }
+        ],
+        "intervalsMs": [
+          33.39999999999998,
+          16.600000000000023,
+          33.299999999999955,
+          16.700000000000045,
+          16.599999999999966,
+          16.69999999999999,
+          16.700000000000045,
+          16.699999999999932,
+          33.30000000000007,
+          16.699999999999932,
+          16.600000000000023,
+          33.39999999999998,
+          16.600000000000023,
+          66.70000000000005,
+          33.299999999999955,
+          33.39999999999998,
+          16.600000000000023
+        ],
+        "medianMs": 16.700000000000045,
+        "meanMs": 25.488235294117644,
+        "aboveOriginal21Ms": 7,
+        "intervalCount": 17,
+        "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+      },
+      "night": {
+        "samples": [
+          {
+            "at": 373,
+            "transform": "matrix(1.0589, -0.204158, 0.204158, 1.0589, -3.40928, 41.9629)",
+            "opacity": 0.35438
+          },
+          {
+            "at": 406.3,
+            "transform": "matrix(1.0583, -0.203199, 0.203199, 1.0583, -3.37048, 41.2338)",
+            "opacity": 0.511755
+          },
+          {
+            "at": 423,
+            "transform": "matrix(1.05787, -0.202535, 0.202535, 1.05787, -3.33726, 40.766)",
+            "opacity": 0.587635
+          },
+          {
+            "at": 456.4,
+            "transform": "matrix(1.05685, -0.201012, 0.201012, 1.05685, -3.2546, 39.7201)",
+            "opacity": 0.736106
+          },
+          {
+            "at": 473.1,
+            "transform": "matrix(1.05634, -0.200252, 0.200252, 1.05634, -3.21233, 39.1972)",
+            "opacity": 0.810341
+          },
+          {
+            "at": 506.4,
+            "transform": "matrix(1.05517, -0.198505, 0.198505, 1.05517, -3.10665, 38.0213)",
+            "opacity": 0.909686
+          },
+          {
+            "at": 523,
+            "transform": "matrix(1.05451, -0.197516, 0.197516, 1.05451, -3.04254, 37.3662)",
+            "opacity": 0.934045
+          },
+          {
+            "at": 556.4,
+            "transform": "matrix(1.05318, -0.19553, 0.19553, 1.05318, -2.91042, 36.0485)",
+            "opacity": 0.983056
+          },
+          {
+            "at": 573,
+            "transform": "matrix(1.05248, -0.194484, 0.194484, 1.05248, -2.83779, 35.36)",
+            "opacity": 1
+          },
+          {
+            "at": 623,
+            "transform": "matrix(1.05013, -0.190924, 0.190924, 1.05013, -2.57346, 33.055)",
+            "opacity": 1
+          },
+          {
+            "at": 639.7,
+            "transform": "matrix(1.04935, -0.189739, 0.189739, 1.04935, -2.48222, 32.2856)",
+            "opacity": 1
+          },
+          {
+            "at": 673,
+            "transform": "matrix(1.04754, -0.187108, 0.187108, 1.04754, -2.26949, 30.611)",
+            "opacity": 1
+          },
+          {
+            "at": 689.7,
+            "transform": "matrix(1.0466, -0.185761, 0.185761, 1.0466, -2.1571, 29.7556)",
+            "opacity": 1
+          },
+          {
+            "at": 723,
+            "transform": "matrix(1.04473, -0.183082, 0.183082, 1.04473, -1.9274, 28.0508)",
+            "opacity": 1
+          },
+          {
+            "at": 739.7,
+            "transform": "matrix(1.04373, -0.181627, 0.181627, 1.04373, -1.79506, 27.1353)",
+            "opacity": 1
+          },
+          {
+            "at": 773.1,
+            "transform": "matrix(1.04171, -0.178714, 0.178714, 1.04171, -1.52249, 25.2996)",
+            "opacity": 1
+          },
+          {
+            "at": 789.7,
+            "transform": "matrix(1.0407, -0.17727, 0.17727, 1.0407, -1.38377, 24.3877)",
+            "opacity": 1
+          },
+          {
+            "at": 823,
+            "transform": "matrix(1.03858, -0.17426, 0.17426, 1.03858, -1.0854, 22.5053)",
+            "opacity": 1
+          }
+        ],
+        "intervalsMs": [
+          33.30000000000001,
+          16.69999999999999,
+          33.39999999999998,
+          16.700000000000045,
+          33.299999999999955,
+          16.600000000000023,
+          33.39999999999998,
+          16.600000000000023,
+          50,
+          16.700000000000045,
+          33.299999999999955,
+          16.700000000000045,
+          33.299999999999955,
+          16.700000000000045,
+          33.39999999999998,
+          16.600000000000023,
+          33.299999999999955
+        ],
+        "medianMs": 33.299999999999955,
+        "meanMs": 26.470588235294116,
+        "aboveOriginal21Ms": 9,
+        "intervalCount": 17,
+        "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+      }
+    }
+  },
+  "ciTrace": {
+    "sourceHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+    "workingTreeDiff": "",
+    "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+    "derivedScriptSha256": "b3ea406fce6454461e1ee58165b74eebfb8c8149bf8142e8919861849cffcd7a",
+    "probeScriptSha256": "aab9002634067174408ab4030e31afb9ee8d33781f6164ee1c7e74fc7a4ffb5d",
+    "instrumentation": "Two performance marks delimit the unchanged original 18-sample loop. HTTP server pipes are drained for diagnostic collection.",
+    "startedAt": "2026-09-07T10:31:53.057Z",
+    "finishedAt": "2026-09-07T10:32:02.432Z",
+    "status": "COLLECTED",
+    "browser": "140.0.7339.186",
+    "trace": {
+      "file": "chromium-trace.json",
+      "bytes": 19271294,
+      "sha256": "e1c4616d932b593c3c880216a8480c9724363bd7e625b632fbf4aa51c6362dc8",
+      "eventCount": 92478,
+      "dataLossOccurred": false,
+      "sampleMarks": [
+        {
+          "args": {
+            "data": {
+              "callTime": 74032211,
+              "navigationId": "4836AFDDA452096CBECBB9E857A6CF73",
+              "sampleTraceId": 3515010539955514,
+              "startTime": 355.59999999999127
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:start:day",
+          "ph": "I",
+          "pid": 4051,
+          "s": "t",
+          "tid": 4051,
+          "ts": 74032197,
+          "tts": 203990
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 74489025,
+              "navigationId": "4836AFDDA452096CBECBB9E857A6CF73",
+              "sampleTraceId": 3515010539955317,
+              "startTime": 812.3999999999942
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:end:day",
+          "ph": "I",
+          "pid": 4051,
+          "s": "t",
+          "tid": 4051,
+          "ts": 74488999,
+          "tts": 218093
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 75778003,
+              "navigationId": "C5EEC7837BFCF55B6CA3BB335787030F",
+              "sampleTraceId": 4650677975364809,
+              "startTime": 335.1999999999971
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:start:night",
+          "ph": "I",
+          "pid": 4113,
+          "s": "t",
+          "tid": 4113,
+          "ts": 75777989,
+          "tts": 197734
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 76237848,
+              "navigationId": "C5EEC7837BFCF55B6CA3BB335787030F",
+              "sampleTraceId": 4650677975365000,
+              "startTime": 795
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:end:night",
+          "ph": "I",
+          "pid": 4113,
+          "s": "t",
+          "tid": 4113,
+          "ts": 76237845,
+          "tts": 215468
+        }
+      ]
+    },
+    "traceWindows": {
+      "day": {
+        "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+        "startTsUs": 74032197,
+        "endTsUs": 74488999,
+        "windowMs": 456.802,
+        "mainPid": 4051,
+        "mainTid": 4051,
+        "mainThreadCpuMs": 14.103,
+        "displayDrawAndSwap": {
+          "count": 17,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 24.319,
+          "maxWallMs": 33.562,
+          "sumWallMs": 414.82200000000006,
+          "cpuSampleCount": 17,
+          "medianCpuMs": 24.195,
+          "sumCpuMs": 411.707
+        },
+        "softwareQuads": {
+          "count": 1363,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 0.121,
+          "maxWallMs": 4.278,
+          "sumWallMs": 420.0759999999999,
+          "cpuSampleCount": 1363,
+          "medianCpuMs": 0.121,
+          "sumCpuMs": 418.85600000000005
+        },
+        "rasterTasks": {
+          "count": 19,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 1.096,
+          "maxWallMs": 11.772,
+          "sumWallMs": 54.325999999999986,
+          "cpuSampleCount": 19,
+          "medianCpuMs": 1.09,
+          "sumCpuMs": 54.09299999999999
+        },
+        "appAnimationFrameCallbacks": {
+          "count": 21,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.258,
+          "maxWallMs": 0.37,
+          "sumWallMs": 4.884,
+          "cpuSampleCount": 21,
+          "medianCpuMs": 0.253,
+          "sumCpuMs": 4.743000000000001
+        },
+        "appLayout": {
+          "count": 0,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": null,
+          "maxWallMs": null,
+          "sumWallMs": 0,
+          "cpuSampleCount": 0,
+          "medianCpuMs": null,
+          "sumCpuMs": 0
+        },
+        "appUpdateLayoutTree": {
+          "count": 18,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": 0.1495,
+          "maxWallMs": 0.226,
+          "sumWallMs": 2.756,
+          "cpuSampleCount": 18,
+          "medianCpuMs": 0.1485,
+          "sumCpuMs": 2.726
+        }
+      },
+      "night": {
+        "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+        "startTsUs": 75777989,
+        "endTsUs": 76237845,
+        "windowMs": 459.856,
+        "mainPid": 4113,
+        "mainTid": 4113,
+        "mainThreadCpuMs": 17.734,
+        "displayDrawAndSwap": {
+          "count": 17,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 23.889,
+          "maxWallMs": 25.322,
+          "sumWallMs": 406.11100000000005,
+          "cpuSampleCount": 17,
+          "medianCpuMs": 23.767,
+          "sumCpuMs": 405.908
+        },
+        "softwareQuads": {
+          "count": 1457,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.12,
+          "maxWallMs": 3.498,
+          "sumWallMs": 416.0809999999994,
+          "cpuSampleCount": 1457,
+          "medianCpuMs": 0.12,
+          "sumCpuMs": 417.15299999999905
+        },
+        "rasterTasks": {
+          "count": 26,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 0.94,
+          "maxWallMs": 12.727,
+          "sumWallMs": 51.34399999999999,
+          "cpuSampleCount": 26,
+          "medianCpuMs": 0.9315,
+          "sumCpuMs": 50.81099999999999
+        },
+        "appAnimationFrameCallbacks": {
+          "count": 19,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.248,
+          "maxWallMs": 0.443,
+          "sumWallMs": 4.696000000000001,
+          "cpuSampleCount": 19,
+          "medianCpuMs": 0.243,
+          "sumCpuMs": 4.612
+        },
+        "appLayout": {
+          "count": 0,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": null,
+          "maxWallMs": null,
+          "sumWallMs": 0,
+          "cpuSampleCount": 0,
+          "medianCpuMs": null,
+          "sumCpuMs": 0
+        },
+        "appUpdateLayoutTree": {
+          "count": 18,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": 0.1285,
+          "maxWallMs": 0.241,
+          "sumWallMs": 2.492000000000001,
+          "cpuSampleCount": 18,
+          "medianCpuMs": 0.1275,
+          "sumCpuMs": 2.4849999999999994
+        }
+      }
+    },
+    "rendererFeatures": {
+      "2d_canvas": "unavailable_software",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "disabled_software",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "disabled_off",
+      "rasterization": "disabled_software",
+      "raw_draw": "disabled_off_ok",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "disabled_software",
+      "video_encode": "disabled_software",
+      "vulkan": "disabled_off",
+      "webgl": "unavailable_software",
+      "webgl2": "unavailable_software",
+      "webgpu": "disabled_off",
+      "webnn": "unavailable_software"
+    },
+    "scenes": {
+      "day": {
+        "error": null,
+        "cadence": {
+          "samples": [
+            {
+              "at": 370.4,
+              "transform": "matrix(1.05858, -0.203643, 0.203643, 1.05858, -3.38861, 41.5718)",
+              "opacity": 0.438797
+            },
+            {
+              "at": 403.7,
+              "transform": "matrix(1.05748, -0.201957, 0.201957, 1.05748, -3.30621, 40.3694)",
+              "opacity": 0.643938
+            },
+            {
+              "at": 453.7,
+              "transform": "matrix(1.05531, -0.198712, 0.198712, 1.05531, -3.11988, 38.1579)",
+              "opacity": 0.904607
+            },
+            {
+              "at": 470.4,
+              "transform": "matrix(1.05442, -0.197373, 0.197373, 1.05442, -3.03316, 37.2712)",
+              "opacity": 0.937578
+            },
+            {
+              "at": 503.8,
+              "transform": "matrix(1.05261, -0.194673, 0.194673, 1.05261, -2.85145, 35.4824)",
+              "opacity": 1
+            },
+            {
+              "at": 520.5,
+              "transform": "matrix(1.05155, -0.193071, 0.193071, 1.05155, -2.73462, 34.4463)",
+              "opacity": 1
+            },
+            {
+              "at": 553.7,
+              "transform": "matrix(1.04945, -0.189896, 0.189896, 1.04945, -2.49441, 32.3876)",
+              "opacity": 1
+            },
+            {
+              "at": 570.4,
+              "transform": "matrix(1.04827, -0.188162, 0.188162, 1.04827, -2.35601, 31.2794)",
+              "opacity": 1
+            },
+            {
+              "at": 603.8,
+              "transform": "matrix(1.04575, -0.184538, 0.184538, 1.04575, -2.05323, 28.9778)",
+              "opacity": 1
+            },
+            {
+              "at": 620.4,
+              "transform": "matrix(1.04448, -0.182717, 0.182717, 1.04448, -1.89461, 27.8212)",
+              "opacity": 1
+            },
+            {
+              "at": 653.7,
+              "transform": "matrix(1.04177, -0.178807, 0.178807, 1.04177, -1.53136, 25.3584)",
+              "opacity": 1
+            },
+            {
+              "at": 670.4,
+              "transform": "matrix(1.04041, -0.176854, 0.176854, 1.04041, -1.34326, 24.1242)",
+              "opacity": 1
+            },
+            {
+              "at": 703.8,
+              "transform": "matrix(1.03751, -0.172744, 0.172744, 1.03751, -0.930895, 21.5617)",
+              "opacity": 1
+            },
+            {
+              "at": 720.4,
+              "transform": "matrix(1.03605, -0.17069, 0.17069, 1.03605, -0.717174, 20.2803)",
+              "opacity": 1
+            },
+            {
+              "at": 737.1,
+              "transform": "matrix(1.03456, -0.168614, 0.168614, 1.03456, -0.49555, 18.9864)",
+              "opacity": 1
+            },
+            {
+              "at": 753.8,
+              "transform": "matrix(1.03304, -0.166492, 0.166492, 1.03304, -0.261018, 17.6723)",
+              "opacity": 1
+            },
+            {
+              "at": 787.1,
+              "transform": "matrix(1.02998, -0.162278, 0.162278, 1.02998, 0.220497, 15.0546)",
+              "opacity": 1
+            },
+            {
+              "at": 803.7,
+              "transform": "matrix(1.02845, -0.160175, 0.160175, 1.02845, 0.472151, 13.7558)",
+              "opacity": 1
+            }
+          ],
+          "intervalsMs": [
+            33.30000000000001,
+            50.0,
+            16.69999999999999,
+            33.400000000000034,
+            16.69999999999999,
+            33.200000000000045,
+            16.699999999999932,
+            33.39999999999998,
+            16.600000000000023,
+            33.30000000000007,
+            16.699999999999932,
+            33.39999999999998,
+            16.600000000000023,
+            16.700000000000045,
+            16.699999999999932,
+            33.30000000000007,
+            16.600000000000023
+          ],
+          "medianMs": 16.700000000000045,
+          "meanMs": 25.48823529411765,
+          "aboveOriginal21Ms": 8,
+          "intervalCount": 17,
+          "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+        }
+      },
+      "night": {
+        "error": "[MOTION-CONTEXT-001] night median frame interval regressed to 33.30 ms",
+        "cadence": {
+          "samples": [
+            {
+              "at": 354.1,
+              "transform": "matrix(1.0592, -0.204637, 0.204637, 1.0592, -3.42824, 42.3271)",
+              "opacity": 0.275758
+            },
+            {
+              "at": 387.4,
+              "transform": "matrix(1.0586, -0.203678, 0.203678, 1.0586, -3.39, 41.598)",
+              "opacity": 0.433133
+            },
+            {
+              "at": 404.1,
+              "transform": "matrix(1.0583, -0.203197, 0.203197, 1.0583, -3.37041, 41.2324)",
+              "opacity": 0.512057
+            },
+            {
+              "at": 437.5,
+              "transform": "matrix(1.05736, -0.20177, 0.20177, 1.05736, -3.29609, 40.241)",
+              "opacity": 0.662155
+            },
+            {
+              "at": 454.1,
+              "transform": "matrix(1.05685, -0.201014, 0.201014, 1.05685, -3.25469, 39.7212)",
+              "opacity": 0.735946
+            },
+            {
+              "at": 487.4,
+              "transform": "matrix(1.05583, -0.199498, 0.199498, 1.05583, -3.16977, 38.6787)",
+              "opacity": 0.883972
+            },
+            {
+              "at": 504.1,
+              "transform": "matrix(1.05517, -0.198507, 0.198507, 1.05517, -3.10678, 38.0227)",
+              "opacity": 0.909633
+            },
+            {
+              "at": 537.4,
+              "transform": "matrix(1.05385, -0.196525, 0.196525, 1.05385, -2.97715, 36.7087)",
+              "opacity": 0.958498
+            },
+            {
+              "at": 554.1,
+              "transform": "matrix(1.05318, -0.195532, 0.195532, 1.05318, -2.91056, 36.0499)",
+              "opacity": 0.983003
+            },
+            {
+              "at": 587.4,
+              "transform": "matrix(1.0517, -0.193296, 0.193296, 1.0517, -2.75117, 34.5916)",
+              "opacity": 1
+            },
+            {
+              "at": 604.1,
+              "transform": "matrix(1.05092, -0.192107, 0.192107, 1.05092, -2.66288, 33.8217)",
+              "opacity": 1
+            },
+            {
+              "at": 637.4,
+              "transform": "matrix(1.04935, -0.189741, 0.189741, 1.04935, -2.48242, 32.2872)",
+              "opacity": 1
+            },
+            {
+              "at": 654.1,
+              "transform": "matrix(1.04847, -0.188452, 0.188452, 1.04847, -2.37961, 31.4634)",
+              "opacity": 1
+            },
+            {
+              "at": 687.4,
+              "transform": "matrix(1.0466, -0.185764, 0.185764, 1.0466, -2.15734, 29.7575)",
+              "opacity": 1
+            },
+            {
+              "at": 704.1,
+              "transform": "matrix(1.04567, -0.184419, 0.184419, 1.04567, -2.04308, 28.9024)",
+              "opacity": 1
+            },
+            {
+              "at": 737.4,
+              "transform": "matrix(1.04373, -0.18163, 0.18163, 1.04373, -1.79535, 27.1372)",
+              "opacity": 1
+            },
+            {
+              "at": 754.1,
+              "transform": "matrix(1.04272, -0.180172, 0.180172, 1.04272, -1.66016, 26.2192)",
+              "opacity": 1
+            },
+            {
+              "at": 787.4,
+              "transform": "matrix(1.0407, -0.177274, 0.177274, 1.0407, -1.38407, 24.3897)",
+              "opacity": 1
+            }
+          ],
+          "intervalsMs": [
+            33.299999999999955,
+            16.700000000000045,
+            33.39999999999998,
+            16.600000000000023,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955,
+            16.700000000000045,
+            33.299999999999955
+          ],
+          "medianMs": 33.299999999999955,
+          "meanMs": 25.488235294117644,
+          "aboveOriginal21Ms": 9,
+          "intervalCount": 17,
+          "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+        }
+      }
+    }
+  },
+  "claim": {
+    "level": "Confirmed proximate bottleneck in the traced failing Night sample window. Individual optical primitive remains unassigned.",
+    "mechanism": "SoftwareRenderer CPU composition dominates; 17 complete Display::DrawAndSwap slices have 23.767 ms median CPU and 405.908 ms total CPU in 459.856 ms, compared with 17.734 ms whole-window main CPU and 0.248 ms median callback wall time.",
+    "limits": "The trace is a separate diagnostic after the untraced original failure, using its identical sampler with two marks. Both reproduce Night 33.3 ms; tracing overhead remains. This does not establish a universal failure rate, a specific Chromium defect or a native Android cause."
+  },
+  "medianBoundary": "Traced Day and Night have the same 25.488235294 ms mean callback interval; Day has 8/17 intervals over 21 ms and passes median 16.7 ms; Night has 9/17 and fails median 33.3 ms. This is a property of these raw samples; the original threshold and sampler remain unchanged.",
+  "androidSeparation": {
+    "code": [
+      "android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java",
+      "bootstrap-v2.js",
+      "day-night-entry.js"
+    ],
+    "finding": "APP_URL_BASE uses entry=android-handoff; bootstrap selects android-handoff.js and bypasses Day/Night. WebView/emulator internals still require their own investigation.",
+    "currentPinnedRun": 34111754098,
+    "baseStatus": "FAIL VISUAL_STATE_TIMEOUT",
+    "headStatus": "FAIL VISUAL_STATE_TIMEOUT",
+    "deliveryVerification": "PASS in both job logs; current pinned binary archives not re-analysed.",
+    "originalSmokeRun": 34111753929,
+    "originalSmokeStatus": "FAIL job; precise native state not decoded in this follow-up."
+  },
+  "sourceReference": {
+    "url": "https://github.com/chromium/chromium/blob/140.0.7339.186/components/viz/service/display/software_renderer.cc",
+    "scope": "Primary code corroborates SoftwareRenderer tile/render-pass/filter CPU path; code alone does not assign per-element cost in this trace."
+  },
+  "coveredWorkExperiment": {
+    "sequence": [
+      "baseline",
+      "covered-hidden",
+      "covered-hidden",
+      "baseline"
+    ],
+    "observations": [
+      {
+        "run": "covered-trace-0-baseline",
+        "variant": "baseline",
+        "scene": "day",
+        "drawCpuMedianMs": 18.555,
+        "mainCpuMs": 25.17,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 20.58235294117647
+      },
+      {
+        "run": "covered-trace-0-baseline",
+        "variant": "baseline",
+        "scene": "night",
+        "drawCpuMedianMs": 19.6675,
+        "mainCpuMs": 19.403,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 23.529411764705884
+      },
+      {
+        "run": "covered-trace-1-hidden",
+        "variant": "covered-hidden",
+        "scene": "day",
+        "drawCpuMedianMs": 19.272,
+        "mainCpuMs": 21.355,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 21.570588235294114
+      },
+      {
+        "run": "covered-trace-1-hidden",
+        "variant": "covered-hidden",
+        "scene": "night",
+        "drawCpuMedianMs": 18.326,
+        "mainCpuMs": 16.15,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 20.57858823529412
+      },
+      {
+        "run": "covered-trace-2-hidden",
+        "variant": "covered-hidden",
+        "scene": "day",
+        "drawCpuMedianMs": 17.322,
+        "mainCpuMs": 23.97,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 19.60623529411765
+      },
+      {
+        "run": "covered-trace-2-hidden",
+        "variant": "covered-hidden",
+        "scene": "night",
+        "drawCpuMedianMs": 18.505,
+        "mainCpuMs": 15.813,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 19.599999999999998
+      },
+      {
+        "run": "covered-trace-3-baseline",
+        "variant": "baseline",
+        "scene": "day",
+        "drawCpuMedianMs": 21.54,
+        "mainCpuMs": 39.266,
+        "sampleMedianMs": 16.700000000000045,
+        "sampleMeanMs": 24.511764705882353
+      },
+      {
+        "run": "covered-trace-3-baseline",
+        "variant": "baseline",
+        "scene": "night",
+        "drawCpuMedianMs": 18.4625,
+        "mainCpuMs": 19.317,
+        "sampleMedianMs": 16.69999999999999,
+        "sampleMeanMs": 18.62941176470588
+      }
+    ],
+    "verdict": "REJECT AS REPAIR: small changes overlap local run variation; no reproducible sufficient CPU reduction. All eight local sample medians passed in both conditions, so pass counts cannot establish a repair. No product change retained. Appearance testing and further CI candidate runs were not undertaken after the cost discriminator failed.",
+    "runs": [
+      {
+        "sourceHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+        "variant": "baseline",
+        "interventionSha256": "ce994cbee99cc6db82a3a17e2881c0c88f7efec9aff6a224b42237b9ca8b16b9",
+        "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+        "derivedScriptSha256": "b3ea406fce6454461e1ee58165b74eebfb8c8149bf8142e8919861849cffcd7a",
+        "probeScriptSha256": "447cd29be91f01de05ed91129fc71aeaa405348f46957a8781bb91a31550c6fc",
+        "startedAt": "2026-09-07T11:19:37.545Z",
+        "finishedAt": "2026-09-07T11:19:49.077Z",
+        "status": "COLLECTED",
+        "trace": {
+          "file": "chromium-trace.json",
+          "bytes": 29084027,
+          "sha256": "a09705ecb15d27d0f48f526dc1ad4f3fd1b7034d1dcb1a05f3881442dde3e582",
+          "eventCount": 141901,
+          "dataLossOccurred": false,
+          "sampleMarks": [
+            {
+              "args": {
+                "data": {
+                  "callTime": 25084928374,
+                  "navigationId": "B35DCA39ECFF4634D2372157BA7E5142",
+                  "sampleTraceId": 8018506609706680,
+                  "startTime": 220.5
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:day",
+              "ph": "I",
+              "pid": 209,
+              "s": "t",
+              "tid": 209,
+              "ts": 25084928362,
+              "tts": 153385
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25085293347,
+                  "navigationId": "B35DCA39ECFF4634D2372157BA7E5142",
+                  "sampleTraceId": 8018506609707494,
+                  "startTime": 585.5
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:day",
+              "ph": "I",
+              "pid": 209,
+              "s": "t",
+              "tid": 209,
+              "ts": 25085293342,
+              "tts": 178555
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25087095343,
+                  "navigationId": "DDDB879083246E43793EAF349E58E418",
+                  "sampleTraceId": 4862553442188783,
+                  "startTime": 260.9000000022352
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:night",
+              "ph": "I",
+              "pid": 273,
+              "s": "t",
+              "tid": 273,
+              "ts": 25087095329,
+              "tts": 137807
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25087503737,
+                  "navigationId": "DDDB879083246E43793EAF349E58E418",
+                  "sampleTraceId": 4862553442185907,
+                  "startTime": 669.3000000007451
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:night",
+              "ph": "I",
+              "pid": 273,
+              "s": "t",
+              "tid": 273,
+              "ts": 25087503733,
+              "tts": 157210
+            }
+          ]
+        },
+        "traceWindows": {
+          "day": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25084928362,
+            "endTsUs": 25085293342,
+            "windowMs": 364.98,
+            "mainPid": 209,
+            "mainTid": 209,
+            "mainThreadCpuMs": 25.17,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 18.642,
+              "maxWallMs": 20.145,
+              "sumWallMs": 317.606,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.555,
+              "sumCpuMs": 316.73599999999993
+            },
+            "softwareQuads": {
+              "count": 1363,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.096,
+              "maxWallMs": 2.883,
+              "sumWallMs": 317.92799999999966,
+              "cpuSampleCount": 1363,
+              "medianCpuMs": 0.096,
+              "sumCpuMs": 318.331
+            },
+            "rasterTasks": {
+              "count": 23,
+              "boundaryCrossingSlices": 3,
+              "medianWallMs": 0.797,
+              "maxWallMs": 7.048,
+              "sumWallMs": 36.57,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.792,
+              "sumCpuMs": 36.208
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 19,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.32,
+              "maxWallMs": 0.498,
+              "sumWallMs": 5.866000000000001,
+              "cpuSampleCount": 19,
+              "medianCpuMs": 0.315,
+              "sumCpuMs": 5.779000000000001
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.166,
+              "maxWallMs": 0.321,
+              "sumWallMs": 3.2129999999999996,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.166,
+              "sumCpuMs": 3.206
+            }
+          },
+          "night": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25087095329,
+            "endTsUs": 25087503733,
+            "windowMs": 408.404,
+            "mainPid": 273,
+            "mainTid": 273,
+            "mainThreadCpuMs": 19.403,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.7885,
+              "maxWallMs": 25.086,
+              "sumWallMs": 366.65999999999997,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 19.6675,
+              "sumCpuMs": 366.49799999999993
+            },
+            "softwareQuads": {
+              "count": 1448,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1,
+              "maxWallMs": 4.244,
+              "sumWallMs": 361.04799999999994,
+              "cpuSampleCount": 1448,
+              "medianCpuMs": 0.0995,
+              "sumCpuMs": 362.7280000000006
+            },
+            "rasterTasks": {
+              "count": 14,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 1.0635,
+              "maxWallMs": 11.132,
+              "sumWallMs": 44.895999999999994,
+              "cpuSampleCount": 14,
+              "medianCpuMs": 1.048,
+              "sumCpuMs": 44.357
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 22,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.274,
+              "maxWallMs": 0.423,
+              "sumWallMs": 5.715999999999999,
+              "cpuSampleCount": 22,
+              "medianCpuMs": 0.2685,
+              "sumCpuMs": 5.616
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.15,
+              "maxWallMs": 0.292,
+              "sumWallMs": 3.1309999999999993,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.15,
+              "sumCpuMs": 3.122
+            }
+          }
+        },
+        "scenes": {
+          "day": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 222,
+                  "transform": "matrix(1.05968, -0.205383, 0.205383, 1.05968, -3.45034, 42.9257)",
+                  "opacity": 0.148099
+                },
+                {
+                  "at": 238.7,
+                  "transform": "matrix(1.05939, -0.204931, 0.204931, 1.05939, -3.43971, 42.5501)",
+                  "opacity": 0.227621
+                },
+                {
+                  "at": 271.9,
+                  "transform": "matrix(1.05858, -0.203644, 0.203644, 1.05858, -3.38862, 41.5721)",
+                  "opacity": 0.438727
+                },
+                {
+                  "at": 288.6,
+                  "transform": "matrix(1.05816, -0.202977, 0.202977, 1.05816, -3.36074, 41.0693)",
+                  "opacity": 0.54459
+                },
+                {
+                  "at": 305.3,
+                  "transform": "matrix(1.05748, -0.201952, 0.201952, 1.05748, -3.30591, 40.3656)",
+                  "opacity": 0.64447
+                },
+                {
+                  "at": 338.6,
+                  "transform": "matrix(1.05611, -0.199911, 0.199911, 1.05611, -3.19316, 38.9628)",
+                  "opacity": 0.843633
+                },
+                {
+                  "at": 355.3,
+                  "transform": "matrix(1.0553, -0.198704, 0.198704, 1.0553, -3.11942, 38.1532)",
+                  "opacity": 0.904783
+                },
+                {
+                  "at": 371.9,
+                  "transform": "matrix(1.05442, -0.197374, 0.197374, 1.05442, -3.03321, 37.2717)",
+                  "opacity": 0.937557
+                },
+                {
+                  "at": 388.6,
+                  "transform": "matrix(1.05352, -0.196037, 0.196037, 1.05352, -2.94459, 36.3852)",
+                  "opacity": 0.970528
+                },
+                {
+                  "at": 405.3,
+                  "transform": "matrix(1.05261, -0.194674, 0.194674, 1.05261, -2.85153, 35.4831)",
+                  "opacity": 1
+                },
+                {
+                  "at": 438.6,
+                  "transform": "matrix(1.0505, -0.191483, 0.191483, 1.0505, -2.61592, 33.4175)",
+                  "opacity": 1
+                },
+                {
+                  "at": 455.2,
+                  "transform": "matrix(1.04945, -0.189897, 0.189897, 1.04945, -2.49449, 32.3883)",
+                  "opacity": 1
+                },
+                {
+                  "at": 471.9,
+                  "transform": "matrix(1.04827, -0.188163, 0.188163, 1.04827, -2.3561, 31.2802)",
+                  "opacity": 1
+                },
+                {
+                  "at": 488.6,
+                  "transform": "matrix(1.04701, -0.186349, 0.186349, 1.04701, -2.20641, 30.1291)",
+                  "opacity": 1
+                },
+                {
+                  "at": 521.9,
+                  "transform": "matrix(1.04448, -0.182719, 0.182719, 1.04448, -1.89473, 27.822)",
+                  "opacity": 1
+                },
+                {
+                  "at": 538.6,
+                  "transform": "matrix(1.04312, -0.180755, 0.180755, 1.04312, -1.71453, 26.5866)",
+                  "opacity": 1
+                },
+                {
+                  "at": 555.3,
+                  "transform": "matrix(1.04176, -0.178797, 0.178797, 1.04176, -1.53037, 25.3518)",
+                  "opacity": 1
+                },
+                {
+                  "at": 571.9,
+                  "transform": "matrix(1.04041, -0.176855, 0.176855, 1.04041, -1.34339, 24.125)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.69999999999999,
+                33.19999999999999,
+                16.700000000000045,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.599999999999966,
+                16.700000000000045,
+                16.69999999999999,
+                33.30000000000001,
+                16.599999999999966,
+                16.69999999999999,
+                16.700000000000045,
+                33.299999999999955,
+                16.700000000000045,
+                16.699999999999932,
+                16.600000000000023
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 20.58235294117647,
+              "aboveOriginal21Ms": 4,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          },
+          "night": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 262.1,
+                  "transform": "matrix(1.06004, -0.205903, 0.205903, 1.06004, -3.43729, 43.4762)",
+                  "opacity": 0.0366258
+                },
+                {
+                  "at": 312.1,
+                  "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45017, 42.9331)",
+                  "opacity": 0.146587
+                },
+                {
+                  "at": 328.8,
+                  "transform": "matrix(1.0595, -0.205117, 0.205117, 1.0595, -3.44693, 42.6915)",
+                  "opacity": 0.197108
+                },
+                {
+                  "at": 345.5,
+                  "transform": "matrix(1.0592, -0.204635, 0.204635, 1.0592, -3.42817, 42.3258)",
+                  "opacity": 0.276032
+                },
+                {
+                  "at": 362.1,
+                  "transform": "matrix(1.0589, -0.204157, 0.204157, 1.0589, -3.40925, 41.9624)",
+                  "opacity": 0.354484
+                },
+                {
+                  "at": 395.5,
+                  "transform": "matrix(1.0583, -0.203195, 0.203195, 1.0583, -3.37034, 41.2312)",
+                  "opacity": 0.512331
+                },
+                {
+                  "at": 412.1,
+                  "transform": "matrix(1.05787, -0.202534, 0.202534, 1.05787, -3.3372, 40.7653)",
+                  "opacity": 0.587733
+                },
+                {
+                  "at": 428.8,
+                  "transform": "matrix(1.05736, -0.201772, 0.201772, 1.05736, -3.29619, 40.2423)",
+                  "opacity": 0.661968
+                },
+                {
+                  "at": 462.1,
+                  "transform": "matrix(1.05634, -0.200255, 0.200255, 1.05634, -3.21252, 39.1997)",
+                  "opacity": 0.809994
+                },
+                {
+                  "at": 478.8,
+                  "transform": "matrix(1.05583, -0.199495, 0.199495, 1.05583, -3.16962, 38.6769)",
+                  "opacity": 0.88423
+                },
+                {
+                  "at": 495.5,
+                  "transform": "matrix(1.05517, -0.198504, 0.198504, 1.05517, -3.10656, 38.0204)",
+                  "opacity": 0.909719
+                },
+                {
+                  "at": 528.8,
+                  "transform": "matrix(1.05385, -0.196521, 0.196521, 1.05385, -2.97692, 36.7064)",
+                  "opacity": 0.958583
+                },
+                {
+                  "at": 545.5,
+                  "transform": "matrix(1.05318, -0.195528, 0.195528, 1.05318, -2.91033, 36.0476)",
+                  "opacity": 0.983088
+                },
+                {
+                  "at": 578.8,
+                  "transform": "matrix(1.0517, -0.193292, 0.193292, 1.0517, -2.75086, 34.5889)",
+                  "opacity": 1
+                },
+                {
+                  "at": 595.4,
+                  "transform": "matrix(1.05092, -0.19211, 0.19211, 1.05092, -2.6631, 33.8237)",
+                  "opacity": 1
+                },
+                {
+                  "at": 612.1,
+                  "transform": "matrix(1.05013, -0.190923, 0.190923, 1.05013, -2.57334, 33.054)",
+                  "opacity": 1
+                },
+                {
+                  "at": 645.5,
+                  "transform": "matrix(1.04847, -0.188447, 0.188447, 1.04847, -2.37923, 31.4604)",
+                  "opacity": 1
+                },
+                {
+                  "at": 662.1,
+                  "transform": "matrix(1.04754, -0.187106, 0.187106, 1.04754, -2.26935, 30.6099)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                50.0,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                33.39999999999998,
+                16.600000000000023,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.69999999999999,
+                33.299999999999955,
+                16.700000000000045,
+                33.299999999999955,
+                16.600000000000023,
+                16.700000000000045,
+                33.39999999999998,
+                16.600000000000023
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 23.529411764705884,
+              "aboveOriginal21Ms": 6,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          }
+        }
+      },
+      {
+        "sourceHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+        "variant": "covered-hidden",
+        "interventionSha256": "ce994cbee99cc6db82a3a17e2881c0c88f7efec9aff6a224b42237b9ca8b16b9",
+        "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+        "derivedScriptSha256": "f37e4d5e2e69f10a56314bb11cf3cb558f6a3a1de5e49d04f3d10b3830f9a738",
+        "probeScriptSha256": "447cd29be91f01de05ed91129fc71aeaa405348f46957a8781bb91a31550c6fc",
+        "startedAt": "2026-09-07T11:20:12.549Z",
+        "finishedAt": "2026-09-07T11:20:24.009Z",
+        "status": "COLLECTED",
+        "trace": {
+          "file": "chromium-trace.json",
+          "bytes": 28363274,
+          "sha256": "492595852d0996274bf3e436639ea95e18e929ebef079b47a97ef8d77adaa4a1",
+          "eventCount": 138421,
+          "dataLossOccurred": false,
+          "sampleMarks": [
+            {
+              "args": {
+                "data": {
+                  "callTime": 25119920084,
+                  "navigationId": "C879BF0D78DD46C97ECA6C26E31370B9",
+                  "sampleTraceId": 1477662706820575,
+                  "startTime": 218.19999999925494
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:day",
+              "ph": "I",
+              "pid": 208,
+              "s": "t",
+              "tid": 208,
+              "ts": 25119919992,
+              "tts": 166560
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25120308036,
+                  "navigationId": "C879BF0D78DD46C97ECA6C26E31370B9",
+                  "sampleTraceId": 1477662706821803,
+                  "startTime": 606.1999999992549
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:day",
+              "ph": "I",
+              "pid": 208,
+              "s": "t",
+              "tid": 208,
+              "ts": 25120308032,
+              "tts": 187915
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25122032921,
+                  "navigationId": "EAD7D225DC93A3D0FE4367E7841EC79D",
+                  "sampleTraceId": 4463048002094760,
+                  "startTime": 216.59999999776483
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:night",
+              "ph": "I",
+              "pid": 272,
+              "s": "t",
+              "tid": 272,
+              "ts": 25122032904,
+              "tts": 141274
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25122387670,
+                  "navigationId": "EAD7D225DC93A3D0FE4367E7841EC79D",
+                  "sampleTraceId": 4463048002095574,
+                  "startTime": 571.3999999985099
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:night",
+              "ph": "I",
+              "pid": 272,
+              "s": "t",
+              "tid": 272,
+              "ts": 25122387666,
+              "tts": 157424
+            }
+          ]
+        },
+        "traceWindows": {
+          "day": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25119919992,
+            "endTsUs": 25120308032,
+            "windowMs": 388.04,
+            "mainPid": 208,
+            "mainTid": 208,
+            "mainThreadCpuMs": 21.355,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 19.303,
+              "maxWallMs": 32.054,
+              "sumWallMs": 343.837,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 19.272,
+              "sumCpuMs": 343.029
+            },
+            "softwareQuads": {
+              "count": 1338,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.098,
+              "maxWallMs": 7.373,
+              "sumWallMs": 342.49899999999997,
+              "cpuSampleCount": 1338,
+              "medianCpuMs": 0.098,
+              "sumCpuMs": 342.93599999999975
+            },
+            "rasterTasks": {
+              "count": 6,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 8.971,
+              "maxWallMs": 14.886,
+              "sumWallMs": 51.293,
+              "cpuSampleCount": 6,
+              "medianCpuMs": 8.9595,
+              "sumCpuMs": 51.21
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 19,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.249,
+              "maxWallMs": 0.471,
+              "sumWallMs": 5.396,
+              "cpuSampleCount": 19,
+              "medianCpuMs": 0.243,
+              "sumCpuMs": 5.308
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.143,
+              "maxWallMs": 0.252,
+              "sumWallMs": 2.7489999999999997,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1425,
+              "sumCpuMs": 2.734
+            }
+          },
+          "night": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25122032904,
+            "endTsUs": 25122387666,
+            "windowMs": 354.762,
+            "mainPid": 272,
+            "mainTid": 272,
+            "mainThreadCpuMs": 16.15,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 18.446,
+              "maxWallMs": 22.254,
+              "sumWallMs": 322.2500000000001,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.326,
+              "sumCpuMs": 319.996
+            },
+            "softwareQuads": {
+              "count": 1362,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.096,
+              "maxWallMs": 3.025,
+              "sumWallMs": 312.80999999999943,
+              "cpuSampleCount": 1362,
+              "medianCpuMs": 0.096,
+              "sumCpuMs": 311.85999999999973
+            },
+            "rasterTasks": {
+              "count": 20,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.739,
+              "maxWallMs": 10.202,
+              "sumWallMs": 45.531,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.731,
+              "sumCpuMs": 45.23599999999999
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 21,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.301,
+              "maxWallMs": 0.605,
+              "sumWallMs": 6.292,
+              "cpuSampleCount": 21,
+              "medianCpuMs": 0.296,
+              "sumCpuMs": 6.042000000000002
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1465,
+              "maxWallMs": 0.25,
+              "sumWallMs": 2.997,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1465,
+              "sumCpuMs": 2.9880000000000004
+            }
+          }
+        },
+        "scenes": {
+          "day": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 226.6,
+                  "transform": "matrix(1.05984, -0.205615, 0.205615, 1.05984, -3.44457, 43.1711)",
+                  "opacity": 0.0984
+                },
+                {
+                  "at": 243.3,
+                  "transform": "matrix(1.05968, -0.205384, 0.205384, 1.05968, -3.45031, 42.9271)",
+                  "opacity": 0.147814
+                },
+                {
+                  "at": 260,
+                  "transform": "matrix(1.05939, -0.204934, 0.204934, 1.05939, -3.43986, 42.553)",
+                  "opacity": 0.227011
+                },
+                {
+                  "at": 293.3,
+                  "transform": "matrix(1.05858, -0.203643, 0.203643, 1.05858, -3.38862, 41.572)",
+                  "opacity": 0.438752
+                },
+                {
+                  "at": 310,
+                  "transform": "matrix(1.05816, -0.202977, 0.202977, 1.05816, -3.36073, 41.0691)",
+                  "opacity": 0.544614
+                },
+                {
+                  "at": 326.7,
+                  "transform": "matrix(1.05748, -0.201952, 0.201952, 1.05748, -3.3059, 40.3654)",
+                  "opacity": 0.644494
+                },
+                {
+                  "at": 343.3,
+                  "transform": "matrix(1.0568, -0.200933, 0.200933, 1.0568, -3.25026, 39.6661)",
+                  "opacity": 0.743777
+                },
+                {
+                  "at": 376.7,
+                  "transform": "matrix(1.0553, -0.198704, 0.198704, 1.0553, -3.1194, 38.1529)",
+                  "opacity": 0.904791
+                },
+                {
+                  "at": 393.4,
+                  "transform": "matrix(1.05441, -0.197365, 0.197365, 1.05441, -3.03267, 37.2662)",
+                  "opacity": 0.937762
+                },
+                {
+                  "at": 426.7,
+                  "transform": "matrix(1.05261, -0.194674, 0.194674, 1.05261, -2.8515, 35.4828)",
+                  "opacity": 1
+                },
+                {
+                  "at": 443.3,
+                  "transform": "matrix(1.05156, -0.193081, 0.193081, 1.05156, -2.73538, 34.4529)",
+                  "opacity": 1
+                },
+                {
+                  "at": 476.7,
+                  "transform": "matrix(1.04945, -0.189887, 0.189887, 1.04945, -2.49372, 32.3819)",
+                  "opacity": 1
+                },
+                {
+                  "at": 493.3,
+                  "transform": "matrix(1.04827, -0.188163, 0.188163, 1.04827, -2.35607, 31.2799)",
+                  "opacity": 1
+                },
+                {
+                  "at": 510,
+                  "transform": "matrix(1.04701, -0.186348, 0.186348, 1.04701, -2.20637, 30.1288)",
+                  "opacity": 1
+                },
+                {
+                  "at": 543.4,
+                  "transform": "matrix(1.04447, -0.182706, 0.182706, 1.04447, -1.89362, 27.8144)",
+                  "opacity": 1
+                },
+                {
+                  "at": 560,
+                  "transform": "matrix(1.04312, -0.180755, 0.180755, 1.04312, -1.71449, 26.5863)",
+                  "opacity": 1
+                },
+                {
+                  "at": 576.7,
+                  "transform": "matrix(1.04176, -0.178796, 0.178796, 1.04176, -1.53033, 25.3515)",
+                  "opacity": 1
+                },
+                {
+                  "at": 593.3,
+                  "transform": "matrix(1.04041, -0.176854, 0.176854, 1.04041, -1.34334, 24.1247)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.700000000000017,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                33.39999999999998,
+                16.69999999999999,
+                33.30000000000001,
+                16.600000000000023,
+                33.39999999999998,
+                16.600000000000023,
+                16.69999999999999,
+                33.39999999999998,
+                16.600000000000023,
+                16.700000000000045,
+                16.59999999999991
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 21.570588235294114,
+              "aboveOriginal21Ms": 5,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          },
+          "night": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 212.164,
+                  "transform": "matrix(1.06004, -0.205902, 0.205902, 1.06004, -3.43731, 43.4753)",
+                  "opacity": 0.0368194
+                },
+                {
+                  "at": 228.7,
+                  "transform": "matrix(1.05992, -0.205732, 0.205732, 1.05992, -3.44162, 43.2957)",
+                  "opacity": 0.0731857
+                },
+                {
+                  "at": 262.1,
+                  "transform": "matrix(1.05968, -0.205389, 0.205389, 1.05968, -3.45017, 42.9329)",
+                  "opacity": 0.14664
+                },
+                {
+                  "at": 278.7,
+                  "transform": "matrix(1.0595, -0.205119, 0.205119, 1.0595, -3.44702, 42.6932)",
+                  "opacity": 0.196749
+                },
+                {
+                  "at": 295.4,
+                  "transform": "matrix(1.0592, -0.204638, 0.204638, 1.0592, -3.42826, 42.3275)",
+                  "opacity": 0.275673
+                },
+                {
+                  "at": 312.1,
+                  "transform": "matrix(1.0589, -0.204156, 0.204156, 1.0589, -3.40923, 41.9619)",
+                  "opacity": 0.354597
+                },
+                {
+                  "at": 345.4,
+                  "transform": "matrix(1.0583, -0.203197, 0.203197, 1.0583, -3.37043, 41.2328)",
+                  "opacity": 0.511972
+                },
+                {
+                  "at": 362.1,
+                  "transform": "matrix(1.05787, -0.202533, 0.202533, 1.05787, -3.33714, 40.7646)",
+                  "opacity": 0.587839
+                },
+                {
+                  "at": 378.8,
+                  "transform": "matrix(1.05736, -0.201771, 0.201771, 1.05736, -3.29613, 40.2416)",
+                  "opacity": 0.662075
+                },
+                {
+                  "at": 395.4,
+                  "transform": "matrix(1.05685, -0.201015, 0.201015, 1.05685, -3.25474, 39.7218)",
+                  "opacity": 0.735866
+                },
+                {
+                  "at": 412,
+                  "transform": "matrix(1.05634, -0.200259, 0.200259, 1.05634, -3.21272, 39.2021)",
+                  "opacity": 0.809657
+                },
+                {
+                  "at": 445.4,
+                  "transform": "matrix(1.05517, -0.198508, 0.198508, 1.05517, -3.10685, 38.0234)",
+                  "opacity": 0.909607
+                },
+                {
+                  "at": 462.1,
+                  "transform": "matrix(1.05451, -0.197513, 0.197513, 1.05451, -3.04236, 37.3643)",
+                  "opacity": 0.934113
+                },
+                {
+                  "at": 478.7,
+                  "transform": "matrix(1.05385, -0.196526, 0.196526, 1.05385, -2.97722, 36.7094)",
+                  "opacity": 0.958471
+                },
+                {
+                  "at": 495.4,
+                  "transform": "matrix(1.05318, -0.195533, 0.195533, 1.05318, -2.91064, 36.0506)",
+                  "opacity": 0.982977
+                },
+                {
+                  "at": 528.8,
+                  "transform": "matrix(1.0517, -0.19329, 0.19329, 1.0517, -2.75074, 34.5878)",
+                  "opacity": 1
+                },
+                {
+                  "at": 545.4,
+                  "transform": "matrix(1.05092, -0.192108, 0.192108, 1.05092, -2.66297, 33.8225)",
+                  "opacity": 1
+                },
+                {
+                  "at": 562,
+                  "transform": "matrix(1.05014, -0.190928, 0.190928, 1.05014, -2.57375, 33.0575)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.536,
+                33.400000000000034,
+                16.599999999999966,
+                16.69999999999999,
+                16.700000000000045,
+                33.299999999999955,
+                16.700000000000045,
+                16.69999999999999,
+                16.599999999999966,
+                16.600000000000023,
+                33.39999999999998,
+                16.700000000000045,
+                16.599999999999966,
+                16.69999999999999,
+                33.39999999999998,
+                16.600000000000023,
+                16.600000000000023
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 20.57858823529412,
+              "aboveOriginal21Ms": 4,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          }
+        }
+      },
+      {
+        "sourceHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+        "variant": "covered-hidden",
+        "interventionSha256": "ce994cbee99cc6db82a3a17e2881c0c88f7efec9aff6a224b42237b9ca8b16b9",
+        "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+        "derivedScriptSha256": "f37e4d5e2e69f10a56314bb11cf3cb558f6a3a1de5e49d04f3d10b3830f9a738",
+        "probeScriptSha256": "447cd29be91f01de05ed91129fc71aeaa405348f46957a8781bb91a31550c6fc",
+        "startedAt": "2026-09-07T11:21:00.156Z",
+        "finishedAt": "2026-09-07T11:21:11.484Z",
+        "status": "COLLECTED",
+        "trace": {
+          "file": "chromium-trace.json",
+          "bytes": 28201950,
+          "sha256": "a202a1d53c3d39666ef6e969e97476e045dd64d21819658aadaabdc30373743e",
+          "eventCount": 137435,
+          "dataLossOccurred": false,
+          "sampleMarks": [
+            {
+              "args": {
+                "data": {
+                  "callTime": 25167455243,
+                  "navigationId": "A6B1AD12AF954805FDC68832D9ACD3CA",
+                  "sampleTraceId": 6080923427899625,
+                  "startTime": 192.59999999776483
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:day",
+              "ph": "I",
+              "pid": 211,
+              "s": "t",
+              "tid": 211,
+              "ts": 25167455225,
+              "tts": 141710
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25167808053,
+                  "navigationId": "A6B1AD12AF954805FDC68832D9ACD3CA",
+                  "sampleTraceId": 6080923427899308,
+                  "startTime": 545.5
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:day",
+              "ph": "I",
+              "pid": 211,
+              "s": "t",
+              "tid": 211,
+              "ts": 25167808049,
+              "tts": 165680
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25169562730,
+                  "navigationId": "E5DC144BB067CF2E8138B836D78888A4",
+                  "sampleTraceId": 316614600608202,
+                  "startTime": 214.5
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:night",
+              "ph": "I",
+              "pid": 275,
+              "s": "t",
+              "tid": 275,
+              "ts": 25169562717,
+              "tts": 126898
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25169906182,
+                  "navigationId": "E5DC144BB067CF2E8138B836D78888A4",
+                  "sampleTraceId": 316614600607412,
+                  "startTime": 557.8000000007451
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:night",
+              "ph": "I",
+              "pid": 275,
+              "s": "t",
+              "tid": 275,
+              "ts": 25169906178,
+              "tts": 142711
+            }
+          ]
+        },
+        "traceWindows": {
+          "day": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25167455225,
+            "endTsUs": 25167808049,
+            "windowMs": 352.824,
+            "mainPid": 211,
+            "mainTid": 211,
+            "mainThreadCpuMs": 23.97,
+            "displayDrawAndSwap": {
+              "count": 18,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 17.2955,
+              "maxWallMs": 24.136,
+              "sumWallMs": 324.92099999999994,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 17.322,
+              "sumCpuMs": 322.939
+            },
+            "softwareQuads": {
+              "count": 1341,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.093,
+              "maxWallMs": 5.117,
+              "sumWallMs": 309.6209999999998,
+              "cpuSampleCount": 1341,
+              "medianCpuMs": 0.093,
+              "sumCpuMs": 309.1309999999995
+            },
+            "rasterTasks": {
+              "count": 5,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 7.584,
+              "maxWallMs": 8.31,
+              "sumWallMs": 38.734,
+              "cpuSampleCount": 5,
+              "medianCpuMs": 7.561,
+              "sumCpuMs": 38.391999999999996
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.299,
+              "maxWallMs": 0.539,
+              "sumWallMs": 6.841,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.293,
+              "sumCpuMs": 6.7379999999999995
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1885,
+              "maxWallMs": 0.301,
+              "sumWallMs": 3.6990000000000003,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.188,
+              "sumCpuMs": 3.6899999999999995
+            }
+          },
+          "night": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25169562717,
+            "endTsUs": 25169906178,
+            "windowMs": 343.461,
+            "mainPid": 275,
+            "mainTid": 275,
+            "mainThreadCpuMs": 15.813,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 18.62,
+              "maxWallMs": 21.346,
+              "sumWallMs": 319.28000000000003,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 18.505,
+              "sumCpuMs": 316.953
+            },
+            "softwareQuads": {
+              "count": 1360,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.0945,
+              "maxWallMs": 2.662,
+              "sumWallMs": 309.70299999999986,
+              "cpuSampleCount": 1360,
+              "medianCpuMs": 0.094,
+              "sumCpuMs": 308.6059999999995
+            },
+            "rasterTasks": {
+              "count": 20,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.65,
+              "maxWallMs": 7.557,
+              "sumWallMs": 38.588999999999984,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.642,
+              "sumCpuMs": 38.418000000000006
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 22,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.2855,
+              "maxWallMs": 0.396,
+              "sumWallMs": 5.669000000000002,
+              "cpuSampleCount": 22,
+              "medianCpuMs": 0.27949999999999997,
+              "sumCpuMs": 5.569
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.161,
+              "maxWallMs": 0.199,
+              "sumWallMs": 2.8669999999999995,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.161,
+              "sumCpuMs": 2.8619999999999997
+            }
+          }
+        },
+        "scenes": {
+          "day": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 197.294,
+                  "transform": "matrix(1.05984, -0.205614, 0.205614, 1.05984, -3.44459, 43.1704)",
+                  "opacity": 0.0985479
+                },
+                {
+                  "at": 197.3,
+                  "transform": "matrix(1.05984, -0.205614, 0.205614, 1.05984, -3.44459, 43.1703)",
+                  "opacity": 0.0985657
+                },
+                {
+                  "at": 214,
+                  "transform": "matrix(1.05968, -0.205383, 0.205383, 1.05968, -3.45033, 42.9263)",
+                  "opacity": 0.14798
+                },
+                {
+                  "at": 230.7,
+                  "transform": "matrix(1.05939, -0.204932, 0.204932, 1.05939, -3.43977, 42.5513)",
+                  "opacity": 0.227367
+                },
+                {
+                  "at": 247.3,
+                  "transform": "matrix(1.05899, -0.204288, 0.204288, 1.05899, -3.41448, 42.0623)",
+                  "opacity": 0.33292
+                },
+                {
+                  "at": 280.6,
+                  "transform": "matrix(1.05817, -0.20298, 0.20298, 1.05817, -3.36087, 41.071)",
+                  "opacity": 0.544351
+                },
+                {
+                  "at": 313.9,
+                  "transform": "matrix(1.0568, -0.200936, 0.200936, 1.0568, -3.25041, 39.6679)",
+                  "opacity": 0.743513
+                },
+                {
+                  "at": 330.7,
+                  "transform": "matrix(1.05611, -0.199907, 0.199907, 1.05611, -3.19295, 38.9602)",
+                  "opacity": 0.843992
+                },
+                {
+                  "at": 347.3,
+                  "transform": "matrix(1.05531, -0.198708, 0.198708, 1.05531, -3.11963, 38.1553)",
+                  "opacity": 0.904704
+                },
+                {
+                  "at": 364,
+                  "transform": "matrix(1.05441, -0.197369, 0.197369, 1.05441, -3.0329, 37.2686)",
+                  "opacity": 0.937675
+                },
+                {
+                  "at": 380.7,
+                  "transform": "matrix(1.05352, -0.196032, 0.196032, 1.05352, -2.94427, 36.3821)",
+                  "opacity": 0.970646
+                },
+                {
+                  "at": 397.3,
+                  "transform": "matrix(1.05261, -0.194678, 0.194678, 1.05261, -2.8518, 35.4855)",
+                  "opacity": 1
+                },
+                {
+                  "at": 414,
+                  "transform": "matrix(1.05156, -0.193076, 0.193076, 1.05156, -2.73498, 34.4495)",
+                  "opacity": 1
+                },
+                {
+                  "at": 447.3,
+                  "transform": "matrix(1.04945, -0.189891, 0.189891, 1.04945, -2.49405, 32.3846)",
+                  "opacity": 1
+                },
+                {
+                  "at": 464,
+                  "transform": "matrix(1.04826, -0.188157, 0.188157, 1.04826, -2.35557, 31.2761)",
+                  "opacity": 1
+                },
+                {
+                  "at": 497.3,
+                  "transform": "matrix(1.04575, -0.184543, 0.184543, 1.04575, -2.0537, 28.9813)",
+                  "opacity": 1
+                },
+                {
+                  "at": 514,
+                  "transform": "matrix(1.04447, -0.182712, 0.182712, 1.04447, -1.89409, 27.8176)",
+                  "opacity": 1
+                },
+                {
+                  "at": 530.6,
+                  "transform": "matrix(1.04313, -0.18076, 0.18076, 1.04313, -1.71497, 26.5895)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                0.006000000000000227,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                33.30000000000001,
+                33.299999999999955,
+                16.80000000000001,
+                16.600000000000023,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.600000000000023
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 19.60623529411765,
+              "aboveOriginal21Ms": 4,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          },
+          "night": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 211.6,
+                  "transform": "matrix(1.06004, -0.205902, 0.205902, 1.06004, -3.43731, 43.4754)",
+                  "opacity": 0.0367974
+                },
+                {
+                  "at": 228.2,
+                  "transform": "matrix(1.05992, -0.205732, 0.205732, 1.05992, -3.44163, 43.2951)",
+                  "opacity": 0.0733044
+                },
+                {
+                  "at": 244.9,
+                  "transform": "matrix(1.0598, -0.20556, 0.20556, 1.0598, -3.44593, 43.1137)",
+                  "opacity": 0.110031
+                },
+                {
+                  "at": 261.5,
+                  "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45016, 42.9334)",
+                  "opacity": 0.146539
+                },
+                {
+                  "at": 294.9,
+                  "transform": "matrix(1.0592, -0.204636, 0.204636, 1.0592, -3.4282, 42.3263)",
+                  "opacity": 0.275928
+                },
+                {
+                  "at": 311.5,
+                  "transform": "matrix(1.0589, -0.204158, 0.204158, 1.0589, -3.40928, 41.9629)",
+                  "opacity": 0.35438
+                },
+                {
+                  "at": 328.2,
+                  "transform": "matrix(1.0586, -0.203677, 0.203677, 1.0586, -3.38996, 41.5973)",
+                  "opacity": 0.433304
+                },
+                {
+                  "at": 344.8,
+                  "transform": "matrix(1.0583, -0.203199, 0.203199, 1.0583, -3.37048, 41.2338)",
+                  "opacity": 0.511755
+                },
+                {
+                  "at": 361.5,
+                  "transform": "matrix(1.05787, -0.202535, 0.202535, 1.05787, -3.33726, 40.766)",
+                  "opacity": 0.587635
+                },
+                {
+                  "at": 378.2,
+                  "transform": "matrix(1.05736, -0.201773, 0.201773, 1.05736, -3.29624, 40.243)",
+                  "opacity": 0.66187
+                },
+                {
+                  "at": 394.9,
+                  "transform": "matrix(1.05685, -0.201012, 0.201012, 1.05685, -3.2546, 39.7201)",
+                  "opacity": 0.736106
+                },
+                {
+                  "at": 411.5,
+                  "transform": "matrix(1.05634, -0.200256, 0.200256, 1.05634, -3.21258, 39.2004)",
+                  "opacity": 0.809897
+                },
+                {
+                  "at": 428.2,
+                  "transform": "matrix(1.05583, -0.199496, 0.199496, 1.05583, -3.16968, 38.6776)",
+                  "opacity": 0.884132
+                },
+                {
+                  "at": 444.9,
+                  "transform": "matrix(1.05517, -0.198505, 0.198505, 1.05517, -3.10665, 38.0213)",
+                  "opacity": 0.909686
+                },
+                {
+                  "at": 461.5,
+                  "transform": "matrix(1.05451, -0.197516, 0.197516, 1.05451, -3.04254, 37.3662)",
+                  "opacity": 0.934045
+                },
+                {
+                  "at": 511.5,
+                  "transform": "matrix(1.05248, -0.194484, 0.194484, 1.05248, -2.83779, 35.36)",
+                  "opacity": 1
+                },
+                {
+                  "at": 528.2,
+                  "transform": "matrix(1.0517, -0.193293, 0.193293, 1.0517, -2.75098, 34.5899)",
+                  "opacity": 1
+                },
+                {
+                  "at": 544.8,
+                  "transform": "matrix(1.05092, -0.192111, 0.192111, 1.05092, -2.66322, 33.8247)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.599999999999994,
+                16.700000000000017,
+                16.599999999999994,
+                33.39999999999998,
+                16.600000000000023,
+                16.69999999999999,
+                16.600000000000023,
+                16.69999999999999,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                16.69999999999999,
+                16.69999999999999,
+                16.600000000000023,
+                50.0,
+                16.700000000000045,
+                16.59999999999991
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 19.599999999999998,
+              "aboveOriginal21Ms": 2,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          }
+        }
+      },
+      {
+        "sourceHead": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+        "variant": "baseline",
+        "interventionSha256": "ce994cbee99cc6db82a3a17e2881c0c88f7efec9aff6a224b42237b9ca8b16b9",
+        "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+        "derivedScriptSha256": "b3ea406fce6454461e1ee58165b74eebfb8c8149bf8142e8919861849cffcd7a",
+        "probeScriptSha256": "447cd29be91f01de05ed91129fc71aeaa405348f46957a8781bb91a31550c6fc",
+        "startedAt": "2026-09-07T11:21:48.541Z",
+        "finishedAt": "2026-09-07T11:21:59.778Z",
+        "status": "COLLECTED",
+        "trace": {
+          "file": "chromium-trace.json",
+          "bytes": 27058640,
+          "sha256": "ce37297dab95c7dd7ec62386346f97af916e31b8123901026d2a81947a7e2c15",
+          "eventCount": 131380,
+          "dataLossOccurred": false,
+          "sampleMarks": [
+            {
+              "args": {
+                "data": {
+                  "callTime": 25215841546,
+                  "navigationId": "81CD6981D93CFFD2D601DDA189B72E0E",
+                  "sampleTraceId": 5039361879626157,
+                  "startTime": 287.4000000022352
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:day",
+              "ph": "I",
+              "pid": 211,
+              "s": "t",
+              "tid": 211,
+              "ts": 25215841531,
+              "tts": 174903
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25216283419,
+                  "navigationId": "81CD6981D93CFFD2D601DDA189B72E0E",
+                  "sampleTraceId": 5039361879629533,
+                  "startTime": 729.1000000014901
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:day",
+              "ph": "I",
+              "pid": 211,
+              "s": "t",
+              "tid": 211,
+              "ts": 25216283326,
+              "tts": 214169
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25217574615,
+                  "navigationId": "4F18198A2428D24453D0D9514D22464A",
+                  "sampleTraceId": 3174904698102792,
+                  "startTime": 267.9000000022352
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:start:night",
+              "ph": "I",
+              "pid": 275,
+              "s": "t",
+              "tid": 275,
+              "ts": 25217574602,
+              "tts": 181705
+            },
+            {
+              "args": {
+                "data": {
+                  "callTime": 25217917385,
+                  "navigationId": "4F18198A2428D24453D0D9514D22464A",
+                  "sampleTraceId": 3174904698104667,
+                  "startTime": 610.6999999992549
+                }
+              },
+              "cat": "blink.user_timing",
+              "name": "pr342:sample:end:night",
+              "ph": "I",
+              "pid": 275,
+              "s": "t",
+              "tid": 275,
+              "ts": 25217917381,
+              "tts": 201022
+            }
+          ]
+        },
+        "traceWindows": {
+          "day": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25215841531,
+            "endTsUs": 25216283326,
+            "windowMs": 441.795,
+            "mainPid": 211,
+            "mainTid": 211,
+            "mainThreadCpuMs": 39.266,
+            "displayDrawAndSwap": {
+              "count": 17,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 21.632,
+              "maxWallMs": 39.137,
+              "sumWallMs": 388.99999999999994,
+              "cpuSampleCount": 17,
+              "medianCpuMs": 21.54,
+              "sumCpuMs": 388.36299999999994
+            },
+            "softwareQuads": {
+              "count": 1353,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.107,
+              "maxWallMs": 18.956,
+              "sumWallMs": 393.7589999999992,
+              "cpuSampleCount": 1353,
+              "medianCpuMs": 0.107,
+              "sumCpuMs": 394.7069999999993
+            },
+            "rasterTasks": {
+              "count": 24,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 1.029,
+              "maxWallMs": 11.787,
+              "sumWallMs": 50.24700000000001,
+              "cpuSampleCount": 24,
+              "medianCpuMs": 0.925,
+              "sumCpuMs": 45.40800000000001
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 20,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.3115,
+              "maxWallMs": 0.9,
+              "sumWallMs": 6.606999999999999,
+              "cpuSampleCount": 20,
+              "medianCpuMs": 0.306,
+              "sumCpuMs": 6.5089999999999995
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.1765,
+              "maxWallMs": 0.374,
+              "sumWallMs": 3.3709999999999996,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.1765,
+              "sumCpuMs": 3.361
+            }
+          },
+          "night": {
+            "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+            "startTsUs": 25217574602,
+            "endTsUs": 25217917381,
+            "windowMs": 342.779,
+            "mainPid": 275,
+            "mainTid": 275,
+            "mainThreadCpuMs": 19.317,
+            "displayDrawAndSwap": {
+              "count": 16,
+              "boundaryCrossingSlices": 2,
+              "medianWallMs": 18.6875,
+              "maxWallMs": 20.155,
+              "sumWallMs": 301.24399999999997,
+              "cpuSampleCount": 16,
+              "medianCpuMs": 18.4625,
+              "sumCpuMs": 297.138
+            },
+            "softwareQuads": {
+              "count": 1358,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.095,
+              "maxWallMs": 3.38,
+              "sumWallMs": 306.3739999999996,
+              "cpuSampleCount": 1358,
+              "medianCpuMs": 0.095,
+              "sumCpuMs": 302.974
+            },
+            "rasterTasks": {
+              "count": 27,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.803,
+              "maxWallMs": 8.527,
+              "sumWallMs": 41.11299999999999,
+              "cpuSampleCount": 27,
+              "medianCpuMs": 0.786,
+              "sumCpuMs": 39.744
+            },
+            "appAnimationFrameCallbacks": {
+              "count": 23,
+              "boundaryCrossingSlices": 1,
+              "medianWallMs": 0.308,
+              "maxWallMs": 0.485,
+              "sumWallMs": 6.558999999999999,
+              "cpuSampleCount": 23,
+              "medianCpuMs": 0.303,
+              "sumCpuMs": 6.460999999999999
+            },
+            "appLayout": {
+              "count": 0,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": null,
+              "maxWallMs": null,
+              "sumWallMs": 0,
+              "cpuSampleCount": 0,
+              "medianCpuMs": null,
+              "sumCpuMs": 0
+            },
+            "appUpdateLayoutTree": {
+              "count": 18,
+              "boundaryCrossingSlices": 0,
+              "medianWallMs": 0.18,
+              "maxWallMs": 0.358,
+              "sumWallMs": 3.509,
+              "cpuSampleCount": 18,
+              "medianCpuMs": 0.18,
+              "sumCpuMs": 3.503
+            }
+          }
+        },
+        "scenes": {
+          "day": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 303.8,
+                  "transform": "matrix(1.05899, -0.204289, 0.204289, 1.05899, -3.41452, 42.063)",
+                  "opacity": 0.332773
+                },
+                {
+                  "at": 320.5,
+                  "transform": "matrix(1.05858, -0.203642, 0.203642, 1.05858, -3.38857, 41.571)",
+                  "opacity": 0.438962
+                },
+                {
+                  "at": 353.8,
+                  "transform": "matrix(1.05748, -0.201956, 0.201956, 1.05748, -3.30612, 40.3683)",
+                  "opacity": 0.644094
+                },
+                {
+                  "at": 370.5,
+                  "transform": "matrix(1.0568, -0.200931, 0.200931, 1.0568, -3.25015, 39.6647)",
+                  "opacity": 0.743974
+                },
+                {
+                  "at": 387.2,
+                  "transform": "matrix(1.05611, -0.199909, 0.199909, 1.05611, -3.19303, 38.9612)",
+                  "opacity": 0.843854
+                },
+                {
+                  "at": 437.2,
+                  "transform": "matrix(1.05352, -0.196034, 0.196034, 1.05352, -2.94439, 36.3833)",
+                  "opacity": 0.970601
+                },
+                {
+                  "at": 453.9,
+                  "transform": "matrix(1.05261, -0.19467, 0.19467, 1.05261, -2.85127, 35.4808)",
+                  "opacity": 1
+                },
+                {
+                  "at": 470.5,
+                  "transform": "matrix(1.05156, -0.193078, 0.193078, 1.05156, -2.73514, 34.4509)",
+                  "opacity": 1
+                },
+                {
+                  "at": 487.2,
+                  "transform": "matrix(1.0505, -0.19148, 0.19148, 1.0505, -2.61565, 33.4152)",
+                  "opacity": 1
+                },
+                {
+                  "at": 503.9,
+                  "transform": "matrix(1.04944, -0.189884, 0.189884, 1.04944, -2.49348, 32.3798)",
+                  "opacity": 1
+                },
+                {
+                  "at": 553.8,
+                  "transform": "matrix(1.04575, -0.184546, 0.184546, 1.04575, -2.05392, 28.9829)",
+                  "opacity": 1
+                },
+                {
+                  "at": 570.5,
+                  "transform": "matrix(1.04448, -0.182714, 0.182714, 1.04448, -1.89433, 27.8193)",
+                  "opacity": 1
+                },
+                {
+                  "at": 603.8,
+                  "transform": "matrix(1.04177, -0.178804, 0.178804, 1.04177, -1.53107, 25.3564)",
+                  "opacity": 1
+                },
+                {
+                  "at": 620.5,
+                  "transform": "matrix(1.0404, -0.176851, 0.176851, 1.0404, -1.34297, 24.1223)",
+                  "opacity": 1
+                },
+                {
+                  "at": 653.9,
+                  "transform": "matrix(1.03751, -0.172741, 0.172741, 1.03751, -0.930564, 21.5597)",
+                  "opacity": 1
+                },
+                {
+                  "at": 670.5,
+                  "transform": "matrix(1.03604, -0.170686, 0.170686, 1.03604, -0.716836, 20.2783)",
+                  "opacity": 1
+                },
+                {
+                  "at": 703.8,
+                  "transform": "matrix(1.03304, -0.166502, 0.166502, 1.03304, -0.262067, 17.6781)",
+                  "opacity": 1
+                },
+                {
+                  "at": 720.5,
+                  "transform": "matrix(1.03151, -0.164385, 0.164385, 1.03151, -0.0229137, 16.3649)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.69999999999999,
+                50.0,
+                16.69999999999999,
+                16.600000000000023,
+                16.69999999999999,
+                16.69999999999999,
+                49.89999999999998,
+                16.700000000000045,
+                33.299999999999955,
+                16.700000000000045,
+                33.39999999999998,
+                16.600000000000023,
+                33.299999999999955,
+                16.700000000000045
+              ],
+              "medianMs": 16.700000000000045,
+              "meanMs": 24.511764705882353,
+              "aboveOriginal21Ms": 6,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          },
+          "night": {
+            "error": null,
+            "cadence": {
+              "samples": [
+                {
+                  "at": 284.6,
+                  "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45017, 42.933)",
+                  "opacity": 0.146613
+                },
+                {
+                  "at": 301.3,
+                  "transform": "matrix(1.0595, -0.205117, 0.205117, 1.0595, -3.44692, 42.6912)",
+                  "opacity": 0.197165
+                },
+                {
+                  "at": 317.9,
+                  "transform": "matrix(1.0592, -0.204638, 0.204638, 1.0592, -3.42827, 42.3278)",
+                  "opacity": 0.275616
+                },
+                {
+                  "at": 334.6,
+                  "transform": "matrix(1.0589, -0.204157, 0.204157, 1.0589, -3.40924, 41.9621)",
+                  "opacity": 0.35454
+                },
+                {
+                  "at": 351.3,
+                  "transform": "matrix(1.0586, -0.203676, 0.203676, 1.0586, -3.38992, 41.5965)",
+                  "opacity": 0.433464
+                },
+                {
+                  "at": 384.6,
+                  "transform": "matrix(1.05787, -0.202534, 0.202534, 1.05787, -3.33717, 40.765)",
+                  "opacity": 0.587786
+                },
+                {
+                  "at": 401.3,
+                  "transform": "matrix(1.05736, -0.201772, 0.201772, 1.05736, -3.29616, 40.242)",
+                  "opacity": 0.662021
+                },
+                {
+                  "at": 417.9,
+                  "transform": "matrix(1.05685, -0.201015, 0.201015, 1.05685, -3.25477, 39.7222)",
+                  "opacity": 0.735812
+                },
+                {
+                  "at": 434.6,
+                  "transform": "matrix(1.05634, -0.200255, 0.200255, 1.05634, -3.21249, 39.1993)",
+                  "opacity": 0.810048
+                },
+                {
+                  "at": 467.9,
+                  "transform": "matrix(1.05517, -0.198509, 0.198509, 1.05517, -3.1069, 38.0239)",
+                  "opacity": 0.909589
+                },
+                {
+                  "at": 484.6,
+                  "transform": "matrix(1.05451, -0.197514, 0.197514, 1.05451, -3.04241, 37.3648)",
+                  "opacity": 0.934095
+                },
+                {
+                  "at": 501.2,
+                  "transform": "matrix(1.05385, -0.196526, 0.196526, 1.05385, -2.97726, 36.7098)",
+                  "opacity": 0.958454
+                },
+                {
+                  "at": 517.9,
+                  "transform": "matrix(1.05318, -0.195534, 0.195534, 1.05318, -2.91068, 36.0511)",
+                  "opacity": 0.982959
+                },
+                {
+                  "at": 534.5,
+                  "transform": "matrix(1.05249, -0.194488, 0.194488, 1.05249, -2.83813, 35.363)",
+                  "opacity": 1
+                },
+                {
+                  "at": 551.3,
+                  "transform": "matrix(1.0517, -0.193291, 0.193291, 1.0517, -2.7508, 34.5883)",
+                  "opacity": 1
+                },
+                {
+                  "at": 567.9,
+                  "transform": "matrix(1.05092, -0.192109, 0.192109, 1.05092, -2.66304, 33.8231)",
+                  "opacity": 1
+                },
+                {
+                  "at": 584.6,
+                  "transform": "matrix(1.05013, -0.190922, 0.190922, 1.05013, -2.57327, 33.0534)",
+                  "opacity": 1
+                },
+                {
+                  "at": 601.3,
+                  "transform": "matrix(1.04935, -0.189736, 0.189736, 1.04935, -2.48203, 32.284)",
+                  "opacity": 1
+                }
+              ],
+              "intervalsMs": [
+                16.69999999999999,
+                16.599999999999966,
+                16.700000000000045,
+                16.69999999999999,
+                33.30000000000001,
+                16.69999999999999,
+                16.599999999999966,
+                16.700000000000045,
+                33.299999999999955,
+                16.700000000000045,
+                16.599999999999966,
+                16.69999999999999,
+                16.600000000000023,
+                16.799999999999955,
+                16.600000000000023,
+                16.700000000000045,
+                16.699999999999932
+              ],
+              "medianMs": 16.69999999999999,
+              "meanMs": 18.62941176470588,
+              "aboveOriginal21Ms": 2,
+              "intervalCount": 17,
+              "scope": "Derived callback cadence, not an alternative acceptance gate or physical display FPS."
+            }
+          }
+        }
+      }
+    ]
+  }
+}

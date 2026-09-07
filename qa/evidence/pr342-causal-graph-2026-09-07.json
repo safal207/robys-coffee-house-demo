@@ -1109,5 +1109,10 @@
     "timelineSha256": "fad73cdeb2348ea80b8e85896f9497bb533c772c651725def29d2ec8c0553cd4",
     "nativeShaderCompileObservation": "144.046 ms before the long wait; 215.849 ms after terminal state. This does not exclude shader work nested inside uninstrumented WebView GPU calls.",
     "underlyingDriver": "UNRESOLVED; no nested WebView GPU/driver calls or blocked function names."
+  },
+  "subsequentEvidence": {
+    "file": "qa/evidence/pr342-contextual-cpu-proof-2026-09-07.json",
+    "head": "5aa14b34d5bc61d3aa01e756b81d6db03560720e",
+    "scope": "Later failing CI trace strengthens CG-03 from candidate to confirmed proximate CPU composition bottleneck. Earlier observations and their original boundaries above are retained."
   }
 }
