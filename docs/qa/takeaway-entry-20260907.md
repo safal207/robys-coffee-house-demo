@@ -43,7 +43,7 @@ Base: `a2fbce66f716b1b99e924239d5dd118cf37c5eef` (current main when fetched).
 | `npm run check` | PASS |
 | `npm run verify:security` | PASS; 285 contracts, no secrets found |
 | `npm run verify:entry-handoff` | PASS; active module byte hash and offline match |
-| `npm run test:takeaway-entry` | PASS; 19 deterministic lifecycle tests |
+| `npm run test:takeaway-entry` | PASS; 21 deterministic lifecycle tests |
 | `node scripts/verify-performance-contract.mjs` | PASS; existing static budgets |
 | Actual browser scene replay | loading 1 ms → decoded brand 8 ms → handoff 1059 ms → done 1620 ms |
 | Mobile 390 / RU; 320 / TR; desktop 1280 / EN | Visual inspection, screenshots below |
@@ -88,7 +88,7 @@ faked with aliases nor silently accepted as evidence for the cup.
 The browser suite also gates ≥4.5:1 text contrast, viewport containment at
 320/390/1280 px and short landscape, actual menu navigation, image failure and
 stalled decode without late resurrection, slow/failed imports, dynamic reduced
-motion, and background recovery. The 19 deterministic lifecycle tests retain
+motion, and background recovery. The 21 deterministic lifecycle tests retain
 haptic capability, single-pulse, animation failure and hard-stop coverage.
 
 The QA selector values now resolve through literal allowlists and URLSearchParams
@@ -104,8 +104,26 @@ VISUAL_STATE_TIMEOUT. That job loads the mutable public GitHub Pages deployment
 (`web_bytes_pinned_to_pr=false`), so it does not certify this PR's web bytes.
 Native deadlines, terminal-failure checks and permissions remain unchanged.
 Current-head CI results must be read separately; a local syntax check is not a
-browser or emulator pass. Keep the PR draft while required CI/review remains
-unresolved. The live site has not been deployed from this task.
+browser or emulator pass. Recheck CI and review on each new head before merge.
+The live site has not been deployed from this task.
+
+## Keyboard dismissal review follow-up
+
+Codex reviewed head `69f10aab5853b2e19e0e9fe957e2725addc0504e` and found that
+Tab/Escape skipped the session marker. Accepted finding:
+https://github.com/safal207/robys-coffee-house-demo/pull/343#discussion_r3949681059.
+
+Explicit keyboard dismissal now records the entry as seen before releasing the
+page. The next navigation in that tab uses the short warm variant. Generic
+cleanup remains separate: failed/stalled image loading does not mark a successful
+entry. Unavailable session storage still cannot block keyboard dismissal.
+
+The regression test failed for both keys before the fix (19/21 passing) and
+passed after it (21/21). The browser release certification now starts each key
+case in a fresh context, checks cold dismissal and then warm navigation across
+scenes. Previously, those cases reused a session already warmed by natural
+completion and could conceal this defect. Current-head browser results are
+reported by CI separately from the deterministic local tests.
 
 ## Screenshots
 

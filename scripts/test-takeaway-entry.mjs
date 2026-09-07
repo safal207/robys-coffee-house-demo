@@ -125,6 +125,7 @@ for (const image of ["broken", "stalled"]) {
   test(`${image} image never reveals partial content or strands the page`, async () => {
     const h = harness({ image }); h.start(); await h.tick(600); h.released();
     assert(!h.events.some((e) => e.state === "brand-frame"));
+    assert.equal(h.window.sessionStorage.getItem("robys-takeaway-entry-v1"), undefined);
   });
 }
 test("pointer dismisses immediately and allows at most one 8 ms pulse", async () => {
@@ -135,9 +136,18 @@ test("pointer dismisses immediately and allows at most one 8 ms pulse", async ()
   await h.tick(480); h.released(); assert.deepEqual(h.pulses, [8]);
 });
 for (const key of ["Escape", "Tab"]) {
-  test(`${key} immediately releases the page and does not vibrate`, async () => {
+  test(`${key} immediately releases the page and makes the next entry warm without vibration`, async () => {
     const h = harness(); h.start(); h.window.dispatchEvent({ type: "keydown", key });
     await h.tick(3000); h.released(); assert.deepEqual(h.pulses, []);
+    assert(!h.events.some((e) => e.state === "brand-frame"));
+    h.start(); await h.tick(600); h.released();
+    assert.equal(h.events.at(-1).variant, "warm");
+    assert.deepEqual(h.pulses, []);
+  });
+  test(`${key} still releases the page when session storage is unavailable`, async () => {
+    const h = harness({ storageFails: true }); h.start();
+    h.window.dispatchEvent({ type: "keydown", key });
+    await h.tick(3000); h.released();
     assert(!h.events.some((e) => e.state === "brand-frame"));
   });
 }

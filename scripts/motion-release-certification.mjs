@@ -12,14 +12,22 @@ await certify({ port: Number(process.env.MOTION_RELEASE_PORT ?? 4193), resultsDi
   evidence.warm = timing(await done(page), "warm");
 
   for (const key of ["Escape", "Tab"]) {
-    await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
-    await brand(page);
+    // A fresh session is essential: earlier natural completions would already
+    // mark the entry warm and conceal broken persistence on keyboard dismissal.
+    const keyboardContext = await contextFor(browser);
+    const keyboardPage = await keyboardContext.newPage();
+    await keyboardPage.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });
+    await brand(keyboardPage);
     const started = Date.now();
-    await page.keyboard.press(key);
-    await done(page, 1200);
+    await keyboardPage.keyboard.press(key);
+    const dismissal = await done(keyboardPage, 1200);
+    assert(dismissal.events[0]?.variant === "cold", `${key} fixture did not start in a fresh session`);
     evidence[key] = { durationMs: Date.now() - started };
     assert(evidence[key].durationMs < 1000, `${key} did not promptly release the page`);
-    assert(await page.evaluate(() => !document.activeElement?.closest(".robys-takeaway-entry")), "Keyboard focus remained trapped");
+    assert(await keyboardPage.evaluate(() => !document.activeElement?.closest(".robys-takeaway-entry")), "Keyboard focus remained trapped");
+    await keyboardPage.goto(`${baseUrl}?entry=day`, { waitUntil: "domcontentloaded" });
+    evidence[key].nextEntry = timing(await done(keyboardPage), "warm", "day");
+    await keyboardContext.close();
   }
 
   await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });

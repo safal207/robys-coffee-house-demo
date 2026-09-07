@@ -108,11 +108,14 @@ export function runTakeawayEntry(scene = "day") {
     pulsed = true;
     try { navigator.vibrate(8); } catch { /* Optional tactile feedback. */ }
   };
+  const rememberEntry = () => {
+    try { window.sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* Optional. */ }
+  };
   const finish = () => {
     if (exiting) return;
     exiting = true;
     clearTimers();
-    try { window.sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* Optional. */ }
+    rememberEntry();
     emit("handoff", scene, variant);
     delete root.dataset.robysEntryPending;
     // Reveal the real page under a stationary dissolve; no zoom or sliding layer.
@@ -123,7 +126,10 @@ export function runTakeawayEntry(scene = "day") {
     }).finally(cleanup);
   };
   const onKey = (event) => {
-    if (event.key === "Escape" || event.key === "Tab") cleanup();
+    if (event.key === "Escape" || event.key === "Tab") {
+      rememberEntry();
+      cleanup();
+    }
   };
   const onVisibility = () => {
     if (document.visibilityState === "hidden") cleanup();
