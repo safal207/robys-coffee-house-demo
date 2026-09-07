@@ -83,25 +83,24 @@ try {
 
   await context.setOffline(true);
   await page.goto(`${baseUrl}?entry=day`, { waitUntil: "domcontentloaded" });
-  await page.locator(".robys-contextual-entry.robys-day-entry").waitFor({ state: "visible", timeout: 2_000 });
+  await page.locator('html[data-robys-entry-state="brand-frame"]').waitFor({ state: "attached", timeout: 2_000 });
 
   const offlineEvidence = await page.evaluate(() => ({
     online: navigator.onLine,
     controlled: Boolean(navigator.serviceWorker?.controller),
     scene: document.documentElement.dataset.robysEntryScene ?? "",
-    poseCount: document.documentElement.dataset.robysEntryPoseCount ?? "",
-    family: document.documentElement.dataset.robysEntryFamily ?? "",
+    cupPath: document.querySelector(".robys-takeaway-cup")?.getAttribute("src") ?? "",
+    cupDecoded: document.querySelector(".robys-takeaway-cup")?.naturalWidth === 640,
     state: document.documentElement.dataset.robysEntryState ?? "",
     moduleEntry: performance.getEntriesByType("resource")
-      .filter((entry) => entry.name.includes("day-night-entry.js"))
+      .filter((entry) => entry.name.includes("takeaway-entry.js"))
       .map((entry) => ({ name: entry.name, transferSize: entry.transferSize, duration: entry.duration }))
   }));
 
   assert(offlineEvidence.online === false, "Browser did not enter offline mode");
   assert(offlineEvidence.controlled, "Service worker controller was lost offline");
   assert(offlineEvidence.scene === "day", `Offline contextual scene is ${offlineEvidence.scene}`);
-  assert(offlineEvidence.poseCount === "20", `Offline contextual pose count is ${offlineEvidence.poseCount}`);
-  assert(offlineEvidence.family === "contextual-v1", `Offline contextual family is ${offlineEvidence.family}`);
+  assert(offlineEvidence.cupPath === "src/brand/robys-takeaway-cup-v1.webp" && offlineEvidence.cupDecoded, "Offline branded cup was not served and decoded");
   assert(offlineEvidence.moduleEntry.length > 0, "Offline page did not request the contextual lazy module");
 
   await page.screenshot({
@@ -110,13 +109,13 @@ try {
   });
 
   await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout: 3_200 });
-  assert(await page.locator(".robys-contextual-entry").count() === 0, "Offline contextual overlay remained after handoff");
+  assert(await page.locator(".robys-takeaway-entry").count() === 0, "Offline contextual overlay remained after handoff");
 
   const evidence = { registration: registrationEvidence, offline: offlineEvidence };
   writeFileSync(path.join(resultsDir, "contextual-sw-evidence.json"), `${JSON.stringify(evidence, null, 2)}\n`);
 
   await context.close();
-  console.log("✅ MOTION-CONTEXT-SW-001 passed: installed/activated service worker controls the page and serves the contextual Day entry plus lazy module from the precache while the browser is offline.");
+  console.log("✅ MOTION-CONTEXT-SW-001 passed: installed/activated service worker controls the page and serves the takeaway cup plus lazy module from the precache while the browser is offline.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v62-20260905-cart-feedback-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v63-20260907-takeaway-entry-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -76,7 +76,7 @@ const CORE_ASSETS = [
   "./android-download.js",
   "./android-app.css?v=01b7f55a3fdc",
   "./mobile-install.css",
-  "./styles-v2.css?v=a008bb8274b9",
+  "./styles-v2.css?v=a4431b07fc04",
   "./mobile.css",
   "./conversion.css",
   "./final-qa.css",
@@ -92,9 +92,11 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4",
   "./src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4",
-  "./bootstrap-v2.js?v=45fbf33f0155",
+  "./bootstrap-v2.js?v=232988ce2aed",
   "./android-handoff.js",
   "./morning-entry-v2.js?v=8a158515f4de",
+  "./takeaway-entry.js?v=bb3e231041a3",
+  "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
   "./conversion.js?v=bbea03459a71",
@@ -166,6 +168,7 @@ async function cachedResponse(request) {
     isVersionedSmartChoiceAsset ||
     url.pathname.endsWith("/bootstrap-v2.js") ||
     url.pathname.endsWith("/morning-entry-v2.js") ||
+    url.pathname.endsWith("/takeaway-entry.js") ||
     url.pathname.endsWith("/styles-v2.css") ||
     url.pathname.endsWith("/menu-security-v2.css") ||
     url.pathname.endsWith("/pwa.js") ||

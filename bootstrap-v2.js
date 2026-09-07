@@ -51,12 +51,14 @@ function resolveEntryScene() {
 }
 
 function revealProductAfterEntryFailure() {
+  window.__robysTakeawayEntryAborted = true;
+  window.__robysTakeawayEntryRelease?.();
   window.__robysMorningEntryAborted = true;
   window.__robysContextualEntryAborted = true;
   delete document.documentElement.dataset.robysEntryPending;
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
-  document.querySelector(".robys-morning-entry, .robys-contextual-entry")?.remove();
+  document.querySelector(".robys-takeaway-entry, .robys-morning-entry, .robys-contextual-entry")?.remove();
 }
 
 function revealProductAfterAndroidHandoffFailure() {
@@ -82,18 +84,18 @@ function loadEntryIfEligible() {
   const scene = resolveEntryScene();
   if (!scene) return;
 
+  window.__robysTakeawayEntryAborted = false;
   window.__robysMorningEntryAborted = false;
   window.__robysContextualEntryAborted = false;
   document.documentElement.dataset.robysEntryPending = scene;
-  document.documentElement.style.backgroundColor = scene === "morning"
-    ? "#170a08"
-    : scene === "day"
-      ? "#2d0d0c"
-      : "#0d0505";
+  document.documentElement.style.backgroundColor = "#241c1b";
+  const cupPreload = document.createElement("link");
+  cupPreload.rel = "preload";
+  cupPreload.as = "image";
+  cupPreload.href = "src/brand/robys-takeaway-cup-v1.webp";
+  document.head.append(cupPreload);
 
-  const entryImport = scene === "morning"
-    ? import("./morning-entry-v2.js?v=8a158515f4de")
-    : import("./day-night-entry.js?v=20260904-compositor-v25");
+  const entryImport = import("./takeaway-entry.js?v=bb3e231041a3");
 
   entryImport.catch(revealProductAfterEntryFailure);
 
