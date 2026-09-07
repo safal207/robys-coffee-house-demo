@@ -151,3 +151,12 @@ CONTEXTUAL_PROBE_SUITE=surfaces node scripts/probe-contextual-layers.mjs
 Only a candidate with preserved appearance and a demonstrated timing benefit
 can progress to a separate product patch and broader responsive validation.
 The diagnostic does not rebind existing visual reviews or certify Android.
+
+The first surface run, 34092569025 on `7031d4d`, failed before collecting the
+candidate matrix because the contextual workflow does not normally install
+`pngjs`. Its original Day gate independently failed at 33.3 ms. This is an
+incomplete diagnostic, not a negative candidate result. The follow-up installs
+the same pinned PNG decoder used by the visual workflow (`pngjs@7.0.0`) in a
+temporary, separate dependency directory with lifecycle scripts disabled. It
+does not reinstall or replace locked application/Playwright dependencies. The
+default optical-only diagnostic does not load the PNG decoder.

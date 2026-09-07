@@ -4,7 +4,6 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
-const { PNG } = createRequire(import.meta.url)('pngjs');
 
 // Diagnostic ablations only. They are never substituted for the original gate.
 const suite = process.env.CONTEXTUAL_PROBE_SUITE ?? 'optics';
@@ -117,6 +116,7 @@ try {
   report.status = complete ? 'COLLECTED' : 'INCOMPLETE'; save();
   if (!complete) throw new Error('Layer probe did not obtain every required frame sample');
   if (suite === 'surfaces') {
+    const { PNG } = createRequire(import.meta.url)('pngjs');
     // Separate fixed-pose appearance check; never used as a timing sample.
     report.visualStatus = 'RUNNING'; report.visualComparisons = []; save();
     browser = await chromium.launch({ headless: true });

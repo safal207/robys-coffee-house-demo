@@ -105,7 +105,9 @@ jobs:
         env:
           CONTEXTUAL_PROBE_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-probe
           CONTEXTUAL_PROBE_SUITE: surfaces
-        run: node scripts/probe-contextual-layers.mjs
+        run: |
+          npm install --prefix "$RUNNER_TEMP/contextual-png" --no-save --package-lock=false --ignore-scripts --no-audit --no-fund pngjs@7.0.0
+          NODE_PATH="$RUNNER_TEMP/contextual-png/node_modules" node scripts/probe-contextual-layers.mjs
 
       - name: Certify automatic scene routing and history bypass
         env:
