@@ -196,9 +196,10 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
   return serviceWorker.replace(pattern, `"./${filePath}?v=${revision}"`);
 }
 
+const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
-bootstrapSource = synchronizeModuleImport(bootstrapSource, "morning-entry-v2.js", morningEntryRevision);
+bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
 writeFileSync("bootstrap-v2.js", bootstrapSource);
 
 const appRevision = revisionFor("app.js");
@@ -284,6 +285,7 @@ serviceWorker = synchronizeServiceWorker(
 for (const [filePath, revision] of [
   ["bootstrap-v2.js", bootstrapRevision],
   ["morning-entry-v2.js", morningEntryRevision],
+  ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-premium.css", menuPremiumRevision],

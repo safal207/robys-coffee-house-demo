@@ -83,6 +83,16 @@ h1 em,h2 em{font-style:normal;font-weight:300}
 @keyframes heroContentIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 html[data-robys-entry-pending] .hero-content>*{animation-play-state:paused}
 html[data-robys-entry-pending] .site-header{opacity:0;transform:translateY(-10px)}
+html[data-robys-entry-pending]::after{content:"";position:fixed;inset:0;z-index:2147482999;background:#241c1b;pointer-events:none}
+.robys-takeaway-entry{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;overflow:hidden;background:#241c1b;color:#fff8f0;touch-action:manipulation;isolation:isolate}
+.robys-takeaway-content{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;padding:24px;box-sizing:border-box;text-align:center;opacity:0;will-change:transform,opacity}
+.robys-takeaway-cup{display:block;width:auto;height:min(46svh,360px);max-width:76vw;object-fit:contain;margin:0 0 24px;mask-image:linear-gradient(to bottom,transparent,#000 5%,#000 94%,transparent);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 5%,#000 94%,transparent)}
+.robys-takeaway-title{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(2rem,7vw,2.75rem);font-weight:400;line-height:1.1;letter-spacing:-.035em;color:#fff8f0;text-wrap:balance}
+.robys-takeaway-caption{margin:14px 0 0;font-size:.9375rem;line-height:1.5;color:#c9b5a6}
+.robys-takeaway-skip{position:absolute;bottom:max(24px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-height:44px;max-width:90%;padding:10px 18px;border:1px solid #79665b;border-radius:28px;background:transparent;color:#e1d2c5;font:inherit;font-size:.875rem;cursor:pointer}
+.robys-takeaway-skip:focus-visible{outline:2px solid #fff8f0;outline-offset:4px}
+@media(max-height:500px){.robys-takeaway-content{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:12px;max-width:600px}.robys-takeaway-cup{height:42svh;margin:0}.robys-takeaway-title{max-width:55%;font-size:2rem}.robys-takeaway-caption{width:100%;margin:0}.robys-takeaway-skip{bottom:8px}}
+@media(prefers-reduced-motion:reduce){.robys-takeaway-entry,html[data-robys-entry-pending]::after{display:none}}
 html:not([data-robys-entry-pending]) .site-header{transition:opacity .52s cubic-bezier(.16,1,.3,1),transform .52s cubic-bezier(.16,1,.3,1)}
 
 main{transition:opacity .16s ease,filter .16s ease}
