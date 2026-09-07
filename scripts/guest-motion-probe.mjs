@@ -12,7 +12,7 @@ await certify({ port: 4231, resultsDir: path.resolve('.artifacts/guest-motion-pr
       const result={index,passed:false};
       try {assertBrand(appearance);timing(probe,'cold','morning');cadence(probe);result.passed=true;}
       catch(error){result.error=error.message;result.repeats=probe.frames.filter((f,i,a)=>i>0&&f.state==='brand-frame'&&f.transform===a[i-1].transform).slice(0,12);}
-      results.push(result);
+      results.push(result);save(resultsDir,'matrix.json',results);
     } finally {await context.close();}
   }
   save(resultsDir,'matrix.json',results);
