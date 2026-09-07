@@ -30,6 +30,10 @@ jobs:
         env:
           PAIRING_EVIDENCE: .artifacts/guest-journey/pairings
         run: node scripts/pairing-offers-regression.mjs
+      - name: Four guests and legacy family recovery
+        env:
+          GUEST_GROUP_RESULTS_DIR: .artifacts/guest-journey/group-recovery
+        run: node scripts/guest-group-recovery-browser.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
