@@ -62,15 +62,17 @@ try{
   }catch(error){result.error=String(error.stack);await p.screenshot({path:`${out}/${language}-${quantity}-${width}-failure.png`}).catch(()=>{});throw error;}finally{await c.close();}
  }
  // Escape during a deferred first drawer load cancels that intent, including a late import.
+ for(const trigger of ['#menu-cart-trigger','#robys-order-launcher']) {
  const delayed=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),dp=await delayed.newPage();
  let releaseDrawer;const drawerGate=new Promise(resolve=>{releaseDrawer=resolve;});
  await dp.route('**/order-shell.js?*',async route=>{await drawerGate;await route.continue();});
  await dp.goto(base+'menu.html?entry=off');await dp.locator('#menu-root[data-ready="true"]').waitFor();
- await dp.locator('#menu-cart-trigger').click();await dp.keyboard.press('Escape');releaseDrawer();
+ await dp.locator(trigger).click();await dp.keyboard.press('Escape');releaseDrawer();
  await dp.locator('#robys-order-dialog').waitFor({state:'attached'});
  await dp.locator('#menu-cart-trigger[aria-busy]').waitFor({state:'hidden'});
  assert.equal(await dp.locator('#robys-order-dialog').isVisible(),false,'Cancelled order intent must not reopen later');
  await delayed.close();
+ }
  // Honest no-match: a group cannot be squeezed into the budget by removing portions.
  const c=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),p=await c.newPage();
  await choose(p,'ru',3,0);await p.locator('.no-match-card').waitFor({state:'visible'});

@@ -35,6 +35,7 @@ let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
 let searchTerm = "";
 let orderOpenIntent = 0;
+window.addEventListener("robys:order-open-cancel", () => { orderOpenIntent += 1; });
 document.addEventListener("keydown", event => { if (event.key === "Escape") orderOpenIntent += 1; });
 window.addEventListener("pagehide", () => { orderOpenIntent += 1; });
 let selectedProductId = "";
@@ -404,7 +405,7 @@ function hydrateProductDialog() {
 
 function openProduct(id) {
   if (!productIndex.has(id)) return;
-  orderOpenIntent += 1;
+  window.dispatchEvent(new Event("robys:order-open-cancel"));
   productIntentRevision += 1;
   selectedProductId = id;
   selectedProductQuantity = 1;
@@ -759,7 +760,8 @@ searchInput.addEventListener("input", () => {
 });
 
 async function openMenuCart() {
-  const requestedOrderIntent = ++orderOpenIntent;
+  window.dispatchEvent(new Event("robys:order-open-cancel"));
+  const requestedOrderIntent = orderOpenIntent;
   cartTrigger.setAttribute("aria-busy", "true");
   try {
     await ensureMenuOrder();

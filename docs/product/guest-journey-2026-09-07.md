@@ -49,7 +49,7 @@ Baseline: main `e3edcf13de323c3adb80c9c96465f1dd0425eee0`. Reused shared-order w
 
 `Complete guest journey` CI captures 12 actual-input paths (TR/EN/RU × 2/3 guests × 320/390 px), screenshots of the order/barista states, repeated-click/reload behaviour, menu continuation, global search, declined additions and runtime errors. The report binds the checkout commit and tested runtime digests. Existing shared-order, responsive, security, integrity and takeaway checks remain required; no passing screenshots or CI results are claimed before those runs finish.
 
-Local browser preview was blocked by the environment's automatic permission review. Local source/domain checks are distinct from pending CI browser evidence and from a public deployment. Production verification must re-check the published bytes and a real guest path after release.
+Candidate CI has now passed all 12 guest paths and 24 pairing configurations. The [verification note](../qa/guest-journey-verification-2026-09-07.md) records exact commits, archives, screenshots, repaired failures and limits. Local browser preview was blocked by automatic environment permission review; the browser evidence is from CI. Candidate evidence remains distinct from final-commit checks and public deployment. Production verification must re-check the published bytes and a real guest path after release.
 
 ## Product measurements
 
