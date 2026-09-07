@@ -17,14 +17,14 @@ const runtimeHashes = Object.fromEntries(publicFiles.map(file => {
   return [file, actual];
 }));
 const trackedChanges = execFileSync('git', ['diff', runtimeParent, '--name-only'], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-if (trackedChanges.some(file => !file.startsWith('scripts/') && !file.startsWith('.github/') && file !== '.qa-dock-order-launcher.js')) {
+if (trackedChanges.some(file => !file.startsWith('scripts/') && !file.startsWith('.github/'))) {
   throw new Error(`Unexpected tracked changes outside diagnostic scope: ${trackedChanges.join(', ')}`);
 }
 const original = readFileSync('scripts/takeaway-browser-contract.mjs', 'utf8');
 if (hash(original) !== hash(parentBytes('scripts/takeaway-browser-contract.mjs'))) throw new Error('Original release helper changed');
 const bodies = {
   baseline: parentBytes('order-launcher.js'),
-  'batched-dock': readFileSync('.qa-dock-order-launcher.js')
+  'batched-dock': readFileSync('scripts/fixtures/guest-startup-dock-order-launcher.js')
 };
 if (hash(bodies.baseline) === hash(bodies['batched-dock'])) throw new Error('Candidate fixture is identical to baseline');
 const temporary = mkdtempSync(path.join(process.cwd(), '.startup-dock-'));
