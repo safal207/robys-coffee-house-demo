@@ -54,6 +54,7 @@ const budgets: Readonly<Record<string, { minMinor?: number; maxMinor: number }>>
   "250": { maxMinor: 25_000 },
   "400": { minMinor: 25_001, maxMinor: 40_000 },
   "600": { minMinor: 40_001, maxMinor: 60_000 },
+  "1200": { maxMinor: 120_000 },
   open: { maxMinor: 60_000 }
 };
 

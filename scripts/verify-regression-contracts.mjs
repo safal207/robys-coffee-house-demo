@@ -153,7 +153,7 @@ const exactRevisionPredicate = stripJavaScriptComments(exactRevisionMatch?.group
 assert(Boolean(exactRevisionPredicate), "FEATURED-001", "Service Worker must define the requiresExactRevision predicate before its guarded cache branch");
 assert(/url\.pathname\.endsWith\(\s*["']\/brand-photo-logo\.css["']\s*\)/.test(exactRevisionPredicate), "FEATURED-001", "requiresExactRevision must directly include the shared UX stylesheet pathname predicate");
 assert(featuredRuntime.includes("FEATURED_PRODUCTS.map"), "FEATURED-001", "Typed runtime must render from one product source");
-assert(featuredRuntime.includes('card.classList.add("is-error")'), "FEATURED-001", "Typed runtime must handle image failures");
+assert(featuredSource.includes('card.classList.add("is-error")') && /\b[\w$]+\.classList\.add\("is-error"\)/.test(featuredRuntime), "FEATURED-001", "Typed source and emitted runtime must handle image failures");
 assert(featuredRuntime.includes("MutationObserver"), "FEATURED-001", "Typed runtime must keep localized accessibility labels in sync");
 assert(featuredRuntime.includes("IntersectionObserver"), "FEATURED-001", "Typed runtime must use IntersectionObserver as its primary dock signal");
 assert(featuredSource.includes('window.addEventListener("scroll"'), "FEATURED-001", "Typed runtime must include a passive scroll fallback for iOS momentum scrolling");

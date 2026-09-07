@@ -60,13 +60,17 @@ try {
   assert(html.includes('src="cart-v2.js'));
   assert(html.includes('href="cart.css'));
   assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
-  assert(source.includes("MutationObserver"));
+  assert(source.includes('window.addEventListener("robys:choice-state"'));
+  assert(source.includes("const flow = currentFlow"));
+  assert(source.includes("linesFromChoice(cart, partySize)"));
+  assert(source.includes("order.addMany(linesFromChoice(cart, partySize))"));
   assert(source.includes("robys-smart-choice-order.v1"));
-  assert(source.includes("https://wa.me/?text="));
+  assert(source.includes("robys:order-open"));
+  assert(!source.includes("https://wa.me/?text="), "Selection must lead to the whole order, not share an incomplete selection");
   assert(!source.includes("innerHTML"));
   assert(!source.includes("fetch("));
   assert(!source.includes(".style."));
-  console.log("✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and honest WhatsApp handoff verified.");
+  console.log("✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable legacy payload and shared order review verified.");
 } finally {
   await rm(temp, { recursive: true, force: true });
 }

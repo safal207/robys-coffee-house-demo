@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-341-unified-order-document-captures-20260906",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/34010630519",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "summary": "Visible unified order and measured hero/footer clearance requested by the owner. Document-flow capture replaces locator-induced overlay composition for menu preview, visit and pairing. The 19 exact remaining comparisons are inspected: 12 page-height reservations, four hero compositions, two initial-viewport order overlays and one fractional raster-origin shift with identical relative geometry/content/styles. Ordinary action evidence is separate; no global threshold or new mask is introduced. This is not maintainer approval or release authorization.",
+      "reviewNote": "docs/qa/visual-order-review-2026-09-06.md",
+      "sourceHead": "da88f49b2d608dcb46220af1a32a779c5c3cbe69",
+      "baselineHead": "a2fbce66f716b1b99e924239d5dd118cf37c5eef",
+      "evidenceRun": 34010630519,
+      "evidenceArtifact": 9982410137,
+      "evidenceSha256": "4510c94f06e190ad831767ae39fe686db68b1a53991affa0e6252cea59c8b40e",
+      "reachabilityEvidence": {
+        "sourceHead": "2d6eb39fc823c3a1f7c7dc24bb9a44a086532576",
+        "run": 34010976613,
+        "artifact": 9982461876,
+        "sha256": "ba43a678af871a997539f9c4ee78ce9e0abacae51610b9135399eb32833af623"
+      },
+      "contentBindings": {
+        "integrity-manifest.json": "d5feaf184e3dcc3b92f9f904b589bd96116d7d15",
+        "index.html": "64364f18198bf5058de08ad1c44a2f81c560c798",
+        "menu.html": "b448f9bee18ff8257550bd20da47733de48aa206",
+        "discover.html": "ab1a0347252fe7de57c482511bcd98ee3fa4b976",
+        "smart-choice/index.html": "58e6bb0e1d29d0d2509bcae3949dd7cd1e70d749",
+        "app.js": "d085000f22542436b160e4bbb1bd527b3d41713e",
+        "menu-app.js": "9803485e13cefe70c1caa2168a9c20bc67311b33",
+        "order-launcher.js": "6d816ef9bfd0ef22adc066ff412fbad9065ba8de",
+        "order-shell.js": "b361ac1a44d3372e292d114b8ffc219601e4ca35",
+        "order-store.js": "e7209b948c1ea0405b777190a7c6507a607eac6f",
+        "order-shell.css": "6fb1cf18991ab9d4d0abc87c7e578c29534bace8",
+        "conversion.js": "171cfc2906183d167159146302169c7869f28a0b",
+        "social-offer.js": "aa3c7015196def41883a8a3f2ad3a0b1194ee48e",
+        "featured-gallery.js": "7ec4b7021d03d284c3f761875b57a889d9cee69c",
+        "sw.js": "1443f597cee7db7248e4aa72590ec81bb5179b6a",
+        "src/i18n.ts": "cd56a552d64af2b89724c4d3798c94ef37ae3560",
+        "src/menu-app.js": "d9e76dbff8f263d7d33c1238e09b6106e8c3e638",
+        "src/order-dock.ts": "8acec489b4b947b78bf8c3c68299f2ef97903d1f",
+        "src/order-launcher.ts": "24219a41e104f629af72bbfd33328ae3b9df324c",
+        "src/order-shell.ts": "0f4ae6b96c4d20d909ef29d396774274b0b441de",
+        "src/order-store.ts": "2e50c294db6951cd49f7954608323fd17d347ae9",
+        "src/smart-choice/page.ts": "ff271970d88981278c2ac0ac24b02b7619e8ab69",
+        "src/smart-choice/cart.ts": "c2a102966f3c837839f35ea1af5a360e06508fea",
+        "scripts/build.mjs": "b3522c4711618c68a6ccd0f214e4ee338e985041",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "983684e0e7a25bb0b1f41cc7e73e3fec73af532c",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/test-menu-share-capture.mjs": "c7ab8ea2692a984c0cea846217298501e3e35f40",
+        "scripts/order-visual-reachability.mjs": "d8acf0b35593a7c43aabb1f987d825cae6a9df70",
+        "scripts/order-hero-regression.mjs": "adee32992967ea2e79869f6a2ab2a443beccf04a",
+        ".github/workflows/visual-regression.yml": "8c717cd591293d11b29d92c54e9f8a21998361f3",
+        ".github/workflows/unified-order-regression.yml": "ecc06d90a0e5a66ec140c1bc045e084dc73d351f",
+        "qa/evidence/pr-341-visual-summary.json": "dd1e852553ef0926c45d2445a794b2075e6779de"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8138 vs 320x8234"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11681 vs 320x11777"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2735 vs 320x2831"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x640 vs 360x713"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "totalPixels": 88560,
+          "maxDiffPixelRatio": 0.04033423667570009
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8565 vs 390x8661"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x11436 vs 390x11532"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2782 vs 390x2878"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "totalPixels": 390000,
+          "maxDiffPixelRatio": 0.14640512820512822
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7577 vs 768x7673"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13217 vs 768x13313"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x2749 vs 768x2845"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "totalPixels": 843024,
+          "maxDiffPixelRatio": 0.029489077416538556
+        },
+        {
+          "capture": "hero",
+          "viewport": "laptop-1366",
+          "totalPixels": 1049088,
+          "maxDiffPixelRatio": 0.07176900317227916
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6997 vs 1440x7093"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x9109 vs 1440x9205"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x2513 vs 1440x2609"
+        },
+        {
+          "capture": "hero",
+          "viewport": "desktop-1440",
+          "totalPixels": 1584000,
+          "maxDiffPixelRatio": 0.048047348484848484
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "desktop-1440",
+          "totalPixels": 801220,
+          "maxDiffPixelRatio": 0.02057237712488455
+        }
+      ]
+    }
+  ]
+}

@@ -27,7 +27,7 @@ const cartLinesRoot = document.querySelector("#menu-cart-lines");
 const cartEmpty = document.querySelector("#menu-cart-empty");
 const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
 
-const CART_STORAGE_KEY = "robys-menu-order.v1";
+
 const MAX_ITEM_QUANTITY = 99;
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
@@ -124,40 +124,57 @@ function buildProductIndex() {
 
 const productIndex = buildProductIndex();
 
-function readCart() {
-  try {
-    const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
-    if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
-    const validLines = parsed.lines.filter((line) => (
-      productIndex.has(line?.id) &&
-      Number.isInteger(line.quantity) &&
-      line.quantity > 0 &&
-      line.quantity <= MAX_ITEM_QUANTITY
-    ));
-    return new Map(validLines.map((line) => [line.id, line.quantity]));
-  } catch {
-    return new Map();
-  }
+// Browsing an empty menu needs the catalogue, not the recommendation/order engine.
+// Existing records hydrate before the menu renders; first order intent loads the
+// same versioned module as the shared drawer. No timer or benchmark detection.
+let order = null;
+let orderRuntime = null;
+let orderLoad = null;
+let addingSelectedProduct = false;
+let productIntentRevision = 0;
+productDialog.addEventListener("cancel", () => { productIntentRevision += 1; });
+productDialog.addEventListener("close", () => { productIntentRevision += 1; });
+function resolveOrderProduct(id) {
+  return orderRuntime ? orderRuntime.resolveOrderProduct(id) : productIndex.get(id);
 }
+function hasStoredOrder() {
+  try {
+    const storage = window.sessionStorage;
+    return ["robys:coffee-house:order.v2", "robys-menu-order.v1", "robys-smart-choice-cart.v1"]
+      .some(key => storage.getItem(key) !== null);
+  } catch { return false; }
+}
+function orderUnavailable() {
+  announceCart({
+    tr: "Sepet yüklenemedi. Seçiminiz değiştirilmedi. Bağlantınızı kontrol edip sayfayı yenileyin.",
+    en: "The order could not load. Your selection was not changed. Check your connection and reload.",
+    ru: "Не удалось загрузить заказ. Ваш выбор не изменён. Проверьте связь и обновите страницу."
+  }[language]);
+}
+function ensureMenuOrder() {
+  if (order) return Promise.resolve(order);
+  orderLoad ??= import("./order-store.js").then(runtime => {
+    orderRuntime = runtime;
+    order = runtime.order;
+    cart = readCart();
+    order.subscribe(() => { cart = readCart(); renderCart(); });
+    renderCart();
+    window.dispatchEvent(new Event("robys:order-load"));
+    return order;
+  }).catch(error => { orderLoad = null; throw error; });
+  return orderLoad;
+}
+window.addEventListener("robys:order-ready", () => { void ensureMenuOrder().catch(orderUnavailable); });
 
+function readCart() { return order ? new Map(order.get().lines.map(line => [line.id, line.quantity])) : new Map(); }
 let cart = readCart();
-
-function saveCart() {
-  try {
-    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      lines: Array.from(cart, ([id, quantity]) => ({ id, quantity }))
-    }));
-  } catch {
-    // The order calculator still works when session persistence is unavailable.
-  }
-}
+function saveCart() { if (!order) throw new Error("Order is not ready"); order.replace(Array.from(cart, ([id, quantity]) => ({ id, quantity }))); }
 
 function cartSummary() {
   let quantity = 0;
   let total = 0;
   cart.forEach((lineQuantity, id) => {
-    const product = productIndex.get(id);
+    const product = resolveOrderProduct(id);
     if (!product) return;
     quantity += lineQuantity;
     total += product.item.price * lineQuantity;
@@ -180,7 +197,7 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
   else cart.set(id, normalized);
   saveCart();
   renderCart(focusControl ? { id, control: focusControl } : null);
-  const product = productIndex.get(id);
+  const product = resolveOrderProduct(id);
   if (shouldAnnounce && product) {
     const copy = menuCopy[language];
     const name = localized(product.item.name);
@@ -204,12 +221,12 @@ function announceCart(message) {
 
 function syncMenuCartState() {
   menuRoot.querySelectorAll("[data-product-id]").forEach((row) => {
-    const quantity = cart.get(row.dataset.productId) ?? 0;
+    const quantity = Array.from(cart).filter(([id]) => id.split("|")[0] === row.dataset.productId).reduce((sum, [, count]) => sum + count, 0);
     const media = row.querySelector(".full-menu-item-media");
     row.classList.toggle("is-in-cart", quantity > 0);
     if (!media) return;
     media.dataset.cartQuantity = String(quantity);
-    const product = productIndex.get(row.dataset.productId);
+    const product = resolveOrderProduct(row.dataset.productId);
     if (product) media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(product.item.name)}${quantity ? ` · ${menuCopy[language].cart}: ${quantity}` : ""}`);
   });
 }
@@ -232,7 +249,7 @@ function renderCart(focusTarget = null) {
   cartEmpty.hidden = cart.size > 0;
 
   cart.forEach((lineQuantity, id) => {
-    const product = productIndex.get(id);
+    const product = resolveOrderProduct(id);
     if (!product) return;
     const name = localized(product.item.name);
     const line = document.createElement("article");
@@ -305,6 +322,7 @@ function openDialog(dialog) {
 }
 
 function closeDialog(dialog) {
+  if (dialog === productDialog) productIntentRevision += 1;
   const isFallback = dialog.classList.contains("menu-dialog--fallback");
   if (!isFallback && typeof dialog.close === "function" && dialog.hasAttribute("open")) dialog.close();
   else dialog.removeAttribute("open");
@@ -350,7 +368,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 function updateProductQuantity() {
-  const product = productIndex.get(selectedProductId);
+  const product = resolveOrderProduct(selectedProductId);
   if (!product) return;
   const copy = menuCopy[language];
   const currentQuantity = cart.get(selectedProductId) ?? 0;
@@ -361,14 +379,14 @@ function updateProductQuantity() {
   productQuantityOutput.textContent = String(selectedProductQuantity);
   productDecrease.disabled = availableQuantity === 0 || selectedProductQuantity <= 1;
   productIncrease.disabled = availableQuantity === 0 || selectedProductQuantity >= availableQuantity;
-  addToCartButton.disabled = availableQuantity === 0;
+  addToCartButton.disabled = addingSelectedProduct || availableQuantity === 0;
   addToCartButton.textContent = availableQuantity === 0
     ? copy.maxQuantity
     : `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
 }
 
 function hydrateProductDialog() {
-  const product = productIndex.get(selectedProductId);
+  const product = resolveOrderProduct(selectedProductId);
   if (!product) return;
   productDialogImage.src = product.image;
   productDialogImage.alt = localized(product.item.imageAlt ?? product.item.name);
@@ -383,28 +401,49 @@ function hydrateProductDialog() {
 
 function openProduct(id) {
   if (!productIndex.has(id)) return;
+  productIntentRevision += 1;
   selectedProductId = id;
   selectedProductQuantity = 1;
   hydrateProductDialog();
   openDialog(productDialog);
+  void ensureMenuOrder().then(() => { if (productDialog.open) hydrateProductDialog(); }).catch(() => {});
 }
 
-function addSelectedProduct() {
-  const product = productIndex.get(selectedProductId);
-  if (!product) return;
-  const currentQuantity = cart.get(selectedProductId) ?? 0;
-  const copy = menuCopy[language];
-  const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
-  if (addedQuantity <= 0) {
-    announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
-    updateProductQuantity();
-    return;
+async function addSelectedProduct() {
+  if (addingSelectedProduct) return;
+  addingSelectedProduct = true;
+  const requestedProductId = selectedProductId;
+  const requestedIntent = productIntentRevision;
+  const requestedQuantity = selectedProductQuantity;
+  addToCartButton.disabled = true;
+  addToCartButton.setAttribute("aria-busy", "true");
+  try {
+    await ensureMenuOrder();
+    // Closing/switching the product while loading cancels that pending action.
+    if (!productDialog.hasAttribute("open") || selectedProductId !== requestedProductId || productIntentRevision !== requestedIntent) return;
+    selectedProductQuantity = requestedQuantity;
+    const product = resolveOrderProduct(selectedProductId);
+    if (!product) return;
+    const currentQuantity = cart.get(selectedProductId) ?? 0;
+    const copy = menuCopy[language];
+    const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
+    if (addedQuantity <= 0) {
+      announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
+      updateProductQuantity();
+      return;
+    }
+    setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
+    announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
+    closeDialog(productDialog);
+    window.dispatchEvent(new Event("robys:order-added"));
+    cartTrigger.classList.add("is-emphasized");
+    window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
+  } catch { orderUnavailable(); }
+  finally {
+    addingSelectedProduct = false;
+    addToCartButton.removeAttribute("aria-busy");
+    if (productDialog.hasAttribute("open")) updateProductQuantity();
   }
-  setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
-  announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
-  closeDialog(productDialog);
-  cartTrigger.classList.add("is-emphasized");
-  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
 }
 
 function createItem(item, { priority = false, categoryId } = {}) {
@@ -502,9 +541,10 @@ function matchesSearch(category) {
   return normalize(haystack).includes(query);
 }
 
-function filteredItems(items) {
+function filteredItems(items, category) {
   if (!searchTerm) return items;
   const query = normalize(searchTerm);
+  if (category && normalize(Object.values(category.name).join(" ")).includes(query)) return items;
   return items.filter((item) => {
     const haystack = [
       ...Object.values(item.name),
@@ -545,7 +585,7 @@ function createCategory(category) {
   section.append(header);
 
   if (category.items) {
-    const items = filteredItems(category.items);
+    const items = filteredItems(category.items, category);
     if (!items.length) return null;
     const list = document.createElement("div");
     list.className = "full-menu-list";
@@ -557,7 +597,7 @@ function createCategory(category) {
   } else {
     let renderedGroups = 0;
     category.groups.forEach((group) => {
-      const items = filteredItems(group.items);
+      const items = filteredItems(group.items, category);
       if (!items.length) return;
       section.append(createGroup({ ...group, items }, category.id));
       renderedGroups += 1;
@@ -618,11 +658,12 @@ function renderCategoryNav(focusId = null) {
     button.dataset.category = option.id;
     if (option.id === focusId) focusButton = button;
     button.textContent = option.label;
-    const active = option.id === activeCategory;
+    const active = searchTerm.trim() ? option.id === "all" : option.id === activeCategory;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
       activeCategory = option.id;
+      searchTerm = "";searchInput.value = "";
       syncCategoryHash(option.id);
       renderCategoryNav(option.id);
       renderMenu();
@@ -638,7 +679,7 @@ function renderCategoryNav(focusId = null) {
 function renderMenu() {
   menuRoot.replaceChildren();
   const categories = menuCategories.filter((category) => {
-    const matchesCategory = activeCategory === "all" || activeCategory === category.id;
+    const matchesCategory = Boolean(searchTerm.trim()) || activeCategory === "all" || activeCategory === category.id;
     return matchesCategory && matchesSearch(category);
   });
 
@@ -708,13 +749,20 @@ languageButtons.forEach((button) => {
 
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value;
+  renderCategoryNav();
   renderMenu();
 });
 
-cartTrigger.addEventListener("click", () => {
-  renderCart();
-  openDialog(cartDialog);
-});
+async function openMenuCart() {
+  cartTrigger.setAttribute("aria-busy", "true");
+  try {
+    await ensureMenuOrder();
+    await import("./order-shell.js");
+    window.dispatchEvent(new Event("robys:order-open"));
+  } catch { orderUnavailable(); }
+  finally { cartTrigger.removeAttribute("aria-busy"); }
+}
+cartTrigger.addEventListener("click", () => { void openMenuCart(); });
 
 function isAndroidWebView() {
   const userAgent = navigator.userAgent || "";
@@ -783,16 +831,22 @@ document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
   });
 });
 
-document.querySelector("#current-year").textContent = String(new Date().getFullYear());
-translateStaticPage();
-renderCategoryNav();
-renderMenu();
-initializeMenuScrollMetrics();
-
-if (language !== "tr") void loadMenuActions();
-
-if (activeCategory !== "all") {
-  window.requestAnimationFrame(() => {
+async function initializeMenuPage() {
+  const requestedOrder = new URLSearchParams(window.location.search).get("order") === "open";
+  if (hasStoredOrder() || requestedOrder) {
+    cartTrigger.setAttribute("aria-busy", "true");
+    try { await ensureMenuOrder(); } catch { orderUnavailable(); }
+    finally { cartTrigger.removeAttribute("aria-busy"); }
+  }
+  document.querySelector("#current-year").textContent = String(new Date().getFullYear());
+  translateStaticPage();
+  renderCategoryNav();
+  renderMenu();
+  initializeMenuScrollMetrics();
+  if (language !== "tr") void loadMenuActions();
+  if (activeCategory !== "all") window.requestAnimationFrame(() => {
     document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
   });
+  if (requestedOrder && order) await openMenuCart();
 }
+void initializeMenuPage();

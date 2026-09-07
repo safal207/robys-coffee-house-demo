@@ -3,7 +3,7 @@ import {
   type PartySize,
   type SmartChoiceIntent,
   type SmartChoiceLanguage
-} from "./catalog.js";
+} from "@robys/order";
 import {
   recommendSmartChoice,
   type RankedRecommendation,
@@ -11,7 +11,7 @@ import {
   type RecommendationResult,
   type RequestedTaste,
   type RequestedTemperature
-} from "./engine.js";
+} from "@robys/order";
 
 type LocalizedText = Record<SmartChoiceLanguage, string>;
 type Screen = "welcome" | "question" | "results" | "selected";
@@ -26,6 +26,7 @@ interface FlowState {
   answers: Answers;
   locale: SmartChoiceLanguage;
   selectedCandidateId?: string;
+  selectionId?: string;
 }
 
 interface QuestionOption {
@@ -62,7 +63,7 @@ const copy = {
     footerNote: "Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.",
     eyebrow: "ROBY'S SMART CHOICE",
     welcomeTitle: "Bugünkü Roby's anınızı birlikte seçelim.",
-    welcomeLead: "Beş kısa seçim yapın. Size bütçenize ve isteğinize uyan doğrulanmış bir Roby's seçimi gösterelim.",
+    welcomeLead: "Ne istediğinizi ve kaç kişi olduğunuzu söyleyin. İçeriği ve toplamı birlikte seçelim.",
     start: "Seçime başla",
     openMenu: "Tam menüyü aç",
     trustFast: "Yaklaşık 30–45 saniye",
@@ -79,12 +80,12 @@ const copy = {
     best: "En iyi eşleşme",
     economy: "Daha ekonomik",
     premium: "Premium alternatif",
-    choose: "Bunu seç",
+    choose: "Düzenle ve ekle",
     changeAnswers: "Cevapları değiştir",
     premiumWarning: "Bu alternatif seçtiğiniz bütçenin biraz üzerindedir ve açıkça premium olarak işaretlenmiştir.",
-    selectedEyebrow: "SEÇİM KAYDEDİLDİ",
+    selectedEyebrow: "SEÇİMİNİZ",
     selectedTitle: "Güzel seçim.",
-    selectedNote: "Bu seçim yalnızca bu tarayıcı oturumunda saklandı. Kafeye, kasaya veya ödeme sistemine henüz sipariş gönderilmedi.",
+    selectedNote: "Porsiyonları ve toplamı kontrol edip seçiminizi sepetinize ekleyin.",
     chooseAnother: "Başka bir seçim yap",
     noMatchEyebrow: "TAM EŞLEŞME YOK",
     noMatchTitle: "Bu tercihlerle doğrulanmış bir seçim bulamadık.",
@@ -101,7 +102,7 @@ const copy = {
     footerNote: "Smart Choice is a selection assistant. No order or payment is submitted on this screen.",
     eyebrow: "ROBY'S SMART CHOICE",
     welcomeTitle: "Let’s find your Roby's moment today.",
-    welcomeLead: "Make five quick choices and get a verified Roby's menu choice that fits your preferences and budget.",
+    welcomeLead: "Tell us what you feel like and how many people are joining. See the portions and total before adding.",
     start: "Start choosing",
     openMenu: "Open full menu",
     trustFast: "About 30–45 seconds",
@@ -118,12 +119,12 @@ const copy = {
     best: "Best match",
     economy: "Lower price",
     premium: "Premium alternative",
-    choose: "Choose this",
+    choose: "Configure and add",
     changeAnswers: "Change answers",
     premiumWarning: "This alternative is slightly above your chosen budget and is clearly marked as premium.",
-    selectedEyebrow: "CHOICE SAVED",
+    selectedEyebrow: "YOUR SELECTION",
     selectedTitle: "Lovely choice.",
-    selectedNote: "This choice is stored only for this browser session. No order has been sent to the café, POS, or payment system.",
+    selectedNote: "Check the portions and total, then add this selection to My order.",
     chooseAnother: "Choose another",
     noMatchEyebrow: "NO EXACT MATCH",
     noMatchTitle: "We could not find a confirmed menu choice for all these preferences.",
@@ -140,7 +141,7 @@ const copy = {
     footerNote: "Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.",
     eyebrow: "ROBY'S SMART CHOICE",
     welcomeTitle: "Давайте найдём ваш момент Roby's сегодня.",
-    welcomeLead: "Сделайте пять коротких выборов — и получите подтверждённую позицию или сочетание Roby's под ваши предпочтения и бюджет.",
+    welcomeLead: "Скажите, чего хочется и сколько вас. Подберём порции на всех и сразу покажем общую сумму.",
     start: "Начать выбор",
     openMenu: "Открыть полное меню",
     trustFast: "Около 30–45 секунд",
@@ -157,12 +158,12 @@ const copy = {
     best: "Лучшее совпадение",
     economy: "Экономнее",
     premium: "Премиальный вариант",
-    choose: "Выбрать",
+    choose: "Настроить и добавить",
     changeAnswers: "Изменить ответы",
     premiumWarning: "Этот вариант немного превышает выбранный бюджет и явно отмечен как премиальный.",
-    selectedEyebrow: "ВЫБОР СОХРАНЁН",
+    selectedEyebrow: "ВАШ ВЫБОР",
     selectedTitle: "Отличный выбор.",
-    selectedNote: "Выбор сохранён только в этой сессии браузера. Заказ ещё не отправлен в кафе, кассу или платёжную систему.",
+    selectedNote: "Проверьте количество и сумму. Затем добавьте выбранное в «Мой заказ».",
     chooseAnother: "Выбрать другое",
     noMatchEyebrow: "ТОЧНОГО СОВПАДЕНИЯ НЕТ",
     noMatchTitle: "Мы не нашли подтверждённый вариант под все эти условия.",
@@ -220,22 +221,23 @@ const questions: readonly QuestionDefinition[] = [
   {
     id: "partySize",
     title: { tr: "Kaç kişisiniz?", en: "How many people?", ru: "На сколько человек?" },
-    help: { tr: "Bu cevap porsiyon uyumunu etkiler, fiyatı gizlice değiştirmez.", en: "This affects fit only and never changes the price secretly.", ru: "Ответ влияет на соответствие, но не меняет цену скрытно." },
+    help: { tr: "Herkese aynı başlangıç seçimini hazırlayalım. Sepette miktarı değiştirebilir, menüden farklı ürünler ekleyebilirsiniz.", en: "Start with the same choice for everyone. Adjust quantities in your order or add different items from the menu.", ru: "Начнём с одинакового выбора для каждого. В заказе можно изменить количество или добавить из меню что-то другое." },
     options: [
       { value: "one", label: { tr: "Bir kişi", en: "One", ru: "Один" } },
       { value: "two", label: { tr: "İki kişi", en: "Two", ru: "Двое" } },
-      { value: "family", label: { tr: "Aile", en: "Family", ru: "Семья" } }
+      { value: "three", label: { tr: "Üç kişi", en: "Three", ru: "Трое" } },
+      { value: "four", label: { tr: "Dört kişi", en: "Four", ru: "Четверо" } }
     ]
   },
   {
     id: "budgetKey",
-    title: { tr: "Bütçeniz hangi aralıkta?", en: "What budget feels right?", ru: "Какой бюджет комфортен?" },
-    help: { tr: "Normal öneri sınırı aşmaz. Daha pahalı seçenek yalnızca premium olarak gösterilebilir.", en: "The main recommendation stays within this limit. A higher option can only appear as clearly marked premium.", ru: "Основная рекомендация не превысит лимит. Более дорогой вариант появится только с явной пометкой premium." },
+    title: { tr: "Hepiniz için toplam bütçe?", en: "What is the total budget for everyone?", ru: "Какой бюджет на всех?" },
+    help: { tr: "Bu seçimdeki tüm porsiyonların toplamı. Önceden ekledikleriniz ve isteğe bağlı eklemeler ayrıdır.", en: "The total for all portions in this selection. Items already in your order and optional extras are separate.", ru: "Общая сумма этого подбора на всех гостей. Ранее выбранные позиции и необязательные дополнения считаются отдельно." },
     options: [
       { value: "250", label: { tr: "250 ₺'ye kadar", en: "Up to 250 ₺", ru: "До 250 ₺" } },
       { value: "400", label: { tr: "400 ₺'ye kadar", en: "Up to 400 ₺", ru: "До 400 ₺" } },
       { value: "600", label: { tr: "600 ₺'ye kadar", en: "Up to 600 ₺", ru: "До 600 ₺" } },
-      { value: "open", label: { tr: "Esnek", en: "Flexible", ru: "Гибкий" }, note: { tr: "600 ₺'ye kadar seçenekleri göster", en: "Show options up to 600 ₺", ru: "Показывать варианты до 600 ₺" } }
+      { value: "1200", label: { tr: "1.200 ₺'ye kadar", en: "Up to 1,200 ₺", ru: "До 1 200 ₺" } }
     ]
   }
 ];
@@ -244,6 +246,7 @@ const budgets: Readonly<Record<string, BudgetDefinition>> = {
   "250": { maxMinor: 25_000 },
   "400": { minMinor: 25_001, maxMinor: 40_000 },
   "600": { minMinor: 40_001, maxMinor: 60_000 },
+  "1200": { maxMinor: 120_000 },
   open: { maxMinor: 60_000 }
 };
 
@@ -307,6 +310,7 @@ const itemIndex = new Map(SMART_CHOICE_CATALOG.items.map((item) => [item.id, ite
 let state = loadState();
 let currentResult: RecommendationResult | null = null;
 let suppressHistory = false;
+let flowStorageAvailable = true;
 
 function isLanguage(value: unknown): value is SmartChoiceLanguage {
   return value === "tr" || value === "en" || value === "ru";
@@ -335,44 +339,44 @@ function isScreen(value: unknown): value is Screen {
   return value === "welcome" || value === "question" || value === "results" || value === "selected";
 }
 
-function loadState(): FlowState {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return initialState();
-    const parsed = JSON.parse(raw) as Partial<FlowState>;
-    const questionIndex =
-      typeof parsed.questionIndex === "number" && Number.isInteger(parsed.questionIndex)
-        ? parsed.questionIndex
-        : -1;
-    if (
-      parsed.version !== STATE_VERSION ||
-      !isScreen(parsed.screen) ||
-      !isLanguage(parsed.locale) ||
-      questionIndex < 0 ||
-      questionIndex >= questions.length ||
-      !parsed.answers ||
-      typeof parsed.answers !== "object"
-    ) {
-      return initialState();
-    }
-    return {
-      version: STATE_VERSION,
-      screen: parsed.screen,
-      questionIndex,
-      answers: parsed.answers,
-      locale: parsed.locale,
-      ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {})
-    };
-  } catch {
-    return initialState();
+function normalizeFlow(value: unknown): FlowState {
+  if (!value || typeof value !== "object") return initialState();
+  const parsed = value as Partial<FlowState>;
+  if (parsed.version !== STATE_VERSION || !isLanguage(parsed.locale) || !isScreen(parsed.screen)) return initialState();
+  const answers: Answers = {};
+  for (const question of questions) {
+    const answer = parsed.answers?.[question.id];
+    if (question.options.some(option => option.value === answer)) answers[question.id] = answer;
   }
+  const requested = Number.isInteger(parsed.questionIndex) ? Number(parsed.questionIndex) : 0;
+  const firstMissing = questions.findIndex(question => !answers[question.id]);
+  let screen = parsed.screen;
+  let questionIndex = Math.max(0, Math.min(questions.length - 1, requested));
+  if (screen === "question" && firstMissing >= 0) questionIndex = Math.min(questionIndex, firstMissing);
+  if ((screen === "results" || screen === "selected") && firstMissing >= 0) { screen = "question"; questionIndex = firstMissing; }
+  return { version: STATE_VERSION, screen, questionIndex, answers, locale: parsed.locale,
+    ...(typeof parsed.selectedCandidateId === "string" ? {selectedCandidateId: parsed.selectedCandidateId} : {}),
+    ...(typeof parsed.selectionId === "string" && parsed.selectionId.length < 100 ? {selectionId: parsed.selectionId} : {}) };
 }
+function loadState(): FlowState {
+  try { return normalizeFlow(JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null")); }
+  catch { return initialState(); }
+}
+function routeState(hash: string, previous: FlowState): FlowState {
+  if (hash === "#smart-choice-main") return previous;
+  if (hash === "#welcome") return { ...previous, screen: "welcome", questionIndex: 0, selectedCandidateId: undefined };
+  const step = /^#step-([1-5])$/.exec(hash);
+  if (step) return normalizeFlow({ ...previous, screen: "question", questionIndex: Number(step[1]) - 1 });
+  if (hash === "#results" || hash === "#selected") return normalizeFlow({ ...previous, screen: hash.slice(1) });
+  return hash ? { ...previous, screen: "welcome", questionIndex: 0 } : previous;
+}
+function publishFlow(): void { window.dispatchEvent(new CustomEvent("robys:choice-state", { detail: { ...state, answers: { ...state.answers } } })); }
 
 function saveState(): void {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    // Session persistence is optional; the flow remains usable without storage.
+    flowStorageAvailable = false;
   }
 }
 
@@ -390,7 +394,7 @@ function setState(next: FlowState, historyMode: "push" | "replace" | "none" = "p
   if (!suppressHistory && historyMode !== "none") {
     const hash = state.screen === "question" ? `#step-${state.questionIndex + 1}` : `#${state.screen}`;
     const method = historyMode === "replace" ? "replaceState" : "pushState";
-    window.history[method]({ smartChoice: true }, "", hash);
+    try { window.history[method]({ smartChoice: true, flow: state }, "", hash); } catch { /* Keep the flow usable if history is unavailable. */ }
   }
   render();
 }
@@ -541,6 +545,7 @@ function renderQuestion(): HTMLElement {
     button.addEventListener("click", () => {
       state = { ...state, answers: { ...state.answers, [question.id]: option.value } };
       saveState();
+      try { window.history.replaceState({ smartChoice: true, flow: state }, "", window.location.href); } catch { /* Optional browser history. */ }
       optionButtons.forEach((entry) => entry.setAttribute("aria-pressed", String(entry === button)));
       continueButton.disabled = false;
     });
@@ -602,9 +607,9 @@ function renderRecommendationCard(recommendation: RankedRecommendation): HTMLEle
 
   const components = createElement("ul", "component-list");
   components.setAttribute("aria-label", copy[state.locale].components);
-  for (const itemId of recommendation.componentItemIds) {
-    const item = itemIndex.get(itemId);
-    if (item) components.append(createElement("li", "", item.name[state.locale]));
+  for (const component of recommendation.components) {
+    const item = itemIndex.get(component.itemId);
+    if (item) components.append(createElement("li", "", `${component.quantity} × ${item.name[state.locale]}`));
   }
   card.append(components);
 
@@ -621,7 +626,7 @@ function renderRecommendationCard(recommendation: RankedRecommendation): HTMLEle
   }
 
   const choose = createButton(copy[state.locale].choose, "primary-button", () => {
-    setState({ ...state, screen: "selected", selectedCandidateId: recommendation.candidateId });
+    setState({ ...state, screen: "selected", selectedCandidateId: recommendation.candidateId, selectionId: Array.from(crypto.getRandomValues(new Uint32Array(4))).join("-") });
   });
   card.append(choose, createElement("p", "safe-note", copy[state.locale].noOrder));
   return card;
@@ -630,7 +635,7 @@ function renderRecommendationCard(recommendation: RankedRecommendation): HTMLEle
 function uniqueRecommendations(result: RecommendationResult): RankedRecommendation[] {
   const seen = new Set<string>();
   return [result.top, result.economy, result.premium].filter((entry): entry is RankedRecommendation => {
-    if (!entry || seen.has(entry.candidateId)) return false;
+    if (!entry || entry.premiumStretch || seen.has(entry.candidateId)) return false;
     seen.add(entry.candidateId);
     return true;
   });
@@ -639,15 +644,22 @@ function uniqueRecommendations(result: RecommendationResult): RankedRecommendati
 function renderNoMatch(result: RecommendationResult): HTMLElement {
   const card = createElement("section", "no-match-card");
   const invalid = result.status === "invalid-input";
+  const onlyBudget = result.trace.candidates.filter(candidate => candidate.budgetClass === "premium-stretch" || (candidate.rejectedBy.length > 0 && candidate.rejectedBy.every(reason => reason.code === "hard.budget-stretch-limit")));
+  const minimum = onlyBudget.length ? Math.min(...onlyBudget.map(candidate => candidate.priceMinor)) : null;
+  const budgetCopy = {
+    tr: `Bu tercihlerle tüm porsiyonlar en az ${minimum ? formatPrice(minimum) : ''}. Bütçeyi değiştirebilir veya menüden kendiniz seçebilirsiniz.`,
+    en: `Matching portions for everyone start at ${minimum ? formatPrice(minimum) : ''}. Change the budget or choose items from the menu.`,
+    ru: `С такими предпочтениями порции на всех стоят от ${minimum ? formatPrice(minimum) : ''}. Можно изменить бюджет или собрать свой вариант в меню.`
+  };
   card.append(
     createElement("p", "eyebrow", invalid ? copy[state.locale].eyebrow : copy[state.locale].noMatchEyebrow),
     createElement("h1", "result-title", invalid ? copy[state.locale].invalidTitle : copy[state.locale].noMatchTitle),
-    createElement("p", "no-match-copy", invalid ? copy[state.locale].invalidCopy : copy[state.locale].noMatchCopy)
+    createElement("p", "no-match-copy", invalid ? copy[state.locale].invalidCopy : minimum ? budgetCopy[state.locale] : copy[state.locale].noMatchCopy)
   );
   const actions = createElement("div", "actions");
   actions.append(
     createButton(copy[state.locale].changeAnswers, "primary-button", () => {
-      setState({ ...state, screen: "question", questionIndex: Math.max(0, questions.length - 1) });
+      setState({ ...state, screen: "question", questionIndex: minimum ? questions.length - 1 : 0 });
     }),
     createActionLink(copy[state.locale].openMenu, "../menu.html")
   );
@@ -707,7 +719,7 @@ function renderSelected(): HTMLElement {
 
   const actions = createElement("div", "actions");
   actions.append(
-    createButton(copy[state.locale].chooseAnother, "primary-button", () => {
+    createButton(copy[state.locale].chooseAnother, "secondary-button", () => {
       setState({ ...state, screen: "results", selectedCandidateId: undefined });
     }),
     createActionLink(copy[state.locale].openMenu, "../menu.html")
@@ -753,7 +765,12 @@ function render(): void {
   else if (state.screen === "question") content = renderQuestion();
   else if (state.screen === "results") content = renderResults();
   else content = renderSelected();
+  if (!flowStorageAvailable) {
+    const storageCopy = {tr:"Bu sayfadan ayrılınca seçim kaybolabilir; kayıt kullanılamıyor.",en:"Storage is unavailable; leaving this page may lose your selection.",ru:"Сохранение недоступно: при уходе со страницы выбор может потеряться."};
+    content.append(createElement("p", "safe-note", storageCopy[state.locale]));
+  }
   app.replaceChildren(content);
+  publishFlow();
   window.requestAnimationFrame(() => {
     const heading = content.querySelector<HTMLElement>("h1");
     if (!heading) return;
@@ -774,11 +791,18 @@ document.querySelectorAll<HTMLButtonElement>(".lang-button").forEach((button) =>
   });
 });
 
-window.addEventListener("popstate", () => {
+window.addEventListener("popstate", (event) => {
   suppressHistory = true;
-  goBack();
+  state = routeState(window.location.hash, event.state?.flow ? normalizeFlow(event.state.flow) : state);
+  currentResult = null;
+  saveState(); render();
   suppressHistory = false;
 });
-
-window.history.replaceState({ smartChoice: true }, "", window.location.hash || "#welcome");
-render();
+window.addEventListener("hashchange", () => {
+  if (window.location.hash === "#smart-choice-main") return;
+  state = routeState(window.location.hash, state); currentResult = null;
+  setState(state, "replace");
+});
+window.addEventListener("robys:choice-request", publishFlow);
+state = routeState(window.location.hash, state);
+setState(state, "replace");

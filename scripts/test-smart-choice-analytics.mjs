@@ -49,7 +49,7 @@ try {
   append({ name: "smart_choice_viewed", fromState: "S0", toState: "S0" }, 0);
   assert.equal(
     events[0].configVersion,
-    "smart-choice-recommendation-config.v0.2.0",
+    "smart-choice-recommendation-config.v0.3.0",
     "analytics must distinguish the party-size hard-constraint decision logic"
   );
   append({ name: "smart_choice_started", fromState: "S0", toState: "S1" }, 1_000);

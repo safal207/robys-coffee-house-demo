@@ -124,6 +124,7 @@ requireText(packageJson.scripts.check, "verify:smart-choice", "npm run check mus
 requireText(packageJson.scripts.check, "test:smart-choice", "npm run check must include test:smart-choice");
 
 const jsFiles = [
+  "order-store.js", "order-shell.js",
   "smart-choice/app-v2.js",
   "smart-choice/cart-v2.js",
   "smart-choice/experiments-v2.js",
@@ -132,6 +133,7 @@ const jsFiles = [
   "smart-choice/release-qa.js"
 ];
 const cssFiles = [
+  "order-shell.css",
   "smart-choice/style.css",
   "smart-choice/cart.css",
   "smart-choice/decision-trace.css",
@@ -163,7 +165,7 @@ for (const legacyFile of ["app.js", "cart.js", "experiments.js", "analytics.js",
 }
 
 for (const file of [...jsFiles, ...cssFiles.filter((file) => !file.endsWith("brand-v4.css"))]) {
-  const fileName = path.basename(file);
+  const fileName = file.startsWith("smart-choice/") ? path.basename(file) : `../${file}`;
   const revision = html.match(new RegExp(`(?:src|href)="${fileName.replaceAll(".", "\\.")}\\?v=([a-f0-9]{12})"`))?.[1];
   assert.ok(revision, `${file} lacks a content revision in Smart Choice HTML`);
   requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);

@@ -1,240 +1,125 @@
-/* Pairing poster cards — Roby's Favorites style */
-.full-menu-panel--featured {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 12% 0%, rgba(212, 175, 92, .18), transparent 36%),
-    linear-gradient(180deg, #fffaf3 0%, #fffdf9 100%);
+/* Pairings follow Discover's image-first cards: complete photo, then readable copy. */
+#pairing-offers.full-menu-panel--featured {
+  grid-column: 1 / -1;
+  background: var(--paper, #fffaf3);
 }
-
-.full-menu-panel--featured .full-menu-panel-header {
-  border-bottom-color: rgba(47, 39, 37, .08);
-}
-
-.full-menu-panel--featured .full-menu-list {
+#pairing-offers .full-menu-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
+  gap: 20px;
+  max-width: 920px;
+  margin-inline: auto;
 }
-
-.full-menu-item--visual.pairing-poster-card {
-  position: relative;
-  display: block;
+#pairing-offers .full-menu-item--visual {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  gap: 0;
   overflow: hidden;
+  border: 1px solid rgba(47, 39, 37, .12);
+  border-radius: 22px;
+  background: #fffaf3;
+  box-shadow: 0 10px 28px rgba(36, 28, 27, .06);
+  transform: none;
+}
+#pairing-offers .full-menu-item-media {
+  display: block;
+  position: relative;
+  align-self: start;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
-  background: #1c1411;
-  border: 1px solid rgba(181, 147, 73, .38);
-  border-radius: 24px;
-  box-shadow: 0 22px 54px rgba(36, 28, 27, .16);
-  isolation: isolate;
+  height: auto;
+  max-height: 320px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #f3e7d6;
 }
-
-.full-menu-item--visual.pairing-poster-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 28px 66px rgba(36, 28, 27, .22);
-}
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media {
-  min-height: 0;
-  aspect-ratio: 1 / 1;
-  background: #201714;
-}
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media::before,
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media::after {
-  content: "";
+/* Higher specificity than the old per-set crop rules, including hover. */
+#pairing-offers .full-menu-item--visual .full-menu-item-media img {
+  display: block;
   position: absolute;
   inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media::before {
-  background:
-    linear-gradient(90deg, rgba(16, 10, 7, .18) 0%, rgba(16, 10, 7, .48) 54%, rgba(16, 10, 7, .18) 100%),
-    linear-gradient(180deg, rgba(16, 10, 7, .58) 0%, rgba(16, 10, 7, .06) 38%, rgba(16, 10, 7, .74) 100%);
-}
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media::after {
-  inset: 10px;
-  border: 1px solid rgba(255, 232, 171, .42);
-  border-radius: 18px;
-}
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: saturate(1.04) contrast(1.02);
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  filter: none;
+  transition: none;
 }
-
-.full-menu-item--visual.pairing-poster-card .full-menu-item-details {
-  display: none;
-}
-
-.pairing-poster-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 18px;
-  padding: clamp(18px, 3.6vw, 34px);
-  color: #fffaf3;
-  pointer-events: none;
-}
-
-.pairing-poster-kicker {
-  justify-self: center;
-  padding: 8px 16px;
-  color: #271c12;
-  background: linear-gradient(135deg, #f8df8d, #b88a2b);
-  border: 1px solid rgba(255, 244, 200, .7);
-  border-radius: 999px;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, .24);
-  font: 800 .68rem/1 var(--sans);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
-.pairing-poster-title {
-  align-self: center;
-  max-width: 78%;
-  text-shadow: 0 8px 26px rgba(0, 0, 0, .45);
-}
-
-.pairing-poster-title-main,
-.pairing-poster-title-accent {
-  display: block;
-  font-family: var(--display);
-  font-weight: 500;
-  line-height: .88;
-}
-
-.pairing-poster-title-main {
-  font-size: clamp(2.7rem, 7vw, 6.4rem);
-}
-
-.pairing-poster-title-plus {
-  display: block;
-  margin: .12em 0 .05em;
-  color: #efd06d;
-  font: 400 clamp(2.2rem, 5vw, 4.8rem)/.7 var(--display);
-}
-
-.pairing-poster-title-accent {
-  color: #d9d08f;
-  font-size: clamp(2.15rem, 5.8vw, 5.4rem);
-}
-
-.pairing-poster-price {
-  position: absolute;
-  right: clamp(18px, 4vw, 42px);
-  top: 46%;
-  display: grid;
-  width: clamp(92px, 16vw, 150px);
-  height: clamp(92px, 16vw, 150px);
-  place-items: center;
-  color: #fff7da;
-  background: rgba(22, 15, 11, .58);
-  border: 2px solid rgba(239, 208, 109, .92);
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(255, 245, 204, .25), 0 16px 34px rgba(0, 0, 0, .28);
-  transform: translateY(-50%);
-  text-align: center;
-}
-
-.pairing-poster-price strong {
-  display: block;
-  font: 600 clamp(1.75rem, 4vw, 3.25rem)/.9 var(--display);
-}
-
-.pairing-poster-old-price {
-  display: block;
-  margin-top: 8px;
-  color: rgba(255, 247, 218, .76);
-  font: 700 .86rem/1 var(--sans);
-  text-decoration: line-through;
-}
-
-.pairing-poster-bottom {
+#pairing-offers .full-menu-item-media::before,
+#pairing-offers .full-menu-item-media::after,
+#pairing-offers .pairing-poster-overlay { display: none; }
+#pairing-offers .full-menu-item-details {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 232, 171, .28);
-  color: #f6d873;
-  font: 800 clamp(.62rem, 1.6vw, .78rem)/1.2 var(--sans);
-  letter-spacing: .12em;
-  text-align: center;
-  text-transform: uppercase;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: clamp(16px, 2.4vw, 24px);
+}
+#pairing-offers .full-menu-item-copy strong {
+  font: 600 clamp(1.05rem, 2vw, 1.35rem)/1.3 var(--sans);
+  overflow-wrap: anywhere;
+}
+#pairing-offers .full-menu-item-copy p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+#pairing-offers .full-menu-price {
+  margin-top: auto;
+  color: var(--ruby);
+  font: 750 1.2rem/1.3 var(--sans);
+  font-variant-numeric: tabular-nums;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#pairing-offers .pairing-view-set {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  color: #fff;
+  background: #462920;
+  border: 1px solid #462920;
+  border-radius: 16px;
+  font: 700 .86rem/1.4 var(--sans);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background .16s ease, transform .16s ease;
+}
+#pairing-offers .pairing-view-set:active { transform: translateY(1px); }
+#pairing-offers :is(.pairing-view-set,.full-menu-item-media):focus-visible {
+  outline: 3px solid var(--ruby);
+  outline-offset: -4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  #pairing-offers .pairing-view-set:hover { background: #60382a; }
+}
+@media (max-width: 760px) {
+  #pairing-offers .full-menu-list { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #pairing-offers .pairing-view-set { transition: none; }
+  #pairing-offers .pairing-view-set:active { transform: none; }
 }
 
-.pairing-poster-bottom span + span::before {
-  content: "|";
-  margin-right: 14px;
-  color: rgba(255, 232, 171, .48);
+/* Keep genuine selected quantities; remove only decorative poster overlays. */
+#pairing-offers .full-menu-item.is-in-cart .full-menu-item-media::after {
+  display: grid;
 }
-
-@media (max-width: 680px) {
-  .full-menu-panel--featured {
-    padding-inline: 16px;
-  }
-
-  .full-menu-item--visual.pairing-poster-card {
-    border-radius: 22px;
-  }
-
-  .full-menu-item--visual.pairing-poster-card .full-menu-item-media {
-    aspect-ratio: 1 / 1.12;
-  }
-
-  .pairing-poster-overlay {
-    padding: 18px;
-  }
-
-  .pairing-poster-title {
-    max-width: 82%;
-  }
-
-  .pairing-poster-price {
-    right: 16px;
-    top: 58%;
-    width: 96px;
-    height: 96px;
-  }
-
-  .pairing-poster-price strong {
-    font-size: 2rem;
-  }
-
-  .pairing-poster-bottom {
-    flex-wrap: wrap;
-    gap: 7px 10px;
-    padding-top: 10px;
-    font-size: .58rem;
-    letter-spacing: .1em;
-  }
-
-  .pairing-poster-bottom span + span::before {
-    margin-right: 10px;
-  }
-}
-
-@media (max-width: 390px) {
-  .pairing-poster-title-main {
-    font-size: 2.45rem;
-  }
-
-  .pairing-poster-title-accent {
-    font-size: 2rem;
-  }
-
-  .pairing-poster-price {
-    width: 86px;
-    height: 86px;
-  }
-
-  .pairing-poster-price strong {
-    font-size: 1.75rem;
-  }
+/* A later shared rule uses cover. Set photographs remain complete in the dialog. */
+#menu-product-dialog .menu-product-visual img[src*="products/sets-v1/"] {
+  object-fit: contain;
+  object-position: center;
+  transform: none;
 }

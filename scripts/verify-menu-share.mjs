@@ -47,8 +47,15 @@ assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must l
 assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
 assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
-assert(menuPageRuntime.includes('from "./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu runtime must use the cache-new catalog pathname");
-assert(serviceWorker.includes('"./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu catalog is not precached at its runtime revision");
+// Bind emitted imports to catalogue bytes. Several specifiers may share the same cached ESM URL.
+const catalogRevision = createHash("sha256").update(readFileSync("menu-catalog.js")).digest("hex").slice(0, 12);
+const catalogUrl = `./menu-catalog.js?v=${catalogRevision}`;
+for (const file of ["menu-app.js", "order-store.js"]) {
+  const emitted = readFileSync(file, "utf8");
+  const imports = [...new Set([...emitted.matchAll(/\bfrom\s*["'](\.\/menu-catalog\.js[^"']*)["']/g)].map(match => match[1]))];
+  assert(imports.length === 1 && imports[0] === catalogUrl, `${file} must import one content-bound catalogue URL`);
+}
+assert(serviceWorker.includes(JSON.stringify(catalogUrl)), "Menu catalog is not precached at its runtime content revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-catalog.js")'), "Menu catalog is not exact-revision cached");
 assert(!serviceWorker.includes('"./menu-data.js"'), "Legacy unversioned menu catalog must not remain in the cache manifest");
 assert(serviceWorker.includes(`"./menu-premium.css?v=${premiumRevision}"`), "Premium menu stylesheet is not precached at its HTML revision");

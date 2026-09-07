@@ -10,7 +10,7 @@ export type SourceStatus = "confirmed" | "provisional" | "unavailable";
 export type AvailabilityStatus = "available" | "unavailable";
 export type DrinkTemperature = "hot" | "cold" | "not-applicable";
 export type TasteProfile = "sweet" | "neutral" | "savoury";
-export type PartySize = "one" | "two" | "family";
+export type PartySize = "one" | "two" | "three" | "four" | "family";
 export type SmartChoiceIntent = "coffee" | "breakfast" | "snack" | "dessert" | "refresh";
 
 export interface SmartChoiceItem {

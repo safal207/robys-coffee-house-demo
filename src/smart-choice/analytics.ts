@@ -82,13 +82,14 @@ const QUESTION_ANSWERS: Readonly<Record<QuestionId, readonly string[]>> = {
   intent: ["coffee", "breakfast", "snack", "dessert", "refresh"],
   temperature: ["hot", "cold", "any"],
   taste: ["sweet", "neutral", "any"],
-  partySize: ["one", "two", "family"],
-  budgetKey: ["250", "400", "600", "open"]
+  partySize: ["one", "two", "three", "four"],
+  budgetKey: ["250", "400", "600", "1200"]
 };
 const budgets: Readonly<Record<string, { minMinor?: number; maxMinor: number }>> = {
   "250": { maxMinor: 25_000 },
   "400": { minMinor: 25_001, maxMinor: 40_000 },
   "600": { minMinor: 40_001, maxMinor: 60_000 },
+  "1200": { maxMinor: 120_000 },
   open: { maxMinor: 60_000 }
 };
 const CODE_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/;
@@ -386,8 +387,8 @@ function handleBumpDecision(beforeFlow: FlowSnapshot, beforeCart: CartState | nu
   });
 }
 
-function handleHandoff(flow: FlowSnapshot): void {
-  const total = currentCartTotal(flow);
+function handleHandoff(flow: FlowSnapshot, sharedTotal?: number): void {
+  const total = sharedTotal ?? currentCartTotal(flow);
   if (!flow.selectedCandidateId || total === null || runtime.handoffStarted) return;
   emit({
     name: "order_handoff_started",
@@ -506,6 +507,10 @@ function start(): void {
   emitViewed();
   exposePublicApi();
   document.addEventListener("click", handleClick, { capture: true });
+  window.addEventListener("robys:order-handoff", event => {
+    const total = (event as CustomEvent<{totalMinor?: number}>).detail?.totalMinor;
+    if (Number.isSafeInteger(total) && Number(total) > 0) handleHandoff(safeFlow(), total);
+  });
   const app = document.querySelector("#smart-choice-app");
   if (app) new MutationObserver(inspectRenderedState).observe(app, { childList: true, subtree: true });
   inspectRenderedState();

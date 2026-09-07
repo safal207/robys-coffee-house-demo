@@ -1,0 +1,39 @@
+name: Complete guest journey
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: guest-journey-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  guest-journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check && npm run verify:security && git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Need to complete order and barista view
+        env:
+          GUEST_JOURNEY_RESULTS_DIR: .artifacts/guest-journey/flow
+        run: node scripts/guest-journey-browser.mjs
+      - name: Pairing contents, prices and explicit add actions
+        env:
+          PAIRING_EVIDENCE: .artifacts/guest-journey/pairings
+        run: node scripts/pairing-offers-regression.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: guest-journey-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/guest-journey/
+          retention-days: 14
+          if-no-files-found: error

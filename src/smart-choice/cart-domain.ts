@@ -56,6 +56,8 @@ export interface CartRuleSet {
 export interface CartState {
   version: 1;
   candidateId: string;
+  /** Complete base portions; absent in legacy carts means one. */
+  quantity?: number;
   catalogVersion: string;
   substitutionIds: readonly string[];
   upgradeIds: readonly string[];
@@ -389,6 +391,7 @@ export function reconcileCart(
     state: {
       version: 1,
       candidateId: raw.candidateId,
+      ...(raw.quantity !== undefined ? { quantity: raw.quantity } : {}),
       catalogVersion: catalog.version,
       substitutionIds: dedupedSubstitutions,
       upgradeIds: validUpgrades,
@@ -443,7 +446,9 @@ export function calculateCart(
 
   const quantities = new Map<string, number>();
   const notices: CartNotice[] = [...reconciled.notices];
-  let canHandoff = isEligible(combo);
+  const quantity = state.quantity ?? 1;
+  let canHandoff = isEligible(combo) && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99;
+  if (!canHandoff) notices.push({ code: "cart.invalid-quantity" });
 
   for (const component of combo.components) {
     const effectiveItemId = resolveReplacement(component.itemId, selectedSubstitutions);
@@ -453,12 +458,12 @@ export function calculateCart(
       notices.push({ code: "cart.required-item-unavailable", itemId: effectiveItemId });
       continue;
     }
-    quantities.set(effectiveItemId, (quantities.get(effectiveItemId) ?? 0) + component.quantity);
+    quantities.set(effectiveItemId, (quantities.get(effectiveItemId) ?? 0) + component.quantity * quantity);
   }
 
   const adjustments: CartAdjustment[] = [];
   for (const rule of selectedSubstitutions) {
-    adjustments.push({ kind: "substitution", ruleId: rule.id, deltaMinor: rule.priceDeltaMinor });
+    adjustments.push({ kind: "substitution", ruleId: rule.id, deltaMinor: rule.priceDeltaMinor * quantity });
   }
 
   for (const rule of selectedUpgrades) {
@@ -506,7 +511,7 @@ export function calculateCart(
   const bumpMinor = adjustments
     .filter((entry) => entry.kind === "bump")
     .reduce((sum, entry) => sum + entry.deltaMinor, 0);
-  const totalMinor = combo.priceMinor + substitutionMinor + upgradeMinor + bumpMinor;
+  const totalMinor = combo.priceMinor * quantity + substitutionMinor + upgradeMinor + bumpMinor;
 
   if (!Number.isInteger(totalMinor) || totalMinor <= 0) {
     canHandoff = false;
@@ -515,7 +520,7 @@ export function calculateCart(
 
   return {
     candidateId: state.candidateId,
-    baseComboMinor: combo.priceMinor,
+    baseComboMinor: combo.priceMinor * quantity,
     substitutionMinor,
     upgradeMinor,
     bumpMinor,

@@ -91,6 +91,8 @@ export interface RankedRecommendation {
   score: number;
   scoreBreakdown: readonly ScoreContribution[];
   componentItemIds: readonly string[];
+  quantity: number;
+  components: readonly { itemId: string; quantity: number }[];
   reasonCodes: readonly string[];
 }
 
@@ -130,6 +132,7 @@ export interface RecommendationResult {
 
 interface CandidateProfile {
   combo: SmartChoiceCombo;
+  quantity: number;
   items: readonly SmartChoiceItem[];
   temperatures: ReadonlySet<string>;
   tastes: ReadonlySet<string>;
@@ -143,17 +146,17 @@ interface ScoredCandidate {
   scoreBreakdown: readonly ScoreContribution[];
 }
 
-const ENGINE_VERSION = "smart-choice-engine.v0.1.0";
+const ENGINE_VERSION = "smart-choice-engine.v0.2.0";
 const INTENTS: readonly SmartChoiceIntent[] = ["coffee", "breakfast", "snack", "dessert", "refresh"];
 const TEMPERATURES: readonly RequestedTemperature[] = ["hot", "cold", "any"];
 const TASTES: readonly RequestedTaste[] = ["sweet", "neutral", "any"];
-const PARTY_SIZES: readonly PartySize[] = ["one", "two", "family"];
+const PARTY_SIZES: readonly PartySize[] = ["one", "two", "three", "four", "family"];
 const LANGUAGES: readonly SmartChoiceLanguage[] = ["tr", "en", "ru"];
 const TIMES: readonly TimeOfDay[] = ["morning", "day", "evening", "late"];
 const TEMPORAL_TAGS = new Set<string>(TIMES);
 
 export const DEFAULT_RECOMMENDATION_CONFIG: RecommendationConfig = {
-  version: "smart-choice-recommendation-config.v0.2.0",
+  version: "smart-choice-recommendation-config.v0.3.0",
   weights: {
     intent: 30,
     temperature: 15,
@@ -299,7 +302,7 @@ function assertConfig(config: RecommendationConfig): void {
   if (errors.length > 0) throw new Error(`[SMART-CHOICE-ENGINE-CONFIG] ${errors.join(" ")}`);
 }
 
-function buildCandidateProfile(combo: SmartChoiceCombo, itemIndex: ReadonlyMap<string, SmartChoiceItem>): {
+function buildCandidateProfile(combo: SmartChoiceCombo, itemIndex: ReadonlyMap<string, SmartChoiceItem>, quantity = 1): {
   profile: CandidateProfile | null;
   rejections: HardConstraintRejection[];
 } {
@@ -333,7 +336,7 @@ function buildCandidateProfile(combo: SmartChoiceCombo, itemIndex: ReadonlyMap<s
   }
 
   return {
-    profile: { combo, items, temperatures, tastes, tags },
+    profile: { combo, quantity, items, temperatures, tastes, tags },
     rejections
   };
 }
@@ -355,10 +358,10 @@ function evaluateHardConstraints(
   if (input.taste !== "any" && !tastes.has(input.taste)) {
     rejections.push({ code: "hard.taste-mismatch", detail: input.taste });
   }
-  if (!items.some((item) => item.partySizes.includes(input.partySize))) {
+  if (!items.some((item) => item.partySizes.includes(profile.quantity > 1 ? "one" : input.partySize))) {
     rejections.push({ code: "hard.party-size-mismatch", detail: input.partySize });
   }
-  if (combo.pricingMode === "menu-item" && input.partySize !== "one") {
+  if (combo.pricingMode === "menu-item" && input.partySize !== "one" && profile.quantity === 1) {
     rejections.push({ code: "hard.single-item-party-size-mismatch", detail: input.partySize });
   }
   if (!combo.name[input.locale]?.trim() || items.some((item) => !item.name[input.locale]?.trim())) {
@@ -423,8 +426,11 @@ function scoreCandidate(
   config: RecommendationConfig
 ): ScoredCandidate {
   const businessPriority = config.businessPriorityByCandidateId[profile.combo.id] ?? 0;
+  const hasFood = profile.items.some(item => item.sourceCategoryId === "food" || item.sourceCategoryId === "desserts");
+  // A drink need should start with the drink. An unrequested dessert remains an alternative.
+  const directNeed = (input.intent === "coffee" || input.intent === "refresh") && hasFood ? 60 : 100;
   const breakdown: ScoreContribution[] = [
-    contribution("intent", config.weights.intent, 100, `score.intent.${input.intent}`),
+    contribution("intent", config.weights.intent, directNeed, `score.intent.${input.intent}`),
     contribution(
       "temperature",
       config.weights.temperature,
@@ -446,7 +452,7 @@ function scoreCandidate(
     contribution(
       "partySize",
       config.weights.partySize,
-      partyRawScore(profile.items, input.partySize),
+      partyRawScore(profile.items, profile.quantity > 1 ? "one" : input.partySize),
       `score.party-size.${input.partySize}`
     ),
     contribution(
@@ -479,7 +485,7 @@ function economyComparator(left: ScoredCandidate, right: ScoredCandidate): numbe
   return left.combo.priceMinor - right.combo.priceMinor || right.score - left.score || left.combo.id.localeCompare(right.combo.id, "en");
 }
 
-function toRecommendation(candidate: ScoredCandidate, role: SelectionRole): RankedRecommendation {
+function toRecommendation(candidate: ScoredCandidate, role: SelectionRole, quantity = 1): RankedRecommendation {
   return {
     role,
     candidateId: candidate.combo.id,
@@ -491,6 +497,8 @@ function toRecommendation(candidate: ScoredCandidate, role: SelectionRole): Rank
     score: candidate.score,
     scoreBreakdown: candidate.scoreBreakdown,
     componentItemIds: candidate.combo.components.map((component) => component.itemId),
+    quantity,
+    components: candidate.combo.components.map(component => ({ ...component })),
     reasonCodes: candidate.scoreBreakdown.map((entry) => entry.reasonCode)
   };
 }
@@ -590,9 +598,15 @@ export function recommendSmartChoice(
   const regularCandidates: ScoredCandidate[] = [];
   const stretchCandidates: ScoredCandidate[] = [];
 
-  const combos = [...catalog.combos].sort((left, right) => left.id.localeCompare(right.id, "en"));
+  // A group repeats a complete portion for each guest; it never receives one unscaled item.
+  // Legacy "family" has no known count and retains the old no-match behavior.
+  const quantity = input.partySize === "four" ? 4 : input.partySize === "three" ? 3 : input.partySize === "two" ? 2 : 1;
+  const combos = catalog.combos.map(combo => ({ ...combo,
+    priceMinor: combo.priceMinor * quantity,
+    components: combo.components.map(component => ({ ...component, quantity: component.quantity * quantity }))
+  })).sort((left, right) => left.id.localeCompare(right.id, "en"));
   for (const combo of combos) {
-    const built = buildCandidateProfile(combo, itemIndex);
+    const built = buildCandidateProfile(combo, itemIndex, quantity);
     if (!built.profile) {
       traces.push({
         candidateId: combo.id,
@@ -651,9 +665,9 @@ export function recommendSmartChoice(
   const premiumCandidate = regularPremiumCandidate ?? (topCandidate ? stretchCandidates[0] : undefined);
   const bump = selectBump(topCandidate, input, catalog);
 
-  const top = topCandidate ? toRecommendation(topCandidate, "top") : null;
-  const economy = economyCandidate ? toRecommendation(economyCandidate, "economy") : null;
-  const premium = premiumCandidate ? toRecommendation(premiumCandidate, "premium") : null;
+  const top = topCandidate ? toRecommendation(topCandidate, "top", quantity) : null;
+  const economy = economyCandidate ? toRecommendation(economyCandidate, "economy", quantity) : null;
+  const premium = premiumCandidate ? toRecommendation(premiumCandidate, "premium", quantity) : null;
 
   return {
     status: top ? "ok" : "no-match",

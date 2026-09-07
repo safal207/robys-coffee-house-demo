@@ -43,7 +43,7 @@ const catalogUrl = `data:text/javascript;base64,${Buffer.from(catalogModule.outp
 const { SMART_CHOICE_CATALOG } = await import(catalogUrl);
 
 assert(
-  DEFAULT_RECOMMENDATION_CONFIG.version === "smart-choice-recommendation-config.v0.2.0",
+  DEFAULT_RECOMMENDATION_CONFIG.version === "smart-choice-recommendation-config.v0.3.0",
   "Party-size hard constraints must carry a new replayable recommendation-config version"
 );
 

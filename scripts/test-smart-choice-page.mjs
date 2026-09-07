@@ -29,7 +29,7 @@ assert(!/<script(?![^>]*src=)[^>]*>\s*[^<]/i.test(html), "Inline executable scri
 assert(!/<style\b/i.test(html), "Inline styles are not allowed");
 assert(!/unsafe-inline/.test(html), "CSP must not allow unsafe-inline");
 
-assert(source.includes('from "./engine.js"'), "Page source must import the Recommendation Engine");
+assert(source.includes('from "@robys/order"'), "Page source must import the shared Recommendation Engine");
 assert(source.includes("recommendSmartChoice"), "Page source must call recommendSmartChoice");
 assert(source.includes("sessionStorage"), "Session-scoped recovery is missing");
 assert(source.includes("window.addEventListener(\"popstate\""), "Browser back-button handler is missing");

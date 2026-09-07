@@ -79,9 +79,15 @@ const visualItemCount = menuCategories.reduce((total, category) => {
 assert.equal(visualItemCount, 63, "Every current menu item and pairing must remain available to the product dialog");
 
 for (const contract of [
-  'const CART_STORAGE_KEY = "robys-menu-order.v1"',
-  "sessionStorage.getItem(CART_STORAGE_KEY)",
-  "sessionStorage.setItem(CART_STORAGE_KEY",
+  'import("./order-store.js")',
+  "await ensureMenuOrder()",
+  "if (addingSelectedProduct) return",
+  "requestedProductId",
+  "requestedQuantity",
+  "hasStoredOrder()",
+  'new Event("robys:order-load")',
+  "order.get().lines",
+  "order.replace(",
   "media.addEventListener(\"click\", () => openProduct(id))",
   "total += product.item.price * lineQuantity",
   "product.item.price * selectedProductQuantity",
@@ -114,6 +120,18 @@ for (const contract of [
 }
 assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must follow the selected language locale");
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
+
+// The source and emitted bytes are verified together by readVerifiedMenuSource.
+// An empty menu must not eagerly load the cart engine; order intent must load
+// the exact generated module revision, never a second unversioned singleton.
+assert.doesNotMatch(runtime, /import\s+[^;\n]+\sfrom\s+["']\.\/order-store\.js/, "Order model must be demand-loaded");
+assert.equal(runtime.split('import("./order-store.js")').length - 1, 1, "Exactly one source order import is required");
+const generated = readFileSync("menu-app.js", "utf8");
+assert.match(generated, /import\("\.\/order-store\.js\?v=[a-f0-9]{12}"\)/, "Demand import must carry its content revision");
+assert.doesNotMatch(generated, /import\("\.\/order-store\.js"\)/, "No unversioned order singleton");
+assert.match(html, /src="order-launcher\.js\?v=[a-f0-9]{12}"/, "Empty menu uses the lightweight drawer entry");
+assert.doesNotMatch(html, /<script[^>]+src="order-shell\.js/, "Do not eagerly load the full drawer on an empty menu");
+
 assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an extra render-blocking request");
 
 for (const contract of [

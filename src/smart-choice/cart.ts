@@ -1,15 +1,16 @@
+import { order, linesFromChoice } from "@robys/order";
 import {
   SMART_CHOICE_CATALOG,
   type PartySize,
   type SmartChoiceIntent,
   type SmartChoiceLanguage
-} from "./catalog.js";
+} from "@robys/order";
 import {
   recommendSmartChoice,
   type RecommendationInput,
   type RequestedTaste,
   type RequestedTemperature
-} from "./engine.js";
+} from "@robys/order";
 import {
   buildStableOrderPayload,
   buildWhatsAppDraftMessage,
@@ -19,7 +20,7 @@ import {
   reconcileCart,
   stableSerializeOrderPayload,
   type CartState
-} from "./cart-domain.js";
+} from "@robys/order";
 import { CART_COPY } from "./cart-copy.js";
 
 interface FlowStateSnapshot {
@@ -29,6 +30,7 @@ interface FlowStateSnapshot {
   answers: Partial<Record<"intent" | "temperature" | "taste" | "partySize" | "budgetKey", string>>;
   locale: SmartChoiceLanguage;
   selectedCandidateId?: string;
+  selectionId?: string;
 }
 
 const FLOW_STORAGE_KEY = "robys-smart-choice-session.v1";
@@ -41,6 +43,7 @@ const budgets: Readonly<Record<string, { minMinor?: number; maxMinor: number }>>
   "250": { maxMinor: 25_000 },
   "400": { minMinor: 25_001, maxMinor: 40_000 },
   "600": { minMinor: 40_001, maxMinor: 60_000 },
+  "1200": { maxMinor: 120_000 },
   open: { maxMinor: 60_000 }
 };
 
@@ -108,10 +111,15 @@ function loadCart(candidateId: string): CartState {
     : createInitialCart(candidateId);
 }
 
+let currentFlow: FlowStateSnapshot | null = null;
+const storedReceipts = readJson<unknown>("robys:choice-added.v1");
+const addedSelections = new Set<string>((Array.isArray(storedReceipts) ? storedReceipts : typeof storedReceipts === "string" ? [storedReceipts] : [])
+  .filter((value): value is string => typeof value === "string" && value.length < 1000).slice(-50));
+
 function mountCart(): void {
   const selectedCard = document.querySelector<HTMLElement>(".selected-card");
   if (!selectedCard || selectedCard.dataset.cartMounted === "true") return;
-  const flow = readJson<FlowStateSnapshot>(FLOW_STORAGE_KEY);
+  const flow = currentFlow;
   if (!flow || flow.screen !== "selected" || !flow.selectedCandidateId || !recommendationFor(flow)) return;
   const combo = comboIndex.get(flow.selectedCandidateId);
   if (!combo) return;
@@ -121,13 +129,18 @@ function mountCart(): void {
   root.setAttribute("aria-labelledby", "cart-builder-title");
   selectedCard.insertBefore(root, selectedCard.querySelector(".actions"));
   const partySize = flow.answers.partySize as PartySize;
-  let cart = reconcileCart(loadCart(combo.id), partySize).state;
+  const recommendation = recommendationFor(flow)!;
+  let cart = reconcileCart({ ...loadCart(combo.id), quantity: recommendation.quantity, upgradeIds: [] }, partySize).state;
+  if (readJson<boolean>("robys:order-addon-declined.v1")) cart = { ...cart, bumpDecision: "declined" };
+  const receipt = flow.selectionId ?? JSON.stringify([flow.answers, combo.id]);
+  let added = addedSelections.has(receipt);
 
   const render = (): void => {
     const language = flow.locale;
     const text = CART_COPY[language];
     cart = reconcileCart(cart, partySize).state;
     const calculation = calculateCart(cart, partySize);
+    root.classList.toggle("cart-builder--added", added);
     const payload = buildStableOrderPayload(cart, calculation, rules);
     writeJson(CART_STORAGE_KEY, cart);
     writeJson(ORDER_STORAGE_KEY, JSON.parse(stableSerializeOrderPayload(payload)));
@@ -167,7 +180,7 @@ function mountCart(): void {
     }
 
     for (const rule of rules.upgrades.filter(
-      (entry) => entry.comboId === combo.id && entry.partySizes.includes(partySize)
+      (entry) => entry.comboId === combo.id && (cart.quantity ?? 1) === 1 && entry.partySizes.includes(partySize)
     )) {
       const active = cart.upgradeIds.includes(rule.id);
       const button = create("button", "cart-choice");
@@ -205,10 +218,13 @@ function mountCart(): void {
       accept.addEventListener("click", () => {
         cart = { ...cart, bumpDecision: "accepted" };
         render();
+        root.querySelector<HTMLButtonElement>("#smart-choice-add-order")?.focus();
       });
       decline.addEventListener("click", () => {
         cart = { ...cart, bumpDecision: "declined" };
+        writeJson("robys:order-addon-declined.v1", true);
         render();
+        root.querySelector<HTMLButtonElement>("#smart-choice-add-order")?.focus();
       });
       actions.append(accept, decline);
       card.append(actions);
@@ -225,7 +241,9 @@ function mountCart(): void {
       );
       remove.addEventListener("click", () => {
         cart = { ...cart, bumpDecision: "declined" };
+        writeJson("robys:order-addon-declined.v1", true);
         render();
+        root.querySelector<HTMLButtonElement>("#smart-choice-add-order")?.focus();
       });
       root.append(remove);
     }
@@ -243,24 +261,31 @@ function mountCart(): void {
       create("span", "", text.total),
       create("strong", "", formatPrice(calculation.totalMinor, language))
     );
-    const handoff = create("a", "primary-button cart-handoff", text.handoff);
-    handoff.href = `https://wa.me/?text=${encodeURIComponent(buildWhatsAppDraftMessage(payload, language))}`;
-    handoff.target = "_blank";
-    handoff.rel = "noopener noreferrer";
-    handoff.setAttribute("aria-disabled", String(!calculation.canHandoff));
-    if (!calculation.canHandoff) {
-      handoff.removeAttribute("href");
-      handoff.removeAttribute("target");
+    const addText = {tr:"Ortak sepete ekle",en:"Add to my order",ru:"В общий заказ"};
+    const addedText = {tr:"Ortak sepete eklendi",en:"Added to your order",ru:"Добавлено в общий заказ"};
+    const failedText = {tr:"Eklenemedi; miktarı kontrol edin.",en:"Could not add; check the quantity.",ru:"Не удалось добавить; проверьте количество."};
+    const addShared = create("button", "primary-button", addText[language]);
+    addShared.id = "smart-choice-add-order"; addShared.type = "button"; addShared.disabled = !calculation.canHandoff;
+    const addStatus = create("p", "cart-notice");addStatus.setAttribute("role", "status");addStatus.setAttribute("aria-live", "polite");
+    const reviewText = {tr:"Sepetimi aç",en:"Review my order",ru:"Открыть мой заказ"};
+    if (added) addShared.textContent = reviewText[language];
+    addShared.addEventListener("click", () => {
+      if (added) { window.dispatchEvent(new Event("robys:order-open")); return; }
+      try {
+        order.addMany(linesFromChoice(cart, partySize));
+        added = true; addedSelections.add(receipt); writeJson("robys:choice-added.v1", [...addedSelections].slice(-50));
+        render();
+        window.dispatchEvent(new Event("robys:order-added"));
+        window.dispatchEvent(new Event("robys:order-open"));
+      } catch { addStatus.textContent = failedText[language]; }
+    });
+    footer.append(total, addShared);
+    root.append(addStatus, footer);
+    if (added) {
+      // A repeated tap or reload reviews the existing addition; a new selection gets a new receipt.
+      root.replaceChildren(create("p", "cart-notice", addedText[language]), addShared);
     }
-    footer.append(total, handoff);
-    root.append(footer, create("p", "cart-draft-note", text.draftNote));
 
-    const details = create("details", "cart-payload");
-    details.append(
-      create("summary", "", text.payload),
-      create("code", "", stableSerializeOrderPayload(payload))
-    );
-    root.append(details);
   };
 
   render();
@@ -269,7 +294,11 @@ function mountCart(): void {
 function start(): void {
   const app = document.querySelector("#smart-choice-app");
   if (!app) return;
-  new MutationObserver(mountCart).observe(app, { childList: true, subtree: true });
+  window.addEventListener("robys:choice-state", (event) => {
+    currentFlow = (event as CustomEvent<FlowStateSnapshot>).detail;
+    mountCart();
+  });
+  window.dispatchEvent(new Event("robys:choice-request"));
   mountCart();
 }
 
