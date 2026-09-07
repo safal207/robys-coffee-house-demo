@@ -110,8 +110,8 @@ The live site has not been deployed from this task.
 ## Keyboard dismissal review follow-up
 
 Codex reviewed head `69f10aab5853b2e19e0e9fe957e2725addc0504e` and found that
-Tab/Escape skipped the session marker. Accepted finding:
-https://github.com/safal207/robys-coffee-house-demo/pull/343#discussion_r3949681059.
+Tab/Escape skipped the session marker. Accepted
+[review finding](https://github.com/safal207/robys-coffee-house-demo/pull/343#discussion_r3949681059).
 
 Explicit keyboard dismissal now records the entry as seen before releasing the
 page. The next navigation in that tab uses the short warm variant. Generic
