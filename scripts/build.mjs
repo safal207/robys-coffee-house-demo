@@ -275,6 +275,8 @@ writeFileSync("menu.html", menuHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
 russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+const russianLandingStylesRevision = createHash("sha256").update(readFileSync("ru/coffee-gazipasa.css")).digest("hex").slice(0, 12);
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "coffee-gazipasa.css", russianLandingStylesRevision);
 writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");

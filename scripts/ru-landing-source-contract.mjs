@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync('ru/coffee-gazipasa.html','utf8');
+const css = readFileSync('ru/coffee-gazipasa.css','utf8');
+const hash = createHash('sha256').update(css).digest('hex').slice(0,12);
+assert(html.includes('<body class="ru-landing">'));
+assert(html.includes(`href="coffee-gazipasa.css?v=${hash}"`),'CSS revision must bind the actual bytes');
+assert(html.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
+assert(!/<script\b[^>]*\bsrc\s*=/i.test(html),'Static landing must not need a JS navigation controller');
+assert(!/\bon\w+\s*=\s*["']/i.test(html),'No inline event handlers');
+assert(html.includes('href="../menu.html"') && html.includes('href="#location"') && html.includes('href="#faq"'));
+const jsonLd=JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+assert(jsonLd['@graph'].some(node=>node['@type']==='FAQPage' && node.mainEntity.length===3));
+const config=JSON.parse(readFileSync('qa/visual-regression.json','utf8'));
+const captures=config.captures.filter(c=>c.path==='ru/coffee-gazipasa.html');
+assert.deepEqual(captures.map(c=>c.id),['ru-landing-full','ru-landing-hero','ru-landing-faq']);
+assert.equal(captures.reduce((n,c)=>n+c.viewports.length,0),12);
+assert.equal(config.pixelThreshold,0.12);
+assert.equal(config.defaultMaxDiffPixelRatio,0.003);
+assert(captures.every(c=>c.maxDiffPixelRatio <= (c.fullPage ? 0.004 : 0.003)));
+console.log('PASS: RU static navigation, asset revision, unchanged FAQ schema and 12 strict screenshot comparisons.');

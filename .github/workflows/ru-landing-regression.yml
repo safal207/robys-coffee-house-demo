@@ -1,0 +1,51 @@
+name: Russian landing regression
+
+on:
+  pull_request:
+    paths:
+      - 'ru/**'
+      - 'styles-v2.css'
+      - 'mobile.css'
+      - 'brand-photo-logo.css'
+      - 'src/brand/**'
+      - 'scripts/build.mjs'
+      - 'scripts/ru-landing-*.mjs'
+      - 'qa/visual-regression.json'
+      - 'package*.json'
+      - '.github/workflows/ru-landing-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm run verify:security
+      - run: node scripts/ru-landing-source-contract.mjs
+      - run: git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Verify visible navigation, focus, links and no-JavaScript reflow
+        env:
+          RU_LANDING_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/ru-landing-regression.mjs
+      - name: Preserve screenshots and measured results, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ru-landing-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/ru-landing/
+          include-hidden-files: true
+          if-no-files-found: error

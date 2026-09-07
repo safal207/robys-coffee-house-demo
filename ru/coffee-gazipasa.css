@@ -1,0 +1,122 @@
+/* Static Russian landing: visible navigation without a drawer or JavaScript.
+   Keep these overrides scoped; the main/menu/discover components are unchanged. */
+.ru-landing {
+  --ru-text-accent: #b4141b;
+  overflow-wrap: anywhere;
+}
+
+.ru-landing .site-header {
+  position: relative;
+  background: var(--dark);
+}
+
+.ru-landing .header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-block: 8px;
+}
+
+.ru-landing .main-nav {
+  position: static;
+  display: flex;
+  min-height: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: 600 .9rem/1.4 var(--sans);
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  transition: none;
+}
+
+.ru-landing .main-nav a {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+
+/* The header now participates in normal flow, including text zoom. */
+.ru-landing .hero,
+.ru-landing .hero-content {
+  min-height: 80svh;
+}
+
+.ru-landing .hero-content {
+  padding-block: clamp(32px, 6vw, 80px);
+}
+
+.ru-landing .hero .eyebrow,
+.ru-landing .hero-text {
+  margin-top: 0;
+}
+
+.ru-landing :is(#location, #faq) {
+  padding-block: clamp(32px, 5vw, 64px);
+}
+
+.ru-landing #faq {
+  border-top: 1px solid var(--line);
+}
+
+.ru-landing #faq h3:not(:first-of-type) {
+  margin-top: 32px;
+}
+
+.ru-landing footer {
+  padding-block: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.ru-landing :is(#location, #faq) .eyebrow {
+  color: var(--ru-text-accent);
+}
+
+.ru-landing :is(#location, #faq, footer) a {
+  color: var(--ru-text-accent);
+  text-decoration: underline;
+  text-decoration-thickness: .1em;
+  text-underline-offset: .18em;
+}
+
+.ru-landing a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}
+
+.ru-landing .skip-link {
+  top: 8px;
+  max-width: calc(100% - 32px);
+  transform: translateY(calc(-100% - 8px));
+}
+
+.ru-landing .skip-link:focus {
+  transform: none;
+}
+
+@media (max-width: 680px) {
+  .ru-landing .main-nav {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.ru-landing) {
+    scroll-behavior: auto;
+  }
+
+  .ru-landing .main-nav a {
+    transition: none;
+  }
+}
