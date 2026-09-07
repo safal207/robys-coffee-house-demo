@@ -1,0 +1,52 @@
+name: Telegram share integration preparation
+
+on:
+  push:
+    branches: [qa/telegram-share-integration-20260908]
+    paths: [.github/workflows/telegram-share-integration-prep.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          path: subject
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Prepare exact source and public dependency cache
+        working-directory: subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/telegram-prep"
+          test "$(git rev-parse HEAD)" = 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          test -z "$(git status --porcelain)"
+          if git config --local --get-regexp 'extraheader|credential|insteadof'; then
+            echo 'Refusing to export a checkout with credential configuration.' >&2
+            exit 1
+          fi
+          npm ci --no-audit --no-fund --cache "$RUNNER_TEMP/telegram-npm-cache" 2>&1 | tee "$RUNNER_TEMP/telegram-prep/npm-ci.log"
+          test -z "$(git status --porcelain)"
+          printf 'subject=%s\nnode=%s\nnpm=%s\n' "$(git rev-parse HEAD)" "$(node --version)" "$(npm --version)" > "$RUNNER_TEMP/telegram-prep/provenance.txt"
+          git ls-files -s >> "$RUNNER_TEMP/telegram-prep/provenance.txt"
+          tar --exclude='./node_modules' -czf "$RUNNER_TEMP/telegram-prep/checkout.tar.gz" .
+          tar -C "$RUNNER_TEMP/telegram-npm-cache" -czf "$RUNNER_TEMP/telegram-prep/npm-cache.tar.gz" _cacache
+          cd "$RUNNER_TEMP/telegram-prep"
+          sha256sum checkout.tar.gz npm-cache.tar.gz > SHA256SUMS.txt
+      - name: Upload preparation artifact, not a release
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: telegram-integration-prep-${{ github.run_id }}
+          path: ${{ runner.temp }}/telegram-prep/
+          retention-days: 7
+          if-no-files-found: error
