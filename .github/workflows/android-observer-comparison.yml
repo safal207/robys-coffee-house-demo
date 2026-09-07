@@ -1,0 +1,92 @@
+name: Android recording observer experiment
+
+on:
+  pull_request:
+    paths:
+      - "scripts/prepare-android-observer-probe.py"
+      - "scripts/test-android-observer-probe.py"
+      - ".github/workflows/android-observer-comparison.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-observer-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  observe:
+    if: github.event.pull_request.number == 342
+    name: Diagnostic ${{ matrix.mode }} ${{ matrix.trial }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [recorded, unrecorded]
+        trial: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          # One immutable subject for all four independent cold-provider runs.
+          ref: 07aa407d091f8d37264871eaa330dab6e849c884
+          path: subject
+          persist-credentials: false
+      - name: Prepare pinned subject and recording control
+        run: |
+          python3 scripts/test-android-observer-probe.py
+          python3 scripts/prepare-android-pinned-fixture.py --source subject --output "$RUNNER_TEMP/pinned-fixture"
+          python3 scripts/prepare-android-observer-probe.py "$RUNNER_TEMP/pinned-fixture" --mode "${{ matrix.mode }}"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - run: sdkmanager "platforms;android-36"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+      - name: Build diagnostic debug APK
+        run: |
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" :app:assembleDebug --stacktrace
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" --stop
+          free -h
+          nproc
+      - name: Cold launch with unchanged native deadlines
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: cd "$RUNNER_TEMP/pinned-fixture" && bash observer-probe.sh
+      - name: Verify source identity independently of native result
+        if: always()
+        run: python3 scripts/verify-android-pinned-evidence.py "$RUNNER_TEMP/pinned-fixture"
+      - name: Upload diagnostic evidence, never a visual gate waiver
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-observer-${{ matrix.mode }}-${{ matrix.trial }}-${{ github.event.pull_request.head.sha }}
+          path: |
+            ${{ runner.temp }}/pinned-fixture/android-native/build/visual-evidence/**
+            ${{ runner.temp }}/pinned-fixture/fixture-manifest.json
+            ${{ runner.temp }}/pinned-fixture/native-instrumentation.diff
+            ${{ runner.temp }}/pinned-fixture/pinned-evidence-summary.json
+            ${{ runner.temp }}/pinned-fixture/apk-inventory.json
+            ${{ runner.temp }}/pinned-fixture/observer-probe.*
+          if-no-files-found: error
+          retention-days: 14
