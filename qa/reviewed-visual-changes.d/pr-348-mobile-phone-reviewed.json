@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-348-mobile-phone-20260907",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/34162660472",
+      "reviewKind": "assistant-source-and-visual-inspection-not-human-attestation",
+      "summary": "Compact phone section, bounded mobile device and native TR slogan. Four full-page dimensions change with the intended section height. Five social-offer crops have identical recorded relative child geometry, text, fonts, colors and root dimensions; only fractional document Y changes. Crop rounding/rasterization is the evidence-supported explanation for these social differences. Exactly nine repeated differences are scoped to observed dimensions or pixel ceilings, with no extra tolerance. No global limits, masks, workflow or baseline edits. This record is not human approval or release authorization. A fresh comparison on the evidence commit remains required.",
+      "reviewNote": "docs/qa/mobile-phone-followup-2026-09-07.md",
+      "sourceHead": "b6f5d45e1ae327142cc38b3018d3e267bc27a4f8",
+      "baselineHead": "7799f80b5a6561beec57f2d98f8e8ca58e8c36fa",
+      "evidenceRun": 34162660472,
+      "evidenceArtifact": 10033199200,
+      "evidenceSha256": "1aa7b5241afde9caa3a8a0ec9dc6bdaa80dd6afcd9601d826e6efcdc80ee3c3e",
+      "contentBindings": {
+        ".github/workflows/guest-journey.yml": "ed23445f82b8db07b11e96447ad04a87159f7e11",
+        ".github/workflows/unified-order-regression.yml": "ecc06d90a0e5a66ec140c1bc045e084dc73d351f",
+        ".github/workflows/visual-regression.yml": "080fce79459ecb437ec086e29cba938859f618dc",
+        "android-app.css": "5754456b3e6b6729a0209cf8f6f8c4a03c787b69",
+        "app.js": "d085000f22542436b160e4bbb1bd527b3d41713e",
+        "bootstrap-v2.js": "f6055695db1366eec17fc31fa271c8123fb0621a",
+        "conversion.js": "7f9a8a6b9575577d4f26815f950aeeb6a5d66b01",
+        "discover.html": "798bbbd9a1b8c10ab99f94718c4604f8ebb0e2a7",
+        "featured-gallery.js": "7ec4b7021d03d284c3f761875b57a889d9cee69c",
+        "index.html": "cfbe67bc284bc920794b1b2baf15d7a604e5d429",
+        "integrity-manifest.json": "c6b89bf126b9616a7bcb3c26821a7b871b081b67",
+        "menu-app.js": "592389d9f022557027d6fea8141e3585aeb8f44d",
+        "menu.html": "994659cef84d98a1909870afec3571c539a0029b",
+        "order-launcher.js": "42ff46937e79e29022756f4f8d0d0055b3ae0083",
+        "order-shell.css": "911f227dc0b3c8529a3a00591e2496f8150c00df",
+        "order-shell.js": "8619870240539d7633f936df6d52b8e096cbc85a",
+        "order-store.js": "971208b6e3454c0869416355dda9bc5394d76cdd",
+        "package.json": "b3452986e5af82c6f2226ef0c0a7c76001277cd0",
+        "pairing-posters.css": "c4b70bbd65c395f4f653b7545fea0e9c53cd0ab9",
+        "pairing-posters.js": "1db3f2717218c873c4b1ccad7b93cd7bcd4763de",
+        "qa.js": "ad44d2619c7589bb7cdfe3bcf8c9197412fbc32b",
+        "qa/evidence/pr-348-mobile-phone/baseline-phone-section-desktop-1440.png": "67657e35f3d66a48cbf32068b4859b0e9ece5e64",
+        "qa/evidence/pr-348-mobile-phone/baseline-phone-section-phone-320.png": "17d4689db99ca175019b07184fb551d0ed30d09d",
+        "qa/evidence/pr-348-mobile-phone/baseline-phone-section-phone-390.png": "4cadd87b1c045bec64bf204b37961be4a613d154",
+        "qa/evidence/pr-348-mobile-phone/baseline-phone-section-tablet-768.png": "e5383b3e683ec81e98ac199a9972fbba3f945607",
+        "qa/evidence/pr-348-mobile-phone/baseline-social-offer-desktop-1440.png": "61b89b26460c2c9e2be8ed202191f2979a83091d",
+        "qa/evidence/pr-348-mobile-phone/baseline-social-offer-laptop-1366.png": "0f219b8e8c358531365401ffae36d809eb18cceb",
+        "qa/evidence/pr-348-mobile-phone/baseline-social-offer-phone-320.png": "b02b257f8443b5d28bdc2f1c3deef0e8448b6bb1",
+        "qa/evidence/pr-348-mobile-phone/baseline-social-offer-phone-360-short.png": "47508bc442eba9cf900d5ec3e7c946cac13d1d4a",
+        "qa/evidence/pr-348-mobile-phone/baseline-social-offer-tablet-768.png": "0285592342e3d7b435a2e7ea2f2e75444083e392",
+        "qa/evidence/pr-348-mobile-phone/current-phone-section-desktop-1440.png": "d6a0777a544021969d4b1669c9a14c866c667c3e",
+        "qa/evidence/pr-348-mobile-phone/current-phone-section-phone-320.png": "835a42e85c2c27141114c8a1879dd1c30155c338",
+        "qa/evidence/pr-348-mobile-phone/current-phone-section-phone-390.png": "9f055867ac809b588d31c9f13c45643c5f0844da",
+        "qa/evidence/pr-348-mobile-phone/current-phone-section-tablet-768.png": "ee0160109b62e0d11a7c299b0ec0ed4685a8262b",
+        "qa/evidence/pr-348-mobile-phone/current-social-offer-desktop-1440.png": "b398c55e71dd20b7afebd063ee5cfb026139e25f",
+        "qa/evidence/pr-348-mobile-phone/current-social-offer-laptop-1366.png": "4a721ce027f530328d34899095f3794d2710bc7e",
+        "qa/evidence/pr-348-mobile-phone/current-social-offer-phone-320.png": "4620cc503efab7a2c316775219a219cbfb257d72",
+        "qa/evidence/pr-348-mobile-phone/current-social-offer-phone-360-short.png": "a374483433ec004659a2d15d5d266eecfb1df461",
+        "qa/evidence/pr-348-mobile-phone/current-social-offer-tablet-768.png": "ca35a836b016a2adcd2b1d1c8baac70e548ea729",
+        "qa/evidence/pr-348-mobile-phone/diff-social-offer-laptop-1366.png": "5bce15fc11024a64198327d622b0d024bdc23c16",
+        "qa/evidence/pr-348-mobile-phone/diff-social-offer-phone-360-short.png": "c92cdbae80729e66d934056088c1d5828f80831d",
+        "qa/evidence/pr-348-mobile-phone/diff-social-offer-tablet-768.png": "d3ca968e6e9cad9852cd4c005fa141e1c1c81c5b",
+        "qa/evidence/pr-348-mobile-phone/provenance.json": "9a681b780eb6a615566611078e0823295ab88ee4",
+        "qa/evidence/pr-348-mobile-phone/summary.json": "df7acf63c8ba1cdb751da004256189c7b9391e68",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/build.mjs": "606315bed96f0e9103aa06375408b793b1b79257",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "scripts/contextual-entry-smoke.mjs": "0d33041916b6097d7b85f8ea77d6055d80207813",
+        "scripts/guest-journey-browser.mjs": "e981a537bc6ea325b460cbe72df82a6d412181c6",
+        "scripts/morning-entry-smoke.mjs": "9a568443afdffbbc93335b1ba6d1b166623f8bd0",
+        "scripts/order-hero-regression.mjs": "36dec9aca8c54a6f23f11c8443fdbd48eaed3419",
+        "scripts/order-visual-reachability.mjs": "d8acf0b35593a7c43aabb1f987d825cae6a9df70",
+        "scripts/pairing-offers-regression.mjs": "2cd409faed7948b5007e08b768aeab74ea588ec0",
+        "scripts/takeaway-browser-contract.mjs": "abbe2b050e763998bb6be37acf6acea0067d3709",
+        "scripts/test-guest-journey.mjs": "006c09d3cf637cd30b57e8b0af424a51011ed411",
+        "scripts/test-menu-share-capture.mjs": "c7ab8ea2692a984c0cea846217298501e3e35f40",
+        "scripts/test-takeaway-cadence.mjs": "c882bf683c55e5814765189891931aa368e506e6",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/visual-regression.mjs": "983684e0e7a25bb0b1f41cc7e73e3fec73af532c",
+        "smart-choice/app-v2.js": "ab448602dc51835bd9737d47eec25b88556ade97",
+        "smart-choice/brand-v4.css": "ef045ecd64b53a73262e7f2dcbd5222592b5f252",
+        "smart-choice/cart-v2.js": "967f547bf88014ed57529179b683c46f347c9ac1",
+        "smart-choice/cart.css": "95e72d1cffb082b13becdb58c7e8c02787933b7c",
+        "smart-choice/index.html": "947df66173503b2ab718c715ee7b075aa34538f9",
+        "smart-choice/style.css": "367e2c3561f4a7a543721de2c0d22cee030df710",
+        "social-offer.js": "aa3c7015196def41883a8a3f2ad3a0b1194ee48e",
+        "src/conversion.js": "47beffd9a253ca03a64f2820d9ab1af740858e33",
+        "src/i18n.ts": "cd56a552d64af2b89724c4d3798c94ef37ae3560",
+        "src/menu-app.js": "5f445bea94d8438f36e6f53a60f2a24af4ce128e",
+        "src/order-dock.ts": "5e3478c66b7eaef689f1e3de017076243543023e",
+        "src/order-launcher.ts": "2070198f82984132c019020e27ef9b69aaf4d396",
+        "src/order-shell.ts": "e20bb3fadbae9ba972f0b62dead4ad63dd02ea3f",
+        "src/order-store.ts": "b3dc56ab03e0f914df8e0d23e220aa376b02b572",
+        "src/smart-choice/cart-copy.ts": "0395306c8a3bbba64d8b135914ba984f363f0d7d",
+        "src/smart-choice/cart-domain.ts": "9a981685153319dcd1ca6dcd2476ec4cddce6cb3",
+        "src/smart-choice/cart.ts": "9897131a886258818fadeb4e41463e182ed11922",
+        "src/smart-choice/engine.ts": "1d0119e46d3a0735e7980729bb2de90309f45a33",
+        "src/smart-choice/page.ts": "4a265270a612a1893ed5479c2a9b2832ac677673",
+        "src/social-offer.ts": "970eee066eed31654761d41274cb74252ef33abc",
+        "sw.js": "da8425bb106735c06d07426a6099dcceac6b742e",
+        "takeaway-entry.js": "cb119792f42a403df9150f9fa008c8e5a7049a99",
+        "docs/qa/mobile-phone-followup-2026-09-07.md": "b4354f5eb6ef3c28e19af59f4ee9912f201e7bb4",
+        "qa/evidence/pr-348-mobile-phone/validator-checks.json": "d741c533a6720e0146e39700c6d766d748ac3042"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8234 vs 320x8074"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x271 vs 320x270"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "totalPixels": 88560,
+          "maxDiffPixelRatio": 0.014058265582655827
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8661 vs 390x8442"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7673 vs 768x7567"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "totalPixels": 168192,
+          "maxDiffPixelRatio": 0.012111158675799087
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "laptop-1366",
+          "totalPixels": 292324,
+          "maxDiffPixelRatio": 0.006212284998836907
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7093 vs 1440x6987"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x215 vs 1440x214"
+        }
+      ]
+    }
+  ]
+}

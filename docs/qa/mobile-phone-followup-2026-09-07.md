@@ -24,20 +24,75 @@ conversion runtime, HTML asset revision, service-worker references and the
 integrity manifest are regenerated together. APK bytes and download behavior are
 unchanged.
 
-## Verification and remaining boundary
+## Verification
 
 - `npm run check`: PASS, including existing pairing source contracts.
 - `npm run verify:security`: PASS, 287 security checks and the secret scan.
 - `git diff --check`: PASS.
 - Local browser rendering: NOT RUN. Cloud Browser blocked the local preview URL;
   a file URL was also explicitly rejected by its URL policy. No bypass was used.
-- No new screenshot evidence or physical Android verification is claimed.
-- Existing reviewed visual allowances were not updated or broadened. The changed
-  phone section needs fresh screenshot review before release.
+- CI browser evidence is now available for source head
+  `b6f5d45e1ae327142cc38b3018d3e267bc27a4f8`, whose source tree matches the locally
+  verified implementation. Visual run [34162660472](https://github.com/safal207/robys-coffee-house-demo/actions/runs/34162660472)
+  captured all 43 comparisons twice; both result arrays are identical.
+- At that head, 24 workflows passed, the human approval workflow was skipped for
+  the draft, and Visual regression stopped at the missing reviewed-change record.
+  Its later dependent UI checks did not run; the separate Premium UI, order,
+  guest-journey, security, motion and Android smoke workflows passed.
+
+## Screenshot inspection
+
+The [evidence directory](../../qa/evidence/pr-348-mobile-phone/) contains the
+original comparison summary, before/after phone-section crops, unmodified social
+captures and a provenance manifest. The manifest records crop coordinates and
+original image hashes, plus the downloaded archive's SHA-256. Screenshots are from
+deterministic Chromium with the default Turkish locale.
+
+At 320, 390, 768 and 1440 CSS pixels, the phone stays within its card; its logo,
+slogan and decorative pill are separate. The smaller heading and install actions
+are readable. The phone is upright on mobile. The native Turkish slogan replaces
+the previous English text within the Turkish page. All menu screenshot comparisons
+pass against the existing pairing repair in PR #346.
+
+Four landing-page comparisons change total height with the shorter phone section:
+
+| Width | Before | After |
+| --- | ---: | ---: |
+| 320 | 8234 | 8074 |
+| 390 | 8661 | 8442 |
+| 768 | 7673 | 7567 |
+| 1440 | 7093 | 6987 |
+
+The five other differences are social-offer crops: one pixel of crop height at
+320/1440 and small pixel changes at 360/768/1366. At all six social viewports,
+recorded root dimensions, relative child boxes, text, fonts and colors are exactly
+equal before/after. Only document Y changes, including its fractional component.
+Source inspection confirms no social implementation change. Visual inspection
+finds no overlap or content loss; crop rounding and rasterization after the page
+shift are the evidence-supported explanation, not a reproduced browser root cause.
+The comparator's ratio of 1 for dimension mismatches is a sentinel, not a claim
+that every pixel changed.
+
+The new PR #348 reviewed-change record binds the source, runtime, comparator,
+configuration and evidence bytes, and accepts exactly these nine differences.
+Pixel ceilings are the observed values, with no added tolerance. Existing records,
+global limits, capture scripts, masks and workflows remain unchanged. This is
+assistant visual inspection, not human attestation or release authorization.
+
+The unchanged `verify-reviewed-visual-change.mjs` accepts both captured summaries.
+Isolated negative controls reject an extra failed comparison, one pixel above an
+observed ceiling, and a stale runtime binding. Results are in
+`qa/evidence/pr-348-mobile-phone/validator-checks.json`. The full `npm run check`
+and `npm run verify:security` commands were repeated successfully before publishing
+the evidence update.
+
+## Remaining boundary
 
 Review the actual home page in TR, EN and RU at 320, 360, 393, 430, 768 and 1280 CSS
 pixels. Check the logo, slogan and decorative pill do not overlap; the device stays
 inside the card; the heading and install actions are fully readable. Repeat narrow
 layouts with enlarged text. Review both pairing cards and their product dialogs
-using the existing PR #346 regression coverage. The release still requires current
-CI and visual evidence; this document is not a release approval.
+using the existing PR #346 regression coverage. Physical Android/browser-translation
+behavior, enlarged text in this specific phone section, and its EN/RU visual
+rendering are not established by these TR captures. A fresh CI comparison is
+required after the evidence commit. This document is not a release approval.

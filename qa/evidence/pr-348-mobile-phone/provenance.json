@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "sourceHead": "b6f5d45e1ae327142cc38b3018d3e267bc27a4f8",
+  "baselineHead": "7799f80b5a6561beec57f2d98f8e8ca58e8c36fa",
+  "run": 34162660472,
+  "artifact": 10033199200,
+  "artifactSha256": "1aa7b5241afde9caa3a8a0ec9dc6bdaa80dd6afcd9601d826e6efcdc80ee3c3e",
+  "attemptResultsIdentical": true,
+  "attempt1SummarySha256": "60bd7d4101ba822d5f6cef39a58c00a718a9fd6b929d414d9e11143894e94610",
+  "attempt2SummarySha256": "965fcd0a6d9b1a2a38f5ac85883ebe505fd30cc8c49471591e75347b22835fb2",
+  "locale": "tr",
+  "socialGeometry": [
+    {
+      "viewport": "phone-320",
+      "baselineDocumentY": 7702.96875,
+      "currentDocumentY": 7542.71875,
+      "identicalExceptDocumentY": true
+    },
+    {
+      "viewport": "phone-360-short",
+      "baselineDocumentY": 7666.984375,
+      "currentDocumentY": 7463.671875,
+      "identicalExceptDocumentY": true
+    },
+    {
+      "viewport": "phone-390",
+      "baselineDocumentY": 8154.40625,
+      "currentDocumentY": 7935.34375,
+      "identicalExceptDocumentY": true
+    },
+    {
+      "viewport": "tablet-768",
+      "baselineDocumentY": 7259.890625,
+      "currentDocumentY": 7153.609375,
+      "identicalExceptDocumentY": true
+    },
+    {
+      "viewport": "laptop-1366",
+      "baselineDocumentY": 6204.1875,
+      "currentDocumentY": 6114.5,
+      "identicalExceptDocumentY": true
+    },
+    {
+      "viewport": "desktop-1440",
+      "baselineDocumentY": 6651.953125,
+      "currentDocumentY": 6545.515625,
+      "identicalExceptDocumentY": true
+    }
+  ],
+  "files": [
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-phone-section-phone-320.png",
+      "artifactPath": "final/baseline/landing-full__phone-320.png",
+      "sourceSha256": "abd09f6e0622c7bb7ff3aaf25afff67b3d2eac3ff969cce50559ada6bab4a809",
+      "cropBox": [
+        0,
+        5764,
+        320,
+        7664
+      ],
+      "sha256": "db3d962585d91eaf76ae18787e6368aea3bc8ffbdceb968dd7e8ee5bf1d575d6"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-phone-section-phone-320.png",
+      "artifactPath": "final/current/landing-full__phone-320.png",
+      "sourceSha256": "8deb1d2cf99114994014392336315c89c37aa2a894bccc0c329925e02215b819",
+      "cropBox": [
+        0,
+        5652,
+        320,
+        7552
+      ],
+      "sha256": "e31e47c1aff4f7ac5d5fc166a32c9d8a4f0374ced6efa680b66d01bb999495f2"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-phone-section-phone-390.png",
+      "artifactPath": "final/baseline/landing-full__phone-390.png",
+      "sourceSha256": "8e5a99911441f94c46a4c375c80efe59cbe971b06373ee6d13449ef89af1dc39",
+      "cropBox": [
+        0,
+        6926,
+        390,
+        8661
+      ],
+      "sha256": "8f605acaf49c8815a4026b48185be847fa6d8ff05f3abc5a5e83712de9e980c1"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-phone-section-phone-390.png",
+      "artifactPath": "final/current/landing-full__phone-390.png",
+      "sourceSha256": "e2c50ee6cd984be87c36faadab624d8937c9f8d400b1343a0bb7c3535322742d",
+      "cropBox": [
+        0,
+        6926,
+        390,
+        8442
+      ],
+      "sha256": "543f050cd94125da42d21b24f1e1e3a88a24b8b1dcfa328243dce0b82dd473f7"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-phone-section-tablet-768.png",
+      "artifactPath": "final/baseline/landing-full__tablet-768.png",
+      "sourceSha256": "1e2a3b51d2512f31b8c4997df16a9f8b1a46d3a2d6ded2dfe69ab02b32344c80",
+      "cropBox": [
+        0,
+        5371,
+        768,
+        7271
+      ],
+      "sha256": "115ed79fede4673b63c9f297c5d902f3064d84759346c1e08f1328f6adf4a15b"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-phone-section-tablet-768.png",
+      "artifactPath": "final/current/landing-full__tablet-768.png",
+      "sourceSha256": "26fac89f7ca6e677da36bee6eadd70e57b69e5cb952fa5a3884b917ff439a58e",
+      "cropBox": [
+        0,
+        5297,
+        768,
+        7197
+      ],
+      "sha256": "58f05ef60ef10a6d85ab9bf667b166e9a647bc184b87e7d1db51bd105ceca9e1"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-phone-section-desktop-1440.png",
+      "artifactPath": "final/baseline/landing-full__desktop-1440.png",
+      "sourceSha256": "cfed88e4d5dbb21316c4f7c1051eb1c199b487f8209b8a79be4fe012570b6349",
+      "cropBox": [
+        0,
+        4736,
+        1440,
+        6636
+      ],
+      "sha256": "9b1cc982531f5e76c1bb496cfb6917992fe462f165c084d1c0be7071f43d2913"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-phone-section-desktop-1440.png",
+      "artifactPath": "final/current/landing-full__desktop-1440.png",
+      "sourceSha256": "4d72415756d9fc0d5e66098b7afd74f1d2499deeea620516be589049299ec01b",
+      "cropBox": [
+        0,
+        4736,
+        1440,
+        6636
+      ],
+      "sha256": "2bfa76ab8843cad6a19d56483b5af34bc71c8e728730ab1005204231f093f315"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-social-offer-phone-320.png",
+      "artifactPath": "final/baseline/social-offer__phone-320.png",
+      "sha256": "4c92d215b254c4faec7606cc2cb20187041a11ca69579a30a6222ce81b524626"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-social-offer-phone-320.png",
+      "artifactPath": "final/current/social-offer__phone-320.png",
+      "sha256": "f27819a276e31b88a0b64b5ac713fde5a4696b9becdd47054344777b7666c4c7"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-social-offer-phone-360-short.png",
+      "artifactPath": "final/baseline/social-offer__phone-360-short.png",
+      "sha256": "905fadc1679af341d9e0dbec8846f108a0c5a2e6e5fbe29d220173ee4d13e020"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-social-offer-phone-360-short.png",
+      "artifactPath": "final/current/social-offer__phone-360-short.png",
+      "sha256": "c34cbdc41ae6e13c5719cc4d4456bc5683d8eea60f6c022aee1edf0d0679fb43"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/diff-social-offer-phone-360-short.png",
+      "artifactPath": "final/diff/social-offer__phone-360-short.png",
+      "sha256": "51f33227a6864c5c2e249381f893d2202b4f73d87cfa6ab6133edc7e69978995"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-social-offer-tablet-768.png",
+      "artifactPath": "final/baseline/social-offer__tablet-768.png",
+      "sha256": "45664a3fa3c20837a43470c16a92fef1f94287e45f299211889c43acd45661cf"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-social-offer-tablet-768.png",
+      "artifactPath": "final/current/social-offer__tablet-768.png",
+      "sha256": "21c0c2573b3da842e2ab1867c76fd716bfc3d6cb0eee8121c9617f68e5d13365"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/diff-social-offer-tablet-768.png",
+      "artifactPath": "final/diff/social-offer__tablet-768.png",
+      "sha256": "20578703f95b5c165bb11af2c14dd77380067e0ef18178c2bc568c28fcaa3be1"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-social-offer-laptop-1366.png",
+      "artifactPath": "final/baseline/social-offer__laptop-1366.png",
+      "sha256": "7652b48a8713d22dfe7fc6941959182c0adae2330c5f95026c062a352c094e83"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-social-offer-laptop-1366.png",
+      "artifactPath": "final/current/social-offer__laptop-1366.png",
+      "sha256": "6f95698e35e97e219ab83c62c69d8345d578fc56bc82b9807b343f154e4b3ec5"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/diff-social-offer-laptop-1366.png",
+      "artifactPath": "final/diff/social-offer__laptop-1366.png",
+      "sha256": "422ad8c7b3371efa7c8125b9756ed34d345f2425ca47d16ca92814b2a68854a0"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/baseline-social-offer-desktop-1440.png",
+      "artifactPath": "final/baseline/social-offer__desktop-1440.png",
+      "sha256": "76be1b9c81bcdbd99ccdd4240b16fba98af9b9b86debf20289d4350a94aaabb0"
+    },
+    {
+      "path": "qa/evidence/pr-348-mobile-phone/current-social-offer-desktop-1440.png",
+      "artifactPath": "final/current/social-offer__desktop-1440.png",
+      "sha256": "390c3259b76afabfb8667e83d55968c6b98c4320e907085bdf2ac9efd929369f"
+    }
+  ]
+}

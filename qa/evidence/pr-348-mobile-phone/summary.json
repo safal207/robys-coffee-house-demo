@@ -1,0 +1,4712 @@
+{
+  "generatedAt": "2026-09-07T21:23:15.206Z",
+  "baselineDirectory": "/home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/baseline",
+  "currentDirectory": "/home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/current",
+  "pixelThreshold": 0.12,
+  "comparisons": 43,
+  "failures": 9,
+  "results": [
+    {
+      "id": "landing-full",
+      "viewport": "phone-320",
+      "file": "landing-full__phone-320.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 320x8234 vs 320x8074",
+      "diffPixels": 2634880,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 3848000,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-320",
+      "file": "discover-full__phone-320.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 905920,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-320",
+      "file": "social-offer__phone-320.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 7702.96875,
+          "width": 320,
+          "height": 269.125,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 176,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 176,
+              "height": 38.0625,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 113.875,
+              "width": 176,
+              "height": 49.25,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 176.125,
+              "width": 254,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 7542.71875,
+          "width": 320,
+          "height": 269.125,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 176,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 176,
+              "height": 38.0625,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 113.875,
+              "width": 176,
+              "height": 49.25,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 176.125,
+              "width": 254,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "reason": "dimension mismatch 320x271 vs 320x270",
+      "diffPixels": 86720,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10756.4375,
+          "width": 280,
+          "height": 511.078125,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 238,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 238,
+              "height": 91.21875,
+              "font": "600 30.4px / 30.4px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 164.640625,
+              "width": 238,
+              "height": 76.78125,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 267.421875,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 332.015625,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 83.515625,
+              "y": 396.609375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 466.609375,
+              "width": 238,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10756.4375,
+          "width": 280,
+          "height": 511.078125,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 238,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 238,
+              "height": 91.21875,
+              "font": "600 30.4px / 30.4px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 164.640625,
+              "width": 238,
+              "height": 76.78125,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 267.421875,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 332.015625,
+              "width": 238,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 83.515625,
+              "y": 396.609375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 466.609375,
+              "width": 238,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 143080,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-320",
+      "file": "discover-pairing__phone-320.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 1016.78125,
+          "width": 280,
+          "height": 738.53125,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 311,
+              "width": 230,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 344.1875,
+              "width": 230,
+              "height": 67.5625,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 435.75,
+              "width": 230,
+              "height": 114.1875,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 579.9375,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 25,
+              "y": 655.53125,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 1016.78125,
+          "width": 280,
+          "height": 738.53125,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 311,
+              "width": 230,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 344.1875,
+              "width": 230,
+              "height": 67.5625,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 435.75,
+              "width": 230,
+              "height": 114.1875,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 579.9375,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 25,
+              "y": 655.53125,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 206640,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-320",
+      "file": "mobile-cta__phone-320.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 10,
+          "documentY": 920,
+          "width": 300,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 141.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 152.5,
+              "y": 6,
+              "width": 141.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 10,
+          "documentY": 920,
+          "width": 300,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 141.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 152.5,
+              "y": 6,
+              "width": 141.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 17400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-360-short",
+      "file": "hero__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 360,
+          "height": 712.421875,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 9,
+              "y": 206,
+              "width": 342,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 9,
+              "y": 359.171875,
+              "width": 342,
+              "height": 41.25,
+              "font": "14.24px / 20.648px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 9,
+              "y": 414.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 9,
+              "y": 470.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 9,
+              "y": 526.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 360,
+          "height": 712.421875,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 9,
+              "y": 206,
+              "width": 342,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 9,
+              "y": 359.171875,
+              "width": 342,
+              "height": 41.25,
+              "font": "14.24px / 20.648px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 9,
+              "y": 414.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 9,
+              "y": 470.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 9,
+              "y": 526.421875,
+              "width": 342,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 256680,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-360-short",
+      "file": "social-offer__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 7666.984375,
+          "width": 360,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 216,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 216,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 294,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 7463.671875,
+          "width": 360,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 216,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 216,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 294,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 1245,
+      "totalPixels": 88560,
+      "diffPixelRatio": 0.014058265582655827,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10536.03125,
+          "width": 320,
+          "height": 496.875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 278,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 278,
+              "height": 102.609375,
+              "font": "600 34.2px / 34.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 176.03125,
+              "width": 278,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 253.21875,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 317.8125,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 103.515625,
+              "y": 382.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 452.40625,
+              "width": 278,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10536.03125,
+          "width": 320,
+          "height": 496.875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 278,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 278,
+              "height": 102.609375,
+              "font": "600 34.2px / 34.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 176.03125,
+              "width": 278,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 253.21875,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 317.8125,
+              "width": 278,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 103.515625,
+              "y": 382.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 452.40625,
+              "width": 278,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 158720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-360-short",
+      "file": "discover-pairing__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 1040.25,
+          "width": 320,
+          "height": 720,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 353.734375,
+              "width": 270,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 386.921875,
+              "width": 270,
+              "height": 67.5625,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 478.484375,
+              "width": 270,
+              "height": 114.1875,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 622.671875,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 181.671875,
+              "y": 628.46875,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 1040.25,
+          "width": 320,
+          "height": 720,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 353.734375,
+              "width": 270,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 386.921875,
+              "width": 270,
+              "height": 67.5625,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 478.484375,
+              "width": 270,
+              "height": 114.1875,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 622.671875,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 181.671875,
+              "y": 628.46875,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 230400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-360-short",
+      "file": "mobile-cta__phone-360-short.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 10,
+          "documentY": 660,
+          "width": 340,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 161.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 172.5,
+              "y": 6,
+              "width": 161.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 10,
+          "documentY": 660,
+          "width": 340,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 161.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 172.5,
+              "y": 6,
+              "width": 161.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 19720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "phone-390",
+      "file": "landing-full__phone-390.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 390x8661 vs 390x8442",
+      "diffPixels": 3377790,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 4548960,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-390",
+      "file": "discover-full__phone-390.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1122420,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-390",
+      "file": "hero__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 390,
+          "height": 1000,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 9,
+              "y": 226,
+              "width": 372,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 9,
+              "y": 646.75,
+              "width": 372,
+              "height": 41.25,
+              "font": "14.24px / 20.648px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 9,
+              "y": 702,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 9,
+              "y": 758,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 9,
+              "y": 814,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 390,
+          "height": 1000,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 9,
+              "y": 226,
+              "width": 372,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 9,
+              "y": 646.75,
+              "width": 372,
+              "height": 41.25,
+              "font": "14.24px / 20.648px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 9,
+              "y": 702,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 9,
+              "y": 758,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 9,
+              "y": 814,
+              "width": 372,
+              "height": 46,
+              "font": "700 14.4px / 23.04px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 390000,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "phone-390",
+      "file": "menu-preview__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 4688.421875,
+          "width": 390,
+          "height": 922.765625,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 9,
+              "y": 72,
+              "width": 372,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 9,
+              "y": 106.421875,
+              "width": 372,
+              "height": 87.96875,
+              "font": "600 46.8px / 43.992px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 9,
+              "y": 216.390625,
+              "width": 372,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 9,
+              "y": 291.578125,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 9,
+              "y": 329.171875,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 9,
+              "y": 386.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 20,
+              "y": 466.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 199,
+              "y": 386.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 210,
+              "y": 466.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 9,
+              "y": 530.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 20,
+              "y": 610.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 199,
+              "y": 530.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 210,
+              "y": 610.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 9,
+              "y": 674.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 20,
+              "y": 754.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 199,
+              "y": 674.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 210,
+              "y": 754.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 4688.421875,
+          "width": 390,
+          "height": 922.765625,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 9,
+              "y": 72,
+              "width": 372,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 9,
+              "y": 106.421875,
+              "width": 372,
+              "height": 87.96875,
+              "font": "600 46.8px / 43.992px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 9,
+              "y": 216.390625,
+              "width": 372,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 9,
+              "y": 291.578125,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 9,
+              "y": 329.171875,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 9,
+              "y": 386.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 20,
+              "y": 466.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 199,
+              "y": 386.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 210,
+              "y": 466.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 9,
+              "y": 530.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 20,
+              "y": 610.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 199,
+              "y": 530.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 210,
+              "y": 610.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 9,
+              "y": 674.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 20,
+              "y": 754.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 199,
+              "y": 674.765625,
+              "width": 182,
+              "height": 136,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 210,
+              "y": 754.546875,
+              "width": 160,
+              "height": 16.421875,
+              "font": "500 14.4px / 16.416px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 0,
+              "y": -4688.421875,
+              "width": 0,
+              "height": 0,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 359580,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "phone-390",
+      "file": "visit-map__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 5611.1875,
+          "width": 390,
+          "height": 1314.71875,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 31,
+              "y": 102,
+              "width": 328,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 31,
+              "y": 136.421875,
+              "width": 328,
+              "height": 131.953125,
+              "font": "600 46.8px / 43.992px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 31,
+              "y": 615.53125,
+              "width": 328,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 31,
+              "y": 683.125,
+              "width": 328,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 10,
+              "y": 803.71875,
+              "width": 370,
+              "height": 438,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 5611.1875,
+          "width": 390,
+          "height": 1314.71875,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 31,
+              "y": 102,
+              "width": 328,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 31,
+              "y": 136.421875,
+              "width": 328,
+              "height": 131.953125,
+              "font": "600 46.8px / 43.992px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 31,
+              "y": 615.53125,
+              "width": 328,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 31,
+              "y": 683.125,
+              "width": 328,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 10,
+              "y": 803.71875,
+              "width": 370,
+              "height": 438,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 512460,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-390",
+      "file": "social-offer__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 8154.40625,
+          "width": 390,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 246,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 246,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 324,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 7935.34375,
+          "width": 390,
+          "height": 244.84375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 111,
+              "y": 41,
+              "width": 246,
+              "height": 22.8125,
+              "font": "600 19.84px / 22.816px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 111,
+              "y": 66.8125,
+              "width": 246,
+              "height": 19.03125,
+              "font": "13.12px / 19.024px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 111,
+              "y": 94.84375,
+              "width": 177.6875,
+              "height": 44,
+              "font": "700 12.8px / 16.64px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 33,
+              "y": 151.84375,
+              "width": 324,
+              "height": 48,
+              "font": "800 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 95940,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 10476.15625,
+          "width": 350,
+          "height": 505.40625,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 308,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 308,
+              "height": 111.140625,
+              "font": "600 37.05px / 37.05px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 184.5625,
+              "width": 308,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 261.75,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 326.34375,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 118.515625,
+              "y": 390.9375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 460.9375,
+              "width": 308,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 10476.15625,
+          "width": 350,
+          "height": 505.40625,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 21,
+              "y": 27,
+              "width": 308,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 21,
+              "y": 57.421875,
+              "width": 308,
+              "height": 111.140625,
+              "font": "600 37.05px / 37.05px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 21,
+              "y": 184.5625,
+              "width": 308,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 21,
+              "y": 261.75,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 21,
+              "y": 326.34375,
+              "width": 308,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 118.515625,
+              "y": 390.9375,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 21,
+              "y": 460.9375,
+              "width": 308,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 176750,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-390",
+      "file": "discover-pairing__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 1051.828125,
+          "width": 350,
+          "height": 750,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 414.890625,
+              "width": 300,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 448.078125,
+              "width": 300,
+              "height": 33.78125,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 505.859375,
+              "width": 300,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 621.5,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 181.671875,
+              "y": 627.296875,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 1051.828125,
+          "width": 350,
+          "height": 750,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 25,
+              "y": 414.890625,
+              "width": 300,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 25,
+              "y": 448.078125,
+              "width": 300,
+              "height": 33.78125,
+              "font": "500 35.2px / 33.792px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 25,
+              "y": 505.859375,
+              "width": 300,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 25,
+              "y": 621.5,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 181.671875,
+              "y": 627.296875,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 262500,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-390",
+      "file": "mobile-cta__phone-390.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 10,
+          "documentY": 1020,
+          "width": 370,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 176.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 187.5,
+              "y": 6,
+              "width": 176.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 10,
+          "documentY": 1020,
+          "width": 370,
+          "height": 58,
+          "children": [
+            {
+              "text": "↗Rota",
+              "x": 6,
+              "y": 6,
+              "width": 176.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "◎Instagram",
+              "x": 187.5,
+              "y": 6,
+              "width": 176.5,
+              "height": 46,
+              "font": "700 10.24px Montserrat, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 21460,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "tablet-768",
+      "file": "landing-full__tablet-768.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 768x7673 vs 768x7567",
+      "diffPixels": 5892864,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 9511680,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "tablet-768",
+      "file": "discover-full__tablet-768.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 2184960,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "social-offer",
+      "viewport": "tablet-768",
+      "file": "social-offer__tablet-768.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 7259.890625,
+          "width": 768,
+          "height": 217.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 131,
+              "y": 57,
+              "width": 453.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 131,
+              "y": 86.671875,
+              "width": 453.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 131,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 44,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 604.234375,
+              "y": 84.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 7153.609375,
+          "width": 768,
+          "height": 217.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 131,
+              "y": 57,
+              "width": 453.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 131,
+              "y": 86.671875,
+              "width": 453.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 131,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 44,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 604.234375,
+              "y": 84.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 2037,
+      "totalPixels": 168192,
+      "diffPixelRatio": 0.012111158675799087,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "tablet-768",
+      "file": "menu-share__tablet-768.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 11304,
+          "width": 728,
+          "height": 429.875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 650,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 650,
+              "height": 35.203125,
+              "font": "600 35.2px / 35.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 120.625,
+              "width": 620,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 39,
+              "y": 172.21875,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 39,
+              "y": 237.8125,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 307.515625,
+              "y": 303.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 373.40625,
+              "width": 650,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 11304,
+          "width": 728,
+          "height": 429.875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 650,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 650,
+              "height": 35.203125,
+              "font": "600 35.2px / 35.2px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 120.625,
+              "width": 620,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 39,
+              "y": 172.21875,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 39,
+              "y": 237.8125,
+              "width": 650,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 307.515625,
+              "y": 303.40625,
+              "width": 112.953125,
+              "height": 44,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 373.40625,
+              "width": 650,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 312312,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "tablet-768",
+      "file": "discover-pairing__tablet-768.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 20,
+          "documentY": 919.96875,
+          "width": 728,
+          "height": 1158,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 47.078125,
+              "y": 823.625,
+              "width": 633.84375,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 47.078125,
+              "y": 856.8125,
+              "width": 633.84375,
+              "height": 36.859375,
+              "font": "500 38.4px / 36.864px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 47.078125,
+              "y": 917.671875,
+              "width": 633.84375,
+              "height": 57.09375,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 47.078125,
+              "y": 1004.765625,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 203.75,
+              "y": 1010.5625,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 20,
+          "documentY": 919.96875,
+          "width": 728,
+          "height": 1158,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 47.078125,
+              "y": 823.625,
+              "width": 633.84375,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 47.078125,
+              "y": 856.8125,
+              "width": 633.84375,
+              "height": 36.859375,
+              "font": "500 38.4px / 36.864px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 47.078125,
+              "y": 917.671875,
+              "width": 633.84375,
+              "height": 57.09375,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 47.078125,
+              "y": 1004.765625,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 203.75,
+              "y": 1010.5625,
+              "width": 102.21875,
+              "height": 44,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 843024,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "hero",
+      "viewport": "laptop-1366",
+      "file": "hero__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 1366,
+          "height": 768,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 93,
+              "y": 236.53125,
+              "width": 1180,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 93,
+              "y": 498.390625,
+              "width": 1180,
+              "height": 28.015625,
+              "font": "16.48px / 28.016px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 93,
+              "y": 550.40625,
+              "width": 196.3125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 301.3125,
+              "y": 550.40625,
+              "width": 246.03125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 559.34375,
+              "y": 550.40625,
+              "width": 139.34375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 1366,
+          "height": 768,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 93,
+              "y": 236.53125,
+              "width": 1180,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 93,
+              "y": 498.390625,
+              "width": 1180,
+              "height": 28.015625,
+              "font": "16.48px / 28.016px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 93,
+              "y": 550.40625,
+              "width": 196.3125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 301.3125,
+              "y": 550.40625,
+              "width": 246.03125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 559.34375,
+              "y": 550.40625,
+              "width": 139.34375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1049088,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "laptop-1366",
+      "file": "menu-preview__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 2683.65625,
+          "width": 1366,
+          "height": 715.03125,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 93,
+              "y": 104,
+              "width": 451,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 93,
+              "y": 138.421875,
+              "width": 451,
+              "height": 207.984375,
+              "font": "600 73.764px / 69.3382px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 93,
+              "y": 368.40625,
+              "width": 451,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 93,
+              "y": 451.59375,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 93,
+              "y": 497.1875,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 624,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 751,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 751,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 955.5,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 1082.5,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 1082.5,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 624,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 751,
+              "y": 307.796875,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 751,
+              "y": 369.796875,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 955.5,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 1082.5,
+              "y": 298.4375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 1082.5,
+              "y": 360.4375,
+              "width": 141.5,
+              "height": 56.15625,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 624,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 751,
+              "y": 498.09375,
+              "width": 141.5,
+              "height": 27,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 751,
+              "y": 533.09375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 955.5,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 1082.5,
+              "y": 484.59375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 1082.5,
+              "y": 546.59375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 2683.65625,
+          "width": 1366,
+          "height": 715.03125,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 93,
+              "y": 104,
+              "width": 451,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 93,
+              "y": 138.421875,
+              "width": 451,
+              "height": 207.984375,
+              "font": "600 73.764px / 69.3382px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 93,
+              "y": 368.40625,
+              "width": 451,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 93,
+              "y": 451.59375,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 93,
+              "y": 497.1875,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 624,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 751,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 751,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 955.5,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 1082.5,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 1082.5,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 624,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 751,
+              "y": 307.796875,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 751,
+              "y": 369.796875,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 955.5,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 1082.5,
+              "y": 298.4375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 1082.5,
+              "y": 360.4375,
+              "width": 141.5,
+              "height": 56.15625,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 624,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 751,
+              "y": 498.09375,
+              "width": 141.5,
+              "height": 27,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 751,
+              "y": 533.09375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 955.5,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 1082.5,
+              "y": 484.59375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 1082.5,
+              "y": 546.59375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 976690,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "laptop-1366",
+      "file": "visit-map__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 3398.6875,
+          "width": 1366,
+          "height": 906.375,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 155,
+              "y": 166,
+              "width": 491.859375,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 155,
+              "y": 200.421875,
+              "width": 491.859375,
+              "height": 207.984375,
+              "font": "600 73.764px / 69.3382px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 155,
+              "y": 684.78125,
+              "width": 134.328125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 301.328125,
+              "y": 684.78125,
+              "width": 139.921875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 727.859375,
+              "y": 105,
+              "width": 544.140625,
+              "height": 696.375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 3398.6875,
+          "width": 1366,
+          "height": 906.375,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 155,
+              "y": 166,
+              "width": 491.859375,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 155,
+              "y": 200.421875,
+              "width": 491.859375,
+              "height": 207.984375,
+              "font": "600 73.764px / 69.3382px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 155,
+              "y": 684.78125,
+              "width": 134.328125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 301.328125,
+              "y": 684.78125,
+              "width": 139.921875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 727.859375,
+              "y": 105,
+              "width": 544.140625,
+              "height": 696.375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1237596,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "laptop-1366",
+      "file": "social-offer__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 6204.1875,
+          "width": 1366,
+          "height": 213.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 208,
+              "y": 57,
+              "width": 897.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 208,
+              "y": 86.671875,
+              "width": 897.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 208,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 40,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 1125.234375,
+              "y": 82.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 6114.5,
+          "width": 1366,
+          "height": 213.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 208,
+              "y": 57,
+              "width": 897.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 208,
+              "y": 86.671875,
+              "width": 897.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 208,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 40,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 1125.234375,
+              "y": 82.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "diffPixels": 1816,
+      "totalPixels": 292324,
+      "diffPixelRatio": 0.006212284998836907,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "laptop-1366",
+      "file": "menu-share__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 93,
+          "documentY": 8317.1875,
+          "width": 1180,
+          "height": 312.765625,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 109.28125,
+              "font": "600 54.64px / 54.64px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 194.703125,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 694.765625,
+              "y": 45.546875,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 111.140625,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 861.40625,
+              "y": 176.734375,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 256.296875,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 93,
+          "documentY": 8317.1875,
+          "width": 1180,
+          "height": 312.765625,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 109.28125,
+              "font": "600 54.64px / 54.64px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 194.703125,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 694.765625,
+              "y": 45.546875,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 111.140625,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 861.40625,
+              "y": 176.734375,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 256.296875,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 368160,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "laptop-1366",
+      "file": "discover-pairing__laptop-1366.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 93,
+          "documentY": 958.890625,
+          "width": 1180,
+          "height": 679.34375,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 750.34375,
+              "y": 159.890625,
+              "width": 356.65625,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 750.34375,
+              "y": 193.078125,
+              "width": 356.65625,
+              "height": 131.125,
+              "font": "500 68.3px / 65.568px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 750.34375,
+              "y": 348.203125,
+              "width": 356.65625,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 750.34375,
+              "y": 463.84375,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 907.015625,
+              "y": 478.84375,
+              "width": 102.21875,
+              "height": 25.59375,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 93,
+          "documentY": 958.890625,
+          "width": 1180,
+          "height": 679.34375,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 750.34375,
+              "y": 159.890625,
+              "width": 356.65625,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 750.34375,
+              "y": 193.078125,
+              "width": 356.65625,
+              "height": 131.125,
+              "font": "500 68.3px / 65.568px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 750.34375,
+              "y": 348.203125,
+              "width": 356.65625,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 750.34375,
+              "y": 463.84375,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 907.015625,
+              "y": 478.84375,
+              "width": 102.21875,
+              "height": 25.59375,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 801220,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "landing-full",
+      "viewport": "desktop-1440",
+      "file": "landing-full__desktop-1440.png",
+      "geometry": {},
+      "passed": false,
+      "reason": "dimension mismatch 1440x7093 vs 1440x6987",
+      "diffPixels": 10213920,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 13222080,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "desktop-1440",
+      "file": "discover-full__desktop-1440.png",
+      "geometry": {},
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 3756960,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "hero",
+      "viewport": "desktop-1440",
+      "file": "hero__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 1440,
+          "height": 1100,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 130,
+              "y": 557.40625,
+              "width": 1180,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 130,
+              "y": 830.390625,
+              "width": 1180,
+              "height": 28.015625,
+              "font": "16.48px / 28.016px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 130,
+              "y": 882.40625,
+              "width": 196.3125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 338.3125,
+              "y": 882.40625,
+              "width": 246.03125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 596.34375,
+              "y": 882.40625,
+              "width": 139.34375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 0,
+          "width": 1440,
+          "height": 1100,
+          "children": [
+            {
+              "text": "GAZİPAŞA · FRESH COFFEE POINT",
+              "x": 130,
+              "y": 557.40625,
+              "width": 1180,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Taze kahveler, lezzetli tatlılar ve günün hızından uzaklaşabileceğiniz keyifli bir atmosfer.",
+              "x": 130,
+              "y": 830.390625,
+              "width": 1180,
+              "height": 28.015625,
+              "font": "16.48px / 28.016px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.8)"
+            },
+            {
+              "text": "Seçmeme yardım et",
+              "x": 130,
+              "y": 882.40625,
+              "width": 196.3125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün Eşleşmesini Gör",
+              "x": 338.3125,
+              "y": 882.40625,
+              "width": 246.03125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Menüyü Gör",
+              "x": 596.34375,
+              "y": 882.40625,
+              "width": 139.34375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1584000,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "desktop-1440",
+      "file": "menu-preview__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 3030.28125,
+          "width": 1440,
+          "height": 715.03125,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 130,
+              "y": 104,
+              "width": 451,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 130,
+              "y": 138.421875,
+              "width": 451,
+              "height": 219.28125,
+              "font": "600 77.76px / 73.0944px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 130,
+              "y": 379.703125,
+              "width": 451,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 130,
+              "y": 462.890625,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 130,
+              "y": 508.484375,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 661,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 788,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 788,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 992.5,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 1119.5,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 1119.5,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 661,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 788,
+              "y": 307.796875,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 788,
+              "y": 369.796875,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 992.5,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 1119.5,
+              "y": 298.4375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 1119.5,
+              "y": 360.4375,
+              "width": 141.5,
+              "height": 56.15625,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 661,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 788,
+              "y": 498.09375,
+              "width": 141.5,
+              "height": 27,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 788,
+              "y": 533.09375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 992.5,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 1119.5,
+              "y": 484.59375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 1119.5,
+              "y": 546.59375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 3030.28125,
+          "width": 1440,
+          "height": 715.03125,
+          "children": [
+            {
+              "text": "MENÜDEN SEÇMELER",
+              "x": 130,
+              "y": 104,
+              "width": 451,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Her ruh hâlinebir fincan.",
+              "x": 130,
+              "y": 138.421875,
+              "width": 451,
+              "height": 219.28125,
+              "font": "600 77.76px / 73.0944px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Klasik kahvelerden ferahlatıcı soğuk içeceklere, tatlı eşlikçilerden keyifli atıştırmalıklara.",
+              "x": 130,
+              "y": 379.703125,
+              "width": 451,
+              "height": 51.1875,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.68)"
+            },
+            {
+              "text": "Tam menüyü aç →",
+              "x": 130,
+              "y": 462.890625,
+              "width": 143.75,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bugünün tadıyla tanış→",
+              "x": 130,
+              "y": 508.484375,
+              "width": 191.125,
+              "height": 29.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "☕Sıcak KahvelerEspresso · Americano · Latte · Flat White",
+              "x": 661,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Sıcak Kahveler",
+              "x": 788,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Espresso · Americano · Latte · Flat White",
+              "x": 788,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🧊Soğuk KahvelerIced Latte · Mocha · Frappe · Milkshake",
+              "x": 992.5,
+              "y": 104,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Soğuk Kahveler",
+              "x": 1119.5,
+              "y": 131,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Iced Latte · Mocha · Frappe · Milkshake",
+              "x": 1119.5,
+              "y": 193,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🫖Çay ve Sıcak İçeceklerFiltre kahve · Türk kahvesi · Bitki çayları",
+              "x": 661,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Çay ve Sıcak İçecekler",
+              "x": 788,
+              "y": 307.796875,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Filtre kahve · Türk kahvesi · Bitki çayları",
+              "x": 788,
+              "y": 369.796875,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍹Limonatalar ve FrozensCool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 992.5,
+              "y": 271.4375,
+              "width": 317.5,
+              "height": 172.15625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Limonatalar ve Frozens",
+              "x": 1119.5,
+              "y": 298.4375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+              "x": 1119.5,
+              "y": 360.4375,
+              "width": 141.5,
+              "height": 56.15625,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🍰TatlılarGünün tatlıları · Kurabiyeler · Pastalar",
+              "x": 661,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Tatlılar",
+              "x": 788,
+              "y": 498.09375,
+              "width": 141.5,
+              "height": 27,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Günün tatlıları · Kurabiyeler · Pastalar",
+              "x": 788,
+              "y": 533.09375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            },
+            {
+              "text": "🥐Kruvasan ve SandviçlerÜç peynirli · Nutellalı · Baget sandviç",
+              "x": 992.5,
+              "y": 457.59375,
+              "width": 317.5,
+              "height": 153.4375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Kruvasan ve Sandviçler",
+              "x": 1119.5,
+              "y": 484.59375,
+              "width": 141.5,
+              "height": 54,
+              "font": "500 22.72px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Üç peynirli · Nutellalı · Baget sandviç",
+              "x": 1119.5,
+              "y": 546.59375,
+              "width": 141.5,
+              "height": 37.4375,
+              "font": "12.48px / 18.72px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.6)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1029600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "desktop-1440",
+      "file": "visit-map__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 3745.3125,
+          "width": 1440,
+          "height": 990.765625,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 192,
+              "y": 166,
+              "width": 491.859375,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 192,
+              "y": 200.421875,
+              "width": 491.859375,
+              "height": 292.375,
+              "font": "600 77.76px / 73.0944px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 192,
+              "y": 769.171875,
+              "width": 134.328125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 338.328125,
+              "y": 769.171875,
+              "width": 139.921875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 764.859375,
+              "y": 105,
+              "width": 544.140625,
+              "height": 780.765625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 3745.3125,
+          "width": 1440,
+          "height": 990.765625,
+          "children": [
+            {
+              "text": "BİZE UĞRAYIN",
+              "x": 192,
+              "y": 166,
+              "width": 491.859375,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(215, 137, 145)"
+            },
+            {
+              "text": "Sıradaki kahvenizburada bekliyor.",
+              "x": 192,
+              "y": 200.421875,
+              "width": 491.859375,
+              "height": 292.375,
+              "font": "600 77.76px / 73.0944px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Haritada Aç",
+              "x": 192,
+              "y": 769.171875,
+              "width": 134.328125,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Instagram ↗",
+              "x": 338.328125,
+              "y": 769.171875,
+              "width": 139.921875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Google MapsROBY'SPazarcı · GazipaşaHaritada Aç",
+              "x": 764.859375,
+              "y": 105,
+              "width": 544.140625,
+              "height": 780.765625,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1425600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "desktop-1440",
+      "file": "social-offer__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 0,
+          "documentY": 6651.953125,
+          "width": 1440,
+          "height": 213.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 245,
+              "y": 57,
+              "width": 897.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 245,
+              "y": 86.671875,
+              "width": 897.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 245,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 40,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 1162.234375,
+              "y": 82.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 0,
+          "documentY": 6545.515625,
+          "width": 1440,
+          "height": 213.484375,
+          "children": [
+            {
+              "text": "Bugün Roby's'de",
+              "x": 245,
+              "y": 57,
+              "width": 897.234375,
+              "height": 26.671875,
+              "font": "600 23.2px / 26.68px Oswald, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Lotus Cheesecake + Latte · 340 ₺",
+              "x": 245,
+              "y": 86.671875,
+              "width": 897.234375,
+              "height": 21.8125,
+              "font": "15.04px / 21.808px Montserrat, Arial, sans-serif",
+              "color": "rgba(255, 255, 255, 0.82)"
+            },
+            {
+              "text": "Instagram'da bizi etiketle",
+              "x": 245,
+              "y": 116.484375,
+              "width": 192.984375,
+              "height": 40,
+              "font": "700 13.76px / 17.888px Montserrat, Arial, sans-serif",
+              "color": "rgb(219, 122, 133)"
+            },
+            {
+              "text": "Instagram→",
+              "x": 1162.234375,
+              "y": 82.734375,
+              "width": 122.765625,
+              "height": 48,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            }
+          ]
+        }
+      },
+      "passed": false,
+      "reason": "dimension mismatch 1440x215 vs 1440x214",
+      "diffPixels": 309600,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "desktop-1440",
+      "file": "menu-share__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 130,
+          "documentY": 8322.75,
+          "width": 1180,
+          "height": 318.671875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 115.1875,
+              "font": "600 57.6px / 57.6px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 200.609375,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 694.765625,
+              "y": 48.5,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 114.09375,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 861.40625,
+              "y": 179.6875,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 262.203125,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 130,
+          "documentY": 8322.75,
+          "width": 1180,
+          "height": 318.671875,
+          "children": [
+            {
+              "text": "MENÜYÜ PAYLAŞ",
+              "x": 39,
+              "y": 39,
+              "width": 619.765625,
+              "height": 18.421875,
+              "font": "700 11.52px / 18.432px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "Menüyü arkadaşlarınla paylaş",
+              "x": 39,
+              "y": 69.421875,
+              "width": 619.765625,
+              "height": 115.1875,
+              "font": "600 57.6px / 57.6px Oswald, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Roby's menüsünü tek dokunuşla gönder veya sosyal hesaplarımızı aç.",
+              "x": 39,
+              "y": 200.609375,
+              "width": 619.765625,
+              "height": 25.59375,
+              "font": "16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 107, 103)"
+            },
+            {
+              "text": "Menüyü paylaş",
+              "x": 694.765625,
+              "y": 48.5,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Instagram",
+              "x": 694.765625,
+              "y": 114.09375,
+              "width": 446.234375,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Google Maps ↗",
+              "x": 861.40625,
+              "y": 179.6875,
+              "width": 112.953125,
+              "height": 37,
+              "font": "800 13.12px / 20.992px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            },
+            {
+              "text": "",
+              "x": 39,
+              "y": 262.203125,
+              "width": 1102,
+              "height": 17.46875,
+              "font": "700 12.48px / 19.968px Montserrat, Arial, sans-serif",
+              "color": "rgb(226, 27, 35)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 375240,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "desktop-1440",
+      "file": "discover-pairing__desktop-1440.png",
+      "geometry": {
+        "baseline": {
+          "documentX": 130,
+          "documentY": 972.625,
+          "width": 1180,
+          "height": 679.34375,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 750.34375,
+              "y": 156.34375,
+              "width": 356.65625,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 750.34375,
+              "y": 189.53125,
+              "width": 356.65625,
+              "height": 138.21875,
+              "font": "500 72px / 69.12px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 750.34375,
+              "y": 351.75,
+              "width": 356.65625,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 750.34375,
+              "y": 467.390625,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 907.015625,
+              "y": 482.390625,
+              "width": 102.21875,
+              "height": 25.59375,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        },
+        "current": {
+          "documentX": 130,
+          "documentY": 972.625,
+          "width": 1180,
+          "height": 679.34375,
+          "children": [
+            {
+              "text": "Bugünün küçük keşfi",
+              "x": 750.34375,
+              "y": 156.34375,
+              "width": 356.65625,
+              "height": 19.1875,
+              "font": "900 12px / 19.2px Montserrat, Arial, sans-serif",
+              "color": "rgb(169, 72, 46)"
+            },
+            {
+              "text": "Cool Lime + Makaron",
+              "x": 750.34375,
+              "y": 189.53125,
+              "width": 356.65625,
+              "height": 138.21875,
+              "font": "500 72px / 69.12px Georgia, \"Times New Roman\", serif",
+              "color": "rgb(36, 28, 27)"
+            },
+            {
+              "text": "Canlı lime ferahlığı, küçük ve tatlı makaronla dengelenir. Şimdilik Taste Journey'nin hafif ve parlak seçimi.",
+              "x": 750.34375,
+              "y": 351.75,
+              "width": 356.65625,
+              "height": 85.640625,
+              "font": "16.8px / 28.56px Montserrat, Arial, sans-serif",
+              "color": "rgb(117, 106, 103)"
+            },
+            {
+              "text": "Menüde gör",
+              "x": 750.34375,
+              "y": 467.390625,
+              "width": 136.671875,
+              "height": 55.59375,
+              "font": "700 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(255, 255, 255)"
+            },
+            {
+              "text": "Bunu tanıdım",
+              "x": 907.015625,
+              "y": 482.390625,
+              "width": 102.21875,
+              "height": 25.59375,
+              "font": "800 16px / 25.6px Montserrat, Arial, sans-serif",
+              "color": "rgb(36, 28, 27)"
+            }
+          ]
+        }
+      },
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 801220,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    }
+  ]
+}

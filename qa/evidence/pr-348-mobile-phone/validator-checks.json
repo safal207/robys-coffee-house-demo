@@ -1,0 +1,35 @@
+{
+  "validatorUnchanged": true,
+  "cases": [
+    {
+      "case": "screenshot-attempt-1",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "case": "screenshot-attempt-2",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "case": "extra-failure",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "case": "one-extra-diff-pixel",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "case": "stale-runtime-binding",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    }
+  ]
+}
