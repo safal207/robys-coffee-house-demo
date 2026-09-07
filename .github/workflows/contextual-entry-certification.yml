@@ -100,6 +100,12 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
+      - name: Locate the failed frame budget in a separate diagnostic trace
+        if: ${{ !cancelled() && steps.contextual.outcome == 'failure' }}
+        env:
+          CONTEXTUAL_CAUSE_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-cause
+        run: node scripts/trace-contextual-cause.mjs
+
       - name: Certify automatic scene routing and history bypass
         env:
           CONTEXTUAL_ROUTING_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-routing
