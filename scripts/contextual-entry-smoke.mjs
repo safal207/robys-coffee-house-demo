@@ -13,6 +13,7 @@ await certify({ port: Number(process.env.CONTEXTUAL_ENTRY_PORT ?? 4191), results
     assertBrand(appearance);
     assert(appearance.scene === scene, `Forced ${scene} route changed`);
     const probe = await done(page);
+    save(resultsDir, `contextual-entry-${scene}-raw-probe.json`, probe);
     evidence.scenes[scene] = { appearance, timing: timing(probe, "cold", scene), smoothness: cadence(probe) };
     await context.close();
   }

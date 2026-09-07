@@ -64,7 +64,8 @@ export async function contextFor(browser, options = {}) {
         if (!content) return;
         const style = getComputedStyle(content);
         const surface = getComputedStyle(overlay);
-        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform });
+        const entrance = content.getAnimations()[0];
+        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform, entrancePending: entrance?.pending, entranceTime: entrance?.currentTime, entranceState: entrance?.playState });
         if (probe.frames.length < 240) requestAnimationFrame(sample);
       };
       requestAnimationFrame(sample);
