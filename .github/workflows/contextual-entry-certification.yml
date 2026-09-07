@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "bootstrap-v2.js"
+      - "takeaway-entry.js"
+      - "styles-v2.css"
+      - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
       - "day-night-entry.js"
       - "sw.js"
@@ -23,6 +26,9 @@ on:
       - agent/day-night-motion-v1
     paths:
       - "bootstrap-v2.js"
+      - "takeaway-entry.js"
+      - "styles-v2.css"
+      - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
       - "day-night-entry.js"
       - "sw.js"
@@ -74,6 +80,8 @@ jobs:
       - name: Verify contextual runtime syntax
         run: |
           node --check bootstrap-v2.js
+          node --check takeaway-entry.js
+          node --check scripts/takeaway-browser-contract.mjs
           node --check morning-entry-v2.js
           node --check day-night-entry.js
           node --check sw.js
@@ -86,12 +94,12 @@ jobs:
       - name: Verify canonical integrity before browser evidence
         run: npm run verify:integrity
 
-      - name: Re-run certified Morning baseline
+      - name: Certify takeaway entrance cadence and Morning routing
         env:
           MORNING_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/morning-entry
         run: node scripts/morning-entry-smoke.mjs
 
-      - name: Certify Day and Night contextual variants
+      - name: Certify shared takeaway scene and session continuity
         env:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs

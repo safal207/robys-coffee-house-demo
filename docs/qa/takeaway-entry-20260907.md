@@ -67,15 +67,45 @@ Vite is a dev dependency only, added because this static repository lacked a
 development preview script. The production build/deployment architecture is
 unchanged. QA fixtures are excluded from the integrity/public-artifact scope.
 
-## Remaining release gate
+## Certification migration (PR #343 follow-up)
 
-This is an intentional visual redesign. Existing Morning/contextual/premium-depth
-browser certifications still encode the old spline geometry (red surface,
-multiple layers, 20 poses). Their old visual expectations are not evidence for
-the new scene and are expected to require redesign-specific review. No old
-threshold, snapshot, security gate, or workflow was relaxed in this change.
-Keep the PR draft until the required current-head CI and visual/review decisions
-are resolved. Do not infer that the live site already serves this change.
+The owner approved continuing the CI corrections after reviewing the draft.
+The original PR head `15bdf8818d828fbf46a519c83e3740839d963670` failed four
+motion jobs because they waited for retired spline selectors. The following
+migration makes the new visual requirements explicit; old geometry is neither
+faked with aliases nor silently accepted as evidence for the cup.
+
+| Previous expectation | Takeaway-v1 requirement | Retained protection |
+| --- | --- | --- |
+| 20 logical spline poses, red surface | Actual 10 px cup entrance sampled from its first animation frame | 24 frames, ≥20 distinct transforms and changes, ≤2 identical consecutive frames, median ≤20.5 ms |
+| Separate Day/Night palettes and durations | Same warm espresso scene at every time of day | Routing boundaries, forced overrides and session continuity across all three scenes |
+| Layered 3D depth, foreground blur, canonical SVG reveal | Reviewed 640×918 cup fingerprint, no blur, no occlusion, readable stationary hold ≥250 ms | Sharp focal artwork before exit; opacity ≥.999; overlay ≥.98; exit not started during hold |
+| Seven compositor animations | At most two animations, transform/opacity only | No animated filter/layout properties; stationary, monotonic exit dissolve |
+| Decorative overlay with no controls | One named 44 px skip button | No autofocus/inert body; Tab/Escape immediately release the page; no focus trap |
+| Cold/warm total release windows | Cold 1100–2400 ms; warm 400–1100 ms | Same release windows; scene-independent 1050/350 ms hold, with bounded decode |
+| Offline Day/Night module | Offline takeaway module and decoded branded cup | Real installed/activated service-worker test and normal post-entry cleanup |
+
+The browser suite also gates ≥4.5:1 text contrast, viewport containment at
+320/390/1280 px and short landscape, actual menu navigation, image failure and
+stalled decode without late resurrection, slow/failed imports, dynamic reduced
+motion, and background recovery. The 19 deterministic lifecycle tests retain
+haptic capability, single-pulse, animation failure and hard-stop coverage.
+
+The QA selector values now resolve through literal allowlists and URLSearchParams
+before assigning the iframe URL, addressing the CodeQL finding without reproducing
+an exploit. Its iframe uses an outline so advertised widths equal content widths.
+
+The original visual screenshot job recovered to 43/43 zero-diff comparisons on
+its existing automatic second attempt; its final failure was the old Morning
+selector. Screenshot thresholds and retry policy were not changed.
+
+The original native Android job recorded WEB_READY_TIMEOUT followed by
+VISUAL_STATE_TIMEOUT. That job loads the mutable public GitHub Pages deployment
+(`web_bytes_pinned_to_pr=false`), so it does not certify this PR's web bytes.
+Native deadlines, terminal-failure checks and permissions remain unchanged.
+Current-head CI results must be read separately; a local syntax check is not a
+browser or emulator pass. Keep the PR draft while required CI/review remains
+unresolved. The live site has not been deployed from this task.
 
 ## Screenshots
 

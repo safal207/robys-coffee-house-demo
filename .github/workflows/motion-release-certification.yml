@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "bootstrap-v2.js"
+      - "takeaway-entry.js"
+      - "styles-v2.css"
+      - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
       - "android-handoff.js"
       - "sw.js"
@@ -21,6 +24,9 @@ on:
       - agent/motion-release-certification-v1
     paths:
       - "bootstrap-v2.js"
+      - "takeaway-entry.js"
+      - "styles-v2.css"
+      - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
       - "android-handoff.js"
       - "sw.js"
@@ -70,7 +76,7 @@ jobs:
       - name: Verify canonical integrity before browser evidence
         run: node scripts/generate-integrity-manifest.mjs --check
 
-      - name: Re-run baseline Morning contract
+      - name: Certify takeaway entrance cadence and Morning routing
         env:
           MORNING_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/morning-entry
         run: node scripts/morning-entry-smoke.mjs

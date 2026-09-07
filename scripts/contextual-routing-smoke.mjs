@@ -62,19 +62,18 @@ async function autoScene(browser, hour, expectedScene) {
   const page = await context.newPage();
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
 
-  const selector = expectedScene === "morning"
-    ? ".robys-morning-entry"
-    : `.robys-contextual-entry.robys-${expectedScene}-entry`;
+  const selector = ".robys-takeaway-entry";
   await page.locator(selector).waitFor({ state: "visible", timeout: 1_800 });
+  await page.locator('html[data-robys-entry-state="brand-frame"]').waitFor({ state: "attached", timeout: 1_800 });
 
   const evidence = await page.evaluate(() => ({
     scene: document.documentElement.dataset.robysEntryScene ?? "",
     state: document.documentElement.dataset.robysEntryState ?? "",
-    poseCount: document.documentElement.dataset.robysEntryPoseCount ?? ""
+    cup: document.querySelector(".robys-takeaway-cup")?.getAttribute("src") ?? ""
   }));
   assert(evidence.scene === expectedScene, `${hour}:00 routed to ${evidence.scene || "none"}, expected ${expectedScene}`);
   assert(evidence.state === "brand-frame", `${hour}:00 did not enter BRAND_FRAME`);
-  assert(evidence.poseCount === "20", `${hour}:00 did not use 20-pose motion grammar`);
+  assert(evidence.cup === "src/brand/robys-takeaway-cup-v1.webp", `${hour}:00 did not use the approved takeaway cup`);
 
   await page.locator('html[data-robys-entry-state="done"]').waitFor({ state: "attached", timeout: 3_200 });
   await context.close();
@@ -105,12 +104,13 @@ async function historyTraversalBypass(browser) {
   await page.waitForTimeout(260);
 
   const evidence = await page.evaluate(() => ({
+    takeawayOverlay: Boolean(document.querySelector(".robys-takeaway-entry")),
     morningOverlay: Boolean(document.querySelector(".robys-morning-entry")),
     contextualOverlay: Boolean(document.querySelector(".robys-contextual-entry")),
     scene: document.documentElement.dataset.robysEntryScene ?? "",
     inlineBackground: document.documentElement.style.backgroundColor
   }));
-  assert(!evidence.morningOverlay && !evidence.contextualOverlay, "back_forward fixture replayed an entry overlay despite forced ?entry=day");
+  assert(!evidence.takeawayOverlay && !evidence.morningOverlay && !evidence.contextualOverlay, "back_forward fixture replayed an entry overlay despite forced ?entry=day");
   assert(evidence.scene === "", `back_forward fixture exposed scene ${evidence.scene}`);
   assert(evidence.inlineBackground === "", `back_forward fixture left prepaint background ${evidence.inlineBackground}`);
 
