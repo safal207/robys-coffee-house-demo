@@ -298,8 +298,11 @@ function createAndroidDownloadSection() {
 
   const screenCopy = document.createElement("div");
   screenCopy.className = "android-app-screen-copy";
-  const screenTitle = document.createElement("strong");
-  screenTitle.append("Good coffee.", document.createElement("br"), "Calm moments.");
+  const screenTitle = localizedElement("strong", "", {
+    tr: "İyi kahve. Sakin anlar.",
+    en: "Good coffee. Calm moments.",
+    ru: "Хороший кофе. Спокойные моменты."
+  });
   const screenPlace = document.createElement("span");
   screenPlace.textContent = "Gazipaşa · Antalya";
   screenCopy.append(screenTitle, screenPlace);
