@@ -1,0 +1,51 @@
+name: Compact menu candidate
+on:
+  push:
+    branches: [feat/compact-menu-20260907]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: compact-menu-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compact-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Unchanged application checks before candidate generation
+        run: npm run check && npm run verify:security && git diff --exit-code
+      - name: Build the opt-in candidate and verify its boundary
+        run: |
+          node scripts/build-compact-menu.mjs
+          node scripts/verify-compact-preview.mjs
+          npm run integrity:generate
+          npm run verify:integrity
+          npm run verify:security
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/compact-menu-browser.mjs
+      - name: Preserve candidate files and hashes without publishing
+        if: always()
+        run: |
+          mkdir -p .artifacts/compact-menu/build
+          for file in compact-menu.html compact-menu.css compact-menu.js; do
+            if test -f "$file"; then cp "$file" .artifacts/compact-menu/build/; fi
+          done
+          git rev-parse HEAD > .artifacts/compact-menu/head.txt
+          sha256sum .artifacts/compact-menu/build/* > .artifacts/compact-menu/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: compact-menu-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/compact-menu/
+          retention-days: 14
+          if-no-files-found: error
