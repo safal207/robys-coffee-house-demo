@@ -1,10 +1,14 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 const root = process.cwd();
 const variants = (process.env.ENTRY_PROBE_VARIANTS ?? 'baseline,no-video').split(',');
 if (variants.some(v => !['baseline','no-video','contain','hide-covered'].includes(v))) throw new Error('Unknown diagnostic variant');
-const output = process.env.ENTRY_PROBE_OUTPUT ?? '/tmp/robys-entry-probe.json';
+// Keep each run's evidence in an atomically created private directory.
+const output = process.env.ENTRY_PROBE_OUTPUT ?? path.join(mkdtempSync(path.join(tmpdir(), 'robys-entry-probe-')), 'results.json');
+console.log(JSON.stringify({ diagnosticOutput: output }));
 const server = spawn('python3', ['-m','http.server','4194','--bind','127.0.0.1'], {cwd:root,stdio:'ignore'});
 const results=[];
 let browser;

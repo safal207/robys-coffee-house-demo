@@ -28,8 +28,8 @@ scene inspection. It is **not a replacement certification measurement**.
 Reproduce from repository root with locked Playwright installed:
 
 ```sh
-ENTRY_PROBE_VARIANTS=baseline,no-video ENTRY_PROBE_OUTPUT=/tmp/media.json node scripts/probe-entry-render-load.mjs
-ENTRY_PROBE_VARIANTS=baseline,hide-covered,contain ENTRY_PROBE_OUTPUT=/tmp/render.json node scripts/probe-entry-render-load.mjs
+ENTRY_PROBE_VARIANTS=baseline,no-video node scripts/probe-entry-render-load.mjs
+ENTRY_PROBE_VARIANTS=baseline,hide-covered,contain node scripts/probe-entry-render-load.mjs
 ```
 
 These negative/inconclusive results do not justify a product optimization or

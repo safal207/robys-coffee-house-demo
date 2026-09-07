@@ -1,5 +1,13 @@
 # PR #342 causal graph and finding
 
+Latest mechanics and CI review: `d794605c99f5bc7d002506e975da72bcf580c829`.
+The [multi-angle review](pr342-multi-angle-review-2026-09-07.md) confirms the
+inherited family-selection dead end, disproves a suspected budget exclusion,
+and verifies configured orders through real browser actions. Current ordinary
+checks pass; pinned Android base fails while actual head passes. A separate
+diagnostic-output repair uses a private temporary directory. None of these
+observations closes the Contextual or Android product-repair boundary below.
+
 Latest local diagnostic subject: `357e64a9186f840ae1e92f96b31cda68f207c374`.
 Latest profiled failing CI subject: `5aa14b34d5bc61d3aa01e756b81d6db03560720e`.
 Exact base: `5b01276b99db719cae2fc72f29d38eb00c9953f4`.
