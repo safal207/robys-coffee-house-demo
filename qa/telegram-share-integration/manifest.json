@@ -1,0 +1,24 @@
+{
+  "base": "7799f80b5a6561beec57f2d98f8e8ca58e8c36fa",
+  "encoding": "gzip+base64",
+  "patchSha256": "a9c6653fb2098e6427e141843a83f92c66040bcfe664520d8939ded4d8f08d21",
+  "files": {
+    "src/order-shell.ts": "149b84046c768d7a327a43904bfc645bebed48963ed45a9f9723f8238dabfe10",
+    "src/order-share.ts": "44032fcb155408c75402b4cf2bc1547bfbc04ee4083998e815300dc9e52c067a",
+    "order-shell.css": "e3de667b8d4988e91b58c82d0f665bc8793df345bd633d1ef002d18e05bace7e",
+    "package.json": "e2e495b25433aef8000c955a21631f7a81bc82efc743893c92b1d96e45f63a85",
+    "scripts/test-order-share.mjs": "690ac03ca19638eb3f17b3346869d6c0f61f1321b50d05f9048c6acc1334b480",
+    "scripts/test-order-share-panel.mjs": "e514338e4504aabf569ab665b49a5a6462e95c520c5dc4945193985923849193",
+    "scripts/test-order-share-catalog.mjs": "e0306dcbfa56bfc3fb715cdbe0486ee97da3ec875fbe06ccbb404371b1fe2f2a",
+    "scripts/order-share-integration-browser.mjs": "0f14f5cf22bc1f461900db07a65350345701d24cf3d57af137474292d54f2eb2"
+  },
+  "runtime": {
+    "order-store.js": "ea7acc7113ac4511d2b5bdb23fba1021d6a7a19069e9a80d42e2ed0fe2270452",
+    "order-shell.js": "078b7386e387efd90310d8b39155c8052f3cb2127e036a6646a97338fc908af8",
+    "order-shell.css": "e3de667b8d4988e91b58c82d0f665bc8793df345bd633d1ef002d18e05bace7e",
+    "menu-app.js": "054e837c742176b498d9c83cf23c340658be337b38930cb28589fbb507f083e6",
+    "menu.html": "6a28044bad1252a0d831f933b74e1b895f31a35eea644043aded27a5ec2f770c",
+    "smart-choice/app-v2.js": "67033c81a867a0fbe82aed7b379ef0e7a079e723ca4658bb1b8aa70913759312"
+  },
+  "boundary": "Read-only integration staging. Decode gzip/base64 in part order, verify patch SHA256, and apply only to the exact base. Generated files are built by existing project commands and compared to the recorded runtime hashes. No merge, deployment, Telegram send, or current cafe price/stock acceptance claim."
+}
