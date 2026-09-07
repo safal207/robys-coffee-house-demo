@@ -14,6 +14,8 @@ date +%s%N > trace-evidence/host-before-ns.txt
 adb shell date +%s%N > trace-evidence/guest-wall-ns.txt
 date +%s%N > trace-evidence/host-after-ns.txt
 adb shell perfetto --background-wait --txt -c - -o /data/misc/perfetto-traces/robys-handoff.pftrace < trace-evidence/config.pbtx > trace-evidence/perfetto-pid.txt 2> trace-evidence/perfetto-start.log
+# Observe file closure from the shell domain; Perfetto process signals are denied.
+adb shell 'timeout 75s inotifyd - /data/misc/perfetto-traces/robys-handoff.pftrace:w > /data/local/tmp/robys-trace-close.txt 2> /data/local/tmp/robys-trace-watch.log < /dev/null &'
 '''
 RUNNER = '''#!/usr/bin/env bash
 set -euo pipefail
@@ -26,15 +28,12 @@ collect_trace() {
   kill "$cpu_sampler_pid" 2>/dev/null
   wait "$cpu_sampler_pid" 2>/dev/null
   trace_wait_result=1
-  if [[ -f trace-evidence/perfetto-pid.txt ]]; then
-    trace_pid="$(tr -d '\\r\\n ' < trace-evidence/perfetto-pid.txt)"
-    if [[ "$trace_pid" =~ ^[0-9]+$ ]]; then
-      # Let the bounded 60-second session finish and its writer close the file.
-      # Signalling then waiting only five seconds previously pulled empty files.
-      timeout 60s adb shell "while kill -0 $trace_pid 2>/dev/null; do sleep 0.25; done" > trace-evidence/perfetto-wait.log 2>&1
-      trace_wait_result=$?
-    fi
-  fi
+  # A failed kill -0 can mean SELinux denial, not process exit. Wait for the
+  # writable file-close event installed immediately after trace startup instead.
+  timeout 60s adb shell "while ! grep -q '^w[[:space:]]' /data/local/tmp/robys-trace-close.txt 2>/dev/null; do sleep 0.25; done" > trace-evidence/perfetto-wait.log 2>&1
+  trace_wait_result=$?
+  timeout 6s adb shell cat /data/local/tmp/robys-trace-close.txt > trace-evidence/close-events.txt
+  timeout 6s adb shell cat /data/local/tmp/robys-trace-watch.log > trace-evidence/watch-errors.txt
   timeout 12s adb pull /data/misc/perfetto-traces/robys-handoff.pftrace trace-evidence/launch.pftrace > trace-evidence/trace-pull.log 2>&1
   pull_result=$?
   trace_nonempty=0

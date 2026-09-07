@@ -39,22 +39,21 @@ with tempfile.TemporaryDirectory() as temporary:
 import os,sys,time
 from pathlib import Path
 mode=os.environ['PROBE_COLLECTION']
-if sys.argv[1]=='shell' and sys.argv[2].startswith('while kill -0 '):
+if sys.argv[1]=='shell' and sys.argv[2].startswith('while ! grep '):
     if mode=='wait-failure':sys.exit(12)
+    if mode=='no-close-event':sys.exit(124)
     time.sleep(0.1)
     Path('writer-closed').write_text('closed')
 if sys.argv[1]=='pull':
     if mode=='pull-failure':sys.exit(9)
-    if mode not in ('wait-failure','missing-pid') and not Path('writer-closed').exists():sys.exit(19)
+    if mode not in ('wait-failure','no-close-event') and not Path('writer-closed').exists():sys.exit(19)
     Path(sys.argv[-1]).write_bytes(b'' if mode=='empty' else b'fake trace')
 ''')
     adb.chmod(0o755)
     for native in (0, 17):
-        for mode in ('success', 'pull-failure', 'wait-failure', 'empty', 'missing-pid'):
-            for path in ('writer-closed', 'trace-evidence/launch.pftrace', 'trace-evidence/perfetto-pid.txt'):
+        for mode in ('success', 'pull-failure', 'wait-failure', 'empty', 'no-close-event'):
+            for path in ('writer-closed', 'trace-evidence/launch.pftrace'):
                 (root / path).unlink(missing_ok=True)
-            if mode != 'missing-pid':
-                (root / 'trace-evidence/perfetto-pid.txt').write_text('1234\n')
             (root / 'trace-capture.sh').write_text(f'#!/bin/bash\nexit {native}\n')
             env = dict(os.environ, PATH=str(shims)+os.pathsep+os.environ['PATH'], PROBE_COLLECTION=mode)
             run = subprocess.run(['bash', 'trace-runner.sh'], cwd=root, env=env, capture_output=True, timeout=20)
@@ -62,7 +61,7 @@ if sys.argv[1]=='pull':
             assert run.returncode == expected, (native, mode, expected, run.returncode)
             exits = dict(line.split('=') for line in (root / 'trace-evidence/exits.txt').read_text().splitlines())
             assert exits['capture_exit'] == str(native)
-            assert exits['trace_wait_exit'] == ('12' if mode == 'wait-failure' else '1' if mode == 'missing-pid' else '0')
+            assert exits['trace_wait_exit'] == ('12' if mode == 'wait-failure' else '124' if mode == 'no-close-event' else '0')
             assert exits['trace_pull_exit'] == ('9' if mode == 'pull-failure' else '0')
             assert exits['trace_nonempty'] == ('0' if mode in ('pull-failure', 'empty') else '1')
 print('Trace controls: 14 original capture cases + 10 independent collector outcomes passed.')

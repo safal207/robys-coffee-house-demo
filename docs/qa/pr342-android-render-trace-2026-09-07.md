@@ -38,7 +38,7 @@ of idleness. Tracing adds overhead and is not an alternative acceptance gate.
 
 Local controls preserve all 14 original capture cases and test ten combinations
 of native success/failure and delayed writer completion, failed wait, failed
-retrieval, empty trace, or missing PID. Full check and
+retrieval, empty trace, or missing close event. Full check and
 security remain required before updating the branch. Results belong to the PR
 body once the trace artifacts have been collected and inspected.
 
@@ -68,10 +68,19 @@ Verified archive SHA-256:
 | head | 10004728633 | 6e4526d978a66b129bb5130c10175c16dc1c17c4d0d356c2c4b4fb07efcc3cd6 |
 | head-swiftshader | 10004737130 | f4f82336e5991f0fa78146c35df69e1903deabedb6b168455cea4f0486f47d5d |
 
-The collector now lets the configured 60-second session complete, with a bounded
-wait for the writer process to exit before retrieval. It no longer signals the
-writer and assumes a five-second grace period is sufficient. Wait status, pull
-status and nonempty status are independent evidence. Final collector logcat
-retains any trace-service shutdown errors. This is a collection repair, not an
-Android performance repair; the next trace still needs decoding and coverage
-and loss checks before causal conclusions.
+The first follow-up let the configured 60-second session complete, attempting
+to wait for the writer process to exit before retrieval. Run 34084946381 base
+artifact 10004975892 (verified ZIP SHA-256
+`b6e20a3d733caec0b13e4f2fb3f59f35f19a7dd1ac1672281dfa9dd6c035a047`)
+still had an empty trace. Final collector logcat reveals the specific failure:
+SELinux denied `signull` from `shell` to `perfetto`. Thus a failed `kill -0`
+did not establish process exit. This supersedes the process-wait approach.
+
+The collector now installs a bounded, read-only `inotifyd` watcher immediately
+after trace startup, before the native launch, and waits for the file's writable
+close event. It never signals the Perfetto process. The watcher and event file
+use existing shell access; SELinux and all other security settings stay intact.
+Wait status, close event, watcher errors, pull status and nonempty status are
+independent evidence. Final collector logcat retains trace-service errors. This
+is collection plumbing, not an Android performance repair; the next trace still
+needs decoding, coverage and loss checks before causal conclusions.
