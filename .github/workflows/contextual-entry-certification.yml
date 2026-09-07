@@ -100,10 +100,11 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
-      - name: Diagnose layer costs after contextual failure
-        if: failure() && steps.contextual.outcome == 'failure'
+      - name: Compare surface candidates with original timing and fixed-pose pixels
+        if: ${{ !cancelled() && (steps.contextual.outcome == 'success' || steps.contextual.outcome == 'failure') }}
         env:
           CONTEXTUAL_PROBE_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-probe
+          CONTEXTUAL_PROBE_SUITE: surfaces
         run: node scripts/probe-contextual-layers.mjs
 
       - name: Certify automatic scene routing and history bypass

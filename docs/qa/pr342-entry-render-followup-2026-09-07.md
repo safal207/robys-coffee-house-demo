@@ -79,7 +79,7 @@ The unchanged gate passes locally even with the process restricted to four
 CPUs. An earlier two-CPU ablation also failed to reproduce the slow median.
 These local passes cannot certify the CI rendering path.
 
-`scripts/probe-contextual-layers.mjs` runs only after the original contextual
+The initial `4027cb2` version of `scripts/probe-contextual-layers.mjs` runs only after the original contextual
 step fails. The failed certification remains failed. The diagnostic imports
 the original gate functions with one declared initialization hook and retains
 the original scene assertions, 18 raw frame samples, 15 unique transforms and
@@ -105,3 +105,49 @@ node scripts/probe-contextual-layers.mjs
 The helper drains its HTTP server log pipes because the longer matrix can fill
 them. This changes diagnostic plumbing only; it does not change the original
 gate, product runtime, screenshot tolerances or Android deadlines.
+
+## Surface candidates after the optical ablation
+
+Exact product parent: `4027cb2c0a6ead8d47b360b19c3ec5b3d9b609a9`; base remains
+`5b01276b99db719cae2fc72f29d38eb00c9953f4`. No product or native file changes.
+CI run 34089977296 passed once, then failed its one declared control repeat at
+Night 33.2 ms. Its full 24-observation diagnostic obtained original-sampler
+medians within 21 ms in 1/4 unchanged cases, 4/4 without shadows, 4/4 without
+filters, 4/4 with flattened perspective, 1/4 with containment and 3/4 with
+covered content hidden. Optical removals are not approved designs. Full artifact
+identities, hashes and the rejected static-promotion experiment are in the PR.
+
+The follow-up keeps the original `optics` suite available and adds a bounded
+`surfaces` suite. It compares unchanged rendering with four candidates:
+
+- an explicit rectangular clip on the already clipped overlay;
+- a static-filter compositing hint on the animated foreground;
+- hidden back faces on scene descendants, whose animation never rotates away;
+- automatic isolation for the opaque overlay and its logo stage.
+
+Six local fixed-pose comparisons per candidate (Day/Night, animation fractions
+0.2/0.6/0.9, 390 x 844) had zero changed pixels. A separate logo-filter promotion
+candidate changed up to 77791 pixels and was rejected before this CI matrix.
+The earlier five-static-layer `will-change: auto` candidate remains rejected.
+
+The original sampler was also run on a process restricted to one CPU: 20 full
+observations were collected. Unchanged Night reached 33.2 ms once; all candidate
+medians were 16.7-16.8 ms. This small local result does not establish a repair.
+
+The CI surface matrix runs after either outcome of the original certification,
+with its failure still preserved. It retains the original cold-launch ordering,
+18-frame sampler, scene assertions and 21 ms limit for 20 observations. It then
+separately captures fixed poses using the same injected candidate implementation
+and checks decoded PNG pixels exactly, without tolerance. Six additional
+unchanged-versus-unchanged comparisons check capture determinism. All 36 images,
+30 comparison results, image hashes, original/derived/probe script hashes and
+renderer metadata are retained. Missing captures or changed pixels fail the
+diagnostic. Fixed-pose images are never used as frame-timing evidence.
+
+```sh
+CONTEXTUAL_PROBE_SUITE=surfaces node scripts/probe-contextual-layers.mjs
+```
+
+Only a candidate with preserved appearance and a demonstrated timing benefit
+can progress to a separate product patch and broader responsive validation.
+The diagnostic does not rebind existing visual reviews or certify Android.

@@ -3,9 +3,17 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+const { PNG } = createRequire(import.meta.url)('pngjs');
 
 // Diagnostic ablations only. They are never substituted for the original gate.
-const variants = ['baseline', 'no-shadows', 'no-filters', 'flat', 'contain', 'no-covered'];
+const suite = process.env.CONTEXTUAL_PROBE_SUITE ?? 'optics';
+const suites = {
+  optics: ['baseline', 'no-shadows', 'no-filters', 'flat', 'contain', 'no-covered'],
+  surfaces: ['baseline', 'clip-surface', 'foreground-cache', 'backface', 'isolation-auto']
+};
+if (!Object.hasOwn(suites, suite)) throw new Error('Unknown bounded contextual probe suite');
+const variants = suites[suite];
 const out = path.resolve(process.env.CONTEXTUAL_PROBE_RESULTS_DIR ?? 'visual-results/contextual-probe');
 mkdirSync(out, { recursive: true });
 process.env.CONTEXTUAL_ENTRY_RESULTS_DIR = out;
@@ -36,13 +44,22 @@ async function installAblation(context, variant) {
         stage.style.perspective = 'none'; stage.style.transformStyle = 'flat';
       }
       if (variant === 'contain') overlay.style.contain = 'layout paint';
+      if (variant === 'clip-surface') overlay.style.clipPath = 'inset(0)';
+      if (variant === 'foreground-cache') {
+        overlay.querySelector('.robys-entry-foreground-occluder').style.willChange = 'transform, opacity, filter';
+      }
+      if (variant === 'backface') for (const node of overlay.querySelectorAll('*')) node.style.backfaceVisibility = 'hidden';
+      if (variant === 'isolation-auto') {
+        overlay.style.isolation = 'auto';
+        overlay.querySelector('.robys-entry-logo-stage').style.isolation = 'auto';
+      }
       if (variant === 'no-covered') for (const node of document.body.children) {
         if (node !== overlay) node.style.visibility = 'hidden';
       }
     });
   }, variant);
 }
-export { captureScene, measureCold, startServer, waitForServer, diagnostics, selectVariant };
+export { captureScene, measureCold, startServer, waitForServer, diagnostics, selectVariant, installEventProbe };
 `;
 const hash = text => createHash('sha256').update(text).digest('hex');
 const temporary = mkdtempSync(path.join(process.cwd(), '.contextual-probe-'));
@@ -50,8 +67,9 @@ const modulePath = path.join(temporary, 'runtime.mjs');
 writeFileSync(modulePath, derived + suffix);
 const report = {
   scope: 'Diagnostic layer ablations; original 18-frame assertions retained. Not an acceptance gate or visual approval.',
+  probeScriptSha256: hash(readFileSync('scripts/probe-contextual-layers.mjs')),
   sourceScriptSha256: hash(source), derivedScriptSha256: hash(derived + suffix),
-  variants, rounds: 2, observations: [], environments: [], status: 'RUNNING'
+  suite, variants, rounds: 2, observations: [], environments: [], status: 'RUNNING'
 };
 const save = () => writeFileSync(path.join(out, 'layer-probe.json'), JSON.stringify(report, null, 2) + '\n');
 let server, browser;
@@ -94,10 +112,68 @@ try {
       await browser.close(); browser = null;
     }
   }
-  const complete = report.observations.length === 24
+  const complete = report.observations.length === 2 * variants.length * 2
     && report.observations.every(row => row.measured?.smoothness?.samples?.length === 18);
   report.status = complete ? 'COLLECTED' : 'INCOMPLETE'; save();
   if (!complete) throw new Error('Layer probe did not obtain every required frame sample');
+  if (suite === 'surfaces') {
+    // Separate fixed-pose appearance check; never used as a timing sample.
+    report.visualStatus = 'RUNNING'; report.visualComparisons = []; save();
+    browser = await chromium.launch({ headless: true });
+    for (const scene of ['day', 'night']) for (const fraction of [.2, .6, .9]) {
+      let baseline;
+      for (const variant of [...variants, 'baseline-control']) {
+        gate.selectVariant(variant === 'baseline-control' ? 'baseline' : variant);
+        const context = await browser.newContext({ viewport: { width: 390, height: 844 },
+          locale: 'tr-TR', timezoneId: 'Europe/Istanbul', reducedMotion: 'no-preference', serviceWorkers: 'block' });
+        try {
+          await gate.installEventProbe(context);
+          const page = await context.newPage();
+          await page.goto(`http://127.0.0.1:4196/?entry=${scene}`, { waitUntil: 'domcontentloaded' });
+          const overlay = page.locator('.robys-contextual-entry');
+          await overlay.waitFor({ state: 'visible', timeout: 1500 });
+          await page.evaluate(async fraction => {
+            const overlay = document.querySelector('.robys-contextual-entry');
+            const animations = overlay.getAnimations({ subtree: true });
+            if (animations.length !== 7) throw new Error('Expected seven animations for fixed-pose comparison');
+            for (const animation of animations) {
+              animation.pause(); animation.currentTime = animation.effect.getTiming().duration * fraction;
+            }
+            await Promise.all([...overlay.querySelectorAll('img')].map(image => image.decode()));
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          }, fraction);
+          const filename = `${scene}-${fraction}-${variant}.png`;
+          const bytes = await overlay.screenshot({ path: path.join(out, filename) });
+          const png = PNG.sync.read(bytes);
+          if (variant === 'baseline') baseline = { png, filename, sha256: hash(bytes) };
+          else {
+            if (png.width !== baseline.png.width || png.height !== baseline.png.height) throw new Error('Fixed-pose dimensions changed');
+            let changedPixels = 0, maxChannelDelta = 0;
+            for (let i = 0; i < png.data.length; i += 4) {
+              let changed = false;
+              for (let channel = 0; channel < 4; channel++) {
+                const delta = Math.abs(png.data[i + channel] - baseline.png.data[i + channel]);
+                changed ||= delta !== 0; maxChannelDelta = Math.max(maxChannelDelta, delta);
+              }
+              changedPixels += Number(changed);
+            }
+            const row = { scene, fraction, variant, width: png.width, height: png.height,
+              changedPixels, maxChannelDelta, filename, sha256: hash(bytes),
+              baselineFilename: baseline.filename, baselineSha256: baseline.sha256 };
+            report.visualComparisons.push(row); save();
+            console.log(JSON.stringify({ visual: true, ...row }));
+          }
+        } finally { await context.close(); }
+      }
+    }
+    report.visualStatus = report.visualComparisons.length === variants.length * 6
+      && report.visualComparisons.every(row => row.changedPixels === 0) ? 'PASS' : 'FAIL'; save();
+    if (report.visualStatus !== 'PASS') throw new Error('Surface candidate or unchanged control changed fixed-pose pixels');
+  }
+} catch (error) {
+  report.error = error.message;
+  if (report.visualStatus === 'RUNNING') report.visualStatus = 'INCOMPLETE';
+  save(); throw error;
 } finally {
   await browser?.close(); server?.kill();
   rmSync(temporary, { recursive: true, force: true });
