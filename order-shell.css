@@ -57,3 +57,10 @@ body.has-unified-order .skip-link:not(:focus){top:0;transform:translateY(-100%)}
 .order-dialog--handoff .order-total{padding-top:18px;border-top:1px solid #ddcbb8;font-size:1.6rem}
 .order-dialog--handoff .order-note{font-size:.95rem}
 @media(prefers-reduced-motion:no-preference){.order-dialog[open]{animation:order-arrive .2s ease-out}@keyframes order-arrive{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}}
+/* Read-only selection sharing; the barista handoff remains the primary action. */
+.order-sharing{margin:16px 0 8px;border-top:1px solid #ddcbb8;padding-top:4px;min-width:0}
+.order-sharing>summary{min-height:44px;box-sizing:border-box;padding:12px 4px;cursor:pointer;font-weight:650;line-height:1.4;overflow-wrap:anywhere;touch-action:manipulation}
+.order-share-preview{display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:9rem;padding:12px;border:1px solid #d9c5b2;border-radius:12px;background:#fff;color:#2c211e;font:inherit;font-size:.875rem;line-height:1.5;resize:vertical;overflow-wrap:anywhere;white-space:pre-wrap}
+.order-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.order-share-actions .order-button{margin:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;line-height:1.4;min-width:0}
+.robys-order :is(.order-sharing>summary,.order-sharing a,.order-share-preview):focus-visible{outline:3px solid #a1572c;outline-offset:3px}

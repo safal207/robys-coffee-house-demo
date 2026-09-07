@@ -1,4 +1,5 @@
 import { installOrderDock } from "./order-dock.js";
+import { createOrderSharePanel } from "./order-share.js";
 import { order, resolveOrderProduct, suggestOrderAddition, type Language } from '@robys/order';
 const words = {
   tr: {cart:'Sepetim',total:'Toplam',empty:'Sepetiniz boş',back:'Seçime devam',remove:'Kaldır',undo:'Geri al',close:'Kapat',add:'Ekle',minus:'Azalt',draft:'Ön hesaplama. Sipariş gönderilmedi, ödeme alınmadı.',storage:'Bu sekmede kayıt kullanılamıyor. Sayfadan ayrılırsanız seçiminiz kaybolabilir.',invalid:'Eski seçim okunamadı. Lütfen sepetinizi kontrol edin.',legacy:'Smart Choice içindeki eski seçimi de eklemek ister misiniz?',keep:'Mevcut sepeti koru',import:'Eski seçimi ekle',error:'İşlem tamamlanamadı. Miktarı ve seçimi kontrol edin.'},
@@ -32,6 +33,14 @@ function start(): void {
   const draft=element('p','order-note');
   const extra=element('section','order-extra');
   const emptyActions=element('div','order-empty-actions');
+  const sharing=createOrderSharePanel({
+    language:lang,
+    snapshot:()=>order.get(),
+    summary:()=>order.summary(),
+    resolveProduct:resolveOrderProduct,
+    menuUrl:new URL('menu.html',import.meta.url).href,
+    canShare:()=>order.summary().quantity>0 && !order.status().pendingLegacy
+  });
   const handoff=button('',()=>{showingBarista=true;render();heading.tabIndex=-1;heading.focus();window.dispatchEvent(new CustomEvent('robys:order-handoff',{detail:order.summary()}));},'order-button order-primary');
   handoff.id='robys-order-handoff';
   const edit=button('',()=>{showingBarista=false;render();handoff.focus();});
@@ -39,7 +48,7 @@ function start(): void {
   let showingBarista=false,extraDismissed=false;
   try {extraDismissed=sessionStorage.getItem('robys:order-addon-declined.v1')==='true';} catch { /* Same-page decisions still work. */ }
   function dismissExtra():void {extraDismissed=true;try{sessionStorage.setItem('robys:order-addon-declined.v1','true');}catch{ /* Optional persistence. */ }}
-  dialog.append(close,heading,notice,migration,lines,total,extra,emptyActions,status,undo,handoff,edit,back,draft);
+  dialog.append(close,heading,notice,migration,lines,total,extra,emptyActions,status,undo,handoff,edit,back,sharing.element,draft);
   root.append(bar,dialog);document.body.append(root);document.body.classList.add('has-unified-order');
   installOrderDock(bar);
   let returnFocus: HTMLElement|null=null;const inerted: HTMLElement[]=[];
@@ -62,7 +71,7 @@ function start(): void {
   dialog.addEventListener('keydown',event=>{
     if(event.key==='Escape'){event.preventDefault();hide();}
     if(event.key!=='Tab')return;
-    const nodes=Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href]')).filter(n=>!n.hidden && n.getClientRects().length);
+    const nodes=Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],summary,textarea:not([disabled])')).filter(n=>!n.hidden && n.getClientRects().length);
     const first=nodes[0],last=nodes[nodes.length-1];
     if(event.shiftKey && document.activeElement===first){event.preventDefault();last?.focus();}
     else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first?.focus();}
@@ -73,6 +82,7 @@ function start(): void {
     bar.textContent=summary.quantity ? `${copy.cart} · ${summary.quantity} · ${money(summary.totalMinor)} →` : copy.cart;
     bar.classList.toggle('order-bar--filled',summary.quantity>0);
     if (!summary.quantity) showingBarista=false;
+    sharing.update(!showingBarista && summary.quantity>0 && !state.pendingLegacy);
     dialog.classList.toggle('order-dialog--handoff',showingBarista);
     heading.textContent=showingBarista ? journey.ready : copy.cart;close.setAttribute('aria-label',copy.close);back.textContent=copy.back;draft.textContent=showingBarista ? journey.counter : journey.hint;
     handoff.textContent=journey.show;handoff.hidden=showingBarista || !summary.quantity || Boolean(state.pendingLegacy);

@@ -1,0 +1,74 @@
+name: Order selection sharing
+on:
+  pull_request:
+    paths:
+      - 'src/order-*.ts'
+      - 'order-*.js'
+      - 'order-shell.css'
+      - 'menu*.js'
+      - 'menu.html'
+      - 'scripts/test-order-share*.mjs'
+      - 'package*.json'
+      - '.github/workflows/order-share.yml'
+  push:
+    branches: [feat/menu-telegram-share-20260907]
+permissions:
+  contents: read
+concurrency:
+  group: order-share-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check && npm run verify:security && git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:order-share:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-share-browser-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/order-share/
+          if-no-files-found: error
+          retention-days: 14
+  performance:
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [mobile, desktop]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      LHCI_VERSION: '0.15.1'
+      LIGHTHOUSE_ENFORCE: 'true'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && git diff --exit-code
+      - run: npm run verify:media
+      - run: node scripts/run-lighthouse-profile.mjs "${{ matrix.profile }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: order-share-lighthouse-${{ matrix.profile }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            .lighthouseci/
+            lighthouse/reports/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
