@@ -21,7 +21,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run verify:integrity
       - run: npx playwright install --with-deps chromium
-      - run: node scripts/guest-startup-trace.mjs
+      - run: node scripts/guest-startup-observer-compare.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
