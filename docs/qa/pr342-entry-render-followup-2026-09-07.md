@@ -228,7 +228,6 @@ original Android smoke failed while the two pinned base/head diagnostic jobs
 passed; that mixed outcome does not demonstrate an Android repair. Android uses
 its separate handoff runtime and does not inherit this Day/Night optimization.
 
-
 ## Front-face rejection and automatic-isolation candidate
 
 Exact candidate `10d64cab8e76834f39cfc20a5296920a7843221b` failed the original
@@ -273,3 +272,50 @@ counterfactual samples and static controls are recorded in
 is `20260907-isolation-v27`. Visual bindings remain unchanged pending complete
 new-head comparisons. Android runtime, capture deadlines and all limits are
 unchanged; this is still a draft candidate, not a completed repair.
+
+## Final disposition of the two surface candidates
+
+The automatic-isolation candidate on exact
+`4ea57fb8976cce0c5fa67cfeae14e5a61098903e` also failed original certification:
+Night 33.3 ms in run 34096206328. Four alternating-order rounds obtained 6/8
+medians within 21 ms for automatic isolation, versus 5/8 when restoring the
+original isolation. The small difference does not establish a reliable repair.
+Both candidates are rejected; neither product hint is retained.
+
+Artifact 10008746001 has verified ZIP SHA-256
+`0c9a3cc828c4514b58655207ebd12c822c7265712114241c20c929518fa1cfa4`.
+All 16 observations contain the original 18 samples. Source, derived and probe
+hashes match exact 4ea57fb. All 12 fixed-pose PNG pairs were independently decoded
+and found byte-identical in RGBA, in addition to checking their file hashes.
+Full samples, environments and verdict are in
+`qa/evidence/pr342-render-candidate-verdict-2026-09-07.json`.
+
+The follow-up restores every changed product/cache/integrity byte and the
+synchronized revision assertion to exact 58f30c5. All 251 existing Visual content
+bindings match again without modifying the review record. The original
+Contextual sampler, 21 ms limit, seven animations, depth contract, Visual
+thresholds and native deadlines remain unchanged. The completed optional
+candidate experiment is removed from automatic CI execution; its replay helper
+and all positive/negative evidence remain available. Original certification,
+routing, offline checks and artifact retention remain enforced.
+
+Full check/security passed after runtime restoration. The introduced Markdown
+blank-line errors are corrected. New-head CI must still complete: the restored
+runtime's inherited Contextual instability has not been solved by these hints.
+
+On 4ea57fb, Visual again reported only four menu dimension changes in both
+43-comparison attempts, then correctly rejected stale bindings. Pairing passed.
+The original Android smoke and pinned base failed VISUAL_STATE_TIMEOUT. The
+pinned head job failed recording retrieval; its native result cannot be inferred
+from that job failure. CI resource identity checks passed on both pinned sides.
+This differs from 10d64ca's three passing Android jobs despite unchanged native
+and handoff runtime bytes. Earlier delivery-verified base render waits continue
+to establish an inherited mechanism, with possible extra head resource load not
+excluded. No Android repair or failure-rate estimate is claimed.
+
+The retained safe repair is the separately proven share-card raster-origin
+correction and the four exact inspected menu dimension records. A complete
+Contextual/Android repair still needs a measured reduction in rendering work
+that survives unchanged cold-start and frame gates. More CSS-hint permutations,
+passing retries, longer deadlines or broader visual exceptions are not supported
+by this evidence. Keep draft/HOLD; no merge or deployment.

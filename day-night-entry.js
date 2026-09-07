@@ -219,7 +219,7 @@ function createContextualEntry(sceneName) {
     background: theme.background,
     opacity: "1",
     touchAction: "manipulation",
-    isolation: "auto"
+    isolation: "isolate"
   });
   overlay.className = `robys-contextual-entry robys-${sceneName}-entry`;
   overlay.setAttribute("aria-hidden", "true");
@@ -350,7 +350,7 @@ function createContextualEntry(sceneName) {
     display: "grid",
     justifyItems: "center",
     gap: "12px",
-    isolation: "auto",
+    isolation: "isolate",
     willChange: "transform, opacity",
     pointerEvents: "none",
     zIndex: "10"

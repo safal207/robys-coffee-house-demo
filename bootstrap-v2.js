@@ -93,7 +93,7 @@ function loadEntryIfEligible() {
 
   const entryImport = scene === "morning"
     ? import("./morning-entry-v2.js?v=8a158515f4de")
-    : import("./day-night-entry.js?v=20260907-isolation-v27");
+    : import("./day-night-entry.js?v=20260904-compositor-v25");
 
   entryImport.catch(revealProductAfterEntryFailure);
 
