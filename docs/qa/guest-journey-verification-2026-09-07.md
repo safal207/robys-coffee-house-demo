@@ -94,6 +94,46 @@ The retained examples below are unmodified CI screenshots from `ee3ebfa`:
 
 ![Complete order after menu continuation](../../qa/evidence/pr-346-ru-complete-order.png)
 
+## Cadence measurement repair
+
+On `0e329a1`, the complete order, shared-order regression, responsive UI,
+accessibility, scrolling, screenshot review and performance checks passed. Three
+jobs still failed the shared entrance-cadence assertion (3–4 repeated frames).
+Their original startup frames were not saved before the assertion, so an isolated
+branch added instrumentation without changing any public runtime bytes.
+
+Diagnostic `a1525a323acedce98a39d789037871111b2f6a65`, run 34141548289,
+artifact 10026121848 (`3fdd253b2321217b866bacea5d6b6d9444f4ab5225cd78b03d022199ab2f31d9`)
+preserved 18 completed cold starts. Four reproduce the cadence failure: three
+initial samples have opacity **0**, animation time **0**, and `pending=true`.
+After startup, every retained trace has 24 distinct transforms, no repeated
+visible frame, and a 16.7ms median interval. Observed startup spans are 33–84ms.
+The nineteenth navigation timed out; this diagnostic is **not a 20/20 pass**.
+The shared HTTP helper had an unread stderr pipe; it now drains it while retaining
+a bounded log tail, so a long matrix cannot fill that pipe and block responses.
+
+The cadence check retains every raw sample and separates only the initial
+invisible pending phase. It requires a visible start within **150ms**, then the
+same **24** consecutive samples, **20** distinct transforms/changes, maximum
+**two** identical frames and **20.5ms** median interval. It never removes samples
+after the first visible frame. Existing total-duration, readable-hold and fade
+requirements remain. Seven local cases replay the retained trace and reject an
+injected visible freeze, opacity reversal, slow cadence, delayed/absent start and
+missing samples. The fixture is `qa/evidence/pr-346-motion-startup-probe.json`.
+
+Morning/Day/Night suites now save raw probes before assertions. This is a repair
+to the measured phase, not a claim that the failed jobs passed or a relaxation of
+the visible-animation limits. Fresh CI on the final PR commit is still required.
+
+The corrected diagnostic `a0291ba07246c263d5c3b06c8e9fb53c0313567b` completed
+**20/20** cold starts with the unchanged public runtime, passing brand, total
+timing and the corrected phase measurements. Visible startup was 39.4–136.9ms.
+Run 34142132961, artifact 10026309902 has verified archive SHA-256
+`67eefee44ef0a8248ce9fa3dc5c55db5a5ad660f49cbb57a27f7cd39bf80ed0d`.
+The diagnostic workflow remains on its isolated QA branch and is not shipped in
+the product PR. The reusable raw recording, bounded server log and seven
+negative-control/replay cases are included in the PR's normal checks.
+
 ## Remaining boundaries
 
 Candidate `0b7f500` failed the sealed performance gate: one measured mobile

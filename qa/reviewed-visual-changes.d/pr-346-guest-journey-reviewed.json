@@ -68,7 +68,13 @@
         ".github/workflows/guest-journey.yml": "894f056ffce3d35f881330459e61cfc174f54803",
         "smart-choice/style.css": "367e2c3561f4a7a543721de2c0d22cee030df710",
         "smart-choice/cart.css": "95e72d1cffb082b13becdb58c7e8c02787933b7c",
-        "smart-choice/brand-v4.css": "ef045ecd64b53a73262e7f2dcbd5222592b5f252"
+        "smart-choice/brand-v4.css": "ef045ecd64b53a73262e7f2dcbd5222592b5f252",
+        "scripts/takeaway-browser-contract.mjs": "abbe2b050e763998bb6be37acf6acea0067d3709",
+        "scripts/morning-entry-smoke.mjs": "9a568443afdffbbc93335b1ba6d1b166623f8bd0",
+        "scripts/contextual-entry-smoke.mjs": "0d33041916b6097d7b85f8ea77d6055d80207813",
+        "scripts/test-takeaway-cadence.mjs": "c882bf683c55e5814765189891931aa368e506e6",
+        "qa/evidence/pr-346-motion-startup-probe.json": "969a4e6a902ee79aab1d9ffaa5caa7590cf0461b",
+        "package.json": "50cfb2f8aa169657d84af232a81dc08fb1b670a4"
       },
       "expectedFailures": [
         {

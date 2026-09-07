@@ -19,6 +19,9 @@ export async function certify({ port, resultsDir, contract }, run) {
   save(resultsDir, "source.json", source);
   const baseUrl = `http://127.0.0.1:${port}/`;
   const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "127.0.0.1"], { stdio: ["ignore", "ignore", "pipe"] });
+  let serverLog = "";
+  // Drain the pipe during long matrices; an unread HTTP log can block responses.
+  server.stderr.on("data", chunk => { serverLog = (serverLog + chunk.toString()).slice(-16_000); });
   let browser;
   let serverError;
   server.on("error", (error) => { serverError = error; });
@@ -42,6 +45,7 @@ export async function certify({ port, resultsDir, contract }, run) {
   } finally {
     await browser?.close().catch(() => {});
     server.kill("SIGTERM");
+    save(resultsDir, "server-log-tail.json", { tail: serverLog });
   }
 }
 
@@ -64,7 +68,8 @@ export async function contextFor(browser, options = {}) {
         if (!content) return;
         const style = getComputedStyle(content);
         const surface = getComputedStyle(overlay);
-        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform });
+        const entrance = content.getAnimations()[0];
+        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform, entrancePending: entrance?.pending, entranceTime: entrance?.currentTime, entranceState: entrance?.playState });
         if (probe.frames.length < 240) requestAnimationFrame(sample);
       };
       requestAnimationFrame(sample);
@@ -103,7 +108,17 @@ export function timing(probe, variant = "cold", scene) {
 }
 
 export function cadence(probe) {
-  const frames = probe.frames.filter((frame) => frame.state === "brand-frame").slice(0, 24);
+  const entrance = probe.frames.filter((frame) => frame.state === "brand-frame");
+  // Keep all samples. Only the initial pending, zero-opacity compositor setup
+  // belongs to startup; never filter a stall or opacity drop after motion starts.
+  const firstVisible = entrance.findIndex(frame => frame.entrancePending === false && frame.entranceTime > 0 && frame.opacity > 0);
+  assert(firstVisible >= 0, "Entrance never visibly started");
+  const startup = entrance.slice(0, firstVisible);
+  assert(startup.every(frame => frame.opacity === 0 && frame.entranceTime === 0), "Visible motion occurred before the measured entrance");
+  const brandAt = probe.events.find(event => event.state === "brand-frame")?.at;
+  const startupMs = entrance[firstVisible].at - brandAt;
+  assert(Number.isFinite(startupMs) && startupMs >= 0 && startupMs <= 150, `Visible entrance startup ${startupMs.toFixed(1)} ms exceeded 150 ms`);
+  const frames = entrance.slice(firstVisible, firstVisible + 24);
   assert(frames.length === 24, `Only ${frames.length}/24 entrance frames captured`);
   let longestIdenticalRun = 1, run = 1, changingTransitions = 0;
   for (let i = 1; i < frames.length; i++) {
@@ -122,7 +137,7 @@ export function cadence(probe) {
     assert(fade[i].overlayTransform === "none", "Exit moved or zoomed the full-screen surface");
     if (i) assert(fade[i].overlayOpacity <= fade[i - 1].overlayOpacity + .002, "Exit opacity reversed");
   }
-  return { uniqueTransforms, changingTransitions, longestIdenticalRun, medianFrameIntervalMs, frames, fade };
+  return { uniqueTransforms, changingTransitions, longestIdenticalRun, medianFrameIntervalMs, startupMs, startup, frames, fade };
 }
 
 export async function brand(page) {

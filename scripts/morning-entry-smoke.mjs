@@ -11,6 +11,7 @@ await certify({ port: Number(process.env.MORNING_ENTRY_PORT ?? 4187), resultsDir
   assertBrand(appearance);
   assert(appearance.scene === "morning", "Morning override lost");
   const probe = await done(page);
+  save(resultsDir, "morning-entry-raw-probe.json", probe);
   const cold = timing(probe, "cold", "morning");
   const smoothness = cadence(probe);
   save(resultsDir, "morning-entry-60hz-evidence.json", smoothness);
