@@ -45,6 +45,7 @@ function start(): void {
   let returnFocus: HTMLElement|null=null;const inerted: HTMLElement[]=[];
   function act(action:()=>void,message=''):void {try{action();status.textContent=(message ? message+' · ' : '')+words[lang()].total+': '+money(order.summary().totalMinor);}catch{status.textContent=words[lang()].error;}}
   function open():void {
+    if (dialog.open) return;
     returnFocus=document.activeElement as HTMLElement; showingBarista=false; render();
     if(typeof dialog.showModal==='function')dialog.showModal();
     else {dialog.setAttribute('open','');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');

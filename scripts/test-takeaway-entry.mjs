@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const source = readFileSync("takeaway-entry.js", "utf8").replace(/^export /gm, "");
 
-function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal" } = {}) {
+function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal", entranceDelay = 0 } = {}) {
   let time = 0;
   let sequence = 0;
   const tasks = new Map();
@@ -45,7 +45,8 @@ function harness({ warm = false, language = "tr", reduced = false, image = "read
     animate(frames, options) {
       animations.push({ tag: this.className, frames, options });
       if (animation === "throws") throw new Error("animation unavailable");
-      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration)) };
+      const delay = this.className === "robys-takeaway-content" ? entranceDelay : 0;
+      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + delay)) };
     }
   }
   const root = new Element("html");
@@ -111,6 +112,17 @@ for (const scene of ["morning", "day", "night"]) {
     assert.deepEqual(h.pulses, []);
   });
 }
+test("delayed entrance retains the stationary reading pause", async () => {
+  const h = harness({ entranceDelay: 250 }); h.start();
+  await h.tick(1050);
+  assert.equal(h.root.dataset.robysEntryState, "brand-frame");
+  await h.tick(249);
+  assert.equal(h.root.dataset.robysEntryState, "brand-frame");
+  await h.tick(1);
+  assert.equal(h.events.at(-1).state, "handoff");
+  assert.equal(h.events.at(-1).at, 1300);
+  await h.tick(480); h.released();
+});
 test("warm entry closes in 600 ms", async () => {
   const h = harness({ warm: true }); h.start(); await h.tick(600); h.released();
   assert.equal(h.events.at(-1).at, 600);

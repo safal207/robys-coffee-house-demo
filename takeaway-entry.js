@@ -163,8 +163,13 @@ export function runTakeawayEntry(scene = "day") {
     animateSafe(content, [
       { opacity: 0, transform: "translateY(10px)" },
       { opacity: 1, transform: "translateY(0)" }
-    ], { duration: cold ? 700 : 250, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" });
-    later(finish, cold ? 1_050 : 350);
+    ], { duration: cold ? 700 : 250, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }).then(() => {
+      if (exiting || done) return;
+      // Count the readable pause from the settled cup. A busy frame must not
+      // consume the pause while the entrance is still moving. The hard stop
+      // above still releases a stalled animation.
+      later(finish, cold ? 350 : 100);
+    });
   }).catch(cleanup);
 }
 

@@ -34,6 +34,9 @@ const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
 let searchTerm = "";
+let orderOpenIntent = 0;
+document.addEventListener("keydown", event => { if (event.key === "Escape") orderOpenIntent += 1; });
+window.addEventListener("pagehide", () => { orderOpenIntent += 1; });
 let selectedProductId = "";
 let selectedProductQuantity = 1;
 const dialogReturnFocus = new WeakMap();
@@ -401,6 +404,7 @@ function hydrateProductDialog() {
 
 function openProduct(id) {
   if (!productIndex.has(id)) return;
+  orderOpenIntent += 1;
   productIntentRevision += 1;
   selectedProductId = id;
   selectedProductQuantity = 1;
@@ -755,10 +759,12 @@ searchInput.addEventListener("input", () => {
 });
 
 async function openMenuCart() {
+  const requestedOrderIntent = ++orderOpenIntent;
   cartTrigger.setAttribute("aria-busy", "true");
   try {
     await ensureMenuOrder();
     await import("./order-shell.js");
+    if (requestedOrderIntent !== orderOpenIntent) return;
     window.dispatchEvent(new Event("robys:order-open"));
   } catch { orderUnavailable(); }
   finally { cartTrigger.removeAttribute("aria-busy"); }
