@@ -1,0 +1,1401 @@
+{
+  "scope": "Local dirty candidate over 58f30c5; the embedded original gate sourceSha labels the parent, not these changed runtime bytes. Static pose ablations were collected before applying the candidate.",
+  "parentHead": "58f30c5f6708395eb30f3e95efccbaffd6ba1e38",
+  "candidateContentBindings": {
+    "day-night-entry.js": "b2910cc7bd33f7bdf8ea6dd4afe2c5fdeaa21680",
+    "bootstrap-v2.js": "20f75adee2cfdba7d21ef645b8ce9b74c8087c7f",
+    "sw.js": "82651339b68b06c6be6535125ff4c45f47a702ca",
+    "index.html": "729a47a8b35bd9938c6dd5bd74f490500b86d758",
+    "discover.html": "2ca96662141032730c0b6086c31f8ed4bf8e07e2",
+    "menu.html": "c532231c013b6e5a4064ecb5181909a7a9261ef1",
+    "integrity-manifest.json": "d5b43a8a043d0659c1c3dbc70963141ff0223cb4",
+    "scripts/contextual-entry-smoke.mjs": "ddd1c2c9dae364f6759d98090b17f275f30674ea",
+    "scripts/premium-depth-smoke.mjs": "73063c6e609e601b002a118abe6ca0f500bafdf4",
+    "scripts/probe-contextual-layers.mjs": "49ee651546fcee9324a0b05de85f8adb8e4ae1f8"
+  },
+  "originalContextual": {
+    "sourceSha": "58f30c5f6708395eb30f3e95efccbaffd6ba1e38",
+    "workingTreeDiff": "",
+    "startedAt": "2026-09-07T07:14:52.507Z",
+    "status": "PASS",
+    "scenes": {
+      "day": {
+        "evidence": {
+          "scene": "day",
+          "family": "contextual-v1",
+          "poseCount": "20",
+          "state": "brand-frame",
+          "overlayBackground": "rgb(45, 13, 12)",
+          "ariaHidden": "true",
+          "focusables": 0,
+          "markPath": "/src/brand/robys-mark-master-v1.svg",
+          "wordmarkPath": "/src/brand/robys-compact-master-v1.svg",
+          "stageBackground": "rgba(0, 0, 0, 0)",
+          "animationCount": 7,
+          "paintValues": [
+            "rgb(45, 13, 12)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(at 78% 28%, rgba(255, 225, 181, 0.15) 0%, rgba(171, 78, 39, 0.07) 30%, rgba(45, 13, 12, 0) 64%), radial-gradient(at 24% 76%, rgba(119, 28, 24, 0.18) 0%, rgba(45, 13, 12, 0) 58%), linear-gradient(145deg, rgba(69, 24, 17, 0.54), rgba(45, 13, 12, 0.08) 52%, rgba(77, 29, 18, 0.42))",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 82% 20%, rgba(255, 239, 211, 0.72), rgba(238, 174, 97, 0.26) 24%, rgba(86, 29, 15, 0) 57%), radial-gradient(circle at 22% 82%, rgba(238, 49, 56, 0.44), rgba(145, 19, 26, 0.22) 35%, rgba(45, 13, 12, 0) 68%), linear-gradient(150deg, rgb(74, 26, 18) 0%, rgb(45, 13, 12) 48%, rgb(93, 33, 20) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(154deg, rgba(54, 17, 11, 0.5) 10%, rgba(91, 39, 22, 0.42) 48%, rgba(127, 62, 31, 0.32) 76%, rgba(49, 15, 10, 0.52) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(255, 222, 166, 0.34) 0px 2px 0px 0px inset, rgba(236, 163, 91, 0.07) 0px 16px 32px 0px inset, rgba(18, 5, 4, 0.18) 0px 20px 72px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 70% 24%, rgba(255, 139, 76, 0.72), rgba(238, 49, 56, 0.82) 23%, rgba(154, 18, 27, 0.95) 58%, rgba(63, 10, 11, 0.99) 100%), linear-gradient(120deg, rgb(75, 11, 13) 0%, rgb(168, 20, 29) 44%, rgb(238, 49, 56) 72%, rgb(95, 23, 15) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(255, 166, 100, 0.2) -32px 30px 82px 0px inset, rgba(30, 8, 7, 0.48) 30px -42px 112px 0px inset, rgba(255, 169, 92, 0.8) 0px -2px 0px 0px, rgba(238, 49, 56, 0.18) 0px -20px 52px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(96deg, rgba(255, 231, 194, 0) 8%, rgba(255, 226, 181, 0.08) 34%, rgba(255, 246, 225, 0.92) 49%, rgba(246, 174, 94, 0.32) 58%, rgba(255, 231, 194, 0) 82%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(255, 238, 211, 0.34) 0px 0px 10px 0px, rgba(238, 163, 83, 0.16) 0px 0px 28px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 35% 70%, rgba(255, 241, 215, 0.12), rgba(226, 155, 76, 0.04) 36%, rgba(0, 0, 0, 0) 68%)",
+            "rgba(255, 230, 187, 0.3)",
+            "rgba(255, 230, 187, 0.3)",
+            "rgba(255, 230, 187, 0.3)",
+            "rgba(255, 230, 187, 0.3)",
+            "rgba(255, 231, 190, 0.3) 0px 0px 10px 0px, rgba(230, 157, 82, 0.16) 0px 0px 34px 0px, rgba(255, 228, 181, 0.06) 0px 0px 38px 0px inset",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(102deg, rgba(255, 233, 198, 0) 4%, rgba(255, 224, 181, 0.2) 39%, rgba(255, 239, 214, 0.52) 66%, rgba(255, 250, 238, 0.78) 82%, rgba(255, 233, 198, 0) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(at 58% 18%, rgba(255, 108, 78, 0.24) 0%, rgba(177, 29, 40, 0.45) 31%, rgba(83, 10, 18, 0.72) 62%, rgba(31, 6, 8, 0.9) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(12px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 54% 45%, rgba(0, 0, 0, 0) 34%, rgba(20, 6, 5, 0.08) 68%, rgba(15, 4, 4, 0.38) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(rgba(255, 237, 204, 0.58) 0%, rgba(235, 170, 101, 0.34) 34%, rgba(134, 61, 28, 0.12) 58%, rgba(45, 13, 12, 0) 76%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(22px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(rgba(255, 250, 238, 0.96) 0%, rgba(255, 235, 203, 0.82) 30%, rgba(230, 164, 95, 0.4) 52%, rgba(105, 40, 21, 0.08) 72%, rgba(45, 13, 12, 0) 84%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(13px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "drop-shadow(rgba(238, 49, 56, 0.22) 0px 8px 22px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "drop-shadow(rgba(255, 252, 245, 0.18) 0px 1px 0px) drop-shadow(rgba(32, 8, 7, 0.16) 0px 8px 18px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            ""
+          ]
+        },
+        "smoothness": {
+          "uniqueTransforms": 18,
+          "medianFrameIntervalMs": 16.69999999999999,
+          "samples": [
+            {
+              "at": 201.6,
+              "transform": "matrix(1.05968, -0.205383, 0.205383, 1.05968, -3.45032, 42.9265)",
+              "opacity": 0.147936
+            },
+            {
+              "at": 234.9,
+              "transform": "matrix(1.05899, -0.204289, 0.204289, 1.05899, -3.4145, 42.0627)",
+              "opacity": 0.332824
+            },
+            {
+              "at": 251.6,
+              "transform": "matrix(1.05858, -0.203642, 0.203642, 1.05858, -3.38855, 41.5708)",
+              "opacity": 0.439013
+            },
+            {
+              "at": 268.2,
+              "transform": "matrix(1.05817, -0.202981, 0.202981, 1.05817, -3.36092, 41.0716)",
+              "opacity": 0.544261
+            },
+            {
+              "at": 284.9,
+              "transform": "matrix(1.05748, -0.201955, 0.201955, 1.05748, -3.3061, 40.3679)",
+              "opacity": 0.644141
+            },
+            {
+              "at": 301.6,
+              "transform": "matrix(1.0568, -0.200931, 0.200931, 1.0568, -3.25012, 39.6643)",
+              "opacity": 0.744022
+            },
+            {
+              "at": 335,
+              "transform": "matrix(1.0553, -0.198701, 0.198701, 1.0553, -3.11919, 38.1508)",
+              "opacity": 0.904872
+            },
+            {
+              "at": 351.6,
+              "transform": "matrix(1.05441, -0.19737, 0.19737, 1.05441, -3.03298, 37.2694)",
+              "opacity": 0.937645
+            },
+            {
+              "at": 368.2,
+              "transform": "matrix(1.05352, -0.196041, 0.196041, 1.05352, -2.94489, 36.3882)",
+              "opacity": 0.970419
+            },
+            {
+              "at": 385,
+              "transform": "matrix(1.05261, -0.19467, 0.19467, 1.05261, -2.85121, 35.4803)",
+              "opacity": 1
+            },
+            {
+              "at": 401.6,
+              "transform": "matrix(1.05156, -0.193078, 0.193078, 1.05156, -2.73509, 34.4504)",
+              "opacity": 1
+            },
+            {
+              "at": 418.3,
+              "transform": "matrix(1.0505, -0.191479, 0.191479, 1.0505, -2.61559, 33.4147)",
+              "opacity": 1
+            },
+            {
+              "at": 434.9,
+              "transform": "matrix(1.04945, -0.189893, 0.189893, 1.04945, -2.49416, 32.3855)",
+              "opacity": 1
+            },
+            {
+              "at": 451.6,
+              "transform": "matrix(1.04827, -0.188158, 0.188158, 1.04827, -2.3557, 31.2771)",
+              "opacity": 1
+            },
+            {
+              "at": 468.3,
+              "transform": "matrix(1.04701, -0.186344, 0.186344, 1.04701, -2.206, 30.126)",
+              "opacity": 1
+            },
+            {
+              "at": 484.9,
+              "transform": "matrix(1.04575, -0.184545, 0.184545, 1.04575, -2.05384, 28.9823)",
+              "opacity": 1
+            },
+            {
+              "at": 501.6,
+              "transform": "matrix(1.04448, -0.182713, 0.182713, 1.04448, -1.89425, 27.8187)",
+              "opacity": 1
+            },
+            {
+              "at": 518.2,
+              "transform": "matrix(1.04313, -0.180762, 0.180762, 1.04313, -1.71513, 26.5907)",
+              "opacity": 1
+            }
+          ]
+        },
+        "events": [
+          {
+            "scene": "day",
+            "state": "brand-frame",
+            "variant": "cold",
+            "at": 24.100000008940697
+          }
+        ]
+      },
+      "night": {
+        "evidence": {
+          "scene": "night",
+          "family": "contextual-v1",
+          "poseCount": "20",
+          "state": "brand-frame",
+          "overlayBackground": "rgb(13, 5, 5)",
+          "ariaHidden": "true",
+          "focusables": 0,
+          "markPath": "/src/brand/robys-mark-master-v1.svg",
+          "wordmarkPath": "/src/brand/robys-compact-master-v1.svg",
+          "stageBackground": "rgba(0, 0, 0, 0)",
+          "animationCount": 7,
+          "paintValues": [
+            "rgb(13, 5, 5)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(at 78% 32%, rgba(222, 151, 84, 0.1) 0%, rgba(98, 39, 23, 0.06) 32%, rgba(13, 5, 5, 0) 66%), radial-gradient(at 22% 78%, rgba(92, 10, 20, 0.16) 0%, rgba(13, 5, 5, 0) 58%), linear-gradient(145deg, rgba(27, 9, 7, 0.68), rgba(13, 5, 5, 0.14) 54%, rgba(36, 13, 9, 0.52))",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 80% 27%, rgba(255, 202, 126, 0.38), rgba(190, 108, 49, 0.16) 23%, rgba(38, 12, 9, 0) 54%), radial-gradient(circle at 21% 83%, rgba(139, 15, 26, 0.34), rgba(74, 8, 15, 0.22) 34%, rgba(13, 5, 5, 0) 68%), linear-gradient(150deg, rgb(27, 9, 7) 0%, rgb(13, 5, 5) 54%, rgb(41, 16, 10) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(154deg, rgba(17, 6, 5, 0.52) 10%, rgba(38, 15, 10, 0.4) 48%, rgba(67, 31, 17, 0.3) 76%, rgba(20, 7, 6, 0.54) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(236, 177, 105, 0.22) 0px 2px 0px 0px inset, rgba(181, 99, 46, 0.04) 0px 18px 38px 0px inset, rgba(0, 0, 0, 0.34) 0px 22px 82px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 70% 25%, rgba(205, 61, 51, 0.42), rgba(133, 13, 24, 0.78) 24%, rgba(79, 8, 17, 0.96) 60%, rgba(25, 4, 6, 0.99) 100%), linear-gradient(120deg, rgb(33, 5, 7) 0%, rgb(101, 11, 21) 46%, rgb(152, 17, 29) 70%, rgb(50, 16, 11) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(196, 74, 49, 0.12) -38px 34px 96px 0px inset, rgba(7, 3, 3, 0.66) 34px -48px 124px 0px inset, rgba(215, 119, 65, 0.52) 0px -2px 0px 0px, rgba(118, 10, 20, 0.2) 0px -24px 64px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(96deg, rgba(248, 199, 132, 0) 8%, rgba(238, 181, 111, 0.05) 34%, rgba(255, 221, 170, 0.64) 49%, rgba(197, 105, 51, 0.22) 58%, rgba(248, 199, 132, 0) 82%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgba(244, 193, 124, 0.18) 0px 0px 8px 0px, rgba(157, 81, 36, 0.14) 0px 0px 30px 0px",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 35% 70%, rgba(250, 201, 127, 0.07), rgba(177, 95, 42, 0.024) 36%, rgba(0, 0, 0, 0) 68%)",
+            "rgba(247, 191, 113, 0.2)",
+            "rgba(247, 191, 113, 0.2)",
+            "rgba(247, 191, 113, 0.2)",
+            "rgba(247, 191, 113, 0.2)",
+            "rgba(245, 185, 106, 0.18) 0px 0px 8px 0px, rgba(157, 81, 36, 0.14) 0px 0px 32px 0px, rgba(235, 169, 92, 0.035) 0px 0px 44px 0px inset",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "linear-gradient(102deg, rgba(242, 190, 119, 0) 4%, rgba(231, 171, 100, 0.08) 40%, rgba(244, 195, 126, 0.24) 66%, rgba(250, 214, 158, 0.38) 81%, rgba(242, 190, 119, 0) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(at 56% 18%, rgba(174, 38, 44, 0.18) 0%, rgba(100, 10, 22, 0.42) 34%, rgba(37, 4, 9, 0.76) 66%, rgba(8, 2, 3, 0.94) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(16px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(circle at 54% 45%, rgba(0, 0, 0, 0) 24%, rgba(4, 1, 2, 0.2) 64%, rgba(2, 1, 1, 0.7) 100%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "none",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(rgba(246, 192, 119, 0.36) 0%, rgba(179, 103, 51, 0.24) 34%, rgba(84, 32, 18, 0.12) 58%, rgba(13, 5, 5, 0) 76%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(24px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "radial-gradient(rgba(255, 231, 190, 0.95) 0%, rgba(246, 197, 132, 0.73) 28%, rgba(172, 92, 46, 0.38) 50%, rgba(55, 19, 12, 0.08) 72%, rgba(13, 5, 5, 0) 84%)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "blur(15px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "drop-shadow(rgba(133, 13, 24, 0.28) 0px 8px 24px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            "",
+            "rgba(0, 0, 0, 0)",
+            "none",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "rgb(47, 39, 37)",
+            "none",
+            "drop-shadow(rgba(255, 232, 197, 0.08) 0px 1px 0px) drop-shadow(rgba(0, 0, 0, 0.32) 0px 10px 24px)",
+            "rgb(0, 0, 0)",
+            "none",
+            "",
+            ""
+          ]
+        },
+        "smoothness": {
+          "uniqueTransforms": 18,
+          "medianFrameIntervalMs": 16.69999999999999,
+          "samples": [
+            {
+              "at": 192.632,
+              "transform": "matrix(1.05992, -0.205731, 0.205731, 1.05992, -3.44164, 43.2948)",
+              "opacity": 0.073355
+            },
+            {
+              "at": 225.9,
+              "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45016, 42.9335)",
+              "opacity": 0.146519
+            },
+            {
+              "at": 242.6,
+              "transform": "matrix(1.0595, -0.205118, 0.205118, 1.0595, -3.44697, 42.6922)",
+              "opacity": 0.196962
+            },
+            {
+              "at": 259.2,
+              "transform": "matrix(1.0592, -0.204639, 0.204639, 1.0592, -3.42832, 42.3287)",
+              "opacity": 0.275413
+            },
+            {
+              "at": 275.9,
+              "transform": "matrix(1.0589, -0.204158, 0.204158, 1.0589, -3.40929, 41.9631)",
+              "opacity": 0.354337
+            },
+            {
+              "at": 325.9,
+              "transform": "matrix(1.05787, -0.202535, 0.202535, 1.05787, -3.33728, 40.7663)",
+              "opacity": 0.587595
+            },
+            {
+              "at": 342.6,
+              "transform": "matrix(1.05736, -0.201774, 0.201774, 1.05736, -3.29627, 40.2433)",
+              "opacity": 0.66183
+            },
+            {
+              "at": 359.3,
+              "transform": "matrix(1.05685, -0.201012, 0.201012, 1.05685, -3.25462, 39.7204)",
+              "opacity": 0.736066
+            },
+            {
+              "at": 375.9,
+              "transform": "matrix(1.05634, -0.200257, 0.200257, 1.05634, -3.2126, 39.2006)",
+              "opacity": 0.809857
+            },
+            {
+              "at": 409.3,
+              "transform": "matrix(1.05517, -0.198506, 0.198506, 1.05517, -3.10668, 38.0216)",
+              "opacity": 0.909673
+            },
+            {
+              "at": 425.9,
+              "transform": "matrix(1.05451, -0.197517, 0.197517, 1.05451, -3.04258, 37.3665)",
+              "opacity": 0.934032
+            },
+            {
+              "at": 442.6,
+              "transform": "matrix(1.05385, -0.196523, 0.196523, 1.05385, -2.97704, 36.7076)",
+              "opacity": 0.958537
+            },
+            {
+              "at": 459.2,
+              "transform": "matrix(1.05319, -0.195536, 0.195536, 1.05319, -2.91086, 36.0528)",
+              "opacity": 0.982896
+            },
+            {
+              "at": 475.9,
+              "transform": "matrix(1.05248, -0.194484, 0.194484, 1.05248, -2.83784, 35.3604)",
+              "opacity": 1
+            },
+            {
+              "at": 492.6,
+              "transform": "matrix(1.0517, -0.193294, 0.193294, 1.0517, -2.75102, 34.5903)",
+              "opacity": 1
+            },
+            {
+              "at": 509.2,
+              "transform": "matrix(1.05092, -0.192112, 0.192112, 1.05092, -2.66327, 33.8251)",
+              "opacity": 1
+            },
+            {
+              "at": 525.9,
+              "transform": "matrix(1.05013, -0.190925, 0.190925, 1.05013, -2.57351, 33.0554)",
+              "opacity": 1
+            },
+            {
+              "at": 576,
+              "transform": "matrix(1.04753, -0.187101, 0.187101, 1.04753, -2.26889, 30.6063)",
+              "opacity": 1
+            }
+          ]
+        },
+        "events": [
+          {
+            "scene": "night",
+            "state": "brand-frame",
+            "variant": "cold",
+            "at": 23.799999997019768
+          }
+        ]
+      }
+    },
+    "browserVersion": "140.0.7339.186",
+    "coldDurations": {
+      "dayColdMs": 1262.3999999910593,
+      "nightColdMs": 1703.2999999970198
+    },
+    "finishedAt": "2026-09-07T07:15:05.725Z"
+  },
+  "premiumDepth": {
+    "contract": "MOTION-DEPTH-001",
+    "depthModel": "outer clip -> inner preserve-3d perspective -> far-plane parallax -> espresso/hero/specular material -> cinematic blurred foreground/vignette -> sharp pre-handoff logo focal plane",
+    "day": {
+      "depthBlurPx": 0,
+      "foregroundBlurPx": 12,
+      "focusBlurPx": 13,
+      "focus": {
+        "markOpacity": 1,
+        "wordmarkOpacity": 0.950167,
+        "focusOpacity": 0.85,
+        "overlayOpacity": 1,
+        "overlayAnimationCount": 0,
+        "entryState": "brand-frame",
+        "brownRibbonOpacity": 0.1148,
+        "goldArcOpacity": 0.04
+      }
+    },
+    "night": {
+      "depthBlurPx": 0,
+      "foregroundBlurPx": 16,
+      "focusBlurPx": 15,
+      "focus": {
+        "markOpacity": 1,
+        "wordmarkOpacity": 0.967619,
+        "focusOpacity": 0.85,
+        "overlayOpacity": 1,
+        "overlayAnimationCount": 0,
+        "entryState": "brand-frame",
+        "brownRibbonOpacity": 0.0984,
+        "goldArcOpacity": 0.03
+      }
+    }
+  },
+  "responsiveAblation": {
+    "probeSha256": "aae1575cadf2a22c368cceb52c5e956f42c84bc5d75b3f57e268771f57cbcc2a",
+    "results": [
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 320,
+        "height": 740,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 768,
+        "height": 1024,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "day",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.2,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.6,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "backface",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "isolation-auto",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      },
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scene": "night",
+        "fraction": 0.9,
+        "variant": "baseline-control",
+        "width": 1440,
+        "height": 900,
+        "changedPixels": 0,
+        "maxChannelDelta": 0
+      }
+    ]
+  },
+  "incompleteProductDiagnostic": {
+    "status": "INCOMPLETE",
+    "note": "16 timing observations collected locally; last unchanged fixed-pose control missing, visualStatus remained RUNNING. Not accepted as completed evidence."
+  }
+}

@@ -160,3 +160,71 @@ the same pinned PNG decoder used by the visual workflow (`pngjs@7.0.0`) in a
 temporary, separate dependency directory with lifecycle scripts disabled. It
 does not reinstall or replace locked application/Playwright dependencies. The
 default optical-only diagnostic does not load the PNG decoder.
+
+
+## Bounded front-face product candidate
+
+Surface CI run 34093016171 on exact `58f30c5f6708395eb30f3e95efccbaffd6ba1e38`
+completed both the unchanged certification and the diagnostic. Artifact
+10007609603 has verified ZIP SHA-256
+`46e4221c0b63e87fa2d74d51a3651f725cc85b870aff626753364ec4ec35ccc5`.
+All 20 observations contain 18 original samples; source/derived/probe identities
+and all 36 PNG hashes were checked. All 30 fixed-pose comparisons, including six
+unchanged controls, had exactly zero differing decoded pixels.
+
+| Variant | Day/Night medians, forward then reverse round (ms) | Within 21 ms |
+| --- | --- | --- |
+| Unchanged | 33.3, 33.3, 16.8, 16.7 | 2/4 |
+| Rectangular clip | 33.3, 33.3, 16.7, 33.3 | 1/4 |
+| Foreground filter hint | 16.8, 33.3, 33.3, 16.7 | 2/4 |
+| Hidden back faces | 16.7, 16.7, 16.8, 16.7 | 4/4 |
+| Automatic isolation | 16.7, 16.7, 16.7, 16.7 | 4/4 |
+
+This small comparison supports a candidate; it does not establish a failure rate
+or a completed product repair. Chromium was 140.0.7339.186 with software GPU
+compositing/raster and SwiftShader, as recorded in the artifact.
+
+The selected product change applies `backface-visibility: hidden` once to entry
+descendants. All existing poses use positive scale and never rotate surfaces
+away from the viewer. It retains every gradient, shadow, static blur, perspective,
+20 poses, seven animations, duration and reduced-motion path. Bootstrap and
+offline revisions move together to `20260907-frontface-v26`; generated cache
+references and the integrity manifest are rebuilt.
+
+Broader local static checks covered 320 x 740, 768 x 1024 and 1440 x 900, each
+at Day/Night fractions 0.2, 0.6 and 0.9. An initial capture that paused animations
+after first paint varied even for unchanged-versus-unchanged controls at 768px.
+Those mismatches cannot attribute a defect to a candidate. Pausing/seeking each
+entry animation at creation, before its first paint, and then holding lifecycle
+timers produced zero differing pixels in all 18 back-face comparisons, all 18
+isolation comparisons and all 18 unchanged controls. This establishes bounded
+static appearance equivalence; it does not identify an internal browser bug or
+certify moving-frame performance. The diagnostic now uses that capture protocol
+only for still images. The original timing sampler is unchanged.
+
+Local candidate evidence and exact changed resource bindings are retained in
+`qa/evidence/pr342-frontface-candidate-2026-09-07.json`. The untouched Contextual
+gate passed (Day cold 1262.4 ms, Night 1703.3 ms, warm 701.3 ms), as did the full
+Premium depth contract. A separate product diagnostic collected 16 timing
+observations but did not finish its final static control; it is incomplete and
+is not accepted as completed evidence. Full `npm run check` and
+`npm run verify:security` passed, including 287 security checks and the secret scan.
+These are working-tree candidate results over 58f30c5, not runtime results for
+the unchanged parent commit.
+
+CI will now compare the actual product candidate with a reverse intervention
+that restores visible back faces, in four alternating-order rounds (eight
+Day/Night observations per side). Both preserve the original cold ordering,
+18 samples and 21 ms assertions. Twelve exact static comparisons include six
+unchanged controls. Diagnostic completeness never overrides certification.
+
+Existing Visual bindings are deliberately not refreshed before seeing all 43
+comparisons for the changed product bytes. The current four precisely reviewed
+menu-height differences remain the only eligible exceptions. A stale-binding
+failure on this candidate must be resolved by inspecting the new complete
+artifact before rebinding; no threshold or fifth exception is introduced.
+
+No Android runtime or native deadline changes are included. On 58f30c5 the
+original Android smoke failed while the two pinned base/head diagnostic jobs
+passed; that mixed outcome does not demonstrate an Android repair. Android uses
+its separate handoff runtime and does not inherit this Day/Night optimization.

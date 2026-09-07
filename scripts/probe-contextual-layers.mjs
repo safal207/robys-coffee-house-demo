@@ -9,10 +9,12 @@ import { createRequire } from 'node:module';
 const suite = process.env.CONTEXTUAL_PROBE_SUITE ?? 'optics';
 const suites = {
   optics: ['baseline', 'no-shadows', 'no-filters', 'flat', 'contain', 'no-covered'],
-  surfaces: ['baseline', 'clip-surface', 'foreground-cache', 'backface', 'isolation-auto']
+  surfaces: ['baseline', 'clip-surface', 'foreground-cache', 'backface', 'isolation-auto'],
+  frontfaces: ['baseline', 'reverse-visible']
 };
 if (!Object.hasOwn(suites, suite)) throw new Error('Unknown bounded contextual probe suite');
 const variants = suites[suite];
+const rounds = suite === 'frontfaces' ? 4 : 2;
 const out = path.resolve(process.env.CONTEXTUAL_PROBE_RESULTS_DIR ?? 'visual-results/contextual-probe');
 mkdirSync(out, { recursive: true });
 process.env.CONTEXTUAL_ENTRY_RESULTS_DIR = out;
@@ -48,6 +50,7 @@ async function installAblation(context, variant) {
         overlay.querySelector('.robys-entry-foreground-occluder').style.willChange = 'transform, opacity, filter';
       }
       if (variant === 'backface') for (const node of overlay.querySelectorAll('*')) node.style.backfaceVisibility = 'hidden';
+      if (variant === 'reverse-visible') for (const node of overlay.querySelectorAll('*')) node.style.backfaceVisibility = 'visible';
       if (variant === 'isolation-auto') {
         overlay.style.isolation = 'auto';
         overlay.querySelector('.robys-entry-logo-stage').style.isolation = 'auto';
@@ -68,7 +71,7 @@ const report = {
   scope: 'Diagnostic layer ablations; original 18-frame assertions retained. Not an acceptance gate or visual approval.',
   probeScriptSha256: hash(readFileSync('scripts/probe-contextual-layers.mjs')),
   sourceScriptSha256: hash(source), derivedScriptSha256: hash(derived + suffix),
-  suite, variants, rounds: 2, observations: [], environments: [], status: 'RUNNING'
+  suite, variants, rounds, observations: [], environments: [], status: 'RUNNING'
 };
 const save = () => writeFileSync(path.join(out, 'layer-probe.json'), JSON.stringify(report, null, 2) + '\n');
 let server, browser;
@@ -81,8 +84,8 @@ try {
   server.stdout.resume();
   server.stderr.resume();
   await gate.waitForServer();
-  for (let round = 0; round < 2; round++) {
-    for (const variant of round ? [...variants].reverse() : variants) {
+  for (let round = 0; round < rounds; round++) {
+    for (const variant of round % 2 ? [...variants].reverse() : variants) {
       gate.selectVariant(variant);
       browser = await chromium.launch({ headless: true });
       const session = await browser.newBrowserCDPSession();
@@ -111,14 +114,15 @@ try {
       await browser.close(); browser = null;
     }
   }
-  const complete = report.observations.length === 2 * variants.length * 2
+  const complete = report.observations.length === rounds * variants.length * 2
     && report.observations.every(row => row.measured?.smoothness?.samples?.length === 18);
   report.status = complete ? 'COLLECTED' : 'INCOMPLETE'; save();
   if (!complete) throw new Error('Layer probe did not obtain every required frame sample');
-  if (suite === 'surfaces') {
+  if (suite !== 'optics') {
     const { PNG } = createRequire(import.meta.url)('pngjs');
     // Separate fixed-pose appearance check; never used as a timing sample.
     report.visualStatus = 'RUNNING'; report.visualComparisons = []; save();
+    report.visualProtocol = 'Pause entry animations at creation before first paint; freeze lifecycle timers only for fixed-pose capture.';
     browser = await chromium.launch({ headless: true });
     for (const scene of ['day', 'night']) for (const fraction of [.2, .6, .9]) {
       let baseline;
@@ -128,11 +132,30 @@ try {
           locale: 'tr-TR', timezoneId: 'Europe/Istanbul', reducedMotion: 'no-preference', serviceWorkers: 'block' });
         try {
           await gate.installEventProbe(context);
+          await context.addInitScript(fraction => {
+            const animate = Element.prototype.animate;
+            Element.prototype.animate = function(...args) {
+              const animation = animate.apply(this, args);
+              if (this.closest('.robys-contextual-entry')) {
+                animation.pause(); animation.currentTime = animation.effect.getTiming().duration * fraction;
+              }
+              return animation;
+            };
+            const timers = new Set();
+            const schedule = window.setTimeout.bind(window);
+            let frozen = false;
+            window.setTimeout = (callback, delay, ...args) => {
+              const id = schedule(() => { if (!frozen && typeof callback === 'function') callback(...args); }, delay);
+              timers.add(id); return id;
+            };
+            window.__freezeEntryCapture = () => { frozen = true; for (const id of timers) clearTimeout(id); };
+          }, fraction);
           const page = await context.newPage();
           await page.goto(`http://127.0.0.1:4196/?entry=${scene}`, { waitUntil: 'domcontentloaded' });
           const overlay = page.locator('.robys-contextual-entry');
           await overlay.waitFor({ state: 'visible', timeout: 1500 });
           await page.evaluate(async fraction => {
+            window.__freezeEntryCapture();
             const overlay = document.querySelector('.robys-contextual-entry');
             const animations = overlay.getAnimations({ subtree: true });
             if (animations.length !== 7) throw new Error('Expected seven animations for fixed-pose comparison');
@@ -144,6 +167,14 @@ try {
           }, fraction);
           const filename = `${scene}-${fraction}-${variant}.png`;
           const bytes = await overlay.screenshot({ path: path.join(out, filename) });
+          const state = await page.evaluate(() => {
+            const overlay = document.querySelector('.robys-contextual-entry');
+            return { entry: document.documentElement.dataset.robysEntryState,
+              opacity: overlay && getComputedStyle(overlay).opacity,
+              animations: overlay?.getAnimations({ subtree: true }).map(animation => animation.playState) };
+          });
+          if (state.entry !== 'brand-frame' || state.opacity !== '1' || state.animations?.length !== 7
+              || state.animations.some(value => value !== 'paused')) throw new Error('Fixed-pose capture escaped held brand frame');
           const png = PNG.sync.read(bytes);
           if (variant === 'baseline') baseline = { png, filename, sha256: hash(bytes) };
           else {

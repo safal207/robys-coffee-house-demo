@@ -428,6 +428,11 @@ function createContextualEntry(sceneName) {
   sceneStage.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil);
   overlay.append(sceneStage, foregroundOccluder, vignette, logoStage);
 
+  // Every pose keeps these surfaces facing the viewer.
+  for (const layer of overlay.querySelectorAll("*")) {
+    layer.style.backfaceVisibility = "hidden";
+  }
+
   return {
     overlay,
     sceneStage,
