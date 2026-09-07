@@ -1,0 +1,106 @@
+name: Publish verified Telegram selection integration
+
+on:
+  push:
+    branches: [qa/telegram-integration-checkout-20260908]
+    paths: [.github/workflows/telegram-integration-publish.yml]
+
+permissions:
+  contents: read
+concurrency:
+  group: telegram-selection-bounded-publish
+  cancel-in-progress: false
+
+jobs:
+  publish-feature-only:
+    if: github.repository == 'safal207/robys-coffee-house-demo' && github.ref == 'refs/heads/qa/telegram-integration-checkout-20260908'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # Required only for publishing this new feature ref; no main/parent write,
+    # force push, merge, deployment, review approval or permission relaxation.
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+        working-directory: product
+    steps:
+      - name: Read immutable source payload
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 9870ee3489d928ae7c48571bd94f32cbbb9a1f31
+          path: payload
+          persist-credentials: false
+      - name: Checkout exact approved integration base
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          path: product
+          persist-credentials: true
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify exact plaintext source patch before applying
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          test -z "$(git status --porcelain)"
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {brotliDecompressSync} from 'node:zlib';
+          import {createHash} from 'node:crypto';
+          const encoded=[1,2,3].map(n=>readFileSync(`../payload/qa/telegram-integration/source.part${n}.b64`,'utf8')).join('');
+          const patch=brotliDecompressSync(Buffer.from(encoded,'base64'));
+          if(patch.length!==64732 || createHash('sha256').update(patch).digest('hex')!=='b1403cb85cb4d9ce472bfd8c5f41eae34c35f3c2409bef789a719773fcbc8d27')throw new Error('Unrecognized source payload');
+          writeFileSync(process.env.RUNNER_TEMP+'/robys-source.patch',patch);
+          NODE
+          git apply --check "$RUNNER_TEMP/robys-source.patch"
+          git apply --index "$RUNNER_TEMP/robys-source.patch"
+      - run: npm ci --no-audit --no-fund
+      - name: Build generated files and require identical locally tested tree
+        run: |
+          set -euo pipefail
+          npm run build
+          npm run integrity:generate
+          git add -A
+          test "$(git write-tree)" = 82b11dabf6b9526af554770f4d04e87cc22f4f34
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(order): share canonical selection with Telegram and clipboard'
+          mkdir -p "$RUNNER_TEMP/robys-integration-proof"
+          git rev-parse HEAD > "$RUNNER_TEMP/robys-integration-proof/tested-head.txt"
+          git rev-parse HEAD^{tree} > "$RUNNER_TEMP/robys-integration-proof/tested-tree.txt"
+      - name: Full project and security checks with original thresholds
+        run: |
+          set -euo pipefail
+          npm run check 2>&1 | tee "$RUNNER_TEMP/robys-integration-proof/check.log"
+          npm run verify:security 2>&1 | tee "$RUNNER_TEMP/robys-integration-proof/security.log"
+          git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Real menu and canonical order integration
+        run: |
+          set -euo pipefail
+          npm run test:order-share:browser 2>&1 | tee "$RUNNER_TEMP/robys-integration-proof/browser.log"
+      - name: Publish only the isolated feature branch without force
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^{tree})" = 82b11dabf6b9526af554770f4d04e87cc22f4f34
+          test "$(git rev-parse HEAD^)" = 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          test -z "$(git status --porcelain)"
+          target=refs/heads/feat/menu-telegram-share-20260907
+          current="$(git ls-remote --heads origin "$target" | cut -f1)"
+          test -z "$current" || test "$current" = 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          git push origin "HEAD:$target"
+          echo "Published feature head: $(git rev-parse HEAD)" | tee "$RUNNER_TEMP/robys-integration-proof/published.txt"
+          echo "No merge or deployment. Visual/Lighthouse/review remain separate gates." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: robys-telegram-integration-publish-proof
+          path: |
+            ${{ runner.temp }}/robys-integration-proof/
+            product/.artifacts/order-share/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
