@@ -1,7 +1,7 @@
-name: Order flow pinned workspace
+name: Compact menu pinned workspace
 on:
   push:
-    branches: [feat/unified-order-flow]
+    branches: [feat/compact-menu-20260907]
     paths: [.github/workflows/qa-order-workspace.yml]
 permissions:
   contents: read
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: a2fbce66f716b1b99e924239d5dd118cf37c5eef
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -28,7 +28,7 @@ jobs:
           sha256sum /tmp/order-workspace/source.tar /tmp/order-workspace/node-deps.tar.gz > /tmp/order-workspace/SHA256SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: order-workspace-a2fbce6
+          name: compact-menu-workspace-7799f80
           path: /tmp/order-workspace/
           retention-days: 3
           if-no-files-found: error
