@@ -1,0 +1,1113 @@
+{
+  "schemaVersion": 1,
+  "auditDate": "2026-09-07",
+  "repository": "safal207/robys-coffee-house-demo",
+  "pullRequest": 342,
+  "observedHead": "995ff5f795da4bb8e2220d1c6dd4f069100b08ef",
+  "base": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+  "scope": "Causal adjudication, not release approval. QA-only trace collector and report; original limits and product bytes unchanged.",
+  "ci": {
+    "pairing": {
+      "run": 34110417334,
+      "job": 101705094998,
+      "status": "PASS",
+      "cases": 24,
+      "failed": [],
+      "verification": "GitHub job and decoded job log"
+    },
+    "visual": {
+      "run": 34110417356,
+      "job": 101705094319,
+      "status": "PASS",
+      "verification": "GitHub job and decoded job log; existing exact review record; current archive not downloaded"
+    },
+    "contextual": {
+      "run": 34110417370,
+      "attempts": [
+        {
+          "attempt": 1,
+          "job": 101705095454,
+          "artifact": 10014132211,
+          "zipSha256": "88dc5939c9599386c3b51c1b5009b1571a999fee5765f87843af18c5e90f31a4",
+          "observation": {
+            "sourceSha": "995ff5f795da4bb8e2220d1c6dd4f069100b08ef",
+            "workingTreeDiff": "",
+            "status": "PASS",
+            "startedAt": "2026-09-07T10:15:26.327Z",
+            "scenes": {
+              "day": {
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.69999999999999,
+                "samples": [
+                  {
+                    "at": 261.7,
+                    "transform": "matrix(1.05968, -0.205383, 0.205383, 1.05968, -3.45034, 42.9258)",
+                    "opacity": 0.148084
+                  },
+                  {
+                    "at": 278.3,
+                    "transform": "matrix(1.05939, -0.204935, 0.204935, 1.05939, -3.43987, 42.5532)",
+                    "opacity": 0.226954
+                  },
+                  {
+                    "at": 311.6,
+                    "transform": "matrix(1.05858, -0.203644, 0.203644, 1.05858, -3.38863, 41.5723)",
+                    "opacity": 0.438695
+                  },
+                  {
+                    "at": 328.3,
+                    "transform": "matrix(1.05816, -0.202977, 0.202977, 1.05816, -3.36076, 41.0695)",
+                    "opacity": 0.54456
+                  },
+                  {
+                    "at": 344.9,
+                    "transform": "matrix(1.05748, -0.201958, 0.201958, 1.05748, -3.30626, 40.37)",
+                    "opacity": 0.643842
+                  },
+                  {
+                    "at": 378.4,
+                    "transform": "matrix(1.05611, -0.199905, 0.199905, 1.05611, -3.19283, 38.9588)",
+                    "opacity": 0.844201
+                  },
+                  {
+                    "at": 395,
+                    "transform": "matrix(1.0553, -0.198705, 0.198705, 1.0553, -3.11945, 38.1534)",
+                    "opacity": 0.904773
+                  },
+                  {
+                    "at": 428.3,
+                    "transform": "matrix(1.05352, -0.196037, 0.196037, 1.05352, -2.94462, 36.3855)",
+                    "opacity": 0.970518
+                  },
+                  {
+                    "at": 445,
+                    "transform": "matrix(1.05261, -0.194674, 0.194674, 1.05261, -2.85156, 35.4834)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 461.7,
+                    "transform": "matrix(1.05155, -0.193073, 0.193073, 1.05155, -2.73473, 34.4473)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 495,
+                    "transform": "matrix(1.04945, -0.189888, 0.189888, 1.04945, -2.49379, 32.3824)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 511.6,
+                    "transform": "matrix(1.04827, -0.188164, 0.188164, 1.04827, -2.35615, 31.2805)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 561.6,
+                    "transform": "matrix(1.04448, -0.182719, 0.182719, 1.04448, -1.89478, 27.8224)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 578.4,
+                    "transform": "matrix(1.04312, -0.180744, 0.180744, 1.04312, -1.71349, 26.5796)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 611.7,
+                    "transform": "matrix(1.0404, -0.176844, 0.176844, 1.0404, -1.34231, 24.118)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 628.3,
+                    "transform": "matrix(1.03898, -0.174819, 0.174819, 1.03898, -1.1417, 22.8529)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 661.6,
+                    "transform": "matrix(1.03605, -0.170692, 0.170692, 1.03605, -0.717382, 20.2815)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 678.3,
+                    "transform": "matrix(1.03456, -0.168616, 0.168616, 1.03456, -0.495773, 18.9876)",
+                    "opacity": 1
+                  }
+                ]
+              },
+              "night": {
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045,
+                "samples": [
+                  {
+                    "at": 367.454,
+                    "transform": "matrix(1.05992, -0.205731, 0.205731, 1.05992, -3.44164, 43.2945)",
+                    "opacity": 0.0734254
+                  },
+                  {
+                    "at": 400.7,
+                    "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45016, 42.9334)",
+                    "opacity": 0.146541
+                  },
+                  {
+                    "at": 417.4,
+                    "transform": "matrix(1.0595, -0.205118, 0.205118, 1.0595, -3.44695, 42.692)",
+                    "opacity": 0.197009
+                  },
+                  {
+                    "at": 434,
+                    "transform": "matrix(1.0592, -0.204639, 0.204639, 1.0592, -3.42831, 42.3285)",
+                    "opacity": 0.27546
+                  },
+                  {
+                    "at": 467.4,
+                    "transform": "matrix(1.0586, -0.203677, 0.203677, 1.0586, -3.38996, 41.5972)",
+                    "opacity": 0.433308
+                  },
+                  {
+                    "at": 484.1,
+                    "transform": "matrix(1.0583, -0.203196, 0.203196, 1.0583, -3.37036, 41.2316)",
+                    "opacity": 0.512232
+                  },
+                  {
+                    "at": 517.3,
+                    "transform": "matrix(1.05736, -0.201778, 0.201778, 1.05736, -3.29649, 40.2461)",
+                    "opacity": 0.66143
+                  },
+                  {
+                    "at": 534.1,
+                    "transform": "matrix(1.05685, -0.201012, 0.201012, 1.05685, -3.2546, 39.7201)",
+                    "opacity": 0.73611
+                  },
+                  {
+                    "at": 567.4,
+                    "transform": "matrix(1.05583, -0.199496, 0.199496, 1.05583, -3.16967, 38.6775)",
+                    "opacity": 0.884136
+                  },
+                  {
+                    "at": 584.1,
+                    "transform": "matrix(1.05517, -0.198505, 0.198505, 1.05517, -3.10664, 38.0212)",
+                    "opacity": 0.909688
+                  },
+                  {
+                    "at": 617.4,
+                    "transform": "matrix(1.05385, -0.196522, 0.196522, 1.05385, -2.977, 36.7072)",
+                    "opacity": 0.958552
+                  },
+                  {
+                    "at": 650.8,
+                    "transform": "matrix(1.05248, -0.194476, 0.194476, 1.05248, -2.83727, 35.3553)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 684,
+                    "transform": "matrix(1.05092, -0.192111, 0.192111, 1.05092, -2.66321, 33.8246)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 700.7,
+                    "transform": "matrix(1.05013, -0.190924, 0.190924, 1.05013, -2.57345, 33.055)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 717.4,
+                    "transform": "matrix(1.04935, -0.189739, 0.189739, 1.04935, -2.48221, 32.2855)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 734,
+                    "transform": "matrix(1.04847, -0.188457, 0.188457, 1.04847, -2.38002, 31.4666)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 750.7,
+                    "transform": "matrix(1.04754, -0.187108, 0.187108, 1.04754, -2.26949, 30.6109)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 767.4,
+                    "transform": "matrix(1.0466, -0.185761, 0.185761, 1.0466, -2.15709, 29.7556)",
+                    "opacity": 1
+                  }
+                ]
+              }
+            },
+            "evidence": {
+              "dayColdMs": 1264.7000000000044,
+              "nightColdMs": 1703.2000000000044,
+              "crossSceneWarmMs": 701.7999999999884,
+              "runtimeBytes": 22874,
+              "day": {
+                "overlayBackground": "rgb(45, 13, 12)",
+                "animationCount": 7,
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.69999999999999
+              },
+              "night": {
+                "overlayBackground": "rgb(13, 5, 5)",
+                "animationCount": 7,
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045
+              },
+              "coldBudgets": {
+                "day": [
+                  1000,
+                  2100
+                ],
+                "night": [
+                  1250,
+                  2300
+                ]
+              },
+              "warmMaxMs": 1150
+            }
+          }
+        },
+        {
+          "attempt": 2,
+          "job": 101705694307,
+          "artifact": 10014202087,
+          "zipSha256": "dfbae692809500f468705304eac0fa816614ad8eeff422982dd96fecadb5d8ab",
+          "observation": {
+            "sourceSha": "995ff5f795da4bb8e2220d1c6dd4f069100b08ef",
+            "workingTreeDiff": "",
+            "status": "PASS",
+            "startedAt": "2026-09-07T10:17:23.020Z",
+            "scenes": {
+              "day": {
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045,
+                "samples": [
+                  {
+                    "at": 305.1,
+                    "transform": "matrix(1.05858, -0.203642, 0.203642, 1.05858, -3.38856, 41.5709)",
+                    "opacity": 0.439
+                  },
+                  {
+                    "at": 321.7,
+                    "transform": "matrix(1.05817, -0.202981, 0.202981, 1.05817, -3.36093, 41.0717)",
+                    "opacity": 0.544249
+                  },
+                  {
+                    "at": 355.1,
+                    "transform": "matrix(1.0568, -0.200931, 0.200931, 1.0568, -3.25013, 39.6644)",
+                    "opacity": 0.74401
+                  },
+                  {
+                    "at": 371.7,
+                    "transform": "matrix(1.05611, -0.199914, 0.199914, 1.05611, -3.19336, 38.9652)",
+                    "opacity": 0.843292
+                  },
+                  {
+                    "at": 388.4,
+                    "transform": "matrix(1.05531, -0.198709, 0.198709, 1.05531, -3.11972, 38.1562)",
+                    "opacity": 0.90467
+                  },
+                  {
+                    "at": 421.7,
+                    "transform": "matrix(1.05352, -0.196042, 0.196042, 1.05352, -2.9449, 36.3883)",
+                    "opacity": 0.970415
+                  },
+                  {
+                    "at": 438.4,
+                    "transform": "matrix(1.05261, -0.194679, 0.194679, 1.05261, -2.85192, 35.4866)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 471.8,
+                    "transform": "matrix(1.0505, -0.191479, 0.191479, 1.0505, -2.61561, 33.4148)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 488.4,
+                    "transform": "matrix(1.04945, -0.189893, 0.189893, 1.04945, -2.49417, 32.3857)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 505.1,
+                    "transform": "matrix(1.04827, -0.188158, 0.188158, 1.04827, -2.35572, 31.2772)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 538.4,
+                    "transform": "matrix(1.04575, -0.184545, 0.184545, 1.04575, -2.05386, 28.9824)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 555.1,
+                    "transform": "matrix(1.04448, -0.182714, 0.182714, 1.04448, -1.89427, 27.8189)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 588.4,
+                    "transform": "matrix(1.04177, -0.178803, 0.178803, 1.04177, -1.53101, 25.356)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 605.1,
+                    "transform": "matrix(1.0404, -0.17685, 0.17685, 1.0404, -1.3429, 24.1218)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 621.8,
+                    "transform": "matrix(1.03897, -0.174813, 0.174813, 1.03897, -1.14111, 22.8492)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 655.1,
+                    "transform": "matrix(1.03604, -0.170686, 0.170686, 1.03604, -0.716758, 20.2778)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 671.8,
+                    "transform": "matrix(1.03456, -0.16861, 0.16861, 1.03456, -0.495105, 18.9838)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 705,
+                    "transform": "matrix(1.03152, -0.164397, 0.164397, 1.03152, -0.0242728, 16.3723)",
+                    "opacity": 1
+                  }
+                ]
+              },
+              "night": {
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045,
+                "samples": [
+                  {
+                    "at": 260.632,
+                    "transform": "matrix(1.05992, -0.205732, 0.205732, 1.05992, -3.44163, 43.295)",
+                    "opacity": 0.0733176
+                  },
+                  {
+                    "at": 294,
+                    "transform": "matrix(1.05968, -0.205389, 0.205389, 1.05968, -3.45018, 42.9326)",
+                    "opacity": 0.146701
+                  },
+                  {
+                    "at": 310.6,
+                    "transform": "matrix(1.0595, -0.205118, 0.205118, 1.0595, -3.44698, 42.6926)",
+                    "opacity": 0.196881
+                  },
+                  {
+                    "at": 344,
+                    "transform": "matrix(1.0589, -0.204155, 0.204155, 1.0589, -3.40919, 41.9613)",
+                    "opacity": 0.354729
+                  },
+                  {
+                    "at": 360.6,
+                    "transform": "matrix(1.0586, -0.203677, 0.203677, 1.0586, -3.38999, 41.5978)",
+                    "opacity": 0.433181
+                  },
+                  {
+                    "at": 377.3,
+                    "transform": "matrix(1.0583, -0.203197, 0.203197, 1.0583, -3.37039, 41.2322)",
+                    "opacity": 0.512105
+                  },
+                  {
+                    "at": 410.6,
+                    "transform": "matrix(1.05736, -0.201774, 0.201774, 1.05736, -3.29631, 40.2438)",
+                    "opacity": 0.661755
+                  },
+                  {
+                    "at": 427.3,
+                    "transform": "matrix(1.05685, -0.201013, 0.201013, 1.05685, -3.25467, 39.7209)",
+                    "opacity": 0.73599
+                  },
+                  {
+                    "at": 477.3,
+                    "transform": "matrix(1.05517, -0.198507, 0.198507, 1.05517, -3.10674, 38.0223)",
+                    "opacity": 0.909648
+                  },
+                  {
+                    "at": 494,
+                    "transform": "matrix(1.05451, -0.197512, 0.197512, 1.05451, -3.04225, 37.3632)",
+                    "opacity": 0.934154
+                  },
+                  {
+                    "at": 527.3,
+                    "transform": "matrix(1.05318, -0.195531, 0.195531, 1.05318, -2.91052, 36.0495)",
+                    "opacity": 0.983018
+                  },
+                  {
+                    "at": 543.9,
+                    "transform": "matrix(1.05248, -0.194485, 0.194485, 1.05248, -2.83792, 35.3612)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 560.6,
+                    "transform": "matrix(1.0517, -0.193295, 0.193295, 1.0517, -2.75111, 34.5911)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 594,
+                    "transform": "matrix(1.05013, -0.190919, 0.190919, 1.05013, -2.57306, 33.0516)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 610.6,
+                    "transform": "matrix(1.04935, -0.189741, 0.189741, 1.04935, -2.48236, 32.2868)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 644,
+                    "transform": "matrix(1.04753, -0.187102, 0.187102, 1.04753, -2.269, 30.6072)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 660.6,
+                    "transform": "matrix(1.0466, -0.185763, 0.185763, 1.0466, -2.15727, 29.757)",
+                    "opacity": 1
+                  },
+                  {
+                    "at": 693.9,
+                    "transform": "matrix(1.04473, -0.183084, 0.183084, 1.04473, -1.92759, 28.0522)",
+                    "opacity": 1
+                  }
+                ]
+              }
+            },
+            "evidence": {
+              "dayColdMs": 1263.5999999999913,
+              "nightColdMs": 1703.3999999999942,
+              "crossSceneWarmMs": 701.6000000000058,
+              "runtimeBytes": 22874,
+              "day": {
+                "overlayBackground": "rgb(45, 13, 12)",
+                "animationCount": 7,
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045
+              },
+              "night": {
+                "overlayBackground": "rgb(13, 5, 5)",
+                "animationCount": 7,
+                "uniqueTransforms": 18,
+                "medianFrameIntervalMs": 16.700000000000045
+              },
+              "coldBudgets": {
+                "day": [
+                  1000,
+                  2100
+                ],
+                "night": [
+                  1250,
+                  2300
+                ]
+              },
+              "warmMaxMs": 1150
+            }
+          }
+        }
+      ],
+      "traceStatus": "NOT_RUN in both attempts: original certification passed. Exactly one declared control repeat; no further retries.",
+      "verification": "Both ZIP hashes, internal exact source, clean diff and all original 18-sample windows verified"
+    },
+    "originalAndroid": {
+      "run": 34110417363,
+      "job": 101705094776,
+      "status": "PASS",
+      "verification": "GitHub job/log only; public web bytes are mutable"
+    },
+    "pinnedAndroid": {
+      "run": 34110417402,
+      "baseJob": 101705096111,
+      "headJob": 101705096204,
+      "baseStatus": "FAIL VISUAL_STATE_TIMEOUT",
+      "headStatus": "FAIL VISUAL_STATE_TIMEOUT",
+      "deliveryIdentity": "PASS in both CI jobs",
+      "verification": "Job logs identify exact subjects and resource verifiers; current artifacts not downloaded"
+    },
+    "security": {
+      "run": 34110417381,
+      "status": "PASS"
+    },
+    "reviewdog": {
+      "run": 34110417338,
+      "status": "PASS"
+    }
+  },
+  "jobLogExcerpts": {
+    "101705094319": [
+      "2026-09-07T10:19:34.7590887Z ✅ VISUAL-001 reviewed change accepted: pr342-pairing-four-intentional-dimensions-20260906",
+      "2026-09-07T10:19:36.4073397Z ✅ UI-UX-001 phone-320-short/landing",
+      "2026-09-07T10:19:39.2930152Z ✅ UI-UX-001 phone-320-short/menu",
+      "2026-09-07T10:19:39.9792734Z ✅ UI-UX-001 phone-320-short/discover",
+      "2026-09-07T10:19:40.8351592Z ✅ UI-UX-001 phone-360/landing",
+      "2026-09-07T10:19:43.6765250Z ✅ UI-UX-001 phone-360/menu",
+      "2026-09-07T10:19:44.3752873Z ✅ UI-UX-001 phone-360/discover",
+      "2026-09-07T10:19:45.2324424Z ✅ UI-UX-001 phone-390/landing",
+      "2026-09-07T10:19:48.0681184Z ✅ UI-UX-001 phone-390/menu",
+      "2026-09-07T10:19:48.7254028Z ✅ UI-UX-001 phone-390/discover",
+      "2026-09-07T10:19:49.5662794Z ✅ UI-UX-001 phone-412/landing",
+      "2026-09-07T10:19:52.3856468Z ✅ UI-UX-001 phone-412/menu",
+      "2026-09-07T10:19:53.1148737Z ✅ UI-UX-001 phone-412/discover",
+      "2026-09-07T10:19:53.9837984Z ✅ UI-UX-001 tablet-768/landing",
+      "2026-09-07T10:19:56.7576977Z ✅ UI-UX-001 tablet-768/menu",
+      "2026-09-07T10:19:57.4441852Z ✅ UI-UX-001 tablet-768/discover",
+      "2026-09-07T10:19:58.9843968Z ✅ UI-UX-001 tablet-landscape-1024/landing",
+      "2026-09-07T10:20:01.8614115Z ✅ UI-UX-001 tablet-landscape-1024/menu",
+      "2026-09-07T10:20:02.5439673Z ✅ UI-UX-001 tablet-landscape-1024/discover",
+      "2026-09-07T10:20:04.1488003Z ✅ UI-UX-001 laptop-1366/landing",
+      "2026-09-07T10:20:06.9078809Z ✅ UI-UX-001 laptop-1366/menu",
+      "2026-09-07T10:20:07.6784026Z ✅ UI-UX-001 laptop-1366/discover",
+      "2026-09-07T10:20:09.2666942Z ✅ UI-UX-001 desktop-1440/landing",
+      "2026-09-07T10:20:11.9884736Z ✅ UI-UX-001 desktop-1440/menu",
+      "2026-09-07T10:20:12.6981819Z ✅ UI-UX-001 desktop-1440/discover",
+      "2026-09-07T10:20:12.6989523Z ✅ UI-UX-001 passed 24 scenarios; 0 recovered on recheck, 0 recommendation(s).",
+      "2026-09-07T10:20:15.1468712Z ✅ SCROLL-001 / phone-320: no overflow, stable height, 0.0000% repaint diff",
+      "2026-09-07T10:20:16.4600591Z ✅ SCROLL-001 / phone-390: no overflow, stable height, 0.0000% repaint diff",
+      "2026-09-07T10:20:16.4669089Z ✅ SCROLL-001 passed at 320px and 390px."
+    ],
+    "101705096111": [
+      "2026-09-07T10:15:44.0466986Z   \"cases\": [",
+      "2026-09-07T10:20:06.1175816Z 09-07 10:19:37.330  2887  2887 D RobysHandoff: WEB_READY_TIMEOUT",
+      "2026-09-07T10:20:06.1195643Z 09-07 10:19:39.895  2887  2887 D RobysHandoff: VISUAL_STATE_TIMEOUT",
+      {
+        "timestamp": "2026-09-07T10:20:08.6003896Z",
+        "source_sha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+        "apk_sha256": "5a0b88a1f6f5602de8edc6dc6a8fde1b21026addcda12006abd31b3e8972c132",
+        "manifest_sha256": "b43200c3de6e3eb5c9bf59b13b01cabf054111a8065a69cadd7958446512c1f4",
+        "web_files": 238,
+        "served_requests": 197,
+        "scope": "pinned resource identity only; capture.sh independently enforces handoff",
+        "status": "PASS"
+      }
+    ],
+    "101705096204": [
+      "2026-09-07T10:15:16.7947234Z   \"cases\": [",
+      "2026-09-07T10:20:01.6128490Z 09-07 10:19:33.960  2718  2718 D RobysHandoff: WEB_READY_TIMEOUT",
+      "2026-09-07T10:20:01.6158404Z 09-07 10:19:37.038  2718  2718 D RobysHandoff: VISUAL_STATE_TIMEOUT",
+      {
+        "timestamp": "2026-09-07T10:20:04.6460311Z",
+        "source_sha": "995ff5f795da4bb8e2220d1c6dd4f069100b08ef",
+        "apk_sha256": "c21a2acde29d00c5a5637cd20f1cfb57c63f91b58070f56e21a2b74efdf1131b",
+        "manifest_sha256": "dfee047819091cab544225b073f312d1b4b154c8e0ef67dc623bf13553257de8",
+        "web_files": 238,
+        "served_requests": 199,
+        "scope": "pinned resource identity only; capture.sh independently enforces handoff",
+        "status": "PASS"
+      }
+    ],
+    "101705094776": [
+      "2026-09-07T10:14:47.7619003Z   \"cases\": ["
+    ]
+  },
+  "claims": [
+    {
+      "id": "CG-01",
+      "class": "confirmed_bounded_cause",
+      "claim": "Pairing changed fractional share-card document origin; symmetric pixel-origin alignment eliminates six raster differences while retaining genuine-change detection.",
+      "repair": "Retain capture alignment only; no threshold change.",
+      "evidence": "docs/qa/pr342-raster-and-pinned-android-2026-09-06.md"
+    },
+    {
+      "id": "CG-02",
+      "class": "intentional_change",
+      "claim": "Four menu heights differ because of pairing layout. Existing content-bound review record is limited to those dimensions.",
+      "evidence": "qa/reviewed-visual-changes.d/pr342-pairing-reviewed.json"
+    },
+    {
+      "id": "CG-03",
+      "class": "inherited_failure_supported_precise_driver_unresolved",
+      "claim": "Historical original Contextual 33.3 ms failure occurs on observed scene resources identical to base. Local SoftwareRenderer CPU work is the leading bottleneck candidate, but there is no failing CI sample trace from this turn.",
+      "falsifier": "A failing original CI sample window whose delay is dominated by main-thread work, scheduler waiting, or a different renderer path.",
+      "evidence": "localChromiumTrace and ci.contextual below; earlier 46-resource identity control"
+    },
+    {
+      "id": "CG-04",
+      "class": "confirmed_historical_mechanism_underlying_driver_unresolved",
+      "claim": "Base WebView draw wait blocks UI and delays readiness/visual-state handling. Pairing is not necessary for this failure; head load amplification is not excluded.",
+      "falsifier": "The inherited timing chain would be invalid if the trace subject, same-frame alignment, scheduling coverage, or event order were wrong.",
+      "evidence": "historicalAndroid below"
+    },
+    {
+      "id": "CG-05",
+      "class": "rejected_repairs",
+      "claim": "backface-visibility and isolation hints failed original certification and did not show reproducible improvement.",
+      "evidence": "qa/evidence/pr342-render-candidate-verdict-2026-09-07.json"
+    },
+    {
+      "id": "CG-06",
+      "class": "unresolved_observation",
+      "claim": "Historical intermittent landing paint omission is not explained by the share-raster fix or proven attributable to pairing. Same source bytes do not establish its root cause.",
+      "evidence": "docs/qa/pr342-android-render-trace-2026-09-07.md"
+    }
+  ],
+  "smallestSafeAction": "Retain the confirmed share-capture repair and four exact menu records. No further product repair is justified by these observations. Locate the original failing Contextual window before an appearance-preserving render intervention; for Android inspect nested WebView/emulator work and independently control changed precache load.",
+  "localChromiumTrace": {
+    "scope": "One bounded Chromium trace; observation overhead is present. Not an acceptance gate or product repair.",
+    "sourceHead": "0eeee89db2d7704bde7bc7c84c72b213ca0f5077",
+    "originalScriptSha256": "b39a1c0e80f770e64b3091206ca9a2296fb879d0d81badeb6b75717134a33083",
+    "derivedScriptSha256": "b3ea406fce6454461e1ee58165b74eebfb8c8149bf8142e8919861849cffcd7a",
+    "probeScriptSha256": "aab9002634067174408ab4030e31afb9ee8d33781f6164ee1c7e74fc7a4ffb5d",
+    "instrumentation": "Two performance marks delimit the unchanged original 18-sample loop. HTTP server pipes are drained for diagnostic collection.",
+    "startedAt": "2026-09-07T10:08:43.831Z",
+    "finishedAt": "2026-09-07T10:08:55.088Z",
+    "status": "COLLECTED",
+    "browser": "140.0.7339.186",
+    "trace": {
+      "file": "chromium-trace.json",
+      "bytes": 29312521,
+      "sha256": "e9aa99700f84d1a3c83a3526547cf76e220541ae7025d34754b832be123e4830",
+      "eventCount": 143146,
+      "dataLossOccurred": false,
+      "sampleMarks": [
+        {
+          "args": {
+            "data": {
+              "callTime": 20831224871,
+              "navigationId": "AFC96547D7340657311336A976674E23",
+              "sampleTraceId": 8824857582075431,
+              "startTime": 223.59999999776483
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:start:day",
+          "ph": "I",
+          "pid": 209,
+          "s": "t",
+          "tid": 209,
+          "ts": 20831224856,
+          "tts": 159249
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 20831541851,
+              "navigationId": "AFC96547D7340657311336A976674E23",
+              "sampleTraceId": 8824857582072143,
+              "startTime": 540.5999999977648
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:end:day",
+          "ph": "I",
+          "pid": 209,
+          "s": "t",
+          "tid": 209,
+          "ts": 20831541847,
+          "tts": 182951
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 20833281711,
+              "navigationId": "30C7048848B97B7544EE4E4BD8F039DE",
+              "sampleTraceId": 8833086109468620,
+              "startTime": 232.80000000074506
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:start:night",
+          "ph": "I",
+          "pid": 275,
+          "s": "t",
+          "tid": 275,
+          "ts": 20833281697,
+          "tts": 157584
+        },
+        {
+          "args": {
+            "data": {
+              "callTime": 20833615591,
+              "navigationId": "30C7048848B97B7544EE4E4BD8F039DE",
+              "sampleTraceId": 8833086109468918,
+              "startTime": 566.7000000029802
+            }
+          },
+          "cat": "blink.user_timing",
+          "name": "pr342:sample:end:night",
+          "ph": "I",
+          "pid": 275,
+          "s": "t",
+          "tid": 275,
+          "ts": 20833615586,
+          "tts": 182778
+        }
+      ]
+    },
+    "traceWindows": {
+      "day": {
+        "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+        "startTsUs": 20831224856,
+        "endTsUs": 20831541847,
+        "windowMs": 316.991,
+        "mainPid": 209,
+        "mainTid": 209,
+        "mainThreadCpuMs": 23.702,
+        "displayDrawAndSwap": {
+          "count": 16,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 18.1145,
+          "maxWallMs": 21.495,
+          "sumWallMs": 293.281,
+          "cpuSampleCount": 16,
+          "medianCpuMs": 18.000999999999998,
+          "sumCpuMs": 293.64599999999996
+        },
+        "softwareQuads": {
+          "count": 1258,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 0.0975,
+          "maxWallMs": 3.59,
+          "sumWallMs": 294.41799999999927,
+          "cpuSampleCount": 1258,
+          "medianCpuMs": 0.097,
+          "sumCpuMs": 293.33599999999944
+        },
+        "rasterTasks": {
+          "count": 26,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.8085,
+          "maxWallMs": 8.681,
+          "sumWallMs": 50.167,
+          "cpuSampleCount": 26,
+          "medianCpuMs": 0.794,
+          "sumCpuMs": 49.825
+        },
+        "appAnimationFrameCallbacks": {
+          "count": 21,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.307,
+          "maxWallMs": 0.605,
+          "sumWallMs": 6.041,
+          "cpuSampleCount": 21,
+          "medianCpuMs": 0.301,
+          "sumCpuMs": 5.947
+        },
+        "appLayout": {
+          "count": 0,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": null,
+          "maxWallMs": null,
+          "sumWallMs": 0,
+          "cpuSampleCount": 0,
+          "medianCpuMs": null,
+          "sumCpuMs": 0
+        },
+        "appUpdateLayoutTree": {
+          "count": 18,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": 0.176,
+          "maxWallMs": 0.373,
+          "sumWallMs": 3.3850000000000002,
+          "cpuSampleCount": 18,
+          "medianCpuMs": 0.1755,
+          "sumCpuMs": 3.3799999999999994
+        }
+      },
+      "night": {
+        "scope": "Fully contained synchronous slices only; nested categories overlap and must not be added together. CPU clocks describe the traced run.",
+        "startTsUs": 20833281697,
+        "endTsUs": 20833615586,
+        "windowMs": 333.889,
+        "mainPid": 275,
+        "mainTid": 275,
+        "mainThreadCpuMs": 25.194,
+        "displayDrawAndSwap": {
+          "count": 16,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 19.3445,
+          "maxWallMs": 22.184,
+          "sumWallMs": 309.216,
+          "cpuSampleCount": 16,
+          "medianCpuMs": 19.381500000000003,
+          "sumCpuMs": 309.62300000000005
+        },
+        "softwareQuads": {
+          "count": 1301,
+          "boundaryCrossingSlices": 2,
+          "medianWallMs": 0.097,
+          "maxWallMs": 3.225,
+          "sumWallMs": 298.6469999999997,
+          "cpuSampleCount": 1301,
+          "medianCpuMs": 0.097,
+          "sumCpuMs": 300.21799999999985
+        },
+        "rasterTasks": {
+          "count": 34,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.863,
+          "maxWallMs": 7.926,
+          "sumWallMs": 56.828,
+          "cpuSampleCount": 34,
+          "medianCpuMs": 0.8425,
+          "sumCpuMs": 56.30800000000001
+        },
+        "appAnimationFrameCallbacks": {
+          "count": 23,
+          "boundaryCrossingSlices": 1,
+          "medianWallMs": 0.286,
+          "maxWallMs": 0.468,
+          "sumWallMs": 6.1080000000000005,
+          "cpuSampleCount": 23,
+          "medianCpuMs": 0.281,
+          "sumCpuMs": 6.0120000000000005
+        },
+        "appLayout": {
+          "count": 0,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": null,
+          "maxWallMs": null,
+          "sumWallMs": 0,
+          "cpuSampleCount": 0,
+          "medianCpuMs": null,
+          "sumCpuMs": 0
+        },
+        "appUpdateLayoutTree": {
+          "count": 18,
+          "boundaryCrossingSlices": 0,
+          "medianWallMs": 0.1845,
+          "maxWallMs": 0.332,
+          "sumWallMs": 3.5999999999999996,
+          "cpuSampleCount": 18,
+          "medianCpuMs": 0.1845,
+          "sumCpuMs": 3.5939999999999994
+        }
+      }
+    },
+    "sourceBoundary": "Local validation over 0eeee89 with only the then-uncommitted QA changes. Product bytes equal 995ff5f. Passing trace, not a failing CI window.",
+    "rendererFeatures": {
+      "2d_canvas": "unavailable_software",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "disabled_software",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "disabled_off",
+      "rasterization": "disabled_software",
+      "raw_draw": "disabled_off_ok",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "disabled_software",
+      "video_encode": "disabled_software",
+      "vulkan": "disabled_off",
+      "webgl": "unavailable_software",
+      "webgl2": "unavailable_software",
+      "webgpu": "disabled_off",
+      "webnn": "unavailable_software"
+    },
+    "scenes": {
+      "day": {
+        "error": null,
+        "smoothness": {
+          "uniqueTransforms": 18,
+          "medianFrameIntervalMs": 16.69999999999999,
+          "samples": [
+            {
+              "at": 232.1,
+              "transform": "matrix(1.05968, -0.205384, 0.205384, 1.05968, -3.45032, 42.9266)",
+              "opacity": 0.147918
+            },
+            {
+              "at": 248.8,
+              "transform": "matrix(1.05939, -0.204933, 0.204933, 1.05939, -3.43981, 42.5519)",
+              "opacity": 0.227233
+            },
+            {
+              "at": 265.4,
+              "transform": "matrix(1.05899, -0.204289, 0.204289, 1.05899, -3.41451, 42.0629)",
+              "opacity": 0.332786
+            },
+            {
+              "at": 282.2,
+              "transform": "matrix(1.05858, -0.203638, 0.203638, 1.05858, -3.38841, 41.568)",
+              "opacity": 0.439611
+            },
+            {
+              "at": 298.7,
+              "transform": "matrix(1.05817, -0.202981, 0.202981, 1.05817, -3.36094, 41.0719)",
+              "opacity": 0.544225
+            },
+            {
+              "at": 315.5,
+              "transform": "matrix(1.05748, -0.201949, 0.201949, 1.05748, -3.30578, 40.364)",
+              "opacity": 0.644704
+            },
+            {
+              "at": 332.1,
+              "transform": "matrix(1.0568, -0.200931, 0.200931, 1.0568, -3.25014, 39.6646)",
+              "opacity": 0.743986
+            },
+            {
+              "at": 348.8,
+              "transform": "matrix(1.05611, -0.199908, 0.199908, 1.05611, -3.19303, 38.9611)",
+              "opacity": 0.843866
+            },
+            {
+              "at": 365.4,
+              "transform": "matrix(1.05531, -0.198709, 0.198709, 1.05531, -3.11974, 38.1564)",
+              "opacity": 0.904662
+            },
+            {
+              "at": 382.1,
+              "transform": "matrix(1.05441, -0.197371, 0.197371, 1.05441, -3.03301, 37.2697)",
+              "opacity": 0.937634
+            },
+            {
+              "at": 398.8,
+              "transform": "matrix(1.05352, -0.196034, 0.196034, 1.05352, -2.94438, 36.3832)",
+              "opacity": 0.970605
+            },
+            {
+              "at": 415.5,
+              "transform": "matrix(1.05261, -0.19467, 0.19467, 1.05261, -2.85126, 35.4806)",
+              "opacity": 1
+            },
+            {
+              "at": 432.1,
+              "transform": "matrix(1.05156, -0.193078, 0.193078, 1.05156, -2.73513, 34.4508)",
+              "opacity": 1
+            },
+            {
+              "at": 448.8,
+              "transform": "matrix(1.0505, -0.191479, 0.191479, 1.0505, -2.61563, 33.4151)",
+              "opacity": 1
+            },
+            {
+              "at": 465.5,
+              "transform": "matrix(1.04944, -0.189884, 0.189884, 1.04944, -2.49347, 32.3797)",
+              "opacity": 1
+            },
+            {
+              "at": 498.7,
+              "transform": "matrix(1.04702, -0.186356, 0.186356, 1.04702, -2.20696, 30.1333)",
+              "opacity": 1
+            },
+            {
+              "at": 515.4,
+              "transform": "matrix(1.04575, -0.184545, 0.184545, 1.04575, -2.0539, 28.9827)",
+              "opacity": 1
+            },
+            {
+              "at": 532.1,
+              "transform": "matrix(1.04448, -0.182714, 0.182714, 1.04448, -1.89431, 27.8192)",
+              "opacity": 1
+            }
+          ]
+        }
+      },
+      "night": {
+        "error": null,
+        "smoothness": {
+          "uniqueTransforms": 18,
+          "medianFrameIntervalMs": 16.69999999999999,
+          "samples": [
+            {
+              "at": 234.5,
+              "transform": "matrix(1.05992, -0.205731, 0.205731, 1.05992, -3.44163, 43.2949)",
+              "opacity": 0.0733396
+            },
+            {
+              "at": 251.2,
+              "transform": "matrix(1.0598, -0.20556, 0.20556, 1.0598, -3.44594, 43.1135)",
+              "opacity": 0.110067
+            },
+            {
+              "at": 267.8,
+              "transform": "matrix(1.05968, -0.20539, 0.20539, 1.05968, -3.45016, 42.9332)",
+              "opacity": 0.146574
+            },
+            {
+              "at": 284.5,
+              "transform": "matrix(1.0595, -0.205117, 0.205117, 1.0595, -3.44694, 42.6916)",
+              "opacity": 0.19708
+            },
+            {
+              "at": 301.1,
+              "transform": "matrix(1.0592, -0.204638, 0.204638, 1.0592, -3.42829, 42.3282)",
+              "opacity": 0.275531
+            },
+            {
+              "at": 317.8,
+              "transform": "matrix(1.0589, -0.204157, 0.204157, 1.0589, -3.40926, 41.9625)",
+              "opacity": 0.354455
+            },
+            {
+              "at": 351.1,
+              "transform": "matrix(1.0583, -0.203198, 0.203198, 1.0583, -3.37046, 41.2335)",
+              "opacity": 0.511831
+            },
+            {
+              "at": 367.8,
+              "transform": "matrix(1.05787, -0.202534, 0.202534, 1.05787, -3.33722, 40.7655)",
+              "opacity": 0.587706
+            },
+            {
+              "at": 384.4,
+              "transform": "matrix(1.05736, -0.201777, 0.201777, 1.05736, -3.29645, 40.2457)",
+              "opacity": 0.661497
+            },
+            {
+              "at": 401.2,
+              "transform": "matrix(1.05685, -0.201011, 0.201011, 1.05685, -3.25456, 39.7196)",
+              "opacity": 0.736177
+            },
+            {
+              "at": 434.4,
+              "transform": "matrix(1.05583, -0.1995, 0.1995, 1.05583, -3.16989, 38.6802)",
+              "opacity": 0.883759
+            },
+            {
+              "at": 451.1,
+              "transform": "matrix(1.05518, -0.19851, 0.19851, 1.05518, -3.10697, 38.0246)",
+              "opacity": 0.909563
+            },
+            {
+              "at": 467.8,
+              "transform": "matrix(1.05451, -0.197515, 0.197515, 1.05451, -3.04248, 37.3655)",
+              "opacity": 0.934069
+            },
+            {
+              "at": 484.5,
+              "transform": "matrix(1.05385, -0.196521, 0.196521, 1.05385, -2.97694, 36.7066)",
+              "opacity": 0.958574
+            },
+            {
+              "at": 501.2,
+              "transform": "matrix(1.05318, -0.195529, 0.195529, 1.05318, -2.91035, 36.0478)",
+              "opacity": 0.98308
+            },
+            {
+              "at": 517.8,
+              "transform": "matrix(1.05248, -0.194482, 0.194482, 1.05248, -2.83771, 35.3592)",
+              "opacity": 1
+            },
+            {
+              "at": 534.5,
+              "transform": "matrix(1.0517, -0.193292, 0.193292, 1.0517, -2.75089, 34.5892)",
+              "opacity": 1
+            },
+            {
+              "at": 551.2,
+              "transform": "matrix(1.05091, -0.192103, 0.192103, 1.05091, -2.6626, 33.8193)",
+              "opacity": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "historicalAndroid": {
+    "sourceSha": "5b01276b99db719cae2fc72f29d38eb00c9953f4",
+    "toolingHead": "708bf6c82433f98206eb5e685034986dabad8dcd",
+    "run": 34085557929,
+    "artifact": 10005182705,
+    "traceSha256": "c6ff75f2f35407c5c417a3d60d26b8c733561dae6632f6644911b4339ce639bc",
+    "traceBytes": 58842197,
+    "traceProcessor": "v58.2",
+    "scope": "Historical immutable base trace. Durations are not assigned to 995ff5f. No nonzero error/data-loss stats; full handoff scheduling coverage previously verified. Timeline re-queried in this audit.",
+    "nativeSurfaceTsNs": 84714747582,
+    "webCommittedTsNs": 93232302819,
+    "drawGl": {
+      "startTsNs": 93236802276,
+      "durationMs": 7833.853875,
+      "sleepingMs": 6371.242,
+      "runnableOrPreemptedMs": 979.832,
+      "runningMs": 482.595
+    },
+    "uiWait": {
+      "startTsNs": 93260010198,
+      "durationMs": 7847.235309
+    },
+    "webReadyTimeoutTsNs": 101227810337,
+    "visualStateTimeoutTsNs": 106770825238,
+    "timelineSha256": "fad73cdeb2348ea80b8e85896f9497bb533c772c651725def29d2ec8c0553cd4",
+    "nativeShaderCompileObservation": "144.046 ms before the long wait; 215.849 ms after terminal state. This does not exclude shader work nested inside uninstrumented WebView GPU calls.",
+    "underlyingDriver": "UNRESOLVED; no nested WebView GPU/driver calls or blocked function names."
+  }
+}
