@@ -1,0 +1,40 @@
+name: Russian landing regression
+on:
+  pull_request:
+    paths:
+      - 'ru/**'
+      - 'styles-v2.css'
+      - 'mobile.css'
+      - 'src/brand/**'
+      - 'src/robys-hero-poster.jpg'
+      - 'scripts/ru-landing-regression.mjs'
+      - 'qa/visual-regression.json'
+      - 'package*.json'
+      - '.github/workflows/ru-landing-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  russian-landing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify navigation, keyboard, links, contrast and reflow
+        run: node scripts/ru-landing-regression.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: ru-landing-${{ github.run_id }}
+          path: visual-results/ru-landing/
+          if-no-files-found: error
+          retention-days: 14

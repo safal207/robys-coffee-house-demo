@@ -1,0 +1,60 @@
+/* Static Russian landing page: keep navigation usable without JavaScript.
+   Scope every rule here so shared menu, entry and Android styles are unchanged. */
+.ru-landing .header-inner{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:8px 24px;
+  padding-block:8px;
+}
+.ru-landing .brand{flex:none}
+.ru-landing .hero h1{overflow-wrap:anywhere}
+.ru-landing .ru-landing-logo{width:144px;height:auto}
+.ru-landing .main-nav{
+  position:static;
+  inset:auto;
+  min-height:0;
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+  gap:4px 12px;
+  padding:0;
+  color:#fff;
+  background:transparent;
+  font:600 .875rem/1.5 var(--sans);
+  opacity:1;
+  pointer-events:auto;
+  transform:none;
+}
+.ru-landing .main-nav a{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  padding:8px;
+  text-decoration:underline;
+  text-underline-offset:.25em;
+}
+.ru-landing :is(#location,#faq){padding-block:48px;scroll-margin-top:24px}
+.ru-landing #faq{background:var(--paper)}
+.ru-landing :is(#location,#faq) .eyebrow{color:#b5161d}
+.ru-landing :is(#location,#faq) h3{margin-top:28px;margin-bottom:8px}
+.ru-landing :is(#location,#faq) p{max-width:75ch}
+.ru-landing :is(#location,#faq,footer) a{
+  text-decoration:underline;
+  text-decoration-thickness:.08em;
+  text-underline-offset:.2em;
+}
+.ru-landing a:focus-visible{outline:3px solid currentColor;outline-offset:4px}
+.ru-landing footer{padding-block:24px}
+.ru-landing footer p{margin:0}
+@media(max-width:680px){
+  .ru-landing .header-inner{gap:6px 12px}
+  .ru-landing .ru-landing-logo{width:108px}
+  .ru-landing .main-nav{gap:0 4px}
+  .ru-landing :is(#location,#faq){padding-block:32px}
+}
+@media(max-width:420px){
+  .ru-landing .main-nav{flex-basis:100%;justify-content:flex-start}
+}
