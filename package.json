@@ -85,7 +85,7 @@
     "test:home-copy": "node --test scripts/test-home-copy.mjs",
     "dev": "vite",
     "test:takeaway-entry": "node --test scripts/test-takeaway-entry.mjs",
-    "test:guest-journey": "node scripts/test-guest-journey.mjs"
+    "test:guest-journey": "node scripts/test-guest-journey.mjs && node scripts/test-order-cache-revisions.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.1",

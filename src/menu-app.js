@@ -664,6 +664,7 @@ function renderCategoryNav(focusId = null) {
     button.addEventListener("click", () => {
       activeCategory = option.id;
       searchTerm = "";searchInput.value = "";
+      searchInput.dispatchEvent(new Event("input", { bubbles: true }));
       syncCategoryHash(option.id);
       renderCategoryNav(option.id);
       renderMenu();

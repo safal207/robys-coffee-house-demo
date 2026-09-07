@@ -43,27 +43,26 @@ export async function verifyOrder(page, label) {
   assert.equal(await photo.evaluate(node => document.activeElement === node), true, `${label}: focus restored`);
   assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2);
   await page.locator('#menu-cart-trigger').click();
-  const cart = page.locator('#menu-cart-dialog');
+  const cart = page.locator('#robys-order-dialog');
   await cart.waitFor({state:'visible'});
-  assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
-  const increase = cart.locator('.menu-cart-step').last();
+  assert.equal(Number((await page.locator('#robys-order-dialog .order-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
+  const increase = cart.locator('.order-step').last();
   await increase.click();
-  assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 3);
-  assert.equal(await cart.locator('.menu-cart-step').last().evaluate(node => document.activeElement === node), true);
-  // announceCart deliberately writes on the next animation frame so repeated
-  // announcements are exposed to assistive technology; wait for its observable result.
+  assert.equal(Number((await page.locator('#robys-order-dialog .order-total').innerText()).replace(/\D/g, '')), unitPrice * 3);
+  assert.equal(await cart.locator('.order-step').last().evaluate(node => document.activeElement === node), true);
+  // Observe the active common-order live region after a quantity change.
   await page.waitForFunction(() => document.querySelector(
-    '#menu-cart-dialog [data-menu-cart-status]')?.textContent.includes('3'), null, {timeout:2000});
-  assert.ok((await cart.locator('[data-menu-cart-status]').innerText()).includes('3'), `${label}: in-dialog announcement`);
+    '#robys-order-dialog .order-status')?.textContent.includes('× 3'), null, {timeout:2000});
+  assert.ok((await cart.locator('.order-status').innerText()).includes('× 3'), `${label}: in-dialog announcement`);
   await page.mouse.move(0, 0);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  const target = await cart.locator('.menu-cart-step').first().boundingBox();
+  const target = await cart.locator('.order-step').first().boundingBox();
   assert.ok(target.width >= 44 && target.height >= 44, `${label}: quantity target >=44px ${JSON.stringify(target)}`);
-  await cart.locator('.menu-cart-remove').click();
-  assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), 0);
+  await cart.locator('.order-remove').click();
+  assert.equal(Number((await page.locator('#robys-order-dialog .order-total').innerText()).replace(/\D/g, '')), 0);
   await page.keyboard.press('Escape');
   assert.equal(await cart.isVisible(), false);
-  assert.equal(await page.locator('body').evaluate(node => node.classList.contains('menu-dialog-open')), false);
+  assert.equal(await page.locator('body').evaluate(node => node.classList.contains('order-is-open')), false);
   return {label, unitPrice, added:2, increased:3, emptyTotal:0, focusRestored:true};
 }
 

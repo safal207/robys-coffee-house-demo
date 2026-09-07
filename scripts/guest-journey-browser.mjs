@@ -12,6 +12,13 @@ async function choose(page,language,quantity,budgetIndex=2){
  await page.goto(base+'smart-choice/#welcome');await page.locator(`[data-lang="${language}"]`).click();await page.locator('.smart-card .primary-button').click();
  for(const answer of [0,1,1,quantity-1,budgetIndex]){await page.locator('.option-button').nth(answer).click();await page.locator('.actions .primary-button').click();}
 }
+async function capture(page,path){
+ await page.locator('#robys-order-dialog').evaluate(async dialog=>{
+  await Promise.all(dialog.getAnimations({subtree:true}).filter(animation=>Number.isFinite(animation.effect?.getComputedTiming().endTime)).map(animation=>animation.finished.catch(()=>{})));
+  await Promise.all([...dialog.querySelectorAll('img')].map(image=>image.decode()));
+ });
+ await page.screenshot({path});
+}
 async function total(page,amount){await page.locator('.order-total').filter({hasText:String(amount)}).waitFor({state:'visible'});}
 try{
  let ready=false;for(let i=0;i<50;i++){try{if((await fetch(base)).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,'Static preview readiness');
@@ -32,7 +39,7 @@ try{
    await p.locator('.order-dialog--handoff .order-line strong').filter({hasText:`${quantity} ×`}).waitFor({state:'visible'});
    assert.equal(await p.locator('.order-controls:visible').count(),0);
    const geometry=await p.locator('#robys-order-dialog').evaluate(node=>({client:node.clientWidth,scroll:node.scrollWidth}));assert.ok(geometry.scroll<=geometry.client+1);
-   await p.screenshot({path:`${out}/${language}-${quantity}-${width}-barista.png`});
+   await capture(p,`${out}/${language}-${quantity}-${width}-barista.png`);
    await p.locator('#robys-order-edit').click();await p.keyboard.press('Escape');
    await p.locator('#smart-choice-add-order').click();await total(p,quantity*180); // A second press only reviews.
    await p.keyboard.press('Escape');await p.reload();await p.locator('#smart-choice-add-order').click();await total(p,quantity*180);
@@ -44,10 +51,13 @@ try{
    await espresso.locator('.order-step').last().click();await total(p,quantity*180+220);
    await espresso.locator('.order-remove').click();await total(p,quantity*180);await p.locator('#robys-order-undo').click();await total(p,quantity*180+220);
    await p.keyboard.press('Escape');await p.reload();await p.locator('#robys-order-trigger').click();await total(p,quantity*180+220);
-   await p.locator('#robys-order-handoff').click();await p.screenshot({path:`${out}/${language}-${quantity}-${width}-complete-order.png`});
+   await p.locator('#robys-order-handoff').click();await capture(p,`${out}/${language}-${quantity}-${width}-complete-order.png`);
    await p.keyboard.press('Escape');await p.locator('[data-category="hot-coffee"]').click();await p.locator('#menu-search').fill('Macaron');
    await p.locator('[data-product-id="desserts:macaron"]').waitFor({state:'visible'});
    assert.equal(await p.locator('[data-category="all"]').getAttribute('aria-pressed'),'true');
+   await p.locator('[data-category="hot-coffee"]').click();
+   assert.equal(await p.locator('#menu-search').inputValue(),'');
+   assert.equal(await p.locator('.menu-search-clear').isVisible(),false);
    assert.deepEqual(errors,[]);result.passed=true;
   }catch(error){result.error=String(error.stack);await p.screenshot({path:`${out}/${language}-${quantity}-${width}-failure.png`}).catch(()=>{});throw error;}finally{await c.close();}
  }

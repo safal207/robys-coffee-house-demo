@@ -49,13 +49,13 @@ try {
     await page.locator('#menu-root[data-ready="true"]').waitFor();
     check(`${lang}/session-restores-highlight`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2");
     await page.locator("#menu-cart-trigger").click();
-    check(`${lang}/exact-total`, (await page.locator("#menu-cart-dialog-total").textContent()).replace(/\D/g, "") === String(unit * 2), { expected: unit * 2 });
-    await page.locator(".menu-cart-line img").evaluateAll(images => Promise.all(images.map(img => img.decode())));
+    check(`${lang}/exact-total`, (await page.locator("#robys-order-dialog .order-total").textContent()).replace(/\D/g, "") === String(unit * 2), { expected: unit * 2 });
+    await page.locator(".order-line img").evaluateAll(images => Promise.all(images.map(img => img.decode())));
     await page.waitForTimeout(400);
     if (lang === "ru") await page.screenshot({ path: `${output}/cart-390.png` });
-    await page.locator(".menu-cart-step").nth(1).click();
+    await page.locator(".order-step").nth(1).click();
     check(`${lang}/increment`, (await page.locator("#menu-cart-count").textContent()) === "3" && (await media.getAttribute("data-cart-quantity")) === "3");
-    await page.locator(".menu-cart-remove").click();
+    await page.locator(".order-remove").click();
     check(`${lang}/remove-clears-state`, (await page.locator("#menu-cart-count").textContent()) === "0" && !(await first.evaluate(row => row.classList.contains("is-in-cart"))));
     await page.keyboard.press("Escape");
     const category = page.locator('[data-category="herbal-tea"]');

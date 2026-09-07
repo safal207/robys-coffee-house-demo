@@ -2,8 +2,8 @@ import type { SmartChoiceLanguage } from "./catalog.js";
 
 export const CART_COPY = {
   tr: {
-    title: "Sipariş taslağınızı tamamlayın",
-    lead: "Değişiklikler yalnızca katalog fiyatlarıyla hesaplanır. Ücretli seçenekler önceden işaretlenmez.",
+    title: "İçeriği kontrol edin",
+    lead: "Porsiyonları kontrol edin. Miktarları sepetinizde değiştirebilirsiniz.",
     contents: "Seçilen içerik",
     noExtra: "Ek ücret yok",
     add: "Ekle",
@@ -20,8 +20,8 @@ export const CART_COPY = {
     payload: "Kararlı sipariş kodu"
   },
   en: {
-    title: "Complete your order draft",
-    lead: "Every change is priced from the catalog. Paid options are never preselected.",
+    title: "Check your selection",
+    lead: "Check the portions. You can adjust quantities in My order.",
     contents: "Selected contents",
     noExtra: "No extra charge",
     add: "Add",
@@ -38,8 +38,8 @@ export const CART_COPY = {
     payload: "Stable order code"
   },
   ru: {
-    title: "Соберите черновик заказа",
-    lead: "Все изменения рассчитываются только по каталогу. Платные опции заранее не включаются.",
+    title: "Проверьте состав",
+    lead: "Проверьте порции. Количество можно изменить в «Мой заказ».",
     contents: "Состав заказа",
     noExtra: "Без доплаты",
     add: "Добавить",

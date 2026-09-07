@@ -101,14 +101,14 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=ec3b0bd6a243",
   "./menu-ready.js",
-  "./menu-app.js?v=6a7ead900b3f",
+  "./menu-app.js?v=e5eaefc92b81",
   "./menu-pwa.js?v=premium-cache-new-20260904-1",
   "./menu-catalog.js?v=243b340f2a4d",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260904-interaction-v3",
-  "./order-launcher.js?v=a101e4320bb0",
+  "./order-launcher.js?v=01f52df15456",
   "./order-store.js?v=ea7acc7113ac",
-  "./order-shell.js?v=e14cac91e442",
+  "./order-shell.js?v=7759ffc8ff09",
   "./pairing-posters.css?v=14f866f5a3ca",
   "./pairing-posters.js?v=58982ebf132b",
   "./order-shell.css?v=eeb3d8805fe9",
@@ -120,8 +120,8 @@ const CORE_ASSETS = [
   "./smart-choice/release-qa.css?v=9d9afd5b512c",
   "./smart-choice/brand-v4.css?v=20260728-1",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=0d0513b7e61f",
-  "./smart-choice/cart-v2.js?v=b18a6e224a00",
+  "./smart-choice/app-v2.js?v=d7b178ca0120",
+  "./smart-choice/cart-v2.js?v=f70dcf04cd67",
   "./smart-choice/experiments-v2.js?v=f1e7de4860ad",
   "./smart-choice/analytics-v2.js?v=28b6f67f17a9",
   "./smart-choice/decision-trace-v2.js?v=948f8288c31d",
@@ -181,6 +181,12 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/order-launcher.js") ||
+    url.pathname.endsWith("/order-store.js") ||
+    url.pathname.endsWith("/order-shell.js") ||
+    url.pathname.endsWith("/order-shell.css") ||
+    url.pathname.endsWith("/pairing-posters.js") ||
+    url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||

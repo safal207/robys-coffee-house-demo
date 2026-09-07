@@ -11,7 +11,7 @@ const journeyWords = {
   ru: {show:'Показать бариста',ready:'Ваш выбор для бариста',edit:'Изменить заказ',counter:'Покажите этот экран бариста. Он подтвердит наличие, примет заказ и оплату на кассе.',hint:'Когда будете готовы, покажите свой выбор бариста.',optional:'Что-нибудь к кофе?',skip:'Оставить как есть',add:'Добавить',withExtra:'Итого с дополнением',menu:'Выбрать из меню',help:'Помочь с выбором'}
 };
 function lang(): Language { const value = document.documentElement.lang.split('-')[0]; return value === 'ru' || value === 'en' ? value : 'tr'; }
-function money(minor: number): string { return new Intl.NumberFormat({tr:'tr-TR',en:'en-US',ru:'ru-RU'}[lang()],{style:'currency',currency:'TRY',minimumFractionDigits:0,maximumFractionDigits:2}).format(minor/100); }
+function money(minor: number): string { return new Intl.NumberFormat({tr:'tr-TR',en:'en-US',ru:'ru-RU'}[lang()],{style:'currency',currency:'TRY',currencyDisplay:'narrowSymbol',minimumFractionDigits:0,maximumFractionDigits:2}).format(minor/100); }
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const node=document.createElement(tag); node.className=className; if(text!==undefined)node.textContent=text; return node;
 }
@@ -43,7 +43,7 @@ function start(): void {
   root.append(bar,dialog);document.body.append(root);document.body.classList.add('has-unified-order');
   installOrderDock(bar);
   let returnFocus: HTMLElement|null=null;const inerted: HTMLElement[]=[];
-  function act(action:()=>void):void {try{action();status.textContent=words[lang()].total+': '+money(order.summary().totalMinor);}catch{status.textContent=words[lang()].error;}}
+  function act(action:()=>void,message=''):void {try{action();status.textContent=(message ? message+' · ' : '')+words[lang()].total+': '+money(order.summary().totalMinor);}catch{status.textContent=words[lang()].error;}}
   function open():void {
     returnFocus=document.activeElement as HTMLElement; showingBarista=false; render();
     if(typeof dialog.showModal==='function')dialog.showModal();
@@ -92,9 +92,9 @@ function start(): void {
       const image=element('img','order-thumb');image.alt='';image.width=64;image.height=64;
       image.src=new URL(product.image, import.meta.url).href;
       const controls=element('div','order-controls');controls.hidden=showingBarista;
-      const minus=button('−',()=>act(()=>order.setQuantity(line.id,line.quantity-1)),'order-step');minus.setAttribute('aria-label',`${copy.minus}: ${title.textContent}`);minus.dataset.orderFocus=`${line.id}:minus`;
-      const plus=button('+',()=>act(()=>order.setQuantity(line.id,line.quantity+1)),'order-step');plus.setAttribute('aria-label',`${copy.add}: ${title.textContent}`);plus.disabled=line.quantity>=99;plus.dataset.orderFocus=`${line.id}:plus`;
-      const remove=button(copy.remove,()=>act(()=>order.setQuantity(line.id,0)),'order-remove');remove.dataset.orderFocus=`${line.id}:remove`;
+      const minus=button('−',()=>act(()=>order.setQuantity(line.id,line.quantity-1),`${title.textContent} × ${line.quantity-1}`),'order-step');minus.setAttribute('aria-label',`${copy.minus}: ${title.textContent}`);minus.dataset.orderFocus=`${line.id}:minus`;
+      const plus=button('+',()=>act(()=>order.setQuantity(line.id,line.quantity+1),`${title.textContent} × ${line.quantity+1}`),'order-step');plus.setAttribute('aria-label',`${copy.add}: ${title.textContent}`);plus.disabled=line.quantity>=99;plus.dataset.orderFocus=`${line.id}:plus`;
+      const remove=button(copy.remove,()=>act(()=>order.setQuantity(line.id,0),`${title.textContent} × 0`),'order-remove');remove.dataset.orderFocus=`${line.id}:remove`;
       controls.append(minus,element('span','',String(line.quantity)),plus,remove);
       row.append(image,title,element('span','order-line-price',money(Math.round(product.item.price*100)*line.quantity)),controls);lines.append(row);
     }

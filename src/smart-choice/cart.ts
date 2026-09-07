@@ -79,6 +79,7 @@ function formatPrice(valueMinor: number, language: SmartChoiceLanguage): string 
   return new Intl.NumberFormat(language === "tr" ? "tr-TR" : language === "ru" ? "ru-RU" : "en-US", {
     style: "currency",
     currency: "TRY",
+    currencyDisplay: "narrowSymbol",
     minimumFractionDigits: 0,
     maximumFractionDigits: valueMinor % 100 === 0 ? 0 : 2
   }).format(valueMinor / 100);

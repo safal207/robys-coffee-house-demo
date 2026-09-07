@@ -162,15 +162,15 @@ try {
   await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
   await menu.locator("#menu-add-to-cart").click();
   await menu.locator("#menu-cart-trigger").click();
-  await menu.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
-  await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
+  await menu.locator("#robys-order-dialog[open]").waitFor({ state: "visible" });
+  await menu.locator("#robys-order-dialog .order-line .order-step").nth(1).click();
   // Observe the live-region text without evaluating a string under the page CSP.
   // It is visually hidden for accessibility, so wait for attachment, not visibility.
-  await menu.locator("#menu-cart-dialog[open] [data-menu-cart-status]")
+  await menu.locator("#robys-order-dialog[open] .order-status")
     .filter({ hasText: "× 2" }).waitFor({ state: "attached" });
   const cartLiveEvidence = await menu.evaluate(() => {
-    const dialog = document.querySelector("#menu-cart-dialog");
-    const status = dialog?.querySelector("[data-menu-cart-status]");
+    const dialog = document.querySelector("#robys-order-dialog");
+    const status = dialog?.querySelector(".order-status");
     return {
       dialogOpen: dialog?.hasAttribute("open") ?? false,
       statusInsideDialog: Boolean(status && dialog?.contains(status)),
