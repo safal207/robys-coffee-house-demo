@@ -7,11 +7,25 @@ import { certify, contextFor, brand, assertBrand, assertAsset, done, assert, sav
 await certify({ port: Number(process.env.PREMIUM_DEPTH_PORT ?? 4197), resultsDir: path.resolve(process.env.PREMIUM_DEPTH_RESULTS_DIR ?? "visual-results/premium-depth"), contract: "MOTION-DEPTH-001" }, async ({ browser, baseUrl, resultsDir }) => {
   const evidence = { design: "takeaway-v1", asset: assertAsset(), captures: [] };
   for (const [width, height, language, scene] of [[320, 640, "tr", "morning"], [390, 844, "ru", "day"], [1280, 720, "en", "night"], [844, 390, "ru", "day"]]) {
+    // Measure the actual hold in a dedicated cold run. Full-viewport screenshot
+    // encoding on a busy runner can starve rAF observations; it must not be part
+    // of a duration measurement (the cadence suite follows the same boundary).
+    const measurement = await contextFor(browser, { viewport: { width, height }, language });
+    const measurePage = await measurement.newPage();
+    await measurePage.goto(`${baseUrl}?entry=${scene}`, { waitUntil: "domcontentloaded" });
+    const appearance = await brand(measurePage);
+    assertBrand(appearance, language);
+    const probe = await done(measurePage);
+    save(resultsDir, `takeaway-${width}-${height}-${language}-frames.json`, probe);
+    const held = probe.frames.filter((frame) => frame.state === "brand-frame" && frame.opacity >= .999 && frame.transform === "matrix(1, 0, 0, 1, 0, 0)");
+    const holdMs = held.length >= 2 ? held.at(-1).at - held[0].at : 0;
+    assert(holdMs >= 250, `${width}×${height}: readable stationary hold ${holdMs.toFixed(1)} ms is shorter than 250 ms`);
+    await measurement.close();
+
     const context = await contextFor(browser, { viewport: { width, height }, language });
     const page = await context.newPage();
     await page.goto(`${baseUrl}?entry=${scene}`, { waitUntil: "domcontentloaded" });
-    const appearance = await brand(page);
-    assertBrand(appearance, language);
+    await brand(page);
     // Observe the actual animation's settled state; do not freeze or fast-forward
     // production motion, and do not count a held QA fixture as timing evidence.
     let focal;
@@ -32,10 +46,8 @@ await certify({ port: Number(process.env.PREMIUM_DEPTH_PORT ?? 4197), resultsDir
     }
     assert(focal?.state === "brand-frame" && focal.opacity >= .999 && focal.surfaceOpacity >= .98 && focal.surfaceAnimations === 0 && focal.cupOwned, "Cup never reached a sharp, unoccluded hold before handoff");
     await page.screenshot({ path: path.join(resultsDir, `takeaway-${width}-${height}-${language}-focus.png`), animations: "allow" });
-    const probe = await done(page);
-    const held = probe.frames.filter((frame) => frame.state === "brand-frame" && frame.opacity >= .999 && frame.transform === "matrix(1, 0, 0, 1, 0, 0)");
-    assert(held.length >= 2 && held.at(-1).at - held[0].at >= 250, "Readable, stationary focal hold is shorter than 250 ms");
-    evidence.captures.push({ width, height, language, scene, appearance, focal, holdMs: held.at(-1).at - held[0].at });
+    await done(page);
+    evidence.captures.push({ width, height, language, scene, appearance, focal, holdMs });
     await context.close();
   }
   save(resultsDir, "premium-depth-evidence.json", evidence);
