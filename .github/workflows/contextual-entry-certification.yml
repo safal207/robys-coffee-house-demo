@@ -100,11 +100,11 @@ jobs:
           CONTEXTUAL_ENTRY_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-entry
         run: node scripts/contextual-entry-smoke.mjs
 
-      - name: Compare front-face rendering with original visible-backface control
+      - name: Compare automatic isolation with original isolated-surface control
         if: ${{ !cancelled() && (steps.contextual.outcome == 'success' || steps.contextual.outcome == 'failure') }}
         env:
           CONTEXTUAL_PROBE_RESULTS_DIR: ${{ github.workspace }}/visual-results/contextual-probe
-          CONTEXTUAL_PROBE_SUITE: frontfaces
+          CONTEXTUAL_PROBE_SUITE: isolation
         run: |
           npm install --prefix "$RUNNER_TEMP/contextual-png" --no-save --package-lock=false --ignore-scripts --no-audit --no-fund pngjs@7.0.0
           NODE_PATH="$RUNNER_TEMP/contextual-png/node_modules" node scripts/probe-contextual-layers.mjs

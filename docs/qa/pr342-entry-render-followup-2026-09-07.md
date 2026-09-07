@@ -161,7 +161,6 @@ temporary, separate dependency directory with lifecycle scripts disabled. It
 does not reinstall or replace locked application/Playwright dependencies. The
 default optical-only diagnostic does not load the PNG decoder.
 
-
 ## Bounded front-face product candidate
 
 Surface CI run 34093016171 on exact `58f30c5f6708395eb30f3e95efccbaffd6ba1e38`
@@ -228,3 +227,49 @@ No Android runtime or native deadline changes are included. On 58f30c5 the
 original Android smoke failed while the two pinned base/head diagnostic jobs
 passed; that mixed outcome does not demonstrate an Android repair. Android uses
 its separate handoff runtime and does not inherit this Day/Night optimization.
+
+
+## Front-face rejection and automatic-isolation candidate
+
+Exact candidate `10d64cab8e76834f39cfc20a5296920a7843221b` failed the original
+Contextual gate at Night 33.2 ms in run 34095261869. Its four-round counterfactual
+comparison found hidden back faces within the 21 ms limit in 7/8 observations,
+while restored visible back faces passed 8/8. All 16 observations have 18 samples;
+all 12 fixed-pose comparisons have zero changed pixels. Verified artifact
+10008457976 has ZIP SHA-256
+`0f55f5d4dfa1c0401a78cb3b8f3ef83b0005512f4ee6be1b26819ff3adc08eb8`.
+Original/derived/probe hashes and every retained PNG hash were checked against
+that exact head. The initial four-case signal did not reproduce. The back-face
+product change is rejected and removed; it is not retained as an optimization.
+
+Visual run 34095261937 on 10d64ca contains 43 comparisons in each attempt, with
+only the same four exact menu-height differences. Its verifier rejects stale
+content bindings, as required. Artifact 10008471664 has verified ZIP SHA-256
+`ab25a7643a1e44ba11f2bb7aebe79cdc5489c7ea6175bedcd8408001b2e08b5d`.
+Pairing, original Android and both pinned Android jobs passed on this head;
+unchanged Android code and earlier base failures prohibit an Android repair claim.
+The report's single newly introduced MD012 blank-line error is also corrected.
+
+The remaining preselected surface candidate changes the overlay and logo-stage
+isolation from `isolate` to `auto`. Both already create stacking contexts through
+position/z-index or transform. It changes no geometry, material, assets,
+animations or release timing. The two-line candidate previously had four valid
+CI timing observations and exact static equivalence at 390/320/768/1440px.
+It now receives an independent four-round comparison with a reverse intervention
+restoring `isolate` on both containers. The first candidate's contradictory
+result is retained, not replaced by a passing rerun.
+
+With the corrected before-first-paint capture, another six-pose check confirmed
+that logo-filter promotion and removing static-layer hints still change pixels
+(up to 77874 and 221331 respectively); those candidates remain rejected.
+Automatic isolation and unchanged controls again matched exactly. None of these
+still images substitute for the original timing certification.
+
+Local original Contextual and Premium depth gates passed on the automatic-
+isolation working tree over 10d64ca (Day 1262.7 ms, Night 1702.9 ms, warm 701.2 ms).
+Full check/security passed. Exact product bindings, original samples, rejected
+counterfactual samples and static controls are recorded in
+`qa/evidence/pr342-isolation-candidate-2026-09-07.json`. Runtime/cache revision
+is `20260907-isolation-v27`. Visual bindings remain unchanged pending complete
+new-head comparisons. Android runtime, capture deadlines and all limits are
+unchanged; this is still a draft candidate, not a completed repair.

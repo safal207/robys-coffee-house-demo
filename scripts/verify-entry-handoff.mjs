@@ -45,7 +45,7 @@ assert(
   "Header must not flash through the splash"
 );
 assert(
-  bootstrap.includes("20260907-frontface-v26") && serviceWorker.includes("20260907-frontface-v26"),
+  bootstrap.includes("20260907-isolation-v27") && serviceWorker.includes("20260907-isolation-v27"),
   "Day/night entry revision must be synchronized with offline delivery"
 );
 for (const page of entryPages) {

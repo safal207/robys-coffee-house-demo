@@ -10,11 +10,12 @@ const suite = process.env.CONTEXTUAL_PROBE_SUITE ?? 'optics';
 const suites = {
   optics: ['baseline', 'no-shadows', 'no-filters', 'flat', 'contain', 'no-covered'],
   surfaces: ['baseline', 'clip-surface', 'foreground-cache', 'backface', 'isolation-auto'],
-  frontfaces: ['baseline', 'reverse-visible']
+  frontfaces: ['baseline', 'reverse-visible'],
+  isolation: ['baseline', 'restore-isolation']
 };
 if (!Object.hasOwn(suites, suite)) throw new Error('Unknown bounded contextual probe suite');
 const variants = suites[suite];
-const rounds = suite === 'frontfaces' ? 4 : 2;
+const rounds = ['frontfaces', 'isolation'].includes(suite) ? 4 : 2;
 const out = path.resolve(process.env.CONTEXTUAL_PROBE_RESULTS_DIR ?? 'visual-results/contextual-probe');
 mkdirSync(out, { recursive: true });
 process.env.CONTEXTUAL_ENTRY_RESULTS_DIR = out;
@@ -51,9 +52,10 @@ async function installAblation(context, variant) {
       }
       if (variant === 'backface') for (const node of overlay.querySelectorAll('*')) node.style.backfaceVisibility = 'hidden';
       if (variant === 'reverse-visible') for (const node of overlay.querySelectorAll('*')) node.style.backfaceVisibility = 'visible';
-      if (variant === 'isolation-auto') {
-        overlay.style.isolation = 'auto';
-        overlay.querySelector('.robys-entry-logo-stage').style.isolation = 'auto';
+      if (variant === 'isolation-auto' || variant === 'restore-isolation') {
+        const isolation = variant === 'restore-isolation' ? 'isolate' : 'auto';
+        overlay.style.isolation = isolation;
+        overlay.querySelector('.robys-entry-logo-stage').style.isolation = isolation;
       }
       if (variant === 'no-covered') for (const node of document.body.children) {
         if (node !== overlay) node.style.visibility = 'hidden';

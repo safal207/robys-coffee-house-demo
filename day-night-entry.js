@@ -219,7 +219,7 @@ function createContextualEntry(sceneName) {
     background: theme.background,
     opacity: "1",
     touchAction: "manipulation",
-    isolation: "isolate"
+    isolation: "auto"
   });
   overlay.className = `robys-contextual-entry robys-${sceneName}-entry`;
   overlay.setAttribute("aria-hidden", "true");
@@ -350,7 +350,7 @@ function createContextualEntry(sceneName) {
     display: "grid",
     justifyItems: "center",
     gap: "12px",
-    isolation: "isolate",
+    isolation: "auto",
     willChange: "transform, opacity",
     pointerEvents: "none",
     zIndex: "10"
@@ -427,11 +427,6 @@ function createContextualEntry(sceneName) {
   logoStage.append(logoHalo, logoFocus, mark, wordmark);
   sceneStage.append(depthHaze, ambient, brownRibbon, redSurface, specularEdge, goldArc, lightVeil);
   overlay.append(sceneStage, foregroundOccluder, vignette, logoStage);
-
-  // Every pose keeps these surfaces facing the viewer.
-  for (const layer of overlay.querySelectorAll("*")) {
-    layer.style.backfaceVisibility = "hidden";
-  }
 
   return {
     overlay,
