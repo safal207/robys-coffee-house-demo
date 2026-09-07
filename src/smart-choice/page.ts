@@ -59,6 +59,7 @@ const localeTag: Record<SmartChoiceLanguage, string> = {
 
 const copy = {
   tr: {
+    skipToContent: "İçeriğe geç",
     fullMenu: "Tam Menü",
     footerNote: "Seçiminizi sepetinize ekleyin, hazır olduğunuzda baristaya gösterin.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -98,6 +99,7 @@ const copy = {
     price: "Toplam fiyat"
   },
   en: {
+    skipToContent: "Skip to content",
     fullMenu: "Full menu",
     footerNote: "Add your choices to My order, then show the barista when you are ready.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -137,6 +139,7 @@ const copy = {
     price: "Total price"
   },
   ru: {
+    skipToContent: "Перейти к содержимому",
     fullMenu: "Полное меню",
     footerNote: "Соберите «Мой заказ» и покажите его бариста, когда будете готовы.",
     eyebrow: "ROBY'S SMART CHOICE",
