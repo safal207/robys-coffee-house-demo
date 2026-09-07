@@ -1,0 +1,166 @@
+name: Telegram share sealed integration
+
+on:
+  push:
+    branches: [qa/telegram-share-integration-20260908]
+    paths:
+      - .github/workflows/telegram-share-integration.yml
+      - qa/telegram-share-integration/**
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Integration / ${{ matrix.lane }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [browser, visual, mobile, desktop]
+    defaults:
+      run:
+        shell: bash
+        working-directory: subject
+    steps:
+      - name: Checkout integration inputs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: tooling
+          persist-credentials: false
+      - name: Checkout exact subject base
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          path: subject
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Apply checked source patch
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/integration
+          python3 - <<'PY'
+          import base64,gzip,hashlib,json,pathlib,subprocess
+          source=pathlib.Path('../tooling/qa/telegram-share-integration')
+          m=json.loads((source/'manifest.json').read_text())
+          assert m['base']=='7799f80b5a6561beec57f2d98f8e8ca58e8c36fa'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==m['base']
+          assert not subprocess.check_output(['git','status','--porcelain'],text=True)
+          parts=sorted(source.glob('source.part-*.b64'))
+          assert len(parts)==3
+          patch=gzip.decompress(base64.b64decode(''.join(p.read_text().strip() for p in parts),validate=True))
+          assert hashlib.sha256(patch).hexdigest()==m['patchSha256']=='a9c6653fb2098e6427e141843a83f92c66040bcfe664520d8939ded4d8f08d21'
+          target=pathlib.Path('.artifacts/integration/source.patch');target.write_bytes(patch)
+          subprocess.run(['git','apply','--check',str(target)],check=True)
+          subprocess.run(['git','apply',str(target)],check=True)
+          for f,h in m['files'].items(): assert hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()==h,f
+          pathlib.Path('.artifacts/integration/manifest.json').write_text(json.dumps(m,indent=2)+'\n')
+          print('Exact base, input patch, and every source hash match.')
+          PY
+      - name: Install locked project dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build and seal exact candidate bytes
+        id: build
+        run: |
+          set -euo pipefail
+          npm run build 2>&1 | tee .artifacts/integration/build.log
+          npm run integrity:generate 2>&1 | tee .artifacts/integration/integrity.log
+          python3 - <<'PY'
+          import hashlib,json,pathlib,subprocess,os
+          out=pathlib.Path('.artifacts/integration');m=json.loads((out/'manifest.json').read_text())
+          for f,h in m['runtime'].items(): assert hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()==h,f
+          subprocess.run(['git','add','-N',*m['files']],check=True)
+          patch=subprocess.check_output(['git','diff','--binary','--full-index'])
+          (out/'complete-integration.patch').write_bytes(patch)
+          changed=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
+          provenance={'subjectBase':m['base'],'toolingCommit':os.environ['GITHUB_SHA'],'sourcePatchSha256':m['patchSha256'],'completePatchSha256':hashlib.sha256(patch).hexdigest(),'files':{f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest() for f in changed},'boundary':'Built candidate working-tree bytes over the pinned base, not the unmodified base and not a deployed release.'}
+          (out/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
+          print(json.dumps(provenance,indent=2))
+          PY
+      - name: Complete project check and security contracts
+        if: matrix.lane == 'browser'
+        run: |
+          set -euo pipefail
+          npm run check 2>&1 | tee .artifacts/integration/check.log
+          npm run verify:security 2>&1 | tee .artifacts/integration/security.log
+          git diff --check
+      - name: Install existing deterministic browser comparison tools
+        if: matrix.lane == 'browser' || matrix.lane == 'visual'
+        run: |
+          npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Real menu and Smart Choice sharing matrix
+        if: matrix.lane == 'browser'
+        run: |
+          set -o pipefail
+          node scripts/order-share-integration-browser.mjs 2>&1 | tee .artifacts/integration/share-browser.log
+      - name: Existing complete guest journey regression
+        if: always() && matrix.lane == 'browser' && steps.build.outcome == 'success'
+        run: |
+          set -o pipefail
+          node scripts/guest-journey-browser.mjs 2>&1 | tee .artifacts/integration/guest-journey.log
+      - name: Existing group recovery regression
+        if: always() && matrix.lane == 'browser' && steps.build.outcome == 'success'
+        run: |
+          set -o pipefail
+          node scripts/guest-group-recovery-browser.mjs 2>&1 | tee .artifacts/integration/group-recovery.log
+      - name: Checkout unchanged incremental visual baseline
+        if: matrix.lane == 'visual'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa
+          path: baseline
+          persist-credentials: false
+      - name: Build unchanged visual baseline
+        if: matrix.lane == 'visual'
+        working-directory: baseline
+        run: npm ci --no-audit --no-fund && npm run build
+      - name: Compare with unchanged pinned base without baseline rewriting
+        if: matrix.lane == 'visual'
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/subject
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/subject/.artifacts/incremental-visual
+        run: |
+          set -o pipefail
+          node scripts/visual-regression.mjs 2>&1 | tee .artifacts/integration/visual.log
+      - name: Check reviewed-visual boundary without editing approvals
+        if: always() && matrix.lane == 'visual' && steps.build.outcome == 'success'
+        env:
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/subject/.artifacts/incremental-visual
+        run: |
+          set -o pipefail
+          node scripts/verify-reviewed-visual-change.mjs 2>&1 | tee .artifacts/integration/visual-review.log
+      - name: Collect Lighthouse with unchanged profile and budgets
+        if: matrix.lane == 'mobile' || matrix.lane == 'desktop'
+        env:
+          PROFILE: ${{ matrix.lane }}
+        run: |
+          set -euo pipefail
+          npx --yes @lhci/cli@0.15.1 collect --config="lighthouse/lighthouserc.${PROFILE}.cjs" 2>&1 | tee .artifacts/integration/lighthouse-collect.log
+      - name: Assert Lighthouse against unchanged budgets
+        if: always() && (matrix.lane == 'mobile' || matrix.lane == 'desktop') && steps.build.outcome == 'success'
+        env:
+          PROFILE: ${{ matrix.lane }}
+        run: |
+          set -o pipefail
+          npx --yes @lhci/cli@0.15.1 assert --config="lighthouse/lighthouserc.${PROFILE}.cjs" 2>&1 | tee .artifacts/integration/lighthouse-assert.log
+      - name: Preserve evidence including failures, not a deployment
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: telegram-integration-${{ matrix.lane }}-${{ github.run_id }}
+          path: |
+            subject/.artifacts/integration/
+            subject/.artifacts/order-share-catalog/report.json
+            subject/.artifacts/order-share-browser/
+            subject/.artifacts/guest-journey/
+            subject/.artifacts/guest-group-recovery/
+            subject/.artifacts/incremental-visual/
+            subject/.lighthouseci/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
