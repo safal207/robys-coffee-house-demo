@@ -104,6 +104,7 @@ public final class MainActivity extends ComponentActivity {
         errorView.setVisibility(View.GONE);
         splashView.resetAndShow();
         splashView.bringToFront();
+        webView.setVisibility(View.INVISIBLE);
         configureLaunchSystemBars();
         debugState("NATIVE_SURFACE");
 
@@ -131,6 +132,7 @@ public final class MainActivity extends ComponentActivity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
+        settings.setOffscreenPreRaster(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
@@ -300,6 +302,7 @@ public final class MainActivity extends ComponentActivity {
         handoffComplete = true;
         cancelHandoffCallbacks();
         debugState("VISUAL_STATE_CONFIRMED");
+        view.setVisibility(View.VISIBLE);
         splashView.dismiss();
         configureProductSystemBars();
         releaseWebHandoff(view, generation);
