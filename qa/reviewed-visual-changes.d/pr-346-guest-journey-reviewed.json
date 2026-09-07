@@ -65,7 +65,7 @@
         "scripts/guest-journey-browser.mjs": "e981a537bc6ea325b460cbe72df82a6d412181c6",
         "scripts/test-guest-journey.mjs": "006c09d3cf637cd30b57e8b0af424a51011ed411",
         "scripts/pairing-offers-regression.mjs": "2cd409faed7948b5007e08b768aeab74ea588ec0",
-        ".github/workflows/guest-journey.yml": "894f056ffce3d35f881330459e61cfc174f54803",
+        ".github/workflows/guest-journey.yml": "ed23445f82b8db07b11e96447ad04a87159f7e11",
         "smart-choice/style.css": "367e2c3561f4a7a543721de2c0d22cee030df710",
         "smart-choice/cart.css": "95e72d1cffb082b13becdb58c7e8c02787933b7c",
         "smart-choice/brand-v4.css": "ef045ecd64b53a73262e7f2dcbd5222592b5f252",
