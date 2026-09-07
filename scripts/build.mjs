@@ -228,6 +228,7 @@ writeFileSync("conversion.js", transformSync(conversionSource, {
   minify: true, charset: "utf8", format: "esm", target: "es2020", legalComments: "none"
 }).code);
 const conversionRevision = revisionFor("conversion.js");
+const qaRevision = revisionFor("qa.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
@@ -251,6 +252,7 @@ html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 html = synchronizeModuleScript(html, "conversion.js", conversionRevision);
+html = synchronizeModuleScript(html, "qa.js", qaRevision);
 writeFileSync("index.html", html);
 
 let discoverHtml = readFileSync("discover.html", "utf8");

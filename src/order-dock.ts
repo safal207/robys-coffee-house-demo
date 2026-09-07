@@ -100,11 +100,13 @@ export function installOrderDock(node: HTMLElement): () => void {
     set(properties[0], lane);
     // Read the resolved CSS bottom after setting the lane: this includes the
     // device safe area without guessing or counting it twice.
-    const occupied = Math.max(...heights.map(([bar, height]) =>
-      (Number.parseFloat(win!.getComputedStyle(bar).bottom) || 14) + height + 12));
+    const resolved = heights.map(([bar, height]) => ({
+      height, bottom: Number.parseFloat(win!.getComputedStyle(bar).bottom) || 14
+    }));
+    const occupied = Math.max(...resolved.map(({ height, bottom }) => bottom + height + 12));
+    const heroOccupied = Math.max(...resolved.map(({ height, bottom }) =>
+      Math.max(heroLane, bottom) + height + 12));
     set(properties[1], occupied);
-    const heroOccupied = Math.max(...heights.map(([bar, height]) =>
-      Math.max(heroLane, Number.parseFloat(win!.getComputedStyle(bar).bottom) || 14) + height + 12));
     set(properties[2], heroOccupied);
   }
   const controller: DockController = {

@@ -40,8 +40,10 @@ function enableHeroVideo() {
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
-  source.removeAttribute("media");
-  source.src = HERO_VIDEO;
+  const sourceChanged = source.getAttribute("src") !== HERO_VIDEO;
+  const mediaChanged = source.hasAttribute("media");
+  if (mediaChanged) source.removeAttribute("media");
+  if (sourceChanged) source.src = HERO_VIDEO;
 
   const retryPlayback = () => requestHeroPlayback(video);
 
@@ -55,7 +57,9 @@ function enableHeroVideo() {
   });
   window.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
 
-  video.load();
+  // Keep the parser-started request and decoder when the approved source is
+  // already selected, but retain one initial retry for a prior media error.
+  if (sourceChanged || mediaChanged || video.error) video.load();
   retryPlayback();
 }
 

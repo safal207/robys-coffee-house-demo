@@ -57,9 +57,20 @@ new head must be evaluated separately.
 
 ## Next transition and remaining work
 
-1. Finish this small localization follow-up in #346, then evaluate its own CI and
-   review state. Preserve the green predecessor evidence without calling it a pass
-   for new bytes.
+The localization follow-up was published as `8b1613a`. Its completed CI has
+41 successful checks, two skips and two motion failures (271.7 and 158.8 ms
+startup against 150 ms). The complete guest journey and native smoke passed on
+that head; the native smoke does not close #345 or certify an APK release.
+
+The subsequent startup investigation rejected changing the observer as a fix.
+It found and repaired duplicate dock style reads and a redundant hero-video
+reload, but controlled browser comparisons did not establish a startup cure.
+See [the experiment record](../qa/guest-startup-2026-09-07.md) for exact heads,
+failed attempts, artifact hashes and the boundary between collection and passing.
+
+1. Evaluate the source-repair follow-up's own CI and keep the 150 ms startup
+   requirement open until supported. Preserve earlier green and red evidence
+   without transferring either verdict to new bytes.
 2. The current `Maintainer merge attestation` commit status is pending. The
    repository's `.github/workflows/maintainer-merge-attestation.yml` expects the
    owner `safal207` to record `/merge-ready <full-current-head>` on the PR. This
