@@ -13,19 +13,25 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Fetch the exact runtime parent for the provenance comparison
-        run: git fetch --no-tags --depth=1 origin 8b1613abc250919d66b2173249b87f417c925883
+      - name: Check out the exact combined product candidate separately
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: d0a88b4f6f8d4c8be385805f710ee24923979b78
+          path: product-candidate
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npm run verify:integrity
+        working-directory: product-candidate
       - run: npx playwright install --with-deps chromium
-      - run: node scripts/guest-startup-hero-compare.mjs
+      - run: node ../scripts/guest-startup-final.mjs
+        working-directory: product-candidate
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: guest-startup-trace-${{ github.sha }}
-          path: .artifacts/guest-startup/
+          path: product-candidate/.artifacts/guest-startup/
           retention-days: 14
           if-no-files-found: error
