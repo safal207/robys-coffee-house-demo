@@ -1,0 +1,120 @@
+name: PR346 Android pinned diagnostic
+
+on:
+  push:
+    branches: [fix/pr346-android-pinned-20260907]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr346-android-pinned-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    name: Pinned ${{ matrix.label }} with original handoff contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: base-e3edcf1
+            source_sha: e3edcf13de323c3adb80c9c96465f1dd0425eee0
+          - label: head-7ca13b9
+            source_sha: 7ca13b9adbf45b953c3b0997107d010e7bad1d9b
+    steps:
+      - name: Checkout diagnostic tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout immutable subject
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.source_sha }}
+          path: subject
+
+      - name: Verify subject and original capture identity
+        env:
+          EXPECTED_SOURCE_SHA: ${{ matrix.source_sha }}
+        run: |
+          test "$(git -C subject rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test -z "$(git -C subject status --porcelain)"
+          cmp .github/scripts/capture-android-launch.sh subject/.github/scripts/capture-android-launch.sh
+          cmp scripts/test-android-capture-contract.py subject/scripts/test-android-capture-contract.py
+
+      - name: Prepare isolated diagnostic APK sources
+        run: |
+          python3 scripts/prepare-android-pinned-fixture.py --source subject --output "$RUNNER_TEMP/pinned-fixture"
+          git rev-parse HEAD > "$RUNNER_TEMP/pinned-fixture/diagnostic-tooling.sha"
+          sha256sum scripts/prepare-android-pinned-fixture.py scripts/verify-android-pinned-evidence.py scripts/test-android-pinned-fixture.py scripts/qa/PinnedWebFixture.java .github/scripts/capture-android-launch.sh > "$RUNNER_TEMP/pinned-fixture/diagnostic-tools.sha256"
+          cp .github/workflows/pr346-android-pinned-diagnostic.yml "$RUNNER_TEMP/pinned-fixture/diagnostic-workflow.yml"
+
+      - name: Verify resource identity rejection controls
+        run: python3 scripts/test-android-pinned-fixture.py
+
+      - name: Verify original capture failure semantics
+        run: python3 scripts/test-android-capture-contract.py
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - run: sdkmanager "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Build diagnostic debug APK
+        run: |
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" :app:assembleDebug --stacktrace
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" --stop
+          free -h
+          nproc
+
+      - name: Cold launch with original recorder and deadlines
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: cd "$RUNNER_TEMP/pinned-fixture" && bash capture.sh
+
+      - name: Verify delivered bytes even when handoff fails
+        if: always()
+        run: python3 scripts/verify-android-pinned-evidence.py "$RUNNER_TEMP/pinned-fixture"
+
+      - name: Upload original verdict and source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr346-android-pinned-${{ matrix.label }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/pinned-fixture/android-native/build/visual-evidence/**
+            ${{ runner.temp }}/pinned-fixture/fixture-manifest.json
+            ${{ runner.temp }}/pinned-fixture/native-instrumentation.diff
+            ${{ runner.temp }}/pinned-fixture/pinned-evidence-summary.json
+            ${{ runner.temp }}/pinned-fixture/apk-inventory.json
+            ${{ runner.temp }}/pinned-fixture/diagnostic-tooling.sha
+            ${{ runner.temp }}/pinned-fixture/diagnostic-tools.sha256
+            ${{ runner.temp }}/pinned-fixture/diagnostic-workflow.yml
+            ${{ runner.temp }}/pinned-fixture/capture.sh
+          if-no-files-found: warn
+          retention-days: 14
