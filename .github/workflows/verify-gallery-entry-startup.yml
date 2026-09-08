@@ -1,0 +1,181 @@
+name: Verify gallery entry startup deferral
+on:
+  push:
+    branches: [qa/gallery-entry-verify-20260909]
+    paths: [.github/workflows/verify-gallery-entry-startup.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-gallery-entry-startup-20260909
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 0611ca0caa5d39f769fd0916bca65f037886aa56
+      CANDIDATE_BRANCH: fix/gallery-entry-startup-20260909
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0611ca0caa5d39f769fd0916bca65f037886aa56
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .qa-gallery-entry
+          sparse-checkout: |
+            scripts/test-featured-gallery-entry-lifecycle.mjs
+            scripts/test-featured-gallery-entry-browser.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Preserve source and browser failures on exact original head
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          test "$(git hash-object src/featured-gallery.ts)" = cf1a6886a4e81ce0e72972fc4c7ecfad9529c346
+          test "$(git hash-object package.json)" = 9e734a9464d9eba0e0a9b8b0661778d7180c76f4
+          mkdir -p .artifacts/gallery-entry-verify
+          cp .qa-gallery-entry/scripts/test-featured-gallery-entry-lifecycle.mjs scripts/
+          cp .qa-gallery-entry/scripts/test-featured-gallery-entry-browser.mjs scripts/
+          set +e
+          node --test scripts/test-featured-gallery-entry-lifecycle.mjs > .artifacts/gallery-entry-verify/before-unit.tap 2>&1
+          unit_exit=$?
+          GALLERY_ENTRY_RESULTS_DIR=.artifacts/gallery-entry-before node scripts/test-featured-gallery-entry-browser.mjs > .artifacts/gallery-entry-verify/before-browser.log 2>&1
+          browser_exit=$?
+          set -e
+          test "$unit_exit" = 1
+          grep -q '^# tests 10$' .artifacts/gallery-entry-verify/before-unit.tap
+          grep -q '^# pass 4$' .artifacts/gallery-entry-verify/before-unit.tap
+          grep -q '^# fail 6$' .artifacts/gallery-entry-verify/before-unit.tap
+          test "$browser_exit" = 1
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const r=JSON.parse(readFileSync('.artifacts/gallery-entry-before/report.json'));
+          if(r.failed<3)throw new Error(`Expected >=3 browser negatives, got ${r.failed}`);
+          if(!r.cases.some(c=>c.error?.includes('hidden geometry reads')))throw new Error('Negative control did not detect covered gallery reads');
+          NODE
+      - name: Apply minimal hash-bound source repair and retain regression in check
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          def blob(data): return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+          p=Path('src/featured-gallery.ts');data=p.read_bytes()
+          assert blob(data)=='cf1a6886a4e81ce0e72972fc4c7ecfad9529c346'
+          s=data.decode()
+          def one(old,new):
+            global s
+            assert s.count(old)==1, old
+            s=s.replace(old,new)
+          one('  let animationFrame = 0;\n  let previousState: boolean | null = null;', '''  let animationFrame = 0;
+  let previousState: boolean | null = null;
+  const root = document.documentElement;
+  const entryCoversGallery = (): boolean => Boolean(root.dataset.robysEntryPending) &&
+    root.dataset.robysEntryState !== "handoff" && root.dataset.robysEntryState !== "done";''')
+          one('  const checkPanel = (): void => {\n    animationFrame = 0;\n\n    const visualViewport', '  const checkPanel = (): void => {\n    animationFrame = 0;\n    // The full-screen entry owns the viewport; do not force hidden page layout.\n    if (entryCoversGallery()) return;\n\n    const visualViewport')
+          one('  const scheduleCheck = (): void => {\n    if (animationFrame) return;\n    animationFrame = window.requestAnimationFrame(checkPanel);\n  };', '''  const scheduleCheck = (): void => {
+    if (entryCoversGallery() || animationFrame) return;
+    animationFrame = window.requestAnimationFrame(checkPanel);
+  };
+
+  // Wake on normal handoff and on entry abort/failure without polling.
+  const entryObserver = new MutationObserver(() => {
+    if (!entryCoversGallery()) scheduleCheck();
+  });
+  entryObserver.observe(root, {
+    attributes: true,
+    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]
+  });''')
+          p.write_text(s)
+          print('featured-gallery blob',blob(p.read_bytes()))
+          p=Path('package.json');data=p.read_bytes();assert blob(data)=='9e734a9464d9eba0e0a9b8b0661778d7180c76f4'
+          d=json.loads(data)
+          assert 'test:featured-gallery-entry' not in d['scripts']
+          d['scripts']['test:featured-gallery-entry']='node --test scripts/test-featured-gallery-entry-lifecycle.mjs'
+          anchor='npm run test:takeaway-entry && npm run test:guest-journey'
+          assert anchor in d['scripts']['check']
+          d['scripts']['check']=d['scripts']['check'].replace(anchor,'npm run test:takeaway-entry && npm run test:featured-gallery-entry && npm run test:guest-journey')
+          p.write_text(json.dumps(d,indent=2)+'\n')
+          PY
+          npm run build
+          npm run integrity:generate
+      - name: Create bounded candidate commit before verification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          allowed={
+            'src/featured-gallery.ts','package.json','scripts/test-featured-gallery-entry-lifecycle.mjs','scripts/test-featured-gallery-entry-browser.mjs',
+            'featured-gallery.js','app.js','social-offer.js','discover-rotation.js','conversion.js','menu-app.js','order-shell.js','order-launcher.js',
+            'index.html','discover.html','menu.html','smart-choice/index.html','sw.js','integrity-manifest.json'
+          }
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          tests={'scripts/test-featured-gallery-entry-lifecycle.mjs','scripts/test-featured-gallery-entry-browser.mjs'}
+          assert not changed-allowed, f'Unexpected changed: {changed-allowed}'
+          assert not {p for p in untracked if p not in tests and not p.startswith('.qa-gallery-entry/') and not p.startswith('.artifacts/')}, f'Unexpected untracked: {untracked}'
+          subprocess.run(['git','add','--',*sorted(changed|tests)],check=True)
+          PY
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/gallery-entry-verify/candidate.patch
+          git diff --cached --stat > .artifacts/gallery-entry-verify/candidate-stat.txt
+          git write-tree > .artifacts/gallery-entry-verify/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'perf(gallery): defer covered geometry until entry handoff' | git commit-tree "$(cat .artifacts/gallery-entry-verify/candidate-tree.txt)" -p "$BASE_SHA")
+          echo "$candidate" > .artifacts/gallery-entry-verify/candidate-commit.txt
+          git reset --hard "$candidate"
+          git ls-tree -r HEAD > .artifacts/gallery-entry-verify/candidate-tree-files.txt
+          git archive --format=tar.gz HEAD > .artifacts/gallery-entry-verify/candidate-source.tar.gz
+      - name: Full project check and security on exact candidate
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/gallery-entry-verify/check.log
+          npm run verify:security 2>&1 | tee .artifacts/gallery-entry-verify/security.log
+          npm run test:featured-gallery-entry 2>&1 | tee .artifacts/gallery-entry-verify/after-unit.tap
+      - name: Real browser gallery suppression and recovery
+        run: GALLERY_ENTRY_RESULTS_DIR=.artifacts/gallery-entry-after node scripts/test-featured-gallery-entry-browser.mjs
+      - name: Existing cart, UI and original motion boundaries
+        shell: bash
+        run: |
+          npm run test:order-share:browser
+          node scripts/premium-ui-regression.mjs
+          MORNING_ENTRY_RESULTS_DIR=.artifacts/morning-entry node scripts/morning-entry-smoke.mjs
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/motion-release node scripts/motion-release-certification.mjs
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/android-handoff node scripts/android-handoff-smoke.mjs
+      - name: Publish passing candidate branch only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          candidate=$(cat .artifacts/gallery-entry-verify/candidate-commit.txt)
+          test "$(git rev-parse HEAD)" = "$candidate"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/fix/order-dock-entry-startup-20260908 | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+            echo 'Candidate branch exists; refusing to overwrite.' >&2
+            exit 1
+          else
+            test "$?" = 2
+          fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gallery-entry-verification-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
