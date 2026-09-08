@@ -1,0 +1,141 @@
+name: PR 362 RU language handoff diagnostic
+
+on:
+  push:
+    branches: ['qa/pr362-language-handoff-b869-20260909']
+    paths: ['.github/workflows/pr362-language-handoff-diagnostic.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: b869fb5a3d863a61dfa617a249547b8f408cb757
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply the candidate only in runner workspace
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          ru = Path('ru/coffee-gazipasa.html')
+          text = ru.read_text()
+          old_count = text.count('href="../menu.html"')
+          assert old_count == 4, old_count
+          text = text.replace('href="../menu.html"', 'href="../menu.html?lang=ru"')
+          ru.write_text(text)
+
+          source = Path('src/menu-app.js')
+          text = source.read_text()
+          old = '''function readStoredLanguage() {\n  try {\n    const stored = localStorage.getItem("robys-language");\n    return supportedLanguages.includes(stored) ? stored : "tr";\n  } catch {\n    return "tr";\n  }\n}\n'''
+          new = '''function readStoredLanguage() {\n  const requested = new URLSearchParams(window.location.search).get("lang");\n  if (supportedLanguages.includes(requested)) {\n    storeLanguage(requested);\n    return requested;\n  }\n  try {\n    const stored = localStorage.getItem("robys-language");\n    return supportedLanguages.includes(stored) ? stored : "tr";\n  } catch {\n    return "tr";\n  }\n}\n'''
+          assert text.count(old) == 1
+          source.write_text(text.replace(old, new))
+          PY
+          git diff --check
+      - name: Build generated runtime and regenerate integrity
+        run: |
+          npm run build
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/verify-integrity-manifest.mjs
+          git diff --check
+          git diff --name-only | tee /tmp/changed-files.txt
+      - name: Enforce bounded generated scope
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          changed = set(Path('/tmp/changed-files.txt').read_text().splitlines())
+          allowed = {
+            'ru/coffee-gazipasa.html',
+            'src/menu-app.js',
+            'menu-app.js',
+            'menu.html',
+            'sw.js',
+            'integrity-manifest.json'
+          }
+          unexpected = changed - allowed
+          assert not unexpected, unexpected
+          assert {'ru/coffee-gazipasa.html','src/menu-app.js','menu-app.js','integrity-manifest.json'} <= changed, changed
+          print('changed=' + ','.join(sorted(changed)))
+          PY
+      - name: Run full repository validation on generated workspace
+        run: |
+          npm run check
+          npm run verify:security
+          git diff --check
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Prove RU language handoff and catalog-derived cart
+        shell: bash
+        run: |
+          mkdir -p diagnostic-evidence
+          python3 -m http.server 4173 --bind 127.0.0.1 >diagnostic-evidence/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { writeFile } from 'node:fs/promises';
+          import { chromium } from 'playwright';
+          import { menuCategories } from './menu-catalog.js';
+          const origin = 'http://127.0.0.1:4173';
+          const item = menuCategories.find(c => c.id === 'hot-coffee').items.find(i => i.name.en === 'Espresso');
+          assert.equal(item.price, 110);
+          for (let i=0;i<40;i++) { try { if ((await fetch(`${origin}/ru/coffee-gazipasa.html`)).ok) break; } catch {} await new Promise(r=>setTimeout(r,100)); }
+          const browser = await chromium.launch({headless:true});
+          const context = await browser.newContext({viewport:{width:390,height:844}, locale:'ru-RU', serviceWorkers:'block'});
+          const page = await context.newPage();
+          const errors=[]; page.on('pageerror',e=>errors.push(String(e))); page.on('requestfailed',r=>errors.push(`${r.url()}: ${r.failure()?.errorText}`));
+          const report={checks:{},observations:{},browser:browser.version(),passed:false};
+          try {
+            await page.goto(`${origin}/ru/coffee-gazipasa.html`,{waitUntil:'load'});
+            const links=await page.locator('a[href="../menu.html?lang=ru"]').count();
+            assert.equal(links,4); report.checks.allRuMenuLinksCarryLanguage=true;
+            await Promise.all([page.waitForURL(`${origin}/menu.html?lang=ru`),page.locator('.hero-actions .button-primary').click()]);
+            await page.waitForFunction(()=>document.documentElement.lang==='ru' && document.querySelector('#menu-root')?.dataset.ready==='true');
+            report.observations.initialMenuLanguage=await page.locator('.lang-button.active').getAttribute('data-lang');
+            assert.equal(report.observations.initialMenuLanguage,'ru'); report.checks.automaticRussianContinuation=true;
+            assert.equal(await page.evaluate(()=>localStorage.getItem('robys-language')),'ru'); report.checks.explicitLanguagePersisted=true;
+            const product=page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media'); await product.scrollIntoViewIfNeeded(); await product.click();
+            await page.locator('#menu-product-dialog[open]').waitFor();
+            assert.equal((await page.locator('#menu-product-title').textContent()).trim(),'Эспрессо');
+            assert.equal((await page.locator('#menu-product-price').textContent()).trim(),'110 ₺'); report.checks.catalogPriceRendered=true;
+            await page.locator('#menu-add-to-cart').click();
+            assert.equal((await page.locator('#menu-cart-total').textContent()).trim(),'110 ₺'); report.checks.cartTotalCatalogDerived=true;
+            assert.deepEqual(errors,[]); report.checks.noErrors=true;
+            report.passed=Object.values(report.checks).every(Boolean);
+          } finally {
+            await page.screenshot({path:'diagnostic-evidence/final.png',fullPage:true});
+            await writeFile('diagnostic-evidence/report.json',JSON.stringify(report,null,2)+'\n');
+            await context.close(); await browser.close();
+            console.log(JSON.stringify(report,null,2));
+          }
+          assert.equal(report.passed,true);
+          NODE
+      - name: Preserve exact generated candidate files and diff
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p diagnostic-evidence/candidate
+          git diff --binary > diagnostic-evidence/candidate.patch || true
+          for f in ru/coffee-gazipasa.html src/menu-app.js menu-app.js menu.html sw.js integrity-manifest.json; do
+            if git diff --name-only | grep -Fxq "$f"; then
+              mkdir -p "diagnostic-evidence/candidate/$(dirname "$f")"
+              cp "$f" "diagnostic-evidence/candidate/$f"
+            fi
+          done
+          git diff --name-status > diagnostic-evidence/changed-files.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr362-language-handoff-diagnostic-${{ github.run_id }}
+          path: diagnostic-evidence/
+          if-no-files-found: error
+          retention-days: 14
