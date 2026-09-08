@@ -1,0 +1,223 @@
+name: Verify takeaway entrance clock candidate
+'on':
+  push:
+    branches: [qa/takeaway-clock-verify-20260908]
+permissions:
+  contents: read
+concurrency:
+  group: takeaway-clock-candidate
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+      CANDIDATE_BRANCH: fix/takeaway-entrance-clock-20260908
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+        fetch-depth: 1
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '22'
+    - run: npm ci --no-audit --no-fund
+    - run: npx playwright install --with-deps chromium
+    - name: Prepare source candidate and deterministic negative controls
+      shell: bash
+      run: |
+        mkdir -p .artifacts/startup-clock
+        cp takeaway-entry.js .artifacts/startup-clock/original.js
+        python3 - <<'PY'
+        from pathlib import Path
+        import hashlib
+        p=Path('takeaway-entry.js'); s=p.read_text()
+        assert hashlib.sha1(f'blob {len(p.read_bytes())}\0'.encode()+p.read_bytes()).hexdigest()=='cb119792f42a403df9150f9fa008c8e5a7049a99'
+        s=s.replace('function animateSafe(element, frames, options) {','function animateSafe(element, frames, options, synchronizeStart = false) {',1)
+        s=s.replace('    return element.animate(frames, options).finished.catch(() => undefined);', '''    const animation = element.animate(frames, options);
+            // The decoded entrance has its own clock. Avoid an additional pending-play
+            // wait, but never backdate it or change the finished-based reading pause.
+            if (synchronizeStart) {
+              const now = document.timeline?.currentTime;
+              if (typeof now === "number" && Number.isFinite(now)) {
+                try { animation.startTime = now; } catch { /* Keep native scheduling. */ }
+              }
+            }
+            return animation.finished.catch(() => undefined);''',1)
+        old='easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }).then(() => {'
+        assert s.count(old)==1
+        s=s.replace(old,'easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }, true).then(() => {',1)
+        p.write_text(s)
+        p=Path('scripts/test-takeaway-entry.mjs');s=p.read_text()
+        old='animation = "normal", entranceDelay = 0 } = {})'
+        assert s.count(old)==1
+        s=s.replace(old,'animation = "normal", entranceDelay = 0, timelineTime, startTimeThrows = false } = {})',1)
+        old='      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + delay)) };'
+        assert s.count(old)==1
+        s=s.replace(old,'''      const record = animations.at(-1);
+              let resolveFinished;
+              const finished = new Promise(resolve => { resolveFinished = resolve; });
+              let finishTask = animation === "stalled" ? null : schedule(resolveFinished, options.duration + delay);
+              return { finished, set startTime(value) {
+                record.startTimeAttempts = (record.startTimeAttempts || 0) + 1;
+                if (startTimeThrows) throw new Error("timeline unavailable");
+                record.startTime = value;
+                if (finishTask !== null) { tasks.delete(finishTask); finishTask = schedule(resolveFinished, options.duration); }
+              } };''',1)
+        s=s.replace('documentElement: root, body, readyState: "complete", visibilityState: "visible",','documentElement: root, body, readyState: "complete", visibilityState: "visible",\n    timeline: timelineTime === undefined ? undefined : { currentTime: timelineTime },',1)
+        s+='''
+        // Clock controls use a deterministic animation double, not compositor evidence.
+        for (const timelineTime of [0, 37.5]) test(`decoded entrance uses active timeline ${timelineTime} without delaying its clock`, async () => {
+          const h = harness({ timelineTime, entranceDelay: 250 }); h.start(); await h.tick();
+          const entrance=h.animations.find(a=>a.tag==='robys-takeaway-content');
+          assert.equal(entrance.startTime,timelineTime);
+          assert.equal(entrance.options.duration,700); assert.equal(entrance.frames[0].opacity,0);
+          await h.tick(1049); assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+          await h.tick(1); assert.equal(h.events.at(-1).at,1050);
+          const fade=h.animations.find(a=>a.tag==='robys-takeaway-entry');
+          assert.equal(fade.startTimeAttempts,undefined,'The exit retains native scheduling');
+          await h.tick(480);h.released();
+        });
+        for (const timelineTime of [null, NaN, Infinity, '20']) test(`unresolved/non-numeric timeline ${String(timelineTime)} keeps native scheduling`, async () => {
+          const h=harness({timelineTime,entranceDelay:250});h.start();await h.tick();
+          assert.equal(h.animations[0].startTimeAttempts,undefined);
+          await h.tick(1299);assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+          await h.tick(1);assert.equal(h.events.at(-1).at,1300);await h.tick(480);h.released();
+        });
+        test('a rejected timeline setter preserves the finished-based reading pause',async()=>{
+          const h=harness({timelineTime:0,startTimeThrows:true,entranceDelay:250});h.start();await h.tick();
+          assert.equal(h.animations[0].startTimeAttempts,1);
+          await h.tick(1299);assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+          await h.tick(1);assert.equal(h.events.at(-1).at,1300);await h.tick(480);h.released();
+        });
+        test('active timeline cannot defeat the hard stop for an unfinished animation',async()=>{
+          const h=harness({timelineTime:0,animation:'stalled'});h.start();await h.tick(2300);h.released();
+        });
+        '''
+        p.write_text(s)
+        PY
+        cp takeaway-entry.js .artifacts/startup-clock/fixed.js
+        cp .artifacts/startup-clock/original.js takeaway-entry.js
+        set +e
+        node --test scripts/test-takeaway-entry.mjs > .artifacts/startup-clock/before-tests.tap 2>&1
+        result=$?
+        set -e
+        test "$result" = 1
+        grep -q '^# tests 30$' .artifacts/startup-clock/before-tests.tap
+        grep -q '^# pass 27$' .artifacts/startup-clock/before-tests.tap
+        grep -q '^# fail 3$' .artifacts/startup-clock/before-tests.tap
+        cat > .artifacts/startup-clock/probe.mjs <<'JS'
+        import path from 'node:path';
+        import { readFileSync } from 'node:fs';
+        import { createHash } from 'node:crypto';
+        import { certify, contextFor, brand, done, timing, cadence, assert, save } from '../../scripts/takeaway-browser-contract.mjs';
+        const stage=process.env.CLOCK_STAGE;
+        await certify({port:4197,resultsDir:path.resolve(`.artifacts/startup-clock/${stage}`),contract:'TAKEAWAY-CLOCK-CANDIDATE'},async({browser,baseUrl,resultsDir})=>{
+          const results=[];
+          for(let i=1;i<=3;i++){
+            const context=await contextFor(browser);const page=await context.newPage();const result={iteration:i};
+            try{
+              await page.goto(`${baseUrl}?entry=morning`,{waitUntil:'domcontentloaded'});
+              const probe=await done(page);save(resultsDir,`cold-${i}-raw.json`,probe);
+              result.timing=timing(probe,'cold','morning');
+              const moving=probe.frames.filter(f=>f.state==='brand-frame'&&f.entrancePending===false&&f.entranceTime>0&&f.opacity>0);
+              result.firstVisibleTime=moving[0]?.entranceTime;
+              result.maxFirst24Gap=Math.max(...moving.slice(1,24).map((f,j)=>f.at-moving[j].at));
+              result.cadence=cadence(probe);
+              // Additional guards: do not trade an invisible wait for a skipped entrance.
+              assert(result.firstVisibleTime<=100,'First visible frame already skipped more than 100 ms of the entrance');
+              assert(result.maxFirst24Gap<=100,'More than 100 ms between early moving frames');
+              result.status='PASS';
+            }catch(error){result.status='FAIL';result.error=String(error.stack);}
+            results.push(result);await context.close();
+          }
+          const source=Object.fromEntries(['takeaway-entry.js','bootstrap-v2.js','index.html','styles-v2.css'].map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));
+          save(resultsDir,'comparison.json',{stage,browser:browser.version(),source,results});
+          assert(results.every(r=>r.status==='PASS'),'One or more independent cold starts failed; all evidence is retained');
+          const context=await contextFor(browser,{language:'ru'});const page=await context.newPage();
+          await page.goto(`${baseUrl}?entry=day`,{waitUntil:'domcontentloaded'});await brand(page);
+          await page.waitForTimeout(500);await page.screenshot({path:path.join(resultsDir,'ru-cup.png')});
+          await done(page);await page.screenshot({path:path.join(resultsDir,'ru-product.png')});await context.close();
+        });
+        JS
+    - name: Retain three baseline cold starts without treating retry as approval
+      shell: bash
+      run: |
+        set +e
+        CLOCK_STAGE=before node .artifacts/startup-clock/probe.mjs > .artifacts/startup-clock/before-browser.log 2>&1
+        result=$?
+        set -e
+        printf '%s\n' "$result" > .artifacts/startup-clock/before-browser-exit.txt
+        test "$result" = 0 -o "$result" = 1
+    - name: Build and bind bounded candidate
+      shell: bash
+      run: |
+        cp .artifacts/startup-clock/fixed.js takeaway-entry.js
+        npm run build
+        npm run integrity:generate
+        python3 - <<'PY'
+        import subprocess
+        allowed={'takeaway-entry.js','scripts/test-takeaway-entry.mjs','bootstrap-v2.js','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json'}
+        changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+        assert not changed-allowed, f'Unexpected changed files: {changed-allowed}'
+        assert not subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).strip(),'Unexpected untracked files'
+        subprocess.run(['git','add','--',*sorted(changed)],check=True)
+        PY
+        git diff --cached --check
+        git diff --cached --binary > .artifacts/startup-clock/candidate.patch
+        git diff --cached --stat > .artifacts/startup-clock/candidate-stat.txt
+        git write-tree > .artifacts/startup-clock/candidate-tree.txt
+        export GIT_AUTHOR_NAME='github-actions[bot]'
+        export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+        export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+        export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+        commit=$(printf '%s\n' 'fix(motion): anchor decoded entrance to active document timeline' | git commit-tree "$(cat .artifacts/startup-clock/candidate-tree.txt)" -p "$BASE_SHA")
+        printf '%s\n' "$commit" > .artifacts/startup-clock/candidate-commit.txt
+        git reset --hard "$commit"
+    - name: Full check security and deterministic entry controls
+      shell: bash
+      run: |
+        npm run check 2>&1 | tee .artifacts/startup-clock/check.log
+        npm run verify:security 2>&1 | tee .artifacts/startup-clock/security.log
+        node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs 2>&1 | tee .artifacts/startup-clock/after-tests.tap
+    - name: Three candidate cold starts with unchanged cadence and additional no-skip guards
+      run: CLOCK_STAGE=after node .artifacts/startup-clock/probe.mjs
+    - name: Existing full motion and guest interface checks
+      shell: bash
+      run: |
+        MORNING_ENTRY_RESULTS_DIR=.artifacts/startup-clock/morning node scripts/morning-entry-smoke.mjs
+        MOTION_RELEASE_RESULTS_DIR=.artifacts/startup-clock/motion node scripts/motion-release-certification.mjs
+        npm run test:order-share:browser
+        node scripts/premium-ui-regression.mjs
+    - name: Publish only passing separate candidate
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        test "$(git rev-parse HEAD)" = "$(cat .artifacts/startup-clock/candidate-commit.txt)"
+        test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+        git diff --exit-code
+        test -z "$(git ls-files --others --exclude-standard)"
+        test "$(git ls-remote origin refs/heads/feat/menu-telegram-share-20260907 | cut -f1)" = "$BASE_SHA"
+        if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+          echo 'Candidate exists; refusing to overwrite.' >&2
+          exit 1
+        else
+          test "$?" = 2
+        fi
+        git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: takeaway-clock-verification-${{ github.sha }}
+        path: |
+          .artifacts/startup-clock/
+          .artifacts/order-share/
+          .artifacts/premium-ui/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
