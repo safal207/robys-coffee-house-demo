@@ -43,4 +43,10 @@ assert.match(
   "Reveal module must stay a caught progressive enhancement so menu bootstrap cannot fail with it"
 );
 
+const revealSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
+assert.ok(
+  revealSource.indexOf('sourceImage.getAttribute("src")') < revealSource.indexOf("sourceImage.currentSrc"),
+  "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc"
+);
+
 console.log("menu product reveal contract: PASS");
