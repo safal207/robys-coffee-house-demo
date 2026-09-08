@@ -1,0 +1,32 @@
+name: Menu Product Reveal
+
+on:
+  pull_request:
+    paths:
+      - "menu-product-reveal.js"
+      - "menu-search-clear.js"
+      - "scripts/test-menu-product-reveal.mjs"
+      - "src/products/gallery-v5/san-sebastian.webp"
+      - ".github/workflows/menu-product-reveal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax check
+        run: |
+          node --check menu-product-reveal.js
+          node --check menu-search-clear.js
+          node --check scripts/test-menu-product-reveal.mjs
+      - name: Verify reveal contract
+        run: node scripts/test-menu-product-reveal.mjs
