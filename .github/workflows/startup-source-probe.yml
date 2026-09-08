@@ -1,0 +1,47 @@
+name: Pinned startup source and cadence probe
+'on':
+  push:
+    branches: [qa/startup-source-probe-20260908]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+        persist-credentials: false
+        fetch-depth: 1
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '22'
+    - name: Preserve exact source and revision provenance
+      shell: bash
+      run: |
+        python3 - <<'PY'
+        from pathlib import Path
+        import subprocess, json, hashlib, shutil
+        out=Path('.artifacts/startup-source'); (out/'source').mkdir(parents=True)
+        paths=subprocess.check_output(['git','ls-files'],text=True).splitlines()
+        selected=[p for p in paths if (p in ['AGENTS.md','takeaway-entry.js','bootstrap-v2.js','styles-v2.css','index.html','menu.html','package.json','package-lock.json'] or (p.startswith('scripts/') and p.endswith(('.mjs','.py','.sh'))) or p.startswith('.github/workflows/') or (p.startswith('src/') and p.endswith(('.js','.ts'))) or p.startswith('lighthouse/') and p.endswith('.cjs'))]
+        files={}
+        for p in selected:
+          src=Path(p); dst=out/'source'/p; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copyfile(src,dst)
+          b=src.read_bytes(); files[p]={'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'gitBlob':hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest()}
+        (out/'manifest.json').write_text(json.dumps({'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'files':files},indent=2)+'\n')
+        print('Preserved',len(files),'tracked source files; no source mutation, deploy or candidate publication.')
+        PY
+    - run: npm ci --no-audit --no-fund
+    - name: Existing source cadence controls
+      shell: bash
+      run: node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs 2>&1 | tee .artifacts/startup-source/baseline-tests.tap
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: startup-source-96294ec
+        path: .artifacts/startup-source/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 7
