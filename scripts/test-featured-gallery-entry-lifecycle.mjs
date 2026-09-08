@@ -27,8 +27,11 @@ function fixture({pending='morning',state='loading',top=120,bottom=520}={}){
     addEventListener(type,fn){if(!windowHandlers.has(type))windowHandlers.set(type,[]);windowHandlers.get(type).push(fn);}};
   const document={documentElement:root,body};
   const section={getBoundingClientRect(){reads++;return{top,bottom};}};
-  const instrumented=source.replace('function setupGalleryDockBehavior(section: HTMLElement): void {','export function setupGalleryDockBehavior(section: HTMLElement): void {');
-  assert.notEqual(instrumented,source,'Failed to expose setupGalleryDockBehavior for test');
+  const autoInit=source.indexOf('if (document.readyState === "loading") {');
+  assert(autoInit>0,'Could not isolate module auto-init');
+  const core=source.slice(0,autoInit);
+  const instrumented=core.replace('function setupGalleryDockBehavior(section: HTMLElement): void {','export function setupGalleryDockBehavior(section: HTMLElement): void {');
+  assert.notEqual(instrumented,core,'Failed to expose setupGalleryDockBehavior for test');
   const output=ts.transpileModule(instrumented,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
   const module={exports:{}};
   const context=vm.createContext({document,window:win,MutationObserver,IntersectionObserver,console,module,exports:module.exports});
@@ -37,7 +40,7 @@ function fixture({pending='morning',state='loading',top=120,bottom=520}={}){
   assert.equal(typeof api.setupGalleryDockBehavior,'function');
   api.setupGalleryDockBehavior(section);
   const flush=()=>{const jobs=[...raf.entries()];raf.clear();for(const [,fn] of jobs)fn(0);};
-  const fireWindow=type=>{for(const fn of windowHandlers.get(type)??[])fn(new Event(type));};
+  const fireWindow=type=>{for(const fn of windowHandlers.get(type)??[])fn({type});};
   const rootObserver=()=>mutationObservers.find(o=>o.targets.has(root));
   const mutate=(nextPending,nextState)=>{
     if(nextPending)root.dataset.robysEntryPending=nextPending;else delete root.dataset.robysEntryPending;
