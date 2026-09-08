@@ -1,0 +1,69 @@
+name: Diagnose sampler bias on pinned PR355
+on:
+  push:
+    branches: [qa/sampler-bias-0611ca0-20260908]
+    paths: [.github/workflows/sampler-bias-0611ca0.yml]
+permissions:
+  contents: read
+concurrency:
+  group: sampler-bias-0611ca0-20260908
+  cancel-in-progress: false
+jobs:
+  study:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0611ca0caa5d39f769fd0916bca65f037886aa56
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: |
+            scripts/study-entry-sampler.mjs
+            scripts/test-entry-sampler-study.mjs
+            .github/workflows/sampler-bias-0611ca0.yml
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify pinned source and study validation
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 0611ca0caa5d39f769fd0916bca65f037886aa56
+          node scripts/generate-integrity-manifest.mjs --check
+          mkdir -p .artifacts/sampler-study
+          cp .diagnostic-tools/scripts/study-entry-sampler.mjs .artifacts/sampler-study/
+          cp .diagnostic-tools/scripts/test-entry-sampler-study.mjs .artifacts/sampler-study/
+          cp .diagnostic-tools/.github/workflows/sampler-bias-0611ca0.yml .artifacts/sampler-study/study-workflow.yml
+          printf 'product_head=%s\ninvocation_commit=%s\n' "$(git rev-parse HEAD)" "$GITHUB_SHA" > .artifacts/sampler-study/provenance.txt
+          node --check .artifacts/sampler-study/study-entry-sampler.mjs
+          node --test .artifacts/sampler-study/test-entry-sampler-study.mjs | tee .artifacts/sampler-study/study-tests.tap
+      - name: Capture all 36 preplanned cold samples including failures
+        run: node .artifacts/sampler-study/study-entry-sampler.mjs
+      - name: Separately execute unchanged Morning and Motion gates
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          MORNING_ENTRY_RESULTS_DIR=.artifacts/sampler-study/morning node scripts/morning-entry-smoke.mjs > .artifacts/sampler-study/morning.log 2>&1
+          morning_exit=$?
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/sampler-study/motion node scripts/motion-release-certification.mjs > .artifacts/sampler-study/motion.log 2>&1
+          motion_exit=$?
+          set -e
+          printf '{"morning_exit":%d,"motion_exit":%d,"release_authorization":false}\n' "$morning_exit" "$motion_exit" > .artifacts/sampler-study/original-gates.json
+          git diff --exit-code
+          test "$morning_exit" = 0 && test "$motion_exit" = 0
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sampler-bias-0611ca0-${{ github.sha }}
+          path: .artifacts/sampler-study/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
