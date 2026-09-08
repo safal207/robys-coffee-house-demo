@@ -84,7 +84,7 @@
     "test:order-recovery": "node scripts/test-order-recovery.mjs && node scripts/test-order-invalid-storage.mjs",
     "test:home-copy": "node --test scripts/test-home-copy.mjs",
     "dev": "vite",
-    "test:takeaway-entry": "node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs",
+    "test:takeaway-entry": "node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs scripts/test-takeaway-pending-sampler.mjs",
     "test:guest-journey": "node scripts/test-guest-journey.mjs && node scripts/test-order-cache-revisions.mjs",
     "test:order-share": "node --test scripts/test-order-share.mjs scripts/test-order-share-panel.mjs scripts/test-order-share-lifecycle.mjs",
     "test:order-share:browser": "node scripts/test-order-share-browser.mjs",

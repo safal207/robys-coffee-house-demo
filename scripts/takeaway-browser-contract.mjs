@@ -62,14 +62,24 @@ export async function contextFor(browser, options = {}) {
       sampling = true;
       // Start at the browser's first actual animated frame, independent of how
       // quickly the external test harness returns from navigation or screenshots.
+      let entranceAnimation = null;
       const sample = (at) => {
         const overlay = document.querySelector(".robys-takeaway-entry");
         const content = overlay?.querySelector(".robys-takeaway-content");
         if (!content) return;
-        const style = getComputedStyle(content);
-        const surface = getComputedStyle(overlay);
-        const entrance = content.getAnimations()[0];
-        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform, entrancePending: entrance?.pending, entranceTime: entrance?.currentTime, entranceState: entrance?.playState });
+        if (!entranceAnimation) entranceAnimation = content.getAnimations()[0] ?? null;
+        const frame = {
+          at, state: document.documentElement.dataset.robysEntryState, sampledStyle: false,
+          entrancePending: entranceAnimation?.pending, entranceTime: entranceAnimation?.currentTime, entranceState: entranceAnimation?.playState
+        };
+        // Avoid forcing style/layout while the Web Animation is still pending.
+        // Once motion has actually begun, retain the original visual sampling.
+        if (entranceAnimation?.pending === false && Number(entranceAnimation.currentTime) > 0) {
+          const style = getComputedStyle(content);
+          const surface = getComputedStyle(overlay);
+          Object.assign(frame, { sampledStyle: true, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform });
+        }
+        probe.frames.push(frame);
         if (probe.frames.length < 240) requestAnimationFrame(sample);
       };
       requestAnimationFrame(sample);
@@ -109,17 +119,27 @@ export function timing(probe, variant = "cold", scene) {
 
 export function cadence(probe) {
   const entrance = probe.frames.filter((frame) => frame.state === "brand-frame");
-  // Keep all samples. Only the initial pending, zero-opacity compositor setup
-  // belongs to startup; never filter a stall or opacity drop after motion starts.
-  const firstVisible = entrance.findIndex(frame => frame.entrancePending === false && frame.entranceTime > 0 && frame.opacity > 0);
+  const sampledStyle = (frame) => frame.sampledStyle !== false;
+  const atOrigin = (frame) => frame.entranceTime == null || frame.entranceTime === 0;
+  // Pending-light samples preserve clock/animation state without forcing style.
+  // Legacy evidence has no sampledStyle field and remains fully style-sampled.
+  const firstVisible = entrance.findIndex(frame => sampledStyle(frame) && frame.entrancePending === false && frame.entranceTime > 0 && frame.opacity > 0);
   assert(firstVisible >= 0, "Entrance never visibly started");
   const startup = entrance.slice(0, firstVisible);
-  assert(startup.every(frame => frame.opacity === 0 && frame.entranceTime === 0), "Visible motion occurred before the measured entrance");
+  for (const frame of startup) {
+    if (frame.sampledStyle === false) {
+      assert(frame.entrancePending !== false && atOrigin(frame), "Visible motion occurred before the measured entrance");
+      continue;
+    }
+    assert(!(frame.entrancePending === false && frame.entranceTime > 0), "First visible style sample was not visible");
+    assert(frame.opacity === 0 && atOrigin(frame), "Visible motion occurred before the measured entrance");
+  }
   const brandAt = probe.events.find(event => event.state === "brand-frame")?.at;
   const startupMs = entrance[firstVisible].at - brandAt;
   assert(Number.isFinite(startupMs) && startupMs >= 0 && startupMs <= 150, `Visible entrance startup ${startupMs.toFixed(1)} ms exceeded 150 ms`);
   const frames = entrance.slice(firstVisible, firstVisible + 24);
   assert(frames.length === 24, `Only ${frames.length}/24 entrance frames captured`);
+  assert(frames.every(frame => sampledStyle(frame) && typeof frame.transform === "string" && Number.isFinite(frame.opacity)), "Entrance lost a visible style sample");
   let longestIdenticalRun = 1, run = 1, changingTransitions = 0;
   for (let i = 1; i < frames.length; i++) {
     if (frames[i].transform === frames[i - 1].transform) longestIdenticalRun = Math.max(longestIdenticalRun, ++run);
@@ -131,7 +151,7 @@ export function cadence(probe) {
   const uniqueTransforms = new Set(frames.map((frame) => frame.transform)).size;
   assert(uniqueTransforms >= 20 && changingTransitions >= 20 && longestIdenticalRun <= 2, `Entrance stepped: ${uniqueTransforms} transforms, ${changingTransitions} changes, ${longestIdenticalRun} identical frames`);
   assert(medianFrameIntervalMs <= 20.5, `Median cadence ${medianFrameIntervalMs.toFixed(2)} ms exceeded 60 Hz gate`);
-  const fade = probe.frames.filter((frame) => frame.state === "handoff");
+  const fade = probe.frames.filter((frame) => frame.state === "handoff" && sampledStyle(frame));
   assert(fade.length >= 2, "No actual exit fade was sampled");
   for (let i = 0; i < fade.length; i++) {
     assert(fade[i].overlayTransform === "none", "Exit moved or zoomed the full-screen surface");
