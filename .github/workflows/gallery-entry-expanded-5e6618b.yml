@@ -1,0 +1,97 @@
+name: Verify existing PR356 gallery recovery
+on:
+  push:
+    branches: [qa/gallery-entry-expanded-5e6618b-20260908]
+    paths: [.github/workflows/gallery-entry-expanded-5e6618b.yml]
+permissions:
+  contents: read
+concurrency:
+  group: gallery-entry-expanded-5e6618b
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5e6618b861efc866286c83a06e0380133e103a08
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: |
+            scripts/test-gallery-entry-expanded.mjs
+            scripts/verify-gallery-recovery.mjs
+            .github/workflows/gallery-entry-expanded-5e6618b.yml
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0611ca0caa5d39f769fd0916bca65f037886aa56
+          path: .gallery-parent
+          sparse-checkout: src/featured-gallery.ts
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Bind source identities and retain negative controls
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 5e6618b861efc866286c83a06e0380133e103a08
+          test "$(git hash-object src/featured-gallery.ts)" = 048ff89250738356ac895966f59714d9cba9d139
+          test "$(git hash-object .gallery-parent/src/featured-gallery.ts)" = cf1a6886a4e81ce0e72972fc4c7ecfad9529c346
+          mkdir -p .artifacts/gallery-expanded
+          cp .diagnostic-tools/scripts/test-gallery-entry-expanded.mjs .artifacts/gallery-expanded/
+          cp .diagnostic-tools/scripts/verify-gallery-recovery.mjs .artifacts/gallery-expanded/
+          cp .diagnostic-tools/.github/workflows/gallery-entry-expanded-5e6618b.yml .artifacts/gallery-expanded/workflow.yml
+          cp src/featured-gallery.ts .artifacts/gallery-expanded/current-featured-gallery.ts
+          cp .gallery-parent/src/featured-gallery.ts .artifacts/gallery-expanded/parent-featured-gallery.ts
+          printf 'product_head=%s\nproduct_tree=%s\ninvocation_head=%s\nparent_head=%s\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" "$GITHUB_SHA" 0611ca0caa5d39f769fd0916bca65f037886aa56 > .artifacts/gallery-expanded/provenance.txt
+          node --check .artifacts/gallery-expanded/verify-gallery-recovery.mjs
+          set +e
+          GALLERY_SOURCE=.gallery-parent/src/featured-gallery.ts node --test .artifacts/gallery-expanded/test-gallery-entry-expanded.mjs > .artifacts/gallery-expanded/before-expanded.tap 2>&1
+          before_exit=$?
+          set -e
+          test "$before_exit" = 1
+          grep -q '^# tests 21$' .artifacts/gallery-expanded/before-expanded.tap
+          grep -q '^# pass 6$' .artifacts/gallery-expanded/before-expanded.tap
+          grep -q '^# fail 15$' .artifacts/gallery-expanded/before-expanded.tap
+          GALLERY_SOURCE=src/featured-gallery.ts node --test .artifacts/gallery-expanded/test-gallery-entry-expanded.mjs | tee .artifacts/gallery-expanded/after-expanded.tap
+      - name: Existing full check and security on unmodified product
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/gallery-expanded/check.log
+          npm run verify:security 2>&1 | tee .artifacts/gallery-expanded/security.log
+          git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Existing eight browser cases unchanged
+        shell: bash
+        run: node scripts/test-featured-gallery-entry-browser.mjs 2>&1 | tee .artifacts/gallery-expanded/existing-browser.log
+      - name: Ten whole-lifecycle recovery and navigation cases
+        shell: bash
+        run: node .artifacts/gallery-expanded/verify-gallery-recovery.mjs 2>&1 | tee .artifacts/gallery-expanded/expanded-browser.log
+      - name: Verify no tracked product changes and record artifact hashes
+        if: always()
+        shell: bash
+        run: |
+          git diff --exit-code
+          git diff --name-only > .artifacts/gallery-expanded/tracked-diff.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('.artifacts/gallery-expanded')
+          files={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+          (root/'files.sha256.json').write_text(json.dumps(files,indent=2)+'\n')
+          PY
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gallery-expanded-5e6618b-${{ github.sha }}
+          path: .artifacts/gallery-expanded/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
