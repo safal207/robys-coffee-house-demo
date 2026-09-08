@@ -1,5 +1,6 @@
-/** Static RU landing: identical assertions for HTTP and declared offline source rendering.
- * RU_QA_MODE=offline never claims URL delivery, routing, cache or production evidence.
+/** Static RU landing: shared layout assertions for HTTP and declared offline rendering.
+ * Offline rendering never claims URL delivery, routing, cache or production evidence.
+ * HTTP menu navigation proves document delivery, not menu application/order behavior.
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -16,6 +17,19 @@ const pagePath = 'ru/coffee-gazipasa.html';
 const digest = data => createHash('sha256').update(data).digest('hex');
 const inputs = new Map();
 const mime = name => ({ '.css': 'text/css', '.html': 'text/html', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.js': 'text/javascript' }[path.extname(name)] || 'application/octet-stream');
+const expectedFocus = [
+  { selector: '.skip-link', href: '#main' },
+  { selector: '.site-header .brand', href: '../' },
+  { selector: '.main-nav a[href="../menu.html"]', href: '../menu.html' },
+  { selector: '.main-nav a[href="#location"]', href: '#location' },
+  { selector: '.main-nav a[href="#faq"]', href: '#faq' }
+];
+const requiredChecks = [
+  'actualViewport', 'noPageOverflow', 'noTextClipping', 'visibleNavigation',
+  'headerDoesNotCoverHero', 'canonicalLoadedLogo', 'labelsContrast', 'underlinedFAQ',
+  'actionReachability', 'visibleKeyboardFocus', 'keyboardTargetOrder', 'anchorNavigation',
+  ...(mode === 'http' ? ['httpMenuNavigation'] : [])
+];
 async function input(name) {
   const file = await realpath(path.resolve(root, name));
   assert(file.startsWith(root + path.sep), 'Input must be inside the source root');
@@ -41,7 +55,9 @@ async function embeddedSource() {
   return html.replace(/<link\b[^>]*rel="icon"[^>]*>/g, '');
 }
 const report = { mode, sourceSha: process.env.RU_QA_SOURCE_SHA || null, page: pagePath,
-  nonClaims: ['No approved historical baseline', 'No external navigation, order, cache-upgrade or physical-device proof'], cases: [] };
+  nonClaims: ['No approved historical baseline', 'No external navigation, order, cache-upgrade or physical-device proof',
+    'Menu navigation checks document delivery only; not menu application readiness'],
+  requiredChecks, expectedFocus, cases: [] };
 await mkdir(out, { recursive: true });
 let server, browser;
 try {
@@ -113,13 +129,12 @@ try {
         labelsContrast:m.contrasts.length===2&&m.contrasts.every(n=>n>=4.5), underlinedFAQ:m.links.length===2&&m.links.every(s=>s.includes('underline')) };
       await page.screenshot({path:path.join(out, `${id}-viewport.png`)});
       await page.screenshot({path:path.join(out, `${id}-full.png`),fullPage:true});
-      // Trial uses Playwright's scroll, visibility and hit-target checks; it does not activate navigation.
+      // Preserve independent trial checks for all hero actions, including the external map link.
       for (const selector of ['.main-nav a','.hero-actions a']) {
         for (const link of await page.locator(selector).all()) await link.click({trial:true,timeout:3000});
       }
       item.checks.actionReachability = true;
-      // Fresh page, not document.open/setContent on a focused document: the latter can retain
-      // a stale sequential-focus state in the offline transport. Keep real keyboard assertions.
+      // Fresh page avoids a stale sequential-focus state in the offline transport.
       await page.close();
       page = await context.newPage();
       page.on('pageerror', error => item.errors.push(String(error)));
@@ -131,19 +146,20 @@ try {
       item.focusSamples = [];
       const usableFocus = f => f.documentFocused && f.matchesFocus && f.tag === 'A' && f.opacity >= .99
         && f.top >= 0 && f.bottom <= conf.height && f.outline !== 'none' && f.outlineWidth >= 2;
-      for (let step=0; step<5; step++) {
+      for (let step=0; step<expectedFocus.length; step++) {
         await page.keyboard.press('Tab');
         const samples = [], started = Date.now();
         let f;
         do {
-          f = await page.evaluate(() => {
+          f = await page.evaluate(expected => {
             const e=document.activeElement;
             const focused=document.hasFocus(), matches=e.matches(':focus');
             const r=e.getBoundingClientRect(),s=getComputedStyle(e);
             let opacity=1;for(let n=e;n;n=n.parentElement)opacity*=Number(getComputedStyle(n).opacity);
             return {documentFocused:focused,matchesFocus:matches,tag:e.tagName,href:e.getAttribute('href'),
+              expectedSelector:expected.selector,expectedTarget:e===document.querySelector(expected.selector),
               opacity,top:r.top,bottom:r.bottom,outline:s.outlineStyle,outlineWidth:parseFloat(s.outlineWidth)};
-          });
+          }, expectedFocus[step]);
           samples.push({elapsedMs:Date.now()-started,...f});
           if (usableFocus(f)) break;
           await page.waitForTimeout(50);
@@ -152,10 +168,52 @@ try {
         item.focusSamples.push(samples);
       }
       item.checks.visibleKeyboardFocus = item.focus.every(f=>f.documentFocused&&f.matchesFocus&&f.tag==='A'&&f.opacity>=.99&&f.top>=0&&f.bottom<=conf.height&&f.outline!=='none'&&f.outlineWidth>=2);
+      item.checks.keyboardTargetOrder = item.focus.length===expectedFocus.length
+        && item.focus.every((f,index)=>f.expectedTarget&&f.href===expectedFocus[index].href);
+      // Real native anchor clicks: URL fragment and the destination heading must both agree.
+      item.anchors = [];
+      for (const target of ['location', 'faq']) {
+        await page.locator(`.main-nav a[href="#${target}"]`).click({timeout:3000});
+        await page.waitForURL(value=>value.hash===`#${target}`, {timeout:3000});
+        const anchor = await page.evaluate(id => {
+          const section=document.getElementById(id), heading=section?.querySelector('h2');
+          const r=heading?.getBoundingClientRect();
+          return {id,hash:location.hash,headingVisible:Boolean(r&&r.width>0&&r.height>0&&r.top>=0&&r.bottom<=innerHeight)};
+        }, target);
+        item.anchors.push(anchor);
+      }
+      item.checks.anchorNavigation = item.anchors.length===2
+        && item.anchors.every(anchor=>anchor.hash===`#${anchor.id}`&&anchor.headingVisible);
+      if (mode === 'http') {
+        // Use another page so navigation cannot replace the landing focus/layout evidence.
+        const navPage = await context.newPage();
+        try {
+          const landingResponse = await navPage.goto(url, {waitUntil:'load'});
+          assert.equal(landingResponse.status(), 200, 'Menu journey starts on the HTTP landing page');
+          await navPage.evaluate(font=>{document.documentElement.style.fontSize=`${font}px`;},conf.font);
+          const menuURL = new URL('../menu.html', url).href;
+          const [menuResponse] = await Promise.all([
+            navPage.waitForResponse(response=>response.url()===menuURL&&response.request().isNavigationRequest()
+              &&response.frame()===navPage.mainFrame(), {timeout:5000}),
+            navPage.waitForURL(menuURL, {waitUntil:'domcontentloaded',timeout:5000}),
+            navPage.locator('.main-nav a[href="../menu.html"]').click({timeout:3000})
+          ]);
+          assert.equal(menuResponse.status(), 200, 'Menu document must return HTTP 200 after a real click');
+          assert.equal(navPage.url(), menuURL, 'Menu destination must retain the project-path prefix');
+          const actualDigest = digest(await menuResponse.body());
+          assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');
+          item.menuNavigation = {status:'passed',url:menuURL,httpStatus:menuResponse.status(),sha256:actualDigest,
+            scope:'Local HTTP document delivery only; not menu application readiness or an order'};
+          item.checks.httpMenuNavigation = true;
+        } finally { await navPage.close(); }
+      } else {
+        item.menuNavigation = {status:'not_run',reason:'Offline source rendering cannot prove HTTP menu delivery'};
+      }
     } catch (error) { item.errors.push(String(error)); }
-    item.passed = item.errors.length===0 && Object.keys(item.checks).length===10 && Object.values(item.checks).every(Boolean);
+    item.passed = item.errors.length===0 && Object.keys(item.checks).length===requiredChecks.length
+      && requiredChecks.every(name=>item.checks[name]===true);
     report.cases.push(item);
-    console.log(`${item.passed?'PASS':'FAIL'} ${id}`);
+    console.log(`${item.passed?'PASS':'FAIL'} ${id} checks=${requiredChecks.filter(name=>item.checks[name]===true).length}/${requiredChecks.length}`);
     await context.close();
   }
 } catch (error) { report.infrastructureError=String(error); }
@@ -165,5 +223,10 @@ finally {
   report.inputs=Object.fromEntries([...inputs].sort());
   report.passed=report.cases.length===22 && report.cases.every(c=>c.passed) && !report.infrastructureError;
   await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
+  console.log(JSON.stringify({sourceSha:report.sourceSha,mode,passed:report.passed,
+    casesPassed:report.cases.filter(c=>c.passed).length,casesExpected:22,requiredChecks,
+    failedCases:report.cases.filter(c=>!c.passed).map(c=>({id:c.id,errors:c.errors,
+      failedChecks:requiredChecks.filter(name=>c.checks[name]!==true)})),
+    infrastructureError:report.infrastructureError},null,2));
 }
 if(!report.passed) process.exitCode=1;
