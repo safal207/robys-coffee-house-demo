@@ -1,0 +1,174 @@
+name: Compare pinned 0611 vs 9e4 on API36
+on:
+  push:
+    branches: [qa/android-pinned-ab-0611-vs-9e4-20260909]
+    paths: [.github/workflows/android-pinned-ab-0611-vs-9e4.yml]
+permissions:
+  contents: read
+concurrency:
+  group: android-pinned-ab-0611-vs-9e4-20260909
+  cancel-in-progress: false
+jobs:
+  abba:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      A_SHA: 0611ca0caa5d39f769fd0916bca65f037886aa56
+      B_SHA: 9e4e09d09affa28712b27bb6ca48961adc8cbca8
+      DIAG_SHA: fad4e6d42d45c581c7bbd041d4cee67e3f161b38
+    steps:
+      - name: Checkout exact diagnostic native harness
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fad4e6d42d45c581c7bbd041d4cee67e3f161b38
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Checkout fixed-study helper outside diagnostic source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .study
+          sparse-checkout: scripts/android-pinned-ab.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Freeze A and B exact web archives and validate treatment boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$DIAG_SHA"
+          mkdir -p .artifacts/android-pinned-ab /tmp/robys-web-A /tmp/robys-web-B
+          git fetch --no-tags --depth=1 origin "$A_SHA" "$B_SHA"
+          test "$(git rev-parse "$A_SHA:android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java")" = ddc68d69bae045c5202a4641a2f552ed79338ab8
+          test "$(git rev-parse "$B_SHA:android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java")" = ddc68d69bae045c5202a4641a2f552ed79338ab8
+          test "$(git rev-parse "$A_SHA:.github/scripts/capture-android-launch.sh")" = 52222dbbee45bad86df5604bbc5acf5b3f5c1914
+          test "$(git rev-parse "$B_SHA:.github/scripts/capture-android-launch.sh")" = 52222dbbee45bad86df5604bbc5acf5b3f5c1914
+          test "$(git rev-parse "$A_SHA:src/featured-gallery.ts")" != "$(git rev-parse "$B_SHA:src/featured-gallery.ts")"
+          git archive --format=tar "$A_SHA" > .artifacts/android-pinned-ab/web-A.tar
+          git archive --format=tar "$B_SHA" > .artifacts/android-pinned-ab/web-B.tar
+          tar -xf .artifacts/android-pinned-ab/web-A.tar -C /tmp/robys-web-A
+          tar -xf .artifacts/android-pinned-ab/web-B.tar -C /tmp/robys-web-B
+          sha256sum .artifacts/android-pinned-ab/web-A.tar .artifacts/android-pinned-ab/web-B.tar > .artifacts/android-pinned-ab/web-archives.sha256
+          git diff --name-status "$A_SHA" "$B_SHA" > .artifacts/android-pinned-ab/treatment-diff.txt
+          printf 'A=%s\nB=%s\ndiagnostic_native=%s\nnative_mainactivity_identical=true\nfixed_order=ABBA\n' "$A_SHA" "$B_SHA" "$DIAG_SHA" > .artifacts/android-pinned-ab/provenance.txt
+          python3 .study/scripts/android-pinned-ab.py prepare
+          diff -u .github/scripts/capture-android-launch.sh .artifacts/android-pinned-ab/capture-pinned.sh > .artifacts/android-pinned-ab/capture-transform.diff || test "$?" = 1
+          python3 scripts/test-android-capture-contract.py | tee .artifacts/android-pinned-ab/capture-contract.log
+      - name: Enable KVM and fail before product execution if unavailable
+        id: kvm
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          if [[ ! -e /dev/kvm || ! -r /dev/kvm || ! -w /dev/kvm ]]; then
+            printf '{"product_execution":"NOT_RUN","reason":"KVM_UNAVAILABLE","image":"%s","region":"unknown"}\n' "$ImageVersion" > .artifacts/android-pinned-ab/environment.json
+            exit 1
+          fi
+          ls -l /dev/kvm | tee .artifacts/android-pinned-ab/kvm.txt
+          printf '{"product_execution":"ELIGIBLE","reason":null,"image":"%s"}\n' "$ImageVersion" > .artifacts/android-pinned-ab/environment.json
+      - name: Set up Java 17
+        if: ${{ steps.kvm.outcome == 'success' }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        if: ${{ steps.kvm.outcome == 'success' }}
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install Android platform 36
+        if: ${{ steps.kvm.outcome == 'success' }}
+        run: sdkmanager 'platforms;android-36'
+      - name: Set up Gradle 9.5.0
+        if: ${{ steps.kvm.outcome == 'success' }}
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+      - name: Recheck production release boundary and build one shared diagnostic APK
+        if: ${{ steps.kvm.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android-native :app:processReleaseMainManifest --stacktrace 2>&1 | tee .artifacts/android-pinned-ab/release-manifest.log
+          gradle -p android-native :app:assembleDebug --stacktrace 2>&1 | tee .artifacts/android-pinned-ab/debug-build.log
+          sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk > .artifacts/android-pinned-ab/shared-apk.sha256
+          gradle -p android-native --stop
+          free -h > .artifacts/android-pinned-ab/host-memory.txt
+          nproc > .artifacts/android-pinned-ab/host-cpus.txt
+      - name: A1 — exact pinned 0611
+        id: a1
+        if: ${{ steps.kvm.outcome == 'success' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          avd-name: robys-ab-a1
+          force-avd-creation: true
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash .artifacts/android-pinned-ab/run-case.sh 01-A-0611 /tmp/robys-web-A 0611ca0caa5d39f769fd0916bca65f037886aa56
+      - name: B1 — exact pinned 9e4
+        id: b1
+        if: ${{ steps.kvm.outcome == 'success' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          avd-name: robys-ab-b1
+          force-avd-creation: true
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash .artifacts/android-pinned-ab/run-case.sh 02-B-9e4 /tmp/robys-web-B 9e4e09d09affa28712b27bb6ca48961adc8cbca8
+      - name: B2 — exact pinned 9e4
+        id: b2
+        if: ${{ steps.kvm.outcome == 'success' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          avd-name: robys-ab-b2
+          force-avd-creation: true
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash .artifacts/android-pinned-ab/run-case.sh 03-B-9e4 /tmp/robys-web-B 9e4e09d09affa28712b27bb6ca48961adc8cbca8
+      - name: A2 — exact pinned 0611
+        id: a2
+        if: ${{ steps.kvm.outcome == 'success' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          avd-name: robys-ab-a2
+          force-avd-creation: true
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash .artifacts/android-pinned-ab/run-case.sh 04-A-0611 /tmp/robys-web-A 0611ca0caa5d39f769fd0916bca65f037886aa56
+      - name: Summarize every predeclared sample without selecting passes
+        if: ${{ always() && steps.kvm.outcome == 'success' }}
+        shell: bash
+        run: |
+          python3 .study/scripts/android-pinned-ab.py summarize | tee .artifacts/android-pinned-ab/summary.log
+          printf 'A1=%s\nB1=%s\nB2=%s\nA2=%s\n' '${{ steps.a1.outcome }}' '${{ steps.b1.outcome }}' '${{ steps.b2.outcome }}' '${{ steps.a2.outcome }}' > .artifacts/android-pinned-ab/action-outcomes.txt
+      - name: Upload complete ABBA evidence including product failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-pinned-ab-0611-vs-9e4-${{ github.sha }}
+          path: .artifacts/android-pinned-ab/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
