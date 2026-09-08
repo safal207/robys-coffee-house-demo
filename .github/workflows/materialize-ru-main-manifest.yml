@@ -1,0 +1,38 @@
+name: Materialize RU main isolation manifest
+
+on:
+  push:
+    branches: ['qa/ru-main-isolation-20260908']
+    paths: ['.github/workflows/materialize-ru-main-manifest.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa/ru-main-isolation-20260908
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate only the integrity manifest
+        run: |
+          npm run integrity:generate
+          changed="$(git diff --name-only)"
+          test "$changed" = "integrity-manifest.json"
+          npm run verify:integrity
+      - name: Commit only generated manifest to the evidence branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- integrity-manifest.json
+          git diff --cached --name-only | grep -qx 'integrity-manifest.json'
+          git commit -m 'qa(ru): materialize main-isolated integrity manifest'
+          git push origin HEAD:qa/ru-main-isolation-20260908
