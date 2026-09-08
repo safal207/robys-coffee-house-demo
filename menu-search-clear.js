@@ -47,3 +47,7 @@ if (searchInput) {
   updateLabel();
   updateVisibility();
 }
+
+// Product reveal is progressive enhancement only. A failed or unavailable
+// optional module must never prevent search, menu rendering, cart, or offline use.
+void import("./menu-product-reveal.js?v=20260909-reveal-v1").catch(() => {});
