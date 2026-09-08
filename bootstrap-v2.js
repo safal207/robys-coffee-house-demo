@@ -74,8 +74,13 @@ function loadAndroidHandoffIfRequested() {
   if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
 
   window.__robysAndroidHandoffAborted = false;
+  // Bootstrap runs before deferred product scripts; retain the real DOM-ready
+  // event even if the handoff module arrives after document parsing finishes.
+  window.__robysAndroidHandoffDomReady = new Promise((resolve) => {
+    document.addEventListener("DOMContentLoaded", resolve, { once: true });
+  });
   document.documentElement.style.backgroundColor = "#241c1b";
-  import("./android-handoff.js?v=20260808-atomic-v1")
+  import("./android-handoff.js?v=e4d9ccf3bc97")
     .catch(revealProductAfterAndroidHandoffFailure);
   return true;
 }

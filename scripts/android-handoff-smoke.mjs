@@ -149,7 +149,85 @@ try {
   assert(Date.now() - reducedReleaseStarted < 250, "Reduced-motion handoff did not release immediately");
   await reducedContext.close();
 
-  console.log("✅ ANDROID-HANDOFF-001 passed: static brand bridge, canonical assets, no-card focus, no double-play, explicit native release, product handoff and reduced-motion behavior are deterministic.");
+  async function nativeContext({ language = "tr", width = 390, height = 844, reducedMotion = "no-preference" } = {}) {
+    const native = await browser.newContext({
+      viewport: { width, height }, reducedMotion, serviceWorkers: "block"
+    });
+    await native.addInitScript((language) => {
+      localStorage.setItem("robys-language", language);
+      window.__handoffStates = [];
+      window.addEventListener("robys:android-handoff", (event) => {
+        window.__handoffStates.push(event.detail.state);
+      });
+    }, language);
+    return native;
+  }
+
+  for (const fixture of [
+    { language: "tr", width: 390, height: 844 },
+    { language: "en", width: 1024, height: 768 },
+    { language: "ru", width: 412, height: 915, reducedMotion: "reduce" }
+  ]) {
+    const native = await nativeContext(fixture);
+    const product = await native.newPage();
+    await product.goto(`${baseUrl}?entry=android-handoff&handoff-gen=1`, { waitUntil: "domcontentloaded" });
+    await product.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
+    const prepared = await product.evaluate(() => ({
+      language: document.documentElement.lang,
+      overlayCount: document.querySelectorAll(".robys-android-handoff,.robys-takeaway-entry").length,
+      heroStylesReady: Boolean(document.querySelector('link[data-hero-balance="true"]')?.sheet),
+      brandBackground: getComputedStyle(document.querySelector(".site-header .brand-copy")).backgroundImage,
+      contentOpacity: [...document.querySelector(".hero-content").children]
+        .map((child) => getComputedStyle(child))
+        .filter((style) => style.display !== "none")
+        .map((style) => Number(style.opacity)),
+      releaseHook: typeof window.__robysAndroidHandoffRelease,
+      states: window.__handoffStates
+    }));
+    assert(prepared.language === fixture.language, "Native product readiness preceded saved-language initialization");
+    assert(prepared.overlayCount === 0, "Native launch created a second HTML cover");
+    assert(prepared.heroStylesReady, "Native product readiness preceded dynamic hero styling");
+    assert(prepared.contentOpacity.every((opacity) => opacity === 1), "Native product readiness preceded visible hero text and actions");
+    assert(prepared.brandBackground.includes(fixture.width > 680 ? "robys-header-master-v1.svg" : "robys-compact-master-v1.svg"), "Native product readiness selected the wrong responsive brand asset");
+    assert(prepared.releaseHook === "function", "Native product release hook is unavailable");
+    assert(prepared.states.join(",") === "loading,ready", "Native product readiness states are out of order");
+    assert(await product.locator(".hero h1").isVisible(), "Native READY has no visible product heading");
+    await product.screenshot({ path: path.join(resultsDir, `android-native-product-${fixture.language}.png`), animations: "allow" });
+    await product.evaluate(() => {
+      const release = window.__robysAndroidHandoffRelease;
+      release(); release();
+    });
+    assert(await product.evaluate(() => window.__handoffStates.join(",")) === "loading,ready,releasing,done", "Native release is not idempotent");
+    assert(await product.evaluate(() => typeof window.__robysAndroidHandoffRelease) === "undefined", "Completed native release left a stale hook");
+    await native.close();
+  }
+
+  const pendingNative = await nativeContext();
+  const pendingProduct = await pendingNative.newPage();
+  let releaseStyle;
+  const styleGate = new Promise((resolve) => { releaseStyle = resolve; });
+  await pendingProduct.route("**/hero-balance.css?*", async (route) => {
+    await styleGate;
+    await route.continue();
+  });
+  await pendingProduct.goto(`${baseUrl}?entry=android-handoff&handoff-gen=2`, { waitUntil: "domcontentloaded" });
+  await pendingProduct.locator('html[data-robys-android-handoff="loading"]').waitFor({ state: "attached", timeout: 1500 });
+  assert(await pendingProduct.locator(".robys-android-handoff").count() === 0, "Pending native product created a web cover");
+  assert(await pendingProduct.evaluate(() => window.__handoffStates.includes("ready")) === false, "Pending product stylesheet was falsely certified READY");
+  releaseStyle();
+  await pendingProduct.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
+  await pendingNative.close();
+
+  const failedNative = await nativeContext();
+  const failedProduct = await failedNative.newPage();
+  await failedProduct.route("**/src/robys-hero-poster.jpg", (route) => route.abort());
+  await failedProduct.goto(`${baseUrl}?entry=android-handoff&handoff-gen=3`, { waitUntil: "domcontentloaded" });
+  await failedProduct.locator('html[data-robys-android-handoff="done"]').waitFor({ state: "attached", timeout: 2200 });
+  assert(await failedProduct.evaluate(() => window.__handoffStates.includes("ready")) === false, "Failed product poster was falsely certified READY");
+  assert(await failedProduct.locator(".robys-android-handoff").count() === 0, "Failed native preparation introduced a blocking web cover");
+  await failedNative.close();
+
+  console.log("✅ ANDROID-HANDOFF-001 passed: unchanged browser bridge and reduced motion; native product preparation without a second cover, responsive localized frames, explicit release, pending-style and failed-poster controls.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");
