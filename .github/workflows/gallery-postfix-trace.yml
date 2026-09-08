@@ -1,0 +1,57 @@
+name: Diagnose post-gallery entry stall
+on:
+  push:
+    branches: [qa/gallery-postfix-trace-5e6618b-20260908]
+    paths: [.github/workflows/gallery-postfix-trace.yml]
+permissions:
+  contents: read
+concurrency:
+  group: gallery-postfix-trace-5e6618b
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5e6618b861efc866286c83a06e0380133e103a08
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: scripts/diagnose-entry-stall.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify exact product bytes and install diagnostic outside source tree
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 5e6618b861efc866286c83a06e0380133e103a08
+          node scripts/generate-integrity-manifest.mjs --check
+          mkdir -p .artifacts/gallery-postfix-trace
+          cp .diagnostic-tools/scripts/diagnose-entry-stall.mjs .artifacts/gallery-postfix-trace/runner.mjs
+          node --check .artifacts/gallery-postfix-trace/runner.mjs
+          git ls-tree -r HEAD > .artifacts/gallery-postfix-trace/product-tree.txt
+          printf 'product_head=%s\ninvocation_commit=%s\n' "$(git rev-parse HEAD)" "$GITHUB_SHA" > .artifacts/gallery-postfix-trace/provenance.txt
+      - name: Capture all eight fixed original-sampler cases
+        run: node .artifacts/gallery-postfix-trace/runner.mjs
+      - name: Re-run product integrity without accepting timing failures
+        if: always()
+        shell: bash
+        run: |
+          node scripts/generate-integrity-manifest.mjs --check
+          git diff --exit-code
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gallery-postfix-trace-${{ github.sha }}
+          path: .artifacts/gallery-postfix-trace/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
