@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "ru-coffee-main-owner-accepted-20260909-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/362#issuecomment-5592404232",
+      "contentBindings": {
+        "ru/coffee-gazipasa.html": "3ea2d6f068798021b619cde8639643dd62d74c07",
+        "ru/coffee-gazipasa.css": "7320fce54fcb0c5e29effdcf0a2e823b416505dc",
+        "qa/visual-regression.json": "dd9e552703af870919d5ffe47fd776efc6bfb314",
+        "integrity-manifest.json": "8bba8ea4b1773429fd81457fcfb86b66e170b0ec",
+        "scripts/test-ru-coffee-landing.mjs": "b421d76af65c14e82021ed17da631a9991f4999b",
+        ".github/workflows/ru-coffee-regression.yml": "13193778a6690c58802820b3b7a9e78224ae895a"
+      },
+      "expectedFailures": [
+        { "capture": "ru-coffee-full", "viewport": "phone-320", "reason": "dimension mismatch 320x2155 vs 320x2084" },
+        { "capture": "ru-coffee-faq", "viewport": "phone-320", "reason": "dimension mismatch 320x706 vs 320x803" },
+        { "capture": "ru-coffee-hero", "viewport": "phone-360-short", "reason": "dimension mismatch 360x673 vs 360x513" },
+        { "capture": "ru-coffee-full", "viewport": "phone-390", "reason": "dimension mismatch 390x2026 vs 390x1860" },
+        { "capture": "ru-coffee-hero", "viewport": "phone-390", "reason": "dimension mismatch 390x1000 vs 390x529" },
+        { "capture": "ru-coffee-faq", "viewport": "phone-390", "reason": "dimension mismatch 390x540 vs 390x637" },
+        { "capture": "ru-coffee-full", "viewport": "tablet-768", "reason": "dimension mismatch 768x1819 vs 768x1587" },
+        { "capture": "ru-coffee-hero", "viewport": "laptop-1366", "reason": "dimension mismatch 1366x768 vs 1366x570" },
+        { "capture": "ru-coffee-full", "viewport": "desktop-1440", "reason": "dimension mismatch 1440x1854 vs 1440x1952" },
+        { "capture": "ru-coffee-hero", "viewport": "desktop-1440", "reason": "dimension mismatch 1440x1100 vs 1440x689" },
+        { "capture": "ru-coffee-faq", "viewport": "desktop-1440", "reason": "dimension mismatch 1440x385 vs 1440x623" }
+      ],
+      "evidence": {
+        "mainBase": "e3edcf13de323c3adb80c9c96465f1dd0425eee0",
+        "evidenceSource": "26d5fd1b1add7f8f9e2bbaab09c7ced1ba453291",
+        "visualRunId": 34282513337,
+        "visualArtifactId": 10078315859,
+        "visualArtifactUploadSha256": "90ead63c2c379a52656eb4b20ef8d054306f4b8b4ad6c21fd552c9808bafc968",
+        "identityProof": "Both attempts reproduce the exact accepted 11 reason strings; all 11 baseline and all 11 current RU PNG byte streams match the corresponding previously reviewed #352 evidence.",
+        "scope": "Audit metadata. The existing validator enforces contentBindings and expectedFailures; these evidence fields are not additional validator predicates."
+      },
+      "authorization": {
+        "source": "Owner instruction in PR #352, transferred only after exact visual byte identity was verified in PR #362 evidence",
+        "sourceUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/352#issuecomment-5580211030",
+        "quote": "Принимаю 11 RU-визуальных изменений; без merge и деплоя",
+        "scope": "Only the eleven expectedFailures above on the exact bound main-based source.",
+        "mergeAuthorized": false,
+        "autoMergeAuthorized": false,
+        "deploymentAuthorized": false,
+        "baselineReplacementAuthorized": false,
+        "thresholdChangeAuthorized": false,
+        "otherChecksWaived": false
+      }
+    }
+  ]
+}
