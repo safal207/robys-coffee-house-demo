@@ -1,0 +1,163 @@
+name: Verify dock entry startup repair
+on:
+  push:
+    branches: [qa/startup-trace-96294ec-20260908]
+    paths: [.github/workflows/verify-dock-entry-startup.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-dock-entry-startup-20260908
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+      CANDIDATE_BRANCH: fix/order-dock-entry-startup-20260908
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: |
+            scripts/test-order-dock-entry-lifecycle.mjs
+            scripts/test-order-dock-entry-browser.mjs
+            scripts/trace-takeaway-startup.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Preserve negative controls on exact original source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          mkdir -p .artifacts/dock-entry-verify
+          cp .diagnostic-tools/scripts/test-order-dock-entry-lifecycle.mjs scripts/
+          cp .diagnostic-tools/scripts/test-order-dock-entry-browser.mjs scripts/
+          set +e
+          node --test scripts/test-order-dock-entry-lifecycle.mjs > .artifacts/dock-entry-verify/before-unit.tap 2>&1
+          unit_exit=$?
+          DOCK_ENTRY_RESULTS_DIR=.artifacts/dock-entry-before node scripts/test-order-dock-entry-browser.mjs > .artifacts/dock-entry-verify/before-browser.log 2>&1
+          browser_exit=$?
+          set -e
+          test "$unit_exit" = 1
+          grep -q '^# tests 10$' .artifacts/dock-entry-verify/before-unit.tap
+          grep -q '^# pass 3$' .artifacts/dock-entry-verify/before-unit.tap
+          grep -q '^# fail 7$' .artifacts/dock-entry-verify/before-unit.tap
+          test "$browser_exit" = 1
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; const r=JSON.parse(readFileSync(".artifacts/dock-entry-before/cases.json")); if(r.length!==7||!r.some(c=>c.error?.includes("geometry/style reads behind")))process.exit(1);'
+      - name: Apply hash-bound minimal source repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          p=Path('src/order-dock.ts');data=p.read_bytes()
+          def blob(d):return hashlib.sha1(f'blob {len(d)}\0'.encode()+d).hexdigest()
+          assert blob(data)=='5e3478c66b7eaef689f1e3de017076243543023e'
+          s=data.decode()
+          a="    attributes.observe(doc.body, { attributes: true, attributeFilter: ['class'] });"
+          b=a+"\n    // Resume after normal handoff or a failed/aborted entry, without polling.\n    attributes.observe(root, { attributes: true, attributeFilter: ['data-robys-entry-pending', 'data-robys-entry-state'] });"
+          assert s.count(a)==1;s=s.replace(a,b)
+          a="    if (!bars.size) { dispose(); return; }"
+          b=a+"\n    // The full-screen entry covers the dock. Do not force page style/layout\n    // while its first compositor frame is being prepared. Handoff is emitted\n    // before the dissolve, so the next frame can reserve the visible page lane.\n    if (root.dataset.robysEntryPending &&\n        root.dataset.robysEntryState !== 'handoff' && root.dataset.robysEntryState !== 'done') return;"
+          assert s.count(a)==1;s=s.replace(a,b);p.write_text(s)
+          assert blob(p.read_bytes())=='c9e8d21ed947cc4239fe1d043d1847afff63a0bd'
+          p=Path('package.json');d=json.loads(p.read_text())
+          assert d['scripts']['test:order-dock']=='node --test scripts/test-order-dock.mjs'
+          d['scripts']['test:order-dock']+=' scripts/test-order-dock-entry-lifecycle.mjs'
+          p.write_text(json.dumps(d,indent=2)+'\n')
+          PY
+          npm run build
+          npm run integrity:generate
+      - name: Record bounded candidate commit before verification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          allowed={'src/order-dock.ts','package.json','order-shell.js','order-launcher.js','menu-app.js','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json'}
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert not changed-allowed, changed-allowed
+          tests={'scripts/test-order-dock-entry-lifecycle.mjs','scripts/test-order-dock-entry-browser.mjs'}
+          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          assert not {p for p in untracked if p not in tests and not p.startswith('.diagnostic-tools/')},untracked
+          subprocess.run(['git','add','--',*sorted(changed|tests)],check=True)
+          PY
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/dock-entry-verify/candidate.patch
+          git diff --cached --stat > .artifacts/dock-entry-verify/candidate-stat.txt
+          git write-tree > .artifacts/dock-entry-verify/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'perf(order): suspend covered dock measurement until entry handoff' | git commit-tree "$(cat .artifacts/dock-entry-verify/candidate-tree.txt)" -p "$BASE_SHA")
+          echo "$candidate" > .artifacts/dock-entry-verify/candidate-commit.txt
+          git reset --hard "$candidate"
+          git archive --format=tar.gz HEAD > .artifacts/dock-entry-verify/candidate-source.tar.gz
+          git ls-tree -r HEAD > .artifacts/dock-entry-verify/candidate-tree-files.txt
+      - name: Full check and security without modified gates
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/dock-entry-verify/check.log
+          npm run verify:security 2>&1 | tee .artifacts/dock-entry-verify/security.log
+          npm run test:order-dock 2>&1 | tee .artifacts/dock-entry-verify/after-unit.tap
+      - name: Real browser read suppression and recovery
+        run: node scripts/test-order-dock-entry-browser.mjs
+      - name: Existing shared cart and premium UI
+        shell: bash
+        run: |
+          npm run test:order-share:browser
+          node scripts/premium-ui-regression.mjs
+      - name: Original motion and browser handoff certifications
+        shell: bash
+        run: |
+          MORNING_ENTRY_RESULTS_DIR=.artifacts/morning-entry node scripts/morning-entry-smoke.mjs
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/motion-release node scripts/motion-release-certification.mjs
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/android-handoff node scripts/android-handoff-smoke.mjs
+      - name: Capture after repair using same six-sample diagnostic
+        shell: bash
+        run: |
+          mkdir -p .artifacts/startup-trace
+          cp .diagnostic-tools/scripts/trace-takeaway-startup.mjs .artifacts/startup-trace/capture.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.artifacts/startup-trace/capture.mjs');s=p.read_text();sha=Path('.artifacts/dock-entry-verify/candidate-commit.txt').read_text().strip()
+          s=s.replace("const expected = '96294ecbcba7cfb99deaadb4b629e0085a2686b9';",f"const expected = '{sha}';")
+          p.write_text(s)
+          PY
+          node .artifacts/startup-trace/capture.mjs
+      - name: Publish verified candidate branch only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat .artifacts/dock-entry-verify/candidate-commit.txt)"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/feat/menu-telegram-share-20260907 | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+            echo 'Refusing to overwrite an existing candidate branch' >&2
+            exit 1
+          else
+            test "$?" = 2
+          fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dock-entry-verification-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
