@@ -43,6 +43,8 @@ export function installOrderDock(node: HTMLElement): () => void {
     for (const item of blockers) resize?.unobserve(item);
     attributes.disconnect();
     attributes.observe(doc.body, { attributes: true, attributeFilter: ['class'] });
+    // Resume after normal handoff or a failed/aborted entry, without polling.
+    attributes.observe(root, { attributes: true, attributeFilter: ['data-robys-entry-pending', 'data-robys-entry-state'] });
     blockers = Array.from(doc.querySelectorAll<HTMLElement>(blockerSelector));
     for (const item of blockers) {
       resize?.observe(item);
@@ -75,6 +77,11 @@ export function installOrderDock(node: HTMLElement): () => void {
     pending = null;
     for (const bar of bars) if (!bar.isConnected) { resize?.unobserve(bar); bars.delete(bar); }
     if (!bars.size) { dispose(); return; }
+    // The full-screen entry covers the dock. Do not force page style/layout
+    // while its first compositor frame is being prepared. Handoff is emitted
+    // before the dissolve, so the next frame can reserve the visible page lane.
+    if (root.dataset.robysEntryPending &&
+        root.dataset.robysEntryState !== 'handoff' && root.dataset.robysEntryState !== 'done') return;
     let lane = 0;
     let heroLane = 0;
     const heights: Array<[HTMLElement, number]> = [];
