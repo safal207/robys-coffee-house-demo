@@ -1,0 +1,45 @@
+name: PR346 installed emulator tracing capabilities
+
+on:
+  push:
+    branches: [diagnostic/pr346-emulator-capabilities-20260908]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr346-emulator-capabilities-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inspect:
+    name: Exact emulator help and identity only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: emulator
+
+      - name: Verify bounded collector controls
+        run: python3 scripts/test-emulator-trace-capabilities.py
+
+      - name: Record help and package identity without starting Android
+        run: timeout --kill-after=5s 90s python3 scripts/qa/check-emulator-trace-capabilities.py
+
+      - name: Preserve capability evidence including incomplete results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr346-emulator-capabilities-${{ github.sha }}
+          path: |
+            emulator-trace-capabilities/**
+            scripts/qa/check-emulator-trace-capabilities.py
+            scripts/test-emulator-trace-capabilities.py
+            .github/workflows/pr346-emulator-capabilities.yml
+          if-no-files-found: error
+          retention-days: 14
