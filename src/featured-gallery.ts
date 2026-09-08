@@ -155,14 +155,17 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
   });
 }
 
+function entryCoversPage(root = document.documentElement): boolean {
+  return Boolean(root.dataset.robysEntryPending) &&
+    root.dataset.robysEntryState !== "handoff" &&
+    root.dataset.robysEntryState !== "done";
+}
+
 function setupGalleryDockBehavior(section: HTMLElement): void {
   let animationFrame = 0;
   let previousState: boolean | null = null;
   const root = document.documentElement;
-  const entryCoversGallery = (): boolean =>
-    Boolean(root.dataset.robysEntryPending) &&
-    root.dataset.robysEntryState !== "handoff" &&
-    root.dataset.robysEntryState !== "done";
+  const entryCoversGallery = (): boolean => entryCoversPage(root);
 
   const checkPanel = (): void => {
     animationFrame = 0;
@@ -230,8 +233,26 @@ function initFeaturedGallery(): void {
   setupGalleryDockBehavior(section);
 }
 
+function initFeaturedGalleryAfterEntry(): void {
+  const root = document.documentElement;
+  if (!entryCoversPage(root)) {
+    initFeaturedGallery();
+    return;
+  }
+
+  const entryObserver = new MutationObserver(() => {
+    if (entryCoversPage(root)) return;
+    entryObserver.disconnect();
+    initFeaturedGallery();
+  });
+  entryObserver.observe(root, {
+    attributes: true,
+    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]
+  });
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initFeaturedGallery, { once: true });
+  document.addEventListener("DOMContentLoaded", initFeaturedGalleryAfterEntry, { once: true });
 } else {
-  initFeaturedGallery();
+  initFeaturedGalleryAfterEntry();
 }
