@@ -1,0 +1,106 @@
+name: Verify takeaway invocation clock
+'on':
+  push:
+    branches: [qa/takeaway-invocation-clock-20260908]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+      CANDIDATE_BRANCH: fix/takeaway-invocation-clock-20260908
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+        persist-credentials: false
+        fetch-depth: 1
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '22'
+    - run: npm ci --no-audit --no-fund
+    - run: npx playwright install --with-deps chromium
+    - name: Reuse exact prior verification scripts with explicit invocation-clock correction
+      shell: bash
+      run: |
+        git fetch --no-tags --depth=1 origin d7c9be97f89a990d8e2cdd3fdc9c5191824d3f0e
+        mkdir -p .artifacts/clock-v2-helper
+        git show d7c9be97f89a990d8e2cdd3fdc9c5191824d3f0e:.github/workflows/takeaway-clock-verify.yml > .artifacts/clock-v2-helper/previous-workflow.yml
+        python3 - <<'PY'
+        from pathlib import Path
+        import re
+        out=Path('.artifacts/clock-v2-helper')
+        text=(out/'previous-workflow.yml').read_text()
+        names=['Prepare source candidate and deterministic negative controls','Retain three baseline cold starts without treating retry as approval','Build and bind bounded candidate','Full check security and deterministic entry controls','Three candidate cold starts with unchanged cadence and additional no-skip guards','Existing full motion and guest interface checks','Publish only passing separate candidate']
+        blocks=dict(re.findall(r'^    - name: ([^\n]+)\n(.*?)(?=^    - |\Z)',text,re.M|re.S))
+        scripts={}
+        for name in names:
+          lines=blocks[name].splitlines()
+          start=next(i for i,line in enumerate(lines) if line.startswith('      run: '))
+          command=lines[start][len('      run: '):]
+          if command=='|':
+            body=lines[start+1:]
+            assert all(not line.strip() or line.startswith('        ') for line in body),name
+            command='\n'.join(line[8:] if line else '' for line in body)+'\n'
+          scripts[name]=command
+        first=scripts[names[0]]
+        assert first.count('animation.startTime = now;')==1
+        first=first.replace('animation.startTime = now;','animation.startTime = performance.now();')
+        anchor='cp takeaway-entry.js .artifacts/startup-clock/fixed.js'
+        assert first.count(anchor)==1
+        extra='''python3 - <<'CLOCK_TEST'
+        from pathlib import Path
+        p=Path('scripts/test-takeaway-entry.mjs');s=p.read_text()
+        old='window, document, navigator, CustomEvent:'
+        assert s.count(old)==1
+        s=s.replace(old,'window, document, navigator, performance: { now: () => time + 50 }, CustomEvent:')
+        old='assert.equal(entrance.startTime,timelineTime);'
+        assert s.count(old)==1
+        s=s.replace(old,'assert.equal(entrance.startTime,50);')
+        p.write_text(s)
+        CLOCK_TEST
+        '''
+        first=first.replace(anchor,extra+anchor)
+        old="assert(result.firstVisibleTime<=100,'First visible frame already skipped more than 100 ms of the entrance');"
+        assert first.count(old)==1
+        first=first.replace(old,"assert(result.firstVisibleTime<=result.cadence.startupMs+20.5,'Animation clock is ahead of the observed entrance by more than one frame');")
+        old="assert(result.maxFirst24Gap<=100,'More than 100 ms between early moving frames');"
+        assert first.count(old)==1
+        first=first.replace(old,"assert(result.maxFirst24Gap<=50,'More than 50 ms between early moving frames');")
+        scripts[names[0]]=first
+        scripts[names[2]]=scripts[names[2]].replace('anchor decoded entrance to active document timeline','start decoded entrance at invocation time without stale frame clock')
+        for i,name in enumerate(names):(out/f'{i}.sh').write_text(scripts[name])
+        (out/'scope.txt').write_text('Pinned prior workflow scripts reused; source timestamp changed to performance.now() on the default document timeline; currentTime only checks an active timeline. Original product budgets, event timestamps and durations unchanged. Additional frame-clock and 50 ms early-gap guards are verification-only and stricter. No Lighthouse/native/physical-device claim.\n')
+        PY
+        for file in .artifacts/clock-v2-helper/*.sh; do bash -n "$file"; done
+        bash -e -o pipefail .artifacts/clock-v2-helper/0.sh
+    - name: Preserve three baseline cold starts
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/1.sh
+    - name: Build and bind candidate
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/2.sh
+    - name: Full check security and entry controls
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/3.sh
+    - name: Three candidate starts with stricter clock and frame-gap controls
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/4.sh
+    - name: Existing motion menu and premium UI matrices
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/5.sh
+    - name: Publish only passing separate candidate
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash -e -o pipefail .artifacts/clock-v2-helper/6.sh
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: takeaway-invocation-clock-${{ github.sha }}
+        path: |
+          .artifacts/startup-clock/
+          .artifacts/clock-v2-helper/
+          .artifacts/order-share/
+          .artifacts/premium-ui/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
