@@ -70,6 +70,15 @@ function revealProductAfterAndroidHandoffFailure() {
   delete window.__robysAndroidHandoffRelease;
 }
 
+function nativeOwnsHandoffSurface() {
+  const params = new URLSearchParams(window.location.search);
+  const generation = params.get("handoff-gen") ?? "";
+  // This is a rendering-route hint supplied by the native launch URL, not an
+  // authentication boundary. Generationless browser entry keeps its own cover.
+  return params.get("entry") === "android-handoff" &&
+    /^[1-9]\d*$/.test(generation) && Number(generation) <= 2_147_483_647;
+}
+
 function loadAndroidHandoffIfRequested() {
   if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
 
@@ -80,8 +89,10 @@ function loadAndroidHandoffIfRequested() {
     document.addEventListener("DOMContentLoaded", resolve, { once: true });
   });
   document.documentElement.style.backgroundColor = "#241c1b";
-  import("./android-handoff.js?v=e4d9ccf3bc97")
-    .catch(revealProductAfterAndroidHandoffFailure);
+  const handoff = nativeOwnsHandoffSurface()
+    ? import("./android-native-product-frame.js?v=b3fc17389457")
+    : import("./android-handoff.js?v=20260808-atomic-v1");
+  handoff.catch(revealProductAfterAndroidHandoffFailure);
   return true;
 }
 

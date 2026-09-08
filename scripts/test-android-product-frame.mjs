@@ -4,7 +4,17 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import vm from "node:vm";
 
-const runtime = readFileSync(new URL("../android-handoff.js", import.meta.url), "utf8");
+const nativeRuntime = readFileSync(new URL("../android-native-product-frame.js", import.meta.url), "utf8");
+const legacyRuntime = readFileSync(new URL("../android-handoff.js", import.meta.url), "utf8");
+const bootstrap = readFileSync(new URL("../bootstrap-v2.js", import.meta.url), "utf8");
+const bootstrapStartup = bootstrap.indexOf("\ninstallAppleTouchIcon();");
+assert.ok(bootstrapStartup > 0, "Bootstrap function definitions must precede startup");
+// Exercise the real route and DOM-ready capture. Only module transport is
+// substituted, retaining the asynchronous boundary of dynamic import.
+const bootstrapFunctions = bootstrap.slice(0, bootstrapStartup)
+  .replace(/\bimport\(/g, "loadFixtureModule(");
+const nativeModulePath = "./android-native-product-frame.js";
+const legacyModuleSpecifier = "./android-handoff.js?v=20260808-atomic-v1";
 const posterUrl = "https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg";
 const brandUrl = "https://safal207.github.io/robys-coffee-house-demo/src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4";
 
@@ -23,7 +33,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   aborted = false, capturedDom = true, background = `url("${brandUrl}")` } = {}) {
   let time = 0;
   let sequence = 0;
-  const timers = new Map(), frames = new Map(), images = [], animations = [], events = [], heroAnimations = [];
+  const timers = new Map(), frames = new Map(), images = [], animations = [], events = [], heroAnimations = [], imports = [];
   const dom = deferred(), fonts = deferred();
   class Target {
     listeners = new Map();
@@ -98,6 +108,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     return heroAnimations;
   };
   root.style.backgroundColor = "#241c1b";
+  root.classList = { add() {} };
   root.append(body);
   hero.poster = posterUrl;
   hero.playCalls = 0;
@@ -131,10 +142,20 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     __robysAndroidHandoffAborted: aborted,
     matchMedia: query => ({ matches: query.includes("prefers-reduced-motion") ? reduced : query !== "not all" })
   });
-  if (capturedDom) window.__robysAndroidHandoffDomReady = dom.promise;
+  dom.promise.then(() => document.dispatchEvent({ type: "DOMContentLoaded" }));
   window.addEventListener("robys:android-handoff", event => events.push({ state: event.detail.state, at: time }));
   const context = vm.createContext({
     window, document, URLSearchParams, Image: ControlledImage,
+    loadFixtureModule(specifier) {
+      imports.push(specifier);
+      return Promise.resolve().then(() => {
+        const path = specifier.split("?")[0];
+        assert.ok(path === nativeModulePath || specifier === legacyModuleSpecifier,
+          `Unexpected handoff import: ${specifier}`);
+        vm.runInContext(path === nativeModulePath ? nativeRuntime : legacyRuntime, context, { filename: path });
+        return {};
+      });
+    },
     getComputedStyle: element => {
       if (element === brand) return { backgroundImage: background };
       assert.ok(element === heroContent || heroContent.children.includes(element), "Unexpected styled product element");
@@ -143,7 +164,11 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     requestAnimationFrame(callback) { const id = ++sequence; frames.set(id, callback); return id; },
     CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } }
   });
-  vm.runInContext(runtime, context, { filename: "android-handoff.js" });
+  vm.runInContext(bootstrapFunctions, context, { filename: "bootstrap-v2.js" });
+  const requested = vm.runInContext("loadAndroidHandoffIfRequested()", context);
+  // Model an abort or invalidated readiness capture while the module is in flight.
+  if (aborted) window.__robysAndroidHandoffAborted = true;
+  if (!capturedDom) delete window.__robysAndroidHandoffDomReady;
   const tick = async (duration = 0) => {
     await settle();
     const until = time + duration;
@@ -179,7 +204,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   };
   return { root, document, window, hero, brand, dom, fonts, styles, heroStyle, stylesheet,
     heroContent, heading, actions, heroAnimations, addHeroAnimation,
-    images, animations, events, frames, timers, tick, frame, loadStyle, readyDependencies,
+    images, animations, events, frames, timers, imports, requested, tick, frame, loadStyle, readyDependencies,
     overlay: () => root.querySelector(".robys-android-handoff"), states: () => events.map(event => event.state) };
 }
 
@@ -187,6 +212,9 @@ for (const generation of ["1", "2147483647"]) {
   test(`positive native generation ${generation} prepares product beneath the native cover`, async () => {
     const h = harness({ search: `?entry=android-handoff&handoff-gen=${generation}` });
     await settle();
+    assert.equal(h.requested, true);
+    assert.equal(h.imports.length, 1);
+    assert.equal(h.imports[0].split("?")[0], nativeModulePath);
     assert.deepEqual(h.states(), ["loading"]);
     assert.equal(h.overlay(), null);
     assert.equal(h.root.style.backgroundColor, "");
@@ -198,6 +226,8 @@ for (const query of ["", "&handoff-gen=", "&handoff-gen=0", "&handoff-gen=-1", "
   "&handoff-gen=1.5", "&handoff-gen=%2B1", "&handoff-gen=1e2", "&handoff-gen=2147483648", "&handoff-gen=Infinity"]) {
   test(`generationless or invalid browser entry preserves its HTML cover: ${query || "missing"}`, async () => {
     const h = harness({ search: `?entry=android-handoff${query}` }); await settle();
+    assert.equal(h.requested, true);
+    assert.deepEqual(h.imports, [legacyModuleSpecifier]);
     assert.ok(h.overlay());
     assert.deepEqual(h.states(), ["loading"]);
     assert.equal(h.images.length, 2, "Legacy bridge must still prepare both approved logos");
@@ -207,7 +237,10 @@ for (const query of ["", "&handoff-gen=", "&handoff-gen=0", "&handoff-gen=-1", "
 
 test("a generation without the Android entry mode does not select native product readiness", async () => {
   const h = harness({ search: "?entry=day&handoff-gen=1" }); await settle();
-  assert.ok(h.overlay());
+  assert.equal(h.requested, false);
+  assert.deepEqual(h.imports, []);
+  assert.deepEqual(h.states(), []);
+  assert.equal(h.overlay(), null);
 });
 
 test("readiness awaits DCL, dynamic CSS, both actual product assets, fonts and two distinct frames", async () => {
@@ -234,6 +267,15 @@ test("readiness awaits DCL, dynamic CSS, both actual product assets, fonts and t
   assert.equal(h.hero.playCalls, 0);
   assert.equal(h.hero.loadCalls, 0);
   assert.equal(h.animations.length, 0);
+});
+
+test("bootstrap retains DCL when it fires before the native module arrives", async () => {
+  const h = harness();
+  assert.deepEqual(h.states(), [], "Dynamic import has not evaluated the module yet");
+  h.document.dispatchEvent({ type: "DOMContentLoaded" });
+  await h.readyDependencies(); await h.frame(); await h.frame();
+  assert.deepEqual(h.states(), ["loading", "ready"]);
+  assert.equal(h.overlay(), null);
 });
 
 test("a pending active stylesheet blocks readiness while inactive sheets do not", async () => {
@@ -406,23 +448,41 @@ test("legacy hard stop still releases at 5000 ms with stalled logo decodes", asy
   assert.ok(!h.states().includes("ready"), "Pending readiness must not revive a hard-stopped bridge");
 });
 
-test("Android runtime revision reaches bootstrap and rejects stale offline module bytes", async () => {
-  const revision = createHash("sha256").update(runtime).digest("hex").slice(0, 12);
-  const bootstrap = readFileSync(new URL("../bootstrap-v2.js", import.meta.url), "utf8");
+test("legacy browser handoff retains the reviewed bytes and import URL", () => {
+  // android-handoff.js from 7799f80b5a6561beec57f2d98f8e8ca58e8c36fa.
+  // Keep the fixture independent of git history in source archives and CI.
+  assert.equal(createHash("sha256").update(legacyRuntime).digest("hex"),
+    "451f55e218906204d2496762ce9944f2239e66555f750e930fddd067af9a838f");
+  assert.ok(bootstrap.includes(`import("${legacyModuleSpecifier}")`));
+});
+
+test("native module revision reaches bootstrap and rejects stale offline module bytes", async () => {
+  const revision = createHash("sha256").update(nativeRuntime).digest("hex").slice(0, 12);
   const worker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");
-  assert.ok(bootstrap.includes(`android-handoff.js?v=${revision}`));
-  assert.ok(worker.includes(`"./android-handoff.js?v=${revision}"`));
+  assert.ok(bootstrap.includes(`import("${nativeModulePath}?v=${revision}")`));
+  assert.ok(worker.includes(`"${nativeModulePath}?v=${revision}"`));
   const origin = "https://example.test/coffee/";
-  const previous = new URL("android-handoff.js?v=old", origin).href;
+  const previous = new URL(`${nativeModulePath}?v=old`, origin).href;
+  const legacy = new URL("android-handoff.js", origin).href;
   const stale = { revision: "old" };
+  const legacyResponse = { body: legacyRuntime };
+  const stored = new Map([[previous, stale], [legacy, legacyResponse]]);
   const context = vm.createContext({ URL, Request, Response,
     self: { registration: { scope: origin }, addEventListener() {} },
     caches: { async open() { return { async match(request, options) {
-      return request.url === previous || options?.ignoreSearch ? stale : undefined;
+      if (!options?.ignoreSearch) return stored.get(request.url);
+      const requested = new URL(request.url); requested.search = "";
+      for (const [key, response] of stored) {
+        const cached = new URL(key); cached.search = "";
+        if (cached.href === requested.href) return response;
+      }
+      return undefined;
     } }; } }
   });
   vm.runInContext(worker, context);
   const lookup = vm.runInContext("cachedResponse", context);
-  assert.equal(await lookup(new Request(new URL(`android-handoff.js?v=${revision}`, origin))), undefined);
+  assert.equal(await lookup(new Request(new URL(`${nativeModulePath}?v=${revision}`, origin))), undefined);
   assert.equal(await lookup(new Request(previous)), stale, "Exact cached revisions remain usable offline");
+  assert.equal(await lookup(new Request(new URL(legacyModuleSpecifier, origin))), legacyResponse,
+    "The preserved legacy URL still resolves its unchanged offline bytes");
 });

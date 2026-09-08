@@ -206,11 +206,11 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 }
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
-const androidHandoffRevision = revisionFor("android-handoff.js");
+const androidNativeProductFrameRevision = revisionFor("android-native-product-frame.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
-bootstrapSource = synchronizeModuleImport(bootstrapSource, "android-handoff.js", androidHandoffRevision);
+bootstrapSource = synchronizeModuleImport(bootstrapSource, "android-native-product-frame.js", androidNativeProductFrameRevision);
 writeFileSync("bootstrap-v2.js", bootstrapSource);
 
 const appRevision = revisionFor("app.js");
@@ -301,7 +301,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["bootstrap-v2.js", bootstrapRevision],
-  ["android-handoff.js", androidHandoffRevision],
+  ["android-native-product-frame.js", androidNativeProductFrameRevision],
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
