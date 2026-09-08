@@ -63,6 +63,7 @@ function revealProductAfterEntryFailure() {
 
 function revealProductAfterAndroidHandoffFailure() {
   window.__robysAndroidHandoffAborted = true;
+  window.__robysAndroidStylesheetErrors?.dispose();
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
   document.querySelector(".robys-android-handoff")?.remove();
@@ -79,9 +80,38 @@ function nativeOwnsHandoffSurface() {
     /^[1-9]\d*$/.test(generation) && Number(generation) <= 2_147_483_647;
 }
 
+function captureAndroidStylesheetErrors() {
+  window.__robysAndroidStylesheetErrors?.dispose();
+  const failed = new WeakMap();
+  const captureError = (event) => {
+    const link = event.target;
+    if (link?.tagName === "LINK" && link.rel === "stylesheet") {
+      failed.set(link, link.href);
+    }
+  };
+  const tracker = {
+    hasFailed: (link) => failed.get(link) === link.href,
+    dispose: () => {
+      document.removeEventListener("error", captureError, true);
+      window.removeEventListener("pagehide", tracker.dispose);
+      if (window.__robysAndroidStylesheetErrors === tracker) {
+        delete window.__robysAndroidStylesheetErrors;
+      }
+    }
+  };
+  // Parser-blocking bootstrap sees resource failures before the dynamically
+  // imported module subscribes after DCL. Weak keys retain no detached links;
+  // the href binding does not carry an old request failure to a new URL.
+  document.addEventListener("error", captureError, true);
+  window.addEventListener("pagehide", tracker.dispose, { once: true });
+  window.__robysAndroidStylesheetErrors = tracker;
+}
+
 function loadAndroidHandoffIfRequested() {
   if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
 
+  const nativeSurface = nativeOwnsHandoffSurface();
+  if (nativeSurface) captureAndroidStylesheetErrors();
   window.__robysAndroidHandoffAborted = false;
   // Bootstrap runs before deferred product scripts; retain the real DOM-ready
   // event even if the handoff module arrives after document parsing finishes.
@@ -89,8 +119,8 @@ function loadAndroidHandoffIfRequested() {
     document.addEventListener("DOMContentLoaded", resolve, { once: true });
   });
   document.documentElement.style.backgroundColor = "#241c1b";
-  const handoff = nativeOwnsHandoffSurface()
-    ? import("./android-native-product-frame.js?v=b3fc17389457")
+  const handoff = nativeSurface
+    ? import("./android-native-product-frame.js?v=d3991aff9c02")
     : import("./android-handoff.js?v=20260808-atomic-v1");
   handoff.catch(revealProductAfterAndroidHandoffFailure);
   return true;

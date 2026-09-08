@@ -1,0 +1,17 @@
+{
+  "schema": "robys.android.readiness-evidence-bundle.v1",
+  "run_id": 34229226048,
+  "source_identity": "6592c51a1bd5812e3ae85ed6c83c53effafc7050",
+  "contains_stylesheet_error_fix": false,
+  "release_ready": false,
+  "files": {
+    "independent-review.json": "a1d1b728377994143f33db9c3a966c9016e3497205d801b75e723a6e724d56a3",
+    "query-native-reveal.sql": "e09924ba5d62f14c355524267907794d9c0ddd01713cc647c455a3f3ed9ab1d4",
+    "query-native-states.sql": "9fc51ab958c77247c3114d51027600a16a2265c62ba937b0567740db98954e92",
+    "query-profile.sql": "aab8f822b5a688a2faf9326ba804ab4bf2df5c4fc34e8df4a55f4c0414343713",
+    "readiness-observation.json": "62850b4d4a8a01ccb588a9982787063bf5f836f409f70efbe3dcc012dd4387aa",
+    "reconstruction-check.json": "26602ef3bac43b34a221aafdca628834fa176c99ec2bc5ee1841b06c4b4f3062",
+    "replay-evidence.py": "1e4aab7c3a367c72e36fb9502f646a59a871427c68362348d55ce08c4d1913bb",
+    "replay-result.json": "8f1f52c765163014f8bcb8f12d723fe88508262a797495cc6609a26368713709"
+  }
+}

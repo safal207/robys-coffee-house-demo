@@ -1,0 +1,3180 @@
+{
+  "run_id": 34229226048,
+  "artifact_id": 10057336521,
+  "artifact_zip_sha256": "cb1bf76457d293f89a16e36b7d272e03b783d55af554c88d9300c54fdfe58b8c",
+  "tooling_sha": "6fc71045afeb77d9683eb615b6496a4419085865",
+  "subject_sha": "6592c51a1bd5812e3ae85ed6c83c53effafc7050",
+  "native_outcome": "VISUAL_STATE_TIMEOUT",
+  "native_pid": 4729,
+  "gpu_tid": 4830,
+  "native_ms": {
+    "NATIVE_SURFACE": 0.0,
+    "WEB_COMMITTED": 2595.3153,
+    "WEB_READY_TIMEOUT": 7011.859794,
+    "VISUAL_STATE_TIMEOUT": 8578.40848
+  },
+  "bounds": [
+    {
+      "start_ts": "181449201521",
+      "end_ts": "241422866211"
+    }
+  ],
+  "window_coverage": [
+    {
+      "label": "before_outcome",
+      "start_ns": "184187513797",
+      "end_ns": "192765922277",
+      "trace_start_ns": "181449201521",
+      "trace_end_ns": "241422866211",
+      "coverage_ok": "1"
+    }
+  ],
+  "post_completion_window": "NOT_APPLICABLE_NO_COMPLETION; not a zero-latency or passing observation",
+  "readiness": {
+    "events": 48,
+    "dropped": 0,
+    "export_roundtrip_ms": 166.067609,
+    "origin_native_ns_interval": [
+      184179871774,
+      184345939383
+    ],
+    "native_request_after_failure_ms": 46655.649497,
+    "aligned_events": [
+      {
+        "phase": "bootstrap",
+        "atMs": 1757.7000000000116,
+        "native_elapsed_ns_interval": [
+          185937571774,
+          186103639383
+        ],
+        "since_native_ms_interval": [
+          1750.057977,
+          1916.125586
+        ]
+      },
+      {
+        "phase": "module-evaluated",
+        "atMs": 2505.2000000000116,
+        "native_elapsed_ns_interval": [
+          186685071774,
+          186851139383
+        ],
+        "since_native_ms_interval": [
+          2497.557977,
+          2663.625586
+        ]
+      },
+      {
+        "phase": "state",
+        "atMs": 2505.399999999994,
+        "detail": "loading",
+        "native_elapsed_ns_interval": [
+          186685271774,
+          186851339383
+        ],
+        "since_native_ms_interval": [
+          2497.757977,
+          2663.825586
+        ]
+      },
+      {
+        "phase": "dom-wait",
+        "atMs": 2505.600000000006,
+        "native_elapsed_ns_interval": [
+          186685471774,
+          186851539383
+        ],
+        "since_native_ms_interval": [
+          2497.957977,
+          2664.025586
+        ]
+      },
+      {
+        "phase": "dom-event",
+        "atMs": 2754.7000000000116,
+        "native_elapsed_ns_interval": [
+          186934571774,
+          187100639383
+        ],
+        "since_native_ms_interval": [
+          2747.057977,
+          2913.125586
+        ]
+      },
+      {
+        "phase": "dom-resumed",
+        "atMs": 2754.8000000000175,
+        "native_elapsed_ns_interval": [
+          186934671774,
+          187100739383
+        ],
+        "since_native_ms_interval": [
+          2747.157977,
+          2913.225586
+        ]
+      },
+      {
+        "phase": "styles-wait",
+        "atMs": 2760.7000000000116,
+        "detail": 16,
+        "native_elapsed_ns_interval": [
+          186940571774,
+          187106639383
+        ],
+        "since_native_ms_interval": [
+          2753.057977,
+          2919.125586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.8000000000175,
+        "detail": "0:https://safal207.github.io/robys-coffee-house-demo/styles-v2.css?v=a4431b07fc04",
+        "native_elapsed_ns_interval": [
+          186940671774,
+          187106739383
+        ],
+        "since_native_ms_interval": [
+          2753.157977,
+          2919.225586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "1:https://safal207.github.io/robys-coffee-house-demo/mobile.css?v=polish-20260621-11",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "2:https://safal207.github.io/robys-coffee-house-demo/conversion.css?v=mobile-menu-20260622-1",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "3:https://safal207.github.io/robys-coffee-house-demo/final-qa.css?v=mobile-menu-20260622-1",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "4:https://safal207.github.io/robys-coffee-house-demo/gallery-clean.css?v=perf-20260621-5",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "5:https://safal207.github.io/robys-coffee-house-demo/map-live.css?v=map-static-20260626-3",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "6:https://safal207.github.io/robys-coffee-house-demo/menu-preview.css?v=mobile-menu-20260622-1",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "7:https://safal207.github.io/robys-coffee-house-demo/featured-strip.css?v=20260625-4",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "8:https://safal207.github.io/robys-coffee-house-demo/featured-gallery.css?v=20260626-5",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "9:https://safal207.github.io/robys-coffee-house-demo/social-offer.css?v=719fa166e650",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "10:https://safal207.github.io/robys-coffee-house-demo/community-reel.css?v=20260626-2",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "11:https://safal207.github.io/robys-coffee-house-demo/brand-photo-logo.css?v=20260726-approved-v4",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "12:https://safal207.github.io/robys-coffee-house-demo/order-shell.css?v=eeb3d8805fe9",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "13:https://safal207.github.io/robys-coffee-house-demo/android-app.css?v=01b7f55a3fdc",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style-pending",
+        "atMs": 2760.899999999994,
+        "detail": 13,
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "14:https://safal207.github.io/robys-coffee-house-demo/hero-balance.css?v=20260622-1",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style-pending",
+        "atMs": 2760.899999999994,
+        "detail": 14,
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 2760.899999999994,
+        "detail": "15:https://safal207.github.io/robys-coffee-house-demo/mobile-install.css?v=platform-install-20260727-1",
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style-pending",
+        "atMs": 2760.899999999994,
+        "detail": 15,
+        "native_elapsed_ns_interval": [
+          186940771774,
+          187106839383
+        ],
+        "since_native_ms_interval": [
+          2753.257977,
+          2919.325586
+        ]
+      },
+      {
+        "phase": "style-loaded",
+        "atMs": 6860,
+        "detail": 13,
+        "native_elapsed_ns_interval": [
+          191039871774,
+          191205939383
+        ],
+        "since_native_ms_interval": [
+          6852.357977,
+          7018.425586
+        ]
+      },
+      {
+        "phase": "style-loaded",
+        "atMs": 6872.5,
+        "detail": 14,
+        "native_elapsed_ns_interval": [
+          191052371774,
+          191218439383
+        ],
+        "since_native_ms_interval": [
+          6864.857977,
+          7030.925586
+        ]
+      },
+      {
+        "phase": "style-loaded",
+        "atMs": 6872.600000000006,
+        "detail": 15,
+        "native_elapsed_ns_interval": [
+          191052471774,
+          191218539383
+        ],
+        "since_native_ms_interval": [
+          6864.957977,
+          7031.025586
+        ]
+      },
+      {
+        "phase": "styles-ready",
+        "atMs": 6872.600000000006,
+        "native_elapsed_ns_interval": [
+          191052471774,
+          191218539383
+        ],
+        "since_native_ms_interval": [
+          6864.957977,
+          7031.025586
+        ]
+      },
+      {
+        "phase": "brand-style-start",
+        "atMs": 6872.600000000006,
+        "native_elapsed_ns_interval": [
+          191052471774,
+          191218539383
+        ],
+        "since_native_ms_interval": [
+          6864.957977,
+          7031.025586
+        ]
+      },
+      {
+        "phase": "brand-style-end",
+        "atMs": 6879.8000000000175,
+        "native_elapsed_ns_interval": [
+          191059671774,
+          191225739383
+        ],
+        "since_native_ms_interval": [
+          6872.157977,
+          7038.225586
+        ]
+      },
+      {
+        "phase": "decode-start",
+        "atMs": 6918.100000000006,
+        "detail": 0,
+        "native_elapsed_ns_interval": [
+          191097971774,
+          191264039383
+        ],
+        "since_native_ms_interval": [
+          6910.457977,
+          7076.525586
+        ]
+      },
+      {
+        "phase": "decode-start",
+        "atMs": 6918.100000000006,
+        "detail": 1,
+        "native_elapsed_ns_interval": [
+          191097971774,
+          191264039383
+        ],
+        "since_native_ms_interval": [
+          6910.457977,
+          7076.525586
+        ]
+      },
+      {
+        "phase": "decode-end",
+        "atMs": 6983.899999999994,
+        "detail": 1,
+        "native_elapsed_ns_interval": [
+          191163771774,
+          191329839383
+        ],
+        "since_native_ms_interval": [
+          6976.257977,
+          7142.325586
+        ]
+      },
+      {
+        "phase": "decode-end",
+        "atMs": 7012.899999999994,
+        "detail": 0,
+        "native_elapsed_ns_interval": [
+          191192771774,
+          191358839383
+        ],
+        "since_native_ms_interval": [
+          7005.257977,
+          7171.325586
+        ]
+      },
+      {
+        "phase": "fonts-wait",
+        "atMs": 7012.899999999994,
+        "native_elapsed_ns_interval": [
+          191192771774,
+          191358839383
+        ],
+        "since_native_ms_interval": [
+          7005.257977,
+          7171.325586
+        ]
+      },
+      {
+        "phase": "fonts-ready",
+        "atMs": 9733,
+        "native_elapsed_ns_interval": [
+          193912871774,
+          194078939383
+        ],
+        "since_native_ms_interval": [
+          9725.357977,
+          9891.425586
+        ]
+      },
+      {
+        "phase": "animations-scan-start",
+        "atMs": 9733,
+        "native_elapsed_ns_interval": [
+          193912871774,
+          194078939383
+        ],
+        "since_native_ms_interval": [
+          9725.357977,
+          9891.425586
+        ]
+      },
+      {
+        "phase": "animations-scan-end",
+        "atMs": 9736.100000000006,
+        "detail": 4,
+        "native_elapsed_ns_interval": [
+          193915971774,
+          194082039383
+        ],
+        "since_native_ms_interval": [
+          9728.457977,
+          9894.525586
+        ]
+      },
+      {
+        "phase": "animations-wait",
+        "atMs": 9736.100000000006,
+        "detail": 4,
+        "native_elapsed_ns_interval": [
+          193915971774,
+          194082039383
+        ],
+        "since_native_ms_interval": [
+          9728.457977,
+          9894.525586
+        ]
+      },
+      {
+        "phase": "animations-ready",
+        "atMs": 9736.200000000012,
+        "native_elapsed_ns_interval": [
+          193916071774,
+          194082139383
+        ],
+        "since_native_ms_interval": [
+          9728.557977,
+          9894.625586
+        ]
+      },
+      {
+        "phase": "raf-wait",
+        "atMs": 9736.200000000012,
+        "native_elapsed_ns_interval": [
+          193916071774,
+          194082139383
+        ],
+        "since_native_ms_interval": [
+          9728.557977,
+          9894.625586
+        ]
+      },
+      {
+        "phase": "raf-1",
+        "atMs": 9737.5,
+        "native_elapsed_ns_interval": [
+          193917371774,
+          194083439383
+        ],
+        "since_native_ms_interval": [
+          9729.857977,
+          9895.925586
+        ]
+      },
+      {
+        "phase": "raf-2",
+        "atMs": 9776,
+        "native_elapsed_ns_interval": [
+          193955871774,
+          194121939383
+        ],
+        "since_native_ms_interval": [
+          9768.357977,
+          9934.425586
+        ]
+      },
+      {
+        "phase": "opacity-start",
+        "atMs": 9776,
+        "native_elapsed_ns_interval": [
+          193955871774,
+          194121939383
+        ],
+        "since_native_ms_interval": [
+          9768.357977,
+          9934.425586
+        ]
+      },
+      {
+        "phase": "opacity-end",
+        "atMs": 9776.100000000006,
+        "native_elapsed_ns_interval": [
+          193955971774,
+          194122039383
+        ],
+        "since_native_ms_interval": [
+          9768.457977,
+          9934.525586
+        ]
+      },
+      {
+        "phase": "state",
+        "atMs": 9776.100000000006,
+        "detail": "ready",
+        "native_elapsed_ns_interval": [
+          193955971774,
+          194122039383
+        ],
+        "since_native_ms_interval": [
+          9768.457977,
+          9934.525586
+        ]
+      }
+    ],
+    "css_delivery": [
+      {
+        "index": 13,
+        "file": "android-app.css",
+        "served_ns": 186909414988,
+        "served_since_native_ms": 2721.901191,
+        "served_to_load_callback_ms_interval": [
+          4130.456786,
+          4296.524395
+        ],
+        "served_log": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200"
+      },
+      {
+        "index": 14,
+        "file": "hero-balance.css",
+        "served_ns": 186960087704,
+        "served_since_native_ms": 2772.573907,
+        "served_to_load_callback_ms_interval": [
+          4092.28407,
+          4258.351679
+        ],
+        "served_log": "SERVED hero-balance.css sha256=a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba status=200"
+      },
+      {
+        "index": 15,
+        "file": "mobile-install.css",
+        "served_ns": 186934239155,
+        "served_since_native_ms": 2746.725358,
+        "served_to_load_callback_ms_interval": [
+          4118.232619,
+          4284.300228
+        ],
+        "served_log": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200"
+      }
+    ],
+    "alignment_limit": "Recorded evaluation bracket only; extrapolation assumes stable same-rate monotonic clocks. No epoch-midpoint or submillisecond JS alignment claim."
+  },
+  "system_stats": [
+    {
+      "name": "android_log_num_total",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "2494",
+      "source": "trace"
+    },
+    {
+      "name": "clock_sync_cache_miss",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "82",
+      "source": "analysis"
+    },
+    {
+      "name": "compact_sched_switch_skipped",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "2",
+      "source": "analysis"
+    },
+    {
+      "name": "compact_sched_waking_skipped",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "8",
+      "source": "analysis"
+    },
+    {
+      "name": "frame_timeline_event_parser_errors",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "2",
+      "source": "analysis"
+    },
+    {
+      "name": "ftrace_cpu_bytes_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "1788",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "-1748",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "556",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "40",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "556",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "36",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "-35",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "9",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "9",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "181706688000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_begin",
+      "idx": "1",
+      "severity": "info",
+      "value": "181706706000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "241420530000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "241420545000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "181705681000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "241362984000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "241418867000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "480483",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "511768",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "480483",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "511768",
+      "source": "trace"
+    },
+    {
+      "name": "guess_trace_type_duration_ns",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1140755",
+      "source": "analysis"
+    },
+    {
+      "name": "parse_trace_duration_ns",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "87291513",
+      "source": "analysis"
+    },
+    {
+      "name": "process_tracker_parent_pid_changed",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1",
+      "source": "analysis"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "0",
+      "severity": "info",
+      "value": "100663296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "1",
+      "severity": "info",
+      "value": "16777216",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "2",
+      "severity": "info",
+      "value": "33554432",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "0",
+      "severity": "info",
+      "value": "25067520",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "1",
+      "severity": "info",
+      "value": "974848",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "2",
+      "severity": "info",
+      "value": "311296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "0",
+      "severity": "info",
+      "value": "25067520",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "1",
+      "severity": "info",
+      "value": "978944",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "2",
+      "severity": "info",
+      "value": "311296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "0",
+      "severity": "info",
+      "value": "765",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "1",
+      "severity": "info",
+      "value": "56",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "2",
+      "severity": "info",
+      "value": "76",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_rewritten",
+      "idx": "2",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "0",
+      "severity": "info",
+      "value": "765",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "1",
+      "severity": "info",
+      "value": "57",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "2",
+      "severity": "info",
+      "value": "76",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "0",
+      "severity": "info",
+      "value": "1740",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "1",
+      "severity": "info",
+      "value": "95",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "2",
+      "severity": "info",
+      "value": "44",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "0",
+      "severity": "info",
+      "value": "587",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "1",
+      "severity": "info",
+      "value": "52",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "2",
+      "severity": "info",
+      "value": "61",
+      "source": "trace"
+    },
+    {
+      "name": "traced_data_sources_registered",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "81",
+      "source": "trace"
+    },
+    {
+      "name": "traced_data_sources_seen",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "6",
+      "source": "trace"
+    },
+    {
+      "name": "traced_final_flush_succeeded",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_flushes_requested",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_flushes_succeeded",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_producers_connected",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "24",
+      "source": "trace"
+    },
+    {
+      "name": "traced_producers_seen",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "25",
+      "source": "trace"
+    },
+    {
+      "name": "traced_total_buffers",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "3",
+      "source": "trace"
+    },
+    {
+      "name": "traced_tracing_sessions",
+      "idx": "[NULL]",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_setup_errors",
+      "idx": "[NULL]",
+      "severity": "notice",
+      "value": "37",
+      "source": "trace"
+    }
+  ],
+  "profile": {
+    "total_samples": 9522,
+    "app_samples": 3943,
+    "other_process_samples": 5579,
+    "gpu_samples": 550,
+    "all_missing_callsite": true,
+    "unwind_error_rows": 0,
+    "verdict": "FUNCTION_ATTRIBUTION_UNAVAILABLE",
+    "scope_limit": "Unwinding scope is not proven by presence of unstacked per-CPU timebase samples. Counter samples outside app alone do not establish collection of outside-app stacks. No stack exists here."
+  },
+  "draw_states": [
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "6747371"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "186671"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "2114131"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "4031555154"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "D",
+      "overlap_ns": "743486"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "12625807"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "93154239"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "1306389800"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "2627689995"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "D",
+      "overlap_ns": "11429995"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "98837293"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "233258460"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "3697076682"
+    },
+    {
+      "draw_id": "73149",
+      "draw_start": "186782018115",
+      "draw_dur": "4040603327",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "897"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "D",
+      "overlap_ns": "196449264"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "33427056"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "25706965"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "11275474"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "40165420"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "97992"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "172241602"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "132820716"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "1863869"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "2367651"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "181686633"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "122840730"
+    },
+    {
+      "draw_id": "87244",
+      "draw_start": "190865978140",
+      "draw_dur": "307024179",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "129165"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "1693441"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "575111"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "2287198"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "1445039650"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "5849153"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "12638479"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "354898363"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "1076209405"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "D",
+      "overlap_ns": "2855054"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "24283974"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "94096941"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "1320363679"
+    },
+    {
+      "draw_id": "87882",
+      "draw_start": "191195963831",
+      "draw_dur": "1449595400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "7995752"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "D",
+      "overlap_ns": "99301786"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "28288574"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "88219377"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "11795869"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "536201993"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "738607"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "178350595"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "78667005"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "506051392"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "9187999"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "161385609"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "593204900"
+    },
+    {
+      "draw_id": "89682",
+      "draw_start": "192664453867",
+      "draw_dur": "763807599",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "29091"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "D",
+      "overlap_ns": "102961"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "556227"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "127695"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "1125808"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "161254900"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "5789813"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "57467243"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "96072131"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "3838404"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "814191"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "111341978"
+    },
+    {
+      "draw_id": "92071",
+      "draw_start": "193448977068",
+      "draw_dur": "163167591",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "51011422"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "860363"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "32447"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "1076320"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "935044270"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "4109865"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "77903221"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "305312157"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "549688157"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "2384082"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "58925360"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "585897541"
+    },
+    {
+      "draw_id": "94331",
+      "draw_start": "193966305308",
+      "draw_dur": "937013400",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "289806417"
+    }
+  ],
+  "draw_samples": [
+    {
+      "draw_id": "73149",
+      "utid": "2624",
+      "tid": "4734",
+      "thread_name": "Jit thread pool",
+      "samples": "17",
+      "missing_callsite": "17",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "73149",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "105",
+      "missing_callsite": "105",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "73149",
+      "utid": "2688",
+      "tid": "4798",
+      "thread_name": "ThreadPoolForeg",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "73149",
+      "utid": "2704",
+      "tid": "4814",
+      "thread_name": "NetworkService",
+      "samples": "2",
+      "missing_callsite": "2",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "73149",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "303",
+      "missing_callsite": "303",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87244",
+      "utid": "2619",
+      "tid": "4729",
+      "thread_name": "ffeehouse.debug",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87244",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "8",
+      "missing_callsite": "8",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87244",
+      "utid": "2692",
+      "tid": "4803",
+      "thread_name": "Chrome_IOThread",
+      "samples": "2",
+      "missing_callsite": "2",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87244",
+      "utid": "2718",
+      "tid": "4828",
+      "thread_name": "VizWebView",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87244",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "10",
+      "missing_callsite": "10",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2624",
+      "tid": "4734",
+      "thread_name": "Jit thread pool",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "29",
+      "missing_callsite": "29",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2688",
+      "tid": "4798",
+      "thread_name": "ThreadPoolForeg",
+      "samples": "2",
+      "missing_callsite": "2",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2689",
+      "tid": "4799",
+      "thread_name": "ThreadPoolForeg",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "104",
+      "missing_callsite": "104",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "87882",
+      "utid": "2816",
+      "tid": "4926",
+      "thread_name": "CodecLooper",
+      "samples": "3",
+      "missing_callsite": "3",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "89682",
+      "utid": "2624",
+      "tid": "4734",
+      "thread_name": "Jit thread pool",
+      "samples": "4",
+      "missing_callsite": "4",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "89682",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "7",
+      "missing_callsite": "7",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "89682",
+      "utid": "2688",
+      "tid": "4798",
+      "thread_name": "ThreadPoolForeg",
+      "samples": "5",
+      "missing_callsite": "5",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "89682",
+      "utid": "2718",
+      "tid": "4828",
+      "thread_name": "VizWebView",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "89682",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "46",
+      "missing_callsite": "46",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "92071",
+      "utid": "2625",
+      "tid": "4735",
+      "thread_name": "HeapTaskDaemon",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "92071",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "7",
+      "missing_callsite": "7",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "92071",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "4",
+      "missing_callsite": "4",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "94331",
+      "utid": "2660",
+      "tid": "4770",
+      "thread_name": "RenderThread",
+      "samples": "24",
+      "missing_callsite": "24",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "94331",
+      "utid": "2720",
+      "tid": "4830",
+      "thread_name": "Chrome_InProcGp",
+      "samples": "47",
+      "missing_callsite": "47",
+      "unwind_errors": "0"
+    },
+    {
+      "draw_id": "94331",
+      "utid": "2820",
+      "tid": "4930",
+      "thread_name": "HwBinder:4729_1",
+      "samples": "1",
+      "missing_callsite": "1",
+      "unwind_errors": "0"
+    }
+  ],
+  "internal_clock_support": {
+    "max_abs_mono_minus_boot_ns": 214,
+    "nested_draw_markers": [
+      {
+        "window": "draw4041",
+        "internal_index": 9895,
+        "internal_start_minus_system_start_ns": 885,
+        "internal_end_minus_system_end_ns": -20442
+      },
+      {
+        "window": "draw1450",
+        "internal_index": 16225,
+        "internal_start_minus_system_start_ns": 2169,
+        "internal_end_minus_system_end_ns": -14231
+      },
+      {
+        "window": "draw764",
+        "internal_index": 17057,
+        "internal_start_minus_system_start_ns": 2133,
+        "internal_end_minus_system_end_ns": -18466
+      }
+    ],
+    "limit": "Matching nested draw boundaries support current trace correspondence; different trace names are not independent physical presentation markers."
+  },
+  "internal_coverage": {
+    "first_actual_event_ns": 184334077000,
+    "last_actual_event_timestamp_ns": 219380090000,
+    "last_completed_event_end_ns": 219380079000,
+    "observer_byte_count_matches": true,
+    "boundary": "A closed stream and event endpoints do not prove a buffer never filled or every category was active. RECORD_UNTIL_FULL, incomplete spans, redacted metadata and external parser warnings must remain visible. Absence is not exclusion."
+  },
+  "internal_incomplete_begins": 12,
+  "raster_tail_windows": [
+    {
+      "window": "draw4041",
+      "intervals": [
+        [
+          187382078000,
+          187417838000
+        ],
+        [
+          187418663000,
+          187418825000
+        ],
+        [
+          187420844000,
+          187420987000
+        ],
+        [
+          187423747000,
+          187453807000
+        ],
+        [
+          187454585000,
+          187454902000
+        ],
+        [
+          187911564000,
+          187953735000
+        ],
+        [
+          188146116000,
+          188183250000
+        ],
+        [
+          188184453000,
+          188186451000
+        ],
+        [
+          188192537000,
+          188225211000
+        ],
+        [
+          188226937000,
+          188229936000
+        ],
+        [
+          188230831000,
+          188231138000
+        ],
+        [
+          188308797000,
+          188351214000
+        ],
+        [
+          188893736000,
+          188965796000
+        ],
+        [
+          188970071000,
+          189121054000
+        ],
+        [
+          189122797000,
+          189268486000
+        ],
+        [
+          189270001000,
+          189420952000
+        ],
+        [
+          189604497000,
+          189740249000
+        ],
+        [
+          189741925000,
+          189899434000
+        ],
+        [
+          189904843000,
+          190034808000
+        ],
+        [
+          190037341000,
+          190187923000
+        ],
+        [
+          190439930000,
+          190473910000
+        ],
+        [
+          190571701000,
+          190572258000
+        ],
+        [
+          190573252000,
+          190573399000
+        ],
+        [
+          190574453000,
+          190822186000
+        ]
+      ],
+      "union_ns": 1602050000,
+      "gpu_samples": 126,
+      "gpu_samples_with_callsite": 0
+    },
+    {
+      "window": "draw1450",
+      "intervals": [
+        [
+          191210322000,
+          191381332000
+        ],
+        [
+          191386931000,
+          191413756000
+        ],
+        [
+          191417538000,
+          191425376000
+        ],
+        [
+          191436112000,
+          191589278000
+        ],
+        [
+          191596333000,
+          191603388000
+        ],
+        [
+          191610550000,
+          191611478000
+        ],
+        [
+          191613583000,
+          191619540000
+        ],
+        [
+          191625092000,
+          191637014000
+        ],
+        [
+          191638806000,
+          191646418000
+        ],
+        [
+          191647111000,
+          191776251000
+        ],
+        [
+          191792801000,
+          191837450000
+        ],
+        [
+          191838869000,
+          191853119000
+        ],
+        [
+          191854121000,
+          191981756000
+        ],
+        [
+          191986003000,
+          191996518000
+        ],
+        [
+          191997431000,
+          192137421000
+        ],
+        [
+          192144688000,
+          192280392000
+        ],
+        [
+          192285577000,
+          192285853000
+        ],
+        [
+          192286185000,
+          192286702000
+        ],
+        [
+          192386097000,
+          192574964000
+        ],
+        [
+          192632206000,
+          192632546000
+        ],
+        [
+          192633639000,
+          192641912000
+        ]
+      ],
+      "union_ns": 1192469000,
+      "gpu_samples": 86,
+      "gpu_samples_with_callsite": 0
+    },
+    {
+      "window": "draw764",
+      "intervals": [
+        [
+          192664453867,
+          192873698000
+        ],
+        [
+          192947945000,
+          193056271000
+        ],
+        [
+          193057622000,
+          193061147000
+        ],
+        [
+          193062357000,
+          193216498000
+        ],
+        [
+          193219345000,
+          193223359000
+        ],
+        [
+          193224313000,
+          193370434000
+        ],
+        [
+          193373264000,
+          193385162000
+        ]
+      ],
+      "union_ns": 637269133,
+      "gpu_samples": 38,
+      "gpu_samples_with_callsite": 0
+    }
+  ],
+  "internal_windows": [
+    {
+      "label": "before_outcome",
+      "start_ns": 184187513797,
+      "end_ns": 192765922277,
+      "families_kept_separate": [
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "overlapping_count": 3,
+          "fully_inside_count": 3,
+          "clipped_union_ns": 3619886000,
+          "longest_inclusive_event_ns": 2543966000,
+          "full_event_thread_cpu_sum_ns": 297000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "shader_compile",
+          "overlapping_count": 9,
+          "fully_inside_count": 9,
+          "clipped_union_ns": 1385908000,
+          "longest_inclusive_event_ns": 628702000,
+          "full_event_thread_cpu_sum_ns": 1082999000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "cache_miss",
+          "overlapping_count": 9,
+          "fully_inside_count": 9,
+          "clipped_union_ns": 670436000,
+          "longest_inclusive_event_ns": 433208000,
+          "full_event_thread_cpu_sum_ns": 446423000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 18,
+          "fully_inside_count": 18,
+          "clipped_union_ns": 324818000,
+          "longest_inclusive_event_ns": 294884000,
+          "full_event_thread_cpu_sum_ns": 202408000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_link_program",
+          "overlapping_count": 9,
+          "fully_inside_count": 9,
+          "clipped_union_ns": 341807000,
+          "longest_inclusive_event_ns": 191713000,
+          "full_event_thread_cpu_sum_ns": 240988000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 18,
+          "fully_inside_count": 18,
+          "clipped_union_ns": 2231000,
+          "longest_inclusive_event_ns": 361000,
+          "full_event_thread_cpu_sum_ns": 1953000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 18,
+          "fully_inside_count": 18,
+          "clipped_union_ns": 766000,
+          "longest_inclusive_event_ns": 112000,
+          "full_event_thread_cpu_sum_ns": 620000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4828,
+          "thread_name": "VizWebView",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 17385000,
+          "longest_inclusive_event_ns": 17300000,
+          "full_event_thread_cpu_sum_ns": 1697000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "Scheduler::RunNextTask",
+          "overlapping_count": 126,
+          "fully_inside_count": 125,
+          "clipped_union_ns": 5945397277,
+          "longest_inclusive_event_ns": 1103815000,
+          "full_event_thread_cpu_sum_ns": 4423647000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "overlapping_count": 53,
+          "fully_inside_count": 52,
+          "clipped_union_ns": 5244906277,
+          "longest_inclusive_event_ns": 582417000,
+          "full_event_thread_cpu_sum_ns": 4114737000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "overlapping_count": 53,
+          "fully_inside_count": 53,
+          "clipped_union_ns": 2070712000,
+          "longest_inclusive_event_ns": 546655000,
+          "full_event_thread_cpu_sum_ns": 1748017000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "shader_compile",
+          "overlapping_count": 36,
+          "fully_inside_count": 36,
+          "clipped_union_ns": 1825252000,
+          "longest_inclusive_event_ns": 147972000,
+          "full_event_thread_cpu_sum_ns": 1568632000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "cache_miss",
+          "overlapping_count": 36,
+          "fully_inside_count": 36,
+          "clipped_union_ns": 292022000,
+          "longest_inclusive_event_ns": 92638000,
+          "full_event_thread_cpu_sum_ns": 213168000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 74,
+          "fully_inside_count": 74,
+          "clipped_union_ns": 136705000,
+          "longest_inclusive_event_ns": 26360000,
+          "full_event_thread_cpu_sum_ns": 79609000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_link_program",
+          "overlapping_count": 36,
+          "fully_inside_count": 36,
+          "clipped_union_ns": 132901000,
+          "longest_inclusive_event_ns": 82304000,
+          "full_event_thread_cpu_sum_ns": 120643000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 84,
+          "fully_inside_count": 84,
+          "clipped_union_ns": 18670000,
+          "longest_inclusive_event_ns": 8616000,
+          "full_event_thread_cpu_sum_ns": 10181000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 74,
+          "fully_inside_count": 74,
+          "clipped_union_ns": 2677000,
+          "longest_inclusive_event_ns": 142000,
+          "full_event_thread_cpu_sum_ns": 2481000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        }
+      ]
+    },
+    {
+      "label": "draw4041",
+      "start_ns": 186782018115,
+      "end_ns": 190822621442,
+      "families_kept_separate": [
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "overlapping_count": 1,
+          "fully_inside_count": 1,
+          "clipped_union_ns": 2543966000,
+          "longest_inclusive_event_ns": 2543966000,
+          "full_event_thread_cpu_sum_ns": 116000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "shader_compile",
+          "overlapping_count": 7,
+          "fully_inside_count": 7,
+          "clipped_union_ns": 1095593000,
+          "longest_inclusive_event_ns": 628702000,
+          "full_event_thread_cpu_sum_ns": 826930000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "cache_miss",
+          "overlapping_count": 7,
+          "fully_inside_count": 7,
+          "clipped_union_ns": 460884000,
+          "longest_inclusive_event_ns": 433208000,
+          "full_event_thread_cpu_sum_ns": 268686000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 14,
+          "fully_inside_count": 14,
+          "clipped_union_ns": 311851000,
+          "longest_inclusive_event_ns": 294884000,
+          "full_event_thread_cpu_sum_ns": 195945000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_link_program",
+          "overlapping_count": 7,
+          "fully_inside_count": 7,
+          "clipped_union_ns": 145798000,
+          "longest_inclusive_event_ns": 136668000,
+          "full_event_thread_cpu_sum_ns": 70228000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 14,
+          "fully_inside_count": 14,
+          "clipped_union_ns": 1946000,
+          "longest_inclusive_event_ns": 361000,
+          "full_event_thread_cpu_sum_ns": 1673000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 14,
+          "fully_inside_count": 14,
+          "clipped_union_ns": 615000,
+          "longest_inclusive_event_ns": 112000,
+          "full_event_thread_cpu_sum_ns": 473000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4828,
+          "thread_name": "VizWebView",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 17385000,
+          "longest_inclusive_event_ns": 17300000,
+          "full_event_thread_cpu_sum_ns": 1697000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "Scheduler::RunNextTask",
+          "overlapping_count": 57,
+          "fully_inside_count": 56,
+          "clipped_union_ns": 4024277442,
+          "longest_inclusive_event_ns": 615666000,
+          "full_event_thread_cpu_sum_ns": 3498226000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "overlapping_count": 24,
+          "fully_inside_count": 24,
+          "clipped_union_ns": 3439524000,
+          "longest_inclusive_event_ns": 582417000,
+          "full_event_thread_cpu_sum_ns": 2974512000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "overlapping_count": 24,
+          "fully_inside_count": 24,
+          "clipped_union_ns": 1837426000,
+          "longest_inclusive_event_ns": 546655000,
+          "full_event_thread_cpu_sum_ns": 1567397000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "shader_compile",
+          "overlapping_count": 33,
+          "fully_inside_count": 33,
+          "clipped_union_ns": 1684395000,
+          "longest_inclusive_event_ns": 147972000,
+          "full_event_thread_cpu_sum_ns": 1461580000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "cache_miss",
+          "overlapping_count": 33,
+          "fully_inside_count": 33,
+          "clipped_union_ns": 165284000,
+          "longest_inclusive_event_ns": 43835000,
+          "full_event_thread_cpu_sum_ns": 117529000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 68,
+          "fully_inside_count": 68,
+          "clipped_union_ns": 97290000,
+          "longest_inclusive_event_ns": 24643000,
+          "full_event_thread_cpu_sum_ns": 65530000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_link_program",
+          "overlapping_count": 33,
+          "fully_inside_count": 33,
+          "clipped_union_ns": 47222000,
+          "longest_inclusive_event_ns": 3577000,
+          "full_event_thread_cpu_sum_ns": 40276000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 77,
+          "fully_inside_count": 77,
+          "clipped_union_ns": 17423000,
+          "longest_inclusive_event_ns": 8616000,
+          "full_event_thread_cpu_sum_ns": 9288000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 68,
+          "fully_inside_count": 68,
+          "clipped_union_ns": 2352000,
+          "longest_inclusive_event_ns": 87000,
+          "full_event_thread_cpu_sum_ns": 2262000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        }
+      ]
+    },
+    {
+      "label": "draw1450",
+      "start_ns": 191195963831,
+      "end_ns": 192645559231,
+      "families_kept_separate": [
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 1075920000,
+          "longest_inclusive_event_ns": 846980000,
+          "full_event_thread_cpu_sum_ns": 181000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "shader_compile",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 290315000,
+          "longest_inclusive_event_ns": 272325000,
+          "full_event_thread_cpu_sum_ns": 256069000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "cache_miss",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 209552000,
+          "longest_inclusive_event_ns": 193399000,
+          "full_event_thread_cpu_sum_ns": 177737000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 12967000,
+          "longest_inclusive_event_ns": 7998000,
+          "full_event_thread_cpu_sum_ns": 6463000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "driver_link_program",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 196009000,
+          "longest_inclusive_event_ns": 191713000,
+          "full_event_thread_cpu_sum_ns": 170760000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 285000,
+          "longest_inclusive_event_ns": 100000,
+          "full_event_thread_cpu_sum_ns": 280000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 151000,
+          "longest_inclusive_event_ns": 79000,
+          "full_event_thread_cpu_sum_ns": 147000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "Scheduler::RunNextTask",
+          "overlapping_count": 41,
+          "fully_inside_count": 39,
+          "clipped_union_ns": 1443807400,
+          "longest_inclusive_event_ns": 1103815000,
+          "full_event_thread_cpu_sum_ns": 778070000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "overlapping_count": 21,
+          "fully_inside_count": 21,
+          "clipped_union_ns": 1385059000,
+          "longest_inclusive_event_ns": 287420000,
+          "full_event_thread_cpu_sum_ns": 1017342000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "overlapping_count": 21,
+          "fully_inside_count": 21,
+          "clipped_union_ns": 192557000,
+          "longest_inclusive_event_ns": 98552000,
+          "full_event_thread_cpu_sum_ns": 165315000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "shader_compile",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 109816000,
+          "longest_inclusive_event_ns": 96952000,
+          "full_event_thread_cpu_sum_ns": 97339000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "cache_miss",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 97194000,
+          "longest_inclusive_event_ns": 92638000,
+          "full_event_thread_cpu_sum_ns": 87414000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 12360000,
+          "longest_inclusive_event_ns": 9340000,
+          "full_event_thread_cpu_sum_ns": 7178000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_link_program",
+          "overlapping_count": 2,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 83980000,
+          "longest_inclusive_event_ns": 82304000,
+          "full_event_thread_cpu_sum_ns": 79429000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 5,
+          "fully_inside_count": 5,
+          "clipped_union_ns": 735000,
+          "longest_inclusive_event_ns": 242000,
+          "full_event_thread_cpu_sum_ns": 695000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 142000,
+          "longest_inclusive_event_ns": 48000,
+          "full_event_thread_cpu_sum_ns": 137000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        }
+      ]
+    },
+    {
+      "label": "draw764",
+      "start_ns": 192664453867,
+      "end_ns": 193428261466,
+      "families_kept_separate": [
+        {
+          "pid": 4729,
+          "tid": 4770,
+          "thread_name": "RenderThread",
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "overlapping_count": 1,
+          "fully_inside_count": 1,
+          "clipped_union_ns": 476159000,
+          "longest_inclusive_event_ns": 476159000,
+          "full_event_thread_cpu_sum_ns": 96000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "Scheduler::RunNextTask",
+          "overlapping_count": 4,
+          "fully_inside_count": 2,
+          "clipped_union_ns": 763479599,
+          "longest_inclusive_event_ns": 1103815000,
+          "full_event_thread_cpu_sum_ns": 209000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "overlapping_count": 8,
+          "fully_inside_count": 6,
+          "clipped_union_ns": 726472599,
+          "longest_inclusive_event_ns": 209757000,
+          "full_event_thread_cpu_sum_ns": 385823000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "overlapping_count": 7,
+          "fully_inside_count": 6,
+          "clipped_union_ns": 89191466,
+          "longest_inclusive_event_ns": 66352000,
+          "full_event_thread_cpu_sum_ns": 47723000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "shader_compile",
+          "overlapping_count": 2,
+          "fully_inside_count": 1,
+          "clipped_union_ns": 84079466,
+          "longest_inclusive_event_ns": 65119000,
+          "full_event_thread_cpu_sum_ns": 44532000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "cache_miss",
+          "overlapping_count": 2,
+          "fully_inside_count": 1,
+          "clipped_union_ns": 50430466,
+          "longest_inclusive_event_ns": 47617000,
+          "full_event_thread_cpu_sum_ns": 40461000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_compile_shader",
+          "overlapping_count": 4,
+          "fully_inside_count": 3,
+          "clipped_union_ns": 41098466,
+          "longest_inclusive_event_ns": 37673000,
+          "full_event_thread_cpu_sum_ns": 39389000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "driver_link_program",
+          "overlapping_count": 1,
+          "fully_inside_count": 1,
+          "clipped_union_ns": 6741000,
+          "longest_inclusive_event_ns": 6741000,
+          "full_event_thread_cpu_sum_ns": 2206000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::Compiler::convertProgram",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 1431000,
+          "longest_inclusive_event_ns": 692000,
+          "full_event_thread_cpu_sum_ns": 955000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        },
+        {
+          "pid": 4729,
+          "tid": 4830,
+          "thread_name": "Chrome_InProcGpuThread",
+          "name": "SkSL::ToGLSL",
+          "overlapping_count": 4,
+          "fully_inside_count": 4,
+          "clipped_union_ns": 990000,
+          "longest_inclusive_event_ns": 813000,
+          "full_event_thread_cpu_sum_ns": 230000,
+          "full_event_same_family_intervals_nonoverlapping": true
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No function attribution from absent callstacks; no exclusive cause or DOM ownership.",
+    "RenderThread and GPU intervals overlap and must not be summed. Wall duration is not CPU time.",
+    "SERVED logs precede returned response consumption and do not measure completed renderer receipt/parse/load.",
+    "Stylesheet/font readiness are observed barriers, not evidence of network/font-download delay.",
+    "Ftrace setup37 notices remain visible despite zero nonzero severity error/data_loss rows.",
+    "Internal RECORD_UNTIL_FULL has12 open B records; do not infer complete category coverage from closed JSON.",
+    "One instrumented emulator launch is neither stable timing effect nor physical-device/pixel certification."
+  ],
+  "inputs_sha256": {
+    "/workspace/scratch/db10ec9a4286/readiness-observation-34229226048/trace-evidence/launch.pftrace": "212148345b9c586528e7356728174e53c298a87f342e520925fb087f051358b0",
+    "/workspace/scratch/db10ec9a4286/readiness-observation-34229226048/rendering-evidence/rendering-trace.json": "8e641128606f475340e115e55081fbf9cd82760150947dd9363cf056de1924f8",
+    "/workspace/scratch/db10ec9a4286/readiness-observation-34229226048/readiness-evidence/readiness-observation.json": "62850b4d4a8a01ccb588a9982787063bf5f836f409f70efbe3dcc012dd4387aa",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/profile.sql": "aab8f822b5a688a2faf9326ba804ab4bf2df5c4fc34e8df4a55f4c0414343713",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/profile.csv": "44d5a35ba66c30283d0b950e353fa2980055939fe4ad34caaf754eec9429e01a",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/trace-extra-bounded.sql": "9fc51ab958c77247c3114d51027600a16a2265c62ba937b0567740db98954e92",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/trace-extra-bounded.csv": "ef06b688b9c4021d158530fba8d9c938d7a90ca3d69750f77bcd0f3ba722a1c9",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/reveal.csv": "015a69141070ca587cf774f608626f9c5a96c081c2c4d6fc559d0534766d4589",
+    "/workspace/scratch/db10ec9a4286/readiness-trace-review/internal.json": "daece452c76ea7ffe5fc6c670a90d32502b62cbbdc5ac6c4982bf0188e9b67b1"
+  }
+}

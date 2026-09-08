@@ -30,7 +30,7 @@ async function settle() {
 }
 
 function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = false,
-  aborted = false, capturedDom = true, background = `url("${brandUrl}")` } = {}) {
+  aborted = false, capturedDom = true, moduleFailure = false, background = `url("${brandUrl}")` } = {}) {
   let time = 0;
   let sequence = 0;
   const timers = new Map(), frames = new Map(), images = [], animations = [], events = [], heroAnimations = [], imports = [];
@@ -39,18 +39,25 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     listeners = new Map();
     addEventListener(type, callback, options = {}) {
       const listeners = this.listeners.get(type) ?? [];
-      listeners.push({ callback, once: options.once });
+      listeners.push({ callback, once: options.once, capture: options === true || options.capture === true });
       this.listeners.set(type, listeners);
     }
     removeEventListener(type, callback) {
       this.listeners.set(type, (this.listeners.get(type) ?? []).filter(item => item.callback !== callback));
     }
     dispatchEvent(event) {
+      event.target ??= this;
       for (const item of [...(this.listeners.get(event.type) ?? [])]) {
         if (item.once) this.removeEventListener(event.type, item.callback);
         item.callback(event);
       }
       return true;
+    }
+    dispatchCapturedEvent(event) {
+      for (const item of [...(this.listeners.get(event.type) ?? [])].filter(item => item.capture)) {
+        if (item.once) this.removeEventListener(event.type, item.callback);
+        item.callback(event);
+      }
     }
   }
   const schedule = (callback, duration) => {
@@ -59,7 +66,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     return id;
   };
   class Element extends Target {
-    constructor(tag) { super(); this.tag = tag; }
+    constructor(tag) { super(); this.tag = tag; this.tagName = tag.toUpperCase(); }
     children = [];
     style = {};
     dataset = {};
@@ -149,6 +156,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     loadFixtureModule(specifier) {
       imports.push(specifier);
       return Promise.resolve().then(() => {
+        if (moduleFailure) throw new Error("Fixture module transport unavailable");
         const path = specifier.split("?")[0];
         assert.ok(path === nativeModulePath || specifier === legacyModuleSpecifier,
           `Unexpected handoff import: ${specifier}`);
@@ -186,6 +194,15 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     await settle();
   };
   const loadStyle = link => { link.sheet = { cssRules: [] }; link.dispatchEvent({ type: "load" }); };
+  // Resource errors do not bubble; exercise the document capture listener
+  // before dispatching to the target's own listeners, without browser I/O.
+  const failResource = target => {
+    const event = { type: "error", target };
+    document.dispatchCapturedEvent(event);
+    target.dispatchEvent(event);
+  };
+  const captureListeners = () => (document.listeners.get("error") ?? []).filter(item => item.capture).length;
+  const abort = () => vm.runInContext("revealProductAfterAndroidHandoffFailure()", context);
   const readyDependencies = async () => {
     dom.resolve(); await settle();
     for (const link of styles) loadStyle(link);
@@ -204,9 +221,120 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   };
   return { root, document, window, hero, brand, dom, fonts, styles, heroStyle, stylesheet,
     heroContent, heading, actions, heroAnimations, addHeroAnimation,
-    images, animations, events, frames, timers, imports, requested, tick, frame, loadStyle, readyDependencies,
+    images, animations, events, frames, timers, imports, requested, tick, frame, loadStyle, failResource,
+    captureListeners, abort, readyDependencies,
     overlay: () => root.querySelector(".robys-android-handoff"), states: () => events.map(event => event.state) };
 }
+
+for (const moduleStarted of [false, true]) {
+  test(`stylesheet error before DOM readiness is retained when module started=${moduleStarted}`, async () => {
+    const h = harness();
+    if (moduleStarted) await settle();
+    h.failResource(h.heroStyle);
+    h.dom.resolve(); await settle();
+    assert.deepEqual(h.states(), ["loading", "done"], "A spent stylesheet error must fail preparation instead of waiting forever");
+    assert.equal(h.window.__robysAndroidHandoffRelease, undefined);
+    assert.equal(h.captureListeners(), 0);
+    assert.equal(h.images.length, 0, "Missing required styling must not advance to product assets");
+    assert.equal(h.frames.size, 0);
+    assert.equal(h.timers.size, 0, "Failure recovery must not introduce a timeout");
+  });
+}
+
+test("only native entry captures stylesheet errors, without scheduling work", async () => {
+  const native = harness();
+  assert.equal(native.captureListeners(), 1);
+  assert.equal(native.timers.size, 0);
+  assert.equal(native.frames.size, 0);
+  for (const search of ["?entry=android-handoff", "?entry=android-handoff&handoff-gen=0", "?entry=day"]) {
+    const browser = harness({ search });
+    assert.equal(browser.captureListeners(), 0, "Browser routes must not install native resource capture");
+    await settle();
+    assert.equal(browser.captureListeners(), 0);
+  }
+  native.abort();
+  assert.equal(native.captureListeners(), 0);
+});
+
+test("stylesheet failure after subscription also disposes early capture", async () => {
+  const h = harness(); h.dom.resolve(); await settle();
+  assert.equal(h.captureListeners(), 1);
+  h.failResource(h.heroStyle); await settle();
+  assert.deepEqual(h.states(), ["loading", "done"]);
+  assert.equal(h.captureListeners(), 0);
+  assert.equal(h.window.__robysAndroidStylesheetErrors, undefined);
+});
+
+test("non-stylesheet and inactive stylesheet failures do not reject healthy required styling", async () => {
+  const h = harness();
+  const disabled = h.stylesheet("disabled.css"); disabled.disabled = true;
+  const print = h.stylesheet("print.css"); print.media = "not all";
+  h.styles.push(disabled, print);
+  const preload = h.document.createElement("link"); preload.rel = "preload"; preload.href = h.heroStyle.href;
+  for (const target of [disabled, print, preload, h.document.createElement("img")]) h.failResource(target);
+  h.dom.resolve(); await settle();
+  h.loadStyle(h.heroStyle); await settle();
+  assert.equal(h.captureListeners(), 0, "Capture ends when required styles settle");
+  for (const image of h.images) image.decoded.resolve();
+  h.fonts.resolve(); await settle(); await h.frame(); await h.frame();
+  assert.deepEqual(h.states(), ["loading", "ready"]);
+  assert.equal(disabled.sheet, null);
+  assert.equal(print.sheet, null);
+});
+
+test("a stylesheet recovered before discovery is accepted despite its earlier error", async () => {
+  const h = harness();
+  h.failResource(h.heroStyle);
+  h.loadStyle(h.heroStyle);
+  await h.readyDependencies(); await h.frame(); await h.frame();
+  assert.deepEqual(h.states(), ["loading", "ready"]);
+  assert.equal(h.captureListeners(), 0);
+  assert.equal(h.window.__robysAndroidStylesheetErrors, undefined);
+});
+
+test("an old URL failure does not reject a pending replacement URL on the same stylesheet link", async () => {
+  const h = harness();
+  h.failResource(h.heroStyle);
+  h.heroStyle.href = "hero-balance.css?v=recovered";
+  h.dom.resolve(); await settle();
+  assert.deepEqual(h.states(), ["loading"], "A replacement request must remain pending until it settles");
+  await h.readyDependencies(); await h.frame(); await h.frame();
+  assert.deepEqual(h.states(), ["loading", "ready"]);
+  assert.equal(h.captureListeners(), 0);
+});
+
+for (const action of ["release", "abort"]) {
+  test(`${action} before DOM readiness disposes capture and cannot revive readiness`, async () => {
+    const h = harness(); await settle();
+    assert.equal(h.captureListeners(), 1);
+    if (action === "release") h.window.__robysAndroidHandoffRelease();
+    else h.abort();
+    const completedStates = h.states();
+    assert.equal(h.captureListeners(), 0);
+    assert.equal(h.window.__robysAndroidStylesheetErrors, undefined);
+    h.failResource(h.heroStyle);
+    await h.readyDependencies(); await h.frame(); await h.frame();
+    assert.deepEqual(h.states(), completedStates);
+    assert.equal(h.window.__robysAndroidHandoffRelease, undefined);
+    assert.equal(h.captureListeners(), 0);
+  });
+}
+
+test("import failure, an already aborted module and page exit dispose capture", async () => {
+  for (const options of [{ moduleFailure: true }, { aborted: true }]) {
+    const h = harness(options); await settle();
+    assert.equal(h.captureListeners(), 0);
+    assert.equal(h.window.__robysAndroidStylesheetErrors, undefined);
+    assert.ok(!h.states().includes("ready"));
+  }
+  const h = harness();
+  assert.equal(h.captureListeners(), 1);
+  h.window.dispatchEvent({ type: "pagehide" });
+  assert.equal(h.captureListeners(), 0);
+  assert.equal(h.window.__robysAndroidStylesheetErrors, undefined);
+  assert.equal((h.window.listeners.get("pagehide") ?? []).length, 0);
+  h.abort();
+});
 
 for (const generation of ["1", "2147483647"]) {
   test(`positive native generation ${generation} prepares product beneath the native cover`, async () => {

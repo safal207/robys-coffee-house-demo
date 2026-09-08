@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "raw_stdout_sha256": "ca378345de8b37e2a34b0a043bb725618c70ba50f42ae8065a2da191bf9f5f0d",
+  "stdout": "✔ stylesheet error before DOM readiness is retained when module started=false (4.786759ms)\n✔ stylesheet error before DOM readiness is retained when module started=true (2.398778ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 306.299583\n"
+}

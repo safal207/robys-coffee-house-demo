@@ -1,0 +1,21 @@
+{
+  "parent_sha": "c9a9d9c5feeb35d8b6077485b537ab3b60f62b67",
+  "scope": "Local source validation; no native launch verdict",
+  "commands": [
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "log_sha256": "8597c0446440c9b3ef8366a1190d0d6690439055ebd6ecc802afbce76a12773d"
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "log_sha256": "9d8257b58331a13fb1d56b1e515a91fbab2fcdd1fa1e8782e938b999c5c17ba5"
+    },
+    {
+      "command": "npm run verify:security",
+      "exit_code": 0,
+      "log_sha256": "29f8e46471cfcae808cde54603fe56ef702f91cf30f2a304538173818700b3a2"
+    }
+  ]
+}

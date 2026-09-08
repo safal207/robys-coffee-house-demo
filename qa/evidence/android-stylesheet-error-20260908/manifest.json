@@ -1,0 +1,33 @@
+{
+  "old_commit": "c9a9d9c5feeb35d8b6077485b537ab3b60f62b67",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=stylesheet error before DOM",
+    "scripts/test-android-product-frame.mjs"
+  ],
+  "arms": {
+    "old": {
+      "exit_code": 1,
+      "files": {
+        "bootstrap-v2.js": "63411e8b1666f7f81a85d02998b23102bd0419383f14228eca0149001dd03831",
+        "android-native-product-frame.js": "b3fc17389457337e465cb93223907b2d6f2f4b98add0a2925176a80c9927f71f",
+        "android-handoff.js": "451f55e218906204d2496762ce9944f2239e66555f750e930fddd067af9a838f",
+        "scripts/test-android-product-frame.mjs": "95f313b442257591d2e5a1dfe93469de62fc3dac2c3ebf5e2e4fe18fde52c360"
+      },
+      "stdout_json": "old.stdout.json",
+      "raw_stdout_sha256": "1855ee7c60dc41d87de17186cabb1ed4a63c34336b3c254b9722983248c61364"
+    },
+    "fixed": {
+      "exit_code": 0,
+      "files": {
+        "bootstrap-v2.js": "e53fea824a1798c25a44869f3e0fc32a10b79301919d0f2500a4aa303422f76c",
+        "android-native-product-frame.js": "d3991aff9c024ee23b054931cf5d58ec9ee2f0c30c233b6cb9a215d1864c4046",
+        "android-handoff.js": "451f55e218906204d2496762ce9944f2239e66555f750e930fddd067af9a838f",
+        "scripts/test-android-product-frame.mjs": "95f313b442257591d2e5a1dfe93469de62fc3dac2c3ebf5e2e4fe18fde52c360"
+      },
+      "stdout_json": "fixed.stdout.json",
+      "raw_stdout_sha256": "ca378345de8b37e2a34b0a043bb725618c70ba50f42ae8065a2da191bf9f5f0d"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "replay": "PASS",
+  "run_id": 34229226048,
+  "native_outcome": "VISUAL_STATE_TIMEOUT",
+  "prepared_files": 26,
+  "tool_files": 19,
+  "readiness_events": 48,
+  "profile_samples": 9522,
+  "gpu_samples": 550,
+  "function_attribution": "UNAVAILABLE_NO_CALLSITES",
+  "boundary": "Evidence replay only; native failure, missing function attribution and release limits remain unchanged."
+}

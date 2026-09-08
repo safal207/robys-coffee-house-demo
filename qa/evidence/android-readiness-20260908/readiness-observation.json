@@ -1,0 +1,251 @@
+{
+  "schema": "robys.android.readiness-export.v1",
+  "state": "captured",
+  "export_after_ms": 55000,
+  "start_elapsed_ns": 184174062695,
+  "start_uptime_ms": 184174,
+  "start_wall_ms": 1788872743721,
+  "request_elapsed_ns": 239421571774,
+  "request_uptime_ms": 239421,
+  "request_wall_ms": 1788872798969,
+  "callback_elapsed_ns": 239587639383,
+  "written_elapsed_ns": 239719903041,
+  "written_uptime_ms": 239719,
+  "written_wall_ms": 1788872799267,
+  "payload": {
+    "snapshot": {
+      "schema": "robys.android.readiness.v1",
+      "timeOriginMs": 1.7888727437362E12,
+      "events": [
+        {
+          "phase": "bootstrap",
+          "atMs": 1757.7000000000116
+        },
+        {
+          "phase": "module-evaluated",
+          "atMs": 2505.2000000000116
+        },
+        {
+          "phase": "state",
+          "atMs": 2505.399999999994,
+          "detail": "loading"
+        },
+        {
+          "phase": "dom-wait",
+          "atMs": 2505.600000000006
+        },
+        {
+          "phase": "dom-event",
+          "atMs": 2754.7000000000116
+        },
+        {
+          "phase": "dom-resumed",
+          "atMs": 2754.8000000000175
+        },
+        {
+          "phase": "styles-wait",
+          "atMs": 2760.7000000000116,
+          "detail": 16
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.8000000000175,
+          "detail": "0:https:\/\/safal207.github.io\/robys-coffee-house-demo\/styles-v2.css?v=a4431b07fc04"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "1:https:\/\/safal207.github.io\/robys-coffee-house-demo\/mobile.css?v=polish-20260621-11"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "2:https:\/\/safal207.github.io\/robys-coffee-house-demo\/conversion.css?v=mobile-menu-20260622-1"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "3:https:\/\/safal207.github.io\/robys-coffee-house-demo\/final-qa.css?v=mobile-menu-20260622-1"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "4:https:\/\/safal207.github.io\/robys-coffee-house-demo\/gallery-clean.css?v=perf-20260621-5"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "5:https:\/\/safal207.github.io\/robys-coffee-house-demo\/map-live.css?v=map-static-20260626-3"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "6:https:\/\/safal207.github.io\/robys-coffee-house-demo\/menu-preview.css?v=mobile-menu-20260622-1"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "7:https:\/\/safal207.github.io\/robys-coffee-house-demo\/featured-strip.css?v=20260625-4"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "8:https:\/\/safal207.github.io\/robys-coffee-house-demo\/featured-gallery.css?v=20260626-5"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "9:https:\/\/safal207.github.io\/robys-coffee-house-demo\/social-offer.css?v=719fa166e650"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "10:https:\/\/safal207.github.io\/robys-coffee-house-demo\/community-reel.css?v=20260626-2"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "11:https:\/\/safal207.github.io\/robys-coffee-house-demo\/brand-photo-logo.css?v=20260726-approved-v4"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "12:https:\/\/safal207.github.io\/robys-coffee-house-demo\/order-shell.css?v=eeb3d8805fe9"
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "13:https:\/\/safal207.github.io\/robys-coffee-house-demo\/android-app.css?v=01b7f55a3fdc"
+        },
+        {
+          "phase": "style-pending",
+          "atMs": 2760.899999999994,
+          "detail": 13
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "14:https:\/\/safal207.github.io\/robys-coffee-house-demo\/hero-balance.css?v=20260622-1"
+        },
+        {
+          "phase": "style-pending",
+          "atMs": 2760.899999999994,
+          "detail": 14
+        },
+        {
+          "phase": "style",
+          "atMs": 2760.899999999994,
+          "detail": "15:https:\/\/safal207.github.io\/robys-coffee-house-demo\/mobile-install.css?v=platform-install-20260727-1"
+        },
+        {
+          "phase": "style-pending",
+          "atMs": 2760.899999999994,
+          "detail": 15
+        },
+        {
+          "phase": "style-loaded",
+          "atMs": 6860,
+          "detail": 13
+        },
+        {
+          "phase": "style-loaded",
+          "atMs": 6872.5,
+          "detail": 14
+        },
+        {
+          "phase": "style-loaded",
+          "atMs": 6872.600000000006,
+          "detail": 15
+        },
+        {
+          "phase": "styles-ready",
+          "atMs": 6872.600000000006
+        },
+        {
+          "phase": "brand-style-start",
+          "atMs": 6872.600000000006
+        },
+        {
+          "phase": "brand-style-end",
+          "atMs": 6879.8000000000175
+        },
+        {
+          "phase": "decode-start",
+          "atMs": 6918.100000000006,
+          "detail": 0
+        },
+        {
+          "phase": "decode-start",
+          "atMs": 6918.100000000006,
+          "detail": 1
+        },
+        {
+          "phase": "decode-end",
+          "atMs": 6983.899999999994,
+          "detail": 1
+        },
+        {
+          "phase": "decode-end",
+          "atMs": 7012.899999999994,
+          "detail": 0
+        },
+        {
+          "phase": "fonts-wait",
+          "atMs": 7012.899999999994
+        },
+        {
+          "phase": "fonts-ready",
+          "atMs": 9733
+        },
+        {
+          "phase": "animations-scan-start",
+          "atMs": 9733
+        },
+        {
+          "phase": "animations-scan-end",
+          "atMs": 9736.100000000006,
+          "detail": 4
+        },
+        {
+          "phase": "animations-wait",
+          "atMs": 9736.100000000006,
+          "detail": 4
+        },
+        {
+          "phase": "animations-ready",
+          "atMs": 9736.200000000012
+        },
+        {
+          "phase": "raf-wait",
+          "atMs": 9736.200000000012
+        },
+        {
+          "phase": "raf-1",
+          "atMs": 9737.5
+        },
+        {
+          "phase": "raf-2",
+          "atMs": 9776
+        },
+        {
+          "phase": "opacity-start",
+          "atMs": 9776
+        },
+        {
+          "phase": "opacity-end",
+          "atMs": 9776.100000000006
+        },
+        {
+          "phase": "state",
+          "atMs": 9776.100000000006,
+          "detail": "ready"
+        }
+      ],
+      "dropped": 0
+    },
+    "href": "https:\/\/safal207.github.io\/robys-coffee-house-demo\/?entry=android-handoff&handoff-gen=1",
+    "now_ms": 55241.70000000001,
+    "time_origin_ms": 1.7888727437362E12
+  },
+  "error": null
+}

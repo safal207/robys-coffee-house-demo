@@ -21,11 +21,15 @@ async function waitForProductFrame() {
     .filter((link) => !link.disabled && (!link.media || window.matchMedia(link.media).matches));
   await Promise.all(styles.map((link) => {
     if (link.sheet) return Promise.resolve();
+    if (window.__robysAndroidStylesheetErrors?.hasFailed(link)) {
+      return Promise.reject(new Error("Android product stylesheet unavailable"));
+    }
     return new Promise((resolve, reject) => {
       link.addEventListener("load", resolve, { once: true });
       link.addEventListener("error", () => reject(new Error("Android product stylesheet unavailable")), { once: true });
     });
   }));
+  window.__robysAndroidStylesheetErrors?.dispose();
 
   const background = getComputedStyle(brand).backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
   if (!background) throw new Error("Android product brand unavailable");
@@ -50,7 +54,10 @@ async function waitForProductFrame() {
 }
 
 async function runNativeProductHandoff() {
-  if (window.__robysAndroidHandoffAborted) return;
+  if (window.__robysAndroidHandoffAborted) {
+    window.__robysAndroidStylesheetErrors?.dispose();
+    return;
+  }
   let released = false;
   // The native splash covers all preparation. Its visual-state callback must
   // certify the product itself, so release has no second surface to animate.
@@ -58,6 +65,7 @@ async function runNativeProductHandoff() {
   window.__robysAndroidHandoffRelease = () => {
     if (released) return;
     released = true;
+    window.__robysAndroidStylesheetErrors?.dispose();
     emitAndroidHandoffState("releasing");
     emitAndroidHandoffState("done");
     delete window.__robysAndroidHandoffRelease;
@@ -68,12 +76,15 @@ async function runNativeProductHandoff() {
   } catch (error) {
     if (!released && !window.__robysAndroidHandoffAborted) throw error;
     return;
+  } finally {
+    window.__robysAndroidStylesheetErrors?.dispose();
   }
   if (released || window.__robysAndroidHandoffAborted) return;
   emitAndroidHandoffState("ready");
 }
 
 runNativeProductHandoff().catch(() => {
+  window.__robysAndroidStylesheetErrors?.dispose();
   document.querySelector(".robys-android-handoff")?.remove();
   document.documentElement.style.backgroundColor = "";
   emitAndroidHandoffState("done");
