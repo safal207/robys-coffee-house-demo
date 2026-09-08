@@ -1,0 +1,37 @@
+name: PR346 host perf availability preflight
+
+on:
+  push:
+    branches: [diagnostic/pr346-host-perf-preflight-20260908]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr346-host-perf-preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  availability:
+    name: Harmless child userspace event only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Record existing host perf capability without changing permissions
+        run: timeout --kill-after=5s 30s python3 scripts/qa/check-host-perf-availability.py
+
+      - name: Preserve capability evidence including incomplete results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr346-host-perf-preflight-${{ github.sha }}
+          path: |
+            host-perf-preflight/**
+            scripts/qa/check-host-perf-availability.py
+            .github/workflows/pr346-host-perf-preflight.yml
+          if-no-files-found: error
+          retention-days: 14
