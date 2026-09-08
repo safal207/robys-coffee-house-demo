@@ -8,10 +8,15 @@ import re
 import zipfile
 
 
-def verify(directory):
+ENTRY_MODULES = ("android-handoff.js", "android-native-product-frame.js")
+
+
+def verify(directory, entry_module="android-handoff.js"):
+    assert entry_module in ENTRY_MODULES, "unsupported entry module"
     root = Path(directory)
     manifest_bytes = (root / "fixture-manifest.json").read_bytes()
     manifest = json.loads(manifest_bytes)
+    assert entry_module in manifest["files"], "required entry module absent from inventory"
     apk = root / "android-native/app/build/outputs/apk/debug/app-debug.apk"
     with zipfile.ZipFile(apk) as archive:
         assert archive.read("assets/pinned-manifest.json") == manifest_bytes, "APK manifest mismatch"
@@ -29,11 +34,12 @@ def verify(directory):
     log = (root / "android-native/build/visual-evidence/logcat.txt").read_text()
     assert not re.search(r"RobysPinned\s*: (MISSING|HASH_MISMATCH|ERROR|METHOD|RANGE_ERROR)\b", log), "fixture delivery error"
     served = re.findall(r"RobysPinned\s*: SERVED (\S+) sha256=([a-f0-9]{64}) status=(200|206)", log)
-    assert {"index.html", "android-handoff.js"} <= {p for p, _, _ in served}, "required launch resources not observed"
+    assert {"index.html", entry_module} <= {p for p, _, _ in served}, "required launch resources not observed"
     for path, digest, _ in served:
         assert path in manifest["files"] and digest == manifest["files"][path]["sha256"], "served resource mismatch"
     result = {"source_sha": manifest["source_sha"], "apk_sha256": hashlib.sha256(apk.read_bytes()).hexdigest(),
               "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(), "web_files": len(manifest["files"]),
+              "entry_module": entry_module,
               "served_requests": len(served), "served_paths": sorted({p for p, _, _ in served}),
               "scope": "pinned resource identity only; capture.sh independently enforces handoff", "status": "PASS"}
     (root / "pinned-evidence-summary.json").write_text(json.dumps(result, indent=2) + "\n")
@@ -43,4 +49,7 @@ def verify(directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory")
-    verify(parser.parse_args().directory)
+    parser.add_argument("--entry-module", choices=ENTRY_MODULES, default="android-handoff.js",
+                        help="entry module whose exact delivery is required")
+    args = parser.parse_args()
+    verify(args.directory, args.entry_module)
