@@ -1,0 +1,169 @@
+name: PR346 explicit software GPU comparison
+
+on:
+  push:
+    branches: [fix/pr346-gpu-backend-probe-20260908]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr346-gpu-backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    name: Graphics backend ${{ matrix.arm }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arm: software
+            source: 7ca13b9adbf45b953c3b0997107d010e7bad1d9b
+            web_digest: 2c97e25ebf4e0c2b16f50818bc3a577b569a5d18a0f623ed21e498ff26e4395c
+          - arm: swiftshader
+            source: 7ca13b9adbf45b953c3b0997107d010e7bad1d9b
+            web_digest: 2c97e25ebf4e0c2b16f50818bc3a577b569a5d18a0f623ed21e498ff26e4395c
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout diagnostic tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout immutable subject
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.source }}
+          path: subject
+
+      - name: Verify subject and original capture identity
+        env:
+          EXPECTED_SOURCE_SHA: ${{ matrix.source }}
+        run: |
+          test "$(git -C subject rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test -z "$(git -C subject status --porcelain)"
+          cmp .github/scripts/capture-android-launch.sh subject/.github/scripts/capture-android-launch.sh
+          cmp scripts/test-android-capture-contract.py subject/scripts/test-android-capture-contract.py
+
+      - name: Prepare pinned fixture and unchanged trace collector
+        env:
+          EXPECTED_SOURCE_SHA: ${{ matrix.source }}
+          EXPECTED_WEB_DIGEST: ${{ matrix.web_digest }}
+        run: |
+          python3 scripts/prepare-android-pinned-fixture.py --source subject --output "$RUNNER_TEMP/pinned-fixture"
+          python3 scripts/prepare-android-trace-probe.py "$RUNNER_TEMP/pinned-fixture"
+          python3 scripts/prepare-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture" --source subject --expected-source-sha "$EXPECTED_SOURCE_SHA" --expected-web-sha256 "$EXPECTED_WEB_DIGEST" --expected-web-count 240
+          cp scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture/"
+          cp scripts/qa/run-android-preraster-probe.sh "$RUNNER_TEMP/pinned-fixture/run-android-preraster-probe.sh"
+          cp scripts/qa/print-android-preraster-evidence.py "$RUNNER_TEMP/pinned-fixture/print-android-preraster-evidence.py"
+          cp scripts/qa/android-settling-wait.py "$RUNNER_TEMP/pinned-fixture/android-settling-wait.py"
+          git rev-parse HEAD > "$RUNNER_TEMP/pinned-fixture/diagnostic-tooling.sha"
+          sha256sum scripts/prepare-android-pinned-fixture.py scripts/prepare-android-trace-probe.py scripts/qa/PinnedWebFixture.java scripts/qa/android-handoff-trace.pbtx scripts/qa/sample-emulator-cpu.py scripts/qa/run-android-preraster-probe.sh scripts/qa/print-android-preraster-evidence.py scripts/qa/android-settling-wait.py scripts/prepare-android-rendering-trace.py scripts/qa/RobysRenderingTrace.java scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py .github/scripts/capture-android-launch.sh > "$RUNNER_TEMP/pinned-fixture/diagnostic-tools.sha256"
+          cp .github/workflows/pr346-gpu-backend-probe.yml "$RUNNER_TEMP/pinned-fixture/diagnostic-workflow.yml"
+
+      - name: Require the declared 240 pinned web files
+        env:
+          EXPECTED_SOURCE_SHA: ${{ matrix.source }}
+          EXPECTED_WEB_DIGEST: ${{ matrix.web_digest }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = json.loads((Path(os.environ['RUNNER_TEMP']) / 'pinned-fixture/fixture-manifest.json').read_text())
+          files = manifest['files']
+          digest = hashlib.sha256(json.dumps(files, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+          assert len(files) == 240, len(files)
+          assert digest == os.environ['EXPECTED_WEB_DIGEST'], digest
+          assert manifest['source_sha'] == os.environ['EXPECTED_SOURCE_SHA']
+          print(json.dumps({'source_sha': manifest['source_sha'], 'web_files': len(files), 'web_inventory_sha256': digest}))
+          PY
+
+      - name: Verify fixture and original capture/trace negative controls
+        if: matrix.arm == 'software'
+        run: |
+          python3 scripts/test-android-pinned-fixture.py
+          python3 scripts/test-android-trace-probe.py
+          python3 scripts/test-android-rendering-trace.py --source subject
+          python3 scripts/test-android-rendering-collector.py
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - run: sdkmanager "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Build diagnostic debug APK
+        run: |
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" :app:assembleDebug --stacktrace
+          gradle -p "$RUNNER_TEMP/pinned-fixture/android-native" --stop
+          free -h
+          nproc
+
+      - name: Apply declared idle interval then trace original cold launch
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu ${{ matrix.arm }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: cd "$RUNNER_TEMP/pinned-fixture" && python3 android-settling-wait.py --seconds 120 --output startup-wait.json && bash run-android-rendering-probe.sh
+
+      - name: Verify delivered bytes even when handoff fails
+        if: always()
+        run: python3 scripts/verify-android-pinned-evidence.py "$RUNNER_TEMP/pinned-fixture"
+
+      - name: Upload original verdict and complete trace evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr346-gpu-backend-${{ matrix.arm }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/pinned-fixture/rendering-evidence/**
+            ${{ runner.temp }}/pinned-fixture/*manifest.json
+            ${{ runner.temp }}/pinned-fixture/*instrumentation.diff
+            ${{ runner.temp }}/pinned-fixture/native-original-source.java
+            ${{ runner.temp }}/pinned-fixture/native-transport-source.java
+            ${{ runner.temp }}/pinned-fixture/rendering-observer.diff
+            ${{ runner.temp }}/pinned-fixture/rendering-preparation-summary.json
+            ${{ runner.temp }}/pinned-fixture/android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java
+            ${{ runner.temp }}/pinned-fixture/android-native/app/src/main/java/com/robys/coffeehouse/RobysRenderingTrace.java
+            ${{ runner.temp }}/pinned-fixture/run-android-rendering-probe.sh
+            ${{ runner.temp }}/pinned-fixture/verify-android-rendering-trace.py
+            ${{ runner.temp }}/pinned-fixture/startup-wait.json
+            ${{ runner.temp }}/pinned-fixture/android-settling-wait.py
+            ${{ runner.temp }}/pinned-fixture/trace-evidence/**
+            ${{ runner.temp }}/pinned-fixture/android-native/build/visual-evidence/**
+            ${{ runner.temp }}/pinned-fixture/fixture-manifest.json
+            ${{ runner.temp }}/pinned-fixture/native-instrumentation.diff
+            ${{ runner.temp }}/pinned-fixture/pinned-evidence-summary.json
+            ${{ runner.temp }}/pinned-fixture/apk-inventory.json
+            ${{ runner.temp }}/pinned-fixture/diagnostic-tooling.sha
+            ${{ runner.temp }}/pinned-fixture/diagnostic-tools.sha256
+            ${{ runner.temp }}/pinned-fixture/diagnostic-workflow.yml
+            ${{ runner.temp }}/pinned-fixture/capture.sh
+            ${{ runner.temp }}/pinned-fixture/trace-capture.sh
+            ${{ runner.temp }}/pinned-fixture/trace-runner.sh
+            ${{ runner.temp }}/pinned-fixture/sample-emulator-cpu.py
+            ${{ runner.temp }}/pinned-fixture/run-android-preraster-probe.sh
+            ${{ runner.temp }}/pinned-fixture/print-android-preraster-evidence.py
+          if-no-files-found: error
+          retention-days: 14
