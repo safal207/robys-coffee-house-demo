@@ -2,28 +2,28 @@ const REVEAL_PRODUCTS = Object.freeze([
   Object.freeze({
     id: "desserts:san-sebastian-cheesecake",
     primaryPath: "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp",
-    revealImage: "src/products/gallery-v5/san-sebastian.webp"
+    revealImage: "src/products/san-sebastian.webp"
   })
 ]);
 
 const REVEAL_COPY = Object.freeze({
   tr: Object.freeze({
-    label: "San Sebastian'ın iç dokusunu göster",
-    hint: "Sola kaydır · iç dokuyu gör",
-    revealed: "San Sebastian · iç doku",
-    value: "İç görünüm %{percent}"
+    label: "San Sebastian'ın alternatif görünümünü göster",
+    hint: "Sola kaydır · diğer görünümü gör",
+    revealed: "San Sebastian · diğer görünüm",
+    value: "Alternatif görünüm %{percent}"
   }),
   en: Object.freeze({
-    label: "Reveal the inside texture of the San Sebastian cheesecake",
-    hint: "Swipe left · see inside",
-    revealed: "San Sebastian · inside texture",
-    value: "Inside view %{percent}"
+    label: "Reveal an alternate view of the San Sebastian cheesecake",
+    hint: "Swipe left · alternate view",
+    revealed: "San Sebastian · alternate view",
+    value: "Alternate view %{percent}"
   }),
   ru: Object.freeze({
-    label: "Показать текстуру чизкейка Сан-Себастьян внутри",
-    hint: "Свайп влево · посмотреть внутри",
-    revealed: "Сан-Себастьян · текстура внутри",
-    value: "Внутренний вид %{percent}"
+    label: "Показать другой ракурс чизкейка Сан-Себастьян",
+    hint: "Свайп влево · другой ракурс",
+    revealed: "Сан-Себастьян · другой ракурс",
+    value: "Другой ракурс %{percent}"
   })
 });
 
