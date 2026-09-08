@@ -158,9 +158,15 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
 function setupGalleryDockBehavior(section: HTMLElement): void {
   let animationFrame = 0;
   let previousState: boolean | null = null;
+  const root = document.documentElement;
+  const entryCoversGallery = (): boolean =>
+    Boolean(root.dataset.robysEntryPending) &&
+    root.dataset.robysEntryState !== "handoff" &&
+    root.dataset.robysEntryState !== "done";
 
   const checkPanel = (): void => {
     animationFrame = 0;
+    if (entryCoversGallery()) return;
 
     const visualViewport = window.visualViewport;
     const viewportTop = visualViewport?.offsetTop ?? 0;
@@ -175,7 +181,7 @@ function setupGalleryDockBehavior(section: HTMLElement): void {
   };
 
   const scheduleCheck = (): void => {
-    if (animationFrame) return;
+    if (entryCoversGallery() || animationFrame) return;
     animationFrame = window.requestAnimationFrame(checkPanel);
   };
 
@@ -193,6 +199,12 @@ function setupGalleryDockBehavior(section: HTMLElement): void {
   window.addEventListener("pageshow", scheduleCheck, { passive: true });
   window.visualViewport?.addEventListener("scroll", scheduleCheck, { passive: true });
   window.visualViewport?.addEventListener("resize", scheduleCheck, { passive: true });
+
+  const entryObserver = new MutationObserver(() => scheduleCheck());
+  entryObserver.observe(root, {
+    attributes: true,
+    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]
+  });
 
   scheduleCheck();
 }
