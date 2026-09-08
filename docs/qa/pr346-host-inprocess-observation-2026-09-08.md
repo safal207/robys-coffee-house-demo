@@ -101,3 +101,28 @@ The setup step explicitly installs the emulator package before capability
 inspection. The action may reinstall it, so the live binary check remains.
 All archive paths stay within the prepared fixture; the copied capability
 helper is retained for evidence and executes from the tooling checkout.
+
+## Collector startup repair after run 34248362593
+
+Tooling 3e330ab8455545a72d3ac181976790c60de582c5 failed before the app
+probe: the launcher printed `cannot open .../emulator.log`, then the Action
+waited for a device that never appeared. No bind.json, emulator.log or host
+trace was delivered. The finalizer correctly returned INCOMPLETE42.
+This is a collector failure, not an Android handoff result.
+
+The immutable public launcher main-emulator.cpp at QEMU 9172e21f calls
+open(stdouterr_file, O_APPEND | O_WRONLY), without O_CREAT. Its bytes have
+SHA256 72b6ef1c0d5c9ba42abf96b75d3bfad15b8f4c05b4cc1b32808a26b3f13dc6ce.
+Source version differs from SDK37.1.11; the actual observed error is consistent
+with this contract, not a complete source-to-binary proof.
+
+Prepare now exclusively creates an empty emulator.log before success is
+recorded. Existing files are rejected without truncation. A local replay
+reproduces the launcher open flags: absent file fails, prepared file opens,
+and a second prepare rejects the stale log while retaining INCOMPLETE. All
+six prior focused collector checks still pass (eight total). No workflow,
+source fixture, observer activation, timeout or finalizer threshold changes.
+
+The next run must still bind the live package because the Action installs
+the emulator after the preflight. Recorded preflight hashes alone do not
+certify a process that never launched.

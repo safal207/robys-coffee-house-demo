@@ -120,6 +120,10 @@ def perform(mode, fixture, output, record):
                                               separators=(',', ':')).encode()).hexdigest()
         require(manifest['source_sha'] == SUBJECT and len(manifest['files']) == 241 and
                 inventory == WEB_DIGEST, 'PINNED_SUBJECT_MISMATCH')
+        # The launcher opens -stdouterr-file for append without O_CREAT.
+        # Exclusive creation keeps stale logs from supplying save witnesses.
+        with (output / 'emulator.log').open('xb'):
+            pass
         record.update(source_sha=SUBJECT, web_inventory_sha256=inventory,
                       package=package_binding(fixture),
                       activation={'VPERFETTO_TRACE_ENABLED': '1',
