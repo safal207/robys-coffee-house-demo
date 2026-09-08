@@ -1,3 +1,6 @@
+// TEMPORARY DIAGNOSTIC BRANCH ONLY: capture a fixed attribution matrix first.
+await import("./morning-entry-attribution.mjs");
+
 // MOTION-ENTRY-001 now certifies the approved takeaway scene at the Morning route.
 import path from "node:path";
 import { certify, contextFor, brand, assertBrand, assertAsset, done, timing, cadence, assert, save } from "./takeaway-browser-contract.mjs";
