@@ -1,0 +1,218 @@
+name: Inspect pinned PR 354 artifact
+
+on:
+  push:
+    branches: ['qa/artifact-354-inspection-20260908']
+    paths: ['.github/workflows/inspect-354-artifact.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Rehash and inspect the existing archive without executing its contents
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, stat, struct, urllib.request, urllib.error, urllib.parse, zipfile
+
+          REPO = 'safal207/robys-coffee-house-demo'
+          SOURCE = '5757dcd7d93af703e02d5da1dd2b4bdbc167b5a3'
+          RUN = 34227196510
+          ARTIFACT = 10056472026
+          SIZE = 259498724
+          DIGEST = 'c9010267a64c27920cc878016f6ec2f4a8a2f4f0701c1bb47d72fe2544297df8'
+          API = 'https://api.github.com/repos/' + REPO
+          out = pathlib.Path('inspection-json')
+          images = pathlib.Path('inspection-ru-png')
+          out.mkdir()
+          images.mkdir()
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+          opener = urllib.request.build_opener(NoRedirect())
+          def api_get(suffix):
+              req = urllib.request.Request(API + suffix, headers={
+                  'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'robys-pinned-artifact-inspector'
+              })
+              return opener.open(req, timeout=60)
+
+          with api_get('/actions/artifacts/' + str(ARTIFACT)) as response:
+              metadata = json.load(response)
+          with api_get('/actions/runs/' + str(RUN)) as response:
+              run = json.load(response)
+          assert metadata['id'] == ARTIFACT and metadata['workflow_run']['id'] == RUN
+          assert metadata['workflow_run']['head_sha'] == SOURCE
+          assert metadata['size_in_bytes'] == SIZE and metadata['digest'] == 'sha256:' + DIGEST
+          assert metadata['expired'] is False
+          assert run['head_sha'] == SOURCE and run['status'] == 'completed' and run['conclusion'] == 'success'
+          (out / 'source-artifact-metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
+          (out / 'source-run-metadata.json').write_text(json.dumps(run, indent=2) + '\n')
+
+          try:
+              response = api_get('/actions/artifacts/' + str(ARTIFACT) + '/zip')
+          except urllib.error.HTTPError as error:
+              if error.code not in (301, 302, 303, 307, 308):
+                  raise RuntimeError('Artifact API download did not return a valid redirect') from None
+              location = error.headers.get('Location', '')
+              error.close()
+              parsed = urllib.parse.urlsplit(location)
+              assert parsed.scheme == 'https' and parsed.hostname and not parsed.username and not parsed.password
+              # Never forward the GitHub Authorization header to the signed storage URL.
+              response = urllib.request.urlopen(location, timeout=120)
+          digest = hashlib.sha256()
+          downloaded = 0
+          archive = pathlib.Path('source-artifact.zip')
+          with response, archive.open('wb') as destination:
+              while True:
+                  block = response.read(1024 * 1024)
+                  if not block:
+                      break
+                  downloaded += len(block)
+                  assert downloaded <= SIZE, 'Archive exceeds its pinned size'
+                  digest.update(block)
+                  destination.write(block)
+          assert downloaded == SIZE and digest.hexdigest() == DIGEST, 'Archive digest/size mismatch'
+          print('ARCHIVE_SHA256_RECOMPUTED=' + digest.hexdigest())
+          print('ARCHIVE_BYTES=' + str(downloaded))
+
+          report = {'sourceSha': SOURCE, 'sourceRunId': RUN, 'sourceArtifactId': ARTIFACT,
+                    'inspectionCommit': os.environ['GITHUB_SHA'],
+                    'scope': 'Read-only reinspection of existing evidence; no new browser run or release approval',
+                    'archiveBytes': downloaded, 'archiveSha256': digest.hexdigest(), 'reports': {}}
+          with zipfile.ZipFile(archive) as z:
+              entries = z.infolist()
+              names = [item.filename for item in entries]
+              assert len(names) == len(set(names)) and 0 < len(names) <= 5000
+              assert sum(item.file_size for item in entries) <= 1024 * 1024 * 1024
+              for item in entries:
+                  path = pathlib.PurePosixPath(item.filename)
+                  assert not path.is_absolute() and '..' not in path.parts and '\\' not in item.filename
+                  assert not stat.S_ISLNK(item.external_attr >> 16)
+              assert z.testzip() is None, 'ZIP CRC failure'
+              report['archiveEntries'] = len(entries)
+              report['crcVerified'] = True
+              hashes = {}
+              jsons = {}
+              text_bytes = 0
+              image_bytes = 0
+              for item in entries:
+                  if item.is_dir():
+                      continue
+                  name = item.filename
+                  if name.endswith(('.json', '.txt')):
+                      assert item.file_size <= 16 * 1024 * 1024
+                      data = z.read(name)
+                      text_bytes += len(data)
+                      assert text_bytes < 50 * 1024 * 1024
+                      target = out / 'original' / name
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      target.write_bytes(data)
+                      if name.endswith('.json'):
+                          jsons[name] = json.loads(data)
+                  if name.endswith('.png'):
+                      data = z.read(name)
+                      assert data[:8] == b'\x89PNG\r\n\x1a\n' and data[12:16] == b'IHDR'
+                      hashes[name] = {'sha256': hashlib.sha256(data).hexdigest(),
+                                      'bytes': len(data), 'dimensions': list(struct.unpack('>II', data[16:24]))}
+                      if name.startswith('screenshot-attempt-1/') and pathlib.PurePosixPath(name).name.startswith('ru-coffee-'):
+                          image_bytes += len(data)
+                          assert image_bytes < 80 * 1024 * 1024
+                          target = images / name
+                          target.parent.mkdir(parents=True, exist_ok=True)
+                          target.write_bytes(data)
+
+              def original_json(suffix):
+                  found = [name for name in jsons if name == suffix or name.endswith('/' + suffix)]
+                  assert len(found) == 1, 'Missing or ambiguous report: ' + suffix
+                  return jsons[found[0]]
+
+              audit = original_json('toolchain/npm-audit.json')
+              assert 'error' not in audit and audit.get('auditReportVersion') == 2
+              assert isinstance(audit.get('vulnerabilities'), dict)
+              report['reports']['npmAudit'] = audit
+              print('NPM_AUDIT_JSON=' + json.dumps(audit, sort_keys=True))
+              for mode in ['packages', 'browser', 'comparison']:
+                  data = original_json('toolchain/' + mode + '.json')
+                  assert data['sourceSha'] == SOURCE and data['passed'] is True
+                  report['reports'][mode] = data
+                  print('TOOLCHAIN_' + mode.upper() + '=' + json.dumps(data, sort_keys=True))
+              ru = original_json('ru-coffee/report.json')
+              assert ru['sourceSha'] == SOURCE and ru['mode'] == 'http' and ru['passed'] is True
+              assert len(ru['cases']) == 22 and len(ru['requiredChecks']) == 14
+              assert all(case['passed'] and not case['errors'] and all(case['checks'].get(key) is True for key in ru['requiredChecks']) for case in ru['cases'])
+              assert len(ru['anchorVisibilityControls']) == 24 and all(row['passed'] for row in ru['anchorVisibilityControls'])
+              report['reports']['ru'] = {'cases': 22, 'checksPerCase': 14, 'visibilityControls': 24,
+                                          'browser': ru['browser'], 'failedCases': 0}
+              summaries = []
+              for attempt in (1, 2):
+                  data = original_json('screenshot-attempt-' + str(attempt) + '/summary.json')
+                  assert data['comparisons'] == 54 and len(data['results']) == 54 and data['failures'] == 0
+                  assert all(row['passed'] is True for row in data['results'])
+                  pairs = sorted((row['id'], row['viewport']) for row in data['results'])
+                  assert len(set(pairs)) == 54
+                  summaries.append(pairs)
+              assert summaries[0] == summaries[1]
+              report['reports']['comparisonSummaries'] = {'attempts': 2, 'comparisonsEach': 54, 'failed': 0}
+              between = []
+              prefix = 'screenshot-attempt-1/'
+              for name, value in hashes.items():
+                  if name.startswith(prefix):
+                      other = 'screenshot-attempt-2/' + name[len(prefix):]
+                      if other in hashes:
+                          between.append({'file': name[len(prefix):], 'identical': value['sha256'] == hashes[other]['sha256']})
+              report['betweenAttemptPngBytes'] = {'compared': len(between),
+                  'identical': sum(row['identical'] for row in between),
+                  'different': [row['file'] for row in between if not row['identical']]}
+              ru_between = [row for row in between if pathlib.PurePosixPath(row['file']).name.startswith('ru-coffee-')]
+              report['betweenAttemptRuPngBytes'] = {'compared': len(ru_between),
+                  'identical': sum(row['identical'] for row in ru_between),
+                  'different': [row['file'] for row in ru_between if not row['identical']]}
+              source_pairs = []
+              for attempt in (1, 2):
+                  prefix = 'screenshot-attempt-' + str(attempt) + '/baseline/'
+                  pairs = []
+                  for name, value in hashes.items():
+                      if name.startswith(prefix):
+                          other = name.replace('/baseline/', '/current/', 1)
+                          assert other in hashes
+                          pairs.append({'file': name[len(prefix):], 'identical': value['sha256'] == hashes[other]['sha256']})
+                  source_pairs.append({'attempt': attempt, 'compared': len(pairs),
+                      'identical': sum(row['identical'] for row in pairs),
+                      'different': [row['file'] for row in pairs if not row['identical']]})
+              report['baselineVsCandidatePngBytes'] = source_pairs
+              report['exportedTextBytes'] = text_bytes
+              report['exportedRuPngBytes'] = image_bytes
+              report['pngCount'] = len(hashes)
+              (out / 'png-sha256-and-dimensions.json').write_text(json.dumps(hashes, indent=2) + '\n')
+              report['passed'] = True
+              (out / 'inspection.json').write_text(json.dumps(report, indent=2) + '\n')
+              print('INSPECTION_JSON=' + json.dumps(report, sort_keys=True))
+          PY
+      - name: Preserve small JSON and hash evidence
+        if: always()
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        with:
+          name: pr354-inspection-json-${{ github.run_id }}
+          path: inspection-json/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve original RU comparison PNGs without transformations
+        if: always()
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        with:
+          name: pr354-inspection-ru-png-${{ github.run_id }}
+          path: inspection-ru-png/
+          if-no-files-found: error
+          retention-days: 14
