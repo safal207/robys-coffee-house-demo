@@ -31,11 +31,8 @@ function fixture({pending='morning',state='loading',top=120,bottom=520}={}){
   assert.notEqual(instrumented,source,'Failed to expose setupGalleryDockBehavior for test');
   const output=ts.transpileModule(instrumented,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
   const module={exports:{}};
-  const context=vm.createContext({document,window:win,MutationObserver,IntersectionObserver,console});
-  vm.runInContext(`(function(exports,module){${output}\n})(module.exports,module);`,vm.createContext({...context,module}));
-  // The previous context construction does not preserve the module object reliably across vm copies.
-  const context2=vm.createContext({document,window:win,MutationObserver,IntersectionObserver,console,module,exports:module.exports});
-  vm.runInContext(`(function(exports,module){${output}\n})(exports,module);`,context2);
+  const context=vm.createContext({document,window:win,MutationObserver,IntersectionObserver,console,module,exports:module.exports});
+  vm.runInContext(`(function(exports,module){${output}\n})(exports,module);`,context);
   const api=module.exports;
   assert.equal(typeof api.setupGalleryDockBehavior,'function');
   api.setupGalleryDockBehavior(section);
