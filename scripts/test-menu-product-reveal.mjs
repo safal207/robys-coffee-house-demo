@@ -17,6 +17,10 @@ assert.ok(
   existsSync(resolve(root, sanSebastian.revealImage)),
   "Reveal image must be a real repository asset"
 );
+assert.ok(
+  existsSync(resolve(root, "menu-product-reveal.css")),
+  "Reveal styling must be served as a same-origin external stylesheet"
+);
 
 assert.equal(
   resolveRevealConfig("src/products/menu-v1/desserts--lotus-cheesecake.webp"),
@@ -36,11 +40,23 @@ for (const language of ["tr", "en", "ru"]) {
   assert.ok(copy.value.includes("%{percent}"), `${language}: value copy must expose reveal percent`);
 }
 
-const loader = readFileSync(resolve(root, "menu-search-clear.js"), "utf8");
+const menuHtml = readFileSync(resolve(root, "menu.html"), "utf8");
 assert.match(
-  loader,
-  /import\("\.\/menu-product-reveal\.js\?v=20260909-reveal-v1"\)\.catch\(\(\) => \{\}\)/,
-  "Reveal module must stay a caught progressive enhancement so menu bootstrap cannot fail with it"
+  menuHtml,
+  /<link rel="stylesheet" href="menu-product-reveal\.css\?v=20260909-reveal-v1" \/>/,
+  "Menu must load reveal styling as an external CSP-safe stylesheet"
+);
+assert.match(
+  menuHtml,
+  /<script type="module" src="menu-product-reveal\.js\?v=20260909-reveal-v1"><\/script>/,
+  "Menu must mount reveal as an independent module"
+);
+
+const searchHelper = readFileSync(resolve(root, "menu-search-clear.js"), "utf8");
+assert.doesNotMatch(
+  searchHelper,
+  /menu-product-reveal/,
+  "Search helper must stay independent from product reveal"
 );
 
 const revealSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
@@ -52,6 +68,11 @@ assert.doesNotMatch(
   revealSource,
   /gallery-v5\/san-sebastian\.webp/,
   "Reveal must not use the gallery poster as a food-photo alternate view"
+);
+assert.doesNotMatch(
+  revealSource,
+  /createElement\(["']style["']\)|style\.textContent/,
+  "Reveal module must not inject inline style blocks rejected by menu CSP"
 );
 
 console.log("menu product reveal contract: PASS");
