@@ -5,6 +5,7 @@ on:
     paths:
       - "menu.html"
       - "menu-product-reveal.js"
+      - "menu-product-reveal-runtime.js"
       - "menu-product-reveal.css"
       - "scripts/test-menu-product-reveal.mjs"
       - "src/products/san-sebastian.webp"
@@ -27,6 +28,7 @@ jobs:
       - name: Syntax check
         run: |
           node --check menu-product-reveal.js
+          node --check menu-product-reveal-runtime.js
           node --check scripts/test-menu-product-reveal.mjs
       - name: Verify reveal contract
         run: node scripts/test-menu-product-reveal.mjs
