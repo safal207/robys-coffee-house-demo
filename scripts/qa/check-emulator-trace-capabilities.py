@@ -2,7 +2,8 @@
 """Record installed SDK emulator identity and documented help, without an AVD.
 
 This does not establish host tracing availability or collect a host profile.
-Only -version, -help-all, -help-debug-tags and -help-environment are invoked.
+Only -version, -help-all, -help-debug-tags and -help-environment are invoked,
+with the existing smoke's -no-window selection of the headless engine.
 Five fixed SDK binary paths are read for hashes and five literal markers only.
 """
 import argparse
@@ -25,6 +26,7 @@ MAX_OUTPUT = 2 * 1024 * 1024  # Per command stream; excess output is a failure.
 MAX_PACKAGE = 1024 * 1024
 MAX_BINARY = 512 * 1024 * 1024
 BINARY_PATHS = ('emulator/emulator', 'emulator/qemu/linux-x86_64/qemu-system-x86_64',
+                'emulator/qemu/linux-x86_64/qemu-system-x86_64-headless',
                 'emulator/lib64/libandroid-emu-tracing.so',
                 'emulator/lib64/libOpenglRender.so', 'emulator/lib64/libgfxstream_backend.so')
 MARKERS = ('VPERFETTO_TRACE_ENABLED', 'VPERFETTO_HOST_FILE', 'ANDROID_EMU_TRACING',
@@ -227,7 +229,7 @@ def collect(output, repo):
             raise Incomplete('SDK_PACKAGE_VERSION_MISMATCH')
 
         for name, flag in COMMANDS:
-            row = run_command(output, 'emulator-' + name, [str(binary), flag])
+            row = run_command(output, 'emulator-' + name, [str(binary), '-no-window', flag])
             record['commands'][name] = row
             if not good(row):
                 raise Incomplete('EMULATOR_COMMAND_FAILED:' + name)

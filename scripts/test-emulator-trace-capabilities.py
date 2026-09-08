@@ -64,7 +64,8 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(record['state'], 'CAPABILITIES_RECORDED_UNVALIDATED')
         self.assertEqual([call[1:] for call in self.calls if call[0] == str(self.binary)],
-                         [['-version'], ['-help-all'], ['-help-debug-tags'], ['-help-environment']])
+                         [['-no-window', '-version'], ['-no-window', '-help-all'],
+                          ['-no-window', '-help-debug-tags'], ['-no-window', '-help-environment']])
         self.assertEqual(record['tooling_sha'], SHA)
         self.assertEqual(record['tooling_tree_sha'], TREE)
         self.assertEqual(record['emulator']['sha256'], CAP.digest(self.binary)['sha256'])
@@ -101,7 +102,7 @@ class CollectorTests(unittest.TestCase):
         self.assertTrue(present['literal_presence']['VPERFETTO_TRACE_ENABLED'])
         self.assertTrue(present['literal_presence']['Saving host trace first'])
         self.assertFalse(present['literal_presence']['ANDROID_EMU_TRACING'])
-        self.assertEqual([row['presence'] for row in missing], ['MISSING'] * 4)
+        self.assertEqual([row['presence'] for row in missing], ['MISSING'] * 5)
         self.assertTrue(all('sha256' not in row for row in missing))
 
     def test_marker_scan_refuses_size_limit(self):

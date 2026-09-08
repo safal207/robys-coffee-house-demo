@@ -11,7 +11,7 @@ exact version/build, output hashes and bounded completion. Each command has a
 10-second timeout and a 2 MiB per-stream limit. Incomplete results retain exit42.
 The workflow has a five-minute job limit and a 90-second outer collector bound.
 
-Five fixed SDK binary paths are inspected for five source-backed literal
+Six fixed SDK binary paths are inspected for five source-backed literal
 markers. Missing files and absent strings remain distinct. Each present file
 is streamed with a 512 MiB bound and its hash, size and observed metadata recorded.
 This is explicitly LITERAL_PRESENCE_ONLY: unused strings or a stub implementation
@@ -31,3 +31,21 @@ a stub implementation. Neither that source nor historical ANDROID_EMU_TRACING
 release notes establish support in this exact installed build.
 
 No product assertion, timeout, visual threshold, merge or deployment changes.
+
+## Headless launcher correction
+
+Initial run 34246124158, tooling 6ab4488dd08f969725582d57c7c6178e78d72e4d,
+correctly retained INCOMPLETE42: the default engine could not load libpulse.so.0
+and version exited 127. No help command ran. Package metadata and literal
+inventory were recorded, but runtime version/help remained unavailable.
+Artifact 10064080990 is 20,066 bytes, SHA-256
+91e77180c7c42f0c91e185aed2d5f6236f09cb85f54bc3fb601d1972ca1e1b37.
+
+The follow-up prefixes the same commands with the smoke's existing -no-window
+option and inventories the headless engine separately. The primary launcher
+source selects qemu-system-x86_64-headless for that option:
+[immutable main-emulator.cpp](https://android.googlesource.com/platform/external/qemu/+/9172e21fe3376fba0585c69dea67060e16c2b376/android/emulator/main-emulator.cpp).
+This fixes the diagnostic's engine selection without installing host packages
+or changing permissions. The follow-up still requires an actual exact-version
+response before accepting its help collection; source inspection is not that
+runtime result.
