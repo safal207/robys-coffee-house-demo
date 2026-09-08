@@ -1,0 +1,3854 @@
+{
+  "run_id": 34227119767,
+  "scope": "One instrumented cold launch per arm; no upgrade-path or causal-speedup claim.",
+  "arms": {
+    "candidate": {
+      "pinned_identity": {
+        "source_sha": "c9a9d9c5feeb35d8b6077485b537ab3b60f62b67",
+        "apk_sha256": "50756d12d6534ae2d37b2341b46f450d3247a855fa577dd1a9340b4023644921",
+        "manifest_sha256": "3f32f6ab6a424280b04a64f0188d7f3890a9be2b1e51870265242c8f6b0e2be4",
+        "web_files": 241,
+        "status": "PASS"
+      },
+      "markers": {
+        "section": "launch_identity",
+        "upid": "366",
+        "pid": "4726",
+        "process_name": "com.robys.coffeehouse.debug",
+        "launch_count": "1",
+        "native_ts": "195533878908",
+        "commit_ts": "198346612349",
+        "ready_ts": "[NULL]",
+        "fallback_ts": "205112006792",
+        "visual_ts": "[NULL]",
+        "reveal_ts": "[NULL]",
+        "failure_ts": "208097734385",
+        "outcome_ts": "208097734385"
+      },
+      "native_to_completion_ms": null,
+      "native_to_failure_ms": 12563.855477,
+      "post_completion_observation": {
+        "applicable": false,
+        "reason": "No HANDOFF_COMPLETE. Post-completion observations are not applicable; empty arrays are not zero latency."
+      },
+      "failure_crossing_draws": [
+        {
+          "id": 113886,
+          "start_ns": 208083471213,
+          "end_ns": 209364464857,
+          "duration_ms": 1280.993644,
+          "start_relative_failure_ms": -14.263172,
+          "end_relative_failure_ms": 1266.730472
+        }
+      ],
+      "system_coverage": [
+        {
+          "section": "window_coverage",
+          "pid": "4726",
+          "phase": "before_outcome",
+          "start_ts": "195533878908",
+          "requested_end_ts": "208097734385",
+          "trace_start_ts": "192412711618",
+          "trace_end_ts": "252208283559",
+          "requested_ms": "12563.855000",
+          "captured_ms": "12563.855000",
+          "coverage_ok": "1"
+        }
+      ],
+      "thread_state_coverage": [
+        {
+          "section": "thread_state_coverage",
+          "pid": "4726",
+          "tid": "4726",
+          "thread_name": "ffeehouse.debug",
+          "phase": "before_outcome",
+          "window_ms": "12563.855000",
+          "state_coverage_ms": "12563.855000"
+        },
+        {
+          "section": "thread_state_coverage",
+          "pid": "4726",
+          "tid": "4753",
+          "thread_name": "RenderThread",
+          "phase": "before_outcome",
+          "window_ms": "12563.855000",
+          "state_coverage_ms": "12563.855000"
+        }
+      ],
+      "handoff_sequence": [
+        {
+          "section": "handoff_sequence",
+          "pid": "4726",
+          "tid": "4726",
+          "ts": "195533878908",
+          "since_native_ms": "0.000000",
+          "msg": "NATIVE_SURFACE"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "4726",
+          "tid": "4726",
+          "ts": "198346612349",
+          "since_native_ms": "2812.733000",
+          "msg": "WEB_COMMITTED"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "4726",
+          "tid": "4726",
+          "ts": "205112006792",
+          "since_native_ms": "9578.128000",
+          "msg": "WEB_READY_TIMEOUT"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "4726",
+          "tid": "4726",
+          "ts": "208097734385",
+          "since_native_ms": "12563.855000",
+          "msg": "VISUAL_STATE_TIMEOUT"
+        }
+      ],
+      "delivery_timeline": [
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "612.754000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED index.html sha256=bfeaf030f34d15b5f8299f046689b35c81378358c64fc33e84a5069d47c8123e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "1414.128000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED bootstrap-v2.js sha256=63411e8b1666f7f81a85d02998b23102bd0419383f14228eca0149001dd03831 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2128.217000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED android-native-product-frame.js sha256=b3fc17389457337e465cb93223907b2d6f2f4b98add0a2925176a80c9927f71f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2149.366000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/robys-hero-poster.jpg sha256=dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2151.305000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/brand/robys-compact-master-v1.svg sha256=dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2153.873000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED conversion.css sha256=16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2173.665000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED mobile.css sha256=6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2180.328000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED final-qa.css sha256=0c01d00f89caecb135808f50f75bd470ef46e287dffddf98e9f287df5fa23354 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2183.007000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED map-live.css sha256=52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2183.790000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED featured-strip.css sha256=7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2191.425000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED social-offer.css sha256=d27720e5102f6993d8c743bbe3d80a5106fd247109b5406200dd71c2a53771f2 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2192.561000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED gallery-clean.css sha256=273585a89f27f1f06486e87bd3f86b7420dde9a11440531aa15123e4ac3ed8da status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2192.595000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED styles-v2.css sha256=a4431b07fc04028f5d31a6d7a3b0ce59014a427b124092db5076a5ff264e4e2a status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2192.946000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED menu-preview.css sha256=3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2199.645000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED conversion.js sha256=ec3b0bd6a2430f9cd13666941d4bfe0e9e1896e8ee7992a26447580b78744c20 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2212.505000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED brand-photo-logo.css sha256=9e8b794b538ea71dc299f8b0c7ac358520ebc81046f52be32508637902d450cb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2213.308000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED community-reel.css sha256=10f94095c673173efd9457c8314e200452dd6e00fe7c7176c208d47be483902e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2215.990000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED qa.js sha256=8e149da8e137467dd5d4669076e1f4437f730c52a98385f4c83f57855bad3172 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2228.128000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED analytics.js sha256=6089fae48e0ee8528209e8f8d4741cab034ef67182360843dbeb31981c34d9c3 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2231.580000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED order-launcher.js sha256=67ef8d882b7164e80dfb004aa9e1153e01179958209c0bcc3bb3755a73730fdf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2232.789000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED order-shell.css sha256=eeb3d8805fe9d66c13994d342cb4c8b5f69426d5c3fef88d86e2dd622cd332e1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2234.863000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED app.js sha256=0a634c2a1ee405e419521de8ba532238e581cb9de155c3c8f85aa7d7fdac5603 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2236.763000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED pwa.js sha256=61b85a0c59b13dcda25c6b7f4e8e76a226d7933e0487b34dba8b4d8aec029051 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2262.073000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/brand/robys-mark-master-v1.svg sha256=4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2264.857000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/robys-ambience-clean.mp4 sha256=2f52191d25ee6766dd1ebab330d343afd71e8bd8c2651b15f61d6834d9043dd2 status=206"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2274.863000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/latte.webp sha256=62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2280.448000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED social-offer.js sha256=359ec08152dafa11d30c63c354763c8bbea3daa06394ffc94d4b1e315fd674cc status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2280.671000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED featured-gallery.js sha256=283ba80f334ed112e8c96633af50bd4f110360cc44ac492ebddd09e2f920fb9f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2280.740000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED android-download.js sha256=47f5f2967d5b27d9273bf35b56c056158a843c6942fcc39bd18811bfb230ba33 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2280.824000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED featured-gallery.css sha256=12ec7abefc736fff05d8515187c94732c0fb91f806ddf851f113246a05ee85c1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2573.222000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/robys-hero-poster.jpg sha256=dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2666.050000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/cold.svg sha256=20332190f47f2dcb0f099d31d07b6e6d1f1c075bc1c1331eb316e56dc1858e7e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2670.450000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/hot.svg sha256=00a1cf696fdb9346075dc673a3b5c0af91d8eb30ad0b18d5a9978338f4880af0 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2676.241000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/tea.svg sha256=51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2679.047000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/dessert.svg sha256=0e9c4e81532be49eb99f5fcac08ca732b69c170608880ea277fc09df47757686 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2680.610000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/refreshers.svg sha256=b6323a987911af3d3eef89d7bfb75b4a5027bf4a47b63816ae8c3adb378da658 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2695.220000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/menu-icons/food.svg sha256=4f448649705214571b705da97a57be1217b2a266ca477ca5be313239a5de1fcd status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2731.035000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/lotus-cheesecake.webp sha256=383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2732.774000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/nutella-croissant.webp sha256=320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2733.534000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/san-sebastian.webp sha256=911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2735.416000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/iced-latte.webp sha256=bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2735.613000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/croissant.webp sha256=43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2782.454000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/latte.webp sha256=62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2795.627000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/iced-latte.webp sha256=bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2798.813000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/lotus-cheesecake.webp sha256=383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2806.737000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/croissant.webp sha256=43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2813.800000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/san-sebastian.webp sha256=911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2820.851000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/lotus-cheesecake-828.webp sha256=2c0a180ef8434c2bd369a804f0d6ea06720ef4034a2c4d1ecf4ee697df595a82 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2826.897000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/products/gallery-v5/nutella-croissant.webp sha256=320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2874.972000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2875.779000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED hero-balance.css sha256=a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2881.307000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2886.878000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/brand/robys-primary-master-v1.svg sha256=ab2e3a8e3da59d6ff3917caab76f7d74ce14337987b38231e385c2c924512a17 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "2900.080000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/android-mark.svg sha256=4ab89e14719b88c91f1ec0747cc3cde247a6147f14053a28f19a15559dc162df status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "9858.752000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/robys-hero-poster.jpg sha256=dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "4726",
+          "since_native_ms": "9863.120000",
+          "since_reveal_ms": "[NULL]",
+          "msg": "SERVED src/brand/robys-compact-master-v1.svg sha256=dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb status=200"
+        }
+      ],
+      "nonzero_error_or_data_loss": [],
+      "nested_same_family": [
+        {
+          "section": "nested_same_family",
+          "nested_pairs": "0"
+        }
+      ],
+      "unfinished_waits": [],
+      "post_completion_draws_gt50ms": [],
+      "post_completion_main_waits_gt50ms": [],
+      "rendering": {
+        "status": {
+          "schema_version": 1,
+          "state": "closed",
+          "reason": "timer",
+          "bytes_written": 13231310,
+          "io_error_count": 0,
+          "stop_accepted": true,
+          "stream_closed": true,
+          "start_elapsed_ns": 195519522027,
+          "start_returned_elapsed_ns": 195519939014,
+          "stop_requested_elapsed_ns": 230739150532,
+          "closed_elapsed_ns": 237438940663,
+          "start_uptime_ms": 195519,
+          "start_wall_time_ms": 1788871431824,
+          "status_elapsed_ns": 237439067530,
+          "status_uptime_ms": 237439,
+          "status_wall_time_ms": 1788871473744,
+          "stop_after_ms": 35000,
+          "mode": "RECORD_UNTIL_FULL",
+          "categories": [
+            "CATEGORIES_RENDERING",
+            "CATEGORIES_ANDROID_WEBVIEW",
+            "disabled-by-default-gpu.service",
+            "disabled-by-default-skia.shaders"
+          ],
+          "provider": {
+            "package_name": "com.google.android.webview",
+            "version_name": "133.0.6943.137",
+            "long_version_code": 694313738
+          }
+        },
+        "coverage": {
+          "first_actual_event_ns": 195687337000,
+          "last_actual_event_timestamp_ns": 230991058000,
+          "last_completed_event_end_ns": 230991047000,
+          "observer_byte_count_matches": true,
+          "boundary": "A closed stream and event endpoints do not prove a buffer never filled or every category was active. RECORD_UNTIL_FULL, incomplete spans, redacted metadata and external parser warnings must remain visible. Absence is not exclusion."
+        },
+        "last_timestamp_relative_completion_ms": null,
+        "incomplete_begin_count": 9,
+        "incomplete_begins_before_requested_end": [],
+        "unmatched_end_count": 0,
+        "invalid_completed_count": 0,
+        "nesting": {
+          "crossing_interval_pairs": [
+            [
+              16890,
+              18864
+            ]
+          ],
+          "equal_extent_parent_child_pairs": 185,
+          "boundary": "Timestamp-based nesting is descriptive. Crossing/equal spans make self-wall attribution ambiguous. Recorded self wall is not CPU time; no sum of inclusive parent and child durations is a valid total."
+        },
+        "alignment": {
+          "transform": "internal ts in microseconds * 1000 + supplied offset",
+          "offset_ns": 0,
+          "boundary": "System windows are supplied externally. Stripped clock metadata cannot independently establish exact synchronization; compare observer anchors and common events/source clock before attributing exact edges."
+        },
+        "alignment_evidence": {
+          "query_sha256": "dff3fe2c63851efa5a736d058d73333637acddcd3da87ecc3e59c2c9902550c3",
+          "query_output_sha256": "e08c409f446bbb086b4dd8914b16aba88eae8ca80ade8c90aaf15b02fe419579",
+          "clock_snapshots": [
+            {
+              "snapshot_id": 0,
+              "mono_ns": 192205349733,
+              "boot_ns": 192205349603,
+              "mono_minus_boot_ns": 130
+            },
+            {
+              "snapshot_id": 1,
+              "mono_ns": 192205360824,
+              "boot_ns": 192205360704,
+              "mono_minus_boot_ns": 120
+            },
+            {
+              "snapshot_id": 2,
+              "mono_ns": 192686246175,
+              "boot_ns": 192686245954,
+              "mono_minus_boot_ns": 221
+            },
+            {
+              "snapshot_id": 3,
+              "mono_ns": 200004101889,
+              "boot_ns": 200004101768,
+              "mono_minus_boot_ns": 121
+            },
+            {
+              "snapshot_id": 4,
+              "mono_ns": 210000640583,
+              "boot_ns": 210000640422,
+              "mono_minus_boot_ns": 161
+            },
+            {
+              "snapshot_id": 5,
+              "mono_ns": 220000923179,
+              "boot_ns": 220000923039,
+              "mono_minus_boot_ns": 140
+            },
+            {
+              "snapshot_id": 6,
+              "mono_ns": 230051615128,
+              "boot_ns": 230051614998,
+              "mono_minus_boot_ns": 130
+            },
+            {
+              "snapshot_id": 7,
+              "mono_ns": 240000641904,
+              "boot_ns": 240000641754,
+              "mono_minus_boot_ns": 150
+            },
+            {
+              "snapshot_id": 8,
+              "mono_ns": 250001691876,
+              "boot_ns": 250001691716,
+              "mono_minus_boot_ns": 160
+            },
+            {
+              "snapshot_id": 9,
+              "mono_ns": 252209714870,
+              "boot_ns": 252209714750,
+              "mono_minus_boot_ns": 120
+            },
+            {
+              "snapshot_id": 10,
+              "mono_ns": 252677748721,
+              "boot_ns": 252677748611,
+              "mono_minus_boot_ns": 110
+            }
+          ],
+          "maximum_abs_monotonic_minus_boottime_ns": 221,
+          "external_render_shader_events": [
+            {
+              "id": "40367",
+              "ts": "195943089270",
+              "dur": "23572569",
+              "tid": "4753",
+              "name": "shader_compile"
+            },
+            {
+              "id": "41110",
+              "ts": "195966741388",
+              "dur": "151903650",
+              "tid": "4753",
+              "name": "shader_compile"
+            },
+            {
+              "id": "118004",
+              "ts": "209488358199",
+              "dur": "11308113",
+              "tid": "4753",
+              "name": "shader_compile"
+            }
+          ],
+          "internal_render_shader_events": [
+            {
+              "event_index": 13943,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 200789390000,
+              "end_ns": 200798787000,
+              "duration_ns": 9397000,
+              "thread_cpu_ns": 3484000,
+              "recorded_self_wall_ns": 1080000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14497,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 203765206000,
+              "end_ns": 203795247000,
+              "duration_ns": 30041000,
+              "thread_cpu_ns": 6127000,
+              "recorded_self_wall_ns": 95000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14507,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 203795389000,
+              "end_ns": 203931589000,
+              "duration_ns": 136200000,
+              "thread_cpu_ns": 93141000,
+              "recorded_self_wall_ns": 72000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14547,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 203931625000,
+              "end_ns": 204082144000,
+              "duration_ns": 150519000,
+              "thread_cpu_ns": 85965000,
+              "recorded_self_wall_ns": 141000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14602,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 204082170000,
+              "end_ns": 204344973000,
+              "duration_ns": 262803000,
+              "thread_cpu_ns": 211143000,
+              "recorded_self_wall_ns": 68000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14639,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 204344997000,
+              "end_ns": 204458821000,
+              "duration_ns": 113824000,
+              "thread_cpu_ns": 102669000,
+              "recorded_self_wall_ns": 41000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14657,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 204458850000,
+              "end_ns": 204657294000,
+              "duration_ns": 198444000,
+              "thread_cpu_ns": 170320000,
+              "recorded_self_wall_ns": 19000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 14701,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 204657331000,
+              "end_ns": 204734829000,
+              "duration_ns": 77498000,
+              "thread_cpu_ns": 45356000,
+              "recorded_self_wall_ns": 60000,
+              "parent_index": 11420
+            },
+            {
+              "event_index": 16802,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 207490233000,
+              "end_ns": 207506427000,
+              "duration_ns": 16194000,
+              "thread_cpu_ns": 14955000,
+              "recorded_self_wall_ns": 116000,
+              "parent_index": 15592
+            },
+            {
+              "event_index": 21906,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 210644657000,
+              "end_ns": 210659015000,
+              "duration_ns": 14358000,
+              "thread_cpu_ns": 13254000,
+              "recorded_self_wall_ns": 63000,
+              "parent_index": 21327
+            },
+            {
+              "event_index": 21916,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 210659046000,
+              "end_ns": 210728159000,
+              "duration_ns": 69113000,
+              "thread_cpu_ns": 67573000,
+              "recorded_self_wall_ns": 146000,
+              "parent_index": 21327
+            },
+            {
+              "event_index": 21934,
+              "pid": 4726,
+              "tid": 4753,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 210728218000,
+              "end_ns": 210845587000,
+              "duration_ns": 117369000,
+              "thread_cpu_ns": 83300000,
+              "recorded_self_wall_ns": 85000,
+              "parent_index": 21327
+            }
+          ],
+          "shared_shader_marker_identified": false,
+          "interpretation": "External MONOTONIC and BOOTTIME snapshots share an epoch within their sampling skew. Mapping Chromium event timestamps assumes its Android TimeTicks MONOTONIC source; this is source-based inference, not measured exact synchronization. Same-name external HWUI and internal WebView shader events are different operations and do not supply a shared marker."
+        },
+        "redaction": {
+          "completed_gpu_skia_args_stripped": 3553,
+          "completed_gpu_skia_args_not_stripped": 0,
+          "boundary": "Stripped args cannot identify a sync token, mailbox, resource, program key, or their ownership."
+        },
+        "window_families": [
+          {
+            "label": "before_outcome",
+            "start_ns": 195533878908,
+            "end_ns": 208097734385,
+            "families_kept_separate": [
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "overlapping_count": 3,
+                "fully_inside_count": 3,
+                "clipped_union_ns": 7536700000,
+                "longest_inclusive_event_ns": 2858952000,
+                "full_event_thread_cpu_sum_ns": 275000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "shader_compile",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 994920000,
+                "longest_inclusive_event_ns": 262803000,
+                "full_event_thread_cpu_sum_ns": 733160000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "cache_miss",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 136528000,
+                "longest_inclusive_event_ns": 49171000,
+                "full_event_thread_cpu_sum_ns": 86200000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 49127000,
+                "longest_inclusive_event_ns": 20033000,
+                "full_event_thread_cpu_sum_ns": 37170000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "driver_link_program",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 82561000,
+                "longest_inclusive_event_ns": 26096000,
+                "full_event_thread_cpu_sum_ns": 45545000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 3559000,
+                "longest_inclusive_event_ns": 1692000,
+                "full_event_thread_cpu_sum_ns": 2433000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 709000,
+                "longest_inclusive_event_ns": 88000,
+                "full_event_thread_cpu_sum_ns": 697000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4810,
+                "thread_name": "VizWebView",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 2,
+                "fully_inside_count": 2,
+                "clipped_union_ns": 1135000,
+                "longest_inclusive_event_ns": 1065000,
+                "full_event_thread_cpu_sum_ns": 890000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 143,
+                "fully_inside_count": 142,
+                "clipped_union_ns": 9649948385,
+                "longest_inclusive_event_ns": 1444543000,
+                "full_event_thread_cpu_sum_ns": 5282918000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "overlapping_count": 46,
+                "fully_inside_count": 46,
+                "clipped_union_ns": 7844060000,
+                "longest_inclusive_event_ns": 1361638000,
+                "full_event_thread_cpu_sum_ns": 4841245000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "overlapping_count": 46,
+                "fully_inside_count": 46,
+                "clipped_union_ns": 4030735000,
+                "longest_inclusive_event_ns": 1179723000,
+                "full_event_thread_cpu_sum_ns": 2586138000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "shader_compile",
+                "overlapping_count": 36,
+                "fully_inside_count": 36,
+                "clipped_union_ns": 3733990000,
+                "longest_inclusive_event_ns": 300485000,
+                "full_event_thread_cpu_sum_ns": 2415473000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "cache_miss",
+                "overlapping_count": 36,
+                "fully_inside_count": 36,
+                "clipped_union_ns": 634074000,
+                "longest_inclusive_event_ns": 194430000,
+                "full_event_thread_cpu_sum_ns": 375507000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 74,
+                "fully_inside_count": 74,
+                "clipped_union_ns": 372194000,
+                "longest_inclusive_event_ns": 145662000,
+                "full_event_thread_cpu_sum_ns": 255095000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_link_program",
+                "overlapping_count": 36,
+                "fully_inside_count": 36,
+                "clipped_union_ns": 180468000,
+                "longest_inclusive_event_ns": 42910000,
+                "full_event_thread_cpu_sum_ns": 104287000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 83,
+                "fully_inside_count": 83,
+                "clipped_union_ns": 45279000,
+                "longest_inclusive_event_ns": 29647000,
+                "full_event_thread_cpu_sum_ns": 13224000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 74,
+                "fully_inside_count": 74,
+                "clipped_union_ns": 3591000,
+                "longest_inclusive_event_ns": 185000,
+                "full_event_thread_cpu_sum_ns": 3261000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [
+              {
+                "pid": 4726,
+                "tid": 4753,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 858392000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 4110070000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 296745000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 4726,
+                "tid": 4814,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 3099916000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              }
+            ],
+            "top_five_events": [
+              {
+                "event_index": 13969,
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 200798937000,
+                "end_ns": 203657889000,
+                "duration_ns": 2858952000,
+                "thread_cpu_ns": 81000,
+                "recorded_self_wall_ns": 2858952000,
+                "parent_index": 11420
+              },
+              {
+                "event_index": 11423,
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 198403397000,
+                "end_ns": 200783716000,
+                "duration_ns": 2380319000,
+                "thread_cpu_ns": 87000,
+                "recorded_self_wall_ns": 2380319000,
+                "parent_index": 11420
+              },
+              {
+                "event_index": 15613,
+                "pid": 4726,
+                "tid": 4753,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 205165349000,
+                "end_ns": 207462778000,
+                "duration_ns": 2297429000,
+                "thread_cpu_ns": 107000,
+                "recorded_self_wall_ns": 2297429000,
+                "parent_index": 15592
+              },
+              {
+                "event_index": 14189,
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 201578600000,
+                "end_ns": 203023143000,
+                "duration_ns": 1444543000,
+                "thread_cpu_ns": 999668000,
+                "recorded_self_wall_ns": 7000,
+                "parent_index": 14188
+              },
+              {
+                "event_index": 14190,
+                "pid": 4726,
+                "tid": 4814,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 201578602000,
+                "end_ns": 203023138000,
+                "duration_ns": 1444536000,
+                "thread_cpu_ns": 999662000,
+                "recorded_self_wall_ns": 19000,
+                "parent_index": 14189
+              }
+            ]
+          }
+        ]
+      },
+      "files": {
+        "trace-evidence/launch.pftrace": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-candidate/trace-evidence/launch.pftrace",
+          "bytes": 27519690,
+          "sha256": "9f946f412106871f3f2fed9844fd1f83e3fa86a470ff2978c13210c5982e2494"
+        },
+        "rendering-evidence/rendering-trace.json": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-candidate/rendering-evidence/rendering-trace.json",
+          "bytes": 13231310,
+          "sha256": "2b144ca9996614f11cb4cb39093f017222b21d7aedf5bbdc1d9c85d1d4dcd9dc"
+        },
+        "rendering-evidence/rendering-trace-status.json": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-candidate/rendering-evidence/rendering-trace-status.json",
+          "bytes": 872,
+          "sha256": "ca5670833ba8a66566f3c56f4e16441095d0261cf2088563db24d1d54c4a5af3"
+        }
+      },
+      "analysis_files": [
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/candidate-reveal.csv",
+          "bytes": 18640,
+          "sha256": "ae685f8cb670efa574799505a8cd7acbe30365b0b05e1a49e55c32260212f4b8"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/candidate-reveal.stderr.txt",
+          "bytes": 189,
+          "sha256": "e3ef6f08a7782c96bb56db937fe2e49d68e42bebbf2caa68f94bebbf265f8d63"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/candidate-rendering.json",
+          "bytes": 84230,
+          "sha256": "17fe0004f13af224d7b7b5af101b9f23e29d104241cc63be7e7b251188b55ddd"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/candidate-rendering-invocation.json",
+          "bytes": 517,
+          "sha256": "3556621d82e27571f9bcb5591cd983f0984e9d3f07c1d0a8dc213b1d928b2a40"
+        }
+      ]
+    },
+    "control": {
+      "pinned_identity": {
+        "source_sha": "7ca13b9adbf45b953c3b0997107d010e7bad1d9b",
+        "apk_sha256": "ea51187e3c9718b18c5f5256fd0d803cf0fe4d11ec1d14394d7e00cc20988212",
+        "manifest_sha256": "0169b08f2105d2c1e3da6e3aa731e9a5bbfe4992e03ea8838c300b53bd7ed989",
+        "web_files": 240,
+        "status": "PASS"
+      },
+      "markers": {
+        "section": "launch_identity",
+        "upid": "369",
+        "pid": "5011",
+        "process_name": "com.robys.coffeehouse.debug",
+        "launch_count": "1",
+        "native_ts": "199877604849",
+        "commit_ts": "203939566150",
+        "ready_ts": "[NULL]",
+        "fallback_ts": "208322962745",
+        "visual_ts": "208552857196",
+        "reveal_ts": "208553391179",
+        "failure_ts": "[NULL]",
+        "outcome_ts": "208553391179"
+      },
+      "native_to_completion_ms": 8675.78633,
+      "native_to_failure_ms": null,
+      "post_completion_observation": {
+        "applicable": true,
+        "reason": "Native completion was observed; inspect captured window and actual video separately."
+      },
+      "failure_crossing_draws": [],
+      "system_coverage": [
+        {
+          "section": "window_coverage",
+          "pid": "5011",
+          "phase": "before_outcome",
+          "start_ts": "199877604849",
+          "requested_end_ts": "208553391179",
+          "trace_start_ts": "197011253753",
+          "trace_end_ts": "257013869748",
+          "requested_ms": "8675.786000",
+          "captured_ms": "8675.786000",
+          "coverage_ok": "1"
+        },
+        {
+          "section": "window_coverage",
+          "pid": "5011",
+          "phase": "after_reveal_10s",
+          "start_ts": "208553391179",
+          "requested_end_ts": "218553391179",
+          "trace_start_ts": "197011253753",
+          "trace_end_ts": "257013869748",
+          "requested_ms": "10000.000000",
+          "captured_ms": "10000.000000",
+          "coverage_ok": "1"
+        }
+      ],
+      "thread_state_coverage": [
+        {
+          "section": "thread_state_coverage",
+          "pid": "5011",
+          "tid": "5011",
+          "thread_name": "ffeehouse.debug",
+          "phase": "after_reveal_10s",
+          "window_ms": "10000.000000",
+          "state_coverage_ms": "10000.000000"
+        },
+        {
+          "section": "thread_state_coverage",
+          "pid": "5011",
+          "tid": "5011",
+          "thread_name": "ffeehouse.debug",
+          "phase": "before_outcome",
+          "window_ms": "8675.786000",
+          "state_coverage_ms": "8675.786000"
+        },
+        {
+          "section": "thread_state_coverage",
+          "pid": "5011",
+          "tid": "5047",
+          "thread_name": "RenderThread",
+          "phase": "after_reveal_10s",
+          "window_ms": "10000.000000",
+          "state_coverage_ms": "10000.000000"
+        },
+        {
+          "section": "thread_state_coverage",
+          "pid": "5011",
+          "tid": "5047",
+          "thread_name": "RenderThread",
+          "phase": "before_outcome",
+          "window_ms": "8675.786000",
+          "state_coverage_ms": "8675.786000"
+        }
+      ],
+      "handoff_sequence": [
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "199877604849",
+          "since_native_ms": "0.000000",
+          "msg": "NATIVE_SURFACE"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "203939566150",
+          "since_native_ms": "4061.961000",
+          "msg": "WEB_COMMITTED"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "208322962745",
+          "since_native_ms": "8445.358000",
+          "msg": "WEB_READY_TIMEOUT"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "208552857196",
+          "since_native_ms": "8675.252000",
+          "msg": "VISUAL_STATE_CONFIRMED"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "208553376197",
+          "since_native_ms": "8675.771000",
+          "msg": "HANDOFF_COMPLETE_FALLBACK"
+        },
+        {
+          "section": "handoff_sequence",
+          "pid": "5011",
+          "tid": "5011",
+          "ts": "208553391179",
+          "since_native_ms": "8675.786000",
+          "msg": "HANDOFF_COMPLETE"
+        }
+      ],
+      "delivery_timeline": [
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "385.857000",
+          "since_reveal_ms": "-8289.930000",
+          "msg": "SERVED index.html sha256=a74c29282e29e3e3b68f752460559e4fd2da7a7c0ebe0fa81ba6ad37a01878f7 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "1986.235000",
+          "since_reveal_ms": "-6689.551000",
+          "msg": "SERVED bootstrap-v2.js sha256=2a28f7626e2831855be893727fc3b6824657e2e560f650ef714c69411744df6e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "2980.285000",
+          "since_reveal_ms": "-5695.501000",
+          "msg": "SERVED android-handoff.js sha256=451f55e218906204d2496762ce9944f2239e66555f750e930fddd067af9a838f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3017.237000",
+          "since_reveal_ms": "-5658.549000",
+          "msg": "SERVED styles-v2.css sha256=a4431b07fc04028f5d31a6d7a3b0ce59014a427b124092db5076a5ff264e4e2a status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3040.618000",
+          "since_reveal_ms": "-5635.168000",
+          "msg": "SERVED final-qa.css sha256=0c01d00f89caecb135808f50f75bd470ef46e287dffddf98e9f287df5fa23354 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3048.655000",
+          "since_reveal_ms": "-5627.132000",
+          "msg": "SERVED src/brand/robys-compact-master-v1.svg sha256=dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3052.480000",
+          "since_reveal_ms": "-5623.307000",
+          "msg": "SERVED mobile.css sha256=6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3059.034000",
+          "since_reveal_ms": "-5616.752000",
+          "msg": "SERVED conversion.css sha256=16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3060.915000",
+          "since_reveal_ms": "-5614.871000",
+          "msg": "SERVED src/robys-hero-poster.jpg sha256=dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3068.534000",
+          "since_reveal_ms": "-5607.252000",
+          "msg": "SERVED map-live.css sha256=52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3089.258000",
+          "since_reveal_ms": "-5586.528000",
+          "msg": "SERVED social-offer.css sha256=d27720e5102f6993d8c743bbe3d80a5106fd247109b5406200dd71c2a53771f2 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3100.063000",
+          "since_reveal_ms": "-5575.723000",
+          "msg": "SERVED featured-strip.css sha256=7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3101.563000",
+          "since_reveal_ms": "-5574.223000",
+          "msg": "SERVED menu-preview.css sha256=3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3106.022000",
+          "since_reveal_ms": "-5569.765000",
+          "msg": "SERVED featured-gallery.css sha256=12ec7abefc736fff05d8515187c94732c0fb91f806ddf851f113246a05ee85c1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3109.497000",
+          "since_reveal_ms": "-5566.289000",
+          "msg": "SERVED gallery-clean.css sha256=273585a89f27f1f06486e87bd3f86b7420dde9a11440531aa15123e4ac3ed8da status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3117.225000",
+          "since_reveal_ms": "-5558.561000",
+          "msg": "SERVED brand-photo-logo.css sha256=9e8b794b538ea71dc299f8b0c7ac358520ebc81046f52be32508637902d450cb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3129.095000",
+          "since_reveal_ms": "-5546.691000",
+          "msg": "SERVED community-reel.css sha256=10f94095c673173efd9457c8314e200452dd6e00fe7c7176c208d47be483902e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3142.360000",
+          "since_reveal_ms": "-5533.426000",
+          "msg": "SERVED conversion.js sha256=ec3b0bd6a2430f9cd13666941d4bfe0e9e1896e8ee7992a26447580b78744c20 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3228.948000",
+          "since_reveal_ms": "-5446.839000",
+          "msg": "SERVED featured-gallery.js sha256=283ba80f334ed112e8c96633af50bd4f110360cc44ac492ebddd09e2f920fb9f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3236.667000",
+          "since_reveal_ms": "-5439.119000",
+          "msg": "SERVED analytics.js sha256=6089fae48e0ee8528209e8f8d4741cab034ef67182360843dbeb31981c34d9c3 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3243.381000",
+          "since_reveal_ms": "-5432.406000",
+          "msg": "SERVED pwa.js sha256=61b85a0c59b13dcda25c6b7f4e8e76a226d7933e0487b34dba8b4d8aec029051 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3254.791000",
+          "since_reveal_ms": "-5420.995000",
+          "msg": "SERVED social-offer.js sha256=359ec08152dafa11d30c63c354763c8bbea3daa06394ffc94d4b1e315fd674cc status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3258.349000",
+          "since_reveal_ms": "-5417.438000",
+          "msg": "SERVED android-download.js sha256=47f5f2967d5b27d9273bf35b56c056158a843c6942fcc39bd18811bfb230ba33 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3260.742000",
+          "since_reveal_ms": "-5415.045000",
+          "msg": "SERVED qa.js sha256=8e149da8e137467dd5d4669076e1f4437f730c52a98385f4c83f57855bad3172 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3260.947000",
+          "since_reveal_ms": "-5414.839000",
+          "msg": "SERVED order-shell.css sha256=eeb3d8805fe9d66c13994d342cb4c8b5f69426d5c3fef88d86e2dd622cd332e1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3266.710000",
+          "since_reveal_ms": "-5409.076000",
+          "msg": "SERVED order-launcher.js sha256=67ef8d882b7164e80dfb004aa9e1153e01179958209c0bcc3bb3755a73730fdf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3268.581000",
+          "since_reveal_ms": "-5407.206000",
+          "msg": "SERVED src/brand/robys-mark-master-v1.svg sha256=4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3271.098000",
+          "since_reveal_ms": "-5404.689000",
+          "msg": "SERVED src/brand/robys-mark-master-v1.svg sha256=4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3271.517000",
+          "since_reveal_ms": "-5404.269000",
+          "msg": "SERVED src/products/gallery-v5/latte.webp sha256=62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3282.795000",
+          "since_reveal_ms": "-5392.991000",
+          "msg": "SERVED app.js sha256=0a634c2a1ee405e419521de8ba532238e581cb9de155c3c8f85aa7d7fdac5603 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3293.370000",
+          "since_reveal_ms": "-5382.416000",
+          "msg": "SERVED src/robys-ambience-clean.mp4 sha256=2f52191d25ee6766dd1ebab330d343afd71e8bd8c2651b15f61d6834d9043dd2 status=206"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3787.103000",
+          "since_reveal_ms": "-4888.684000",
+          "msg": "SERVED src/brand/robys-compact-master-v1.svg sha256=dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3789.801000",
+          "since_reveal_ms": "-4885.986000",
+          "msg": "SERVED src/robys-hero-poster.jpg sha256=dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3841.332000",
+          "since_reveal_ms": "-4834.454000",
+          "msg": "SERVED src/menu-icons/hot.svg sha256=00a1cf696fdb9346075dc673a3b5c0af91d8eb30ad0b18d5a9978338f4880af0 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3852.030000",
+          "since_reveal_ms": "-4823.756000",
+          "msg": "SERVED src/menu-icons/tea.svg sha256=51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3856.374000",
+          "since_reveal_ms": "-4819.413000",
+          "msg": "SERVED src/menu-icons/refreshers.svg sha256=b6323a987911af3d3eef89d7bfb75b4a5027bf4a47b63816ae8c3adb378da658 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3858.768000",
+          "since_reveal_ms": "-4817.019000",
+          "msg": "SERVED src/menu-icons/cold.svg sha256=20332190f47f2dcb0f099d31d07b6e6d1f1c075bc1c1331eb316e56dc1858e7e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3875.027000",
+          "since_reveal_ms": "-4800.760000",
+          "msg": "SERVED src/menu-icons/dessert.svg sha256=0e9c4e81532be49eb99f5fcac08ca732b69c170608880ea277fc09df47757686 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "3882.253000",
+          "since_reveal_ms": "-4793.534000",
+          "msg": "SERVED src/menu-icons/food.svg sha256=4f448649705214571b705da97a57be1217b2a266ca477ca5be313239a5de1fcd status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4021.253000",
+          "since_reveal_ms": "-4654.533000",
+          "msg": "SERVED src/products/gallery-v5/nutella-croissant.webp sha256=320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4056.213000",
+          "since_reveal_ms": "-4619.573000",
+          "msg": "SERVED src/products/gallery-v5/iced-latte.webp sha256=bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4056.366000",
+          "since_reveal_ms": "-4619.421000",
+          "msg": "SERVED src/products/gallery-v5/lotus-cheesecake.webp sha256=383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4059.787000",
+          "since_reveal_ms": "-4616.000000",
+          "msg": "SERVED src/products/gallery-v5/san-sebastian.webp sha256=911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4061.715000",
+          "since_reveal_ms": "-4614.071000",
+          "msg": "SERVED src/products/gallery-v5/croissant.webp sha256=43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4120.603000",
+          "since_reveal_ms": "-4555.184000",
+          "msg": "SERVED src/products/gallery-v5/latte.webp sha256=62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4165.452000",
+          "since_reveal_ms": "-4510.334000",
+          "msg": "SERVED src/products/gallery-v5/lotus-cheesecake-828.webp sha256=2c0a180ef8434c2bd369a804f0d6ea06720ef4034a2c4d1ecf4ee697df595a82 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4171.963000",
+          "since_reveal_ms": "-4503.823000",
+          "msg": "SERVED src/brand/robys-primary-master-v1.svg sha256=ab2e3a8e3da59d6ff3917caab76f7d74ce14337987b38231e385c2c924512a17 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4182.477000",
+          "since_reveal_ms": "-4493.309000",
+          "msg": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4185.532000",
+          "since_reveal_ms": "-4490.254000",
+          "msg": "SERVED src/android-mark.svg sha256=4ab89e14719b88c91f1ec0747cc3cde247a6147f14053a28f19a15559dc162df status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4186.324000",
+          "since_reveal_ms": "-4489.462000",
+          "msg": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "4197.499000",
+          "since_reveal_ms": "-4478.287000",
+          "msg": "SERVED hero-balance.css sha256=a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "8675.292000",
+          "since_reveal_ms": "-0.494000",
+          "msg": "SERVED sw.js sha256=f99f0d0d608ff7cf7ed524d5cb08ddb5e2b33b19d0d67a362c6d9e01204d0887 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15110.043000",
+          "since_reveal_ms": "6434.256000",
+          "msg": "SERVED index.html sha256=a74c29282e29e3e3b68f752460559e4fd2da7a7c0ebe0fa81ba6ad37a01878f7 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15110.654000",
+          "since_reveal_ms": "6434.868000",
+          "msg": "SERVED index.html sha256=a74c29282e29e3e3b68f752460559e4fd2da7a7c0ebe0fa81ba6ad37a01878f7 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15113.274000",
+          "since_reveal_ms": "6437.488000",
+          "msg": "SERVED menu.html sha256=5ebb33672c458ccf764ef9d35005569a059b71651cd9d0bb8d8ee8eaceee0d97 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15118.159000",
+          "since_reveal_ms": "6442.373000",
+          "msg": "SERVED discover.html sha256=adb6244ec438ae22b5ca16cea614f097411e5bd67a26f28108a2d532e17d45e4 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15120.574000",
+          "since_reveal_ms": "6444.788000",
+          "msg": "SERVED 404.html sha256=1d2ea2d5d562b0e0b767655de85ce9cc02a467895479ef392fc7823388897590 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15123.634000",
+          "since_reveal_ms": "6447.848000",
+          "msg": "SERVED manifest.webmanifest sha256=e8c06a33dc6147ed464c582e2f3ba5b50905d0f25a6b3c0169794d0ec12c8e5c status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15124.120000",
+          "since_reveal_ms": "6448.334000",
+          "msg": "SERVED mobile-install-copy.json sha256=5bac83efcfaf86adbe2d96ca9096880b04a3733c8bafcf25da605301a736feed status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15129.881000",
+          "since_reveal_ms": "6454.095000",
+          "msg": "SERVED mobile-install.js sha256=5616ee389702db2a536ac08f8713814511329fbeb4a574750bd8fd91d7c2495f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15130.659000",
+          "since_reveal_ms": "6454.873000",
+          "msg": "SERVED offline.css sha256=6cc9953fd296558305d6187fb359ccc26057558c0e38164c7b302092ae123342 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15131.445000",
+          "since_reveal_ms": "6455.658000",
+          "msg": "SERVED pwa.js sha256=61b85a0c59b13dcda25c6b7f4e8e76a226d7933e0487b34dba8b4d8aec029051 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15135.830000",
+          "since_reveal_ms": "6460.044000",
+          "msg": "SERVED android-download.js sha256=47f5f2967d5b27d9273bf35b56c056158a843c6942fcc39bd18811bfb230ba33 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15137.128000",
+          "since_reveal_ms": "6461.341000",
+          "msg": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15137.438000",
+          "since_reveal_ms": "6461.651000",
+          "msg": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15142.135000",
+          "since_reveal_ms": "6466.349000",
+          "msg": "SERVED styles-v2.css sha256=a4431b07fc04028f5d31a6d7a3b0ce59014a427b124092db5076a5ff264e4e2a status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15143.788000",
+          "since_reveal_ms": "6468.002000",
+          "msg": "SERVED mobile.css sha256=6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15145.161000",
+          "since_reveal_ms": "6469.375000",
+          "msg": "SERVED conversion.css sha256=16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15146.827000",
+          "since_reveal_ms": "6471.041000",
+          "msg": "SERVED final-qa.css sha256=0c01d00f89caecb135808f50f75bd470ef46e287dffddf98e9f287df5fa23354 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15150.875000",
+          "since_reveal_ms": "6475.089000",
+          "msg": "SERVED social-offer.css sha256=d27720e5102f6993d8c743bbe3d80a5106fd247109b5406200dd71c2a53771f2 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15154.278000",
+          "since_reveal_ms": "6478.492000",
+          "msg": "SERVED menu-premium.css sha256=8057fd0f208f2f88079b435115121740e57280783ed0a36967e9691f77ff8e7b status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15156.288000",
+          "since_reveal_ms": "6480.501000",
+          "msg": "SERVED menu-stability.css sha256=46e3fd653e324f123a8e0cbb285147bbdaa9b686cff84d78db6a2a48a2aee45d status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15157.985000",
+          "since_reveal_ms": "6482.199000",
+          "msg": "SERVED menu-security-v2.css sha256=9a74fe13ba64c0a8ebe68442c99624f9e4e13ad81b512a8b4077724658666861 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15160.837000",
+          "since_reveal_ms": "6485.050000",
+          "msg": "SERVED discover.css sha256=27f4dfa8c27e1cec5a245c9b94a4b551967716dd972c5139a8b84e3b6a1fb0f2 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15167.337000",
+          "since_reveal_ms": "6491.550000",
+          "msg": "SERVED discover-rotation.css sha256=96b566c9731e8978a87ac65fe014826b9227a26d3bae23f17bdd0345d4032316 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15167.750000",
+          "since_reveal_ms": "6491.964000",
+          "msg": "SERVED wordmark-responsive.css sha256=82f15d016cdf72a5dddb74202f9908d4da0c13150c987b6bd0b14557c3436532 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15362.086000",
+          "since_reveal_ms": "6686.299000",
+          "msg": "SERVED brand-photo-logo.css sha256=9e8b794b538ea71dc299f8b0c7ac358520ebc81046f52be32508637902d450cb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15366.589000",
+          "since_reveal_ms": "6690.803000",
+          "msg": "SERVED src/brand/robys-primary-master-v1.svg sha256=ab2e3a8e3da59d6ff3917caab76f7d74ce14337987b38231e385c2c924512a17 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15369.978000",
+          "since_reveal_ms": "6694.192000",
+          "msg": "SERVED icon.svg sha256=f06bf925852c14604e76ae0949e1b19af7594a9b0b5dd20bdcac659c9454e045 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15373.702000",
+          "since_reveal_ms": "6697.916000",
+          "msg": "SERVED src/brand/robys-header-master-v1.svg sha256=bfc8229ec2336546c86c3ce803eec26e10ea0a0cf225cd9cd9256e3d00d5ed43 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "15380.427000",
+          "since_reveal_ms": "6704.641000",
+          "msg": "SERVED src/brand/robys-compact-master-v1.svg sha256=dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17082.549000",
+          "since_reveal_ms": "8406.763000",
+          "msg": "SERVED src/brand/robys-mark-master-v1.svg sha256=4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17141.633000",
+          "since_reveal_ms": "8465.847000",
+          "msg": "SERVED bootstrap-v2.js sha256=2a28f7626e2831855be893727fc3b6824657e2e560f650ef714c69411744df6e status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17142.202000",
+          "since_reveal_ms": "8466.416000",
+          "msg": "SERVED android-handoff.js sha256=451f55e218906204d2496762ce9944f2239e66555f750e930fddd067af9a838f status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17182.458000",
+          "since_reveal_ms": "8506.671000",
+          "msg": "SERVED morning-entry-v2.js sha256=8a158515f4de14a965f68d3a7d762df69fa7a81e7a7b23cdca615c12013210a9 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17189.704000",
+          "since_reveal_ms": "8513.917000",
+          "msg": "SERVED takeaway-entry.js sha256=9dd7117c7364d5ea7108823a27eaf7b5e3ec1c02fa1c18c17a8d787e85d4f8ce status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17214.846000",
+          "since_reveal_ms": "8539.060000",
+          "msg": "SERVED src/brand/robys-takeaway-cup-v1.webp sha256=c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17554.648000",
+          "since_reveal_ms": "8878.862000",
+          "msg": "SERVED day-night-entry.js sha256=eddd45410ad973280b12874a80e166d7bd881981c98b18eced6f17939072f083 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17555.349000",
+          "since_reveal_ms": "8879.563000",
+          "msg": "SERVED app.js sha256=0a634c2a1ee405e419521de8ba532238e581cb9de155c3c8f85aa7d7fdac5603 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17555.895000",
+          "since_reveal_ms": "8880.109000",
+          "msg": "SERVED conversion.js sha256=ec3b0bd6a2430f9cd13666941d4bfe0e9e1896e8ee7992a26447580b78744c20 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17693.714000",
+          "since_reveal_ms": "9017.928000",
+          "msg": "SERVED menu-ready.js sha256=294908a0f2596ef861fac5f0da62fb8efe6cb3fa8030fea16e47fa009cbafe7b status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17727.100000",
+          "since_reveal_ms": "9051.314000",
+          "msg": "SERVED menu-app.js sha256=1083ae6c750e3a8b1cd6a7b7cfc66ad596e746af8e12436886fb1da13fcef500 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17735.150000",
+          "since_reveal_ms": "9059.363000",
+          "msg": "SERVED menu-pwa.js sha256=59fa4553af58981150e8d6c426fe2bce873d02e174c184ba70973535850d2b52 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17749.665000",
+          "since_reveal_ms": "9073.879000",
+          "msg": "SERVED menu-catalog.js sha256=243b340f2a4dbe8a05ba20a1b96191db9a2237a094ec67c86d9a865a59c330ba status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "17765.774000",
+          "since_reveal_ms": "9089.988000",
+          "msg": "SERVED menu-search-clear.js sha256=f521a59859c6cd108f14a2427afd05d2a806b11aa8e8b925b5d0b53dfa264cd8 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18111.267000",
+          "since_reveal_ms": "9435.480000",
+          "msg": "SERVED menu-interactions.js sha256=4cc1878c8955861565a281bb66903d1b22c450111ff90fb2ed3c24ee759ff8d1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18130.176000",
+          "since_reveal_ms": "9454.390000",
+          "msg": "SERVED order-launcher.js sha256=67ef8d882b7164e80dfb004aa9e1153e01179958209c0bcc3bb3755a73730fdf status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18175.933000",
+          "since_reveal_ms": "9500.147000",
+          "msg": "SERVED order-store.js sha256=ea7acc7113ac4511d2b5bdb23fba1021d6a7a19069e9a80d42e2ed0fe2270452 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18191.812000",
+          "since_reveal_ms": "9516.026000",
+          "msg": "SERVED order-shell.js sha256=6b0f97c71c65f7e7215f57d5d654b264410f9f764cc29c6348cb89155f939200 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18208.715000",
+          "since_reveal_ms": "9532.928000",
+          "msg": "SERVED pairing-posters.css sha256=14f866f5a3ca3f37c897f42ba2a597284ce2bd0fc72a3ab41f894bab59533e59 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18352.836000",
+          "since_reveal_ms": "9677.050000",
+          "msg": "SERVED pairing-posters.js sha256=58982ebf132bbfc32fe22b7463b0ad7de95f1733a86cd70b15aca941e2b0a208 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18472.066000",
+          "since_reveal_ms": "9796.279000",
+          "msg": "SERVED order-shell.css sha256=eeb3d8805fe9d66c13994d342cb4c8b5f69426d5c3fef88d86e2dd622cd332e1 status=200"
+        },
+        {
+          "section": "delivery_timeline",
+          "pid": "5011",
+          "since_native_ms": "18472.782000",
+          "since_reveal_ms": "9796.996000",
+          "msg": "SERVED smart-choice/index.html sha256=2f0c5fe878cb0847784fdcad2cbd47011d5de82cd2a4ab61a5a1a49a9eeede61 status=200"
+        }
+      ],
+      "nonzero_error_or_data_loss": [],
+      "nested_same_family": [
+        {
+          "section": "nested_same_family",
+          "nested_pairs": "0"
+        }
+      ],
+      "unfinished_waits": [],
+      "post_completion_draws_gt50ms": [
+        {
+          "id": 95763,
+          "start_ns": 208530623611,
+          "end_ns": 214652249139,
+          "duration_ms": 6121.625528,
+          "start_relative_completion_ms": -22.767568,
+          "end_relative_completion_ms": 6098.85796,
+          "clipped_overlap_ms": 6098.858
+        },
+        {
+          "id": 103389,
+          "start_ns": 215175548971,
+          "end_ns": 216589231897,
+          "duration_ms": 1413.682926,
+          "start_relative_completion_ms": 6622.157792,
+          "end_relative_completion_ms": 8035.840718,
+          "clipped_overlap_ms": 1413.683
+        },
+        {
+          "id": 109833,
+          "start_ns": 218247915749,
+          "end_ns": 218575247558,
+          "duration_ms": 327.331809,
+          "start_relative_completion_ms": 9694.52457,
+          "end_relative_completion_ms": 10021.856379,
+          "clipped_overlap_ms": 305.475
+        },
+        {
+          "id": 108282,
+          "start_ns": 217723190248,
+          "end_ns": 217992645320,
+          "duration_ms": 269.455072,
+          "start_relative_completion_ms": 9169.799069,
+          "end_relative_completion_ms": 9439.254141,
+          "clipped_overlap_ms": 269.455
+        },
+        {
+          "id": 105221,
+          "start_ns": 216617459426,
+          "end_ns": 216878038422,
+          "duration_ms": 260.578996,
+          "start_relative_completion_ms": 8064.068247,
+          "end_relative_completion_ms": 8324.647243,
+          "clipped_overlap_ms": 260.579
+        },
+        {
+          "id": 106104,
+          "start_ns": 216946820341,
+          "end_ns": 217207307585,
+          "duration_ms": 260.487244,
+          "start_relative_completion_ms": 8393.429162,
+          "end_relative_completion_ms": 8653.916406,
+          "clipped_overlap_ms": 260.487
+        },
+        {
+          "id": 106789,
+          "start_ns": 217223490689,
+          "end_ns": 217448601713,
+          "duration_ms": 225.111024,
+          "start_relative_completion_ms": 8670.09951,
+          "end_relative_completion_ms": 8895.210534,
+          "clipped_overlap_ms": 225.111
+        },
+        {
+          "id": 107635,
+          "start_ns": 217484472719,
+          "end_ns": 217707125079,
+          "duration_ms": 222.65236,
+          "start_relative_completion_ms": 8931.08154,
+          "end_relative_completion_ms": 9153.7339,
+          "clipped_overlap_ms": 222.652
+        },
+        {
+          "id": 108969,
+          "start_ns": 218009260923,
+          "end_ns": 218227190336,
+          "duration_ms": 217.929413,
+          "start_relative_completion_ms": 9455.869744,
+          "end_relative_completion_ms": 9673.799157,
+          "clipped_overlap_ms": 217.929
+        }
+      ],
+      "post_completion_main_waits_gt50ms": [
+        {
+          "id": 96169,
+          "start_ns": 208562879582,
+          "end_ns": 214682421978,
+          "duration_ms": 6119.542396,
+          "start_relative_completion_ms": 9.488403,
+          "end_relative_completion_ms": 6129.030799,
+          "clipped_overlap_ms": 6119.542
+        },
+        {
+          "id": 103630,
+          "start_ns": 215254409038,
+          "end_ns": 216646565842,
+          "duration_ms": 1392.156804,
+          "start_relative_completion_ms": 6701.017859,
+          "end_relative_completion_ms": 8093.174663,
+          "clipped_overlap_ms": 1392.157
+        },
+        {
+          "id": 108517,
+          "start_ns": 217782126133,
+          "end_ns": 218010048012,
+          "duration_ms": 227.921879,
+          "start_relative_completion_ms": 9228.734954,
+          "end_relative_completion_ms": 9456.656833,
+          "clipped_overlap_ms": 227.922
+        },
+        {
+          "id": 110234,
+          "start_ns": 218354202066,
+          "end_ns": 218577720122,
+          "duration_ms": 223.518056,
+          "start_relative_completion_ms": 9800.810887,
+          "end_relative_completion_ms": 10024.328943,
+          "clipped_overlap_ms": 199.189
+        },
+        {
+          "id": 109446,
+          "start_ns": 218092831469,
+          "end_ns": 218306639629,
+          "duration_ms": 213.80816,
+          "start_relative_completion_ms": 9539.44029,
+          "end_relative_completion_ms": 9753.24845,
+          "clipped_overlap_ms": 213.808
+        },
+        {
+          "id": 106990,
+          "start_ns": 217276992831,
+          "end_ns": 217485816185,
+          "duration_ms": 208.823354,
+          "start_relative_completion_ms": 8723.601652,
+          "end_relative_completion_ms": 8932.425006,
+          "clipped_overlap_ms": 208.823
+        },
+        {
+          "id": 106535,
+          "start_ns": 217038691851,
+          "end_ns": 217222829727,
+          "duration_ms": 184.137876,
+          "start_relative_completion_ms": 8485.300672,
+          "end_relative_completion_ms": 8669.438548,
+          "clipped_overlap_ms": 184.138
+        },
+        {
+          "id": 108013,
+          "start_ns": 217576706907,
+          "end_ns": 217723810840,
+          "duration_ms": 147.103933,
+          "start_relative_completion_ms": 9023.315728,
+          "end_relative_completion_ms": 9170.419661,
+          "clipped_overlap_ms": 147.104
+        },
+        {
+          "id": 105850,
+          "start_ns": 216877475876,
+          "end_ns": 216955848910,
+          "duration_ms": 78.373034,
+          "start_relative_completion_ms": 8324.084697,
+          "end_relative_completion_ms": 8402.457731,
+          "clipped_overlap_ms": 78.373
+        }
+      ],
+      "rendering": {
+        "status": {
+          "schema_version": 1,
+          "state": "closed",
+          "reason": "timer",
+          "bytes_written": 12213154,
+          "io_error_count": 0,
+          "stop_accepted": true,
+          "stream_closed": true,
+          "start_elapsed_ns": 199862378306,
+          "start_returned_elapsed_ns": 199862759262,
+          "stop_requested_elapsed_ns": 234962805970,
+          "closed_elapsed_ns": 242455279916,
+          "start_uptime_ms": 199862,
+          "start_wall_time_ms": 1788871422165,
+          "status_elapsed_ns": 242455417701,
+          "status_uptime_ms": 242455,
+          "status_wall_time_ms": 1788871464758,
+          "stop_after_ms": 35000,
+          "mode": "RECORD_UNTIL_FULL",
+          "categories": [
+            "CATEGORIES_RENDERING",
+            "CATEGORIES_ANDROID_WEBVIEW",
+            "disabled-by-default-gpu.service",
+            "disabled-by-default-skia.shaders"
+          ],
+          "provider": {
+            "package_name": "com.google.android.webview",
+            "version_name": "133.0.6943.137",
+            "long_version_code": 694313738
+          }
+        },
+        "coverage": {
+          "first_actual_event_ns": 199981602000,
+          "last_actual_event_timestamp_ns": 235157874000,
+          "last_completed_event_end_ns": 235157908000,
+          "observer_byte_count_matches": true,
+          "boundary": "A closed stream and event endpoints do not prove a buffer never filled or every category was active. RECORD_UNTIL_FULL, incomplete spans, redacted metadata and external parser warnings must remain visible. Absence is not exclusion."
+        },
+        "last_timestamp_relative_completion_ms": 26604.482821,
+        "incomplete_begin_count": 7,
+        "incomplete_begins_before_requested_end": [],
+        "unmatched_end_count": 0,
+        "invalid_completed_count": 0,
+        "nesting": {
+          "crossing_interval_pairs": [
+            [
+              5223,
+              5292
+            ]
+          ],
+          "equal_extent_parent_child_pairs": 25,
+          "boundary": "Timestamp-based nesting is descriptive. Crossing/equal spans make self-wall attribution ambiguous. Recorded self wall is not CPU time; no sum of inclusive parent and child durations is a valid total."
+        },
+        "alignment": {
+          "transform": "internal ts in microseconds * 1000 + supplied offset",
+          "offset_ns": 0,
+          "boundary": "System windows are supplied externally. Stripped clock metadata cannot independently establish exact synchronization; compare observer anchors and common events/source clock before attributing exact edges."
+        },
+        "alignment_evidence": {
+          "query_sha256": "dff3fe2c63851efa5a736d058d73333637acddcd3da87ecc3e59c2c9902550c3",
+          "query_output_sha256": "507a54051cd5adbc2df4e58e132a921be831558e7795b14293bb9d29681de54f",
+          "clock_snapshots": [
+            {
+              "snapshot_id": 0,
+              "mono_ns": 196769412623,
+              "boot_ns": 196769412502,
+              "mono_minus_boot_ns": 121
+            },
+            {
+              "snapshot_id": 1,
+              "mono_ns": 196769422297,
+              "boot_ns": 196769422207,
+              "mono_minus_boot_ns": 90
+            },
+            {
+              "snapshot_id": 2,
+              "mono_ns": 197054156506,
+              "boot_ns": 197054156406,
+              "mono_minus_boot_ns": 100
+            },
+            {
+              "snapshot_id": 3,
+              "mono_ns": 200002910203,
+              "boot_ns": 200002910053,
+              "mono_minus_boot_ns": 150
+            },
+            {
+              "snapshot_id": 4,
+              "mono_ns": 210001833976,
+              "boot_ns": 210001833815,
+              "mono_minus_boot_ns": 161
+            },
+            {
+              "snapshot_id": 5,
+              "mono_ns": 220000973378,
+              "boot_ns": 220000973237,
+              "mono_minus_boot_ns": 141
+            },
+            {
+              "snapshot_id": 6,
+              "mono_ns": 230000757682,
+              "boot_ns": 230000757532,
+              "mono_minus_boot_ns": 150
+            },
+            {
+              "snapshot_id": 7,
+              "mono_ns": 240001566820,
+              "boot_ns": 240001566670,
+              "mono_minus_boot_ns": 150
+            },
+            {
+              "snapshot_id": 8,
+              "mono_ns": 250003503127,
+              "boot_ns": 250003502967,
+              "mono_minus_boot_ns": 160
+            },
+            {
+              "snapshot_id": 9,
+              "mono_ns": 256771069108,
+              "boot_ns": 256771068998,
+              "mono_minus_boot_ns": 110
+            },
+            {
+              "snapshot_id": 10,
+              "mono_ns": 257030827844,
+              "boot_ns": 257030827624,
+              "mono_minus_boot_ns": 220
+            }
+          ],
+          "maximum_abs_monotonic_minus_boottime_ns": 220,
+          "external_render_shader_events": [
+            {
+              "id": "41880",
+              "ts": "200268518296",
+              "dur": "13839542",
+              "tid": "5047",
+              "name": "shader_compile"
+            },
+            {
+              "id": "41979",
+              "ts": "200282419640",
+              "dur": "174832781",
+              "tid": "5047",
+              "name": "shader_compile"
+            }
+          ],
+          "internal_render_shader_events": [
+            {
+              "event_index": 14240,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 205810921000,
+              "end_ns": 205815386000,
+              "duration_ns": 4465000,
+              "thread_cpu_ns": 4407000,
+              "recorded_self_wall_ns": 43000,
+              "parent_index": 11277
+            },
+            {
+              "event_index": 14701,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 207841298000,
+              "end_ns": 207856863000,
+              "duration_ns": 15565000,
+              "thread_cpu_ns": 13942000,
+              "recorded_self_wall_ns": 54000,
+              "parent_index": 11277
+            },
+            {
+              "event_index": 18482,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 213706660000,
+              "end_ns": 213968102000,
+              "duration_ns": 261442000,
+              "thread_cpu_ns": 248733000,
+              "recorded_self_wall_ns": 316000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 18625,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 213968157000,
+              "end_ns": 214046733000,
+              "duration_ns": 78576000,
+              "thread_cpu_ns": 62934000,
+              "recorded_self_wall_ns": 76000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 18675,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 214046786000,
+              "end_ns": 214113881000,
+              "duration_ns": 67095000,
+              "thread_cpu_ns": 66334000,
+              "recorded_self_wall_ns": 120000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 18688,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 214113927000,
+              "end_ns": 214337770000,
+              "duration_ns": 223843000,
+              "thread_cpu_ns": 221868000,
+              "recorded_self_wall_ns": 68000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 18700,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 214337804000,
+              "end_ns": 214414743000,
+              "duration_ns": 76939000,
+              "thread_cpu_ns": 76330000,
+              "recorded_self_wall_ns": 32000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 18710,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 214414781000,
+              "end_ns": 214547157000,
+              "duration_ns": 132376000,
+              "thread_cpu_ns": 131097000,
+              "recorded_self_wall_ns": 22000,
+              "parent_index": 17123
+            },
+            {
+              "event_index": 22774,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 216055785000,
+              "end_ns": 216071914000,
+              "duration_ns": 16129000,
+              "thread_cpu_ns": 14515000,
+              "recorded_self_wall_ns": 65000,
+              "parent_index": 22415
+            },
+            {
+              "event_index": 22784,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 216071951000,
+              "end_ns": 216187277000,
+              "duration_ns": 115326000,
+              "thread_cpu_ns": 91897000,
+              "recorded_self_wall_ns": 172000,
+              "parent_index": 22415
+            },
+            {
+              "event_index": 22816,
+              "pid": 5011,
+              "tid": 5047,
+              "thread_name": "RenderThread",
+              "name": "shader_compile",
+              "category": "disabled-by-default-skia.shaders",
+              "start_ns": 216187338000,
+              "end_ns": 216329228000,
+              "duration_ns": 141890000,
+              "thread_cpu_ns": 116839000,
+              "recorded_self_wall_ns": 83000,
+              "parent_index": 22415
+            }
+          ],
+          "shared_shader_marker_identified": false,
+          "interpretation": "External MONOTONIC and BOOTTIME snapshots share an epoch within their sampling skew. Mapping Chromium event timestamps assumes its Android TimeTicks MONOTONIC source; this is source-based inference, not measured exact synchronization. Same-name external HWUI and internal WebView shader events are different operations and do not supply a shared marker."
+        },
+        "redaction": {
+          "completed_gpu_skia_args_stripped": 2725,
+          "completed_gpu_skia_args_not_stripped": 0,
+          "boundary": "Stripped args cannot identify a sync token, mailbox, resource, program key, or their ownership."
+        },
+        "window_families": [
+          {
+            "label": "before_outcome",
+            "start_ns": 199877604849,
+            "end_ns": 208553391179,
+            "families_kept_separate": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "overlapping_count": 3,
+                "fully_inside_count": 2,
+                "clipped_union_ns": 3813355179,
+                "longest_inclusive_event_ns": 5135892000,
+                "full_event_thread_cpu_sum_ns": 162000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "shader_compile",
+                "overlapping_count": 2,
+                "fully_inside_count": 2,
+                "clipped_union_ns": 20030000,
+                "longest_inclusive_event_ns": 15565000,
+                "full_event_thread_cpu_sum_ns": 18349000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "cache_miss",
+                "overlapping_count": 2,
+                "fully_inside_count": 2,
+                "clipped_union_ns": 16778000,
+                "longest_inclusive_event_ns": 13074000,
+                "full_event_thread_cpu_sum_ns": 15108000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 4,
+                "fully_inside_count": 4,
+                "clipped_union_ns": 3252000,
+                "longest_inclusive_event_ns": 968000,
+                "full_event_thread_cpu_sum_ns": 3177000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_link_program",
+                "overlapping_count": 2,
+                "fully_inside_count": 2,
+                "clipped_union_ns": 13013000,
+                "longest_inclusive_event_ns": 11164000,
+                "full_event_thread_cpu_sum_ns": 11445000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 4,
+                "fully_inside_count": 4,
+                "clipped_union_ns": 268000,
+                "longest_inclusive_event_ns": 89000,
+                "full_event_thread_cpu_sum_ns": 265000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 4,
+                "fully_inside_count": 4,
+                "clipped_union_ns": 137000,
+                "longest_inclusive_event_ns": 43000,
+                "full_event_thread_cpu_sum_ns": 131000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 64,
+                "fully_inside_count": 63,
+                "clipped_union_ns": 4597411179,
+                "longest_inclusive_event_ns": 1491510000,
+                "full_event_thread_cpu_sum_ns": 3948605000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "overlapping_count": 19,
+                "fully_inside_count": 19,
+                "clipped_union_ns": 4379786000,
+                "longest_inclusive_event_ns": 1358734000,
+                "full_event_thread_cpu_sum_ns": 3879069000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "overlapping_count": 19,
+                "fully_inside_count": 19,
+                "clipped_union_ns": 3622029000,
+                "longest_inclusive_event_ns": 1281858000,
+                "full_event_thread_cpu_sum_ns": 3165160000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "shader_compile",
+                "overlapping_count": 38,
+                "fully_inside_count": 38,
+                "clipped_union_ns": 3434700000,
+                "longest_inclusive_event_ns": 258268000,
+                "full_event_thread_cpu_sum_ns": 3020366000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "cache_miss",
+                "overlapping_count": 38,
+                "fully_inside_count": 38,
+                "clipped_union_ns": 449162000,
+                "longest_inclusive_event_ns": 138095000,
+                "full_event_thread_cpu_sum_ns": 313737000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 78,
+                "fully_inside_count": 78,
+                "clipped_union_ns": 232575000,
+                "longest_inclusive_event_ns": 129854000,
+                "full_event_thread_cpu_sum_ns": 219160000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_link_program",
+                "overlapping_count": 38,
+                "fully_inside_count": 38,
+                "clipped_union_ns": 160151000,
+                "longest_inclusive_event_ns": 100627000,
+                "full_event_thread_cpu_sum_ns": 77432000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 91,
+                "fully_inside_count": 91,
+                "clipped_union_ns": 52894000,
+                "longest_inclusive_event_ns": 23353000,
+                "full_event_thread_cpu_sum_ns": 15751000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 78,
+                "fully_inside_count": 78,
+                "clipped_union_ns": 3334000,
+                "longest_inclusive_event_ns": 139000,
+                "full_event_thread_cpu_sum_ns": 3173000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 3252000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 945086000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 187329000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 2985538000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              }
+            ],
+            "top_five_events": [
+              {
+                "event_index": 17166,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 208534407000,
+                "end_ns": 213670299000,
+                "duration_ns": 5135892000,
+                "thread_cpu_ns": 32000,
+                "recorded_self_wall_ns": 5135892000,
+                "parent_index": 17123
+              },
+              {
+                "event_index": 14264,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 205815688000,
+                "end_ns": 207791086000,
+                "duration_ns": 1975398000,
+                "thread_cpu_ns": 77000,
+                "recorded_self_wall_ns": 1975398000,
+                "parent_index": 11277
+              },
+              {
+                "event_index": 11278,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 203988907000,
+                "end_ns": 205807880000,
+                "duration_ns": 1818973000,
+                "thread_cpu_ns": 85000,
+                "recorded_self_wall_ns": 1818973000,
+                "parent_index": 11277
+              },
+              {
+                "event_index": 17077,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 208482472000,
+                "end_ns": 209973982000,
+                "duration_ns": 1491510000,
+                "thread_cpu_ns": 848333000,
+                "recorded_self_wall_ns": 9000,
+                "parent_index": 17076
+              },
+              {
+                "event_index": 17078,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 208482475000,
+                "end_ns": 209973976000,
+                "duration_ns": 1491501000,
+                "thread_cpu_ns": 848325000,
+                "recorded_self_wall_ns": 14000,
+                "parent_index": 17077
+              }
+            ]
+          },
+          {
+            "label": "after_reveal_10s",
+            "start_ns": 208553391179,
+            "end_ns": 218553391179,
+            "families_kept_separate": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "overlapping_count": 2,
+                "fully_inside_count": 1,
+                "clipped_union_ns": 5908884821,
+                "longest_inclusive_event_ns": 5135892000,
+                "full_event_thread_cpu_sum_ns": 51000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "shader_compile",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 1113616000,
+                "longest_inclusive_event_ns": 261442000,
+                "full_event_thread_cpu_sum_ns": 1030547000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "cache_miss",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 334494000,
+                "longest_inclusive_event_ns": 259378000,
+                "full_event_thread_cpu_sum_ns": 303309000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 314283000,
+                "longest_inclusive_event_ns": 256511000,
+                "full_event_thread_cpu_sum_ns": 286433000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_link_program",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 14669000,
+                "longest_inclusive_event_ns": 3545000,
+                "full_event_thread_cpu_sum_ns": 12550000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 3832000,
+                "longest_inclusive_event_ns": 1019000,
+                "full_event_thread_cpu_sum_ns": 3053000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 1026000,
+                "longest_inclusive_event_ns": 211000,
+                "full_event_thread_cpu_sum_ns": 836000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 152,
+                "fully_inside_count": 151,
+                "clipped_union_ns": 6649155821,
+                "longest_inclusive_event_ns": 1491510000,
+                "full_event_thread_cpu_sum_ns": 4456947000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "overlapping_count": 56,
+                "fully_inside_count": 56,
+                "clipped_union_ns": 5809465000,
+                "longest_inclusive_event_ns": 1058698000,
+                "full_event_thread_cpu_sum_ns": 4863526000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "overlapping_count": 56,
+                "fully_inside_count": 56,
+                "clipped_union_ns": 1118129000,
+                "longest_inclusive_event_ns": 935922000,
+                "full_event_thread_cpu_sum_ns": 696665000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "shader_compile",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 1011308000,
+                "longest_inclusive_event_ns": 298172000,
+                "full_event_thread_cpu_sum_ns": 621265000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "cache_miss",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 140690000,
+                "longest_inclusive_event_ns": 53412000,
+                "full_event_thread_cpu_sum_ns": 60157000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 48898000,
+                "longest_inclusive_event_ns": 10764000,
+                "full_event_thread_cpu_sum_ns": 24129000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_link_program",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 61274000,
+                "longest_inclusive_event_ns": 19493000,
+                "full_event_thread_cpu_sum_ns": 30506000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 20,
+                "fully_inside_count": 20,
+                "clipped_union_ns": 28922000,
+                "longest_inclusive_event_ns": 21640000,
+                "full_event_thread_cpu_sum_ns": 4278000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 1007000,
+                "longest_inclusive_event_ns": 117000,
+                "full_event_thread_cpu_sum_ns": 969000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 779122000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 4798157000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 106821000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 870618000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              }
+            ],
+            "top_five_events": [
+              {
+                "event_index": 17166,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 208534407000,
+                "end_ns": 213670299000,
+                "duration_ns": 5135892000,
+                "thread_cpu_ns": 32000,
+                "recorded_self_wall_ns": 5135892000,
+                "parent_index": 17123
+              },
+              {
+                "event_index": 17077,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 208482472000,
+                "end_ns": 209973982000,
+                "duration_ns": 1491510000,
+                "thread_cpu_ns": 848333000,
+                "recorded_self_wall_ns": 9000,
+                "parent_index": 17076
+              },
+              {
+                "event_index": 17078,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 208482475000,
+                "end_ns": 209973976000,
+                "duration_ns": 1491501000,
+                "thread_cpu_ns": 848325000,
+                "recorded_self_wall_ns": 14000,
+                "parent_index": 17077
+              },
+              {
+                "event_index": 17079,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferStub::OnAsyncFlush",
+                "category": "gpu",
+                "start_ns": 208482478000,
+                "end_ns": 209973965000,
+                "duration_ns": 1491487000,
+                "thread_cpu_ns": 848312000,
+                "recorded_self_wall_ns": 6000,
+                "parent_index": 17078
+              },
+              {
+                "event_index": 17080,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferService:PutChanged",
+                "category": "gpu",
+                "start_ns": 208482483000,
+                "end_ns": 209973964000,
+                "duration_ns": 1491481000,
+                "thread_cpu_ns": 848306000,
+                "recorded_self_wall_ns": 431322000,
+                "parent_index": 17079
+              }
+            ]
+          },
+          {
+            "label": "draw_95763",
+            "start_ns": 208530623611,
+            "end_ns": 214652249139,
+            "families_kept_separate": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "overlapping_count": 1,
+                "fully_inside_count": 1,
+                "clipped_union_ns": 5135892000,
+                "longest_inclusive_event_ns": 5135892000,
+                "full_event_thread_cpu_sum_ns": 32000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "shader_compile",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 840271000,
+                "longest_inclusive_event_ns": 261442000,
+                "full_event_thread_cpu_sum_ns": 807296000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "cache_miss",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 277301000,
+                "longest_inclusive_event_ns": 259378000,
+                "full_event_thread_cpu_sum_ns": 264168000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 12,
+                "fully_inside_count": 12,
+                "clipped_union_ns": 265818000,
+                "longest_inclusive_event_ns": 256511000,
+                "full_event_thread_cpu_sum_ns": 253320000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_link_program",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 8360000,
+                "longest_inclusive_event_ns": 1679000,
+                "full_event_thread_cpu_sum_ns": 8102000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 12,
+                "fully_inside_count": 12,
+                "clipped_union_ns": 1997000,
+                "longest_inclusive_event_ns": 588000,
+                "full_event_thread_cpu_sum_ns": 1984000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 12,
+                "fully_inside_count": 12,
+                "clipped_union_ns": 688000,
+                "longest_inclusive_event_ns": 211000,
+                "full_event_thread_cpu_sum_ns": 505000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 90,
+                "fully_inside_count": 88,
+                "clipped_union_ns": 5510694528,
+                "longest_inclusive_event_ns": 1491510000,
+                "full_event_thread_cpu_sum_ns": 3672650000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "overlapping_count": 43,
+                "fully_inside_count": 43,
+                "clipped_union_ns": 4914863000,
+                "longest_inclusive_event_ns": 1058698000,
+                "full_event_thread_cpu_sum_ns": 4128347000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "overlapping_count": 43,
+                "fully_inside_count": 43,
+                "clipped_union_ns": 1077967000,
+                "longest_inclusive_event_ns": 935922000,
+                "full_event_thread_cpu_sum_ns": 673786000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "shader_compile",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 1011308000,
+                "longest_inclusive_event_ns": 298172000,
+                "full_event_thread_cpu_sum_ns": 621265000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "cache_miss",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 140690000,
+                "longest_inclusive_event_ns": 53412000,
+                "full_event_thread_cpu_sum_ns": 60157000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 48898000,
+                "longest_inclusive_event_ns": 10764000,
+                "full_event_thread_cpu_sum_ns": 24129000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "driver_link_program",
+                "overlapping_count": 9,
+                "fully_inside_count": 9,
+                "clipped_union_ns": 61274000,
+                "longest_inclusive_event_ns": 19493000,
+                "full_event_thread_cpu_sum_ns": 30506000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 20,
+                "fully_inside_count": 20,
+                "clipped_union_ns": 28922000,
+                "longest_inclusive_event_ns": 21640000,
+                "full_event_thread_cpu_sum_ns": 4278000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 18,
+                "fully_inside_count": 18,
+                "clipped_union_ns": 1007000,
+                "longest_inclusive_event_ns": 117000,
+                "full_event_thread_cpu_sum_ns": 969000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 562970000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 3903555000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "inner_name": "shader_compile",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 66659000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 870618000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              }
+            ],
+            "top_five_events": [
+              {
+                "event_index": 17166,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 208534407000,
+                "end_ns": 213670299000,
+                "duration_ns": 5135892000,
+                "thread_cpu_ns": 32000,
+                "recorded_self_wall_ns": 5135892000,
+                "parent_index": 17123
+              },
+              {
+                "event_index": 17077,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 208482472000,
+                "end_ns": 209973982000,
+                "duration_ns": 1491510000,
+                "thread_cpu_ns": 848333000,
+                "recorded_self_wall_ns": 9000,
+                "parent_index": 17076
+              },
+              {
+                "event_index": 17078,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 208482475000,
+                "end_ns": 209973976000,
+                "duration_ns": 1491501000,
+                "thread_cpu_ns": 848325000,
+                "recorded_self_wall_ns": 14000,
+                "parent_index": 17077
+              },
+              {
+                "event_index": 17079,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferStub::OnAsyncFlush",
+                "category": "gpu",
+                "start_ns": 208482478000,
+                "end_ns": 209973965000,
+                "duration_ns": 1491487000,
+                "thread_cpu_ns": 848312000,
+                "recorded_self_wall_ns": 6000,
+                "parent_index": 17078
+              },
+              {
+                "event_index": 17080,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferService:PutChanged",
+                "category": "gpu",
+                "start_ns": 208482483000,
+                "end_ns": 209973964000,
+                "duration_ns": 1491481000,
+                "thread_cpu_ns": 848306000,
+                "recorded_self_wall_ns": 431322000,
+                "parent_index": 17079
+              }
+            ]
+          },
+          {
+            "label": "draw_103389",
+            "start_ns": 215175548971,
+            "end_ns": 216589231897,
+            "families_kept_separate": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "overlapping_count": 1,
+                "fully_inside_count": 1,
+                "clipped_union_ns": 791977000,
+                "longest_inclusive_event_ns": 791977000,
+                "full_event_thread_cpu_sum_ns": 51000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "shader_compile",
+                "overlapping_count": 3,
+                "fully_inside_count": 3,
+                "clipped_union_ns": 273345000,
+                "longest_inclusive_event_ns": 141890000,
+                "full_event_thread_cpu_sum_ns": 223251000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "cache_miss",
+                "overlapping_count": 3,
+                "fully_inside_count": 3,
+                "clipped_union_ns": 57193000,
+                "longest_inclusive_event_ns": 42666000,
+                "full_event_thread_cpu_sum_ns": 39141000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_compile_shader",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 48465000,
+                "longest_inclusive_event_ns": 37651000,
+                "full_event_thread_cpu_sum_ns": 33113000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "driver_link_program",
+                "overlapping_count": 3,
+                "fully_inside_count": 3,
+                "clipped_union_ns": 6309000,
+                "longest_inclusive_event_ns": 3545000,
+                "full_event_thread_cpu_sum_ns": 4448000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::Compiler::convertProgram",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 1835000,
+                "longest_inclusive_event_ns": 1019000,
+                "full_event_thread_cpu_sum_ns": 1069000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "SkSL::ToGLSL",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 338000,
+                "longest_inclusive_event_ns": 103000,
+                "full_event_thread_cpu_sum_ns": 331000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 34,
+                "fully_inside_count": 34,
+                "clipped_union_ns": 996257000,
+                "longest_inclusive_event_ns": 202130000,
+                "full_event_thread_cpu_sum_ns": 758661000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+                "overlapping_count": 13,
+                "fully_inside_count": 13,
+                "clipped_union_ns": 894602000,
+                "longest_inclusive_event_ns": 201458000,
+                "full_event_thread_cpu_sum_ns": 735179000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              },
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+                "overlapping_count": 13,
+                "fully_inside_count": 13,
+                "clipped_union_ns": 40162000,
+                "longest_inclusive_event_ns": 24110000,
+                "full_event_thread_cpu_sum_ns": 22879000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [
+              {
+                "pid": 5011,
+                "tid": 5047,
+                "outer_name": "shader_compile",
+                "inner_name": "cache_miss",
+                "inner_union_is_subset": true,
+                "outer_without_inner_union_ns": 216152000,
+                "boundary": "Interval-set difference, not proof of an unlabelled function or compiler-only work."
+              }
+            ],
+            "top_five_events": [
+              {
+                "event_index": 22443,
+                "pid": 5011,
+                "tid": 5047,
+                "thread_name": "RenderThread",
+                "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+                "category": "gpu",
+                "start_ns": 215254778000,
+                "end_ns": 216046755000,
+                "duration_ns": 791977000,
+                "thread_cpu_ns": 51000,
+                "recorded_self_wall_ns": 791977000,
+                "parent_index": 22415
+              },
+              {
+                "event_index": 22560,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 215259028000,
+                "end_ns": 215461158000,
+                "duration_ns": 202130000,
+                "thread_cpu_ns": 157423000,
+                "recorded_self_wall_ns": 7000,
+                "parent_index": 22559
+              },
+              {
+                "event_index": 22561,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 215259030000,
+                "end_ns": 215461153000,
+                "duration_ns": 202123000,
+                "thread_cpu_ns": 157417000,
+                "recorded_self_wall_ns": 20000,
+                "parent_index": 22560
+              },
+              {
+                "event_index": 22562,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferStub::OnAsyncFlush",
+                "category": "gpu",
+                "start_ns": 215259033000,
+                "end_ns": 215461136000,
+                "duration_ns": 202103000,
+                "thread_cpu_ns": 157398000,
+                "recorded_self_wall_ns": 4000,
+                "parent_index": 22561
+              },
+              {
+                "event_index": 22563,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "CommandBufferService:PutChanged",
+                "category": "gpu",
+                "start_ns": 215259035000,
+                "end_ns": 215461134000,
+                "duration_ns": 202099000,
+                "thread_cpu_ns": 157396000,
+                "recorded_self_wall_ns": 100000,
+                "parent_index": 22562
+              }
+            ]
+          },
+          {
+            "label": "draw_109833",
+            "start_ns": 218247915749,
+            "end_ns": 218575247558,
+            "families_kept_separate": [
+              {
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "overlapping_count": 6,
+                "fully_inside_count": 6,
+                "clipped_union_ns": 2816000,
+                "longest_inclusive_event_ns": 2590000,
+                "full_event_thread_cpu_sum_ns": 250000,
+                "full_event_same_family_intervals_nonoverlapping": true
+              }
+            ],
+            "verified_scope_residuals": [],
+            "top_five_events": [
+              {
+                "event_index": 27246,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 218569988000,
+                "end_ns": 218572578000,
+                "duration_ns": 2590000,
+                "thread_cpu_ns": 101000,
+                "recorded_self_wall_ns": 2590000,
+                "parent_index": 27245
+              },
+              {
+                "event_index": 27241,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 218569909000,
+                "end_ns": 218569981000,
+                "duration_ns": 72000,
+                "thread_cpu_ns": 66000,
+                "recorded_self_wall_ns": 32000,
+                "parent_index": 27240
+              },
+              {
+                "event_index": 27274,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 218573222000,
+                "end_ns": 218573290000,
+                "duration_ns": 68000,
+                "thread_cpu_ns": 36000,
+                "recorded_self_wall_ns": 68000,
+                "parent_index": 27273
+              },
+              {
+                "event_index": 27286,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "Scheduler::RunNextTask",
+                "category": "gpu,toplevel.flow",
+                "start_ns": 218573413000,
+                "end_ns": 218573457000,
+                "duration_ns": 44000,
+                "thread_cpu_ns": 21000,
+                "recorded_self_wall_ns": 44000,
+                "parent_index": 27285
+              },
+              {
+                "event_index": 27242,
+                "pid": 5011,
+                "tid": 5130,
+                "thread_name": "Chrome_InProcGpuThread",
+                "name": "GpuChannel::ExecuteDeferredRequest",
+                "category": "gpu",
+                "start_ns": 218569938000,
+                "end_ns": 218569978000,
+                "duration_ns": 40000,
+                "thread_cpu_ns": 35000,
+                "recorded_self_wall_ns": 17000,
+                "parent_index": 27241
+              }
+            ]
+          }
+        ]
+      },
+      "files": {
+        "trace-evidence/launch.pftrace": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-control/trace-evidence/launch.pftrace",
+          "bytes": 23326608,
+          "sha256": "94dbd2518b3e39a4539083355de1b0c721880dd7c1fcedb86885205ed3613ef5"
+        },
+        "rendering-evidence/rendering-trace.json": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-control/rendering-evidence/rendering-trace.json",
+          "bytes": 12213154,
+          "sha256": "a93da3e581c0c540c1a192ef784b4faccf84ff37a3924181289360270f92cb7a"
+        },
+        "rendering-evidence/rendering-trace-status.json": {
+          "path": "/workspace/scratch/db10ec9a4286/native-cache-control/rendering-evidence/rendering-trace-status.json",
+          "bytes": 872,
+          "sha256": "0eda984e0a4484c887d217e8ffeab09e71c33c867e8900b6f02b501f67c61569"
+        }
+      },
+      "analysis_files": [
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/control-reveal.csv",
+          "bytes": 41637,
+          "sha256": "7384654942022fc29280e5d74eb25421b8c431dc89e6307f9817c944f4856db9"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/control-reveal.stderr.txt",
+          "bytes": 189,
+          "sha256": "eb6de3a75fd3e05d2830970286a2f6b46373b6b338d87955271bbc62f3aa0589"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/control-rendering.json",
+          "bytes": 201590,
+          "sha256": "f32b0009dfb03c37b6054fe4ed85ada123ebb40fe0a31d212464e0de25c2fba6"
+        },
+        {
+          "path": "/workspace/scratch/db10ec9a4286/native-trace-review/control-rendering-invocation.json",
+          "bytes": 743,
+          "sha256": "b6ba5b54be49631ffc3794d36afa1986b97c5821d5c5f43408d96ca4a1652fcd"
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "path": "/workspace/scratch/4e6fa17f4a86/pr346-android-reveal-analysis.sql",
+      "bytes": 9130,
+      "sha256": "e09924ba5d62f14c355524267907794d9c0ddd01713cc647c455a3f3ed9ab1d4"
+    },
+    {
+      "path": "/workspace/scratch/4e6fa17f4a86/analyze-pr346-rendering-json.py",
+      "bytes": 16670,
+      "sha256": "1591d27cc51a1c5d9a1238e3324640417d5c7c3765b5781761de70ce1a2899cf"
+    },
+    {
+      "path": "/workspace/scratch/db10ec9a4286/native-trace-review/analyze_pair.py",
+      "bytes": 8937,
+      "sha256": "e2703ae5cde9355eebf7a89467815426929578790b95288fefa5a322df3d7366"
+    }
+  ]
+}

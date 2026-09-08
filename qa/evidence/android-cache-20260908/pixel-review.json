@@ -1,0 +1,252 @@
+{
+  "run_id": 34227119767,
+  "scope": "Exact decoded frames with Winscope v2 embedded clock. Encoded video timing is not physical display presentation. Selected boundary frames reviewed; no automation or interaction verdict.",
+  "arms": {
+    "candidate": {
+      "video_sha256": "6de6c53665b1b1e1a21b6c4c01ac84a03d587c8fbdf16c4a6979bb4de7c6c9d5",
+      "frame_count": 161,
+      "max_pts_vs_timestamp_delta_seconds": 6.000000006167738e-06,
+      "first_frame": {
+        "frame_index_zero_based": 0,
+        "pts_90khz": 0,
+        "pts_seconds": "0.000000",
+        "elapsed_ns": 193199435770,
+        "utc_from_embedded_offset": "2026-09-08T12:43:49.504714+00:00"
+      },
+      "last_frame": {
+        "frame_index_zero_based": 160,
+        "pts_90khz": 3629665,
+        "pts_seconds": "40.329611",
+        "elapsed_ns": 233529044770,
+        "utc_from_embedded_offset": "2026-09-08T12:44:29.834322+00:00"
+      },
+      "reference_marker": "VISUAL_STATE_TIMEOUT",
+      "reference_marker_elapsed_ns": 208097734385,
+      "reviewed_frames": [
+        {
+          "frame_index_zero_based": 54,
+          "pts_90khz": 650951,
+          "pts_seconds": "7.232789",
+          "elapsed_ns": 200432219770,
+          "utc_from_embedded_offset": "2026-09-08T12:43:56.737497+00:00",
+          "relative_to_marker_ms": -7665.514615,
+          "png_sha256": "1d7d917a760b6112b467d00f136667ae4c27f54db8394dee53c1d308e9733f85"
+        },
+        {
+          "frame_index_zero_based": 55,
+          "pts_90khz": 952816,
+          "pts_seconds": "10.586844",
+          "elapsed_ns": 203786278770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:00.091556+00:00",
+          "relative_to_marker_ms": -4311.455615,
+          "png_sha256": "f2de61689d210199d54228924c3ac87c88a44eb33eaff67ad430ea00fc6912cb"
+        },
+        {
+          "frame_index_zero_based": 56,
+          "pts_90khz": 1059849,
+          "pts_seconds": "11.776100",
+          "elapsed_ns": 204975535770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:01.280813+00:00",
+          "relative_to_marker_ms": -3122.198615,
+          "png_sha256": "9f420c1cbb7bdaa9049e26b4d20452ffc42ff40c788d73497f6f7afd3d07eb52"
+        },
+        {
+          "frame_index_zero_based": 57,
+          "pts_90khz": 1073138,
+          "pts_seconds": "11.923756",
+          "elapsed_ns": 205123192770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:01.428470+00:00",
+          "relative_to_marker_ms": -2974.541615,
+          "png_sha256": "cdfbfa6238da9f9c0e25799e915432258254181ce299db5dee314c59dba2788e"
+        },
+        {
+          "frame_index_zero_based": 58,
+          "pts_90khz": 1332543,
+          "pts_seconds": "14.806033",
+          "elapsed_ns": 208005465770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:04.310743+00:00",
+          "relative_to_marker_ms": -92.268615,
+          "png_sha256": "602f431c74847a09697a8ecaac77dbc63011a74c130c17033f96586388f54682"
+        },
+        {
+          "frame_index_zero_based": 59,
+          "pts_90khz": 1341108,
+          "pts_seconds": "14.901200",
+          "elapsed_ns": 208100632770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:04.405910+00:00",
+          "relative_to_marker_ms": 2.898385,
+          "png_sha256": "b5b8ed43d2af76abe29ce77b8884995212bef5411c4f44fc8725bae2a1559022"
+        },
+        {
+          "frame_index_zero_based": 60,
+          "pts_90khz": 1459387,
+          "pts_seconds": "16.215411",
+          "elapsed_ns": 209414848770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:05.720126+00:00",
+          "relative_to_marker_ms": 1317.114385,
+          "png_sha256": "9f420c1cbb7bdaa9049e26b4d20452ffc42ff40c788d73497f6f7afd3d07eb52"
+        },
+        {
+          "frame_index_zero_based": 61,
+          "pts_90khz": 1490657,
+          "pts_seconds": "16.562856",
+          "elapsed_ns": 209762290770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:06.067568+00:00",
+          "relative_to_marker_ms": 1664.556385,
+          "png_sha256": "51ea67372e24bd85ca504af867f50268bf6789f2ab641b9e3a802f241817955a"
+        },
+        {
+          "frame_index_zero_based": 62,
+          "pts_90khz": 1630154,
+          "pts_seconds": "18.112822",
+          "elapsed_ns": 211312256770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:07.617534+00:00",
+          "relative_to_marker_ms": 3214.522385,
+          "png_sha256": "623c5a754fd212be5d504ab93d2c6432d8fd12d5622fa91d908dcf00c302910c"
+        },
+        {
+          "frame_index_zero_based": 160,
+          "pts_90khz": 3629665,
+          "pts_seconds": "40.329611",
+          "elapsed_ns": 233529044770,
+          "utc_from_embedded_offset": "2026-09-08T12:44:29.834322+00:00",
+          "relative_to_marker_ms": 25431.310385,
+          "png_sha256": "51dfd902b757d8affeca915d1cb9feb3d11fcf5daaef099510b478b3d3ce2233"
+        }
+      ],
+      "observation": "Frame60 still has splash; frame61 shows terminal retry error; frame160 still shows error. No completed handoff."
+    },
+    "control": {
+      "video_sha256": "052f8a39874fdafdd4570e117c6e3c56c23e23c5f7a315cadee2339334633285",
+      "frame_count": 141,
+      "max_pts_vs_timestamp_delta_seconds": 5.000000001587068e-06,
+      "first_frame": {
+        "frame_index_zero_based": 0,
+        "pts_90khz": 0,
+        "pts_seconds": "0.000000",
+        "elapsed_ns": 199342390820,
+        "utc_from_embedded_offset": "2026-09-08T12:43:41.645390+00:00"
+      },
+      "last_frame": {
+        "frame_index_zero_based": 140,
+        "pts_90khz": 3594233,
+        "pts_seconds": "39.935922",
+        "elapsed_ns": 239278316820,
+        "utc_from_embedded_offset": "2026-09-08T12:44:21.581316+00:00"
+      },
+      "reference_marker": "HANDOFF_COMPLETE",
+      "reference_marker_elapsed_ns": 208553391179,
+      "reviewed_frames": [
+        {
+          "frame_index_zero_based": 36,
+          "pts_90khz": 805566,
+          "pts_seconds": "8.950733",
+          "elapsed_ns": 208293123820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:50.596122+00:00",
+          "relative_to_marker_ms": -260.267359,
+          "png_sha256": "bb97eb5e12859d300d10476b55a7b19bc12e0e4cc88d0d88f8cc93fe36d6ee11"
+        },
+        {
+          "frame_index_zero_based": 37,
+          "pts_90khz": 826649,
+          "pts_seconds": "9.184989",
+          "elapsed_ns": 208527382820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:50.830382+00:00",
+          "relative_to_marker_ms": -26.008359,
+          "png_sha256": "c40c7a3acd0978c04b8867b94d19435276d0ab8c96a4a3c2c8bd49a9e6c922e0"
+        },
+        {
+          "frame_index_zero_based": 38,
+          "pts_90khz": 838789,
+          "pts_seconds": "9.319878",
+          "elapsed_ns": 208662264820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:50.965263+00:00",
+          "relative_to_marker_ms": 108.873641,
+          "png_sha256": "b6fc0f7cec7eb4c83569c0725135dd6d8f92a6491eb5745e79dd7ce0c97b8f49"
+        },
+        {
+          "frame_index_zero_based": 39,
+          "pts_90khz": 857098,
+          "pts_seconds": "9.523311",
+          "elapsed_ns": 208865701820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:51.168700+00:00",
+          "relative_to_marker_ms": 312.310641,
+          "png_sha256": "931212264c8816471a34831724e8cb82e08ef30735f2d1764fc785a707077584"
+        },
+        {
+          "frame_index_zero_based": 40,
+          "pts_90khz": 860024,
+          "pts_seconds": "9.555822",
+          "elapsed_ns": 208898214820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:51.201213+00:00",
+          "relative_to_marker_ms": 344.823641,
+          "png_sha256": "0923d9bf7283e84191a1fc21dc2677c8fd771761e899dde923176a6964d97c6e"
+        },
+        {
+          "frame_index_zero_based": 41,
+          "pts_90khz": 887351,
+          "pts_seconds": "9.859456",
+          "elapsed_ns": 209201843820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:51.504843+00:00",
+          "relative_to_marker_ms": 648.452641,
+          "png_sha256": "06371be4077c72313faf2b7c026f3469c27d6aa1efa48d1490289ea05cfc083a"
+        },
+        {
+          "frame_index_zero_based": 42,
+          "pts_90khz": 891256,
+          "pts_seconds": "9.902844",
+          "elapsed_ns": 209245230820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:51.548229+00:00",
+          "relative_to_marker_ms": 691.839641,
+          "png_sha256": "b171b3984d5b5a23568d2008838c647ef4dbd0cb4cc6eb4133a72f554ad35190"
+        },
+        {
+          "frame_index_zero_based": 43,
+          "pts_90khz": 1388518,
+          "pts_seconds": "15.427978",
+          "elapsed_ns": 214770371820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:57.073370+00:00",
+          "relative_to_marker_ms": 6216.980641,
+          "png_sha256": "1b3c623c490610733415aab735cdf0e38b8538dc045648eb619ed2768a5859e7"
+        },
+        {
+          "frame_index_zero_based": 44,
+          "pts_90khz": 1390898,
+          "pts_seconds": "15.454422",
+          "elapsed_ns": 214796815820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:57.099814+00:00",
+          "relative_to_marker_ms": 6243.424641,
+          "png_sha256": "0f4137a384ad0f12b06e334d65ecb73719fc628060d3ac928fc8aa8ca27483ca"
+        },
+        {
+          "frame_index_zero_based": 45,
+          "pts_90khz": 1553036,
+          "pts_seconds": "17.255956",
+          "elapsed_ns": 216598344820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:58.901344+00:00",
+          "relative_to_marker_ms": 8044.953641,
+          "png_sha256": "bad189dd5ac48894c742dc28a96263962a6fa114335e237bf0e59d1db68ecb76"
+        },
+        {
+          "frame_index_zero_based": 46,
+          "pts_90khz": 1558073,
+          "pts_seconds": "17.311922",
+          "elapsed_ns": 216654307820,
+          "utc_from_embedded_offset": "2026-09-08T12:43:58.957306+00:00",
+          "relative_to_marker_ms": 8100.916641,
+          "png_sha256": "2fac7672d116958fa0d257708c34c4d26a56991110250d8f8a04bf45d2f92be7"
+        },
+        {
+          "frame_index_zero_based": 140,
+          "pts_90khz": 3594233,
+          "pts_seconds": "39.935922",
+          "elapsed_ns": 239278316820,
+          "utc_from_embedded_offset": "2026-09-08T12:44:21.581316+00:00",
+          "relative_to_marker_ms": 30724.925641,
+          "png_sha256": "efebe9d6ef21d2e2c1a5d92d3a13c3c6c6205db50512606d354222d4152b7886"
+        }
+      ],
+      "observation": "Frame43 still has splash; frame44 is first uncovered product in boundary sequence; first product arrives6243.424641ms aftercompletion. Frame44 remains untilframe45,1.801534s later."
+    }
+  }
+}
