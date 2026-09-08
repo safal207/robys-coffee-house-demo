@@ -1,0 +1,119 @@
+name: Verify hidden hero rendering during takeaway
+'on':
+  push:
+    branches: [qa/takeaway-hidden-hero-20260908]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+      CANDIDATE_BRANCH: fix/takeaway-hidden-hero-20260908
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+        persist-credentials: false
+        fetch-depth: 1
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '22'
+    - run: npm ci --no-audit --no-fund
+    - run: npx playwright install --with-deps chromium
+    - name: Prepare render-deferral candidate and pinned unchanged motion controls
+      shell: bash
+      run: |
+        git fetch --no-tags --depth=1 origin d7c9be97f89a990d8e2cdd3fdc9c5191824d3f0e
+        mkdir -p .artifacts/hero-render-helper .artifacts/startup-clock
+        git show d7c9be97f89a990d8e2cdd3fdc9c5191824d3f0e:.github/workflows/takeaway-clock-verify.yml > .artifacts/hero-render-helper/previous-workflow.yml
+        python3 - <<'PY'
+        from pathlib import Path
+        import re
+        out=Path('.artifacts/hero-render-helper')
+        text=(out/'previous-workflow.yml').read_text()
+        names=['Prepare source candidate and deterministic negative controls','Retain three baseline cold starts without treating retry as approval','Build and bind bounded candidate','Full check security and deterministic entry controls','Three candidate cold starts with unchanged cadence and additional no-skip guards','Existing full motion and guest interface checks','Publish only passing separate candidate']
+        blocks=dict(re.findall(r'^    - name: ([^\n]+)\n(.*?)(?=^    - |\Z)',text,re.M|re.S));scripts={}
+        for name in names:
+          lines=blocks[name].splitlines();start=next(i for i,line in enumerate(lines) if line.startswith('      run: '))
+          command=lines[start][len('      run: '):]
+          if command=='|':
+            body=lines[start+1:];assert all(not line.strip() or line.startswith('        ') for line in body),name
+            command='\n'.join(line[8:] if line else '' for line in body)+'\n'
+          scripts[name]=command
+        # Reuse only the probe; none of the rejected animation-clock patch is applied.
+        probe=re.search(r"cat > \.artifacts/startup-clock/probe.mjs <<'JS'\n(.*?)\nJS\n",scripts[names[0]],re.S).group(1)
+        old='const probe=await done(page);save(resultsDir,`cold-${i}-raw.json`,probe);'
+        assert probe.count(old)==1
+        probe=probe.replace(old,"""await brand(page);
+                      result.heroDuring=await page.locator('.hero').evaluate(n=>getComputedStyle(n).contentVisibility);
+                      assert(result.heroDuring===(stage==='after'?'hidden':'visible'),'Unexpected hero render state during the scene');
+                      const probe=await done(page);save(resultsDir,`cold-${i}-raw.json`,probe);
+                      result.heroAfter=await page.locator('.hero').evaluate(n=>getComputedStyle(n).contentVisibility);
+                      assert(result.heroAfter==='visible','The product hero did not return after handoff');""")
+        probe=probe.replace("assert(result.firstVisibleTime<=100,'First visible frame already skipped more than 100 ms of the entrance');","assert(result.firstVisibleTime<=result.cadence.startupMs+20.5,'Animation clock is ahead of the observed entrance by more than one frame');")
+        probe=probe.replace("assert(result.maxFirst24Gap<=100,'More than 100 ms between early moving frames');","assert(result.maxFirst24Gap<=50,'More than 50 ms between early moving frames');")
+        Path('.artifacts/startup-clock/probe.mjs').write_text(probe+'\n')
+        build=scripts[names[2]].replace('cp .artifacts/startup-clock/fixed.js takeaway-entry.js','python3 .artifacts/hero-render-helper/apply.py')
+        build=build.replace("allowed={'takeaway-entry.js'","allowed={'styles-v2.css','takeaway-entry.js'")
+        build=build.replace('anchor decoded entrance to active document timeline','defer hidden hero rendering during takeaway without changing animation clocks')
+        scripts[names[2]]=build
+        for i in range(1,7):(out/f'{i}.sh').write_text(scripts[names[i]])
+        (out/'scope.txt').write_text('Only conditional CSS render deferral plus a source regression and regenerated bindings. No takeaway animation JS, event timestamps, durations, or project budgets changed. Content is restored when the existing pending marker is removed, before the normal dissolve. Entry-off and reduced-motion paths do not set this marker. No Lighthouse/native/physical-device claim.\n')
+        PY
+        cat > .artifacts/hero-render-helper/apply.py <<'PY'
+        from pathlib import Path
+        import hashlib
+        p=Path('styles-v2.css');b=p.read_bytes()
+        assert hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest()=='b6aea0c556daa5620730fbf5873e2d088a19c195'
+        s=b.decode();anchor='html[data-robys-entry-pending] .hero-content>*{animation-play-state:paused}'
+        assert s.count(anchor)==1
+        s=s.replace(anchor,anchor+'\n/* The opaque scene covers the hero; restore its rendering before the dissolve. */\nhtml[data-robys-entry-pending] .hero{content-visibility:hidden}',1)
+        p.write_text(s)
+        PY
+        cat >> scripts/test-takeaway-entry.mjs <<'JS'
+
+        test('hero render deferral is scoped to the existing pending entrance marker',()=>{
+          const css=readFileSync('styles-v2.css','utf8');
+          assert.match(css,/^html\[data-robys-entry-pending\] \.hero\{content-visibility:hidden\}$/m);
+          assert.match(css,/^html\[data-robys-entry-pending\] \.hero-content>\*\{animation-play-state:paused\}$/m);
+        });
+        JS
+        for file in .artifacts/hero-render-helper/*.sh; do bash -n "$file"; done
+        set +e
+        node --test scripts/test-takeaway-entry.mjs > .artifacts/startup-clock/before-tests.tap 2>&1
+        result=$?
+        set -e
+        test "$result" = 1
+        grep -q '^# tests 23$' .artifacts/startup-clock/before-tests.tap
+        grep -q '^# pass 22$' .artifacts/startup-clock/before-tests.tap
+        grep -q '^# fail 1$' .artifacts/startup-clock/before-tests.tap
+    - name: Preserve three baseline cold starts
+      run: bash -e -o pipefail .artifacts/hero-render-helper/1.sh
+    - name: Build and bind candidate
+      run: bash -e -o pipefail .artifacts/hero-render-helper/2.sh
+    - name: Full check security and entry controls
+      run: bash -e -o pipefail .artifacts/hero-render-helper/3.sh
+    - name: Three candidate starts with strict frame controls and hero restoration
+      run: bash -e -o pipefail .artifacts/hero-render-helper/4.sh
+    - name: Existing motion menu and premium UI matrices
+      run: bash -e -o pipefail .artifacts/hero-render-helper/5.sh
+    - name: Publish only passing separate candidate
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash -e -o pipefail .artifacts/hero-render-helper/6.sh
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: takeaway-hidden-hero-${{ github.sha }}
+        path: |
+          .artifacts/startup-clock/
+          .artifacts/hero-render-helper/
+          .artifacts/order-share/
+          .artifacts/premium-ui/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
