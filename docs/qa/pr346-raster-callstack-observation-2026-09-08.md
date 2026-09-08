@@ -188,3 +188,37 @@ An observer-only failure uses exit 42 when the original probe succeeded.
 CPU stack presence, lost samples, unknown process metadata, and usable symbols
 are separately adjudicated with the SQL above. A successful shell wrapper does
 not certify sample availability, a displayed product frame, or smooth rendering.
+
+## Follow-up: first-render hero stylesheet
+
+The earlier observed launch 34229226048 on source 6592c51 failed with
+WEB_READY_TIMEOUT and VISUAL_STATE_TIMEOUT. Its 48 passive phases show 4111.9 ms
+at the stylesheet barrier and 2720.1 ms across the fonts.ready getter/await.
+The existing hero stylesheet is among three dynamically added pending styles.
+Native response preparation precedes their load callbacks by over 4 seconds.
+The font barrier is not font-download latency: exact Chromium 133 can wait for
+style/layout and the load event. Main/renderer waiting overlaps GPU work.
+Bulk service-worker installation begins after failure in that launch.
+
+The next bounded hypothesis changes only index.html to declare the same
+hero-balance.css URL in the head with data-hero-balance="true", plus its
+regenerated integrity entry. The existing qa.js guard prevents duplicate
+insertion. CSS/JS/native bytes, media, readiness conditions, deadlines and the
+observer/capture configuration remain unchanged from source 6592c51.
+
+Candidate source: 28be9b60cb0e66a6b115b774781c72b50e770468;
+tree: 78ee0f9cd5e8c0997034366c6b846b95e8a3f651;
+241-file inventory: af38a63663d62ba92bf15680b7ecfa2c32188dd21b1905796b6b7f2384ad2edf.
+The modified workflow runs only this source, on the same fresh API 36 / software
+emulator and 120-second idle condition. Prior source6592 observations are a
+separate single launch, not a randomized estimate of effect.
+
+The first profiler produced 550 GPU counter observations but no callsites:
+raw packets explicitly report PROFILER_SKIP_NOT_IN_SCOPE. Target selection can
+reject a newly forked process before it has its final identity/userspace state;
+its exact initial rejection input was not captured. No specific driver function
+or permission failure is established. This follow-up retains that observer
+configuration for comparability; it does not promise usable function stacks.
+A passing original capture alone still cannot prove timely visible product or
+absence of post-completion work. Native outcome, phases, frames and the full
+post-completion interval must all be reviewed before promoting any repair.

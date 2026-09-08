@@ -1,22 +1,22 @@
-name: PR346 readiness and raster observation
+name: PR346 critical hero stylesheet observation
 
 on:
   push:
-    branches: [diagnostic/pr346-raster-observer-20260908]
+    branches: [diagnostic/pr346-critical-style-observer-20260908]
 
 permissions:
   contents: read
 
 concurrency:
-  group: pr346-raster-observer-${{ github.ref }}
+  group: pr346-critical-style-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   observe:
-    name: Readiness phases and raster CPU stacks
+    name: Critical hero stylesheet with unchanged readiness
     env:
-      SUBJECT_SHA: 6592c51a1bd5812e3ae85ed6c83c53effafc7050
-      WEB_DIGEST: 8823867ecbd1325fde477779e8702a362a2cb8242d91d51cc2b5751d8309e588
+      SUBJECT_SHA: 28be9b60cb0e66a6b115b774781c72b50e770468
+      WEB_DIGEST: af38a63663d62ba92bf15680b7ecfa2c32188dd21b1905796b6b7f2384ad2edf
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -132,7 +132,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pr346-raster-observation-${{ github.sha }}
+          name: pr346-critical-style-observation-${{ github.sha }}
           path: |
             ${{ runner.temp }}/pinned-fixture/readiness-evidence/**
             ${{ runner.temp }}/pinned-fixture/readiness-export.diff
