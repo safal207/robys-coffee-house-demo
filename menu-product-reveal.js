@@ -46,6 +46,10 @@ export function revealCopy(language) {
 }
 
 function bootReveal() {
+  if (typeof CSS !== "undefined" && typeof CSS.supports === "function" && !CSS.supports("clip-path", "inset(0 0 0 50%)")) {
+    return;
+  }
+
   const sourceImage = document.querySelector("#menu-product-image");
   const visual = sourceImage?.closest(".menu-product-visual");
   if (!sourceImage || !visual || visual.dataset.menuRevealBooted === "true") return;
