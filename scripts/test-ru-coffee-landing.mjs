@@ -30,6 +30,60 @@ const requiredChecks = [
   'actionReachability', 'visibleKeyboardFocus', 'keyboardTargetOrder', 'anchorNavigation',
   ...(mode === 'http' ? ['httpMenuNavigation'] : [])
 ];
+// A box alone does not establish CSS visibility. Keep this predicate shared with
+// isolated controls so a future geometry-only implementation cannot pass silently.
+function inspectAnchorHeading(id) {
+  const heading = document.getElementById(id)?.querySelector('h2');
+  const r = heading?.getBoundingClientRect();
+  const inViewport = Boolean(r && r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= innerHeight);
+  // Visibility is inherited but may be explicitly restored by a descendant.
+  let cssVisible = Boolean(heading) && getComputedStyle(heading).visibility === 'visible';
+  let effectiveOpacity = 1;
+  for (let node = heading; node; node = node.parentElement) {
+    const style = getComputedStyle(node);
+    if (style.display === 'none') cssVisible = false;
+    effectiveOpacity *= Number(style.opacity);
+  }
+  return { id, hash: location.hash, inViewport, cssVisible, effectiveOpacity,
+    headingVisible: inViewport && cssVisible && effectiveOpacity >= .99 };
+}
+const anchorVisibilityFixtures = [
+  ['visible', [], true],
+  ['heading-hidden', [['#probe h2', 'visibility', 'hidden']], false],
+  ['parent-hidden', [['#probe', 'visibility', 'hidden']], false],
+  ['ancestor-hidden', [['#outer', 'visibility', 'hidden']], false],
+  ['heading-transparent', [['#probe h2', 'opacity', '0']], false],
+  ['parent-transparent', [['#probe', 'opacity', '0']], false],
+  ['ancestor-transparent', [['#outer', 'opacity', '0']], false],
+  ['composed-opacity', [['#probe', 'opacity', '.994'], ['#outer', 'opacity', '.994']], false],
+  ['ancestor-display-none', [['#outer', 'display', 'none']], false],
+  ['visible-child-override', [['#probe', 'visibility', 'hidden'], ['#probe h2', 'visibility', 'visible']], true],
+  ['outside-viewport', [['#probe h2', 'transform', 'translateY(1000px)']], false],
+  ['missing-heading', [], false, 'missing']
+];
+async function checkAnchorVisibilityControls(browser) {
+  const results = [];
+  for (const javaScriptEnabled of [true, false]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled });
+    try {
+      const page = await context.newPage();
+      for (const [name, styles, expectedVisible, id = 'probe'] of anchorVisibilityFixtures) {
+        // Separate synthetic documents: never mutate the real landing or its screenshots.
+        await page.setContent('<!doctype html><html><body><div id="outer"><section id="probe"><h2>Anchor heading</h2></section></div></body></html>');
+        await page.evaluate(mutations => {
+          for (const [selector, property, value] of mutations) {
+            document.querySelector(selector).style.setProperty(property, value);
+          }
+        }, styles);
+        const measurement = await page.evaluate(inspectAnchorHeading, id);
+        const passed = measurement.headingVisible === expectedVisible;
+        results.push({ name, javaScriptEnabled, expectedVisible, ...measurement, passed });
+        console.log(`${passed ? 'PASS' : 'FAIL'} anchor-visibility/${name}/${javaScriptEnabled ? 'js' : 'nojs'}`);
+      }
+    } finally { await context.close(); }
+  }
+  return results;
+}
 async function input(name) {
   const file = await realpath(path.resolve(root, name));
   assert(file.startsWith(root + path.sep), 'Input must be inside the source root');
@@ -57,7 +111,7 @@ async function embeddedSource() {
 const report = { mode, sourceSha: process.env.RU_QA_SOURCE_SHA || null, page: pagePath,
   nonClaims: ['No approved historical baseline', 'No external navigation, order, cache-upgrade or physical-device proof',
     'Menu navigation checks document delivery only; not menu application readiness'],
-  requiredChecks, expectedFocus, cases: [] };
+  requiredChecks, expectedFocus, anchorVisibilityControls: [], cases: [] };
 await mkdir(out, { recursive: true });
 let server, browser;
 try {
@@ -79,6 +133,7 @@ try {
   }
   browser = await chromium.launch({ headless: true, ...(process.env.RU_QA_CHROMIUM ? { executablePath: process.env.RU_QA_CHROMIUM } : {}) });
   report.browser = browser.version();
+  report.anchorVisibilityControls = await checkAnchorVisibilityControls(browser);
   const sizes = [[320,740],[360,640],[360,800],[390,844],[430,932],[768,1024],[980,900],[981,900],[1366,768],[1440,1000]];
   const matrix = sizes.flatMap(([width,height]) => [16,32].map(font => ({width,height,font,js:true})));
   matrix.push({width:390,height:844,font:16,js:false}, {width:1440,height:1000,font:16,js:false});
@@ -175,11 +230,7 @@ try {
       for (const target of ['location', 'faq']) {
         await page.locator(`.main-nav a[href="#${target}"]`).click({timeout:3000});
         await page.waitForURL(value=>value.hash===`#${target}`, {timeout:3000});
-        const anchor = await page.evaluate(id => {
-          const section=document.getElementById(id), heading=section?.querySelector('h2');
-          const r=heading?.getBoundingClientRect();
-          return {id,hash:location.hash,headingVisible:Boolean(r&&r.width>0&&r.height>0&&r.top>=0&&r.bottom<=innerHeight)};
-        }, target);
+        const anchor = await page.evaluate(inspectAnchorHeading, target);
         item.anchors.push(anchor);
       }
       item.checks.anchorNavigation = item.anchors.length===2
@@ -221,10 +272,16 @@ finally {
   if(browser) await browser.close();
   if(server) await new Promise(resolve=>server.close(resolve));
   report.inputs=Object.fromEntries([...inputs].sort());
-  report.passed=report.cases.length===22 && report.cases.every(c=>c.passed) && !report.infrastructureError;
+  report.anchorVisibilityControlsPassed = report.anchorVisibilityControls.length === anchorVisibilityFixtures.length * 2
+    && report.anchorVisibilityControls.every(control => control.passed);
+  report.passed=report.cases.length===22 && report.cases.every(c=>c.passed)
+    && report.anchorVisibilityControlsPassed && !report.infrastructureError;
   await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({sourceSha:report.sourceSha,mode,passed:report.passed,
     casesPassed:report.cases.filter(c=>c.passed).length,casesExpected:22,requiredChecks,
+    anchorVisibilityControlsPassed:report.anchorVisibilityControls.filter(c=>c.passed).length,
+    anchorVisibilityControlsExpected:anchorVisibilityFixtures.length * 2,
+    failedAnchorVisibilityControls:report.anchorVisibilityControls.filter(c=>!c.passed),
     failedCases:report.cases.filter(c=>!c.passed).map(c=>({id:c.id,errors:c.errors,
       failedChecks:requiredChecks.filter(name=>c.checks[name]!==true)})),
     infrastructureError:report.infrastructureError},null,2));
