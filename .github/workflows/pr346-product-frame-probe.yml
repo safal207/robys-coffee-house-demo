@@ -1,14 +1,14 @@
-name: PR346 native product frame comparison
+name: PR346 native product frame cache comparison
 
 on:
   push:
-    branches: [fix/pr346-product-frame-probe-20260908]
+    branches: [fix/pr346-product-frame-cache-probe-20260908]
 
 permissions:
   contents: read
 
 concurrency:
-  group: pr346-product-frame-${{ github.ref }}
+  group: pr346-product-frame-cache-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,9 +21,11 @@ jobs:
           - arm: control
             source: 7ca13b9adbf45b953c3b0997107d010e7bad1d9b
             web_digest: 2c97e25ebf4e0c2b16f50818bc3a577b569a5d18a0f623ed21e498ff26e4395c
-          - arm: native-product-frame
-            source: 7c6abf953d945836532979161c3e54a0da6857d3
-            web_digest: 119a78906e68c20991deb1b53e66c8b7c9ad92bf7b00ee3c265e8ee69b36dc66
+            web_count: 240
+          - arm: native-product-frame-cache
+            source: c9a9d9c5feeb35d8b6077485b537ab3b60f62b67
+            web_digest: 9c072aed49e8c17a8a168d8a3e3196e7cc9e29da1c6d81dc32f4283e6e2adc77
+            web_count: 241
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -51,10 +53,11 @@ jobs:
         env:
           EXPECTED_SOURCE_SHA: ${{ matrix.source }}
           EXPECTED_WEB_DIGEST: ${{ matrix.web_digest }}
+          EXPECTED_WEB_COUNT: ${{ matrix.web_count }}
         run: |
           python3 scripts/prepare-android-pinned-fixture.py --source subject --output "$RUNNER_TEMP/pinned-fixture"
           python3 scripts/prepare-android-trace-probe.py "$RUNNER_TEMP/pinned-fixture"
-          python3 scripts/prepare-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture" --source subject --expected-source-sha "$EXPECTED_SOURCE_SHA" --expected-web-sha256 "$EXPECTED_WEB_DIGEST" --expected-web-count 240
+          python3 scripts/prepare-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture" --source subject --expected-source-sha "$EXPECTED_SOURCE_SHA" --expected-web-sha256 "$EXPECTED_WEB_DIGEST" --expected-web-count "$EXPECTED_WEB_COUNT"
           cp scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture/"
           cp scripts/qa/run-android-preraster-probe.sh "$RUNNER_TEMP/pinned-fixture/run-android-preraster-probe.sh"
           cp scripts/qa/print-android-preraster-evidence.py "$RUNNER_TEMP/pinned-fixture/print-android-preraster-evidence.py"
@@ -63,10 +66,11 @@ jobs:
           sha256sum scripts/prepare-android-pinned-fixture.py scripts/prepare-android-trace-probe.py scripts/qa/PinnedWebFixture.java scripts/qa/android-handoff-trace.pbtx scripts/qa/sample-emulator-cpu.py scripts/qa/run-android-preraster-probe.sh scripts/qa/print-android-preraster-evidence.py scripts/qa/android-settling-wait.py scripts/prepare-android-rendering-trace.py scripts/qa/RobysRenderingTrace.java scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py .github/scripts/capture-android-launch.sh > "$RUNNER_TEMP/pinned-fixture/diagnostic-tools.sha256"
           cp .github/workflows/pr346-product-frame-probe.yml "$RUNNER_TEMP/pinned-fixture/diagnostic-workflow.yml"
 
-      - name: Require the declared 240 pinned web files
+      - name: Require the declared pinned web inventory
         env:
           EXPECTED_SOURCE_SHA: ${{ matrix.source }}
           EXPECTED_WEB_DIGEST: ${{ matrix.web_digest }}
+          EXPECTED_WEB_COUNT: ${{ matrix.web_count }}
         run: |
           python3 - <<'PY'
           import hashlib, json, os
@@ -74,7 +78,7 @@ jobs:
           manifest = json.loads((Path(os.environ['RUNNER_TEMP']) / 'pinned-fixture/fixture-manifest.json').read_text())
           files = manifest['files']
           digest = hashlib.sha256(json.dumps(files, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-          assert len(files) == 240, len(files)
+          assert len(files) == int(os.environ['EXPECTED_WEB_COUNT']), len(files)
           assert digest == os.environ['EXPECTED_WEB_DIGEST'], digest
           assert manifest['source_sha'] == os.environ['EXPECTED_SOURCE_SHA']
           print(json.dumps({'source_sha': manifest['source_sha'], 'web_files': len(files), 'web_inventory_sha256': digest}))
@@ -130,6 +134,18 @@ jobs:
       - name: Verify delivered bytes even when handoff fails
         if: always()
         run: python3 scripts/verify-android-pinned-evidence.py "$RUNNER_TEMP/pinned-fixture"
+
+      - name: Require delivery of the candidate native module
+        if: always() && matrix.arm == 'native-product-frame-cache'
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          summary = json.loads((Path(os.environ['RUNNER_TEMP']) / 'pinned-fixture/pinned-evidence-summary.json').read_text())
+          assert summary['source_sha'] == 'c9a9d9c5feeb35d8b6077485b537ab3b60f62b67'
+          assert 'android-native-product-frame.js' in summary['served_paths'], 'native module delivery not observed'
+          print('Candidate module delivery and manifest hash verified; this alone does not prove execution or presentation.')
+          PY
 
       - name: Upload original verdict and complete trace evidence
         if: always()
