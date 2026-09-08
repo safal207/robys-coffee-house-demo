@@ -24,10 +24,19 @@ function emit(state, scene, variant) {
   }));
 }
 
-function animateSafe(element, frames, options) {
+function animateSafe(element, frames, options, synchronizeStart = false) {
   try {
     if (typeof element.animate !== "function") return Promise.resolve();
-    return element.animate(frames, options).finished.catch(() => undefined);
+    const animation = element.animate(frames, options);
+    // The decoded entrance has its own clock. Avoid an additional pending-play
+    // wait, but never backdate it or change the finished-based reading pause.
+    if (synchronizeStart) {
+      const now = document.timeline?.currentTime;
+      if (typeof now === "number" && Number.isFinite(now)) {
+        try { animation.startTime = now; } catch { /* Keep native scheduling. */ }
+      }
+    }
+    return animation.finished.catch(() => undefined);
   } catch { return Promise.resolve(); }
 }
 
@@ -163,7 +172,7 @@ export function runTakeawayEntry(scene = "day") {
     animateSafe(content, [
       { opacity: 0, transform: "translateY(10px)" },
       { opacity: 1, transform: "translateY(0)" }
-    ], { duration: cold ? 700 : 250, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }).then(() => {
+    ], { duration: cold ? 700 : 250, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }, true).then(() => {
       if (exiting || done) return;
       // Count the readable pause from the settled cup. A busy frame must not
       // consume the pause while the entrance is still moving. The hard stop

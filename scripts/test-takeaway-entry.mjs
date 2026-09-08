@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const source = readFileSync("takeaway-entry.js", "utf8").replace(/^export /gm, "");
 
-function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal", entranceDelay = 0 } = {}) {
+function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal", entranceDelay = 0, timelineTime, startTimeThrows = false } = {}) {
   let time = 0;
   let sequence = 0;
   const tasks = new Map();
@@ -46,7 +46,16 @@ function harness({ warm = false, language = "tr", reduced = false, image = "read
       animations.push({ tag: this.className, frames, options });
       if (animation === "throws") throw new Error("animation unavailable");
       const delay = this.className === "robys-takeaway-content" ? entranceDelay : 0;
-      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + delay)) };
+      const record = animations.at(-1);
+      let resolveFinished;
+      const finished = new Promise(resolve => { resolveFinished = resolve; });
+      let finishTask = animation === "stalled" ? null : schedule(resolveFinished, options.duration + delay);
+      return { finished, set startTime(value) {
+        record.startTimeAttempts = (record.startTimeAttempts || 0) + 1;
+        if (startTimeThrows) throw new Error("timeline unavailable");
+        record.startTime = value;
+        if (finishTask !== null) { tasks.delete(finishTask); finishTask = schedule(resolveFinished, options.duration); }
+      } };
     }
   }
   const root = new Element("html");
@@ -54,6 +63,7 @@ function harness({ warm = false, language = "tr", reduced = false, image = "read
   root.append(body);
   const document = Object.assign(new Target(), {
     documentElement: root, body, readyState: "complete", visibilityState: "visible",
+    timeline: timelineTime === undefined ? undefined : { currentTime: timelineTime },
     createElement: (tag) => new Element(tag), querySelector: (s) => root.querySelector(s)
   });
   const motion = Object.assign(new Target(), { matches: reduced });
@@ -185,3 +195,31 @@ for (const animation of ["throws", "stalled"]) {
     const h = harness({ animation }); h.start(); await h.tick(2300); h.released();
   });
 }
+
+// Clock controls use a deterministic animation double, not compositor evidence.
+for (const timelineTime of [0, 37.5]) test(`decoded entrance uses active timeline ${timelineTime} without delaying its clock`, async () => {
+  const h = harness({ timelineTime, entranceDelay: 250 }); h.start(); await h.tick();
+  const entrance=h.animations.find(a=>a.tag==='robys-takeaway-content');
+  assert.equal(entrance.startTime,timelineTime);
+  assert.equal(entrance.options.duration,700); assert.equal(entrance.frames[0].opacity,0);
+  await h.tick(1049); assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+  await h.tick(1); assert.equal(h.events.at(-1).at,1050);
+  const fade=h.animations.find(a=>a.tag==='robys-takeaway-entry');
+  assert.equal(fade.startTimeAttempts,undefined,'The exit retains native scheduling');
+  await h.tick(480);h.released();
+});
+for (const timelineTime of [null, NaN, Infinity, '20']) test(`unresolved/non-numeric timeline ${String(timelineTime)} keeps native scheduling`, async () => {
+  const h=harness({timelineTime,entranceDelay:250});h.start();await h.tick();
+  assert.equal(h.animations[0].startTimeAttempts,undefined);
+  await h.tick(1299);assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+  await h.tick(1);assert.equal(h.events.at(-1).at,1300);await h.tick(480);h.released();
+});
+test('a rejected timeline setter preserves the finished-based reading pause',async()=>{
+  const h=harness({timelineTime:0,startTimeThrows:true,entranceDelay:250});h.start();await h.tick();
+  assert.equal(h.animations[0].startTimeAttempts,1);
+  await h.tick(1299);assert.equal(h.root.dataset.robysEntryState,'brand-frame');
+  await h.tick(1);assert.equal(h.events.at(-1).at,1300);await h.tick(480);h.released();
+});
+test('active timeline cannot defeat the hard stop for an unfinished animation',async()=>{
+  const h=harness({timelineTime:0,animation:'stalled'});h.start();await h.tick(2300);h.released();
+});
