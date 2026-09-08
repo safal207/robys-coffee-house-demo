@@ -20,7 +20,7 @@ const mime = name => ({ '.css': 'text/css', '.html': 'text/html', '.svg': 'image
 const expectedFocus = [
   { selector: '.skip-link', href: '#main' },
   { selector: '.site-header .brand', href: '../' },
-  { selector: '.main-nav a[href="../menu.html"]', href: '../menu.html' },
+  { selector: '.main-nav a[href="../menu.html?lang=ru"]', href: '../menu.html?lang=ru' },
   { selector: '.main-nav a[href="#location"]', href: '#location' },
   { selector: '.main-nav a[href="#faq"]', href: '#faq' }
 ];
@@ -184,6 +184,9 @@ try {
         labelsContrast:m.contrasts.length===2&&m.contrasts.every(n=>n>=4.5), underlinedFAQ:m.links.length===2&&m.links.every(s=>s.includes('underline')) };
       await page.screenshot({path:path.join(out, `${id}-viewport.png`)});
       await page.screenshot({path:path.join(out, `${id}-full.png`),fullPage:true});
+      // All five user-facing menu links on the RU landing must preserve explicit language context.
+      assert.equal(await page.locator('a[href="../menu.html?lang=ru"]').count(), 5,
+        'Every RU landing menu link must carry lang=ru');
       // Preserve independent trial checks for all hero actions, including the external map link.
       for (const selector of ['.main-nav a','.hero-actions a']) {
         for (const link of await page.locator(selector).all()) await link.click({trial:true,timeout:3000});
@@ -237,7 +240,7 @@ try {
         && item.anchors.every(anchor=>anchor.hash===`#${anchor.id}`&&anchor.headingVisible);
       if (mode === 'http') {
         const menuTargets = [
-          {selector: '.main-nav a[href="../menu.html"]', check: 'httpMenuNavigation', evidence: 'menuNavigation'},
+          {selector: '.main-nav a[href="../menu.html?lang=ru"]', check: 'httpMenuNavigation', evidence: 'menuNavigation'},
           {selector: '.hero-actions .button-primary', check: 'httpHeroMenuNavigation', evidence: 'heroMenuNavigation'}
         ];
         // Each entry point gets its own real click and fresh page; trial reachability is not delivery.
@@ -248,8 +251,8 @@ try {
             assert.equal(landingResponse.status(), 200, 'Menu journey starts on the HTTP landing page');
             await navPage.evaluate(font=>{document.documentElement.style.fontSize=`${font}px`;},conf.font);
             const link = navPage.locator(target.selector);
-            assert.equal(await link.getAttribute('href'), '../menu.html', `Wrong menu href: ${target.selector}`);
-            const menuURL = new URL('../menu.html', url).href;
+            assert.equal(await link.getAttribute('href'), '../menu.html?lang=ru', `Wrong menu href: ${target.selector}`);
+            const menuURL = new URL('../menu.html?lang=ru', url).href;
             const [menuResponse] = await Promise.all([
               navPage.waitForResponse(response=>response.url()===menuURL&&response.request().isNavigationRequest()
                 &&response.frame()===navPage.mainFrame(), {timeout:5000}),
@@ -260,9 +263,19 @@ try {
             assert.equal(navPage.url(), menuURL, 'Menu destination must retain the project-path prefix');
             const actualDigest = digest(await menuResponse.body());
             assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');
+            let runtimeLanguage = 'not_run';
+            if (conf.js) {
+              await navPage.waitForFunction(() => document.documentElement.lang === 'ru'
+                && document.querySelector('.lang-button.active')?.dataset.lang === 'ru', null, {timeout:5000});
+              assert.equal(await navPage.evaluate(() => localStorage.getItem('robys-language')), 'ru',
+                'RU landing language must persist after explicit menu handoff');
+              runtimeLanguage = 'ru';
+            }
             item[target.evidence] = {status:'passed',selector:target.selector,url:menuURL,
-              httpStatus:menuResponse.status(),sha256:actualDigest,
-              scope:'Local HTTP document delivery only; not menu application readiness or an order'};
+              httpStatus:menuResponse.status(),sha256:actualDigest,runtimeLanguage,
+              scope: conf.js
+                ? 'Local HTTP delivery plus explicit RU runtime-language handoff; not menu application readiness or an order'
+                : 'Local HTTP document delivery only; page JavaScript disabled, so runtime-language handoff is NOT_RUN'};
             item.checks[target.check] = true;
           } finally { await navPage.close(); }
         }

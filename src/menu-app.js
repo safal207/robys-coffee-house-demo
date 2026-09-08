@@ -39,6 +39,11 @@ let selectedProductQuantity = 1;
 const dialogReturnFocus = new WeakMap();
 
 function readStoredLanguage() {
+  const requested = new URLSearchParams(window.location.search).get("lang");
+  if (supportedLanguages.includes(requested)) {
+    storeLanguage(requested);
+    return requested;
+  }
   try {
     const stored = localStorage.getItem("robys-language");
     return supportedLanguages.includes(stored) ? stored : "tr";
