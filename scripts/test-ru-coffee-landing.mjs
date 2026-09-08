@@ -28,7 +28,7 @@ const requiredChecks = [
   'actualViewport', 'noPageOverflow', 'noTextClipping', 'visibleNavigation',
   'headerDoesNotCoverHero', 'canonicalLoadedLogo', 'labelsContrast', 'underlinedFAQ',
   'actionReachability', 'visibleKeyboardFocus', 'keyboardTargetOrder', 'anchorNavigation',
-  ...(mode === 'http' ? ['httpMenuNavigation'] : [])
+  ...(mode === 'http' ? ['httpMenuNavigation', 'httpHeroMenuNavigation'] : [])
 ];
 // A box alone does not establish CSS visibility. Keep this predicate shared with
 // isolated controls so a future geometry-only implementation cannot pass silently.
@@ -236,29 +236,39 @@ try {
       item.checks.anchorNavigation = item.anchors.length===2
         && item.anchors.every(anchor=>anchor.hash===`#${anchor.id}`&&anchor.headingVisible);
       if (mode === 'http') {
-        // Use another page so navigation cannot replace the landing focus/layout evidence.
-        const navPage = await context.newPage();
-        try {
-          const landingResponse = await navPage.goto(url, {waitUntil:'load'});
-          assert.equal(landingResponse.status(), 200, 'Menu journey starts on the HTTP landing page');
-          await navPage.evaluate(font=>{document.documentElement.style.fontSize=`${font}px`;},conf.font);
-          const menuURL = new URL('../menu.html', url).href;
-          const [menuResponse] = await Promise.all([
-            navPage.waitForResponse(response=>response.url()===menuURL&&response.request().isNavigationRequest()
-              &&response.frame()===navPage.mainFrame(), {timeout:5000}),
-            navPage.waitForURL(menuURL, {waitUntil:'domcontentloaded',timeout:5000}),
-            navPage.locator('.main-nav a[href="../menu.html"]').click({timeout:3000})
-          ]);
-          assert.equal(menuResponse.status(), 200, 'Menu document must return HTTP 200 after a real click');
-          assert.equal(navPage.url(), menuURL, 'Menu destination must retain the project-path prefix');
-          const actualDigest = digest(await menuResponse.body());
-          assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');
-          item.menuNavigation = {status:'passed',url:menuURL,httpStatus:menuResponse.status(),sha256:actualDigest,
-            scope:'Local HTTP document delivery only; not menu application readiness or an order'};
-          item.checks.httpMenuNavigation = true;
-        } finally { await navPage.close(); }
+        const menuTargets = [
+          {selector: '.main-nav a[href="../menu.html"]', check: 'httpMenuNavigation', evidence: 'menuNavigation'},
+          {selector: '.hero-actions .button-primary', check: 'httpHeroMenuNavigation', evidence: 'heroMenuNavigation'}
+        ];
+        // Each entry point gets its own real click and fresh page; trial reachability is not delivery.
+        for (const target of menuTargets) {
+          const navPage = await context.newPage();
+          try {
+            const landingResponse = await navPage.goto(url, {waitUntil:'load'});
+            assert.equal(landingResponse.status(), 200, 'Menu journey starts on the HTTP landing page');
+            await navPage.evaluate(font=>{document.documentElement.style.fontSize=`${font}px`;},conf.font);
+            const link = navPage.locator(target.selector);
+            assert.equal(await link.getAttribute('href'), '../menu.html', `Wrong menu href: ${target.selector}`);
+            const menuURL = new URL('../menu.html', url).href;
+            const [menuResponse] = await Promise.all([
+              navPage.waitForResponse(response=>response.url()===menuURL&&response.request().isNavigationRequest()
+                &&response.frame()===navPage.mainFrame(), {timeout:5000}),
+              navPage.waitForURL(menuURL, {waitUntil:'domcontentloaded',timeout:5000}),
+              link.click({timeout:3000})
+            ]);
+            assert.equal(menuResponse.status(), 200, 'Menu document must return HTTP 200 after a real click');
+            assert.equal(navPage.url(), menuURL, 'Menu destination must retain the project-path prefix');
+            const actualDigest = digest(await menuResponse.body());
+            assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');
+            item[target.evidence] = {status:'passed',selector:target.selector,url:menuURL,
+              httpStatus:menuResponse.status(),sha256:actualDigest,
+              scope:'Local HTTP document delivery only; not menu application readiness or an order'};
+            item.checks[target.check] = true;
+          } finally { await navPage.close(); }
+        }
       } else {
         item.menuNavigation = {status:'not_run',reason:'Offline source rendering cannot prove HTTP menu delivery'};
+        item.heroMenuNavigation = {status:'not_run',reason:'Offline source rendering cannot prove HTTP hero menu delivery'};
       }
     } catch (error) { item.errors.push(String(error)); }
     item.passed = item.errors.length===0 && Object.keys(item.checks).length===requiredChecks.length
