@@ -30,7 +30,7 @@ jobs:
           ru = Path('ru/coffee-gazipasa.html')
           text = ru.read_text()
           old_count = text.count('href="../menu.html"')
-          assert old_count == 4, old_count
+          assert old_count == 5, old_count
           text = text.replace('href="../menu.html"', 'href="../menu.html?lang=ru"')
           ru.write_text(text)
 
@@ -97,7 +97,7 @@ jobs:
           try {
             await page.goto(`${origin}/ru/coffee-gazipasa.html`,{waitUntil:'load'});
             const links=await page.locator('a[href="../menu.html?lang=ru"]').count();
-            assert.equal(links,4); report.checks.allRuMenuLinksCarryLanguage=true;
+            assert.equal(links,5); report.checks.allRuMenuLinksCarryLanguage=true;
             await Promise.all([page.waitForURL(`${origin}/menu.html?lang=ru`),page.locator('.hero-actions .button-primary').click()]);
             await page.waitForFunction(()=>document.documentElement.lang==='ru' && document.querySelector('#menu-root')?.dataset.ready==='true');
             report.observations.initialMenuLanguage=await page.locator('.lang-button.active').getAttribute('data-lang');
