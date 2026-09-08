@@ -78,7 +78,7 @@ jobs:
 
       - name: Install deterministic Chromium
         working-directory: current
-        run: node node_modules/playwright/cli.js install --with-deps chromium
+        run: npx --no-install playwright install --with-deps chromium
 
       - name: Verify launched browser against the installed manifest
         working-directory: current
