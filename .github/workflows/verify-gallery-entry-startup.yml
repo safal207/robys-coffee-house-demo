@@ -73,28 +73,37 @@ jobs:
           assert blob(data)=='cf1a6886a4e81ce0e72972fc4c7ecfad9529c346'
           s=data.decode()
           def one(old,new):
-            global s
-            assert s.count(old)==1, old
-            s=s.replace(old,new)
-          one('  let animationFrame = 0;\n  let previousState: boolean | null = null;', '''  let animationFrame = 0;
-  let previousState: boolean | null = null;
-  const root = document.documentElement;
-  const entryCoversGallery = (): boolean => Boolean(root.dataset.robysEntryPending) &&
-    root.dataset.robysEntryState !== "handoff" && root.dataset.robysEntryState !== "done";''')
-          one('  const checkPanel = (): void => {\n    animationFrame = 0;\n\n    const visualViewport', '  const checkPanel = (): void => {\n    animationFrame = 0;\n    // The full-screen entry owns the viewport; do not force hidden page layout.\n    if (entryCoversGallery()) return;\n\n    const visualViewport')
-          one('  const scheduleCheck = (): void => {\n    if (animationFrame) return;\n    animationFrame = window.requestAnimationFrame(checkPanel);\n  };', '''  const scheduleCheck = (): void => {
-    if (entryCoversGallery() || animationFrame) return;
-    animationFrame = window.requestAnimationFrame(checkPanel);
-  };
-
-  // Wake on normal handoff and on entry abort/failure without polling.
-  const entryObserver = new MutationObserver(() => {
-    if (!entryCoversGallery()) scheduleCheck();
-  });
-  entryObserver.observe(root, {
-    attributes: true,
-    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]
-  });''')
+              global s
+              assert s.count(old)==1, old
+              s=s.replace(old,new)
+          old='  let animationFrame = 0;\n  let previousState: boolean | null = null;'
+          new=('  let animationFrame = 0;\n'
+               '  let previousState: boolean | null = null;\n'
+               '  const root = document.documentElement;\n'
+               '  const entryCoversGallery = (): boolean => Boolean(root.dataset.robysEntryPending) &&\n'
+               '    root.dataset.robysEntryState !== "handoff" && root.dataset.robysEntryState !== "done";')
+          one(old,new)
+          old='  const checkPanel = (): void => {\n    animationFrame = 0;\n\n    const visualViewport'
+          new=('  const checkPanel = (): void => {\n'
+               '    animationFrame = 0;\n'
+               '    // The full-screen entry owns the viewport; do not force hidden page layout.\n'
+               '    if (entryCoversGallery()) return;\n\n'
+               '    const visualViewport')
+          one(old,new)
+          old='  const scheduleCheck = (): void => {\n    if (animationFrame) return;\n    animationFrame = window.requestAnimationFrame(checkPanel);\n  };'
+          new=('  const scheduleCheck = (): void => {\n'
+               '    if (entryCoversGallery() || animationFrame) return;\n'
+               '    animationFrame = window.requestAnimationFrame(checkPanel);\n'
+               '  };\n\n'
+               '  // Wake on normal handoff and on entry abort/failure without polling.\n'
+               '  const entryObserver = new MutationObserver(() => {\n'
+               '    if (!entryCoversGallery()) scheduleCheck();\n'
+               '  });\n'
+               '  entryObserver.observe(root, {\n'
+               '    attributes: true,\n'
+               '    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]\n'
+               '  });')
+          one(old,new)
           p.write_text(s)
           print('featured-gallery blob',blob(p.read_bytes()))
           p=Path('package.json');data=p.read_bytes();assert blob(data)=='9e734a9464d9eba0e0a9b8b0661778d7180c76f4'
