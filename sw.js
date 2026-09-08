@@ -76,7 +76,7 @@ const CORE_ASSETS = [
   "./android-download.js",
   "./android-app.css?v=01b7f55a3fdc",
   "./mobile-install.css",
-  "./styles-v2.css?v=a4431b07fc04",
+  "./styles-v2.css?v=a9740e9125ff",
   "./mobile.css",
   "./conversion.css",
   "./final-qa.css",
