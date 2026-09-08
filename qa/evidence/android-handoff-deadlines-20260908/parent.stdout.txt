@@ -1,0 +1,24 @@
+PASS: bridge callback deadline -1
+PASS: ready visual callback deadline -1
+PASS: fallback visual callback deadline -1
+FAIL: bridge callback deadline 0: java.lang.AssertionError: ready classification at bridge boundary; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY]
+FAIL: ready visual callback deadline 0: java.lang.AssertionError: expired visual callback must take existing timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY, VISUAL_STATE_CONFIRMED, HANDOFF_COMPLETE_WEB_READY, HANDOFF_COMPLETE]
+FAIL: fallback visual callback deadline 0: java.lang.AssertionError: expired visual callback must take existing timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY_TIMEOUT, VISUAL_STATE_CONFIRMED, HANDOFF_COMPLETE_FALLBACK, HANDOFF_COMPLETE]
+FAIL: bridge callback deadline 1: java.lang.AssertionError: ready classification at bridge boundary; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY]
+FAIL: ready visual callback deadline 1: java.lang.AssertionError: expired visual callback must take existing timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY, VISUAL_STATE_CONFIRMED, HANDOFF_COMPLETE_WEB_READY, HANDOFF_COMPLETE]
+FAIL: fallback visual callback deadline 1: java.lang.AssertionError: expired visual callback must take existing timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY_TIMEOUT, VISUAL_STATE_CONFIRMED, HANDOFF_COMPLETE_FALLBACK, HANDOFF_COMPLETE]
+FAIL: non-ready callback at expired bridge takes fallback immediately: java.lang.AssertionError: expired delivery must not enqueue another bridge poll; states=[NATIVE_SURFACE, WEB_COMMITTED]
+PASS: in-budget non-ready callback retains polling
+PASS: bridge timeout first ignores outstanding ready callback
+PASS: visual timeout first cannot be revived
+PASS: stale bridge callback cannot time out new generation
+PASS: stale visual callback cannot fail retry
+PASS: changed URL bridge callback is ignored before expiry handling
+PASS: changed URL visual callback is ignored before expiry handling
+PASS: SSL error before expired bridge cannot become fallback
+PASS: main-frame error before visual completion remains terminal
+PASS: destroy ignores pending bridge and visual callbacks
+FAIL: duplicate commit cannot restart bridge budget: java.lang.AssertionError: second commit callback must preserve first deadline; states=[NATIVE_SURFACE, WEB_COMMITTED, WEB_READY]
+PASS: API23 fallback success still releases exactly once
+SUMMARY: 14/22 passed
+{"compiled_actual_activity": true, "exit_code": 1, "harness_sha256": "a6e653e2608a2a5164548f5beac30ba94526b67b7e3740c4bdba83389cedeee2", "runner_sha256": "a8ea51e1b20817aa15e355df0f9044a64a45404a724f0fe7942c62ae7af1fa80", "scope": "actual MainActivity callbacks on JVM API doubles; not Android rendering", "source_sha256": "b5fdce9d032204fead7fdb8ac5394b423ea03e2684a292e974c833c4997b8b51", "stubs_sha256": "b61a8ef1fbeeb4383c1ae29f6c0e100d603a2f2ef56fadf8517a30f4d8dad31d"}

@@ -1,0 +1,45 @@
+{
+  "scope": "actual Java callback behavior on platform doubles; not Android rendering or SDK API verification",
+  "parent": {
+    "source_commit": "7799f80b5a6561beec57f2d98f8e8ca58e8c36fa",
+    "exit_code": 1,
+    "files": {
+      "parent.stdout.txt": "fafa051c49f9444dd108f4c98a6eb31277c81f3f72d6ed31cc06a54fadc674d4",
+      "parent.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source_sha256": "b5fdce9d032204fead7fdb8ac5394b423ea03e2684a292e974c833c4997b8b51"
+  },
+  "fixed": {
+    "base_commit": "7799f80b5a6561beec57f2d98f8e8ca58e8c36fa",
+    "exit_code": 0,
+    "files": {
+      "fixed.stdout.txt": "ea23b1d7e358bf2b7a441aa975cfb9a8f70c6d46e62e772c659e839bc37cc99a",
+      "fixed.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source_sha256": "8a0ffc77c4df0866c8522ce0e5ce0c5d403771ad0162e10b138a4f8ba3942304"
+  },
+  "identical_test_files": {
+    "harness_sha256": "a6e653e2608a2a5164548f5beac30ba94526b67b7e3740c4bdba83389cedeee2",
+    "runner_sha256": "a8ea51e1b20817aa15e355df0f9044a64a45404a724f0fe7942c62ae7af1fa80",
+    "stubs_sha256": "b61a8ef1fbeeb4383c1ae29f6c0e100d603a2f2ef56fadf8517a30f4d8dad31d"
+  },
+  "old_passed": 14,
+  "old_total": 22,
+  "fixed_passed": 22,
+  "fixed_total": 22,
+  "source_path": "android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java",
+  "validation": {
+    "check": {
+      "command": "npm run check",
+      "exit_code": 0,
+      "log_file": "check.log",
+      "sha256": "ea7049a5f575c619a06b029b4dd297dd020bea3a6acef11f2d46e339aec2b25e"
+    },
+    "security": {
+      "command": "npm run verify:security",
+      "exit_code": 0,
+      "log_file": "security.log",
+      "sha256": "29f8e46471cfcae808cde54603fe56ef702f91cf30f2a304538173818700b3a2"
+    }
+  }
+}
