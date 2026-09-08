@@ -1,0 +1,81 @@
+name: PR 362 off-PR RU language materializer
+
+on:
+  push:
+    branches: ['qa/pr362-materialize-language-b869-20260909']
+    paths: ['.github/workflows/pr362-materialize-language.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa/pr362-materialize-language-b869-20260909
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply source change and permanent regression assertions
+        shell: bash
+        run: |
+          test "$(git hash-object ru/coffee-gazipasa.html)" = "3ea2d6f068798021b619cde8639643dd62d74c07"
+          test "$(git hash-object src/menu-app.js)" = "d644c2674188ff013dd2063e9bbb3551e4f5263d"
+          test "$(git hash-object scripts/test-ru-coffee-landing.mjs)" = "b421d76af65c14e82021ed17da631a9991f4999b"
+          python3 - <<'PY'
+          from pathlib import Path
+          ru=Path('ru/coffee-gazipasa.html'); text=ru.read_text(); assert text.count('href="../menu.html"')==5; ru.write_text(text.replace('href="../menu.html"','href="../menu.html?lang=ru"'))
+          source=Path('src/menu-app.js'); text=source.read_text()
+          old='''function readStoredLanguage() {\n  try {\n    const stored = localStorage.getItem("robys-language");\n    return supportedLanguages.includes(stored) ? stored : "tr";\n  } catch {\n    return "tr";\n  }\n}\n'''
+          new='''function readStoredLanguage() {\n  const requested = new URLSearchParams(window.location.search).get("lang");\n  if (supportedLanguages.includes(requested)) {\n    storeLanguage(requested);\n    return requested;\n  }\n  try {\n    const stored = localStorage.getItem("robys-language");\n    return supportedLanguages.includes(stored) ? stored : "tr";\n  } catch {\n    return "tr";\n  }\n}\n'''
+          assert text.count(old)==1; source.write_text(text.replace(old,new))
+          test=Path('scripts/test-ru-coffee-landing.mjs'); text=test.read_text()
+          replacements=[
+            ('''{ selector: '.main-nav a[href="../menu.html"]', href: '../menu.html' }''','''{ selector: '.main-nav a[href="../menu.html?lang=ru"]', href: '../menu.html?lang=ru' }'''),
+            ('''{selector: '.main-nav a[href="../menu.html"]', check: 'httpMenuNavigation', evidence: 'menuNavigation'}''','''{selector: '.main-nav a[href="../menu.html?lang=ru"]', check: 'httpMenuNavigation', evidence: 'menuNavigation'}'''),
+            ('''assert.equal(await link.getAttribute('href'), '../menu.html', `Wrong menu href: ${target.selector}`);''','''assert.equal(await link.getAttribute('href'), '../menu.html?lang=ru', `Wrong menu href: ${target.selector}`);'''),
+            ('''const menuURL = new URL('../menu.html', url).href;''','''const menuURL = new URL('../menu.html?lang=ru', url).href;''')]
+          for a,b in replacements: assert text.count(a)==1,(a,text.count(a)); text=text.replace(a,b)
+          old='''            assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');\n            item[target.evidence] = {status:'passed',selector:target.selector,url:menuURL,\n              httpStatus:menuResponse.status(),sha256:actualDigest,\n              scope:'Local HTTP document delivery only; not menu application readiness or an order'};\n'''
+          new='''            assert.equal(actualDigest, digest(await input('menu.html')), 'Menu HTTP document identity');\n            let runtimeLanguage = 'not_run';\n            if (conf.js) {\n              await navPage.waitForFunction(() => document.documentElement.lang === 'ru'\n                && document.querySelector('.lang-button.active')?.dataset.lang === 'ru', null, {timeout:5000});\n              assert.equal(await navPage.evaluate(() => localStorage.getItem('robys-language')), 'ru',\n                'RU landing language must persist after explicit menu handoff');\n              runtimeLanguage = 'ru';\n            }\n            item[target.evidence] = {status:'passed',selector:target.selector,url:menuURL,\n              httpStatus:menuResponse.status(),sha256:actualDigest,runtimeLanguage,\n              scope: conf.js\n                ? 'Local HTTP delivery plus explicit RU runtime-language handoff; not menu application readiness or an order'\n                : 'Local HTTP document delivery only; page JavaScript disabled, so runtime-language handoff is NOT_RUN'};\n'''
+          assert text.count(old)==1; text=text.replace(old,new)
+          old='''      // Preserve independent trial checks for all hero actions, including the external map link.\n      for (const selector of ['.main-nav a','.hero-actions a']) {\n'''
+          new='''      // All five user-facing menu links on the RU landing must preserve explicit language context.\n      assert.equal(await page.locator('a[href="../menu.html?lang=ru"]').count(), 5,\n        'Every RU landing menu link must carry lang=ru');\n      // Preserve independent trial checks for all hero actions, including the external map link.\n      for (const selector of ['.main-nav a','.hero-actions a']) {\n'''
+          assert text.count(old)==1; test.write_text(text.replace(old,new))
+          PY
+          git diff --check
+      - name: Rebuild, regenerate integrity and enforce exact scope
+        run: |
+          npm run build
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/verify-integrity-manifest.mjs
+          git diff --check
+          git diff --name-only | sort | tee /tmp/files
+          python3 - <<'PY'
+          from pathlib import Path
+          actual=set(Path('/tmp/files').read_text().splitlines())
+          expected={'integrity-manifest.json','menu-app.js','menu.html','ru/coffee-gazipasa.html','scripts/test-ru-coffee-landing.mjs','src/menu-app.js','sw.js'}
+          assert actual==expected, {'actual':sorted(actual),'expected':sorted(expected)}
+          PY
+      - name: Validate full project and focused RU contract
+        run: |
+          npm run check
+          npm run verify:security
+          git diff --check
+          npx --no-install playwright install --with-deps chromium
+          RU_QA_SOURCE_SHA=materialized-language-handoff node scripts/test-ru-coffee-landing.mjs
+      - name: Commit exact source-first/generated candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add integrity-manifest.json menu-app.js menu.html ru/coffee-gazipasa.html scripts/test-ru-coffee-landing.mjs src/menu-app.js sw.js
+          test "$(git diff --cached --name-only | wc -l)" -eq 7
+          git diff --cached --check
+          git commit -m 'fix(ru): preserve Russian language into menu'
+          git push origin HEAD:qa/pr362-materialize-language-b869-20260909
