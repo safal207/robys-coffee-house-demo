@@ -165,7 +165,9 @@ function bootReveal() {
   };
 
   const syncProduct = () => {
-    const config = resolveRevealConfig(sourceImage.currentSrc || sourceImage.src || sourceImage.getAttribute("src"));
+    const config = resolveRevealConfig(
+      sourceImage.getAttribute("src") || sourceImage.src || sourceImage.currentSrc
+    );
     if (!config) {
       hideReveal();
       return;
