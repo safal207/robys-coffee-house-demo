@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'ru/**'
+      - 'menu.html'
       - 'styles-v2.css'
       - 'mobile.css'
       - 'brand-photo-logo.css'
