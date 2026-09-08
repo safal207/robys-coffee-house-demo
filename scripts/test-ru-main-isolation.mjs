@@ -86,7 +86,11 @@ try {
   const productId = await coffee.getAttribute('data-product-id');
   assert(productId?.startsWith('hot-coffee:'));
   const rowPriceText = await coffee.locator('.full-menu-price').innerText();
-  const numberFrom = value => Number((value.match(/[\d\s.,]+/)?.[0] || '').replace(/[^\d]/g,''));
+  const numberFrom = value => {
+    const groups = value.match(/\d+(?:[\s\u00a0\u202f.,]\d+)*/g) ?? [];
+    const raw = groups.at(-1) ?? '';
+    return Number(raw.replace(/[^\d]/g,''));
+  };
   const unitPrice = numberFrom(rowPriceText);
   assert(Number.isFinite(unitPrice) && unitPrice > 0);
   report.evidence.productId = productId;
