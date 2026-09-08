@@ -1,0 +1,158 @@
+name: Verify pending-light Motion sampler
+on:
+  push:
+    branches: [qa/pending-light-motion-sampler-verify-20260908]
+    paths: [.github/workflows/verify-pending-light-motion-sampler.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-pending-light-motion-sampler-20260908
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 5e6618b861efc866286c83a06e0380133e103a08
+      CANDIDATE_BRANCH: fix/takeaway-sampler-pending-light-20260908
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5e6618b861efc866286c83a06e0380133e103a08
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: |
+            scripts/test-takeaway-pending-sampler.mjs
+            scripts/probe-pending-light-sampler.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Prove new controls fail on exact old sampler
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          mkdir -p .artifacts/pending-light-sampler
+          cp .diagnostic-tools/scripts/test-takeaway-pending-sampler.mjs scripts/
+          cp .diagnostic-tools/scripts/probe-pending-light-sampler.mjs scripts/
+          set +e
+          node --test scripts/test-takeaway-pending-sampler.mjs > .artifacts/pending-light-sampler/before.tap 2>&1
+          before=$?
+          set -e
+          test "$before" = 1
+          grep -q '^# tests 8$' .artifacts/pending-light-sampler/before.tap
+          grep -q 'pending frames may omit computed style without weakening visible evidence' .artifacts/pending-light-sampler/before.tap
+          grep -q 'not ok' .artifacts/pending-light-sampler/before.tap
+      - name: Apply hash-bound sampler repair and persistent regression coverage
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          def blob(data): return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+          p=Path('scripts/takeaway-browser-contract.mjs');data=p.read_bytes()
+          assert blob(data)=='abbe2b050e763998bb6be37acf6acea0067d3709', blob(data)
+          s=data.decode()
+          old='''      const sample = (at) => {\n        const overlay = document.querySelector(".robys-takeaway-entry");\n        const content = overlay?.querySelector(".robys-takeaway-content");\n        if (!content) return;\n        const style = getComputedStyle(content);\n        const surface = getComputedStyle(overlay);\n        const entrance = content.getAnimations()[0];\n        probe.frames.push({ at, state: document.documentElement.dataset.robysEntryState, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform, entrancePending: entrance?.pending, entranceTime: entrance?.currentTime, entranceState: entrance?.playState });\n        if (probe.frames.length < 240) requestAnimationFrame(sample);\n      };'''
+          new='''      let entranceAnimation = null;\n      const sample = (at) => {\n        const overlay = document.querySelector(".robys-takeaway-entry");\n        const content = overlay?.querySelector(".robys-takeaway-content");\n        if (!content) return;\n        if (!entranceAnimation) entranceAnimation = content.getAnimations()[0] ?? null;\n        const frame = {\n          at, state: document.documentElement.dataset.robysEntryState, sampledStyle: false,\n          entrancePending: entranceAnimation?.pending, entranceTime: entranceAnimation?.currentTime, entranceState: entranceAnimation?.playState\n        };\n        // Avoid forcing style/layout while the Web Animation is still pending.\n        // Once motion has actually begun, retain the original visual sampling.\n        if (entranceAnimation?.pending === false && Number(entranceAnimation.currentTime) > 0) {\n          const style = getComputedStyle(content);\n          const surface = getComputedStyle(overlay);\n          Object.assign(frame, { sampledStyle: true, transform: style.transform, opacity: Number(style.opacity), overlayOpacity: Number(surface.opacity), overlayTransform: surface.transform });\n        }\n        probe.frames.push(frame);\n        if (probe.frames.length < 240) requestAnimationFrame(sample);\n      };'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          old='''export function cadence(probe) {\n  const entrance = probe.frames.filter((frame) => frame.state === "brand-frame");\n  // Keep all samples. Only the initial pending, zero-opacity compositor setup\n  // belongs to startup; never filter a stall or opacity drop after motion starts.\n  const firstVisible = entrance.findIndex(frame => frame.entrancePending === false && frame.entranceTime > 0 && frame.opacity > 0);\n  assert(firstVisible >= 0, "Entrance never visibly started");\n  const startup = entrance.slice(0, firstVisible);\n  assert(startup.every(frame => frame.opacity === 0 && frame.entranceTime === 0), "Visible motion occurred before the measured entrance");\n  const brandAt = probe.events.find(event => event.state === "brand-frame")?.at;\n  const startupMs = entrance[firstVisible].at - brandAt;\n  assert(Number.isFinite(startupMs) && startupMs >= 0 && startupMs <= 150, `Visible entrance startup ${startupMs.toFixed(1)} ms exceeded 150 ms`);\n  const frames = entrance.slice(firstVisible, firstVisible + 24);\n  assert(frames.length === 24, `Only ${frames.length}/24 entrance frames captured`);\n  let longestIdenticalRun = 1, run = 1, changingTransitions = 0;\n  for (let i = 1; i < frames.length; i++) {\n    if (frames[i].transform === frames[i - 1].transform) longestIdenticalRun = Math.max(longestIdenticalRun, ++run);\n    else { run = 1; changingTransitions++; }\n    assert(frames[i].opacity + .002 >= frames[i - 1].opacity, "Entrance opacity reversed");\n  }\n  const intervals = frames.slice(1).map((frame, i) => frame.at - frames[i].at).sort((a, b) => a - b);\n  const medianFrameIntervalMs = intervals[Math.floor(intervals.length / 2)];\n  const uniqueTransforms = new Set(frames.map((frame) => frame.transform)).size;\n  assert(uniqueTransforms >= 20 && changingTransitions >= 20 && longestIdenticalRun <= 2, `Entrance stepped: ${uniqueTransforms} transforms, ${changingTransitions} changes, ${longestIdenticalRun} identical frames`);\n  assert(medianFrameIntervalMs <= 20.5, `Median cadence ${medianFrameIntervalMs.toFixed(2)} ms exceeded 60 Hz gate`);\n  const fade = probe.frames.filter((frame) => frame.state === "handoff");\n  assert(fade.length >= 2, "No actual exit fade was sampled");\n  for (let i = 0; i < fade.length; i++) {\n    assert(fade[i].overlayTransform === "none", "Exit moved or zoomed the full-screen surface");\n    if (i) assert(fade[i].overlayOpacity <= fade[i - 1].overlayOpacity + .002, "Exit opacity reversed");\n  }\n  return { uniqueTransforms, changingTransitions, longestIdenticalRun, medianFrameIntervalMs, startupMs, startup, frames, fade };\n}'''
+          new='''export function cadence(probe) {\n  const entrance = probe.frames.filter((frame) => frame.state === "brand-frame");\n  const sampledStyle = (frame) => frame.sampledStyle !== false;\n  const atOrigin = (frame) => frame.entranceTime == null || frame.entranceTime === 0;\n  // Pending-light samples preserve clock/animation state without forcing style.\n  // Legacy evidence has no sampledStyle field and remains fully style-sampled.\n  const firstVisible = entrance.findIndex(frame => sampledStyle(frame) && frame.entrancePending === false && frame.entranceTime > 0 && frame.opacity > 0);\n  assert(firstVisible >= 0, "Entrance never visibly started");\n  const startup = entrance.slice(0, firstVisible);\n  for (const frame of startup) {\n    if (frame.sampledStyle === false) {\n      assert(frame.entrancePending !== false && atOrigin(frame), "Visible motion occurred before the measured entrance");\n      continue;\n    }\n    assert(!(frame.entrancePending === false && frame.entranceTime > 0), "First visible style sample was not visible");\n    assert(frame.opacity === 0 && atOrigin(frame), "Visible motion occurred before the measured entrance");\n  }\n  const brandAt = probe.events.find(event => event.state === "brand-frame")?.at;\n  const startupMs = entrance[firstVisible].at - brandAt;\n  assert(Number.isFinite(startupMs) && startupMs >= 0 && startupMs <= 150, `Visible entrance startup ${startupMs.toFixed(1)} ms exceeded 150 ms`);\n  const frames = entrance.slice(firstVisible, firstVisible + 24);\n  assert(frames.length === 24, `Only ${frames.length}/24 entrance frames captured`);\n  assert(frames.every(frame => sampledStyle(frame) && typeof frame.transform === "string" && Number.isFinite(frame.opacity)), "Entrance lost a visible style sample");\n  let longestIdenticalRun = 1, run = 1, changingTransitions = 0;\n  for (let i = 1; i < frames.length; i++) {\n    if (frames[i].transform === frames[i - 1].transform) longestIdenticalRun = Math.max(longestIdenticalRun, ++run);\n    else { run = 1; changingTransitions++; }\n    assert(frames[i].opacity + .002 >= frames[i - 1].opacity, "Entrance opacity reversed");\n  }\n  const intervals = frames.slice(1).map((frame, i) => frame.at - frames[i].at).sort((a, b) => a - b);\n  const medianFrameIntervalMs = intervals[Math.floor(intervals.length / 2)];\n  const uniqueTransforms = new Set(frames.map((frame) => frame.transform)).size;\n  assert(uniqueTransforms >= 20 && changingTransitions >= 20 && longestIdenticalRun <= 2, `Entrance stepped: ${uniqueTransforms} transforms, ${changingTransitions} changes, ${longestIdenticalRun} identical frames`);\n  assert(medianFrameIntervalMs <= 20.5, `Median cadence ${medianFrameIntervalMs.toFixed(2)} ms exceeded 60 Hz gate`);\n  const fade = probe.frames.filter((frame) => frame.state === "handoff" && sampledStyle(frame));\n  assert(fade.length >= 2, "No actual exit fade was sampled");\n  for (let i = 0; i < fade.length; i++) {\n    assert(fade[i].overlayTransform === "none", "Exit moved or zoomed the full-screen surface");\n    if (i) assert(fade[i].overlayOpacity <= fade[i - 1].overlayOpacity + .002, "Exit opacity reversed");\n  }\n  return { uniqueTransforms, changingTransitions, longestIdenticalRun, medianFrameIntervalMs, startupMs, startup, frames, fade };\n}'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          p.write_text(s)
+          pkg=Path('package.json');d=json.loads(pkg.read_text())
+          old_script='node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs'
+          assert d['scripts']['test:takeaway-entry']==old_script
+          d['scripts']['test:takeaway-entry']=old_script+' scripts/test-takeaway-pending-sampler.mjs'
+          pkg.write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - name: Create exact candidate before verification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          allowed={'scripts/takeaway-browser-contract.mjs','scripts/test-takeaway-pending-sampler.mjs','scripts/probe-pending-light-sampler.mjs','package.json'}
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          assert not changed-allowed, changed-allowed
+          expected_tests={'scripts/test-takeaway-pending-sampler.mjs','scripts/probe-pending-light-sampler.mjs'}
+          assert not {p for p in untracked if p not in expected_tests and not p.startswith('.diagnostic-tools/') and not p.startswith('.artifacts/')},untracked
+          subprocess.run(['git','add','--',*sorted(changed|expected_tests)],check=True)
+          PY
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/pending-light-sampler/candidate.patch
+          git diff --cached --stat > .artifacts/pending-light-sampler/candidate-stat.txt
+          git write-tree > .artifacts/pending-light-sampler/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'test(motion): avoid style flush while entrance animation is pending' | git commit-tree "$(cat .artifacts/pending-light-sampler/candidate-tree.txt)" -p "$BASE_SHA")
+          printf '%s\n' "$candidate" > .artifacts/pending-light-sampler/candidate-commit.txt
+          git reset --hard "$candidate"
+          git archive --format=tar.gz HEAD > .artifacts/pending-light-sampler/candidate-source.tar.gz
+      - name: Full project checks and security
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/pending-light-sampler/check.log
+          test ${PIPESTATUS[0]} -eq 0
+          npm run verify:security 2>&1 | tee .artifacts/pending-light-sampler/security.log
+          test ${PIPESTATUS[0]} -eq 0
+          node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs scripts/test-takeaway-pending-sampler.mjs 2>&1 | tee .artifacts/pending-light-sampler/takeaway-tests.tap
+          test ${PIPESTATUS[0]} -eq 0
+          git diff --exit-code
+      - name: Fixed 24-case pending-light diagnostic
+        shell: bash
+        run: |
+          node scripts/probe-pending-light-sampler.mjs 2>&1 | tee .artifacts/pending-light-sampler/probe.log
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Six fixed unchanged Morning certifications with patched sampler
+        shell: bash
+        run: |
+          for n in 1 2 3 4 5 6; do
+            MORNING_ENTRY_RESULTS_DIR=".artifacts/pending-light-sampler/morning-$n" node scripts/morning-entry-smoke.mjs 2>&1 | tee ".artifacts/pending-light-sampler/morning-$n.log"
+            test ${PIPESTATUS[0]} -eq 0
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          rows=[]
+          for n in range(1,7):
+            d=json.loads(Path(f'.artifacts/pending-light-sampler/morning-{n}/morning-entry-60hz-evidence.json').read_text())
+            rows.append({'run':n,'startupMs':d['startupMs'],'medianFrameIntervalMs':d['medianFrameIntervalMs'],'uniqueTransforms':d['uniqueTransforms'],'pendingUnsampled':sum(1 for f in d['startup'] if f.get('sampledStyle') is False)})
+          Path('.artifacts/pending-light-sampler/morning-six-summary.json').write_text(json.dumps(rows,indent=2)+'\n')
+          PY
+      - name: Existing extended Motion and browser Android bridge contracts
+        shell: bash
+        run: |
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/pending-light-sampler/motion node scripts/motion-release-certification.mjs 2>&1 | tee .artifacts/pending-light-sampler/motion.log
+          test ${PIPESTATUS[0]} -eq 0
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/pending-light-sampler/android-browser node scripts/android-handoff-smoke.mjs 2>&1 | tee .artifacts/pending-light-sampler/android-browser.log
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Publish verified test-contract candidate only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat .artifacts/pending-light-sampler/candidate-commit.txt)"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/fix/featured-gallery-entry-startup-20260908 | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then exit 1; else test "$?" = 2; fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pending-light-motion-sampler-verification-${{ github.sha }}
+          path: .artifacts/pending-light-sampler/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
