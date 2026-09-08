@@ -52,9 +52,9 @@ function fixture({pending='morning',state='loading',top=120,bottom=520}={}){
 
 test('covered initial entry schedules no gallery geometry work',()=>{const f=fixture();assert.equal(f.raf.size,0);assert.equal(f.reads,0);f.flush();assert.equal(f.reads,0);});
 test('scroll while covered does not enqueue hidden gallery measurement',()=>{const f=fixture();f.fireWindow('scroll');assert.equal(f.raf.size,0);assert.equal(f.reads,0);});
-test('brand-frame mutation remains quiet while pending entry still covers page',()=>{const f=fixture();f.mutate('morning','brand-frame');assert.equal(f.raf.size,0);f.flush();assert.equal(f.reads,0);});
-test('handoff mutation resumes gallery measurement before dissolve finishes',()=>{const f=fixture();f.mutate('morning','handoff');assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);assert.deepEqual(f.toggles.at(-1),{name:'featured-gallery-active',on:true});});
-test('pending flag removal after abort resumes gallery without done event',()=>{const f=fixture();f.mutate(null,'loading');assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);});
+test('brand-frame mutation remains quiet while pending entry still covers page',()=>{const f=fixture();f.flush();f.resetReads();f.mutate('morning','brand-frame');assert.equal(f.raf.size,0);f.flush();assert.equal(f.reads,0);});
+test('handoff mutation resumes gallery measurement before dissolve finishes',()=>{const f=fixture();f.flush();f.resetReads();f.mutate('morning','handoff');assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);assert.deepEqual(f.toggles.at(-1),{name:'featured-gallery-active',on:true});});
+test('pending flag removal after abort resumes gallery without done event',()=>{const f=fixture();f.flush();f.resetReads();f.mutate(null,'loading');assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);});
 test('entry off keeps ordinary initial gallery measurement',()=>{const f=fixture({pending:null,state:null});assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);});
 test('scheduled measurement rechecks coverage before reading geometry',()=>{const f=fixture({pending:null,state:null});assert.equal(f.raf.size,1);f.root.dataset.robysEntryPending='morning';f.root.dataset.robysEntryState='loading';f.flush();assert.equal(f.reads,0);});
 test('resize after reveal continues to schedule gallery measurements',()=>{const f=fixture({pending:null,state:null});f.flush();f.resetReads();f.fireWindow('resize');assert.equal(f.raf.size,1);f.flush();assert.equal(f.reads,1);});
