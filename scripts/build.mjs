@@ -250,6 +250,7 @@ const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css
 let html = readFileSync("index.html", "utf8");
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
+html = synchronizeStylesheet(html, "android-app.css", androidStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
