@@ -1,3 +1,4 @@
+# Second commit intentionally triggers this branch-local diagnostic after registration.
 name: Diagnose post-gallery entry stall
 on:
   push:
