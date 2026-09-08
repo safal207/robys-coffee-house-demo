@@ -8,6 +8,7 @@ on:
       - "menu-product-reveal-runtime.js"
       - "menu-product-reveal.css"
       - "scripts/test-menu-product-reveal.mjs"
+      - "scripts/test-menu-product-reveal-browser.mjs"
       - "src/products/san-sebastian.webp"
       - ".github/workflows/menu-product-reveal.yml"
   workflow_dispatch:
@@ -30,5 +31,12 @@ jobs:
           node --check menu-product-reveal.js
           node --check menu-product-reveal-runtime.js
           node --check scripts/test-menu-product-reveal.mjs
+          node --check scripts/test-menu-product-reveal-browser.mjs
       - name: Verify reveal contract
         run: node scripts/test-menu-product-reveal.mjs
+      - name: Install browser test dependencies
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Run Chromium reveal smoke
+        run: node scripts/test-menu-product-reveal-browser.mjs
