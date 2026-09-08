@@ -205,6 +205,8 @@ writeFileSync("bootstrap-v2.js", bootstrapSource);
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
+const brandPhotoLogoRevision = revisionFor("brand-photo-logo.css");
+const russianLandingStylesRevision = revisionFor("ru/coffee-gazipasa.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
@@ -260,6 +262,8 @@ writeFileSync("menu.html", menuHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
 russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../brand-photo-logo.css", brandPhotoLogoRevision);
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "coffee-gazipasa.css", russianLandingStylesRevision);
 writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");

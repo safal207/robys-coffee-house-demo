@@ -5,6 +5,12 @@ on:
     paths:
       - 'ru/**'
       - 'menu.html'
+      - 'src/menu-app.js'
+      - 'menu-app.js'
+      - 'menu-catalog.js'
+      - 'menu-search-clear.js'
+      - 'scripts/menu-runtime-source.mjs'
+      - 'scripts/build.mjs'
       - 'styles-v2.css'
       - 'mobile.css'
       - 'brand-photo-logo.css'
