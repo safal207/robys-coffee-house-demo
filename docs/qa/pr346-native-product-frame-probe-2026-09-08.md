@@ -1,0 +1,13 @@
+# Native product frame comparison
+
+The original bridge marks ready while an opaque HTML cover remains in the WebView. Native certifies that covered state, removes its native splash, requests asynchronous HTML release and immediately logs completion. The software/SwiftShader comparison preserved a 5.991/4.535-second draw crossing or following completion; decoded video shows the product only about 6.182/5.559 seconds after completion. Those green jobs do not establish a correct reveal.
+
+This diagnostic compares original subject `7ca13b9adbf45b953c3b0997107d010e7bad1d9b` against isolated candidate `7c6abf953d945836532979161c3e54a0da6857d3` (parent current PR head `7799f80b5a6561beec57f2d98f8e8ca58e8c36fa`). PR7799 differs from original7ca only in reviewed visual provenance and its QA note; its public fixture and native source are identical.
+
+For the canonical positive native generation URL, the candidate prepares the actual product under the existing native splash and creates no duplicate HTML cover. Readiness waits for captured DOMContentLoaded, active styles, product poster and responsive brand, fonts, existing finite hero entrances and two animation frames. Release is idempotent; early completion/abort prevents later ready. Generationless browser entry retains the existing cover and animations. No native deadline, capture assertion, visual threshold, CSS or media behavior changes.
+
+The candidate passed37 focused unit checks, browser cases including TR/EN/RU, delayed stylesheet/failed poster controls, the complete npm check and security287 checks plus secret scan. Android sufficiency is still unproven. The first upgrading document under an older active worker can still receive the old module; installed-worker rollout requires its own validation if the cold candidate succeeds.
+
+Both arms retain API36, pixel6, two guest CPUs, original software GPU selection, enabled animations, the same120-second prelaunch idle interval, immutable APK transport and declared rendering observer. All capture/observer bytes and assertions remain the previous diagnostic implementation. The120-second interval is experimental control only and is not proposed for the original smoke. Each source has240 web files, with distinct exact inventory digests enforced in the matrix and preparation helper.
+
+Require genuine product readiness, the unchanged original verdict, valid traces through ten seconds after completion, and decoded video at reveal. A fallback PASS or delayed product after completion cannot certify this repair. A favorable traced result still requires original untraced cold-launch validation before changing PR346. No merge or deployment is part of this diagnostic.
