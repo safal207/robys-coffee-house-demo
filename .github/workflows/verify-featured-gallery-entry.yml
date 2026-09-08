@@ -1,0 +1,172 @@
+name: Verify featured gallery entry deferral
+on:
+  push:
+    branches: [qa/featured-gallery-entry-verify-20260908]
+    paths: [.github/workflows/verify-featured-gallery-entry.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-featured-gallery-entry-20260908
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 0611ca0caa5d39f769fd0916bca65f037886aa56
+      CANDIDATE_BRANCH: fix/featured-gallery-entry-startup-20260908
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0611ca0caa5d39f769fd0916bca65f037886aa56
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: |
+            scripts/test-featured-gallery-entry-lifecycle.mjs
+            scripts/test-featured-gallery-entry-browser.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Preserve negative controls on exact original gallery source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          mkdir -p .artifacts/featured-gallery-entry
+          cp .diagnostic-tools/scripts/test-featured-gallery-entry-lifecycle.mjs scripts/
+          cp .diagnostic-tools/scripts/test-featured-gallery-entry-browser.mjs scripts/
+          set +e
+          node --test scripts/test-featured-gallery-entry-lifecycle.mjs > .artifacts/featured-gallery-entry/before-unit.tap 2>&1
+          unit_exit=$?
+          node scripts/test-featured-gallery-entry-browser.mjs > .artifacts/featured-gallery-entry/before-browser.log 2>&1
+          browser_exit=$?
+          set -e
+          test "$unit_exit" = 1
+          grep -q '^# tests 10$' .artifacts/featured-gallery-entry/before-unit.tap
+          grep -q 'covered initial gallery' .artifacts/featured-gallery-entry/before-unit.tap
+          grep -q 'handoff mutation resumes' .artifacts/featured-gallery-entry/before-unit.tap
+          test "$browser_exit" = 1
+          grep -q 'gallery read' .artifacts/featured-gallery-entry/before-browser.log
+      - name: Apply hash-bound source repair and persistent unit coverage
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          def blob(data): return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+          p=Path('src/featured-gallery.ts');data=p.read_bytes()
+          assert blob(data)=='cf1a6886a4e81ce0e72972fc4c7ecfad9529c346', blob(data)
+          s=data.decode()
+          old='''function setupGalleryDockBehavior(section: HTMLElement): void {\n  let animationFrame = 0;\n  let previousState: boolean | null = null;\n\n  const checkPanel = (): void => {\n    animationFrame = 0;\n'''
+          new='''function setupGalleryDockBehavior(section: HTMLElement): void {\n  let animationFrame = 0;\n  let previousState: boolean | null = null;\n  const root = document.documentElement;\n  const entryCoversGallery = (): boolean =>\n    Boolean(root.dataset.robysEntryPending) &&\n    root.dataset.robysEntryState !== "handoff" &&\n    root.dataset.robysEntryState !== "done";\n\n  const checkPanel = (): void => {\n    animationFrame = 0;\n    if (entryCoversGallery()) return;\n'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          old='''  const scheduleCheck = (): void => {\n    if (animationFrame) return;\n    animationFrame = window.requestAnimationFrame(checkPanel);\n  };\n'''
+          new='''  const scheduleCheck = (): void => {\n    if (entryCoversGallery() || animationFrame) return;\n    animationFrame = window.requestAnimationFrame(checkPanel);\n  };\n'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          old='''  window.visualViewport?.addEventListener("resize", scheduleCheck, { passive: true });\n\n  scheduleCheck();\n}'''
+          new='''  window.visualViewport?.addEventListener("resize", scheduleCheck, { passive: true });\n\n  const entryObserver = new MutationObserver(() => scheduleCheck());\n  entryObserver.observe(root, {\n    attributes: true,\n    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]\n  });\n\n  scheduleCheck();\n}'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          p.write_text(s)
+          Path('.artifacts/featured-gallery-entry/source-after.sha256').write_text(hashlib.sha256(p.read_bytes()).hexdigest()+'\n')
+          pkg=Path('package.json');d=json.loads(pkg.read_text())
+          assert 'test:featured-gallery-entry' not in d['scripts']
+          d['scripts']['test:featured-gallery-entry']='node --test scripts/test-featured-gallery-entry-lifecycle.mjs'
+          anchor='npm run verify:gallery:assets && npm run test:discover-rotation'
+          assert d['scripts']['check'].count(anchor)==1
+          d['scripts']['check']=d['scripts']['check'].replace(anchor,'npm run verify:gallery:assets && npm run test:featured-gallery-entry && npm run test:discover-rotation')
+          pkg.write_text(json.dumps(d,indent=2)+'\n')
+          PY
+          npm run build
+          npm run integrity:generate
+      - name: Create bounded candidate commit before verification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          allowed={'src/featured-gallery.ts','package.json','scripts/test-featured-gallery-entry-lifecycle.mjs','scripts/test-featured-gallery-entry-browser.mjs','featured-gallery.js','index.html','integrity-manifest.json'}
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          unexpected_changed=changed-allowed
+          unexpected_untracked={p for p in untracked if p not in {'scripts/test-featured-gallery-entry-lifecycle.mjs','scripts/test-featured-gallery-entry-browser.mjs'} and not p.startswith('.diagnostic-tools/') and not p.startswith('.artifacts/')}
+          assert not unexpected_changed,unexpected_changed
+          assert not unexpected_untracked,unexpected_untracked
+          subprocess.run(['git','add','--',*sorted(changed|{'scripts/test-featured-gallery-entry-lifecycle.mjs','scripts/test-featured-gallery-entry-browser.mjs'})],check=True)
+          PY
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/featured-gallery-entry/candidate.patch
+          git diff --cached --stat > .artifacts/featured-gallery-entry/candidate-stat.txt
+          git write-tree > .artifacts/featured-gallery-entry/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'perf(gallery): defer covered dock geometry until entry handoff' | git commit-tree "$(cat .artifacts/featured-gallery-entry/candidate-tree.txt)" -p "$BASE_SHA")
+          printf '%s\n' "$candidate" > .artifacts/featured-gallery-entry/candidate-commit.txt
+          git reset --hard "$candidate"
+          git archive --format=tar.gz HEAD > .artifacts/featured-gallery-entry/candidate-source.tar.gz
+          git ls-tree -r HEAD > .artifacts/featured-gallery-entry/candidate-tree-files.txt
+      - name: Full check and security with unchanged release thresholds
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/featured-gallery-entry/check.log
+          npm run verify:security 2>&1 | tee .artifacts/featured-gallery-entry/security.log
+          git diff --exit-code
+      - name: Real-page covered-read suppression and recovery
+        run: node scripts/test-featured-gallery-entry-browser.mjs | tee .artifacts/featured-gallery-entry/after-browser.log
+      - name: Existing shared cart and Premium UI
+        shell: bash
+        run: |
+          npm run test:order-share:browser 2>&1 | tee .artifacts/featured-gallery-entry/order-share-browser.log
+          node scripts/premium-ui-regression.mjs 2>&1 | tee .artifacts/featured-gallery-entry/premium-ui.log
+      - name: Fixed six untouched Morning certifications
+        shell: bash
+        run: |
+          for n in 1 2 3 4 5 6; do
+            MORNING_ENTRY_RESULTS_DIR=".artifacts/featured-gallery-entry/morning-$n" node scripts/morning-entry-smoke.mjs 2>&1 | tee ".artifacts/featured-gallery-entry/morning-$n.log"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          rows=[]
+          for n in range(1,7):
+            p=Path(f'.artifacts/featured-gallery-entry/morning-{n}/morning-entry-60hz-evidence.json')
+            d=json.loads(p.read_text());rows.append({'run':n,'startupMs':d['startupMs'],'medianFrameIntervalMs':d['medianFrameIntervalMs'],'uniqueTransforms':d['uniqueTransforms']})
+          Path('.artifacts/featured-gallery-entry/morning-six-summary.json').write_text(json.dumps(rows,indent=2)+'\n')
+          PY
+      - name: Original extended motion and browser Android bridge contracts
+        shell: bash
+        run: |
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/featured-gallery-entry/motion node scripts/motion-release-certification.mjs 2>&1 | tee .artifacts/featured-gallery-entry/motion.log
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/featured-gallery-entry/android-browser node scripts/android-handoff-smoke.mjs 2>&1 | tee .artifacts/featured-gallery-entry/android-browser.log
+      - name: Publish verified candidate branch only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat .artifacts/featured-gallery-entry/candidate-commit.txt)"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/fix/order-dock-entry-startup-20260908 | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+            echo 'Candidate exists; refusing to overwrite.' >&2
+            exit 1
+          else
+            test "$?" = 2
+          fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: featured-gallery-entry-verification-${{ github.sha }}
+          path: .artifacts/featured-gallery-entry/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
