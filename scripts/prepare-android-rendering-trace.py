@@ -30,11 +30,11 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def prepare(directory, source):
+def prepare(directory, source, expected_source_sha=SUBJECT, expected_web_sha256=WEB_SHA256, expected_web_count=WEB_COUNT):
     root = Path(directory).resolve()
     source = Path(source).resolve()
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
-    require(revision == SUBJECT, "observer requires the immutable original 7ca subject")
+    require(revision == expected_source_sha, "observer requires the declared immutable subject")
     original = subprocess.check_output(["git", "show", f"{revision}:{ACTIVITY}"], cwd=source)
     manifest_bytes = (root / "fixture-manifest.json").read_bytes()
     manifest = json.loads(manifest_bytes)
@@ -46,8 +46,8 @@ def prepare(directory, source):
     require(manifest["native_instrumented_sha256"] == sha(transport), "transport source hash differs")
     require("rendering_observer" not in manifest, "observer is already installed")
     inventory = json.dumps(manifest["files"], sort_keys=True, separators=(",", ":")).encode()
-    require(len(manifest["files"]) == WEB_COUNT and sha(inventory) == WEB_SHA256,
-            "immutable 240-file web inventory differs")
+    require(len(manifest["files"]) == expected_web_count and sha(inventory) == expected_web_sha256,
+            "declared immutable web inventory differs")
     for entry in manifest["files"].values():
         data = (assets / "pinned-web" / entry["asset"]).read_bytes()
         require(sha(data) == entry["sha256"] and len(data) == entry["bytes"], "pinned asset bytes differ")
@@ -78,7 +78,7 @@ def prepare(directory, source):
         "version": 1, "implementation": "recreated after workspace maintenance; revalidated",
         "source_sha": revision, "native_original_sha256": sha(original),
         "native_transport_sha256": sha(transport), "native_observer_sha256": sha(observed.encode()),
-        "helper_sha256": sha(helper), "web_inventory_sha256": sha(inventory), "web_files": WEB_COUNT,
+        "helper_sha256": sha(helper), "web_inventory_sha256": sha(inventory), "web_files": expected_web_count,
         "capture_sha256": sha(capture), "trace_capture_sha256": sha(trace_capture),
         "stop_after_ms": 35000, "mode": "RECORD_UNTIL_FULL",
         "categories": ["CATEGORIES_RENDERING", "CATEGORIES_ANDROID_WEBVIEW",
@@ -118,5 +118,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory")
     parser.add_argument("--source", required=True)
+    parser.add_argument("--expected-source-sha", default=SUBJECT)
+    parser.add_argument("--expected-web-sha256", default=WEB_SHA256)
+    parser.add_argument("--expected-web-count", type=int, default=WEB_COUNT)
     args = parser.parse_args()
-    print(json.dumps(prepare(args.directory, args.source), sort_keys=True))
+    print(json.dumps(prepare(args.directory, args.source, args.expected_source_sha,
+                             args.expected_web_sha256, args.expected_web_count), sort_keys=True))
