@@ -1,0 +1,147 @@
+name: PR 362 bounded RU guest journey
+
+on:
+  push:
+    branches: ['qa/pr362-guest-journey-b869-20260909']
+    paths: ['.github/workflows/pr362-guest-journey.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: b869fb5a3d863a61dfa617a249547b8f408cb757
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Run exact-source RU → menu → cart journey
+        shell: bash
+        run: |
+          mkdir -p journey-evidence
+          python3 -m http.server 4173 --bind 127.0.0.1 >journey-evidence/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { writeFile } from 'node:fs/promises';
+          import { chromium } from 'playwright';
+          import { menuCategories } from './menu-catalog.js';
+
+          const SOURCE = 'b869fb5a3d863a61dfa617a249547b8f408cb757';
+          const origin = 'http://127.0.0.1:4173';
+          const category = menuCategories.find(row => row.id === 'hot-coffee');
+          assert(category, 'hot-coffee category missing from catalog');
+          const item = category.items.find(row => row.name?.en === 'Espresso');
+          assert(item && item.price === 110, 'Pinned Espresso catalog fixture changed');
+          const productId = 'hot-coffee:espresso';
+          const expectedPrice = item.price;
+          const expectedFormatted = `${expectedPrice} ₺`;
+          const report = {
+            sourceSha: SOURCE,
+            scope: 'RU landing → menu → explicit RU switch if needed → one catalog item → draft cart total; no submission/payment',
+            catalog: { productId, nameRu: item.name.ru, price: expectedPrice },
+            checks: {},
+            observations: {},
+            passed: false
+          };
+
+          for (let attempt = 0; attempt < 40; attempt += 1) {
+            try {
+              const response = await fetch(`${origin}/ru/coffee-gazipasa.html`, { cache: 'no-store' });
+              if (response.ok) break;
+            } catch {}
+            await new Promise(resolve => setTimeout(resolve, 100));
+            if (attempt === 39) throw new Error('Static server did not become ready');
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          report.browser = browser.version();
+          const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ru-RU', serviceWorkers: 'block' });
+          const page = await context.newPage();
+          const errors = [];
+          page.on('pageerror', error => errors.push(String(error)));
+          page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
+          try {
+            const landing = await page.goto(`${origin}/ru/coffee-gazipasa.html`, { waitUntil: 'load' });
+            assert.equal(landing.status(), 200);
+            assert.equal(await page.locator('html').getAttribute('lang'), 'ru');
+            assert.equal(await page.locator('.hero-actions .button-primary').getAttribute('href'), '../menu.html');
+            report.checks.ruLandingLoaded = true;
+
+            await Promise.all([
+              page.waitForURL(`${origin}/menu.html`, { waitUntil: 'domcontentloaded' }),
+              page.locator('.hero-actions .button-primary').click()
+            ]);
+            await page.waitForSelector('#menu-root [data-product-id]');
+            report.checks.realLandingToMenuNavigation = true;
+
+            const initialLanguage = await page.locator('.lang-button.active').getAttribute('data-lang');
+            report.observations.initialMenuLanguage = initialLanguage;
+            report.observations.automaticRussianContinuation = initialLanguage === 'ru';
+            if (initialLanguage !== 'ru') {
+              await page.locator('.lang-button[data-lang="ru"]').click();
+            }
+            await page.waitForFunction(() => document.documentElement.lang === 'ru');
+            assert.equal(await page.locator('[data-menu-copy="pageTitle"]').textContent(), 'Полное меню');
+            report.checks.russianMenuAvailable = true;
+
+            const productButton = page.locator(`[data-product-id="${productId}"] .full-menu-item-media`);
+            await productButton.scrollIntoViewIfNeeded();
+            assert(await productButton.isVisible());
+            await productButton.click();
+            await page.locator('#menu-product-dialog[open]').waitFor();
+            assert.equal((await page.locator('#menu-product-title').textContent()).trim(), item.name.ru);
+            assert.equal((await page.locator('#menu-product-price').textContent()).trim(), expectedFormatted);
+            assert((await page.locator('#menu-add-to-cart').textContent()).includes(expectedFormatted));
+            report.checks.productDialogUsesCatalogPrice = true;
+
+            await page.locator('#menu-add-to-cart').click();
+            assert.equal((await page.locator('#menu-cart-count').textContent()).trim(), '1');
+            assert.equal((await page.locator('#menu-cart-total').textContent()).trim(), expectedFormatted);
+            report.checks.catalogItemAddedToDraftCart = true;
+
+            await page.locator('#menu-cart-trigger').click();
+            await page.locator('#menu-cart-dialog[open]').waitFor();
+            const line = page.locator('.menu-cart-line').filter({ hasText: item.name.ru });
+            assert.equal(await line.count(), 1);
+            assert((await line.locator('.menu-cart-line-details span').textContent()).includes(expectedFormatted));
+            assert.equal((await line.locator('.menu-cart-line-total').textContent()).trim(), expectedFormatted);
+            assert.equal((await page.locator('#menu-cart-dialog-total').textContent()).trim(), expectedFormatted);
+            report.checks.cartTotalEqualsCatalogPrice = true;
+
+            const stored = await page.evaluate(() => JSON.parse(sessionStorage.getItem('robys-menu-order.v1')));
+            assert.deepEqual(stored, { version: 1, lines: [{ id: 'hot-coffee:espresso', quantity: 1 }] });
+            report.checks.persistedDraftUsesProductIdentityNotClientPrice = true;
+
+            const draftNote = (await page.locator('#menu-cart-draft-note').textContent()).trim();
+            assert(draftNote.includes('заказ не отправляется'));
+            report.observations.draftNotice = draftNote;
+            report.checks.noSubmissionClaim = true;
+            assert.deepEqual(errors, []);
+            report.checks.noPageOrRequestErrors = true;
+            report.passed = Object.values(report.checks).every(Boolean);
+          } finally {
+            await page.screenshot({ path: 'journey-evidence/final-cart.png', fullPage: true });
+            await context.close();
+            await browser.close();
+            await writeFile('journey-evidence/report.json', JSON.stringify(report, null, 2) + '\n');
+            console.log(JSON.stringify(report, null, 2));
+          }
+          assert.equal(report.passed, true);
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr362-bounded-guest-journey-${{ github.run_id }}
+          path: journey-evidence/
+          if-no-files-found: error
+          retention-days: 14
