@@ -1,5 +1,6 @@
-// TEMPORARY DIAGNOSTIC BRANCH ONLY: capture a fixed attribution matrix first.
+// TEMPORARY DIAGNOSTIC BRANCH ONLY: capture fixed attribution/outlier probes first.
 await import("./morning-entry-attribution.mjs");
+await import("./morning-entry-outlier-probe.mjs");
 
 // MOTION-ENTRY-001 now certifies the approved takeaway scene at the Morning route.
 import path from "node:path";
