@@ -1,0 +1,36 @@
+name: Artifact finalization probe 360
+
+on:
+  push:
+    branches: ['qa/artifact-upload-probe-360-20260908']
+    paths: ['.github/workflows/artifact-upload-probe-360.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Create deterministic tiny evidence files
+        shell: bash
+        run: |
+          mkdir -p probe
+          printf 'issue=360\nrun=%s\nattempt=%s\nsha=%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_SHA" > probe/a.txt
+          cp probe/a.txt probe/b.txt
+          sha256sum probe/a.txt probe/b.txt
+      - name: Finalize first tiny artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
+        with:
+          name: artifact-probe-a-${{ github.run_id }}-${{ github.run_attempt }}
+          path: probe/a.txt
+          if-no-files-found: error
+          retention-days: 1
+      - name: Finalize second tiny artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
+        with:
+          name: artifact-probe-b-${{ github.run_id }}-${{ github.run_attempt }}
+          path: probe/b.txt
+          if-no-files-found: error
+          retention-days: 1
