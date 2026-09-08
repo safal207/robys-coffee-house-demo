@@ -1,0 +1,224 @@
+name: Verify order share P2 clipboard ownership
+'on':
+  push:
+    branches: [qa/order-share-p2-verify-20260908]
+permissions:
+  contents: read
+concurrency:
+  group: order-share-p2-candidate
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: 563d5199d992023bfcf4a6ed9829f1c1e5187c0f
+      CANDIDATE_BRANCH: fix/order-share-p2-clipboard-20260908
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        ref: 563d5199d992023bfcf4a6ed9829f1c1e5187c0f
+        fetch-depth: 1
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '22'
+    - run: npm ci --no-audit --no-fund
+    - name: Add P2 regression and retain failing baseline
+      shell: bash
+      run: |
+        mkdir -p .artifacts/order-share-p2
+        cat >> scripts/test-order-share-lifecycle.mjs <<'LIFECYCLE_EOF'
+
+        // P2: independent pending clipboard writes across drawer lifecycles.
+        // These still use the labelled DOM/store/clipboard doubles above, not a browser.
+        const pendingTransitions = [
+          ['drawer close/reopen', f => f.close(), f => f.open()],
+          ['barista/edit', f => f.handoff(), f => f.edit()],
+          ['migration hold/resume', f => f.pending([{id:'cold-coffee:iced-latte',quantity:1}]), f => f.pending(null)],
+          ['empty/restore', f => f.order.setQuantity('cold-coffee:iced-latte',0), f => f.order.setQuantity('cold-coffee:iced-latte',3)]
+        ];
+        for (const [name, hide, show] of pendingTransitions) test(`pending clipboard: ${name} releases busy without settling the obsolete write`, async () => {
+          const f=setup();f.open();f.reveal();f.copy.click();
+          assert(f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),'true');
+          hide(f);
+          assert(f.panel.hidden);assert(!f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),null);
+          show(f);f.reveal();assert(!f.copy.disabled);f.copy.click();
+          assert.equal(f.clipboardCalls.length,2,'a new write starts while the first remains pending');
+          f.deferred.resolve();await flush();
+          assert(f.status.textContent.includes('скопирован'));assert(!f.copy.disabled);
+          assert.equal(f.copy.getAttribute('aria-busy'),null);
+        });
+        for (const oldOutcome of ['resolve','reject']) for (const newState of ['pending','resolved','rejected']) {
+          test(`clipboard ownership: obsolete ${oldOutcome} cannot alter a newer ${newState} write`, async () => {
+            const f=setup();f.open();f.reveal();f.copy.click();const oldWrite={...f.deferred};
+            f.close();f.open();f.order.setQuantity('cold-coffee:iced-latte',4);f.reveal();f.copy.click();
+            assert.equal(f.clipboardCalls.length,2);const newWrite={...f.deferred};
+            assert.match(f.clipboardCalls[1],/720/);
+            if(newState==='resolved')newWrite.resolve();
+            if(newState==='rejected')newWrite.reject(new Error('current denial'));
+            await flush();const before={status:f.status.textContent,focus:f.focusAttempts.length,text:f.preview.value};
+            if(oldOutcome==='resolve')oldWrite.resolve();else oldWrite.reject(new Error('obsolete denial'));
+            await flush();
+            assert.equal(f.status.textContent,before.status);assert.equal(f.focusAttempts.length,before.focus);assert.equal(f.preview.value,before.text);
+            assert.equal(f.copy.disabled,newState==='pending');
+            assert.equal(f.copy.getAttribute('aria-busy'),newState==='pending'?'true':null);
+            if(newState==='pending'){
+              f.copy.click();assert.equal(f.clipboardCalls.length,2,'obsolete finally must not admit a duplicate third write');
+              newWrite.resolve();await flush();assert(f.status.textContent.includes('скопирован'));assert(!f.copy.disabled);
+            }else if(newState==='resolved')assert(f.status.textContent.includes('скопирован'));
+            else {assert(f.status.textContent.includes('недоступно'));assert.equal(f.document.activeElement,f.preview);}
+          });
+        }
+        test('clipboard ownership: three drawer generations keep only the newest busy state',async()=>{
+          const f=setup();f.open();f.reveal();f.copy.click();const first={...f.deferred};
+          f.close();f.open();f.reveal();f.copy.click();const second={...f.deferred};
+          f.close();f.open();f.reveal();f.copy.click();const third={...f.deferred};assert.equal(f.clipboardCalls.length,3);
+          first.resolve();second.reject(new Error('obsolete middle generation'));await flush();
+          assert(f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),'true');assert.equal(f.status.textContent,'');
+          third.resolve();await flush();assert(!f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),null);assert(f.status.textContent.includes('скопирован'));
+        });
+        test('clipboard ownership: same-lifecycle duplicate guard and changed-order notice remain intact',async()=>{
+          const f=setup();f.open();f.reveal();f.copy.click();f.copy.click();assert.equal(f.clipboardCalls.length,1);
+          f.order.setQuantity('cold-coffee:iced-latte',4);assert(f.copy.disabled);
+          f.deferred.resolve();await flush();assert(f.status.textContent.includes('изменился'));assert(!f.copy.disabled);
+        });
+        LIFECYCLE_EOF
+        set +e
+        node --test scripts/test-order-share-lifecycle.mjs > .artifacts/order-share-p2/before-p2.tap 2>&1
+        result=$?
+        set -e
+        test "$result" = 1
+        grep -q '^# tests 22$' .artifacts/order-share-p2/before-p2.tap
+        grep -q '^# pass 11$' .artifacts/order-share-p2/before-p2.tap
+        grep -q '^# fail 11$' .artifacts/order-share-p2/before-p2.tap
+    - name: Apply minimal lifecycle ownership repair and browser controls
+      shell: bash
+      run: |
+        python3 - <<'PATCH_PY'
+        from pathlib import Path
+        import hashlib
+        p=Path('src/order-share.ts'); data=p.read_bytes()
+        assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()=='4b04615a0f2218c6803d36b5ee9a10cc7597d3c8'
+        source=data.decode()
+        replacements=[
+          ("  let lifecycle = 0;", "  let lifecycle = 0;\n  function clearCopyBusy(): void {\n    busy = false; copy.disabled = false; copy.removeAttribute('aria-busy');\n  }"),
+          ("    if (panel.hidden !== nextHidden) lifecycle += 1;", "    if (panel.hidden !== nextHidden) {\n      // Release the old UI operation, not the already-started OS clipboard write.\n      lifecycle += 1;\n      clearCopyBusy();\n    }"),
+          ("    const fallback = () => {\n      refresh();", "    const fallback = () => {\n      if (lifecycle !== capturedLifecycle) return;\n      refresh();"),
+          ("        .then(() => {\n          refresh();", "        .then(() => {\n          if (lifecycle !== capturedLifecycle) return;\n          refresh();"),
+          ("        .finally(() => { busy = false; copy.disabled = false; copy.removeAttribute('aria-busy'); });", "        .finally(() => {\n          // An obsolete completion must not unlock a newer pending operation.\n          if (lifecycle === capturedLifecycle) clearCopyBusy();\n        });"),
+          ("      busy = false; copy.disabled = false; copy.removeAttribute('aria-busy'); fallback();", "      if (lifecycle === capturedLifecycle) { clearCopyBusy(); fallback(); }")
+        ]
+        for old,new in replacements:
+            assert source.count(old)==1, f'Ambiguous source anchor: {old!r}'
+            source=source.replace(old,new)
+        p.write_text(source)
+        assert hashlib.sha1(f'blob {len(p.read_bytes())}\0'.encode()+p.read_bytes()).hexdigest()=='52ee0bdb08cc6a3fccabe76281e32e412afc9748'
+        mutant=source.replace('if (lifecycle === capturedLifecycle) clearCopyBusy();','clearCopyBusy();')
+        assert mutant!=source
+        Path('.artifacts/order-share-p2/reset-only-mutant.ts').write_text(mutant)
+        p=Path('scripts/test-order-share-browser.mjs'); source=p.read_text()
+        anchor="  await scenario('keyboard: collapsed/open disclosure, focus wrap and Escape return',async()=>{"
+        assert source.count(anchor)==1
+        addition=r'''  for(const transition of ['close/reopen','barista/edit'])for(const outcome of ['resolve','reject']){
+          await scenario(`clipboard ownership: ${transition}, obsolete ${outcome}, newer copy remains active`,async()=>{
+            await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await openShare();const before=await canonical();
+            await page.evaluate(()=>{window.pendingCopies=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:text=>new Promise((resolve,reject)=>window.pendingCopies.push({text,resolve,reject}))}});});
+            await copy().click();assert(await copy().isDisabled());assert.equal(await copy().getAttribute('aria-busy'),'true');
+            if(transition==='close/reopen')await page.keyboard.press('Escape');else await page.locator('#robys-order-handoff').click();
+            assert.equal(await copy().isDisabled(),false);assert.equal(await copy().getAttribute('aria-busy'),null);
+            if(transition==='close/reopen')await order();else await page.locator('#robys-order-edit').click();
+            await openShare();await copy().click();assert.equal(await page.evaluate(()=>window.pendingCopies.length),2);
+            const focused=await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className}));
+            await page.evaluate(async outcome=>{
+              const first=window.pendingCopies[0];if(outcome==='resolve')first.resolve();else first.reject(new Error('obsolete clipboard denial control'));
+              // Drain the promise callbacks and finally, not a guessed clipboard timeout.
+              await new Promise(resolve=>setTimeout(resolve,0));
+            },outcome);
+            assert(await copy().isDisabled());assert.equal(await copy().getAttribute('aria-busy'),'true');
+            assert.equal(await status().textContent(),'');assert.deepEqual(await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className})),focused);
+            await page.evaluate(()=>document.querySelector('.order-share-actions button').click());assert.equal(await page.evaluate(()=>window.pendingCopies.length),2);
+            await page.evaluate(()=>window.pendingCopies[1].resolve());await settledStatus('скопирован');
+            assert.equal(await copy().isDisabled(),false);assert.equal(await copy().getAttribute('aria-busy'),null);assert.equal(await canonical(),before);
+            assert.equal(await page.evaluate(()=>window.pendingCopies[1].text),await preview().inputValue());
+            if(transition==='close/reopen'&&outcome==='resolve')await page.screenshot({path:resolve(out,'p2-reopened-copy-recovered.png')});
+          });
+        }
+        '''
+        p.write_text(source.replace(anchor,addition+anchor))
+        PATCH_PY
+        set +e
+        ORDER_SHARE_SOURCE=.artifacts/order-share-p2/reset-only-mutant.ts node --test scripts/test-order-share-lifecycle.mjs > .artifacts/order-share-p2/reset-only-mutant.tap 2>&1
+        result=$?
+        set -e
+        test "$result" = 1
+        grep -q '^# tests 22$' .artifacts/order-share-p2/reset-only-mutant.tap
+        grep -q '^# pass 19$' .artifacts/order-share-p2/reset-only-mutant.tap
+        grep -q '^# fail 3$' .artifacts/order-share-p2/reset-only-mutant.tap
+    - name: Build and regenerate existing integrity bindings
+      run: npm run build && npm run integrity:generate
+    - name: Create bounded local candidate before checks
+      shell: bash
+      run: |
+        python3 - <<'SCOPE_PY'
+        import subprocess
+        allowed={'src/order-share.ts','scripts/test-order-share-lifecycle.mjs','scripts/test-order-share-browser.mjs','order-shell.js','order-launcher.js','menu-app.js','index.html','menu.html','discover.html','smart-choice/index.html','sw.js','integrity-manifest.json'}
+        changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+        assert not changed-allowed, f'Unexpected changed files: {changed-allowed}'
+        assert not subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).strip(), 'Unexpected untracked files'
+        subprocess.run(['git','add','--',*sorted(changed)],check=True)
+        SCOPE_PY
+        git diff --cached --check
+        git diff --cached --binary > .artifacts/order-share-p2/candidate.patch
+        git diff --cached --stat > .artifacts/order-share-p2/candidate-stat.txt
+        git write-tree > .artifacts/order-share-p2/candidate-tree.txt
+        git rev-parse HEAD > .artifacts/order-share-p2/base-head.txt
+        export GIT_AUTHOR_NAME='github-actions[bot]'
+        export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+        export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+        export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+        commit=$(printf '%s\n' 'fix(order): release obsolete clipboard busy state and guard operation ownership' | git commit-tree "$(cat .artifacts/order-share-p2/candidate-tree.txt)" -p "$BASE_SHA")
+        printf '%s\n' "$commit" > .artifacts/order-share-p2/candidate-commit.txt
+        git reset --hard "$commit"
+        printf '%s\n' 'Node: actual source logic with DOM/store/clipboard doubles. Browser: real menu with explicit delayed clipboard doubles for race controls. No OS clipboard cancellation, native client, cafe receipt, acceptance, payment, merge or deployment is claimed.' > .artifacts/order-share-p2/scope.txt
+    - name: Full check security and source regression on candidate HEAD
+      shell: bash
+      run: |
+        npm run check 2>&1 | tee .artifacts/order-share-p2/check.log
+        npm run verify:security 2>&1 | tee .artifacts/order-share-p2/security.log
+        node --test scripts/test-order-share.mjs scripts/test-order-share-panel.mjs scripts/test-order-share-lifecycle.mjs 2>&1 | tee .artifacts/order-share-p2/after-p2.tap
+    - run: npx playwright install --with-deps chromium
+    - name: Actual menu browser clipboard ownership checks
+      run: npm run test:order-share:browser
+    - name: Existing premium UI regression
+      run: node scripts/premium-ui-regression.mjs
+    - name: Publish passing candidate to separate branch only
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        test "$(git rev-parse HEAD)" = "$(cat .artifacts/order-share-p2/candidate-commit.txt)"
+        test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+        git diff --exit-code
+        test -z "$(git ls-files --others --exclude-standard)"
+        test "$(git ls-remote origin refs/heads/feat/menu-telegram-share-20260907 | cut -f1)" = "$BASE_SHA"
+        if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+          echo 'Candidate exists; refusing to overwrite.' >&2
+          exit 1
+        else
+          test "$?" = 2
+        fi
+        git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: order-share-p2-verification-${{ github.sha }}
+        path: |
+          .artifacts/order-share-p2/
+          .artifacts/order-share/
+          .artifacts/premium-ui/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
