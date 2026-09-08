@@ -158,9 +158,14 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
 function setupGalleryDockBehavior(section: HTMLElement): void {
   let animationFrame = 0;
   let previousState: boolean | null = null;
+  const root = document.documentElement;
+  const entryCoversGallery = (): boolean => Boolean(root.dataset.robysEntryPending) &&
+    root.dataset.robysEntryState !== "handoff" && root.dataset.robysEntryState !== "done";
 
   const checkPanel = (): void => {
     animationFrame = 0;
+    // The full-screen entry owns the viewport; do not force hidden page layout.
+    if (entryCoversGallery()) return;
 
     const visualViewport = window.visualViewport;
     const viewportTop = visualViewport?.offsetTop ?? 0;
@@ -175,9 +180,18 @@ function setupGalleryDockBehavior(section: HTMLElement): void {
   };
 
   const scheduleCheck = (): void => {
-    if (animationFrame) return;
+    if (entryCoversGallery() || animationFrame) return;
     animationFrame = window.requestAnimationFrame(checkPanel);
   };
+
+  // Wake on normal handoff and on entry abort/failure without polling.
+  const entryObserver = new MutationObserver(() => {
+    if (!entryCoversGallery()) scheduleCheck();
+  });
+  entryObserver.observe(root, {
+    attributes: true,
+    attributeFilter: ["data-robys-entry-pending", "data-robys-entry-state"]
+  });
 
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver(scheduleCheck, {
