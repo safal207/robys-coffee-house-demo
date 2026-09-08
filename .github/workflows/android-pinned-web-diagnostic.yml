@@ -68,32 +68,46 @@ jobs:
           git archive --format=tar.gz HEAD > .artifacts/android-pinned-web/native-diagnostic-source.tar.gz
           git diff --exit-code "$PRODUCT_SHA" -- index.html android-handoff.js bootstrap-v2.js sw.js integrity-manifest.json
       - name: Enable KVM group permissions
+        id: kvm
         shell: bash
         run: |
           set -euo pipefail
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-          test -e /dev/kvm
-          test -r /dev/kvm
-          test -w /dev/kvm
+          if [[ ! -e /dev/kvm || ! -r /dev/kvm || ! -w /dev/kvm ]]; then
+            printf '{"product_execution":"NOT_RUN","reason":"KVM_UNAVAILABLE","runner_image":"%s","runner_arch":"%s"}\n' "$ImageVersion" "$RUNNER_ARCH" > .artifacts/android-pinned-web/environment.json
+            exit 1
+          fi
           ls -l /dev/kvm | tee .artifacts/android-pinned-web/kvm.txt
+          printf '{"product_execution":"ELIGIBLE","reason":null,"runner_image":"%s","runner_arch":"%s"}\n' "$ImageVersion" "$RUNNER_ARCH" > .artifacts/android-pinned-web/environment.json
+      - name: Record KVM-unavailable product boundary
+        if: ${{ always() && steps.kvm.outcome == 'failure' }}
+        shell: bash
+        run: |
+          echo 'PRODUCT_EXECUTION=NOT_RUN'
+          cat .artifacts/android-pinned-web/environment.json
       - name: Set up Java 17
+        if: ${{ steps.kvm.outcome == 'success' }}
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
       - name: Set up Android SDK
+        if: ${{ steps.kvm.outcome == 'success' }}
         uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
       - name: Install Android platform 36
+        if: ${{ steps.kvm.outcome == 'success' }}
         run: sdkmanager 'platforms;android-36'
       - name: Set up Gradle 9.5.0
+        if: ${{ steps.kvm.outcome == 'success' }}
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
       - name: Verify release boundary and build debug APK
+        if: ${{ steps.kvm.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -105,12 +119,15 @@ jobs:
           free -h | tee .artifacts/android-pinned-web/host-memory.txt
           nproc | tee .artifacts/android-pinned-web/host-cpus.txt
       - name: Prepare transformed capture script outside committed source
+        if: ${{ steps.kvm.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
           python3 .diag/scripts/android-pinned-web-diagnostic.py prepare-capture
           diff -u .github/scripts/capture-android-launch.sh .artifacts/android-pinned-web/capture-pinned.sh > .artifacts/android-pinned-web/capture-transform.diff || test "$?" = 1
       - name: Launch API 36 emulator against pinned exact web archive
+        id: emulator
+        if: ${{ steps.kvm.outcome == 'success' }}
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 36
@@ -121,11 +138,11 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
           script: bash .artifacts/android-pinned-web/run-pinned.sh
       - name: Validate pinned provenance and ordered completion
-        if: always()
+        if: ${{ always() && steps.kvm.outcome == 'success' }}
         shell: bash
         run: python3 .diag/scripts/android-pinned-web-diagnostic.py analyze
       - name: Publish diagnostic commit only after the pinned contract passes
-        if: success()
+        if: ${{ success() && steps.kvm.outcome == 'success' && steps.emulator.outcome == 'success' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
