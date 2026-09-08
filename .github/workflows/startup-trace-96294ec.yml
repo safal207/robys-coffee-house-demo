@@ -1,0 +1,52 @@
+name: Diagnose pinned takeaway startup
+on:
+  push:
+    branches: [qa/startup-trace-96294ec-20260908]
+    paths: [.github/workflows/startup-trace-96294ec.yml, scripts/trace-takeaway-startup.mjs]
+permissions:
+  contents: read
+concurrency:
+  group: startup-trace-96294ec
+  cancel-in-progress: false
+jobs:
+  trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: scripts/trace-takeaway-startup.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify exact source and install diagnostics outside product
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 96294ecbcba7cfb99deaadb4b629e0085a2686b9
+          node scripts/generate-integrity-manifest.mjs --check
+          mkdir -p .artifacts/startup-trace
+          cp .diagnostic-tools/scripts/trace-takeaway-startup.mjs .artifacts/startup-trace/capture.mjs
+          node --check .artifacts/startup-trace/capture.mjs
+          git archive --format=tar.gz HEAD > .artifacts/startup-trace/product-source.tar.gz
+          git ls-tree -r HEAD > .artifacts/startup-trace/product-tree.txt
+      - name: Capture fixed six cold runs with original assertions
+        run: node .artifacts/startup-trace/capture.mjs
+      - name: Retain all traced and untraced samples including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: startup-trace-96294ec-${{ github.sha }}
+          path: .artifacts/startup-trace/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
