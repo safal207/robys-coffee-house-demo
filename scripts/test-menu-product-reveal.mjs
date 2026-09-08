@@ -61,8 +61,8 @@ assert.doesNotMatch(
 
 const loaderSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
 assert.ok(
-  Buffer.byteLength(loaderSource, "utf8") < 1200,
-  "Always-loaded reveal loader must stay under 1.2 KB"
+  Buffer.byteLength(loaderSource, "utf8") < 1000,
+  "Always-loaded reveal loader must stay under 1.0 KB to remain inside the 5% JS regression envelope"
 );
 assert.match(
   loaderSource,
