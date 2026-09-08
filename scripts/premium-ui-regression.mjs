@@ -50,10 +50,12 @@ export async function verifyOrder(page, label) {
   await increase.click();
   assert.equal(Number((await page.locator('#robys-order-dialog .order-total').innerText()).replace(/\D/g, '')), unitPrice * 3);
   assert.equal(await cart.locator('.order-step').last().evaluate(node => document.activeElement === node), true);
+  // The copy panel has a separate live region; require one primary order status.
+  assert.equal(await cart.locator(':scope > .order-status').count(), 1, `${label}: exactly one primary order announcement`);
   // Observe the active common-order live region after a quantity change.
   await page.waitForFunction(() => document.querySelector(
-    '#robys-order-dialog .order-status')?.textContent.includes('× 3'), null, {timeout:2000});
-  assert.ok((await cart.locator('.order-status').innerText()).includes('× 3'), `${label}: in-dialog announcement`);
+    '#robys-order-dialog > .order-status')?.textContent.includes('× 3'), null, {timeout:2000});
+  assert.ok((await cart.locator(':scope > .order-status').innerText()).includes('× 3'), `${label}: in-dialog announcement`);
   await page.mouse.move(0, 0);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const target = await cart.locator('.order-step').first().boundingBox();

@@ -108,6 +108,45 @@ try{
     await copy().click();assert(await copy().isDisabled());await page.evaluate(()=>document.querySelector('.order-share-actions button').click());
     await page.locator('.order-line .order-step').last().click();await page.evaluate(()=>window.finishCopy());await settledStatus('изменился');assert.equal(await page.evaluate(()=>window.copyCalls.length),1);assert.match(await preview().inputValue(),/360/);
   });
+  await scenario('lifecycle: closed drawer does not prepare an active share projection',async()=>{
+    await fresh();await addProduct('cold-coffee:iced-caffe-latte');
+    await page.locator('#robys-order-dialog').waitFor({state:'attached'});
+    assert.equal(await page.locator('#robys-order-dialog').isVisible(),false);
+    assert.equal(await share().evaluate(n=>n.hidden),true);
+    assert.equal(await preview().inputValue(),'');assert.equal(await telegram().getAttribute('href'),null);
+    await order();assert(await toggle().isVisible());assert.equal(await share().evaluate(n=>n.open),false);
+  });
+  await scenario('lifecycle: close clears an expanded selection and reopening starts collapsed',async()=>{
+    await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await openShare();const before=await canonical();
+    await page.keyboard.press('Escape');
+    assert.equal(await share().evaluate(n=>n.hidden&&!n.open),true);
+    assert.equal(await preview().inputValue(),'');assert.equal(await status().textContent(),'');
+    assert.equal(await telegram().getAttribute('href'),null);
+    await order();assert(await toggle().isVisible());assert.equal(await share().evaluate(n=>n.open),false);
+    assert.equal(await canonical(),before);
+  });
+  for(const outcome of ['resolve','reject'])for(const reopen of [false,true]){
+    await scenario(`lifecycle: delayed clipboard ${outcome} after close${reopen?' and reopen':''} cannot revive status or steal focus`,async()=>{
+      await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await openShare();const before=await canonical();
+      await page.evaluate(()=>{window.copyCalls=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:text=>{
+        window.copyCalls.push(text);return new Promise((resolve,reject)=>{window.resolveOldCopy=resolve;window.rejectOldCopy=reject;});
+      }}});});
+      await copy().click();assert(await copy().isDisabled());await page.keyboard.press('Escape');
+      if(reopen)await order();
+      const focused=await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className}));
+      await page.evaluate(outcome=>{if(outcome==='resolve')window.resolveOldCopy();else window.rejectOldCopy(new Error('delayed denial test'));},outcome);
+      await page.waitForFunction(()=>document.querySelector('.order-share-actions button').disabled===false);
+      assert.deepEqual(await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className})),focused);
+      assert.equal(await status().textContent(),'');assert.equal(await share().evaluate(n=>n.open),false);
+      assert.equal(await share().evaluate(n=>n.hidden),!reopen);assert.equal(await canonical(),before);
+      assert.equal(await page.evaluate(()=>window.copyCalls.length),1);
+      if(!reopen){assert.equal(await preview().inputValue(),'');assert.equal(await telegram().getAttribute('href'),null);}
+      if(reopen){
+        await openShare();await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>Promise.resolve()}}));
+        await copy().click();await settledStatus('скопирован');
+      }
+    });
+  }
   await scenario('keyboard: collapsed/open disclosure, focus wrap and Escape return',async()=>{
     await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await toggle().focus();await page.keyboard.press('Enter');assert(await preview().isVisible());
     await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.className),'order-share-preview');await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.tagName),'A');

@@ -39,7 +39,7 @@ function start(): void {
     summary:()=>order.summary(),
     resolveProduct:resolveOrderProduct,
     menuUrl:new URL('menu.html',import.meta.url).href,
-    canShare:()=>order.summary().quantity>0 && !order.status().pendingLegacy
+    canShare:()=>dialog.open && order.summary().quantity>0 && !order.status().pendingLegacy
   });
   const handoff=button('',()=>{showingBarista=true;render();heading.tabIndex=-1;heading.focus();window.dispatchEvent(new CustomEvent('robys:order-handoff',{detail:order.summary()}));},'order-button order-primary');
   handoff.id='robys-order-handoff';
@@ -59,9 +59,11 @@ function start(): void {
     if(typeof dialog.showModal==='function')dialog.showModal();
     else {dialog.setAttribute('open','');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
       for(const node of Array.from(document.body.children)) if(node!==root && node instanceof HTMLElement && !node.inert){node.inert=true;inerted.push(node);}}
+    sharing.update(true);
     document.body.classList.add('order-is-open');close.focus();
   }
   function hide():void {
+    sharing.update(false);
     if(typeof dialog.close==='function' && dialog.open)dialog.close();else dialog.removeAttribute('open');
     inerted.splice(0).forEach(node=>{node.inert=false;});document.body.classList.remove('order-is-open');
     if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});else bar.focus({preventScroll:true});

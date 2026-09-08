@@ -157,12 +157,15 @@ export function createOrderSharePanel(options: SharePanelOptions): {
   panel.append(toggle, hint, text, actions, longNote, status);
   let preview: SharePreview | null = null;
   let identity = '', busy = false, visible = false;
+  let lifecycle = 0;
   function refresh(): SharePreview | null {
     const language = options.language(), words = shareCopy[language];
     toggle.textContent = words.toggle; hint.textContent = words.hint;
     text.setAttribute('aria-label', words.preview);
     telegram.textContent = words.telegram; copy.textContent = words.copy; longNote.textContent = words.long;
-    panel.hidden = !visible || !options.canShare();
+    const nextHidden = !visible || !options.canShare();
+    if (panel.hidden !== nextHidden) lifecycle += 1;
+    panel.hidden = nextHidden;
     if (panel.hidden) {
       panel.open = false; preview = null; identity = '';
       text.value = ''; telegram.removeAttribute('href'); status.textContent = '';
@@ -202,10 +205,11 @@ export function createOrderSharePanel(options: SharePanelOptions): {
     const current = refresh();
     if (!current || panel.hidden) return;
     const capturedIdentity = identity;
+    const capturedLifecycle = lifecycle;
     const words = shareCopy[options.language()];
     const fallback = () => {
       refresh();
-      if (panel.hidden || !preview) return;
+      if (panel.hidden || !preview || lifecycle !== capturedLifecycle) return;
       text.focus(); text.select(); status.textContent = shareCopy[options.language()].manual;
     };
     if (typeof navigator.clipboard?.writeText !== 'function') { fallback(); return; }
@@ -215,7 +219,7 @@ export function createOrderSharePanel(options: SharePanelOptions): {
       Promise.resolve(navigator.clipboard.writeText(`${current.text}\n\n${current.menuUrl}`))
         .then(() => {
           refresh();
-          if (!panel.hidden && preview) status.textContent = identity === capturedIdentity ? words.copied : shareCopy[options.language()].changed;
+          if (!panel.hidden && preview && lifecycle === capturedLifecycle) status.textContent = identity === capturedIdentity ? words.copied : shareCopy[options.language()].changed;
         }, fallback)
         .finally(() => { busy = false; copy.disabled = false; copy.removeAttribute('aria-busy'); });
     } catch {
