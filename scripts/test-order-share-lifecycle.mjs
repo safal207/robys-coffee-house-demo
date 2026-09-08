@@ -70,3 +70,57 @@ test('barista handoff hides sharing and editing restores a collapsed control',()
 test('empty order and pending migration still prevent sharing in the open shell',()=>{const f=setup();f.open();f.pending([{id:'cold-coffee:iced-latte',quantity:1}]);assert(f.panel.hidden);f.pending(null);assert(!f.panel.hidden);f.order.setQuantity('cold-coffee:iced-latte',0);assert(f.panel.hidden);assert.equal(f.preview.value,'');});
 test('clipboard failure from a previous drawer opening cannot steal focus after reopening',async()=>{const f=setup();f.open();f.reveal();f.copy.click();f.close();f.open();const attempts=f.focusAttempts.length;f.deferred.reject(new Error('old request denied'));await flush();assert.equal(f.focusAttempts.length,attempts);assert.equal(f.status.textContent,'');assert(!f.panel.open);});
 test('clipboard success from a previous opening cannot label the new drawer as copied',async()=>{const f=setup();f.open();f.reveal();f.copy.click();f.close();f.open();f.deferred.resolve();await flush();assert.equal(f.status.textContent,'');assert(!f.panel.open);assert(!f.copy.disabled);});
+
+// P2: independent pending clipboard writes across drawer lifecycles.
+// These still use the labelled DOM/store/clipboard doubles above, not a browser.
+const pendingTransitions = [
+  ['drawer close/reopen', f => f.close(), f => f.open()],
+  ['barista/edit', f => f.handoff(), f => f.edit()],
+  ['migration hold/resume', f => f.pending([{id:'cold-coffee:iced-latte',quantity:1}]), f => f.pending(null)],
+  ['empty/restore', f => f.order.setQuantity('cold-coffee:iced-latte',0), f => f.order.setQuantity('cold-coffee:iced-latte',3)]
+];
+for (const [name, hide, show] of pendingTransitions) test(`pending clipboard: ${name} releases busy without settling the obsolete write`, async () => {
+  const f=setup();f.open();f.reveal();f.copy.click();
+  assert(f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),'true');
+  hide(f);
+  assert(f.panel.hidden);assert(!f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),null);
+  show(f);f.reveal();assert(!f.copy.disabled);f.copy.click();
+  assert.equal(f.clipboardCalls.length,2,'a new write starts while the first remains pending');
+  f.deferred.resolve();await flush();
+  assert(f.status.textContent.includes('скопирован'));assert(!f.copy.disabled);
+  assert.equal(f.copy.getAttribute('aria-busy'),null);
+});
+for (const oldOutcome of ['resolve','reject']) for (const newState of ['pending','resolved','rejected']) {
+  test(`clipboard ownership: obsolete ${oldOutcome} cannot alter a newer ${newState} write`, async () => {
+    const f=setup();f.open();f.reveal();f.copy.click();const oldWrite={...f.deferred};
+    f.close();f.open();f.order.setQuantity('cold-coffee:iced-latte',4);f.reveal();f.copy.click();
+    assert.equal(f.clipboardCalls.length,2);const newWrite={...f.deferred};
+    assert.match(f.clipboardCalls[1],/720/);
+    if(newState==='resolved')newWrite.resolve();
+    if(newState==='rejected')newWrite.reject(new Error('current denial'));
+    await flush();const before={status:f.status.textContent,focus:f.focusAttempts.length,text:f.preview.value};
+    if(oldOutcome==='resolve')oldWrite.resolve();else oldWrite.reject(new Error('obsolete denial'));
+    await flush();
+    assert.equal(f.status.textContent,before.status);assert.equal(f.focusAttempts.length,before.focus);assert.equal(f.preview.value,before.text);
+    assert.equal(f.copy.disabled,newState==='pending');
+    assert.equal(f.copy.getAttribute('aria-busy'),newState==='pending'?'true':null);
+    if(newState==='pending'){
+      f.copy.click();assert.equal(f.clipboardCalls.length,2,'obsolete finally must not admit a duplicate third write');
+      newWrite.resolve();await flush();assert(f.status.textContent.includes('скопирован'));assert(!f.copy.disabled);
+    }else if(newState==='resolved')assert(f.status.textContent.includes('скопирован'));
+    else {assert(f.status.textContent.includes('недоступно'));assert.equal(f.document.activeElement,f.preview);}
+  });
+}
+test('clipboard ownership: three drawer generations keep only the newest busy state',async()=>{
+  const f=setup();f.open();f.reveal();f.copy.click();const first={...f.deferred};
+  f.close();f.open();f.reveal();f.copy.click();const second={...f.deferred};
+  f.close();f.open();f.reveal();f.copy.click();const third={...f.deferred};assert.equal(f.clipboardCalls.length,3);
+  first.resolve();second.reject(new Error('obsolete middle generation'));await flush();
+  assert(f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),'true');assert.equal(f.status.textContent,'');
+  third.resolve();await flush();assert(!f.copy.disabled);assert.equal(f.copy.getAttribute('aria-busy'),null);assert(f.status.textContent.includes('скопирован'));
+});
+test('clipboard ownership: same-lifecycle duplicate guard and changed-order notice remain intact',async()=>{
+  const f=setup();f.open();f.reveal();f.copy.click();f.copy.click();assert.equal(f.clipboardCalls.length,1);
+  f.order.setQuantity('cold-coffee:iced-latte',4);assert(f.copy.disabled);
+  f.deferred.resolve();await flush();assert(f.status.textContent.includes('изменился'));assert(!f.copy.disabled);
+});

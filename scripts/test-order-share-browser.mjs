@@ -147,6 +147,30 @@ try{
       }
     });
   }
+  for(const transition of ['close/reopen','barista/edit'])for(const outcome of ['resolve','reject']){
+  await scenario(`clipboard ownership: ${transition}, obsolete ${outcome}, newer copy remains active`,async()=>{
+    await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await openShare();const before=await canonical();
+    await page.evaluate(()=>{window.pendingCopies=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:text=>new Promise((resolve,reject)=>window.pendingCopies.push({text,resolve,reject}))}});});
+    await copy().click();assert(await copy().isDisabled());assert.equal(await copy().getAttribute('aria-busy'),'true');
+    if(transition==='close/reopen')await page.keyboard.press('Escape');else await page.locator('#robys-order-handoff').click();
+    assert.equal(await copy().isDisabled(),false);assert.equal(await copy().getAttribute('aria-busy'),null);
+    if(transition==='close/reopen')await order();else await page.locator('#robys-order-edit').click();
+    await openShare();await copy().click();assert.equal(await page.evaluate(()=>window.pendingCopies.length),2);
+    const focused=await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className}));
+    await page.evaluate(async outcome=>{
+      const first=window.pendingCopies[0];if(outcome==='resolve')first.resolve();else first.reject(new Error('obsolete clipboard denial control'));
+      // Drain the promise callbacks and finally, not a guessed clipboard timeout.
+      await new Promise(resolve=>setTimeout(resolve,0));
+    },outcome);
+    assert(await copy().isDisabled());assert.equal(await copy().getAttribute('aria-busy'),'true');
+    assert.equal(await status().textContent(),'');assert.deepEqual(await page.evaluate(()=>({id:document.activeElement.id,cls:document.activeElement.className})),focused);
+    await page.evaluate(()=>document.querySelector('.order-share-actions button').click());assert.equal(await page.evaluate(()=>window.pendingCopies.length),2);
+    await page.evaluate(()=>window.pendingCopies[1].resolve());await settledStatus('скопирован');
+    assert.equal(await copy().isDisabled(),false);assert.equal(await copy().getAttribute('aria-busy'),null);assert.equal(await canonical(),before);
+    assert.equal(await page.evaluate(()=>window.pendingCopies[1].text),await preview().inputValue());
+    if(transition==='close/reopen'&&outcome==='resolve')await page.screenshot({path:resolve(out,'p2-reopened-copy-recovered.png')});
+  });
+}
   await scenario('keyboard: collapsed/open disclosure, focus wrap and Escape return',async()=>{
     await fresh();await addProduct('cold-coffee:iced-caffe-latte');await order();await toggle().focus();await page.keyboard.press('Enter');assert(await preview().isVisible());
     await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.className),'order-share-preview');await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.tagName),'A');

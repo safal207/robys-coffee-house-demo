@@ -158,13 +158,20 @@ export function createOrderSharePanel(options: SharePanelOptions): {
   let preview: SharePreview | null = null;
   let identity = '', busy = false, visible = false;
   let lifecycle = 0;
+  function clearCopyBusy(): void {
+    busy = false; copy.disabled = false; copy.removeAttribute('aria-busy');
+  }
   function refresh(): SharePreview | null {
     const language = options.language(), words = shareCopy[language];
     toggle.textContent = words.toggle; hint.textContent = words.hint;
     text.setAttribute('aria-label', words.preview);
     telegram.textContent = words.telegram; copy.textContent = words.copy; longNote.textContent = words.long;
     const nextHidden = !visible || !options.canShare();
-    if (panel.hidden !== nextHidden) lifecycle += 1;
+    if (panel.hidden !== nextHidden) {
+      // Release the old UI operation, not the already-started OS clipboard write.
+      lifecycle += 1;
+      clearCopyBusy();
+    }
     panel.hidden = nextHidden;
     if (panel.hidden) {
       panel.open = false; preview = null; identity = '';
@@ -208,6 +215,7 @@ export function createOrderSharePanel(options: SharePanelOptions): {
     const capturedLifecycle = lifecycle;
     const words = shareCopy[options.language()];
     const fallback = () => {
+      if (lifecycle !== capturedLifecycle) return;
       refresh();
       if (panel.hidden || !preview || lifecycle !== capturedLifecycle) return;
       text.focus(); text.select(); status.textContent = shareCopy[options.language()].manual;
@@ -218,12 +226,16 @@ export function createOrderSharePanel(options: SharePanelOptions): {
       // Keep the clipboard call synchronous with the trusted click/activation.
       Promise.resolve(navigator.clipboard.writeText(`${current.text}\n\n${current.menuUrl}`))
         .then(() => {
+          if (lifecycle !== capturedLifecycle) return;
           refresh();
           if (!panel.hidden && preview && lifecycle === capturedLifecycle) status.textContent = identity === capturedIdentity ? words.copied : shareCopy[options.language()].changed;
         }, fallback)
-        .finally(() => { busy = false; copy.disabled = false; copy.removeAttribute('aria-busy'); });
+        .finally(() => {
+          // An obsolete completion must not unlock a newer pending operation.
+          if (lifecycle === capturedLifecycle) clearCopyBusy();
+        });
     } catch {
-      busy = false; copy.disabled = false; copy.removeAttribute('aria-busy'); fallback();
+      if (lifecycle === capturedLifecycle) { clearCopyBusy(); fallback(); }
     }
   });
   return { element: panel, update(nextVisible) { visible = nextVisible; refresh(); } };
