@@ -85,6 +85,41 @@
       "selector": ".mobile-cta",
       "viewports": ["phone-320", "phone-360-short", "phone-390"],
       "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "ru-coffee-full",
+      "path": "ru/coffee-gazipasa.html",
+      "fullPage": true,
+      "viewports": [
+        "phone-320",
+        "phone-390",
+        "tablet-768",
+        "desktop-1440"
+      ],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "ru-coffee-hero",
+      "path": "ru/coffee-gazipasa.html",
+      "selector": ".hero",
+      "viewports": [
+        "phone-360-short",
+        "phone-390",
+        "laptop-1366",
+        "desktop-1440"
+      ],
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "ru-coffee-faq",
+      "path": "ru/coffee-gazipasa.html",
+      "selector": "#faq",
+      "viewports": [
+        "phone-320",
+        "phone-390",
+        "desktop-1440"
+      ],
+      "maxDiffPixelRatio": 0.003
     }
   ]
 }

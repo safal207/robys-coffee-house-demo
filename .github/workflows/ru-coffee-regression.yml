@@ -1,0 +1,48 @@
+name: RU landing regression
+
+on:
+  pull_request:
+    paths:
+      - 'ru/**'
+      - 'menu.html'
+      - 'styles-v2.css'
+      - 'mobile.css'
+      - 'brand-photo-logo.css'
+      - 'src/brand/**'
+      - 'src/robys-hero-poster.jpg'
+      - 'scripts/test-ru-coffee-landing.mjs'
+      - '.github/workflows/ru-coffee-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ru-coffee:
+    name: RU landing responsive and accessibility contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm run verify:security
+      - run: git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Test unmodified HTTP-delivered page
+        env:
+          RU_QA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/test-ru-coffee-landing.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ru-coffee-${{ github.event.pull_request.head.sha || github.sha }}
+          path: visual-results/ru-coffee/
+          if-no-files-found: error

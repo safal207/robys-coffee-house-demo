@@ -1,0 +1,45 @@
+name: Prepare web-only RU integrity evidence
+
+on:
+  push:
+    branches: ['rc/ru-coffee-web-only-main-20260909']
+    paths:
+      - 'ru/**'
+      - 'qa/visual-regression.json'
+      - 'scripts/test-ru-coffee-landing.mjs'
+      - '.github/workflows/ru-coffee-regression.yml'
+      - '.github/workflows/prepare-ru-web-only-integrity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Regenerate manifest in workspace only
+        run: |
+          cp integrity-manifest.json /tmp/integrity-manifest.before.json
+          node scripts/generate-integrity-manifest.mjs
+          git diff -- integrity-manifest.json > integrity-manifest.patch
+          node scripts/verify-integrity-manifest.mjs
+          git diff --check
+      - name: Upload generated manifest and bounded diff
+        uses: actions/upload-artifact@v4
+        with:
+          name: ru-web-only-integrity-${{ github.sha }}
+          path: |
+            integrity-manifest.json
+            integrity-manifest.patch
+          if-no-files-found: error
+          retention-days: 7
