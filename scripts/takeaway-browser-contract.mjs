@@ -56,18 +56,23 @@ export async function contextFor(browser, options = {}) {
     try { localStorage.setItem("robys-language", language); } catch { /* Optional storage. */ }
     const probe = globalThis.__takeawayProbe = { events: [], frames: [] };
     let sampling = false;
+    let entranceAnimation = null;
+    const nativeAnimate = Element.prototype.animate;
+    Element.prototype.animate = function (...args) {
+      const animation = nativeAnimate.apply(this, args);
+      if (this.classList?.contains("robys-takeaway-content")) entranceAnimation = animation;
+      return animation;
+    };
     window.addEventListener("robys:entry-state", (event) => {
       probe.events.push({ ...event.detail, at: performance.now() });
       if (event.detail.state !== "brand-frame" || sampling) return;
       sampling = true;
       // Start at the browser's first actual animated frame, independent of how
       // quickly the external test harness returns from navigation or screenshots.
-      let entranceAnimation = null;
       const sample = (at) => {
         const overlay = document.querySelector(".robys-takeaway-entry");
         const content = overlay?.querySelector(".robys-takeaway-content");
         if (!content) return;
-        if (!entranceAnimation) entranceAnimation = content.getAnimations()[0] ?? null;
         const frame = {
           at, state: document.documentElement.dataset.robysEntryState, sampledStyle: false,
           entrancePending: entranceAnimation?.pending, entranceTime: entranceAnimation?.currentTime, entranceState: entranceAnimation?.playState
