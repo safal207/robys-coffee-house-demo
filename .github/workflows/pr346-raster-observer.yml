@@ -1,19 +1,19 @@
-name: PR346 scoped profiler after native startup
+name: PR346 host in-process graphics observation
 
 on:
   push:
-    branches: [diagnostic/pr346-late-profile-observer-20260908]
+    branches: [diagnostic/pr346-host-inprocess-observer-20260908]
 
 permissions:
   contents: read
 
 concurrency:
-  group: pr346-late-profile-${{ github.ref }}
+  group: pr346-host-inprocess-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   observe:
-    name: Scoped profile after native startup
+    name: Host in-process trace with original native verdict
     env:
       SUBJECT_SHA: 6592c51a1bd5812e3ae85ed6c83c53effafc7050
       WEB_DIGEST: 8823867ecbd1325fde477779e8702a362a2cb8242d91d51cc2b5751d8309e588
@@ -49,6 +49,8 @@ jobs:
           python3 scripts/prepare-android-trace-probe.py "$RUNNER_TEMP/pinned-fixture"
           python3 scripts/prepare-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture" --source subject --expected-source-sha "$EXPECTED_SOURCE_SHA" --expected-web-sha256 "$EXPECTED_WEB_DIGEST" --expected-web-count 241
           python3 scripts/prepare-android-readiness-export.py "$RUNNER_TEMP/pinned-fixture" --source subject --expected-source-sha "$EXPECTED_SOURCE_SHA" --expected-web-sha256 "$EXPECTED_WEB_DIGEST" --expected-web-count 241
+          cp scripts/qa/observe-android-host-inprocess.py scripts/qa/run-android-host-inprocess-probe.sh "$RUNNER_TEMP/pinned-fixture/"
+          cp scripts/qa/check-emulator-trace-capabilities.py "$RUNNER_TEMP/pinned-fixture/"
           cp scripts/qa/start-android-raster-profile.py scripts/qa/run-android-late-profile-probe.sh "$RUNNER_TEMP/pinned-fixture/"
           cp scripts/qa/run-android-readiness-probe.sh scripts/qa/verify-android-readiness-export.py "$RUNNER_TEMP/pinned-fixture/"
           cp scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py "$RUNNER_TEMP/pinned-fixture/"
@@ -56,7 +58,7 @@ jobs:
           cp scripts/qa/print-android-preraster-evidence.py "$RUNNER_TEMP/pinned-fixture/print-android-preraster-evidence.py"
           cp scripts/qa/android-settling-wait.py "$RUNNER_TEMP/pinned-fixture/android-settling-wait.py"
           git rev-parse HEAD > "$RUNNER_TEMP/pinned-fixture/diagnostic-tooling.sha"
-          sha256sum scripts/prepare-android-pinned-fixture.py scripts/prepare-android-trace-probe.py scripts/qa/PinnedWebFixture.java scripts/qa/android-handoff-trace.pbtx scripts/qa/sample-emulator-cpu.py scripts/qa/run-android-preraster-probe.sh scripts/qa/print-android-preraster-evidence.py scripts/qa/android-settling-wait.py scripts/prepare-android-rendering-trace.py scripts/qa/RobysRenderingTrace.java scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py scripts/prepare-android-readiness-export.py scripts/qa/RobysReadinessExport.java scripts/qa/android-raster-callstack.pbtx scripts/qa/run-android-readiness-probe.sh scripts/qa/verify-android-readiness-export.py scripts/verify-android-pinned-evidence.py scripts/qa/start-android-raster-profile.py scripts/qa/run-android-late-profile-probe.sh .github/scripts/capture-android-launch.sh > "$RUNNER_TEMP/pinned-fixture/diagnostic-tools.sha256"
+          sha256sum scripts/prepare-android-pinned-fixture.py scripts/prepare-android-trace-probe.py scripts/qa/PinnedWebFixture.java scripts/qa/android-handoff-trace.pbtx scripts/qa/sample-emulator-cpu.py scripts/qa/run-android-preraster-probe.sh scripts/qa/print-android-preraster-evidence.py scripts/qa/android-settling-wait.py scripts/prepare-android-rendering-trace.py scripts/qa/RobysRenderingTrace.java scripts/qa/run-android-rendering-probe.sh scripts/qa/verify-android-rendering-trace.py scripts/prepare-android-readiness-export.py scripts/qa/RobysReadinessExport.java scripts/qa/android-raster-callstack.pbtx scripts/qa/run-android-readiness-probe.sh scripts/qa/verify-android-readiness-export.py scripts/verify-android-pinned-evidence.py scripts/qa/start-android-raster-profile.py scripts/qa/run-android-late-profile-probe.sh scripts/qa/observe-android-host-inprocess.py scripts/qa/run-android-host-inprocess-probe.sh scripts/qa/check-emulator-trace-capabilities.py .github/scripts/capture-android-launch.sh > "$RUNNER_TEMP/pinned-fixture/diagnostic-tools.sha256"
           cp .github/workflows/pr346-raster-observer.yml "$RUNNER_TEMP/pinned-fixture/diagnostic-workflow.yml"
 
       - name: Require the declared 241 pinned web files
@@ -101,7 +103,7 @@ jobs:
 
       - uses: android-actions/setup-android@v3
         with:
-          packages: platform-tools
+          packages: platform-tools emulator
 
       - run: sdkmanager "platforms;android-36"
 
@@ -116,16 +118,28 @@ jobs:
           free -h
           nproc
 
+      - name: Require the exact documented headless emulator capabilities
+        run: |
+          timeout --kill-after=5s 60s python3 scripts/qa/check-emulator-trace-capabilities.py --output "$RUNNER_TEMP/pinned-fixture/emulator-capabilities"
+          python3 scripts/qa/observe-android-host-inprocess.py prepare "$RUNNER_TEMP/pinned-fixture"
+
       - name: Apply declared idle interval then trace original cold launch
         uses: reactivecircus/android-emulator-runner@v2.38.0
+        env:
+          VPERFETTO_TRACE_ENABLED: "1"
+          VPERFETTO_HOST_FILE: ${{ runner.temp }}/pinned-fixture/host-inprocess-evidence/host.pftrace
         with:
           api-level: 36
           target: google_apis
           arch: x86_64
           profile: pixel_6
           disable-animations: false
-          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: cd "$RUNNER_TEMP/pinned-fixture" && python3 android-settling-wait.py --seconds 120 --output startup-wait.json && test -z "$(adb shell pm path com.robys.coffeehouse.debug | tee package-before-install.txt)" && bash run-android-late-profile-probe.sh
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none -stdouterr-file ${{ runner.temp }}/pinned-fixture/host-inprocess-evidence/emulator.log
+          script: cd "$RUNNER_TEMP/pinned-fixture" && bash run-android-host-inprocess-probe.sh
+
+      - name: Observe normal teardown and preserve unvalidated host trace
+        if: always()
+        run: timeout --kill-after=5s 60s python3 scripts/qa/observe-android-host-inprocess.py finalize "$RUNNER_TEMP/pinned-fixture"
 
       - name: Verify delivered bytes even when handoff fails
         if: always()
@@ -135,8 +149,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pr346-late-profile-observation-${{ github.sha }}
+          name: pr346-host-inprocess-observation-${{ github.sha }}
           path: |
+            ${{ runner.temp }}/pinned-fixture/host-inprocess-evidence/**
+            ${{ runner.temp }}/pinned-fixture/emulator-capabilities/**
+            ${{ runner.temp }}/pinned-fixture/observe-android-host-inprocess.py
+            ${{ runner.temp }}/pinned-fixture/run-android-host-inprocess-probe.sh
+            ${{ runner.temp }}/pinned-fixture/check-emulator-trace-capabilities.py
             ${{ runner.temp }}/pinned-fixture/late-profile-evidence/**
             ${{ runner.temp }}/pinned-fixture/late-profile-collector.log
             ${{ runner.temp }}/pinned-fixture/late-profile-exits.txt
