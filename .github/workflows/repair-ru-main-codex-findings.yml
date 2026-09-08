@@ -1,0 +1,99 @@
+name: Repair RU main candidate review findings
+
+on:
+  push:
+    branches: ['fix/ru-coffee-main-release-candidate-20260908']
+    paths: ['.github/workflows/repair-ru-main-codex-findings.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ru-coffee-main-release-candidate-20260908
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify exact inputs and apply the two review repairs
+        shell: bash
+        run: |
+          test "$(git hash-object scripts/build.mjs)" = "fe0c4da6994582a9c6a5070f2d7b90a31e1d4b6f"
+          test "$(git hash-object .github/workflows/ru-coffee-regression.yml)" = "244c3e78b73c956ea4cc2e9664abbabe0e2696a4"
+          python3 - <<'PY'
+          from pathlib import Path
+
+          build = Path('scripts/build.mjs')
+          text = build.read_text()
+          old = 'const baseStylesRevision = revisionFor("styles-v2.css");\nconst menuSecurityRevision = revisionFor("menu-security-v2.css");'
+          new = 'const baseStylesRevision = revisionFor("styles-v2.css");\nconst brandPhotoLogoRevision = revisionFor("brand-photo-logo.css");\nconst russianLandingStylesRevision = revisionFor("ru/coffee-gazipasa.css");\nconst menuSecurityRevision = revisionFor("menu-security-v2.css");'
+          assert text.count(old) == 1
+          text = text.replace(old, new)
+          old = '''let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
+          russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+          writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);'''.replace('          ', '')
+          new = '''let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
+          russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+          russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../brand-photo-logo.css", brandPhotoLogoRevision);
+          russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "coffee-gazipasa.css", russianLandingStylesRevision);
+          writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);'''.replace('          ', '')
+          assert text.count(old) == 1
+          build.write_text(text.replace(old, new))
+
+          workflow = Path('.github/workflows/ru-coffee-regression.yml')
+          text = workflow.read_text()
+          old = "      - 'menu.html'\n      - 'styles-v2.css'"
+          new = """      - 'menu.html'
+      - 'src/menu-app.js'
+      - 'menu-app.js'
+      - 'menu-catalog.js'
+      - 'menu-search-clear.js'
+      - 'scripts/menu-runtime-source.mjs'
+      - 'scripts/build.mjs'
+      - 'styles-v2.css'"""
+          assert text.count(old) == 1
+          workflow.write_text(text.replace(old, new))
+          PY
+          node --check scripts/build.mjs
+      - run: npm ci --no-audit --no-fund
+      - name: Build and prove the synchronized RU stylesheet revisions
+        shell: bash
+        run: |
+          npm run build
+          node - <<'NODE'
+          const {createHash}=require('node:crypto');
+          const {readFileSync}=require('node:fs');
+          const rev=p=>createHash('sha256').update(readFileSync(p)).digest('hex').slice(0,12);
+          const html=readFileSync('ru/coffee-gazipasa.html','utf8');
+          for (const [href,file] of [['../styles-v2.css','styles-v2.css'],['../brand-photo-logo.css','brand-photo-logo.css'],['coffee-gazipasa.css','ru/coffee-gazipasa.css']]) {
+            if (!html.includes(`href="${href}?v=${rev(file)}"`)) throw new Error(`stale revision: ${href}`);
+          }
+          NODE
+          if ! git diff --quiet -- ru/coffee-gazipasa.html; then
+            npm run integrity:generate
+          fi
+      - name: Re-run full candidate contracts before writing the branch
+        run: |
+          npm run check
+          npm run verify:security
+          npm run verify:integrity
+      - name: Commit only bounded review repairs and remove this helper
+        shell: bash
+        run: |
+          rm .github/workflows/repair-ru-main-codex-findings.yml
+          changed="$(git diff --name-only | sort)"
+          printf '%s\n' "$changed"
+          unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(\.github/workflows/ru-coffee-regression\.yml|scripts/build\.mjs|ru/coffee-gazipasa\.html|integrity-manifest\.json)$' || true)"
+          test -z "$unexpected"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- .github/workflows/ru-coffee-regression.yml scripts/build.mjs ru/coffee-gazipasa.html integrity-manifest.json .github/workflows/repair-ru-main-codex-findings.yml
+          git diff --cached --check
+          git commit -m 'fix(ru): bind stylesheet revisions and menu journey triggers'
+          git push origin HEAD:fix/ru-coffee-main-release-candidate-20260908
