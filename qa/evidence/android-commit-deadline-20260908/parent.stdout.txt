@@ -1,0 +1,38 @@
+PASS: first onPageCommitVisible commit deadline -1
+FAIL: first onPageCommitVisible commit deadline 0: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED]
+FAIL: first onPageCommitVisible commit deadline 1: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED]
+PASS: commit timeout before first onPageCommitVisible remains terminal
+PASS: timely first commit permits late duplicate onPageCommitVisible
+FAIL: stale first onPageCommitVisible cannot fail overdue retry generation: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, SSL_ERROR, NATIVE_SURFACE, WEB_COMMITTED]
+PASS: retry starts its own budget for first onPageCommitVisible
+PASS: first onPageFinished commit deadline -1
+FAIL: first onPageFinished commit deadline 0: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED]
+FAIL: first onPageFinished commit deadline 1: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, WEB_COMMITTED]
+PASS: commit timeout before first onPageFinished remains terminal
+PASS: timely first commit permits late duplicate onPageFinished
+FAIL: stale first onPageFinished cannot fail overdue retry generation: java.lang.AssertionError: expired first commit must take existing load timeout path; states=[NATIVE_SURFACE, SSL_ERROR, NATIVE_SURFACE, WEB_COMMITTED]
+PASS: retry starts its own budget for first onPageFinished
+PASS: bridge callback deadline -1
+PASS: ready visual callback deadline -1
+PASS: fallback visual callback deadline -1
+PASS: bridge callback deadline 0
+PASS: ready visual callback deadline 0
+PASS: fallback visual callback deadline 0
+PASS: bridge callback deadline 1
+PASS: ready visual callback deadline 1
+PASS: fallback visual callback deadline 1
+PASS: non-ready callback at expired bridge takes fallback immediately
+PASS: in-budget non-ready callback retains polling
+PASS: bridge timeout first ignores outstanding ready callback
+PASS: visual timeout first cannot be revived
+PASS: stale bridge callback cannot time out new generation
+PASS: stale visual callback cannot fail retry
+PASS: changed URL bridge callback is ignored before expiry handling
+PASS: changed URL visual callback is ignored before expiry handling
+PASS: SSL error before expired bridge cannot become fallback
+PASS: main-frame error before visual completion remains terminal
+PASS: destroy ignores pending bridge and visual callbacks
+PASS: duplicate commit cannot restart bridge budget
+PASS: API23 fallback success still releases exactly once
+SUMMARY: 30/36 passed
+{"compiled_actual_activity": true, "exit_code": 1, "harness_sha256": "e2dd6c649319dbb9b85e9025d7b6865308ec2ba2574e2d0967f19ec0c470e28d", "runner_sha256": "a8ea51e1b20817aa15e355df0f9044a64a45404a724f0fe7942c62ae7af1fa80", "scope": "actual MainActivity callbacks on JVM API doubles; not Android rendering", "source_sha256": "8a0ffc77c4df0866c8522ce0e5ce0c5d403771ad0162e10b138a4f8ba3942304", "stubs_sha256": "b61a8ef1fbeeb4383c1ae29f6c0e100d603a2f2ef56fadf8517a30f4d8dad31d"}

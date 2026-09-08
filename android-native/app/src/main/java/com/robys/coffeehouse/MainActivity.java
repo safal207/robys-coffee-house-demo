@@ -53,6 +53,7 @@ public final class MainActivity extends ComponentActivity {
     private boolean visualStateRequested;
     private boolean handoffComplete;
     private boolean bridgeReadyAtReveal;
+    private long loadCommitDeadlineAt;
     private long bridgeDeadlineAt;
     private long visualDeadlineAt;
     private int activeLoadGeneration;
@@ -124,6 +125,7 @@ public final class MainActivity extends ComponentActivity {
             }
         };
         mainHandler.postDelayed(loadCommitSlow, LOAD_COMMIT_SLOW_MS);
+        loadCommitDeadlineAt = SystemClock.uptimeMillis() + LOAD_COMMIT_HARD_TIMEOUT_MS;
         mainHandler.postDelayed(loadCommitHardTimeout, LOAD_COMMIT_HARD_TIMEOUT_MS);
     }
 
@@ -221,6 +223,12 @@ public final class MainActivity extends ComponentActivity {
         if (!isActiveGeneration(generation) || !isTrusted(uri)) return;
 
         if (!mainFrameCommitted) {
+            // The first commit cannot cancel an already expired load budget.
+            if (SystemClock.uptimeMillis() >= loadCommitDeadlineAt) {
+                debugState("LOAD_COMMIT_TIMEOUT");
+                showLoadError(generation);
+                return;
+            }
             mainFrameCommitted = true;
             bridgeDeadlineAt = SystemClock.uptimeMillis() + BRIDGE_READY_TIMEOUT_MS;
             removeCallback(loadCommitSlow);

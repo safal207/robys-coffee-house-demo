@@ -92,6 +92,12 @@ public final class HandoffDeadlineHarness {
                     "test must deliver callback before an already-due timer");
         }
 
+        void assertCommitTimerOverdue() throws Exception {
+            Object timeout = field(activity, "loadCommitHardTimeout");
+            check(handler.pending.stream().anyMatch(item -> item.action == timeout && item.at <= SystemClock.now),
+                    "the actual hard commit timeout must still be overdue in the queue");
+        }
+
         void assertSuccess(String path) {
             check(count("HANDOFF_COMPLETE") == 1 && count(path) == 1, "one expected completion");
             check(count("VISUAL_STATE_CONFIRMED") == 1, "one visual confirmation");
@@ -110,6 +116,16 @@ public final class HandoffDeadlineHarness {
                     "existing retry UI must remain visible");
         }
 
+        void assertCommitFailure() {
+            check(count("LOAD_COMMIT_TIMEOUT") == 1, "expired first commit must take existing load timeout path");
+            check(count("WEB_COMMITTED") == 0 && count("HANDOFF_COMPLETE") == 0,
+                    "expired first commit must not start the next phase or complete");
+            check(web.evaluations.isEmpty() && web.visuals.isEmpty() && web.releases == 0,
+                    "expired first commit must not request bridge or visual work");
+            check(error.getVisibility() == View.VISIBLE && splash.getVisibility() == View.VISIBLE,
+                    "existing load error and retry UI must remain visible");
+        }
+
         void sslError() {
             SslErrorHandler ssl = new SslErrorHandler();
             web.getClient().onReceivedSslError(web, ssl, new SslError(web.getUrl()));
@@ -125,6 +141,79 @@ public final class HandoffDeadlineHarness {
     }
 
     public static void main(String[] args) throws Exception {
+        for (boolean finished : new boolean[] {false, true}) {
+            String callback = finished ? "onPageFinished" : "onPageCommitVisible";
+            for (int offset : new int[] {-1, 0, 1}) {
+                add("first " + callback + " commit deadline " + offset, () -> {
+                    Fixture f = new Fixture();
+                    SystemClock.now = 25000 + offset;
+                    if (offset >= 0) f.assertCommitTimerOverdue();
+                    firstCommit(f, finished, f.web.getUrl());
+                    if (offset < 0) {
+                        check(count("WEB_COMMITTED") == 1 && count("LOAD_COMMIT_TIMEOUT") == 0,
+                                "first commit before the deadline must retain the bridge phase");
+                        f.handler.runDue();
+                        f.js(0, "\"ready\"");
+                        f.visual(0);
+                        f.assertSuccess("HANDOFF_COMPLETE_WEB_READY");
+                    } else {
+                        f.assertCommitFailure();
+                        f.handler.runDue();
+                        firstCommit(f, finished, f.web.getUrl());
+                        f.assertCommitFailure();
+                    }
+                });
+            }
+            add("commit timeout before first " + callback + " remains terminal", () -> {
+                Fixture f = new Fixture();
+                SystemClock.now = 25000;
+                f.handler.runDue();
+                f.assertCommitFailure();
+                firstCommit(f, finished, f.web.getUrl());
+                f.assertCommitFailure();
+            });
+            add("timely first commit permits late duplicate " + callback, () -> {
+                Fixture f = new Fixture();
+                SystemClock.now = 24999;
+                firstCommit(f, false, f.web.getUrl());
+                SystemClock.now = 25001;
+                firstCommit(f, finished, f.web.getUrl());
+                check(count("WEB_COMMITTED") == 1 && count("LOAD_COMMIT_TIMEOUT") == 0,
+                        "expired load budget must not invalidate an already committed frame");
+                f.js(0, "\"ready\"");
+                f.visual(0);
+                f.assertSuccess("HANDOFF_COMPLETE_WEB_READY");
+            });
+            add("stale first " + callback + " cannot fail overdue retry generation", () -> {
+                Fixture f = new Fixture();
+                String oldUrl = f.web.getUrl();
+                f.sslError();
+                SystemClock.now = 30000;
+                f.retry();
+                SystemClock.now = 54000;
+                f.assertCommitTimerOverdue();
+                List<String> before = List.copyOf(Log.states);
+                firstCommit(f, finished, oldUrl);
+                check(Log.states.equals(before) && f.web.evaluations.isEmpty(),
+                        "generation guard must precede commit deadline side effects");
+                firstCommit(f, finished, f.web.getUrl());
+                f.assertCommitFailure();
+            });
+            add("retry starts its own budget for first " + callback, () -> {
+                Fixture f = new Fixture();
+                f.sslError();
+                SystemClock.now = 30000;
+                f.retry();
+                SystemClock.now = 53999;
+                firstCommit(f, finished, f.web.getUrl());
+                check(count("WEB_COMMITTED") == 1 && count("LOAD_COMMIT_TIMEOUT") == 0,
+                        "retry must receive its own unchanged 24000ms commit budget");
+                f.handler.runDue();
+                f.js(0, "\"ready\"");
+                f.visual(0);
+                f.assertSuccess("HANDOFF_COMPLETE_WEB_READY");
+            });
+        }
         for (int offset : new int[] {-1, 0, 1}) {
             add("bridge callback deadline " + offset, () -> {
                 Fixture f = new Fixture().commit();
@@ -308,5 +397,10 @@ public final class HandoffDeadlineHarness {
 
     private static void webCommit(Fixture fixture) {
         fixture.web.getClient().onPageCommitVisible(fixture.web, fixture.web.getUrl());
+    }
+
+    private static void firstCommit(Fixture fixture, boolean finished, String url) {
+        if (finished) fixture.web.getClient().onPageFinished(fixture.web, url);
+        else fixture.web.getClient().onPageCommitVisible(fixture.web, url);
     }
 }

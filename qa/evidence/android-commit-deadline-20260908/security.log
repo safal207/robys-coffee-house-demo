@@ -1,0 +1,8 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:security
+> node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs
+
+✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.
+✅ Security contracts passed: 287 checks.
+✅ SECRET-001 passed: no secrets found in the current tree.

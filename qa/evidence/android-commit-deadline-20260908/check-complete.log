@@ -1,0 +1,986 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run build && npm run verify:menu-images && npm run verify:menu-order && npm run verify:entry-handoff && npm run verify:smart-choice && npm run test:smart-choice && npm run verify:gallery:assets && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check smart-choice/app-v2.js && node --check smart-choice/cart-v2.js && node --check smart-choice/experiments-v2.js && node --check smart-choice/analytics-v2.js && node --check smart-choice/decision-trace-v2.js && node --check smart-choice/release-qa.js && node --check smart-choice/simulator-v2.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression && npm run test:unified-order && npm run test:order-recovery && node scripts/test-menu-runtime-contract.mjs && npm run test:order-dock && npm run test:order-catalog-boundary && npm run test:home-copy && npm run test:takeaway-entry && npm run test:guest-journey && node scripts/test-pairing-offers-source.mjs && node --test scripts/test-hero-video-init.mjs
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 build
+> npm run verify:smart-choice-catalog && npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && node scripts/build.mjs && node scripts/build-smart-choice-revenue-simulator.mjs && npm run test:smart-choice-page && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 1 expected warning(s), TypeScript clean, adversarial mutations rejected.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable legacy payload and shared order review verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+Built app.js (0a634c2a1ee4), bootstrap-v2.js (2a28f7626e28), morning-entry-v2.js (8a158515f4de), styles-v2.css (a4431b07fc04), menu-security-v2.css (9a74fe13ba64), Smart Choice app-v2.js (67033c81a867), Smart Choice cart-v2.js (f70dcf04cd67), Smart Choice experiments-v2.js (f1e7de4860ad), Smart Choice analytics-v2.js (28b6f67f17a9), Smart Choice decision-trace-v2.js (948f8288c31d), Smart Choice release-qa.js (2811759ef7b2), featured-gallery.js (283ba80f334e), social-offer.js (359ec08152da), discover-v2.js (d16fc23e122d), discover-rotation-v3.js (58d387ca0c01), Smart Choice style.css (93af186a5b11), Smart Choice cart.css (4fcc327520f5), Smart Choice decision-trace.css (caa831d49b1f), and Smart Choice release-qa.css (9d9afd5b512c) with synchronized cache keys.
+Built Smart Choice revenue simulator (e6060c1b1e41) and synchronized CSS (b39978b525a7).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 233870 B JS / 25333 B CSS
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-images
+> node scripts/verify-menu-image-assets.mjs
+
+✅ MENU-IMAGES-001 passed: 61 individual product photos and 5 pairing photos are complete, unique 1024px WebP assets.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-order
+> node scripts/verify-menu-order.mjs
+
+✅ MENU-ORDER-001 passed: 63 clickable photos, localized modal, session cart, quantity controls and total calculator are wired.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:entry-handoff
+> node scripts/verify-entry-handoff.mjs
+
+✅ ENTRY-HANDOFF-001 passed: paintable branded pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice
+> npm run verify:smart-choice-catalog && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 1 expected warning(s), TypeScript clean, adversarial mutations rejected.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 233870 B JS / 25333 B CSS
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice
+> npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && npm run test:smart-choice-page
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable legacy payload and shared order review verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:gallery:assets
+> bash scripts/verify-gallery-assets.sh
+
+Gallery asset sizes:
+    74432  src/products/gallery-v5/latte.webp
+    59454  src/products/gallery-v5/latte-828.webp
+    95474  src/products/gallery-v5/iced-latte.webp
+    72290  src/products/gallery-v5/iced-latte-828.webp
+   117056  src/products/gallery-v5/san-sebastian.webp
+    84966  src/products/gallery-v5/san-sebastian-828.webp
+    84986  src/products/gallery-v5/lotus-cheesecake.webp
+    65248  src/products/gallery-v5/lotus-cheesecake-828.webp
+   104576  src/products/gallery-v5/croissant.webp
+    84028  src/products/gallery-v5/croissant-828.webp
+   120740  src/products/gallery-v5/nutella-croissant.webp
+    95968  src/products/gallery-v5/nutella-croissant-828.webp
+croissant-828.webp: OK
+iced-latte-828.webp: OK
+latte-828.webp: OK
+lotus-cheesecake-828.webp: OK
+nutella-croissant-828.webp: OK
+san-sebastian-828.webp: OK
+Gallery checks passed: masters=597264 bytes, responsive=461954 bytes.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:discover-rotation
+> node scripts/test-discover-pairing-rotation.mjs
+
+✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:taste-journey-posters
+> node scripts/verify-taste-journey-posters.mjs
+
+✅ TASTE-POSTER-001 verified the approved 1254x1254 Iced Latte + San Sebastian PNG (2198571 bytes, SHA-256 6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329), source/runtime mapping, offline delivery and synchronized cache revisions.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:pr140-blockers
+> node scripts/verify-pr140-release-blockers.mjs
+
+✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime d16fc23e122d, poster JS 58d387ca0c01 and CSS 96b566c9731e.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:session-state-fixture
+> node scripts/verify-session-state.mjs qa/fixtures/session-state/pr-126-stale-review.json
+
+Session state valid: qa/fixtures/session-state/pr-126-stale-review.json (BLOCKED, seq=1, head=144ab511642c9b394beeb9a49575a192e8ab5501)
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:session-state
+> node scripts/test-session-state.mjs
+
+Session state tests passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:regression
+> npm run verify:evidence-boundary && npm run verify:proof-depth && npm run test:proof-depth && npm run verify:review-routing && npm run test:review-routing && npm run verify:traceability && npm run test:traceability && npm run verify:ai-style-matrix && npm run verify:brand-identity && npm run verify:brand-candidate && npm run verify:social-offer && npm run verify:pairing-cta && node scripts/verify-android-download.mjs && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial && npm run verify:causal-refactoring && npm run test:causal-refactoring
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:evidence-boundary
+> node scripts/verify-evidence-publication-boundary.mjs
+
+PASS: no workflow mutates repository history to publish Lighthouse evidence.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:proof-depth
+> node scripts/verify-proof-depth-graph.mjs
+
+✅ PDG-001 valid: 7 nodes, 6 edges, depth D6, 1 independent reviewers on binding paths.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:proof-depth
+> node scripts/test-proof-depth-graph.mjs && node scripts/test-ci-proof-summary.mjs
+
+✅ PDG-001 mutation tests passed: provider-neutral independent evidence occupies D4, exact-head freshness is binding, and dispositions plus the later proof seal remain mandatory.
+✅ PDG summary mutation test passed: metadata is escaped and D4 is provider-neutral while D5, D6, CI and human authority remain intact.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:review-routing
+> npm run verify:review-depth && npm run verify:reviewer-roster && npm run verify:review-route
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:review-depth
+> node scripts/evaluate-review-depth.mjs --validate-only
+
+{"contract":"RRM-DEPTH-001","valid":true}
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:reviewer-roster
+> node scripts/probe-reviewer-roster.mjs --validate-only
+
+{"contract":"RRM-ROSTER-001","valid":true}
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:review-route
+> node scripts/select-review-route.mjs --validate-only
+
+{"contract":"RRM-ROUTE-001","valid":true}
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:review-routing
+> npm run test:review-depth && npm run test:reviewer-roster && npm run test:reviewer-roster-module && npm run test:review-route && npm run test:review-route-workflow
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:review-depth
+> node scripts/test-review-depth.mjs
+
+✅ RRM-DEPTH-001 mutation tests passed: import safety, L1-L4 routing, nested migrations, signal floors, path containment and non-negotiable policy floors.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster
+> node scripts/test-reviewer-roster.mjs
+
+✅ RRM-ROSTER-001 mutation tests passed: the human maintainer is the sole binding reviewer and optional AI reviewers remain advisory at every depth.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster-module
+> node scripts/test-reviewer-roster-module.mjs
+
+✅ RRM roster module passed: human maintainer authority is binding, optional AI reviewers remain advisory, and unavailable human authority fails closed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:review-route
+> node scripts/test-review-route.mjs
+
+✅ RRM-ROUTE-001 tests passed: provider-neutral routes stay deterministic, human maintainer authority is binding, and optional AI reviewers cannot satisfy a route.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:review-route-workflow
+> node scripts/test-review-route-preflight-workflow.mjs
+
+✅ RRM-WORKFLOW-001 passed: exact-head path evidence, route selection, audited manual input and read-only PR execution are present.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:traceability
+> node scripts/verify-html-evidence.mjs && node scripts/verify-source-evidence.mjs && node scripts/verify-feature-traceability.mjs
+
+✅ TRACE-HTML-001 valid: 10 HTML evidence fragment(s) matched real start-tag attributes.
+✅ TRACE-SOURCE-001 valid: 20 script evidence fragment(s) matched outside line and block comments.
+✅ TRACE-001 valid: 14 features, 42 requirements, 6 milestones.
+Lifecycle summary: released=8, implemented=3, planned=3
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:traceability
+> node scripts/test-html-evidence.mjs && node scripts/test-source-evidence.mjs && node scripts/test-feature-traceability.mjs
+
+✅ TRACE-HTML-001 mutation tests passed: empty fragments fail; natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.
+✅ TRACE-SOURCE-001 mutation tests passed: empty fragments and comment-only symbols fail while code and string literals remain parseable.
+✅ TRACE-001 mutation tests passed: real HTML attributes, semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:ai-style-matrix
+> node scripts/verify-ai-style-review-matrix.mjs
+
+✅ AI-STYLE-001 max: 5 checks passed
+✅ AI-STYLE-001 qwen: 5 checks passed
+✅ AI-STYLE-001 grok: 5 checks passed
+✅ AI-STYLE-001 manus: 5 checks passed
+✅ AI-STYLE-001 gemini: 5 checks passed
+✅ AI-STYLE-001 gpt: 5 checks passed
+✅ AI-STYLE-001 claude: 5 checks passed
+✅ AI-STYLE-001 passed 7 review lenses across 10 coverage areas.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:brand-identity
+> node scripts/verify-brand-identity-assets.mjs
+
+✅ BRAND-IDENTITY-001: 20260726-approved-v4 is path-only, white-backed, canonically shared, statically delivered and cache-revisioned.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:brand-candidate
+> node scripts/verify-robys-approved-identity-v4.mjs
+
+✅ ROBYs-IDENTITY-V4 candidate structure passed
+mark: 2344 bytes sha256:e1285dc0aeef8f8952c5b419cf67b09ee47a3989006462c0387ae575c008bbe4
+compact: 5229 bytes sha256:5b60908b602a1f57799265cffbafa6caec8988c1800ffa3b66181d417578c712
+header: 6078 bytes sha256:9d158b2714a0aabbc11fddc101ae885780de4eb34d9f656e2adea7ee6815709d
+primary: 8233 bytes sha256:67af003ae8e739660331feafae65d9708f989697cb2bae7f962e881337179ab3
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:social-offer
+> node scripts/verify-social-offer.mjs
+
+✅ SOCIAL-OFFER-001 gated: typed daily offer renders safely between the map and footer with responsive mobile layouts.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:pairing-cta
+> node scripts/verify-pairing-cta.mjs
+
+(node:2447) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/4e6fa17f4a86/pr346-commit-deadline-repair/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/4e6fa17f4a86/pr346-commit-deadline-repair/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: static pairing CTA and cache revision are bound
+✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
+✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.
+✅ ANDROID-APP-001 passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work.
+✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
+✅ SEO-001 gated: metadata, social cards and JSON-LD are consistent.
+✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
+✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
+PASS: deployed owner-approved SVG-path Roby's identity v4 contract
+PASS: production owner-approved Roby's identity v4 contract
+✅ VISUAL-001 configuration is wired, bounded and protected.
+{
+  "totalJsBytes": 71021,
+  "largestJs": {
+    "file": "menu-app.js",
+    "size": 17606
+  },
+  "totalCssBytes": 109422,
+  "totalHtmlBytes": 36965,
+  "heroBytes": 79501,
+  "posterBytes": 33321,
+  "auditedPages": [
+    "index.html",
+    "menu.html"
+  ]
+}
+✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected.
+✅ LIVE-001 build markers match: 20260904-1.
+✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.
+✅ LIVE-001 workflow and smoke coverage are protected.
+✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.
+✅ NAV-001 gated: internal navigation, deep links and critical CTAs resolve.
+✅ MENU-001 gated: menu structure, translations and protected prices are valid.
+✅ I18N-001 gated: TR/EN/RU coverage and persistence contracts are intact.
+✅ SEARCH-001 gated: multilingual search, filtering and clear behavior are intact.
+✅ Security contracts passed: 287 checks.
+✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.
+✅ VIDEO-001 gated: hero playback has explicit mobile recovery.
+✅ THEME-001 gated: hero contrast and light-section palette remain balanced.
+✅ FEATURED-001 gated: the TypeScript gallery keeps six complete images, actionable mobile visit controls, exact offline CSS revisioning, stable fallback height and no crop.
+✅ MOBILE-INSTALL-001 gated: PNG touch icon bootstrap and bounded Android logo observation remain enforced.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-content
+> node scripts/verify-menu-content.mjs
+
+✅ MENU-CONTENT-001 passed: 8 categories, 63 items, 3 languages, all verified prices unchanged.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:instagram-tools
+> node scripts/verify-instagram-tools.mjs
+
+✅ INSTAGRAM-001 passed: API-free profile, table messages, TR/EN/RU copy and QR remain intact.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-share
+> node scripts/verify-menu-share.mjs
+
+✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, cache generation 65 (20260907), and PWA revision premium-cache-new-20260904-1 remain valid.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:integrity
+> node scripts/generate-integrity-manifest.mjs --check && node scripts/verify-integrity-manifest.mjs
+
+✅ INTEGRITY-001 manifest is current: 243 public files, build 20260904-1.
+✅ INTEGRITY-001 passed: 243 public files match build 20260904-1.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:adversarial
+> node scripts/verify-adversarial-contracts.mjs
+
+✅ ADV-001, DAST-001 and INTEGRITY-001 control wiring passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:causal-refactoring
+> node scripts/verify-causal-refactoring.mjs
+
+Fractal causal refactoring valid: 3 patterns, 0 owner-critical fields pending encoded confirmation, publication mode=production.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:causal-refactoring
+> node scripts/test-causal-refactoring.mjs
+
+Fractal causal refactoring tests passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:unified-order
+> node scripts/test-unified-order.mjs
+
+{
+  "suite": "unified-order-domain",
+  "checks": [
+    {
+      "name": "empty cart",
+      "passed": true
+    },
+    {
+      "name": "catalog-derived sum and session reload",
+      "passed": true
+    },
+    {
+      "name": "same SKU increments one line",
+      "passed": true
+    },
+    {
+      "name": "negative/fractional/excess quantity rejected atomically",
+      "passed": true
+    },
+    {
+      "name": "unknown SKU and options rejected",
+      "passed": true
+    },
+    {
+      "name": "approved offer retains its own price",
+      "passed": true
+    },
+    {
+      "name": "configured and plain pair are distinct",
+      "passed": true
+    },
+    {
+      "name": "approved option prices and canonical option order",
+      "passed": true
+    },
+    {
+      "name": "single recommendation maps exactly to menu SKU",
+      "passed": true
+    },
+    {
+      "name": "all available candidates map to catalog price",
+      "passed": true
+    },
+    {
+      "name": "old menu migrated once",
+      "passed": true
+    },
+    {
+      "name": "old choice migration requires explicit consent",
+      "passed": true
+    },
+    {
+      "name": "two old baskets never silently combine",
+      "passed": true
+    },
+    {
+      "name": "declined import never reappears",
+      "passed": true
+    },
+    {
+      "name": "blocked storage keeps current-page order",
+      "passed": true
+    },
+    {
+      "name": "failed write does not roll back the visible choice",
+      "passed": true
+    },
+    {
+      "name": "invalid persisted quantity rejected, not trusted",
+      "passed": true
+    },
+    {
+      "name": "injected client price ignored",
+      "passed": true
+    },
+    {
+      "name": "removal undo restores exactly one item line",
+      "passed": true
+    },
+    {
+      "name": "subscribers share state and unsubscribe",
+      "passed": true
+    },
+    {
+      "name": "snapshot objects cannot mutate store",
+      "passed": true
+    },
+    {
+      "name": "bfcache reload uses current persisted order without remigration",
+      "passed": true
+    },
+    {
+      "name": "menu delegates reads and writes to shared order",
+      "passed": true
+    },
+    {
+      "name": "browser history restores actual entry, not unconditional back",
+      "passed": true
+    },
+    {
+      "name": "choice editor receives state without storage polling",
+      "passed": true
+    },
+    {
+      "name": "menu-view removal can be undone in shared drawer",
+      "passed": true
+    },
+    {
+      "name": "bfcache restore clears resolved migration prompt",
+      "passed": true
+    },
+    {
+      "name": "skip-to-content anchor does not reset choice flow",
+      "passed": true
+    }
+  ],
+  "passed": 28,
+  "total": 28
+}
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:order-recovery
+> node scripts/test-order-recovery.mjs && node scripts/test-order-invalid-storage.mjs
+
+{
+  "suite": "order-recovery",
+  "sourceSha256": "8a4a97d1d18925d22d003d1c7469b970266f106f37b12dea7934cb3dd800f203",
+  "total": 16,
+  "passed": 16,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "quantity edits preserve visual row order",
+      "passed": true
+    },
+    {
+      "name": "undo restores a removed row at its original position",
+      "passed": true
+    },
+    {
+      "name": "newer cross-page snapshot invalidates stale undo",
+      "passed": true
+    },
+    {
+      "name": "read denied/write allowed cannot erase the saved order",
+      "passed": true
+    },
+    {
+      "name": "a broken view cannot report a committed addition as failed",
+      "passed": true
+    },
+    {
+      "name": "a failing error reporter cannot corrupt a completed update",
+      "passed": true
+    },
+    {
+      "name": "write failure keeps the current-page order without claiming persistence",
+      "passed": true
+    },
+    {
+      "name": "failed undo at the quantity limit leaves state and undo usable",
+      "passed": true
+    },
+    {
+      "name": "listeners added during a notification start with the next update",
+      "passed": true
+    },
+    {
+      "name": "unreadable shared data cannot fall back to and overwrite an old basket",
+      "passed": true
+    },
+    {
+      "name": "batch removal cannot retain undo for an older removal",
+      "passed": true
+    },
+    {
+      "name": "unchanged persisted revision preserves current-document undo",
+      "passed": true
+    },
+    {
+      "name": "no-op changes cannot move existing rows",
+      "passed": true
+    },
+    {
+      "name": "quantities and catalog prices survive a second instance",
+      "passed": true
+    },
+    {
+      "name": "malformed shared JSON is retained while the page works in memory",
+      "passed": true
+    },
+    {
+      "name": "revision overflow is rejected before changing persisted order",
+      "passed": true
+    }
+  ]
+}
+{
+  "suite": "order-invalid-storage-preservation",
+  "scope": {
+    "mode": "repository-source-bundle",
+    "sourceSha256": "8a4a97d1d18925d22d003d1c7469b970266f106f37b12dea7934cb3dd800f203"
+  },
+  "total": 35,
+  "passed": 35,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "initialization preserves newer schema",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves newer schema and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves negative quantity",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves negative quantity and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves negative revision",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves negative revision and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves fractional revision",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves fractional revision and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves unsafe revision",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves unsafe revision and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves unknown product",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves unknown product and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves duplicate product",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves duplicate product and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves missing lines",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves missing lines and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves JSON null",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves JSON null and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves JSON false",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves JSON false and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves JSON zero",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves JSON zero and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves JSON empty string",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves JSON empty string and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves JSON array",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves JSON array and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves empty stored bytes",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves empty stored bytes and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "initialization preserves malformed JSON",
+      "passed": true
+    },
+    {
+      "name": "restored page preserves malformed JSON and its in-memory order",
+      "passed": true
+    },
+    {
+      "name": "absent record still permits a persistent first order",
+      "passed": true
+    },
+    {
+      "name": "valid existing order is read and remains editable",
+      "passed": true
+    },
+    {
+      "name": "valid newer revision still reloads",
+      "passed": true
+    },
+    {
+      "name": "valid older revision is ignored without disabling persistence",
+      "passed": true
+    },
+    {
+      "name": "even an older invalid revision cannot authorize overwriting stored bytes",
+      "passed": true
+    }
+  ]
+}
+Menu runtime contract: PASS (source parity, compact output, tamper rejection, stale-source rejection, rebuild recovery)
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:order-dock
+> node --test scripts/test-order-dock.mjs
+
+✔ no lower panel (0.988845ms)
+✔ visible panel keeps 12px separation (0.119851ms)
+✔ large translated panel uses actual height (0.070496ms)
+✔ safe area already included in panel bottom (0.060151ms)
+✔ multiple panels reserve the highest edge, not sum (0.09257ms)
+✔ desktop display none does not reserve a lane (0.092509ms)
+✔ hidden panel (0.100672ms)
+✔ sliding-out noninteractive panel (0.079551ms)
+✔ static flow content is not an obstruction (0.090768ms)
+✔ sticky content is not a bottom fixed dock (0.123517ms)
+✔ panel horizontally outside the cart (0.12582ms)
+✔ touching horizontal edges do not overlap (0.136807ms)
+✔ fractional dimensions rounded safely (0.061674ms)
+✔ empty box (0.037607ms)
+✔ unresolved bottom is not treated as zero (0.061863ms)
+✔ invalid geometry ignored (0.05939ms)
+✔ negative inset reserves full panel height (0.075083ms)
+✔ original fixed 14px bottom is a failing negative control (1.30966ms)
+✔ both entry points install the same controller (1.125822ms)
+✔ CSS consumes measured clearance and preserves modal hiding (0.190088ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 333.039772
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:order-catalog-boundary
+> node --test scripts/test-order-catalog-boundary.mjs
+
+✔ store imports canonical catalog externally (1.791048ms)
+✔ nested Smart Choice catalog resolves to the same URL (0.38388ms)
+✔ query alias cannot create a second canonical catalog (1.133824ms)
+✔ different file with same basename is not externalized (0.192551ms)
+✔ catalog identity is content-bound and invalidates when bytes change (0.696233ms)
+✔ canonicalization never modifies source price/catalog bytes (0.292061ms)
+✔ menu compiler and offline precache share the same catalog revision function (0.440386ms)
+✔ renderer/compiler encoding is UTF-8 without changed budgets or prices (0.234916ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 97.337298
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:home-copy
+> node --test scripts/test-home-copy.mjs
+
+✔ the actual homepage declares 30 unique translation keys (1.733431ms)
+✔ tr: retained text is byte-identical to the reviewed parent (0.422389ms)
+✔ tr: missing translation fails closed (1.720431ms)
+✔ tr: empty translation fails closed (0.232081ms)
+✔ en: retained text is byte-identical to the reviewed parent (0.146051ms)
+✔ en: missing translation fails closed (0.388578ms)
+✔ en: empty translation fails closed (0.17877ms)
+✔ ru: retained text is byte-identical to the reviewed parent (0.124959ms)
+✔ ru: missing translation fails closed (0.677635ms)
+✔ ru: empty translation fails closed (0.250669ms)
+✔ new untranslated markup is rejected, including rich text (0.640739ms)
+✔ single/double quoted and rich markup are detected (0.100942ms)
+✔ retired sections no longer contribute translation keys (0.114553ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 315.162157
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:takeaway-entry
+> node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs
+
+✔ real trace separates three invisible startup frames from 24 moving frames (1.30258ms)
+✔ a visible four-frame freeze still fails (0.624474ms)
+✔ a mid-animation opacity drop is retained and fails (0.286844ms)
+✔ slow visible cadence still fails the unchanged 60 Hz limit (0.344161ms)
+✔ a delayed visible start fails its separate budget (0.359604ms)
+✔ a never-started entrance cannot pass (0.270759ms)
+✔ fewer than 24 visible entrance samples cannot pass (0.286904ms)
+✔ morning: one scene, stationary dissolve, cold entry closes in 1530 ms (3.938726ms)
+✔ day: one scene, stationary dissolve, cold entry closes in 1530 ms (1.235989ms)
+✔ night: one scene, stationary dissolve, cold entry closes in 1530 ms (1.01868ms)
+✔ delayed entrance retains the stationary reading pause (1.800262ms)
+✔ warm entry closes in 600 ms (1.288859ms)
+✔ tr copy follows the saved language (0.809024ms)
+✔ en copy follows the saved language (0.653258ms)
+✔ ru copy follows the saved language (0.714581ms)
+✔ broken image never reveals partial content or strands the page (0.842444ms)
+✔ stalled image never reveals partial content or strands the page (0.861813ms)
+✔ pointer dismisses immediately and allows at most one 8 ms pulse (1.014174ms)
+✔ Escape immediately releases the page and makes the next entry warm without vibration (0.873972ms)
+✔ Escape still releases the page when session storage is unavailable (0.72075ms)
+✔ Tab immediately releases the page and makes the next entry warm without vibration (0.81996ms)
+✔ Tab still releases the page when session storage is unavailable (0.696453ms)
+✔ reduced motion bypasses the scene (0.645796ms)
+✔ changing to reduced motion releases a running scene (0.759058ms)
+✔ hidden tab releases the scene and no late decode revives it (2.102219ms)
+✔ absent vibration and blocked storage cannot break entry (0.788332ms)
+✔ throws vibration and blocked storage cannot break entry (0.771016ms)
+✔ throws animation still releases the page within the hard stop (0.694209ms)
+✔ stalled animation still releases the page within the hard stop (1.265865ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 290.558772
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:guest-journey
+> node scripts/test-guest-journey.mjs && node scripts/test-order-cache-revisions.mjs
+
+{
+  "suite": "guest-journey-production-catalog",
+  "inputCases": 2160,
+  "verifiedSelections": 2592,
+  "coverage": {
+    "one": {
+      "ok": 504,
+      "noMatch": 36
+    },
+    "two": {
+      "ok": 393,
+      "noMatch": 147
+    },
+    "three": {
+      "ok": 300,
+      "noMatch": 240
+    },
+    "four": {
+      "ok": 189,
+      "noMatch": 351
+    }
+  },
+  "exactExamples": [
+    "3 iced lattes = 540 TRY",
+    "+ 1 optional macaron = 570 TRY"
+  ],
+  "passed": true
+}
+Order cache revisions: PASS (10 exact-revision assets, stale rejection and offline exact matches)
+Pairing source contract: PASS (framing, single price source, actions, content-bound HTML/SW)
+✔ preserves a parser-started approved video without resetting its timeline (2.17595ms)
+✔ replaces a different source and reloads once (0.708922ms)
+✔ removes a media restriction and refreshes source selection once (0.556972ms)
+✔ changing source and media together still reloads only once (0.620628ms)
+✔ initializes a missing source and loads it once (0.492996ms)
+✔ retains one initial recovery for an already failed approved video (0.676623ms)
+✔ retains playback recovery without restarting media loading (0.803836ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.646727

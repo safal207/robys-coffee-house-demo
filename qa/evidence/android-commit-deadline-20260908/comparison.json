@@ -1,0 +1,32 @@
+{
+  "scope": "Native callback classification only; not Android SDK or pixels",
+  "parent_commit": "3127f77cc73fcb6dd7641a376c04cc082b225f20",
+  "results": [
+    {
+      "compiled_actual_activity": true,
+      "exit_code": 1,
+      "harness_sha256": "e2dd6c649319dbb9b85e9025d7b6865308ec2ba2574e2d0967f19ec0c470e28d",
+      "runner_sha256": "a8ea51e1b20817aa15e355df0f9044a64a45404a724f0fe7942c62ae7af1fa80",
+      "scope": "actual MainActivity callbacks on JVM API doubles; not Android rendering",
+      "source_sha256": "8a0ffc77c4df0866c8522ce0e5ce0c5d403771ad0162e10b138a4f8ba3942304",
+      "stubs_sha256": "b61a8ef1fbeeb4383c1ae29f6c0e100d603a2f2ef56fadf8517a30f4d8dad31d",
+      "source": "3127f77cc73fcb6dd7641a376c04cc082b225f20",
+      "result": "parent",
+      "stdout_sha256": "7171211c823cccdfd4015a387f835999a21631273b13e2fb96457d5062374a74",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "compiled_actual_activity": true,
+      "exit_code": 0,
+      "harness_sha256": "e2dd6c649319dbb9b85e9025d7b6865308ec2ba2574e2d0967f19ec0c470e28d",
+      "runner_sha256": "a8ea51e1b20817aa15e355df0f9044a64a45404a724f0fe7942c62ae7af1fa80",
+      "scope": "actual MainActivity callbacks on JVM API doubles; not Android rendering",
+      "source_sha256": "d6fd2d8b8ae8c1788e9d64c20e4f1a175df72dbe1403f000b94dcccfcb39ed61",
+      "stubs_sha256": "b61a8ef1fbeeb4383c1ae29f6c0e100d603a2f2ef56fadf8517a30f4d8dad31d",
+      "source": "uncommitted local repair of 3127f77cc73fcb6dd7641a376c04cc082b225f20",
+      "result": "fixed",
+      "stdout_sha256": "1410cfc7839df4d85537c72288252c48065e42bf50cc09144a8452d40fdd744e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

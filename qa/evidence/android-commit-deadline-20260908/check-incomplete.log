@@ -1,0 +1,100 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run build && npm run verify:menu-images && npm run verify:menu-order && npm run verify:entry-handoff && npm run verify:smart-choice && npm run test:smart-choice && npm run verify:gallery:assets && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check smart-choice/app-v2.js && node --check smart-choice/cart-v2.js && node --check smart-choice/experiments-v2.js && node --check smart-choice/analytics-v2.js && node --check smart-choice/decision-trace-v2.js && node --check smart-choice/release-qa.js && node --check smart-choice/simulator-v2.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check android-download.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression && npm run test:unified-order && npm run test:order-recovery && node scripts/test-menu-runtime-contract.mjs && npm run test:order-dock && npm run test:order-catalog-boundary && npm run test:home-copy && npm run test:takeaway-entry && npm run test:guest-journey && node scripts/test-pairing-offers-source.mjs && node --test scripts/test-hero-video-init.mjs
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 build
+> npm run verify:smart-choice-catalog && npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && node scripts/build.mjs && node scripts/build-smart-choice-revenue-simulator.mjs && npm run test:smart-choice-page && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 1 expected warning(s), TypeScript clean, adversarial mutations rejected.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable legacy payload and shared order review verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+Built app.js (0a634c2a1ee4), bootstrap-v2.js (2a28f7626e28), morning-entry-v2.js (8a158515f4de), styles-v2.css (a4431b07fc04), menu-security-v2.css (9a74fe13ba64), Smart Choice app-v2.js (67033c81a867), Smart Choice cart-v2.js (f70dcf04cd67), Smart Choice experiments-v2.js (f1e7de4860ad), Smart Choice analytics-v2.js (28b6f67f17a9), Smart Choice decision-trace-v2.js (948f8288c31d), Smart Choice release-qa.js (2811759ef7b2), featured-gallery.js (283ba80f334e), social-offer.js (359ec08152da), discover-v2.js (d16fc23e122d), discover-rotation-v3.js (58d387ca0c01), Smart Choice style.css (93af186a5b11), Smart Choice cart.css (4fcc327520f5), Smart Choice decision-trace.css (caa831d49b1f), and Smart Choice release-qa.css (9d9afd5b512c) with synchronized cache keys.
+Built Smart Choice revenue simulator (e6060c1b1e41) and synchronized CSS (b39978b525a7).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 233870 B JS / 25333 B CSS
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-images
+> node scripts/verify-menu-image-assets.mjs
+
+✅ MENU-IMAGES-001 passed: 61 individual product photos and 5 pairing photos are complete, unique 1024px WebP assets.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:menu-order
+> node scripts/verify-menu-order.mjs
+
+✅ MENU-ORDER-001 passed: 63 clickable photos, localized modal, session cart, quantity controls and total calculator are wired.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 verify:entry-handoff
+> node scripts/verify-entry-handoff.mjs
+

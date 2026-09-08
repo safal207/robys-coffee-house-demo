@@ -1,0 +1,8 @@
+{
+  "process_exit": 0,
+  "terminal_hero_suite_observed": true,
+  "bytes": 45425,
+  "sha256": "8ce6c438016782192b8e0fe496527b0c6162f9915fe264e71535d5b15cacf17c",
+  "initial_witness_parser_exit": 42,
+  "initial_witness_parser_limitation": "Expected TAP # footer; Node emitted Unicode spec reporter footer. Corrected parser rechecked the same complete log without rerunning tests."
+}
