@@ -6,7 +6,7 @@ on:
       - "menu-product-reveal.js"
       - "menu-search-clear.js"
       - "scripts/test-menu-product-reveal.mjs"
-      - "src/products/gallery-v5/san-sebastian.webp"
+      - "src/products/san-sebastian.webp"
       - ".github/workflows/menu-product-reveal.yml"
   workflow_dispatch:
 
