@@ -1,0 +1,155 @@
+name: Verify captured Web Animation sampler
+on:
+  push:
+    branches: [qa/animation-capture-motion-sampler-verify-20260908]
+    paths: [.github/workflows/verify-animation-capture-motion-sampler.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-animation-capture-motion-sampler-20260908
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: ceb09ef2b8022ec77f61344e4b8b144ccedb3ac0
+      CANDIDATE_BRANCH: fix/takeaway-sampler-animation-capture-20260908
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ceb09ef2b8022ec77f61344e4b8b144ccedb3ac0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: scripts/test-takeaway-animation-capture.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Prove current PR361 sampler still queries animation in pending rAF
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          mkdir -p .artifacts/animation-capture-sampler
+          cp .diagnostic-tools/scripts/test-takeaway-animation-capture.mjs scripts/
+          set +e
+          node --test scripts/test-takeaway-animation-capture.mjs > .artifacts/animation-capture-sampler/before.tap 2>&1
+          before=$?
+          set -e
+          test "$before" = 1
+          grep -q '^# tests 3$' .artifacts/animation-capture-sampler/before.tap
+          grep -q 'pending sampler captures the returned Web Animation instead of querying getAnimations in rAF' .artifacts/animation-capture-sampler/before.tap
+          grep -q 'not ok' .artifacts/animation-capture-sampler/before.tap
+      - name: Apply hash-bound animation-capture repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          def blob(data): return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+          p=Path('scripts/takeaway-browser-contract.mjs');data=p.read_bytes()
+          assert blob(data)=='d6a3703c0a83481bb411ae281917dab785056ec6', blob(data)
+          s=data.decode()
+          old='''    const probe = globalThis.__takeawayProbe = { events: [], frames: [] };\n    let sampling = false;\n    window.addEventListener("robys:entry-state", (event) => {'''
+          new='''    const probe = globalThis.__takeawayProbe = { events: [], frames: [] };\n    let sampling = false;\n    let entranceAnimation = null;\n    const nativeAnimate = Element.prototype.animate;\n    Element.prototype.animate = function (...args) {\n      const animation = nativeAnimate.apply(this, args);\n      if (this.classList?.contains("robys-takeaway-content")) entranceAnimation = animation;\n      return animation;\n    };\n    window.addEventListener("robys:entry-state", (event) => {'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          old='''      // Start at the browser's first actual animated frame, independent of how\n      // quickly the external test harness returns from navigation or screenshots.\n      let entranceAnimation = null;\n      const sample = (at) => {\n        const overlay = document.querySelector(".robys-takeaway-entry");\n        const content = overlay?.querySelector(".robys-takeaway-content");\n        if (!content) return;\n        if (!entranceAnimation) entranceAnimation = content.getAnimations()[0] ?? null;'''
+          new='''      // Start at the browser's first actual animated frame, independent of how\n      // quickly the external test harness returns from navigation or screenshots.\n      const sample = (at) => {\n        const overlay = document.querySelector(".robys-takeaway-entry");\n        const content = overlay?.querySelector(".robys-takeaway-content");\n        if (!content) return;'''
+          assert s.count(old)==1;s=s.replace(old,new)
+          p.write_text(s)
+          pkg=Path('package.json');d=json.loads(pkg.read_text())
+          old_script='node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs scripts/test-takeaway-pending-sampler.mjs'
+          assert d['scripts']['test:takeaway-entry']==old_script
+          d['scripts']['test:takeaway-entry']=old_script+' scripts/test-takeaway-animation-capture.mjs'
+          pkg.write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - name: Create exact follow-up candidate before verification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          allowed={'scripts/takeaway-browser-contract.mjs','scripts/test-takeaway-animation-capture.mjs','package.json'}
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          assert not changed-allowed, changed-allowed
+          assert not {p for p in untracked if p!='scripts/test-takeaway-animation-capture.mjs' and not p.startswith('.diagnostic-tools/') and not p.startswith('.artifacts/')},untracked
+          subprocess.run(['git','add','--',*sorted(changed|{'scripts/test-takeaway-animation-capture.mjs'})],check=True)
+          PY
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/animation-capture-sampler/candidate.patch
+          git diff --cached --stat > .artifacts/animation-capture-sampler/candidate-stat.txt
+          git write-tree > .artifacts/animation-capture-sampler/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'test(motion): capture entrance Animation without pending rAF query' | git commit-tree "$(cat .artifacts/animation-capture-sampler/candidate-tree.txt)" -p "$BASE_SHA")
+          printf '%s\n' "$candidate" > .artifacts/animation-capture-sampler/candidate-commit.txt
+          git reset --hard "$candidate"
+          git archive --format=tar.gz HEAD > .artifacts/animation-capture-sampler/candidate-source.tar.gz
+      - name: Full check security and all sampler mutations
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/animation-capture-sampler/check.log
+          test ${PIPESTATUS[0]} -eq 0
+          npm run verify:security 2>&1 | tee .artifacts/animation-capture-sampler/security.log
+          test ${PIPESTATUS[0]} -eq 0
+          node --test scripts/test-takeaway-entry.mjs scripts/test-takeaway-cadence.mjs scripts/test-takeaway-pending-sampler.mjs scripts/test-takeaway-animation-capture.mjs 2>&1 | tee .artifacts/animation-capture-sampler/takeaway-tests.tap
+          test ${PIPESTATUS[0]} -eq 0
+          git diff --exit-code
+      - name: Fixed 24-case diagnostic with captured Animation
+        shell: bash
+        run: |
+          node scripts/probe-pending-light-sampler.mjs 2>&1 | tee .artifacts/animation-capture-sampler/probe.log
+          test ${PIPESTATUS[0]} -eq 0
+          cp -R .artifacts/pending-light-sampler/probe .artifacts/animation-capture-sampler/probe-evidence
+      - name: Six fixed ordinary Morning gates
+        shell: bash
+        run: |
+          for n in 1 2 3 4 5 6; do
+            MORNING_ENTRY_RESULTS_DIR=".artifacts/animation-capture-sampler/morning-$n" node scripts/morning-entry-smoke.mjs 2>&1 | tee ".artifacts/animation-capture-sampler/morning-$n.log"
+            test ${PIPESTATUS[0]} -eq 0
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          rows=[]
+          for n in range(1,7):
+            d=json.loads(Path(f'.artifacts/animation-capture-sampler/morning-{n}/morning-entry-60hz-evidence.json').read_text())
+            rows.append({'run':n,'startupMs':d['startupMs'],'medianFrameIntervalMs':d['medianFrameIntervalMs'],'uniqueTransforms':d['uniqueTransforms'],'pendingUnsampled':sum(1 for f in d['startup'] if f.get('sampledStyle') is False)})
+          Path('.artifacts/animation-capture-sampler/morning-six-summary.json').write_text(json.dumps(rows,indent=2)+'\n')
+          PY
+      - name: Existing extended Motion and browser Android bridge
+        shell: bash
+        run: |
+          MOTION_RELEASE_RESULTS_DIR=.artifacts/animation-capture-sampler/motion node scripts/motion-release-certification.mjs 2>&1 | tee .artifacts/animation-capture-sampler/motion.log
+          test ${PIPESTATUS[0]} -eq 0
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/animation-capture-sampler/android-browser node scripts/android-handoff-smoke.mjs 2>&1 | tee .artifacts/animation-capture-sampler/android-browser.log
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Publish follow-up only if every real gate passed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat .artifacts/animation-capture-sampler/candidate-commit.txt)"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/fix/takeaway-sampler-pending-light-20260908 | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then exit 1; else test "$?" = 2; fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: animation-capture-motion-sampler-verification-${{ github.sha }}
+          path: .artifacts/animation-capture-sampler/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
