@@ -1,0 +1,59 @@
+name: Measure observer bias on pinned entry
+on:
+  push:
+    branches: [qa/observer-bias-0611ca0-20260908]
+    paths: [.github/workflows/observer-bias-0611ca0.yml, scripts/observer-study.mjs]
+permissions:
+  contents: read
+concurrency:
+  group: observer-bias-0611ca0-20260908
+  cancel-in-progress: false
+jobs:
+  study:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0611ca0caa5d39f769fd0916bca65f037886aa56
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: .diagnostic-tools
+          sparse-checkout: scripts/observer-study.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Validate diagnostic isolation and retain exact source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 0611ca0caa5d39f769fd0916bca65f037886aa56
+          mkdir -p .artifacts/observer-study
+          cp .diagnostic-tools/scripts/observer-study.mjs .artifacts/observer-study/runner.mjs
+          node --check .artifacts/observer-study/runner.mjs
+          node .artifacts/observer-study/runner.mjs --self-test | tee .artifacts/observer-study/self-tests.log
+          sha256sum .artifacts/observer-study/runner.mjs > .artifacts/observer-study/runner.sha256
+          git ls-tree -r HEAD > .artifacts/observer-study/product-tree.txt
+          printf '%s\n' '${{ github.sha }}' > .artifacts/observer-study/invocation-head.txt
+      - name: Unchanged product checks
+        shell: bash
+        run: |
+          npm run check 2>&1 | tee .artifacts/observer-study/product-check.log
+          npm run verify:security 2>&1 | tee .artifacts/observer-study/security.log
+          git diff --exit-code
+      - run: npx playwright install --with-deps chromium
+      - name: Fixed 24 cases with all negatives retained
+        run: node .artifacts/observer-study/runner.mjs
+      - name: Retain measurements, diagnostics and raw traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: observer-bias-0611ca0-${{ github.sha }}
+          path: .artifacts/observer-study/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
