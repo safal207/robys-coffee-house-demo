@@ -12,7 +12,7 @@ const sanSebastian = resolveRevealConfig(
 );
 assert.ok(sanSebastian, "San Sebastian must opt into product reveal");
 assert.equal(sanSebastian.id, "desserts:san-sebastian-cheesecake");
-assert.equal(sanSebastian.revealImage, "src/products/gallery-v5/san-sebastian.webp");
+assert.equal(sanSebastian.revealImage, "src/products/san-sebastian.webp");
 assert.ok(
   existsSync(resolve(root, sanSebastian.revealImage)),
   "Reveal image must be a real repository asset"
@@ -47,6 +47,11 @@ const revealSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8
 assert.ok(
   revealSource.indexOf('sourceImage.getAttribute("src")') < revealSource.indexOf("sourceImage.currentSrc"),
   "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc"
+);
+assert.doesNotMatch(
+  revealSource,
+  /gallery-v5\/san-sebastian\.webp/,
+  "Reveal must not use the gallery poster as a food-photo alternate view"
 );
 
 console.log("menu product reveal contract: PASS");
