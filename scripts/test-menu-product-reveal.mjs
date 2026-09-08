@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { resolveRevealConfig, revealCopy } from "../menu-product-reveal.js";
+import { resolveRevealConfig, revealCopy } from "../menu-product-reveal-runtime.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -49,7 +49,7 @@ assert.match(
 assert.match(
   menuHtml,
   /<script type="module" src="menu-product-reveal\.js\?v=20260909-reveal-v1"><\/script>/,
-  "Menu must mount reveal as an independent module"
+  "Menu must mount the lightweight reveal loader as an independent module"
 );
 
 const searchHelper = readFileSync(resolve(root, "menu-search-clear.js"), "utf8");
@@ -59,20 +59,36 @@ assert.doesNotMatch(
   "Search helper must stay independent from product reveal"
 );
 
-const revealSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
+const loaderSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
 assert.ok(
-  revealSource.indexOf('sourceImage.getAttribute("src")') < revealSource.indexOf("sourceImage.currentSrc"),
+  Buffer.byteLength(loaderSource, "utf8") < 1200,
+  "Always-loaded reveal loader must stay under 1.2 KB"
+);
+assert.match(
+  loaderSource,
+  /import\("\.\/menu-product-reveal-runtime\.js\?v=20260909-reveal-v2"\)/,
+  "Reveal runtime must be dynamically imported only on demand"
+);
+assert.match(
+  loaderSource,
+  /desserts--san-sebastian-cheesecake\.webp/,
+  "Loader must key lazy activation to San Sebastian only"
+);
+
+const runtimeSource = readFileSync(resolve(root, "menu-product-reveal-runtime.js"), "utf8");
+assert.ok(
+  runtimeSource.indexOf('sourceImage.getAttribute("src")') < runtimeSource.indexOf("sourceImage.currentSrc"),
   "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc"
 );
 assert.doesNotMatch(
-  revealSource,
+  runtimeSource,
   /gallery-v5\/san-sebastian\.webp/,
   "Reveal must not use the gallery poster as a food-photo alternate view"
 );
 assert.doesNotMatch(
-  revealSource,
+  runtimeSource,
   /createElement\(["']style["']\)|style\.textContent/,
-  "Reveal module must not inject inline style blocks rejected by menu CSP"
+  "Reveal runtime must not inject inline style blocks rejected by menu CSP"
 );
 
 console.log("menu product reveal contract: PASS");
