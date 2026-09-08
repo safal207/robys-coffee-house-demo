@@ -1,0 +1,89 @@
+{
+  "schema": "robys.android.early-styles-pair.v1",
+  "run_id": 34232699525,
+  "tooling_sha": "80dbc2c5ad5acc81f84cb477ad01a6f7eb26cf3e",
+  "control": {
+    "source_sha": "6592c51a1bd5812e3ae85ed6c83c53effafc7050",
+    "markers": [
+      "NATIVE_SURFACE",
+      "WEB_COMMITTED",
+      "WEB_READY_TIMEOUT",
+      "VISUAL_STATE_TIMEOUT"
+    ],
+    "native_to_commit_ms": 3216.906846,
+    "native_to_outcome_ms": 12454.561496,
+    "commit_to_outcome_ms": 9237.65465,
+    "ready_since_native_ms_interval": [
+      13527.02881,
+      13532.290713
+    ],
+    "ready_since_commit_ms_interval": [
+      10310.121964,
+      10315.383867
+    ],
+    "barriers_ms": {
+      "dom": 23.20000000001164,
+      "styles": 36.30000000001746,
+      "fonts": 3915.2999999999884,
+      "animations": 0.09999999997671694,
+      "two_frames": 233.70000000001164
+    },
+    "alignment_width_ms": 5.261903,
+    "completion": false,
+    "fallback": true,
+    "complete_window": null,
+    "longest_before_outcome_draw_ms": 5860.646583,
+    "longest_after_completion_draw_ms": null,
+    "gpu_samples": 701,
+    "gpu_callsites": 0
+  },
+  "candidate": {
+    "source_sha": "3ca3e5b20134a7e9678570105849333d23e96ac0",
+    "markers": [
+      "NATIVE_SURFACE",
+      "WEB_COMMITTED",
+      "WEB_READY_TIMEOUT",
+      "VISUAL_STATE_CONFIRMED",
+      "HANDOFF_COMPLETE_FALLBACK",
+      "HANDOFF_COMPLETE"
+    ],
+    "native_to_commit_ms": 2894.138475,
+    "native_to_outcome_ms": 9714.859955,
+    "commit_to_outcome_ms": 6820.72148,
+    "ready_since_native_ms_interval": null,
+    "ready_since_commit_ms_interval": null,
+    "barriers_ms": {
+      "dom": 16.79999999998836,
+      "styles": 0.20000000001164153,
+      "fonts": 2687.0,
+      "animations": 0.0,
+      "two_frames": 32.79999999998836
+    },
+    "alignment_width_ms": 6.11447,
+    "completion": true,
+    "fallback": true,
+    "complete_window": {
+      "upid": "373",
+      "label": "after_completion_10s",
+      "start_ns": "206258693982",
+      "end_ns": "216258693982",
+      "trace_start_ns": "193513717675",
+      "trace_end_ns": "253781135880",
+      "coverage_ok": "1"
+    },
+    "longest_before_outcome_draw_ms": 6546.668782,
+    "longest_after_completion_draw_ms": 1572.368857,
+    "gpu_samples": 677,
+    "gpu_callsites": 0
+  },
+  "verdict": "OBSERVED_PAIR_ONLY_NOT_RELEASE_CERTIFICATION",
+  "limits": [
+    "One pair of instrumented fresh emulators is not a stable causal speedup estimate.",
+    "Earlier WEB_COMMITTED is not shorter launch-to-readiness or launch-to-completion.",
+    "Markers and JS readiness do not certify uncovered or physical product pixels.",
+    "Thread intervals and nested GPU scopes overlap; never sum them as wall latency.",
+    "Unstacked timebase samples do not establish function or DOM ownership.",
+    "After-failure observations are not a successful post-completion window.",
+    "CSS served/load and fonts-ready barriers are not measured network/download durations."
+  ]
+}

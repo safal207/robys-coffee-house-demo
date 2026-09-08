@@ -1,0 +1,186 @@
+{
+  "run_id": 34232699525,
+  "scope": "Exact decoded frames with embedded Winscope v2 clock. Encoded video timing is not physical display presentation. Selected boundary frames reviewed; no interaction verdict.",
+  "arms": {
+    "candidate": {
+      "video_sha256": "d8e23e078aaf5336315f1c69278c68b61f9531acf5a7386fdcc389d8145968c1",
+      "frame_count": 159,
+      "max_pts_vs_timestamp_delta_seconds": 6.000000000838668e-06,
+      "first_frame": {
+        "frame_index_zero_based": 0,
+        "pts_90khz": 0,
+        "pts_seconds": "0.000000",
+        "elapsed_ns": 194103624799,
+        "utc_from_embedded_offset": "2026-09-08T13:39:54.388913+00:00"
+      },
+      "last_frame": {
+        "frame_index_zero_based": 158,
+        "pts_90khz": 3594449,
+        "pts_seconds": "39.938322",
+        "elapsed_ns": 234041948799,
+        "utc_from_embedded_offset": "2026-09-08T13:40:34.327237+00:00"
+      },
+      "native_origin_elapsed_ns": 196543834027,
+      "reference_marker": "HANDOFF_COMPLETE",
+      "reference_marker_elapsed_ns": 206258693982,
+      "reviewed_frames": [
+        {
+          "frame_index_zero_based": 53,
+          "pts_90khz": 1086464,
+          "pts_seconds": "12.071822",
+          "elapsed_ns": 206175445799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:06.460734+00:00",
+          "relative_to_terminal_marker_ms": -83.248183,
+          "relative_to_native_origin_ms": 9631.611772,
+          "png_sha256": "f4e47c1f1844ba479a3e6477271fcb44d87118af607153ee9332f79186a026d0"
+        },
+        {
+          "frame_index_zero_based": 54,
+          "pts_90khz": 1115917,
+          "pts_seconds": "12.399078",
+          "elapsed_ns": 206502707799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:06.787996+00:00",
+          "relative_to_terminal_marker_ms": 244.013817,
+          "relative_to_native_origin_ms": 9958.873772,
+          "png_sha256": "2709e3e057a51e09d73b17dfe868fe5a8d21a27dc47735c10d7265017f652b79"
+        },
+        {
+          "frame_index_zero_based": 56,
+          "pts_90khz": 1219028,
+          "pts_seconds": "13.544756",
+          "elapsed_ns": 207648378799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:07.933667+00:00",
+          "relative_to_terminal_marker_ms": 1389.684817,
+          "relative_to_native_origin_ms": 11104.544772,
+          "png_sha256": "14e6a77f2f58df8bbc9576fd970af26b483bb31c819cd028cf58eb31c5526331"
+        },
+        {
+          "frame_index_zero_based": 57,
+          "pts_90khz": 1219701,
+          "pts_seconds": "13.552233",
+          "elapsed_ns": 207655861799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:07.941150+00:00",
+          "relative_to_terminal_marker_ms": 1397.167817,
+          "relative_to_native_origin_ms": 11112.027772,
+          "png_sha256": "e395c24767c8ee29ede1f5393007034bd910809c2f9ca5fd2da12d9428df27d0"
+        },
+        {
+          "frame_index_zero_based": 58,
+          "pts_90khz": 1250277,
+          "pts_seconds": "13.891967",
+          "elapsed_ns": 207995588799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:08.280877+00:00",
+          "relative_to_terminal_marker_ms": 1736.894817,
+          "relative_to_native_origin_ms": 11451.754772,
+          "png_sha256": "a23a56d22f080f05f0bfd6e9313da86e87ac0bb534b5a0a1e26a507435d14690"
+        },
+        {
+          "frame_index_zero_based": 59,
+          "pts_90khz": 1253308,
+          "pts_seconds": "13.925644",
+          "elapsed_ns": 208029273799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:08.314562+00:00",
+          "relative_to_terminal_marker_ms": 1770.579817,
+          "relative_to_native_origin_ms": 11485.439772,
+          "png_sha256": "8b9bc06778b7362e1a4c47aad4e74d3afb3f741ddb095837a1255bad1757d136"
+        },
+        {
+          "frame_index_zero_based": 60,
+          "pts_90khz": 1351582,
+          "pts_seconds": "15.017578",
+          "elapsed_ns": 209121207799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:09.406496+00:00",
+          "relative_to_terminal_marker_ms": 2862.513817,
+          "relative_to_native_origin_ms": 12577.373772,
+          "png_sha256": "bf1db4636291fdf79e360c106e9b339da175300d0fcf179c531953b2b7d28772"
+        },
+        {
+          "frame_index_zero_based": 61,
+          "pts_90khz": 1366363,
+          "pts_seconds": "15.181811",
+          "elapsed_ns": 209285431799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:09.570720+00:00",
+          "relative_to_terminal_marker_ms": 3026.737817,
+          "relative_to_native_origin_ms": 12741.597772,
+          "png_sha256": "0967e482da8f0c3548dd978c0cd4a3499c5383305f393a55339868d61e6f9773"
+        },
+        {
+          "frame_index_zero_based": 62,
+          "pts_90khz": 1389957,
+          "pts_seconds": "15.443967",
+          "elapsed_ns": 209547586799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:09.832875+00:00",
+          "relative_to_terminal_marker_ms": 3288.892817,
+          "relative_to_native_origin_ms": 13003.752772,
+          "png_sha256": "3dcd6fa5d78d482d1a59f4585d1648e7c9a04467da0ab5633b2d841ea0b4c668"
+        },
+        {
+          "frame_index_zero_based": 63,
+          "pts_90khz": 1588186,
+          "pts_seconds": "17.646511",
+          "elapsed_ns": 211750130799,
+          "utc_from_embedded_offset": "2026-09-08T13:40:12.035419+00:00",
+          "relative_to_terminal_marker_ms": 5491.436817,
+          "relative_to_native_origin_ms": 15206.296772,
+          "png_sha256": "fca75e443e8c7adbe095d40bbc113f933dafa1e3e8205d0f3a8b9377f042ce05"
+        }
+      ],
+      "observation": "Inspected frames53,54,56\u201359 retain native splash. Frame60 is the first uncovered product in the inspected consecutive boundary56\u201360, 2862.513817ms after HANDOFF_COMPLETE. Product is also visible in61\u201363; the recorded frame62\u219263 interval is2202.544ms."
+    },
+    "control": {
+      "video_sha256": "3bb52afe7770948f4e4f8da8ca2cfd2f26ddbb840d946e24563c2e75e56bc6f8",
+      "frame_count": 152,
+      "max_pts_vs_timestamp_delta_seconds": 6.000000002615025e-06,
+      "first_frame": {
+        "frame_index_zero_based": 0,
+        "pts_90khz": 0,
+        "pts_seconds": "0.000000",
+        "elapsed_ns": 195602861909,
+        "utc_from_embedded_offset": "2026-09-08T13:40:04.905091+00:00"
+      },
+      "last_frame": {
+        "frame_index_zero_based": 151,
+        "pts_90khz": 3582748,
+        "pts_seconds": "39.808311",
+        "elapsed_ns": 235411176909,
+        "utc_from_embedded_offset": "2026-09-08T13:40:44.713406+00:00"
+      },
+      "native_origin_elapsed_ns": 197126377614,
+      "reference_marker": "VISUAL_STATE_TIMEOUT",
+      "reference_marker_elapsed_ns": 209580939110,
+      "reviewed_frames": [
+        {
+          "frame_index_zero_based": 47,
+          "pts_90khz": 1278848,
+          "pts_seconds": "14.209422",
+          "elapsed_ns": 209812279909,
+          "utc_from_embedded_offset": "2026-09-08T13:40:19.114509+00:00",
+          "relative_to_terminal_marker_ms": 231.340799,
+          "relative_to_native_origin_ms": 12685.902295,
+          "png_sha256": "7d0942cdfc820ad67f8e42eec3c3021dbd3f0c0f1aaa2aa2af7de60202df0028"
+        },
+        {
+          "frame_index_zero_based": 48,
+          "pts_90khz": 1372926,
+          "pts_seconds": "15.254733",
+          "elapsed_ns": 210857591909,
+          "utc_from_embedded_offset": "2026-09-08T13:40:20.159821+00:00",
+          "relative_to_terminal_marker_ms": 1276.652799,
+          "relative_to_native_origin_ms": 13731.214295,
+          "png_sha256": "bc7836e510e14e9bb15552835c6a31a4e48c3f396a72c02de33c37e2fc03a395"
+        },
+        {
+          "frame_index_zero_based": 49,
+          "pts_90khz": 1488644,
+          "pts_seconds": "16.540489",
+          "elapsed_ns": 212143351909,
+          "utc_from_embedded_offset": "2026-09-08T13:40:21.445581+00:00",
+          "relative_to_terminal_marker_ms": 2562.412799,
+          "relative_to_native_origin_ms": 15016.974295,
+          "png_sha256": "477b8393bee90bff84c790bc3a6326b962c3ae69fe858e87dc1f36026d0c3780"
+        }
+      ],
+      "observation": "Frame47 retains native splash. Frame48 shows terminal retry error; frame49 also shows error. No native completion."
+    }
+  }
+}

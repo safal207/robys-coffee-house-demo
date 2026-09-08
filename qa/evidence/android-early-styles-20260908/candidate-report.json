@@ -1,0 +1,6220 @@
+{
+  "schema": "robys.android.early-styles-comparison-arm.v1",
+  "run_id": 34232699525,
+  "arm": "candidate",
+  "source_sha": "3ca3e5b20134a7e9678570105849333d23e96ac0",
+  "tooling_sha": "80dbc2c5ad5acc81f84cb477ad01a6f7eb26cf3e",
+  "web_inventory_sha256": "80b4c74cee5b5a8384e096960b06ecadc1d61ad2c3090c40feaeaa974ebe08f4",
+  "artifact_zip_sha256": "e88b7683295da2195e7f253c5414d55c696a3a87c7a103f48e03fef5ff6eaeff",
+  "experiment_binding": {
+    "arm": "candidate",
+    "native_tree_sha": "f2f8179479394f164f82c8d5e5bdb0ad438bdb92",
+    "schema": "robys.android.early-styles-ab.v1",
+    "source_sha": "3ca3e5b20134a7e9678570105849333d23e96ac0",
+    "tooling_sha": "80dbc2c5ad5acc81f84cb477ad01a6f7eb26cf3e",
+    "web_files": 241,
+    "web_inventory_sha256": "80b4c74cee5b5a8384e096960b06ecadc1d61ad2c3090c40feaeaa974ebe08f4",
+    "workflow_sha256": "8267ce00420e0927f5bc30dd29e67d7792789df01fff73e3f522dd0042f245d1"
+  },
+  "marks": {
+    "upid": 373,
+    "pid": 4996,
+    "native_ts": 196543834027,
+    "commit_ts": 199437972502,
+    "ready_ts": null,
+    "fallback_ts": 206177768388,
+    "visual_ts": 206249131532,
+    "complete_ts": 206258693982,
+    "failure_ts": null,
+    "outcome_ts": 206258693982
+  },
+  "handoff": [
+    {
+      "ts": "196543834027",
+      "msg": "NATIVE_SURFACE",
+      "since_native_ms": "0.000000",
+      "since_commit_ms": "-2894.138475"
+    },
+    {
+      "ts": "199437972502",
+      "msg": "WEB_COMMITTED",
+      "since_native_ms": "2894.138475",
+      "since_commit_ms": "0.000000"
+    },
+    {
+      "ts": "206177768388",
+      "msg": "WEB_READY_TIMEOUT",
+      "since_native_ms": "9633.934361",
+      "since_commit_ms": "6739.795886"
+    },
+    {
+      "ts": "206249131532",
+      "msg": "VISUAL_STATE_CONFIRMED",
+      "since_native_ms": "9705.297505",
+      "since_commit_ms": "6811.159030"
+    },
+    {
+      "ts": "206258645250",
+      "msg": "HANDOFF_COMPLETE_FALLBACK",
+      "since_native_ms": "9714.811223",
+      "since_commit_ms": "6820.672748"
+    },
+    {
+      "ts": "206258693982",
+      "msg": "HANDOFF_COMPLETE",
+      "since_native_ms": "9714.859955",
+      "since_commit_ms": "6820.721480"
+    }
+  ],
+  "windows": [
+    {
+      "upid": "373",
+      "label": "before_outcome",
+      "start_ns": "196543834027",
+      "end_ns": "206258693982",
+      "trace_start_ns": "193513717675",
+      "trace_end_ns": "253781135880",
+      "coverage_ok": "1"
+    },
+    {
+      "upid": "373",
+      "label": "after_completion_10s",
+      "start_ns": "206258693982",
+      "end_ns": "216258693982",
+      "trace_start_ns": "193513717675",
+      "trace_end_ns": "253781135880",
+      "coverage_ok": "1"
+    }
+  ],
+  "readiness": {
+    "available": true,
+    "events": [
+      {
+        "phase": "bootstrap",
+        "atMs": 1639,
+        "elapsed_ns_interval": [
+          198180681260,
+          198186795730
+        ],
+        "since_native_ms_interval": [
+          1636.847233,
+          1642.961703
+        ],
+        "since_commit_ms_interval": [
+          -1257.291242,
+          -1251.176772
+        ]
+      },
+      {
+        "phase": "module-evaluated",
+        "atMs": 3059,
+        "elapsed_ns_interval": [
+          199600681260,
+          199606795730
+        ],
+        "since_native_ms_interval": [
+          3056.847233,
+          3062.961703
+        ],
+        "since_commit_ms_interval": [
+          162.708758,
+          168.823228
+        ]
+      },
+      {
+        "phase": "state",
+        "atMs": 3060,
+        "detail": "loading",
+        "elapsed_ns_interval": [
+          199601681260,
+          199607795730
+        ],
+        "since_native_ms_interval": [
+          3057.847233,
+          3063.961703
+        ],
+        "since_commit_ms_interval": [
+          163.708758,
+          169.823228
+        ]
+      },
+      {
+        "phase": "dom-wait",
+        "atMs": 3060.2000000000116,
+        "elapsed_ns_interval": [
+          199601881260,
+          199607995730
+        ],
+        "since_native_ms_interval": [
+          3058.047233,
+          3064.161703
+        ],
+        "since_commit_ms_interval": [
+          163.908758,
+          170.023228
+        ]
+      },
+      {
+        "phase": "dom-event",
+        "atMs": 3077,
+        "elapsed_ns_interval": [
+          199618681260,
+          199624795730
+        ],
+        "since_native_ms_interval": [
+          3074.847233,
+          3080.961703
+        ],
+        "since_commit_ms_interval": [
+          180.708758,
+          186.823228
+        ]
+      },
+      {
+        "phase": "dom-resumed",
+        "atMs": 3077,
+        "elapsed_ns_interval": [
+          199618681260,
+          199624795730
+        ],
+        "since_native_ms_interval": [
+          3074.847233,
+          3080.961703
+        ],
+        "since_commit_ms_interval": [
+          180.708758,
+          186.823228
+        ]
+      },
+      {
+        "phase": "styles-wait",
+        "atMs": 3078.2000000000116,
+        "detail": 16,
+        "elapsed_ns_interval": [
+          199619881260,
+          199625995730
+        ],
+        "since_native_ms_interval": [
+          3076.047233,
+          3082.161703
+        ],
+        "since_commit_ms_interval": [
+          181.908758,
+          188.023228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "0:https://safal207.github.io/robys-coffee-house-demo/styles-v2.css?v=a4431b07fc04",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "1:https://safal207.github.io/robys-coffee-house-demo/mobile.css?v=polish-20260621-11",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "2:https://safal207.github.io/robys-coffee-house-demo/conversion.css?v=mobile-menu-20260622-1",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "3:https://safal207.github.io/robys-coffee-house-demo/final-qa.css?v=mobile-menu-20260622-1",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "4:https://safal207.github.io/robys-coffee-house-demo/gallery-clean.css?v=perf-20260621-5",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "5:https://safal207.github.io/robys-coffee-house-demo/map-live.css?v=map-static-20260626-3",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "6:https://safal207.github.io/robys-coffee-house-demo/menu-preview.css?v=mobile-menu-20260622-1",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "7:https://safal207.github.io/robys-coffee-house-demo/featured-strip.css?v=20260625-4",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "8:https://safal207.github.io/robys-coffee-house-demo/featured-gallery.css?v=20260626-5",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "9:https://safal207.github.io/robys-coffee-house-demo/social-offer.css?v=719fa166e650",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "10:https://safal207.github.io/robys-coffee-house-demo/community-reel.css?v=20260626-2",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "11:https://safal207.github.io/robys-coffee-house-demo/brand-photo-logo.css?v=20260726-approved-v4",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.3000000000175,
+        "detail": "12:https://safal207.github.io/robys-coffee-house-demo/order-shell.css?v=eeb3d8805fe9",
+        "elapsed_ns_interval": [
+          199619981260,
+          199626095730
+        ],
+        "since_native_ms_interval": [
+          3076.147233,
+          3082.261703
+        ],
+        "since_commit_ms_interval": [
+          182.008758,
+          188.123228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.4000000000233,
+        "detail": "13:https://safal207.github.io/robys-coffee-house-demo/android-app.css?v=01b7f55a3fdc",
+        "elapsed_ns_interval": [
+          199620081260,
+          199626195730
+        ],
+        "since_native_ms_interval": [
+          3076.247233,
+          3082.361703
+        ],
+        "since_commit_ms_interval": [
+          182.108758,
+          188.223228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.4000000000233,
+        "detail": "14:https://safal207.github.io/robys-coffee-house-demo/hero-balance.css?v=20260622-1",
+        "elapsed_ns_interval": [
+          199620081260,
+          199626195730
+        ],
+        "since_native_ms_interval": [
+          3076.247233,
+          3082.361703
+        ],
+        "since_commit_ms_interval": [
+          182.108758,
+          188.223228
+        ]
+      },
+      {
+        "phase": "style",
+        "atMs": 3078.4000000000233,
+        "detail": "15:https://safal207.github.io/robys-coffee-house-demo/mobile-install.css?v=platform-install-20260727-1",
+        "elapsed_ns_interval": [
+          199620081260,
+          199626195730
+        ],
+        "since_native_ms_interval": [
+          3076.247233,
+          3082.361703
+        ],
+        "since_commit_ms_interval": [
+          182.108758,
+          188.223228
+        ]
+      },
+      {
+        "phase": "styles-ready",
+        "atMs": 3078.4000000000233,
+        "elapsed_ns_interval": [
+          199620081260,
+          199626195730
+        ],
+        "since_native_ms_interval": [
+          3076.247233,
+          3082.361703
+        ],
+        "since_commit_ms_interval": [
+          182.108758,
+          188.223228
+        ]
+      },
+      {
+        "phase": "brand-style-start",
+        "atMs": 3078.4000000000233,
+        "elapsed_ns_interval": [
+          199620081260,
+          199626195730
+        ],
+        "since_native_ms_interval": [
+          3076.247233,
+          3082.361703
+        ],
+        "since_commit_ms_interval": [
+          182.108758,
+          188.223228
+        ]
+      },
+      {
+        "phase": "brand-style-end",
+        "atMs": 3084.9000000000233,
+        "elapsed_ns_interval": [
+          199626581260,
+          199632695730
+        ],
+        "since_native_ms_interval": [
+          3082.747233,
+          3088.861703
+        ],
+        "since_commit_ms_interval": [
+          188.608758,
+          194.723228
+        ]
+      },
+      {
+        "phase": "decode-start",
+        "atMs": 3086.4000000000233,
+        "detail": 0,
+        "elapsed_ns_interval": [
+          199628081260,
+          199634195730
+        ],
+        "since_native_ms_interval": [
+          3084.247233,
+          3090.361703
+        ],
+        "since_commit_ms_interval": [
+          190.108758,
+          196.223228
+        ]
+      },
+      {
+        "phase": "decode-start",
+        "atMs": 3086.4000000000233,
+        "detail": 1,
+        "elapsed_ns_interval": [
+          199628081260,
+          199634195730
+        ],
+        "since_native_ms_interval": [
+          3084.247233,
+          3090.361703
+        ],
+        "since_commit_ms_interval": [
+          190.108758,
+          196.223228
+        ]
+      },
+      {
+        "phase": "decode-end",
+        "atMs": 9628.400000000023,
+        "detail": 1,
+        "elapsed_ns_interval": [
+          206170081260,
+          206176195730
+        ],
+        "since_native_ms_interval": [
+          9626.247233,
+          9632.361703
+        ],
+        "since_commit_ms_interval": [
+          6732.108758,
+          6738.223228
+        ]
+      },
+      {
+        "phase": "release",
+        "atMs": 9715.600000000006,
+        "elapsed_ns_interval": [
+          206257281260,
+          206263395730
+        ],
+        "since_native_ms_interval": [
+          9713.447233,
+          9719.561703
+        ],
+        "since_commit_ms_interval": [
+          6819.308758,
+          6825.423228
+        ]
+      },
+      {
+        "phase": "state",
+        "atMs": 9715.700000000012,
+        "detail": "releasing",
+        "elapsed_ns_interval": [
+          206257381260,
+          206263495730
+        ],
+        "since_native_ms_interval": [
+          9713.547233,
+          9719.661703
+        ],
+        "since_commit_ms_interval": [
+          6819.408758,
+          6825.523228
+        ]
+      },
+      {
+        "phase": "state",
+        "atMs": 9715.700000000012,
+        "detail": "done",
+        "elapsed_ns_interval": [
+          206257381260,
+          206263495730
+        ],
+        "since_native_ms_interval": [
+          9713.547233,
+          9719.661703
+        ],
+        "since_commit_ms_interval": [
+          6819.408758,
+          6825.523228
+        ]
+      },
+      {
+        "phase": "decode-end",
+        "atMs": 11000.100000000006,
+        "detail": 0,
+        "elapsed_ns_interval": [
+          207541781260,
+          207547895730
+        ],
+        "since_native_ms_interval": [
+          10997.947233,
+          11004.061703
+        ],
+        "since_commit_ms_interval": [
+          8103.808758,
+          8109.923228
+        ]
+      },
+      {
+        "phase": "fonts-wait",
+        "atMs": 11000.100000000006,
+        "elapsed_ns_interval": [
+          207541781260,
+          207547895730
+        ],
+        "since_native_ms_interval": [
+          10997.947233,
+          11004.061703
+        ],
+        "since_commit_ms_interval": [
+          8103.808758,
+          8109.923228
+        ]
+      },
+      {
+        "phase": "fonts-ready",
+        "atMs": 13687.100000000006,
+        "elapsed_ns_interval": [
+          210228781260,
+          210234895730
+        ],
+        "since_native_ms_interval": [
+          13684.947233,
+          13691.061703
+        ],
+        "since_commit_ms_interval": [
+          10790.808758,
+          10796.923228
+        ]
+      },
+      {
+        "phase": "animations-scan-start",
+        "atMs": 13687.100000000006,
+        "elapsed_ns_interval": [
+          210228781260,
+          210234895730
+        ],
+        "since_native_ms_interval": [
+          13684.947233,
+          13691.061703
+        ],
+        "since_commit_ms_interval": [
+          10790.808758,
+          10796.923228
+        ]
+      },
+      {
+        "phase": "animations-scan-end",
+        "atMs": 13687.400000000023,
+        "detail": 4,
+        "elapsed_ns_interval": [
+          210229081260,
+          210235195730
+        ],
+        "since_native_ms_interval": [
+          13685.247233,
+          13691.361703
+        ],
+        "since_commit_ms_interval": [
+          10791.108758,
+          10797.223228
+        ]
+      },
+      {
+        "phase": "animations-wait",
+        "atMs": 13687.400000000023,
+        "detail": 4,
+        "elapsed_ns_interval": [
+          210229081260,
+          210235195730
+        ],
+        "since_native_ms_interval": [
+          13685.247233,
+          13691.361703
+        ],
+        "since_commit_ms_interval": [
+          10791.108758,
+          10797.223228
+        ]
+      },
+      {
+        "phase": "animations-ready",
+        "atMs": 13687.400000000023,
+        "elapsed_ns_interval": [
+          210229081260,
+          210235195730
+        ],
+        "since_native_ms_interval": [
+          13685.247233,
+          13691.361703
+        ],
+        "since_commit_ms_interval": [
+          10791.108758,
+          10797.223228
+        ]
+      },
+      {
+        "phase": "raf-wait",
+        "atMs": 13687.400000000023,
+        "elapsed_ns_interval": [
+          210229081260,
+          210235195730
+        ],
+        "since_native_ms_interval": [
+          13685.247233,
+          13691.361703
+        ],
+        "since_commit_ms_interval": [
+          10791.108758,
+          10797.223228
+        ]
+      },
+      {
+        "phase": "raf-1",
+        "atMs": 13701.800000000017,
+        "elapsed_ns_interval": [
+          210243481260,
+          210249595730
+        ],
+        "since_native_ms_interval": [
+          13699.647233,
+          13705.761703
+        ],
+        "since_commit_ms_interval": [
+          10805.508758,
+          10811.623228
+        ]
+      },
+      {
+        "phase": "raf-2",
+        "atMs": 13720.200000000012,
+        "elapsed_ns_interval": [
+          210261881260,
+          210267995730
+        ],
+        "since_native_ms_interval": [
+          13718.047233,
+          13724.161703
+        ],
+        "since_commit_ms_interval": [
+          10823.908758,
+          10830.023228
+        ]
+      },
+      {
+        "phase": "opacity-start",
+        "atMs": 13720.200000000012,
+        "elapsed_ns_interval": [
+          210261881260,
+          210267995730
+        ],
+        "since_native_ms_interval": [
+          13718.047233,
+          13724.161703
+        ],
+        "since_commit_ms_interval": [
+          10823.908758,
+          10830.023228
+        ]
+      },
+      {
+        "phase": "opacity-end",
+        "atMs": 13720.400000000023,
+        "elapsed_ns_interval": [
+          210262081260,
+          210268195730
+        ],
+        "since_native_ms_interval": [
+          13718.247233,
+          13724.361703
+        ],
+        "since_commit_ms_interval": [
+          10824.108758,
+          10830.223228
+        ]
+      },
+      {
+        "phase": "released-pending",
+        "atMs": 13720.400000000023,
+        "elapsed_ns_interval": [
+          210262081260,
+          210268195730
+        ],
+        "since_native_ms_interval": [
+          13718.247233,
+          13724.361703
+        ],
+        "since_commit_ms_interval": [
+          10824.108758,
+          10830.223228
+        ]
+      }
+    ],
+    "count": 45,
+    "dropped": 0,
+    "complete_buffer": true,
+    "href": "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff&handoff-gen=1",
+    "origin_elapsed_ns_interval": [
+      196541681260,
+      196547795730
+    ],
+    "alignment_width_ms": 6.11447,
+    "export_delay_elapsed_ms": 55349.098796,
+    "export_after_full_completion_window": true,
+    "barrier_ms": {
+      "dom": 16.79999999998836,
+      "styles": 0.20000000001164153,
+      "fonts": 2687.0,
+      "animations": 0.0,
+      "two_frames": 32.79999999998836
+    },
+    "alignment_limit": "Evaluation bracket extrapolated assuming stable same-rate monotonic clocks; no exact midpoint or physical presentation time."
+  },
+  "css_delivery": [
+    {
+      "ts": "198416301135",
+      "msg": "SERVED hero-balance.css sha256=a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba status=200",
+      "since_native_ms": "1872.467108",
+      "filename": "hero-balance.css",
+      "style_index": 14,
+      "served_to_load_ms_interval": null
+    },
+    {
+      "ts": "198438185879",
+      "msg": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200",
+      "since_native_ms": "1894.351852",
+      "filename": "android-app.css",
+      "style_index": 13,
+      "served_to_load_ms_interval": null
+    },
+    {
+      "ts": "198540618101",
+      "msg": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200",
+      "since_native_ms": "1996.784074",
+      "filename": "mobile-install.css",
+      "style_index": 15,
+      "served_to_load_ms_interval": null
+    },
+    {
+      "ts": "209716755943",
+      "msg": "SERVED android-app.css sha256=01b7f55a3fdcea8af7ab79f23caae0f501359d9aefd6d09f1960763566c2f8dc status=200",
+      "since_native_ms": "13172.921916",
+      "filename": "android-app.css",
+      "style_index": 13,
+      "served_to_load_ms_interval": null
+    },
+    {
+      "ts": "209745467150",
+      "msg": "SERVED mobile-install.css sha256=1a26c73e51d08b2dfa543a7b6e16a9d8fde44618e3321c4e557ac700ae4a2f73 status=200",
+      "since_native_ms": "13201.633123",
+      "filename": "mobile-install.css",
+      "style_index": 15,
+      "served_to_load_ms_interval": null
+    }
+  ],
+  "wait_availability": [
+    {
+      "label": "after_completion_10s",
+      "tid": "4996",
+      "thread_name": "ffeehouse.debug",
+      "overlapping_count": "25",
+      "unfinished_count": "0",
+      "longest_overlapping_full_ns": "1556486457"
+    },
+    {
+      "label": "after_completion_10s",
+      "tid": "5030",
+      "thread_name": "RenderThread",
+      "overlapping_count": "25",
+      "unfinished_count": "0",
+      "longest_overlapping_full_ns": "1572368857"
+    },
+    {
+      "label": "after_completion_10s",
+      "tid": "5090",
+      "thread_name": "Chrome_InProcGp",
+      "overlapping_count": "0",
+      "unfinished_count": null,
+      "longest_overlapping_full_ns": null
+    },
+    {
+      "label": "before_outcome",
+      "tid": "4996",
+      "thread_name": "ffeehouse.debug",
+      "overlapping_count": "12",
+      "unfinished_count": "0",
+      "longest_overlapping_full_ns": "6556752626"
+    },
+    {
+      "label": "before_outcome",
+      "tid": "5030",
+      "thread_name": "RenderThread",
+      "overlapping_count": "12",
+      "unfinished_count": "0",
+      "longest_overlapping_full_ns": "6546668782"
+    },
+    {
+      "label": "before_outcome",
+      "tid": "5090",
+      "thread_name": "Chrome_InProcGp",
+      "overlapping_count": "0",
+      "unfinished_count": null,
+      "longest_overlapping_full_ns": null
+    }
+  ],
+  "long_waits": [
+    {
+      "label": "before_outcome",
+      "id": "43777",
+      "parent_id": "43746",
+      "ts": "196896738830",
+      "dur": "59399218",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "196896738830",
+      "clipped_end_ns": "196956138048",
+      "fully_inside": "1"
+    },
+    {
+      "label": "before_outcome",
+      "id": "67032",
+      "parent_id": "67023",
+      "ts": "198665139079",
+      "dur": "66778526",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "198665139079",
+      "clipped_end_ns": "198731917605",
+      "fully_inside": "1"
+    },
+    {
+      "label": "before_outcome",
+      "id": "78218",
+      "parent_id": "78200",
+      "ts": "199450774172",
+      "dur": "6546668782",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "199450774172",
+      "clipped_end_ns": "205997442954",
+      "fully_inside": "1"
+    },
+    {
+      "label": "before_outcome",
+      "id": "79014",
+      "parent_id": "79010",
+      "ts": "199476788093",
+      "dur": "6556752626",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "199476788093",
+      "clipped_end_ns": "206033540719",
+      "fully_inside": "1"
+    },
+    {
+      "label": "before_outcome",
+      "id": "91424",
+      "parent_id": "91421",
+      "ts": "206033410035",
+      "dur": "80040170",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "206033410035",
+      "clipped_end_ns": "206113450205",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "92326",
+      "parent_id": "92323",
+      "ts": "206160363361",
+      "dur": "1318407079",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "206258693982",
+      "clipped_end_ns": "207478770440",
+      "fully_inside": "0"
+    },
+    {
+      "label": "before_outcome",
+      "id": "92326",
+      "parent_id": "92323",
+      "ts": "206160363361",
+      "dur": "1318407079",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "206160363361",
+      "clipped_end_ns": "206258693982",
+      "fully_inside": "0"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "93241",
+      "parent_id": "93236",
+      "ts": "206265052614",
+      "dur": "1248357351",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "206265052614",
+      "clipped_end_ns": "207513409965",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "96446",
+      "parent_id": "96443",
+      "ts": "207510048794",
+      "dur": "1572368857",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "207510048794",
+      "clipped_end_ns": "209082417651",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "96678",
+      "parent_id": "96674",
+      "ts": "207544206733",
+      "dur": "1556486457",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "207544206733",
+      "clipped_end_ns": "209100693190",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "99481",
+      "parent_id": "99478",
+      "ts": "209100563478",
+      "dur": "75603120",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "209100563478",
+      "clipped_end_ns": "209176166598",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "100130",
+      "parent_id": "100127",
+      "ts": "209186970883",
+      "dur": "323265539",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "209186970883",
+      "clipped_end_ns": "209510236422",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "102191",
+      "parent_id": "102188",
+      "ts": "210264593432",
+      "dur": "1246932124",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "210264593432",
+      "clipped_end_ns": "211511525556",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "102372",
+      "parent_id": "102355",
+      "ts": "210329444976",
+      "dur": "1191426899",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "210329444976",
+      "clipped_end_ns": "211520871875",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "103466",
+      "parent_id": "103463",
+      "ts": "211521583261",
+      "dur": "245333471",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "211521583261",
+      "clipped_end_ns": "211766916732",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "103689",
+      "parent_id": "103661",
+      "ts": "211590515426",
+      "dur": "182900377",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "211590515426",
+      "clipped_end_ns": "211773415803",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "104014",
+      "parent_id": "104011",
+      "ts": "211768712919",
+      "dur": "204306720",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "211768712919",
+      "clipped_end_ns": "211973019639",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "104259",
+      "parent_id": "104227",
+      "ts": "211863830063",
+      "dur": "130135881",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "211863830063",
+      "clipped_end_ns": "211993965944",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "104716",
+      "parent_id": "104709",
+      "ts": "211995362498",
+      "dur": "270569772",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "211995362498",
+      "clipped_end_ns": "212265932270",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "106459",
+      "parent_id": "106456",
+      "ts": "212422636936",
+      "dur": "176135977",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "212422636936",
+      "clipped_end_ns": "212598772913",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "106627",
+      "parent_id": "106559",
+      "ts": "212439664166",
+      "dur": "173591043",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "212439664166",
+      "clipped_end_ns": "212613255209",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "106833",
+      "parent_id": "106830",
+      "ts": "212612468140",
+      "dur": "219925765",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "212612468140",
+      "clipped_end_ns": "212832393905",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "107099",
+      "parent_id": "106952",
+      "ts": "212662057736",
+      "dur": "190573001",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "212662057736",
+      "clipped_end_ns": "212852630737",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "107397",
+      "parent_id": "107394",
+      "ts": "212852917112",
+      "dur": "215522906",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "212852917112",
+      "clipped_end_ns": "213068440018",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "107710",
+      "parent_id": "107704",
+      "ts": "212895574713",
+      "dur": "181474139",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "212895574713",
+      "clipped_end_ns": "213077048852",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "108166",
+      "parent_id": "108163",
+      "ts": "213077010475",
+      "dur": "195738748",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "213077010475",
+      "clipped_end_ns": "213272749223",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "108576",
+      "parent_id": "108572",
+      "ts": "213143058126",
+      "dur": "139261489",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "213143058126",
+      "clipped_end_ns": "213282319615",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "108752",
+      "parent_id": "108749",
+      "ts": "213282851515",
+      "dur": "220083148",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "213282851515",
+      "clipped_end_ns": "213502934663",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "108930",
+      "parent_id": "108926",
+      "ts": "213303849757",
+      "dur": "207078486",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "213303849757",
+      "clipped_end_ns": "213510928243",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "109345",
+      "parent_id": "109342",
+      "ts": "213510609079",
+      "dur": "232016054",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "213510609079",
+      "clipped_end_ns": "213742625133",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "109755",
+      "parent_id": "109697",
+      "ts": "213570163177",
+      "dur": "188613631",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "213570163177",
+      "clipped_end_ns": "213758776808",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "109976",
+      "parent_id": "109973",
+      "ts": "213754762267",
+      "dur": "231166097",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "213754762267",
+      "clipped_end_ns": "213985928364",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "110438",
+      "parent_id": "110434",
+      "ts": "213877330981",
+      "dur": "114786093",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "213877330981",
+      "clipped_end_ns": "213992117074",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "110640",
+      "parent_id": "110637",
+      "ts": "213991431095",
+      "dur": "224215019",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "213991431095",
+      "clipped_end_ns": "214215646114",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "111010",
+      "parent_id": "111000",
+      "ts": "214043032273",
+      "dur": "182279054",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "214043032273",
+      "clipped_end_ns": "214225311327",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "111233",
+      "parent_id": "111230",
+      "ts": "214225768386",
+      "dur": "211130939",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "214225768386",
+      "clipped_end_ns": "214436899325",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "111390",
+      "parent_id": "111386",
+      "ts": "214236653200",
+      "dur": "217192431",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "214236653200",
+      "clipped_end_ns": "214453845631",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "111876",
+      "parent_id": "111873",
+      "ts": "214457331858",
+      "dur": "226892409",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "214457331858",
+      "clipped_end_ns": "214684224267",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "112026",
+      "parent_id": "112018",
+      "ts": "214466993896",
+      "dur": "228606705",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "214466993896",
+      "clipped_end_ns": "214695600601",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "112821",
+      "parent_id": "112812",
+      "ts": "214709438686",
+      "dur": "193151250",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "214709438686",
+      "clipped_end_ns": "214902589936",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "113143",
+      "parent_id": "113139",
+      "ts": "214774966615",
+      "dur": "143957637",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "214774966615",
+      "clipped_end_ns": "214918924252",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "113389",
+      "parent_id": "113386",
+      "ts": "214920564188",
+      "dur": "186816562",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "214920564188",
+      "clipped_end_ns": "215107380750",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "114214",
+      "parent_id": "114211",
+      "ts": "215192262149",
+      "dur": "214524479",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "215192262149",
+      "clipped_end_ns": "215406786628",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "114417",
+      "parent_id": "114407",
+      "ts": "215217652704",
+      "dur": "198932805",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "215217652704",
+      "clipped_end_ns": "215416585509",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "114859",
+      "parent_id": "114846",
+      "ts": "215416498860",
+      "dur": "220118556",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "215416498860",
+      "clipped_end_ns": "215636617416",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "115064",
+      "parent_id": "115060",
+      "ts": "215499138320",
+      "dur": "144749163",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "215499138320",
+      "clipped_end_ns": "215643887483",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "115373",
+      "parent_id": "115370",
+      "ts": "215641933962",
+      "dur": "253634857",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "215641933962",
+      "clipped_end_ns": "215895568819",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "116135",
+      "parent_id": "116132",
+      "ts": "215908823412",
+      "dur": "215638143",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "215908823412",
+      "clipped_end_ns": "216124461555",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "116348",
+      "parent_id": "116333",
+      "ts": "215944767629",
+      "dur": "189904929",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "215944767629",
+      "clipped_end_ns": "216134672558",
+      "fully_inside": "1"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "116712",
+      "parent_id": "116709",
+      "ts": "216135036108",
+      "dur": "228238725",
+      "utid": "2750",
+      "tid": "5030",
+      "upid": "373",
+      "thread_name": "RenderThread",
+      "name": "WebViewFunctor::drawGl",
+      "clipped_start_ns": "216135036108",
+      "clipped_end_ns": "216258693982",
+      "fully_inside": "0"
+    },
+    {
+      "label": "after_completion_10s",
+      "id": "116764",
+      "parent_id": "116760",
+      "ts": "216144064495",
+      "dur": "227290467",
+      "utid": "2716",
+      "tid": "4996",
+      "upid": "373",
+      "thread_name": "ffeehouse.debug",
+      "name": "postAndWait",
+      "clipped_start_ns": "216144064495",
+      "clipped_end_ns": "216258693982",
+      "fully_inside": "0"
+    }
+  ],
+  "unfinished_waits": [],
+  "draws": [
+    {
+      "slice_id": 43777,
+      "start_ns": 196896738830,
+      "end_ns": 196956138048,
+      "full_ms": 59.399218,
+      "since_native_ms": 352.904803,
+      "since_completion_ms": -9361.955152,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        4170,
+        -7048
+      ],
+      "thread_states": [
+        {
+          "draw_id": "43777",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "3309214"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "38868"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "56051136"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "D",
+          "overlap_ns": "114865"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "31086930"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "10038537"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "16967687"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "1191199"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "4640321"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "353075"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "166306"
+        },
+        {
+          "draw_id": "43777",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "54239516"
+        }
+      ]
+    },
+    {
+      "slice_id": 78218,
+      "start_ns": 199450774172,
+      "end_ns": 205997442954,
+      "full_ms": 6546.668782,
+      "since_native_ms": 2906.940145,
+      "since_completion_ms": -6807.91981,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 27,
+          "clipped_union_ns": 5517459954
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 27,
+          "clipped_union_ns": 3103830954
+        },
+        {
+          "tid": 5090,
+          "name": "shader_compile",
+          "count": 34,
+          "clipped_union_ns": 2635584000
+        },
+        {
+          "tid": 5030,
+          "name": "shader_compile",
+          "count": 8,
+          "clipped_union_ns": 2043375000
+        },
+        {
+          "tid": 5030,
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "count": 2,
+          "clipped_union_ns": 4140389000
+        }
+      ],
+      "post_flush_tail_union_ns": 2413589000,
+      "post_flush_intervals": [
+        [
+          200380751000,
+          200464455000
+        ],
+        [
+          200476398000,
+          200476662000
+        ],
+        [
+          200478997000,
+          200479206000
+        ],
+        [
+          201143068000,
+          201200684000
+        ],
+        [
+          201204310000,
+          201249811000
+        ],
+        [
+          201250674000,
+          201250923000
+        ],
+        [
+          201256446000,
+          201297603000
+        ],
+        [
+          201315453000,
+          201352803000
+        ],
+        [
+          201354581000,
+          201361047000
+        ],
+        [
+          201363839000,
+          201366615000
+        ],
+        [
+          201661540000,
+          201733038000
+        ],
+        [
+          201734418000,
+          201738050000
+        ],
+        [
+          201746121000,
+          201800070000
+        ],
+        [
+          201800761000,
+          201800958000
+        ],
+        [
+          201909319000,
+          201977184000
+        ],
+        [
+          202901441000,
+          203012218000
+        ],
+        [
+          203016522000,
+          203214017000
+        ],
+        [
+          203217777000,
+          203418115000
+        ],
+        [
+          203420320000,
+          203643765000
+        ],
+        [
+          204092560000,
+          204317007000
+        ],
+        [
+          204323844000,
+          204563839000
+        ],
+        [
+          204566450000,
+          204796893000
+        ],
+        [
+          204930901000,
+          205179717000
+        ],
+        [
+          205186526000,
+          205201917000
+        ],
+        [
+          205202761000,
+          205203003000
+        ],
+        [
+          205204765000,
+          205454532000
+        ]
+      ],
+      "gpu_samples": 468,
+      "post_flush_gpu_samples": 166,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1828,
+        -8954
+      ],
+      "thread_states": [
+        {
+          "draw_id": "78218",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2699891"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "480754"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1298908"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "6542189229"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "D",
+          "overlap_ns": "116223"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "120911815"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "487114855"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "1770098075"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "4168427814"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "D",
+          "overlap_ns": "1847549"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "98661638"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "664750020"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "5775258632"
+        },
+        {
+          "draw_id": "78218",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "6150943"
+        }
+      ]
+    },
+    {
+      "slice_id": 91424,
+      "start_ns": 206033410035,
+      "end_ns": 206113450205,
+      "full_ms": 80.04017,
+      "since_native_ms": 9489.576008,
+      "since_completion_ms": -225.283947,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 1,
+          "clipped_union_ns": 80040170
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 1,
+          "clipped_union_ns": 80040170
+        }
+      ],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        52965,
+        -7205
+      ],
+      "thread_states": [
+        {
+          "draw_id": "91424",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "D",
+          "overlap_ns": "41180312"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "19583234"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "8912514"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "6147078"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "4217032"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "2570898"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "45805592"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "21767675"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "9896005"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "42965745"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "32809452"
+        },
+        {
+          "draw_id": "91424",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "4264973"
+        }
+      ]
+    },
+    {
+      "slice_id": 92326,
+      "start_ns": 206160363361,
+      "end_ns": 207478770440,
+      "full_ms": 1318.407079,
+      "since_native_ms": 9616.529334,
+      "since_completion_ms": -98.330621,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 7,
+          "clipped_union_ns": 1010126639
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 7,
+          "clipped_union_ns": 182743639
+        },
+        {
+          "tid": 5030,
+          "name": "shader_compile",
+          "count": 1,
+          "clipped_union_ns": 42906000
+        },
+        {
+          "tid": 5030,
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "count": 1,
+          "clipped_union_ns": 1076502000
+        }
+      ],
+      "post_flush_tail_union_ns": 827372000,
+      "post_flush_intervals": [
+        [
+          206185029000,
+          206218138000
+        ],
+        [
+          206241825000,
+          206484357000
+        ],
+        [
+          206669483000,
+          206676957000
+        ],
+        [
+          206681039000,
+          206931683000
+        ],
+        [
+          206975427000,
+          206985670000
+        ],
+        [
+          206998203000,
+          207254198000
+        ],
+        [
+          207297465000,
+          207324840000
+        ]
+      ],
+      "gpu_samples": 32,
+      "post_flush_gpu_samples": 25,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        639,
+        -30440
+      ],
+      "thread_states": [
+        {
+          "draw_id": "92326",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "24977184"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "18025084"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "10456508"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "1264948303"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "17883135"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "79443825"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "129871600"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "1091208519"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "D",
+          "overlap_ns": "306164"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "36094456"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "874638628"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "407230016"
+        },
+        {
+          "draw_id": "92326",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "137815"
+        }
+      ]
+    },
+    {
+      "slice_id": 96446,
+      "start_ns": 207510048794,
+      "end_ns": 209082417651,
+      "full_ms": 1572.368857,
+      "since_native_ms": 10966.214767,
+      "since_completion_ms": 1251.354812,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 24,
+          "clipped_union_ns": 1508492000
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 24,
+          "clipped_union_ns": 328974000
+        },
+        {
+          "tid": 5090,
+          "name": "shader_compile",
+          "count": 2,
+          "clipped_union_ns": 35143000
+        },
+        {
+          "tid": 5030,
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "count": 1,
+          "clipped_union_ns": 1400660000
+        }
+      ],
+      "post_flush_tail_union_ns": 1179492000,
+      "post_flush_intervals": [
+        [
+          207658495000,
+          207658759000
+        ],
+        [
+          207692332000,
+          207693267000
+        ],
+        [
+          207695585000,
+          207695961000
+        ],
+        [
+          207712326000,
+          208005450000
+        ],
+        [
+          208097606000,
+          208141349000
+        ],
+        [
+          208142047000,
+          208142254000
+        ],
+        [
+          208147190000,
+          208160652000
+        ],
+        [
+          208162439000,
+          208384694000
+        ],
+        [
+          208385837000,
+          208386132000
+        ],
+        [
+          208388541000,
+          208408771000
+        ],
+        [
+          208410296000,
+          208609246000
+        ],
+        [
+          208611137000,
+          208622685000
+        ],
+        [
+          208624494000,
+          208628241000
+        ],
+        [
+          208629072000,
+          208823237000
+        ],
+        [
+          208856747000,
+          208986007000
+        ],
+        [
+          208986983000,
+          208999772000
+        ],
+        [
+          209000988000,
+          209003716000
+        ],
+        [
+          209005347000,
+          209009757000
+        ],
+        [
+          209011059000,
+          209016255000
+        ],
+        [
+          209019651000,
+          209023974000
+        ],
+        [
+          209025525000,
+          209031204000
+        ],
+        [
+          209031930000,
+          209035006000
+        ],
+        [
+          209035569000,
+          209038313000
+        ],
+        [
+          209066472000,
+          209072458000
+        ]
+      ],
+      "gpu_samples": 82,
+      "post_flush_gpu_samples": 76,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        206,
+        -9651
+      ],
+      "thread_states": [
+        {
+          "draw_id": "96446",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "8602857"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "3984819"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "2952495"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "1556828686"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "23424326"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "81586854"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "62231175"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "1405126502"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "38668858"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "444644046"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "1079067469"
+        },
+        {
+          "draw_id": "96446",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "9988484"
+        }
+      ]
+    },
+    {
+      "slice_id": 99481,
+      "start_ns": 209100563478,
+      "end_ns": 209176166598,
+      "full_ms": 75.60312,
+      "since_native_ms": 12556.729451,
+      "since_completion_ms": 2841.869496,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        3522,
+        -6598
+      ],
+      "thread_states": [
+        {
+          "draw_id": "99481",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "8903981"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "22857138"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "2980346"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "40861655"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "2191375"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "37815230"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "27401300"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "8195215"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "6453453"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "3554349"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "4322929"
+        },
+        {
+          "draw_id": "99481",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "61272389"
+        }
+      ]
+    },
+    {
+      "slice_id": 100130,
+      "start_ns": 209186970883,
+      "end_ns": 209510236422,
+      "full_ms": 323.265539,
+      "since_native_ms": 12643.136856,
+      "since_completion_ms": 2928.276901,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 4,
+          "clipped_union_ns": 180050117
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 4,
+          "clipped_union_ns": 154853117
+        },
+        {
+          "tid": 5030,
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "count": 1,
+          "clipped_union_ns": 6343000
+        }
+      ],
+      "post_flush_tail_union_ns": 25194000,
+      "post_flush_intervals": [
+        [
+          209268960000,
+          209274865000
+        ],
+        [
+          209286853000,
+          209290524000
+        ],
+        [
+          209292523000,
+          209298976000
+        ],
+        [
+          209360228000,
+          209369393000
+        ]
+      ],
+      "gpu_samples": 4,
+      "post_flush_gpu_samples": 1,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1117,
+        -12422
+      ],
+      "thread_states": [
+        {
+          "draw_id": "100130",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "47190412"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "2302419"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "2269320"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "271503388"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "39114042"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "69693431"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "128609716"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "85848350"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "144402232"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "27616025"
+        },
+        {
+          "draw_id": "100130",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "151247282"
+        }
+      ]
+    },
+    {
+      "slice_id": 102191,
+      "start_ns": 210264593432,
+      "end_ns": 211511525556,
+      "full_ms": 1246.932124,
+      "since_native_ms": 13720.759405,
+      "since_completion_ms": 4005.89945,
+      "internal_scopes": [
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+          "count": 13,
+          "clipped_union_ns": 743521000
+        },
+        {
+          "tid": 5090,
+          "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+          "count": 13,
+          "clipped_union_ns": 9448000
+        },
+        {
+          "tid": 5030,
+          "name": "shader_compile",
+          "count": 3,
+          "clipped_union_ns": 213572000
+        },
+        {
+          "tid": 5030,
+          "name": "BlockingSequenceRunner::Sequence::RunAllTasks::WaitSyncToken",
+          "count": 1,
+          "clipped_union_ns": 740711000
+        }
+      ],
+      "post_flush_tail_union_ns": 734060000,
+      "post_flush_intervals": [
+        [
+          210269060000,
+          210273408000
+        ],
+        [
+          210273949000,
+          210274331000
+        ],
+        [
+          210276530000,
+          210475282000
+        ],
+        [
+          210479750000,
+          210481201000
+        ],
+        [
+          210485702000,
+          210486021000
+        ],
+        [
+          210491719000,
+          210681810000
+        ],
+        [
+          210682805000,
+          210683314000
+        ],
+        [
+          210683979000,
+          210684530000
+        ],
+        [
+          210685487000,
+          210849026000
+        ],
+        [
+          210850012000,
+          210850727000
+        ],
+        [
+          210851643000,
+          210854177000
+        ],
+        [
+          210856628000,
+          211012067000
+        ],
+        [
+          211014219000,
+          211029649000
+        ]
+      ],
+      "gpu_samples": 57,
+      "post_flush_gpu_samples": 52,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        -432,
+        -10556
+      ],
+      "thread_states": [
+        {
+          "draw_id": "102191",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "47648661"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "637197"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "4553712"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "1194092554"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "4394915"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "15447731"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "483609840"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "743479638"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "11440901"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "49217530"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "710539308"
+        },
+        {
+          "draw_id": "102191",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "475734385"
+        }
+      ]
+    },
+    {
+      "slice_id": 103466,
+      "start_ns": 211521583261,
+      "end_ns": 211766916732,
+      "full_ms": 245.333471,
+      "since_native_ms": 14977.749234,
+      "since_completion_ms": 5262.889279,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1739,
+        -8732
+      ],
+      "thread_states": [
+        {
+          "draw_id": "103466",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "388036"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "782997"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "4271499"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "239890939"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "968549"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "28274995"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "215295918"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "794009"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "175241"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "60890"
+        },
+        {
+          "draw_id": "103466",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "245097340"
+        }
+      ]
+    },
+    {
+      "slice_id": 104014,
+      "start_ns": 211768712919,
+      "end_ns": 211973019639,
+      "full_ms": 204.30672,
+      "since_native_ms": 15224.878892,
+      "since_completion_ms": 5510.018937,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        81,
+        -7639
+      ],
+      "thread_states": [
+        {
+          "draw_id": "104014",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "17210498"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "9748325"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "10866983"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "166480914"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "12137919"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "129599888"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "62218267"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "350646"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "28110514"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "2433884"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "319626"
+        },
+        {
+          "draw_id": "104014",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "173442696"
+        }
+      ]
+    },
+    {
+      "slice_id": 104716,
+      "start_ns": 211995362498,
+      "end_ns": 212265932270,
+      "full_ms": 270.569772,
+      "since_native_ms": 15451.528471,
+      "since_completion_ms": 5736.668516,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1502,
+        -5270
+      ],
+      "thread_states": [
+        {
+          "draw_id": "104716",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "36211793"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "7214063"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "3128917"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "224014999"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "9881729"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "186346776"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "43044782"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "31296485"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "145599247"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "818936"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "218614"
+        },
+        {
+          "draw_id": "104716",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "123932975"
+        }
+      ]
+    },
+    {
+      "slice_id": 106459,
+      "start_ns": 212422636936,
+      "end_ns": 212598772913,
+      "full_ms": 176.135977,
+      "since_native_ms": 15878.802909,
+      "since_completion_ms": 6163.942954,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        64,
+        -7913
+      ],
+      "thread_states": [
+        {
+          "draw_id": "106459",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "1392334"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "416819"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1461449"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "172865375"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "3468030"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "15008371"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "145011636"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "12647940"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "346275"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "641493"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "338282"
+        },
+        {
+          "draw_id": "106459",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "174809927"
+        }
+      ]
+    },
+    {
+      "slice_id": 106833,
+      "start_ns": 212612468140,
+      "end_ns": 212832393905,
+      "full_ms": 219.925765,
+      "since_native_ms": 16068.634113,
+      "since_completion_ms": 6353.774158,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        860,
+        -5905
+      ],
+      "thread_states": [
+        {
+          "draw_id": "106833",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "1136027"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "35917843"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "4427217"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "178444678"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "12600338"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "30418381"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "166986505"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "9920541"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "3759452"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "318243"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "589866"
+        },
+        {
+          "draw_id": "106833",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "215258204"
+        }
+      ]
+    },
+    {
+      "slice_id": 107397,
+      "start_ns": 212852917112,
+      "end_ns": 213068440018,
+      "full_ms": 215.522906,
+      "since_native_ms": 16309.083085,
+      "since_completion_ms": 6594.22313,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        888,
+        -7018
+      ],
+      "thread_states": [
+        {
+          "draw_id": "107397",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "3435892"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "2422498"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "3985348"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "205679168"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "5093689"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "60326436"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "140031089"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "10071692"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "16081431"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "106619"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "391420"
+        },
+        {
+          "draw_id": "107397",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "198943436"
+        }
+      ]
+    },
+    {
+      "slice_id": 108166,
+      "start_ns": 213077010475,
+      "end_ns": 213272749223,
+      "full_ms": 195.738748,
+      "since_native_ms": 16533.176448,
+      "since_completion_ms": 6818.316493,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        14525,
+        -10223
+      ],
+      "thread_states": [
+        {
+          "draw_id": "108166",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2628913"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "25004663"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "4128169"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "163977003"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "13926504"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "32559807"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "136521505"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "12730932"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "6951763"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "716434"
+        },
+        {
+          "draw_id": "108166",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "188070551"
+        }
+      ]
+    },
+    {
+      "slice_id": 108752,
+      "start_ns": 213282851515,
+      "end_ns": 213502934663,
+      "full_ms": 220.083148,
+      "since_native_ms": 16739.017488,
+      "since_completion_ms": 7024.157533,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1485,
+        -8663
+      ],
+      "thread_states": [
+        {
+          "draw_id": "108752",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "1377365"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "155301"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "3700464"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "214850018"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "1287042"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "45431340"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "152092438"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "21272328"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "15528638"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "519382"
+        },
+        {
+          "draw_id": "108752",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "204035128"
+        }
+      ]
+    },
+    {
+      "slice_id": 109345,
+      "start_ns": 213510609079,
+      "end_ns": 213742625133,
+      "full_ms": 232.016054,
+      "since_native_ms": 16966.775052,
+      "since_completion_ms": 7251.915097,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 3,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        -79,
+        -11133
+      ],
+      "thread_states": [
+        {
+          "draw_id": "109345",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "5226866"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "17760294"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "2469356"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "206559538"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "6927323"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "169263775"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "19916773"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "35908183"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "387340"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "121799594"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "20426602"
+        },
+        {
+          "draw_id": "109345",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "89402518"
+        }
+      ]
+    },
+    {
+      "slice_id": 109976,
+      "start_ns": 213754762267,
+      "end_ns": 213985928364,
+      "full_ms": 231.166097,
+      "since_native_ms": 17210.92824,
+      "since_completion_ms": 7496.068285,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        -267,
+        -6364
+      ],
+      "thread_states": [
+        {
+          "draw_id": "109976",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "20781722"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "1401663"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "3816293"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "205166419"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "72858"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "201363309"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "29701588"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "28342"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "5588909"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "309660"
+        },
+        {
+          "draw_id": "109976",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "225267528"
+        }
+      ]
+    },
+    {
+      "slice_id": 110640,
+      "start_ns": 213991431095,
+      "end_ns": 214215646114,
+      "full_ms": 224.215019,
+      "since_native_ms": 17447.597068,
+      "since_completion_ms": 7732.737113,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        -95,
+        -5114
+      ],
+      "thread_states": [
+        {
+          "draw_id": "110640",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "711998"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "6836051"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1634718"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "215032252"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "1906282"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "91022791"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "126112956"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "5172990"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "444119"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "394957"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "532591"
+        },
+        {
+          "draw_id": "110640",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "222843352"
+        }
+      ]
+    },
+    {
+      "slice_id": 111233,
+      "start_ns": 214225768386,
+      "end_ns": 214436899325,
+      "full_ms": 211.130939,
+      "since_native_ms": 17681.934359,
+      "since_completion_ms": 7967.074404,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        614,
+        -8325
+      ],
+      "thread_states": [
+        {
+          "draw_id": "111233",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "13278"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "4603897"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1352049"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "205161715"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "2066148"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "77837000"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "130511176"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "716615"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "1028216"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "74551"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "257893"
+        },
+        {
+          "draw_id": "111233",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "209770279"
+        }
+      ]
+    },
+    {
+      "slice_id": 111876,
+      "start_ns": 214457331858,
+      "end_ns": 214684224267,
+      "full_ms": 226.892409,
+      "since_native_ms": 17913.497831,
+      "since_completion_ms": 8198.637876,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1142,
+        -10267
+      ],
+      "thread_states": [
+        {
+          "draw_id": "111876",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2791575"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "5696609"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "979085"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "217425140"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "15386029"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "118758490"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "80641453"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "12106437"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "673850"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "334597"
+        },
+        {
+          "draw_id": "111876",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "225883962"
+        }
+      ]
+    },
+    {
+      "slice_id": 112821,
+      "start_ns": 214709438686,
+      "end_ns": 214902589936,
+      "full_ms": 193.15125,
+      "since_native_ms": 18165.604659,
+      "since_completion_ms": 8450.744704,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        3314,
+        -7936
+      ],
+      "thread_states": [
+        {
+          "draw_id": "112821",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2895189"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "11198640"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "4492763"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "174564658"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "1827814"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "49654158"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "132760209"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "8909069"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "5177478"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "221448"
+        },
+        {
+          "draw_id": "112821",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "187752324"
+        }
+      ]
+    },
+    {
+      "slice_id": 113389,
+      "start_ns": 214920564188,
+      "end_ns": 215107380750,
+      "full_ms": 186.816562,
+      "since_native_ms": 18376.730161,
+      "since_completion_ms": 8661.870206,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1812,
+        -6750
+      ],
+      "thread_states": [
+        {
+          "draw_id": "113389",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "74819160"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "5181988"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "3780240"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "103035174"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "19099103"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "15794157"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "144641489"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "7281813"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "288158"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "56394"
+        },
+        {
+          "draw_id": "113389",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "186472010"
+        }
+      ]
+    },
+    {
+      "slice_id": 114214,
+      "start_ns": 215192262149,
+      "end_ns": 215406786628,
+      "full_ms": 214.524479,
+      "since_native_ms": 18648.428122,
+      "since_completion_ms": 8933.568167,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 1,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        851,
+        -6628
+      ],
+      "thread_states": [
+        {
+          "draw_id": "114214",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2894828"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "49143"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1103540"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "210476968"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "6363950"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "86295810"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "110120438"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "11744281"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "2805604"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "107485537"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "28607783"
+        },
+        {
+          "draw_id": "114214",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "75625555"
+        }
+      ]
+    },
+    {
+      "slice_id": 114859,
+      "start_ns": 215416498860,
+      "end_ns": 215636617416,
+      "full_ms": 220.118556,
+      "since_native_ms": 18872.664833,
+      "since_completion_ms": 9157.804878,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1140,
+        -6416
+      ],
+      "thread_states": [
+        {
+          "draw_id": "114859",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "2744366"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "2116713"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1847123"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "213410354"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "381036"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "46230421"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "173282896"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "224203"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "38301256"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "9293371"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "692129"
+        },
+        {
+          "draw_id": "114859",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "171831800"
+        }
+      ]
+    },
+    {
+      "slice_id": 115373,
+      "start_ns": 215641933962,
+      "end_ns": 215895568819,
+      "full_ms": 253.634857,
+      "since_native_ms": 19098.099935,
+      "since_completion_ms": 9383.23998,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        1038,
+        -5819
+      ],
+      "thread_states": [
+        {
+          "draw_id": "115373",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "188767220"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "1860614"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "5751540"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "57255483"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "21640126"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "185714406"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "41855615"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "4424710"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "10186677"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "11206061"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "774269"
+        },
+        {
+          "draw_id": "115373",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "231467850"
+        }
+      ]
+    },
+    {
+      "slice_id": 116135,
+      "start_ns": 215908823412,
+      "end_ns": 216124461555,
+      "full_ms": 215.638143,
+      "since_native_ms": 19364.989385,
+      "since_completion_ms": 9650.12943,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        588,
+        -9555
+      ],
+      "thread_states": [
+        {
+          "draw_id": "116135",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "21061947"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "200777"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1649902"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "192725517"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "4680639"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "14930850"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "176162716"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "19863938"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "4526109"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "514345"
+        },
+        {
+          "draw_id": "116135",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "210597689"
+        }
+      ]
+    },
+    {
+      "slice_id": 116712,
+      "start_ns": 216135036108,
+      "end_ns": 216363274833,
+      "full_ms": 228.238725,
+      "since_native_ms": 19591.202081,
+      "since_completion_ms": 9876.342126,
+      "internal_scopes": [],
+      "post_flush_tail_union_ns": 0,
+      "post_flush_intervals": [],
+      "gpu_samples": 0,
+      "post_flush_gpu_samples": 0,
+      "gpu_samples_with_callsite": 0,
+      "internal_draw_boundary_delta_ns": [
+        -108,
+        -7833
+      ],
+      "thread_states": [
+        {
+          "draw_id": "116712",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R",
+          "overlap_ns": "961308"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "R+",
+          "overlap_ns": "3558724"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "Running",
+          "overlap_ns": "1440090"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2716",
+          "tid": "4996",
+          "name": "ffeehouse.debug",
+          "state": "S",
+          "overlap_ns": "222278603"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R",
+          "overlap_ns": "1847313"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "R+",
+          "overlap_ns": "189097885"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "Running",
+          "overlap_ns": "34039014"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2750",
+          "tid": "5030",
+          "name": "RenderThread",
+          "state": "S",
+          "overlap_ns": "3254513"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R",
+          "overlap_ns": "694011"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "R+",
+          "overlap_ns": "269249"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "Running",
+          "overlap_ns": "542796"
+        },
+        {
+          "draw_id": "116712",
+          "utid": "2810",
+          "tid": "5090",
+          "name": "Chrome_InProcGp",
+          "state": "S",
+          "overlap_ns": "226732669"
+        }
+      ]
+    }
+  ],
+  "window_thread_states": [
+    {
+      "label": "after_completion_10s",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "706069208"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "211372912"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "99888797"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "8982669083"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "240740314"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "2099985203"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "3250953230"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "4408321253"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "D",
+      "overlap_ns": "2757365"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "605157429"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "2027095289"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "2688378436"
+    },
+    {
+      "label": "after_completion_10s",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "4676611481"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "D",
+      "overlap_ns": "197513509"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "R",
+      "overlap_ns": "592471794"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "R+",
+      "overlap_ns": "326067523"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "Running",
+      "overlap_ns": "135321992"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2716",
+      "tid": "4996",
+      "name": "ffeehouse.debug",
+      "state": "S",
+      "overlap_ns": "8463485137"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "D",
+      "overlap_ns": "231088"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "R",
+      "overlap_ns": "281184863"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "R+",
+      "overlap_ns": "1018615252"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "Running",
+      "overlap_ns": "2193442492"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2750",
+      "tid": "5030",
+      "name": "RenderThread",
+      "state": "S",
+      "overlap_ns": "6221386260"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "D",
+      "overlap_ns": "4749743"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "R",
+      "overlap_ns": "388234530"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "R+",
+      "overlap_ns": "1354952081"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "Running",
+      "overlap_ns": "5909237900"
+    },
+    {
+      "label": "before_outcome",
+      "utid": "2810",
+      "tid": "5090",
+      "name": "Chrome_InProcGp",
+      "state": "S",
+      "overlap_ns": "2052116201"
+    }
+  ],
+  "profile": [
+    {
+      "samples": "9462",
+      "missing_callsite": "9462",
+      "unwind_errors": "0",
+      "app_samples": "3753",
+      "non_app_or_unresolved_samples": "5709"
+    }
+  ],
+  "gpu_sample_count": 677,
+  "gpu_callsite_count": 0,
+  "leaf_mappings": [
+    {
+      "tid": "4996",
+      "thread_name": "ffeehouse.debug",
+      "mapping": null,
+      "build_id": null,
+      "leaf_name": null,
+      "samples": "89"
+    },
+    {
+      "tid": "5030",
+      "thread_name": "RenderThread",
+      "mapping": null,
+      "build_id": null,
+      "leaf_name": null,
+      "samples": "2381"
+    },
+    {
+      "tid": "5090",
+      "thread_name": "Chrome_InProcGp",
+      "mapping": null,
+      "build_id": null,
+      "leaf_name": null,
+      "samples": "677"
+    }
+  ],
+  "stats": [
+    {
+      "name": "perf_cpu_lost_records",
+      "idx": "0",
+      "severity": "data_loss",
+      "value": "8",
+      "source": "trace"
+    },
+    {
+      "name": "perf_cpu_lost_records",
+      "idx": "1",
+      "severity": "data_loss",
+      "value": "5",
+      "source": "trace"
+    },
+    {
+      "name": "android_log_num_total",
+      "idx": null,
+      "severity": "info",
+      "value": "2559",
+      "source": "trace"
+    },
+    {
+      "name": "clock_sync_cache_miss",
+      "idx": null,
+      "severity": "info",
+      "value": "84",
+      "source": "analysis"
+    },
+    {
+      "name": "compact_sched_switch_skipped",
+      "idx": null,
+      "severity": "info",
+      "value": "2",
+      "source": "analysis"
+    },
+    {
+      "name": "compact_sched_waking_skipped",
+      "idx": null,
+      "severity": "info",
+      "value": "2",
+      "source": "analysis"
+    },
+    {
+      "name": "frame_timeline_event_parser_errors",
+      "idx": null,
+      "severity": "info",
+      "value": "3",
+      "source": "analysis"
+    },
+    {
+      "name": "ftrace_cpu_bytes_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "216",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_begin",
+      "idx": "1",
+      "severity": "info",
+      "value": "520",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "-216",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "-480",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_bytes_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "40",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "4",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_begin",
+      "idx": "1",
+      "severity": "info",
+      "value": "12",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "-4",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "-11",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_entries_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "193626792000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_begin",
+      "idx": "1",
+      "severity": "info",
+      "value": "193626809000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "253340625000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_now_ts_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "253340645000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_begin",
+      "idx": "0",
+      "severity": "info",
+      "value": "193626403000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_begin",
+      "idx": "1",
+      "severity": "info",
+      "value": "193625642000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "253275096000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_oldest_event_ts_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "253268569000",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_delta",
+      "idx": "0",
+      "severity": "info",
+      "value": "433711",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_delta",
+      "idx": "1",
+      "severity": "info",
+      "value": "430074",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_end",
+      "idx": "0",
+      "severity": "info",
+      "value": "433711",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_cpu_read_events_end",
+      "idx": "1",
+      "severity": "info",
+      "value": "430074",
+      "source": "trace"
+    },
+    {
+      "name": "guess_trace_type_duration_ns",
+      "idx": null,
+      "severity": "info",
+      "value": "1768364",
+      "source": "analysis"
+    },
+    {
+      "name": "parse_trace_duration_ns",
+      "idx": null,
+      "severity": "info",
+      "value": "84967725",
+      "source": "analysis"
+    },
+    {
+      "name": "process_tracker_parent_pid_changed",
+      "idx": null,
+      "severity": "info",
+      "value": "1",
+      "source": "analysis"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "0",
+      "severity": "info",
+      "value": "100663296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "1",
+      "severity": "info",
+      "value": "16777216",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_buffer_size",
+      "idx": "2",
+      "severity": "info",
+      "value": "33554432",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "0",
+      "severity": "info",
+      "value": "21725184",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "1",
+      "severity": "info",
+      "value": "966656",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_read",
+      "idx": "2",
+      "severity": "info",
+      "value": "311296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "0",
+      "severity": "info",
+      "value": "21725184",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "1",
+      "severity": "info",
+      "value": "970752",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_bytes_written",
+      "idx": "2",
+      "severity": "info",
+      "value": "311296",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "0",
+      "severity": "info",
+      "value": "663",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "1",
+      "severity": "info",
+      "value": "47",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_read",
+      "idx": "2",
+      "severity": "info",
+      "value": "76",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_rewritten",
+      "idx": "2",
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "0",
+      "severity": "info",
+      "value": "663",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "1",
+      "severity": "info",
+      "value": "48",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_chunks_written",
+      "idx": "2",
+      "severity": "info",
+      "value": "76",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "0",
+      "severity": "info",
+      "value": "1533",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "1",
+      "severity": "info",
+      "value": "69",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_patches_succeeded",
+      "idx": "2",
+      "severity": "info",
+      "value": "53",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "0",
+      "severity": "info",
+      "value": "524",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "1",
+      "severity": "info",
+      "value": "41",
+      "source": "trace"
+    },
+    {
+      "name": "traced_buf_readaheads_succeeded",
+      "idx": "2",
+      "severity": "info",
+      "value": "60",
+      "source": "trace"
+    },
+    {
+      "name": "traced_data_sources_registered",
+      "idx": null,
+      "severity": "info",
+      "value": "81",
+      "source": "trace"
+    },
+    {
+      "name": "traced_data_sources_seen",
+      "idx": null,
+      "severity": "info",
+      "value": "6",
+      "source": "trace"
+    },
+    {
+      "name": "traced_final_flush_succeeded",
+      "idx": null,
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_flushes_requested",
+      "idx": null,
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_flushes_succeeded",
+      "idx": null,
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "traced_producers_connected",
+      "idx": null,
+      "severity": "info",
+      "value": "24",
+      "source": "trace"
+    },
+    {
+      "name": "traced_producers_seen",
+      "idx": null,
+      "severity": "info",
+      "value": "25",
+      "source": "trace"
+    },
+    {
+      "name": "traced_total_buffers",
+      "idx": null,
+      "severity": "info",
+      "value": "3",
+      "source": "trace"
+    },
+    {
+      "name": "traced_tracing_sessions",
+      "idx": null,
+      "severity": "info",
+      "value": "1",
+      "source": "trace"
+    },
+    {
+      "name": "ftrace_setup_errors",
+      "idx": null,
+      "severity": "notice",
+      "value": "37",
+      "source": "trace"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "android_sdk_version",
+      "str_value": null,
+      "int_value": "36"
+    },
+    {
+      "name": "tracing_service_version",
+      "str_value": "Perfetto v49.0 (N/A)",
+      "int_value": null
+    }
+  ],
+  "clocks": [
+    {
+      "snapshot_id": "0",
+      "mono_ns": "193277276009",
+      "boot_ns": "193277275898",
+      "mono_minus_boot_ns": "111"
+    },
+    {
+      "snapshot_id": "1",
+      "mono_ns": "193277284141",
+      "boot_ns": "193277284041",
+      "mono_minus_boot_ns": "100"
+    },
+    {
+      "snapshot_id": "2",
+      "mono_ns": "193644772541",
+      "boot_ns": "193644772401",
+      "mono_minus_boot_ns": "140"
+    },
+    {
+      "snapshot_id": "3",
+      "mono_ns": "200003171232",
+      "boot_ns": "200003171082",
+      "mono_minus_boot_ns": "150"
+    },
+    {
+      "snapshot_id": "4",
+      "mono_ns": "210048437100",
+      "boot_ns": "210048436960",
+      "mono_minus_boot_ns": "140"
+    },
+    {
+      "snapshot_id": "5",
+      "mono_ns": "220040361436",
+      "boot_ns": "220040361305",
+      "mono_minus_boot_ns": "131"
+    },
+    {
+      "snapshot_id": "6",
+      "mono_ns": "230004093646",
+      "boot_ns": "230004093426",
+      "mono_minus_boot_ns": "220"
+    },
+    {
+      "snapshot_id": "7",
+      "mono_ns": "240001803133",
+      "boot_ns": "240001802993",
+      "mono_minus_boot_ns": "140"
+    },
+    {
+      "snapshot_id": "8",
+      "mono_ns": "250020084529",
+      "boot_ns": "250020084419",
+      "mono_minus_boot_ns": "110"
+    },
+    {
+      "snapshot_id": "9",
+      "mono_ns": "253496610289",
+      "boot_ns": "253496610159",
+      "mono_minus_boot_ns": "130"
+    },
+    {
+      "snapshot_id": "10",
+      "mono_ns": "253664483911",
+      "boot_ns": "253664483791",
+      "mono_minus_boot_ns": "120"
+    }
+  ],
+  "internal": {
+    "status": {
+      "schema_version": 1,
+      "state": "closed",
+      "reason": "timer",
+      "bytes_written": 13794112,
+      "io_error_count": 0,
+      "stop_accepted": true,
+      "stream_closed": true,
+      "start_elapsed_ns": 196505237851,
+      "start_returned_elapsed_ns": 196507431228,
+      "stop_requested_elapsed_ns": 231841356661,
+      "closed_elapsed_ns": 242102033499,
+      "start_uptime_ms": 196505,
+      "start_wall_time_ms": 1788874796790,
+      "status_elapsed_ns": 242102138165,
+      "status_uptime_ms": 242102,
+      "status_wall_time_ms": 1788874842387,
+      "stop_after_ms": 35000,
+      "mode": "RECORD_UNTIL_FULL",
+      "categories": [
+        "CATEGORIES_RENDERING",
+        "CATEGORIES_ANDROID_WEBVIEW",
+        "disabled-by-default-gpu.service",
+        "disabled-by-default-skia.shaders"
+      ],
+      "provider": {
+        "package_name": "com.google.android.webview",
+        "version_name": "133.0.6943.137",
+        "long_version_code": 694313738
+      }
+    },
+    "byte_count_matches": true,
+    "first_event_ns": 196758446000,
+    "last_event_ns": 232080064000,
+    "last_complete_end_ns": 232080115000,
+    "phase_counts": {
+      "M": 37,
+      "I": 2005,
+      "X": 69665,
+      "B": 7,
+      "s": 2300,
+      "f": 2300,
+      "b": 4699,
+      "e": 4686,
+      "n": 39
+    },
+    "after_completion_coverage": true
+  },
+  "limits": [
+    "One pair of instrumented fresh emulators is not a stable causal speedup estimate.",
+    "Earlier WEB_COMMITTED is not shorter launch-to-readiness or launch-to-completion.",
+    "Markers and JS readiness do not certify uncovered or physical product pixels.",
+    "Thread intervals and nested GPU scopes overlap; never sum them as wall latency.",
+    "Unstacked timebase samples do not establish function or DOM ownership.",
+    "After-failure observations are not a successful post-completion window.",
+    "CSS served/load and fonts-ready barriers are not measured network/download durations."
+  ],
+  "hashes": {
+    "query.sql": "cab0ceba80cd89fe8dc0e3756ae5c8f05bcd5850bf12ba954d2641864f090d31",
+    "analyze.py": "2ff155f651420279498597ededd1e4517c01464edeffc5d3e4c1e696016630d0",
+    "query.csv": "a0a6b1a901f145cb8d075839b9cd2faab705599abaf51d6a750f056925a65f6c",
+    "trace_processor": "58042408e6cc861fb1a731c26bb082dc222285561eaa4e12a48a8b2b90dca7b9",
+    "trace-evidence/launch.pftrace": "e3e96da5e0284e27a68f2a2e6f3042a2e57441b0e75317346b7a06f277cb244e",
+    "rendering-evidence/rendering-trace.json": "f9f8d8f1bf3aa47c785dfc35306c9c5da5b0f3df9d68f333e299602d4cbbe64c",
+    "readiness-evidence/readiness-observation.json": "4844d65e72847589695d0ea4aa2f9af4fb00892fef10fc297e0b890ed2f2d6ff"
+  }
+}

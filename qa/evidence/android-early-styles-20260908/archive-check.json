@@ -1,0 +1,14 @@
+{
+  "control": {
+    "zip_sha256": "64b74a0722c462eb1e6d38124783816fe1f19b0ba0239b2746c0ec2041dc128f",
+    "bytes": 9537482,
+    "entries": 79,
+    "directory": "/workspace/scratch/db10ec9a4286/early-styles-control-34232699525"
+  },
+  "candidate": {
+    "zip_sha256": "e88b7683295da2195e7f253c5414d55c696a3a87c7a103f48e03fef5ff6eaeff",
+    "bytes": 11195334,
+    "entries": 80,
+    "directory": "/workspace/scratch/db10ec9a4286/early-styles-candidate-34232699525"
+  }
+}
