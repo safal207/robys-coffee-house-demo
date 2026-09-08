@@ -1,24 +1,15 @@
-function recordReadinessPhase(phase, detail) {
-  try { window.__robysAndroidReadinessRecord?.(phase, detail); } catch { /* Diagnostic only. */ }
-}
-
-recordReadinessPhase("module-evaluated");
-
 function emitAndroidHandoffState(state) {
   document.documentElement.dataset.robysAndroidHandoff = state;
   window.dispatchEvent(new CustomEvent("robys:android-handoff", {
     detail: { state }
   }));
-  recordReadinessPhase("state", state);
 }
 
 async function waitForProductFrame() {
   if (!window.__robysAndroidHandoffDomReady) {
     throw new Error("Android product DOM readiness unavailable");
   }
-  recordReadinessPhase("dom-wait");
   await window.__robysAndroidHandoffDomReady;
-  recordReadinessPhase("dom-resumed");
 
   const hero = document.querySelector(".hero-video");
   const content = document.querySelector(".hero-content");
@@ -28,75 +19,38 @@ async function waitForProductFrame() {
   }
   const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
     .filter((link) => !link.disabled && (!link.media || window.matchMedia(link.media).matches));
-  recordReadinessPhase("styles-wait", styles.length);
-  await Promise.all(styles.map((link, index) => {
-    recordReadinessPhase("style", `${index}:${link.href}`);
+  await Promise.all(styles.map((link) => {
     if (link.sheet) return Promise.resolve();
-    recordReadinessPhase("style-pending", index);
     return new Promise((resolve, reject) => {
-      link.addEventListener("load", (event) => {
-        recordReadinessPhase("style-loaded", index);
-        resolve(event);
-      }, { once: true });
-      link.addEventListener("error", () => {
-        recordReadinessPhase("style-error", index);
-        reject(new Error("Android product stylesheet unavailable"));
-      }, { once: true });
+      link.addEventListener("load", resolve, { once: true });
+      link.addEventListener("error", () => reject(new Error("Android product stylesheet unavailable")), { once: true });
     });
   }));
-  recordReadinessPhase("styles-ready");
 
-  recordReadinessPhase("brand-style-start");
   const background = getComputedStyle(brand).backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
-  recordReadinessPhase("brand-style-end");
   if (!background) throw new Error("Android product brand unavailable");
-  await Promise.all([hero.poster, background].map(async (source, index) => {
+  await Promise.all([hero.poster, background].map(async (source) => {
     const image = new Image();
     image.src = source;
-    recordReadinessPhase("decode-start", index);
-    try {
-      await image.decode();
-    } catch (error) {
-      recordReadinessPhase("decode-error", index);
-      throw error;
-    }
-    recordReadinessPhase("decode-end", index);
+    await image.decode();
   }));
-  recordReadinessPhase("fonts-wait");
   await document.fonts.ready;
-  recordReadinessPhase("fonts-ready");
   // Preserve the existing entrance timings while keeping transparent titles
   // and actions beneath the native splash until their entrance is complete.
-  recordReadinessPhase("animations-scan-start");
   const entrances = content.getAnimations({ subtree: true })
     .filter((animation) => animation.animationName === "heroContentIn");
-  recordReadinessPhase("animations-scan-end", entrances.length);
-  recordReadinessPhase("animations-wait", entrances.length);
   await Promise.all(entrances.map((animation) => animation.finished.catch(() => undefined)));
-  recordReadinessPhase("animations-ready");
-  recordReadinessPhase("raf-wait");
-  await new Promise((resolve) => requestAnimationFrame(() => {
-    recordReadinessPhase("raf-1");
-    requestAnimationFrame((timestamp) => {
-      recordReadinessPhase("raf-2");
-      resolve(timestamp);
-    });
-  }));
-  recordReadinessPhase("opacity-start");
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   for (const child of content.children) {
     const style = getComputedStyle(child);
     if (style.display !== "none" && Number(style.opacity) < 1) {
       throw new Error("Android product entrance is not visible");
     }
   }
-  recordReadinessPhase("opacity-end");
 }
 
 async function runNativeProductHandoff() {
-  if (window.__robysAndroidHandoffAborted) {
-    recordReadinessPhase("aborted");
-    return;
-  }
+  if (window.__robysAndroidHandoffAborted) return;
   let released = false;
   // The native splash covers all preparation. Its visual-state callback must
   // certify the product itself, so release has no second surface to animate.
@@ -104,7 +58,6 @@ async function runNativeProductHandoff() {
   window.__robysAndroidHandoffRelease = () => {
     if (released) return;
     released = true;
-    recordReadinessPhase("release");
     emitAndroidHandoffState("releasing");
     emitAndroidHandoffState("done");
     delete window.__robysAndroidHandoffRelease;
@@ -114,18 +67,13 @@ async function runNativeProductHandoff() {
     await waitForProductFrame();
   } catch (error) {
     if (!released && !window.__robysAndroidHandoffAborted) throw error;
-    recordReadinessPhase(released ? "released-pending" : "aborted");
     return;
   }
-  if (released || window.__robysAndroidHandoffAborted) {
-    recordReadinessPhase(released ? "released-pending" : "aborted");
-    return;
-  }
+  if (released || window.__robysAndroidHandoffAborted) return;
   emitAndroidHandoffState("ready");
 }
 
 runNativeProductHandoff().catch(() => {
-  recordReadinessPhase("preparation-error");
   document.querySelector(".robys-android-handoff")?.remove();
   document.documentElement.style.backgroundColor = "";
   emitAndroidHandoffState("done");

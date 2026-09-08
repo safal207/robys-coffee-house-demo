@@ -63,7 +63,6 @@ function revealProductAfterEntryFailure() {
 
 function revealProductAfterAndroidHandoffFailure() {
   window.__robysAndroidHandoffAborted = true;
-  recordAndroidReadiness("aborted");
   document.documentElement.style.visibility = "";
   document.documentElement.style.backgroundColor = "";
   document.querySelector(".robys-android-handoff")?.remove();
@@ -80,61 +79,18 @@ function nativeOwnsHandoffSurface() {
     /^[1-9]\d*$/.test(generation) && Number(generation) <= 2_147_483_647;
 }
 
-// Diagnostic-only, bounded observation. It never schedules work or reads DOM
-// state; collection happens after the native capture window through snapshot().
-function installAndroidReadinessRecorder() {
-  try {
-    if (window.__robysAndroidReadinessDisabled === true) return;
-    const events = [];
-    let dropped = 0;
-    const timeOriginMs = Number.isFinite(performance.timeOrigin) ? performance.timeOrigin : null;
-    window.__robysAndroidReadinessRecord = (phase, detail) => {
-      try {
-        if (events.length >= 128) {
-          dropped = Math.min(Number.MAX_SAFE_INTEGER, dropped + 1);
-          return;
-        }
-        const atMs = performance.now();
-        if (!Number.isFinite(atMs) || typeof phase !== "string") return;
-        const event = { phase: phase.slice(0, 80), atMs };
-        if (typeof detail === "string") event.detail = detail.slice(0, 160);
-        if (typeof detail === "number" && Number.isFinite(detail)) event.detail = detail;
-        events.push(event);
-      } catch { /* Observation cannot change the product path. */ }
-    };
-    window.__robysAndroidReadinessSnapshot = () => ({
-      schema: "robys.android.readiness.v1",
-      timeOriginMs,
-      events: events.map((event) => ({ ...event })),
-      dropped
-    });
-  } catch { /* Missing or unavailable observation leaves readiness unchanged. */ }
-}
-
-function recordAndroidReadiness(phase, detail) {
-  try { window.__robysAndroidReadinessRecord?.(phase, detail); } catch { /* Diagnostic only. */ }
-}
-
 function loadAndroidHandoffIfRequested() {
   if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
 
-  const nativeSurface = nativeOwnsHandoffSurface();
-  if (nativeSurface) {
-    installAndroidReadinessRecorder();
-    recordAndroidReadiness("bootstrap");
-  }
   window.__robysAndroidHandoffAborted = false;
   // Bootstrap runs before deferred product scripts; retain the real DOM-ready
   // event even if the handoff module arrives after document parsing finishes.
   window.__robysAndroidHandoffDomReady = new Promise((resolve) => {
-    document.addEventListener("DOMContentLoaded", (event) => {
-      recordAndroidReadiness("dom-event");
-      resolve(event);
-    }, { once: true });
+    document.addEventListener("DOMContentLoaded", resolve, { once: true });
   });
   document.documentElement.style.backgroundColor = "#241c1b";
-  const handoff = nativeSurface
-    ? import("./android-native-product-frame.js?v=137523311e28")
+  const handoff = nativeOwnsHandoffSurface()
+    ? import("./android-native-product-frame.js?v=b3fc17389457")
     : import("./android-handoff.js?v=20260808-atomic-v1");
   handoff.catch(revealProductAfterAndroidHandoffFailure);
   return true;

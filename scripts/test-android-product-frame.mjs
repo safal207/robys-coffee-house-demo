@@ -7,11 +7,17 @@ import vm from "node:vm";
 const nativeRuntime = readFileSync(new URL("../android-native-product-frame.js", import.meta.url), "utf8");
 const legacyRuntime = readFileSync(new URL("../android-handoff.js", import.meta.url), "utf8");
 const bootstrap = readFileSync(new URL("../bootstrap-v2.js", import.meta.url), "utf8");
+const unobservedNativeRuntime = readFileSync(new URL("./qa/fixtures/android-readiness-unobserved/android-native-product-frame.js", import.meta.url), "utf8");
+const unobservedBootstrap = readFileSync(new URL("./qa/fixtures/android-readiness-unobserved/bootstrap-v2.js", import.meta.url), "utf8");
 const bootstrapStartup = bootstrap.indexOf("\ninstallAppleTouchIcon();");
 assert.ok(bootstrapStartup > 0, "Bootstrap function definitions must precede startup");
 // Exercise the real route and DOM-ready capture. Only module transport is
 // substituted, retaining the asynchronous boundary of dynamic import.
 const bootstrapFunctions = bootstrap.slice(0, bootstrapStartup)
+  .replace(/\bimport\(/g, "loadFixtureModule(");
+const unobservedBootstrapStartup = unobservedBootstrap.indexOf("\ninstallAppleTouchIcon();");
+assert.ok(unobservedBootstrapStartup > 0, "Control bootstrap function definitions must precede startup");
+const unobservedBootstrapFunctions = unobservedBootstrap.slice(0, unobservedBootstrapStartup)
   .replace(/\bimport\(/g, "loadFixtureModule(");
 const nativeModulePath = "./android-native-product-frame.js";
 const legacyModuleSpecifier = "./android-handoff.js?v=20260808-atomic-v1";
@@ -30,9 +36,14 @@ async function settle() {
 }
 
 function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = false,
-  aborted = false, capturedDom = true, background = `url("${brandUrl}")` } = {}) {
+  aborted = false, capturedDom = true, background = `url("${brandUrl}")`,
+  recorderMode = "enabled", unobserved = false } = {}) {
   let time = 0;
   let sequence = 0;
+  const calls = { timers: 0, clearedTimers: 0, scheduledFrames: 0, executedFrames: 0,
+    computedStyles: 0, animationScans: 0, layoutReads: 0 };
+  const readPhases = [];
+  const performance = { now: () => time, timeOrigin: 1788854400000 };
   const timers = new Map(), frames = new Map(), images = [], animations = [], events = [], heroAnimations = [], imports = [];
   const dom = deferred(), fonts = deferred();
   class Target {
@@ -54,6 +65,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     }
   }
   const schedule = (callback, duration) => {
+    calls.timers += 1;
     const id = ++sequence;
     timers.set(id, { callback, at: time + duration });
     return id;
@@ -66,8 +78,8 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     attributes = new Map();
     computedOpacity = "1";
     rendered = true;
-    getClientRects() { return this.rendered ? [this.getBoundingClientRect()] : []; }
-    getBoundingClientRect() { return { left: 0, top: 0, width: this.rendered ? 100 : 0, height: this.rendered ? 40 : 0 }; }
+    getClientRects() { calls.layoutReads += 1; return this.rendered ? [this.getBoundingClientRect()] : []; }
+    getBoundingClientRect() { calls.layoutReads += 1; return { left: 0, top: 0, width: this.rendered ? 100 : 0, height: this.rendered ? 40 : 0 }; }
     append(...children) {
       for (const child of children) { this.children.push(child); child.parent = this; }
     }
@@ -104,6 +116,8 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   actions.className = "hero-actions";
   heroContent.append(heading, actions);
   heroContent.getAnimations = options => {
+    calls.animationScans += 1;
+    readPhases.push({ read: "animations", phase: window.__robysAndroidReadinessSnapshot?.().events.at(-1)?.phase });
     assert.equal(options?.subtree, true, "Hero readiness must include descendant entrance animations");
     return heroAnimations;
   };
@@ -138,34 +152,46 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
     }
   });
   const window = Object.assign(new Target(), {
-    location: { search }, setTimeout: schedule, clearTimeout: id => timers.delete(id),
+    location: { search }, performance, setTimeout: schedule,
+    clearTimeout: id => { calls.clearedTimers += 1; timers.delete(id); },
+    __robysAndroidReadinessDisabled: recorderMode === "disabled",
     __robysAndroidHandoffAborted: aborted,
     matchMedia: query => ({ matches: query.includes("prefers-reduced-motion") ? reduced : query !== "not all" })
   });
   dom.promise.then(() => document.dispatchEvent({ type: "DOMContentLoaded" }));
   window.addEventListener("robys:android-handoff", event => events.push({ state: event.detail.state, at: time }));
   const context = vm.createContext({
-    window, document, URLSearchParams, Image: ControlledImage,
+    window, document, performance, URLSearchParams, Image: ControlledImage,
     loadFixtureModule(specifier) {
       imports.push(specifier);
       return Promise.resolve().then(() => {
         const path = specifier.split("?")[0];
         assert.ok(path === nativeModulePath || specifier === legacyModuleSpecifier,
           `Unexpected handoff import: ${specifier}`);
-        vm.runInContext(path === nativeModulePath ? nativeRuntime : legacyRuntime, context, { filename: path });
+        vm.runInContext(path === nativeModulePath ? (unobserved ? unobservedNativeRuntime : nativeRuntime) : legacyRuntime,
+          context, { filename: path });
         return {};
       });
     },
     getComputedStyle: element => {
+      calls.computedStyles += 1;
+      readPhases.push({ read: element === brand ? "brand" : "opacity", phase: window.__robysAndroidReadinessSnapshot?.().events.at(-1)?.phase });
       if (element === brand) return { backgroundImage: background };
       assert.ok(element === heroContent || heroContent.children.includes(element), "Unexpected styled product element");
       return { opacity: element.computedOpacity, display: element.rendered ? "block" : "none", visibility: "visible" };
     },
-    requestAnimationFrame(callback) { const id = ++sequence; frames.set(id, callback); return id; },
+    requestAnimationFrame(callback) { calls.scheduledFrames += 1; const id = ++sequence; frames.set(id, callback); return id; },
     CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } }
   });
-  vm.runInContext(bootstrapFunctions, context, { filename: "bootstrap-v2.js" });
+  vm.runInContext(unobserved ? unobservedBootstrapFunctions : bootstrapFunctions, context, { filename: "bootstrap-v2.js" });
   const requested = vm.runInContext("loadAndroidHandoffIfRequested()", context);
+  // Disturb only the observer, after bootstrap installation and before the
+  // asynchronous native module arrives. Product dependencies remain identical.
+  if (recorderMode === "deleted") delete window.__robysAndroidReadinessRecord;
+  if (recorderMode === "throwing") window.__robysAndroidReadinessRecord = () => { throw new Error("Fixture observer unavailable"); };
+  if (recorderMode === "full") {
+    for (let index = 0; index < 200; index += 1) window.__robysAndroidReadinessRecord("fixture-fill", index);
+  }
   // Model an abort or invalidated readiness capture while the module is in flight.
   if (aborted) window.__robysAndroidHandoffAborted = true;
   if (!capturedDom) delete window.__robysAndroidHandoffDomReady;
@@ -182,7 +208,7 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   const frame = async () => {
     const pending = [...frames.values()]; frames.clear();
     time += 16;
-    for (const callback of pending) callback(time);
+    for (const callback of pending) { calls.executedFrames += 1; callback(time); }
     await settle();
   };
   const loadStyle = link => { link.sheet = { cssRules: [] }; link.dispatchEvent({ type: "load" }); };
@@ -204,7 +230,8 @@ function harness({ search = "?entry=android-handoff&handoff-gen=1", reduced = fa
   };
   return { root, document, window, hero, brand, dom, fonts, styles, heroStyle, stylesheet,
     heroContent, heading, actions, heroAnimations, addHeroAnimation,
-    images, animations, events, frames, timers, imports, requested, tick, frame, loadStyle, readyDependencies,
+    images, animations, events, frames, timers, imports, requested, calls, readPhases, tick, frame, loadStyle, readyDependencies,
+    snapshot: () => window.__robysAndroidReadinessSnapshot?.(),
     overlay: () => root.querySelector(".robys-android-handoff"), states: () => events.map(event => event.state) };
 }
 
@@ -486,3 +513,189 @@ test("native module revision reaches bootstrap and rejects stale offline module 
   assert.equal(await lookup(new Request(new URL(legacyModuleSpecifier, origin))), legacyResponse,
     "The preserved legacy URL still resolves its unchanged offline bytes");
 });
+
+function recordedEvents(h) {
+  // Snapshot data crosses the VM boundary; normalize only for strict assertions.
+  return JSON.parse(JSON.stringify(h.snapshot())).events;
+}
+
+function assertPendingPhase(h, phase, detail) {
+  const last = recordedEvents(h).at(-1);
+  assert.equal(last.phase, phase);
+  if (detail !== undefined) assert.equal(last.detail, detail);
+  assert.deepEqual(h.states(), ["loading"], `${phase} must not imply product readiness`);
+  assert.ok(!recordedEvents(h).some(event => event.phase === "state" && event.detail === "ready"));
+}
+
+test("passive phases locate each unresolved dependency without advancing readiness", async () => {
+  const h = harness();
+  const entrance = h.addHeroAnimation();
+  await settle();
+  assertPendingPhase(h, "dom-wait");
+  await h.tick(23);
+  assertPendingPhase(h, "dom-wait");
+  h.dom.resolve(); await settle();
+  assertPendingPhase(h, "style-pending", 1);
+  assert.ok(recordedEvents(h).some(event => event.phase === "dom-event" && event.atMs === 23));
+  assert.deepEqual(recordedEvents(h).filter(event => event.phase === "style").map(event => event.detail),
+    ["0:styles-v2.css", "1:hero-balance.css"]);
+  h.loadStyle(h.heroStyle); await settle();
+  assertPendingPhase(h, "decode-start", 1);
+  h.images[0].decoded.resolve(); await settle();
+  assertPendingPhase(h, "decode-end", 0);
+  assert.equal(h.images[1].decodeCalls, 1);
+  h.images[1].decoded.resolve(); await settle();
+  assertPendingPhase(h, "fonts-wait");
+  h.fonts.resolve(); await settle();
+  assertPendingPhase(h, "animations-wait", 1);
+  assert.equal(h.frames.size, 0);
+  entrance.completion.resolve(); await settle();
+  assertPendingPhase(h, "raf-wait");
+  await h.frame(); assertPendingPhase(h, "raf-1");
+  await h.frame();
+  assert.deepEqual(h.states(), ["loading", "ready"]);
+  const events = recordedEvents(h);
+  assert.deepEqual(events.slice(-4).map(event => event.phase), ["raf-2", "opacity-start", "opacity-end", "state"]);
+  assert.equal(events.at(-1).detail, "ready");
+  assert.deepEqual(h.readPhases, [
+    { read: "brand", phase: "brand-style-start" },
+    { read: "animations", phase: "animations-scan-start" },
+    { read: "opacity", phase: "opacity-start" },
+    { read: "opacity", phase: "opacity-start" }
+  ], "Existing synchronous reads must be bracketed before their work occurs");
+  assert.deepEqual(h.calls, { timers: 0, clearedTimers: 0, scheduledFrames: 2, executedFrames: 2,
+    computedStyles: 3, animationScans: 1, layoutReads: 0 });
+  assert.equal(h.hero.playCalls + h.hero.loadCalls, 0);
+  assert.ok(events.every((event, index) => Number.isFinite(event.atMs) && (!index || event.atMs >= events[index - 1].atMs)));
+});
+
+test("retained DCL is recorded before a native module that arrives later", async () => {
+  const h = harness();
+  h.document.dispatchEvent({ type: "DOMContentLoaded" });
+  await settle();
+  const phases = recordedEvents(h).map(event => event.phase);
+  assert.ok(phases.indexOf("bootstrap") < phases.indexOf("dom-event"));
+  assert.ok(phases.indexOf("dom-event") < phases.indexOf("module-evaluated"));
+  assert.ok(phases.indexOf("module-evaluated") < phases.indexOf("dom-resumed"));
+  assertPendingPhase(h, "style-pending", 1);
+});
+
+test("recorder snapshots are bounded, serializable and detached from stored events", () => {
+  const h = harness();
+  const initial = h.snapshot();
+  assert.equal(initial.schema, "robys.android.readiness.v1");
+  assert.equal(initial.timeOriginMs, 1788854400000);
+  assert.equal(initial.dropped, 0);
+  h.window.__robysAndroidReadinessRecord("detail-object", { nested: "must not be retained" });
+  h.window.__robysAndroidReadinessRecord("detail-number", 12);
+  h.window.__robysAndroidReadinessRecord("detail-nonfinite", Infinity);
+  h.window.__robysAndroidReadinessRecord("x".repeat(100), "y".repeat(300));
+  const beforeFill = h.snapshot();
+  assert.equal(beforeFill.events.find(event => event.phase === "detail-object").detail, undefined);
+  assert.equal(beforeFill.events.find(event => event.phase === "detail-number").detail, 12);
+  assert.equal(beforeFill.events.find(event => event.phase === "detail-nonfinite").detail, undefined);
+  assert.equal(beforeFill.events.at(-1).phase.length, 80);
+  assert.equal(beforeFill.events.at(-1).detail.length, 160);
+  for (let index = 0; index < 200; index += 1) h.window.__robysAndroidReadinessRecord("fixture-cap", index);
+  const full = h.snapshot();
+  assert.equal(full.events.length, 128);
+  assert.equal(full.dropped, beforeFill.events.length + 200 - 128);
+  assert.ok(full.events.every(event => !Object.hasOwn(event, "detail") || ["string", "number"].includes(typeof event.detail)));
+  assert.doesNotThrow(() => JSON.stringify(full));
+  const frozenCopy = JSON.stringify(full);
+  full.schema = "tampered";
+  full.events[0].phase = "tampered";
+  full.events[0].detail = "tampered";
+  full.events.push({ phase: "tampered", atMs: -1 });
+  full.dropped = -1;
+  assert.equal(JSON.stringify(h.snapshot()), frozenCopy, "Neither array nor event mutations may alter the retained observation");
+});
+
+for (const search of ["?entry=day&handoff-gen=1", "?entry=android-handoff", "?entry=android-handoff&handoff-gen=0"]) {
+  test(`the readiness recorder is absent outside the native route: ${search}`, async () => {
+    const h = harness({ search }); await settle();
+    assert.equal(h.window.__robysAndroidReadinessRecord, undefined);
+    assert.equal(h.window.__robysAndroidReadinessSnapshot, undefined);
+  });
+}
+
+async function runRecorderLifecycle(recorderMode, transition, unobserved = false) {
+  const h = harness({ recorderMode, unobserved }); await settle();
+  if (recorderMode === "disabled") {
+    assert.equal(h.window.__robysAndroidReadinessRecord, undefined);
+    assert.equal(h.snapshot(), undefined);
+  }
+  h.dom.resolve(); await settle();
+  if (transition === "release-pending") {
+    const release = h.window.__robysAndroidHandoffRelease;
+    release(); release();
+  } else if (transition === "abort-pending") {
+    h.window.__robysAndroidHandoffAborted = true;
+  }
+  if (transition === "stylesheet-error") h.heroStyle.dispatchEvent({ type: "error" });
+  else h.loadStyle(h.heroStyle);
+  await settle();
+  for (const image of h.images) image.decoded.resolve();
+  h.fonts.resolve(); await settle();
+  await h.frame(); await h.frame();
+  if (transition === "release-ready") {
+    const release = h.window.__robysAndroidHandoffRelease;
+    release(); release();
+  }
+  await h.tick(6000);
+  assert.equal(h.hero.playCalls + h.hero.loadCalls, 0);
+  assert.equal(h.overlay(), null);
+  assert.equal(h.animations.length, 0);
+  assert.equal(h.calls.timers, 0, "Observation cannot introduce a timer");
+  assert.equal(h.calls.layoutReads, 0, "Observation cannot introduce layout measurements");
+  const expected = transition === "release-ready" ? ["loading", "ready", "releasing", "done"]
+    : transition === "release-pending" ? ["loading", "releasing", "done"]
+      : transition === "stylesheet-error" ? ["loading", "done"] : ["loading"];
+  assert.deepEqual(h.states(), expected);
+  if (recorderMode === "full") {
+    assert.equal(h.snapshot().events.length, 128);
+    assert.ok(h.snapshot().dropped > 0);
+  }
+  return { states: h.states(), calls: h.calls, images: h.images.map(image => ({ source: image.src, decodeCalls: image.decodeCalls })),
+    pendingFrames: h.frames.size, pendingTimers: h.timers.size,
+    releasePresent: typeof h.window.__robysAndroidHandoffRelease === "function" };
+}
+
+for (const transition of ["release-ready", "release-pending", "abort-pending", "stylesheet-error"]) {
+  test(`all recorder modes preserve the unobserved source's ${transition} mechanics`, async () => {
+    const baseline = await runRecorderLifecycle("disabled", transition, true);
+    for (const mode of ["enabled", "disabled", "deleted", "throwing", "full"]) {
+      assert.deepEqual(await runRecorderLifecycle(mode, transition), baseline,
+        `${mode} observation must retain states, resource operations and scheduled work`);
+    }
+  });
+}
+
+test("the unobserved controls retain the exact c9 candidate source bytes", () => {
+  assert.equal(createHash("sha256").update(unobservedBootstrap).digest("hex"),
+    "63411e8b1666f7f81a85d02998b23102bd0419383f14228eca0149001dd03831");
+  assert.equal(createHash("sha256").update(unobservedNativeRuntime).digest("hex"),
+    "b3fc17389457337e465cb93223907b2d6f2f4b98add0a2925176a80c9927f71f");
+});
+
+for (const failure of ["stylesheet", "decode", "opacity"]) {
+  test(`${failure} failure is recorded without falsely reporting readiness`, async () => {
+    const h = harness(); await settle();
+    h.dom.resolve(); await settle();
+    if (failure === "stylesheet") h.heroStyle.dispatchEvent({ type: "error" });
+    else h.loadStyle(h.heroStyle);
+    await settle();
+    for (const image of h.images) {
+      if (failure === "decode" && image.src === posterUrl) image.decoded.reject(new Error("Fixture decode failure"));
+      else image.decoded.resolve();
+    }
+    if (failure === "opacity") h.actions.computedOpacity = "0";
+    h.fonts.resolve(); await settle(); await h.frame(); await h.frame();
+    const events = recordedEvents(h);
+    assert.ok(events.some(event => event.phase === ({ stylesheet: "style-error", decode: "decode-error", opacity: "opacity-start" })[failure]));
+    assert.ok(events.some(event => event.phase === "preparation-error"));
+    assert.ok(!events.some(event => event.phase === "state" && event.detail === "ready"));
+    if (failure === "opacity") assert.ok(!events.some(event => event.phase === "opacity-end"));
+    assert.deepEqual(h.states(), ["loading", "done"]);
+  });
+}
