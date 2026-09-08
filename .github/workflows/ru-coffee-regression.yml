@@ -9,6 +9,7 @@ on:
       - 'menu-app.js'
       - 'menu-catalog.js'
       - 'menu-search-clear.js'
+      - 'menu-interactions.js'
       - 'scripts/menu-runtime-source.mjs'
       - 'scripts/build.mjs'
       - 'styles-v2.css'
