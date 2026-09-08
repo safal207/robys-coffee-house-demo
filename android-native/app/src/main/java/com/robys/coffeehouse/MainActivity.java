@@ -34,6 +34,7 @@ import androidx.activity.OnBackPressedCallback;
 
 public final class MainActivity extends ComponentActivity {
     private static final String APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";
+    private static final String TEST_APP_URL_EXTRA = "robys.test.APP_URL";
     private static final String TRUSTED_HOST = "safal207.github.io";
     private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
     private static final String HANDOFF_TAG = "RobysHandoff";
@@ -59,10 +60,12 @@ public final class MainActivity extends ComponentActivity {
     private Runnable loadCommitHardTimeout;
     private Runnable bridgeReadyTimeout;
     private Runnable visualStateTimeout;
+    private String appUrlBase = APP_URL_BASE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        configureDebugTestUrl();
 
         root = new FrameLayout(this);
         root.setBackgroundColor(LAUNCH_COLOR);
@@ -389,7 +392,8 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private String appUrlForGeneration(int generation) {
-        return APP_URL_BASE + "&handoff-gen=" + generation;
+        String separator = appUrlBase.contains("?") ? "&" : "?";
+        return appUrlBase + separator + "handoff-gen=" + generation;
     }
 
     private int generationFromUrl(String url) {
@@ -430,8 +434,29 @@ public final class MainActivity extends ComponentActivity {
         });
     }
 
+    private void configureDebugTestUrl() {
+        if (!isDebuggableBuild()) return;
+        String override = getIntent().getStringExtra(TEST_APP_URL_EXTRA);
+        if (override == null || override.isBlank()) return;
+        Uri uri = Uri.parse(override);
+        if (isPinnedDebugOrigin(uri)) appUrlBase = override;
+    }
+
+    private boolean isDebuggableBuild() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
+
+    private boolean isPinnedDebugOrigin(Uri uri) {
+        return uri != null
+                && "http".equalsIgnoreCase(uri.getScheme())
+                && "10.0.2.2".equals(uri.getHost())
+                && uri.getPort() == 4199;
+    }
+
     private boolean isTrusted(Uri uri) {
-        if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
+        if (uri == null) return false;
+        if (isDebuggableBuild() && isPinnedDebugOrigin(uri)) return true;
+        if (!"https".equalsIgnoreCase(uri.getScheme())) return false;
         if (!TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;
         String path = uri.getPath();
         return path != null && path.startsWith(TRUSTED_PATH_PREFIX);
