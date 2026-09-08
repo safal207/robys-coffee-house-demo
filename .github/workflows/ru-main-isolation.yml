@@ -1,0 +1,68 @@
+name: RU main isolation proof
+
+on:
+  push:
+    branches: ['qa/ru-main-isolation-20260908']
+    paths:
+      - 'ru/coffee-gazipasa.html'
+      - 'ru/coffee-gazipasa.css'
+      - 'scripts/test-ru-coffee-landing.mjs'
+      - 'scripts/test-ru-main-isolation.mjs'
+      - '.github/workflows/ru-main-isolation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  isolate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install unchanged main dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Generate candidate integrity manifest in the runner only
+        run: |
+          npm run integrity:generate
+          changed="$(git diff --name-only)"
+          test "$changed" = "integrity-manifest.json"
+          cp integrity-manifest.json /tmp/ru-main-isolation-integrity-manifest.json
+      - name: Run complete repository and security contracts on generated candidate
+        run: |
+          npm run check
+          npm run verify:security
+          changed="$(git diff --name-only)"
+          test "$changed" = "integrity-manifest.json"
+      - name: Install deterministic locked Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Run focused RU responsive/accessibility contract
+        env:
+          RU_QA_SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/test-ru-coffee-landing.mjs
+      - name: Run actual RU landing to menu to two-coffee cart journey
+        env:
+          RU_QA_SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/test-ru-main-isolation.mjs
+      - name: Preserve generated manifest and browser evidence
+        if: always()
+        run: |
+          mkdir -p visual-results/ru-main-isolation/generated
+          if [ -f /tmp/ru-main-isolation-integrity-manifest.json ]; then
+            cp /tmp/ru-main-isolation-integrity-manifest.json visual-results/ru-main-isolation/generated/integrity-manifest.json
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ru-main-isolation-${{ github.sha }}
+          path: |
+            visual-results/ru-coffee/
+            visual-results/ru-main-isolation/
+          if-no-files-found: error
+          retention-days: 14
