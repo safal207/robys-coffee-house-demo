@@ -8,6 +8,16 @@ const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "1
   stdio: "ignore"
 });
 
+async function revealTo(page, value) {
+  const control = page.locator(".menu-product-reveal-control");
+  await control.waitFor({ state: "visible", timeout: 5000 });
+  await control.evaluate((node, nextValue) => {
+    node.value = String(nextValue);
+    node.dispatchEvent(new Event("input", { bubbles: true }));
+  }, value);
+  return control;
+}
+
 let browser;
 try {
   for (let attempt = 0; attempt < 50; attempt += 1) {
@@ -46,8 +56,7 @@ try {
   await sanSebastian.click();
   await page.locator("#menu-product-dialog").waitFor({ state: "visible" });
 
-  const control = page.locator(".menu-product-reveal-control");
-  await control.waitFor({ state: "visible", timeout: 5000 });
+  const control = await revealTo(page, 35);
   assert.equal(
     requests.some((path) => path.endsWith("/menu-product-reveal-runtime.js")),
     true,
@@ -58,11 +67,6 @@ try {
     await page.locator(".menu-product-visual").getAttribute("data-menu-reveal-active"),
     "true"
   );
-
-  await control.evaluate((node) => {
-    node.value = "35";
-    node.dispatchEvent(new Event("input", { bubbles: true }));
-  });
   assert.equal(
     await page.locator(".menu-product-visual").evaluate((node) => (
       node.style.getPropertyValue("--menu-reveal-position").trim()
@@ -71,6 +75,12 @@ try {
     "Range interaction must move the reveal boundary"
   );
   assert.match(await control.getAttribute("aria-valuetext"), /65%/);
+
+  const bridge = page.locator(".menu-product-pairing-bridge");
+  await bridge.waitFor({ state: "visible" });
+  assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.match(await bridge.innerText(), /370\s*₺/);
+  assert.match(await page.locator(".menu-product-pairing-action").innerText(), /Посмотреть сочетание/i);
 
   await page.keyboard.press("Escape");
   await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
@@ -81,15 +91,45 @@ try {
   await lotus.click();
   await page.locator("#menu-product-dialog").waitFor({ state: "visible" });
   assert.equal(await control.isHidden(), true, "Reveal control must hide for Lotus cheesecake");
+  assert.equal(await bridge.isHidden(), true, "Pairing bridge must hide for Lotus cheesecake");
   assert.equal(
     await page.locator(".menu-product-visual").getAttribute("data-menu-reveal-active"),
     null,
     "Non-mapped products must not retain reveal state"
   );
 
+  await page.keyboard.press("Escape");
+  await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+
+  await sanSebastian.click();
+  await page.locator("#menu-product-dialog").waitFor({ state: "visible" });
+  await revealTo(page, 35);
+  await page.locator(".menu-product-pairing-action").click();
+
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector("#menu-product-dialog");
+    const title = document.querySelector("#menu-product-title")?.textContent ?? "";
+    return dialog?.hasAttribute("open") && title.includes("Айс-латте + чизкейк Сан-Себастьян");
+  });
+
+  assert.match(await page.locator("#menu-product-title").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
+  assert.equal(await control.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
+  assert.equal(await bridge.isHidden(), true, "Pairing product must not recursively show the pairing bridge");
+
+  await page.locator("#menu-add-to-cart").click();
+  assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Pairing must add as one existing catalog line");
+  await page.locator("#menu-cart-trigger").click();
+  await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
+  assert.equal(
+    Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
+    370,
+    "Pairing bridge must reuse the existing 370 ₺ cart item without double-adding San Sebastian"
+  );
+
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
   await context.close();
-  console.log("menu product reveal browser smoke: PASS");
+  console.log("menu product reveal + pairing browser smoke: PASS");
 } finally {
   await browser?.close();
   server.kill();

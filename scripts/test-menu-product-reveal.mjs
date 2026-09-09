@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { resolveRevealConfig, revealCopy } from "../menu-product-reveal-runtime.js";
+import { pairingOffer, resolveRevealConfig, revealCopy } from "../menu-product-reveal-runtime.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -21,6 +21,14 @@ assert.ok(
   existsSync(resolve(root, "menu-product-reveal.css")),
   "Reveal styling must be served as a same-origin external stylesheet"
 );
+
+const pairing = pairingOffer();
+assert.ok(pairing, "San Sebastian reveal must bridge to an existing catalog pairing");
+assert.equal(pairing.category.id, "pairing-offers");
+assert.equal(pairing.item.id, "iced-san-sebastian-pairing");
+assert.equal(pairing.productId, "pairing-offers:iced-san-sebastian-pairing");
+assert.equal(pairing.item.price, 370, "Pairing bridge price must come from the current menu catalog");
+assert.equal(pairing.item.image, "src/products/sets-v1/iced-san-sebastian.webp");
 
 assert.equal(
   resolveRevealConfig("src/products/menu-v1/desserts--lotus-cheesecake.webp"),
@@ -80,6 +88,11 @@ assert.ok(
   runtimeSource.indexOf('sourceImage.getAttribute("src")') < runtimeSource.indexOf("sourceImage.currentSrc"),
   "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc"
 );
+assert.match(
+  runtimeSource,
+  /menu-catalog\.js\?v=20260904-premium-order-v1/,
+  "Pairing bridge must reuse the exact catalog module already loaded by the menu"
+);
 assert.doesNotMatch(
   runtimeSource,
   /gallery-v5\/san-sebastian\.webp/,
@@ -91,4 +104,4 @@ assert.doesNotMatch(
   "Reveal runtime must not inject inline style blocks rejected by menu CSP"
 );
 
-console.log("menu product reveal contract: PASS");
+console.log("menu product reveal + pairing contract: PASS");
