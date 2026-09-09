@@ -1,0 +1,161 @@
+name: Sync Consolidated Discover Deck
+
+on:
+  push:
+    branches:
+      - feat/discover-deck-consolidated
+    paths:
+      - "discover-deck.js"
+      - "discover-deck.css"
+      - "menu-product-reveal.js"
+      - "scripts/test-discover-deck.mjs"
+      - "scripts/test-discover-deck-browser.mjs"
+      - "scripts/test-menu-product-reveal.mjs"
+      - ".github/workflows/sync-discover-deck-consolidated.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/discover-deck-consolidated
+          fetch-depth: 1
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Apply build and offline ownership
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from "node:fs";
+
+          function after(source, anchor, addition, label) {
+            if (source.includes(addition.trim())) return source;
+            const index = source.indexOf(anchor);
+            if (index < 0) throw new Error(`Missing ${label} anchor`);
+            return source.slice(0, index + anchor.length) + addition + source.slice(index + anchor.length);
+          }
+
+          function afterMatch(source, pattern, addition, probe, label) {
+            if (source.includes(probe)) return source;
+            const match = source.match(pattern);
+            if (!match || match.index == null) throw new Error(`Missing ${label} anchor`);
+            const end = match.index + match[0].length;
+            return source.slice(0, end) + addition + source.slice(end);
+          }
+
+          let build = readFileSync("scripts/build.mjs", "utf8");
+          build = after(
+            build,
+            'writeFileSync("bootstrap-v2.js", bootstrapSource);\n',
+            '\nconst menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");\nlet menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");\nmenuProductRevealSource = synchronizeModuleImport(menuProductRevealSource, "menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision);\nwriteFileSync("menu-product-reveal.js", menuProductRevealSource);\n',
+            "reveal runtime ownership"
+          );
+          build = after(
+            build,
+            'const menuAppRevision = revisionFor("menu-app.js");\n',
+            'const menuProductRevealRevision = revisionFor("menu-product-reveal.js");\nconst menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");\nconst discoverDeckRevision = revisionFor("discover-deck.js");\nconst discoverDeckCssRevision = revisionFor("discover-deck.css");\n',
+            "deck revision ownership"
+          );
+          build = after(
+            build,
+            'discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);\n',
+            'discoverHtml = synchronizeStylesheet(discoverHtml, "discover-deck.css", discoverDeckCssRevision);\ndiscoverHtml = synchronizeModuleScript(discoverHtml, "discover-deck.js", discoverDeckRevision);\n',
+            "Discover revision sync"
+          );
+          build = after(
+            build,
+            'menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);\n',
+            'menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);\nmenuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);\n',
+            "Menu reveal revision sync"
+          );
+          build = after(
+            build,
+            '  ["menu-app.js", menuAppRevision],\n',
+            '  ["menu-product-reveal.css", menuProductRevealCssRevision],\n  ["menu-product-reveal.js", menuProductRevealRevision],\n  ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],\n  ["discover-deck.css", discoverDeckCssRevision],\n  ["discover-deck.js", discoverDeckRevision],\n',
+            "service-worker revision tuple"
+          );
+          writeFileSync("scripts/build.mjs", build);
+
+          let discover = readFileSync("discover.html", "utf8");
+          discover = afterMatch(
+            discover,
+            /  <link rel="stylesheet" href="discover\.css\?v=[^"]+" \/>\n/,
+            '  <link rel="stylesheet" href="discover-deck.css" />\n',
+            'href="discover-deck.css',
+            "Discover deck stylesheet"
+          );
+          discover = afterMatch(
+            discover,
+            /  <script type="module" src="discover-v2\.js\?v=[^"]+"><\/script>\n/,
+            '  <script type="module" src="discover-deck.js"></script>\n',
+            'src="discover-deck.js',
+            "Discover deck module"
+          );
+          writeFileSync("discover.html", discover);
+
+          let sw = readFileSync("sw.js", "utf8");
+          sw = afterMatch(sw, /  "\.\/menu-premium\.css\?v=[^"]+",\n/, '  "./menu-product-reveal.css",\n', '"./menu-product-reveal.css', "reveal CSS precache");
+          sw = afterMatch(sw, /  "\.\/discover\.css(?:\?v=[^"]+)?",\n/, '  "./discover-deck.css",\n', '"./discover-deck.css', "deck CSS precache");
+          sw = afterMatch(sw, /  "\.\/menu-app\.js\?v=[^"]+",\n/, '  "./menu-product-reveal.js",\n  "./menu-product-reveal-runtime.js",\n', '"./menu-product-reveal.js', "reveal JS precache");
+          sw = afterMatch(sw, /  "\.\/discover-v2\.js\?v=[^"]+",\n/, '  "./discover-deck.js",\n', '"./discover-deck.js', "deck JS precache");
+          sw = afterMatch(sw, /  "\.\/src\/products\/sets-v1\/iced-san-sebastian\.webp",\n/, '  "./src/products/san-sebastian.webp",\n', '"./src/products/san-sebastian.webp"', "alternate San Sebastian image precache");
+          sw = afterMatch(
+            sw,
+            /    url\.pathname\.endsWith\("\/menu-app\.js"\) \|\|\n/,
+            '    url.pathname.endsWith("/menu-product-reveal.css") ||\n    url.pathname.endsWith("/menu-product-reveal.js") ||\n    url.pathname.endsWith("/menu-product-reveal-runtime.js") ||\n',
+            'url.pathname.endsWith("/menu-product-reveal.js")',
+            "reveal exact-revision policy"
+          );
+          sw = afterMatch(
+            sw,
+            /    url\.pathname\.endsWith\("\/discover-v2\.js"\) \|\|\n/,
+            '    url.pathname.endsWith("/discover-deck.css") ||\n    url.pathname.endsWith("/discover-deck.js") ||\n',
+            'url.pathname.endsWith("/discover-deck.js")',
+            "deck exact-revision policy"
+          );
+          writeFileSync("sw.js", sw);
+          NODE
+      - name: Canonical build
+        run: npm run build
+      - name: Verify consolidated static contracts
+        run: |
+          node scripts/test-discover-deck.mjs
+          node scripts/test-menu-product-reveal.mjs
+      - name: Generate and verify integrity
+        run: |
+          node scripts/generate-integrity-manifest.mjs
+          node scripts/verify-integrity-manifest.mjs
+      - name: Verify security boundary
+        run: npm run verify:security
+      - name: Enforce bounded canonical diff
+        shell: bash
+        run: |
+          changed="$(git diff --name-only | sort)"
+          printf '%s\n' "$changed"
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              scripts/build.mjs|discover.html|menu.html|sw.js|menu-product-reveal.js|integrity-manifest.json) ;;
+              *) echo "Unexpected canonical path: $path" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test -n "$changed"
+      - name: Commit canonical source and generated output
+        shell: bash
+        run: |
+          git add -- scripts/build.mjs discover.html menu.html sw.js menu-product-reveal.js integrity-manifest.json
+          git diff --cached --quiet && { echo "No canonical diff to commit"; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(discover): sync consolidated deck revisions"
+          git push origin HEAD:feat/discover-deck-consolidated
