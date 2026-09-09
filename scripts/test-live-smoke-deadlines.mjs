@@ -74,9 +74,13 @@ test("LIVE-001 source and workflow keep every external wait bounded and bind the
   assert.match(source, /withDeadline\([\s\S]*?page\.locator\("\.hero-video"\)\.evaluate/);
   assert.doesNotMatch(source, /await\s+video\.play\(\)/);
   assert.match(source, /!video\.paused\s*&&\s*video\.currentTime\s*>\s*0/);
+  assert.match(source, /browserChannel/);
+  assert.match(source, /channel:\s*browserChannel/);
   assert.match(source, /persistReport\(\);/);
+  assert.match(workflow, /google-chrome --version/);
   assert.match(workflow, /ROBYS_LIVE_ATTEMPTS:\s*4/);
   assert.match(workflow, /ROBYS_LIVE_DELAY_MS:\s*5000/);
   assert.match(workflow, /ROBYS_LIVE_FETCH_TIMEOUT_MS:\s*15000/);
   assert.match(workflow, /ROBYS_LIVE_VIDEO_TIMEOUT_MS:\s*8000/);
+  assert.match(workflow, /ROBYS_LIVE_BROWSER_CHANNEL:\s*chrome/);
 });
