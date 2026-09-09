@@ -1,0 +1,134 @@
+name: Verify main-based Android deadline port
+'on':
+  push:
+    branches: [qa/android-deadline-main-port-20260909]
+    paths: [.github/workflows/verify-android-deadline-main-port.yml]
+permissions:
+  contents: read
+concurrency:
+  group: verify-android-deadline-main-port-20260909
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      BASE_SHA: e3edcf13de323c3adb80c9c96465f1dd0425eee0
+      SOURCE_SHA: 2d304592d0d6896a3b621bfbdbb6c7e575fd83ea
+      CANDIDATE_BRANCH: fix/android-deadline-races-main-20260909
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: e3edcf13de323c3adb80c9c96465f1dd0425eee0
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-java@7a445ee88d4e23b52c33b0b4f5b3dfb2b6e0b31d
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Fetch verified historical repair tree
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          test "$(sha256sum android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java | cut -d' ' -f1)" = b5fdce9d032204fead7fdb8ac5394b423ea03e2684a292e974c833c4997b8b51
+          git fetch --no-tags --depth=1 origin "$SOURCE_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$SOURCE_SHA"
+          mkdir -p scripts/qa/fixtures/android-handoff-deadlines .artifacts/android-deadline-port
+          git show "$SOURCE_SHA:scripts/test-android-handoff-deadlines.py" > scripts/test-android-handoff-deadlines.py
+          git show "$SOURCE_SHA:scripts/qa/fixtures/android-handoff-deadlines/HandoffDeadlineHarness.java" > scripts/qa/fixtures/android-handoff-deadlines/HandoffDeadlineHarness.java
+          git show "$SOURCE_SHA:scripts/qa/fixtures/android-handoff-deadlines/android_stubs.py" > scripts/qa/fixtures/android-handoff-deadlines/android_stubs.py
+          sha256sum scripts/test-android-handoff-deadlines.py scripts/qa/fixtures/android-handoff-deadlines/* > .artifacts/android-deadline-port/harness-sha256.txt
+      - name: Preserve exact-main negative differential
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/test-android-handoff-deadlines.py > .artifacts/android-deadline-port/before-main.log 2>&1
+          result=$?
+          set -e
+          test "$result" = 1
+          grep -q 'SUMMARY: 22/36 passed' .artifacts/android-deadline-port/before-main.log
+          grep -q 'FAIL: first onPageCommitVisible commit deadline 0' .artifacts/android-deadline-port/before-main.log
+          grep -q 'FAIL: bridge callback deadline 0' .artifacts/android-deadline-port/before-main.log
+          grep -q 'FAIL: ready visual callback deadline 0' .artifacts/android-deadline-port/before-main.log
+          grep -q 'FAIL: fallback visual callback deadline 0' .artifacts/android-deadline-port/before-main.log
+      - name: Port only verified native correctness and permanent contract files
+        shell: bash
+        run: |
+          git show "$SOURCE_SHA:android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java" > android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java
+          git show "$SOURCE_SHA:.github/workflows/android-handoff-contract.yml" > .github/workflows/android-handoff-contract.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/android-handoff-contract.yml')
+          s=p.read_text()
+          # Keep PR triggering authoritative; add the clean candidate to optional push coverage.
+          marker='      - fix/android-commit-deadline-20260908\n'
+          assert s.count(marker)==1
+          s=s.replace(marker, marker+'      - fix/android-deadline-races-main-20260909\n')
+          p.write_text(s)
+          PY
+          test "$(git diff --name-only | sort | paste -sd, -)" = '.github/workflows/android-handoff-contract.yml,android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java'
+          test "$(git ls-files --others --exclude-standard | grep -v '^.artifacts/' | sort | paste -sd, -)" = 'scripts/qa/fixtures/android-handoff-deadlines/HandoffDeadlineHarness.java,scripts/qa/fixtures/android-handoff-deadlines/android_stubs.py,scripts/test-android-handoff-deadlines.py'
+      - name: Create exact candidate before positive verification
+        shell: bash
+        run: |
+          git add -- .github/workflows/android-handoff-contract.yml android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java scripts/test-android-handoff-deadlines.py scripts/qa/fixtures/android-handoff-deadlines/HandoffDeadlineHarness.java scripts/qa/fixtures/android-handoff-deadlines/android_stubs.py
+          git diff --cached --check
+          git diff --cached --binary > .artifacts/android-deadline-port/candidate.patch
+          git diff --cached --stat > .artifacts/android-deadline-port/candidate-stat.txt
+          git write-tree > .artifacts/android-deadline-port/candidate-tree.txt
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          candidate=$(printf '%s\n' 'fix(android): enforce absolute handoff callback deadlines' | git commit-tree "$(cat .artifacts/android-deadline-port/candidate-tree.txt)" -p "$BASE_SHA")
+          printf '%s\n' "$candidate" > .artifacts/android-deadline-port/candidate-commit.txt
+          git reset --hard "$candidate"
+          git ls-tree -r HEAD > .artifacts/android-deadline-port/candidate-tree-files.txt
+          git archive --format=tar.gz HEAD > .artifacts/android-deadline-port/candidate-source.tar.gz
+      - name: Prove complete deadline harness on exact candidate
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat .artifacts/android-deadline-port/candidate-commit.txt)"
+          python3 scripts/test-android-handoff-deadlines.py 2>&1 | tee .artifacts/android-deadline-port/after-candidate.log
+          grep -q 'SUMMARY: 36/36 passed' .artifacts/android-deadline-port/after-candidate.log
+      - name: Full project check and security
+        shell: bash
+        run: |
+          npm ci --no-audit --no-fund
+          npm run check 2>&1 | tee .artifacts/android-deadline-port/check.log
+          npm run verify:security 2>&1 | tee .artifacts/android-deadline-port/security.log
+      - name: Existing browser handoff contract
+        shell: bash
+        run: |
+          npx playwright install --with-deps chromium
+          ANDROID_HANDOFF_RESULTS_DIR=.artifacts/android-deadline-port/browser-handoff node scripts/android-handoff-smoke.mjs
+      - name: Publish passing main-based candidate only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          candidate=$(cat .artifacts/android-deadline-port/candidate-commit.txt)
+          test "$(git rev-parse HEAD)" = "$candidate"
+          test "$(git rev-parse HEAD^)" = "$BASE_SHA"
+          git diff --exit-code
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$BASE_SHA"
+          if git ls-remote --exit-code --heads origin "refs/heads/$CANDIDATE_BRANCH"; then
+            echo 'Candidate branch exists; refusing to overwrite.' >&2
+            exit 1
+          else
+            test "$?" = 2
+          fi
+          git -c credential.helper='!f() { printf "%s\n" "username=x-access-token" "password=$GH_TOKEN"; }; f' push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-deadline-main-port-${{ github.sha }}
+          path: .artifacts/android-deadline-port/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
