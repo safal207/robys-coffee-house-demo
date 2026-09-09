@@ -67,9 +67,218 @@
   }
 }
 
+.journey-deck[hidden] {
+  display: none;
+}
+
+.journey-deck {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0 0 34px;
+}
+
+.journey-deck-item {
+  min-width: 0;
+}
+
+.journey-deck-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 420px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(36, 28, 27, .16);
+  border-radius: 30px;
+  color: #fffaf3;
+  background: #241c1b;
+  box-shadow: 0 20px 52px rgba(36, 28, 27, .12);
+  cursor: pointer;
+  text-align: left;
+}
+
+.journey-deck-card > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 280ms ease;
+}
+
+.journey-deck-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(24, 15, 14, .08) 20%, rgba(24, 15, 14, .82) 86%);
+  pointer-events: none;
+}
+
+.journey-deck-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px;
+}
+
+.journey-deck-kicker {
+  margin-bottom: 10px;
+  color: #f0c3b3;
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.journey-deck-copy > strong {
+  max-width: 15ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  font-weight: 500;
+  line-height: .98;
+  letter-spacing: -.035em;
+}
+
+.journey-deck-reason {
+  display: -webkit-box;
+  max-width: 44rem;
+  margin-top: 16px;
+  overflow: hidden;
+  color: rgba(255, 250, 243, .82);
+  font-size: .92rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.journey-deck-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 250, 243, .2);
+}
+
+.journey-deck-footer b {
+  font-size: 1.05rem;
+}
+
+.journey-deck-state {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 250, 243, .34);
+  border-radius: 999px;
+  background: rgba(36, 28, 27, .34);
+  font-size: .72rem;
+  font-weight: 850;
+}
+
+.journey-deck-card[aria-pressed="true"] {
+  border-color: rgba(255, 250, 243, .82);
+  box-shadow: 0 0 0 3px rgba(169, 72, 46, .24), 0 22px 58px rgba(36, 28, 27, .18);
+}
+
+.journey-deck-card[aria-pressed="true"] .journey-deck-state {
+  color: #241c1b;
+  background: #fffaf3;
+  border-color: #fffaf3;
+}
+
+.journey-deck-card:focus-visible {
+  outline: 3px solid #a9482e;
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .journey-deck-card:hover > img {
+    transform: scale(1.018);
+  }
+}
+
+@media (max-width: 900px) {
+  .journey-deck {
+    display: block;
+    margin-bottom: 30px;
+  }
+
+  .journey-deck-item {
+    position: sticky;
+    top: 76px;
+    z-index: 1;
+  }
+
+  .journey-deck-item[data-deck-index="1"] {
+    top: 92px;
+    z-index: 2;
+    margin-top: 22vh;
+  }
+
+  .journey-deck-card,
+  .journey-deck-copy {
+    height: min(72svh, 620px);
+    min-height: 420px;
+  }
+
+  .journey-deck-card {
+    border-radius: 28px;
+    box-shadow: 0 18px 46px rgba(36, 28, 27, .18);
+  }
+}
+
+@media (max-width: 680px) {
+  .journey-deck-card,
+  .journey-deck-copy {
+    min-height: 400px;
+  }
+
+  .journey-deck-copy {
+    padding: 24px 20px;
+  }
+
+  .journey-deck-copy > strong {
+    font-size: clamp(2rem, 10.5vw, 3rem);
+  }
+
+  .journey-deck-reason {
+    font-size: .84rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .journey-deck-item {
+    top: 72px;
+  }
+
+  .journey-deck-item[data-deck-index="1"] {
+    top: 88px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pairing-poster {
     animation: none;
+  }
+
+  .journey-deck-item,
+  .journey-deck-item[data-deck-index="1"] {
+    position: relative;
+    top: auto;
+    z-index: auto;
+    margin-top: 16px;
+  }
+
+  .journey-deck-item:first-child {
+    margin-top: 0;
+  }
+
+  .journey-deck-card > img {
+    transition: none;
   }
 }
 
