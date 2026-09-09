@@ -1,6 +1,7 @@
 // MOTION-DEPTH-001 changes its visual target from retired 3D layers to the
 // approved sharp takeaway cup. Focal hold, compositor budget and non-occlusion
 // remain mandatory; cadence is independently gated in contextual-entry-smoke.
+// Exact-head review runs only after canonical timing revisions and integrity are synchronized.
 import path from "node:path";
 import { certify, contextFor, brand, assertBrand, assertAsset, done, assert, save } from "./takeaway-browser-contract.mjs";
 
