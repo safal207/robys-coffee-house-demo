@@ -22,6 +22,7 @@ assert.ok(requiredFragments.every(Boolean), "Local canonical Deck/Reveal revisio
 
 const report = { base: base.href, requiredFragments, attempts: [], passed: false };
 const sleep = (ms) => new Promise((resolveDelay) => setTimeout(resolveDelay, ms));
+const ignoredFrameAncestorsMetaWarning = "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.";
 
 async function fetchText(pathname) {
   const url = new URL(pathname, base);
@@ -58,6 +59,7 @@ async function runJourney(browser, attempt) {
   const page = await context.newPage();
   const pageErrors = [];
   const sameOriginFailures = [];
+  const browserWarnings = [];
   const baseOrigin = base.origin;
   page.on("pageerror", (error) => pageErrors.push(error.message));
   page.on("response", (response) => {
@@ -67,8 +69,13 @@ async function runJourney(browser, attempt) {
   });
   page.on("console", (message) => {
     if (message.type() !== "error") return;
+    const text = message.text();
+    if (text.includes(ignoredFrameAncestorsMetaWarning)) {
+      browserWarnings.push(text);
+      return;
+    }
     const location = message.location().url;
-    if (!location || location.startsWith(baseOrigin)) sameOriginFailures.push(`console: ${message.text()}`);
+    if (!location || location.startsWith(baseOrigin)) sameOriginFailures.push(`console: ${text}`);
   });
   await page.route("https://api.open-meteo.com/**", (route) => route.fulfill({
     status: 200,
@@ -155,7 +162,7 @@ async function runJourney(browser, attempt) {
     await page.screenshot({ path: resolve(out, `live-discover-to-cart-${attempt}.png`), fullPage: true });
     assert.deepEqual(pageErrors, [], `Live page errors: ${pageErrors.join(" | ")}`);
     assert.deepEqual(sameOriginFailures, [], `Live same-origin failures: ${sameOriginFailures.join(" | ")}`);
-    return { current, next, visiblePreview, overflow, total, pageErrors: 0, sameOriginFailures: 0 };
+    return { current, next, visiblePreview, overflow, total, pageErrors: 0, sameOriginFailures: 0, browserWarnings };
   } finally {
     await context.close();
   }
