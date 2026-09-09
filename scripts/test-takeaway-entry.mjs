@@ -45,7 +45,8 @@ function harness({ warm = false, language = "tr", reduced = false, image = "read
     animate(frames, options) {
       animations.push({ tag: this.className, frames, options });
       if (animation === "throws") throw new Error("animation unavailable");
-      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + animationDelay)) };
+      const delay = this.className === "robys-takeaway-content" ? animationDelay : 0;
+      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + delay)) };
     }
   }
   const root = new Element("html");
