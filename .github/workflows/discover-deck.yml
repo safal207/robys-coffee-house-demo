@@ -1,0 +1,50 @@
+name: Discover Stacked Deck
+
+on:
+  pull_request:
+    paths:
+      - "discover.html"
+      - "discover-deck.js"
+      - "discover-deck.css"
+      - "scripts/test-discover-deck.mjs"
+      - "scripts/test-discover-deck-browser.mjs"
+      - ".github/workflows/discover-deck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax check
+        run: |
+          node --check discover-deck.js
+          node --check scripts/test-discover-deck.mjs
+          node --check scripts/test-discover-deck-browser.mjs
+      - name: Verify deck contract
+        run: node scripts/test-discover-deck.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run mobile deck smoke
+        env:
+          DECK_RESULTS_DIR: .artifacts/discover-deck
+        run: node scripts/test-discover-deck-browser.mjs
+      - name: Upload deck screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        with:
+          name: discover-deck-${{ github.run_id }}
+          path: .artifacts/discover-deck
+          if-no-files-found: warn
+          retention-days: 14
