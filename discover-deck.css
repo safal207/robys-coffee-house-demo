@@ -144,18 +144,31 @@
 
 @media (max-width: 390px) {
   .discover-deck-preview {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 66px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 10px 12px 10px 10px;
   }
 
   .discover-deck-preview-image {
-    width: 66px;
-    height: 66px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .discover-deck-preview-copy {
+    gap: 5px;
+  }
+
+  .discover-deck-preview-name {
+    font-size: 1.02rem;
+    line-height: 1.08;
   }
 
   .discover-deck-preview-price {
-    grid-column: 2;
-    justify-self: start;
-    margin-top: -2px;
+    grid-column: auto;
+    justify-self: end;
+    align-self: center;
+    margin-top: 0;
+    font-size: .86rem;
   }
 }
 
