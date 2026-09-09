@@ -57,7 +57,11 @@ try {
   const tops = await cards.evaluateAll((nodes) => nodes.map((node) => parseFloat(getComputedStyle(node).top)));
   assert.ok(tops[1] > tops[0], `Second card must stack below the first: ${JSON.stringify(tops)}`);
 
-  assert.equal(await page.locator("#pairing-card").isHidden(), true, "Legacy pairing card hides only after deck enhancement succeeds");
+  assert.equal(
+    await page.locator("#pairing-card").isVisible(),
+    true,
+    "Existing pairing detail must remain available below the progressive deck"
+  );
   assert.match(await second.locator("h3").innerText(), /Айс-латте.*Сан-Себастьян/i);
   assert.match(await second.locator(".discover-desire-card-footer span").innerText(), /Открыть десерт/i);
   assert.ok((await second.getAttribute("href"))?.endsWith("menu.html#desserts"));
