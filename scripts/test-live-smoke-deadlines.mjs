@@ -59,13 +59,21 @@ test("fetchTextWithDeadline preserves a successful response and body", async () 
   assert.equal(body, "published");
 });
 
-test("LIVE-001 source and workflow keep every external wait bounded", () => {
+test("LIVE-001 source and workflow keep every external wait bounded and bind the real hero source", () => {
   const source = readFileSync("scripts/live-smoke.mjs", "utf8");
   const workflow = readFileSync(".github/workflows/live-smoke.yml", "utf8");
+  const index = readFileSync("index.html", "utf8");
 
+  const actualHeroSource = index.match(/<video\b[^>]*class=["'][^"']*hero-video[^"']*["'][^>]*>[\s\S]*?<source\b[^>]*src=["']([^"']+)["']/i)?.[1];
+  assert.ok(actualHeroSource, "index.html must expose the real hero video source");
+  assert.match(source, /expectedHeroVideoSrc/);
+  assert.match(source, /fetchRange\(expectedHeroVideoSrc\)/);
+  assert.doesNotMatch(source, /robys-hero-mobile-lite\.mp4/);
   assert.match(source, /fetchTextWithDeadline/);
   assert.match(source, /fetchResponseWithDeadline/);
-  assert.match(source, /withDeadline\(page\.locator\("\.hero-video"\)\.evaluate/);
+  assert.match(source, /withDeadline\([\s\S]*?page\.locator\("\.hero-video"\)\.evaluate/);
+  assert.doesNotMatch(source, /await\s+video\.play\(\)/);
+  assert.match(source, /!video\.paused\s*&&\s*video\.currentTime\s*>\s*0/);
   assert.match(source, /persistReport\(\);/);
   assert.match(workflow, /ROBYS_LIVE_ATTEMPTS:\s*4/);
   assert.match(workflow, /ROBYS_LIVE_DELAY_MS:\s*5000/);
