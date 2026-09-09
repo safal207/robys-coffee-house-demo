@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "scripts/live-discover-e2e.mjs"
+      - "scripts/live-fetch-timeout-register.mjs"
       - ".github/workflows/live-discover-e2e.yml"
   workflow_dispatch:
 
@@ -30,6 +31,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify published Discover to cart journey
         env:
+          NODE_OPTIONS: --import=./scripts/live-fetch-timeout-register.mjs
+          ROBYS_FETCH_TIMEOUT_MS: 15000
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
           ROBYS_LIVE_ATTEMPTS: 15
           ROBYS_LIVE_DELAY_MS: 20000
