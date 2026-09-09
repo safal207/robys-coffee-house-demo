@@ -18,6 +18,7 @@ const attempts = Number(process.env.ROBYS_LIVE_ATTEMPTS ?? 4);
 const delayMs = Number(process.env.ROBYS_LIVE_DELAY_MS ?? 5000);
 const fetchTimeoutMs = Number(process.env.ROBYS_LIVE_FETCH_TIMEOUT_MS ?? 15000);
 const videoTimeoutMs = Number(process.env.ROBYS_LIVE_VIDEO_TIMEOUT_MS ?? 8000);
+const browserChannel = process.env.ROBYS_LIVE_BROWSER_CHANNEL?.trim() || null;
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
 const report = {
   expectedBuild,
@@ -25,7 +26,7 @@ const report = {
   baseUrl: baseUrl.href,
   attempts: [],
   passed: false,
-  policy: { attempts, delayMs, fetchTimeoutMs, videoTimeoutMs }
+  policy: { attempts, delayMs, fetchTimeoutMs, videoTimeoutMs, browserChannel: browserChannel ?? "bundled-chromium" }
 };
 
 const persistReport = () => writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
@@ -217,7 +218,16 @@ async function verifyBrowser(browser) {
 let browser;
 let lastError;
 try {
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({
+    headless: true,
+    ...(browserChannel ? { channel: browserChannel } : {})
+  });
+  report.browser = {
+    channel: browserChannel ?? "bundled-chromium",
+    version: browser.version()
+  };
+  persistReport();
+
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const attemptReport = { attempt, startedAt: new Date().toISOString() };
     try {
