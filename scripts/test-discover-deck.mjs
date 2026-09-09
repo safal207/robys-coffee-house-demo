@@ -58,6 +58,11 @@ assert.match(deckCss, /\.journey-deck-card\s*\{[\s\S]*?position:\s*sticky;/m);
 assert.match(deckCss, /\.journey-deck-card:nth-child\(2\)/);
 assert.match(
   deckCss,
+  /@media\s*\(max-width:\s*900px\)\s*and\s*\(max-height:\s*700px\)[\s\S]*?position:\s*relative;[\s\S]*?top:\s*auto;[\s\S]*?min-height:\s*0;/m,
+  "Short viewports must disable sticky stacking so every CTA remains reachable"
+);
+assert.match(
+  deckCss,
   /prefers-reduced-motion:\s*reduce[\s\S]*?position:\s*relative/m,
   "Reduced motion must fall back to normal sequential cards"
 );
@@ -114,4 +119,4 @@ assert.match(
   "Build must synchronize the lazy reveal runtime import"
 );
 
-console.log("discover journey deck + offline closure contract: PASS");
+console.log("discover journey deck + offline closure + short-height fallback contract: PASS");
