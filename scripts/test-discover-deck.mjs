@@ -65,13 +65,53 @@ assert.match(
 const discoverHtml = readFileSync(resolve(root, "discover.html"), "utf8");
 assert.match(
   discoverHtml,
-  /discover-deck\.css\?v=20260909-deck-v1/,
-  "Discover page must load the deck stylesheet from same origin"
+  /discover-deck\.css\?v=[a-f0-9]{12}/,
+  "Discover page must load a build-revisioned deck stylesheet"
 );
 assert.match(
   discoverHtml,
-  /discover-deck\.js\?v=20260909-deck-v1/,
-  "Discover page must load the deck module as progressive enhancement"
+  /discover-deck\.js\?v=[a-f0-9]{12}/,
+  "Discover page must load a build-revisioned deck module"
 );
 
-console.log("discover journey deck contract: PASS");
+const swSource = readFileSync(resolve(root, "sw.js"), "utf8");
+for (const file of [
+  "discover-deck.css",
+  "discover-deck.js",
+  "menu-product-reveal.css",
+  "menu-product-reveal.js",
+  "menu-product-reveal-runtime.js"
+]) {
+  const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  assert.match(
+    swSource,
+    new RegExp(`"\\./${escaped}\\?v=[a-f0-9]{12}"`),
+    `${file}: service worker must precache the exact build revision`
+  );
+}
+assert.match(
+  swSource,
+  /"\.\/src\/products\/san-sebastian\.webp"/,
+  "Offline San Sebastian reveal must include its alternate image"
+);
+
+const buildSource = readFileSync(resolve(root, "scripts/build.mjs"), "utf8");
+for (const file of [
+  "discover-deck.css",
+  "discover-deck.js",
+  "menu-product-reveal.css",
+  "menu-product-reveal.js",
+  "menu-product-reveal-runtime.js"
+]) {
+  assert.ok(
+    buildSource.includes(`revisionFor("${file}")`),
+    `${file}: build must own the cache revision`
+  );
+}
+assert.match(
+  buildSource,
+  /synchronizeModuleImport\(menuProductRevealSource, "menu-product-reveal-runtime\.js"/,
+  "Build must synchronize the lazy reveal runtime import"
+);
+
+console.log("discover journey deck + offline closure contract: PASS");
