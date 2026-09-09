@@ -1,6 +1,6 @@
 name: Discover Journey Deck
 
-# Canonical integrity manifest is refreshed by the repository generator before exact-head review.
+# Canonical integrity and the revisioned offline dependency closure are build-owned before exact-head review.
 on:
   pull_request:
     paths:
