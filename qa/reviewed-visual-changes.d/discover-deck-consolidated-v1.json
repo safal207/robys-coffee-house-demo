@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "discover-deck-consolidated-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/380#issuecomment-5607647789",
+      "contentBindings": {
+        "discover.html": "62a8b3af54817ba4777c51126bb60a16180fafb5",
+        "discover-deck.css": "04ba0f4f904ef37edd234c259bc71bcdf753f014",
+        "discover-deck.js": "b9a15c4b4208804af9784d04a82ab6cac6a2b636"
+      },
+      "expectedFailures": [
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "maxDiffPixelRatio": 1.0
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "maxDiffPixelRatio": 0.04
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "desktop-1440",
+          "maxDiffPixelRatio": 1.0
+        }
+      ]
+    }
+  ]
+}
