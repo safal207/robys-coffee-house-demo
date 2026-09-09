@@ -160,11 +160,35 @@ export function runTakeawayEntry(scene = "day") {
     content.style.opacity = "1";
     emit("brand-frame", scene, variant);
     pulse();
-    animateSafe(content, [
-      { opacity: 0, transform: "translateY(10px)" },
-      { opacity: 1, transform: "translateY(0)" }
-    ], { duration: cold ? 700 : 250, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" });
-    later(finish, cold ? 1_050 : 350);
+
+    const entranceDuration = cold ? 700 : 250;
+    const stationaryHold = cold ? 350 : 100;
+    // A fixed delay from brand-frame can expire before Web Animations actually
+    // begin on a busy device. Anchor the readable hold to real entrance settle.
+    const fallbackFinish = later(finish, cold ? 1_700 : 750);
+    let entranceFinished = null;
+    try {
+      if (typeof content.animate === "function") {
+        entranceFinished = content.animate([
+          { opacity: 0, transform: "translateY(10px)" },
+          { opacity: 1, transform: "translateY(0)" }
+        ], { duration: entranceDuration, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }).finished.catch(() => undefined);
+      }
+    } catch { /* Fall back to the original ideal timing below. */ }
+
+    if (!entranceFinished) {
+      window.clearTimeout(fallbackFinish);
+      timers.delete(fallbackFinish);
+      later(finish, entranceDuration + stationaryHold);
+      return;
+    }
+
+    entranceFinished.finally(() => {
+      if (exiting || done) return;
+      window.clearTimeout(fallbackFinish);
+      timers.delete(fallbackFinish);
+      later(finish, stationaryHold);
+    });
   }).catch(cleanup);
 }
 
