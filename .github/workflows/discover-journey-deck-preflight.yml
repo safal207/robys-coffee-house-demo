@@ -1,0 +1,53 @@
+name: Discover Journey Deck Preflight
+
+on:
+  push:
+    branches:
+      - "feat/discover-journey-deck"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax and static deck contract
+        run: |
+          node --check discover-v2.js
+          node --check scripts/test-discover-journey-deck.mjs
+          node --check scripts/test-discover-journey-deck-browser.mjs
+          node scripts/test-discover-journey-deck.mjs
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run mobile deck browser smoke
+        run: node scripts/test-discover-journey-deck-browser.mjs
+      - name: Rebuild revisioned public assets
+        run: npm run build
+      - name: Regenerate integrity evidence
+        run: npm run integrity:generate
+      - name: Run repository check
+        run: npm run check
+      - name: Run security verification
+        run: npm run verify:security
+      - name: Upload generated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-journey-deck-generated-${{ github.sha }}
+          path: |
+            discover.html
+            sw.js
+            integrity-manifest.json
+          if-no-files-found: error
+          retention-days: 7
