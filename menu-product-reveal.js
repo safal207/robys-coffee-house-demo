@@ -1,29 +1,12 @@
-const TARGET = "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp";
-const image = document.querySelector("#menu-product-image");
-let loading = false;
-
-function isTarget() {
-  if (!image) return false;
-  const source = image.getAttribute("src") || image.src || image.currentSrc;
-  try {
-    return new URL(source, document.baseURI).pathname.endsWith(TARGET);
-  } catch {
-    return false;
-  }
-}
-
-function maybeLoadReveal() {
-  if (!isTarget() || loading) return;
-  loading = true;
-  void import("./menu-product-reveal-runtime.js?v=20260909-reveal-v2").catch(() => {
-    loading = false;
-  });
-}
-
-if (image) {
-  new MutationObserver(maybeLoadReveal).observe(image, {
-    attributes: true,
-    attributeFilter: ["src"]
-  });
-  maybeLoadReveal();
+const TARGET="/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp";
+const image=document.querySelector("#menu-product-image");
+let busy=false;
+const target=()=>{try{return new URL(image?.getAttribute("src")||image?.src||"",document.baseURI).pathname.endsWith(TARGET)}catch{return false}};
+const load=()=>{if(!target()||busy)return;busy=true;void import("./menu-product-reveal-runtime.js?v=20260909-reveal-v2").catch(()=>busy=false)};
+if(image){new MutationObserver(load).observe(image,{attributes:true,attributeFilter:["src"]});load()}
+const route=new URL(location).searchParams.get("product"),root=document.querySelector("#menu-root");
+if(route&&root){
+ const open=()=>document.querySelector(`[data-product-id="${CSS.escape(route)}"] .full-menu-item-media`)?.click();
+ if(root.dataset.ready==="true")queueMicrotask(open);
+ else new MutationObserver((_,o)=>{if(root.dataset.ready==="true"){o.disconnect();open()}}).observe(root,{attributes:true,attributeFilter:["data-ready"]})
 }
