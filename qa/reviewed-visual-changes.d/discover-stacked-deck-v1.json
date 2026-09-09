@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "discover-stacked-deck-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/367#issuecomment-5597316583",
+      "contentBindings": {
+        "discover.html": "b09415cdf3ce6227f8146d8b4168116cac7158fe",
+        "discover-deck.css": "ce1c6de7aa82e331321956652a37edd1bbb0ce51",
+        "discover-deck.js": "a95198e728d68f6ed71d4e5159bb5f2614a93621"
+      },
+      "expectedFailures": [
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2735 vs 320x3048"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 280x740 vs 280x829"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 320x721 vs 320x806"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2782 vs 390x3031"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 350x751 vs 350x774"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x2749 vs 768x3003"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "totalPixels": 843752,
+          "maxDiffPixelRatio": 0.057
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x2513 vs 1440x2741"
+        }
+      ]
+    }
+  ]
+}
