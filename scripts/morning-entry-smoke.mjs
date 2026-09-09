@@ -1,6 +1,7 @@
 // MOTION-ENTRY-001 now certifies the approved takeaway scene at the Morning route.
 import path from "node:path";
-import { certify, contextFor, brand, assertBrand, assertAsset, done, timing, cadence, assert, save } from "./takeaway-browser-contract.mjs";
+import { certify, contextFor, brand, assertBrand, assertAsset, done, timing, assert, save } from "./takeaway-browser-contract.mjs";
+import { cadenceTimeAware } from "./takeaway-cadence-time-aware.mjs";
 
 await certify({ port: Number(process.env.MORNING_ENTRY_PORT ?? 4187), resultsDir: path.resolve(process.env.MORNING_ENTRY_RESULTS_DIR ?? "visual-results/morning-entry"), contract: "MOTION-ENTRY-001" }, async ({ browser, baseUrl, resultsDir }) => {
   const asset = assertAsset();
@@ -12,7 +13,7 @@ await certify({ port: Number(process.env.MORNING_ENTRY_PORT ?? 4187), resultsDir
   assert(appearance.scene === "morning", "Morning override lost");
   const probe = await done(page);
   const cold = timing(probe, "cold", "morning");
-  const smoothness = cadence(probe);
+  const smoothness = cadenceTimeAware(probe);
   save(resultsDir, "morning-entry-60hz-evidence.json", smoothness);
 
   await page.goto(`${baseUrl}?entry=morning`, { waitUntil: "domcontentloaded" });

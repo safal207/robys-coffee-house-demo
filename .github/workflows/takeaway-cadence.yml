@@ -1,0 +1,28 @@
+name: Takeaway cadence contract
+
+on:
+  pull_request:
+    paths:
+      - "scripts/takeaway-cadence-time-aware.mjs"
+      - "scripts/test-takeaway-cadence-time-aware.mjs"
+      - "scripts/morning-entry-smoke.mjs"
+      - ".github/workflows/takeaway-cadence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax check
+        run: |
+          node --check scripts/takeaway-cadence-time-aware.mjs
+          node --check scripts/morning-entry-smoke.mjs
+      - name: Verify time-aware cadence semantics
+        run: node --test scripts/test-takeaway-cadence-time-aware.mjs
