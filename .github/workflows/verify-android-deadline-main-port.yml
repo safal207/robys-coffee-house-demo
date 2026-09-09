@@ -24,7 +24,7 @@ jobs:
           ref: e3edcf13de323c3adb80c9c96465f1dd0425eee0
           fetch-depth: 1
           persist-credentials: false
-      - uses: actions/setup-java@7a445ee88d4e23b52c33b0b4f5b3dfb2b6e0b31d
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -65,7 +65,6 @@ jobs:
           from pathlib import Path
           p=Path('.github/workflows/android-handoff-contract.yml')
           s=p.read_text()
-          # Keep PR triggering authoritative; add the clean candidate to optional push coverage.
           marker='      - fix/android-commit-deadline-20260908\n'
           assert s.count(marker)==1
           s=s.replace(marker, marker+'      - fix/android-deadline-races-main-20260909\n')
