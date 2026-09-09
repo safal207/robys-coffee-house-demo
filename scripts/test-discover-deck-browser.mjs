@@ -86,15 +86,24 @@ try {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Deck must not create horizontal overflow: ${overflow}px`);
 
-  const [menuLinkBox, previewBox] = await Promise.all([
+  const [menuLinkBox, previewBox, viewportHeight] = await Promise.all([
     menuLink.boundingBox(),
-    preview.boundingBox()
+    preview.boundingBox(),
+    page.evaluate(() => window.innerHeight)
   ]);
   assert.ok(menuLinkBox && previewBox, "Primary CTA and next-card preview must be measurable");
   const menuLinkBottom = menuLinkBox.y + menuLinkBox.height;
   assert.ok(
     menuLinkBottom + 8 <= previewBox.y,
     `Next-card preview must stay clear of primary CTA: CTA bottom ${menuLinkBottom.toFixed(1)}px, preview top ${previewBox.y.toFixed(1)}px`
+  );
+  const visiblePreviewHeight = Math.max(
+    0,
+    Math.min(viewportHeight, previewBox.y + previewBox.height) - Math.max(0, previewBox.y)
+  );
+  assert.ok(
+    visiblePreviewHeight >= 64,
+    `Next-card preview must visibly signal another journey on 390px: only ${visiblePreviewHeight.toFixed(1)}px visible`
   );
   await page.screenshot({ path: `${out}/discover-deck-390.png` });
 
