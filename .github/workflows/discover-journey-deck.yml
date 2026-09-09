@@ -1,0 +1,46 @@
+name: Discover Journey Deck
+
+on:
+  pull_request:
+    paths:
+      - "discover.html"
+      - "discover-deck.js"
+      - "discover-deck.css"
+      - "discover-journeys-v2.js"
+      - "menu-catalog.js"
+      - "menu-product-reveal.js"
+      - "scripts/test-discover-deck.mjs"
+      - "scripts/test-discover-deck-browser.mjs"
+      - "scripts/test-menu-product-reveal.mjs"
+      - ".github/workflows/discover-journey-deck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax check
+        run: |
+          node --check discover-deck.js
+          node --check menu-product-reveal.js
+          node --check scripts/test-discover-deck.mjs
+          node --check scripts/test-discover-deck-browser.mjs
+      - name: Verify static deck contract
+        run: |
+          node scripts/test-discover-deck.mjs
+          node scripts/test-menu-product-reveal.mjs
+      - name: Install browser test dependencies
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Run mobile deck journey smoke
+        run: node scripts/test-discover-deck-browser.mjs
