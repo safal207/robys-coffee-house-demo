@@ -95,7 +95,7 @@ function loadEntryIfEligible() {
   cupPreload.href = "src/brand/robys-takeaway-cup-v1.webp";
   document.head.append(cupPreload);
 
-  const entryImport = import("./takeaway-entry.js?v=bb3e231041a3");
+  const entryImport = import("./takeaway-entry.js?v=e42f8fe96069");
 
   entryImport.catch(revealProductAfterEntryFailure);
 
