@@ -48,6 +48,7 @@ try {
   const cards = page.locator(".journey-deck-card");
   await cards.first().waitFor({ state: "visible", timeout: 5000 });
   assert.equal(await cards.count(), 2, "Discover must render exactly two verified journey cards");
+  assert.equal(await page.locator("#next-pairing").isHidden(), true, "Legacy next-pairing control must hide when verified deck is active");
 
   const ids = await page.locator(".journey-deck-item").evaluateAll((nodes) => nodes.map((node) => node.dataset.journeyId));
   assert.deepEqual(ids, ["cool-lime-macaron", "iced-san-sebastian"]);
@@ -73,9 +74,13 @@ try {
   );
 
   assert.equal(await cards.first().getAttribute("aria-pressed"), "true");
-  await cards.nth(1).click();
+  await cards.nth(1).focus();
+  await page.keyboard.press("Enter");
   await page.locator('#pairing-products[data-pairing-id="iced-san-sebastian"]').waitFor({ state: "attached" });
-  await page.locator('[data-journey-select="iced-san-sebastian"][aria-pressed="true"]').waitFor({ state: "attached" });
+  const selected = page.locator('[data-journey-select="iced-san-sebastian"][aria-pressed="true"]');
+  await selected.waitFor({ state: "attached" });
+  await page.waitForFunction(() => document.activeElement?.dataset?.journeySelect === "iced-san-sebastian");
+  assert.equal(await selected.evaluate((node) => document.activeElement === node), true, "Keyboard focus must survive deck rerender");
 
   assert.deepEqual(errors, [], `Unhandled deck browser errors: ${errors.join(" | ")}`);
   await context.close();
