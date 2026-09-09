@@ -67,6 +67,10 @@
   }
 }
 
+.journey-deck-ready #next-pairing {
+  display: none;
+}
+
 .journey-deck[hidden] {
   display: none;
 }
