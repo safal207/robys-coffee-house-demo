@@ -27,3 +27,8 @@ if (image) {
   });
   maybeLoadReveal();
 }
+
+const requested = new URLSearchParams(location.search).get("product");
+if (requested) setTimeout(() => {
+  document.querySelector(`[data-product-id="${CSS.escape(requested)}"] .full-menu-item-media`)?.click();
+});
