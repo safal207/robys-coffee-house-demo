@@ -1,5 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import {
+  fetchResponseWithDeadline,
+  fetchTextWithDeadline,
+  withDeadline
+} from "./live-smoke-deadlines.mjs";
 
 const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
 const localIndex = readFileSync("index.html", "utf8");
@@ -7,23 +12,42 @@ const expectedBuild = localIndex.match(/<meta\b[^>]*name=["']robys-build["'][^>]
 if (!expectedBuild) throw new Error("[LIVE-001] Local robys-build marker is missing");
 
 const baseUrl = new URL(process.env.ROBYS_LIVE_BASE ?? profile.siteUrl);
-const attempts = Number(process.env.ROBYS_LIVE_ATTEMPTS ?? 15);
-const delayMs = Number(process.env.ROBYS_LIVE_DELAY_MS ?? 20000);
+const attempts = Number(process.env.ROBYS_LIVE_ATTEMPTS ?? 4);
+const delayMs = Number(process.env.ROBYS_LIVE_DELAY_MS ?? 5000);
+const fetchTimeoutMs = Number(process.env.ROBYS_LIVE_FETCH_TIMEOUT_MS ?? 15000);
+const videoTimeoutMs = Number(process.env.ROBYS_LIVE_VIDEO_TIMEOUT_MS ?? 8000);
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
-const report = { expectedBuild, baseUrl: baseUrl.href, attempts: [], passed: false };
+const report = {
+  expectedBuild,
+  baseUrl: baseUrl.href,
+  attempts: [],
+  passed: false,
+  policy: { attempts, delayMs, fetchTimeoutMs, videoTimeoutMs }
+};
 
+const persistReport = () => writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+persistReport();
 
 async function fetchText(pathname) {
   const url = new URL(pathname, baseUrl);
   url.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
-  const response = await fetch(url, {
+  const { response, body } = await fetchTextWithDeadline(url, {
     redirect: "follow",
     headers: { "cache-control": "no-cache", pragma: "no-cache" }
-  });
-  const body = await response.text();
+  }, fetchTimeoutMs, `fetch ${url.pathname}`);
   if (!response.ok) throw new Error(`${url.pathname} returned HTTP ${response.status}`);
   return { url: response.url, body, contentType: response.headers.get("content-type") ?? "" };
+}
+
+async function fetchRange(pathname) {
+  const url = new URL(pathname, baseUrl);
+  return fetchResponseWithDeadline(
+    url,
+    { headers: { range: "bytes=0-2047", "cache-control": "no-cache", pragma: "no-cache" } },
+    fetchTimeoutMs,
+    `fetch ${url.pathname}`
+  );
 }
 
 async function verifyPublishedFiles() {
@@ -32,8 +56,8 @@ async function verifyPublishedFiles() {
     fetchText("menu.html"),
     fetchText("robots.txt"),
     fetchText("sitemap.xml"),
-    fetch(new URL("src/robys-hero-mobile-lite.mp4", baseUrl), { headers: { range: "bytes=0-2047" } }),
-    fetch(new URL("src/robys-hero-poster.jpg", baseUrl), { headers: { range: "bytes=0-2047" } })
+    fetchRange("src/robys-hero-mobile-lite.mp4"),
+    fetchRange("src/robys-hero-poster.jpg")
   ]);
 
   for (const [name, page] of [["landing", landing], ["menu", menu]]) {
@@ -65,6 +89,8 @@ async function verifyBrowser(browser) {
     serviceWorkers: "allow"
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(30000);
   const sameOriginFailures = [];
   const pageErrors = [];
   const baseOrigin = baseUrl.origin;
@@ -99,7 +125,7 @@ async function verifyBrowser(browser) {
     const mapSrc = await page.locator(".map-live-frame").getAttribute("src");
     if (!mapSrc?.includes("output=embed")) throw new Error("Embedded map source is invalid");
 
-    const videoState = await page.locator(".hero-video").evaluate(async (video) => {
+    const videoState = await withDeadline(page.locator(".hero-video").evaluate(async (video) => {
       video.muted = true;
       try {
         await video.play();
@@ -113,7 +139,7 @@ async function verifyBrowser(browser) {
         readyState: video.readyState,
         error: video.error?.message ?? null
       };
-    });
+    }), videoTimeoutMs, "hero video playback");
     if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
 
     const menuUrl = new URL("menu.html", baseUrl);
@@ -134,7 +160,7 @@ async function verifyBrowser(browser) {
 
     await page.locator('.lang-button[data-lang="en"]').click();
     if ((await page.locator("html").getAttribute("lang")) !== "en") throw new Error("Language switch did not update html lang");
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 30000 });
     if ((await page.locator("html").getAttribute("lang")) !== "en") throw new Error("Language choice did not persist after reload");
 
     if (pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(" | ")}`);
@@ -156,10 +182,11 @@ try {
       attemptReport.http = await verifyPublishedFiles();
       attemptReport.browser = await verifyBrowser(browser);
       attemptReport.passed = true;
+      attemptReport.completedAt = new Date().toISOString();
       report.attempts.push(attemptReport);
       report.passed = true;
       report.completedAt = new Date().toISOString();
-      writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+      persistReport();
       console.log(JSON.stringify(report, null, 2));
       console.log("✅ LIVE-001 passed: the published site and customer journeys work in a real browser.");
       process.exitCode = 0;
@@ -167,9 +194,10 @@ try {
     } catch (error) {
       lastError = error;
       attemptReport.passed = false;
+      attemptReport.completedAt = new Date().toISOString();
       attemptReport.error = error.message;
       report.attempts.push(attemptReport);
-      writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+      persistReport();
       console.warn(`LIVE-001 attempt ${attempt}/${attempts} failed: ${error.message}`);
       if (attempt < attempts) await sleep(delayMs);
     }
@@ -181,6 +209,6 @@ try {
 if (!report.passed) {
   report.completedAt = new Date().toISOString();
   report.finalError = lastError?.message ?? "Unknown live smoke failure";
-  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  persistReport();
   throw lastError ?? new Error("[LIVE-001] Live smoke failed");
 }
