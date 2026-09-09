@@ -1,0 +1,63 @@
+name: Discover Deck End-to-End
+
+on:
+  pull_request:
+    paths:
+      - "discover-deck.js"
+      - "discover-deck.css"
+      - "discover.html"
+      - "menu-product-reveal.js"
+      - "menu.html"
+      - "sw.js"
+      - "scripts/build.mjs"
+      - "scripts/test-discover-deck.mjs"
+      - "scripts/test-discover-deck-browser.mjs"
+      - "scripts/test-menu-product-reveal.mjs"
+      - "integrity-manifest.json"
+      - "qa/reviewed-visual-changes.d/discover-deck-consolidated-v1.json"
+      - ".github/workflows/discover-deck-consolidated.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact proposed head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify canonical build is stable
+        run: |
+          npm run build
+          git diff --exit-code -- discover.html menu.html sw.js menu-product-reveal.js
+      - name: Verify static product and offline contracts
+        run: |
+          node scripts/test-discover-deck.mjs
+          node scripts/test-menu-product-reveal.mjs
+          npm run verify:integrity
+          npm run verify:security
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run full mobile customer journey
+        env:
+          DECK_RESULTS_DIR: .artifacts/discover-deck
+        run: node scripts/test-discover-deck-browser.mjs
+      - name: Upload exact-head deck evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-deck-e2e-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/discover-deck/**
+          if-no-files-found: warn
+          retention-days: 14

@@ -202,12 +202,21 @@ let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
 writeFileSync("bootstrap-v2.js", bootstrapSource);
 
+const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
+let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
+menuProductRevealSource = synchronizeModuleImport(menuProductRevealSource, "menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision);
+writeFileSync("menu-product-reveal.js", menuProductRevealSource);
+
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
+const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
+const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
+const discoverDeckRevision = revisionFor("discover-deck.js");
+const discoverDeckCssRevision = revisionFor("discover-deck.css");
 const androidStylesRevision = revisionFor("android-app.css");
 let conversionSource = readFileSync("src/conversion.js", "utf8");
 const androidStylePattern = /android-app\.css\?v=[^"']+/;
@@ -245,6 +254,8 @@ writeFileSync("index.html", html);
 let discoverHtml = readFileSync("discover.html", "utf8");
 discoverHtml = synchronizeBlockingScript(discoverHtml, "bootstrap-v2.js", bootstrapRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);
+discoverHtml = synchronizeStylesheet(discoverHtml, "discover-deck.css", discoverDeckCssRevision);
+discoverHtml = synchronizeModuleScript(discoverHtml, "discover-deck.js", discoverDeckRevision);
 discoverHtml = synchronizeModuleScript(discoverHtml, "discover-v2.js", discoverRuntimeRevision);
 discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", discoverRotationCssRevision);
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
@@ -255,6 +266,8 @@ menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevis
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 writeFileSync("menu.html", menuHtml);
 
@@ -290,6 +303,11 @@ for (const [filePath, revision] of [
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-product-reveal.css", menuProductRevealCssRevision],
+  ["menu-product-reveal.js", menuProductRevealRevision],
+  ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],
+  ["discover-deck.css", discoverDeckCssRevision],
+  ["discover-deck.js", discoverDeckRevision],
   ["conversion.js", conversionRevision],
   ["android-app.css", androidStylesRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
