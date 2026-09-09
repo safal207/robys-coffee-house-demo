@@ -1,6 +1,6 @@
 name: Discover Journey Deck
 
-# Canonical integrity and the revisioned offline dependency closure are build-owned before exact-head review.
+# Canonical integrity, offline closure, and short-height deck fallback are build-owned before exact-head review.
 on:
   pull_request:
     paths:
