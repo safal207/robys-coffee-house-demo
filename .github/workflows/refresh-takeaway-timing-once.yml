@@ -1,5 +1,6 @@
 name: Refresh Takeaway Timing Once
 
+# Unit timing harness now delays only the entrance animation; rerun canonical generation on that exact contract.
 on:
   push:
     branches:
