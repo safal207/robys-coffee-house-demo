@@ -92,6 +92,8 @@ async function runJourney(browser, attempt) {
     const next = await preview.getAttribute("data-journey-id");
     assert.ok(current && next && current !== next, "Live Deck must expose two distinct active journeys");
 
+    await page.locator(".discover-deck-shell").scrollIntoViewIfNeeded();
+
     const [menuBox, previewBox, priceBox, viewportHeight] = await Promise.all([
       menuLink.boundingBox(), preview.boundingBox(), previewPrice.boundingBox(), page.evaluate(() => innerHeight)
     ]);
