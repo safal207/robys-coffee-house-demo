@@ -1,7 +1,8 @@
 // Keep scene routing, session continuity, cadence and timing gates while replacing
 // the retired Day/Night spline art with one approved takeaway composition.
 import path from "node:path";
-import { certify, contextFor, brand, assertBrand, assertAsset, done, timing, cadence, assert, save } from "./takeaway-browser-contract.mjs";
+import { certify, contextFor, brand, assertBrand, assertAsset, done, timing, assert, save } from "./takeaway-browser-contract.mjs";
+import { cadenceTimeAware } from "./takeaway-cadence-time-aware.mjs";
 
 await certify({ port: Number(process.env.CONTEXTUAL_ENTRY_PORT ?? 4191), resultsDir: path.resolve(process.env.CONTEXTUAL_ENTRY_RESULTS_DIR ?? "visual-results/contextual-entry"), contract: "MOTION-CONTEXT-001" }, async ({ browser, baseUrl, resultsDir }) => {
   const evidence = { design: "takeaway-v1", asset: assertAsset(), scenes: {} };
@@ -13,7 +14,7 @@ await certify({ port: Number(process.env.CONTEXTUAL_ENTRY_PORT ?? 4191), results
     assertBrand(appearance);
     assert(appearance.scene === scene, `Forced ${scene} route changed`);
     const probe = await done(page);
-    evidence.scenes[scene] = { appearance, timing: timing(probe, "cold", scene), smoothness: cadence(probe) };
+    evidence.scenes[scene] = { appearance, timing: timing(probe, "cold", scene), smoothness: cadenceTimeAware(probe) };
     await context.close();
   }
   assert(evidence.scenes.day.appearance.background === evidence.scenes.night.appearance.background, "Shared warm palette drifted between routes");
