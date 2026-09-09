@@ -86,7 +86,7 @@ const CORE_ASSETS = [
   "./menu-stability.css",
   "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",
-  "./discover-deck.css?v=5688261bd55d",
+  "./discover-deck.css?v=96173b0f0a48",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260726-approved-v4",
