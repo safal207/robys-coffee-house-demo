@@ -1,0 +1,153 @@
+name: Refresh Deck Offline Closure Once
+
+on:
+  push:
+    branches:
+      - feat/discover-stacked-journey-deck
+    paths:
+      - ".github/workflows/refresh-deck-offline-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/discover-stacked-journey-deck
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Wire build-owned offline closure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f"missing patch anchor: {label}")
+              if text.count(old) != 1:
+                  raise SystemExit(f"non-unique patch anchor: {label}")
+              return text.replace(old, new, 1)
+
+          build_path = Path("scripts/build.mjs")
+          build = build_path.read_text()
+          build = replace_once(
+              build,
+              'writeFileSync("bootstrap-v2.js", bootstrapSource);\n',
+              'writeFileSync("bootstrap-v2.js", bootstrapSource);\n\n'
+              'const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");\n'
+              'let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");\n'
+              'menuProductRevealSource = synchronizeModuleImport(menuProductRevealSource, "menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision);\n'
+              'writeFileSync("menu-product-reveal.js", menuProductRevealSource);\n',
+              "reveal runtime source sync"
+          )
+          build = replace_once(
+              build,
+              'const menuAppRevision = revisionFor("menu-app.js");\n',
+              'const menuAppRevision = revisionFor("menu-app.js");\n'
+              'const menuProductRevealRevision = revisionFor("menu-product-reveal.js");\n'
+              'const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");\n'
+              'const discoverDeckRevision = revisionFor("discover-deck.js");\n'
+              'const discoverDeckCssRevision = revisionFor("discover-deck.css");\n',
+              "deck and reveal revisions"
+          )
+          build = replace_once(
+              build,
+              'discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);\n',
+              'discoverHtml = synchronizeStylesheet(discoverHtml, "styles-v2.css", baseStylesRevision);\n'
+              'discoverHtml = synchronizeStylesheet(discoverHtml, "discover-deck.css", discoverDeckCssRevision);\n'
+              'discoverHtml = synchronizeModuleScript(discoverHtml, "discover-deck.js", discoverDeckRevision);\n',
+              "discover deck html revisions"
+          )
+          build = replace_once(
+              build,
+              'menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);\n',
+              'menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);\n'
+              'menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);\n'
+              'menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);\n',
+              "menu reveal html revisions"
+          )
+          build = replace_once(
+              build,
+              '  ["menu-app.js", menuAppRevision],\n',
+              '  ["menu-app.js", menuAppRevision],\n'
+              '  ["menu-product-reveal.css", menuProductRevealCssRevision],\n'
+              '  ["menu-product-reveal.js", menuProductRevealRevision],\n'
+              '  ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],\n'
+              '  ["discover-deck.css", discoverDeckCssRevision],\n'
+              '  ["discover-deck.js", discoverDeckRevision],\n',
+              "service worker revision loop"
+          )
+          build_path.write_text(build)
+
+          sw_path = Path("sw.js")
+          sw = sw_path.read_text()
+          sw = replace_once(sw, '  "./menu-premium.css?v=8057fd0f208f",\n', '  "./menu-premium.css?v=8057fd0f208f",\n  "./menu-product-reveal.css",\n', "reveal css precache")
+          sw = replace_once(sw, '  "./menu-app.js?v=785fafe14d32",\n', '  "./menu-app.js?v=785fafe14d32",\n  "./menu-product-reveal.js",\n  "./menu-product-reveal-runtime.js",\n', "reveal runtime precache")
+          sw = replace_once(sw, '  "./discover.css",\n', '  "./discover.css",\n  "./discover-deck.css",\n', "deck css precache")
+          sw = replace_once(sw, '  "./discover-v2.js?v=d16fc23e122d",\n', '  "./discover-v2.js?v=d16fc23e122d",\n  "./discover-deck.js",\n', "deck js precache")
+          sw = replace_once(sw, '  "./src/products/sets-v1/iced-san-sebastian.webp",\n', '  "./src/products/sets-v1/iced-san-sebastian.webp",\n  "./src/products/san-sebastian.webp",\n', "alternate image precache")
+          sw = replace_once(
+              sw,
+              '    url.pathname.endsWith("/menu-app.js") ||\n',
+              '    url.pathname.endsWith("/menu-app.js") ||\n'
+              '    url.pathname.endsWith("/menu-product-reveal.css") ||\n'
+              '    url.pathname.endsWith("/menu-product-reveal.js") ||\n'
+              '    url.pathname.endsWith("/menu-product-reveal-runtime.js") ||\n',
+              "reveal exact revision"
+          )
+          sw = replace_once(
+              sw,
+              '    url.pathname.endsWith("/discover-v2.js") ||\n',
+              '    url.pathname.endsWith("/discover-v2.js") ||\n'
+              '    url.pathname.endsWith("/discover-deck.css") ||\n'
+              '    url.pathname.endsWith("/discover-deck.js") ||\n',
+              "deck exact revision"
+          )
+          sw_path.write_text(sw)
+          PY
+      - name: Build and verify focused contracts
+        run: |
+          node scripts/build.mjs
+          node scripts/test-discover-deck.mjs
+          node scripts/test-menu-product-reveal.mjs
+      - name: Refresh canonical integrity manifest
+        run: node scripts/generate-integrity-manifest.mjs
+      - name: Enforce bounded generated diff
+        run: |
+          rm .github/workflows/refresh-deck-offline-once.yml
+          python3 - <<'PY'
+          import subprocess
+          allowed = {
+            ".github/workflows/refresh-deck-offline-once.yml",
+            "scripts/build.mjs",
+            "sw.js",
+            "discover.html",
+            "menu.html",
+            "menu-product-reveal.js",
+            "integrity-manifest.json",
+          }
+          changed = set(filter(None, subprocess.check_output(["git", "diff", "--name-only"], text=True).splitlines()))
+          extra = changed - allowed
+          if extra:
+              raise SystemExit(f"unexpected generated files: {sorted(extra)}")
+          required = {"scripts/build.mjs", "sw.js", "discover.html", "menu.html", "menu-product-reveal.js", "integrity-manifest.json"}
+          missing = required - changed
+          if missing:
+              raise SystemExit(f"expected generated files missing: {sorted(missing)}")
+          print("bounded generated diff:", sorted(changed))
+          PY
+      - name: Commit generated closure and remove one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/build.mjs sw.js discover.html menu.html menu-product-reveal.js integrity-manifest.json .github/workflows/refresh-deck-offline-once.yml
+          git commit -m "fix(pwa): precache deck reveal dependency closure"
+          git push origin HEAD:feat/discover-stacked-journey-deck
