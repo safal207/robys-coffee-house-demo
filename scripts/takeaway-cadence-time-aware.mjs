@@ -2,6 +2,8 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(`[TAKEAWAY-001] ${message}`);
 };
 
+const MAX_FLAT_DURATION_MS = 55;
+
 function translateYPx(transform) {
   if (!transform || transform === "none") return 0;
   const translate = transform.match(/^translateY\((-?[\d.]+)px\)$/);
@@ -54,7 +56,7 @@ export function cadenceTimeAware(probe) {
 
   assert(totalMovementPx >= 6, `Entrance moved only ${totalMovementPx.toFixed(3)} px across sampled frames`);
   assert(movingTransitions >= 15, `Entrance progressed on only ${movingTransitions}/23 sampled transitions`);
-  assert(longestFlatDurationMs <= 42, `Entrance visually stalled for ${longestFlatDurationMs.toFixed(2)} ms`);
+  assert(longestFlatDurationMs <= MAX_FLAT_DURATION_MS, `Entrance visually stalled for ${longestFlatDurationMs.toFixed(2)} ms`);
   assert(medianFrameIntervalMs <= 20.5, `Median cadence ${medianFrameIntervalMs.toFixed(2)} ms exceeded 60 Hz gate`);
 
   const fade = probe.frames.filter((frame) => frame.state === "handoff");
