@@ -1,0 +1,68 @@
+name: Live smoke bounded-await contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/live-smoke.mjs"
+      - "scripts/live-smoke-deadlines.mjs"
+      - "scripts/test-live-smoke-deadlines.mjs"
+      - ".github/workflows/live-smoke.yml"
+      - ".github/workflows/live-smoke-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: LIVE-001 bounded-await semantics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Syntax check live harness
+        run: |
+          node --check scripts/live-smoke.mjs
+          node --check scripts/live-smoke-deadlines.mjs
+          node --check scripts/test-live-smoke-deadlines.mjs
+      - name: Verify timeout and evidence semantics
+        run: node --test scripts/test-live-smoke-deadlines.mjs
+
+  live-replay:
+    name: LIVE-001 bounded Pages replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install smoke browser tooling
+        run: npm install --no-save --package-lock=false playwright@1.52.0
+      - name: Verify codec-capable Chrome is available
+        run: google-chrome --version
+      - name: Replay repaired harness against published Pages
+        env:
+          ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
+          ROBYS_LIVE_ATTEMPTS: 2
+          ROBYS_LIVE_DELAY_MS: 5000
+          ROBYS_LIVE_FETCH_TIMEOUT_MS: 15000
+          ROBYS_LIVE_VIDEO_TIMEOUT_MS: 8000
+          ROBYS_LIVE_BROWSER_CHANNEL: chrome
+          ROBYS_LIVE_REPORT: live-smoke-report.json
+        run: node scripts/live-smoke.mjs
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bounded-live-smoke-${{ github.run_id }}
+          path: live-smoke-report.json
+          if-no-files-found: error
+          retention-days: 14
