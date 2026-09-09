@@ -8,6 +8,18 @@ const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "1
   stdio: "ignore"
 });
 
+const weatherPayload = JSON.stringify({
+  current: { temperature_2m: 24, precipitation: 0, weather_code: 1 }
+});
+
+async function stubWeather(page) {
+  await page.route("https://api.open-meteo.com/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: weatherPayload
+  }));
+}
+
 let browser;
 try {
   for (let attempt = 0; attempt < 50; attempt += 1) {
@@ -30,13 +42,7 @@ try {
   const requests = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => requests.push(new URL(request.url()).pathname));
-  await page.route("https://api.open-meteo.com/**", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({
-      current: { temperature_2m: 24, precipitation: 0, weather_code: 1 }
-    })
-  }));
+  await stubWeather(page);
 
   await page.goto(`${base}discover.html`, { waitUntil: "networkidle" });
   await page.locator('#journey-deck[data-ready="true"]').waitFor();
@@ -104,6 +110,40 @@ try {
 
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
   await context.close();
+
+  const landscape = await browser.newContext({
+    viewport: { width: 844, height: 390 },
+    hasTouch: true,
+    isMobile: true,
+    reducedMotion: "no-preference",
+    serviceWorkers: "block"
+  });
+  const landscapePage = await landscape.newPage();
+  const landscapeErrors = [];
+  landscapePage.on("pageerror", (error) => landscapeErrors.push(error.message));
+  await stubWeather(landscapePage);
+  await landscapePage.goto(`${base}discover.html`, { waitUntil: "networkidle" });
+  await landscapePage.locator('#journey-deck[data-ready="true"]').waitFor();
+  const landscapeCards = landscapePage.locator(".journey-deck-card");
+  assert.equal(await landscapeCards.count(), 2);
+  const fallback = await landscapeCards.evaluateAll((nodes) => nodes.map((node) => ({
+    position: getComputedStyle(node).position,
+    top: getComputedStyle(node).top
+  })));
+  assert.ok(
+    fallback.every((entry) => entry.position === "relative" && entry.top === "auto"),
+    `short landscape must disable sticky stacking: ${JSON.stringify(fallback)}`
+  );
+  for (const cta of await landscapePage.locator(".journey-deck-cta").all()) {
+    await cta.scrollIntoViewIfNeeded();
+    const box = await cta.boundingBox();
+    assert.ok(box && box.y >= 0 && box.y + box.height <= 390, `landscape CTA must be fully reachable: ${JSON.stringify(box)}`);
+  }
+  const overflow = await landscapePage.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(overflow <= 1, `landscape deck must not create horizontal overflow: ${overflow}px`);
+  assert.deepEqual(landscapeErrors, [], `Landscape browser errors: ${landscapeErrors.join(" | ")}`);
+  await landscape.close();
+
   console.log("discover journey deck browser smoke: PASS");
 } finally {
   await browser?.close();
