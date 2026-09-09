@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const source = readFileSync("takeaway-entry.js", "utf8").replace(/^export /gm, "");
 
-function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal" } = {}) {
+function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal", animationDelay = 0 } = {}) {
   let time = 0;
   let sequence = 0;
   const tasks = new Map();
@@ -45,7 +45,7 @@ function harness({ warm = false, language = "tr", reduced = false, image = "read
     animate(frames, options) {
       animations.push({ tag: this.className, frames, options });
       if (animation === "throws") throw new Error("animation unavailable");
-      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration)) };
+      return { finished: animation === "stalled" ? new Promise(() => {}) : new Promise((resolve) => schedule(resolve, options.duration + animationDelay)) };
     }
   }
   const root = new Element("html");
@@ -111,6 +111,18 @@ for (const scene of ["morning", "day", "night"]) {
     assert.deepEqual(h.pulses, []);
   });
 }
+
+test("delayed cold entrance preserves a 350 ms stationary hold after settle", async () => {
+  const h = harness({ animationDelay: 200 }); h.start(); await h.tick();
+  await h.tick(1249);
+  assert.equal(h.events.some((event) => event.state === "handoff"), false);
+  await h.tick(1);
+  const brand = h.events.find((event) => event.state === "brand-frame");
+  const handoff = h.events.find((event) => event.state === "handoff");
+  assert.equal(handoff.at - brand.at, 1250);
+  await h.tick(480); h.released();
+});
+
 test("warm entry closes in 600 ms", async () => {
   const h = harness({ warm: true }); h.start(); await h.tick(600); h.released();
   assert.equal(h.events.at(-1).at, 600);
