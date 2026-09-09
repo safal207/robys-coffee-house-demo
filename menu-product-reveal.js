@@ -1,4 +1,4 @@
-const TARGET="/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp";
+const TARGET="src/products/menu-v1/desserts--san-sebastian-cheesecake.webp";
 const image=document.querySelector("#menu-product-image");
 let loading=false;
 function load(){
