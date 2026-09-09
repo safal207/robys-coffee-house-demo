@@ -13,6 +13,20 @@ const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "1
   stdio: "ignore"
 });
 
+async function waitForRenderedPoster(page, expectedJourneyId) {
+  await page.waitForFunction((expected) => {
+    const root = document.querySelector("#pairing-products");
+    const figure = root?.querySelector("[data-pairing-poster]");
+    const image = figure?.querySelector("img");
+    return root?.dataset.pairingId === expected
+      && figure?.dataset.pairingPoster === expected
+      && image instanceof HTMLImageElement
+      && image.complete
+      && image.naturalWidth > 0
+      && getComputedStyle(figure).visibility !== "hidden";
+  }, expectedJourneyId, { timeout: 8000 });
+}
+
 let browser;
 try {
   for (let attempt = 0; attempt < 50; attempt += 1) {
@@ -57,6 +71,7 @@ try {
   assert.ok(currentBefore, "Discover must expose the currently selected journey");
   assert.ok(previewBefore, "Deck must expose the alternate active journey");
   assert.notEqual(currentBefore, previewBefore, "Preview must not duplicate the active journey");
+  await waitForRenderedPoster(page, currentBefore);
 
   const expectedPreview = previewBefore === "iced-san-sebastian"
     ? { text: /Айс-латте \+ чизкейк Сан-Себастьян/i, price: "370 ₺" }
@@ -75,6 +90,7 @@ try {
     (expected) => document.querySelector("#pairing-products")?.dataset.pairingId === expected,
     previewBefore
   );
+  await waitForRenderedPoster(page, previewBefore);
 
   const currentAfter = await products.getAttribute("data-pairing-id");
   const previewAfter = await preview.getAttribute("data-journey-id");
