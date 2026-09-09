@@ -79,8 +79,8 @@ assert.match(
 );
 assert.match(
   loaderSource,
-  /desserts--san-sebastian-cheesecake\.webp/,
-  "Loader must key lazy activation to San Sebastian only"
+  /const TARGET="src\/products\/menu-v1\/desserts--san-sebastian-cheesecake\.webp"/,
+  "Reveal loader must match the relative src form written by the menu runtime"
 );
 assert.match(
   loaderSource,
