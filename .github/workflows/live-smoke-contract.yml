@@ -46,8 +46,8 @@ jobs:
       - run: npm ci
       - name: Install smoke browser tooling
         run: npm install --no-save --package-lock=false playwright@1.52.0
-      - name: Install deterministic Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Verify codec-capable Chrome is available
+        run: google-chrome --version
       - name: Replay repaired harness against published Pages
         env:
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
@@ -55,6 +55,7 @@ jobs:
           ROBYS_LIVE_DELAY_MS: 5000
           ROBYS_LIVE_FETCH_TIMEOUT_MS: 15000
           ROBYS_LIVE_VIDEO_TIMEOUT_MS: 8000
+          ROBYS_LIVE_BROWSER_CHANNEL: chrome
           ROBYS_LIVE_REPORT: live-smoke-report.json
         run: node scripts/live-smoke.mjs
       - name: Upload replay evidence
