@@ -36,6 +36,31 @@ jobs:
         run: npm run build
       - name: Regenerate integrity evidence
         run: npm run integrity:generate
+      - name: Show generated-file drift
+        run: |
+          git status --short -- \
+            discover-rotation.js \
+            discover-rotation-v2.js \
+            discover-rotation-v3.js \
+            discover.html \
+            sw.js \
+            integrity-manifest.json
+          git diff -- \
+            discover-rotation.js \
+            discover-rotation-v2.js \
+            discover-rotation-v3.js \
+            discover.html \
+            sw.js \
+            integrity-manifest.json
+      - name: Reject stale generated files
+        run: >-
+          git diff --exit-code --
+          discover-rotation.js
+          discover-rotation-v2.js
+          discover-rotation-v3.js
+          discover.html
+          sw.js
+          integrity-manifest.json
       - name: Run repository check
         run: npm run check
       - name: Run security verification
@@ -46,6 +71,9 @@ jobs:
         with:
           name: discover-journey-deck-generated-${{ github.sha }}
           path: |
+            discover-rotation.js
+            discover-rotation-v2.js
+            discover-rotation-v3.js
             discover.html
             sw.js
             integrity-manifest.json
