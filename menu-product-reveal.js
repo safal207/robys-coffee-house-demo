@@ -5,7 +5,7 @@ function load(){
  const src=image?.getAttribute("src")||"";
  if(loading||!src.split(/[?#]/,1)[0].endsWith(TARGET))return;
  loading=true;
- void import("./menu-product-reveal-runtime.js?v=20260909-reveal-v2").catch(()=>loading=false);
+ void import("./menu-product-reveal-runtime.js?v=90e757f93063").catch(()=>loading=false);
 }
 if(image){
  new MutationObserver(load).observe(image,{attributes:true,attributeFilter:["src"]});

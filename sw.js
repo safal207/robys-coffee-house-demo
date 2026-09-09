@@ -82,9 +82,11 @@ const CORE_ASSETS = [
   "./final-qa.css",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
+  "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability.css",
   "./menu-security-v2.css?v=9a74fe13ba64",
   "./discover.css",
+  "./discover-deck.css?v=5688261bd55d",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260726-approved-v4",
@@ -102,6 +104,8 @@ const CORE_ASSETS = [
   "./conversion.js?v=bbea03459a71",
   "./menu-ready.js",
   "./menu-app.js?v=785fafe14d32",
+  "./menu-product-reveal.js?v=93a2612e19e6",
+  "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./menu-pwa.js?v=premium-cache-new-20260904-1",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
@@ -121,6 +125,7 @@ const CORE_ASSETS = [
   "./smart-choice/decision-trace-v2.js?v=923446e45093",
   "./discover.js",
   "./discover-v2.js?v=d16fc23e122d",
+  "./discover-deck.js?v=fb4f27f2b7ee",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
@@ -133,6 +138,7 @@ const CORE_ASSETS = [
   ...MENU_IMAGE_ASSETS,
   "./src/products/sets-v1/cool-lime-macaron.webp",
   "./src/products/sets-v1/iced-san-sebastian.webp",
+  "./src/products/san-sebastian.webp",
   "./src/pairings-data/final/cool-lime-macaron.webp.b64.txt",
   "./src/pairings-data/final/iced-san-sebastian.webp.b64.txt",
   "./icon.svg",
@@ -175,10 +181,15 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-product-reveal.css") ||
+    url.pathname.endsWith("/menu-product-reveal.js") ||
+    url.pathname.endsWith("/menu-product-reveal-runtime.js") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
+    url.pathname.endsWith("/discover-deck.css") ||
+    url.pathname.endsWith("/discover-deck.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
     url.pathname.endsWith("/qa.js") ||
