@@ -82,6 +82,16 @@ assert.match(
   /desserts--san-sebastian-cheesecake\.webp/,
   "Loader must key lazy activation to San Sebastian only"
 );
+assert.match(
+  loaderSource,
+  /URLSearchParams\(location\.search\)\.get\("product"\)/,
+  "Deck product links must use an explicit product query parameter"
+);
+assert.match(
+  loaderSource,
+  /data-product-id/,
+  "Product deep links must reuse the existing rendered product controls"
+);
 
 const runtimeSource = readFileSync(resolve(root, "menu-product-reveal-runtime.js"), "utf8");
 assert.ok(
@@ -104,4 +114,4 @@ assert.doesNotMatch(
   "Reveal runtime must not inject inline style blocks rejected by menu CSP"
 );
 
-console.log("menu product reveal + pairing contract: PASS");
+console.log("menu product reveal + pairing + deep-link contract: PASS");
