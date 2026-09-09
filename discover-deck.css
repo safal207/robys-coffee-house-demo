@@ -95,6 +95,10 @@
     top: 84px;
   }
 
+  .discover-deck-shell > .pairing-card .pairing-story {
+    padding-bottom: 128px;
+  }
+
   .discover-deck-preview {
     position: sticky;
     top: 104px;
