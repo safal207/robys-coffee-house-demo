@@ -110,13 +110,58 @@ try {
   const previewAfter = await preview.getAttribute("data-journey-id");
   assert.equal(currentAfter, previewBefore, "Deck preview must delegate to the existing next-pairing selection");
   assert.equal(previewAfter, currentBefore, "Deck must expose the previous journey as the new alternate");
+  assert.equal(currentAfter, "iced-san-sebastian", "Fresh P0 deck must be able to switch to the San Sebastian journey");
 
   const currentMenuLink = await menuLink.getAttribute("href");
-  assert.ok(currentMenuLink?.startsWith("menu.html#"), "Existing Discover menu handoff must remain intact");
+  assert.equal(
+    currentMenuLink,
+    "menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts",
+    "San Sebastian journey must hand off to the concrete dessert product"
+  );
+
+  await menuLink.click();
+  await page.waitForURL(/menu\.html\?product=/);
+  await page.locator("#menu-product-dialog").waitFor({ state: "visible", timeout: 5000 });
+  assert.match(await page.locator("#menu-product-title").innerText(), /Сан-Себастьян/i);
+  assert.match(await page.locator("#menu-product-price").innerText(), /190\s*₺/);
+
+  const reveal = page.locator(".menu-product-reveal-control");
+  await reveal.waitFor({ state: "visible", timeout: 5000 });
+  await reveal.evaluate((node) => {
+    node.value = "35";
+    node.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  assert.match(await reveal.getAttribute("aria-valuetext"), /65%/);
+
+  const bridge = page.locator(".menu-product-pairing-bridge");
+  await bridge.waitFor({ state: "visible" });
+  assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.match(await bridge.innerText(), /370\s*₺/);
+  await page.locator(".menu-product-pairing-action").click();
+
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector("#menu-product-dialog");
+    const title = document.querySelector("#menu-product-title")?.textContent ?? "";
+    return dialog?.hasAttribute("open") && title.includes("Айс-латте + чизкейк Сан-Себастьян");
+  });
+  assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
+  assert.equal(await reveal.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
+
+  await page.locator("#menu-add-to-cart").click();
+  assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Journey must end in one existing pairing cart line");
+  await page.locator("#menu-cart-trigger").click();
+  await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
+  assert.equal(
+    Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
+    370,
+    "Discover → reveal → pairing must reuse the existing 370 ₺ cart product"
+  );
+
+  await page.screenshot({ path: `${out}/discover-to-cart-390.png` });
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
 
   await context.close();
-  console.log("discover stacked deck browser smoke: PASS");
+  console.log("discover deck → product → reveal → pairing → cart browser smoke: PASS");
 } finally {
   await browser?.close();
   server.kill();
