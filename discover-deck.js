@@ -7,6 +7,17 @@ const DECK_COPY = Object.freeze({
   ru: Object.freeze({ next: "Следующее сочетание", open: "Показать это сочетание" })
 });
 
+const PRODUCT_ROUTES = Object.freeze({
+  "cool-lime-macaron": Object.freeze({
+    category: "pairing-offers",
+    product: "pairing-offers:cool-lime-macaron-pairing"
+  }),
+  "iced-san-sebastian": Object.freeze({
+    category: "desserts",
+    product: "desserts:san-sebastian-cheesecake"
+  })
+});
+
 function language() {
   const value = typeof document === "undefined" ? "tr" : document.documentElement.lang;
   return value === "en" || value === "ru" ? value : "tr";
@@ -24,6 +35,10 @@ export function pairingForJourney(journeyId) {
 export function alternativeJourney(currentId) {
   if (!currentId) return null;
   return journeys.find((journey) => journey.id !== currentId) ?? null;
+}
+
+export function productRouteForJourney(journeyId) {
+  return PRODUCT_ROUTES[journeyId] ?? null;
 }
 
 function formatPrice(value) {
@@ -65,6 +80,7 @@ function initializeDeck() {
   const card = document.querySelector("#pairing-card");
   const products = document.querySelector("#pairing-products");
   const next = document.querySelector("#next-pairing");
+  const menuLink = document.querySelector("#pairing-menu-link");
   if (!card || !products || !next || card.closest(".discover-deck-shell")) return;
 
   const shell = document.createElement("div");
@@ -77,6 +93,11 @@ function initializeDeck() {
 
   const renderPreview = () => {
     const currentId = products.dataset.pairingId?.trim() ?? "";
+    const route = productRouteForJourney(currentId);
+    if (route && menuLink) {
+      menuLink.href = `menu.html?product=${encodeURIComponent(route.product)}#${route.category}`;
+    }
+
     const journey = alternativeJourney(currentId);
     const item = journey ? pairingForJourney(journey.id) : null;
     if (!journey || !item?.image || !Number.isFinite(item.price)) {
