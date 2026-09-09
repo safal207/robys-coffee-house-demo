@@ -7,18 +7,31 @@ import { certify, contextFor, brand, assertBrand, assertAsset, done, assert, sav
 await certify({ port: Number(process.env.PREMIUM_DEPTH_PORT ?? 4197), resultsDir: path.resolve(process.env.PREMIUM_DEPTH_RESULTS_DIR ?? "visual-results/premium-depth"), contract: "MOTION-DEPTH-001" }, async ({ browser, baseUrl, resultsDir }) => {
   const evidence = { design: "takeaway-v1", asset: assertAsset(), captures: [] };
   for (const [width, height, language, scene] of [[320, 640, "tr", "morning"], [390, 844, "ru", "day"], [1280, 720, "en", "night"], [844, 390, "ru", "day"]]) {
-    // Measure the actual hold in a dedicated cold run. Full-viewport screenshot
-    // encoding on a busy runner can starve rAF observations; it must not be part
-    // of a duration measurement (the cadence suite follows the same boundary).
+    // Measure the stationary hold from the browser's Web Animation timeline,
+    // not from the first/last rAF samples that happen to be observed on a busy runner.
+    // This keeps the 250 ms requirement intact while removing frame-loss undercounting.
     const measurement = await contextFor(browser, { viewport: { width, height }, language });
     const measurePage = await measurement.newPage();
     await measurePage.goto(`${baseUrl}?entry=${scene}`, { waitUntil: "domcontentloaded" });
     const appearance = await brand(measurePage);
     assertBrand(appearance, language);
+    const settledAt = await measurePage.evaluate(async () => {
+      const content = document.querySelector(".robys-takeaway-content");
+      const animation = content?.getAnimations()[0];
+      if (!animation) return null;
+      await animation.ready;
+      const startTime = Number(animation.startTime);
+      const endTime = Number(animation.effect.getComputedTiming().endTime);
+      const timelineNow = Number(document.timeline.currentTime);
+      const performanceNow = performance.now();
+      if (![startTime, endTime, timelineNow, performanceNow].every(Number.isFinite)) return null;
+      return startTime + endTime + (performanceNow - timelineNow);
+    });
     const probe = await done(measurePage);
     save(resultsDir, `takeaway-${width}-${height}-${language}-frames.json`, probe);
-    const held = probe.frames.filter((frame) => frame.state === "brand-frame" && frame.opacity >= .999 && frame.transform === "matrix(1, 0, 0, 1, 0, 0)");
-    const holdMs = held.length >= 2 ? held.at(-1).at - held[0].at : 0;
+    const handoff = probe.events.find((event) => event.state === "handoff");
+    assert(Number.isFinite(settledAt) && Number.isFinite(handoff?.at), `${width}×${height}: animation timeline evidence is unavailable`);
+    const holdMs = handoff.at - settledAt;
     assert(holdMs >= 250, `${width}×${height}: readable stationary hold ${holdMs.toFixed(1)} ms is shorter than 250 ms`);
     await measurement.close();
 
