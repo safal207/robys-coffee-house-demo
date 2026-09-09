@@ -12,11 +12,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: live-discover-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   live-discover-e2e:
     name: LIVE-DISCOVER-E2E published Deck to Cart
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 6
     steps:
       - name: Checkout QA head
         uses: actions/checkout@v4
@@ -34,8 +38,8 @@ jobs:
           NODE_OPTIONS: --import=./scripts/live-fetch-timeout-register.mjs
           ROBYS_FETCH_TIMEOUT_MS: 15000
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
-          ROBYS_LIVE_ATTEMPTS: 15
-          ROBYS_LIVE_DELAY_MS: 20000
+          ROBYS_LIVE_ATTEMPTS: 4
+          ROBYS_LIVE_DELAY_MS: 5000
           ROBYS_LIVE_RESULTS_DIR: .artifacts/live-discover-e2e
         run: node scripts/live-discover-e2e.mjs
       - name: Upload live Discover evidence
