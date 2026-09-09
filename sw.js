@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v63-20260907-takeaway-entry-407ca8aa2851-58d387ca0c01-9e3ea4515f7a";
+const CACHE_VERSION = "robys-offline-v63-20260907-takeaway-entry-e58bfeb2966c-58d387ca0c01-9e3ea4515f7a";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -120,7 +120,7 @@ const CORE_ASSETS = [
   "./smart-choice/analytics-v2.js?v=9cd3b5dd0fc2",
   "./smart-choice/decision-trace-v2.js?v=923446e45093",
   "./discover.js",
-  "./discover-v2.js?v=407ca8aa2851",
+  "./discover-v2.js?v=e58bfeb2966c",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
