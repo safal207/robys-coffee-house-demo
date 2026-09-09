@@ -1,0 +1,34 @@
+name: Live smoke bounded-await contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/live-smoke.mjs"
+      - "scripts/live-smoke-deadlines.mjs"
+      - "scripts/test-live-smoke-deadlines.mjs"
+      - ".github/workflows/live-smoke.yml"
+      - ".github/workflows/live-smoke-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: LIVE-001 bounded-await semantics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Syntax check live harness
+        run: |
+          node --check scripts/live-smoke.mjs
+          node --check scripts/live-smoke-deadlines.mjs
+          node --check scripts/test-live-smoke-deadlines.mjs
+      - name: Verify timeout and evidence semantics
+        run: node --test scripts/test-live-smoke-deadlines.mjs
