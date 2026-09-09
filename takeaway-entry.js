@@ -166,7 +166,7 @@ export function runTakeawayEntry(scene = "day") {
     // A fixed delay from brand-frame can start expiring before Web Animations
     // actually begin on a busy device. Anchor the readable hold to the real
     // animation completion, while keeping a bounded fallback for stalled motion.
-    const fallbackFinish = later(finish, cold ? 1_800 : 800);
+    const fallbackFinish = later(finish, cold ? 1_700 : 750);
     let entranceFinished = null;
     try {
       if (typeof content.animate === "function") {
