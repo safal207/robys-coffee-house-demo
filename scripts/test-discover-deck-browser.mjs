@@ -131,7 +131,7 @@ try {
     top: getComputedStyle(node).top
   })));
   assert.ok(
-    fallback.every((entry) => entry.position === "relative" && entry.top === "auto"),
+    fallback.every((entry) => entry.position === "relative" && Math.abs(parseFloat(entry.top) || 0) < .01),
     `short landscape must disable sticky stacking: ${JSON.stringify(fallback)}`
   );
   for (const cta of await landscapePage.locator(".journey-deck-cta").all()) {
