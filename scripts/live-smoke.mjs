@@ -10,6 +10,8 @@ const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
 const localIndex = readFileSync("index.html", "utf8");
 const expectedBuild = localIndex.match(/<meta\b[^>]*name=["']robys-build["'][^>]*content=["']([^"']+)["']/i)?.[1];
 if (!expectedBuild) throw new Error("[LIVE-001] Local robys-build marker is missing");
+const expectedHeroVideoSrc = localIndex.match(/<video\b[^>]*class=["'][^"']*hero-video[^"']*["'][^>]*>[\s\S]*?<source\b[^>]*src=["']([^"']+)["']/i)?.[1];
+if (!expectedHeroVideoSrc) throw new Error("[LIVE-001] Local hero video source is missing");
 
 const baseUrl = new URL(process.env.ROBYS_LIVE_BASE ?? profile.siteUrl);
 const attempts = Number(process.env.ROBYS_LIVE_ATTEMPTS ?? 4);
@@ -19,6 +21,7 @@ const videoTimeoutMs = Number(process.env.ROBYS_LIVE_VIDEO_TIMEOUT_MS ?? 8000);
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
 const report = {
   expectedBuild,
+  expectedHeroVideoSrc,
   baseUrl: baseUrl.href,
   attempts: [],
   passed: false,
@@ -56,7 +59,7 @@ async function verifyPublishedFiles() {
     fetchText("menu.html"),
     fetchText("robots.txt"),
     fetchText("sitemap.xml"),
-    fetchRange("src/robys-hero-mobile-lite.mp4"),
+    fetchRange(expectedHeroVideoSrc),
     fetchRange("src/robys-hero-poster.jpg")
   ]);
 
@@ -64,6 +67,9 @@ async function verifyPublishedFiles() {
     if (!page.body.includes(`name="robys-build" content="${expectedBuild}"`)) {
       throw new Error(`${name} does not expose build ${expectedBuild}`);
     }
+  }
+  if (!landing.body.includes(expectedHeroVideoSrc)) {
+    throw new Error(`landing does not expose hero source ${expectedHeroVideoSrc}`);
   }
   if (!robots.body.includes(`${profile.siteUrl}sitemap.xml`)) throw new Error("robots.txt does not expose the canonical sitemap");
   if (!sitemap.body.includes(`<loc>${profile.siteUrl}</loc>`) || !sitemap.body.includes(`<loc>${profile.menuUrl}</loc>`)) {
@@ -75,6 +81,7 @@ async function verifyPublishedFiles() {
   return {
     landingUrl: landing.url,
     menuUrl: menu.url,
+    heroVideoSrc: expectedHeroVideoSrc,
     videoStatus: video.status,
     posterStatus: poster.status
   };
@@ -125,21 +132,56 @@ async function verifyBrowser(browser) {
     const mapSrc = await page.locator(".map-live-frame").getAttribute("src");
     if (!mapSrc?.includes("output=embed")) throw new Error("Embedded map source is invalid");
 
-    const videoState = await withDeadline(page.locator(".hero-video").evaluate(async (video) => {
-      video.muted = true;
-      try {
-        await video.play();
-      } catch {
-        return { started: false, error: video.error?.message ?? "play() rejected", readyState: video.readyState };
-      }
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      return {
-        started: !video.paused && video.currentTime > 0,
-        currentTime: video.currentTime,
-        readyState: video.readyState,
-        error: video.error?.message ?? null
-      };
-    }), videoTimeoutMs, "hero video playback");
+    const videoState = await withDeadline(
+      page.locator(".hero-video").evaluate(async (video, observationMs) => {
+        video.muted = true;
+        let playError = null;
+        try {
+          const playPromise = video.play();
+          playPromise?.catch((error) => {
+            playError = error?.message ?? String(error);
+          });
+        } catch (error) {
+          playError = error?.message ?? String(error);
+        }
+
+        const startedAt = performance.now();
+        while (performance.now() - startedAt < observationMs) {
+          if (video.error) {
+            return {
+              started: false,
+              currentTime: video.currentTime,
+              paused: video.paused,
+              readyState: video.readyState,
+              networkState: video.networkState,
+              error: video.error.message || `media error ${video.error.code}`
+            };
+          }
+          if (!video.paused && video.currentTime > 0) {
+            return {
+              started: true,
+              currentTime: video.currentTime,
+              paused: video.paused,
+              readyState: video.readyState,
+              networkState: video.networkState,
+              error: playError
+            };
+          }
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        return {
+          started: false,
+          currentTime: video.currentTime,
+          paused: video.paused,
+          readyState: video.readyState,
+          networkState: video.networkState,
+          error: playError ?? "playback observation timed out"
+        };
+      }, videoTimeoutMs),
+      videoTimeoutMs + 1500,
+      "hero video observation"
+    );
     if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
 
     const menuUrl = new URL("menu.html", baseUrl);
