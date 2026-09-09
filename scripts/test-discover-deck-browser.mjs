@@ -64,6 +64,7 @@ try {
 
   const products = page.locator("#pairing-products");
   const preview = page.locator(".discover-deck-preview");
+  const previewPrice = preview.locator(".discover-deck-preview-price");
   const menuLink = page.locator("#pairing-menu-link");
   await preview.waitFor({ state: "visible" });
 
@@ -79,19 +80,20 @@ try {
     ? { text: /Айс-латте \+ чизкейк Сан-Себастьян/i, price: "370 ₺" }
     : { text: /Cool Lime \+ макарон/i, price: "290 ₺" };
   assert.match(await preview.locator(".discover-deck-preview-name").innerText(), expectedPreview.text);
-  assert.equal((await preview.locator(".discover-deck-preview-price").innerText()).trim(), expectedPreview.price);
+  assert.equal((await previewPrice.innerText()).trim(), expectedPreview.price);
   assert.equal(await preview.evaluate((node) => getComputedStyle(node).position), "sticky");
 
   await page.locator(".discover-deck-shell").scrollIntoViewIfNeeded();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Deck must not create horizontal overflow: ${overflow}px`);
 
-  const [menuLinkBox, previewBox, viewportHeight] = await Promise.all([
+  const [menuLinkBox, previewBox, priceBox, viewportHeight] = await Promise.all([
     menuLink.boundingBox(),
     preview.boundingBox(),
+    previewPrice.boundingBox(),
     page.evaluate(() => window.innerHeight)
   ]);
-  assert.ok(menuLinkBox && previewBox, "Primary CTA and next-card preview must be measurable");
+  assert.ok(menuLinkBox && previewBox && priceBox, "Primary CTA, next-card preview and price must be measurable");
   const menuLinkBottom = menuLinkBox.y + menuLinkBox.height;
   assert.ok(
     menuLinkBottom + 8 <= previewBox.y,
@@ -104,6 +106,10 @@ try {
   assert.ok(
     visiblePreviewHeight >= 64,
     `Next-card preview must visibly signal another journey on 390px: only ${visiblePreviewHeight.toFixed(1)}px visible`
+  );
+  assert.ok(
+    priceBox.y >= 0 && priceBox.y + priceBox.height <= viewportHeight - 4,
+    `Next-card price must be fully visible on 390px: price bottom ${(priceBox.y + priceBox.height).toFixed(1)}px, viewport ${viewportHeight}px`
   );
   await page.screenshot({ path: `${out}/discover-deck-390.png` });
 
