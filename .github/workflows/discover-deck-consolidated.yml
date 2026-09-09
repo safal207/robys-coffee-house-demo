@@ -14,6 +14,7 @@ on:
       - "scripts/test-discover-deck-browser.mjs"
       - "scripts/test-menu-product-reveal.mjs"
       - "integrity-manifest.json"
+      - "qa/reviewed-visual-changes.d/discover-deck-consolidated-v1.json"
       - ".github/workflows/discover-deck-consolidated.yml"
   workflow_dispatch:
 
