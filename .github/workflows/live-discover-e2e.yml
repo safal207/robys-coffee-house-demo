@@ -1,0 +1,45 @@
+name: Live Discover Deck to Cart
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/live-discover-e2e.mjs"
+      - ".github/workflows/live-discover-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-discover-e2e:
+    name: LIVE-DISCOVER-E2E published Deck to Cart
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout QA head
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install deterministic Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify published Discover to cart journey
+        env:
+          ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
+          ROBYS_LIVE_ATTEMPTS: 15
+          ROBYS_LIVE_DELAY_MS: 20000
+          ROBYS_LIVE_RESULTS_DIR: .artifacts/live-discover-e2e
+        run: node scripts/live-discover-e2e.mjs
+      - name: Upload live Discover evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-discover-e2e-${{ github.run_id }}
+          path: .artifacts/live-discover-e2e
+          if-no-files-found: warn
+          retention-days: 14
