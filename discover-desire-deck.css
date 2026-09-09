@@ -1,8 +1,3 @@
-html[data-discover-desire-deck="ready"] #pairing-card,
-html[data-discover-desire-deck="ready"] #next-pairing {
-  display: none;
-}
-
 .discover-desire-deck {
   position: relative;
   display: grid;
