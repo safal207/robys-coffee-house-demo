@@ -1,0 +1,35 @@
+name: Discover Desire Deck
+
+on:
+  pull_request:
+    paths:
+      - "discover.html"
+      - "discover-desire-deck.js"
+      - "discover-desire-deck.css"
+      - "scripts/test-discover-desire-deck-browser.mjs"
+      - ".github/workflows/discover-desire-deck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax check
+        run: |
+          node --check discover-desire-deck.js
+          node --check scripts/test-discover-desire-deck-browser.mjs
+      - name: Install browser dependencies
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Run desire deck browser contract
+        run: node scripts/test-discover-desire-deck-browser.mjs
