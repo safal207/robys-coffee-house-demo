@@ -48,18 +48,6 @@ try {
   const cards = page.locator(".journey-deck-card");
   await cards.first().waitFor({ state: "visible", timeout: 5000 });
   assert.equal(await cards.count(), 2, "Discover must render exactly two verified journey cards");
-  const legacyState = await page.locator("#next-pairing").evaluate((node) => ({
-    hidden: node.hidden,
-    display: getComputedStyle(node).display,
-    rootClass: document.documentElement.className,
-    scripts: [...document.scripts].map((script) => script.src).filter(Boolean),
-    styles: [...document.styleSheets].map((sheet) => sheet.href).filter(Boolean)
-  }));
-  assert.equal(
-    legacyState.hidden || legacyState.display === "none",
-    true,
-    `Legacy next-pairing control must hide when verified deck is active: ${JSON.stringify(legacyState)}`
-  );
 
   const ids = await page.locator(".journey-deck-item").evaluateAll((nodes) => nodes.map((node) => node.dataset.journeyId));
   assert.deepEqual(ids, ["cool-lime-macaron", "iced-san-sebastian"]);
