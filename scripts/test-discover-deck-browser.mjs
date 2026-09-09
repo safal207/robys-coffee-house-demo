@@ -64,6 +64,7 @@ try {
 
   const products = page.locator("#pairing-products");
   const preview = page.locator(".discover-deck-preview");
+  const menuLink = page.locator("#pairing-menu-link");
   await preview.waitFor({ state: "visible" });
 
   const currentBefore = await products.getAttribute("data-pairing-id");
@@ -72,6 +73,7 @@ try {
   assert.ok(previewBefore, "Deck must expose the alternate active journey");
   assert.notEqual(currentBefore, previewBefore, "Preview must not duplicate the active journey");
   await waitForRenderedPoster(page, currentBefore);
+  await products.screenshot({ path: `${out}/discover-deck-poster-current.png` });
 
   const expectedPreview = previewBefore === "iced-san-sebastian"
     ? { text: /Айс-латте \+ чизкейк Сан-Себастьян/i, price: "370 ₺" }
@@ -83,6 +85,17 @@ try {
   await page.locator(".discover-deck-shell").scrollIntoViewIfNeeded();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Deck must not create horizontal overflow: ${overflow}px`);
+
+  const [menuLinkBox, previewBox] = await Promise.all([
+    menuLink.boundingBox(),
+    preview.boundingBox()
+  ]);
+  assert.ok(menuLinkBox && previewBox, "Primary CTA and next-card preview must be measurable");
+  const menuLinkBottom = menuLinkBox.y + menuLinkBox.height;
+  assert.ok(
+    menuLinkBottom + 8 <= previewBox.y,
+    `Next-card preview must stay clear of primary CTA: CTA bottom ${menuLinkBottom.toFixed(1)}px, preview top ${previewBox.y.toFixed(1)}px`
+  );
   await page.screenshot({ path: `${out}/discover-deck-390.png` });
 
   await preview.click();
@@ -91,13 +104,14 @@ try {
     previewBefore
   );
   await waitForRenderedPoster(page, previewBefore);
+  await products.screenshot({ path: `${out}/discover-deck-poster-next.png` });
 
   const currentAfter = await products.getAttribute("data-pairing-id");
   const previewAfter = await preview.getAttribute("data-journey-id");
   assert.equal(currentAfter, previewBefore, "Deck preview must delegate to the existing next-pairing selection");
   assert.equal(previewAfter, currentBefore, "Deck must expose the previous journey as the new alternate");
 
-  const currentMenuLink = await page.locator("#pairing-menu-link").getAttribute("href");
+  const currentMenuLink = await menuLink.getAttribute("href");
   assert.ok(currentMenuLink?.startsWith("menu.html#"), "Existing Discover menu handoff must remain intact");
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
 
