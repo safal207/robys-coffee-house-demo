@@ -21,9 +21,15 @@ function buildMarker(html, pageName) {
 assert(existsSync(".github/workflows/live-smoke.yml"), "workflow missing");
 assert(workflow.includes("branches: [main]"), "main push trigger missing");
 assert(workflow.includes("schedule:"), "schedule trigger missing");
-assert(workflow.includes("playwright install --with-deps chromium"), "browser install missing");
-assert(workflow.includes("ROBYS_LIVE_ATTEMPTS: 15"), "retry protection changed");
+assert(workflow.includes("npm install --no-save --package-lock=false playwright@1.52.0"), "browser tooling install missing");
+assert(workflow.includes("google-chrome --version"), "codec-capable Chrome preflight missing");
+assert(workflow.includes("ROBYS_LIVE_ATTEMPTS: 4"), "bounded retry policy changed");
+assert(workflow.includes("ROBYS_LIVE_DELAY_MS: 5000"), "bounded retry delay changed");
+assert(workflow.includes("ROBYS_LIVE_FETCH_TIMEOUT_MS: 15000"), "fetch deadline changed");
+assert(workflow.includes("ROBYS_LIVE_VIDEO_TIMEOUT_MS: 8000"), "video observation deadline changed");
+assert(workflow.includes("ROBYS_LIVE_BROWSER_CHANNEL: chrome"), "Chrome channel binding missing");
 assert(workflow.includes("if: always()"), "failure evidence upload changed");
+assert(workflow.includes("if-no-files-found: error"), "missing live evidence must fail the workflow");
 
 assert(refreshWorkflow.includes('- "menu.html"'), "menu changes must refresh the integrity manifest");
 assert(
@@ -63,4 +69,4 @@ assert(contract?.assertions?.length >= 8, "assertions incomplete");
 
 console.log(`✅ LIVE-001 build markers match: ${landingBuild}.`);
 console.log("✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.");
-console.log("✅ LIVE-001 workflow and smoke coverage are protected.");
+console.log("✅ LIVE-001 bounded Chrome workflow and smoke coverage are protected.");
