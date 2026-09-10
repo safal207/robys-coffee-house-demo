@@ -1,4 +1,4 @@
-name: Diagnose Android CSS property families
+name: Diagnose Android visual callback request timing
 'on':
   push:
     branches: [qa/android-render-contention-c34f0e0-20260909]
@@ -6,18 +6,18 @@ name: Diagnose Android CSS property families
 permissions:
   contents: read
 concurrency:
-  group: android-css-properties-c34f0e0-20260910
+  group: android-visual-request-timing-c34f0e0-20260910
   cancel-in-progress: true
 jobs:
   capture:
-    name: API36 ${{ matrix.mode }} replicate ${{ matrix.rep }}
+    name: API36 ${{ matrix.timing }} replicate ${{ matrix.rep }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        mode: [control, no-css, effects, shadows, motion, effects-shadows]
+        timing: [immediate, post0, post100, post250, post500]
         rep: [1, 2]
     env:
       NATIVE_SHA: c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
@@ -41,10 +41,10 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
-      - name: Freeze current-main web bytes and apply declared CSS treatment
+      - name: Freeze exact web bytes and force early-commit no-CSS treatment
         shell: bash
         env:
-          MODE: ${{ matrix.mode }}
+          TIMING: ${{ matrix.timing }}
           REP: ${{ matrix.rep }}
         run: |
           set -euo pipefail
@@ -54,33 +54,22 @@ jobs:
           git archive --format=tar "$WEB_SHA" > .artifacts/web.tar
           tar -xf .artifacts/web.tar -C /tmp/robys-web
           sha256sum .artifacts/web.tar > .artifacts/web-archive.sha256
-          python3 - "$MODE" <<'PY'
+          python3 <<'PY'
           from pathlib import Path
-          import re,sys
-          mode=sys.argv[1]
+          import re
           p=Path('/tmp/robys-web/index.html')
           s=p.read_text()
-          if mode == 'no-css':
-              s,n=re.subn(r'<link\s+rel="stylesheet"[^>]*>\s*', '', s, flags=re.I)
-              assert n >= 10, n
-          elif mode != 'control':
-              props={
-                'effects': 'filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;mix-blend-mode:normal!important;',
-                'shadows': 'box-shadow:none!important;text-shadow:none!important;',
-                'motion': 'animation:none!important;transition:none!important;scroll-behavior:auto!important;',
-                'effects-shadows': 'filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;mix-blend-mode:normal!important;box-shadow:none!important;text-shadow:none!important;',
-              }[mode]
-              selectors='body > *:not(.robys-android-handoff),body > *:not(.robys-android-handoff) *,body > *:not(.robys-android-handoff)::before,body > *:not(.robys-android-handoff)::after,body > *:not(.robys-android-handoff) *::before,body > *:not(.robys-android-handoff) *::after'
-              style=f'<style id="android-css-ablation">{selectors}{{{props}}}</style>\n'
-              assert s.count('</head>') == 1
-              s=s.replace('</head>', style+'</head>')
+          s,n=re.subn(r'<link\s+rel="stylesheet"[^>]*>\s*', '', s, flags=re.I)
+          assert n >= 10, n
           p.write_text(s)
           PY
           sha256sum /tmp/robys-web/index.html > .artifacts/treated-index.sha256
-          printf 'native=%s\nweb=%s\nmode=%s\nreplicate=%s\nweb_source=pinned-local-git-archive\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$NATIVE_SHA" "$WEB_SHA" "$MODE" "$REP" > .artifacts/provenance.txt
+          printf 'native=%s\nweb=%s\ntreatment=no-css\nvisual_request_timing=%s\nreplicate=%s\nweb_source=pinned-local-git-archive\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$NATIVE_SHA" "$WEB_SHA" "$TIMING" "$REP" > .artifacts/provenance.txt
 
-      - name: Add debug-only pinned origin to #369 without changing production release policy
+      - name: Add debug-only pinned origin and declared request timing
         shell: bash
+        env:
+          TIMING: ${{ matrix.timing }}
         run: |
           set -euo pipefail
           git diff "$DEBUG_ORIGIN_PARENT" "$DEBUG_ORIGIN_SHA" -- \
@@ -88,24 +77,35 @@ jobs:
             android-native/app/src/debug/res/xml/network_security_config.xml \
             android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > /tmp/debug-origin.patch
           git apply --3way /tmp/debug-origin.patch
-          python3 <<'PY'
+          python3 - "$TIMING" <<'PY'
           from pathlib import Path
-          import textwrap
+          import sys,textwrap
+          timing=sys.argv[1]
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
           s=p.read_text()
           old='''        }\n        pollBridgeReady(view, generation);\n    }'''
-          new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n        requestRevealWhenVisualStateReady(view, false, generation);\n    }'''
+          if timing == 'immediate':
+              request='''        debugState("VISUAL_REQUEST_IMMEDIATE");\n        requestRevealWhenVisualStateReady(view, false, generation);'''
+          elif timing == 'post0':
+              request='''        mainHandler.post(() -> {\n            debugState("VISUAL_REQUEST_POST_ZERO");\n            requestRevealWhenVisualStateReady(view, false, generation);\n        });'''
+          else:
+              delay={'post100':100,'post250':250,'post500':500}[timing]
+              label={'post100':'VISUAL_REQUEST_POST_HUNDRED','post250':'VISUAL_REQUEST_POST_QUARTER','post500':'VISUAL_REQUEST_POST_HALF'}[timing]
+              request=f'''        mainHandler.postDelayed(() -> {{\n            debugState("{label}");\n            requestRevealWhenVisualStateReady(view, false, generation);\n        }}, {delay}L);'''
+          new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n'''+request+'''\n    }'''
           assert s.count(old)==1
           p.write_text(s.replace(old,new))
+
           cp=Path('.qa-resources/.github/scripts/capture-android-page-diagnostic.sh')
           c=cp.read_text()
-          old='adb shell am start -W -n "$PACKAGE/$ACTIVITY" > "$OUT/activity-start.txt"'
-          new='adb shell am start -W -n "$PACKAGE/$ACTIVITY" --es robys.test.APP_URL "http://10.0.2.2:4199/?entry=android-handoff" > "$OUT/activity-start.txt"'
-          assert c.count(old)==1
-          c=c.replace(old,new)
+          old_start='adb shell am start -W -n "$PACKAGE/$ACTIVITY" > "$OUT/activity-start.txt"'
+          new_start='adb shell am start -W -n "$PACKAGE/$ACTIVITY" --es robys.test.APP_URL "http://10.0.2.2:4199/?entry=android-handoff" > "$OUT/activity-start.txt"'
+          assert c.count(old_start)==1
+          c=c.replace(old_start,new_start)
           c=c.replace('"$([[ "$VARIANT" == full ]] && echo public-github-pages || echo inline-loadDataWithBaseURL)" "$([[ "$VARIANT" == full ]] && echo false || echo inline-in-apk)"', '"pinned-local-git-archive" "true"')
-          c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin.')
+          c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin; this run forces the same no-CSS early-commit treatment and changes only visual callback request scheduling.')
           out=Path('.artifacts/capture-pinned.sh'); out.write_text(c); out.chmod(0o755)
+
           wrapper=Path('.artifacts/run-pinned-capture.sh')
           wrapper.write_text(textwrap.dedent('''\
           #!/usr/bin/env bash
@@ -114,9 +114,7 @@ jobs:
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for _ in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:4199/ >/dev/null; then
-              break
-            fi
+            if curl -fsS http://127.0.0.1:4199/ >/dev/null; then break; fi
             sleep 0.25
           done
           curl -fsS http://127.0.0.1:4199/ >/dev/null
@@ -160,7 +158,7 @@ jobs:
           sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk > .artifacts/apk.sha256
           gradle -p android-native --stop
 
-      - name: Capture property treatment on fresh API36 emulator
+      - name: Capture timing treatment on fresh API36 emulator
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 36
@@ -175,7 +173,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-css-property-${{ matrix.mode }}-${{ matrix.rep }}-${{ github.sha }}
+          name: android-visual-timing-${{ matrix.timing }}-${{ matrix.rep }}-${{ github.sha }}
           path: |
             android-native/build/page-diagnostic/full-${{ matrix.rep }}/
             .artifacts/provenance.txt
