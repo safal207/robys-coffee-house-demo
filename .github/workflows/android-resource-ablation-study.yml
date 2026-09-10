@@ -7,7 +7,7 @@ permissions:
   contents: read
 concurrency:
   group: android-css-properties-c34f0e0-20260910
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   capture:
     name: API36 ${{ matrix.mode }} replicate ${{ matrix.rep }}
@@ -90,6 +90,7 @@ jobs:
           git apply --3way /tmp/debug-origin.patch
           python3 <<'PY'
           from pathlib import Path
+          import textwrap
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
           s=p.read_text()
           old='''        }\n        pollBridgeReady(view, generation);\n    }'''
@@ -106,7 +107,8 @@ jobs:
           c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin.')
           out=Path('.artifacts/capture-pinned.sh'); out.write_text(c); out.chmod(0o755)
           wrapper=Path('.artifacts/run-pinned-capture.sh')
-          wrapper.write_text('''#!/usr/bin/env bash
+          wrapper.write_text(textwrap.dedent('''\
+          #!/usr/bin/env bash
           set -euo pipefail
           python3 -m http.server 4199 --bind 0.0.0.0 --directory /tmp/robys-web > .artifacts/web-server.log 2>&1 &
           server=$!
@@ -120,11 +122,13 @@ jobs:
           curl -fsS http://127.0.0.1:4199/ >/dev/null
           : "${CAPTURE_REPLICATE:?CAPTURE_REPLICATE is required}"
           CAPTURE_PAGE_VARIANT=full CAPTURE_REPLICATE="$CAPTURE_REPLICATE" bash .artifacts/capture-pinned.sh
-          ''')
+          '''))
           wrapper.chmod(0o755)
           PY
           git diff --check
           git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/native-diagnostic.patch
+          bash -n .artifacts/capture-pinned.sh
+          bash -n .artifacts/run-pinned-capture.sh
           sha256sum .artifacts/capture-pinned.sh > .artifacts/capture-pinned.sha256
           sha256sum .artifacts/run-pinned-capture.sh > .artifacts/run-pinned-capture.sha256
 
