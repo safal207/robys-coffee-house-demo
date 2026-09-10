@@ -85,25 +85,25 @@ jobs:
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
           s=p.read_text()
 
-          old='private static final long VISUAL_CALLBACK_TIMEOUT_MS = 1500L;'
-          new=f'private static final long VISUAL_CALLBACK_TIMEOUT_MS = {budget}L;'
-          assert s.count(old)==1
+          old='private static final long VISUAL_CALLBACK_TIMEOUT_MS = 1_500L;'
+          new=f'private static final long VISUAL_CALLBACK_TIMEOUT_MS = {budget:_}L;'
+          assert s.count(old)==1, s.count(old)
           s=s.replace(old,new)
 
           old='''        }\n        pollBridgeReady(view, generation);\n    }'''
           new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n        debugState("VISUAL_REQUEST_IMMEDIATE");\n        requestRevealWhenVisualStateReady(view, false, generation);\n    }'''
-          assert s.count(old)==1
+          assert s.count(old)==1, s.count(old)
           s=s.replace(old,new)
 
           old='''            public void onComplete(long ignoredRequestId) {\n                completeHandoff(view, generation);\n            }'''
           new='''            public void onComplete(long ignoredRequestId) {\n                long callbackLatencyMs = Math.max(0L, SystemClock.uptimeMillis() - ignoredRequestId);\n                debugState("VISUAL_CALLBACK_LATENCY_MS_" + callbackLatencyMs);\n                completeHandoff(view, generation);\n            }'''
-          assert s.count(old)==1
+          assert s.count(old)==1, s.count(old)
           s=s.replace(old,new)
 
           if budget > 1500:
               anchor='''        mainHandler.postDelayed(visualStateTimeout, VISUAL_CALLBACK_TIMEOUT_MS);'''
               replacement='''        mainHandler.postDelayed(() -> {\n            if (isActiveGeneration(generation) && !handoffComplete && visualStateRequested) {\n                debugState("VISUAL_SOFT_1500_EXCEEDED");\n            }\n        }, 1500L);\n        mainHandler.postDelayed(visualStateTimeout, VISUAL_CALLBACK_TIMEOUT_MS);'''
-              assert s.count(anchor)==1
+              assert s.count(anchor)==1, s.count(anchor)
               s=s.replace(anchor,replacement)
 
           p.write_text(s)
@@ -112,7 +112,7 @@ jobs:
           c=cp.read_text()
           old_start='adb shell am start -W -n "$PACKAGE/$ACTIVITY" > "$OUT/activity-start.txt"'
           new_start='adb shell am start -W -n "$PACKAGE/$ACTIVITY" --es robys.test.APP_URL "http://10.0.2.2:4199/?entry=android-handoff" > "$OUT/activity-start.txt"'
-          assert c.count(old_start)==1
+          assert c.count(old_start)==1, c.count(old_start)
           c=c.replace(old_start,new_start)
           c=c.replace('"$([[ "$VARIANT" == full ]] && echo public-github-pages || echo inline-loadDataWithBaseURL)" "$([[ "$VARIANT" == full ]] && echo false || echo inline-in-apk)"', '"pinned-local-git-archive" "true"')
           c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive; all runs use the same early-commit no-CSS bytes and immediate visual request, varying only the callback deadline.')
