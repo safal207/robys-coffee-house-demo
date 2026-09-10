@@ -105,10 +105,28 @@ jobs:
           c=c.replace('"$([[ "$VARIANT" == full ]] && echo public-github-pages || echo inline-loadDataWithBaseURL)" "$([[ "$VARIANT" == full ]] && echo false || echo inline-in-apk)"', '"pinned-local-git-archive" "true"')
           c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin.')
           out=Path('.artifacts/capture-pinned.sh'); out.write_text(c); out.chmod(0o755)
+          wrapper=Path('.artifacts/run-pinned-capture.sh')
+          wrapper.write_text('''#!/usr/bin/env bash
+          set -euo pipefail
+          python3 -m http.server 4199 --bind 0.0.0.0 --directory /tmp/robys-web > .artifacts/web-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4199/ >/dev/null; then
+              break
+            fi
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:4199/ >/dev/null
+          : "${CAPTURE_REPLICATE:?CAPTURE_REPLICATE is required}"
+          CAPTURE_PAGE_VARIANT=full CAPTURE_REPLICATE="$CAPTURE_REPLICATE" bash .artifacts/capture-pinned.sh
+          ''')
+          wrapper.chmod(0o755)
           PY
           git diff --check
           git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/native-diagnostic.patch
           sha256sum .artifacts/capture-pinned.sh > .artifacts/capture-pinned.sha256
+          sha256sum .artifacts/run-pinned-capture.sh > .artifacts/run-pinned-capture.sha256
 
       - name: Enable KVM group permissions
         run: |
@@ -147,21 +165,7 @@ jobs:
           profile: pixel_6
           disable-animations: false
           emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: |
-            set -eu
-            python3 -m http.server 4199 --bind 0.0.0.0 --directory /tmp/robys-web > .artifacts/web-server.log 2>&1 &
-            server=$!
-            trap 'kill "$server" 2>/dev/null || true' EXIT
-            i=0
-            while [ "$i" -lt 20 ]; do
-              if curl -fsS http://127.0.0.1:4199/ >/dev/null; then
-                break
-              fi
-              i=$((i + 1))
-              sleep 0.25
-            done
-            curl -fsS http://127.0.0.1:4199/ >/dev/null
-            CAPTURE_PAGE_VARIANT=full CAPTURE_REPLICATE=${{ matrix.rep }} bash .artifacts/capture-pinned.sh
+          script: CAPTURE_REPLICATE=${{ matrix.rep }} bash .artifacts/run-pinned-capture.sh
 
       - name: Upload every outcome
         if: always()
@@ -175,6 +179,7 @@ jobs:
             .artifacts/treated-index.sha256
             .artifacts/native-diagnostic.patch
             .artifacts/capture-pinned.sha256
+            .artifacts/run-pinned-capture.sha256
             .artifacts/apk.sha256
             .artifacts/web-server.log
           include-hidden-files: true
