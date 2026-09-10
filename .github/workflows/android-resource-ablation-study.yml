@@ -1,4 +1,4 @@
-name: Diagnose Android full-page resource classes
+name: Diagnose Android CSS family split
 'on':
   push:
     branches: [qa/android-render-contention-c34f0e0-20260909]
@@ -6,7 +6,7 @@ name: Diagnose Android full-page resource classes
 permissions:
   contents: read
 concurrency:
-  group: android-resource-ablation-c34f0e0-20260909
+  group: android-css-family-split-c34f0e0-20260910
   cancel-in-progress: false
 jobs:
   capture:
@@ -18,21 +18,13 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - mode: no-media
+          - mode: block-css-core
             rep: 1
-          - mode: no-media
+          - mode: block-css-core
             rep: 2
-          - mode: no-images-media
+          - mode: block-css-features
             rep: 1
-          - mode: no-images-media
-            rep: 2
-          - mode: no-css
-            rep: 1
-          - mode: no-css
-            rep: 2
-          - mode: no-js
-            rep: 1
-          - mode: no-js
+          - mode: block-css-features
             rep: 2
     steps:
       - name: Checkout exact native candidate
@@ -48,7 +40,7 @@ jobs:
           sparse-checkout: .github/scripts/capture-android-page-diagnostic.sh
           sparse-checkout-cone-mode: false
           persist-credentials: false
-      - name: Apply hash-bound resource-ablation + direct-visual treatment
+      - name: Apply hash-bound CSS-family ablation + direct-visual treatment
         shell: bash
         env:
           MODE: ${{ matrix.mode }}
@@ -62,27 +54,27 @@ jobs:
           from pathlib import Path
           import hashlib,sys
           mode=sys.argv[1]
-          assert mode in {'no-media','no-images-media','no-css','no-js'}
+          groups={
+            'block-css-core': [
+              'styles-v2.css','mobile.css','conversion.css','final-qa.css','gallery-clean.css','map-live.css'
+            ],
+            'block-css-features': [
+              'menu-preview.css','featured-strip.css','featured-gallery.css','social-offer.css','community-reel.css','brand-photo-logo.css'
+            ],
+          }
+          assert mode in groups
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
           data=p.read_bytes(); got=hashlib.sha256(data).hexdigest()
           assert got=='d6fd2d8b8ae8c1788e9d64c20e4f1a175df72dbe1403f000b94dcccfcb39ed61', got
           s=data.decode()
-          # Imports are diagnostic-only and stay out of the release candidate.
           anchor='import android.webkit.WebResourceRequest;\n'
           assert s.count(anchor)==1
           s=s.replace(anchor,anchor+'import android.webkit.WebResourceResponse;\n\nimport java.io.ByteArrayInputStream;\n')
           anchor='''            @Override\n            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {'''
           assert s.count(anchor)==1
-          predicate={
-            'no-media': 'path.endsWith(".mp4") || path.endsWith(".webm") || path.endsWith(".m4v")',
-            'no-images-media': 'path.endsWith(".mp4") || path.endsWith(".webm") || path.endsWith(".m4v") || path.endsWith(".webp") || path.endsWith(".avif") || path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".svg")',
-            'no-css': 'path.endsWith(".css")',
-            'no-js': 'path.endsWith(".js")'
-          }[mode]
-          mime={'no-media':'video/mp4','no-images-media':'application/octet-stream','no-css':'text/css','no-js':'application/javascript'}[mode]
-          override=f'''            @Override\n            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {{\n                if (!request.isForMainFrame()) {{\n                    String path = request.getUrl() != null ? request.getUrl().getPath() : null;\n                    if (path != null) {{\n                        path = path.toLowerCase(java.util.Locale.ROOT);\n                        if ({predicate}) {{\n                            Log.d(HANDOFF_TAG, "DIAGNOSTIC_BLOCK_{mode.upper().replace('-','_')} " + path);\n                            return new WebResourceResponse("{mime}", "utf-8", new ByteArrayInputStream(new byte[0]));\n                        }}\n                    }}\n                }}\n                return null;\n            }}\n\n'''
+          predicate=' || '.join([f'path.endsWith("/{name}")' for name in groups[mode]])
+          override=f'''            @Override\n            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {{\n                if (!request.isForMainFrame()) {{\n                    String path = request.getUrl() != null ? request.getUrl().getPath() : null;\n                    if (path != null) {{\n                        path = path.toLowerCase(java.util.Locale.ROOT);\n                        if ({predicate}) {{\n                            Log.d(HANDOFF_TAG, "DIAGNOSTIC_{mode.upper().replace('-','_')} " + path);\n                            return new WebResourceResponse("text/css", "utf-8", new ByteArrayInputStream(new byte[0]));\n                        }}\n                    }}\n                }}\n                return null;\n            }}\n\n'''
           s=s.replace(anchor,override+anchor)
-          # Hold full page bytes constant but isolate visual-state rendering from web-ready polling.
           old='''        }\n        pollBridgeReady(view, generation);\n    }'''
           new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n        requestRevealWhenVisualStateReady(view, false, generation);\n    }'''
           assert s.count(old)==1
@@ -90,7 +82,7 @@ jobs:
           PY
           git diff --check
           test "$(git diff --name-only)" = android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java
-          git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/resource-treatment.patch
+          git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/css-family-treatment.patch
           sha256sum .artifacts/capture-android-page-diagnostic.sh > .artifacts/diagnostic-script.sha256
           printf 'base_product_head=%s\ninvocation_head=%s\ntreatment=%s\nreplicate=%s\nweb_source=public-github-pages\nweb_bytes_pinned_to_pr=false\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$(git rev-parse HEAD)" "$GITHUB_SHA" '${{ matrix.mode }}' '${{ matrix.rep }}' > .artifacts/provenance.txt
       - name: Enable KVM group permissions
@@ -140,12 +132,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-resource-${{ matrix.mode }}-${{ matrix.rep }}-${{ github.sha }}
+          name: android-css-family-${{ matrix.mode }}-${{ matrix.rep }}-${{ github.sha }}
           path: |
             android-native/build/page-diagnostic/full-${{ matrix.rep }}/
             .artifacts/provenance.txt
             .artifacts/diagnostic-script.sha256
-            .artifacts/resource-treatment.patch
+            .artifacts/css-family-treatment.patch
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
