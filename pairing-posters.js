@@ -1,6 +1,5 @@
 const priceMeta = {
   "cool-lime-macaron": {
-    oldPrice: "340 ₺",
     chips: {
       tr: ["Fresh lime", "Fıstıklı makaron", "Perfect match"],
       en: ["Fresh lime", "Pistachio macaron", "Perfect match"],
@@ -27,12 +26,8 @@ function splitPairingTitle(title) {
   return [parts[0], parts.slice(1).join(" + ")];
 }
 
-function posterKicker(lang) {
-  return {
-    tr: "PAIR OF THE DAY",
-    en: "PAIR OF THE DAY",
-    ru: "PAIR OF THE DAY"
-  }[lang] ?? "PAIR OF THE DAY";
+function posterKicker() {
+  return "TASTE JOURNEY";
 }
 
 function createTitle(main, accent) {
@@ -78,19 +73,13 @@ function enhancePairingCards() {
 
     const kicker = document.createElement("span");
     kicker.className = "pairing-poster-kicker";
-    kicker.textContent = posterKicker(lang);
+    kicker.textContent = posterKicker();
 
     const priceBadge = document.createElement("div");
     priceBadge.className = "pairing-poster-price";
     const priceValue = document.createElement("strong");
     priceValue.textContent = price;
     priceBadge.append(priceValue);
-    if (meta.oldPrice) {
-      const oldPrice = document.createElement("span");
-      oldPrice.className = "pairing-poster-old-price";
-      oldPrice.textContent = meta.oldPrice;
-      priceBadge.append(oldPrice);
-    }
 
     const bottom = document.createElement("div");
     bottom.className = "pairing-poster-bottom";
