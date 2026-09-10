@@ -708,6 +708,11 @@ languageButtons.forEach((button) => {
 
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value;
+  if (searchTerm.trim() && activeCategory !== "all") {
+    activeCategory = "all";
+    syncCategoryHash("all");
+    renderCategoryNav();
+  }
   renderMenu();
 });
 
