@@ -1,4 +1,4 @@
-name: Diagnose Android visual callback request timing
+name: Diagnose Android visual callback deadline
 'on':
   push:
     branches: [qa/android-render-contention-c34f0e0-20260909]
@@ -6,19 +6,19 @@ name: Diagnose Android visual callback request timing
 permissions:
   contents: read
 concurrency:
-  group: android-visual-request-timing-c34f0e0-20260910
+  group: android-visual-deadline-c34f0e0-20260910
   cancel-in-progress: true
 jobs:
   capture:
-    name: API36 ${{ matrix.timing }} replicate ${{ matrix.rep }}
+    name: API36 deadline-${{ matrix.budget }}ms replicate ${{ matrix.rep }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        timing: [immediate, post0, post100, post250, post500]
-        rep: [1, 2]
+        budget: [1500, 3000, 5000, 6000]
+        rep: [1, 2, 3]
     env:
       NATIVE_SHA: c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
       WEB_SHA: 910326ec514e337b77134d01067a3e975c438f10
@@ -44,7 +44,7 @@ jobs:
       - name: Freeze exact web bytes and force early-commit no-CSS treatment
         shell: bash
         env:
-          TIMING: ${{ matrix.timing }}
+          BUDGET: ${{ matrix.budget }}
           REP: ${{ matrix.rep }}
         run: |
           set -euo pipefail
@@ -64,12 +64,12 @@ jobs:
           p.write_text(s)
           PY
           sha256sum /tmp/robys-web/index.html > .artifacts/treated-index.sha256
-          printf 'native=%s\nweb=%s\ntreatment=no-css\nvisual_request_timing=%s\nreplicate=%s\nweb_source=pinned-local-git-archive\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$NATIVE_SHA" "$WEB_SHA" "$TIMING" "$REP" > .artifacts/provenance.txt
+          printf 'native=%s\nweb=%s\ntreatment=no-css\nvisual_request_timing=immediate\nvisual_callback_budget_ms=%s\nreplicate=%s\nweb_source=pinned-local-git-archive\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$NATIVE_SHA" "$WEB_SHA" "$BUDGET" "$REP" > .artifacts/provenance.txt
 
-      - name: Add debug-only pinned origin and declared request timing
+      - name: Add pinned origin, immediate request, deadline, and callback telemetry
         shell: bash
         env:
-          TIMING: ${{ matrix.timing }}
+          BUDGET: ${{ matrix.budget }}
         run: |
           set -euo pipefail
           git diff "$DEBUG_ORIGIN_PARENT" "$DEBUG_ORIGIN_SHA" -- \
@@ -77,24 +77,36 @@ jobs:
             android-native/app/src/debug/res/xml/network_security_config.xml \
             android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > /tmp/debug-origin.patch
           git apply --3way /tmp/debug-origin.patch
-          python3 - "$TIMING" <<'PY'
+          python3 - "$BUDGET" <<'PY'
           from pathlib import Path
           import sys,textwrap
-          timing=sys.argv[1]
+          budget=int(sys.argv[1])
+          assert budget in (1500,3000,5000,6000)
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
           s=p.read_text()
-          old='''        }\n        pollBridgeReady(view, generation);\n    }'''
-          if timing == 'immediate':
-              request='''        debugState("VISUAL_REQUEST_IMMEDIATE");\n        requestRevealWhenVisualStateReady(view, false, generation);'''
-          elif timing == 'post0':
-              request='''        mainHandler.post(() -> {\n            debugState("VISUAL_REQUEST_POST_ZERO");\n            requestRevealWhenVisualStateReady(view, false, generation);\n        });'''
-          else:
-              delay={'post100':100,'post250':250,'post500':500}[timing]
-              label={'post100':'VISUAL_REQUEST_POST_HUNDRED','post250':'VISUAL_REQUEST_POST_QUARTER','post500':'VISUAL_REQUEST_POST_HALF'}[timing]
-              request=f'''        mainHandler.postDelayed(() -> {{\n            debugState("{label}");\n            requestRevealWhenVisualStateReady(view, false, generation);\n        }}, {delay}L);'''
-          new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n'''+request+'''\n    }'''
+
+          old='private static final long VISUAL_CALLBACK_TIMEOUT_MS = 1500L;'
+          new=f'private static final long VISUAL_CALLBACK_TIMEOUT_MS = {budget}L;'
           assert s.count(old)==1
-          p.write_text(s.replace(old,new))
+          s=s.replace(old,new)
+
+          old='''        }\n        pollBridgeReady(view, generation);\n    }'''
+          new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n        debugState("VISUAL_REQUEST_IMMEDIATE");\n        requestRevealWhenVisualStateReady(view, false, generation);\n    }'''
+          assert s.count(old)==1
+          s=s.replace(old,new)
+
+          old='''            public void onComplete(long ignoredRequestId) {\n                completeHandoff(view, generation);\n            }'''
+          new='''            public void onComplete(long ignoredRequestId) {\n                long callbackLatencyMs = Math.max(0L, SystemClock.uptimeMillis() - ignoredRequestId);\n                debugState("VISUAL_CALLBACK_LATENCY_MS_" + callbackLatencyMs);\n                completeHandoff(view, generation);\n            }'''
+          assert s.count(old)==1
+          s=s.replace(old,new)
+
+          if budget > 1500:
+              anchor='''        mainHandler.postDelayed(visualStateTimeout, VISUAL_CALLBACK_TIMEOUT_MS);'''
+              replacement='''        mainHandler.postDelayed(() -> {\n            if (isActiveGeneration(generation) && !handoffComplete && visualStateRequested) {\n                debugState("VISUAL_SOFT_1500_EXCEEDED");\n            }\n        }, 1500L);\n        mainHandler.postDelayed(visualStateTimeout, VISUAL_CALLBACK_TIMEOUT_MS);'''
+              assert s.count(anchor)==1
+              s=s.replace(anchor,replacement)
+
+          p.write_text(s)
 
           cp=Path('.qa-resources/.github/scripts/capture-android-page-diagnostic.sh')
           c=cp.read_text()
@@ -103,7 +115,7 @@ jobs:
           assert c.count(old_start)==1
           c=c.replace(old_start,new_start)
           c=c.replace('"$([[ "$VARIANT" == full ]] && echo public-github-pages || echo inline-loadDataWithBaseURL)" "$([[ "$VARIANT" == full ]] && echo false || echo inline-in-apk)"', '"pinned-local-git-archive" "true"')
-          c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin; this run forces the same no-CSS early-commit treatment and changes only visual callback request scheduling.')
+          c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive; all runs use the same early-commit no-CSS bytes and immediate visual request, varying only the callback deadline.')
           out=Path('.artifacts/capture-pinned.sh'); out.write_text(c); out.chmod(0o755)
 
           wrapper=Path('.artifacts/run-pinned-capture.sh')
@@ -158,7 +170,7 @@ jobs:
           sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk > .artifacts/apk.sha256
           gradle -p android-native --stop
 
-      - name: Capture timing treatment on fresh API36 emulator
+      - name: Capture deadline treatment on fresh API36 emulator
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 36
@@ -173,7 +185,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-visual-timing-${{ matrix.timing }}-${{ matrix.rep }}-${{ github.sha }}
+          name: android-visual-deadline-${{ matrix.budget }}-${{ matrix.rep }}-${{ github.sha }}
           path: |
             android-native/build/page-diagnostic/full-${{ matrix.rep }}/
             .artifacts/provenance.txt
