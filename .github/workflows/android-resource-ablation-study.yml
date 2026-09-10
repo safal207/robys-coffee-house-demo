@@ -23,6 +23,7 @@ jobs:
       NATIVE_SHA: c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
       WEB_SHA: 910326ec514e337b77134d01067a3e975c438f10
       DEBUG_ORIGIN_SHA: fad4e6d42d45c581c7bbd041d4cee67e3f161b38
+      DEBUG_ORIGIN_PARENT: 9e4e09d09affa28712b27bb6ca48961adc8cbca8
     steps:
       - name: Checkout exact #369 native candidate
         uses: actions/checkout@v4
@@ -49,11 +50,10 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$NATIVE_SHA"
           mkdir -p .artifacts /tmp/robys-web
-          git fetch --no-tags --depth=1 origin "$WEB_SHA" "$DEBUG_ORIGIN_SHA" "${DEBUG_ORIGIN_SHA}^"
+          git fetch --no-tags --depth=1 origin "$WEB_SHA" "$DEBUG_ORIGIN_SHA" "$DEBUG_ORIGIN_PARENT"
           git archive --format=tar "$WEB_SHA" > .artifacts/web.tar
           tar -xf .artifacts/web.tar -C /tmp/robys-web
           sha256sum .artifacts/web.tar > .artifacts/web-archive.sha256
-          test "$(git -C /tmp/robys-web rev-parse 2>/dev/null || true)" = "" || true
           python3 - "$MODE" <<'PY'
           from pathlib import Path
           import re,sys
@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git diff "$DEBUG_ORIGIN_SHA^" "$DEBUG_ORIGIN_SHA" -- \
+          git diff "$DEBUG_ORIGIN_PARENT" "$DEBUG_ORIGIN_SHA" -- \
             android-native/app/src/debug/AndroidManifest.xml \
             android-native/app/src/debug/res/xml/network_security_config.xml \
             android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > /tmp/debug-origin.patch
