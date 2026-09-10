@@ -1,4 +1,4 @@
-name: Diagnose Android CSS family split
+name: Diagnose Android CSS property families
 'on':
   push:
     branches: [qa/android-render-contention-c34f0e0-20260909]
@@ -6,7 +6,7 @@ name: Diagnose Android CSS family split
 permissions:
   contents: read
 concurrency:
-  group: android-css-family-split-c34f0e0-20260910
+  group: android-css-properties-c34f0e0-20260910
   cancel-in-progress: false
 jobs:
   capture:
@@ -17,22 +17,21 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        include:
-          - mode: block-css-core
-            rep: 1
-          - mode: block-css-core
-            rep: 2
-          - mode: block-css-features
-            rep: 1
-          - mode: block-css-features
-            rep: 2
+        mode: [control, no-css, effects, shadows, motion, effects-shadows]
+        rep: [1, 2]
+    env:
+      NATIVE_SHA: c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
+      WEB_SHA: 910326ec514e337b77134d01067a3e975c438f10
+      DEBUG_ORIGIN_SHA: fad4e6d42d45c581c7bbd041d4cee67e3f161b38
     steps:
-      - name: Checkout exact native candidate
+      - name: Checkout exact #369 native candidate
         uses: actions/checkout@v4
         with:
           ref: c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
           persist-credentials: false
-      - name: Fetch diagnostic capture script only
+          fetch-depth: 1
+
+      - name: Checkout diagnostic capture helper
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
@@ -40,56 +39,84 @@ jobs:
           sparse-checkout: .github/scripts/capture-android-page-diagnostic.sh
           sparse-checkout-cone-mode: false
           persist-credentials: false
-      - name: Apply hash-bound CSS-family ablation + direct-visual treatment
+
+      - name: Freeze current-main web bytes and apply declared CSS treatment
         shell: bash
         env:
           MODE: ${{ matrix.mode }}
+          REP: ${{ matrix.rep }}
         run: |
-          test "$(git rev-parse HEAD)" = c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
-          test "$(git hash-object android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java)" = f9714db73ffe3589d874babd10a37f49a65d1a29
-          mkdir -p .artifacts
-          cp .qa-resources/.github/scripts/capture-android-page-diagnostic.sh .artifacts/capture-android-page-diagnostic.sh
-          chmod +x .artifacts/capture-android-page-diagnostic.sh
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$NATIVE_SHA"
+          mkdir -p .artifacts /tmp/robys-web
+          git fetch --no-tags --depth=1 origin "$WEB_SHA" "$DEBUG_ORIGIN_SHA" "${DEBUG_ORIGIN_SHA}^"
+          git archive --format=tar "$WEB_SHA" > .artifacts/web.tar
+          tar -xf .artifacts/web.tar -C /tmp/robys-web
+          sha256sum .artifacts/web.tar > .artifacts/web-archive.sha256
+          test "$(git -C /tmp/robys-web rev-parse 2>/dev/null || true)" = "" || true
           python3 - "$MODE" <<'PY'
           from pathlib import Path
-          import hashlib,sys
+          import re,sys
           mode=sys.argv[1]
-          groups={
-            'block-css-core': [
-              'styles-v2.css','mobile.css','conversion.css','final-qa.css','gallery-clean.css','map-live.css'
-            ],
-            'block-css-features': [
-              'menu-preview.css','featured-strip.css','featured-gallery.css','social-offer.css','community-reel.css','brand-photo-logo.css'
-            ],
-          }
-          assert mode in groups
+          p=Path('/tmp/robys-web/index.html')
+          s=p.read_text()
+          if mode == 'no-css':
+              s,n=re.subn(r'<link\s+rel="stylesheet"[^>]*>\s*', '', s, flags=re.I)
+              assert n >= 10, n
+          elif mode != 'control':
+              props={
+                'effects': 'filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;mix-blend-mode:normal!important;',
+                'shadows': 'box-shadow:none!important;text-shadow:none!important;',
+                'motion': 'animation:none!important;transition:none!important;scroll-behavior:auto!important;',
+                'effects-shadows': 'filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;mix-blend-mode:normal!important;box-shadow:none!important;text-shadow:none!important;',
+              }[mode]
+              selectors='body > *:not(.robys-android-handoff),body > *:not(.robys-android-handoff) *,body > *:not(.robys-android-handoff)::before,body > *:not(.robys-android-handoff)::after,body > *:not(.robys-android-handoff) *::before,body > *:not(.robys-android-handoff) *::after'
+              style=f'<style id="android-css-ablation">{selectors}{{{props}}}</style>\n'
+              assert s.count('</head>') == 1
+              s=s.replace('</head>', style+'</head>')
+          p.write_text(s)
+          PY
+          sha256sum /tmp/robys-web/index.html > .artifacts/treated-index.sha256
+          printf 'native=%s\nweb=%s\nmode=%s\nreplicate=%s\nweb_source=pinned-local-git-archive\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$NATIVE_SHA" "$WEB_SHA" "$MODE" "$REP" > .artifacts/provenance.txt
+
+      - name: Add debug-only pinned origin to #369 without changing production release policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff "$DEBUG_ORIGIN_SHA^" "$DEBUG_ORIGIN_SHA" -- \
+            android-native/app/src/debug/AndroidManifest.xml \
+            android-native/app/src/debug/res/xml/network_security_config.xml \
+            android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > /tmp/debug-origin.patch
+          git apply --3way /tmp/debug-origin.patch
+          python3 <<'PY'
+          from pathlib import Path
           p=Path('android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java')
-          data=p.read_bytes(); got=hashlib.sha256(data).hexdigest()
-          assert got=='d6fd2d8b8ae8c1788e9d64c20e4f1a175df72dbe1403f000b94dcccfcb39ed61', got
-          s=data.decode()
-          anchor='import android.webkit.WebResourceRequest;\n'
-          assert s.count(anchor)==1
-          s=s.replace(anchor,anchor+'import android.webkit.WebResourceResponse;\n\nimport java.io.ByteArrayInputStream;\n')
-          anchor='''            @Override\n            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {'''
-          assert s.count(anchor)==1
-          predicate=' || '.join([f'path.endsWith("/{name}")' for name in groups[mode]])
-          override=f'''            @Override\n            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {{\n                if (!request.isForMainFrame()) {{\n                    String path = request.getUrl() != null ? request.getUrl().getPath() : null;\n                    if (path != null) {{\n                        path = path.toLowerCase(java.util.Locale.ROOT);\n                        if ({predicate}) {{\n                            Log.d(HANDOFF_TAG, "DIAGNOSTIC_{mode.upper().replace('-','_')} " + path);\n                            return new WebResourceResponse("text/css", "utf-8", new ByteArrayInputStream(new byte[0]));\n                        }}\n                    }}\n                }}\n                return null;\n            }}\n\n'''
-          s=s.replace(anchor,override+anchor)
+          s=p.read_text()
           old='''        }\n        pollBridgeReady(view, generation);\n    }'''
           new='''        }\n        debugState("BRIDGE_BYPASS_DIAGNOSTIC");\n        requestRevealWhenVisualStateReady(view, false, generation);\n    }'''
           assert s.count(old)==1
           p.write_text(s.replace(old,new))
+          cp=Path('.qa-resources/.github/scripts/capture-android-page-diagnostic.sh')
+          c=cp.read_text()
+          old='adb shell am start -W -n "$PACKAGE/$ACTIVITY" > "$OUT/activity-start.txt"'
+          new='adb shell am start -W -n "$PACKAGE/$ACTIVITY" --es robys.test.APP_URL "http://10.0.2.2:4199/?entry=android-handoff" > "$OUT/activity-start.txt"'
+          assert c.count(old)==1
+          c=c.replace(old,new)
+          c=c.replace('"$([[ "$VARIANT" == full ]] && echo public-github-pages || echo inline-loadDataWithBaseURL)" "$([[ "$VARIANT" == full ]] && echo false || echo inline-in-apk)"', '"pinned-local-git-archive" "true"')
+          c=c.replace('Full uses mutable public GitHub Pages; minimal uses inline loadDataWithBaseURL on the same trusted base URL.', 'Full uses a pinned local git archive through the debug-only 10.0.2.2 origin.')
+          out=Path('.artifacts/capture-pinned.sh'); out.write_text(c); out.chmod(0o755)
           PY
           git diff --check
-          test "$(git diff --name-only)" = android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java
-          git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/css-family-treatment.patch
-          sha256sum .artifacts/capture-android-page-diagnostic.sh > .artifacts/diagnostic-script.sha256
-          printf 'base_product_head=%s\ninvocation_head=%s\ntreatment=%s\nreplicate=%s\nweb_source=public-github-pages\nweb_bytes_pinned_to_pr=false\nbridge_poll_bypassed=true\ngpu_backend=software\nscreenrecord=false\nrelease_certified=false\n' "$(git rev-parse HEAD)" "$GITHUB_SHA" '${{ matrix.mode }}' '${{ matrix.rep }}' > .artifacts/provenance.txt
+          git diff -- android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java > .artifacts/native-diagnostic.patch
+          sha256sum .artifacts/capture-pinned.sh > .artifacts/capture-pinned.sha256
+
       - name: Enable KVM group permissions
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          test -r /dev/kvm && test -w /dev/kvm
+
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
@@ -105,14 +132,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
-      - name: Build diagnostic APK
-        run: gradle -p android-native :app:assembleDebug --stacktrace
-      - name: Release build resources before cold emulator
+      - name: Build shared diagnostic APK
         run: |
+          gradle -p android-native :app:assembleDebug --stacktrace
+          sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk > .artifacts/apk.sha256
           gradle -p android-native --stop
-          free -h
-          nproc
-      - name: Capture treatment on fresh emulator
+
+      - name: Capture property treatment on fresh API36 emulator
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 36
@@ -121,23 +147,29 @@ jobs:
           profile: pixel_6
           disable-animations: false
           emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: CAPTURE_PAGE_VARIANT=full CAPTURE_REPLICATE=${{ matrix.rep }} bash .artifacts/capture-android-page-diagnostic.sh
-      - name: Verify diagnostic provenance
-        if: always()
-        shell: bash
-        run: |
-          test "$(git rev-parse HEAD)" = c34f0e0c53ac05c20c0eade93c85ee4cc284d1fe
-          test "$(git diff --name-only)" = android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java
+          script: |
+            set -euo pipefail
+            python3 -m http.server 4199 --bind 0.0.0.0 --directory /tmp/robys-web > .artifacts/web-server.log 2>&1 &
+            server=$!
+            trap 'kill "$server" 2>/dev/null || true' EXIT
+            for i in {1..20}; do curl -fsS http://127.0.0.1:4199/ >/dev/null && break; sleep 0.25; done
+            curl -fsS http://127.0.0.1:4199/ >/dev/null
+            CAPTURE_PAGE_VARIANT=full CAPTURE_REPLICATE=${{ matrix.rep }} bash .artifacts/capture-pinned.sh
+
       - name: Upload every outcome
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-css-family-${{ matrix.mode }}-${{ matrix.rep }}-${{ github.sha }}
+          name: android-css-property-${{ matrix.mode }}-${{ matrix.rep }}-${{ github.sha }}
           path: |
             android-native/build/page-diagnostic/full-${{ matrix.rep }}/
             .artifacts/provenance.txt
-            .artifacts/diagnostic-script.sha256
-            .artifacts/css-family-treatment.patch
+            .artifacts/web-archive.sha256
+            .artifacts/treated-index.sha256
+            .artifacts/native-diagnostic.patch
+            .artifacts/capture-pinned.sha256
+            .artifacts/apk.sha256
+            .artifacts/web-server.log
           include-hidden-files: true
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
