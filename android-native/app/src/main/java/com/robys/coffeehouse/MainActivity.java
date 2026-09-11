@@ -53,7 +53,9 @@ public final class MainActivity extends ComponentActivity {
     private boolean visualStateRequested;
     private boolean handoffComplete;
     private boolean bridgeReadyAtReveal;
+    private long loadCommitDeadlineAt;
     private long bridgeDeadlineAt;
+    private long visualDeadlineAt;
     private int activeLoadGeneration;
     private Runnable loadCommitSlow;
     private Runnable loadCommitHardTimeout;
@@ -101,6 +103,7 @@ public final class MainActivity extends ComponentActivity {
         handoffComplete = false;
         bridgeReadyAtReveal = false;
         bridgeDeadlineAt = 0L;
+        visualDeadlineAt = 0L;
         errorView.setVisibility(View.GONE);
         splashView.resetAndShow();
         splashView.bringToFront();
@@ -122,6 +125,7 @@ public final class MainActivity extends ComponentActivity {
             }
         };
         mainHandler.postDelayed(loadCommitSlow, LOAD_COMMIT_SLOW_MS);
+        loadCommitDeadlineAt = SystemClock.uptimeMillis() + LOAD_COMMIT_HARD_TIMEOUT_MS;
         mainHandler.postDelayed(loadCommitHardTimeout, LOAD_COMMIT_HARD_TIMEOUT_MS);
     }
 
@@ -219,6 +223,12 @@ public final class MainActivity extends ComponentActivity {
         if (!isActiveGeneration(generation) || !isTrusted(uri)) return;
 
         if (!mainFrameCommitted) {
+            // The first commit cannot cancel an already expired load budget.
+            if (SystemClock.uptimeMillis() >= loadCommitDeadlineAt) {
+                debugState("LOAD_COMMIT_TIMEOUT");
+                showLoadError(generation);
+                return;
+            }
             mainFrameCommitted = true;
             bridgeDeadlineAt = SystemClock.uptimeMillis() + BRIDGE_READY_TIMEOUT_MS;
             removeCallback(loadCommitSlow);
@@ -257,6 +267,11 @@ public final class MainActivity extends ComponentActivity {
                 value -> {
                     if (!isActiveGeneration(generation) || handoffComplete || visualStateRequested) return;
                     if (!isCurrentGenerationUrl(view.getUrl(), generation)) return;
+                    // A queued timeout may not have run yet when a late result arrives.
+                    if (SystemClock.uptimeMillis() >= bridgeDeadlineAt) {
+                        if (bridgeReadyTimeout != null) bridgeReadyTimeout.run();
+                        return;
+                    }
                     if ("\"ready\"".equals(value)) {
                         debugState("WEB_READY");
                         requestRevealWhenVisualStateReady(view, true, generation);
@@ -275,6 +290,7 @@ public final class MainActivity extends ComponentActivity {
         bridgeReadyAtReveal = bridgeReady;
         cancelHandoffCallbacks();
         long requestId = SystemClock.uptimeMillis();
+        visualDeadlineAt = requestId + VISUAL_CALLBACK_TIMEOUT_MS;
         view.postVisualStateCallback(requestId, new WebView.VisualStateCallback() {
             @Override
             public void onComplete(long ignoredRequestId) {
@@ -296,6 +312,13 @@ public final class MainActivity extends ComponentActivity {
                 || view == null
                 || !mainFrameCommitted
                 || !isCurrentGenerationUrl(view.getUrl(), generation)) return;
+
+        // Callback delivery must stay within the original visual request budget.
+        if (SystemClock.uptimeMillis() >= visualDeadlineAt) {
+            debugState("VISUAL_STATE_TIMEOUT");
+            showLoadError(generation);
+            return;
+        }
 
         handoffComplete = true;
         cancelHandoffCallbacks();
