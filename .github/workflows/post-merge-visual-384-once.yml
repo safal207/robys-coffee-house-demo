@@ -1,0 +1,119 @@
+name: Post-merge visual proof 384 once
+
+on:
+  push:
+    branches:
+      - qa/post-merge-visual-384
+
+permissions:
+  contents: read
+
+jobs:
+  verify-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout merged main bytes
+        uses: actions/checkout@v4
+        with:
+          ref: 9abf05406dbb97f20dfbe0321b8b216ca09fe326
+          path: current
+          persist-credentials: false
+
+      - name: Checkout pre-merge baseline
+        uses: actions/checkout@v4
+        with:
+          ref: c8722b69b8705b6f0d1905788622cc02d41d4fdf
+          path: baseline
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: current/package-lock.json
+
+      - name: Install exact dependencies
+        run: |
+          set -euo pipefail
+          npm ci --prefix current
+          npm ci --prefix baseline
+
+      - name: Verify locked toolchain and audit
+        working-directory: current
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: |
+          set -euo pipefail
+          node --test scripts/test-visual-toolchain.mjs
+          node scripts/verify-visual-toolchain.mjs --packages
+          npm audit --audit-level=high
+          npm run check
+          npm run verify:security
+          git diff --exit-code
+
+      - name: Build baseline
+        working-directory: baseline
+        run: npm run build
+
+      - name: Install merged Playwright Chromium
+        working-directory: current
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Verify browser binding
+        working-directory: current
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: node scripts/verify-visual-toolchain.mjs --browser
+
+      - name: Visual attempt 1
+        working-directory: current
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/post-merge-attempt-1
+        run: node scripts/visual-regression.mjs
+
+      - name: Visual attempt 2
+        working-directory: current
+        env:
+          VISUAL_CURRENT_DIR: ${{ github.workspace }}/current
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/post-merge-attempt-2
+        run: node scripts/visual-regression.mjs
+
+      - name: Verify post-merge migration evidence
+        working-directory: current
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: |
+          set -euo pipefail
+          rm -rf visual-results/screenshot-attempt-1 visual-results/screenshot-attempt-2
+          cp -R visual-results/post-merge-attempt-1 visual-results/screenshot-attempt-1
+          cp -R visual-results/post-merge-attempt-2 visual-results/screenshot-attempt-2
+          node scripts/verify-visual-toolchain.mjs --comparison
+          rm -rf visual-results/final
+          cp -R visual-results/post-merge-attempt-1 visual-results/final
+          node scripts/verify-reviewed-visual-change.mjs
+
+      - name: Verify UI UX and motion on merged bytes
+        working-directory: current
+        env:
+          UI_UX_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/post-merge-ui-ux
+          UI_UX_ATTEMPTS: 2
+          SCROLL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/post-merge-scroll
+          MORNING_ENTRY_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/post-merge-motion
+        run: |
+          set -euo pipefail
+          node scripts/ui-ux-matrix.mjs
+          node scripts/menu-scroll-regression.mjs
+          node scripts/morning-entry-smoke.mjs
+
+      - name: Record proof boundary
+        if: always()
+        run: |
+          printf '%s\n' \
+            'current_sha=9abf05406dbb97f20dfbe0321b8b216ca09fe326' \
+            'baseline_sha=c8722b69b8705b6f0d1905788622cc02d41d4fdf' \
+            'temporary_branch_bytes_not_used_as_current=true'
