@@ -87,6 +87,7 @@ jobs:
         working-directory: current
         env:
           VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+          VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/final
         run: |
           set -euo pipefail
           rm -rf visual-results/screenshot-attempt-1 visual-results/screenshot-attempt-2
