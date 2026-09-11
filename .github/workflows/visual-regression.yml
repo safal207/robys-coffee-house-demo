@@ -19,12 +19,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: current
+          persist-credentials: false
 
       - name: Checkout pull request base
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || 'main' }}
           path: baseline
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -41,9 +43,32 @@ jobs:
         working-directory: baseline
         run: npm ci
 
-      - name: Build current branch
+      - name: Verify installed visual toolchain and negative controls
+        id: visual_toolchain
         working-directory: current
-        run: npm run build
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: |
+          node --test scripts/test-visual-toolchain.mjs
+          node scripts/verify-visual-toolchain.mjs --packages
+          npm ls --all --json > visual-results/toolchain/npm-ls.json
+
+      - name: Audit the effective locked toolchain without applying fixes
+        working-directory: current
+        run: |
+          set +e
+          npm audit --json --audit-level=high > visual-results/toolchain/npm-audit.json 2> visual-results/toolchain/npm-audit.stderr.txt
+          status=$?
+          set -e
+          printf '%s\n' "$status" > visual-results/toolchain/npm-audit.exit-code.txt
+          exit "$status"
+
+      - name: Build and verify current branch
+        working-directory: current
+        run: |
+          npm run check
+          npm run verify:security
+          git diff --exit-code
 
       - name: Verify Instagram tools contract
         working-directory: current
@@ -53,13 +78,15 @@ jobs:
         working-directory: baseline
         run: npm run build
 
-      - name: Install visual comparison tools
+      - name: Install deterministic Chromium from the locked Playwright package
         working-directory: current
-        run: npm install --no-save --package-lock=false playwright@1.52.0 pixelmatch@6.0.0 pngjs@7.0.0
+        run: npx --no-install playwright install --with-deps chromium
 
-      - name: Install deterministic Chromium
+      - name: Verify launched browser against the installed Playwright manifest
         working-directory: current
-        run: npx playwright install --with-deps chromium
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: node scripts/verify-visual-toolchain.mjs --browser
 
       - name: Verify document capture and share-action reachability
         working-directory: current
@@ -77,9 +104,9 @@ jobs:
           VISUAL_RESULTS_DIR: ${{ github.workspace }}/current/visual-results/screenshot-attempt-1
         run: node scripts/visual-regression.mjs
 
-      - name: Recheck failed screenshot comparison
+      - name: Recheck failed screenshot comparison or toolchain migration
         id: screenshot_recheck
-        if: steps.screenshot_compare.outcome == 'failure'
+        if: steps.screenshot_compare.outcome == 'failure' || steps.visual_toolchain.outputs.changed == 'true'
         continue-on-error: true
         working-directory: current
         env:
@@ -104,6 +131,12 @@ jobs:
               echo "::warning::VISUAL-001 recovered on the automatic second attempt; both attempts are preserved in the artifact."
             fi
           fi
+
+      - name: Reject reuse of old visual approvals during a toolchain migration
+        working-directory: current
+        env:
+          VISUAL_BASELINE_DIR: ${{ github.workspace }}/baseline
+        run: node scripts/verify-visual-toolchain.mjs --comparison
 
       - name: Validate reviewed visual change
         working-directory: current
