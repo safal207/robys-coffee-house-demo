@@ -1,0 +1,78 @@
+name: Visual toolchain lock sync once
+
+on:
+  push:
+    branches:
+      - fix/visual-toolchain-current-main-20260911
+
+permissions:
+  contents: write
+
+jobs:
+  sync-lock:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/visual-toolchain-current-main-20260911
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Add exact visual comparator dependencies and regenerate lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm pkg set 'devDependencies.pixelmatch=6.0.0' 'devDependencies.pngjs=7.0.0'
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const expected = {
+            esbuild: '0.28.1',
+            playwright: '1.55.1',
+            pixelmatch: '6.0.0',
+            pngjs: '7.0.0',
+            typescript: '5.8.3',
+            vite: '8.2.2'
+          };
+          for (const [name, version] of Object.entries(expected)) {
+            if (pkg.devDependencies?.[name] !== version) throw new Error(`package.json ${name}: expected ${version}, got ${pkg.devDependencies?.[name]}`);
+            if (lock.packages?.['']?.devDependencies?.[name] !== version) throw new Error(`root lock ${name}: expected ${version}`);
+            if (lock.packages?.[`node_modules/${name}`]?.version !== version) throw new Error(`locked ${name}: expected ${version}`);
+          }
+          NODE
+
+      - name: Verify reproducible install and audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+          git diff --check
+
+      - name: Enforce two-file mutation boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only | sort)"
+          printf '%s\n' "$changed"
+          test "$changed" = $'package-lock.json\npackage.json'
+
+      - name: Commit generated dependency lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json
+          git commit -m 'ci: lock visual comparator dependencies'
+          git push origin HEAD:fix/visual-toolchain-current-main-20260911
