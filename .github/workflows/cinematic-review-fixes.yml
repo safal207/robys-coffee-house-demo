@@ -1,0 +1,334 @@
+name: Cinematic review fixes
+
+on:
+  push:
+    branches: [feature/cinematic-experience]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinematic-review-fixes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fix-and-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply Codex review fixes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f"missing expected text in {path}: {old[:100]!r}")
+              p.write_text(text.replace(old, new, 1))
+
+          # 1) Preserve the shared language choice and mark the cinematic layout enhanced only when JS runs.
+          js = Path('experience/experience.js')
+          text = js.read_text()
+          text = text.replace(
+              '  const languages = new Set(["tr", "en", "ru"]);\n',
+              '  const languages = new Set(["tr", "en", "ru"]);\n  const LANGUAGE_KEY = "robys-language";\n\n  experience.dataset.enhanced = "true";\n'
+          )
+          text = text.replace(
+              '  function applyLanguage(language) {\n    const next = languages.has(language) ? language : "tr";\n',
+              '  function storedLanguage() {\n    try {\n      const saved = localStorage.getItem(LANGUAGE_KEY);\n      if (saved && languages.has(saved)) return saved;\n    } catch {\n      // Storage can be unavailable in hardened/private browsing contexts.\n    }\n    return preferredLanguage();\n  }\n\n  function applyLanguage(language, persist = true) {\n    const next = languages.has(language) ? language : "tr";\n'
+          )
+          text = text.replace(
+              '    languageButtons.forEach((button) => {\n      const selected = button.getAttribute("data-lang") === next;\n      button.classList.toggle("is-active", selected);\n      button.setAttribute("aria-pressed", String(selected));\n    });\n  }\n',
+              '    languageButtons.forEach((button) => {\n      const selected = button.getAttribute("data-lang") === next;\n      button.classList.toggle("is-active", selected);\n      button.setAttribute("aria-pressed", String(selected));\n    });\n\n    if (persist) {\n      try {\n        localStorage.setItem(LANGUAGE_KEY, next);\n      } catch {\n        // Language still applies for the current page when storage is unavailable.\n      }\n    }\n  }\n'
+          )
+          text = text.replace('  applyLanguage(preferredLanguage());\n', '  applyLanguage(storedLanguage(), false);\n')
+          js.write_text(text)
+
+          # 2) Progressive enhancement: scene content remains readable when JS is unavailable.
+          html = Path('experience/index.html')
+          text = html.read_text()
+          text = re.sub(r'(<article class="story-scene(?: story-scene-final)?" data-scene="[1-6]") aria-hidden="true"', r'\1', text)
+          html.write_text(text)
+
+          css = Path('experience/experience.css')
+          text = css.read_text()
+          fallback = r'''
+
+@layer experience {
+  /* Progressive enhancement: without JS, expose the full story and CTA as normal document flow. */
+  .cinematic-experience:not([data-enhanced="true"]) {
+    height: auto;
+    min-height: 0;
+  }
+
+  .cinematic-experience:not([data-enhanced="true"]) .cinematic-stage {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 112px clamp(22px, 7vw, 96px) 72px;
+  }
+
+  .cinematic-experience:not([data-enhanced="true"]) .ambient,
+  .cinematic-experience:not([data-enhanced="true"]) .grain,
+  .cinematic-experience:not([data-enhanced="true"]) .light-sweep,
+  .cinematic-experience:not([data-enhanced="true"]) .brand-red-halo,
+  .cinematic-experience:not([data-enhanced="true"]) .environment-stack,
+  .cinematic-experience:not([data-enhanced="true"]) .route-layer,
+  .cinematic-experience:not([data-enhanced="true"]) .bean-field,
+  .cinematic-experience:not([data-enhanced="true"]) .product-world,
+  .cinematic-experience:not([data-enhanced="true"]) .chapter-rail,
+  .cinematic-experience:not([data-enhanced="true"]) .scroll-cue {
+    display: none;
+  }
+
+  .cinematic-experience:not([data-enhanced="true"]) .story-copy {
+    position: relative;
+    inset: auto;
+    width: min(100%, 760px);
+    margin: 0 auto;
+    pointer-events: auto;
+  }
+
+  .cinematic-experience:not([data-enhanced="true"]) .story-scene {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin: 0 0 clamp(56px, 9vh, 96px);
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    transition: none;
+  }
+
+  .cinematic-experience:not([data-enhanced="true"]) .story-scene h1,
+  .cinematic-experience:not([data-enhanced="true"]) .story-scene h2 {
+    max-width: 12ch;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+  }
+}
+
+@layer responsive {
+  /* Landscape phones and short embedded viewports must never force a stage taller than the viewport. */
+  @media (max-width: 900px) and (max-height: 560px) {
+    .cinematic-stage {
+      height: 100svh;
+      min-height: 0;
+    }
+
+    .story-copy { width: 52%; }
+
+    .story-scene {
+      left: 20px;
+      right: auto;
+      top: 52%;
+      bottom: auto;
+      width: min(46vw, 390px);
+      transform: translate3d(0, calc(-50% + 14px), 0);
+    }
+
+    .story-scene.is-active { transform: translate3d(0, -50%, 0); }
+
+    .story-scene h1,
+    .story-scene h2 {
+      max-width: 11ch;
+      font-size: clamp(1.9rem, 6vw, 3.1rem);
+      line-height: .92;
+    }
+
+    .story-scene h2 { font-size: clamp(1.75rem, 5.3vw, 2.8rem); }
+    .scene-kicker { margin-bottom: 8px; font-size: .52rem; }
+    .scene-body { margin-top: 9px; font-size: .76rem; line-height: 1.34; }
+    .scene-note { margin-top: 9px; font-size: .5rem; }
+
+    .product-world {
+      inset: 0 0 0 auto;
+      width: 50%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .hero-product { width: min(30vw, 220px); }
+    .orbit-outer { width: min(43vw, 360px); }
+    .orbit-inner { width: min(32vw, 260px); }
+    .steam { top: 16%; }
+    .pairing-card { width: clamp(72px, 11vw, 104px); }
+    .pairing-card-a { left: 2%; bottom: 10%; }
+    .pairing-card-b { right: 2%; top: 16%; }
+    .chapter-rail { bottom: max(10px, env(safe-area-inset-bottom)); }
+    .scroll-cue { display: none; }
+  }
+}
+'''
+          if 'Progressive enhancement: without JS' not in text:
+              text += fallback
+          css.write_text(text)
+
+          # 3) Revision all mutable experience assets through the existing build contract.
+          build = Path('scripts/build.mjs')
+          text = build.read_text()
+          helper_anchor = '''function synchronizeStylesheet(html, fileName, revision) {\n  const pattern = new RegExp(`href="${fileName.replaceAll(".", "\\\\.")}(?:\\\\?v=[^"]*)?"`);\n  if (!pattern.test(html)) throw new Error(`HTML does not load ${fileName}`);\n  return html.replace(pattern, `href="${fileName}?v=${revision}"`);\n}\n'''
+          helper = helper_anchor + '''\nfunction synchronizeCssUrl(source, fileName, revision) {\n  const escapedName = fileName.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");\n  const pattern = new RegExp(`url\\\\(["']${escapedName}(?:\\\\?v=[^"']*)?["']\\\\)`);\n  if (!pattern.test(source)) throw new Error(`CSS does not load ${fileName}`);\n  return source.replace(pattern, `url("${fileName}?v=${revision}")`);\n}\n'''
+          if 'function synchronizeCssUrl' not in text:
+              if helper_anchor not in text:
+                  raise SystemExit('build stylesheet helper anchor not found')
+              text = text.replace(helper_anchor, helper, 1)
+
+          revision_anchor = 'const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");\n'
+          revision_block = revision_anchor + '''\nconst experienceEnvironmentFiles = [\n  "environments/origin.svg",\n  "environments/energy.svg",\n  "environments/moment.svg",\n  "environments/move.svg",\n  "environments/pair.svg",\n  "environments/finale.svg"\n];\nconst experienceEnvironmentRevisions = new Map(\n  experienceEnvironmentFiles.map((fileName) => [fileName, revisionFor(`experience/${fileName}`)])\n);\nlet cinematicEnvironmentSource = readFileSync("experience/cinematic-environments.css", "utf8");\nfor (const [fileName, revision] of experienceEnvironmentRevisions) {\n  cinematicEnvironmentSource = synchronizeCssUrl(cinematicEnvironmentSource, fileName, revision);\n}\nwriteFileSync("experience/cinematic-environments.css", cinematicEnvironmentSource);\n\nconst experienceRuntimeRevision = revisionFor("experience/experience.js");\nconst experienceCssRevision = revisionFor("experience/experience.css");\nconst experienceBrandCssRevision = revisionFor("experience/brand-fidelity.css");\nconst experienceStateCssRevision = revisionFor("experience/experience-state.css");\nconst experienceCinematicCssRevision = revisionFor("experience/cinematic-environments.css");\n'''
+          if 'const experienceRuntimeRevision' not in text:
+              if revision_anchor not in text:
+                  raise SystemExit('build revision anchor not found')
+              text = text.replace(revision_anchor, revision_block, 1)
+
+          html_anchor = 'writeFileSync("menu.html", menuHtml);\n'
+          html_block = html_anchor + '''\nlet experienceHtml = readFileSync("experience/index.html", "utf8");\nexperienceHtml = synchronizeScript(experienceHtml, "experience.js", experienceRuntimeRevision);\nexperienceHtml = synchronizeStylesheet(experienceHtml, "experience.css", experienceCssRevision);\nexperienceHtml = synchronizeStylesheet(experienceHtml, "brand-fidelity.css", experienceBrandCssRevision);\nexperienceHtml = synchronizeStylesheet(experienceHtml, "experience-state.css", experienceStateCssRevision);\nexperienceHtml = synchronizeStylesheet(experienceHtml, "cinematic-environments.css", experienceCinematicCssRevision);\nwriteFileSync("experience/index.html", experienceHtml);\n'''
+          if 'let experienceHtml =' not in text:
+              if html_anchor not in text:
+                  raise SystemExit('build experience HTML anchor not found')
+              text = text.replace(html_anchor, html_block, 1)
+
+          array_anchor = '  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision]\n]) {\n'
+          array_block = '''  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision],\n  ["experience/experience.js", experienceRuntimeRevision],\n  ["experience/experience.css", experienceCssRevision],\n  ["experience/brand-fidelity.css", experienceBrandCssRevision],\n  ["experience/experience-state.css", experienceStateCssRevision],\n  ["experience/cinematic-environments.css", experienceCinematicCssRevision],\n  ...Array.from(experienceEnvironmentRevisions, ([fileName, revision]) => [`experience/${fileName}`, revision])\n]) {\n'''
+          if '["experience/experience.js", experienceRuntimeRevision]' not in text:
+              if array_anchor not in text:
+                  raise SystemExit('service worker revision array anchor not found')
+              text = text.replace(array_anchor, array_block, 1)
+          build.write_text(text)
+
+          # 4) Make the service worker cache exact-revision experience assets and cache the route navigation.
+          sw = Path('sw.js')
+          text = sw.read_text()
+          core_anchor = '  "./smart-choice/index.html",\n'
+          core_block = core_anchor + '''  "./experience/",\n  "./experience/index.html",\n  "./experience/experience.js",\n  "./experience/experience.css",\n  "./experience/brand-fidelity.css",\n  "./experience/experience-state.css",\n  "./experience/cinematic-environments.css",\n  "./experience/environments/origin.svg",\n  "./experience/environments/energy.svg",\n  "./experience/environments/moment.svg",\n  "./experience/environments/move.svg",\n  "./experience/environments/pair.svg",\n  "./experience/environments/finale.svg",\n'''
+          if '"./experience/experience.js"' not in text:
+              text = text.replace(core_anchor, core_block, 1)
+
+          exact_anchor = '    url.pathname.endsWith("/discover-rotation.css") ||\n'
+          exact_block = exact_anchor + '''    url.pathname.endsWith("/experience/experience.js") ||\n    url.pathname.endsWith("/experience/experience.css") ||\n    url.pathname.endsWith("/experience/brand-fidelity.css") ||\n    url.pathname.endsWith("/experience/experience-state.css") ||\n    url.pathname.endsWith("/experience/cinematic-environments.css") ||\n    url.pathname.includes("/experience/environments/") ||\n'''
+          if '/experience/experience.js' not in text[text.find('const requiresExactRevision'):]:
+              text = text.replace(exact_anchor, exact_block, 1)
+
+          nav_anchor = '  const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||\n    url.pathname === `${scopePath}smart-choice/index.html`;\n'
+          nav_block = nav_anchor + '  const isExperience = url.pathname === `${scopePath}experience/` ||\n    url.pathname === `${scopePath}experience/index.html`;\n'
+          if 'const isExperience =' not in text:
+              text = text.replace(nav_anchor, nav_block, 1)
+          text = text.replace(
+              '      if (isMenu || isDiscover || isSmartChoice || isHome) {',
+              '      if (isMenu || isDiscover || isSmartChoice || isExperience || isHome) {'
+          )
+          text = text.replace(
+              '  if (isSmartChoice) return cachedPage("smart-choice/index.html");\n  if (isHome)',
+              '  if (isSmartChoice) return cachedPage("smart-choice/index.html");\n  if (isExperience) return cachedPage("experience/index.html");\n  if (isHome)'
+          )
+          sw.write_text(text)
+
+          # Security verifier must accept build-generated revision query strings.
+          sec = Path('scripts/verify-security-contracts.mjs')
+          text = sec.read_text()
+          text = text.replace(
+              '/<script\\b[^>]*src=["\']experience\\.js["\']/i.test(html)',
+              '/<script\\b[^>]*src=["\']experience\\.js\\?v=[a-f0-9]{12}["\']/i.test(html)'
+          )
+          old = '      must("CSP-001", html.includes(`href="${stylesheet}"`), `${file} does not load reviewed stylesheet ${stylesheet}`);'
+          new = '      const escaped = stylesheet.replaceAll(".", "\\\\.");\n      must("CSP-001", new RegExp(`href=["\\\']${escaped}\\\\?v=[a-f0-9]{12}["\\\']`, "i").test(html), `${file} does not load reviewed stylesheet ${stylesheet}`);'
+          if old not in text:
+              raise SystemExit('security stylesheet assertion anchor not found')
+          text = text.replace(old, new, 1)
+          sec.write_text(text)
+          PY
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build revisioned runtime
+        run: npm run build
+
+      - name: Refresh integrity manifest
+        run: npm run integrity:generate
+
+      - name: Validate syntax and security
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check experience/experience.js
+          npm run verify:security
+
+      - name: Run complete repository check
+        run: npm run check
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Targeted review regression smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx vite --host 127.0.0.1 --port 4173 > /tmp/robys-vite.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/experience/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+
+          const landscape = await browser.newPage({ viewport: { width: 844, height: 390 } });
+          await landscape.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
+          await landscape.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
+          if (await landscape.getAttribute('html', 'lang') !== 'ru') throw new Error('stored language was not restored');
+          const max = await landscape.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+          await landscape.evaluate((y) => scrollTo(0, y), max * 0.52);
+          await landscape.waitForTimeout(900);
+          const active = landscape.locator('.story-scene.is-active');
+          const box = await active.boundingBox();
+          if (!box || box.y < -2 || box.y + box.height > 392) throw new Error(`short landscape scene is clipped: ${JSON.stringify(box)}`);
+          await landscape.locator('[data-lang="tr"]').click();
+          const stored = await landscape.evaluate(() => localStorage.getItem('robys-language'));
+          if (stored !== 'tr') throw new Error(`language selection was not persisted: ${stored}`);
+          await landscape.close();
+
+          const context = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+          const noJs = await context.newPage();
+          await noJs.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
+          const scenes = noJs.locator('[data-scene]');
+          if (await scenes.count() !== 7) throw new Error('no-JS story does not contain seven scenes');
+          for (let i = 0; i < 7; i += 1) {
+            if (!(await scenes.nth(i).isVisible())) throw new Error(`no-JS scene ${i} is hidden`);
+          }
+          if (!(await noJs.locator('.primary-cta').isVisible())) throw new Error('no-JS menu CTA is hidden');
+          await context.close();
+          await browser.close();
+          NODE
+
+      - name: Commit reviewed fixes on green validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experience/ scripts/build.mjs scripts/verify-security-contracts.mjs sw.js integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo 'No patch changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Address cinematic experience review findings'
+          git push
