@@ -143,11 +143,131 @@
   transform: scale(1) translate3d(0, 0, 0);
 }
 
+/*
+ * Scroll-driven frame sequence.
+ * The six reviewed environment SVGs are reused as keyframes; odd-numbered states
+ * blend two adjacent frames. JS changes only data-motion-frame, keeping CSP intact.
+ */
+.environment-stack::before,
+.environment-stack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0;
+  transform: scale(1.025) translate3d(0, 0, 0);
+  transition: opacity 260ms ease, transform 520ms cubic-bezier(.2,.78,.2,1), filter 420ms ease;
+}
+
+.environment-stack::before {
+  filter: saturate(.94) contrast(1.02);
+}
+
+.environment-stack::after {
+  mix-blend-mode: screen;
+  filter: saturate(.9);
+}
+
+.cinematic-experience[data-active-scene="0"] .environment-stack::before,
+.cinematic-experience[data-active-scene="0"] .environment-stack::after {
+  opacity: 0 !important;
+}
+
+.cinematic-experience[data-motion-frame="0"] .environment-stack::before {
+  background-image: url("environments/origin.svg");
+  opacity: .12;
+  transform: scale(1.02) translate3d(1%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="1"] .environment-stack::before {
+  background-image: url("environments/origin.svg");
+  opacity: .09;
+}
+.cinematic-experience[data-motion-frame="1"] .environment-stack::after {
+  background-image: url("environments/energy.svg");
+  opacity: .11;
+  transform: scale(1.015) translate3d(-.6%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="2"] .environment-stack::before {
+  background-image: url("environments/energy.svg");
+  opacity: .15;
+  transform: scale(1.01) translate3d(-.8%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="3"] .environment-stack::before {
+  background-image: url("environments/energy.svg");
+  opacity: .08;
+}
+.cinematic-experience[data-motion-frame="3"] .environment-stack::after {
+  background-image: url("environments/moment.svg");
+  opacity: .12;
+}
+
+.cinematic-experience[data-motion-frame="4"] .environment-stack::before {
+  background-image: url("environments/moment.svg");
+  opacity: .15;
+  transform: scale(1.008) translate3d(.4%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="5"] .environment-stack::before {
+  background-image: url("environments/moment.svg");
+  opacity: .07;
+}
+.cinematic-experience[data-motion-frame="5"] .environment-stack::after {
+  background-image: url("environments/move.svg");
+  opacity: .12;
+  transform: scale(1.014) translate3d(-.7%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="6"] .environment-stack::before {
+  background-image: url("environments/move.svg");
+  opacity: .14;
+  transform: scale(1.008) translate3d(-.5%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="7"] .environment-stack::before {
+  background-image: url("environments/move.svg");
+  opacity: .07;
+}
+.cinematic-experience[data-motion-frame="7"] .environment-stack::after {
+  background-image: url("environments/pair.svg");
+  opacity: .12;
+}
+
+.cinematic-experience[data-motion-frame="8"] .environment-stack::before {
+  background-image: url("environments/pair.svg");
+  opacity: .15;
+  transform: scale(1.008) translate3d(.4%, .3%, 0);
+}
+
+.cinematic-experience[data-motion-frame="9"] .environment-stack::before {
+  background-image: url("environments/pair.svg");
+  opacity: .07;
+}
+.cinematic-experience[data-motion-frame="9"] .environment-stack::after {
+  background-image: url("environments/finale.svg");
+  opacity: .13;
+  transform: scale(1.012) translate3d(.6%, 0, 0);
+}
+
+.cinematic-experience[data-motion-frame="10"] .environment-stack::before {
+  background-image: url("environments/finale.svg");
+  opacity: .17;
+  transform: scale(1.005) translate3d(0, 0, 0);
+}
+
 @media (max-width: 680px) {
   .cinematic-stage::before,
   .cinematic-stage::after,
   .route-layer::before,
-  .environment-layer {
+  .environment-layer,
+  .environment-stack::before,
+  .environment-stack::after {
     background-position: 64% center;
   }
 
@@ -157,6 +277,19 @@
   .cinematic-experience[data-active-scene="4"] .route-layer::before { opacity: .54; }
   .cinematic-experience[data-active-scene="5"] .environment-pair { opacity: .56; }
   .cinematic-experience[data-active-scene="6"] .environment-finale { opacity: .62; }
+
+  .environment-stack::before,
+  .environment-stack::after {
+    opacity: 0;
+  }
+
+  .cinematic-experience[data-motion-frame="2"] .environment-stack::before,
+  .cinematic-experience[data-motion-frame="4"] .environment-stack::before,
+  .cinematic-experience[data-motion-frame="6"] .environment-stack::before,
+  .cinematic-experience[data-motion-frame="8"] .environment-stack::before,
+  .cinematic-experience[data-motion-frame="10"] .environment-stack::before {
+    opacity: .09;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -164,6 +297,12 @@
   .cinematic-stage::after,
   .route-layer::before,
   .environment-layer {
+    transition: none !important;
+  }
+
+  .environment-stack::before,
+  .environment-stack::after {
+    opacity: 0 !important;
     transition: none !important;
   }
 }
