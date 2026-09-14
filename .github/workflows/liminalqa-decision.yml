@@ -78,10 +78,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: lighthouse-repeatability-${{ matrix.profile }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: lighthouse-repeatability-${{ matrix.profile }}-${{ github.run_id }}
           path: .artifacts/lighthouse-repeatability/${{ matrix.profile }}/
           if-no-files-found: error
           retention-days: 7
+          overwrite: true
 
   decision:
     name: Build and seal exact-head evidence
@@ -107,13 +108,13 @@ jobs:
       - name: Download mobile repeatability evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: lighthouse-repeatability-mobile-${{ github.run_id }}-${{ github.run_attempt }}
+          name: lighthouse-repeatability-mobile-${{ github.run_id }}
           path: .artifacts/lighthouse-repeatability/mobile
 
       - name: Download desktop repeatability evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: lighthouse-repeatability-desktop-${{ github.run_id }}-${{ github.run_attempt }}
+          name: lighthouse-repeatability-desktop-${{ github.run_id }}
           path: .artifacts/lighthouse-repeatability/desktop
 
       - name: Merge independently measured profiles
@@ -296,10 +297,11 @@ jobs:
       - name: Upload sealed evidence candidate before policy gating
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}
           path: qa/liminal-artifacts/
           if-no-files-found: error
           retention-days: 7
+          overwrite: true
 
       - name: Publish producer reports to workflow summary
         if: always()
@@ -362,7 +364,7 @@ jobs:
       - name: Download sealed producer candidate
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}
           path: qa/liminal-artifacts
 
       - name: Recompute and verify evidence on fresh runner
@@ -395,13 +397,14 @@ jobs:
       - name: Upload verified immutable exact-run evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}
           path: |
             qa/liminal-artifacts/
             .artifacts/final/*.tar.gz
             .artifacts/final/*.sha256
           if-no-files-found: error
           retention-days: 90
+          overwrite: true
 
       - name: Enforce verified release gate
         shell: bash
