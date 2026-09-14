@@ -6,10 +6,12 @@
 
   // Keep all presentation in self-hosted CSS so the page remains compatible
   // with Roby's strict style-src CSP. The runtime only changes semantic state.
-  const stateStylesheet = document.createElement("link");
-  stateStylesheet.rel = "stylesheet";
-  stateStylesheet.href = "experience-state.css";
-  document.head.append(stateStylesheet);
+  for (const href of ["experience-state.css", "brand-fidelity.css"]) {
+    const stylesheet = document.createElement("link");
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = href;
+    document.head.append(stylesheet);
+  }
 
   const scenes = Array.from(experience.querySelectorAll("[data-scene]"));
   const products = Array.from(experience.querySelectorAll("[data-product]"));
