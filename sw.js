@@ -112,6 +112,19 @@ const CORE_ASSETS = [
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260904-interaction-v3",
   "./smart-choice/index.html",
+  "./experience/",
+  "./experience/index.html",
+  "./experience/experience.js?v=1dcf52683b67",
+  "./experience/experience.css?v=d2fdcc1cb961",
+  "./experience/brand-fidelity.css?v=cf035738520e",
+  "./experience/experience-state.css?v=6533c4cc6590",
+  "./experience/cinematic-environments.css?v=76e6ccf04650",
+  "./experience/environments/origin.svg?v=72b518cd81ca",
+  "./experience/environments/energy.svg?v=763f3ca80be7",
+  "./experience/environments/moment.svg?v=1ed58ad2b6fa",
+  "./experience/environments/move.svg?v=9815d8f61a63",
+  "./experience/environments/pair.svg?v=35401ccb58f0",
+  "./experience/environments/finale.svg?v=fb371d27c428",
   "./smart-choice/pwa.js?v=premium-cache-new-20260904-1",
   "./smart-choice/style.css?v=93af186a5b11",
   "./smart-choice/cart.css?v=4fcc327520f5",
@@ -194,6 +207,12 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/discover-deck.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
+    url.pathname.endsWith("/experience/experience.js") ||
+    url.pathname.endsWith("/experience/experience.css") ||
+    url.pathname.endsWith("/experience/brand-fidelity.css") ||
+    url.pathname.endsWith("/experience/experience-state.css") ||
+    url.pathname.endsWith("/experience/cinematic-environments.css") ||
+    url.pathname.includes("/experience/environments/") ||
     url.pathname.endsWith("/qa.js") ||
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css") ||
@@ -232,12 +251,14 @@ async function navigationResponse(request) {
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
     url.pathname === `${scopePath}smart-choice/index.html`;
+  const isExperience = url.pathname === `${scopePath}experience/` ||
+    url.pathname === `${scopePath}experience/index.html`;
   const isHome = url.pathname === scopePath || url.pathname === `${scopePath}index.html`;
 
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isDiscover || isSmartChoice || isHome) {
+      if (isMenu || isDiscover || isSmartChoice || isExperience || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -250,6 +271,7 @@ async function navigationResponse(request) {
   if (isMenu) return cachedPage("menu.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isSmartChoice) return cachedPage("smart-choice/index.html");
+  if (isExperience) return cachedPage("experience/index.html");
   if (isHome) return cachedPage("index.html");
   return cachedPage("404.html");
 }

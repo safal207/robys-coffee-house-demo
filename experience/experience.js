@@ -9,6 +9,9 @@
   const localizedNodes = Array.from(document.querySelectorAll("[data-tr][data-en][data-ru]"));
   const sceneNumber = experience.querySelector("[data-scene-number]");
   const languages = new Set(["tr", "en", "ru"]);
+  const LANGUAGE_KEY = "robys-language";
+
+  experience.dataset.enhanced = "true";
 
   let start = 0;
   let range = 1;
@@ -25,7 +28,17 @@
     return "tr";
   }
 
-  function applyLanguage(language) {
+  function storedLanguage() {
+    try {
+      const saved = localStorage.getItem(LANGUAGE_KEY);
+      if (saved && languages.has(saved)) return saved;
+    } catch {
+      // Storage can be unavailable in hardened/private browsing contexts.
+    }
+    return preferredLanguage();
+  }
+
+  function applyLanguage(language, persist = true) {
     const next = languages.has(language) ? language : "tr";
     document.documentElement.lang = next;
 
@@ -39,6 +52,14 @@
       button.classList.toggle("is-active", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
+
+    if (persist) {
+      try {
+        localStorage.setItem(LANGUAGE_KEY, next);
+      } catch {
+        // Language remains active for this page when storage is unavailable.
+      }
+    }
   }
 
   languageButtons.forEach((button) => {
@@ -98,6 +119,6 @@
   window.addEventListener("resize", measure, { passive: true });
   window.addEventListener("orientationchange", measure, { passive: true });
 
-  applyLanguage(preferredLanguage());
+  applyLanguage(storedLanguage(), false);
   measure();
 })();

@@ -116,9 +116,11 @@ for (const file of HTML_FILES) {
   must("CSP-001", !/\sstyle=["']/i.test(html), `${file} contains an inline style attribute`);
 
   if (file === "experience/index.html") {
-    must("CSP-001", /<script\b[^>]*src=["']experience\.js["']/i.test(html), `${file} does not load the reviewed experience runtime`);
+    must("CSP-001", /<script\b[^>]*src=["']experience\.js\?v=[a-f0-9]{12}["']/i.test(html), `${file} does not load the reviewed experience runtime`);
     for (const stylesheet of ["experience.css", "brand-fidelity.css", "experience-state.css", "cinematic-environments.css"]) {
-      must("CSP-001", html.includes(`href="${stylesheet}"`), `${file} does not load reviewed stylesheet ${stylesheet}`);
+      const escapedStylesheet = stylesheet.replaceAll(".", "\\.");
+      const revisionedStylesheet = new RegExp(`href=["']${escapedStylesheet}\\?v=[a-f0-9]{12}["']`, "i");
+      must("CSP-001", revisionedStylesheet.test(html), `${file} does not load reviewed stylesheet ${stylesheet}`);
     }
   } else {
     must("CSP-001", /<script\b[^>]*src=["']bootstrap-v2\.js\?v=[a-f0-9]{12}/i.test(html), `${file} does not load the cache-new external bootstrap`);

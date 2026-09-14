@@ -144,6 +144,14 @@ function synchronizeStylesheet(html, fileName, revision) {
   return html.replace(pattern, `href="${fileName}?v=${revision}"`);
 }
 
+function synchronizeCssUrls(source, fileName, revision) {
+  const escapedName = fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`url\\(["']${escapedName}(?:\\?v=[^"']*)?["']\\)`, "g");
+  if (!pattern.test(source)) throw new Error(`CSS does not load ${fileName}`);
+  pattern.lastIndex = 0;
+  return source.replace(pattern, `url("${fileName}?v=${revision}")`);
+}
+
 function synchronizeModuleImport(source, fileName, revision) {
   const escapedName = fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`import\\("\\./${escapedName}(?:\\?v=[^"]*)?"\\)`);
@@ -242,6 +250,29 @@ const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
 const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-trace.css");
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
 
+const experienceEnvironmentFiles = [
+  "environments/origin.svg",
+  "environments/energy.svg",
+  "environments/moment.svg",
+  "environments/move.svg",
+  "environments/pair.svg",
+  "environments/finale.svg"
+];
+const experienceEnvironmentRevisions = new Map(
+  experienceEnvironmentFiles.map((fileName) => [fileName, revisionFor(`experience/${fileName}`)])
+);
+let cinematicEnvironmentSource = readFileSync("experience/cinematic-environments.css", "utf8");
+for (const [fileName, revision] of experienceEnvironmentRevisions) {
+  cinematicEnvironmentSource = synchronizeCssUrls(cinematicEnvironmentSource, fileName, revision);
+}
+writeFileSync("experience/cinematic-environments.css", cinematicEnvironmentSource);
+
+const experienceRuntimeRevision = revisionFor("experience/experience.js");
+const experienceCssRevision = revisionFor("experience/experience.css");
+const experienceBrandCssRevision = revisionFor("experience/brand-fidelity.css");
+const experienceStateCssRevision = revisionFor("experience/experience-state.css");
+const experienceCinematicCssRevision = revisionFor("experience/cinematic-environments.css");
+
 let html = readFileSync("index.html", "utf8");
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
@@ -270,6 +301,14 @@ menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProduc
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 writeFileSync("menu.html", menuHtml);
+
+let experienceHtml = readFileSync("experience/index.html", "utf8");
+experienceHtml = synchronizeScript(experienceHtml, "experience.js", experienceRuntimeRevision);
+experienceHtml = synchronizeStylesheet(experienceHtml, "experience.css", experienceCssRevision);
+experienceHtml = synchronizeStylesheet(experienceHtml, "brand-fidelity.css", experienceBrandCssRevision);
+experienceHtml = synchronizeStylesheet(experienceHtml, "experience-state.css", experienceStateCssRevision);
+experienceHtml = synchronizeStylesheet(experienceHtml, "cinematic-environments.css", experienceCinematicCssRevision);
+writeFileSync("experience/index.html", experienceHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
 russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
@@ -319,7 +358,13 @@ for (const [filePath, revision] of [
   ["smart-choice/style.css", smartChoiceCssRevision],
   ["smart-choice/cart.css", smartChoiceCartCssRevision],
   ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
-  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision]
+  ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision],
+  ["experience/experience.js", experienceRuntimeRevision],
+  ["experience/experience.css", experienceCssRevision],
+  ["experience/brand-fidelity.css", experienceBrandCssRevision],
+  ["experience/experience-state.css", experienceStateCssRevision],
+  ["experience/cinematic-environments.css", experienceCinematicCssRevision],
+  ...Array.from(experienceEnvironmentRevisions, ([fileName, revision]) => [`experience/${fileName}`, revision])
 ]) {
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }

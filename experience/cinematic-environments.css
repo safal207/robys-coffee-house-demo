@@ -21,14 +21,14 @@
 
 .cinematic-stage::before {
   z-index: 1;
-  background-image: url("environments/origin.svg");
+  background-image: url("environments/origin.svg?v=72b518cd81ca");
   transform: scale(1.035) translate3d(1.5%, 0, 0);
   filter: saturate(.9) contrast(1.04);
 }
 
 .cinematic-stage::after {
   z-index: 1;
-  background-image: url("environments/energy.svg");
+  background-image: url("environments/energy.svg?v=763f3ca80be7");
   transform: scale(1.055) translate3d(-1%, 0, 0);
   mix-blend-mode: screen;
   filter: saturate(.92);
@@ -36,7 +36,7 @@
 
 .route-layer::before {
   z-index: -1;
-  background-image: url("environments/move.svg");
+  background-image: url("environments/move.svg?v=9815d8f61a63");
   transform: scale(1.04) translate3d(1%, 0, 0);
   filter: contrast(1.02);
 }
@@ -54,19 +54,19 @@
 }
 
 .environment-moment {
-  background-image: url("environments/moment.svg");
+  background-image: url("environments/moment.svg?v=1ed58ad2b6fa");
   transform: scale(1.035) translate3d(.5%, 0, 0);
   filter: saturate(.9);
 }
 
 .environment-pair {
-  background-image: url("environments/pair.svg");
+  background-image: url("environments/pair.svg?v=35401ccb58f0");
   transform: scale(1.045) translate3d(-1%, 1%, 0);
   filter: saturate(.94) contrast(1.02);
 }
 
 .environment-finale {
-  background-image: url("environments/finale.svg");
+  background-image: url("environments/finale.svg?v=fb371d27c428");
   transform: scale(1.055) translate3d(1%, 0, 0);
   mix-blend-mode: screen;
   filter: saturate(.9);
@@ -178,85 +178,85 @@
 }
 
 .cinematic-experience[data-motion-frame="0"] .environment-stack::before {
-  background-image: url("environments/origin.svg");
+  background-image: url("environments/origin.svg?v=72b518cd81ca");
   opacity: .12;
   transform: scale(1.02) translate3d(1%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="1"] .environment-stack::before {
-  background-image: url("environments/origin.svg");
+  background-image: url("environments/origin.svg?v=72b518cd81ca");
   opacity: .09;
 }
 .cinematic-experience[data-motion-frame="1"] .environment-stack::after {
-  background-image: url("environments/energy.svg");
+  background-image: url("environments/energy.svg?v=763f3ca80be7");
   opacity: .11;
   transform: scale(1.015) translate3d(-.6%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="2"] .environment-stack::before {
-  background-image: url("environments/energy.svg");
+  background-image: url("environments/energy.svg?v=763f3ca80be7");
   opacity: .15;
   transform: scale(1.01) translate3d(-.8%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="3"] .environment-stack::before {
-  background-image: url("environments/energy.svg");
+  background-image: url("environments/energy.svg?v=763f3ca80be7");
   opacity: .08;
 }
 .cinematic-experience[data-motion-frame="3"] .environment-stack::after {
-  background-image: url("environments/moment.svg");
+  background-image: url("environments/moment.svg?v=1ed58ad2b6fa");
   opacity: .12;
 }
 
 .cinematic-experience[data-motion-frame="4"] .environment-stack::before {
-  background-image: url("environments/moment.svg");
+  background-image: url("environments/moment.svg?v=1ed58ad2b6fa");
   opacity: .15;
   transform: scale(1.008) translate3d(.4%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="5"] .environment-stack::before {
-  background-image: url("environments/moment.svg");
+  background-image: url("environments/moment.svg?v=1ed58ad2b6fa");
   opacity: .07;
 }
 .cinematic-experience[data-motion-frame="5"] .environment-stack::after {
-  background-image: url("environments/move.svg");
+  background-image: url("environments/move.svg?v=9815d8f61a63");
   opacity: .12;
   transform: scale(1.014) translate3d(-.7%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="6"] .environment-stack::before {
-  background-image: url("environments/move.svg");
+  background-image: url("environments/move.svg?v=9815d8f61a63");
   opacity: .14;
   transform: scale(1.008) translate3d(-.5%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="7"] .environment-stack::before {
-  background-image: url("environments/move.svg");
+  background-image: url("environments/move.svg?v=9815d8f61a63");
   opacity: .07;
 }
 .cinematic-experience[data-motion-frame="7"] .environment-stack::after {
-  background-image: url("environments/pair.svg");
+  background-image: url("environments/pair.svg?v=35401ccb58f0");
   opacity: .12;
 }
 
 .cinematic-experience[data-motion-frame="8"] .environment-stack::before {
-  background-image: url("environments/pair.svg");
+  background-image: url("environments/pair.svg?v=35401ccb58f0");
   opacity: .15;
   transform: scale(1.008) translate3d(.4%, .3%, 0);
 }
 
 .cinematic-experience[data-motion-frame="9"] .environment-stack::before {
-  background-image: url("environments/pair.svg");
+  background-image: url("environments/pair.svg?v=35401ccb58f0");
   opacity: .07;
 }
 .cinematic-experience[data-motion-frame="9"] .environment-stack::after {
-  background-image: url("environments/finale.svg");
+  background-image: url("environments/finale.svg?v=fb371d27c428");
   opacity: .13;
   transform: scale(1.012) translate3d(.6%, 0, 0);
 }
 
 .cinematic-experience[data-motion-frame="10"] .environment-stack::before {
-  background-image: url("environments/finale.svg");
+  background-image: url("environments/finale.svg?v=fb371d27c428");
   opacity: .17;
   transform: scale(1.005) translate3d(0, 0, 0);
 }
