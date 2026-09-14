@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0b0908" />
   <meta name="color-scheme" content="dark" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self'; frame-src https://maps.google.com https://www.instagram.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/experience/" />
   <meta property="og:title" content="Roby's Coffee House — Cinematic Experience" />
   <meta property="og:description" content="Yanına al. Roby's gerçek marka varlıklarıyla hazırlanan interaktif ürün hikâyesi." />
@@ -49,7 +49,7 @@
   </header>
 
   <main id="main">
-    <section class="cinematic-experience" data-cinematic-experience data-active-scene="0" aria-labelledby="experience-title">
+    <section class="cinematic-experience" data-cinematic-experience data-active-scene="0" data-motion-frame="0" aria-labelledby="experience-title">
       <div class="cinematic-stage">
         <div class="ambient ambient-a" aria-hidden="true"></div>
         <div class="ambient ambient-b" aria-hidden="true"></div>
@@ -113,7 +113,7 @@
           </div>
         </div>
 
-        <div class="story-copy" aria-live="polite">
+        <div class="story-copy">
           <article class="story-scene is-active" data-scene="0">
             <p class="scene-kicker" data-tr="ROBY'S · GAZİPAŞA" data-en="ROBY'S · GAZİPAŞA" data-ru="ROBY'S · ГАЗИПАША">ROBY'S · GAZİPAŞA</p>
             <h1 id="experience-title" data-tr="Yanına al." data-en="Take it with you." data-ru="Возьми с собой.">Yanına al.</h1>
