@@ -31,9 +31,10 @@ jobs:
 
           path = Path('.github/workflows/liminalqa-decision.yml')
           text = path.read_text()
+          expr = '$' + '{{ '
+          attempt_key = expr + 'github.run_id }}-' + expr + 'github.run_attempt }}'
+          stable_key = expr + 'github.run_id }}'
 
-          attempt_key = '${{ github.run_id }}-${{ github.run_attempt }}'
-          stable_key = '${{ github.run_id }}'
           count = text.count(attempt_key)
           if count != 6:
               raise SystemExit(f'expected 6 run-attempt artifact keys, found {count}')
@@ -50,12 +51,22 @@ jobs:
           text = text.replace(ninety, ninety + '          overwrite: true\n')
 
           path.write_text(text)
+
+          updated = path.read_text()
+          if attempt_key in updated:
+              raise SystemExit('run-attempt artifact key still present')
+          if updated.count('overwrite: true') != 3:
+              raise SystemExit('expected exactly three overwrite-enabled artifact uploads')
+          for fragment in (
+              'lighthouse-repeatability-mobile-' + stable_key,
+              'sealed-evidence-candidate-' + expr + 'env.ROBY_TESTED_COMMIT }}-' + stable_key,
+              'exact-head-evidence-' + expr + 'env.ROBY_TESTED_COMMIT }}-' + stable_key,
+          ):
+              if fragment not in updated:
+                  raise SystemExit(f'missing stable artifact fragment: {fragment}')
+          print('Exact-head artifact names are rerun-stable.')
           PY
           git diff --check
-          grep -F 'lighthouse-repeatability-mobile-${{ github.run_id }}' .github/workflows/liminalqa-decision.yml
-          grep -F 'sealed-evidence-candidate-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}' .github/workflows/liminalqa-decision.yml
-          grep -F 'exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}' .github/workflows/liminalqa-decision.yml
-          test "$(grep -c 'overwrite: true' .github/workflows/liminalqa-decision.yml)" -eq 3
 
       - name: Commit workflow fix
         shell: bash
