@@ -1,0 +1,176 @@
+name: Cinematic final a11y and trigger fix
+
+on:
+  push:
+    branches: [feature/cinematic-experience]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinematic-final-a11y-trigger-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  patch-and-validate:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply accessibility and trigger fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          html_path = Path('experience/index.html')
+          html = html_path.read_text()
+          skip = '  <a class="skip-link" href="#main" data-tr="İçeriğe geç" data-en="Skip to content" data-ru="Перейти к содержанию">İçeriğe geç</a>\n'
+          nav = '''\n  <nav class="accessible-story-actions" aria-label="Hikâye kısayolları" data-aria-tr="Hikâye kısayolları" data-aria-en="Story shortcuts" data-aria-ru="Быстрые действия истории">\n    <a href="../menu.html" data-tr="MENÜYÜ KEŞFET" data-en="EXPLORE THE MENU" data-ru="ОТКРЫТЬ МЕНЮ">MENÜYÜ KEŞFET</a>\n    <a href="../index.html" data-tr="ROBY'S ANA SAYFA" data-en="ROBY'S HOME" data-ru="НА ГЛАВНУЮ ROBY'S">ROBY'S ANA SAYFA</a>\n  </nav>\n'''
+          if 'class="accessible-story-actions"' not in html:
+              if skip not in html:
+                  raise SystemExit('skip-link anchor not found')
+              html = html.replace(skip, skip + nav, 1)
+          html_path.write_text(html)
+
+          css_path = Path('experience/experience.css')
+          css = css_path.read_text()
+          anchor = '  .skip-link:focus { transform: translateY(0); }\n'
+          block = anchor + '''\n  .accessible-story-actions {\n    position: fixed;\n    z-index: 101;\n    top: 12px;\n    right: 12px;\n    display: flex;\n    gap: 8px;\n    padding: 8px;\n    color: #111;\n    background: #fff;\n    border-radius: 999px;\n    transform: translateY(-220%);\n    transition: transform 180ms ease;\n  }\n\n  .accessible-story-actions:focus-within { transform: translateY(0); }\n\n  .accessible-story-actions a {\n    padding: 7px 10px;\n    border-radius: 999px;\n    color: #111;\n    text-decoration: none;\n    font-size: 0.7rem;\n    font-weight: 800;\n    letter-spacing: 0.06em;\n  }\n\n  .accessible-story-actions a:focus-visible {\n    outline-color: #111;\n  }\n'''
+          if '.accessible-story-actions {' not in css:
+              if anchor not in css:
+                  raise SystemExit('skip-link CSS anchor not found')
+              css = css.replace(anchor, block, 1)
+          css_path.write_text(css)
+
+          workflow_path = Path('.github/workflows/liminalqa-decision.yml')
+          workflow = workflow_path.read_text()
+          needle = '      - "smart-choice/**"\n'
+          if '      - "experience/**"\n' not in workflow:
+              if workflow.count(needle) != 2:
+                  raise SystemExit(f'expected two smart-choice path anchors, found {workflow.count(needle)}')
+              workflow = workflow.replace(needle, needle + '      - "experience/**"\n')
+          elif workflow.count('      - "experience/**"\n') != 2:
+              raise SystemExit('experience path trigger must appear exactly twice')
+          workflow_path.write_text(workflow)
+
+          if workflow_path.read_text().count('      - "experience/**"\n') != 2:
+              raise SystemExit('exact-head experience trigger coverage incomplete')
+          print('Applied cinematic accessibility and exact-head trigger fixes.')
+          PY
+          git diff --check
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build and refresh integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
+          npm run integrity:generate
+          npm run verify:security
+          npm run check
+          npm run integrity:generate
+          npm run verify:integrity
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify mobile accessible actions before finale scroll
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx vite --host 127.0.0.1 --port 4173 > /tmp/robys-vite.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/experience/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+          await page.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
+          await page.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
+
+          const state = await page.evaluate(() => {
+            const headerMenu = document.querySelector('.menu-link');
+            const nav = document.querySelector('.accessible-story-actions');
+            const links = Array.from(nav?.querySelectorAll('a') || []);
+            return {
+              scene: document.querySelector('[data-cinematic-experience]')?.getAttribute('data-active-scene'),
+              headerMenuDisplay: headerMenu ? getComputedStyle(headerMenu).display : null,
+              navLabel: nav?.getAttribute('aria-label'),
+              linkTexts: links.map((link) => link.textContent?.trim()),
+              links: links.map((link) => ({
+                tabindex: link.getAttribute('tabindex'),
+                ariaHidden: link.getAttribute('aria-hidden'),
+                display: getComputedStyle(link).display,
+                visibility: getComputedStyle(link).visibility,
+              })),
+            };
+          });
+
+          if (state.scene !== '0') throw new Error(`expected arrival scene, got ${state.scene}`);
+          if (state.headerMenuDisplay !== 'none') throw new Error(`expected mobile header menu hidden, got ${state.headerMenuDisplay}`);
+          if (state.navLabel !== 'Быстрые действия истории') throw new Error(`localized shortcut label mismatch: ${state.navLabel}`);
+          if (state.linkTexts.join('|') !== "ОТКРЫТЬ МЕНЮ|НА ГЛАВНУЮ ROBY'S") throw new Error(`localized shortcut copy mismatch: ${state.linkTexts.join('|')}`);
+          if (state.links.length !== 2 || state.links.some((link) => link.tabindex === '-1' || link.ariaHidden === 'true' || link.display === 'none' || link.visibility === 'hidden')) {
+            throw new Error(`mobile accessible actions unavailable before finale: ${JSON.stringify(state.links)}`);
+          }
+
+          await page.keyboard.press('Tab');
+          await page.keyboard.press('Tab');
+          const focused = await page.evaluate(() => {
+            const active = document.activeElement;
+            const rect = active?.getBoundingClientRect();
+            return {
+              inShortcutNav: Boolean(active?.closest('.accessible-story-actions')),
+              top: rect?.top,
+              bottom: rect?.bottom,
+            };
+          });
+          if (!focused.inShortcutNav || focused.top == null || focused.top < 0 || focused.bottom > 844) {
+            throw new Error(`keyboard shortcut did not reveal onscreen: ${JSON.stringify(focused)}`);
+          }
+          await browser.close();
+          NODE
+
+      - name: Reject unexpected drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t changed < <(git status --porcelain | sed 's/^...//')
+          printf '%s\n' "${changed[@]}"
+          for file in "${changed[@]}"; do
+            case "$file" in
+              .github/workflows/liminalqa-decision.yml|experience/index.html|experience/experience.css|sw.js|integrity-manifest.json) ;;
+              *) echo "Unexpected changed file: $file" >&2; exit 1 ;;
+            esac
+          done
+
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/liminalqa-decision.yml experience/index.html experience/experience.css sw.js integrity-manifest.json
+          git diff --cached --check
+          git commit -m 'Keep cinematic finale actions accessible'
+          git push
