@@ -4,17 +4,7 @@
   const experience = document.querySelector("[data-cinematic-experience]");
   if (!(experience instanceof HTMLElement)) return;
 
-  // Keep all presentation in self-hosted CSS so the page remains compatible
-  // with Roby's strict style-src CSP. The runtime only changes semantic state.
-  for (const href of ["experience-state.css", "brand-fidelity.css"]) {
-    const stylesheet = document.createElement("link");
-    stylesheet.rel = "stylesheet";
-    stylesheet.href = href;
-    document.head.append(stylesheet);
-  }
-
   const scenes = Array.from(experience.querySelectorAll("[data-scene]"));
-  const products = Array.from(experience.querySelectorAll("[data-product]"));
   const languageButtons = Array.from(document.querySelectorAll("[data-lang]"));
   const localizedNodes = Array.from(document.querySelectorAll("[data-tr][data-en][data-ru]"));
   const sceneNumber = experience.querySelector("[data-scene-number]");
@@ -51,7 +41,9 @@
   }
 
   languageButtons.forEach((button) => {
-    button.addEventListener("click", () => applyLanguage(button.getAttribute("data-lang") || "tr"));
+    button.addEventListener("click", () => {
+      applyLanguage(button.getAttribute("data-lang") || "tr");
+    });
   });
 
   function measure() {
@@ -66,6 +58,7 @@
 
   function activateScene(index) {
     if (index === activeScene) return;
+
     activeScene = index;
     experience.dataset.activeScene = String(index);
 
@@ -76,12 +69,6 @@
     });
 
     if (sceneNumber) sceneNumber.textContent = String(index + 1).padStart(2, "0");
-
-    const useIcedLatte = index === 4 || index === 5;
-    products.forEach((image) => {
-      const product = image.getAttribute("data-product");
-      image.classList.toggle("is-visible", useIcedLatte ? product === "iced" : product === "latte");
-    });
   }
 
   function updateScene() {
