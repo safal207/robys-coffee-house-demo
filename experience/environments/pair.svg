@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Coffee pairing atmosphere">
+  <defs>
+    <radialGradient id="leftGlow" cx="25%" cy="62%" r="42%">
+      <stop offset="0" stop-color="#c68c57" stop-opacity=".20"/>
+      <stop offset=".5" stop-color="#6f4029" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rightGlow" cx="83%" cy="34%" r="38%">
+      <stop offset="0" stop-color="#ead0ad" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#7e4b34" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="24"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="#0b0908" fill-opacity="0"/>
+  <ellipse cx="360" cy="650" rx="390" ry="300" fill="url(#leftGlow)"/>
+  <ellipse cx="1280" cy="350" rx="350" ry="280" fill="url(#rightGlow)"/>
+  <g opacity=".12" filter="url(#soft)">
+    <ellipse cx="330" cy="690" rx="180" ry="42" fill="#e0b07d"/>
+    <ellipse cx="1290" cy="385" rx="150" ry="36" fill="#f2d8b7"/>
+  </g>
+  <g fill="none" stroke="#f1d3b1" stroke-opacity=".09" stroke-width="2">
+    <circle cx="345" cy="655" r="108"/>
+    <circle cx="1260" cy="360" r="96"/>
+    <path d="M455 650 C640 590 820 600 980 545 C1090 507 1155 445 1198 395"/>
+  </g>
+</svg>
