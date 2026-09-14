@@ -7,6 +7,7 @@
   const scenes = Array.from(experience.querySelectorAll("[data-scene]"));
   const languageButtons = Array.from(document.querySelectorAll("[data-lang]"));
   const localizedNodes = Array.from(document.querySelectorAll("[data-tr][data-en][data-ru]"));
+  const localizedAriaNodes = Array.from(document.querySelectorAll("[data-aria-tr][data-aria-en][data-aria-ru]"));
   const sceneNumber = experience.querySelector("[data-scene-number]");
   const languages = new Set(["tr", "en", "ru"]);
   const LANGUAGE_KEY = "robys-language";
@@ -45,6 +46,11 @@
     localizedNodes.forEach((node) => {
       const copy = node.getAttribute(`data-${next}`);
       if (copy !== null) node.textContent = copy;
+    });
+
+    localizedAriaNodes.forEach((node) => {
+      const label = node.getAttribute(`data-aria-${next}`);
+      if (label !== null) node.setAttribute("aria-label", label);
     });
 
     languageButtons.forEach((button) => {
