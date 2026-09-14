@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 # 1) Localize non-text accessibility labels alongside visible copy.
 js = Path("experience/experience.js")
@@ -33,15 +34,18 @@ for old_markup, new_markup in replacements.items():
     text = text.replace(old_markup, new_markup, 1)
 html.write_text(text)
 
-# 3) Make the precached experience complete on a first offline visit.
+# 3) Make the precached experience complete on a first offline visit. The
+# environment URL is build-revisioned, so match its optional query instead of
+# relying on the pre-build literal.
 sw = Path("sw.js")
 text = sw.read_text()
-anchor = '  "./experience/environments/finale.svg",\n'
-block = anchor + '  "./src/products/gallery-v5/croissant-828.webp",\n  "./src/products/gallery-v5/san-sebastian-828.webp",\n'
 if '"./src/products/gallery-v5/croissant-828.webp"' not in text:
-    if anchor not in text:
+    pattern = re.compile(r'(?P<line>\s*"\./experience/environments/finale\.svg(?:\?v=[^"]+)?",\n)')
+    match = pattern.search(text)
+    if not match:
         raise SystemExit("experience precache anchor not found")
-    text = text.replace(anchor, block, 1)
+    block = match.group("line") + '  "./src/products/gallery-v5/croissant-828.webp",\n  "./src/products/gallery-v5/san-sebastian-828.webp",\n'
+    text = text[:match.start()] + block + text[match.end():]
 sw.write_text(text)
 
 print("Applied final cinematic review fixes.")
