@@ -4,6 +4,8 @@ import path from "node:path";
 const RUNTIME_FILES = [
   "index.html",
   "menu.html",
+  "experience/index.html",
+  "experience/experience.js",
   "bootstrap-v2.js",
   "app.js",
   "conversion.js",
@@ -20,7 +22,7 @@ const RUNTIME_FILES = [
   "sw.js",
   "src/app.ts"
 ];
-const HTML_FILES = ["index.html", "menu.html"];
+const HTML_FILES = ["index.html", "menu.html", "experience/index.html"];
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const report = { generatedAt: new Date().toISOString(), checks: [], failures: [] };
@@ -112,7 +114,15 @@ for (const file of HTML_FILES) {
     must("CSP-001", !executableInline, `${file} contains an executable inline script`);
   }
   must("CSP-001", !/\sstyle=["']/i.test(html), `${file} contains an inline style attribute`);
-  must("CSP-001", /<script\b[^>]*src=["']bootstrap-v2\.js\?v=[a-f0-9]{12}/i.test(html), `${file} does not load the cache-new external bootstrap`);
+
+  if (file === "experience/index.html") {
+    must("CSP-001", /<script\b[^>]*src=["']experience\.js["']/i.test(html), `${file} does not load the reviewed experience runtime`);
+    for (const stylesheet of ["experience.css", "brand-fidelity.css", "experience-state.css", "cinematic-environments.css"]) {
+      must("CSP-001", html.includes(`href="${stylesheet}"`), `${file} does not load reviewed stylesheet ${stylesheet}`);
+    }
+  } else {
+    must("CSP-001", /<script\b[^>]*src=["']bootstrap-v2\.js\?v=[a-f0-9]{12}/i.test(html), `${file} does not load the cache-new external bootstrap`);
+  }
 
   const blankLinks = Array.from(html.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi), (match) => match[0]);
   for (const link of blankLinks) {
@@ -123,6 +133,13 @@ for (const file of HTML_FILES) {
   const eventHandlers = Array.from(html.matchAll(/\son[a-z]+\s*=/gi));
   must("SEC-001", eventHandlers.length === 0, `${file} contains inline event handlers`);
 }
+
+const experienceRuntime = read("experience/experience.js");
+must("CSP-001", !experienceRuntime.includes("document.createElement(\"script\")"), "Experience runtime must not create script elements dynamically");
+must("CSP-001", !experienceRuntime.includes("document.createElement('script')"), "Experience runtime must not create script elements dynamically");
+must("SEC-001", !/\.style\s*\./.test(experienceRuntime), "Experience runtime must not mutate inline style properties");
+must("SEC-001", experienceRuntime.includes("experience.dataset.activeScene"), "Experience runtime must drive reviewed scene state through data-active-scene");
+must("SEC-001", experienceRuntime.includes("experience.dataset.motionFrame"), "Experience runtime must drive reviewed motion state through data-motion-frame");
 
 const serviceWorker = read("sw.js");
 const menuPwaRuntime = read("menu-pwa.js");
