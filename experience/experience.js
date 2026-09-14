@@ -87,7 +87,20 @@
     scenes.forEach((scene, sceneIndex) => {
       const selected = sceneIndex === index;
       scene.classList.toggle("is-active", selected);
-      scene.setAttribute("aria-hidden", String(!selected));
+
+      if (selected) scene.setAttribute("aria-current", "step");
+      else scene.removeAttribute("aria-current");
+
+      scene.querySelectorAll("a").forEach((link) => {
+        if (!(link instanceof HTMLAnchorElement)) return;
+        if (selected) {
+          link.removeAttribute("tabindex");
+          link.removeAttribute("aria-hidden");
+        } else {
+          link.tabIndex = -1;
+          link.setAttribute("aria-hidden", "true");
+        }
+      });
     });
 
     if (sceneNumber) sceneNumber.textContent = String(index + 1).padStart(2, "0");

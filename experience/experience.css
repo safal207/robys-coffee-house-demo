@@ -905,3 +905,14 @@
     .scroll-cue { display: none; }
   }
 }
+
+
+@layer experience {
+  /* Accessibility: inactive cinematic scenes remain available to assistive technology. */
+  .cinematic-experience[data-enhanced="true"] .story-scene {
+    visibility: visible;
+    transition:
+      opacity 380ms ease,
+      transform 640ms cubic-bezier(.2,.78,.2,1);
+  }
+}
