@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Warm quiet coffee atmosphere">
+  <defs>
+    <radialGradient id="warm" cx="68%" cy="48%" r="58%">
+      <stop offset="0" stop-color="#d3a477" stop-opacity=".24"/>
+      <stop offset=".46" stop-color="#7b4b32" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="steam" x1="0" x2="0" y1="1" y2="0">
+      <stop offset="0" stop-color="#f2ddc4" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#f2ddc4" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="#0b0908" fill-opacity="0"/>
+  <ellipse cx="1110" cy="500" rx="470" ry="390" fill="url(#warm)"/>
+  <g fill="none" stroke="url(#steam)" stroke-width="9" stroke-linecap="round" filter="url(#blur)">
+    <path d="M1060 730 C980 610 1145 565 1050 435 C980 340 1090 270 1065 160"/>
+    <path d="M1180 760 C1090 635 1275 585 1170 450 C1098 356 1220 282 1190 178"/>
+    <path d="M1280 720 C1210 610 1365 565 1285 450 C1225 365 1320 300 1305 205"/>
+  </g>
+  <g fill="#f0d6b6" opacity=".08">
+    <circle cx="975" cy="280" r="5"/><circle cx="1360" cy="360" r="3"/><circle cx="1210" cy="210" r="4"/>
+    <circle cx="1450" cy="590" r="4"/><circle cx="1000" cy="640" r="3"/>
+  </g>
+</svg>
