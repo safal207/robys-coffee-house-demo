@@ -13,6 +13,7 @@
   let start = 0;
   let range = 1;
   let activeScene = -1;
+  let activeMotionFrame = -1;
   let scheduled = false;
 
   const clamp = (value) => Math.min(1, Math.max(0, value));
@@ -71,10 +72,19 @@
     if (sceneNumber) sceneNumber.textContent = String(index + 1).padStart(2, "0");
   }
 
+  function activateMotionFrame(progress) {
+    const frame = Math.min(10, Math.floor(progress * 11));
+    if (frame === activeMotionFrame) return;
+
+    activeMotionFrame = frame;
+    experience.dataset.motionFrame = String(frame);
+  }
+
   function updateScene() {
     scheduled = false;
     const progress = currentProgress();
     const index = Math.min(scenes.length - 1, Math.floor(progress * scenes.length));
+    activateMotionFrame(progress);
     activateScene(index);
   }
 
