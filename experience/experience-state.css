@@ -1,5 +1,3 @@
-@import url("cinematic-environments.css");
-
 /*
  * CSP-safe scene states for the cinematic prototype.
  * JavaScript only changes data-active-scene; all visual motion stays in reviewed CSS.
