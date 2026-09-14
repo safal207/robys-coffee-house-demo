@@ -73,7 +73,6 @@ jobs:
           const localized = await browser.newPage({ viewport: { width: 390, height: 844 } });
           await localized.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
           await localized.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
-          if (!document) {}
           const ru = await localized.evaluate(() => ({
             title: document.title,
             header: document.querySelector('.experience-header')?.getAttribute('aria-label'),
