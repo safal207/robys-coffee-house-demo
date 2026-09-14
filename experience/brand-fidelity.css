@@ -1,0 +1,95 @@
+/* Roby's cinematic experience: keep the owner-approved identity and real takeaway cup. */
+:root {
+  --robys-brand-red: #E21B23;
+  --robys-brand-ink: #111111;
+  --robys-brand-paper: #FFFFFF;
+}
+
+/* Replace the temporary text lockup with the approved vector logo without altering it. */
+.brand-lockup {
+  width: clamp(124px, 16vw, 230px);
+  height: clamp(42px, 5.5vw, 58px);
+  padding: 8px 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background:
+    rgba(255, 255, 255, 0.94)
+    url("../src/brand/robys-header-master-v1.svg?v=20260726-approved-v4")
+    center / calc(100% - 24px) auto no-repeat;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.28);
+}
+
+.brand-lockup .brand-name,
+.brand-lockup .brand-sub {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.live-dot {
+  background: var(--robys-brand-red);
+  box-shadow:
+    0 0 0 5px rgba(226, 27, 35, 0.09),
+    0 0 18px rgba(226, 27, 35, 0.5);
+}
+
+/* The cup is the persistent hero object. The generic gallery drink photos are only fallback assets. */
+.product-frame {
+  overflow: visible;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.product-frame::before {
+  content: "";
+  position: absolute;
+  inset: -10% -6%;
+  z-index: 3;
+  background:
+    url("../src/brand/robys-takeaway-cup-v1.webp")
+    center / contain no-repeat;
+  filter: drop-shadow(0 38px 42px rgba(0, 0, 0, 0.48));
+  transform: translateZ(0);
+}
+
+.product-image {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.product-caption {
+  color: rgba(247, 241, 233, 0.74);
+  letter-spacing: 0.18em;
+}
+
+/* The brand red is a controlled accent, not a new art direction. */
+.primary-cta {
+  border-color: var(--robys-brand-red) !important;
+  background: var(--robys-brand-red) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 34px rgba(226, 27, 35, 0.2);
+}
+
+.primary-cta:hover,
+.primary-cta:focus-visible {
+  box-shadow: 0 16px 42px rgba(226, 27, 35, 0.3);
+}
+
+@media (max-width: 680px) {
+  .brand-lockup {
+    width: 116px;
+    height: 42px;
+    padding: 6px 10px;
+    background-image: url("../src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4");
+    background-size: calc(100% - 20px) auto;
+  }
+
+  .product-frame::before {
+    inset: -4% -12%;
+  }
+}
