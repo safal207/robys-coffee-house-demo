@@ -101,16 +101,15 @@
   letter-spacing: 0.18em;
 }
 
-/* Scene choreography: the actual cup persists while the environment changes. */
-[data-active-scene="0"] .hero-cup {
-  transform: translate3d(0, 3%, 0) scale(.9);
-}
+/* One Cup / Seven Scenes: the real cup persists while only the world changes. */
+[data-active-scene="0"] .hero-cup { transform: translate3d(0, 3%, 0) scale(.9); }
 [data-active-scene="0"] .brand-red-halo { opacity: .13; transform: scale(.8); }
+[data-active-scene="0"] .orbit { opacity: .08; }
+[data-active-scene="0"] .steam { opacity: 0; }
 
-[data-active-scene="1"] .hero-cup {
-  transform: translate3d(-2%, 0, 0) scale(.96) rotate(-1deg);
-}
+[data-active-scene="1"] .hero-cup { transform: translate3d(-2%, 0, 0) scale(.96) rotate(-1deg); }
 [data-active-scene="1"] .brand-mark-echo { opacity: .035; transform: translate(8%, -6%) scale(.91); }
+[data-active-scene="1"] .orbit { opacity: .18; }
 
 [data-active-scene="2"] .hero-cup {
   transform: translate3d(1%, -1%, 0) scale(1.015) rotate(.6deg);
@@ -120,23 +119,23 @@
 }
 [data-active-scene="2"] .brand-red-halo { opacity: .34; transform: scale(1.03); }
 [data-active-scene="2"] .brand-mark-echo { opacity: .055; transform: translate(7%, -5%) scale(.98); }
+[data-active-scene="2"] .orbit { opacity: .36; }
 
-[data-active-scene="3"] .hero-cup {
-  transform: translate3d(0, -2%, 0) scale(1);
-}
+[data-active-scene="3"] .hero-cup { transform: translate3d(0, -2%, 0) scale(1); }
 [data-active-scene="3"] .brand-red-halo { opacity: .18; transform: scale(.95); }
+[data-active-scene="3"] .orbit { opacity: .13; }
 
-[data-active-scene="4"] .hero-cup {
-  transform: translate3d(-4%, -1%, 0) scale(.96) rotate(-1.2deg);
-}
+[data-active-scene="4"] .hero-cup { transform: translate3d(-4%, -1%, 0) scale(.96) rotate(-1.2deg); }
 [data-active-scene="4"] .brand-red-halo { opacity: .2; transform: translate(-4%, 3%) scale(1.06); }
 [data-active-scene="4"] .brand-mark-echo { opacity: .035; transform: translate(2%, -3%) scale(1.05); }
+[data-active-scene="4"] .orbit { opacity: .1; }
+[data-active-scene="4"] .route-layer { filter: drop-shadow(0 0 22px rgba(226, 27, 35, .06)); }
 
-[data-active-scene="5"] .hero-cup {
-  transform: translate3d(0, -2%, 0) scale(.92);
-}
+[data-active-scene="5"] .hero-cup { transform: translate3d(0, -2%, 0) scale(.92); }
 [data-active-scene="5"] .cup-ground-shadow { transform: scaleX(1.08); opacity: .82; }
 [data-active-scene="5"] .brand-red-halo { opacity: .3; transform: scale(1.1); }
+[data-active-scene="5"] .brand-mark-echo { opacity: .02; }
+[data-active-scene="5"] .orbit { opacity: .08; }
 
 [data-active-scene="6"] .hero-cup {
   transform: translate3d(0, -5%, 0) scale(1.06);
@@ -146,6 +145,18 @@
 }
 [data-active-scene="6"] .brand-mark-echo { opacity: .08; transform: translate(5%, -5%) scale(1.1); }
 [data-active-scene="6"] .brand-red-halo { opacity: .38; transform: scale(1.14); }
+[data-active-scene="6"] .orbit { opacity: .04; }
+[data-active-scene="6"] .pairing-card { opacity: .42; filter: saturate(.8) brightness(.8); }
+
+/* Keep secondary menu products subordinate to the branded cup. */
+.pairing-card {
+  transform-origin: center;
+}
+
+[data-active-scene="5"] .pairing-card-a,
+[data-active-scene="6"] .pairing-card-a { transform: translate3d(10px, 8px, 0) rotate(-5deg) scale(.92); }
+[data-active-scene="5"] .pairing-card-b,
+[data-active-scene="6"] .pairing-card-b { transform: translate3d(-10px, 4px, 0) rotate(5deg) scale(.92); }
 
 .primary-cta {
   border-color: var(--robys-brand-red) !important;
@@ -160,13 +171,8 @@
 }
 
 @media (max-width: 900px) {
-  .hero-product--cup {
-    width: min(48vw, 330px);
-  }
-
-  .brand-mark-echo {
-    width: min(54vw, 380px);
-  }
+  .hero-product--cup { width: min(48vw, 330px); }
+  .brand-mark-echo { width: min(54vw, 380px); }
 }
 
 @media (max-width: 680px) {
@@ -178,22 +184,20 @@
 
   .brand-logo-wide { display: none; }
   .brand-logo-compact { display: block; }
-
-  .hero-product--cup {
-    width: min(56vw, 300px);
-  }
+  .hero-product--cup { width: min(56vw, 300px); }
 
   .brand-red-halo {
     top: 18%;
     right: -6%;
     width: 72vw;
   }
+
+  [data-active-scene="5"] .pairing-card,
+  [data-active-scene="6"] .pairing-card { opacity: .72; }
 }
 
 @media (max-width: 430px) {
-  .hero-product--cup {
-    width: min(62vw, 270px);
-  }
+  .hero-product--cup { width: min(62vw, 270px); }
 
   .product-caption {
     bottom: -1rem;
@@ -205,7 +209,8 @@
   .hero-cup,
   .brand-red-halo,
   .brand-mark-echo,
-  .cup-ground-shadow {
+  .cup-ground-shadow,
+  .pairing-card {
     transition: none !important;
   }
 }
