@@ -1,0 +1,108 @@
+/* Local cinematic worlds. No generated brand marks or product replacements live here. */
+.cinematic-stage::before,
+.cinematic-stage::after,
+.route-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 800ms ease, transform 1100ms cubic-bezier(.2,.78,.2,1), filter 900ms ease;
+}
+
+.cinematic-stage::before {
+  z-index: 1;
+  background-image: url("environments/origin.svg");
+  transform: scale(1.035) translate3d(1.5%, 0, 0);
+  filter: saturate(.9) contrast(1.04);
+}
+
+.cinematic-stage::after {
+  z-index: 1;
+  background-image: url("environments/energy.svg");
+  transform: scale(1.055) translate3d(-1%, 0, 0);
+  mix-blend-mode: screen;
+  filter: saturate(.92);
+}
+
+.route-layer::before {
+  z-index: -1;
+  background-image: url("environments/move.svg");
+  transform: scale(1.04) translate3d(1%, 0, 0);
+  filter: contrast(1.02);
+}
+
+/* Arrival: almost empty. Brand/product recognition wins first. */
+.cinematic-experience[data-active-scene="0"] .cinematic-stage::before,
+.cinematic-experience[data-active-scene="0"] .cinematic-stage::after {
+  opacity: 0;
+}
+
+/* Origin: the coffee world grows around the immutable cup. */
+.cinematic-experience[data-active-scene="1"] .cinematic-stage::before {
+  opacity: .78;
+  transform: scale(1) translate3d(0, 0, 0);
+}
+
+/* Energy: origin recedes while heat/red energy comes forward. */
+.cinematic-experience[data-active-scene="2"] .cinematic-stage::before {
+  opacity: .28;
+  transform: scale(1.025) translate3d(-1%, 0, 0);
+}
+.cinematic-experience[data-active-scene="2"] .cinematic-stage::after {
+  opacity: .72;
+  transform: scale(1) translate3d(0, 0, 0);
+}
+
+/* Moment: quiet the environment, keep only a warm residue behind steam. */
+.cinematic-experience[data-active-scene="3"] .cinematic-stage::before {
+  opacity: .12;
+}
+.cinematic-experience[data-active-scene="3"] .cinematic-stage::after {
+  opacity: .22;
+  transform: scale(1.025) translate3d(1%, -1%, 0);
+}
+
+/* Move: route/world layer takes over behind the same cup. */
+.cinematic-experience[data-active-scene="4"] .route-layer::before {
+  opacity: .7;
+  transform: scale(1) translate3d(0, 0, 0);
+}
+.cinematic-experience[data-active-scene="4"] .cinematic-stage::after {
+  opacity: .08;
+}
+
+/* Pair: keep some city context but make real menu items the secondary proof. */
+.cinematic-experience[data-active-scene="5"] .route-layer::before {
+  opacity: .34;
+  transform: scale(1.015) translate3d(-1%, 0, 0);
+}
+
+/* Finale: the environment falls away again; product + CTA finish the story. */
+.cinematic-experience[data-active-scene="6"] .route-layer::before {
+  opacity: .12;
+  transform: scale(1.035) translate3d(-2%, 0, 0);
+}
+
+@media (max-width: 680px) {
+  .cinematic-stage::before,
+  .cinematic-stage::after,
+  .route-layer::before {
+    background-position: 64% center;
+  }
+
+  .cinematic-experience[data-active-scene="1"] .cinematic-stage::before { opacity: .64; }
+  .cinematic-experience[data-active-scene="2"] .cinematic-stage::after { opacity: .58; }
+  .cinematic-experience[data-active-scene="4"] .route-layer::before { opacity: .56; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-stage::before,
+  .cinematic-stage::after,
+  .route-layer::before {
+    transition: none !important;
+  }
+}
