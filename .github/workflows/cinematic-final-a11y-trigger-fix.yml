@@ -136,6 +136,7 @@ jobs:
 
           await page.keyboard.press('Tab');
           await page.keyboard.press('Tab');
+          await page.waitForTimeout(250);
           const focused = await page.evaluate(() => {
             const active = document.activeElement;
             const rect = active?.getBoundingClientRect();
