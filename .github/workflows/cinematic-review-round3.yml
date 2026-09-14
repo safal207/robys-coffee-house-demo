@@ -94,19 +94,12 @@ jobs:
           }
           await localized.close();
 
-          // Offline-first: install the SW from the home route, then visit experience offline.
+          // Offline-first: let production pwa.js register the SW through the Trusted Types policy,
+          // then go offline before visiting /experience/ for the first time in this context.
           const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'allow' });
           const page = await context.newPage();
           await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-          await page.evaluate(async () => {
-            const registration = await navigator.serviceWorker.register('/sw.js');
-            await navigator.serviceWorker.ready;
-            if (registration.installing) {
-              await new Promise((resolve) => registration.installing.addEventListener('statechange', function onChange() {
-                if (this.state === 'activated') resolve();
-              }));
-            }
-          });
+          await page.waitForFunction(() => document.documentElement.dataset.offlineReady === 'true');
           await page.reload({ waitUntil: 'networkidle' });
           await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
           await context.setOffline(true);
