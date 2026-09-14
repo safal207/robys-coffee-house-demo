@@ -1,8 +1,8 @@
 /* Local cinematic worlds. No generated brand marks or product replacements live here. */
 .cinematic-stage::before,
 .cinematic-stage::after,
-.route-layer::before {
-  content: "";
+.route-layer::before,
+.environment-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -11,6 +11,12 @@
   background-size: cover;
   opacity: 0;
   transition: opacity 800ms ease, transform 1100ms cubic-bezier(.2,.78,.2,1), filter 900ms ease;
+}
+
+.cinematic-stage::before,
+.cinematic-stage::after,
+.route-layer::before {
+  content: "";
 }
 
 .cinematic-stage::before {
@@ -35,9 +41,41 @@
   filter: contrast(1.02);
 }
 
+.environment-stack {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.environment-layer {
+  z-index: 0;
+}
+
+.environment-moment {
+  background-image: url("environments/moment.svg");
+  transform: scale(1.035) translate3d(.5%, 0, 0);
+  filter: saturate(.9);
+}
+
+.environment-pair {
+  background-image: url("environments/pair.svg");
+  transform: scale(1.045) translate3d(-1%, 1%, 0);
+  filter: saturate(.94) contrast(1.02);
+}
+
+.environment-finale {
+  background-image: url("environments/finale.svg");
+  transform: scale(1.055) translate3d(1%, 0, 0);
+  mix-blend-mode: screen;
+  filter: saturate(.9);
+}
+
 /* Arrival: almost empty. Brand/product recognition wins first. */
 .cinematic-experience[data-active-scene="0"] .cinematic-stage::before,
-.cinematic-experience[data-active-scene="0"] .cinematic-stage::after {
+.cinematic-experience[data-active-scene="0"] .cinematic-stage::after,
+.cinematic-experience[data-active-scene="0"] .environment-layer {
   opacity: 0;
 }
 
@@ -57,13 +95,16 @@
   transform: scale(1) translate3d(0, 0, 0);
 }
 
-/* Moment: quiet the environment, keep only a warm residue behind steam. */
+/* Moment: quiet warm atmosphere behind steam and the same real cup. */
 .cinematic-experience[data-active-scene="3"] .cinematic-stage::before {
-  opacity: .12;
+  opacity: .06;
 }
 .cinematic-experience[data-active-scene="3"] .cinematic-stage::after {
-  opacity: .22;
-  transform: scale(1.025) translate3d(1%, -1%, 0);
+  opacity: .08;
+}
+.cinematic-experience[data-active-scene="3"] .environment-moment {
+  opacity: .78;
+  transform: scale(1) translate3d(0, 0, 0);
 }
 
 /* Move: route/world layer takes over behind the same cup. */
@@ -72,37 +113,57 @@
   transform: scale(1) translate3d(0, 0, 0);
 }
 .cinematic-experience[data-active-scene="4"] .cinematic-stage::after {
-  opacity: .08;
+  opacity: .06;
 }
-
-/* Pair: keep some city context but make real menu items the secondary proof. */
-.cinematic-experience[data-active-scene="5"] .route-layer::before {
-  opacity: .34;
-  transform: scale(1.015) translate3d(-1%, 0, 0);
-}
-
-/* Finale: the environment falls away again; product + CTA finish the story. */
-.cinematic-experience[data-active-scene="6"] .route-layer::before {
+.cinematic-experience[data-active-scene="4"] .environment-moment {
   opacity: .12;
-  transform: scale(1.035) translate3d(-2%, 0, 0);
+  transform: scale(1.03) translate3d(-1%, 0, 0);
+}
+
+/* Pair: real menu items remain the secondary proof, supported by a warmer table-like world. */
+.cinematic-experience[data-active-scene="5"] .route-layer::before {
+  opacity: .2;
+  transform: scale(1.025) translate3d(-1%, 0, 0);
+}
+.cinematic-experience[data-active-scene="5"] .environment-pair {
+  opacity: .7;
+  transform: scale(1) translate3d(0, 0, 0);
+}
+
+/* Finale: environment simplifies again so cup + CTA own the last frame. */
+.cinematic-experience[data-active-scene="6"] .route-layer::before {
+  opacity: .04;
+}
+.cinematic-experience[data-active-scene="6"] .environment-pair {
+  opacity: .12;
+  transform: scale(1.03) translate3d(-1%, 0, 0);
+}
+.cinematic-experience[data-active-scene="6"] .environment-finale {
+  opacity: .76;
+  transform: scale(1) translate3d(0, 0, 0);
 }
 
 @media (max-width: 680px) {
   .cinematic-stage::before,
   .cinematic-stage::after,
-  .route-layer::before {
+  .route-layer::before,
+  .environment-layer {
     background-position: 64% center;
   }
 
   .cinematic-experience[data-active-scene="1"] .cinematic-stage::before { opacity: .64; }
   .cinematic-experience[data-active-scene="2"] .cinematic-stage::after { opacity: .58; }
-  .cinematic-experience[data-active-scene="4"] .route-layer::before { opacity: .56; }
+  .cinematic-experience[data-active-scene="3"] .environment-moment { opacity: .62; }
+  .cinematic-experience[data-active-scene="4"] .route-layer::before { opacity: .54; }
+  .cinematic-experience[data-active-scene="5"] .environment-pair { opacity: .56; }
+  .cinematic-experience[data-active-scene="6"] .environment-finale { opacity: .62; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cinematic-stage::before,
   .cinematic-stage::after,
-  .route-layer::before {
+  .route-layer::before,
+  .environment-layer {
     transition: none !important;
   }
 }
