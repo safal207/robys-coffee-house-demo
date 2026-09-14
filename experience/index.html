@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Roby's Coffee House için sinematik, kaydırma kontrollü interaktif konsept deneyimi." />
+  <meta name="theme-color" content="#0b0908" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests" />
+  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/experience/" />
+  <meta property="og:title" content="Roby's Coffee House — Cinematic Experience" />
+  <meta property="og:description" content="Take it with you. Roby's için interaktif ürün hikâyesi konsepti." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/experience/" />
+  <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />
+  <title>Roby's — Take It With You · Cinematic Experience</title>
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="preload" href="../src/products/gallery-v5/latte-828.webp" as="image" fetchpriority="high" />
+  <link rel="stylesheet" href="experience.css" />
+  <script defer src="experience.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-tr="İçeriğe geç" data-en="Skip to content" data-ru="Перейти к содержанию">İçeriğe geç</a>
+
+  <header class="experience-header" aria-label="Roby's cinematic navigation">
+    <a class="brand-lockup" href="../index.html" aria-label="Roby's Coffee House home">
+      <span class="brand-name">ROBY'S</span>
+      <span class="brand-sub">COFFEE HOUSE</span>
+    </a>
+
+    <div class="header-center" aria-hidden="true">
+      <span class="live-dot"></span>
+      <span data-tr="CINEMATIC CONCEPT" data-en="CINEMATIC CONCEPT" data-ru="CINEMATIC CONCEPT">CINEMATIC CONCEPT</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="language-switcher" aria-label="Language selector">
+        <button class="language-button is-active" type="button" data-lang="tr" aria-pressed="true">TR</button>
+        <button class="language-button" type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button class="language-button" type="button" data-lang="ru" aria-pressed="false">RU</button>
+      </div>
+      <a class="menu-link" href="../menu.html" data-tr="MENÜ" data-en="MENU" data-ru="МЕНЮ">MENÜ</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="cinematic-experience" data-cinematic-experience aria-labelledby="experience-title">
+      <div class="cinematic-stage">
+        <div class="ambient ambient-a" aria-hidden="true"></div>
+        <div class="ambient ambient-b" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="light-sweep" aria-hidden="true"></div>
+
+        <div class="chapter-rail" aria-hidden="true">
+          <span class="chapter-track"><span class="chapter-fill" data-progress-fill></span></span>
+          <span class="chapter-number" data-scene-number>01</span>
+          <span class="chapter-total">/ 07</span>
+        </div>
+
+        <div class="route-layer" aria-hidden="true">
+          <svg class="route-svg" viewBox="0 0 1200 900" role="presentation">
+            <path class="route-shadow" d="M132 742 C 284 626, 214 472, 424 446 S 622 552, 726 376 S 898 188, 1080 196" />
+            <path class="route-line" data-route-path pathLength="1" d="M132 742 C 284 626, 214 472, 424 446 S 622 552, 726 376 S 898 188, 1080 196" />
+            <circle class="route-point route-point-a" cx="132" cy="742" r="7" />
+            <circle class="route-point route-point-b" cx="424" cy="446" r="7" />
+            <circle class="route-point route-point-c" cx="726" cy="376" r="7" />
+            <circle class="route-point route-point-d" cx="1080" cy="196" r="7" />
+          </svg>
+        </div>
+
+        <div class="bean-field" aria-hidden="true">
+          <span class="bean bean-1"></span><span class="bean bean-2"></span><span class="bean bean-3"></span>
+          <span class="bean bean-4"></span><span class="bean bean-5"></span><span class="bean bean-6"></span>
+          <span class="bean bean-7"></span><span class="bean bean-8"></span><span class="bean bean-9"></span>
+          <span class="bean bean-10"></span><span class="bean bean-11"></span><span class="bean bean-12"></span>
+        </div>
+
+        <div class="product-world" data-product-world aria-hidden="true">
+          <div class="orbit orbit-outer"></div>
+          <div class="orbit orbit-inner"></div>
+          <div class="steam steam-a"></div>
+          <div class="steam steam-b"></div>
+          <div class="steam steam-c"></div>
+
+          <div class="hero-product">
+            <span class="product-glow"></span>
+            <div class="product-frame">
+              <img class="product-image product-image-main is-visible" data-product="latte" src="../src/products/gallery-v5/latte-828.webp" width="828" height="828" alt="" decoding="async" fetchpriority="high" />
+              <img class="product-image" data-product="iced" src="../src/products/gallery-v5/iced-latte-828.webp" width="828" height="828" alt="" loading="lazy" decoding="async" />
+            </div>
+            <span class="product-caption">ROBY'S · GAZİPAŞA</span>
+          </div>
+
+          <div class="pairing-card pairing-card-a">
+            <img src="../src/products/gallery-v5/croissant-828.webp" width="828" height="828" alt="" loading="lazy" decoding="async" />
+            <span>CROISSANT</span>
+          </div>
+          <div class="pairing-card pairing-card-b">
+            <img src="../src/products/gallery-v5/san-sebastian-828.webp" width="828" height="828" alt="" loading="lazy" decoding="async" />
+            <span>SAN SEBASTIAN</span>
+          </div>
+        </div>
+
+        <div class="story-copy" aria-live="polite">
+          <article class="story-scene is-active" data-scene="0">
+            <p class="scene-kicker" data-tr="ROBY'S · GAZİPAŞA" data-en="ROBY'S · GAZİPAŞA" data-ru="ROBY'S · ГАЗИПАША">ROBY'S · GAZİPAŞA</p>
+            <h1 id="experience-title" data-tr="Yanına al." data-en="Take it with you." data-ru="Возьми с собой.">Yanına al.</h1>
+            <p class="scene-body" data-tr="Kahve sadece bir mola değil. Gününle birlikte hareket eden küçük bir ritüel." data-en="Coffee is more than a pause. It is a small ritual that moves with your day." data-ru="Кофе — больше, чем пауза. Это маленький ритуал, который движется вместе с твоим днём.">Kahve sadece bir mola değil. Gününle birlikte hareket eden küçük bir ritüel.</p>
+            <span class="scene-note" data-tr="KAYDIR · HİKÂYEYİ BAŞLAT" data-en="SCROLL · START THE STORY" data-ru="ЛИСТАЙ · НАЧНИ ИСТОРИЮ">KAYDIR · HİKÂYEYİ BAŞLAT</span>
+          </article>
+
+          <article class="story-scene" data-scene="1" aria-hidden="true">
+            <p class="scene-kicker">01 · ORIGIN</p>
+            <h2 data-tr="Karakter, fincandan önce başlar." data-en="Character begins before the cup." data-ru="Характер начинается ещё до чашки.">Karakter, fincandan önce başlar.</h2>
+            <p class="scene-body" data-tr="İlk sahne lezzeti anlatmaz. Merakı uyandırır: çekirdek, doku, koku ve beklenti." data-en="The first scene does not explain flavor. It creates curiosity: bean, texture, aroma and anticipation." data-ru="Первая сцена не объясняет вкус. Она создаёт любопытство: зерно, фактура, аромат и ожидание.">İlk sahne lezzeti anlatmaz. Merakı uyandırır: çekirdek, doku, koku ve beklenti.</p>
+          </article>
+
+          <article class="story-scene" data-scene="2" aria-hidden="true">
+            <p class="scene-kicker">02 · TRANSFORM</p>
+            <h2 data-tr="Isı. Basınç. Zaman." data-en="Heat. Pressure. Time." data-ru="Тепло. Давление. Время.">Isı. Basınç. Zaman.</h2>
+            <p class="scene-body" data-tr="Basit malzemeler, doğru koşullarda tek bir ana dönüşür. Hikâyenin enerjisi burada yükselir." data-en="Simple ingredients become one moment under the right conditions. This is where the story gains energy." data-ru="Простые ингредиенты в правильных условиях превращаются в один момент. Здесь история набирает энергию.">Basit malzemeler, doğru koşullarda tek bir ana dönüşür. Hikâyenin enerjisi burada yükselir.</p>
+          </article>
+
+          <article class="story-scene" data-scene="3" aria-hidden="true">
+            <p class="scene-kicker">03 · POUR</p>
+            <h2 data-tr="Ritüel, ana dönüşür." data-en="Ritual becomes a moment." data-ru="Ритуал превращается в момент.">Ritüel, ana dönüşür.</h2>
+            <p class="scene-body" data-tr="Görsel dünya sakinleşir. Ürün merkezde kalır. Her hareket, dikkati kahveye geri getirir." data-en="The visual world calms down. The product stays at the center. Every movement returns attention to the coffee." data-ru="Визуальный мир успокаивается. Продукт остаётся в центре. Каждое движение возвращает внимание к кофе.">Görsel dünya sakinleşir. Ürün merkezde kalır. Her hareket, dikkati kahveye geri getirir.</p>
+          </article>
+
+          <article class="story-scene" data-scene="4" aria-hidden="true">
+            <p class="scene-kicker">04 · MOVE</p>
+            <h2 data-tr="Şehir hareket eder. Kahven seninle." data-en="The city moves. Your coffee moves with you." data-ru="Город движется. Кофе — вместе с тобой.">Şehir hareket eder. Kahven seninle.</h2>
+            <p class="scene-body" data-tr="Sıcak ya da soğuk. Roby's, günün rotasına uyum sağlar; rota artık hikâyenin parçasıdır." data-en="Hot or iced. Roby's follows the route of your day; the route is now part of the story." data-ru="Горячий или холодный. Roby's следует маршруту твоего дня — теперь сам маршрут становится частью истории.">Sıcak ya da soğuk. Roby's, günün rotasına uyum sağlar; rota artık hikâyenin parçasıdır.</p>
+          </article>
+
+          <article class="story-scene" data-scene="5" aria-hidden="true">
+            <p class="scene-kicker">05 · PAIR</p>
+            <h2 data-tr="Bir kahve. Doğru eşlikçi." data-en="One coffee. The right pairing." data-ru="Один кофе. Правильная пара.">Bir kahve. Doğru eşlikçi.</h2>
+            <p class="scene-body" data-tr="Croissant, San Sebastian ve favori içecekler. Seçim, ürün listesinden küçük bir kişisel ana dönüşür." data-en="Croissant, San Sebastian and favorite drinks. A menu choice becomes a small personal moment." data-ru="Круассан, San Sebastian и любимые напитки. Выбор из меню превращается в маленький личный момент.">Croissant, San Sebastian ve favori içecekler. Seçim, ürün listesinden küçük bir kişisel ana dönüşür.</p>
+          </article>
+
+          <article class="story-scene story-scene-final" data-scene="6" aria-hidden="true">
+            <p class="scene-kicker">06 · TAKEAWAY</p>
+            <h2 data-tr="Roby's. Yanına al." data-en="Roby's. Take it with you." data-ru="Roby's. Возьми с собой.">Roby's. Yanına al.</h2>
+            <p class="scene-body" data-tr="Hikâyeyi bitirme. Kahveni seç ve devam et." data-en="Do not end the story. Choose your coffee and keep moving." data-ru="Не заканчивай историю. Выбери свой кофе и двигайся дальше.">Hikâyeyi bitirme. Kahveni seç ve devam et.</p>
+            <div class="final-actions">
+              <a class="primary-cta" href="../menu.html" data-tr="MENÜYÜ KEŞFET" data-en="EXPLORE THE MENU" data-ru="ОТКРЫТЬ МЕНЮ">MENÜYÜ KEŞFET</a>
+              <a class="secondary-cta" href="../index.html" data-tr="ROBY'S ANA SAYFA" data-en="ROBY'S HOME" data-ru="НА ГЛАВНУЮ ROBY'S">ROBY'S ANA SAYFA</a>
+            </div>
+          </article>
+        </div>
+
+        <div class="scroll-cue" aria-hidden="true">
+          <span class="scroll-cue-label">SCROLL</span>
+          <span class="scroll-cue-line"></span>
+        </div>
+
+        <p class="concept-badge" data-tr="İNTERAKTİF KONSEPT · DEMO" data-en="INTERACTIVE CONCEPT · DEMO" data-ru="ИНТЕРАКТИВНЫЙ КОНЦЕПТ · DEMO">İNTERAKTİF KONSEPT · DEMO</p>
+      </div>
+    </section>
+
+    <section class="after-story" aria-labelledby="after-title">
+      <p class="after-eyebrow">ROBY'S / EXPERIENCE 01</p>
+      <h2 id="after-title" data-tr="Kahve biter. His kalır." data-en="The coffee ends. The feeling stays." data-ru="Кофе заканчивается. Ощущение остаётся.">Kahve biter. His kalır.</h2>
+      <p data-tr="Bu sayfa, Roby's için performans dostu bir sinematik web deneyimi prototipidir. Bir sonraki katmanda gerçek ürün çekimleri ve kare-sekans motion ile aynı yapı daha da ileri taşınabilir." data-en="This page is a performance-minded cinematic web prototype for Roby's. The same structure can later be upgraded with real product footage and frame-sequence motion." data-ru="Эта страница — производительный прототип кинематографического web-опыта для Roby's. Следующий слой — реальные продуктовые кадры и покадровый motion без перестройки самой страницы.">Bu sayfa, Roby's için performans dostu bir sinematik web deneyimi prototipidir. Bir sonraki katmanda gerçek ürün çekimleri ve kare-sekans motion ile aynı yapı daha da ileri taşınabilir.</p>
+      <a class="after-link" href="../menu.html" data-tr="MENÜYE GİT →" data-en="GO TO MENU →" data-ru="ПЕРЕЙТИ В МЕНЮ →">MENÜYE GİT →</a>
+    </section>
+  </main>
+
+  <noscript>
+    <div class="noscript-note">Roby's cinematic demo uses JavaScript for scroll-linked motion. The menu remains available without JavaScript.</div>
+  </noscript>
+</body>
+</html>
