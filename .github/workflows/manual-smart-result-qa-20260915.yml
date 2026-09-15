@@ -2,8 +2,7 @@ name: Manual Smart Choice result QA
 
 on:
   push:
-    branches:
-      - qa/manual-visual-20260915
+    branches: [qa/manual-visual-20260915]
 
 permissions:
   contents: read
@@ -34,8 +33,8 @@ jobs:
           node --input-type=module - <<'NODE'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
-          const browser = await chromium.launch({headless:true});
-          const cases = [
+          const browser=await chromium.launch({headless:true});
+          const cases=[
             ['mobile-390-tr',{width:390,height:844},'tr','tr-TR'],
             ['mobile-320-ru',{width:320,height:480},'ru','ru-RU'],
             ['desktop-1440-tr',{width:1440,height:900},'tr','tr-TR']
@@ -50,31 +49,30 @@ jobs:
             await page.waitForFunction(()=>document.querySelector('#smart-choice-app')?.getAttribute('aria-busy')!=='true');
             const start=page.locator('#smart-choice-app button').filter({hasText:/Seçime başla|Начать|Start/i});
             if (await start.count()) await start.first().click();
-            await page.waitForTimeout(150);
+            await page.waitForTimeout(120);
             const trace=[];
-            for (let step=0;step<8;step++) {
-              const state=await page.evaluate(()=>({
-                text:(document.querySelector('#smart-choice-app')?.innerText||'').slice(0,500),
-                buttons:[...document.querySelectorAll('#smart-choice-app button')].map(b=>({text:(b.textContent||'').trim(),w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,disabled:b.disabled}))
-              }));
-              trace.push(state);
-              if (/öner|recommend|рекоменд|sonuç|result/i.test(state.text) && !/1\s*\/\s*5/.test(state.text)) break;
-              const clicked=await page.evaluate(()=>{
-                const forbidden=/(baştan|geri|назад|сначала|restart|back|menü|menu|главн)/i;
+            for (let step=0;step<5;step++) {
+              const chosen=await page.evaluate(()=>{
+                const forbidden=/(baştan|geri|назад|сначала|restart|back|devam|continue|далее|menü|menu|главн)/i;
                 const buttons=[...document.querySelectorAll('#smart-choice-app button')]
-                  .filter(b=>!b.disabled && b.offsetParent!==null)
+                  .filter(b=>!b.disabled&&b.offsetParent!==null)
                   .map(b=>({b,r:b.getBoundingClientRect(),t:(b.textContent||'').trim()}))
-                  .filter(x=>x.r.width>180 && x.r.height>45 && !forbidden.test(x.t));
-                if (!buttons.length) return null;
-                buttons[0].b.click();
-                return buttons[0].t;
+                  .filter(x=>x.r.width>180&&x.r.height>60&&!forbidden.test(x.t));
+                if(!buttons.length)return null;
+                buttons[0].b.click(); return buttons[0].t;
               });
-              if (!clicked) break;
-              await page.waitForTimeout(220);
+              await page.waitForTimeout(100);
+              const next=page.locator('#smart-choice-app button').filter({hasText:/Devam et|Continue|Далее/i});
+              const nextCount=await next.count();
+              trace.push({step,chosen,nextCount,disabled:nextCount?await next.first().isDisabled():null});
+              if(!chosen||!nextCount||await next.first().isDisabled())break;
+              await next.first().click();
+              await page.waitForTimeout(180);
             }
+            await page.waitForTimeout(250);
             await page.screenshot({path:`qa-smart-result/${label}.png`,fullPage:false});
             await page.screenshot({path:`qa-smart-result/${label}-full.png`,fullPage:true});
-            summary.push({label,url:page.url(),errors,trace,finalText:(await page.locator('#smart-choice-app').innerText()).slice(0,2000)});
+            summary.push({label,url:page.url(),errors,trace,finalText:(await page.locator('#smart-choice-app').innerText()).slice(0,3000)});
             await context.close();
           }
           fs.writeFileSync('qa-smart-result/summary.json',JSON.stringify(summary,null,2));
