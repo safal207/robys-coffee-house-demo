@@ -26,12 +26,13 @@ jobs:
       - name: Preserve generated working-tree state
         shell: bash
         run: |
-          mkdir -p qa-generated/files
-          git status --short > qa-generated/status.txt
-          git diff --binary > qa-generated/generated.patch
+          rm -rf /tmp/qa-generated
+          mkdir -p /tmp/qa-generated/files
+          git status --short > /tmp/qa-generated/status.txt
+          git diff --binary > /tmp/qa-generated/generated.patch
           git diff --name-only -z | while IFS= read -r -d '' file; do
-            mkdir -p "qa-generated/files/$(dirname "$file")"
-            cp "$file" "qa-generated/files/$file"
+            mkdir -p "/tmp/qa-generated/files/$(dirname "$file")"
+            cp "$file" "/tmp/qa-generated/files/$file"
           done
       - name: Repository checks
         run: npm run check
@@ -143,7 +144,7 @@ jobs:
           name: manual-qa-fix-${{ github.run_id }}
           path: |
             qa-fix/
-            qa-generated/
+            /tmp/qa-generated/
             integrity-manifest.json
           if-no-files-found: warn
           retention-days: 7
