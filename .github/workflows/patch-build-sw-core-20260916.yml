@@ -51,16 +51,14 @@ jobs:
           s = replace_once(s, 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);', 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);', 'smart legacy assets')
           s = replace_once(s, 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'smart revisioned assets')
           s = replace_once(s, f'../sw.js?v={OLD}', f'../sw.js?v={NEW}', 'smart shared worker revision')
+          s = replace_once(s, f'src="pwa.js?v={OLD}"', f'src="pwa.js?v={NEW}"', 'smart PWA HTML assertion')
           p.write_text(s)
 
           simple_read_files = [
             'scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs',
           ]
           for file in simple_read_files:
-              p = Path(file)
-              s = p.read_text()
-              s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', file)
-              p.write_text(s)
+              p = Path(file); s = p.read_text(); s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', file); p.write_text(s)
 
           p = Path('scripts/verify-menu-share.mjs')
           s = p.read_text()
@@ -70,30 +68,11 @@ jobs:
           s = replace_once(s, old, new, 'share shared revision block')
           p.write_text(s)
 
-          p = Path('scripts/verify-android-download.mjs')
-          s = p.read_text()
-          s = replace_once(s, 'const sw = readFileSync("sw.js", "utf8");', 'const sw = readFileSync("sw-core-v64.js", "utf8");', 'android verifier')
-          p.write_text(s)
-
-          p = Path('scripts/test-discover-deck.mjs')
-          s = p.read_text()
-          s = replace_once(s, 'const swSource = readFileSync(resolve(root, "sw.js"), "utf8");', 'const swSource = readFileSync(resolve(root, "sw-core-v64.js"), "utf8");', 'discover deck')
-          p.write_text(s)
-
-          p = Path('scripts/verify-brand-identity-assets.mjs')
-          s = p.read_text()
-          s = replace_once(s, 'const sw = read("sw.js");', 'const sw = read("sw-core-v64.js");', 'brand identity')
-          p.write_text(s)
-
-          p = Path('scripts/test-photo-logo.mjs')
-          s = p.read_text()
-          s = replace_once(s, 'const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");', 'const serviceWorker = readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");', 'photo logo')
-          p.write_text(s)
-
-          p = Path('scripts/test-brand-wordmark.mjs')
-          s = p.read_text()
-          s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw-core-v64.js");', 'brand wordmark')
-          p.write_text(s)
+          p = Path('scripts/verify-android-download.mjs'); s = p.read_text(); s = replace_once(s, 'const sw = readFileSync("sw.js", "utf8");', 'const sw = readFileSync("sw-core-v64.js", "utf8");', 'android verifier'); p.write_text(s)
+          p = Path('scripts/test-discover-deck.mjs'); s = p.read_text(); s = replace_once(s, 'const swSource = readFileSync(resolve(root, "sw.js"), "utf8");', 'const swSource = readFileSync(resolve(root, "sw-core-v64.js"), "utf8");', 'discover deck'); p.write_text(s)
+          p = Path('scripts/verify-brand-identity-assets.mjs'); s = p.read_text(); s = replace_once(s, 'const sw = read("sw.js");', 'const sw = read("sw-core-v64.js");', 'brand identity'); p.write_text(s)
+          p = Path('scripts/test-photo-logo.mjs'); s = p.read_text(); s = replace_once(s, 'const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");', 'const serviceWorker = readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");', 'photo logo'); p.write_text(s)
+          p = Path('scripts/test-brand-wordmark.mjs'); s = p.read_text(); s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw-core-v64.js");', 'brand wordmark'); p.write_text(s)
 
           p = Path('scripts/verify-security-contracts.mjs')
           s = p.read_text()
@@ -103,30 +82,15 @@ jobs:
           s = replace_once(s, 'must("CSP-001", serviceWorker.includes(\'url.origin !== self.location.origin\'), "Service worker must ignore cross-origin fetches");', 'must("CSP-001", serviceWorkerCore.includes(\'url.origin !== self.location.origin\'), "Service worker core must ignore cross-origin fetches");', 'security origin guard')
           p.write_text(s)
 
-          p = Path('qa/traceability/api-platform.json')
-          s = p.read_text()
-          s = replace_once(s, '"sw.js#CACHE_VERSION"', '"sw-core-v64.js#CACHE_VERSION"', 'trace cache version')
-          s = replace_once(s, '"sw.js#navigationResponse"', '"sw-core-v64.js#navigationResponse"', 'trace navigation fallback')
-          p.write_text(s)
+          p = Path('qa/traceability/api-platform.json'); s = p.read_text(); s = replace_once(s, '"sw.js#CACHE_VERSION"', '"sw-core-v64.js#CACHE_VERSION"', 'trace cache version'); s = replace_once(s, '"sw.js#navigationResponse"', '"sw-core-v64.js#navigationResponse"', 'trace navigation fallback'); p.write_text(s)
 
           for file, old, new in [
-            ('pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),
-            ('menu-pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),
-            ('smart-choice/pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),
-            ('experience/experience-pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),
-            ('menu.html', f'menu-pwa.js?v={OLD}', f'menu-pwa.js?v={NEW}'),
-            ('smart-choice/index.html', f'pwa.js?v={OLD}', f'pwa.js?v={NEW}'),
+            ('pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),('menu-pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),('smart-choice/pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),('experience/experience-pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),('menu.html', f'menu-pwa.js?v={OLD}', f'menu-pwa.js?v={NEW}'),('smart-choice/index.html', f'pwa.js?v={OLD}', f'pwa.js?v={NEW}'),
           ]:
               p = Path(file); s = p.read_text(); s = replace_once(s, old, new, f'{file} PWA revision'); p.write_text(s)
 
-          p = Path('sw-core-v64.js')
-          s = p.read_text()
-          for old, new, label in [
-            (f'./pwa.js?v={OLD}', f'./pwa.js?v={NEW}', 'core landing pwa'),
-            (f'./menu-pwa.js?v={OLD}', f'./menu-pwa.js?v={NEW}', 'core menu pwa'),
-            (f'./smart-choice/pwa.js?v={OLD}', f'./smart-choice/pwa.js?v={NEW}', 'core smart pwa'),
-          ]:
-              s = replace_once(s, old, new, label)
+          p = Path('sw-core-v64.js'); s = p.read_text()
+          for old, new, label in [(f'./pwa.js?v={OLD}', f'./pwa.js?v={NEW}', 'core landing pwa'),(f'./menu-pwa.js?v={OLD}', f'./menu-pwa.js?v={NEW}', 'core menu pwa'),(f'./smart-choice/pwa.js?v={OLD}', f'./smart-choice/pwa.js?v={NEW}', 'core smart pwa')]: s = replace_once(s, old, new, label)
           p.write_text(s)
           PY
           git diff --check
@@ -148,21 +112,16 @@ jobs:
           git status --short
           python3 - <<'PY'
           import subprocess
-          allowed = {
-            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
-          }
-          out = subprocess.check_output(['git','status','--porcelain'], text=True)
-          paths = set()
+          allowed = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'}
+          out = subprocess.check_output(['git','status','--porcelain'], text=True); paths=set()
           for line in out.splitlines():
-              path = line[3:]
-              if ' -> ' in path: path = path.split(' -> ',1)[1]
-              paths.add(path)
-          unexpected = sorted(paths - allowed)
-          if unexpected: raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-share.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','sw-core-v64.js','integrity-manifest.json'}
-          missing = sorted(required - paths)
-          if missing: raise SystemExit('Expected changes missing: ' + ', '.join(missing))
-          print('Allowed generated changes:', sorted(paths))
+              path=line[3:]; path=path.split(' -> ',1)[1] if ' -> ' in path else path; paths.add(path)
+          unexpected=sorted(paths-allowed)
+          if unexpected: raise SystemExit('Unexpected generated changes: '+', '.join(unexpected))
+          required={'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-share.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','sw-core-v64.js','integrity-manifest.json'}
+          missing=sorted(required-paths)
+          if missing: raise SystemExit('Expected changes missing: '+', '.join(missing))
+          print('Allowed generated changes:',sorted(paths))
           PY
       - name: Commit validated generator and generated state
         shell: bash
