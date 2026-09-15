@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Abstract heat and energy environment">
+  <defs>
+    <radialGradient id="heat" cx="66%" cy="48%" r="50%">
+      <stop offset="0" stop-color="#e21b23" stop-opacity=".22"/>
+      <stop offset=".32" stop-color="#c47349" stop-opacity=".18"/>
+      <stop offset=".68" stop-color="#64331f" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#e21b23" stop-opacity="0"/>
+      <stop offset=".48" stop-color="#e7b885" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#e21b23" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="26"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="#0b0908"/>
+  <ellipse cx="1060" cy="500" rx="610" ry="450" fill="url(#heat)"/>
+  <g fill="none" stroke="url(#arc)" stroke-linecap="round">
+    <path d="M620 700 C850 420 1110 350 1450 410" stroke-width="5" opacity=".42"/>
+    <path d="M690 770 C910 540 1170 500 1510 570" stroke-width="2" opacity=".36"/>
+    <path d="M700 260 C960 180 1240 230 1460 400" stroke-width="3" opacity=".28"/>
+  </g>
+  <g fill="#efc18d">
+    <circle cx="870" cy="315" r="4" opacity=".46"/>
+    <circle cx="1110" cy="260" r="3" opacity=".35"/>
+    <circle cx="1320" cy="360" r="5" opacity=".32"/>
+    <circle cx="1260" cy="680" r="3" opacity=".38"/>
+    <circle cx="930" cy="745" r="4" opacity=".28"/>
+  </g>
+  <ellipse cx="1060" cy="500" rx="260" ry="245" fill="#e21b23" opacity=".07" filter="url(#blur)"/>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Abstract coffee origin environment">
+  <defs>
+    <radialGradient id="warm" cx="68%" cy="48%" r="48%">
+      <stop offset="0" stop-color="#8f4e30" stop-opacity=".34"/>
+      <stop offset=".52" stop-color="#4c281b" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bean" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#a6623d"/>
+      <stop offset=".45" stop-color="#5a2d1e"/>
+      <stop offset="1" stop-color="#24110c"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="#0b0908"/>
+  <ellipse cx="1080" cy="500" rx="560" ry="470" fill="url(#warm)"/>
+  <g opacity=".72">
+    <g transform="translate(890 180) rotate(-24)"><ellipse rx="33" ry="49" fill="url(#bean)"/><path d="M0-34 C-9-15 9 15 0 34" fill="none" stroke="#d3976f" stroke-opacity=".28" stroke-width="4"/></g>
+    <g transform="translate(1210 210) rotate(39)"><ellipse rx="24" ry="38" fill="url(#bean)"/><path d="M0-27 C-8-10 8 10 0 27" fill="none" stroke="#d3976f" stroke-opacity=".24" stroke-width="3"/></g>
+    <g transform="translate(1380 480) rotate(72)"><ellipse rx="29" ry="44" fill="url(#bean)"/><path d="M0-30 C-8-12 8 12 0 30" fill="none" stroke="#d3976f" stroke-opacity=".26" stroke-width="3"/></g>
+    <g transform="translate(1150 760) rotate(-57)"><ellipse rx="35" ry="51" fill="url(#bean)"/><path d="M0-36 C-10-14 10 14 0 36" fill="none" stroke="#d3976f" stroke-opacity=".24" stroke-width="4"/></g>
+    <g transform="translate(770 730) rotate(18)"><ellipse rx="23" ry="36" fill="url(#bean)"/><path d="M0-25 C-7-10 7 10 0 25" fill="none" stroke="#d3976f" stroke-opacity=".24" stroke-width="3"/></g>
+  </g>
+  <ellipse cx="1030" cy="535" rx="310" ry="260" fill="#b86f48" opacity=".055" filter="url(#soft)"/>
+</svg>

@@ -1,0 +1,117 @@
+/*
+ * CSP-safe scene states for the cinematic prototype.
+ * JavaScript only changes data-active-scene; all visual motion stays in reviewed CSS.
+ */
+
+.cinematic-experience .product-world,
+.cinematic-experience .ambient-a,
+.cinematic-experience .light-sweep,
+.cinematic-experience .product-glow,
+.cinematic-experience .hero-product,
+.cinematic-experience .orbit-outer,
+.cinematic-experience .chapter-fill,
+.cinematic-experience .route-line,
+.cinematic-experience .scroll-cue {
+  transition:
+    transform 850ms cubic-bezier(.2,.78,.2,1),
+    opacity 460ms ease,
+    stroke-dashoffset 850ms cubic-bezier(.2,.78,.2,1);
+}
+
+.cinematic-experience .ambient-a { transform: translate3d(0, 0, 0) scale(.9); }
+.cinematic-experience .light-sweep { transform: translate3d(-18%, 0, 0) rotate(7deg); }
+.cinematic-experience .product-glow { transform: scale(1); }
+.cinematic-experience .hero-product { transform: translateZ(0) rotate(0deg); }
+.cinematic-experience .orbit-outer { opacity: .24; }
+.cinematic-experience .chapter-fill { transform: scaleX(.03); }
+.cinematic-experience .route-line { stroke-dashoffset: 1; }
+.cinematic-experience .scroll-cue { opacity: 1; }
+
+.cinematic-experience[data-active-scene="0"] .product-world {
+  transform: translate3d(0, 0, 0) scale(.94) rotate(-3.5deg);
+}
+.cinematic-experience[data-active-scene="0"] .chapter-fill { transform: scaleX(.03); }
+
+.cinematic-experience[data-active-scene="1"] .product-world {
+  transform: translate3d(-12px, 7px, 0) scale(1.015) rotate(-2deg);
+}
+.cinematic-experience[data-active-scene="1"] .ambient-a { transform: translate3d(-5px, 3px, 0) scale(.94); }
+.cinematic-experience[data-active-scene="1"] .light-sweep { transform: translate3d(-4%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="1"] .product-glow { transform: scale(1.025); }
+.cinematic-experience[data-active-scene="1"] .orbit-outer { opacity: .3; }
+.cinematic-experience[data-active-scene="1"] .chapter-fill { transform: scaleX(.17); }
+
+.cinematic-experience[data-active-scene="2"] .product-world {
+  transform: translate3d(10px, -7px, 0) scale(1.055) rotate(-.5deg);
+}
+.cinematic-experience[data-active-scene="2"] .ambient-a { transform: translate3d(4px, -3px, 0) scale(.99); }
+.cinematic-experience[data-active-scene="2"] .light-sweep { transform: translate3d(14%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="2"] .product-glow { transform: scale(1.06); }
+.cinematic-experience[data-active-scene="2"] .orbit-outer { opacity: .36; }
+.cinematic-experience[data-active-scene="2"] .chapter-fill { transform: scaleX(.33); }
+
+.cinematic-experience[data-active-scene="3"] .product-world {
+  transform: translate3d(-5px, 2px, 0) scale(.995) rotate(1deg);
+}
+.cinematic-experience[data-active-scene="3"] .ambient-a { transform: translate3d(-2px, 1px, 0) scale(1.02); }
+.cinematic-experience[data-active-scene="3"] .light-sweep { transform: translate3d(29%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="3"] .product-glow { transform: scale(1.09); }
+.cinematic-experience[data-active-scene="3"] .orbit-outer { opacity: .39; }
+.cinematic-experience[data-active-scene="3"] .chapter-fill { transform: scaleX(.49); }
+
+.cinematic-experience[data-active-scene="4"] .product-world {
+  transform: translate3d(-17px, -5px, 0) scale(.955) rotate(2deg);
+}
+.cinematic-experience[data-active-scene="4"] .ambient-a { transform: translate3d(-5px, -2px, 0) scale(1.04); }
+.cinematic-experience[data-active-scene="4"] .light-sweep { transform: translate3d(46%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="4"] .product-glow { transform: scale(1.11); }
+.cinematic-experience[data-active-scene="4"] .orbit-outer { opacity: .43; }
+.cinematic-experience[data-active-scene="4"] .chapter-fill { transform: scaleX(.65); }
+.cinematic-experience[data-active-scene="4"] .route-line { stroke-dashoffset: .62; }
+.cinematic-experience[data-active-scene="4"] .scroll-cue { opacity: .52; }
+
+.cinematic-experience[data-active-scene="5"] .product-world {
+  transform: translate3d(5px, -9px, 0) scale(.87) rotate(3deg);
+}
+.cinematic-experience[data-active-scene="5"] .ambient-a { transform: translate3d(3px, -3px, 0) scale(1.06); }
+.cinematic-experience[data-active-scene="5"] .light-sweep { transform: translate3d(61%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="5"] .product-glow { transform: scale(1.14); }
+.cinematic-experience[data-active-scene="5"] .orbit-outer { opacity: .46; }
+.cinematic-experience[data-active-scene="5"] .chapter-fill { transform: scaleX(.82); }
+.cinematic-experience[data-active-scene="5"] .route-line { stroke-dashoffset: .22; }
+.cinematic-experience[data-active-scene="5"] .scroll-cue { opacity: .2; }
+
+.cinematic-experience[data-active-scene="6"] .product-world {
+  transform: translate3d(0, -16px, 0) scale(.91) rotate(3.5deg);
+}
+.cinematic-experience[data-active-scene="6"] .ambient-a { transform: translate3d(0, -4px, 0) scale(1.08); }
+.cinematic-experience[data-active-scene="6"] .light-sweep { transform: translate3d(77%, 0, 0) rotate(7deg); }
+.cinematic-experience[data-active-scene="6"] .product-glow { transform: scale(1.16); }
+.cinematic-experience[data-active-scene="6"] .orbit-outer { opacity: .5; }
+.cinematic-experience[data-active-scene="6"] .chapter-fill { transform: scaleX(1); }
+.cinematic-experience[data-active-scene="6"] .route-line { stroke-dashoffset: 0; }
+.cinematic-experience[data-active-scene="6"] .scroll-cue { opacity: 0; }
+
+@media (max-width: 900px) {
+  .cinematic-experience[data-active-scene="0"] .product-world { transform: translate3d(0, 0, 0) scale(.92) rotate(-2deg); }
+  .cinematic-experience[data-active-scene="1"] .product-world { transform: translate3d(-8px, 3px, 0) scale(.96) rotate(-1deg); }
+  .cinematic-experience[data-active-scene="2"] .product-world { transform: translate3d(7px, -5px, 0) scale(1) rotate(0deg); }
+  .cinematic-experience[data-active-scene="3"] .product-world { transform: translate3d(0, 0, 0) scale(.95) rotate(1deg); }
+  .cinematic-experience[data-active-scene="4"] .product-world { transform: translate3d(-8px, -5px, 0) scale(.9) rotate(2deg); }
+  .cinematic-experience[data-active-scene="5"] .product-world { transform: translate3d(0, -7px, 0) scale(.82) rotate(2deg); }
+  .cinematic-experience[data-active-scene="6"] .product-world { transform: translate3d(0, -10px, 0) scale(.85) rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-experience .product-world,
+  .cinematic-experience .ambient-a,
+  .cinematic-experience .light-sweep,
+  .cinematic-experience .product-glow,
+  .cinematic-experience .hero-product,
+  .cinematic-experience .orbit-outer,
+  .cinematic-experience .chapter-fill,
+  .cinematic-experience .route-line,
+  .cinematic-experience .scroll-cue {
+    transition: none !important;
+  }
+}

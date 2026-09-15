@@ -7,7 +7,7 @@ const root = process.cwd();
 const bundleRoot = path.resolve(root, process.argv[2] ?? "qa/liminal-artifacts");
 const commit = process.env.ROBY_TESTED_COMMIT ?? process.env.GITHUB_SHA ?? "unknown";
 const runId = String(process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID ?? "local");
-const attempt = String(process.env.GITHUB_RUN_ATTEMPT ?? "1");
+const verifierAttempt = String(process.env.GITHUB_RUN_ATTEMPT ?? "1");
 const engineRevision = process.env.LIMINALQA_REVISION ?? "unknown";
 const signalNames = ["exact-head-binding", "security-contract", "performance-contract", "browser-lab-policy", "lighthouse-repeatability"];
 const requiredBudgetKeys = ["performance", "lcp", "tbt", "cls", "fcp", "speed_index"];
@@ -132,7 +132,7 @@ function classify(profile, metrics, budgets) {
 }
 
 if (!/^[0-9a-f]{40}$/i.test(commit)) fail("Exact 40-character commit SHA required");
-if (!/^\d+$/.test(runId) || !/^\d+$/.test(attempt)) fail("Numeric run ID and attempt required");
+if (!/^\d+$/.test(runId) || !/^\d+$/.test(verifierAttempt)) fail("Numeric run ID and verifier attempt required");
 for (const forbidden of ["verification.json", "evidence-quality.json"]) {
   try { lstatSync(path.join(bundleRoot, forbidden)); fail(`Producer supplied ${forbidden}`); }
   catch (error) { if (error?.code !== "ENOENT") throw error; }
@@ -140,12 +140,14 @@ for (const forbidden of ["verification.json", "evidence-quality.json"]) {
 
 const manifestRead = read("manifest.json");
 const manifest = JSON.parse(manifestRead.content.toString("utf8"));
+const producerAttempt = String(manifest.runAttempt ?? "");
+if (!/^\d+$/.test(producerAttempt)) fail("Manifest producer attempt must be numeric");
 eq(manifest.schema, "robys.evidence.manifest.v1", "manifest schema");
 eq(manifest.algorithm, "sha256", "manifest algorithm");
-eq(manifest.bundleId, `${commit}-${runId}-${attempt}`, "bundle ID");
+eq(manifest.bundleId, `${commit}-${runId}-${producerAttempt}`, "bundle ID");
 eq(manifest.testedCommit, commit, "manifest commit");
 eq(String(manifest.sourceRunId), runId, "manifest run");
-eq(String(manifest.runAttempt), attempt, "manifest attempt");
+eq(String(manifest.runAttempt), producerAttempt, "manifest producer attempt");
 if (!Array.isArray(manifest.files) || !manifest.files.length) fail("Empty manifest");
 
 const manifestPaths = manifest.files.map((record) => safe(record.path));
@@ -201,7 +203,7 @@ for (const test of input.tests) {
   if (!record) fail(`${test.name}: missing evidence`);
   eq(record.bytes, test.evidence_bytes, `${test.name} bytes`);
   eq(record.sha256, test.evidence_sha256, `${test.name} SHA`);
-  eq(test.run_count, test.name === "lighthouse-repeatability" ? 12 : 1, `${test.name} run count`);
+  eq(test.run_count, test.name === "lighthouse-repeatability" ? 24 : 1, `${test.name} run count`);
 }
 
 const budgets = JSON.parse(readFileSync(path.join(root, "lighthouse", "budgets.json"), "utf8"));
@@ -212,28 +214,37 @@ eq(String(report.sourceRunId), runId, "Lighthouse run");
 eq(report.minimumRunsPerProfile, 6, "measured runs policy");
 eq(report.warmupRunsPerProfile, 1, "warm-up policy");
 eq(report.configuredRunsPerProfile, 7, "configured runs policy");
-eq(JSON.stringify(report.profiles.map((profile) => profile.profile).sort()), JSON.stringify(["desktop", "mobile"]), "profile set");
+eq(JSON.stringify(report.profiles.map((profile) => profile.profile).sort()), JSON.stringify(["desktop", "mobile"]), "home profile set");
+if (!Array.isArray(report.experienceProfiles)) fail("Missing experience Lighthouse profiles");
+eq(JSON.stringify(report.experienceProfiles.map((profile) => profile.profile).sort()), JSON.stringify(["desktop", "mobile"]), "experience profile set");
 
-const qualityProfiles = report.profiles.map((profile) => {
+function lighthouseRoute(finalUrl) {
+  let pathname;
+  try { pathname = new URL(finalUrl).pathname; }
+  catch { fail(`Invalid Lighthouse URL: ${JSON.stringify(finalUrl)}`); }
+  if (pathname === "/experience/" || pathname === "/experience/index.html") return "experience";
+  if (pathname === "/" || pathname === "/index.html") return "home";
+  fail(`Unexpected Lighthouse route: ${JSON.stringify(finalUrl)}`);
+}
+
+function verifyLighthouseRoute(profile, route, allRuns, budgets) {
   requireBudgets(profile.profile, budgets);
-  const prefix = `lighthouse-raw/${profile.profile}/raw/`;
-  const rawPaths = [...byPath.keys()].filter((candidate) => candidate.startsWith(prefix) && candidate.endsWith(".json"));
-  eq(rawPaths.length, 7, `${profile.profile} raw run count`);
-  unique(rawPaths.map((relative) => byPath.get(relative).sha256), `${profile.profile} raw SHA values`);
-  const allRuns = rawPaths.map(runFrom)
+  eq(profile.route, route, `${profile.profile}/${route} route binding`);
+  const routeRuns = allRuns.filter((run) => lighthouseRoute(run.finalUrl) === route)
     .sort((left, right) => left.fetchTimestamp - right.fetchTimestamp || left.source.localeCompare(right.source))
     .map((run, index) => ({ ...run, ordinal: index + 1 }));
-  eq(profile.warmupRuns.length, 1, `${profile.profile} warm-up count`);
-  eq(profile.runs.length, 6, `${profile.profile} measured count`);
-  eq(profile.runCount, 6, `${profile.profile} reported count`);
-  const warmup = allRuns[0];
-  const measured = allRuns.slice(1);
-  eq(profile.warmupRuns[0].source, warmup.source, `${profile.profile} warm-up source binding`);
-  eq(profile.warmupRuns[0].fetchTime, warmup.fetchTime, `${profile.profile} warm-up time binding`);
-  eq(profile.warmupRuns[0].ordinal, warmup.ordinal, `${profile.profile} warm-up ordinal binding`);
+  eq(routeRuns.length, 7, `${profile.profile}/${route} raw run count`);
+  eq(profile.warmupRuns.length, 1, `${profile.profile}/${route} warm-up count`);
+  eq(profile.runs.length, 6, `${profile.profile}/${route} measured count`);
+  eq(profile.runCount, 6, `${profile.profile}/${route} reported count`);
+  const warmup = routeRuns[0];
+  const measured = routeRuns.slice(1);
+  eq(profile.warmupRuns[0].source, warmup.source, `${profile.profile}/${route} warm-up source binding`);
+  eq(profile.warmupRuns[0].fetchTime, warmup.fetchTime, `${profile.profile}/${route} warm-up time binding`);
+  eq(profile.warmupRuns[0].ordinal, warmup.ordinal, `${profile.profile}/${route} warm-up ordinal binding`);
   const reportedMeasuredOrder = profile.runs.map(({ source, fetchTime, ordinal }) => ({ source, fetchTime, ordinal }));
   const recomputedMeasuredOrder = measured.map(({ source, fetchTime, ordinal }) => ({ source, fetchTime, ordinal }));
-  eq(JSON.stringify(reportedMeasuredOrder), JSON.stringify(recomputedMeasuredOrder), `${profile.profile} measured chronological binding`);
+  eq(JSON.stringify(reportedMeasuredOrder), JSON.stringify(recomputedMeasuredOrder), `${profile.profile}/${route} measured chronological binding`);
   const metrics = {
     performance: stats(measured.map((run) => run.performance)), lcp: stats(measured.map((run) => run.lcp)),
     tbt: stats(measured.map((run) => run.tbt)), cls: stats(measured.map((run) => run.cls)),
@@ -241,18 +252,33 @@ const qualityProfiles = report.profiles.map((profile) => {
     interactive: stats(measured.map((run) => run.interactive))
   };
   for (const [metric, values] of Object.entries(metrics)) {
-    for (const [name, value] of Object.entries(values)) almost(profile.metrics[metric][name], value, `${profile.profile}.${metric}.${name}`);
+    for (const [name, value] of Object.entries(values)) almost(profile.metrics[metric][name], value, `${profile.profile}/${route}.${metric}.${name}`);
   }
   const recomputed = classify(profile.profile, metrics, budgets);
-  eq(profile.verdict, recomputed.verdict, `${profile.profile} verdict`);
-  eq(JSON.stringify(profile.budgetBreaches), JSON.stringify(recomputed.breaches), `${profile.profile} breaches`);
-  eq(JSON.stringify(profile.instabilityReasons), JSON.stringify(recomputed.instability), `${profile.profile} instability`);
+  eq(profile.verdict, recomputed.verdict, `${profile.profile}/${route} verdict`);
+  eq(JSON.stringify(profile.budgetBreaches), JSON.stringify(recomputed.breaches), `${profile.profile}/${route} breaches`);
+  eq(JSON.stringify(profile.instabilityReasons), JSON.stringify(recomputed.instability), `${profile.profile}/${route} instability`);
   return {
-    profile: profile.profile, warmupRuns: 1, measuredRuns: 6, uniqueRawHashes: 7,
+    profile: profile.profile, route, warmupRuns: 1, measuredRuns: 6, uniqueRawHashes: 7,
     warmup: { source: warmup.source, fetchTime: warmup.fetchTime, ordinal: warmup.ordinal, performance: warmup.performance, lcp: warmup.lcp, tbt: warmup.tbt },
     verdict: recomputed.verdict,
     medians: Object.fromEntries(Object.entries(metrics).map(([name, value]) => [name, value.median]))
   };
+}
+
+const qualityProfiles = ["desktop", "mobile"].flatMap((profileName) => {
+  const homeProfile = report.profiles.find((profile) => profile.profile === profileName);
+  const experienceProfile = report.experienceProfiles.find((profile) => profile.profile === profileName);
+  if (!homeProfile || !experienceProfile) fail(`${profileName}: missing home or experience profile`);
+  const prefix = `lighthouse-raw/${profileName}/raw/`;
+  const rawPaths = [...byPath.keys()].filter((candidate) => candidate.startsWith(prefix) && candidate.endsWith(".json"));
+  eq(rawPaths.length, 14, `${profileName} total raw run count`);
+  unique(rawPaths.map((relative) => byPath.get(relative).sha256), `${profileName} raw SHA values`);
+  const allRuns = rawPaths.map(runFrom);
+  return [
+    verifyLighthouseRoute(homeProfile, "home", allRuns, budgets),
+    verifyLighthouseRoute(experienceProfile, "experience", allRuns, budgets)
+  ];
 });
 const overall = qualityProfiles.some((profile) => profile.verdict === "new_bug") ? "new_bug"
   : qualityProfiles.some((profile) => profile.verdict === "flake") ? "flake" : "stable";
@@ -295,7 +321,7 @@ const releaseGatePassed = overall === "stable" && allSignalsStable &&
   decision.suite_decision.merge_policy === "allow" && decision.suite_decision.block_reason === "";
 const quality = {
   schema: "robys.evidence.quality.v2", bundleId: manifest.bundleId, testedCommit: commit,
-  sourceRunId: runId, runAttempt: attempt, evaluatedAt: new Date().toISOString(),
+  sourceRunId: runId, runAttempt: producerAttempt, verifierRunAttempt: verifierAttempt, evaluatedAt: new Date().toISOString(),
   overall: "pass", freshRunnerRecomputation: true, releaseGate: releaseGatePassed ? "pass" : "block",
   manifest: { files: manifest.files.length, bytes: manifest.files.reduce((sum, record) => sum + record.bytes, 0), sha256: manifestRead.sha256, complete: true },
   bindings: { requiredSignals: signalNames.length, inputSignals: input.tests.length, adapterEvidence: decision.evidence.length, exactHead: true, exactRun: true, sourceRevision: engineRevision },
@@ -307,7 +333,7 @@ const qualityBytes = Buffer.from(`${JSON.stringify(quality, null, 2)}\n`);
 writeFileSync(path.join(bundleRoot, "evidence-quality.json"), qualityBytes);
 const verification = {
   schema: "robys.evidence.verification.v2", bundleId: manifest.bundleId, testedCommit: commit,
-  sourceRunId: runId, runAttempt: attempt, verified: true, releaseGatePassed,
+  sourceRunId: runId, runAttempt: producerAttempt, verifierRunAttempt: verifierAttempt, verified: true, releaseGatePassed,
   observedPolicy: decision.suite_decision.merge_policy, observedLighthouseVerdict: overall,
   verificationMode: "fresh-runner-recomputation", verifiedFiles: manifest.files.length,
   manifestBytes: manifestRead.bytes, manifestSha256: manifestRead.sha256,

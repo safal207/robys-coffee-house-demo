@@ -104,12 +104,19 @@ if (lighthouse.testedCommit !== testedCommit || lighthouse.sourceRunId !== sourc
   throw new Error(`Lighthouse evidence is stale or cross-run: ${JSON.stringify({ testedCommit: lighthouse.testedCommit, sourceRunId: lighthouse.sourceRunId })}`);
 }
 if (!Array.isArray(lighthouse.profiles) || lighthouse.profiles.length !== 2) {
-  throw new Error("Lighthouse evidence must contain mobile and desktop profiles");
+  throw new Error("Lighthouse evidence must contain mobile and desktop home profiles");
 }
-const lighthouseRunCount = lighthouse.profiles.reduce((sum, profile) => sum + Number(profile.runCount ?? 0), 0);
-if (lighthouseRunCount !== 12) throw new Error(`Lighthouse evidence must contain exactly 12 measured runs, got ${lighthouseRunCount}`);
-const lighthouseStability = Math.min(...lighthouse.profiles.map((profile) => probability(profile.stability, `${profile.profile}.stability`)));
-const lighthouseFlakeProbability = Math.max(...lighthouse.profiles.map((profile) => probability(profile.flakeProbability, `${profile.profile}.flakeProbability`)));
+if (!Array.isArray(lighthouse.experienceProfiles) || lighthouse.experienceProfiles.length !== 2) {
+  throw new Error("Lighthouse evidence must contain mobile and desktop experience profiles");
+}
+const homeRunCount = lighthouse.profiles.reduce((sum, profile) => sum + Number(profile.runCount ?? 0), 0);
+const experienceRunCount = lighthouse.experienceProfiles.reduce((sum, profile) => sum + Number(profile.runCount ?? 0), 0);
+if (homeRunCount !== 12) throw new Error(`Lighthouse home evidence must contain exactly 12 measured runs, got ${homeRunCount}`);
+if (experienceRunCount !== 12) throw new Error(`Lighthouse experience evidence must contain exactly 12 measured runs, got ${experienceRunCount}`);
+const lighthouseRunCount = homeRunCount + experienceRunCount;
+const lighthouseProfiles = [...lighthouse.profiles, ...lighthouse.experienceProfiles];
+const lighthouseStability = Math.min(...lighthouseProfiles.map((profile) => probability(profile.stability, `${profile.profile}/${profile.route ?? "home"}.stability`)));
+const lighthouseFlakeProbability = Math.max(...lighthouseProfiles.map((profile) => probability(profile.flakeProbability, `${profile.profile}/${profile.route ?? "home"}.flakeProbability`)));
 const lighthouseVerdict = lighthouse.overallVerdict;
 if (!["stable", "flake", "known_issue", "new_bug"].includes(lighthouseVerdict)) {
   throw new Error(`Unsupported Lighthouse verdict: ${lighthouseVerdict}`);

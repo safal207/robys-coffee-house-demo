@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Abstract city route environment">
+  <defs>
+    <linearGradient id="road" x1="0" y1="1" x2="1" y2="0">
+      <stop stop-color="#d4b48b" stop-opacity=".08"/>
+      <stop offset=".52" stop-color="#f0d8b7" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#e21b23" stop-opacity=".12"/>
+    </linearGradient>
+    <radialGradient id="city" cx="70%" cy="42%" r="50%">
+      <stop offset="0" stop-color="#4b3b33" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#0b0908" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="#0b0908"/>
+  <ellipse cx="1100" cy="470" rx="560" ry="410" fill="url(#city)"/>
+  <g fill="none" stroke="#b6a89a" stroke-opacity=".075" stroke-width="2">
+    <path d="M720 110V880M820 80V920M930 120V900M1040 70V910M1170 90V900M1290 120V860"/>
+    <path d="M610 220H1480M560 350H1510M590 490H1470M550 640H1510M620 790H1440"/>
+  </g>
+  <path d="M540 835 C700 700 760 600 900 560 S1130 570 1180 420 S1340 230 1510 250" fill="none" stroke="url(#road)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M540 835 C700 700 760 600 900 560 S1130 570 1180 420 S1340 230 1510 250" fill="none" stroke="#f2ddc1" stroke-opacity=".16" stroke-width="2" stroke-linecap="round"/>
+  <g fill="#f1ddc2">
+    <circle cx="540" cy="835" r="8" opacity=".28"/>
+    <circle cx="900" cy="560" r="7" opacity=".34"/>
+    <circle cx="1180" cy="420" r="7" opacity=".38"/>
+    <circle cx="1510" cy="250" r="8" opacity=".3"/>
+  </g>
+</svg>
