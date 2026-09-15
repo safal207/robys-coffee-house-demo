@@ -56,6 +56,37 @@
 
   .skip-link:focus { transform: translateY(0); }
 
+  .accessible-story-actions {
+    position: fixed;
+    z-index: 101;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    color: #111;
+    background: #fff;
+    border-radius: 999px;
+    transform: translateY(-220%);
+    transition: transform 180ms ease;
+  }
+
+  .accessible-story-actions:focus-within { transform: translateY(0); }
+
+  .accessible-story-actions a {
+    padding: 7px 10px;
+    border-radius: 999px;
+    color: #111;
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+  }
+
+  .accessible-story-actions a:focus-visible {
+    outline-color: #111;
+  }
+
   :focus-visible {
     outline: 2px solid #f0d6ae;
     outline-offset: 4px;

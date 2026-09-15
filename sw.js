@@ -115,7 +115,7 @@ const CORE_ASSETS = [
   "./experience/",
   "./experience/index.html",
   "./experience/experience.js?v=76d9674da993",
-  "./experience/experience.css?v=2b0fc9189908",
+  "./experience/experience.css?v=586f06b49eff",
   "./experience/brand-fidelity.css?v=935c06a50398",
   "./experience/experience-state.css?v=6533c4cc6590",
   "./experience/cinematic-environments.css?v=76e6ccf04650",
