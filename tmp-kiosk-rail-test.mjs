@@ -3,6 +3,10 @@ import fs from 'node:fs';
 
 const browser = await chromium.launch({ headless: true });
 const report = [];
+const scrollToMenu = page => page.evaluate(() => {
+  const controls = document.querySelector('.menu-controls');
+  window.scrollTo(0, controls?.offsetTop ?? 0);
+});
 
 {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -13,13 +17,16 @@ const report = [];
     opacity: getComputedStyle(document.querySelector('#menu-category-nav')).opacity
   }));
   if (before.kiosk || before.opacity !== '0') throw new Error('rail must stay hidden over hero');
-  await page.locator('.menu-controls').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
+  await scrollToMenu(page);
+  await page.waitForTimeout(300);
   const during = await page.evaluate(() => {
     const nav = document.querySelector('#menu-category-nav');
     const buttons = [...nav.querySelectorAll('.menu-category-chip')];
     const r = nav.getBoundingClientRect();
     return {
+      scrollY: window.scrollY,
+      controlsTop: document.querySelector('.menu-controls').getBoundingClientRect().top,
+      headerBottom: document.querySelector('.site-header').getBoundingClientRect().bottom,
       kiosk: document.body.classList.contains('menu-kiosk-rail-visible'),
       opacity: getComputedStyle(nav).opacity,
       position: getComputedStyle(nav).position,
@@ -27,7 +34,7 @@ const report = [];
       tops: buttons.slice(0,3).map(b => b.getBoundingClientRect().top)
     };
   });
-  if (!during.kiosk || during.opacity !== '1' || during.position !== 'fixed') throw new Error('desktop rail not visible/fixed in menu zone');
+  if (!during.kiosk || during.opacity !== '1' || during.position !== 'fixed') throw new Error(`desktop rail not visible/fixed in menu zone: ${JSON.stringify(during)}`);
   if (!(during.tops[1] > during.tops[0] + 30)) throw new Error('desktop categories are not vertical');
   await page.screenshot({ path:'qa-kiosk/desktop-1440-rail.png' });
   const hot = page.locator('.menu-category-chip[data-category="hot-coffee"]');
@@ -36,13 +43,13 @@ const report = [];
   if ((await page.locator('.full-menu-panel').count()) !== 1) throw new Error('category selection must narrow right pane');
   if (!(await hot.evaluate(el => el.classList.contains('active')))) throw new Error('selected category not active');
   await page.screenshot({ path:'qa-kiosk/desktop-1440-hot.png' });
-  await page.locator('.menu-share-section').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
+  await page.evaluate(() => document.querySelector('.menu-share-section')?.scrollIntoView({ block: 'start' }));
+  await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
     kiosk: document.body.classList.contains('menu-kiosk-rail-visible'),
     opacity: getComputedStyle(document.querySelector('#menu-category-nav')).opacity
   }));
-  if (after.kiosk || after.opacity !== '0') throw new Error('rail must hide after menu zone');
+  if (after.kiosk || after.opacity !== '0') throw new Error(`rail must hide after menu zone: ${JSON.stringify(after)}`);
   await page.screenshot({ path:'qa-kiosk/desktop-1440-share.png' });
   report.push({ desktop:{ before, during, after } });
   await page.close();
@@ -51,14 +58,14 @@ const report = [];
 {
   const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
   await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
-  await page.locator('.menu-controls').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
+  await scrollToMenu(page);
+  await page.waitForTimeout(300);
   const state = await page.evaluate(() => {
     const nav = document.querySelector('#menu-category-nav');
     const r = nav.getBoundingClientRect();
     return { kiosk:document.body.classList.contains('menu-kiosk-rail-visible'), x:r.x, width:r.width, opacity:getComputedStyle(nav).opacity };
   });
-  if (!state.kiosk || state.opacity !== '1') throw new Error('1024 rail not active');
+  if (!state.kiosk || state.opacity !== '1') throw new Error(`1024 rail not active: ${JSON.stringify(state)}`);
   await page.screenshot({ path:'qa-kiosk/tablet-1024-rail.png' });
   report.push({ tablet: state });
   await page.close();
@@ -67,8 +74,8 @@ const report = [];
 {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
-  await page.locator('.menu-controls').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(150);
+  await scrollToMenu(page);
+  await page.waitForTimeout(180);
   const mobile = await page.evaluate(() => {
     const nav = document.querySelector('#menu-category-nav');
     const buttons = nav.querySelectorAll('.menu-category-chip');
