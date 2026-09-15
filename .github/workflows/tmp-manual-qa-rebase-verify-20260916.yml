@@ -1,0 +1,87 @@
+name: Temporary manual QA rebase verification
+
+on:
+  push:
+    branches:
+      - tmp/manual-qa-rebase-verify-20260916
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build current-main plus manual QA sources
+        run: npm run build
+      - name: Generate initial integrity state
+        run: npm run integrity:generate
+      - name: Full repository check on production tree
+        shell: bash
+        run: |
+          cp .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml /tmp/tmp-manual-qa-workflow.yml
+          rm .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml
+          npm run check
+          cp /tmp/tmp-manual-qa-workflow.yml .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml
+      - name: Finalize generated integrity state
+        run: |
+          npm run integrity:generate
+          npm run verify:integrity
+          npm run verify:security
+      - name: Protect fresh San Sebastian preview flow
+        shell: bash
+        run: |
+          test -f pairing-preview.css
+          test -f src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4
+          test -f sw-core-v64.js
+          grep -q 'sw-core-v64.js' sw.js
+      - run: npx playwright install chromium
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/menu.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/http.log
+          exit 1
+      - name: Targeted manual QA browser proof
+        run: node tmp-manual-qa-rebase-test.mjs
+      - name: Check generated drift allowlist
+        shell: bash
+        run: |
+          git diff --name-only | sort | tee qa-manual-rebase/generated-files.txt
+          unexpected=$(git diff --name-only | grep -Ev '^(index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected generated drift:"
+            echo "$unexpected"
+            exit 1
+          fi
+      - name: Commit generated outputs on temporary branch
+        shell: bash
+        run: |
+          git config user.name 'robys-qa-bot'
+          git config user.email 'robys-qa-bot@users.noreply.github.com'
+          git add index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo 'No generated changes to commit.'
+          else
+            git diff --cached --check
+            git commit -m 'Generate manual QA polish on current main'
+            git push origin HEAD:tmp/manual-qa-rebase-verify-20260916
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: manual-qa-rebase-proof-${{ github.run_id }}
+          path: qa-manual-rebase/
+          if-no-files-found: warn
+          retention-days: 7
