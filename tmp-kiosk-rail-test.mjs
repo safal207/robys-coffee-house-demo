@@ -7,12 +7,12 @@ const report = [];
 {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
-  await page.waitForSelector('#menu-category-nav[data-ready="true"]');
+  await page.waitForSelector('#menu-category-nav[data-ready="true"]', { state: 'attached' });
   const before = await page.evaluate(() => ({
     kiosk: document.body.classList.contains('menu-kiosk-rail-visible'),
     opacity: getComputedStyle(document.querySelector('#menu-category-nav')).opacity
   }));
-  if (before.kiosk) throw new Error('rail must not activate over hero');
+  if (before.kiosk || before.opacity !== '0') throw new Error('rail must stay hidden over hero');
   await page.locator('.menu-controls').scrollIntoViewIfNeeded();
   await page.waitForTimeout(250);
   const during = await page.evaluate(() => {
