@@ -19,7 +19,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch build/verifier for split service-worker core
+      - name: Patch build/verifiers for split service-worker core
         run: python3 tmp-build-sw-core-patch.py
       - name: Build current-main plus manual QA sources
         run: npm run build
@@ -29,9 +29,12 @@ jobs:
         shell: bash
         run: |
           cp .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml /tmp/tmp-manual-qa-workflow.yml
+          cp .github/workflows/tmp-sw-core-scan-20260916.yml /tmp/tmp-sw-core-scan.yml
           rm .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml
+          rm .github/workflows/tmp-sw-core-scan-20260916.yml
           npm run check
           cp /tmp/tmp-manual-qa-workflow.yml .github/workflows/tmp-manual-qa-rebase-verify-20260916.yml
+          cp /tmp/tmp-sw-core-scan.yml .github/workflows/tmp-sw-core-scan-20260916.yml
       - name: Finalize generated integrity state
         run: |
           npm run integrity:generate
@@ -61,8 +64,10 @@ jobs:
       - name: Check source and generated drift allowlist
         shell: bash
         run: |
-          git diff --name-only | sort | tee qa-manual-rebase/generated-files.txt
-          unexpected=$(git diff --name-only | grep -Ev '^(scripts/build\.mjs|scripts/verify-smart-choice-release\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
+          mkdir -p qa-manual-rebase
+          git status --porcelain | tee qa-manual-rebase/git-status.txt
+          changed=$(git status --porcelain | sed -E 's/^.. //')
+          unexpected=$(printf '%s\n' "$changed" | grep -Ev '^(scripts/(build|service-worker-source|verify-menu-share|test-photo-logo|verify-smart-choice-release|verify-android-download|verify-security-contracts|test-discover-deck|verify-taste-journey-posters|verify-brand-identity-assets|verify-menu-image-assets|verify-pr140-release-blockers|verify-menu-truth-live|verify-menu-order|test-brand-wordmark|verify-regression-contracts|verify-entry-handoff)\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
           if [ -n "$unexpected" ]; then
             echo "Unexpected drift:"
             echo "$unexpected"
@@ -73,7 +78,25 @@ jobs:
         run: |
           git config user.name 'robys-qa-bot'
           git config user.email 'robys-qa-bot@users.noreply.github.com'
-          git add scripts/build.mjs scripts/verify-smart-choice-release.mjs index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
+          git add \
+            scripts/build.mjs \
+            scripts/service-worker-source.mjs \
+            scripts/verify-menu-share.mjs \
+            scripts/test-photo-logo.mjs \
+            scripts/verify-smart-choice-release.mjs \
+            scripts/verify-android-download.mjs \
+            scripts/verify-security-contracts.mjs \
+            scripts/test-discover-deck.mjs \
+            scripts/verify-taste-journey-posters.mjs \
+            scripts/verify-brand-identity-assets.mjs \
+            scripts/verify-menu-image-assets.mjs \
+            scripts/verify-pr140-release-blockers.mjs \
+            scripts/verify-menu-truth-live.mjs \
+            scripts/verify-menu-order.mjs \
+            scripts/test-brand-wordmark.mjs \
+            scripts/verify-regression-contracts.mjs \
+            scripts/verify-entry-handoff.mjs \
+            index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
           if git diff --cached --quiet; then
             echo 'No source/generated changes to commit.'
           else
