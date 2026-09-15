@@ -1,0 +1,170 @@
+name: Cinematic wide short-height validation
+
+on:
+  push:
+    branches:
+      - feature/cinematic-experience
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinematic-wide-short-height-validation
+  cancel-in-progress: true
+
+jobs:
+  patch-validate-commit:
+    if: github.event.head_commit.message == 'Validate wide short-height cinematic layout'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: feature/cinematic-experience
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Apply height-driven layout fix
+        run: python3 scripts/patch-short-height-wide.py
+
+      - name: Assert both short-height queries are width-independent
+        run: |
+          grep -F '@media (max-height: 560px) {' experience/experience.css >/dev/null
+          grep -F '@media (max-height: 560px) {' experience/brand-fidelity.css >/dev/null
+          ! grep -F '@media (max-width: 1024px) and (max-height: 560px) {' experience/experience.css
+          ! grep -F '@media (max-width: 1024px) and (max-height: 560px) {' experience/brand-fidelity.css
+
+      - name: Build revisioned outputs
+        run: npm run build
+
+      - name: Refresh integrity manifest
+        run: npm run integrity:generate
+
+      - name: Run full repository check against production tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          workflow=.github/workflows/cinematic-wide-short-height-validation.yml
+          helper=scripts/patch-short-height-wide.py
+          cp "$workflow" /tmp/cinematic-wide-short-height-validation.yml
+          cp "$helper" /tmp/patch-short-height-wide.py
+          rm "$workflow" "$helper"
+          trap 'cp /tmp/cinematic-wide-short-height-validation.yml "$workflow"; cp /tmp/patch-short-height-wide.py "$helper"' EXIT
+          npm run check
+          npm run verify:security
+          cp /tmp/cinematic-wide-short-height-validation.yml "$workflow"
+          cp /tmp/patch-short-height-wide.py "$helper"
+          trap - EXIT
+
+      - name: Install Chromium
+        run: npx playwright install chromium
+
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/robys-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/experience/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/robys-http.log
+          exit 1
+
+      - name: Verify RU finale fits wide and narrow short viewports
+        run: |
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import assert from 'node:assert/strict';
+
+          const browser = await chromium.launch({ headless: true });
+          const viewports = [
+            { width: 1280, height: 400 },
+            { width: 915, height: 412 },
+            { width: 320, height: 480 }
+          ];
+
+          for (const viewport of viewports) {
+            const context = await browser.newContext({ viewport, locale: 'ru-RU' });
+            await context.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
+            const page = await context.newPage();
+            await page.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
+            await page.evaluate(() => {
+              const experience = document.querySelector('[data-cinematic-experience]');
+              if (!(experience instanceof HTMLElement)) throw new Error('experience root missing');
+              const start = experience.getBoundingClientRect().top + window.scrollY;
+              const range = Math.max(1, experience.offsetHeight - window.innerHeight);
+              window.scrollTo(0, start + range * 0.98);
+            });
+            await page.waitForFunction(() => document.querySelector('[data-cinematic-experience]')?.getAttribute('data-active-scene') === '6');
+            const state = await page.evaluate(() => {
+              const cta = document.querySelector('.primary-cta');
+              const scene = document.querySelector('[data-scene="6"]');
+              const cup = document.querySelector('.hero-product--cup');
+              if (!(cta instanceof HTMLElement) || !(scene instanceof HTMLElement) || !(cup instanceof HTMLElement)) return null;
+              const ctaRect = cta.getBoundingClientRect();
+              const sceneRect = scene.getBoundingClientRect();
+              const cupRect = cup.getBoundingClientRect();
+              return {
+                lang: document.documentElement.lang,
+                cta: { top: ctaRect.top, bottom: ctaRect.bottom, left: ctaRect.left, right: ctaRect.right },
+                scene: { top: sceneRect.top, bottom: sceneRect.bottom, left: sceneRect.left, right: sceneRect.right },
+                cup: { top: cupRect.top, bottom: cupRect.bottom, left: cupRect.left, right: cupRect.right },
+                text: cta.textContent?.trim() ?? ''
+              };
+            });
+            assert.ok(state, `${viewport.width}x${viewport.height}: finale state missing`);
+            assert.equal(state.lang, 'ru', `${viewport.width}x${viewport.height}: RU not restored`);
+            assert.ok(state.text.length > 0, `${viewport.width}x${viewport.height}: CTA text missing`);
+            assert.ok(state.cta.top >= 0 && state.cta.bottom <= viewport.height, `${viewport.width}x${viewport.height}: CTA vertical clip ${JSON.stringify(state)}`);
+            assert.ok(state.cta.left >= 0 && state.cta.right <= viewport.width, `${viewport.width}x${viewport.height}: CTA horizontal clip ${JSON.stringify(state)}`);
+            assert.ok(state.scene.top >= -1 && state.scene.bottom <= viewport.height + 1, `${viewport.width}x${viewport.height}: scene clip ${JSON.stringify(state)}`);
+            assert.ok(state.cup.left >= -1 && state.cup.right <= viewport.width + 1, `${viewport.width}x${viewport.height}: cup horizontal spill ${JSON.stringify(state)}`);
+            await context.close();
+          }
+
+          await browser.close();
+          console.log('RU finale short-height coverage PASS at 1280x400, 915x412, and 320x480.');
+          NODE
+
+      - name: Enforce changed-file allowlist
+        shell: bash
+        run: |
+          git diff --check
+          python3 - <<'PY'
+          import subprocess
+          allowed = {
+              'experience/experience.css',
+              'experience/brand-fidelity.css',
+              'experience/index.html',
+              'sw.js',
+              'integrity-manifest.json',
+          }
+          status = subprocess.check_output(['git', 'status', '--short'], text=True).splitlines()
+          changed = {line[3:] for line in status}
+          unexpected = sorted(changed - allowed)
+          required = set(allowed)
+          missing = sorted(required - changed)
+          if unexpected:
+              raise SystemExit(f'unexpected changed files: {unexpected}')
+          if missing:
+              raise SystemExit(f'expected changed files missing: {missing}')
+          print('Allowed changed files:', *sorted(changed), sep='\n- ')
+          PY
+
+      - name: Commit validated layout and generated state
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experience/experience.css experience/brand-fidelity.css experience/index.html sw.js integrity-manifest.json
+          git diff --cached --check
+          git commit -m 'Cover wide short cinematic viewports'
+          git push origin HEAD:feature/cinematic-experience
