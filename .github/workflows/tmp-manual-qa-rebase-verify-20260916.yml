@@ -67,7 +67,7 @@ jobs:
           mkdir -p qa-manual-rebase
           git status --porcelain | tee qa-manual-rebase/git-status.txt
           changed=$(git status --porcelain | sed -E 's/^.. //')
-          unexpected=$(printf '%s\n' "$changed" | grep -Ev '^(scripts/(build|service-worker-source|verify-menu-share|test-photo-logo|verify-smart-choice-release|verify-android-download|verify-security-contracts|test-discover-deck|verify-taste-journey-posters|verify-brand-identity-assets|verify-menu-image-assets|verify-pr140-release-blockers|verify-menu-truth-live|verify-menu-order|test-brand-wordmark|verify-regression-contracts|verify-entry-handoff)\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
+          unexpected=$(printf '%s\n' "$changed" | grep -Ev '^(scripts/(build|service-worker-source|verify-menu-share|test-photo-logo|verify-smart-choice-release|verify-android-download|verify-security-contracts|test-discover-deck|verify-taste-journey-posters|verify-brand-identity-assets|verify-menu-image-assets|verify-pr140-release-blockers|verify-menu-truth-live|verify-menu-order|test-brand-wordmark|verify-regression-contracts|verify-entry-handoff)\.mjs|qa/traceability/api-platform\.json|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
           if [ -n "$unexpected" ]; then
             echo "Unexpected drift:"
             echo "$unexpected"
@@ -96,6 +96,7 @@ jobs:
             scripts/test-brand-wordmark.mjs \
             scripts/verify-regression-contracts.mjs \
             scripts/verify-entry-handoff.mjs \
+            qa/traceability/api-platform.json \
             index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
           if git diff --cached --quiet; then
             echo 'No source/generated changes to commit.'
