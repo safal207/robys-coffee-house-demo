@@ -1,0 +1,132 @@
+name: Manual QA polish validation
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Full repository checks
+        run: |
+          npm run check
+          npm run verify:security
+      - run: npx playwright install chromium
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/manual-qa-polish-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/manual-qa-polish-http.log; exit 1
+      - name: Capture regression matrix
+        shell: bash
+        run: |
+          mkdir -p manual-qa-polish
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const base='http://127.0.0.1:4173';
+          const summary=[];
+
+          async function experienceScene(label, scene) {
+            const context=await browser.newContext({viewport:{width:320,height:480},locale:'ru-RU'});
+            await context.addInitScript(()=>localStorage.setItem('robys-language','ru'));
+            const page=await context.newPage();
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto(`${base}/experience/`,{waitUntil:'networkidle'});
+            const range=await page.evaluate(()=>Math.max(0,document.documentElement.scrollHeight-innerHeight));
+            await page.evaluate(({range,scene})=>scrollTo(0,range*(scene/6)),{range,scene});
+            await page.waitForFunction(s=>document.querySelector('[data-cinematic-experience]')?.dataset.activeScene===String(s),scene);
+            await page.waitForTimeout(950);
+            const cup=await page.locator('.hero-cup').boundingBox();
+            const metrics=await page.evaluate(()=>{
+              const cup=document.querySelector('.hero-cup')?.getBoundingClientRect();
+              const cards=[...document.querySelectorAll('.pairing-card')].map(el=>el.getBoundingClientRect());
+              return {cup:cup&&{x:cup.x,y:cup.y,width:cup.width,height:cup.height,right:cup.right,bottom:cup.bottom},cards:cards.map(r=>({x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}))};
+            });
+            if (!cup || cup.width<70 || cup.height<100 || cup.x>300 || cup.x+cup.width<20 || cup.y>460 || cup.y+cup.height<20) throw new Error(`${label}: cup not materially visible ${JSON.stringify(cup)}`);
+            await page.screenshot({path:`manual-qa-polish/${label}.png`,fullPage:false});
+            summary.push({label,errors,metrics});
+            await context.close();
+          }
+          await experienceScene('experience-320x480-scene5',5);
+          await experienceScene('experience-320x480-scene6',6);
+
+          {
+            const context=await browser.newContext({viewport:{width:1440,height:900}});
+            const page=await context.newPage();
+            await page.goto(`${base}/menu.html`,{waitUntil:'networkidle'});
+            const first=page.locator('.full-menu-item-media').first();
+            await first.click();
+            await page.locator('#menu-add-to-cart').click();
+            await page.locator('#menu-cart-trigger').click();
+            await page.waitForTimeout(250);
+            const cart=await page.locator('#menu-cart-dialog .menu-dialog-shell').boundingBox();
+            const close=await page.locator('#menu-cart-dialog [data-menu-dialog-close="cart"]').boundingBox();
+            if (!cart || !close || cart.y<0 || close.y<0 || close.y+close.height>900) throw new Error(`desktop cart clipped ${JSON.stringify({cart,close})}`);
+            await page.screenshot({path:'manual-qa-polish/menu-desktop-cart.png',fullPage:false});
+            await page.locator('#menu-cart-dialog [data-menu-dialog-close="cart"]').click();
+            await page.screenshot({path:'manual-qa-polish/menu-desktop-packed.png',fullPage:true});
+            summary.push({label:'menu-desktop-cart',cart,close});
+            await context.close();
+          }
+
+          {
+            const context=await browser.newContext({viewport:{width:360,height:640}});
+            const page=await context.newPage();
+            await page.goto(`${base}/`,{waitUntil:'networkidle'});
+            await page.screenshot({path:'manual-qa-polish/landing-360x640-hero.png',fullPage:false});
+            const hero=await page.evaluate(()=>({h1:document.querySelector('.hero h1')?.getBoundingClientRect().toJSON?.()??null,text:document.querySelector('.hero-text')?.getBoundingClientRect().toJSON?.()??null,buttons:document.querySelector('.hero-actions')?.getBoundingClientRect().toJSON?.()??null}));
+            summary.push({label:'landing-360x640-hero',hero});
+            await context.close();
+          }
+
+          {
+            const context=await browser.newContext({viewport:{width:1440,height:900}});
+            const page=await context.newPage();
+            await page.route('https://www.instagram.com/**',route=>route.abort());
+            await page.goto(`${base}/`,{waitUntil:'domcontentloaded'});
+            const reel=page.locator('.community-reel');
+            await reel.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(250);
+            await reel.screenshot({path:'manual-qa-polish/community-fallback.png'});
+            const bg=await page.locator('.community-reel-card').evaluate(el=>getComputedStyle(el).backgroundImage);
+            if (!bg.includes('robys-hero-poster.jpg')) throw new Error(`community fallback missing: ${bg}`);
+            summary.push({label:'community-fallback',backgroundImage:bg});
+            await context.close();
+          }
+
+          {
+            const context=await browser.newContext({viewport:{width:320,height:480},locale:'ru-RU'});
+            await context.addInitScript(()=>localStorage.setItem('robys-language','ru'));
+            const page=await context.newPage();
+            await page.goto(`${base}/smart-choice/`,{waitUntil:'networkidle'});
+            await page.waitForFunction(()=>document.querySelector('#smart-choice-app')?.getAttribute('aria-busy')!=='true');
+            await page.screenshot({path:'manual-qa-polish/smart-320-ru.png',fullPage:false});
+            const title=await page.locator('.smart-title').first().boundingBox();
+            summary.push({label:'smart-320-ru',title});
+            await context.close();
+          }
+
+          fs.writeFileSync('manual-qa-polish/summary.json',JSON.stringify(summary,null,2));
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manual-qa-polish-${{ github.run_id }}
+          path: manual-qa-polish/
+          if-no-files-found: error
+          retention-days: 7
