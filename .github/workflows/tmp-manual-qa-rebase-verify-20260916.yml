@@ -19,6 +19,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: Patch build for split service-worker core
+        run: python3 tmp-build-sw-core-patch.py
       - name: Build current-main plus manual QA sources
         run: npm run build
       - name: Generate initial integrity state
@@ -42,6 +44,7 @@ jobs:
           test -f src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4
           test -f sw-core-v64.js
           grep -q 'sw-core-v64.js' sw.js
+          grep -q 'const CACHE_VERSION = "robys-offline-' sw-core-v64.js
       - run: npx playwright install chromium
       - name: Start static server
         shell: bash
@@ -55,27 +58,27 @@ jobs:
           exit 1
       - name: Targeted manual QA browser proof
         run: node tmp-manual-qa-rebase-test.mjs
-      - name: Check generated drift allowlist
+      - name: Check source and generated drift allowlist
         shell: bash
         run: |
           git diff --name-only | sort | tee qa-manual-rebase/generated-files.txt
-          unexpected=$(git diff --name-only | grep -Ev '^(index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
+          unexpected=$(git diff --name-only | grep -Ev '^(scripts/build\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
           if [ -n "$unexpected" ]; then
-            echo "Unexpected generated drift:"
+            echo "Unexpected drift:"
             echo "$unexpected"
             exit 1
           fi
-      - name: Commit generated outputs on temporary branch
+      - name: Commit build compatibility and generated outputs on temporary branch
         shell: bash
         run: |
           git config user.name 'robys-qa-bot'
           git config user.email 'robys-qa-bot@users.noreply.github.com'
-          git add index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
+          git add scripts/build.mjs index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
           if git diff --cached --quiet; then
-            echo 'No generated changes to commit.'
+            echo 'No source/generated changes to commit.'
           else
             git diff --cached --check
-            git commit -m 'Generate manual QA polish on current main'
+            git commit -m 'Support split service-worker core and generate manual QA polish'
             git push origin HEAD:tmp/manual-qa-rebase-verify-20260916
           fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
