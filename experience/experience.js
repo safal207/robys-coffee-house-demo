@@ -84,8 +84,31 @@
     return clamp((window.scrollY - start) / range);
   }
 
+  function focusSceneHeading(index) {
+    const scene = scenes[index];
+    if (!(scene instanceof HTMLElement)) return;
+    const heading = scene.querySelector("h1, h2, h3, [role='heading']");
+    if (!(heading instanceof HTMLElement)) return;
+
+    const previousTabindex = heading.getAttribute("tabindex");
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+    heading.addEventListener("blur", () => {
+      if (previousTabindex === null) heading.removeAttribute("tabindex");
+      else heading.setAttribute("tabindex", previousTabindex);
+    }, { once: true });
+  }
+
   function activateScene(index) {
     if (index === activeScene) return;
+
+    const focusedElement = document.activeElement;
+    const focusedScene = focusedElement instanceof Element
+      ? focusedElement.closest("[data-scene]")
+      : null;
+    const shouldMoveFocus = focusedElement instanceof HTMLAnchorElement
+      && focusedScene instanceof HTMLElement
+      && focusedScene !== scenes[index];
 
     activeScene = index;
     experience.dataset.activeScene = String(index);
@@ -96,7 +119,12 @@
 
       if (selected) scene.setAttribute("aria-current", "step");
       else scene.removeAttribute("aria-current");
+    });
 
+    if (shouldMoveFocus) focusSceneHeading(index);
+
+    scenes.forEach((scene, sceneIndex) => {
+      const selected = sceneIndex === index;
       scene.querySelectorAll("a").forEach((link) => {
         if (!(link instanceof HTMLAnchorElement)) return;
         if (selected) {
