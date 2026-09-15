@@ -21,7 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch SW core generator and verifier fail-closed
+      - name: Patch SW core generator and verifiers fail-closed
         shell: bash
         run: |
           python3 - <<'PY'
@@ -40,16 +40,23 @@ jobs:
 
           p = Path('scripts/verify-smart-choice-release.mjs')
           s = p.read_text()
-          s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");', 'verifier read')
-          s = replace_once(s, "requireText(serviceWorker, '\"./smart-choice/index.html\"', \"Smart Choice page must be precached\");", "requireText(serviceWorker, 'importScripts(\"./sw-core-v64.js\")', \"Service worker wrapper must load the reviewed core runtime\");\nrequireText(serviceWorkerCore, '\"./smart-choice/index.html\"', \"Smart Choice page must be precached\");", 'page precache')
-          s = replace_once(s, "requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', \"Smart Choice assets must use exact-revision cache matching\");", "requireText(serviceWorkerCore, 'const isVersionedSmartChoiceAsset', \"Smart Choice assets must use exact-revision cache matching\");", 'versioned asset')
-          s = replace_once(s, "requireText(serviceWorker, 'if (isSmartChoice) return cachedPage(\"smart-choice/index.html\")', \"Smart Choice must have a dedicated offline navigation route\");", "requireText(serviceWorkerCore, 'if (isSmartChoice) return cachedPage(\"smart-choice/index.html\")', \"Smart Choice must have a dedicated offline navigation route\");", 'offline route')
-          s = replace_once(s, "requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", "requireText(serviceWorkerCore, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", 'clean route')
-          s = replace_once(s, 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);', 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);', 'legacy assets')
-          s = replace_once(s, 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'revisioned assets')
+          s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");', 'smart verifier read')
+          s = replace_once(s, "requireText(serviceWorker, '\"./smart-choice/index.html\"', \"Smart Choice page must be precached\");", "requireText(serviceWorker, 'importScripts(\"./sw-core-v64.js\")', \"Service worker wrapper must load the reviewed core runtime\");\nrequireText(serviceWorkerCore, '\"./smart-choice/index.html\"', \"Smart Choice page must be precached\");", 'smart page precache')
+          s = replace_once(s, "requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', \"Smart Choice assets must use exact-revision cache matching\");", "requireText(serviceWorkerCore, 'const isVersionedSmartChoiceAsset', \"Smart Choice assets must use exact-revision cache matching\");", 'smart versioned asset')
+          s = replace_once(s, "requireText(serviceWorker, 'if (isSmartChoice) return cachedPage(\"smart-choice/index.html\")', \"Smart Choice must have a dedicated offline navigation route\");", "requireText(serviceWorkerCore, 'if (isSmartChoice) return cachedPage(\"smart-choice/index.html\")', \"Smart Choice must have a dedicated offline navigation route\");", 'smart offline route')
+          s = replace_once(s, "requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", "requireText(serviceWorkerCore, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", 'smart clean route')
+          s = replace_once(s, 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);', 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);', 'smart legacy assets')
+          s = replace_once(s, 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'smart revisioned assets')
+          p.write_text(s)
+
+          p = Path('scripts/verify-menu-image-assets.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', 'menu image verifier read')
           p.write_text(s)
           PY
           git diff --check
+          echo 'Remaining script references to sw.js:'
+          grep -R -n --include='*.mjs' 'sw\.js' scripts || true
       - name: Build and refresh integrity
         run: |
           npm run build
@@ -69,6 +76,7 @@ jobs:
           allowed = {
             'scripts/build.mjs',
             'scripts/verify-smart-choice-release.mjs',
+            'scripts/verify-menu-image-assets.mjs',
             'experience/index.html',
             'menu.html',
             'smart-choice/index.html',
@@ -86,7 +94,7 @@ jobs:
           unexpected = sorted(paths - allowed)
           if unexpected:
               raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','sw-core-v64.js','integrity-manifest.json'}
+          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','sw-core-v64.js','integrity-manifest.json'}
           missing = sorted(required - paths)
           if missing:
               raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
@@ -98,5 +106,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Sync build and verifier with service worker core"
+          git commit -m "Sync build and verifiers with service worker core"
           git push origin HEAD:fix/manual-qa-polish-20260915
