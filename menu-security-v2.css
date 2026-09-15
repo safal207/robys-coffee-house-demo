@@ -14,3 +14,9 @@
 .menu-product-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(980px,calc(100vw - 32px))}
 .menu-cart-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(760px,calc(100vw - 32px))}
 @media(max-width:390px){.menu-dialog.menu-dialog--fallback[open]{padding:6px}.menu-dialog--fallback[open] .menu-dialog-shell{width:calc(100vw - 12px);max-height:calc(100vh - 12px);max-height:calc(100dvh - 12px)}}
+
+/* Manual QA: native desktop cart must start inside the viewport even when its content is taller than the screen. */
+@media(min-width:901px){
+  .menu-cart-dialog[open]:not(.menu-dialog--fallback){position:fixed;inset:0;box-sizing:border-box;display:block;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;margin:0;padding:24px;overflow:auto;border:0;background:transparent}
+  .menu-cart-dialog[open]:not(.menu-dialog--fallback) .menu-dialog-shell{width:min(760px,calc(100vw - 48px));max-height:none;margin:0 auto;overflow:visible}
+}
