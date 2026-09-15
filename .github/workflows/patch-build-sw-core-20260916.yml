@@ -49,13 +49,53 @@ jobs:
           s = replace_once(s, 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'smart revisioned assets')
           p.write_text(s)
 
-          p = Path('scripts/verify-menu-image-assets.mjs')
+          simple_read_files = [
+            'scripts/verify-menu-image-assets.mjs',
+            'scripts/verify-menu-order.mjs',
+            'scripts/verify-entry-handoff.mjs',
+            'scripts/verify-menu-share.mjs',
+            'scripts/verify-android-download.mjs',
+            'scripts/verify-taste-journey-posters.mjs',
+            'scripts/verify-pr140-release-blockers.mjs',
+            'scripts/verify-menu-truth-live.mjs',
+            'scripts/verify-regression-contracts.mjs',
+          ]
+          for file in simple_read_files:
+              p = Path(file)
+              s = p.read_text()
+              s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', file)
+              p.write_text(s)
+
+          p = Path('scripts/test-discover-deck.mjs')
           s = p.read_text()
-          s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', 'menu image verifier read')
+          s = replace_once(s, 'const swSource = readFileSync(resolve(root, "sw.js"), "utf8");', 'const swSource = readFileSync(resolve(root, "sw-core-v64.js"), "utf8");', 'discover deck')
+          p.write_text(s)
+
+          p = Path('scripts/verify-brand-identity-assets.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const sw = read("sw.js");', 'const sw = read("sw-core-v64.js");', 'brand identity')
+          p.write_text(s)
+
+          p = Path('scripts/test-photo-logo.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");', 'const serviceWorker = readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");', 'photo logo')
+          p.write_text(s)
+
+          p = Path('scripts/test-brand-wordmark.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw-core-v64.js");', 'brand wordmark')
+          p.write_text(s)
+
+          p = Path('scripts/verify-security-contracts.mjs')
+          s = p.read_text()
+          s = replace_once(s, '  "sw.js",\n  "src/app.ts"', '  "sw.js",\n  "sw-core-v64.js",\n  "src/app.ts"', 'security runtime list')
+          s = replace_once(s, 'const serviceWorker = read("sw.js");', 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");', 'security reads')
+          s = replace_once(s, 'must("CSP-001", !/https?:\\/\\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");', 'must("CSP-001", !/https?:\\/\\//i.test(serviceWorker) && !/https?:\\/\\//i.test(serviceWorkerCore), "Service worker cache must not include cross-origin assets");\nmust("CSP-001", serviceWorker.includes(\'importScripts("./sw-core-v64.js")\'), "Service worker wrapper must load the reviewed core runtime");', 'security cross-origin')
+          s = replace_once(s, 'must("CSP-001", serviceWorker.includes(\'url.origin !== self.location.origin\'), "Service worker must ignore cross-origin fetches");', 'must("CSP-001", serviceWorkerCore.includes(\'url.origin !== self.location.origin\'), "Service worker core must ignore cross-origin fetches");', 'security origin guard')
           p.write_text(s)
           PY
           git diff --check
-          echo 'Remaining script references to sw.js:'
+          echo 'Remaining script references to sw.js after migration:'
           grep -R -n --include='*.mjs' 'sw\.js' scripts || true
       - name: Build and refresh integrity
         run: |
@@ -77,6 +117,19 @@ jobs:
             'scripts/build.mjs',
             'scripts/verify-smart-choice-release.mjs',
             'scripts/verify-menu-image-assets.mjs',
+            'scripts/verify-menu-order.mjs',
+            'scripts/verify-entry-handoff.mjs',
+            'scripts/verify-menu-share.mjs',
+            'scripts/verify-android-download.mjs',
+            'scripts/verify-taste-journey-posters.mjs',
+            'scripts/verify-pr140-release-blockers.mjs',
+            'scripts/verify-menu-truth-live.mjs',
+            'scripts/verify-regression-contracts.mjs',
+            'scripts/test-discover-deck.mjs',
+            'scripts/verify-brand-identity-assets.mjs',
+            'scripts/test-photo-logo.mjs',
+            'scripts/test-brand-wordmark.mjs',
+            'scripts/verify-security-contracts.mjs',
             'experience/index.html',
             'menu.html',
             'smart-choice/index.html',
@@ -94,7 +147,15 @@ jobs:
           unexpected = sorted(paths - allowed)
           if unexpected:
               raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','sw-core-v64.js','integrity-manifest.json'}
+          required = {
+            'scripts/build.mjs',
+            'scripts/verify-smart-choice-release.mjs',
+            'scripts/verify-menu-image-assets.mjs',
+            'scripts/verify-menu-order.mjs',
+            'scripts/verify-security-contracts.mjs',
+            'sw-core-v64.js',
+            'integrity-manifest.json',
+          }
           missing = sorted(required - paths)
           if missing:
               raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
