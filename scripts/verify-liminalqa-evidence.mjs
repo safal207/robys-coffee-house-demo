@@ -7,7 +7,7 @@ const root = process.cwd();
 const bundleRoot = path.resolve(root, process.argv[2] ?? "qa/liminal-artifacts");
 const commit = process.env.ROBY_TESTED_COMMIT ?? process.env.GITHUB_SHA ?? "unknown";
 const runId = String(process.env.ROBY_SOURCE_RUN_ID ?? process.env.GITHUB_RUN_ID ?? "local");
-const attempt = String(process.env.GITHUB_RUN_ATTEMPT ?? "1");
+const verifierAttempt = String(process.env.GITHUB_RUN_ATTEMPT ?? "1");
 const engineRevision = process.env.LIMINALQA_REVISION ?? "unknown";
 const signalNames = ["exact-head-binding", "security-contract", "performance-contract", "browser-lab-policy", "lighthouse-repeatability"];
 const requiredBudgetKeys = ["performance", "lcp", "tbt", "cls", "fcp", "speed_index"];
@@ -132,7 +132,7 @@ function classify(profile, metrics, budgets) {
 }
 
 if (!/^[0-9a-f]{40}$/i.test(commit)) fail("Exact 40-character commit SHA required");
-if (!/^\d+$/.test(runId) || !/^\d+$/.test(attempt)) fail("Numeric run ID and attempt required");
+if (!/^\d+$/.test(runId) || !/^\d+$/.test(verifierAttempt)) fail("Numeric run ID and verifier attempt required");
 for (const forbidden of ["verification.json", "evidence-quality.json"]) {
   try { lstatSync(path.join(bundleRoot, forbidden)); fail(`Producer supplied ${forbidden}`); }
   catch (error) { if (error?.code !== "ENOENT") throw error; }
@@ -140,12 +140,14 @@ for (const forbidden of ["verification.json", "evidence-quality.json"]) {
 
 const manifestRead = read("manifest.json");
 const manifest = JSON.parse(manifestRead.content.toString("utf8"));
+const producerAttempt = String(manifest.runAttempt ?? "");
+if (!/^\d+$/.test(producerAttempt)) fail("Manifest producer attempt must be numeric");
 eq(manifest.schema, "robys.evidence.manifest.v1", "manifest schema");
 eq(manifest.algorithm, "sha256", "manifest algorithm");
-eq(manifest.bundleId, `${commit}-${runId}-${attempt}`, "bundle ID");
+eq(manifest.bundleId, `${commit}-${runId}-${producerAttempt}`, "bundle ID");
 eq(manifest.testedCommit, commit, "manifest commit");
 eq(String(manifest.sourceRunId), runId, "manifest run");
-eq(String(manifest.runAttempt), attempt, "manifest attempt");
+eq(String(manifest.runAttempt), producerAttempt, "manifest producer attempt");
 if (!Array.isArray(manifest.files) || !manifest.files.length) fail("Empty manifest");
 
 const manifestPaths = manifest.files.map((record) => safe(record.path));
@@ -319,7 +321,7 @@ const releaseGatePassed = overall === "stable" && allSignalsStable &&
   decision.suite_decision.merge_policy === "allow" && decision.suite_decision.block_reason === "";
 const quality = {
   schema: "robys.evidence.quality.v2", bundleId: manifest.bundleId, testedCommit: commit,
-  sourceRunId: runId, runAttempt: attempt, evaluatedAt: new Date().toISOString(),
+  sourceRunId: runId, runAttempt: producerAttempt, verifierRunAttempt: verifierAttempt, evaluatedAt: new Date().toISOString(),
   overall: "pass", freshRunnerRecomputation: true, releaseGate: releaseGatePassed ? "pass" : "block",
   manifest: { files: manifest.files.length, bytes: manifest.files.reduce((sum, record) => sum + record.bytes, 0), sha256: manifestRead.sha256, complete: true },
   bindings: { requiredSignals: signalNames.length, inputSignals: input.tests.length, adapterEvidence: decision.evidence.length, exactHead: true, exactRun: true, sourceRevision: engineRevision },
@@ -331,7 +333,7 @@ const qualityBytes = Buffer.from(`${JSON.stringify(quality, null, 2)}\n`);
 writeFileSync(path.join(bundleRoot, "evidence-quality.json"), qualityBytes);
 const verification = {
   schema: "robys.evidence.verification.v2", bundleId: manifest.bundleId, testedCommit: commit,
-  sourceRunId: runId, runAttempt: attempt, verified: true, releaseGatePassed,
+  sourceRunId: runId, runAttempt: producerAttempt, verifierRunAttempt: verifierAttempt, verified: true, releaseGatePassed,
   observedPolicy: decision.suite_decision.merge_policy, observedLighthouseVerdict: overall,
   verificationMode: "fresh-runner-recomputation", verifiedFiles: manifest.files.length,
   manifestBytes: manifestRead.bytes, manifestSha256: manifestRead.sha256,

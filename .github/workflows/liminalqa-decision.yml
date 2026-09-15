@@ -399,14 +399,13 @@ jobs:
       - name: Upload verified immutable exact-run evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}
+          name: exact-head-evidence-${{ env.ROBY_TESTED_COMMIT }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             qa/liminal-artifacts/
             .artifacts/final/*.tar.gz
             .artifacts/final/*.sha256
           if-no-files-found: error
           retention-days: 90
-          overwrite: true
 
       - name: Enforce verified release gate
         shell: bash
