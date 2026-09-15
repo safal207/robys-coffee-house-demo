@@ -23,7 +23,7 @@ block = '''function setupKioskCategoryRail() {
     const controlsRect = controls.getBoundingClientRect();
     const menuRect = menuWrap.getBoundingClientRect();
     const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
-    const active = controlsRect.top < window.innerHeight && menuRect.bottom > headerBottom + 12;
+    const active = controlsRect.top <= headerBottom + 24 && menuRect.bottom > headerBottom + 12;
     document.body.classList.toggle("menu-kiosk-rail-visible", active);
   };
 
