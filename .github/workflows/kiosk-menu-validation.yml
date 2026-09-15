@@ -129,3 +129,5 @@ jobs:
           path: kiosk-evidence/
           if-no-files-found: error
           retention-days: 7
+
+# trigger: bounded-kiosk-v1
