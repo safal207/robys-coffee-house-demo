@@ -1,0 +1,149 @@
+.poster-card[data-product-id="san-sebastian"] .poster-card-frame {
+  transition: background-color .24s ease, border-color .24s ease, box-shadow .24s ease;
+}
+
+.pairing-preview-badge {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 999px;
+  color: #fffaf4;
+  background: rgba(35,25,20,.78);
+  box-shadow: 0 8px 22px rgba(34,23,17,.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.pairing-preview-video {
+  position: relative;
+  z-index: 2;
+  display: block;
+  grid-area: 1 / 1;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
+  border: 0;
+  border-radius: 14px;
+  background: #181310;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+
+.poster-card.is-pairing-preview .pairing-preview-badge {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.poster-card.is-pairing-preview.pairing-preview-playing .poster-card-frame {
+  border-color: rgba(83,54,38,.18);
+  background: #181310;
+  box-shadow: 0 16px 38px rgba(38,24,17,.18);
+}
+
+.poster-card.is-pairing-preview.pairing-preview-playing .pairing-preview-video {
+  opacity: 1;
+}
+
+.poster-card.is-pairing-preview.pairing-preview-playing img,
+.poster-card.is-pairing-preview.pairing-preview-playing .poster-card-fallback {
+  opacity: 0 !important;
+}
+
+.pairing-preview-cta {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: calc(100% - 42px);
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(29,20,16,.82);
+  box-shadow: 0 10px 26px rgba(17,10,7,.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: .78rem;
+  font-weight: 850;
+  letter-spacing: .02em;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.poster-card.pairing-preview-ended .pairing-preview-cta,
+.poster-card.pairing-preview-error .pairing-preview-cta {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 680px) {
+  .pairing-preview-badge {
+    right: 24px;
+    bottom: 24px;
+    min-height: 36px;
+    padding: 9px 12px;
+    font-size: .7rem;
+  }
+
+  .pairing-preview-video {
+    border-radius: 13px;
+  }
+
+  .pairing-preview-cta {
+    bottom: 24px;
+  }
+}
+
+@media (max-width: 390px) {
+  .pairing-preview-badge {
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .pairing-preview-video {
+    border-radius: 11px;
+  }
+
+  .pairing-preview-cta {
+    bottom: 18px;
+    max-width: calc(100% - 32px);
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pairing-preview-badge,
+  .pairing-preview-video,
+  .pairing-preview-cta,
+  .poster-card[data-product-id="san-sebastian"] .poster-card-frame {
+    transition: none;
+  }
+}
