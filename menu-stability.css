@@ -2,3 +2,9 @@
 .full-menu-grid:not([data-ready]){min-height:2542px}
 @media(max-width:900px){.full-menu-grid:not([data-ready]){min-height:3574px}}
 @media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:38px}}
+
+/* Manual QA: pack variable-height desktop categories without grid-row deserts. */
+@media(min-width:901px){
+  .full-menu-grid[data-ready]{display:block;columns:2;column-gap:18px}
+  .full-menu-grid[data-ready] .full-menu-panel{display:inline-block;width:100%;margin:0 0 18px;break-inside:avoid;vertical-align:top}
+}
