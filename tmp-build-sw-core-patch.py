@@ -17,7 +17,6 @@ if old_read in text:
     text = text.replace(old_read, new_read, 1)
 elif 'let serviceWorkerCacheSource = serviceWorkerUsesCore' not in text:
     raise SystemExit('service worker read anchor missing')
-
 old_loop = '  serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);\n}\nwriteFileSync("sw.js", serviceWorker);'
 new_loop = '''  serviceWorkerCacheSource = synchronizeServiceWorkerAsset(serviceWorkerCacheSource, filePath, revision);
 }
@@ -53,69 +52,56 @@ export function readEffectiveServiceWorkerSource(root = process.cwd()) {
 
 # 3) Content/cache verifiers should inspect the effective worker, not only the thin loader.
 targets = {
-  'scripts/verify-menu-share.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/test-photo-logo.mjs': [
-    ('const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
+  'scripts/verify-menu-share.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/test-photo-logo.mjs': ['const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");'],
   'scripts/verify-smart-choice-release.mjs': [
-    ('const serviceWorker = read("sw.js");', 'const serviceWorker = readEffectiveServiceWorkerSource();'),
-    ('''const serviceWorkerLoader = read("sw.js");
+    'const serviceWorker = read("sw.js");',
+    '''const serviceWorkerLoader = read("sw.js");
 const serviceWorker = serviceWorkerLoader.includes('importScripts("./sw-core-v64.js")')
   ? read("sw-core-v64.js")
-  : serviceWorkerLoader;''', 'const serviceWorker = readEffectiveServiceWorkerSource();')
+  : serviceWorkerLoader;'''
   ],
-  'scripts/verify-android-download.mjs': [
-    ('const sw = readFileSync("sw.js", "utf8");', 'const sw = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-security-contracts.mjs': [
-    ('const serviceWorker = read("sw.js");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/test-discover-deck.mjs': [
-    ('const swSource = readFileSync(resolve(root, "sw.js"), "utf8");', 'const swSource = readEffectiveServiceWorkerSource(root);')
-  ],
-  'scripts/verify-taste-journey-posters.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-brand-identity-assets.mjs': [
-    ('const sw = read("sw.js");', 'const sw = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-menu-image-assets.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-pr140-release-blockers.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-menu-truth-live.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-menu-order.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/test-brand-wordmark.mjs': [
-    ('const serviceWorker = read("sw.js");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-regression-contracts.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
-  'scripts/verify-entry-handoff.mjs': [
-    ('const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readEffectiveServiceWorkerSource();')
-  ],
+  'scripts/verify-android-download.mjs': ['const sw = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-security-contracts.mjs': ['const serviceWorker = read("sw.js");'],
+  'scripts/test-discover-deck.mjs': ['const swSource = readFileSync(resolve(root, "sw.js"), "utf8");'],
+  'scripts/verify-taste-journey-posters.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-brand-identity-assets.mjs': ['const sw = read("sw.js");'],
+  'scripts/verify-menu-image-assets.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-pr140-release-blockers.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-menu-truth-live.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-menu-order.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/test-brand-wordmark.mjs': ['const serviceWorker = read("sw.js");'],
+  'scripts/verify-regression-contracts.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
+  'scripts/verify-entry-handoff.mjs': ['const serviceWorker = readFileSync("sw.js", "utf8");'],
 }
-
+replacement_by_file = {
+  'scripts/verify-android-download.mjs': 'const sw = readEffectiveServiceWorkerSource();',
+  'scripts/test-discover-deck.mjs': 'const swSource = readEffectiveServiceWorkerSource(root);',
+  'scripts/verify-brand-identity-assets.mjs': 'const sw = readEffectiveServiceWorkerSource();',
+}
 import_line = 'import { readEffectiveServiceWorkerSource } from "./service-worker-source.mjs";\n'
-for filename, replacements in targets.items():
+for filename, candidates in targets.items():
   p = Path(filename)
   source = p.read_text()
-  changed = False
-  for old, new in replacements:
-    if old in source:
-      source = source.replace(old, new, 1)
-      changed = True
-      break
-  if not changed and 'readEffectiveServiceWorkerSource(' not in source:
-    raise SystemExit(f'SW reader anchor missing in {filename}')
+  if 'readEffectiveServiceWorkerSource(' not in source:
+    found = next((candidate for candidate in candidates if candidate in source), None)
+    if found is None:
+      raise SystemExit(f'SW reader anchor missing in {filename}')
+    replacement = replacement_by_file.get(filename, 'const serviceWorker = readEffectiveServiceWorkerSource();')
+    source = source.replace(found, replacement, 1)
   if import_line.strip() not in source:
     source = import_line + source
   p.write_text(source)
+
+# 4) Traceability must point at the real cache core, not the loader.
+trace = Path('qa/traceability/api-platform.json')
+t = trace.read_text()
+for old, new in [
+  ('"sw.js#CACHE_VERSION"', '"sw-core-v64.js#CACHE_VERSION"'),
+  ('"sw.js#navigationResponse"', '"sw-core-v64.js#navigationResponse"'),
+]:
+  if old in t:
+    t = t.replace(old, new, 1)
+  elif new not in t:
+    raise SystemExit(f'traceability anchor missing: {old}')
+trace.write_text(t)
