@@ -21,20 +21,53 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch build generator fail-closed
+      - name: Patch SW core generator and verifier fail-closed
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
           p = Path('scripts/build.mjs')
           s = p.read_text()
-          old_read = 'let serviceWorker = readFileSync("sw.js", "utf8");'
-          new_read = 'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");'
-          old_write = 'writeFileSync("sw.js", serviceWorker);'
-          new_write = 'writeFileSync("sw-core-v64.js", serviceWorker);'
-          if s.count(old_read) != 1 or s.count(old_write) != 1:
-              raise SystemExit('build.mjs service-worker anchors changed; refusing patch')
-          s = s.replace(old_read, new_read).replace(old_write, new_write)
+          replacements = {
+            'let serviceWorker = readFileSync("sw.js", "utf8");': 'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");',
+            'writeFileSync("sw.js", serviceWorker);': 'writeFileSync("sw-core-v64.js", serviceWorker);',
+          }
+          for old, new in replacements.items():
+              if s.count(old) != 1:
+                  raise SystemExit(f'build.mjs anchor changed: {old}')
+              s = s.replace(old, new)
+          p.write_text(s)
+
+          p = Path('scripts/verify-smart-choice-release.mjs')
+          s = p.read_text()
+          anchor = 'const serviceWorker = read("sw.js");'
+          replacement = 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");'
+          if s.count(anchor) != 1:
+              raise SystemExit('Smart Choice verifier service-worker anchor changed')
+          s = s.replace(anchor, replacement)
+          old_block = '''requireText(serviceWorker, '\"./smart-choice/index.html\"', "Smart Choice page must be precached");
+requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
+requireText(serviceWorker, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
+requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");'''
+          new_block = '''requireText(serviceWorker, 'importScripts("./sw-core-v64.js")', "Service worker wrapper must load the reviewed core runtime");
+requireText(serviceWorkerCore, '\"./smart-choice/index.html\"', "Smart Choice page must be precached");
+requireText(serviceWorkerCore, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
+requireText(serviceWorkerCore, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
+requireText(serviceWorkerCore, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");'''
+          if s.count(old_block) != 1:
+              raise SystemExit('Smart Choice verifier precache block changed')
+          s = s.replace(old_block, new_block)
+          old_legacy = 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);'
+          new_legacy = 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);'
+          if s.count(old_legacy) != 1:
+              raise SystemExit('Smart Choice verifier legacy worker assertion changed')
+          s = s.replace(old_legacy, new_legacy)
+          old_revision = 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);'
+          new_revision = 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);'
+          if s.count(old_revision) != 1:
+              raise SystemExit('Smart Choice verifier revision assertion changed')
+          s = s.replace(old_revision, new_revision)
           p.write_text(s)
           PY
           git diff --check
@@ -56,6 +89,7 @@ jobs:
           import subprocess
           allowed = {
             'scripts/build.mjs',
+            'scripts/verify-smart-choice-release.mjs',
             'experience/index.html',
             'menu.html',
             'smart-choice/index.html',
@@ -73,7 +107,7 @@ jobs:
           unexpected = sorted(paths - allowed)
           if unexpected:
               raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','sw-core-v64.js','integrity-manifest.json'}
+          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','sw-core-v64.js','integrity-manifest.json'}
           missing = sorted(required - paths)
           if missing:
               raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
@@ -85,5 +119,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Sync build generator with service worker core"
+          git commit -m "Sync build and verifier with service worker core"
           git push origin HEAD:fix/manual-qa-polish-20260915
