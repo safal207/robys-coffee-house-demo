@@ -19,7 +19,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch build for split service-worker core
+      - name: Patch build/verifier for split service-worker core
         run: python3 tmp-build-sw-core-patch.py
       - name: Build current-main plus manual QA sources
         run: npm run build
@@ -62,18 +62,18 @@ jobs:
         shell: bash
         run: |
           git diff --name-only | sort | tee qa-manual-rebase/generated-files.txt
-          unexpected=$(git diff --name-only | grep -Ev '^(scripts/build\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
+          unexpected=$(git diff --name-only | grep -Ev '^(scripts/build\.mjs|scripts/verify-smart-choice-release\.mjs|index\.html|menu\.html|experience/index\.html|smart-choice/index\.html|sw\.js|sw-core-v64\.js|integrity-manifest\.json)$' || true)
           if [ -n "$unexpected" ]; then
             echo "Unexpected drift:"
             echo "$unexpected"
             exit 1
           fi
-      - name: Commit build compatibility and generated outputs on temporary branch
+      - name: Commit split-SW compatibility and generated outputs on temporary branch
         shell: bash
         run: |
           git config user.name 'robys-qa-bot'
           git config user.email 'robys-qa-bot@users.noreply.github.com'
-          git add scripts/build.mjs index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
+          git add scripts/build.mjs scripts/verify-smart-choice-release.mjs index.html menu.html experience/index.html smart-choice/index.html sw.js sw-core-v64.js integrity-manifest.json
           if git diff --cached --quiet; then
             echo 'No source/generated changes to commit.'
           else
