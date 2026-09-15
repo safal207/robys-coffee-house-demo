@@ -90,7 +90,11 @@ for filename, candidates in targets.items():
     replacement = replacement_by_file.get(filename, 'const serviceWorker = readEffectiveServiceWorkerSource();')
     source = source.replace(found, replacement, 1)
   if import_line.strip() not in source:
-    source = import_line + source
+    if source.startswith('#!'):
+      first_newline = source.find('\n')
+      source = source[:first_newline + 1] + import_line + source[first_newline + 1:]
+    else:
+      source = import_line + source
   p.write_text(source)
 
 # 4) Traceability must point at the real cache core, not the loader.
