@@ -41,33 +41,19 @@ jobs:
 
           p = Path('scripts/verify-smart-choice-release.mjs')
           s = p.read_text()
-          anchor = 'const serviceWorker = read("sw.js");'
-          replacement = 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");'
-          if s.count(anchor) != 1:
-              raise SystemExit('Smart Choice verifier service-worker anchor changed')
-          s = s.replace(anchor, replacement)
-          old_block = '''requireText(serviceWorker, '\"./smart-choice/index.html\"', "Smart Choice page must be precached");
-requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
-requireText(serviceWorker, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
-requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");'''
-          new_block = '''requireText(serviceWorker, 'importScripts("./sw-core-v64.js")', "Service worker wrapper must load the reviewed core runtime");
-requireText(serviceWorkerCore, '\"./smart-choice/index.html\"', "Smart Choice page must be precached");
-requireText(serviceWorkerCore, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
-requireText(serviceWorkerCore, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
-requireText(serviceWorkerCore, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");'''
-          if s.count(old_block) != 1:
-              raise SystemExit('Smart Choice verifier precache block changed')
-          s = s.replace(old_block, new_block)
-          old_legacy = 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);'
-          new_legacy = 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);'
-          if s.count(old_legacy) != 1:
-              raise SystemExit('Smart Choice verifier legacy worker assertion changed')
-          s = s.replace(old_legacy, new_legacy)
-          old_revision = 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);'
-          new_revision = 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);'
-          if s.count(old_revision) != 1:
-              raise SystemExit('Smart Choice verifier revision assertion changed')
-          s = s.replace(old_revision, new_revision)
+          replacements = {
+            'const serviceWorker = read("sw.js");': 'const serviceWorker = read("sw.js");\nconst serviceWorkerCore = read("sw-core-v64.js");',
+            'requireText(serviceWorker, '\''"./smart-choice/index.html"'\'', "Smart Choice page must be precached");': 'requireText(serviceWorker, '\''importScripts("./sw-core-v64.js")'\'', "Service worker wrapper must load the reviewed core runtime");\nrequireText(serviceWorkerCore, '\''"./smart-choice/index.html"'\'', "Smart Choice page must be precached");',
+            'requireText(serviceWorker, '\''const isVersionedSmartChoiceAsset'\'', "Smart Choice assets must use exact-revision cache matching");': 'requireText(serviceWorkerCore, '\''const isVersionedSmartChoiceAsset'\'', "Smart Choice assets must use exact-revision cache matching");',
+            'requireText(serviceWorker, '\''if (isSmartChoice) return cachedPage("smart-choice/index.html")'\'', "Smart Choice must have a dedicated offline navigation route");': 'requireText(serviceWorkerCore, '\''if (isSmartChoice) return cachedPage("smart-choice/index.html")'\'', "Smart Choice must have a dedicated offline navigation route");',
+            'requireText(serviceWorker, '\''url.pathname === `${scopePath}smart-choice/`'\'', "Smart Choice clean URL must not be classified as the home page");': 'requireText(serviceWorkerCore, '\''url.pathname === `${scopePath}smart-choice/`'\'', "Smart Choice clean URL must not be classified as the home page");',
+            'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);': 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);',
+            'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);': 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);',
+          }
+          for old, new in replacements.items():
+              if s.count(old) != 1:
+                  raise SystemExit(f'Smart Choice verifier anchor changed: {old}')
+              s = s.replace(old, new)
           p.write_text(s)
           PY
           git diff --check
