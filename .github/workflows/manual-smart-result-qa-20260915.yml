@@ -1,0 +1,88 @@
+name: Manual Smart Choice result QA
+
+on:
+  push:
+    branches:
+      - qa/manual-visual-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Start server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/smart-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/smart-choice/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/smart-http.log; exit 1
+      - name: Walk to recommendation
+        shell: bash
+        run: |
+          mkdir -p qa-smart-result
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const cases = [
+            ['mobile-390-tr',{width:390,height:844},'tr','tr-TR'],
+            ['mobile-320-ru',{width:320,height:480},'ru','ru-RU'],
+            ['desktop-1440-tr',{width:1440,height:900},'tr','tr-TR']
+          ];
+          const summary=[];
+          for (const [label,viewport,lang,locale] of cases) {
+            const context=await browser.newContext({viewport,locale});
+            await context.addInitScript(({lang})=>{localStorage.setItem('robys-language',lang);sessionStorage.clear();},{lang});
+            const page=await context.newPage();
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:4173/smart-choice/',{waitUntil:'networkidle'});
+            await page.waitForFunction(()=>document.querySelector('#smart-choice-app')?.getAttribute('aria-busy')!=='true');
+            const start=page.locator('#smart-choice-app button').filter({hasText:/Seçime başla|Начать|Start/i});
+            if (await start.count()) await start.first().click();
+            await page.waitForTimeout(150);
+            const trace=[];
+            for (let step=0;step<8;step++) {
+              const state=await page.evaluate(()=>({
+                text:(document.querySelector('#smart-choice-app')?.innerText||'').slice(0,500),
+                buttons:[...document.querySelectorAll('#smart-choice-app button')].map(b=>({text:(b.textContent||'').trim(),w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,disabled:b.disabled}))
+              }));
+              trace.push(state);
+              if (/öner|recommend|рекоменд|sonuç|result/i.test(state.text) && !/1\s*\/\s*5/.test(state.text)) break;
+              const clicked=await page.evaluate(()=>{
+                const forbidden=/(baştan|geri|назад|сначала|restart|back|menü|menu|главн)/i;
+                const buttons=[...document.querySelectorAll('#smart-choice-app button')]
+                  .filter(b=>!b.disabled && b.offsetParent!==null)
+                  .map(b=>({b,r:b.getBoundingClientRect(),t:(b.textContent||'').trim()}))
+                  .filter(x=>x.r.width>180 && x.r.height>45 && !forbidden.test(x.t));
+                if (!buttons.length) return null;
+                buttons[0].b.click();
+                return buttons[0].t;
+              });
+              if (!clicked) break;
+              await page.waitForTimeout(220);
+            }
+            await page.screenshot({path:`qa-smart-result/${label}.png`,fullPage:false});
+            await page.screenshot({path:`qa-smart-result/${label}-full.png`,fullPage:true});
+            summary.push({label,url:page.url(),errors,trace,finalText:(await page.locator('#smart-choice-app').innerText()).slice(0,2000)});
+            await context.close();
+          }
+          fs.writeFileSync('qa-smart-result/summary.json',JSON.stringify(summary,null,2));
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manual-smart-result-${{ github.run_id }}
+          path: qa-smart-result/
+          if-no-files-found: error
+          retention-days: 7
