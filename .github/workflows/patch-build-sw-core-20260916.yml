@@ -21,11 +21,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch SW core generator, verifiers and evidence fail-closed
+      - name: Patch SW core generator, verifiers, shared PWA revision and evidence fail-closed
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
+          OLD = 'premium-cache-new-20260904-1'
+          NEW = 'pairing-video-fix-20260916-2'
 
           def replace_once(text, old, new, label):
               if text.count(old) != 1:
@@ -47,23 +50,25 @@ jobs:
           s = replace_once(s, "requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", "requireText(serviceWorkerCore, 'url.pathname === `${scopePath}smart-choice/`', \"Smart Choice clean URL must not be classified as the home page\");", 'smart clean route')
           s = replace_once(s, 'assert.ok(!serviceWorker.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker must not precache legacy cache-colliding ${legacyFile}`);', 'assert.ok(!serviceWorkerCore.includes(`"./smart-choice/${legacyFile}?v=`), `Service worker core must not precache legacy cache-colliding ${legacyFile}`);', 'smart legacy assets')
           s = replace_once(s, 'requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'requireText(serviceWorkerCore, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);', 'smart revisioned assets')
+          s = replace_once(s, f'../sw.js?v={OLD}', f'../sw.js?v={NEW}', 'smart shared worker revision')
           p.write_text(s)
 
           simple_read_files = [
-            'scripts/verify-menu-image-assets.mjs',
-            'scripts/verify-menu-order.mjs',
-            'scripts/verify-entry-handoff.mjs',
-            'scripts/verify-menu-share.mjs',
-            'scripts/verify-taste-journey-posters.mjs',
-            'scripts/verify-pr140-release-blockers.mjs',
-            'scripts/verify-menu-truth-live.mjs',
-            'scripts/verify-regression-contracts.mjs',
+            'scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs',
           ]
           for file in simple_read_files:
               p = Path(file)
               s = p.read_text()
               s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', file)
               p.write_text(s)
+
+          p = Path('scripts/verify-menu-share.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const pwaRuntime = readFileSync("pwa.js", "utf8");', 'const pwaRuntime = readFileSync("pwa.js", "utf8");\nconst landingPwaRuntime = readFileSync("pwa-pairing-fix.js", "utf8");', 'share landing bootstrap read')
+          old = 'const menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\\.js\\?v=([^\"]+)";/)?.[1];\nassert(pwaRevision, "Service-worker registration revision is missing");\nassert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");\nassert(indexHtml.includes(`src="pwa.js?v=${pwaRevision}"`), "index.html does not load the current PWA registration revision");\nassert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");'
+          new = 'const landingPwaRevision = landingPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\\.js\\?v=([^\"]+)";/)?.[1];\nconst menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\\.js\\?v=([^\"]+)";/)?.[1];\nassert(pwaRevision, "Service-worker registration revision is missing");\nassert(landingPwaRevision === pwaRevision, "Landing bootstrap registers a different service-worker revision");\nassert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");\nassert(indexHtml.includes(\'src="pwa-pairing-fix.js?v=20260916-2"\'), "index.html does not load the current landing PWA bootstrap");\nassert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");'
+          s = replace_once(s, old, new, 'share shared revision block')
+          p.write_text(s)
 
           p = Path('scripts/verify-android-download.mjs')
           s = p.read_text()
@@ -103,10 +108,30 @@ jobs:
           s = replace_once(s, '"sw.js#CACHE_VERSION"', '"sw-core-v64.js#CACHE_VERSION"', 'trace cache version')
           s = replace_once(s, '"sw.js#navigationResponse"', '"sw-core-v64.js#navigationResponse"', 'trace navigation fallback')
           p.write_text(s)
+
+          for file, old, new in [
+            ('pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),
+            ('menu-pwa.js', f'sw.js?v={OLD}', f'sw.js?v={NEW}'),
+            ('smart-choice/pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),
+            ('experience/experience-pwa.js', f'../sw.js?v={OLD}', f'../sw.js?v={NEW}'),
+            ('menu.html', f'menu-pwa.js?v={OLD}', f'menu-pwa.js?v={NEW}'),
+            ('smart-choice/index.html', f'pwa.js?v={OLD}', f'pwa.js?v={NEW}'),
+          ]:
+              p = Path(file); s = p.read_text(); s = replace_once(s, old, new, f'{file} PWA revision'); p.write_text(s)
+
+          p = Path('sw-core-v64.js')
+          s = p.read_text()
+          for old, new, label in [
+            (f'./pwa.js?v={OLD}', f'./pwa.js?v={NEW}', 'core landing pwa'),
+            (f'./menu-pwa.js?v={OLD}', f'./menu-pwa.js?v={NEW}', 'core menu pwa'),
+            (f'./smart-choice/pwa.js?v={OLD}', f'./smart-choice/pwa.js?v={NEW}', 'core smart pwa'),
+          ]:
+              s = replace_once(s, old, new, label)
+          p.write_text(s)
           PY
           git diff --check
-          echo 'Remaining script references to sw.js after migration:'
-          grep -R -n --include='*.mjs' 'sw\.js' scripts || true
+          echo 'Remaining old shared PWA revisions:'
+          grep -R -n --exclude='integrity-manifest.json' 'premium-cache-new-20260904-1' pwa.js menu-pwa.js smart-choice experience scripts sw-core-v64.js menu.html || true
       - name: Build and refresh integrity
         run: |
           npm run build
@@ -124,22 +149,19 @@ jobs:
           python3 - <<'PY'
           import subprocess
           allowed = {
-            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
+            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
           }
           out = subprocess.check_output(['git','status','--porcelain'], text=True)
           paths = set()
           for line in out.splitlines():
               path = line[3:]
-              if ' -> ' in path:
-                  path = path.split(' -> ',1)[1]
+              if ' -> ' in path: path = path.split(' -> ',1)[1]
               paths.add(path)
           unexpected = sorted(paths - allowed)
-          if unexpected:
-              raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','sw-core-v64.js','integrity-manifest.json'}
+          if unexpected: raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
+          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-share.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','pwa.js','menu-pwa.js','smart-choice/pwa.js','experience/experience-pwa.js','sw-core-v64.js','integrity-manifest.json'}
           missing = sorted(required - paths)
-          if missing:
-              raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
+          if missing: raise SystemExit('Expected changes missing: ' + ', '.join(missing))
           print('Allowed generated changes:', sorted(paths))
           PY
       - name: Commit validated generator and generated state
@@ -148,5 +170,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Sync build and verifiers with service worker core"
+          git commit -m "Sync service worker core and shared PWA revision"
           git push origin HEAD:fix/manual-qa-polish-20260915
