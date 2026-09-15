@@ -21,7 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Patch SW core generator and verifiers fail-closed
+      - name: Patch SW core generator, verifiers and evidence fail-closed
         shell: bash
         run: |
           python3 - <<'PY'
@@ -97,6 +97,12 @@ jobs:
           s = replace_once(s, 'must("CSP-001", !/https?:\\/\\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");', 'must("CSP-001", !/https?:\\/\\//i.test(serviceWorker) && !/https?:\\/\\//i.test(serviceWorkerCore), "Service worker cache must not include cross-origin assets");\nmust("CSP-001", serviceWorker.includes(\'importScripts("./sw-core-v64.js")\'), "Service worker wrapper must load the reviewed core runtime");', 'security cross-origin')
           s = replace_once(s, 'must("CSP-001", serviceWorker.includes(\'url.origin !== self.location.origin\'), "Service worker must ignore cross-origin fetches");', 'must("CSP-001", serviceWorkerCore.includes(\'url.origin !== self.location.origin\'), "Service worker core must ignore cross-origin fetches");', 'security origin guard')
           p.write_text(s)
+
+          p = Path('qa/traceability/api-platform.json')
+          s = p.read_text()
+          s = replace_once(s, '"sw.js#CACHE_VERSION"', '"sw-core-v64.js#CACHE_VERSION"', 'trace cache version')
+          s = replace_once(s, '"sw.js#navigationResponse"', '"sw-core-v64.js#navigationResponse"', 'trace navigation fallback')
+          p.write_text(s)
           PY
           git diff --check
           echo 'Remaining script references to sw.js after migration:'
@@ -118,7 +124,7 @@ jobs:
           python3 - <<'PY'
           import subprocess
           allowed = {
-            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
+            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
           }
           out = subprocess.check_output(['git','status','--porcelain'], text=True)
           paths = set()
@@ -130,7 +136,7 @@ jobs:
           unexpected = sorted(paths - allowed)
           if unexpected:
               raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-security-contracts.mjs','sw-core-v64.js','integrity-manifest.json'}
+          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-security-contracts.mjs','qa/traceability/api-platform.json','sw-core-v64.js','integrity-manifest.json'}
           missing = sorted(required - paths)
           if missing:
               raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
