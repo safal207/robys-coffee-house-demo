@@ -9,6 +9,7 @@
   const localizedNodes = Array.from(document.querySelectorAll("[data-tr][data-en][data-ru]"));
   const localizedAriaNodes = Array.from(document.querySelectorAll("[data-aria-tr][data-aria-en][data-aria-ru]"));
   const sceneNumber = experience.querySelector("[data-scene-number]");
+  const storyShortcut = document.querySelector(".accessible-story-actions a");
   const languages = new Set(["tr", "en", "ru"]);
   const LANGUAGE_KEY = "robys-language";
 
@@ -84,19 +85,10 @@
     return clamp((window.scrollY - start) / range);
   }
 
-  function focusSceneHeading(index) {
-    const scene = scenes[index];
-    if (!(scene instanceof HTMLElement)) return;
-    const heading = scene.querySelector("h1, h2, h3, [role='heading']");
-    if (!(heading instanceof HTMLElement)) return;
-
-    const previousTabindex = heading.getAttribute("tabindex");
-    heading.tabIndex = -1;
-    heading.focus({ preventScroll: true });
-    heading.addEventListener("blur", () => {
-      if (previousTabindex === null) heading.removeAttribute("tabindex");
-      else heading.setAttribute("tabindex", previousTabindex);
-    }, { once: true });
+  function moveFocusToStoryShortcut() {
+    if (storyShortcut instanceof HTMLAnchorElement) {
+      storyShortcut.focus({ preventScroll: true });
+    }
   }
 
   function activateScene(index) {
@@ -121,7 +113,7 @@
       else scene.removeAttribute("aria-current");
     });
 
-    if (shouldMoveFocus) focusSceneHeading(index);
+    if (shouldMoveFocus) moveFocusToStoryShortcut();
 
     scenes.forEach((scene, sceneIndex) => {
       const selected = sceneIndex === index;
