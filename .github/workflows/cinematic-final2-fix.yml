@@ -1,0 +1,169 @@
+name: Cinematic final viewport and fallback fix
+
+on:
+  push:
+    branches: [feature/cinematic-experience]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinematic-final2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  patch-and-validate:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply final viewport and fallback fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('experience/experience.css')
+          css = css_path.read_text()
+          old_body = '    .story-scene-final .scene-body { display: none; }\n'
+          new_body = '    .cinematic-experience[data-enhanced="true"] .story-scene-final .scene-body { display: none; }\n'
+          if old_body not in css:
+              raise SystemExit('finale body anchor not found')
+          css = css.replace(old_body, new_body, 1)
+
+          old_media = '  @media (max-width: 900px) and (max-height: 560px) {\n'
+          new_media = '  @media (max-width: 1024px) and (max-height: 560px) {\n'
+          if old_media not in css:
+              raise SystemExit('short-height responsive media anchor not found')
+          css = css.replace(old_media, new_media, 1)
+          css_path.write_text(css)
+
+          brand_path = Path('experience/brand-fidelity.css')
+          brand = brand_path.read_text()
+          old_brand_media = '@media (max-width: 900px) and (max-height: 560px) {\n'
+          new_brand_media = '@media (max-width: 1024px) and (max-height: 560px) {\n'
+          if old_brand_media not in brand:
+              raise SystemExit('brand short-height media anchor not found')
+          brand = brand.replace(old_brand_media, new_brand_media, 1)
+          brand_path.write_text(brand)
+
+          if css.count('max-width: 1024px) and (max-height: 560px)') != 1:
+              raise SystemExit('responsive short-height rule count mismatch')
+          if brand.count('max-width: 1024px) and (max-height: 560px)') != 1:
+              raise SystemExit('brand short-height rule count mismatch')
+          PY
+          git diff --check
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build and refresh integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
+          npm run integrity:generate
+          npm run verify:security
+          npm run check
+          npm run integrity:generate
+          npm run verify:integrity
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify wide landscape finale and no-JS finale body
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx vite --host 127.0.0.1 --port 4173 > /tmp/robys-vite.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/experience/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+
+          const landscape = await browser.newPage({ viewport: { width: 915, height: 412 } });
+          await landscape.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
+          await landscape.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'networkidle' });
+          await landscape.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+          await landscape.waitForTimeout(350);
+          const finale = await landscape.evaluate(() => {
+            const root = document.querySelector('[data-cinematic-experience]');
+            const cta = document.querySelector('[data-scene="6"] .primary-cta');
+            const body = document.querySelector('[data-scene="6"] .scene-body');
+            const rect = cta?.getBoundingClientRect();
+            return {
+              scene: root?.getAttribute('data-active-scene'),
+              ctaTop: rect?.top,
+              ctaBottom: rect?.bottom,
+              ctaLeft: rect?.left,
+              ctaRight: rect?.right,
+              bodyDisplay: body ? getComputedStyle(body).display : null,
+              bodyText: body?.textContent?.trim(),
+            };
+          });
+          if (finale.scene !== '6') throw new Error(`expected scene 6, got ${finale.scene}`);
+          if (finale.ctaTop == null || finale.ctaTop < 0 || finale.ctaBottom > 412 || finale.ctaLeft < 0 || finale.ctaRight > 915) {
+            throw new Error(`915x412 finale CTA outside viewport: ${JSON.stringify(finale)}`);
+          }
+
+          const nojs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+          const nojsPage = await nojs.newPage();
+          await nojsPage.goto('http://127.0.0.1:4173/experience/', { waitUntil: 'domcontentloaded' });
+          const fallback = await nojsPage.evaluate(() => {
+            const body = document.querySelector('[data-scene="6"] .scene-body');
+            const cta = document.querySelector('[data-scene="6"] .primary-cta');
+            return {
+              bodyDisplay: body ? getComputedStyle(body).display : null,
+              bodyVisibility: body ? getComputedStyle(body).visibility : null,
+              bodyText: body?.textContent?.trim(),
+              ctaDisplay: cta ? getComputedStyle(cta).display : null,
+            };
+          });
+          if (fallback.bodyDisplay === 'none' || fallback.bodyVisibility === 'hidden' || !fallback.bodyText) {
+            throw new Error(`no-JS finale body hidden: ${JSON.stringify(fallback)}`);
+          }
+          if (fallback.ctaDisplay === 'none') throw new Error(`no-JS finale CTA hidden: ${JSON.stringify(fallback)}`);
+
+          await nojs.close();
+          await landscape.close();
+          await browser.close();
+          NODE
+
+      - name: Reject unexpected drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t changed < <(git status --porcelain | sed 's/^...//')
+          printf '%s\n' "${changed[@]}"
+          for file in "${changed[@]}"; do
+            case "$file" in
+              experience/experience.css|experience/brand-fidelity.css|experience/index.html|sw.js|integrity-manifest.json) ;;
+              *) echo "Unexpected changed file: $file" >&2; exit 1 ;;
+            esac
+          done
+
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experience/experience.css experience/brand-fidelity.css experience/index.html sw.js integrity-manifest.json
+          git diff --cached --check
+          git commit -m 'Fix cinematic short-height finale layout'
+          git push
