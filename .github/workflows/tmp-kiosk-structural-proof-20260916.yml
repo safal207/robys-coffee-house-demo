@@ -1,0 +1,44 @@
+name: Temporary kiosk structural proof
+
+on:
+  push:
+    branches:
+      - tmp/kiosk-structural-proof-20260916
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Start server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/menu.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/http.log
+          exit 1
+      - name: Run kiosk browser proof
+        run: |
+          mkdir -p qa-kiosk-structural
+          node tmp-kiosk-structural-test.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: kiosk-structural-proof-${{ github.run_id }}
+          path: qa-kiosk-structural/
+          if-no-files-found: warn
+          retention-days: 7
