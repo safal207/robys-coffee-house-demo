@@ -1,0 +1,138 @@
+name: Manual QA fix verification
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Refresh integrity manifest in QA workspace
+        run: npm run integrity:generate
+      - name: Repository checks
+        run: npm run check
+      - name: Security checks
+        run: npm run verify:security
+      - run: npx playwright install chromium
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/robys-fix-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/robys-fix-http.log
+          exit 1
+      - name: Capture regression screens
+        shell: bash
+        run: |
+          mkdir -p qa-fix
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const out=[];
+          async function context(viewport, locale='tr-TR', lang='tr') {
+            const c=await browser.newContext({viewport,locale});
+            await c.addInitScript(({lang})=>{try{localStorage.setItem('robys-language',lang)}catch{}},{lang});
+            return c;
+          }
+
+          // Cinematic narrow-short portrait: scenes 5 and 6 must preserve the real cup.
+          {
+            const c=await context({width:320,height:480},'ru-RU','ru');
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:4173/experience/',{waitUntil:'networkidle'});
+            for (const scene of [5,6]) {
+              await p.evaluate((scene)=>{
+                const root=document.querySelector('[data-cinematic-experience]');
+                const range=Math.max(1,root.offsetHeight-innerHeight);
+                scrollTo(0,root.offsetTop+(scene/6)*range);
+              },scene);
+              await p.waitForTimeout(700);
+              await p.screenshot({path:`qa-fix/experience-320x480-scene${scene}.png`});
+            }
+            out.push({case:'experience-320x480',errors,active:await p.locator('[data-cinematic-experience]').getAttribute('data-active-scene')});
+            await c.close();
+          }
+
+          // Short landing hero readability.
+          {
+            const c=await context({width:360,height:640});
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+            await p.screenshot({path:'qa-fix/landing-360x640-hero.png'});
+            out.push({case:'landing-360x640',errors});
+            await c.close();
+          }
+
+          // Community reel should read as an intentional branded card even if remote embed is blank/blocked.
+          {
+            const c=await context({width:1440,height:900});
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+            const section=p.locator('.community-reel');
+            await section.scrollIntoViewIfNeeded();
+            await p.waitForTimeout(1200);
+            await section.screenshot({path:'qa-fix/community-desktop.png'});
+            out.push({case:'community-desktop',errors});
+            await c.close();
+          }
+
+          // Desktop menu rhythm + product/cart dialogs.
+          {
+            const c=await context({width:1440,height:900});
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:4173/menu.html',{waitUntil:'networkidle'});
+            await p.waitForSelector('.full-menu-grid[data-ready]');
+            await p.screenshot({path:'qa-fix/menu-desktop-full.png',fullPage:true});
+            await p.locator('.full-menu-item-media').first().click();
+            await p.waitForSelector('#menu-product-dialog[open]');
+            await p.screenshot({path:'qa-fix/menu-desktop-product.png'});
+            await p.locator('#menu-add-to-cart').click();
+            await p.locator('#menu-cart-trigger').click();
+            await p.waitForSelector('#menu-cart-dialog[open]');
+            await p.screenshot({path:'qa-fix/menu-desktop-cart.png'});
+            const shell=await p.locator('#menu-cart-dialog .menu-dialog-shell').boundingBox();
+            out.push({case:'menu-desktop',errors,cartShell:shell,viewport:{width:1440,height:900}});
+            await c.close();
+          }
+
+          // Smart Choice 320px Russian intro typography.
+          {
+            const c=await context({width:320,height:480},'ru-RU','ru');
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:4173/smart-choice/',{waitUntil:'networkidle'});
+            await p.waitForFunction(()=>document.querySelector('#smart-choice-app')?.getAttribute('aria-busy')!=='true');
+            await p.screenshot({path:'qa-fix/smart-320-ru.png'});
+            out.push({case:'smart-320-ru',errors});
+            await c.close();
+          }
+
+          fs.writeFileSync('qa-fix/summary.json',JSON.stringify(out,null,2));
+          await browser.close();
+          NODE
+      - name: Preserve QA evidence and generated integrity manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manual-qa-fix-${{ github.run_id }}
+          path: |
+            qa-fix/
+            integrity-manifest.json
+          if-no-files-found: warn
+          retention-days: 7
