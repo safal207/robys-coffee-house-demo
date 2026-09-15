@@ -19,8 +19,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Refresh integrity manifest in QA workspace
+      - name: Build generated assets before integrity
+        run: npm run build
+      - name: Refresh integrity manifest after build
         run: npm run integrity:generate
+      - name: Preserve generated working-tree state
+        shell: bash
+        run: |
+          mkdir -p qa-generated/files
+          git status --short > qa-generated/status.txt
+          git diff --binary > qa-generated/generated.patch
+          git diff --name-only -z | while IFS= read -r -d '' file; do
+            mkdir -p "qa-generated/files/$(dirname "$file")"
+            cp "$file" "qa-generated/files/$file"
+          done
       - name: Repository checks
         run: npm run check
       - name: Security checks
@@ -48,26 +60,26 @@ jobs:
             return c;
           }
 
-          // Cinematic narrow-short portrait: scenes 5 and 6 must preserve the real cup.
           {
             const c=await context({width:320,height:480},'ru-RU','ru');
             const p=await c.newPage();
             const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
             await p.goto('http://127.0.0.1:4173/experience/',{waitUntil:'networkidle'});
+            const captured=[];
             for (const scene of [5,6]) {
               await p.evaluate((scene)=>{
                 const root=document.querySelector('[data-cinematic-experience]');
                 const range=Math.max(1,root.offsetHeight-innerHeight);
                 scrollTo(0,root.offsetTop+(scene/6)*range);
               },scene);
-              await p.waitForTimeout(700);
+              await p.waitForTimeout(800);
+              captured.push(await p.locator('[data-cinematic-experience]').getAttribute('data-active-scene'));
               await p.screenshot({path:`qa-fix/experience-320x480-scene${scene}.png`});
             }
-            out.push({case:'experience-320x480',errors,active:await p.locator('[data-cinematic-experience]').getAttribute('data-active-scene')});
+            out.push({case:'experience-320x480',errors,captured});
             await c.close();
           }
 
-          // Short landing hero readability.
           {
             const c=await context({width:360,height:640});
             const p=await c.newPage();
@@ -78,7 +90,6 @@ jobs:
             await c.close();
           }
 
-          // Community reel should read as an intentional branded card even if remote embed is blank/blocked.
           {
             const c=await context({width:1440,height:900});
             const p=await c.newPage();
@@ -92,7 +103,6 @@ jobs:
             await c.close();
           }
 
-          // Desktop menu rhythm + product/cart dialogs.
           {
             const c=await context({width:1440,height:900});
             const p=await c.newPage();
@@ -112,7 +122,6 @@ jobs:
             await c.close();
           }
 
-          // Smart Choice 320px Russian intro typography.
           {
             const c=await context({width:320,height:480},'ru-RU','ru');
             const p=await c.newPage();
@@ -127,12 +136,14 @@ jobs:
           fs.writeFileSync('qa-fix/summary.json',JSON.stringify(out,null,2));
           await browser.close();
           NODE
-      - name: Preserve QA evidence and generated integrity manifest
+      - name: Preserve QA evidence and generated files
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: manual-qa-fix-${{ github.run_id }}
           path: |
             qa-fix/
+            qa-generated/
             integrity-manifest.json
           if-no-files-found: warn
           retention-days: 7
