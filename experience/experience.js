@@ -138,6 +138,6 @@
   window.addEventListener("resize", measure, { passive: true });
   window.addEventListener("orientationchange", measure, { passive: true });
 
-  applyLanguage(storedLanguage(), false);
+  applyLanguage(storedLanguage());
   measure();
 })();
