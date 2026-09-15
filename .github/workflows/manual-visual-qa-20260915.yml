@@ -1,0 +1,159 @@
+name: Manual visual QA capture
+
+on:
+  push:
+    branches:
+      - qa/manual-visual-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout QA branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install chromium
+
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/robys-manual-qa-http.log 2>&1 &
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:4173/experience/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/robys-manual-qa-http.log
+          exit 1
+
+      - name: Capture manual QA matrix
+        shell: bash
+        run: |
+          mkdir -p qa-manual-visual
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const base = 'http://127.0.0.1:4173';
+          const out = 'qa-manual-visual';
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+
+          async function contextFor(viewport, lang='tr') {
+            const context = await browser.newContext({ viewport, locale: lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-US' : 'tr-TR' });
+            await context.addInitScript(({lang}) => {
+              localStorage.setItem('robys-language', lang);
+              sessionStorage.clear();
+            }, {lang});
+            return context;
+          }
+
+          async function shot(page, name, fullPage=false) {
+            const file = path.join(out, `${name}.png`);
+            await page.screenshot({ path: file, fullPage });
+            results.push({ name, file, url: page.url(), viewport: page.viewportSize() });
+          }
+
+          async function gotoExperience(page) {
+            await page.goto(`${base}/experience/`, { waitUntil: 'networkidle' });
+            await page.waitForSelector('[data-cinematic-experience]');
+          }
+
+          async function goScene(page, index) {
+            const found = await page.evaluate(async (target) => {
+              const root = document.querySelector('[data-cinematic-experience]');
+              if (!(root instanceof HTMLElement)) return false;
+              const start = root.getBoundingClientRect().top + window.scrollY;
+              const range = Math.max(1, root.offsetHeight - window.innerHeight);
+              const candidates = [];
+              for (let p = 0; p <= 1.0001; p += 0.01) candidates.push(Math.min(1, p));
+              for (const p of candidates) {
+                window.scrollTo(0, start + range * p);
+                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                if (root.getAttribute('data-active-scene') === String(target)) return true;
+              }
+              return false;
+            }, index);
+            if (!found) throw new Error(`Could not reach scene ${index}`);
+            await page.waitForTimeout(250);
+          }
+
+          const experienceCases = [
+            { label:'exp-desktop-1440x900', viewport:{width:1440,height:900}, lang:'tr', scenes:[0,3,5,6] },
+            { label:'exp-mobile-390x844', viewport:{width:390,height:844}, lang:'tr', scenes:[0,3,5,6] },
+            { label:'exp-mobile-320x480-ru', viewport:{width:320,height:480}, lang:'ru', scenes:[0,5,6] },
+            { label:'exp-landscape-915x412-ru', viewport:{width:915,height:412}, lang:'ru', scenes:[0,5,6] },
+            { label:'exp-wide-short-1280x400-ru', viewport:{width:1280,height:400}, lang:'ru', scenes:[0,5,6] },
+            { label:'exp-short-360x640-ru', viewport:{width:360,height:640}, lang:'ru', scenes:[0,6] },
+          ];
+
+          for (const test of experienceCases) {
+            const context = await contextFor(test.viewport, test.lang);
+            const page = await context.newPage();
+            const pageErrors = [];
+            page.on('pageerror', (error) => pageErrors.push(String(error)));
+            await gotoExperience(page);
+            for (const scene of test.scenes) {
+              await goScene(page, scene);
+              await shot(page, `${test.label}-scene${scene}`);
+            }
+            results.push({ name:`${test.label}-errors`, pageErrors });
+            await context.close();
+          }
+
+          const smartCases = [
+            { label:'smart-desktop-1440x900', viewport:{width:1440,height:900}, lang:'tr' },
+            { label:'smart-mobile-390x844', viewport:{width:390,height:844}, lang:'tr' },
+            { label:'smart-mobile-320x480-ru', viewport:{width:320,height:480}, lang:'ru' },
+          ];
+
+          for (const test of smartCases) {
+            const context = await contextFor(test.viewport, test.lang);
+            const page = await context.newPage();
+            const pageErrors = [];
+            page.on('pageerror', (error) => pageErrors.push(String(error)));
+            await page.goto(`${base}/smart-choice/`, { waitUntil: 'networkidle' });
+            await page.waitForFunction(() => document.querySelector('#smart-choice-app')?.getAttribute('aria-busy') !== 'true');
+            await page.waitForTimeout(300);
+            await shot(page, `${test.label}-initial`, false);
+            await shot(page, `${test.label}-full`, true);
+
+            const clickable = page.locator('#smart-choice-app button:not([disabled])');
+            const count = await clickable.count();
+            if (count > 0) {
+              await clickable.first().click();
+              await page.waitForTimeout(250);
+              await shot(page, `${test.label}-after-first-choice`, false);
+            }
+            results.push({ name:`${test.label}-errors`, pageErrors, initialButtons: count });
+            await context.close();
+          }
+
+          fs.writeFileSync(path.join(out, 'summary.json'), JSON.stringify(results, null, 2));
+          await browser.close();
+          NODE
+
+      - name: Upload manual QA screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manual-visual-qa-${{ github.run_id }}
+          path: qa-manual-visual/
+          if-no-files-found: error
+          retention-days: 7
