@@ -205,7 +205,7 @@
   }
 }
 
-@media (max-width: 1024px) and (max-height: 560px) {
+@media (max-height: 560px) {
   /* Short landscape: keep the immutable cup inside its half-stage column. */
   .hero-product--cup {
     width: min(30vw, 220px);

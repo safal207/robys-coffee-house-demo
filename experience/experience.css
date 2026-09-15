@@ -887,7 +887,7 @@
 
 @layer responsive {
   /* Landscape phones and other short viewports must never force a stage taller than the viewport. */
-  @media (max-width: 1024px) and (max-height: 560px) {
+  @media (max-height: 560px) {
     .cinematic-stage {
       height: 100svh;
       min-height: 0;
