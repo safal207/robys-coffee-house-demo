@@ -114,6 +114,7 @@ const CORE_ASSETS = [
   "./smart-choice/index.html",
   "./experience/",
   "./experience/index.html",
+  "./experience/experience-pwa.js?v=f64d5d13e1b5",
   "./experience/experience.js?v=76d9674da993",
   "./experience/experience.css?v=9d5acbb44700",
   "./experience/brand-fidelity.css?v=7d3e9780a00a",
@@ -209,6 +210,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/discover-deck.js") ||
     url.pathname.endsWith("/discover-rotation-v3.js") ||
     url.pathname.endsWith("/discover-rotation.css") ||
+    url.pathname.endsWith("/experience/experience-pwa.js") ||
     url.pathname.endsWith("/experience/experience.js") ||
     url.pathname.endsWith("/experience/experience.css") ||
     url.pathname.endsWith("/experience/brand-fidelity.css") ||

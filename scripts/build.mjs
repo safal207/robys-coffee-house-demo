@@ -267,6 +267,7 @@ for (const [fileName, revision] of experienceEnvironmentRevisions) {
 }
 writeFileSync("experience/cinematic-environments.css", cinematicEnvironmentSource);
 
+const experiencePwaRevision = revisionFor("experience/experience-pwa.js");
 const experienceRuntimeRevision = revisionFor("experience/experience.js");
 const experienceCssRevision = revisionFor("experience/experience.css");
 const experienceBrandCssRevision = revisionFor("experience/brand-fidelity.css");
@@ -303,6 +304,7 @@ menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 writeFileSync("menu.html", menuHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
+experienceHtml = synchronizeScript(experienceHtml, "experience-pwa.js", experiencePwaRevision);
 experienceHtml = synchronizeScript(experienceHtml, "experience.js", experienceRuntimeRevision);
 experienceHtml = synchronizeStylesheet(experienceHtml, "experience.css", experienceCssRevision);
 experienceHtml = synchronizeStylesheet(experienceHtml, "brand-fidelity.css", experienceBrandCssRevision);
@@ -359,6 +361,7 @@ for (const [filePath, revision] of [
   ["smart-choice/cart.css", smartChoiceCartCssRevision],
   ["smart-choice/decision-trace.css", smartChoiceDecisionTraceCssRevision],
   ["smart-choice/release-qa.css", smartChoiceReleaseQaCssRevision],
+  ["experience/experience-pwa.js", experiencePwaRevision],
   ["experience/experience.js", experienceRuntimeRevision],
   ["experience/experience.css", experienceCssRevision],
   ["experience/brand-fidelity.css", experienceBrandCssRevision],

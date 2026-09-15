@@ -6,6 +6,7 @@ const RUNTIME_FILES = [
   "menu.html",
   "experience/index.html",
   "experience/experience.js",
+  "experience/experience-pwa.js",
   "bootstrap-v2.js",
   "app.js",
   "conversion.js",
@@ -117,6 +118,7 @@ for (const file of HTML_FILES) {
 
   if (file === "experience/index.html") {
     must("CSP-001", /<script\b[^>]*src=["']experience\.js\?v=[a-f0-9]{12}["']/i.test(html), `${file} does not load the reviewed experience runtime`);
+    must("CSP-001", /<script\b[^>]*src=["']experience-pwa\.js\?v=[a-f0-9]{12}["']/i.test(html), `${file} does not load the reviewed experience PWA runtime`);
     for (const stylesheet of ["experience.css", "brand-fidelity.css", "experience-state.css", "cinematic-environments.css"]) {
       const escapedStylesheet = stylesheet.replaceAll(".", "\\.");
       const revisionedStylesheet = new RegExp(`href=["']${escapedStylesheet}\\?v=[a-f0-9]{12}["']`, "i");
@@ -137,11 +139,16 @@ for (const file of HTML_FILES) {
 }
 
 const experienceRuntime = read("experience/experience.js");
+const experiencePwaRuntime = read("experience/experience-pwa.js");
 must("CSP-001", !experienceRuntime.includes("document.createElement(\"script\")"), "Experience runtime must not create script elements dynamically");
 must("CSP-001", !experienceRuntime.includes("document.createElement('script')"), "Experience runtime must not create script elements dynamically");
 must("SEC-001", !/\.style\s*\./.test(experienceRuntime), "Experience runtime must not mutate inline style properties");
 must("SEC-001", experienceRuntime.includes("experience.dataset.activeScene"), "Experience runtime must drive reviewed scene state through data-active-scene");
 must("SEC-001", experienceRuntime.includes("experience.dataset.motionFrame"), "Experience runtime must drive reviewed motion state through data-motion-frame");
+must("CSP-001", experiencePwaRuntime.includes("navigator.serviceWorker.register"), "Experience PWA runtime must register the service worker");
+must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_PATH, document.baseURI)"), "Experience PWA runtime must resolve the root service worker explicitly");
+must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_SCOPE, document.baseURI)"), "Experience PWA runtime must request the parent scope explicitly");
+must("SEC-001", !/https?:\/\//i.test(experiencePwaRuntime), "Experience PWA runtime must not register a cross-origin worker");
 
 const serviceWorker = read("sw.js");
 const menuPwaRuntime = read("menu-pwa.js");

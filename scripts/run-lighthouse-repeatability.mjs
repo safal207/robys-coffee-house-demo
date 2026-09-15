@@ -73,9 +73,21 @@ function lhrFromJson(value) {
   return null;
 }
 
+function classifyRepeatabilityRoute(finalUrl) {
+  let parsed;
+  try {
+    parsed = new URL(finalUrl);
+  } catch {
+    return null;
+  }
+  if (parsed.pathname === "/experience/" || parsed.pathname === "/experience/index.html") return "experience";
+  if (parsed.pathname === "/" || parsed.pathname === "/index.html") return "home";
+  return null;
+}
+
 function loadRuns(profile) {
   const rawRoot = path.join(outputRoot, profile, "raw");
-  const runs = [];
+  const grouped = { home: [], experience: [] };
   for (const file of walk(rawRoot).filter((candidate) => candidate.endsWith(".json"))) {
     let parsed;
     try {
@@ -86,13 +98,14 @@ function loadRuns(profile) {
     const lhr = lhrFromJson(parsed);
     if (!lhr) continue;
     const finalUrl = lhr.finalDisplayedUrl ?? lhr.finalUrl ?? lhr.mainDocumentUrl ?? lhr.requestedUrl ?? "";
-    if (!finalUrl.includes("index.html") && !finalUrl.endsWith("/")) continue;
+    const route = classifyRepeatabilityRoute(finalUrl);
+    if (!route) continue;
     const fetchTime = String(lhr.fetchTime ?? "");
     const fetchTimestamp = Date.parse(fetchTime);
     if (!fetchTime || !Number.isFinite(fetchTimestamp)) {
       throw new Error(`${profile}: Lighthouse result ${path.relative(root, file)} has an invalid fetchTime`);
     }
-    runs.push({
+    grouped[route].push({
       source: path.relative(outputRoot, file).replaceAll(path.sep, "/"),
       finalUrl,
       fetchTime,
@@ -106,23 +119,29 @@ function loadRuns(profile) {
       interactive: Number(lhr.audits.interactive?.numericValue)
     });
   }
-  runs.sort((left, right) => left.fetchTimestamp - right.fetchTimestamp || left.source.localeCompare(right.source));
-  if (runs.length !== configuredRunsPerProfile) {
-    throw new Error(`${profile}: expected exactly ${configuredRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
-  }
-  const orderedRuns = runs.map((run, index) => ({ ...run, ordinal: index + 1 }));
-  for (const [index, run] of orderedRuns.entries()) {
-    for (const [metric, value] of Object.entries(run)) {
-      if (["source", "finalUrl", "fetchTime"].includes(metric)) continue;
-      if (!Number.isFinite(value)) throw new Error(`${profile} run ${index + 1}: invalid ${metric}`);
+
+  const result = {};
+  for (const route of ["home", "experience"]) {
+    const runs = grouped[route];
+    runs.sort((left, right) => left.fetchTimestamp - right.fetchTimestamp || left.source.localeCompare(right.source));
+    if (runs.length !== configuredRunsPerProfile) {
+      throw new Error(`${profile}/${route}: expected exactly ${configuredRunsPerProfile} valid Lighthouse runs, found ${runs.length}`);
     }
+    const orderedRuns = runs.map((run, index) => ({ ...run, ordinal: index + 1 }));
+    for (const [index, run] of orderedRuns.entries()) {
+      for (const [metric, value] of Object.entries(run)) {
+        if (["source", "finalUrl", "fetchTime"].includes(metric)) continue;
+        if (!Number.isFinite(value)) throw new Error(`${profile}/${route} run ${index + 1}: invalid ${metric}`);
+      }
+    }
+    const warmupRuns = orderedRuns.slice(0, warmupRunsPerProfile);
+    const measuredRuns = orderedRuns.slice(warmupRunsPerProfile);
+    if (measuredRuns.length !== minimumRunsPerProfile) {
+      throw new Error(`${profile}/${route}: expected ${minimumRunsPerProfile} measured runs after warm-up, found ${measuredRuns.length}`);
+    }
+    result[route] = { warmupRuns, measuredRuns };
   }
-  const warmupRuns = orderedRuns.slice(0, warmupRunsPerProfile);
-  const measuredRuns = orderedRuns.slice(warmupRunsPerProfile);
-  if (measuredRuns.length !== minimumRunsPerProfile) {
-    throw new Error(`${profile}: expected ${minimumRunsPerProfile} measured runs after warm-up, found ${measuredRuns.length}`);
-  }
-  return { warmupRuns, measuredRuns };
+  return result;
 }
 
 function quantile(values, q) {
@@ -164,7 +183,7 @@ function requireBudgets(profile) {
   return hard;
 }
 
-function summarizeProfile(profile, runs) {
+function summarizeProfile(profile, runs, route = "home") {
   const hard = requireBudgets(profile);
   const metrics = {
     performance: stats(runs.map((run) => run.performance)),
@@ -204,6 +223,7 @@ function summarizeProfile(profile, runs) {
 
   return {
     profile,
+    route,
     runCount: runs.length,
     verdict,
     stability,
@@ -220,10 +240,11 @@ function formatMetric(metric, digits = 0) {
   return `${metric.median.toFixed(digits)} (p10 ${metric.p10.toFixed(digits)}, p90 ${metric.p90.toFixed(digits)}, min ${metric.min.toFixed(digits)}, max ${metric.max.toFixed(digits)})`;
 }
 
-function writeCombinedReport(profiles) {
-  const overallVerdict = profiles.some((profile) => profile.verdict === "new_bug")
+function writeCombinedReport(profiles, experienceProfiles) {
+  const allProfiles = [...profiles, ...experienceProfiles];
+  const overallVerdict = allProfiles.some((profile) => profile.verdict === "new_bug")
     ? "new_bug"
-    : profiles.some((profile) => profile.verdict === "flake")
+    : allProfiles.some((profile) => profile.verdict === "flake")
       ? "flake"
       : "stable";
   const generatedAt = new Date().toISOString();
@@ -236,7 +257,8 @@ function writeCombinedReport(profiles) {
     warmupRunsPerProfile,
     configuredRunsPerProfile,
     overallVerdict,
-    profiles
+    profiles,
+    experienceProfiles
   };
   writeFileSync(path.join(outputRoot, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
@@ -249,7 +271,7 @@ assertExactCommit(testedCommit);
 const mode = process.argv[2];
 
 if (mode === "--merge") {
-  const profiles = ["mobile", "desktop"].map((profile) => {
+  const packets = ["mobile", "desktop"].map((profile) => {
     const packet = JSON.parse(readFileSync(path.join(outputRoot, profile, "profile-report.json"), "utf8"));
     if (packet.schema !== "robys.lighthouse.repeatability.profile.v1") {
       throw new Error(`${profile}: unsupported profile evidence schema`);
@@ -260,9 +282,14 @@ if (mode === "--merge") {
     if (packet.configuredRuns !== configuredRunsPerProfile || packet.warmupRuns !== warmupRunsPerProfile || packet.measuredRuns !== minimumRunsPerProfile) {
       throw new Error(`${profile}: unexpected warm-up or measured run policy`);
     }
-    return { ...packet.profileResult, warmupRuns: packet.warmupEvidence };
+    if (!packet.experienceProfileResult || !Array.isArray(packet.experienceWarmupEvidence)) {
+      throw new Error(`${profile}: experience-route evidence is missing`);
+    }
+    return { profile, packet };
   });
-  writeCombinedReport(profiles);
+  const profiles = packets.map(({ packet }) => ({ ...packet.profileResult, warmupRuns: packet.warmupEvidence }));
+  const experienceProfiles = packets.map(({ packet }) => ({ ...packet.experienceProfileResult, warmupRuns: packet.experienceWarmupEvidence }));
+  writeCombinedReport(profiles, experienceProfiles);
 } else {
   if (!new Set(["mobile", "desktop"]).has(mode)) {
     throw new Error("Usage: node scripts/run-lighthouse-repeatability.mjs <mobile|desktop|--merge>");
@@ -270,8 +297,9 @@ if (mode === "--merge") {
   rmSync(path.join(outputRoot, mode), { recursive: true, force: true });
   mkdirSync(path.join(outputRoot, mode), { recursive: true });
   collect(mode, `lighthouse/lighthouserc.repeatability.${mode}.cjs`);
-  const { warmupRuns, measuredRuns } = loadRuns(mode);
-  const profileResult = summarizeProfile(mode, measuredRuns);
+  const routeRuns = loadRuns(mode);
+  const profileResult = summarizeProfile(mode, routeRuns.home.measuredRuns, "home");
+  const experienceProfileResult = summarizeProfile(mode, routeRuns.experience.measuredRuns, "experience");
   const packet = {
     schema: "robys.lighthouse.repeatability.profile.v1",
     testedCommit,
@@ -280,9 +308,30 @@ if (mode === "--merge") {
     configuredRuns: configuredRunsPerProfile,
     warmupRuns: warmupRunsPerProfile,
     measuredRuns: minimumRunsPerProfile,
-    warmupEvidence: warmupRuns,
-    profileResult
+    warmupEvidence: routeRuns.home.warmupRuns,
+    profileResult,
+    experienceWarmupEvidence: routeRuns.experience.warmupRuns,
+    experienceProfileResult
   };
-  writeFileSync(path.join(outputRoot, mode, "profile-report.json"), `${JSON.stringify(packet, null, 2)}\n`, "utf8");
-  console.log(JSON.stringify({ testedCommit, sourceRunId, profile: mode, warmupSource: warmupRuns[0].source, warmupFetchTime: warmupRuns[0].fetchTime, runCount: profileResult.runCount, verdict: profileResult.verdict, budgetBreaches: profileResult.budgetBreaches, instabilityReasons: profileResult.instabilityReasons }, null, 2));
+  writeFileSync(path.join(outputRoot, mode, "profile-report.json"), `${JSON.stringify(packet, null, 2)}
+`, "utf8");
+  console.log(JSON.stringify({
+    testedCommit,
+    sourceRunId,
+    profile: mode,
+    home: {
+      warmupSource: routeRuns.home.warmupRuns[0].source,
+      runCount: profileResult.runCount,
+      verdict: profileResult.verdict,
+      budgetBreaches: profileResult.budgetBreaches,
+      instabilityReasons: profileResult.instabilityReasons
+    },
+    experience: {
+      warmupSource: routeRuns.experience.warmupRuns[0].source,
+      runCount: experienceProfileResult.runCount,
+      verdict: experienceProfileResult.verdict,
+      budgetBreaches: experienceProfileResult.budgetBreaches,
+      instabilityReasons: experienceProfileResult.instabilityReasons
+    }
+  }, null, 2));
 }
