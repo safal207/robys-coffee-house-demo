@@ -1,24 +1,46 @@
 "use strict";
 
-// One-time cache repair for the featured gallery interaction shipped on 2026-09-16.
-// The legacy worker intentionally ignores query strings for most runtime assets,
-// so remove only the old gallery script while preserving the rest of the offline cache.
+const PAIRING_PREVIEW_PATH = "/src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
+
+// Activate this repair immediately so an already-open mobile session does not keep
+// serving the previous gallery script or a partial media response from runtime cache.
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map(async (name) => {
-          const cache = await caches.open(name);
-          const requests = await cache.keys();
-          await Promise.all(
-            requests
-              .filter((request) => new URL(request.url).pathname.endsWith("/featured-gallery.js"))
-              .map((request) => cache.delete(request))
-          );
-        })
-      )
-    )
+    Promise.all([
+      caches.keys().then((keys) =>
+        Promise.all(
+          keys.map(async (name) => {
+            const cache = await caches.open(name);
+            const requests = await cache.keys();
+            await Promise.all(
+              requests
+                .filter((request) => {
+                  const path = new URL(request.url).pathname;
+                  return path.endsWith("/featured-gallery.js") || path.endsWith(PAIRING_PREVIEW_PATH);
+                })
+                .map((request) => cache.delete(request))
+            );
+          })
+        )
+      ),
+      self.clients.claim()
+    ])
   );
+});
+
+// HTML5 video players use byte-range requests on Android. Let the browser fetch this
+// media directly instead of routing those requests through the legacy cache-first layer.
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin || !url.pathname.endsWith(PAIRING_PREVIEW_PATH)) return;
+
+  event.stopImmediatePropagation();
+  event.respondWith(fetch(event.request, { cache: "no-store" }));
 });
 
 importScripts("./sw-core-v64.js");
