@@ -68,6 +68,18 @@
   opacity: 0 !important;
 }
 
+.poster-card.pairing-preview-error .poster-card-frame {
+  background: transparent;
+}
+
+.poster-card.pairing-preview-error img {
+  opacity: 1 !important;
+}
+
+.poster-card.pairing-preview-error .pairing-preview-video {
+  display: none;
+}
+
 .pairing-preview-cta {
   position: absolute;
   left: 50%;
