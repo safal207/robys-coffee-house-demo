@@ -1,0 +1,213 @@
+name: Temporary kiosk rail visibility validation
+
+on:
+  push:
+    branches:
+      - tmp/kiosk-rail-visibility-20260916
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Patch kiosk rail visibility source
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          js = Path('src/menu-app.js')
+          text = js.read_text()
+          anchor = 'document.querySelector("#current-year").textContent = String(new Date().getFullYear());\n'
+          if anchor not in text:
+              raise SystemExit('JS anchor missing')
+          block = '''function setupKioskCategoryRail() {
+  const controls = document.querySelector(".menu-controls");
+  const menuWrap = document.querySelector(".full-menu-wrap");
+  const header = document.querySelector(".site-header");
+  if (!controls || !menuWrap) return;
+
+  const kioskMedia = window.matchMedia("(min-width: 820px) and (min-height: 620px)");
+  let frame = 0;
+
+  const sync = () => {
+    frame = 0;
+    if (!kioskMedia.matches) {
+      document.body.classList.remove("menu-kiosk-rail-visible");
+      return;
+    }
+    const controlsRect = controls.getBoundingClientRect();
+    const menuRect = menuWrap.getBoundingClientRect();
+    const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+    const active = controlsRect.top < window.innerHeight && menuRect.bottom > headerBottom + 12;
+    document.body.classList.toggle("menu-kiosk-rail-visible", active);
+  };
+
+  const schedule = () => {
+    if (!frame) frame = window.requestAnimationFrame(sync);
+  };
+
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule, { passive: true });
+  kioskMedia.addEventListener?.("change", schedule);
+  sync();
+}
+
+'''
+          if 'function setupKioskCategoryRail()' not in text:
+              text = text.replace(anchor, block + anchor)
+          call_anchor = 'initializeMenuScrollMetrics();\n'
+          if call_anchor not in text:
+              raise SystemExit('init anchor missing')
+          if 'setupKioskCategoryRail();' not in text:
+              text = text.replace(call_anchor, call_anchor + 'setupKioskCategoryRail();\n')
+          js.write_text(text)
+
+          css = Path('menu-security-v2.css')
+          c = css.read_text()
+          old = '.menu-category-nav{position:fixed;z-index:92;top:calc(var(--menu-sticky-inset,180px) + 18px);left:max(20px,calc((100vw - 1180px)/2));display:flex;width:218px;max-height:calc(100dvh - var(--menu-sticky-inset,180px) - 38px);flex-direction:column;gap:7px;padding:10px;overflow-x:hidden;overflow-y:auto;background:rgba(255,250,243,.98);border:1px solid rgba(47,39,37,.12);border-radius:24px;box-shadow:0 18px 54px rgba(36,28,27,.12);scrollbar-width:thin}'
+          new = '.menu-category-nav{position:fixed;z-index:92;top:calc(var(--menu-sticky-inset,180px) + 18px);left:max(20px,calc((100vw - 1180px)/2));display:flex;width:218px;max-height:calc(100dvh - var(--menu-sticky-inset,180px) - 38px);flex-direction:column;gap:7px;padding:10px;overflow-x:hidden;overflow-y:auto;background:rgba(255,250,243,.98);border:1px solid rgba(47,39,37,.12);border-radius:24px;box-shadow:0 18px 54px rgba(36,28,27,.12);scrollbar-width:thin;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-10px);transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s}'
+          if old not in c and new not in c:
+              raise SystemExit('CSS rail anchor missing')
+          c = c.replace(old, new)
+          visible = '  .menu-category-chip.active::before{color:var(--ruby);background:#fff;border-color:#fff}\n'
+          visible_rule = '  body.menu-kiosk-rail-visible .menu-category-nav{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}\n'
+          if visible_rule not in c:
+              if visible not in c:
+                  raise SystemExit('CSS active anchor missing')
+              c = c.replace(visible, visible + visible_rule)
+          mobile = '  .menu-category-nav{position:static;width:auto;max-height:none;flex-direction:row;padding:0;overflow-x:auto;overflow-y:hidden;background:transparent;border:0;border-radius:0;box-shadow:none}'
+          mobile_new = '  .menu-category-nav{position:static;width:auto;max-height:none;flex-direction:row;padding:0;overflow-x:auto;overflow-y:hidden;background:transparent;border:0;border-radius:0;box-shadow:none;opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:none}'
+          if mobile not in c and mobile_new not in c:
+              raise SystemExit('CSS mobile anchor missing')
+          c = c.replace(mobile, mobile_new)
+          css.write_text(c)
+          PY
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/menu.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/http.log; exit 1
+      - name: Verify kiosk rail behavior
+        shell: bash
+        run: |
+          mkdir -p qa-kiosk
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({ headless: true });
+          const report = [];
+
+          {
+            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+            await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
+            await page.waitForSelector('#menu-category-nav[data-ready="true"]');
+            const before = await page.evaluate(() => ({
+              kiosk: document.body.classList.contains('menu-kiosk-rail-visible'),
+              navOpacity: getComputedStyle(document.querySelector('#menu-category-nav')).opacity
+            }));
+            if (before.kiosk) throw new Error('rail must not activate over hero');
+            await page.locator('.menu-controls').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(250);
+            const during = await page.evaluate(() => {
+              const nav = document.querySelector('#menu-category-nav');
+              const buttons = [...nav.querySelectorAll('.menu-category-chip')];
+              const r = nav.getBoundingClientRect();
+              return {
+                kiosk: document.body.classList.contains('menu-kiosk-rail-visible'),
+                opacity: getComputedStyle(nav).opacity,
+                position: getComputedStyle(nav).position,
+                rect: { x:r.x, y:r.y, width:r.width, height:r.height },
+                tops: buttons.slice(0,3).map(b => b.getBoundingClientRect().top)
+              };
+            });
+            if (!during.kiosk || during.opacity !== '1' || during.position !== 'fixed') throw new Error('desktop rail not visible/fixed in menu zone');
+            if (!(during.tops[1] > during.tops[0] + 30)) throw new Error('desktop categories are not vertical');
+            await page.screenshot({ path:'qa-kiosk/desktop-1440-rail.png', fullPage:false });
+            const hot = page.locator('.menu-category-chip[data-category="hot-coffee"]');
+            await hot.click();
+            await page.waitForTimeout(250);
+            if ((await page.locator('.full-menu-panel').count()) !== 1) throw new Error('category selection must narrow the right pane');
+            if (!(await hot.evaluate(el => el.classList.contains('active')))) throw new Error('selected category not active');
+            await page.screenshot({ path:'qa-kiosk/desktop-1440-hot.png', fullPage:false });
+            await page.locator('.menu-share-section').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(250);
+            const after = await page.evaluate(() => ({ kiosk: document.body.classList.contains('menu-kiosk-rail-visible'), opacity:getComputedStyle(document.querySelector('#menu-category-nav')).opacity }));
+            if (after.kiosk || after.opacity !== '0') throw new Error('rail must hide after menu zone');
+            await page.screenshot({ path:'qa-kiosk/desktop-1440-share.png', fullPage:false });
+            report.push({ before, during, after });
+            await page.close();
+          }
+
+          {
+            const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
+            await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
+            await page.locator('.menu-controls').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(250);
+            const state = await page.evaluate(() => {
+              const nav = document.querySelector('#menu-category-nav');
+              const r = nav.getBoundingClientRect();
+              return { kiosk:document.body.classList.contains('menu-kiosk-rail-visible'), x:r.x, width:r.width, opacity:getComputedStyle(nav).opacity };
+            });
+            if (!state.kiosk || state.opacity !== '1') throw new Error('1024 tablet rail not active');
+            await page.screenshot({ path:'qa-kiosk/tablet-1024-rail.png', fullPage:false });
+            report.push({ tablet: state });
+            await page.close();
+          }
+
+          {
+            const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+            await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
+            await page.locator('.menu-controls').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(150);
+            const mobile = await page.evaluate(() => {
+              const nav = document.querySelector('#menu-category-nav');
+              const a = nav.querySelector('.menu-category-chip');
+              const b = nav.querySelectorAll('.menu-category-chip')[1];
+              return {
+                kiosk:document.body.classList.contains('menu-kiosk-rail-visible'),
+                position:getComputedStyle(nav).position,
+                firstTop:a.getBoundingClientRect().top,
+                secondTop:b.getBoundingClientRect().top,
+                firstLeft:a.getBoundingClientRect().left,
+                secondLeft:b.getBoundingClientRect().left
+              };
+            });
+            if (mobile.kiosk || mobile.position !== 'static') throw new Error('mobile must keep horizontal rail');
+            if (Math.abs(mobile.firstTop-mobile.secondTop) > 5 || !(mobile.secondLeft > mobile.firstLeft)) throw new Error('mobile categories not horizontal');
+            await page.screenshot({ path:'qa-kiosk/mobile-390-horizontal.png', fullPage:false });
+            report.push({ mobile });
+            await page.close();
+          }
+
+          fs.writeFileSync('qa-kiosk/report.json', JSON.stringify(report, null, 2));
+          await browser.close();
+          NODE
+      - name: Commit source-only kiosk visibility patch
+        shell: bash
+        run: |
+          git config user.name 'robys-qa-bot'
+          git config user.email 'robys-qa-bot@users.noreply.github.com'
+          git add src/menu-app.js menu-security-v2.css
+          git diff --cached --check
+          git commit -m 'Scope kiosk category rail to menu zone'
+          git push origin HEAD:tmp/kiosk-rail-visibility-20260916
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: kiosk-rail-proof-${{ github.run_id }}
+          path: qa-kiosk/
+          if-no-files-found: warn
+          retention-days: 7
