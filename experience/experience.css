@@ -768,7 +768,7 @@
 
     .story-scene { bottom: max(82px, calc(env(safe-area-inset-bottom) + 70px)); }
     .scene-body { max-width: 30rem; font-size: .88rem; }
-    .story-scene-final .scene-body { display: none; }
+    .cinematic-experience[data-enhanced="true"] .story-scene-final .scene-body { display: none; }
     .final-actions { margin-top: 20px; gap: 9px; }
     .primary-cta, .secondary-cta { min-height: 44px; padding-inline: 17px; font-size: .58rem; }
 
@@ -887,7 +887,7 @@
 
 @layer responsive {
   /* Landscape phones and other short viewports must never force a stage taller than the viewport. */
-  @media (max-width: 900px) and (max-height: 560px) {
+  @media (max-width: 1024px) and (max-height: 560px) {
     .cinematic-stage {
       height: 100svh;
       min-height: 0;
