@@ -61,8 +61,9 @@ const PAIRING_PREVIEW = {
   productId: "san-sebastian",
   pairingId: "iced-san-sebastian",
   href: "menu.html#pairing-offers",
-  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260916-1",
-  stylesheet: "pairing-preview.css?v=20260916-1",
+  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260916-2",
+  poster: "src/products/sets-v1/iced-san-sebastian.webp?v=20260704-3",
+  stylesheet: "pairing-preview.css?v=20260916-2",
   copy: {
     tr: {
       badge: "SET ▶",
@@ -158,24 +159,44 @@ function activatePairingPreview(event, card) {
   card.dataset.pairingPreviewActive = "true";
   card.href = PAIRING_PREVIEW.href;
   card.classList.add("is-pairing-preview");
+  card.classList.remove("pairing-preview-playing", "pairing-preview-ended", "pairing-preview-error");
   card.setAttribute("aria-label", pairingCopy().active);
 
   const video = document.createElement("video");
   video.className = "pairing-preview-video";
-  video.src = PAIRING_PREVIEW.video;
-  video.preload = "auto";
+  video.preload = "metadata";
+  video.poster = PAIRING_PREVIEW.poster;
   video.playsInline = true;
   video.loop = false;
   video.controls = false;
-  video.muted = false;
+  video.defaultMuted = true;
+  video.muted = true;
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
+  video.setAttribute("muted", "");
   video.setAttribute("aria-hidden", "true");
+
+  const source = document.createElement("source");
+  source.src = PAIRING_PREVIEW.video;
+  source.type = "video/mp4";
+  video.append(source);
 
   const cta = createPairingCta();
   frame.append(video, cta);
 
+  let failed = false;
+  const failPreview = () => {
+    if (failed) return;
+    failed = true;
+    card.classList.remove("pairing-preview-playing");
+    card.classList.add("pairing-preview-error");
+    video.pause();
+    video.remove();
+    trackPairing("pairing_preview_error");
+  };
+
   video.addEventListener("playing", () => {
+    card.classList.remove("pairing-preview-error");
     card.classList.add("pairing-preview-playing");
   }, { once: true });
 
@@ -183,18 +204,12 @@ function activatePairingPreview(event, card) {
     card.classList.add("pairing-preview-ended");
   }, { once: true });
 
-  video.addEventListener("error", () => {
-    card.classList.add("pairing-preview-error");
-  }, { once: true });
+  video.addEventListener("error", failPreview, { once: true });
+  source.addEventListener("error", failPreview, { once: true });
 
+  video.load();
   const playback = video.play();
-  if (playback && typeof playback.catch === "function") {
-    playback.catch(() => {
-      video.muted = true;
-      const mutedPlayback = video.play();
-      mutedPlayback?.catch?.(() => card.classList.add("pairing-preview-error"));
-    });
-  }
+  playback?.catch?.(failPreview);
 
   trackPairing("pairing_preview_play");
 }
