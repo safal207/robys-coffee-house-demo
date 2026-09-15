@@ -54,7 +54,6 @@ jobs:
             'scripts/verify-menu-order.mjs',
             'scripts/verify-entry-handoff.mjs',
             'scripts/verify-menu-share.mjs',
-            'scripts/verify-android-download.mjs',
             'scripts/verify-taste-journey-posters.mjs',
             'scripts/verify-pr140-release-blockers.mjs',
             'scripts/verify-menu-truth-live.mjs',
@@ -65,6 +64,11 @@ jobs:
               s = p.read_text()
               s = replace_once(s, 'const serviceWorker = readFileSync("sw.js", "utf8");', 'const serviceWorker = readFileSync("sw-core-v64.js", "utf8");', file)
               p.write_text(s)
+
+          p = Path('scripts/verify-android-download.mjs')
+          s = p.read_text()
+          s = replace_once(s, 'const sw = readFileSync("sw.js", "utf8");', 'const sw = readFileSync("sw-core-v64.js", "utf8");', 'android verifier')
+          p.write_text(s)
 
           p = Path('scripts/test-discover-deck.mjs')
           s = p.read_text()
@@ -114,28 +118,7 @@ jobs:
           python3 - <<'PY'
           import subprocess
           allowed = {
-            'scripts/build.mjs',
-            'scripts/verify-smart-choice-release.mjs',
-            'scripts/verify-menu-image-assets.mjs',
-            'scripts/verify-menu-order.mjs',
-            'scripts/verify-entry-handoff.mjs',
-            'scripts/verify-menu-share.mjs',
-            'scripts/verify-android-download.mjs',
-            'scripts/verify-taste-journey-posters.mjs',
-            'scripts/verify-pr140-release-blockers.mjs',
-            'scripts/verify-menu-truth-live.mjs',
-            'scripts/verify-regression-contracts.mjs',
-            'scripts/test-discover-deck.mjs',
-            'scripts/verify-brand-identity-assets.mjs',
-            'scripts/test-photo-logo.mjs',
-            'scripts/test-brand-wordmark.mjs',
-            'scripts/verify-security-contracts.mjs',
-            'experience/index.html',
-            'menu.html',
-            'smart-choice/index.html',
-            'sw-core-v64.js',
-            'integrity-manifest.json',
-            '.github/workflows/patch-build-sw-core-20260916.yml',
+            'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-entry-handoff.mjs','scripts/verify-menu-share.mjs','scripts/verify-android-download.mjs','scripts/verify-taste-journey-posters.mjs','scripts/verify-pr140-release-blockers.mjs','scripts/verify-menu-truth-live.mjs','scripts/verify-regression-contracts.mjs','scripts/test-discover-deck.mjs','scripts/verify-brand-identity-assets.mjs','scripts/test-photo-logo.mjs','scripts/test-brand-wordmark.mjs','scripts/verify-security-contracts.mjs','experience/index.html','menu.html','smart-choice/index.html','sw-core-v64.js','integrity-manifest.json','.github/workflows/patch-build-sw-core-20260916.yml'
           }
           out = subprocess.check_output(['git','status','--porcelain'], text=True)
           paths = set()
@@ -147,15 +130,7 @@ jobs:
           unexpected = sorted(paths - allowed)
           if unexpected:
               raise SystemExit('Unexpected generated changes: ' + ', '.join(unexpected))
-          required = {
-            'scripts/build.mjs',
-            'scripts/verify-smart-choice-release.mjs',
-            'scripts/verify-menu-image-assets.mjs',
-            'scripts/verify-menu-order.mjs',
-            'scripts/verify-security-contracts.mjs',
-            'sw-core-v64.js',
-            'integrity-manifest.json',
-          }
+          required = {'scripts/build.mjs','scripts/verify-smart-choice-release.mjs','scripts/verify-menu-image-assets.mjs','scripts/verify-menu-order.mjs','scripts/verify-security-contracts.mjs','sw-core-v64.js','integrity-manifest.json'}
           missing = sorted(required - paths)
           if missing:
               raise SystemExit('Expected generated changes missing: ' + ', '.join(missing))
