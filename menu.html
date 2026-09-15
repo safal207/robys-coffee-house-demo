@@ -47,7 +47,7 @@
   <link rel="stylesheet" href="menu-product-reveal.css?v=80aa0282d851" />
   <link rel="stylesheet" href="pairing-posters.css?v=poster-20260708-1" />
   <link rel="stylesheet" href="menu-stability.css?v=cls-20260622-1" />
-  <link rel="stylesheet" href="menu-security-v2.css?v=9a74fe13ba64" />
+  <link rel="stylesheet" href="menu-security-v2.css?v=9252851b568d" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260726-approved-v4" />
   <script defer src="menu-pwa.js?v=premium-cache-new-20260904-1"></script>
 </head>
@@ -105,16 +105,21 @@
           <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
           <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
         </div>
-        <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
       </div>
     </section>
 
     <section class="full-menu-wrap">
-      <div class="container">
-        <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
-        <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
-        <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
-        <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+      <div class="container menu-kiosk-layout">
+        <aside class="menu-kiosk-sidebar" aria-labelledby="menu-kiosk-title">
+          <p class="menu-kiosk-title" id="menu-kiosk-title" data-menu-copy="categories">Menü kategorileri</p>
+          <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
+        </aside>
+        <div class="menu-kiosk-content">
+          <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
+          <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
+          <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
+          <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+        </div>
       </div>
     </section>
 

@@ -110,11 +110,19 @@
   .no-match-card {
     padding: 20px;
   }
+}
 
-  .flow-topline,
-  .actions,
-  .option-button {
-    min-width: 0;
+/* Manual QA: Russian intro copy needs a smaller narrow-phone type scale. */
+@media (max-width: 340px) {
+  .smart-title {
+    font-size: clamp(2.2rem, 12.5vw, 2.65rem);
+    line-height: .96;
+    letter-spacing: -.035em;
+  }
+
+  .smart-lead {
+    font-size: .88rem;
+    line-height: 1.45;
   }
 }
 
