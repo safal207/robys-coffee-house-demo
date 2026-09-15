@@ -1,0 +1,20 @@
+name: Temporary split SW verifier scan
+
+on:
+  push:
+    branches:
+      - tmp/manual-qa-rebase-verify-20260916
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Find direct service-worker readers in scripts
+        shell: bash
+        run: |
+          echo '=== sw.js references in scripts ==='
+          grep -RInE 'sw\.js|serviceWorker.*read|read.*serviceWorker' scripts --include='*.mjs' --include='*.js' || true
