@@ -1,0 +1,131 @@
+name: Kiosk menu validation
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Synchronize generated state in workspace
+        run: |
+          npm run build
+          npm run integrity:generate
+          git status --short | tee /tmp/generated-status.txt
+      - name: Full repository checks
+        run: |
+          npm run check
+          npm run verify:security
+      - run: npx --no-install playwright install chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kiosk-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/menu.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/kiosk-http.log
+          exit 1
+      - name: Kiosk browser smoke
+        run: |
+          mkdir -p kiosk-evidence/generated
+          cp menu.html kiosk-evidence/generated/menu.html
+          cp sw.js kiosk-evidence/generated/sw.js
+          cp integrity-manifest.json kiosk-evidence/generated/integrity-manifest.json
+          cp /tmp/generated-status.txt kiosk-evidence/generated-status.txt
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({ headless: true });
+          const base = 'http://127.0.0.1:4173/menu.html';
+          const results = [];
+
+          {
+            const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'ru-RU' });
+            await context.addInitScript(() => localStorage.setItem('robys-language', 'ru'));
+            const page = await context.newPage();
+            const errors = [];
+            page.on('pageerror', (error) => errors.push(String(error)));
+            await page.goto(base, { waitUntil: 'networkidle' });
+            await page.waitForSelector('#menu-category-nav[data-ready="true"]');
+            const initial = await page.evaluate(() => {
+              const sidebar = document.querySelector('.menu-kiosk-sidebar').getBoundingClientRect();
+              const content = document.querySelector('.menu-kiosk-content').getBoundingClientRect();
+              const nav = document.querySelector('#menu-category-nav');
+              return {
+                sidebar: { x: sidebar.x, y: sidebar.y, right: sidebar.right, bottom: sidebar.bottom, width: sidebar.width },
+                content: { x: content.x, y: content.y, right: content.right, width: content.width },
+                sidebarPosition: getComputedStyle(document.querySelector('.menu-kiosk-sidebar')).position,
+                navDirection: getComputedStyle(nav).flexDirection,
+                active: document.querySelector('.menu-category-chip.active')?.dataset.category,
+              };
+            });
+            if (initial.sidebarPosition !== 'sticky') throw new Error(`desktop sidebar is not sticky: ${initial.sidebarPosition}`);
+            if (initial.navDirection !== 'column') throw new Error(`desktop categories are not vertical: ${initial.navDirection}`);
+            if (!(initial.sidebar.right < initial.content.x)) throw new Error(`sidebar is not left of content: ${JSON.stringify(initial)}`);
+            if (initial.active !== 'all') throw new Error(`unexpected initial active category: ${initial.active}`);
+
+            const hot = page.locator('.menu-category-chip[data-category="hot-coffee"]');
+            await hot.click();
+            await page.waitForTimeout(500);
+            const selected = await page.evaluate(() => ({
+              hash: location.hash,
+              active: document.querySelector('.menu-category-chip.active')?.dataset.category,
+              panels: [...document.querySelectorAll('.full-menu-panel')].map((panel) => panel.id),
+            }));
+            if (selected.hash !== '#hot-coffee' || selected.active !== 'hot-coffee') throw new Error(`category state mismatch: ${JSON.stringify(selected)}`);
+            if (selected.panels.length !== 1 || selected.panels[0] !== 'hot-coffee') throw new Error(`category filter mismatch: ${JSON.stringify(selected.panels)}`);
+
+            await page.screenshot({ path: 'kiosk-evidence/desktop-selected.png', fullPage: false });
+            const share = page.locator('.menu-share-section');
+            await share.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(250);
+            const bounded = await page.evaluate(() => {
+              const sidebar = document.querySelector('.menu-kiosk-sidebar').getBoundingClientRect();
+              const wrap = document.querySelector('.full-menu-wrap').getBoundingClientRect();
+              const share = document.querySelector('.menu-share-section').getBoundingClientRect();
+              return { sidebarBottom: sidebar.bottom, wrapBottom: wrap.bottom, shareTop: share.top };
+            });
+            if (bounded.sidebarBottom > bounded.wrapBottom + 2) throw new Error(`sidebar escaped menu section: ${JSON.stringify(bounded)}`);
+            if (bounded.sidebarBottom > bounded.shareTop + 2) throw new Error(`sidebar overlaps share section: ${JSON.stringify(bounded)}`);
+            if (errors.length) throw new Error(`desktop page errors: ${errors.join(' | ')}`);
+            results.push({ desktop: { initial, selected, bounded } });
+            await context.close();
+          }
+
+          {
+            const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ru-RU' });
+            const page = await context.newPage();
+            await page.goto(base, { waitUntil: 'networkidle' });
+            await page.waitForSelector('#menu-category-nav[data-ready="true"]');
+            const mobile = await page.evaluate(() => ({
+              layout: getComputedStyle(document.querySelector('.menu-kiosk-layout')).display,
+              sidebarPosition: getComputedStyle(document.querySelector('.menu-kiosk-sidebar')).position,
+              navDirection: getComputedStyle(document.querySelector('#menu-category-nav')).flexDirection,
+              overflowX: getComputedStyle(document.querySelector('#menu-category-nav')).overflowX,
+            }));
+            if (mobile.sidebarPosition !== 'static') throw new Error(`mobile sidebar should be static: ${JSON.stringify(mobile)}`);
+            if (mobile.navDirection !== 'row') throw new Error(`mobile category rail should be horizontal: ${JSON.stringify(mobile)}`);
+            await page.screenshot({ path: 'kiosk-evidence/mobile.png', fullPage: false });
+            results.push({ mobile });
+            await context.close();
+          }
+
+          fs.writeFileSync('kiosk-evidence/results.json', JSON.stringify(results, null, 2));
+          await browser.close();
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kiosk-menu-${{ github.run_id }}
+          path: kiosk-evidence/
+          if-no-files-found: error
+          retention-days: 7
