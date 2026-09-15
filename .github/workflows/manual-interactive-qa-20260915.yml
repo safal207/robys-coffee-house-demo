@@ -1,0 +1,124 @@
+name: Manual interactive visual QA
+
+on:
+  push:
+    branches:
+      - qa/manual-visual-20260915
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout QA branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install chromium
+      - name: Start static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/robys-interactive-http.log 2>&1 &
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/robys-interactive-http.log
+          exit 1
+      - name: Capture interactive states
+        shell: bash
+        run: |
+          mkdir -p qa-manual-interactive
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const base='http://127.0.0.1:4173';
+          const out='qa-manual-interactive';
+          const browser=await chromium.launch({headless:true});
+          const summary=[];
+          async function ctx(viewport,lang='tr') {
+            const c=await browser.newContext({viewport, locale: lang==='ru'?'ru-RU':'tr-TR'});
+            await c.addInitScript(({lang})=>{localStorage.setItem('robys-language',lang);sessionStorage.clear();},{lang});
+            return c;
+          }
+          async function snap(page,name,fullPage=false){
+            await page.screenshot({path:`${out}/${name}.png`,fullPage});
+            summary.push({name,url:page.url(),viewport:page.viewportSize()});
+          }
+
+          // Landing mobile drawer.
+          {
+            const c=await ctx({width:390,height:844});
+            const p=await c.newPage();
+            await p.goto(`${base}/`,{waitUntil:'networkidle'});
+            await p.locator('.menu-toggle').click();
+            await p.waitForTimeout(250);
+            await snap(p,'landing-mobile-390-menu-open');
+            await c.close();
+          }
+
+          // Menu product dialog + cart, mobile and desktop.
+          for (const [label,viewport] of [['mobile-390',{width:390,height:844}],['desktop-1440',{width:1440,height:900}]]) {
+            const c=await ctx(viewport);
+            const p=await c.newPage();
+            await p.goto(`${base}/menu.html`,{waitUntil:'networkidle'});
+            await p.waitForSelector('.full-menu-item-media');
+            await p.locator('.full-menu-item-media').first().click();
+            await p.waitForSelector('#menu-product-dialog[open]');
+            await p.waitForTimeout(200);
+            await snap(p,`menu-${label}-product-dialog`);
+            await p.locator('#menu-add-to-cart').click();
+            await p.waitForTimeout(150);
+            await p.locator('#menu-cart-trigger').click();
+            await p.waitForSelector('#menu-cart-dialog[open]');
+            await p.waitForTimeout(200);
+            await snap(p,`menu-${label}-cart-dialog`);
+            await c.close();
+          }
+
+          // Smart Choice: follow the first actual answer on each step until result.
+          for (const [label,viewport,lang] of [['mobile-390',{width:390,height:844},'tr'],['mobile-320-ru',{width:320,height:480},'ru'],['desktop-1440',{width:1440,height:900},'tr']]) {
+            const c=await ctx(viewport,lang);
+            const p=await c.newPage();
+            const errors=[]; p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto(`${base}/smart-choice/`,{waitUntil:'networkidle'});
+            await p.waitForFunction(()=>document.querySelector('#smart-choice-app')?.getAttribute('aria-busy')!=='true');
+            const welcomeButtons=p.locator('#smart-choice-app button:not([disabled])');
+            if (await welcomeButtons.count()) await welcomeButtons.first().click();
+            await p.waitForTimeout(150);
+            for (let i=0;i<8;i++) {
+              if (p.url().includes('#result')) break;
+              const buttons=p.locator('#smart-choice-app button:not([disabled])');
+              const count=await buttons.count();
+              if (count<2) break;
+              // First button is restart on question screens; second is the first answer.
+              await buttons.nth(1).click();
+              await p.waitForTimeout(180);
+            }
+            await snap(p,`smart-${label}-final`,false);
+            await snap(p,`smart-${label}-final-full`,true);
+            summary.push({name:`smart-${label}-meta`,finalUrl:p.url(),errors});
+            await c.close();
+          }
+
+          fs.writeFileSync(`${out}/summary.json`,JSON.stringify(summary,null,2));
+          await browser.close();
+          NODE
+      - name: Upload screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manual-interactive-qa-${{ github.run_id }}
+          path: qa-manual-interactive/
+          if-no-files-found: error
+          retention-days: 7
