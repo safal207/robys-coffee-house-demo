@@ -53,6 +53,7 @@ assert(bootstrap.includes("android-download-logo") && bootstrap.includes("src/an
 assert(bootstrap.includes("placeholder.replaceWith(logo)"), "Legacy CSS Android icon is not replaced by the real logo");
 assert(css.includes(".android-app-screen-pill img"), "Android logo styling is missing");
 assert(css.includes("MOBILE-HERO-001"), "Android promo mobile rendering contract marker is missing");
+assert(css.includes(".menu-section{padding-bottom:24px}"), "Mobile menu must transition into the Android promo without the oversized white gap");
 assert(css.includes(".android-app-section::after{display:none;mask-image:none;-webkit-mask-image:none}"), "Mobile Android promo must disable the masked compositor layer");
 assert(css.includes("background:#2a1d1b;backdrop-filter:none;-webkit-backdrop-filter:none"), "Mobile Android promo card must avoid backdrop-filter compositor artifacts");
 assert(css.includes(".android-app-screen-brand .android-app-screen-mark{width:158px;height:74px"), "Approved Roby's lockup must keep the enlarged in-phone presentation");
@@ -67,4 +68,4 @@ assert(sw.includes('importScripts("./sw-core-v64.js")'), "Service worker wrapper
 assert(!sw.includes("./downloads/android-v1.2/part-") && !swCore.includes("./downloads/android-v1.2/part-"), "Service worker install must not precache the 1 MB APK payload");
 assert(sw.includes('path.endsWith("/android-app.css")'), "Service worker activation must purge stale Android promo CSS");
 assert(swCore.includes("runtimeAssetResponse") && swCore.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
-console.log(`✅ ${contract} passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work and mobile promo rendering stays compositor-safe.`);
+console.log(`✅ ${contract} passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work, oversized entry spacing, and mobile compositor artifacts.`);
