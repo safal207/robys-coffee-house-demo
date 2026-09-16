@@ -1,0 +1,51 @@
+name: Temporary brand cache sync
+
+on:
+  push:
+    branches:
+      - tmp/pr403-main-merge-probe-20260917
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync restored identity cache contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          old = "20260726-approved-v4"
+          new = "20260917-approved-v4-restore"
+          files = [
+              Path("scripts/verify-brand-identity-assets.mjs"),
+              Path("index.html"),
+              Path("menu.html"),
+              Path("discover.html"),
+              Path("sw-core-v64.js"),
+          ]
+          changed = []
+          for path in files:
+              text = path.read_text()
+              count = text.count(old)
+              assert count > 0, f"{path}: expected old revision"
+              path.write_text(text.replace(old, new))
+              changed.append((str(path), count))
+          for path, count in changed:
+              print(f"synced={path}:{count}")
+          verifier = Path("scripts/verify-brand-identity-assets.mjs").read_text()
+          assert f'const REVISION = "{new}";' in verifier
+          for path in files:
+              assert old not in path.read_text(), f"{path}: stale revision remains"
+          PY
+          git rm .github/workflows/tmp-brand-cache-sync-20260917.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/verify-brand-identity-assets.mjs index.html menu.html discover.html sw-core-v64.js
+          git diff --cached --check
+          git commit -m "Sync restored brand cache contract"
+          git push origin HEAD:tmp/pr403-main-merge-probe-20260917
