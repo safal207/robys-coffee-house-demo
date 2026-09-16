@@ -83,6 +83,12 @@ function visibleFaqEntries(html) {
     .filter((item) => item.question && item.answer);
 }
 
+function hasThreeLanguageControls(html) {
+  return ['tr', 'en', 'ru'].every((lang) =>
+    new RegExp(`data-lang=["']${lang}["']`, 'i').test(html)
+  );
+}
+
 const index = read('index.html');
 const menu = read('menu.html');
 const ru = read('ru/coffee-gazipasa.html');
@@ -98,8 +104,10 @@ const ruHomeHrefs = homeLikeHrefs(ru);
 
 check('homepage has canonical', index.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/"'));
 check('homepage has local business structured data', index.includes('"@type": "CafeOrCoffeeShop"'));
+check('homepage exposes TR EN RU controls', hasThreeLanguageControls(index));
 check('menu has canonical', menu.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html"'));
 check('menu has Menu structured data', menu.includes('"@type": "Menu"'));
+check('menu exposes TR EN RU controls', hasThreeLanguageControls(menu));
 check('menu links to canonical homepage URL', menuHomeHrefs.length >= 2 && menuHomeHrefs.every((href) => href === './'));
 check('menu exposes ordinary link to Russian landing', menu.includes('href="ru/coffee-gazipasa.html"'));
 
@@ -114,6 +122,7 @@ check('Russian page has visible FAQ entries', faqVisible.length > 0);
 check('Russian FAQ structured data matches visible Q&A', JSON.stringify(faqStructured) === JSON.stringify(faqVisible));
 check('Russian page links to menu', ru.includes('href="../menu.html"'));
 check('Russian page links to canonical homepage URL', ruHomeHrefs.length >= 2 && ruHomeHrefs.every((href) => href === '../'));
+check('Russian landing preserves shared language state', /localStorage\.setItem\(\s*['"]robys-language['"]\s*,\s*['"]ru['"]\s*\)/.test(ru));
 check('Russian page exposes visible address', /<address\b/i.test(ru));
 check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
 check('Russian page exposes accessible mobile navigation control', ru.includes('id="main-navigation"') && ru.includes('class="menu-toggle"') && ru.includes('aria-controls="main-navigation"'));
