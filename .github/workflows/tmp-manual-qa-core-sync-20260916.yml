@@ -23,39 +23,87 @@ jobs:
           cache: npm
       - name: Hide temporary workflow from product-tree checks
         run: mv .github/workflows/tmp-manual-qa-core-sync-20260916.yml /tmp/tmp-manual-qa-core-sync-20260916.yml
-      - name: Align build and verifiers with service-worker core
+      - name: Align build and cache verifiers with split service worker
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          p = Path('scripts/build.mjs')
-          s = p.read_text()
-          old_read = 'let serviceWorker = readFileSync("sw.js", "utf8");'
-          old_write = 'writeFileSync("sw.js", serviceWorker);'
-          if s.count(old_read) != 1 or s.count(old_write) != 1:
-              raise SystemExit('unexpected service-worker build anchors')
-          s = s.replace(old_read, 'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");')
-          s = s.replace(old_write, 'writeFileSync("sw-core-v64.js", serviceWorker);')
-          p.write_text(s)
+          def replace_one(path, old, new, label):
+              p = Path(path)
+              s = p.read_text()
+              if s.count(old) != 1:
+                  raise SystemExit(f'unexpected {label} anchor in {path}: {s.count(old)} matches')
+              p.write_text(s.replace(old, new))
 
-          p = Path('scripts/verify-smart-choice-release.mjs')
-          s = p.read_text()
-          old = 'const serviceWorker = read("sw.js");'
-          new = 'const serviceWorker = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
-          if s.count(old) != 1:
-              raise SystemExit('unexpected Smart Choice worker verifier anchor')
-          p.write_text(s.replace(old, new))
+          replace_one(
+              'scripts/build.mjs',
+              'let serviceWorker = readFileSync("sw.js", "utf8");',
+              'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");',
+              'build worker read'
+          )
+          replace_one(
+              'scripts/build.mjs',
+              'writeFileSync("sw.js", serviceWorker);',
+              'writeFileSync("sw-core-v64.js", serviceWorker);',
+              'build worker write'
+          )
 
-          p = Path('scripts/verify-menu-image-assets.mjs')
-          s = p.read_text()
-          old = 'const serviceWorker = readFileSync("sw.js", "utf8");'
-          new = 'const serviceWorker = readFileSync("sw.js", "utf8") + "\\n" + readFileSync("sw-core-v64.js", "utf8");'
-          if s.count(old) != 1:
-              raise SystemExit('unexpected menu-image worker verifier anchor')
-          p.write_text(s.replace(old, new))
+          read_combined = {
+              'scripts/verify-smart-choice-release.mjs': (
+                  'const serviceWorker = read("sw.js");',
+                  'const serviceWorker = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
+              ),
+              'scripts/verify-security-contracts.mjs': (
+                  'const serviceWorker = read("sw.js");',
+                  'const serviceWorker = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
+              ),
+              'scripts/verify-brand-identity-assets.mjs': (
+                  'const sw = read("sw.js");',
+                  'const sw = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
+              ),
+              'scripts/test-brand-wordmark.mjs': (
+                  'const serviceWorker = read("sw.js");',
+                  'const serviceWorker = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
+              ),
+          }
+          for path, (old, new) in read_combined.items():
+              replace_one(path, old, new, 'combined read worker')
+
+          readfile_combined = [
+              ('scripts/verify-menu-image-assets.mjs', 'serviceWorker'),
+              ('scripts/verify-menu-share.mjs', 'serviceWorker'),
+              ('scripts/verify-taste-journey-posters.mjs', 'serviceWorker'),
+              ('scripts/verify-pr140-release-blockers.mjs', 'serviceWorker'),
+              ('scripts/verify-menu-truth-live.mjs', 'serviceWorker'),
+              ('scripts/verify-menu-order.mjs', 'serviceWorker'),
+              ('scripts/verify-regression-contracts.mjs', 'serviceWorker'),
+              ('scripts/verify-entry-handoff.mjs', 'serviceWorker'),
+          ]
+          for path, variable in readfile_combined:
+              old = f'const {variable} = readFileSync("sw.js", "utf8");'
+              new = f'const {variable} = readFileSync("sw.js", "utf8") + "\\n" + readFileSync("sw-core-v64.js", "utf8");'
+              replace_one(path, old, new, 'combined readFile worker')
+
+          replace_one(
+              'scripts/verify-android-download.mjs',
+              'const sw = readFileSync("sw.js", "utf8");',
+              'const sw = readFileSync("sw.js", "utf8") + "\\n" + readFileSync("sw-core-v64.js", "utf8");',
+              'Android combined worker'
+          )
+          replace_one(
+              'scripts/test-discover-deck.mjs',
+              'const swSource = readFileSync(resolve(root, "sw.js"), "utf8");',
+              'const swSource = readFileSync(resolve(root, "sw.js"), "utf8") + "\\n" + readFileSync(resolve(root, "sw-core-v64.js"), "utf8");',
+              'Discover combined worker'
+          )
           PY
-      - name: Inventory remaining monolithic-worker assumptions
-        run: grep -R -n -E 'read(FileSync)?\([^\n]*sw\.js' scripts || true
+      - name: Ensure no release verifier still assumes monolithic worker
+        run: |
+          remaining="$(grep -R -n -E 'read(FileSync)?\([^\n]*sw\.js' scripts | grep -v 'sw-core-v64\.js' || true)"
+          if [ -n "$remaining" ]; then
+            echo "$remaining"
+            exit 1
+          fi
       - run: npm ci --no-audit --no-fund
       - name: Build and refresh integrity
         run: |
@@ -80,5 +128,5 @@ jobs:
           git reset .github/workflows/tmp-manual-qa-core-sync-20260916.yml
           git diff --cached --check
           git diff --cached --quiet && exit 0
-          git commit -m 'Synchronize manual QA polish build state'
+          git commit -m 'Synchronize split worker build and QA contracts'
           git push origin HEAD:tmp/manual-qa-build-sync-20260916
