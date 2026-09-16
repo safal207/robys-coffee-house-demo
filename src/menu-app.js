@@ -501,10 +501,19 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(item.name)}`);
     media.addEventListener("click", () => openProduct(id));
 
+    const image = document.createElement("img");
+    image.src = productImage(categoryId, item);
+    image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
+    image.loading = priority ? "eager" : "lazy";
+    image.decoding = "async";
+    if (priority) image.fetchPriority = "high";
+    image.width = 1024;
+    image.height = 1024;
+    media.append(image);
+
     if (pairing && item.journeyId === "iced-san-sebastian") {
       const video = document.createElement("video");
       video.className = "menu-pairing-video";
-      video.poster = productImage(categoryId, item);
       video.dataset.src = PAIRING_VIDEO_SRC;
       video.preload = "none";
       video.muted = true;
@@ -513,33 +522,26 @@ function createItem(item, { priority = false, categoryId } = {}) {
       video.width = 288;
       video.height = 429;
       video.setAttribute("aria-hidden", "true");
+      video.addEventListener("playing", () => video.classList.add("is-playing"));
+      video.addEventListener("pause", () => video.classList.remove("is-playing"));
       media.append(video);
       connectPairingVideo(video);
-    } else {
-      const image = document.createElement("img");
-      image.src = productImage(categoryId, item);
-      image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
-      image.loading = priority ? "eager" : "lazy";
-      image.decoding = "async";
-      if (priority) image.fetchPriority = "high";
-      image.width = 1024;
-      image.height = 1024;
-      media.append(image);
     }
 
     const details = document.createElement("div");
     details.className = "full-menu-item-details";
     if (pairing) {
+      details.append(copy, price);
       const directAdd = createButton("menu-pairing-add", menuCopy[language].addToCart, (event) => {
         event.stopPropagation();
         addProductDirectly(id);
       });
       directAdd.setAttribute("aria-label", `${menuCopy[language].addToCart}: ${localized(item.name)}`);
-      details.append(copy, price, directAdd);
+      row.append(media, details, directAdd);
     } else {
       details.append(copy, price);
+      row.append(media, details);
     }
-    row.append(media, details);
     return row;
   }
 
