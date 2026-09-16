@@ -1,0 +1,38 @@
+name: Temporary PR403 main merge probe
+
+on:
+  push:
+    branches:
+      - tmp/pr403-main-merge-probe-20260917
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Probe merge without writing history
+        shell: bash
+        run: |
+          set -uo pipefail
+          git fetch origin main
+          set +e
+          git merge --no-commit --no-ff origin/main
+          status=$?
+          set -e
+          echo "merge_status=$status"
+          echo "conflicts_begin"
+          git diff --name-only --diff-filter=U || true
+          echo "conflicts_end"
+          if [ "$status" -eq 0 ]; then
+            echo "MERGE_PROBE_CLEAN"
+            git merge --abort || true
+            exit 0
+          fi
+          git status --short
+          git merge --abort || true
+          exit 1
