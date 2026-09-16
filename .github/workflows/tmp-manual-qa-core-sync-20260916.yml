@@ -23,7 +23,7 @@ jobs:
           cache: npm
       - name: Hide temporary workflow from product-tree checks
         run: mv .github/workflows/tmp-manual-qa-core-sync-20260916.yml /tmp/tmp-manual-qa-core-sync-20260916.yml
-      - name: Align build and cache verifiers with split service worker
+      - name: Align build, verifiers and traceability with split service worker
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -95,6 +95,19 @@ jobs:
               'const swSource = readFileSync(resolve(root, "sw.js"), "utf8");',
               'const swSource = readFileSync(resolve(root, "sw.js"), "utf8") + "\\n" + readFileSync(resolve(root, "sw-core-v64.js"), "utf8");',
               'Discover combined worker'
+          )
+
+          replace_one(
+              'qa/traceability/api-platform.json',
+              '"sw.js#CACHE_VERSION"',
+              '"sw-core-v64.js#CACHE_VERSION"',
+              'platform cache trace evidence'
+          )
+          replace_one(
+              'qa/traceability/api-platform.json',
+              '"sw.js#navigationResponse"',
+              '"sw-core-v64.js#navigationResponse"',
+              'platform navigation trace evidence'
           )
           PY
       - run: npm ci --no-audit --no-fund
