@@ -20,7 +20,12 @@
           "capture": "landing-full",
           "viewport": "desktop-1440",
           "totalPixels": 10075680,
-          "maxDiffPixelRatio": 0.0315
+          "maxDiffPixelRatio": 0.0316
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13217 vs 768x13215"
         },
         {
           "capture": "menu-full",

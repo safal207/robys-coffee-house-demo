@@ -49,6 +49,45 @@ async function waitForController(page) {
   throw new Error("Service worker never controlled the page");
 }
 
+async function waitForActivatedRegistration(page, timeoutMs = 3_000) {
+  return page.evaluate(async (timeout) => {
+    const registration = await navigator.serviceWorker.ready;
+    const worker = registration.active ?? registration.waiting ?? registration.installing;
+    if (!worker) throw new Error("Service worker registration has no worker");
+
+    if (worker.state !== "activated") {
+      await new Promise((resolve, reject) => {
+        let timer;
+        const cleanup = () => {
+          clearTimeout(timer);
+          worker.removeEventListener("statechange", onStateChange);
+        };
+        const onStateChange = () => {
+          if (worker.state === "activated") {
+            cleanup();
+            resolve();
+          } else if (worker.state === "redundant") {
+            cleanup();
+            reject(new Error("Service worker became redundant before activation"));
+          }
+        };
+        worker.addEventListener("statechange", onStateChange);
+        timer = setTimeout(() => {
+          cleanup();
+          reject(new Error(`Service worker did not activate within ${timeout} ms (state=${worker.state})`));
+        }, timeout);
+        onStateChange();
+      });
+    }
+
+    return {
+      controlled: Boolean(navigator.serviceWorker.controller),
+      activeState: registration.active?.state ?? worker.state,
+      offlineReady: document.documentElement.dataset.offlineReady ?? ""
+    };
+  }, timeoutMs);
+}
+
 rmSync(resultsDir, { recursive: true, force: true });
 mkdirSync(resultsDir, { recursive: true });
 
@@ -70,14 +109,7 @@ try {
   await page.goto(`${baseUrl}?entry=off`, { waitUntil: "domcontentloaded" });
   await waitForController(page);
 
-  const registrationEvidence = await page.evaluate(async () => {
-    const registration = await navigator.serviceWorker.ready;
-    return {
-      controlled: Boolean(navigator.serviceWorker.controller),
-      activeState: registration.active?.state ?? "missing",
-      offlineReady: document.documentElement.dataset.offlineReady ?? ""
-    };
-  });
+  const registrationEvidence = await waitForActivatedRegistration(page);
   assert(registrationEvidence.controlled, "Page is not controlled before offline transition");
   assert(registrationEvidence.activeState === "activated", `Worker state is ${registrationEvidence.activeState}`);
 

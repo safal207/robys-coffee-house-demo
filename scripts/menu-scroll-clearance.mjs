@@ -44,14 +44,18 @@ try{
       assert.ok(result.category.clear&&result.category.visible,`${id}: category covered ${JSON.stringify(result.category)}`);
       assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute('aria-pressed'),'true');
       if(width===320&&!touch&&fontSize===16&&language==='tr'){
+        // Prove the detector still fails closed when measured sticky insets are removed.
+        // The old fixed 170px offset is no longer guaranteed to overlap after the
+        // intentional menu repack, so zero both relevant offsets for a deterministic
+        // negative control rather than depending on historical page geometry.
         await page.evaluate(()=>{
           document.documentElement.style.scrollPaddingTop='0px';
-          document.querySelector('.full-menu-wrap').style.scrollMarginTop='170px';
+          document.querySelector('.full-menu-wrap').style.scrollMarginTop='0px';
         });
         await page.locator('[data-category="hot-coffee"]').click();await settle(page);
         const broken=await clearance(page,'.full-menu-panel-header');
-        assert.ok(!broken.clear||!broken.visible,'Negative control must catch the original fixed-offset overlap');
-        report.negativeControl={id:'original-fixed-offset',caught:true,evidence:broken};
+        assert.ok(!broken.clear||!broken.visible,'Negative control must catch missing measured insets');
+        report.negativeControl={id:'missing-measured-insets',caught:true,evidence:broken};
         await page.evaluate(()=>{
           document.documentElement.style.removeProperty('scroll-padding-top');
           document.querySelector('.full-menu-wrap').style.removeProperty('scroll-margin-top');
