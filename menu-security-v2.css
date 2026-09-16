@@ -42,7 +42,6 @@
   .menu-category-chip.active{color:#fff;background:var(--ruby);border-color:var(--ruby);box-shadow:0 10px 26px rgba(226,27,35,.18)}
   .menu-category-chip.active::before{color:var(--ruby);background:#fff;border-color:#fff}
   .menu-kiosk-content{min-width:0}
-  .full-menu-grid{columns:1!important;column-gap:0!important}
   .full-menu-panel{width:100%;margin:0 0 18px!important;break-inside:avoid}
 }
 
