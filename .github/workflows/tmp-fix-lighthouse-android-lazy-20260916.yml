@@ -83,12 +83,16 @@ jobs:
               verify = verify.replace(assertion_anchor, assertion_anchor + assertions, 1)
           verify_path.write_text(verify)
           PY
-      - name: Build, refresh and validate
+      - name: Build, refresh and validate bounded repair
         run: |
+          npm run typecheck
           npm run build
           npm run integrity:generate
-          npm run check
+          node --check pwa-pairing-fix.js
+          node --check android-download.js
+          node scripts/verify-android-download.mjs
           npm run verify:security
+          npm run verify:integrity
           git diff --check
       - name: Prove repair diff is bounded
         shell: bash
