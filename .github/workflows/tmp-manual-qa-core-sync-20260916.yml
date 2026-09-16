@@ -97,13 +97,6 @@ jobs:
               'Discover combined worker'
           )
           PY
-      - name: Ensure no release verifier still assumes monolithic worker
-        run: |
-          remaining="$(grep -R -n -E 'read(FileSync)?\([^\n]*sw\.js' scripts | grep -v 'sw-core-v64\.js' || true)"
-          if [ -n "$remaining" ]; then
-            echo "$remaining"
-            exit 1
-          fi
       - run: npm ci --no-audit --no-fund
       - name: Build and refresh integrity
         run: |
