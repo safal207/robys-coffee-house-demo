@@ -299,3 +299,13 @@ body.menu-dialog-open{overflow:hidden}
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}
 .menu-scroll-aware .menu-share-card{scroll-margin-block:12px}
+
+
+/* PAIRING-CARD-MOTION-V1 */
+.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:50% 60%;transform:scale(1.08) translate3d(-2%,2.5%,0);transform-origin:center center;background:#e8ded1;pointer-events:none}
+.menu-pairing-add{display:inline-flex;width:100%;min-height:44px;align-items:center;justify-content:center;padding:11px 16px;color:#fff;background:var(--ruby);border:1px solid var(--ruby);border-radius:999px;font:800 .78rem/1 var(--sans);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.menu-pairing-add:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(211,38,54,.16)}
+.menu-pairing-add:active{transform:translateY(1px) scale(.98)}
+.menu-pairing-add:focus-visible{outline:3px solid rgba(226,27,35,.28);outline-offset:3px}
+@media(max-width:680px){.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{object-position:50% 61%;transform:scale(1.15) translate3d(-4%,5%,0)}}
+@media(prefers-reduced-motion:reduce){.menu-pairing-add{transition:none}}

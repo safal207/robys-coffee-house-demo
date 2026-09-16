@@ -407,6 +407,62 @@ function addSelectedProduct() {
   window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
 }
 
+
+const PAIRING_VIDEO_SRC = "src/products/sets-v1/iced-san-sebastian-pairing-card.mp4";
+let pairingMotionActivated = false;
+const pairingVideoObserver = typeof IntersectionObserver === "function"
+  ? new IntersectionObserver((entries) => {
+      entries.forEach(({ target, isIntersecting, intersectionRatio }) => {
+        if (!pairingMotionActivated || document.hidden || !isIntersecting || intersectionRatio < 0.35) {
+          target.pause();
+          return;
+        }
+        if (!target.getAttribute("src")) target.src = target.dataset.src ?? "";
+        if (target.getAttribute("src")) target.play().catch(() => {});
+      });
+    }, { rootMargin: "120px 0px", threshold: [0, 0.35] })
+  : null;
+
+function pairingMotionAllowed() {
+  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !navigator.connection?.saveData;
+}
+
+function connectPairingVideo(video) {
+  if (!pairingMotionActivated) return;
+  if (pairingVideoObserver) {
+    pairingVideoObserver.observe(video);
+    return;
+  }
+  if (!video.getAttribute("src")) video.src = video.dataset.src ?? "";
+}
+
+function activatePairingMotion() {
+  if (pairingMotionActivated || !pairingMotionAllowed()) return;
+  pairingMotionActivated = true;
+  document.querySelectorAll(".menu-pairing-video").forEach(connectPairingVideo);
+}
+
+window.addEventListener("pointerdown", activatePairingMotion, { once: true, passive: true });
+window.addEventListener("keydown", activatePairingMotion, { once: true });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) document.querySelectorAll(".menu-pairing-video").forEach((video) => video.pause());
+});
+
+function addProductDirectly(id) {
+  const product = productIndex.get(id);
+  if (!product) return;
+  const currentQuantity = cart.get(id) ?? 0;
+  const copy = menuCopy[language];
+  if (currentQuantity >= MAX_ITEM_QUANTITY) {
+    announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
+    return;
+  }
+  setCartQuantity(id, currentQuantity + 1);
+  announceCart(`${copy.added}: ${localized(product.item.name)} × 1`);
+  cartTrigger.classList.add("is-emphasized");
+  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
+}
+
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = Boolean(item.image);
   const visual = pairing || Boolean(categoryId);
@@ -445,19 +501,44 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(item.name)}`);
     media.addEventListener("click", () => openProduct(id));
 
-    const image = document.createElement("img");
-    image.src = productImage(categoryId, item);
-    image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
-    image.loading = priority ? "eager" : "lazy";
-    image.decoding = "async";
-    if (priority) image.fetchPriority = "high";
-    image.width = 1024;
-    image.height = 1024;
-    media.append(image);
+    if (pairing && item.journeyId === "iced-san-sebastian") {
+      const video = document.createElement("video");
+      video.className = "menu-pairing-video";
+      video.poster = productImage(categoryId, item);
+      video.dataset.src = PAIRING_VIDEO_SRC;
+      video.preload = "none";
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.width = 288;
+      video.height = 429;
+      video.setAttribute("aria-hidden", "true");
+      media.append(video);
+      connectPairingVideo(video);
+    } else {
+      const image = document.createElement("img");
+      image.src = productImage(categoryId, item);
+      image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
+      image.loading = priority ? "eager" : "lazy";
+      image.decoding = "async";
+      if (priority) image.fetchPriority = "high";
+      image.width = 1024;
+      image.height = 1024;
+      media.append(image);
+    }
 
     const details = document.createElement("div");
     details.className = "full-menu-item-details";
-    details.append(copy, price);
+    if (pairing) {
+      const directAdd = createButton("menu-pairing-add", menuCopy[language].addToCart, (event) => {
+        event.stopPropagation();
+        addProductDirectly(id);
+      });
+      directAdd.setAttribute("aria-label", `${menuCopy[language].addToCart}: ${localized(item.name)}`);
+      details.append(copy, price, directAdd);
+    } else {
+      details.append(copy, price);
+    }
     row.append(media, details);
     return row;
   }
