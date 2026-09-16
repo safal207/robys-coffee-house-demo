@@ -92,6 +92,7 @@ function hasThreeLanguageControls(html) {
 const index = read('index.html');
 const menu = read('menu.html');
 const ru = read('ru/coffee-gazipasa.html');
+const brandCss = read('brand-photo-logo.css');
 const robots = read('robots.txt');
 const sitemap = read('sitemap.xml');
 
@@ -101,6 +102,7 @@ const faqStructured = structuredFaqEntries(faqPage);
 const faqVisible = visibleFaqEntries(ru);
 const menuHomeHrefs = homeLikeHrefs(menu);
 const ruHomeHrefs = homeLikeHrefs(ru);
+const narrowHeaderBlock = brandCss.match(/@media\(max-width:340px\)\{([\s\S]*?)\n\}/)?.[1] || '';
 
 check('homepage has canonical', index.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/"'));
 check('homepage has local business structured data', index.includes('"@type": "CafeOrCoffeeShop"'));
@@ -127,6 +129,7 @@ check('Russian page exposes visible address', /<address\b/i.test(ru));
 check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
 check('Russian page exposes accessible mobile navigation control', ru.includes('id="main-navigation"') && ru.includes('class="menu-toggle"') && ru.includes('aria-controls="main-navigation"'));
 check('Russian page reuses shared site layout components', ru.includes('class="section about"') && ru.includes('class="section menu-section"') && ru.includes('class="site-footer"'));
+check('narrow mobile header keeps site brand compact without shrinking language touch targets', narrowHeaderBlock.includes('.site-header .brand') && narrowHeaderBlock.includes('width:100px!important') && narrowHeaderBlock.includes('.site-header .brand-copy') && brandCss.includes('html .language-switcher .lang-button{\n    min-width:44px!important;\n    min-height:44px!important'));
 
 check('robots allows crawling', /User-agent:\s*\*/i.test(robots) && /Allow:\s*\//i.test(robots));
 check('robots references sitemap', robots.includes('Sitemap: https://safal207.github.io/robys-coffee-house-demo/sitemap.xml'));
