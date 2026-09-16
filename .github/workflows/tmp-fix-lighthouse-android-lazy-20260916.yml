@@ -1,0 +1,121 @@
+name: Temporary Lighthouse Android lazy repair
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: fix/manual-qa-polish-20260915
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply bounded lazy-load repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          pwa_path = Path('pwa-pairing-fix.js')
+          pwa = pwa_path.read_text()
+          old_decl = 'const M="mobile-install.js?v=platform-install-20260727-1",P="robys-pwa"'
+          new_decl = 'const M="mobile-install.js?v=platform-install-20260727-1",A="android-download.js?v=android-verified-20260627-1",P="robys-pwa"'
+          if old_decl in pwa:
+              pwa = pwa.replace(old_decl, new_decl, 1)
+          elif new_decl not in pwa:
+              raise SystemExit('unexpected PWA declaration')
+
+          old_policy = 'y===SERVICE_WORKER_URL||y===M?y:'
+          new_policy = 'y===SERVICE_WORKER_URL||y===M||y===A?y:'
+          if old_policy in pwa:
+              pwa = pwa.replace(old_policy, new_policy, 1)
+          elif new_policy not in pwa:
+              raise SystemExit('unexpected Trusted Types policy')
+
+          old_loader = 'const t=()=>{if(l)return;l=1;const e=document.createElement("script");e.src=u(M);e.async=1;e.onerror=()=>{e.remove();l=0};document.head.append(e)};'
+          new_loader = 'const t=()=>{if(l)return;l=1;for(const x of[M,A]){const e=document.createElement("script");e.src=u(x);e.async=1;e.onerror=()=>{e.remove();l=0};document.head.append(e)}};'
+          if old_loader in pwa:
+              pwa = pwa.replace(old_loader, new_loader, 1)
+          elif new_loader not in pwa:
+              raise SystemExit('unexpected lazy loader')
+          pwa_path.write_text(pwa)
+
+          index_path = Path('index.html')
+          home = index_path.read_text()
+          home = home.replace('pwa-pairing-fix.js?v=20260916-2', 'pwa-pairing-fix.js?v=20260916-3')
+          eager = '  <script defer src="android-download.js?v=android-verified-20260627-1"></script>\n'
+          if eager in home:
+              home = home.replace(eager, '', 1)
+          elif 'src="android-download.js' in home:
+              raise SystemExit('unexpected eager Android runtime reference')
+          index_path.write_text(home)
+
+          sw_path = Path('sw-core-v64.js')
+          sw = sw_path.read_text().replace('pwa-pairing-fix.js?v=20260916-2', 'pwa-pairing-fix.js?v=20260916-3')
+          sw_path.write_text(sw)
+
+          verify_path = Path('scripts/verify-android-download.mjs')
+          verify = verify_path.read_text()
+          anchor = 'const sw = readFileSync("sw.js", "utf8") + "\\n" + readFileSync("sw-core-v64.js", "utf8");\n'
+          addition = 'const home = readFileSync("index.html", "utf8");\nconst pairingPwa = readFileSync("pwa-pairing-fix.js", "utf8");\n'
+          if addition not in verify:
+              if anchor not in verify:
+                  raise SystemExit('android verifier anchor missing')
+              verify = verify.replace(anchor, anchor + addition, 1)
+          assertion_anchor = 'assert(!upgrade.includes("\\n  void prepareApk(link, status);\\n"), "APK preparation must not run eagerly during page startup");\n'
+          assertions = 'assert(!home.includes(\'src="android-download.js\'), "Android download runtime must not load eagerly on the home page");\nassert(pairingPwa.includes("android-download.js?v=android-verified-20260627-1"), "PWA bootstrap must lazy-load the Android download runtime after user intent");\n'
+          if assertions not in verify:
+              if assertion_anchor not in verify:
+                  raise SystemExit('android verifier assertion anchor missing')
+              verify = verify.replace(assertion_anchor, assertion_anchor + assertions, 1)
+          verify_path.write_text(verify)
+          PY
+      - name: Build, refresh and validate
+        run: |
+          npm run build
+          npm run integrity:generate
+          npm run check
+          npm run verify:security
+          git diff --check
+      - name: Prove repair diff is bounded
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only | sort > /tmp/actual.txt
+          printf '%s\n' \
+            index.html \
+            integrity-manifest.json \
+            pwa-pairing-fix.js \
+            scripts/verify-android-download.mjs \
+            sw-core-v64.js | sort > /tmp/expected.txt
+          echo 'Repair diff:'
+          cat /tmp/actual.txt
+          if git diff --quiet; then
+            echo 'Repair already applied.'
+            exit 0
+          fi
+          diff -u /tmp/expected.txt /tmp/actual.txt
+      - name: Commit bounded repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Aleksey Safonov'
+          git config user.email '55020240+safal207@users.noreply.github.com'
+          git add index.html integrity-manifest.json pwa-pairing-fix.js scripts/verify-android-download.mjs sw-core-v64.js
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m 'perf: lazy-load Android download runtime'
+          git push origin HEAD:fix/manual-qa-polish-20260915
