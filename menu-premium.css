@@ -299,3 +299,14 @@ body.menu-dialog-open{overflow:hidden}
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}
 .menu-scroll-aware .menu-share-card{scroll-margin-block:12px}
+
+
+/* PAIRING-CARD-MOTION-V2: preserve poster geometry; motion only overlays after user intent. */
+.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;pointer-events:none;transition:opacity .24s ease}
+.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video.is-playing{opacity:1}
+.full-menu-item--visual>.menu-pairing-add{grid-column:1/-1;display:inline-flex;width:calc(100% - 24px);min-height:46px;align-items:center;justify-content:center;margin:0 12px 12px;padding:11px 16px;color:#fff;background:var(--ruby);border:1px solid var(--ruby);border-radius:999px;font:800 .78rem/1 var(--sans);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.full-menu-item--visual.pairing-poster-card>.menu-pairing-add{position:relative;z-index:4;margin-top:12px}
+.menu-pairing-add:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(211,38,54,.16)}
+.menu-pairing-add:active{transform:translateY(1px) scale(.98)}
+.menu-pairing-add:focus-visible{outline:3px solid rgba(226,27,35,.28);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.menu-pairing-video,.menu-pairing-add{transition:none!important}}
