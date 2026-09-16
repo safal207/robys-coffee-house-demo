@@ -96,6 +96,12 @@ jobs:
               'const swSource = readFileSync(resolve(root, "sw.js"), "utf8") + "\\n" + readFileSync(resolve(root, "sw-core-v64.js"), "utf8");',
               'Discover combined worker'
           )
+          replace_one(
+              'scripts/test-photo-logo.mjs',
+              'const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");',
+              'const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8") + "\\n" + readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");',
+              'photo-logo combined worker'
+          )
 
           replace_one(
               'qa/traceability/api-platform.json',
