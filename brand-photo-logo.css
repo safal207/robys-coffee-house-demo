@@ -137,17 +137,23 @@
 }
 
 @media(max-width:340px){
+  .site-header .brand,
   .discover-header .brand{
     width:100px!important;
     max-width:100px!important;
     padding:5px 8px!important;
   }
 
+  .site-header .brand-copy,
   body.discover-page .discover-header .brand-copy{
     display:block!important;
     width:82px!important;
     height:31px!important;
     background-image:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4")!important;
+  }
+
+  .site-header .header-actions{
+    gap:6px!important;
   }
 }
 
