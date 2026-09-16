@@ -115,6 +115,44 @@ jobs:
               '"sw-core-v64.js#navigationResponse"',
               'platform navigation trace evidence'
           )
+
+          # Keep all public entry points on the same service-worker registration revision.
+          replace_one(
+              'menu-pwa.js',
+              'const SERVICE_WORKER_URL = "sw.js?v=premium-cache-new-20260904-1";',
+              'const SERVICE_WORKER_URL = "sw.js?v=pairing-video-fix-20260916-2";',
+              'menu PWA registration revision'
+          )
+          replace_one(
+              'menu.html',
+              'src="menu-pwa.js?v=premium-cache-new-20260904-1"',
+              'src="menu-pwa.js?v=pairing-video-fix-20260916-2"',
+              'menu PWA script revision'
+          )
+          replace_one(
+              'sw-core-v64.js',
+              '"./pwa.js?v=premium-cache-new-20260904-1"',
+              '"./pwa-pairing-fix.js?v=20260916-2"',
+              'landing PWA precache entry'
+          )
+          replace_one(
+              'sw-core-v64.js',
+              '"./menu-pwa.js?v=premium-cache-new-20260904-1"',
+              '"./menu-pwa.js?v=pairing-video-fix-20260916-2"',
+              'menu PWA precache entry'
+          )
+          replace_one(
+              'scripts/verify-menu-share.mjs',
+              'const pwaRuntime = readFileSync("pwa.js", "utf8");',
+              'const pwaRuntime = readFileSync("pwa-pairing-fix.js", "utf8");',
+              'landing PWA verifier runtime'
+          )
+          replace_one(
+              'scripts/verify-menu-share.mjs',
+              'assert(indexHtml.includes(`src="pwa.js?v=${pwaRevision}"`), "index.html does not load the current PWA registration revision");',
+              'assert(/src="pwa-pairing-fix\\.js\\?v=[^"]+"/.test(indexHtml), "index.html does not load the current PWA registration runtime");',
+              'landing PWA verifier HTML assertion'
+          )
           PY
       - run: npm ci --no-audit --no-fund
       - name: Build and refresh integrity
