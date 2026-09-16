@@ -3,7 +3,7 @@
 const PAIRING_PREVIEW_PATH = "/src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
 
 // Activate this repair immediately so an already-open mobile session does not keep
-// serving previous gallery media or stale Android promo styling from runtime cache.
+// serving previous gallery media or stale Android/install promo styling from runtime cache.
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -22,6 +22,8 @@ self.addEventListener("activate", (event) => {
                   const path = new URL(request.url).pathname;
                   return path.endsWith("/featured-gallery.js") ||
                     path.endsWith("/android-app.css") ||
+                    path.endsWith("/mobile-install.js") ||
+                    path.endsWith("/mobile-install.css") ||
                     path.endsWith(PAIRING_PREVIEW_PATH);
                 })
                 .map((request) => cache.delete(request))
