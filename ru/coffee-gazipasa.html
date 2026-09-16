@@ -2,10 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Кофейня в Газипаше — кофе и десерты | Roby's Coffee House</title>
   <meta name="description" content="Roby's Coffee House в Газипаше: кофе, холодные напитки и десерты. Посмотрите меню, адрес и маршрут до кофейни в Газипаше, Анталья." />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+  <meta name="theme-color" content="#241c1b" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/ru/coffee-gazipasa.html" />
   <link rel="alternate" hreflang="ru" href="https://safal207.github.io/robys-coffee-house-demo/ru/coffee-gazipasa.html" />
   <link rel="alternate" hreflang="x-default" href="https://safal207.github.io/robys-coffee-house-demo/" />
@@ -15,9 +16,34 @@
   <meta property="og:description" content="Кофе, холодные напитки, десерты, меню и маршрут до Roby's Coffee House в Газипаше." />
   <meta property="og:url" content="https://safal207.github.io/robys-coffee-house-demo/ru/coffee-gazipasa.html" />
   <meta property="og:image" content="https://safal207.github.io/robys-coffee-house-demo/src/robys-hero-poster.jpg" />
+
   <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="preload" href="../src/robys-hero-poster.jpg" as="image" fetchpriority="high" />
+  <link rel="preload" href="../src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4" as="image" type="image/svg+xml" media="(max-width: 680px)" />
   <link rel="stylesheet" href="../styles-v2.css?v=a4431b07fc04" />
-  <link rel="stylesheet" href="../mobile.css" />
+  <link rel="stylesheet" href="../mobile.css?v=polish-20260621-11" />
+  <link rel="stylesheet" href="../brand-photo-logo.css?v=20260726-approved-v4" />
+
+  <style>
+    .location-page .hero h1{max-width:1040px;text-wrap:balance}
+    .location-page .hero-text{max-width:720px}
+    .location-page .feature-card{display:flex;flex-direction:column}
+    .location-page .feature-card .text-link{margin-top:auto;padding-top:18px}
+    .location-page .location-address{margin:0;color:var(--muted);font-style:normal}
+    .location-page .faq-card p{color:rgba(255,255,255,.68)}
+    .location-page .faq-card a{text-decoration:underline;text-underline-offset:3px}
+    .location-page .site-footer .brand{background:#fff}
+    @media(max-width:680px){
+      .location-page .hero h1{font-size:clamp(2.7rem,12vw,4rem);line-height:.98}
+      .location-page .hero-content{padding-bottom:28px}
+      .location-page .feature-grid{gap:12px}
+      .location-page .menu-card{grid-template-columns:auto 1fr}
+    }
+    @media(max-width:390px){
+      .location-page .hero h1{font-size:clamp(2.45rem,11.5vw,3.35rem)}
+    }
+  </style>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,18 +106,26 @@
   }
   </script>
 </head>
-<body>
+<body class="location-page">
   <a class="skip-link" href="#main">Перейти к содержанию</a>
-  <header class="site-header">
+
+  <header class="site-header" id="top">
     <div class="container header-inner">
-      <a class="brand" href="../" aria-label="Roby's Coffee House">
+      <a class="brand" href="../" aria-label="Roby's Coffee House — на главную">
         <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
       </a>
-      <nav class="main-nav" aria-label="Навигация">
+
+      <nav class="main-nav" id="main-navigation" aria-label="Навигация">
         <a href="../menu.html">Меню</a>
         <a href="#location">Адрес</a>
         <a href="#faq">Вопросы</a>
       </nav>
+
+      <div class="header-actions">
+        <button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="main-navigation">
+          <span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -100,47 +134,121 @@
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="container hero-content">
         <p class="eyebrow">GAZİPAŞA · ANTALYA</p>
-        <h1 id="page-title">Кофейня в Газипаше — Roby's Coffee House</h1>
-        <p class="hero-text">Ищете, где выпить кофе в Газипаше? В Roby's Coffee House можно посмотреть актуальное меню кофе, холодных напитков, десертов и других позиций, а затем построить маршрут до кофейни.</p>
+        <h1 id="page-title">Кофейня в Газипаше.<br /><em>Roby's Coffee House.</em></h1>
+        <p class="hero-text">Кофе, холодные напитки и десерты в спокойной атмосфере Roby's. Посмотрите меню и сразу постройте маршрут до кофейни.</p>
+
         <div class="hero-actions">
           <a class="button button-primary" href="../menu.html">Посмотреть меню</a>
-          <a class="button button-ghost" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" rel="noopener noreferrer">Построить маршрут</a>
+          <a class="button button-ghost" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer">Построить маршрут</a>
+        </div>
+
+        <div class="hero-meta">
+          <div><strong>Gazipaşa</strong><span>Antalya</span></div>
+          <div><strong>Меню онлайн</strong><span>Кофе · напитки · десерты</span></div>
         </div>
       </div>
     </section>
 
-    <section id="location">
+    <section class="section about" id="location" aria-labelledby="location-title">
       <div class="container">
-        <p class="eyebrow">КОФЕ · ДЕСЕРТЫ · ГАЗИПАША</p>
-        <h2>Кофе и десерты в Газипаше</h2>
-        <p>Roby's Coffee House — локальная кофейня в Газипаше, Анталья. На сайте собраны меню и основные ориентиры для посещения без необходимости искать информацию по разным страницам.</p>
-        <h3>Адрес</h3>
-        <address>Pazarcı, Uğur Mumcu Cd., Gazipaşa, Antalya, Türkiye</address>
-        <p><a href="../menu.html">Открыть полное меню Roby's Coffee House →</a></p>
+        <div class="section-heading">
+          <p class="eyebrow">КОФЕ · ДЕСЕРТЫ · ГАЗИПАША</p>
+          <h2 id="location-title">Всё нужное перед визитом.</h2>
+          <p>Адрес, меню и маршрут собраны в одном месте — без лишних переходов и поиска по сайту.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span aria-hidden="true">01</span>
+            <h3>Адрес</h3>
+            <address class="location-address">Pazarcı, Uğur Mumcu Cd., Gazipaşa, Antalya, Türkiye</address>
+            <a class="text-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer">Построить маршрут →</a>
+          </article>
+
+          <article class="feature-card">
+            <span aria-hidden="true">02</span>
+            <h3>Меню</h3>
+            <p>Кофе, холодные напитки, десерты и другие доступные позиции Roby's Coffee House.</p>
+            <a class="text-link" href="../menu.html">Открыть меню →</a>
+          </article>
+
+          <article class="feature-card">
+            <span aria-hidden="true">03</span>
+            <h3>О кофейне</h3>
+            <p>Атмосфера, галерея и основные контакты Roby's Coffee House — на главной странице.</p>
+            <a class="text-link" href="../">На главную →</a>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section id="faq" aria-labelledby="faq-title">
-      <div class="container">
-        <p class="eyebrow">FAQ</p>
-        <h2 id="faq-title">Частые вопросы</h2>
+    <section class="section menu-section" id="faq" aria-labelledby="faq-title">
+      <div class="container menu-layout">
+        <div class="menu-intro">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-title">Частые вопросы.</h2>
+          <p>Коротко о расположении кофейни, онлайн-меню и русскоязычной версии сайта.</p>
+        </div>
 
-        <h3>Где находится Roby's Coffee House?</h3>
-        <p>Roby's Coffee House находится в Газипаше, провинция Анталья, Турция, на Uğur Mumcu Caddesi. <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" rel="noopener noreferrer">Построить маршрут</a>.</p>
+        <div class="menu-cards">
+          <article class="menu-card faq-card">
+            <span class="menu-icon" aria-hidden="true">01</span>
+            <div>
+              <h3>Где находится Roby's Coffee House?</h3>
+              <p>В Газипаше, провинция Анталья, Турция, на Uğur Mumcu Caddesi. <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer">Открыть маршрут</a>.</p>
+            </div>
+          </article>
 
-        <h3>Можно ли посмотреть меню онлайн?</h3>
-        <p>Да. На сайте опубликована <a href="../menu.html">отдельная страница меню</a> с кофе, холодными напитками, десертами и другими доступными позициями.</p>
+          <article class="menu-card faq-card">
+            <span class="menu-icon" aria-hidden="true">02</span>
+            <div>
+              <h3>Можно ли посмотреть меню онлайн?</h3>
+              <p>Да. На сайте есть <a href="../menu.html">отдельная страница меню</a> с кофе, холодными напитками, десертами и другими позициями.</p>
+            </div>
+          </article>
 
-        <h3>Есть ли информация на русском языке?</h3>
-        <p>Да. Эта страница подготовлена на русском языке, а основной сайт также поддерживает русскоязычный интерфейс.</p>
+          <article class="menu-card faq-card">
+            <span class="menu-icon" aria-hidden="true">03</span>
+            <div>
+              <h3>Есть ли информация на русском языке?</h3>
+              <p>Да. Эта страница подготовлена на русском языке, а основной сайт поддерживает русскоязычный интерфейс.</p>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="container">
-      <p><a href="../">Roby's Coffee House</a> · <a href="../menu.html">Меню</a> · Gazipaşa, Antalya</p>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a class="brand" href="#top" aria-label="Roby's Coffee House — наверх">
+        <span class="brand-copy"><strong>ROBY'S</strong><small>COFFEE HOUSE</small></span>
+      </a>
+      <p>© 2026 Roby's Coffee House. Газипаша, Анталья.</p>
+      <a class="back-top" href="#top" aria-label="Наверх">↑</a>
     </div>
   </footer>
+
+  <script>
+    (() => {
+      const button = document.querySelector('.menu-toggle');
+      const nav = document.getElementById('main-navigation');
+      if (!button || !nav) return;
+
+      const setOpen = (open) => {
+        document.body.classList.toggle('menu-open', open);
+        button.setAttribute('aria-expanded', String(open));
+        button.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+      };
+
+      button.addEventListener('click', () => setOpen(!document.body.classList.contains('menu-open')));
+      nav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) setOpen(false);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setOpen(false);
+      });
+    })();
+  </script>
 </body>
 </html>
