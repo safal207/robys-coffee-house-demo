@@ -23,10 +23,11 @@ jobs:
           cache: npm
       - name: Hide temporary workflow from product-tree checks
         run: mv .github/workflows/tmp-manual-qa-core-sync-20260916.yml /tmp/tmp-manual-qa-core-sync-20260916.yml
-      - name: Point build revisioning at service-worker core
+      - name: Align build and verifiers with service-worker core
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
           p = Path('scripts/build.mjs')
           s = p.read_text()
           old_read = 'let serviceWorker = readFileSync("sw.js", "utf8");'
@@ -36,6 +37,14 @@ jobs:
           s = s.replace(old_read, 'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");')
           s = s.replace(old_write, 'writeFileSync("sw-core-v64.js", serviceWorker);')
           p.write_text(s)
+
+          p = Path('scripts/verify-smart-choice-release.mjs')
+          s = p.read_text()
+          old = 'const serviceWorker = read("sw.js");'
+          new = 'const serviceWorker = `${read("sw.js")}\n${read("sw-core-v64.js")}`;'
+          if s.count(old) != 1:
+              raise SystemExit('unexpected Smart Choice worker verifier anchor')
+          p.write_text(s.replace(old, new))
           PY
       - run: npm ci --no-audit --no-fund
       - name: Build and refresh integrity
