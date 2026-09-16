@@ -5,7 +5,7 @@ import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 
 const poster = readFileSync("pairing-posters.js", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
 const menuSource = readVerifiedMenuSource();
 const posterRevision = createHash("sha256").update(poster).digest("hex").slice(0, 12);
 

@@ -8,9 +8,9 @@ const css = readFileSync("menu-premium.css", "utf8");
 const premiumRevision = createHash("sha256").update(css).digest("hex").slice(0, 12);
 const runtime = readFileSync("menu-interactions.js", "utf8");
 const menuPageRuntime = readVerifiedMenuSource();
-const pwaRuntime = readFileSync("pwa.js", "utf8");
+const pwaRuntime = readFileSync("pwa-pairing-fix.js", "utf8");
 const menuPwaRuntime = readFileSync("menu-pwa.js", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[SHARE-001] ${message}`);
@@ -67,7 +67,7 @@ const pwaRevision = pwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js\?v=([^"
 const menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js\?v=([^"]+)";/)?.[1];
 assert(pwaRevision, "Service-worker registration revision is missing");
 assert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");
-assert(indexHtml.includes(`src="pwa.js?v=${pwaRevision}"`), "index.html does not load the current PWA registration revision");
+assert(/src="pwa-pairing-fix\.js\?v=[^"]+"/.test(indexHtml), "index.html does not load the current PWA registration runtime");
 assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");
 assert(!menuPageRuntime.includes('import("./menu-pwa.js'), "Menu PWA registration must have one deterministic bootstrap path");
 

@@ -76,7 +76,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toStrin
 const { menuCategories } = await import(moduleUrl);
 const menuRuntime = readVerifiedMenuSource();
 const menuStyles = readFileSync("menu-premium.css", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
 const expectedMenuFiles = productCategories.flatMap((category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);

@@ -18,7 +18,8 @@ const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
-const serviceWorker = read("sw.js");
+const serviceWorker = `${read("sw.js")}
+${read("sw-core-v64.js")}`;
 const buildScript = read("scripts/build.mjs");
 const smartChoicePwa = read("smart-choice/pwa.js");
 

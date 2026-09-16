@@ -92,7 +92,7 @@ assert.match(css, /touch-action:\s*pan-y/);
 assert.match(css, /prefers-reduced-motion:\s*reduce/);
 assert.match(css, /margin-top:\s*-108px/, "Mobile preview must expose the reviewed next-card peek");
 
-const swSource = readFileSync(resolve(root, "sw.js"), "utf8");
+const swSource = readFileSync(resolve(root, "sw.js"), "utf8") + "\n" + readFileSync(resolve(root, "sw-core-v64.js"), "utf8");
 for (const file of [
   "discover-deck.css",
   "discover-deck.js",

@@ -150,7 +150,8 @@ must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_PATH, docu
 must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_SCOPE, document.baseURI)"), "Experience PWA runtime must request the parent scope explicitly");
 must("SEC-001", !/https?:\/\//i.test(experiencePwaRuntime), "Experience PWA runtime must not register a cross-origin worker");
 
-const serviceWorker = read("sw.js");
+const serviceWorker = `${read("sw.js")}
+${read("sw-core-v64.js")}`;
 const menuPwaRuntime = read("menu-pwa.js");
 must("CSP-001", !menuPwaRuntime.includes("robys-menu-pwa"), "Menu offline runtime must not create a policy rejected by CSP");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");
