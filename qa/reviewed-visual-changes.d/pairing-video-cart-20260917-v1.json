@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pairing-video-cart-20260917-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/404#issuecomment-5705323486",
+      "contentBindings": {
+        "src/menu-app.js": "eb3fa257b59fd793b7732073b5b8084e9482006b",
+        "menu-premium.css": "98af0b7d0d12919e1c9a5a3eb5a58f4d1c2514e7",
+        "menu.html": "8c193adad2c107b0542c7e1614ac91f3794b1b94"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11976 vs 320x11836"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x10847 vs 390x10707"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13357 vs 768x13217"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7040 vs 1440x6970"
+        }
+      ]
+    }
+  ]
+}
