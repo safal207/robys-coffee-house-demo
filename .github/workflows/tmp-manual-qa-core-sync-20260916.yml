@@ -45,7 +45,17 @@ jobs:
           if s.count(old) != 1:
               raise SystemExit('unexpected Smart Choice worker verifier anchor')
           p.write_text(s.replace(old, new))
+
+          p = Path('scripts/verify-menu-image-assets.mjs')
+          s = p.read_text()
+          old = 'const serviceWorker = readFileSync("sw.js", "utf8");'
+          new = 'const serviceWorker = readFileSync("sw.js", "utf8") + "\\n" + readFileSync("sw-core-v64.js", "utf8");'
+          if s.count(old) != 1:
+              raise SystemExit('unexpected menu-image worker verifier anchor')
+          p.write_text(s.replace(old, new))
           PY
+      - name: Inventory remaining monolithic-worker assumptions
+        run: grep -R -n -E 'read(FileSync)?\([^\n]*sw\.js' scripts || true
       - run: npm ci --no-audit --no-fund
       - name: Build and refresh integrity
         run: |
