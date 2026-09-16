@@ -3,7 +3,7 @@ name: Manual QA generated sync
 on:
   push:
     branches:
-      - fix/manual-qa-polish-20260915
+      - qa/generated-sync-403
 
 permissions:
   contents: read
