@@ -1,0 +1,208 @@
+name: Temporary exact-head Android evidence repair
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/manual-qa-polish-20260915
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Pin Android atomic web evidence to exact head
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if old in text:
+                  return text.replace(old, new, 1)
+              if new in text:
+                  return text
+              raise SystemExit(f"missing patch anchor: {label}")
+
+          main_path = Path("android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java")
+          main = main_path.read_text()
+          main = replace_once(
+              main,
+              '    private static final String APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";\n    private static final String TRUSTED_HOST = "safal207.github.io";\n    private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";',
+              '    private static final String RELEASE_APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";\n    private static final String DEBUG_APP_URL_BASE = "http://127.0.0.1:4173/?entry=android-handoff";\n    private static final String RELEASE_TRUSTED_HOST = "safal207.github.io";\n    private static final String RELEASE_TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";\n    private static final String DEBUG_TRUSTED_HOST = "127.0.0.1";',
+              "Android URL constants"
+          )
+          main = replace_once(
+              main,
+              '    private String appUrlForGeneration(int generation) {\n        return APP_URL_BASE + "&handoff-gen=" + generation;\n    }',
+              '    private String appUrlForGeneration(int generation) {\n        String base = isDebuggableBuild() ? DEBUG_APP_URL_BASE : RELEASE_APP_URL_BASE;\n        return base + "&handoff-gen=" + generation;\n    }',
+              "generation URL"
+          )
+          main = replace_once(
+              main,
+              '    private boolean isTrusted(Uri uri) {\n        if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;\n        if (!TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;\n        String path = uri.getPath();\n        return path != null && path.startsWith(TRUSTED_PATH_PREFIX);\n    }',
+              '    private boolean isTrusted(Uri uri) {\n        if (uri == null) return false;\n        if (isDebuggableBuild()) {\n            if (!"http".equalsIgnoreCase(uri.getScheme())) return false;\n            if (!DEBUG_TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;\n            String path = uri.getPath();\n            return path == null || path.startsWith("/");\n        }\n        if (!"https".equalsIgnoreCase(uri.getScheme())) return false;\n        if (!RELEASE_TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;\n        String path = uri.getPath();\n        return path != null && path.startsWith(RELEASE_TRUSTED_PATH_PREFIX);\n    }',
+              "trusted origin"
+          )
+          main = replace_once(
+              main,
+              '    private void debugState(String state) {\n        if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {\n            Log.d(HANDOFF_TAG, state);\n        }\n    }',
+              '    private boolean isDebuggableBuild() {\n        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;\n    }\n\n    private void debugState(String state) {\n        if (isDebuggableBuild()) {\n            Log.d(HANDOFF_TAG, state);\n        }\n    }',
+              "debuggable helper"
+          )
+          main_path.write_text(main)
+
+          debug_manifest = Path("android-native/app/src/debug/AndroidManifest.xml")
+          debug_manifest.parent.mkdir(parents=True, exist_ok=True)
+          debug_manifest.write_text('''<?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools">
+              <application
+                  android:usesCleartextTraffic="true"
+                  tools:replace="android:usesCleartextTraffic" />
+          </manifest>
+          '''.replace("          ", ""))
+
+          debug_network = Path("android-native/app/src/debug/res/xml/network_security_config.xml")
+          debug_network.parent.mkdir(parents=True, exist_ok=True)
+          debug_network.write_text('''<?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="true">
+                  <trust-anchors>
+                      <certificates src="system" />
+                  </trust-anchors>
+              </base-config>
+          </network-security-config>
+          '''.replace("          ", ""))
+
+          capture_path = Path(".github/scripts/capture-android-launch.sh")
+          capture = capture_path.read_text()
+          capture = replace_once(
+              capture,
+              'HANDOFF_WAIT_SECONDS=30\n',
+              'HANDOFF_WAIT_SECONDS=30\nWEB_PORT=4173\nWEB_SERVER_PID=""\n',
+              "web server vars"
+          )
+          capture = replace_once(
+              capture,
+              '# Evidence identifies the APK source, not the mutable public web deployment.\ngit rev-parse HEAD > "$OUT/native-source.sha"\nsha256sum "$APK" > "$OUT/apk-sha256.txt"\nprintf \'web_source=public-github-pages\\nweb_url=https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff\\nweb_bytes_pinned_to_pr=false\\n\' > "$OUT/source-boundary.txt"\ndate -u \'+captured_at=%Y-%m-%dT%H:%M:%SZ\' >> "$OUT/source-boundary.txt"',
+              '# Evidence binds the native APK and WebView bytes to the same exact checkout.\nWEB_SOURCE_SHA="$(git rev-parse HEAD)"\nprintf \'%s\\n\' "$WEB_SOURCE_SHA" > "$OUT/native-source.sha"\nsha256sum "$APK" > "$OUT/apk-sha256.txt"\nprintf \'web_source=exact-head-checkout\\nweb_url=http://127.0.0.1:4173/?entry=android-handoff\\nweb_bytes_pinned_to_pr=true\\nweb_source_sha=%s\\n\' "$WEB_SOURCE_SHA" > "$OUT/source-boundary.txt"\ndate -u \'+captured_at=%Y-%m-%dT%H:%M:%SZ\' >> "$OUT/source-boundary.txt"',
+              "source boundary"
+          )
+          capture = replace_once(
+              capture,
+              '  timeout 6s adb shell dumpsys webviewupdate > "$OUT/webview-provider.txt"\n  printf \'exit_code=%s\\n\' "$result" > "$OUT/capture-exit.txt"\n  exit "$result"',
+              '  timeout 6s adb shell dumpsys webviewupdate > "$OUT/webview-provider.txt"\n  adb reverse --remove "tcp:$WEB_PORT" >/dev/null 2>&1 || true\n  if [[ -n "$WEB_SERVER_PID" ]]; then\n    kill "$WEB_SERVER_PID" >/dev/null 2>&1 || true\n    wait "$WEB_SERVER_PID" 2>/dev/null || true\n  fi\n  printf \'exit_code=%s\\n\' "$result" > "$OUT/capture-exit.txt"\n  exit "$result"',
+              "server cleanup"
+          )
+          capture = replace_once(
+              capture,
+              'trap collect_diagnostics EXIT\ntrap \'exit 130\' INT\ntrap \'exit 143\' TERM\n\nadb install -r "$APK"',
+              'trap collect_diagnostics EXIT\ntrap \'exit 130\' INT\ntrap \'exit 143\' TERM\n\npython3 -m http.server "$WEB_PORT" --bind 127.0.0.1 >"$OUT/web-server.log" 2>&1 &\nWEB_SERVER_PID=$!\nweb_ready=0\nfor attempt in $(seq 1 40); do\n  if curl -fsS "http://127.0.0.1:$WEB_PORT/" >/dev/null 2>&1; then\n    web_ready=1\n    break\n  fi\n  /bin/sleep 0.05\ndone\nif [[ "$web_ready" -ne 1 ]]; then\n  echo "ANDROID-HANDOFF-002: exact-head web server did not become ready." >&2\n  exit 1\nfi\nadb reverse "tcp:$WEB_PORT" "tcp:$WEB_PORT"\n\nadb install -r "$APK"',
+              "local server setup"
+          )
+          capture_path.write_text(capture)
+
+          test_path = Path("scripts/test-android-capture-contract.py")
+          test = test_path.read_text()
+          test = replace_once(
+              test,
+              "        assert 'web_bytes_pinned_to_pr=false' in (evidence / 'source-boundary.txt').read_text(), case\n        head = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()\n        assert (evidence / 'native-source.sha').read_text().strip() == head, case",
+              "        boundary = (evidence / 'source-boundary.txt').read_text()\n        assert 'web_source=exact-head-checkout' in boundary, case\n        assert 'web_bytes_pinned_to_pr=true' in boundary, case\n        head = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()\n        assert f'web_source_sha={head}' in boundary, case\n        assert (evidence / 'native-source.sha').read_text().strip() == head, case",
+              "capture boundary assertions"
+          )
+          test_path.write_text(test)
+
+          verifier = Path("scripts/verify-android-evidence-source.mjs")
+          verifier.write_text('''import { readFileSync } from "node:fs";
+
+          const fail = (message) => { throw new Error(`[ANDROID-HANDOFF-SOURCE-001] ${message}`); };
+          const assert = (condition, message) => { if (!condition) fail(message); };
+          const mainActivity = readFileSync("android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java", "utf8");
+          const mainManifest = readFileSync("android-native/app/src/main/AndroidManifest.xml", "utf8");
+          const mainNetwork = readFileSync("android-native/app/src/main/res/xml/network_security_config.xml", "utf8");
+          const debugManifest = readFileSync("android-native/app/src/debug/AndroidManifest.xml", "utf8");
+          const debugNetwork = readFileSync("android-native/app/src/debug/res/xml/network_security_config.xml", "utf8");
+          const capture = readFileSync(".github/scripts/capture-android-launch.sh", "utf8");
+
+          assert(mainActivity.includes('RELEASE_APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff"'), "release WebView URL must stay HTTPS GitHub Pages");
+          assert(mainActivity.includes('DEBUG_APP_URL_BASE = "http://127.0.0.1:4173/?entry=android-handoff"'), "debug WebView URL must target adb-reversed localhost");
+          assert(mainActivity.includes('DEBUG_TRUSTED_HOST = "127.0.0.1"'), "debug trust boundary must be loopback-only");
+          assert(mainActivity.includes('isDebuggableBuild() ? DEBUG_APP_URL_BASE : RELEASE_APP_URL_BASE'), "runtime must select localhost only for debuggable APKs");
+          assert(mainActivity.includes('if (!"http".equalsIgnoreCase(uri.getScheme())) return false;'), "debug trust boundary must require HTTP loopback");
+          assert(mainActivity.includes('if (!"https".equalsIgnoreCase(uri.getScheme())) return false;'), "release trust boundary must require HTTPS");
+          assert(mainManifest.includes('android:usesCleartextTraffic="false"'), "release manifest must remain cleartext-deny");
+          assert(mainNetwork.includes('cleartextTrafficPermitted="false"'), "release network security config must remain cleartext-deny");
+          assert(debugManifest.includes('android:usesCleartextTraffic="true"'), "debug manifest must explicitly opt into localhost cleartext");
+          assert(debugNetwork.includes('cleartextTrafficPermitted="true"'), "debug source set must permit adb-reversed localhost HTTP");
+          assert(capture.includes('python3 -m http.server "$WEB_PORT" --bind 127.0.0.1'), "capture must serve the exact checkout locally");
+          assert(capture.includes('adb reverse "tcp:$WEB_PORT" "tcp:$WEB_PORT"'), "capture must bind emulator loopback to the runner checkout");
+          assert(capture.includes('web_source=exact-head-checkout'), "evidence must name the exact-head source");
+          assert(capture.includes('web_bytes_pinned_to_pr=true'), "evidence must fail closed unless web bytes are PR-pinned");
+          assert(capture.includes('web_source_sha=%s'), "evidence must record the web source SHA");
+          assert(!capture.includes('web_source=public-github-pages'), "mutable public Pages must not be the atomic evidence source");
+          assert(!capture.includes('web_bytes_pinned_to_pr=false'), "unpinned web evidence marker must not return");
+
+          console.log("✅ ANDROID-HANDOFF-SOURCE-001 passed: debug capture is exact-head pinned while release remains HTTPS-only.");
+          '''.replace(/^[ ]{10}/gm, ""))
+
+          workflow_path = Path(".github/workflows/android-visual-smoke.yml")
+          workflow = workflow_path.read_text()
+          workflow = workflow.replace('      - "scripts/test-android-capture-contract.py"\n', '      - "scripts/test-android-capture-contract.py"\n      - "scripts/verify-android-evidence-source.mjs"\n')
+          anchor = '      - name: Verify capture success and failure semantics without an emulator\n        run: python3 scripts/test-android-capture-contract.py\n'
+          replacement = '      - name: Verify exact-head Android evidence source boundary\n        run: node scripts/verify-android-evidence-source.mjs\n\n' + anchor
+          if 'Verify exact-head Android evidence source boundary' not in workflow:
+              if anchor not in workflow:
+                  raise SystemExit('missing Android visual workflow anchor')
+              workflow = workflow.replace(anchor, replacement, 1)
+          workflow_path.write_text(workflow)
+          PY
+
+      - name: Verify exact-head source contract before commit
+        run: |
+          node scripts/verify-android-evidence-source.mjs
+          CAPTURE_CASES=success,fallback,timeout,error_then_complete python3 scripts/test-android-capture-contract.py
+          git diff --check
+
+      - name: Prove repair diff is bounded
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only | sort > /tmp/actual.txt
+          printf '%s\n' \
+            .github/scripts/capture-android-launch.sh \
+            .github/workflows/android-visual-smoke.yml \
+            android-native/app/src/debug/AndroidManifest.xml \
+            android-native/app/src/debug/res/xml/network_security_config.xml \
+            android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java \
+            scripts/test-android-capture-contract.py \
+            scripts/verify-android-evidence-source.mjs | sort > /tmp/expected.txt
+          echo 'Exact-head Android evidence diff:'
+          cat /tmp/actual.txt
+          diff -u /tmp/expected.txt /tmp/actual.txt
+
+      - name: Commit exact-head evidence repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Aleksey Safonov'
+          git config user.email '55020240+safal207@users.noreply.github.com'
+          git add -- \
+            .github/scripts/capture-android-launch.sh \
+            .github/workflows/android-visual-smoke.yml \
+            android-native/app/src/debug/AndroidManifest.xml \
+            android-native/app/src/debug/res/xml/network_security_config.xml \
+            android-native/app/src/main/java/com/robys/coffeehouse/MainActivity.java \
+            scripts/test-android-capture-contract.py \
+            scripts/verify-android-evidence-source.mjs
+          git diff --cached --check
+          git commit -m 'qa: pin Android atomic web evidence to exact head'
+          git push origin HEAD:fix/manual-qa-polish-20260915
