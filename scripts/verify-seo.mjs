@@ -114,7 +114,10 @@ check('Russian page has visible FAQ entries', faqVisible.length > 0);
 check('Russian FAQ structured data matches visible Q&A', JSON.stringify(faqStructured) === JSON.stringify(faqVisible));
 check('Russian page links to menu', ru.includes('href="../menu.html"'));
 check('Russian page links to canonical homepage URL', ruHomeHrefs.length >= 2 && ruHomeHrefs.every((href) => href === '../'));
-check('Russian page exposes visible address', ru.includes('<address>'));
+check('Russian page exposes visible address', /<address\b/i.test(ru));
+check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
+check('Russian page exposes accessible mobile navigation control', ru.includes('id="main-navigation"') && ru.includes('class="menu-toggle"') && ru.includes('aria-controls="main-navigation"'));
+check('Russian page reuses shared site layout components', ru.includes('class="section about"') && ru.includes('class="section menu-section"') && ru.includes('class="site-footer"'));
 
 check('robots allows crawling', /User-agent:\s*\*/i.test(robots) && /Allow:\s*\//i.test(robots));
 check('robots references sitemap', robots.includes('Sitemap: https://safal207.github.io/robys-coffee-house-demo/sitemap.xml'));
