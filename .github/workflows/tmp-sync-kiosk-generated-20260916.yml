@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   sync:
-    if: github.event.head_commit.message == 'chore: sync kiosk generated artifacts'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -37,6 +36,10 @@ jobs:
           printf '%s\n' integrity-manifest.json menu.html sw-core-v64.js | sort > /tmp/expected.txt
           echo 'Generated diff:'
           cat /tmp/actual.txt
+          if git diff --quiet; then
+            echo 'Generated state is already synchronized.'
+            exit 0
+          fi
           diff -u /tmp/expected.txt /tmp/actual.txt
       - name: Validate exact generated state
         run: |
