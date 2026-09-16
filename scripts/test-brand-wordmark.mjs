@@ -7,7 +7,7 @@ import { runInNewContext } from "node:vm";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
-const IDENTITY_REVISION = "20260726-approved-v4";
+const IDENTITY_REVISION = "20260917-approved-v4-restore";
 
 function read(path) {
   return readFileSync(resolve(root, path), "utf8");
