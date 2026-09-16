@@ -33,9 +33,11 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 
 public final class MainActivity extends ComponentActivity {
-    private static final String APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";
-    private static final String TRUSTED_HOST = "safal207.github.io";
-    private static final String TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
+    private static final String RELEASE_APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff";
+    private static final String DEBUG_APP_URL_BASE = "http://127.0.0.1:4173/?entry=android-handoff";
+    private static final String RELEASE_TRUSTED_HOST = "safal207.github.io";
+    private static final String RELEASE_TRUSTED_PATH_PREFIX = "/robys-coffee-house-demo/";
+    private static final String DEBUG_TRUSTED_HOST = "127.0.0.1";
     private static final String HANDOFF_TAG = "RobysHandoff";
     private static final long LOAD_COMMIT_SLOW_MS = 8_000L;
     private static final long LOAD_COMMIT_HARD_TIMEOUT_MS = 24_000L;
@@ -389,7 +391,8 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private String appUrlForGeneration(int generation) {
-        return APP_URL_BASE + "&handoff-gen=" + generation;
+        String base = isDebuggableBuild() ? DEBUG_APP_URL_BASE : RELEASE_APP_URL_BASE;
+        return base + "&handoff-gen=" + generation;
     }
 
     private int generationFromUrl(String url) {
@@ -431,10 +434,17 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private boolean isTrusted(Uri uri) {
-        if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
-        if (!TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;
+        if (uri == null) return false;
+        if (isDebuggableBuild()) {
+            if (!"http".equalsIgnoreCase(uri.getScheme())) return false;
+            if (!DEBUG_TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;
+            String path = uri.getPath();
+            return path == null || path.startsWith("/");
+        }
+        if (!"https".equalsIgnoreCase(uri.getScheme())) return false;
+        if (!RELEASE_TRUSTED_HOST.equalsIgnoreCase(uri.getHost())) return false;
         String path = uri.getPath();
-        return path != null && path.startsWith(TRUSTED_PATH_PREFIX);
+        return path != null && path.startsWith(RELEASE_TRUSTED_PATH_PREFIX);
     }
 
     private void openExternal(Uri uri) {
@@ -457,8 +467,12 @@ public final class MainActivity extends ComponentActivity {
         }
     }
 
+    private boolean isDebuggableBuild() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
+
     private void debugState(String state) {
-        if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+        if (isDebuggableBuild()) {
             Log.d(HANDOFF_TAG, state);
         }
     }
