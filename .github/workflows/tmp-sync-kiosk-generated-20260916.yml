@@ -1,0 +1,58 @@
+name: Temporary kiosk generated sync
+
+on:
+  push:
+    branches:
+      - fix/manual-qa-polish-20260915
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.event.head_commit.message == 'chore: sync kiosk generated artifacts'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: fix/manual-qa-polish-20260915
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build and refresh integrity
+        run: |
+          npm run build
+          npm run integrity:generate
+      - name: Prove generated diff is bounded
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git diff --name-only | sort > /tmp/actual.txt
+          printf '%s\n' integrity-manifest.json menu.html sw-core-v64.js | sort > /tmp/expected.txt
+          echo 'Generated diff:'
+          cat /tmp/actual.txt
+          diff -u /tmp/expected.txt /tmp/actual.txt
+      - name: Validate exact generated state
+        run: |
+          npm run check
+          npm run verify:security
+          npm run integrity:generate
+          npm run verify:integrity
+          git diff --check
+      - name: Commit generated artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Aleksey Safonov'
+          git config user.email '55020240+safal207@users.noreply.github.com'
+          git add integrity-manifest.json menu.html sw-core-v64.js
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: commit kiosk generated artifacts'
+          git push origin HEAD:fix/manual-qa-polish-20260915
