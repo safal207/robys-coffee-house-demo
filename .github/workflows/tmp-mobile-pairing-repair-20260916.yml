@@ -1,0 +1,219 @@
+name: Temporary mobile pairing visual repair
+
+on:
+  push:
+    branches:
+      - feat/kiosk-pairing-video-cart-20260916
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Repair stable poster geometry and visible one-tap CTA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          app_path = Path('src/menu-app.js')
+          app = app_path.read_text()
+
+          start = app.index('    if (pairing && item.journeyId === "iced-san-sebastian") {')
+          end = app.index('\n\n    const details = document.createElement("div");', start)
+          media_block = '''    const image = document.createElement("img");
+              image.src = productImage(categoryId, item);
+              image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
+              image.loading = priority ? "eager" : "lazy";
+              image.decoding = "async";
+              if (priority) image.fetchPriority = "high";
+              image.width = 1024;
+              image.height = 1024;
+              media.append(image);
+
+              if (pairing && item.journeyId === "iced-san-sebastian") {
+                const video = document.createElement("video");
+                video.className = "menu-pairing-video";
+                video.dataset.src = PAIRING_VIDEO_SRC;
+                video.preload = "none";
+                video.muted = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.width = 288;
+                video.height = 429;
+                video.setAttribute("aria-hidden", "true");
+                video.addEventListener("playing", () => video.classList.add("is-playing"));
+                video.addEventListener("pause", () => video.classList.remove("is-playing"));
+                media.append(video);
+                connectPairingVideo(video);
+              }'''.replace('              ', '')
+          app = app[:start] + media_block + app[end:]
+
+          details_start = app.index('    const details = document.createElement("div");', start)
+          details_end_marker = '    row.append(media, details);\n    return row;'
+          details_end = app.index(details_end_marker, details_start) + len(details_end_marker)
+          details_block = '''    const details = document.createElement("div");
+              details.className = "full-menu-item-details";
+              if (pairing) {
+                details.append(copy, price);
+                const directAdd = createButton("menu-pairing-add", menuCopy[language].addToCart, (event) => {
+                  event.stopPropagation();
+                  addProductDirectly(id);
+                });
+                directAdd.setAttribute("aria-label", `${menuCopy[language].addToCart}: ${localized(item.name)}`);
+                row.append(media, details, directAdd);
+              } else {
+                details.append(copy, price);
+                row.append(media, details);
+              }
+              return row;'''.replace('              ', '')
+          app = app[:details_start] + details_block + app[details_end:]
+          app_path.write_text(app)
+
+          css_path = Path('menu-premium.css')
+          css = css_path.read_text()
+          marker = '/* PAIRING-CARD-MOTION-V1 */'
+          assert marker in css
+          css = css[:css.index(marker)] + '''/* PAIRING-CARD-MOTION-V2: preserve poster geometry; motion only overlays after user intent. */
+          .full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;pointer-events:none;transition:opacity .24s ease}
+          .full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video.is-playing{opacity:1}
+          .full-menu-item--visual>.menu-pairing-add{grid-column:1/-1;display:inline-flex;width:calc(100% - 24px);min-height:46px;align-items:center;justify-content:center;margin:0 12px 12px;padding:11px 16px;color:#fff;background:var(--ruby);border:1px solid var(--ruby);border-radius:999px;font:800 .78rem/1 var(--sans);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+          .full-menu-item--visual.pairing-poster-card>.menu-pairing-add{position:relative;z-index:4;margin-top:12px}
+          .menu-pairing-add:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(211,38,54,.16)}
+          .menu-pairing-add:active{transform:translateY(1px) scale(.98)}
+          .menu-pairing-add:focus-visible{outline:3px solid rgba(226,27,35,.28);outline-offset:3px}
+          @media(prefers-reduced-motion:reduce){.menu-pairing-video,.menu-pairing-add{transition:none!important}}
+          '''
+          css_path.write_text(css)
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build generated runtime
+        run: npm run build
+
+      - name: Refresh integrity manifest
+        run: npm run integrity:generate
+
+      - name: Verify repository contracts
+        run: |
+          npm run check
+          npm run verify:security
+          npm run verify:integrity
+
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Verify phone pairing visuals and one-tap cart
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/robys-pairing-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          mkdir -p mobile-pairing-evidence
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          try {
+            for (const width of [320, 390]) {
+              const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+              await page.goto('http://127.0.0.1:4173/menu.html', { waitUntil: 'networkidle' });
+              const panel = page.locator('#pairing-offers');
+              await panel.waitFor({ state: 'visible' });
+              const cards = panel.locator('.pairing-poster-card');
+              if (await cards.count() !== 2) throw new Error(`${width}: expected 2 pairing cards, got ${await cards.count()}`);
+              for (let i = 0; i < 2; i++) {
+                if (!await cards.nth(i).isVisible()) throw new Error(`${width}: pairing ${i} hidden`);
+              }
+              const iced = panel.locator('[data-pairing="iced-san-sebastian"]');
+              if (!await iced.isVisible()) throw new Error(`${width}: iced pairing hidden`);
+              if (!await iced.locator('.pairing-poster-price').isVisible()) throw new Error(`${width}: 370 price badge hidden`);
+              const price = (await iced.locator('.pairing-poster-price').innerText()).replace(/\s+/g, ' ').trim();
+              if (!price.includes('370')) throw new Error(`${width}: expected 370 price, got ${price}`);
+              if (!await iced.locator('.full-menu-item-media img').isVisible()) throw new Error(`${width}: stable poster image hidden`);
+              const video = iced.locator('.menu-pairing-video');
+              if (await video.getAttribute('src')) throw new Error(`${width}: video eagerly loaded before intent`);
+              const buttons = panel.locator('.menu-pairing-add');
+              if (await buttons.count() !== 2) throw new Error(`${width}: expected 2 one-tap buttons`);
+              for (let i = 0; i < 2; i++) {
+                const b = buttons.nth(i);
+                if (!await b.isVisible()) throw new Error(`${width}: one-tap button ${i} hidden`);
+                if (!(await b.innerText()).trim()) throw new Error(`${width}: one-tap button ${i} has no text`);
+                const box = await b.boundingBox();
+                if (!box || box.height < 44) throw new Error(`${width}: one-tap button ${i} height ${box?.height}`);
+              }
+              await panel.screenshot({ path: `mobile-pairing-evidence/pairing-${width}.png` });
+              await iced.locator('.menu-pairing-add').click();
+              await page.waitForFunction(() => document.querySelector('#menu-cart-count')?.textContent === '1');
+              if ((await page.locator('#menu-cart-total').innerText()).trim() !== '370 ₺') throw new Error(`${width}: cart total is not 370 ₺`);
+              await page.waitForFunction(() => Boolean(document.querySelector('[data-pairing="iced-san-sebastian"] .menu-pairing-video')?.getAttribute('src')));
+              await page.close();
+            }
+          } finally {
+            await browser.close();
+          }
+          JS
+
+      - name: Bound repair diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import subprocess
+          allowed = {
+            'src/menu-app.js', 'menu-app.js', 'menu-premium.css', 'menu.html',
+            'sw-core-v64.js', 'integrity-manifest.json',
+            '.github/workflows/tmp-mobile-pairing-repair-20260916.yml'
+          }
+          rows = subprocess.check_output(['git','status','--porcelain','-uall'], text=True).splitlines()
+          changed = set()
+          for row in rows:
+            path = row[3:].split(' -> ')[-1]
+            if path.startswith('mobile-pairing-evidence/'):
+              continue
+            changed.add(path)
+          extra = changed - allowed
+          if extra:
+            raise SystemExit('Unexpected repair paths: ' + ', '.join(sorted(extra)))
+          required = {'src/menu-app.js','menu-app.js','menu-premium.css','menu.html','sw-core-v64.js','integrity-manifest.json'}
+          missing = required - changed
+          if missing:
+            raise SystemExit('Expected generated paths missing: ' + ', '.join(sorted(missing)))
+          print('bounded repair paths:', ', '.join(sorted(changed)))
+          PY
+
+      - name: Upload mobile visual evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-pairing-repair-${{ github.run_id }}
+          path: mobile-pairing-evidence
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Commit verified repair and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/tmp-mobile-pairing-repair-20260916.yml
+          rm -rf mobile-pairing-evidence
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix mobile pairing poster and one-tap cart"
+          git push
