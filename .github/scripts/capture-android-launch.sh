@@ -7,14 +7,17 @@ PACKAGE="com.robys.coffeehouse.debug"
 ACTIVITY="com.robys.coffeehouse.MainActivity"
 DEVICE_VIDEO="/sdcard/robys-atomic-handoff.mp4"
 HANDOFF_WAIT_SECONDS=30
+WEB_PORT=4173
+WEB_SERVER_PID=""
 
 mkdir -p "$OUT"
 rm -f "$OUT"/*
 
-# Evidence identifies the APK source, not the mutable public web deployment.
-git rev-parse HEAD > "$OUT/native-source.sha"
+# Evidence binds the native APK and WebView bytes to the same exact checkout.
+WEB_SOURCE_SHA="$(git rev-parse HEAD)"
+printf '%s\n' "$WEB_SOURCE_SHA" > "$OUT/native-source.sha"
 sha256sum "$APK" > "$OUT/apk-sha256.txt"
-printf 'web_source=public-github-pages\nweb_url=https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff\nweb_bytes_pinned_to_pr=false\n' > "$OUT/source-boundary.txt"
+printf 'web_source=exact-head-checkout\nweb_url=http://127.0.0.1:4173/?entry=android-handoff\nweb_bytes_pinned_to_pr=true\nweb_source_sha=%s\n' "$WEB_SOURCE_SHA" > "$OUT/source-boundary.txt"
 date -u '+captured_at=%Y-%m-%dT%H:%M:%SZ' >> "$OUT/source-boundary.txt"
 
 # Keep useful diagnostics on failure/cancellation, without turning either into
@@ -27,12 +30,33 @@ collect_diagnostics() {
   grep "RobysHandoff" "$OUT/logcat.txt" > "$OUT/handoff-states.txt"
   timeout 6s adb shell dumpsys window windows > "$OUT/window-state.txt"
   timeout 6s adb shell dumpsys webviewupdate > "$OUT/webview-provider.txt"
+  adb reverse --remove "tcp:$WEB_PORT" >/dev/null 2>&1 || true
+  if [[ -n "$WEB_SERVER_PID" ]]; then
+    kill "$WEB_SERVER_PID" >/dev/null 2>&1 || true
+    wait "$WEB_SERVER_PID" 2>/dev/null || true
+  fi
   printf 'exit_code=%s\n' "$result" > "$OUT/capture-exit.txt"
   exit "$result"
 }
 trap collect_diagnostics EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+
+python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 >"$OUT/web-server.log" 2>&1 &
+WEB_SERVER_PID=$!
+web_ready=0
+for attempt in $(seq 1 40); do
+  if curl -fsS "http://127.0.0.1:$WEB_PORT/" >/dev/null 2>&1; then
+    web_ready=1
+    break
+  fi
+  /bin/sleep 0.05
+done
+if [[ "$web_ready" -ne 1 ]]; then
+  echo "ANDROID-HANDOFF-002: exact-head web server did not become ready." >&2
+  exit 1
+fi
+adb reverse "tcp:$WEB_PORT" "tcp:$WEB_PORT"
 
 adb install -r "$APK"
 adb shell settings put global window_animation_scale 1

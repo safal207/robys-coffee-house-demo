@@ -90,8 +90,11 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
         assert run.returncode == expected, (case, run.returncode, expected, run.stderr)
         assert (evidence / 'capture-exit.txt').read_text().strip() == f'exit_code={expected}', case
         assert (evidence / 'webview-provider.txt').read_text().strip() == 'fixture-webview-provider', case
-        assert 'web_bytes_pinned_to_pr=false' in (evidence / 'source-boundary.txt').read_text(), case
+        boundary = (evidence / 'source-boundary.txt').read_text()
+        assert 'web_source=exact-head-checkout' in boundary, case
+        assert 'web_bytes_pinned_to_pr=true' in boundary, case
         head = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()
+        assert f'web_source_sha={head}' in boundary, case
         assert (evidence / 'native-source.sha').read_text().strip() == head, case
         assert (evidence / 'handoff-states.txt').is_file(), case
         assert (evidence / 'evidence-summary.txt').exists() == (expected == 0), case
