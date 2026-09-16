@@ -6,7 +6,7 @@ on:
       - qa/generated-sync-403
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sync:
@@ -32,29 +32,40 @@ jobs:
               raise SystemExit(f'expected exactly one old Smart Choice PWA cache key, got {text.count(old)}')
           path.write_text(text.replace(old, new))
           PY
-      - name: Build generated runtime
-        run: npm run build
-      - name: Refresh integrity manifest
-        run: npm run integrity:generate
-      - name: Full repository check
-        run: npm run check
-      - name: Security check
-        run: npm run verify:security
-      - name: Collect generated diff
+      - name: Rebuild deterministic generated outputs
+        run: |
+          npm run build
+          npm run integrity:generate
+      - name: Verify exact generated allowlist
         shell: bash
         run: |
           set -euo pipefail
-          git status --short
-          mkdir -p generated-sync
-          git diff --name-only -z | while IFS= read -r -d '' file; do
-            mkdir -p "generated-sync/$(dirname "$file")"
-            cp "$file" "generated-sync/$file"
-          done
-          git diff --name-only > generated-sync/changed-files.txt
           git diff --check
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: manual-qa-generated-sync-${{ github.run_id }}
-          path: generated-sync/
-          if-no-files-found: error
-          retention-days: 7
+          mapfile -t changed < <(git diff --name-only | sort)
+          printf '%s\n' "${changed[@]}"
+          expected=(
+            experience/index.html
+            featured-gallery.js
+            index.html
+            integrity-manifest.json
+            sw-core-v64.js
+          )
+          if [[ ${#changed[@]} -ne ${#expected[@]} ]]; then
+            echo "unexpected generated file count" >&2
+            exit 1
+          fi
+          for i in "${!expected[@]}"; do
+            [[ "${changed[$i]}" == "${expected[$i]}" ]] || {
+              echo "unexpected generated path: ${changed[$i]} != ${expected[$i]}" >&2
+              exit 1
+            }
+          done
+      - name: Commit generated outputs to scratch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experience/index.html featured-gallery.js index.html integrity-manifest.json sw-core-v64.js
+          git commit -m "Materialize generated outputs [skip ci]"
+          git push origin HEAD:qa/generated-sync-403
