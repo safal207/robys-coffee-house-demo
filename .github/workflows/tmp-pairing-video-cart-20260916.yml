@@ -1,4 +1,4 @@
-name: Temporary pairing video and cart sync
+name: Assemble pairing video
 
 on:
   push:
@@ -9,223 +9,20 @@ permissions:
   contents: write
 
 jobs:
-  sync-feature:
+  assemble:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Assemble compact pairing video
+      - name: Build exact compact MP4
         shell: bash
         run: |
           set -euo pipefail
           test "$(find .asset-upload/pairing-video-compact-20260916 -name 'part*.b64' -type f | wc -l)" -eq 7
           cat .asset-upload/pairing-video-compact-20260916/part*.b64 | tr -d '\n\r' | base64 --decode > src/products/sets-v1/iced-san-sebastian-pairing-card.mp4
           test "$(wc -c < src/products/sets-v1/iced-san-sebastian-pairing-card.mp4)" -eq 46561
-          actual="$(sha256sum src/products/sets-v1/iced-san-sebastian-pairing-card.mp4 | awk '{print $1}')"
+          actual="$(sha256sum src/products/sets-v1/iced-san-sebastian-pairing-card.mp4 | cut -d ' ' -f 1)"
           test "$actual" = "834fb5ec5eab863d1707c667c7404a9447da6f9ae38be02b9d3cf3df5ac7059"
-
-      - name: Add one-tap pairing cart and progressive video
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          app_path = Path('src/menu-app.js')
-          app = app_path.read_text()
-
-          anchor = '\nfunction createItem(item, { priority = false, categoryId } = {}) {'
-          assert anchor in app, 'createItem anchor changed'
-          helper = r'''
-          const PAIRING_VIDEO_SRC = "src/products/sets-v1/iced-san-sebastian-pairing-card.mp4";
-          let pairingMotionActivated = false;
-          const pairingVideoObserver = typeof IntersectionObserver === "function"
-            ? new IntersectionObserver((entries) => {
-                entries.forEach(({ target, isIntersecting, intersectionRatio }) => {
-                  if (!pairingMotionActivated || document.hidden || !isIntersecting || intersectionRatio < 0.35) {
-                    target.pause();
-                    return;
-                  }
-                  if (!target.getAttribute("src")) target.src = target.dataset.src ?? "";
-                  if (target.getAttribute("src")) target.play().catch(() => {});
-                });
-              }, { rootMargin: "120px 0px", threshold: [0, 0.35] })
-            : null;
-
-          function pairingMotionAllowed() {
-            return !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !navigator.connection?.saveData;
-          }
-
-          function connectPairingVideo(video) {
-            if (!pairingMotionActivated) return;
-            if (pairingVideoObserver) {
-              pairingVideoObserver.observe(video);
-              return;
-            }
-            if (!video.getAttribute("src")) video.src = video.dataset.src ?? "";
-          }
-
-          function activatePairingMotion() {
-            if (pairingMotionActivated || !pairingMotionAllowed()) return;
-            pairingMotionActivated = true;
-            document.querySelectorAll(".menu-pairing-video").forEach(connectPairingVideo);
-          }
-
-          window.addEventListener("pointerdown", activatePairingMotion, { once: true, passive: true });
-          window.addEventListener("keydown", activatePairingMotion, { once: true });
-          document.addEventListener("visibilitychange", () => {
-            if (document.hidden) document.querySelectorAll(".menu-pairing-video").forEach((video) => video.pause());
-          });
-
-          function addProductDirectly(id) {
-            const product = productIndex.get(id);
-            if (!product) return;
-            const currentQuantity = cart.get(id) ?? 0;
-            const copy = menuCopy[language];
-            if (currentQuantity >= MAX_ITEM_QUANTITY) {
-              announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
-              return;
-            }
-            setCartQuantity(id, currentQuantity + 1);
-            announceCart(`${copy.added}: ${localized(product.item.name)} × 1`);
-            cartTrigger.classList.add("is-emphasized");
-            window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
-          }
-          '''
-          app = app.replace(anchor, '\n' + helper + '\nfunction createItem(item, { priority = false, categoryId } = {}) {', 1)
-
-          old_media = '''    const image = document.createElement("img");
-    image.src = productImage(categoryId, item);
-    image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
-    image.loading = priority ? "eager" : "lazy";
-    image.decoding = "async";
-    if (priority) image.fetchPriority = "high";
-    image.width = 1024;
-    image.height = 1024;
-    media.append(image);'''
-          assert old_media in app, 'media image block changed'
-          new_media = '''    if (pairing && item.journeyId === "iced-san-sebastian") {
-      const video = document.createElement("video");
-      video.className = "menu-pairing-video";
-      video.poster = productImage(categoryId, item);
-      video.dataset.src = PAIRING_VIDEO_SRC;
-      video.preload = "none";
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.width = 288;
-      video.height = 429;
-      video.setAttribute("aria-hidden", "true");
-      media.append(video);
-      connectPairingVideo(video);
-    } else {
-      const image = document.createElement("img");
-      image.src = productImage(categoryId, item);
-      image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
-      image.loading = priority ? "eager" : "lazy";
-      image.decoding = "async";
-      if (priority) image.fetchPriority = "high";
-      image.width = 1024;
-      image.height = 1024;
-      media.append(image);
-    }'''
-          app = app.replace(old_media, new_media, 1)
-
-          old_details = '''    const details = document.createElement("div");
-    details.className = "full-menu-item-details";
-    details.append(copy, price);
-    row.append(media, details);'''
-          assert old_details in app, 'details block changed'
-          new_details = '''    const details = document.createElement("div");
-    details.className = "full-menu-item-details";
-    if (pairing) {
-      const directAdd = createButton("menu-pairing-add", menuCopy[language].addToCart, (event) => {
-        event.stopPropagation();
-        addProductDirectly(id);
-      });
-      directAdd.setAttribute("aria-label", `${menuCopy[language].addToCart}: ${localized(item.name)}`);
-      details.append(copy, price, directAdd);
-    } else {
-      details.append(copy, price);
-    }
-    row.append(media, details);'''
-          app = app.replace(old_details, new_details, 1)
-          app_path.write_text(app)
-
-          css_path = Path('menu-premium.css')
-          css = css_path.read_text()
-          marker = '/* PAIRING-CARD-MOTION-V1 */'
-          assert marker not in css, 'pairing feature CSS already present'
-          css += r'''
-
-/* PAIRING-CARD-MOTION-V1 */
-.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:50% 60%;transform:scale(1.08) translate3d(-2%,2.5%,0);transform-origin:center center;background:#e8ded1;pointer-events:none}
-.menu-pairing-add{display:inline-flex;width:100%;min-height:44px;align-items:center;justify-content:center;padding:11px 16px;color:#fff;background:var(--ruby);border:1px solid var(--ruby);border-radius:999px;font:800 .78rem/1 var(--sans);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
-.menu-pairing-add:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(211,38,54,.16)}
-.menu-pairing-add:active{transform:translateY(1px) scale(.98)}
-.menu-pairing-add:focus-visible{outline:3px solid rgba(226,27,35,.28);outline-offset:3px}
-@media(max-width:680px){.full-menu-item--visual[data-pairing="iced-san-sebastian"] .full-menu-item-media .menu-pairing-video{object-position:50% 61%;transform:scale(1.15) translate3d(-4%,5%,0)}}
-@media(prefers-reduced-motion:reduce){.menu-pairing-add{transition:none}}
-'''
-          css_path.write_text(css)
-          PY
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build generated runtime
-        run: npm run build
-
-      - name: Refresh integrity manifest
-        run: npm run integrity:generate
-
-      - name: Verify project contracts
-        run: npm run check
-
-      - name: Verify security contract
-        run: npm run verify:security
-
-      - name: Verify exact integrity
-        run: npm run verify:integrity
-
-      - name: Bound generated diff
-        shell: bash
-        run: |
-          set -euo pipefail
-          git status --short
-          python - <<'PY'
-          import subprocess
-          allowed = {
-            'src/menu-app.js',
-            'menu-app.js',
-            'menu-premium.css',
-            'menu.html',
-            'sw-core-v64.js',
-            'integrity-manifest.json',
-            'src/products/sets-v1/iced-san-sebastian-pairing-card.mp4',
-            '.github/workflows/tmp-pairing-video-cart-20260916.yml',
-          }
-          rows = subprocess.check_output(['git', 'status', '--porcelain'], text=True).splitlines()
-          unexpected = []
-          for row in rows:
-            path = row[3:]
-            if ' -> ' in path:
-              path = path.split(' -> ', 1)[1]
-            if path in allowed or path.startswith('.asset-upload/pairing-video-20260916/') or path.startswith('.asset-upload/pairing-video-compact-20260916/'):
-              continue
-            unexpected.append(path)
-          if unexpected:
-            raise SystemExit('Unexpected generated paths: ' + ', '.join(unexpected))
-          PY
-
-      - name: Commit feature and remove staging
+      - name: Commit binary and remove staging
         shell: bash
         run: |
           set -euo pipefail
@@ -234,5 +31,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Add pairing video and one-tap combo cart"
+          git commit -m "Add compact pairing card video"
           git push
