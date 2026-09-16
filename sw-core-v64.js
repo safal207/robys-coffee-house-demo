@@ -104,7 +104,7 @@ const CORE_ASSETS = [
   "./conversion.js?v=bbea03459a71",
   "./menu-ready.js",
   "./menu-app.js?v=ea110bf488b2",
-  "./menu-product-reveal.js?v=1f7090c6747b",
+  "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./pairing-posters.js?v=745da5142f2d",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
