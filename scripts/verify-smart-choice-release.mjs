@@ -23,7 +23,7 @@ ${read("sw-core-v64.js")}`;
 const buildScript = read("scripts/build.mjs");
 const smartChoicePwa = read("smart-choice/pwa.js");
 
-const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
+const APPROVED_IDENTITY_REVISION = "20260917-approved-v4-restore";
 const SHARED_SERVICE_WORKER_REVISION = "pairing-video-fix-20260916-2";
 
 function requireText(haystack, needle, message) {
