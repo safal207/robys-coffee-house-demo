@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const IDENTITY_REVISION = "20260726-approved-v4";
+const IDENTITY_REVISION = "20260917-approved-v4-restore";
 const bootstrap = readFileSync(new URL("../bootstrap-v2.js", import.meta.url), "utf8");
 const stylesheet = readFileSync(new URL("../brand-photo-logo.css", import.meta.url), "utf8");
 const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");
