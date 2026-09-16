@@ -231,6 +231,10 @@
 
   <script>
     (() => {
+      try {
+        localStorage.setItem('robys-language', 'ru');
+      } catch {}
+
       const button = document.querySelector('.menu-toggle');
       const nav = document.getElementById('main-navigation');
       if (!button || !nav) return;
