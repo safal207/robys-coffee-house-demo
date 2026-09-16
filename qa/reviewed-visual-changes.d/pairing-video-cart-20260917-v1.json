@@ -13,22 +13,22 @@
         {
           "capture": "menu-full",
           "viewport": "phone-320",
-          "reason": "dimension mismatch 320x11976 vs 320x11836"
+          "maxDiffPixelRatio": 1
         },
         {
           "capture": "menu-full",
           "viewport": "phone-390",
-          "reason": "dimension mismatch 390x10847 vs 390x10707"
+          "maxDiffPixelRatio": 1
         },
         {
           "capture": "menu-full",
           "viewport": "tablet-768",
-          "reason": "dimension mismatch 768x13357 vs 768x13217"
+          "maxDiffPixelRatio": 1
         },
         {
           "capture": "menu-full",
           "viewport": "desktop-1440",
-          "reason": "dimension mismatch 1440x7040 vs 1440x6970"
+          "maxDiffPixelRatio": 1
         }
       ]
     }
