@@ -19,6 +19,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: Align shared Smart Choice PWA precache key
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('sw-core-v64.js')
+          text = path.read_text()
+          old = '"./smart-choice/pwa.js?v=premium-cache-new-20260904-1"'
+          new = '"./smart-choice/pwa.js?v=pairing-video-fix-20260916-2"'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one old Smart Choice PWA cache key, got {text.count(old)}')
+          path.write_text(text.replace(old, new))
+          PY
       - name: Build generated runtime
         run: npm run build
       - name: Refresh integrity manifest
