@@ -39,6 +39,8 @@ const mobileInstall = readFileSync("mobile-install.js", "utf8");
 const mobileInstallCss = readFileSync("mobile-install.css", "utf8");
 const pwa = readFileSync("pwa.js", "utf8");
 const sw = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
+const home = readFileSync("index.html", "utf8");
+const pairingPwa = readFileSync("pwa-pairing-fix.js", "utf8");
 assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.2/part-"), "Runtime must construct all six APK part URLs");
 assert(upgrade.includes("repairPackedApk") && upgrade.includes("return packed"), "Runtime must repair the reviewed multipart package deterministically");
 assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
@@ -46,6 +48,8 @@ assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a verified
 assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
 assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
 assert(!upgrade.includes("\n  void prepareApk(link, status);\n"), "APK preparation must not run eagerly during page startup");
+assert(!home.includes('src="android-download.js'), "Android download runtime must not load eagerly on the home page");
+assert(pairingPwa.includes("android-download.js?v=android-verified-20260627-1"), "PWA bootstrap must lazy-load the Android download runtime after user intent");
 assert(upgrade.includes(".then(() => link.click())"), "First user click must continue into the verified download after preparation");
 assert(bootstrap.includes(".android-download-button .android-download-icon"), "Android button placeholder selector is missing");
 assert(bootstrap.includes("android-download-logo") && bootstrap.includes("src/android-mark.svg"), "Real Android logo is missing from the download button");

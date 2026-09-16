@@ -72,7 +72,7 @@ const CORE_ASSETS = [
   "./mobile-install-copy.json",
   "./mobile-install.js",
   "./offline.css",
-  "./pwa-pairing-fix.js?v=20260916-2",
+  "./pwa-pairing-fix.js?v=20260916-3",
   "./android-download.js",
   "./android-app.css?v=01b7f55a3fdc",
   "./mobile-install.css",
