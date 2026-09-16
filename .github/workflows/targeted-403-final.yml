@@ -1,0 +1,70 @@
+name: Targeted PR403 final QA
+
+on:
+  push:
+    branches:
+      - qa/targeted-403-final
+
+permissions:
+  contents: read
+
+jobs:
+  targeted:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install chromium
+      - name: Contextual offline smoke
+        run: node scripts/contextual-sw-offline-smoke.mjs
+      - name: Menu scroll clearance
+        run: node scripts/menu-scroll-clearance.mjs
+      - name: Pairing preview and shared SW revision browser smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pr403-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep .15; done
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const context = await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'allow'});
+          const page = await context.newPage();
+          const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+          await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+          await page.waitForFunction(()=>document.querySelector('.featured-track')?.dataset.galleryReady==='true');
+          const card=page.locator('[data-product-id="san-sebastian"]');
+          if(await card.count()!==1) throw new Error('San Sebastian pairing card missing');
+          const badge=card.locator('[data-pairing-preview-badge]');
+          if(await badge.count()!==1) throw new Error('Pairing preview badge missing');
+          await card.click();
+          const video=card.locator('video.pairing-preview-video');
+          if(await video.count()!==1) throw new Error('Pairing preview video not created on first click');
+          const source=await video.locator('source').getAttribute('src');
+          if(source!=='src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260916-2') throw new Error(`Unexpected preview source: ${source}`);
+          const cssHref=await page.locator('link[data-pairing-preview-styles="true"]').getAttribute('href');
+          if(cssHref!=='pairing-preview.css?v=20260916-2') throw new Error(`Unexpected pairing CSS: ${cssHref}`);
+          if(await card.getAttribute('href')!=='menu.html#pairing-offers') throw new Error('Pairing menu handoff href missing');
+          if(errors.length) throw new Error(`Page errors: ${errors.join('; ')}`);
+          await context.close();
+          await browser.close();
+          const expected='pairing-video-fix-20260916-2';
+          const checks=[
+            ['pwa-pairing-fix.js', fs.readFileSync('pwa-pairing-fix.js','utf8')],
+            ['menu-pwa.js', fs.readFileSync('menu-pwa.js','utf8')],
+            ['smart-choice/pwa.js', fs.readFileSync('smart-choice/pwa.js','utf8')],
+            ['experience/experience-pwa.js', fs.readFileSync('experience/experience-pwa.js','utf8')],
+          ];
+          for(const [name,text] of checks){ if(!text.includes(`sw.js?v=${expected}`)) throw new Error(`${name} does not use shared SW revision`); }
+          const sw=fs.readFileSync('sw-core-v64.js','utf8');
+          if(!sw.includes(`./smart-choice/pwa.js?v=${expected}`)) throw new Error('Smart Choice PWA precache key not aligned');
+          console.log('PASS: pairing preview + four shared root-SW entry points + Smart Choice precache key');
+          NODE
