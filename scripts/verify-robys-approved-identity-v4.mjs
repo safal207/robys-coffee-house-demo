@@ -8,9 +8,16 @@ const files = {
   header: `${ROOT}/robys-header-v4.svg`,
   primary: `${ROOT}/robys-primary-v4.svg`
 };
+const productionFiles = {
+  mark: "src/brand/robys-mark-master-v1.svg",
+  compact: "src/brand/robys-compact-master-v1.svg",
+  header: "src/brand/robys-header-master-v1.svg",
+  primary: "src/brand/robys-primary-master-v1.svg"
+};
 const read = (path) => readFileSync(path, "utf8");
 const assert = (condition, message) => { if (!condition) throw new Error(`[ROBYs-IDENTITY-V4] ${message}`); };
 const sources = Object.fromEntries(Object.entries(files).map(([key,path]) => [key, read(path)]));
+const production = Object.fromEntries(Object.entries(productionFiles).map(([key,path]) => [key, read(path)]));
 
 for (const [key, source] of Object.entries(sources)) {
   assert(source.includes("#E21B23"), `${key} must use approved red`);
@@ -43,8 +50,22 @@ assert(canonical.includes('data-source="owner-approved-identity-sheet-20260726"'
 assert(sources.primary.includes('id="tagline"'), "Primary must retain tagline geometry");
 assert(!sources.header.includes('id="tagline"'), "Header must not contain micro-tagline");
 
+const geometry = (source) => source
+  .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "")
+  .replace(/<desc\b[^>]*>[\s\S]*?<\/desc>/gi, "")
+  .replace(/\s+/g, " ")
+  .trim();
+
+for (const key of ["mark", "compact", "header", "primary"]) {
+  assert(
+    geometry(production[key]) === geometry(sources[key]),
+    `${key} production geometry drifted from owner-approved identity v4`
+  );
+}
+
 const digest = (source) => createHash("sha256").update(source).digest("hex");
 console.log("✅ ROBYs-IDENTITY-V4 candidate structure passed");
+console.log("✅ ROBYs-IDENTITY-V4 production geometry matches approved source");
 for (const [key, source] of Object.entries(sources)) {
   console.log(`${key}: ${Buffer.byteLength(source)} bytes sha256:${digest(source)}`);
 }
