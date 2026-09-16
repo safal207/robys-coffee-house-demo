@@ -252,10 +252,12 @@ function createAndroidDownloadSection() {
 
   const actions = document.createElement("div");
   actions.className = "android-app-actions";
-  const button = document.createElement("button");
+  const button = document.createElement("a");
   button.className = "android-download-button";
-  button.type = "button";
+  button.type = "application/vnd.android.package-archive";
   button.setAttribute("aria-describedby", "android-download-note android-download-status");
+  button.setAttribute("aria-disabled", "true");
+  button.tabIndex = 0;
 
   const icon = document.createElement("span");
   icon.className = "android-download-icon";
@@ -305,6 +307,13 @@ function createAndroidDownloadSection() {
   screenCopy.append(screenTitle, screenPlace);
   const pill = document.createElement("div");
   pill.className = "android-app-screen-pill";
+  const androidMark = document.createElement("img");
+  androidMark.src = "src/android-mark.svg?v=20260627-2";
+  androidMark.alt = "";
+  androidMark.width = 48;
+  androidMark.height = 48;
+  androidMark.decoding = "async";
+  pill.append(androidMark);
   screen.append(screenCopy, pill);
   device.append(screen);
 
@@ -321,10 +330,11 @@ async function sha256Hex(bytes) {
 }
 
 async function downloadAndroidApk(button, status) {
+  if (button.dataset.apkDownload === "verified-blob" || button.getAttribute("aria-busy") === "true") return;
   const language = document.documentElement.lang;
   const copy = androidStatusCopy[language] || androidStatusCopy.tr;
-  button.disabled = true;
   button.setAttribute("aria-busy", "true");
+  button.setAttribute("aria-disabled", "true");
   status.textContent = copy.preparing;
 
   try {
@@ -339,18 +349,16 @@ async function downloadAndroidApk(button, status) {
 
     const blob = new Blob([bytes], { type: "application/vnd.android.package-archive" });
     const objectUrl = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = objectUrl;
-    anchor.download = androidApkFileName;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+    button.href = objectUrl;
+    button.download = androidApkFileName;
+    button.dataset.apkDownload = "verified-blob";
+    button.removeAttribute("aria-disabled");
     status.textContent = copy.ready;
+    button.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
   } catch {
     status.textContent = copy.error;
   } finally {
-    button.disabled = false;
     button.removeAttribute("aria-busy");
   }
 }

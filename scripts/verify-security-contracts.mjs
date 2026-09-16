@@ -18,7 +18,7 @@ const RUNTIME_FILES = [
   "menu-search-clear.js",
   "menu-ready.js",
   "smart-choice/pwa.js",
-  "android-download.js",
+  "src/conversion.js",
   "pwa.js",
   "sw.js",
   "src/app.ts"
