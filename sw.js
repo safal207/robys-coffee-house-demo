@@ -2,8 +2,8 @@
 
 const PAIRING_PREVIEW_PATH = "/src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
 
-// Activate this repair immediately so an already-open mobile session does not keep
-// serving the previous gallery script or a partial media response from runtime cache.
+// Activate this repair immediately so an already-open session does not keep
+// serving stale visual/runtime assets from Cache Storage.
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -20,7 +20,9 @@ self.addEventListener("activate", (event) => {
               requests
                 .filter((request) => {
                   const path = new URL(request.url).pathname;
-                  return path.endsWith("/featured-gallery.js") || path.endsWith(PAIRING_PREVIEW_PATH);
+                  return path.endsWith("/featured-gallery.js") ||
+                    path.endsWith("/community-reel.css") ||
+                    path.endsWith(PAIRING_PREVIEW_PATH);
                 })
                 .map((request) => cache.delete(request))
             );
