@@ -39,6 +39,7 @@ const mobileInstall = readFileSync("mobile-install.js", "utf8");
 const mobileInstallCss = readFileSync("mobile-install.css", "utf8");
 const pwa = readFileSync("pwa.js", "utf8");
 const sw = readFileSync("sw.js", "utf8");
+const swCore = readFileSync("sw-core-v64.js", "utf8");
 assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.2/part-"), "Runtime must construct all six APK part URLs");
 assert(upgrade.includes("repairPackedApk") && upgrade.includes("return packed"), "Runtime must repair the reviewed multipart package deterministically");
 assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
@@ -62,7 +63,8 @@ assert(mobileInstall.includes("if (shouldOfferIosInstall) actions.prepend(create
 assert(!mobileInstall.includes('icon.textContent = ""'), "Unreliable font-only Apple glyph must not return");
 assert(mobileInstallCss.includes(".ios-install-icon") && mobileInstallCss.includes("object-fit:cover") && mobileInstallCss.includes("border-radius:9px"), "iPhone app image styling is missing");
 assert(pwa.includes("mobile-install.js?v=platform-install-20260727-1") && pwa.includes("mobile-install.css?v=platform-install-20260727-1"), "PWA bootstrap must load the revised install assets");
-assert(!sw.includes("./downloads/android-v1.2/part-"), "Service worker install must not precache the 1 MB APK payload");
+assert(sw.includes('importScripts("./sw-core-v64.js")'), "Service worker wrapper must load the revisioned core");
+assert(!sw.includes("./downloads/android-v1.2/part-") && !swCore.includes("./downloads/android-v1.2/part-"), "Service worker install must not precache the 1 MB APK payload");
 assert(sw.includes('path.endsWith("/android-app.css")'), "Service worker activation must purge stale Android promo CSS");
-assert(sw.includes("runtimeAssetResponse") && sw.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
+assert(swCore.includes("runtimeAssetResponse") && swCore.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
 console.log(`✅ ${contract} passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work and mobile promo rendering stays compositor-safe.`);
