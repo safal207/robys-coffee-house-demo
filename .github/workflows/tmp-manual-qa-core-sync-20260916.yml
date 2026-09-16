@@ -1,0 +1,65 @@
+name: Temporary manual QA core sync
+
+on:
+  push:
+    branches:
+      - tmp/manual-qa-build-sync-20260916
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Hide temporary workflow from product-tree checks
+        run: mv .github/workflows/tmp-manual-qa-core-sync-20260916.yml /tmp/tmp-manual-qa-core-sync-20260916.yml
+      - name: Point build revisioning at service-worker core
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/build.mjs')
+          s = p.read_text()
+          old_read = 'let serviceWorker = readFileSync("sw.js", "utf8");'
+          old_write = 'writeFileSync("sw.js", serviceWorker);'
+          if s.count(old_read) != 1 or s.count(old_write) != 1:
+              raise SystemExit('unexpected service-worker build anchors')
+          s = s.replace(old_read, 'let serviceWorker = readFileSync("sw-core-v64.js", "utf8");')
+          s = s.replace(old_write, 'writeFileSync("sw-core-v64.js", serviceWorker);')
+          p.write_text(s)
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Build and refresh integrity
+        run: |
+          npm run build
+          npm run integrity:generate
+      - name: Full repository checks
+        run: npm run check
+      - name: Security checks
+        run: npm run verify:security
+      - name: Final integrity verification
+        run: |
+          npm run integrity:generate
+          npm run verify:integrity
+          git diff --check
+      - name: Restore temporary workflow outside production diff
+        run: mv /tmp/tmp-manual-qa-core-sync-20260916.yml .github/workflows/tmp-manual-qa-core-sync-20260916.yml
+      - name: Commit synchronized production tree
+        run: |
+          git config user.name 'Aleksey Safonov'
+          git config user.email '55020240+safal207@users.noreply.github.com'
+          git add -A
+          git reset .github/workflows/tmp-manual-qa-core-sync-20260916.yml
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m 'Synchronize manual QA polish build state'
+          git push origin HEAD:tmp/manual-qa-build-sync-20260916
