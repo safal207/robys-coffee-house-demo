@@ -21,7 +21,7 @@ jobs:
           cat .asset-upload/pairing-video-compact-20260916/part*.b64 | tr -d '\n\r' | base64 --decode > src/products/sets-v1/iced-san-sebastian-pairing-card.mp4
           test "$(wc -c < src/products/sets-v1/iced-san-sebastian-pairing-card.mp4)" -eq 46561
           actual="$(sha256sum src/products/sets-v1/iced-san-sebastian-pairing-card.mp4 | cut -d ' ' -f 1)"
-          test "$actual" = "834fb5ec5eab863d1707c667c7404a9447da6f9ae38be02b9d3cf3df5ac7059"
+          test "$actual" = "834fb5ec5eab863d1707c667c7404a9447da6f9ae38be02b9d3cf3df5ac7059a"
       - name: Commit binary and remove staging
         shell: bash
         run: |
