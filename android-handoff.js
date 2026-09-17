@@ -1,3 +1,8 @@
+(() => {
+if (new URLSearchParams(window.location.search).get("entry") !== "android-handoff"
+    || window.__robysAndroidHandoffStarted) return;
+window.__robysAndroidHandoffStarted = true;
+
 const ANDROID_HANDOFF_HARD_STOP_MS = 5_000;
 const ANDROID_HANDOFF_RELEASE_MS = 160;
 
@@ -119,7 +124,9 @@ async function waitForAssets(mark, wordmark) {
     return image.decode().catch(() => undefined);
   });
   await Promise.race([Promise.allSettled(decodes), delay(900)]);
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  // Native postVisualStateCallback supplies the paint barrier after READY.
+  // Waiting for two renderer frames here serializes that barrier behind the
+  // covered product's first frame on a cold WebView.
 }
 
 async function runAndroidHandoff() {
@@ -188,3 +195,5 @@ runAndroidHandoff().catch(() => {
   emitAndroidHandoffState("done");
   delete window.__robysAndroidHandoffRelease;
 });
+
+})();

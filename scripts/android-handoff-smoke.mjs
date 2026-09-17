@@ -95,6 +95,26 @@ try {
   await waitForServer(server);
   browser = await chromium.launch({ headless: true });
 
+  // A product stylesheet must not hold the native bridge behind page startup.
+  const criticalContext = await browser.newContext({ serviceWorkers: "block" });
+  const criticalPage = await criticalContext.newPage();
+  let releaseProductStyles;
+  const productStylesGate = new Promise((resolve) => { releaseProductStyles = resolve; });
+  await criticalPage.route(/\.css(?:\?|$)/, async (route) => {
+    await productStylesGate;
+    await route.continue();
+  });
+  const criticalNavigation = criticalPage.goto(`${baseUrl}?entry=android-handoff`, { waitUntil: "domcontentloaded" });
+  try {
+    await criticalPage.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
+    assert(await criticalPage.locator(".robys-android-handoff").count() === 1,
+      "Critical bridge must be ready once while product styles are still pending");
+  } finally {
+    releaseProductStyles();
+    await criticalNavigation;
+    await criticalContext.close();
+  }
+
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     locale: "tr-TR",

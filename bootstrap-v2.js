@@ -72,10 +72,11 @@ function revealProductAfterAndroidHandoffFailure() {
 
 function loadAndroidHandoffIfRequested() {
   if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;
+  if (window.__robysAndroidHandoffStarted) return true;
 
   window.__robysAndroidHandoffAborted = false;
   document.documentElement.style.backgroundColor = "#241c1b";
-  import("./android-handoff.js?v=20260917-deferred-paint-v3")
+  import("./android-handoff.js?v=20260917-critical-bridge-v4")
     .catch(revealProductAfterAndroidHandoffFailure);
   return true;
 }
