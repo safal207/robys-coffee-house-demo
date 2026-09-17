@@ -67,8 +67,9 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     server.listen(0, "127.0.0.1", accept);
   });
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  let context;
   try {
+    context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
     await page.goto(`${origin}/legacy-setup.html`);
     await page.evaluate(async () => {
@@ -112,8 +113,11 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     assert.equal(rendered.controller, `${origin}/legacy-worker.js`, "The proof must not depend on a replacement worker activating");
     console.log("✅ Menu stability cache proof passed: query-only control stays stale; the new pathname delivers approved bytes and two-column packing under the unchanged legacy worker.");
   } finally {
-    await context.close();
-    server.closeAllConnections();
-    await new Promise((accept) => server.close(accept));
+    try {
+      await context?.close();
+    } finally {
+      server.closeAllConnections();
+      await new Promise((accept) => server.close(accept));
+    }
   }
 }

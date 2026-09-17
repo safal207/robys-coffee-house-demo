@@ -64,8 +64,11 @@ adb shell settings put global transition_animation_scale 1
 adb shell settings put global animator_duration_scale 1
 adb shell wm size > "$OUT/display-size.txt"
 
-# Preserve the cold provider load; only settle unrelated emulator services.
-sleep 20
+# API 36 can still dispatch first-boot package receivers after boot_completed.
+# Wait for that unrelated work before the single cold launch; never warm the app
+# or provider, and fail closed if the device cannot settle. Product deadlines and
+# HANDOFF_WAIT_SECONDS below are unchanged.
+timeout 60s adb shell am wait-for-broadcast-idle --flush-broadcast-loopers > "$OUT/device-ready.txt"
 adb shell input keyevent HOME
 sleep 1
 adb shell am force-stop "$PACKAGE"

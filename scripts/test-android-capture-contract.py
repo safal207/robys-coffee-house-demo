@@ -42,7 +42,14 @@ if args[:1] == ['pull'] and case == 'pull_error':
     sys.exit(19)
 if args[:1] == ['install'] and case == 'install_error':
     sys.exit(23)
+if args[:3] == ['shell', 'am', 'wait-for-broadcast-idle']:
+    if case == 'device_not_ready':
+        sys.exit(24)
+    Path('device-ready.marker').write_text('ready')
+    print('All broadcast queues are idle!')
 if args[:4] == ['shell', 'am', 'start', '-W']:
+    assert Path('device-ready.marker').is_file(), 'App must not launch before device readiness'
+    Path('app-started.marker').write_text('started')
     if case == 'interrupted':
         os.kill(os.getppid(), signal.SIGTERM)
     print('Status: ok')
@@ -62,7 +69,7 @@ CASES = {'success': 0, 'fallback': 0, 'timeout': 1, 'missing_visual': 1,
          'out_of_order': 1, 'missing_commit': 1, 'short_video': 1,
          'install_error': 23, 'interrupted': 143, 'recording_error': 17,
          'pull_error': 19, 'timeout_then_complete': 1,
-         'error_then_complete': 1, 'error_after_complete': 1}
+         'error_then_complete': 1, 'error_after_complete': 1, 'device_not_ready': 24}
 selection = os.environ.get("CAPTURE_CASES")
 if selection:
     CASES = {key: CASES[key] for key in selection.split(",")}
@@ -98,7 +105,9 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
         assert (evidence / 'native-source.sha').read_text().strip() == head, case
         assert (evidence / 'handoff-states.txt').is_file(), case
         assert (evidence / 'evidence-summary.txt').exists() == (expected == 0), case
-        if case not in {'install_error', 'interrupted'}:
+        if case == 'device_not_ready':
+            assert not (work / 'app-started.marker').exists(), case
+        if case not in {'install_error', 'interrupted', 'device_not_ready'}:
             recorder_exit = 17 if case == 'recording_error' else 0
             assert (evidence / 'recorder-exit.txt').read_text().strip() == f'exit_code={recorder_exit}', case
         if case == 'recording_error':

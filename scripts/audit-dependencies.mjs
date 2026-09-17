@@ -167,14 +167,17 @@ while (queue.length) {
   }
 }
 
-// These readable inputs compile to root-level ES modules. Follow a build edge
+// These readable inputs emit root-level modules or cache-isolated CSS. Follow a build edge
 // only AFTER the emitted module is reached from an entry point. Do not whitelist
 // src/** or make every build output a root: detached source/output pairs must fail.
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
 for (const [runtime, input] of [
   ["conversion.js", "src/conversion.js"],
-  ["menu-app.js", "src/menu-app.js"]
+  ["menu-app.js", "src/menu-app.js"],
+  ["menu-stability-v2.css", "menu-stability.css"],
+  ["final-qa-v2.css", "final-qa.css"],
+  ["community-reel-v2.css", "community-reel.css"]
 ]) {
   if (reachable.has(runtime) && fileSet.has(input)) {
     reachable.add(input);
