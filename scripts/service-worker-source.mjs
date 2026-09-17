@@ -11,14 +11,25 @@ export function readServiceWorkerSources(root = process.cwd()) {
   const directory = root instanceof URL ? fileURLToPath(root) : root;
   const wrapper = readFileSync(resolve(directory, "sw.js"), "utf8");
   const ast = ts.createSourceFile("sw.js", wrapper, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const imports = ast.statements.filter((statement) =>
-    ts.isExpressionStatement(statement) &&
-    ts.isCallExpression(statement.expression) &&
-    ts.isIdentifier(statement.expression.expression) &&
-    statement.expression.expression.text === "importScripts"
-  );
-  const args = imports[0]?.expression.arguments;
-  if (ast.parseDiagnostics.length || imports.length !== 1 || args.length !== 1 ||
+  const importReferences = [];
+  function visit(node) {
+    if ((ts.isIdentifier(node) && node.text === "importScripts") ||
+        (ts.isElementAccessExpression(node) && ts.isStringLiteral(node.argumentExpression) &&
+         node.argumentExpression.text === "importScripts")) {
+      importReferences.push(node);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(ast);
+  const reference = importReferences[0];
+  const call = reference?.parent;
+  const statement = call?.parent;
+  const args = call && ts.isCallExpression(call) ? call.arguments : [];
+  // Check the entire AST: a second import in a branch, function, or callback
+  // would load a runtime that the fixed wrapper/core source pair cannot scan.
+  if (ast.parseDiagnostics.length || importReferences.length !== 1 ||
+      !ts.isIdentifier(reference) || !ts.isCallExpression(call) || call.expression !== reference ||
+      !ts.isExpressionStatement(statement) || statement.parent !== ast || args.length !== 1 ||
       !ts.isStringLiteral(args[0]) || args[0].text !== `./${SERVICE_WORKER_CORE}`) {
     throw new Error(`Service worker must import exactly the local core ./${SERVICE_WORKER_CORE}`);
   }

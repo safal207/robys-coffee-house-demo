@@ -21,7 +21,14 @@ try {
     'importScripts("./missing-core.js");',
     'importScripts(corePath);',
     'importScripts("./sw-core-v64.js", "./other.js");',
-    'importScripts("./sw-core-v64.js"); importScripts("./other.js");'
+    'importScripts("./sw-core-v64.js"); importScripts("./other.js");',
+    'importScripts("./sw-core-v64.js"); if (true) { importScripts("./unscanned.js"); }',
+    'importScripts("./sw-core-v64.js"); function load() { importScripts("./unscanned.js"); }',
+    'importScripts("./sw-core-v64.js"); self.addEventListener("install", () => importScripts("./unscanned.js"));',
+    'if (true) { importScripts("./sw-core-v64.js"); }',
+    'importScripts("./sw-core-v64.js"); self.importScripts("./unscanned.js");',
+    'importScripts("./sw-core-v64.js"); self["importScripts"]("./unscanned.js");',
+    'importScripts("./sw-core-v64.js"); const load = importScripts; load("./unscanned.js");'
   ]) {
     writeFileSync(join(root, "sw.js"), invalid);
     assert.throws(() => readServiceWorkerSource(root), /must import exactly the local core/);
