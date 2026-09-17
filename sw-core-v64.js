@@ -79,7 +79,8 @@ const CORE_ASSETS = [
   "./styles-v2.css?v=a4431b07fc04",
   "./mobile.css",
   "./conversion.css",
-  "./final-qa.css",
+  "./final-qa-v2.css?v=daa1b27c54f2",
+  "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
   "./menu-product-reveal.css?v=80aa0282d851",
@@ -200,6 +201,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/styles-v2.css") ||
     url.pathname.endsWith("/menu-security-v2.css") ||
     url.pathname.endsWith("/menu-stability-v2.css") ||
+    url.pathname.endsWith("/final-qa-v2.css") ||
+    url.pathname.endsWith("/community-reel-v2.css") ||
     url.pathname.endsWith("/pwa.js") ||
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||

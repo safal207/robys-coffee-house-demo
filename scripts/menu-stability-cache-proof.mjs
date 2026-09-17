@@ -11,6 +11,7 @@ export async function verifyMenuStabilityLegacyWorker(browser) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const approvedCss = await readFile(resolve(root, "menu-stability.css"), "utf8");
   const legacyCss = '.full-menu-grid[data-ready]{display:grid}body{--robys-stale-menu-stability:yes}';
+  const landingStyles = ["final-qa", "community-reel"];
   const cacheName = "robys-menu-stability-legacy-proof";
   const legacyWorker = `
 const CACHE_NAME = ${JSON.stringify(cacheName)};
@@ -18,6 +19,10 @@ self.addEventListener("install", event => event.waitUntil((async () => {
   const cache = await caches.open(CACHE_NAME);
   await cache.put(new URL("menu-stability.css?v=cls-20260622-1", self.location),
     new Response(${JSON.stringify(legacyCss)}, {headers:{"Content-Type":"text/css"}}));
+  for (const name of ${JSON.stringify(landingStyles)}) {
+    await cache.put(new URL(name + ".css?v=legacy", self.location),
+      new Response(${JSON.stringify(legacyCss)}, {headers:{"Content-Type":"text/css"}}));
+  }
   await self.skipWaiting();
 })()));
 self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));
@@ -74,6 +79,21 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     const queryOnlyResponse = await page.evaluate(async () =>
       (await fetch("/menu-stability.css?v=new-content-revision")).text());
     assert.equal(queryOnlyResponse, legacyCss, "Control must prove the old worker defeats a query-only revision bump");
+
+    for (const name of landingStyles) {
+      const stale = await page.evaluate(async (asset) =>
+        (await fetch(`/${asset}.css?v=new-content-revision`)).text(), name);
+      assert.equal(stale, legacyCss, `Old worker must defeat a query-only bump for ${name}`);
+    }
+    const landingResponses = landingStyles.map((name) => page.waitForResponse((response) =>
+      new URL(response.url()).pathname === `/${name}-v2.css`));
+    await page.goto(`${origin}/index.html?entry=off`, { waitUntil: "domcontentloaded" });
+    for (const [index, name] of landingStyles.entries()) {
+      const response = await landingResponses[index];
+      assert.equal(response.fromServiceWorker(), true, `${name} must pass through the unchanged legacy worker`);
+      assert.equal(await response.text(), await readFile(resolve(root, `${name}.css`), "utf8"),
+        `First landing navigation must receive approved ${name} bytes`);
+    }
 
     const cssResponsePromise = page.waitForResponse((response) =>
       new URL(response.url()).pathname === "/menu-stability-v2.css");

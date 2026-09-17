@@ -222,6 +222,11 @@ const menuSecurityRevision = revisionFor("menu-security-v2.css");
 // A new pathname also bypasses workers that matched the original CSS ignoring queries.
 writeFileSync("menu-stability-v2.css", readFileSync("menu-stability.css"));
 const menuStabilityRevision = revisionFor("menu-stability-v2.css");
+const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
+  const target = `${name}-v2.css`;
+  writeFileSync(target, readFileSync(`${name}.css`));
+  return { name, target, revision: revisionFor(target) };
+});
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
@@ -278,6 +283,10 @@ const experienceStateCssRevision = revisionFor("experience/experience-state.css"
 const experienceCinematicCssRevision = revisionFor("experience/cinematic-environments.css");
 
 let html = readFileSync("index.html", "utf8");
+for (const { name, target, revision } of landingCacheStyles) {
+  html = html.replace(`href="${name}.css`, `href="${target}`);
+  html = synchronizeStylesheet(html, target, revision);
+}
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
@@ -335,6 +344,10 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smart
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+for (const { name, target, revision } of landingCacheStyles) {
+  serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
+  serviceWorker = serviceWorker.replace(new RegExp(`"\\./${target.replaceAll(".", "\\.")}(?:\\?v=[^"]*)?"`), `"./${target}?v=${revision}"`);
+}
 serviceWorker = serviceWorker.replace('"./menu-stability.css', '"./menu-stability-v2.css');
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,

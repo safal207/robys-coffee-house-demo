@@ -31,8 +31,9 @@ assert(capture.includes('web_source_sha=%s'), "evidence must record the web sour
 assert(!capture.includes('web_source=public-github-pages'), "mutable public Pages must not be the atomic evidence source");
 assert(!capture.includes('web_bytes_pinned_to_pr=false'), "unpinned web evidence marker must not return");
 assert(bootstrap.includes('import("./android-handoff.js?v=20260917-critical-bridge-v4")'), "bootstrap must request the reviewed pre-body handoff revision");
-const blockingBridge = '<script src="android-handoff.js?v=20260917-critical-bridge-v4"></script>';
-assert(landing.includes(blockingBridge) && landing.indexOf(blockingBridge) < landing.indexOf('<link rel="stylesheet"'), "native landing bridge must execute before product styles and scripts");
+assert(!/<script[^>]+src=["']android-handoff\.js/.test(landing), "ordinary landing must not download the Android-only bridge");
+assert(bootstrap.includes('if (requestedEntryMode() !== ANDROID_HANDOFF_ENTRY_MODE) return false;'), "bridge import must remain conditional on the Android entry mode");
+assert(landing.indexOf('<script src="bootstrap-v2.js') < landing.indexOf('<link rel="stylesheet"'), "entry bootstrap must run before product styles");
 assert(handoff.includes("window.__robysAndroidHandoffStarted"), "classic and module bridge entry points must share an idempotent guard");
 assert(!handoff.includes("waitForBody"), "handoff readiness must not depend on product body parsing");
 assert(handoff.includes("document.documentElement.append(overlay)"), "handoff surface must attach to the pre-body document element");

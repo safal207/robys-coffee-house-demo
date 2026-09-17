@@ -95,6 +95,18 @@ try {
   await waitForServer(server);
   browser = await chromium.launch({ headless: true });
 
+  const ordinaryContext = await browser.newContext({ serviceWorkers: "block" });
+  const ordinaryPage = await ordinaryContext.newPage();
+  const ordinaryHandoffRequests = [];
+  ordinaryPage.on("request", (request) => {
+    if (new URL(request.url()).pathname.endsWith("/android-handoff.js")) ordinaryHandoffRequests.push(request.url());
+  });
+  await ordinaryPage.goto(`${baseUrl}?entry=off`, { waitUntil: "load" });
+  await ordinaryPage.locator('.featured-track[data-gallery-ready="true"]').waitFor({ state: "attached", timeout: 1500 });
+  await ordinaryPage.waitForTimeout(260);
+  assert(ordinaryHandoffRequests.length === 0, "Ordinary landing must not download the Android-only handoff runtime");
+  await ordinaryContext.close();
+
   // A product stylesheet must not hold the native bridge behind page startup.
   const criticalContext = await browser.newContext({ serviceWorkers: "block" });
   const criticalPage = await criticalContext.newPage();
@@ -122,7 +134,22 @@ try {
     reducedMotion: "no-preference",
     serviceWorkers: "block"
   });
+  await context.addInitScript(() => {
+    window.__featuredGeometryReads = { pending: 0, released: 0 };
+    const getBoundingClientRect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function (...args) {
+      if (this.classList.contains("featured-strip")) {
+        const state = document.documentElement.dataset.robysAndroidHandoff;
+        const pending = state === "loading" || state === "ready";
+        window.__featuredGeometryReads[pending ? "pending" : "released"] += 1;
+        if (pending) throw new Error("Featured gallery forced layout before native handoff release");
+      }
+      return getBoundingClientRect.apply(this, args);
+    };
+  });
   const page = await context.newPage();
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
   await page.goto(`${baseUrl}?entry=android-handoff`, { waitUntil: "domcontentloaded" });
   await page.locator(".robys-android-handoff").waitFor({ state: "visible", timeout: 1500 });
   await page.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
@@ -142,7 +169,16 @@ try {
   assert(await page.locator('body').evaluate(body => getComputedStyle(body).contentVisibility) === "hidden",
     "Covered product document must defer painting until the native handoff");
 
+  await page.locator('.featured-track[data-gallery-ready="true"]').waitFor({ state: "attached", timeout: 1500 });
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event("scroll"));
+    window.dispatchEvent(new Event("resize"));
+  });
   await page.waitForTimeout(260);
+  assert(await page.evaluate(() => window.__featuredGeometryReads.pending) === 0,
+    "Featured gallery must not force product layout while the native handoff is pending");
+  assert(!pageErrors.some((message) => message.includes("Featured gallery forced layout")),
+    "Featured gallery attempted covered product geometry before native release");
   assert(await page.locator(".robys-android-handoff").count() === 1, "Bridge auto-dismissed before native release");
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-ready.png"), animations: "allow" });
 
@@ -154,6 +190,9 @@ try {
   );
   assert(await page.locator('body').evaluate(body => getComputedStyle(body).contentVisibility) !== "hidden",
     "Native release must restore product rendering");
+  await page.waitForFunction(() => window.__featuredGeometryReads.released >= 1, undefined, { timeout: 700 });
+  assert(await page.evaluate(() => window.__featuredGeometryReads.pending) === 0,
+    "Native release must resume gallery geometry without any covered layout reads");
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-product.png") });
   await context.close();
 

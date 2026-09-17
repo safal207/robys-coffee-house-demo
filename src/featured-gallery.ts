@@ -318,9 +318,16 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
 function setupGalleryDockBehavior(section: HTMLElement): void {
   let animationFrame = 0;
   let previousState: boolean | null = null;
+  const handoffPending = (): boolean => {
+    const state = document.documentElement.dataset.robysAndroidHandoff;
+    return state === "loading" || state === "ready";
+  };
 
   const checkPanel = (): void => {
     animationFrame = 0;
+    // Geometry reads force layout even in a content-visibility:hidden subtree.
+    // Keep the covered product out of the native bridge's first paint.
+    if (handoffPending()) return;
 
     const visualViewport = window.visualViewport;
     const viewportTop = visualViewport?.offsetTop ?? 0;
@@ -335,9 +342,19 @@ function setupGalleryDockBehavior(section: HTMLElement): void {
   };
 
   const scheduleCheck = (): void => {
-    if (animationFrame) return;
+    if (animationFrame || handoffPending()) return;
     animationFrame = window.requestAnimationFrame(checkPanel);
   };
+
+  if (handoffPending()) {
+    const resumeAfterHandoff = (): void => {
+      const state = document.documentElement.dataset.robysAndroidHandoff;
+      if (state !== "releasing" && state !== "done") return;
+      window.removeEventListener("robys:android-handoff", resumeAfterHandoff);
+      scheduleCheck();
+    };
+    window.addEventListener("robys:android-handoff", resumeAfterHandoff);
+  }
 
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver(scheduleCheck, {
