@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import "./verify-critical-user-journeys.mjs";
 import "./verify-p1-interface-contracts.mjs";
 import "./verify-seo-content-deploy.mjs";
@@ -16,7 +17,7 @@ const featuredRuntime = readFileSync("featured-gallery.js", "utf8");
 const featuredSource = readFileSync("src/featured-gallery.ts", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap-v2.js", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readServiceWorkerSource();
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";
 

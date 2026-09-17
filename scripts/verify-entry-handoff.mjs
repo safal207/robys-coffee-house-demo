@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -5,7 +6,7 @@ import { createHash } from "node:crypto";
 const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const takeaway = readFileSync("takeaway-entry.js", "utf8");
 const styles = readFileSync("styles-v2.css", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readServiceWorkerSource();
 const entryPages = ["index.html", "menu.html", "discover.html"].map((file) => readFileSync(file, "utf8"));
 
 const pendingMarker = "document.documentElement.dataset.robysEntryPending = scene";

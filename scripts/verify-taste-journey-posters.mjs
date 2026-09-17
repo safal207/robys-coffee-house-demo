@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -123,7 +124,7 @@ const discoverRuntimeBuffer = readFileSync("discover-v2.js");
 const discoverRuntime = discoverRuntimeBuffer.toString("utf8");
 const journeysSource = readFileSync("discover-journeys-v2.js", "utf8");
 const compatibilityGuard = readFileSync("discover-weather-guard.js", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readServiceWorkerSource();
 const buildScript = readFileSync(path.join("scripts", "build.mjs"), "utf8");
 const cssBuffer = readFileSync("discover-rotation.css");
 const css = cssBuffer.toString("utf8");

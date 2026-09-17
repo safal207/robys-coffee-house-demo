@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -37,7 +38,7 @@ for (const language of ["tr", "en", "ru"]) {
 }
 
 const html = readFileSync("discover.html", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readServiceWorkerSource();
 const buildScript = readFileSync("scripts/build.mjs", "utf8");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const scriptRevision = revisionFor("discover-rotation-v3.js");

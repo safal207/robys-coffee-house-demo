@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -92,7 +93,7 @@ assert.match(css, /touch-action:\s*pan-y/);
 assert.match(css, /prefers-reduced-motion:\s*reduce/);
 assert.match(css, /margin-top:\s*-108px/, "Mobile preview must expose the reviewed next-card peek");
 
-const swSource = readFileSync(resolve(root, "sw.js"), "utf8");
+const swSource = readServiceWorkerSource(root);
 for (const file of [
   "discover-deck.css",
   "discover-deck.js",

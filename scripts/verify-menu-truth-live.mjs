@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -5,7 +6,7 @@ import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 
 const poster = readFileSync("pairing-posters.js", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readServiceWorkerSource();
 const menuSource = readVerifiedMenuSource();
 const posterRevision = createHash("sha256").update(poster).digest("hex").slice(0, 12);
 

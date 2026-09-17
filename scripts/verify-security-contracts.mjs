@@ -1,3 +1,4 @@
+import { readServiceWorkerSource, SERVICE_WORKER_CORE } from "./service-worker-source.mjs";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
@@ -21,6 +22,7 @@ const RUNTIME_FILES = [
   "android-download.js",
   "pwa.js",
   "sw.js",
+  SERVICE_WORKER_CORE,
   "src/app.ts"
 ];
 const HTML_FILES = ["index.html", "menu.html", "experience/index.html"];
@@ -150,7 +152,7 @@ must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_PATH, docu
 must("CSP-001", experiencePwaRuntime.includes("new URL(SERVICE_WORKER_SCOPE, document.baseURI)"), "Experience PWA runtime must request the parent scope explicitly");
 must("SEC-001", !/https?:\/\//i.test(experiencePwaRuntime), "Experience PWA runtime must not register a cross-origin worker");
 
-const serviceWorker = read("sw.js");
+const serviceWorker = readServiceWorkerSource();
 const menuPwaRuntime = read("menu-pwa.js");
 must("CSP-001", !menuPwaRuntime.includes("robys-menu-pwa"), "Menu offline runtime must not create a policy rejected by CSP");
 must("CSP-001", !/https?:\/\//i.test(serviceWorker), "Service worker cache must not include cross-origin assets");

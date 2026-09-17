@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { readServiceWorkerSources } from "./service-worker-source.mjs";
 
 writeFileSync("menu-app.js", compileMenuRuntime());
 
@@ -329,7 +330,8 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", s
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smartChoiceReleaseQaCssRevision);
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
-let serviceWorker = readFileSync("sw.js", "utf8");
+const { core: serviceWorkerCore, corePath: serviceWorkerCorePath } = readServiceWorkerSources();
+let serviceWorker = serviceWorkerCore;
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
@@ -371,7 +373,7 @@ for (const [filePath, revision] of [
 ]) {
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
-writeFileSync("sw.js", serviceWorker);
+writeFileSync(serviceWorkerCorePath, serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +

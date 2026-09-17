@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -85,7 +86,7 @@ export function verifyBrandWordmark() {
   const identityStyles = read("brand-photo-logo.css");
   const responsiveStyles = read("wordmark-responsive.css");
   const discoverGuard = read("discover-weather-guard.js");
-  const serviceWorker = read("sw.js");
+  const serviceWorker = readServiceWorkerSource(root);
   const brandReference = read("docs/brand-reference-policy.md");
 
   for (const [page, html] of [["index.html", index], ["menu.html", menu], ["discover.html", discover]]) {

@@ -95,6 +95,7 @@ jobs:
             discover-rotation-v3.js
             discover.html
             sw.js
+            sw-core-v64.js
           retention-days: 3
 
       - name: Verify JavaScript syntax
@@ -104,6 +105,7 @@ jobs:
           node --check discover-rotation-v2.js
           node --check discover-rotation-v3.js
           node --check sw.js
+          node --check sw-core-v64.js
 
       - name: Verify IIFE and deferred loading contract
         run: node scripts/verify-bundle.mjs
@@ -132,3 +134,4 @@ jobs:
           discover-rotation-v3.js
           discover.html
           sw.js
+          sw-core-v64.js

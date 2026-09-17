@@ -1,3 +1,4 @@
+import { readServiceWorkerSource } from "./service-worker-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -18,7 +19,7 @@ const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
-const serviceWorker = read("sw.js");
+const serviceWorker = readServiceWorkerSource();
 const buildScript = read("scripts/build.mjs");
 const smartChoicePwa = read("smart-choice/pwa.js");
 
