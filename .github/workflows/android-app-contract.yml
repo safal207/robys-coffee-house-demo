@@ -5,6 +5,7 @@ on:
     paths:
       - "android-app.css"
       - "android-download.js"
+      - "android-handoff.js"
       - "bootstrap-v2.js"
       - "mobile-install.js"
       - "mobile-install.css"
@@ -13,13 +14,17 @@ on:
       - "sw-core-v64.js"
       - "downloads/android-v1.2/**"
       - "scripts/verify-android-download.mjs"
+      - "scripts/verify-android-evidence-source.mjs"
+      - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/android-app-contract.yml"
   push:
     branches:
       - main
+      - fix/manual-qa-polish-20260915
     paths:
       - "android-app.css"
       - "android-download.js"
+      - "android-handoff.js"
       - "bootstrap-v2.js"
       - "mobile-install.js"
       - "mobile-install.css"
@@ -28,11 +33,13 @@ on:
       - "sw-core-v64.js"
       - "downloads/android-v1.2/**"
       - "scripts/verify-android-download.mjs"
+      - "scripts/verify-android-evidence-source.mjs"
+      - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/android-app-contract.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-app-contract-${{ github.event.pull_request.number || github.ref }}
@@ -54,3 +61,99 @@ jobs:
 
       - name: Verify Android app contract
         run: node scripts/verify-android-download.mjs
+
+  sync-prebody-handoff:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/manual-qa-polish-20260915'
+    name: Bounded pre-body handoff sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bind pre-body delivery and contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          sw = Path('sw-core-v64.js')
+          text = sw.read_text()
+          old_asset = '  "./android-handoff.js",'
+          new_asset = '  "./android-handoff.js?v=20260917-prebody-v2",'
+          assert text.count(old_asset) == 1
+          text = text.replace(old_asset, new_asset, 1)
+          old_predicate = '    url.pathname.endsWith("/bootstrap-v2.js") ||\n'
+          new_predicate = old_predicate + '    url.pathname.endsWith("/android-handoff.js") ||\n'
+          assert text.count(old_predicate) == 1
+          text = text.replace(old_predicate, new_predicate, 1)
+          sw.write_text(text)
+
+          verifier = Path('scripts/verify-android-evidence-source.mjs')
+          text = verifier.read_text()
+          anchor = 'const capture = readFileSync(".github/scripts/capture-android-launch.sh", "utf8");\n'
+          addition = '''const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
+          const handoff = readFileSync("android-handoff.js", "utf8");
+          const swCore = readFileSync("sw-core-v64.js", "utf8");
+          '''
+          assert text.count(anchor) == 1
+          text = text.replace(anchor, anchor + addition, 1)
+          anchor = 'assert(!capture.includes(\'web_bytes_pinned_to_pr=false\'), "unpinned web evidence marker must not return");\n'
+          addition = '''assert(bootstrap.includes('import("./android-handoff.js?v=20260917-prebody-v2")'), "bootstrap must request the reviewed pre-body handoff revision");
+          assert(!handoff.includes("waitForBody"), "handoff readiness must not depend on product body parsing");
+          assert(handoff.includes("document.documentElement.append(overlay)"), "handoff surface must attach to the pre-body document element");
+          assert(handoff.includes("20260917-approved-v4-restore"), "handoff must use the current approved brand revision");
+          assert(swCore.includes('"./android-handoff.js?v=20260917-prebody-v2"'), "service worker must precache the reviewed pre-body handoff revision");
+          assert(swCore.includes('url.pathname.endsWith("/android-handoff.js")'), "handoff must use exact-revision cache matching");
+          '''
+          assert text.count(anchor) == 1
+          text = text.replace(anchor, anchor + addition, 1)
+          verifier.write_text(text)
+
+          smoke = Path('scripts/android-handoff-smoke.mjs')
+          text = smoke.read_text()
+          anchor = '      state: document.documentElement.dataset.robysAndroidHandoff ?? "",\n'
+          addition = '      overlayHost: overlay?.parentElement === document.documentElement ? "html" : overlay?.parentElement?.tagName?.toLowerCase() ?? "missing",\n'
+          assert text.count(anchor) == 1
+          text = text.replace(anchor, anchor + addition, 1)
+          anchor = '  assert(contract.state === "ready", `Bridge did not reach READY: ${contract.state}`);\n'
+          addition = '  assert(contract.overlayHost === "html", `Bridge must be hosted by the pre-body document element, found ${contract.overlayHost}`);\n'
+          assert text.count(anchor) == 1
+          text = text.replace(anchor, anchor + addition, 1)
+          smoke.write_text(text)
+          PY
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Rebuild and verify synchronized tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run integrity:generate
+          node scripts/verify-android-evidence-source.mjs
+          python3 scripts/test-android-capture-contract.py
+          npm run check
+          npm run verify:security
+          git diff --check
+
+      - name: Restore workflow and commit verified sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/android-app-contract.yml
+          rm -f .github/workflows/tmp-android-prebody-sync-20260917.yml
+          git add -A
+          git commit -m "chore: sync Android pre-body handoff runtime"
+          git push origin HEAD:fix/manual-qa-polish-20260915
