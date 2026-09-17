@@ -71,6 +71,7 @@ async function readContract(page) {
     const wordmark = stage?.querySelector('img[src*="robys-compact-master-v1.svg"]');
     return {
       state: document.documentElement.dataset.robysAndroidHandoff ?? "",
+      overlayHost: overlay?.parentElement === document.documentElement ? "html" : overlay?.parentElement?.tagName?.toLowerCase() ?? "missing",
       overlayBackground: overlay ? getComputedStyle(overlay).backgroundColor : "missing",
       stageBackground: stage ? getComputedStyle(stage).backgroundColor : "missing",
       focusBackground: focus ? getComputedStyle(focus).backgroundImage : "missing",
@@ -108,6 +109,7 @@ try {
 
   const contract = await readContract(page);
   assert(contract.state === "ready", `Bridge did not reach READY: ${contract.state}`);
+  assert(contract.overlayHost === "html", `Bridge must be hosted by the pre-body document element, found ${contract.overlayHost}`);
   assert(contract.overlayBackground === "rgb(36, 28, 27)", `Unexpected bridge background: ${contract.overlayBackground}`);
   assert(contract.stageBackground === "rgba(0, 0, 0, 0)", `Bridge introduced a logo card: ${contract.stageBackground}`);
   assert(contract.focusBackground.includes("radial-gradient"), "Bridge is missing the warm luminance focus");

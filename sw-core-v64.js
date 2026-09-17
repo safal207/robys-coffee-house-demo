@@ -93,8 +93,8 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore",
-  "./bootstrap-v2.js?v=9b85be106f25",
-  "./android-handoff.js",
+  "./bootstrap-v2.js?v=67db50438a75",
+  "./android-handoff.js?v=20260917-prebody-v2",
   "./morning-entry-v2.js?v=8a158515f4de",
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
@@ -189,6 +189,7 @@ async function cachedResponse(request) {
   const requiresExactRevision =
     isVersionedSmartChoiceAsset ||
     url.pathname.endsWith("/bootstrap-v2.js") ||
+    url.pathname.endsWith("/android-handoff.js") ||
     url.pathname.endsWith("/morning-entry-v2.js") ||
     url.pathname.endsWith("/takeaway-entry.js") ||
     url.pathname.endsWith("/styles-v2.css") ||

@@ -8,6 +8,9 @@ const mainNetwork = readFileSync("android-native/app/src/main/res/xml/network_se
 const debugManifest = readFileSync("android-native/app/src/debug/AndroidManifest.xml", "utf8");
 const debugNetwork = readFileSync("android-native/app/src/debug/res/xml/network_security_config.xml", "utf8");
 const capture = readFileSync(".github/scripts/capture-android-launch.sh", "utf8");
+const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
+const handoff = readFileSync("android-handoff.js", "utf8");
+const swCore = readFileSync("sw-core-v64.js", "utf8");
 
 assert(mainActivity.includes('RELEASE_APP_URL_BASE = "https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff"'), "release WebView URL must stay HTTPS GitHub Pages");
 assert(mainActivity.includes('DEBUG_APP_URL_BASE = "http://127.0.0.1:4173/?entry=android-handoff"'), "debug WebView URL must target adb-reversed localhost");
@@ -26,5 +29,11 @@ assert(capture.includes('web_bytes_pinned_to_pr=true'), "evidence must fail clos
 assert(capture.includes('web_source_sha=%s'), "evidence must record the web source SHA");
 assert(!capture.includes('web_source=public-github-pages'), "mutable public Pages must not be the atomic evidence source");
 assert(!capture.includes('web_bytes_pinned_to_pr=false'), "unpinned web evidence marker must not return");
+assert(bootstrap.includes('import("./android-handoff.js?v=20260917-prebody-v2")'), "bootstrap must request the reviewed pre-body handoff revision");
+assert(!handoff.includes("waitForBody"), "handoff readiness must not depend on product body parsing");
+assert(handoff.includes("document.documentElement.append(overlay)"), "handoff surface must attach to the pre-body document element");
+assert(handoff.includes("20260917-approved-v4-restore"), "handoff must use the current approved brand revision");
+assert(swCore.includes('"./android-handoff.js?v=20260917-prebody-v2"'), "service worker must precache the reviewed pre-body handoff revision");
+assert(swCore.includes('url.pathname.endsWith("/android-handoff.js")'), "handoff must use exact-revision cache matching");
 
 console.log("✅ ANDROID-HANDOFF-SOURCE-001 passed: debug capture is exact-head pinned while release remains HTTPS-only.");
