@@ -130,6 +130,22 @@ async function runAndroidHandoff() {
   let releasing = false;
   let hardStopId;
 
+  // The native surface covers the product until its visual-state callback.
+  // Avoid laying out and painting that covered document while the WebView is
+  // trying to commit the small bridge surface on a cold renderer.
+  let productBody;
+  let productContentVisibility;
+  const deferProductPaint = () => {
+    if (productBody || !document.body || releasing) return;
+    productBody = document.body;
+    productContentVisibility = productBody.style.contentVisibility;
+    productBody.style.contentVisibility = "hidden";
+    bodyObserver.disconnect();
+  };
+  const bodyObserver = new MutationObserver(deferProductPaint);
+  bodyObserver.observe(document.documentElement, { childList: true });
+  deferProductPaint();
+
   // The handoff surface is a pre-body bootstrap layer. It must become paintable
   // before the product document, hero media, galleries, and other runtime work
   // can contend for the WebView renderer.
@@ -140,6 +156,8 @@ async function runAndroidHandoff() {
     if (releasing) return;
     releasing = true;
     window.clearTimeout(hardStopId);
+    bodyObserver.disconnect();
+    if (productBody) productBody.style.contentVisibility = productContentVisibility;
     emitAndroidHandoffState("releasing");
 
     if (!immediate && !reduceMotion && typeof overlay.animate === "function") {

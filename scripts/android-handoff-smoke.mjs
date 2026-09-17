@@ -119,6 +119,8 @@ try {
   assert(contract.wordmarkPath.endsWith("/src/brand/robys-compact-master-v1.svg"), `Unexpected wordmark asset: ${contract.wordmarkPath}`);
   assert(contract.fullMorningLayerCount === 0, "Android bridge double-played the full Morning animation");
   assert(contract.releaseHook === "function", "Native release hook is unavailable");
+  assert(await page.locator('body').evaluate(body => getComputedStyle(body).contentVisibility) === "hidden",
+    "Covered product document must defer painting until the native handoff");
 
   await page.waitForTimeout(260);
   assert(await page.locator(".robys-android-handoff").count() === 1, "Bridge auto-dismissed before native release");
@@ -130,6 +132,8 @@ try {
     await page.evaluate(() => document.documentElement.dataset.robysAndroidHandoff) === "done",
     "Bridge did not finish after native release"
   );
+  assert(await page.locator('body').evaluate(body => getComputedStyle(body).contentVisibility) !== "hidden",
+    "Native release must restore product rendering");
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-product.png") });
   await context.close();
 
