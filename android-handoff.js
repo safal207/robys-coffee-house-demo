@@ -17,15 +17,6 @@ function emitAndroidHandoffState(state) {
   }));
 }
 
-async function waitForBody() {
-  if (document.body) return;
-  await Promise.race([
-    new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true })),
-    delay(1_500)
-  ]);
-  if (!document.body) throw new Error("Android handoff body unavailable");
-}
-
 function createAndroidHandoffSurface() {
   const overlay = applyStyles(document.createElement("div"), {
     position: "fixed",
@@ -83,7 +74,7 @@ function createAndroidHandoffSurface() {
   focus.className = "robys-android-handoff-focus";
 
   const mark = document.createElement("img");
-  mark.src = "src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4";
+  mark.src = "src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore";
   mark.alt = "";
   mark.width = 46;
   mark.height = 53;
@@ -100,7 +91,7 @@ function createAndroidHandoffSurface() {
   });
 
   const wordmark = document.createElement("img");
-  wordmark.src = "src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4";
+  wordmark.src = "src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore";
   wordmark.alt = "";
   wordmark.width = 230;
   wordmark.height = 72;
@@ -132,7 +123,6 @@ async function waitForAssets(mark, wordmark) {
 }
 
 async function runAndroidHandoff() {
-  await waitForBody();
   if (window.__robysAndroidHandoffAborted) return;
 
   const { overlay, mark, wordmark } = createAndroidHandoffSurface();
@@ -140,7 +130,10 @@ async function runAndroidHandoff() {
   let releasing = false;
   let hardStopId;
 
-  document.body.append(overlay);
+  // The handoff surface is a pre-body bootstrap layer. It must become paintable
+  // before the product document, hero media, galleries, and other runtime work
+  // can contend for the WebView renderer.
+  document.documentElement.append(overlay);
   emitAndroidHandoffState("loading");
 
   const release = async (immediate = false) => {
