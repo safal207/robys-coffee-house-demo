@@ -99,6 +99,10 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          # The hosted runner has 4 cores and 15 GiB; let API 36 finish boot
+          # receivers without starving its cold WebView and software renderer.
+          cores: 4
+          ram-size: 4096M
           disable-animations: false
           # Pin both GLES and Vulkan to SwiftShader. Generic software selected
           # Lavapipe for Vulkan and stalled even launcher frames on CI.
