@@ -219,6 +219,9 @@ const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
+// A new pathname also bypasses workers that matched the original CSS ignoring queries.
+writeFileSync("menu-stability-v2.css", readFileSync("menu-stability.css"));
+const menuStabilityRevision = revisionFor("menu-stability-v2.css");
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
@@ -294,9 +297,11 @@ discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discov
 writeFileSync("discover.html", discoverHtml);
 
 let menuHtml = readFileSync("menu.html", "utf8");
+menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
@@ -330,6 +335,7 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smart
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+serviceWorker = serviceWorker.replace('"./menu-stability.css', '"./menu-stability-v2.css');
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
@@ -342,6 +348,7 @@ for (const [filePath, revision] of [
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
+  ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],

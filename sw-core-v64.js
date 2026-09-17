@@ -83,7 +83,7 @@ const CORE_ASSETS = [
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
   "./menu-product-reveal.css?v=80aa0282d851",
-  "./menu-stability.css",
+  "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
   "./discover.css",
   "./discover-deck.css?v=45ca8486a146",
@@ -199,6 +199,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/takeaway-entry.js") ||
     url.pathname.endsWith("/styles-v2.css") ||
     url.pathname.endsWith("/menu-security-v2.css") ||
+    url.pathname.endsWith("/menu-stability-v2.css") ||
     url.pathname.endsWith("/pwa.js") ||
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||

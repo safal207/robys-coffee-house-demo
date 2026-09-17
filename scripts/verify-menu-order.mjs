@@ -1,12 +1,19 @@
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 const html = readFileSync("menu.html", "utf8");
 const runtime = readVerifiedMenuSource();
 const styles = `${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")}`;
 const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");
+const stabilitySource = readFileSync("menu-stability.css");
+assert.deepEqual(readFileSync("menu-stability-v2.css"), stabilitySource, "Delivered menu stability CSS must preserve the approved source bytes");
+const stabilityRevision = createHash("sha256").update(stabilitySource).digest("hex").slice(0, 12);
+assert(html.includes(`href="menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must bypass legacy pathname caches at its current revision");
+assert(serviceWorker.includes(`"./menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must be precached at the delivered revision");
+assert(serviceWorker.includes('url.pathname.endsWith("/menu-stability-v2.css")'), "Current workers must match menu stability CSS at its exact revision");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories, menuCopy } = await import(moduleUrl);
 
