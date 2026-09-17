@@ -83,9 +83,16 @@ function visibleFaqEntries(html) {
     .filter((item) => item.question && item.answer);
 }
 
+function hasThreeLanguageControls(html) {
+  return ['tr', 'en', 'ru'].every((lang) =>
+    new RegExp(`data-lang=["']${lang}["']`, 'i').test(html)
+  );
+}
+
 const index = read('index.html');
 const menu = read('menu.html');
 const ru = read('ru/coffee-gazipasa.html');
+const brandCss = read('brand-photo-logo.css');
 const robots = read('robots.txt');
 const sitemap = read('sitemap.xml');
 
@@ -95,11 +102,14 @@ const faqStructured = structuredFaqEntries(faqPage);
 const faqVisible = visibleFaqEntries(ru);
 const menuHomeHrefs = homeLikeHrefs(menu);
 const ruHomeHrefs = homeLikeHrefs(ru);
+const narrowHeaderBlock = brandCss.match(/@media\(max-width:340px\)\{([\s\S]*?)\n\}/)?.[1] || '';
 
 check('homepage has canonical', index.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/"'));
 check('homepage has local business structured data', index.includes('"@type": "CafeOrCoffeeShop"'));
+check('homepage exposes TR EN RU controls', hasThreeLanguageControls(index));
 check('menu has canonical', menu.includes('rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu.html"'));
 check('menu has Menu structured data', menu.includes('"@type": "Menu"'));
+check('menu exposes TR EN RU controls', hasThreeLanguageControls(menu));
 check('menu links to canonical homepage URL', menuHomeHrefs.length >= 2 && menuHomeHrefs.every((href) => href === './'));
 check('menu exposes ordinary link to Russian landing', menu.includes('href="ru/coffee-gazipasa.html"'));
 
@@ -114,7 +124,12 @@ check('Russian page has visible FAQ entries', faqVisible.length > 0);
 check('Russian FAQ structured data matches visible Q&A', JSON.stringify(faqStructured) === JSON.stringify(faqVisible));
 check('Russian page links to menu', ru.includes('href="../menu.html"'));
 check('Russian page links to canonical homepage URL', ruHomeHrefs.length >= 2 && ruHomeHrefs.every((href) => href === '../'));
-check('Russian page exposes visible address', ru.includes('<address>'));
+check('Russian landing preserves shared language state', /localStorage\.setItem\(\s*['"]robys-language['"]\s*,\s*['"]ru['"]\s*\)/.test(ru));
+check('Russian page exposes visible address', /<address\b/i.test(ru));
+check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
+check('Russian page exposes accessible mobile navigation control', ru.includes('id="main-navigation"') && ru.includes('class="menu-toggle"') && ru.includes('aria-controls="main-navigation"'));
+check('Russian page reuses shared site layout components', ru.includes('class="section about"') && ru.includes('class="section menu-section"') && ru.includes('class="site-footer"'));
+check('narrow mobile header keeps site brand compact without shrinking language touch targets', narrowHeaderBlock.includes('.site-header .brand') && narrowHeaderBlock.includes('width:100px!important') && narrowHeaderBlock.includes('.site-header .brand-copy') && brandCss.includes('html .language-switcher .lang-button{\n    min-width:44px!important;\n    min-height:44px!important'));
 
 check('robots allows crawling', /User-agent:\s*\*/i.test(robots) && /Allow:\s*\//i.test(robots));
 check('robots references sitemap', robots.includes('Sitemap: https://safal207.github.io/robys-coffee-house-demo/sitemap.xml'));

@@ -22,7 +22,10 @@ self.addEventListener("activate", (event) => {
                   const path = new URL(request.url).pathname;
                   return path.endsWith("/featured-gallery.js") ||
                     path.endsWith("/community-reel.css") ||
-                    path.endsWith(PAIRING_PREVIEW_PATH);
+          path.endsWith("/android-app.css") ||
+          path.endsWith("/mobile-install.js") ||
+          path.endsWith("/mobile-install.css") ||
+          path.endsWith(PAIRING_PREVIEW_PATH);
                 })
                 .map((request) => cache.delete(request))
             );

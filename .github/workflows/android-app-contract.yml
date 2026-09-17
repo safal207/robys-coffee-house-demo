@@ -1,0 +1,56 @@
+name: Android app promo contract
+
+on:
+  pull_request:
+    paths:
+      - "android-app.css"
+      - "android-download.js"
+      - "bootstrap-v2.js"
+      - "mobile-install.js"
+      - "mobile-install.css"
+      - "pwa.js"
+      - "sw.js"
+      - "sw-core-v64.js"
+      - "downloads/android-v1.2/**"
+      - "scripts/verify-android-download.mjs"
+      - ".github/workflows/android-app-contract.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "android-app.css"
+      - "android-download.js"
+      - "bootstrap-v2.js"
+      - "mobile-install.js"
+      - "mobile-install.css"
+      - "pwa.js"
+      - "sw.js"
+      - "sw-core-v64.js"
+      - "downloads/android-v1.2/**"
+      - "scripts/verify-android-download.mjs"
+      - ".github/workflows/android-app-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-app-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-android-app:
+    name: ANDROID-APP-001 mobile promo contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Verify Android app contract
+        run: node scripts/verify-android-download.mjs

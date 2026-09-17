@@ -14,7 +14,7 @@
   width:180px!important;
   height:58px!important;
   flex:0 0 auto!important;
-  background:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4") center/contain no-repeat!important;
+  background:url("src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore") center/contain no-repeat!important;
   color:transparent!important;
   font-size:0!important;
   line-height:0!important;
@@ -53,19 +53,19 @@
 .discover-header .brand-copy{
   width:286px!important;
   height:58px!important;
-  background-image:url("src/brand/robys-header-master-v1.svg?v=20260726-approved-v4")!important;
+  background-image:url("src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore")!important;
 }
 
 .menu-page-brand .brand-copy{
   width:min(530px,84vw)!important;
   height:112px!important;
-  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4")!important;
+  background-image:url("src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore")!important;
 }
 
 .menu-page-mark::before{
   border:0!important;
   border-radius:0!important;
-  background:url("src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4") center/contain no-repeat!important;
+  background:url("src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore") center/contain no-repeat!important;
 }
 
 @media(max-width:680px){
@@ -83,7 +83,7 @@
     display:block!important;
     width:108px!important;
     height:39px!important;
-    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4")!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore")!important;
   }
 
   .menu-page-brand .brand-copy{
@@ -137,17 +137,23 @@
 }
 
 @media(max-width:340px){
+  .site-header .brand,
   .discover-header .brand{
     width:100px!important;
     max-width:100px!important;
     padding:5px 8px!important;
   }
 
+  .site-header .brand-copy,
   body.discover-page .discover-header .brand-copy{
     display:block!important;
     width:82px!important;
     height:31px!important;
-    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4")!important;
+    background-image:url("src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore")!important;
+  }
+
+  .site-header .header-actions{
+    gap:6px!important;
   }
 }
 

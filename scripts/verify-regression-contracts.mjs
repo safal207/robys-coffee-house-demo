@@ -18,7 +18,7 @@ const qaRuntime = readFileSync("qa.js", "utf8");
 const bootstrapRuntime = readFileSync("bootstrap-v2.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
-const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";
+const EXPECTED_UX_CSS_REVISION = "20260917-approved-v4-restore";
 
 function assert(condition, contract, message) {
   if (!condition) throw new Error(`[${contract}] ${message}`);

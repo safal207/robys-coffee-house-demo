@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'menu.html'
       - 'ru/**'
+      - 'brand-photo-logo.css'
       - 'robots.txt'
       - 'sitemap.xml'
       - 'scripts/verify-seo.mjs'
@@ -13,7 +14,18 @@ on:
       - '.github/workflows/seo-case.yml'
   push:
     branches:
+      - main
       - seo-yandex-case-2026-08-11
+    paths:
+      - 'index.html'
+      - 'menu.html'
+      - 'ru/**'
+      - 'brand-photo-logo.css'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'scripts/verify-seo.mjs'
+      - 'case-study/**'
+      - '.github/workflows/seo-case.yml'
 
 permissions:
   contents: read
