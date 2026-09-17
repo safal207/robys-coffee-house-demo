@@ -94,6 +94,21 @@ jobs:
           git add scripts/verify-android-download.mjs sw.js
           test -z "$(git diff --name-only --diff-filter=U)"
 
+      - name: Sync reviewed brand revision contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/verify-regression-contracts.mjs')
+          text = path.read_text()
+          old = 'const EXPECTED_UX_CSS_REVISION = "20260726-approved-v4";'
+          new = 'const EXPECTED_UX_CSS_REVISION = "20260917-approved-v4-restore";'
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new, 1))
+          PY
+          git add scripts/verify-regression-contracts.mjs
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -116,6 +131,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          rm -f .github/workflows/tmp-pr403-main-integration-v2-20260917.yml
+          rm -f .github/workflows/tmp-pr403-main-merge-probe-20260917.yml
           git add -A
           git commit -m "Merge current main into manual QA repair"
           git push origin HEAD:tmp/pr403-main-merge-probe-20260917
