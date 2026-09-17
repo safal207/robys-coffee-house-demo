@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "kind": "android-handoff-prebody-repair",
+  "synchronizedProductHead": "addc953f79d064b12088bf9a5c3a88efe30c9a1f",
+  "causalBoundary": {
+    "before": "WEB_COMMITTED followed by WEB_READY_TIMEOUT and VISUAL_STATE_TIMEOUT on API 36",
+    "repair": "Android handoff surface becomes paintable on documentElement before body parsing and hero media contention",
+    "afterRequirement": "real API 36 atomic handoff must pass without changing native deadlines"
+  },
+  "runtime": {
+    "handoffRevision": "20260917-prebody-v2",
+    "bootstrapRevision": "67db50438a75",
+    "overlayHost": "html",
+    "approvedBrandRevision": "20260917-approved-v4-restore"
+  },
+  "preservedInvariants": [
+    "release WebView URL remains HTTPS GitHub Pages",
+    "debug evidence remains exact-head localhost through adb reverse",
+    "web bytes remain pinned to the PR head for atomic evidence",
+    "native load, bridge-ready, and visual-callback deadlines are unchanged",
+    "normal web routes keep their existing product and media behavior"
+  ],
+  "reproducedFailures": [
+    {
+      "runId": 35188955150,
+      "head": "3c536e0f08d8ed84c9f198fcb2b4937943f7d833"
+    },
+    {
+      "runId": 35189526985,
+      "head": "527883ac23682b1831db04984214a8ee4f03822a"
+    }
+  ],
+  "claimCeiling": "This receipt records the causal repair and synchronized static proof only. Real API 36 success must be supplied by fresh standard CI on the user-authored head before merge."
+}
