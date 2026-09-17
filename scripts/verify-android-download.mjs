@@ -33,6 +33,10 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
 }
 
 const conversionSource = readFileSync("src/conversion.js", "utf8");
+const conversionRuntime = readFileSync("conversion.js", "utf8");
+for (const marker of [expectedSha256, "downloads/android-v1.2/part-", "android-download-button", "verified-blob", "URL.createObjectURL", "URL.revokeObjectURL", "application/vnd.android.package-archive"]) {
+  assert(conversionRuntime.includes(marker), `Generated conversion.js is missing the Android download contract: ${marker}`);
+}
 const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
 const mobileInstall = readFileSync("mobile-install.js", "utf8");

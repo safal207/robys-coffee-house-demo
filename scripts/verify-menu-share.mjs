@@ -67,7 +67,9 @@ const pwaRevision = pwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js\?v=([^"
 const menuPwaRevision = menuPwaRuntime.match(/const SERVICE_WORKER_URL = "sw\.js\?v=([^"]+)";/)?.[1];
 assert(pwaRevision, "Service-worker registration revision is missing");
 assert(menuPwaRevision === pwaRevision, "Landing and menu runtimes register different service-worker revisions");
-assert(/src="pwa-pairing-fix\.js\?v=[^"]+"/.test(indexHtml), "index.html does not load the current PWA registration runtime");
+const pwaAssetRevision = serviceWorker.match(/"\.\/pwa-pairing-fix\.js\?v=([^"]+)"/)?.[1];
+assert(pwaAssetRevision, "Landing PWA runtime is not precached with a revision");
+assert(indexHtml.includes(`src="pwa-pairing-fix.js?v=${pwaAssetRevision}"`), "index.html does not load the precached PWA runtime revision");
 assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");
 assert(!menuPageRuntime.includes('import("./menu-pwa.js'), "Menu PWA registration must have one deterministic bootstrap path");
 

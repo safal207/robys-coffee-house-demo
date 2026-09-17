@@ -256,7 +256,7 @@ function createAndroidDownloadSection() {
   button.className = "android-download-button";
   button.type = "application/vnd.android.package-archive";
   button.setAttribute("aria-describedby", "android-download-note android-download-status");
-  button.setAttribute("aria-disabled", "true");
+  button.setAttribute("role", "button");
   button.tabIndex = 0;
 
   const icon = document.createElement("span");
@@ -352,14 +352,23 @@ async function downloadAndroidApk(button, status) {
     button.href = objectUrl;
     button.download = androidApkFileName;
     button.dataset.apkDownload = "verified-blob";
+    button.removeAttribute("role");
     button.removeAttribute("aria-disabled");
     status.textContent = copy.ready;
     button.click();
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+    window.setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
+      if (button.href !== objectUrl) return;
+      button.removeAttribute("href");
+      button.removeAttribute("download");
+      delete button.dataset.apkDownload;
+      button.setAttribute("role", "button");
+    }, 30000);
   } catch {
     status.textContent = copy.error;
   } finally {
     button.removeAttribute("aria-busy");
+    button.removeAttribute("aria-disabled");
   }
 }
 
@@ -378,6 +387,12 @@ function setupAndroidAppDownload() {
   const { section, button, status } = createAndroidDownloadSection();
   visit.before(section);
   button.addEventListener("click", () => void downloadAndroidApk(button, status));
+  button.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (event.key === "Enter" && button.hasAttribute("href")) return;
+    event.preventDefault();
+    button.click();
+  });
 }
 
 let initialized = false;

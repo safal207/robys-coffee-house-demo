@@ -73,6 +73,7 @@ const CORE_ASSETS = [
   "./mobile-install.js",
   "./offline.css",
   "./pwa-pairing-fix.js?v=20260916-4",
+  "./pwa.js?v=offline-20260707-ios-install-3",
   "./android-app.css?v=1d08073e71ec",
   "./mobile-install.css",
   "./styles-v2.css?v=a4431b07fc04",
@@ -93,6 +94,10 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore",
+  "./src/brand/robys-primary-master-v1.svg?v=20260726-approved-v4",
+  "./src/brand/robys-header-master-v1.svg?v=20260726-approved-v4",
+  "./src/brand/robys-compact-master-v1.svg?v=20260726-approved-v4",
+  "./src/brand/robys-mark-master-v1.svg?v=20260726-approved-v4",
   "./bootstrap-v2.js?v=f4e395781ba2",
   "./android-handoff.js?v=20260917-deferred-paint-v3",
   "./morning-entry-v2.js?v=8a158515f4de",
@@ -100,7 +105,7 @@ const CORE_ASSETS = [
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
-  "./conversion.js?v=7e280c516c4c",
+  "./conversion.js?v=3abbdd343718",
   "./menu-ready.js",
   "./menu-app.js?v=ea110bf488b2",
   "./menu-product-reveal.js?v=28479855579d",
@@ -132,7 +137,7 @@ const CORE_ASSETS = [
   "./smart-choice/cart.css?v=4fcc327520f5",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
-  "./smart-choice/brand-v4.css?v=20260728-1",
+  "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=8741e7ebc72b",
   "./smart-choice/app-v2.js?v=5da253018750",
   "./smart-choice/cart-v2.js?v=f8e10c173a2d",
@@ -198,6 +203,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/conversion.js") ||
     url.pathname.endsWith("/menu-product-reveal.css") ||
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||

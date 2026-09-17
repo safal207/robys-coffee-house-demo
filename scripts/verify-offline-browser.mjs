@@ -89,9 +89,10 @@ try {
   assert.equal(await downloadLink.getAttribute("data-apk-download"), null, "APK must not be prepared before user intent");
   assert.doesNotMatch(await downloadLink.getAttribute("href") ?? "", /^blob:/, "APK Blob URL appeared before user intent");
 
+  await page.clock.install();
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 15000 }),
-    downloadLink.click()
+    downloadLink.press("Enter")
   ]);
 
   const uniqueApkParts = new Set(apkPartRequests.map((url) => new URL(url).pathname));
@@ -106,18 +107,60 @@ try {
   assert.equal(apk.subarray(0, 2).toString("ascii"), "PK", "Downloaded file is not an APK/ZIP");
   assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
 
+  await page.clock.fastForward(30_001);
+  assert.equal(await downloadLink.getAttribute("href"), null, "Expired APK URL must be cleared");
+  assert.equal(await downloadLink.getAttribute("data-apk-download"), null, "Expired APK must be rebuildable");
+  const [retryDownload] = await Promise.all([
+    page.waitForEvent("download", { timeout: 15000 }),
+    downloadLink.press("Space")
+  ]);
+  const retryApk = await readFile(await retryDownload.path());
+  assert.equal(createHash("sha256").update(retryApk).digest("hex"), expectedSha256, "Retry APK checksum changed");
+
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
   const worker = await waitForServiceWorker(context);
   assert.match(worker.url(), /\/sw\.js(?:\?|$)/, "Unexpected service worker script URL");
   await page.reload({ waitUntil: "domcontentloaded" });
   await waitForControlledPage(page, "home page reload");
+  const conversionRevisionIsolated = await page.evaluate(async () => {
+    const script = document.querySelector('script[src^="conversion.js?v="]');
+    const current = new URL(script.getAttribute("src"), location.href);
+    const legacy = new URL("conversion.js?v=legacy-before-apk-fix", location.href);
+    const cacheName = (await caches.keys()).find((name) => name.startsWith("robys-offline-v64-"));
+    const cache = await caches.open(cacheName);
+    const saved = await cache.match(current);
+    if (!saved) throw new Error("Current conversion runtime was not precached");
+    const expected = await saved.clone().text();
+    await cache.delete(current);
+    await cache.put(legacy, new Response("stale-download-runtime"));
+    await cache.put(current, saved);
+    try { return (await (await fetch(current)).text()) === expected; }
+    finally { await cache.delete(legacy); }
+  });
+  assert.equal(conversionRevisionIsolated, true, "Returning clients must load the current APK download runtime");
+
 
   await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
   await waitForControlledPage(page, "menu page bootstrap");
 
+  const offlineBrandAssets = [
+    ...["primary", "header", "compact", "mark"].flatMap((variant) =>
+      ["20260726-approved-v4", "20260917-approved-v4-restore"].map((revision) =>
+        `src/brand/robys-${variant}-master-v1.svg?v=${revision}`)),
+    "smart-choice/brand-v4.css?v=20260917-approved-v4-restore"
+  ];
   await context.setOffline(true);
+  const missingBrandAssets = await page.evaluate(async (paths) => {
+    const results = await Promise.all(paths.map(async (path) => {
+      try { return (await fetch(new URL(path, location.href))).ok ? null : path; }
+      catch { return path; }
+    }));
+    return results.filter(Boolean);
+  }, offlineBrandAssets);
+  assert.deepEqual(missingBrandAssets, [], "Brand assets must be available from a fresh offline cache");
+
   await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
   await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
   assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
