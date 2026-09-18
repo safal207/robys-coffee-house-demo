@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 const workflow = readFileSync(".github/workflows/live-smoke.yml", "utf8");
 const integrityWorkflow = readFileSync(".github/workflows/live-integrity.yml", "utf8");
 const refreshWorkflow = readFileSync(".github/workflows/refresh-integrity.yml", "utf8");
+const lighthouseLiveWorkflow = readFileSync(".github/workflows/lighthouse-live.yml", "utf8");
 const runner = readFileSync("scripts/live-smoke.mjs", "utf8");
 const landing = readFileSync("index.html", "utf8");
 const menu = readFileSync("menu.html", "utf8");
@@ -48,6 +49,17 @@ assert(
 assert(
   integrityWorkflow.includes("refresh-integrity owns final public verification"),
   "delegation ownership message missing"
+);
+
+assert(
+  lighthouseLiveWorkflow.includes("integrity-manifest.json") &&
+    lighthouseLiveWorkflow.includes("local_menu_sha") &&
+    lighthouseLiveWorkflow.includes("remote_menu_sha"),
+  "Lighthouse live wait must bind deployment readiness to the published integrity manifest"
+);
+assert(
+  !lighthouseLiveWorkflow.includes('| grep -q "$BUILD_ID"'),
+  "Lighthouse live wait must not use a pipefail-sensitive curl | grep -q probe"
 );
 
 const landingBuild = buildMarker(landing, "landing");
