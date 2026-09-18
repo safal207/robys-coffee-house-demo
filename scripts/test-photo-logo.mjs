@@ -2,10 +2,10 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const IDENTITY_REVISION = "20260726-approved-v4";
+const IDENTITY_REVISION = "20260917-approved-v4-restore";
 const bootstrap = readFileSync(new URL("../bootstrap-v2.js", import.meta.url), "utf8");
 const stylesheet = readFileSync(new URL("../brand-photo-logo.css", import.meta.url), "utf8");
-const serviceWorker = readFileSync(new URL("../sw.js", import.meta.url), "utf8");
+const serviceWorker = readFileSync(new URL("../sw-core-v64.js", import.meta.url), "utf8");
 const compactMaster = readFileSync(new URL("../src/brand/robys-compact-master-v1.svg", import.meta.url), "utf8");
 const markMaster = readFileSync(new URL("../src/brand/robys-mark-master-v1.svg", import.meta.url), "utf8");
 
