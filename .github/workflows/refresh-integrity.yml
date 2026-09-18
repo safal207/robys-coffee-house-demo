@@ -4,15 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - "index.html"
-      - "menu.html"
-      - "featured-strip.js"
-      - "featured-strip.css"
-      - "data/**"
-      - "src/products/**"
-      - "scripts/generate-integrity-manifest.mjs"
-      - ".github/workflows/refresh-integrity.yml"
 
 permissions:
   contents: write
