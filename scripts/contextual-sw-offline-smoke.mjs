@@ -49,6 +49,36 @@ async function waitForController(page) {
   throw new Error("Service worker never controlled the page");
 }
 
+async function waitForActivatedWorker(page, timeoutMs = 3_000) {
+  await page.evaluate(async (timeout) => {
+    const registration = await navigator.serviceWorker.ready;
+    const worker = registration.active;
+    if (!worker) throw new Error("Service worker registration has no active worker");
+    if (worker.state === "activated") return;
+
+    await new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = (callback, value) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        worker.removeEventListener("statechange", onStateChange);
+        callback(value);
+      };
+      const onStateChange = () => {
+        if (worker.state === "activated") finish(resolve);
+        else if (worker.state === "redundant") finish(reject, new Error("Service worker became redundant before activation"));
+      };
+      const timer = setTimeout(
+        () => finish(reject, new Error(`Service worker remained ${worker.state} after ${timeout}ms`)),
+        timeout
+      );
+      worker.addEventListener("statechange", onStateChange);
+      onStateChange();
+    });
+  }, timeoutMs);
+}
+
 rmSync(resultsDir, { recursive: true, force: true });
 mkdirSync(resultsDir, { recursive: true });
 
@@ -69,6 +99,7 @@ try {
 
   await page.goto(`${baseUrl}?entry=off`, { waitUntil: "domcontentloaded" });
   await waitForController(page);
+  await waitForActivatedWorker(page);
 
   const registrationEvidence = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.ready;

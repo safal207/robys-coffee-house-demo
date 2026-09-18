@@ -31,7 +31,8 @@ assert(workflow.includes("ROBYS_LIVE_BROWSER_CHANNEL: chrome"), "Chrome channel 
 assert(workflow.includes("if: always()"), "failure evidence upload changed");
 assert(workflow.includes("if-no-files-found: error"), "missing live evidence must fail the workflow");
 
-assert(refreshWorkflow.includes('- "menu.html"'), "menu changes must refresh the integrity manifest");
+assert(refreshWorkflow.includes("branches: [main]"), "main push trigger missing from integrity refresh");
+assert(!/^\s+paths:\s*$/m.test(refreshWorkflow), "integrity refresh must not be narrowed by a path allow-list");
 assert(
   refreshWorkflow.includes("Verify refreshed public digests"),
   "manifest refresh must own final public digest verification"

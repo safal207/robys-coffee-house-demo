@@ -126,7 +126,7 @@ check('Russian page links to menu', ru.includes('href="../menu.html"'));
 check('Russian page links to canonical homepage URL', ruHomeHrefs.length >= 2 && ruHomeHrefs.every((href) => href === '../'));
 check('Russian landing preserves shared language state', /localStorage\.setItem\(\s*['"]robys-language['"]\s*,\s*['"]ru['"]\s*\)/.test(ru));
 check('Russian page exposes visible address', /<address\b/i.test(ru));
-check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260726-approved-v4"'));
+check('Russian page loads approved brand identity stylesheet', ru.includes('href="../brand-photo-logo.css?v=20260917-approved-v4-restore"'));
 check('Russian page exposes accessible mobile navigation control', ru.includes('id="main-navigation"') && ru.includes('class="menu-toggle"') && ru.includes('aria-controls="main-navigation"'));
 check('Russian page reuses shared site layout components', ru.includes('class="section about"') && ru.includes('class="section menu-section"') && ru.includes('class="site-footer"'));
 check('narrow mobile header keeps site brand compact without shrinking language touch targets', narrowHeaderBlock.includes('.site-header .brand') && narrowHeaderBlock.includes('width:100px!important') && narrowHeaderBlock.includes('.site-header .brand-copy') && brandCss.includes('html .language-switcher .lang-button{\n    min-width:44px!important;\n    min-height:44px!important'));

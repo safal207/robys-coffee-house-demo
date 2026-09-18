@@ -32,23 +32,34 @@ for (const entry of ["AndroidManifest.xml", "classes.dex", "resources.arsc", "ME
   assert(archiveText.includes(entry), `APK entry is missing: ${entry}`);
 }
 
-const upgrade = readFileSync("android-download.js", "utf8");
+const conversionSource = readFileSync("src/conversion.js", "utf8");
+const conversionRuntime = readFileSync("conversion.js", "utf8");
+for (const marker of [expectedSha256, "downloads/android-v1.2/part-", "android-download-button", "verified-blob", "URL.createObjectURL", "URL.revokeObjectURL", "application/vnd.android.package-archive"]) {
+  assert(conversionRuntime.includes(marker), `Generated conversion.js is missing the Android download contract: ${marker}`);
+}
 const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const css = readFileSync("android-app.css", "utf8");
-const conversionSource = readFileSync("src/conversion.js", "utf8");
 const mobileInstall = readFileSync("mobile-install.js", "utf8");
 const mobileInstallCss = readFileSync("mobile-install.css", "utf8");
 const pwa = readFileSync("pwa.js", "utf8");
-const sw = readFileSync("sw.js", "utf8");
+const swWrapper = readFileSync("sw.js", "utf8");
 const swCore = readFileSync("sw-core-v64.js", "utf8");
-assert(upgrade.includes("Array.from({ length: 6 }") && upgrade.includes("downloads/android-v1.2/part-"), "Runtime must construct all six APK part URLs");
-assert(upgrade.includes("repairPackedApk") && upgrade.includes("return packed"), "Runtime must repair the reviewed multipart package deterministically");
-assert(upgrade.includes(expectedSha256), "Runtime must verify APK SHA-256");
-assert(upgrade.includes("URL.createObjectURL"), "Runtime must prepare a verified download URL after user intent");
-assert(upgrade.includes("link.download = APK_NAME"), "Download attribute is not wired");
-assert(upgrade.includes("src/android-mark.svg"), "Android logo is missing from the device button");
-assert(!upgrade.includes("\n  void prepareApk(link, status);\n"), "APK preparation must not run eagerly during page startup");
-assert(upgrade.includes(".then(() => link.click())"), "First user click must continue into the verified download after preparation");
+const sw = `${swWrapper}\n${swCore}`;
+const home = readFileSync("index.html", "utf8");
+const pairingPwa = readFileSync("pwa-pairing-fix.js", "utf8");
+assert(conversionSource.includes("Array.from(") && conversionSource.includes("downloads/android-v1.2/part-"), "Canonical conversion runtime must construct all six APK part URLs");
+assert(conversionSource.includes(expectedSha256), "Canonical conversion runtime must verify APK SHA-256");
+assert(conversionSource.includes('throw new Error("APK SHA-256 unavailable")'), "Canonical conversion runtime must fail closed when Web Crypto SHA-256 is unavailable");
+assert(conversionSource.includes('if (digest !== androidApkSha256)'), "Canonical conversion runtime must require an exact SHA-256 match");
+assert(conversionSource.includes('document.createElement("a")'), "Android download control must be an anchor before user intent");
+assert(conversionSource.includes('src/android-mark.svg?v=20260627-2'), "Android screen logo must be present before user intent");
+assert(conversionSource.includes('button.dataset.apkDownload = "verified-blob"'), "Verified Blob state must bind to the visible Android control");
+assert(conversionSource.includes("button.href = objectUrl") && conversionSource.includes("button.download = androidApkFileName"), "Verified download URL and filename must bind to the visible Android control");
+assert(conversionSource.includes("button.click()"), "First user click must continue into the verified download after preparation");
+assert(!existsSync("android-download.js"), "Duplicate Android download runtime must not return");
+assert(!home.includes('src="android-download.js'), "Home page must not load a duplicate Android download runtime");
+assert(!pairingPwa.includes("android-download.js"), "PWA bootstrap must not load a duplicate Android download runtime");
+assert(!sw.includes("./android-download.js"), "Service worker must not precache a duplicate Android download runtime");
 assert(bootstrap.includes(".android-download-button .android-download-icon"), "Android button placeholder selector is missing");
 assert(bootstrap.includes("android-download-logo") && bootstrap.includes("src/android-mark.svg"), "Real Android logo is missing from the download button");
 assert(bootstrap.includes("placeholder.replaceWith(logo)"), "Legacy CSS Android icon is not replaced by the real logo");
@@ -68,9 +79,10 @@ assert(mobileInstall.includes("if (shouldOfferIosInstall) actions.prepend(create
 assert(!mobileInstall.includes('icon.textContent = ""'), "Unreliable font-only Apple glyph must not return");
 assert(mobileInstallCss.includes(".ios-install-icon") && mobileInstallCss.includes("object-fit:cover") && mobileInstallCss.includes("border-radius:9px"), "iPhone app image styling is missing");
 assert(pwa.includes("mobile-install.js?v=platform-install-20260727-1") && pwa.includes("mobile-install.css?v=platform-install-20260727-1"), "PWA bootstrap must load the revised install assets");
-assert(sw.includes('importScripts("./sw-core-v64.js")'), "Service worker wrapper must load the revisioned core");
-assert(!sw.includes("./downloads/android-v1.2/part-") && !swCore.includes("./downloads/android-v1.2/part-"), "Service worker install must not precache the 1 MB APK payload");
-assert(sw.includes('path.endsWith("/android-app.css")'), "Service worker activation must purge stale Android promo CSS");
-assert(sw.includes('path.endsWith("/mobile-install.js")') && sw.includes('path.endsWith("/mobile-install.css")'), "Service worker activation must purge stale mobile install runtime assets");
+assert(!sw.includes("./downloads/android-v1.2/part-"), "Service worker install must not precache the 1 MB APK payload");
+assert(swWrapper.includes('importScripts("./sw-core-v64.js")'), "Service worker wrapper must load the revisioned core");
+assert(swWrapper.includes('path.endsWith("/android-app.css")'), "Service worker activation must purge stale Android promo CSS");
+assert(swWrapper.includes('path.endsWith("/mobile-install.js")') && swWrapper.includes('path.endsWith("/mobile-install.css")'), "Service worker activation must purge stale mobile install runtime assets");
 assert(swCore.includes("runtimeAssetResponse") && swCore.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
-console.log(`✅ ${contract} passed: APK assembly is verified and lazy, final mobile ordering closes the visit-to-promo gap, and compositor/cache guards remain intact.`);
+assert(sw.includes("runtimeAssetResponse") && sw.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
+console.log(`✅ ${contract} passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work.`);
