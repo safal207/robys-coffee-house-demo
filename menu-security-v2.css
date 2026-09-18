@@ -14,3 +14,43 @@
 .menu-product-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(980px,calc(100vw - 32px))}
 .menu-cart-dialog.menu-dialog--fallback[open] .menu-dialog-shell{width:min(760px,calc(100vw - 32px))}
 @media(max-width:390px){.menu-dialog.menu-dialog--fallback[open]{padding:6px}.menu-dialog--fallback[open] .menu-dialog-shell{width:calc(100vw - 12px);max-height:calc(100vh - 12px);max-height:calc(100dvh - 12px)}}
+
+/* Manual QA: native desktop cart must start inside the viewport even when its content is taller than the screen. */
+@media(min-width:901px){
+  .menu-cart-dialog[open]:not(.menu-dialog--fallback){position:fixed;inset:0;box-sizing:border-box;display:block;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;margin:0;padding:24px;overflow:auto;border:0;background:transparent}
+  .menu-cart-dialog[open]:not(.menu-dialog--fallback) .menu-dialog-shell{width:min(760px,calc(100vw - 48px));max-height:none;margin:0 auto;overflow:visible}
+}
+
+/* Kiosk-style category rail: bounded to the menu section like a self-order terminal. */
+@media(min-width:820px) and (min-height:620px){
+  .menu-kiosk-layout{display:grid;grid-template-columns:218px minmax(0,1fr);align-items:start;gap:24px}
+  .menu-kiosk-sidebar{position:sticky;top:calc(var(--menu-sticky-inset,180px) + 18px);align-self:start;max-height:calc(100dvh - var(--menu-sticky-inset,180px) - 38px);padding:14px 10px 10px;overflow-y:auto;background:rgba(255,250,243,.98);border:1px solid rgba(47,39,37,.12);border-radius:24px;box-shadow:0 18px 54px rgba(36,28,27,.12);scrollbar-width:thin}
+  .menu-kiosk-title{margin:0 10px 10px;color:var(--muted);font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  .menu-category-nav{position:static;display:flex;width:auto;max-height:none;flex-direction:column;gap:7px;padding:0;overflow:visible;background:transparent;border:0;border-radius:0;box-shadow:none}
+  .menu-category-chip{position:relative;display:grid;width:100%;min-height:58px;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:10px;padding:8px 12px;color:var(--ink);background:transparent;border-color:transparent;border-radius:16px;text-align:left;white-space:normal;line-height:1.2}
+  .menu-category-chip::before{content:"•";display:grid;width:38px;height:38px;place-items:center;color:var(--ruby);background:#fff;border:1px solid rgba(47,39,37,.09);border-radius:13px;font-size:1.05rem;box-shadow:0 6px 16px rgba(36,28,27,.06)}
+  .menu-category-chip[data-category="all"]::before{content:"☰"}
+  .menu-category-chip[data-category="pairing-offers"]::before{content:"✨"}
+  .menu-category-chip[data-category="hot-coffee"]::before{content:"☕"}
+  .menu-category-chip[data-category="brew-hot"]::before{content:"🫖"}
+  .menu-category-chip[data-category="cold-coffee"]::before{content:"🧊"}
+  .menu-category-chip[data-category="refreshers"]::before{content:"🍹"}
+  .menu-category-chip[data-category="herbal-tea"]::before{content:"🌿"}
+  .menu-category-chip[data-category="desserts"]::before{content:"🍰"}
+  .menu-category-chip[data-category="food"]::before{content:"🥐"}
+  .menu-category-chip:hover{transform:none;background:rgba(226,27,35,.055);border-color:rgba(226,27,35,.12)}
+  .menu-category-chip.active{color:#fff;background:var(--ruby);border-color:var(--ruby);box-shadow:0 10px 26px rgba(226,27,35,.18)}
+  .menu-category-chip.active::before{color:var(--ruby);background:#fff;border-color:#fff}
+  .menu-kiosk-content{min-width:0}
+  .full-menu-panel{width:100%;margin:0 0 18px!important;break-inside:avoid}
+}
+
+/* Phones and short landscape screens keep the fast horizontal rail. */
+@media(max-width:819px),(max-height:619px){
+  .menu-kiosk-layout{display:block}
+  .menu-kiosk-sidebar{position:static;max-height:none;padding:0 0 14px;overflow:visible;background:transparent;border:0;border-radius:0;box-shadow:none}
+  .menu-kiosk-title{display:none}
+  .menu-category-nav{position:static;width:auto;max-height:none;flex-direction:row;padding:0;overflow-x:auto;overflow-y:hidden;background:transparent;border:0;border-radius:0;box-shadow:none}
+  .menu-category-chip{display:block;width:auto;min-height:38px;padding:8px 12px;text-align:center;white-space:nowrap}
+  .menu-category-chip::before{content:none!important}
+}
