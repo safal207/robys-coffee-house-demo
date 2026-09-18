@@ -101,7 +101,7 @@ const CORE_ASSETS = [
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js",
-  "./conversion.js?v=b3785909cc7f",
+  "./conversion.js?v=bfb48d69c711",
   "./menu-ready.js",
   "./menu-app.js?v=ea110bf488b2",
   "./menu-product-reveal.js?v=1f7090c6747b",
