@@ -79,12 +79,13 @@ const CORE_ASSETS = [
   "./styles-v2.css?v=a4431b07fc04",
   "./mobile.css",
   "./conversion.css",
-  "./final-qa.css",
+  "./final-qa-v2.css?v=daa1b27c54f2",
+  "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
   "./menu-product-reveal.css?v=80aa0282d851",
-  "./menu-stability.css",
-  "./menu-security-v2.css?v=9a74fe13ba64",
+  "./menu-stability-v2.css?v=84e172cb281b",
+  "./menu-security-v2.css?v=c9ec36b38ff3",
   "./discover.css",
   "./discover-deck.css?v=45ca8486a146",
   "./discover-rotation.css?v=96b566c9731e",
@@ -104,7 +105,7 @@ const CORE_ASSETS = [
   "./conversion.js?v=bfb48d69c711",
   "./menu-ready.js",
   "./menu-app.js?v=ea110bf488b2",
-  "./menu-product-reveal.js?v=1f7090c6747b",
+  "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./pairing-posters.js?v=745da5142f2d",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
@@ -118,7 +119,7 @@ const CORE_ASSETS = [
   "./experience/experience.js?v=b818597a4d32",
   "./experience/experience.css?v=ff925b1ea262",
   "./experience/brand-fidelity.css?v=1124cdd22903",
-  "./experience/experience-state.css?v=6533c4cc6590",
+  "./experience/experience-state.css?v=ccb9ced40708",
   "./experience/cinematic-environments.css?v=76e6ccf04650",
   "./experience/environments/origin.svg?v=72b518cd81ca",
   "./experience/environments/energy.svg?v=763f3ca80be7",
@@ -132,7 +133,7 @@ const CORE_ASSETS = [
   "./smart-choice/style.css?v=93af186a5b11",
   "./smart-choice/cart.css?v=4fcc327520f5",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
-  "./smart-choice/release-qa.css?v=9d9afd5b512c",
+  "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=8741e7ebc72b",
   "./smart-choice/app-v2.js?v=5da253018750",
@@ -196,6 +197,9 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/takeaway-entry.js") ||
     url.pathname.endsWith("/styles-v2.css") ||
     url.pathname.endsWith("/menu-security-v2.css") ||
+    url.pathname.endsWith("/menu-stability-v2.css") ||
+    url.pathname.endsWith("/final-qa-v2.css") ||
+    url.pathname.endsWith("/community-reel-v2.css") ||
     url.pathname.endsWith("/pwa.js") ||
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
