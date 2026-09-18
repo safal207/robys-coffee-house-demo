@@ -74,9 +74,18 @@ jobs:
         working-directory: current
         run: npm run verify:instagram-tools
 
-      - name: Build base branch
+      - name: Build base branch or preserve exact committed baseline
         working-directory: baseline
-        run: npm run build
+        run: |
+          set +e
+          npm run build
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::VISUAL-BASE-001 base build failed; using the exact committed base tree as the visual baseline."
+            git reset --hard HEAD
+            git clean -fd
+          fi
 
       - name: Install deterministic Chromium from the locked Playwright package
         working-directory: current
