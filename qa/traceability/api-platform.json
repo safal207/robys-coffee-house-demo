@@ -105,8 +105,8 @@
       "evidence": [
         "pwa.js#SERVICE_WORKER_URL",
         "pwa.js#offlineReady",
-        "sw.js#CACHE_VERSION",
-        "sw.js#navigationResponse"
+        "sw-core-v64.js#CACHE_VERSION",
+        "sw-core-v64.js#navigationResponse"
       ],
       "tests": [
         "npm run verify:integrity",
