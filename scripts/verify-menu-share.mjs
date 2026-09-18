@@ -10,7 +10,7 @@ const runtime = readFileSync("menu-interactions.js", "utf8");
 const menuPageRuntime = readVerifiedMenuSource();
 const pwaRuntime = readFileSync("pwa.js", "utf8");
 const menuPwaRuntime = readFileSync("menu-pwa.js", "utf8");
-const serviceWorker = readFileSync("sw.js", "utf8");
+const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 
 function assert(condition, message) {
   if (!condition) throw new Error(`[SHARE-001] ${message}`);
