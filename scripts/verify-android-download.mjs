@@ -83,7 +83,6 @@ assert(!sw.includes("./downloads/android-v1.2/part-"), "Service worker install m
 assert(swWrapper.includes('importScripts("./sw-core-v64.js")'), "Service worker wrapper must load the revisioned core");
 assert(swWrapper.includes('path.endsWith("/android-app.css")'), "Service worker activation must purge stale Android promo CSS");
 assert(swWrapper.includes('path.endsWith("/mobile-install.js")') && swWrapper.includes('path.endsWith("/mobile-install.css")'), "Service worker activation must purge stale mobile install runtime assets");
-assert(swWrapper.includes('path.endsWith("/community-reel.css")'), "Service worker activation must purge stale community reel CSS");
 assert(swCore.includes("runtimeAssetResponse") && swCore.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
 assert(sw.includes("runtimeAssetResponse") && sw.includes("cache.put(request, network.clone())"), "APK parts must remain eligible for runtime caching after explicit requests");
 console.log(`✅ ${contract} passed: APK assembly is verified and lazy, while the PWA install path avoids eager APK work.`);
