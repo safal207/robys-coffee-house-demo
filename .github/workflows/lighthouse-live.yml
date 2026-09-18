@@ -45,16 +45,25 @@ jobs:
         env:
           BUILD_ID: ${{ steps.build.outputs.value }}
         run: |
-          set -euo pipefail
-          for attempt in {1..24}; do
-            if curl --silent --fail "https://safal207.github.io/robys-coffee-house-demo/?deploy=${GITHUB_SHA}" | grep -q "$BUILD_ID"; then
-              echo "Build $BUILD_ID is live"
+          local_menu_sha="$(node -e 'const m=require("./integrity-manifest.json"); process.stdout.write(m.files.find((f)=>f.path==="menu.html").sha256)')"
+          for attempt in {1..30}; do
+            page_url="https://safal207.github.io/robys-coffee-house-demo/?lighthouse-wait=${attempt}"
+            manifest_url="https://safal207.github.io/robys-coffee-house-demo/integrity-manifest.json?lighthouse-wait=${attempt}"
+            remote_build="$(curl --fail --silent "$page_url" | sed -n 's/.*name="robys-build" content="\([^"]*\)".*/\1/p' | head -1 || true)"
+            curl --fail --silent "$manifest_url" > /tmp/remote-integrity-manifest.json || true
+            manifest_build="$(node -e 'const fs=require("fs"); try { const m=JSON.parse(fs.readFileSync("/tmp/remote-integrity-manifest.json","utf8")); process.stdout.write(m.build || ""); } catch {}')"
+            remote_menu_sha="$(node -e 'const fs=require("fs"); try { const m=JSON.parse(fs.readFileSync("/tmp/remote-integrity-manifest.json","utf8")); process.stdout.write(m.files?.find((f)=>f.path==="menu.html")?.sha256 || ""); } catch {}')"
+            if test -n "$BUILD_ID" \
+              && test "$remote_build" = "$BUILD_ID" \
+              && test "$manifest_build" = "$BUILD_ID" \
+              && test "$remote_menu_sha" = "$local_menu_sha"; then
+              echo "Published build is ready: build=$BUILD_ID menu_sha=$local_menu_sha"
               exit 0
             fi
-            echo "Waiting for GitHub Pages deployment ($attempt/24)"
+            echo "Waiting for Pages: local=$BUILD_ID page=$remote_build manifest=$manifest_build local_menu_sha=$local_menu_sha remote_menu_sha=$remote_menu_sha"
             sleep 10
           done
-          echo "Build $BUILD_ID did not appear in time"
+          echo "GitHub Pages did not publish the expected page and integrity manifest in time"
           exit 1
 
       - name: Run mobile Lighthouse
