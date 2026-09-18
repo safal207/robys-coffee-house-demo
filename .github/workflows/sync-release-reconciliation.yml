@@ -32,12 +32,9 @@ jobs:
       - run: npm run check
       - run: npm run verify:security
       - run: git diff --check
-      - name: Commit reconciled generated state
+      - name: Commit reconciled generated state and remove one-shot workflow
         run: |
-          if git diff --quiet; then
-            echo "Generated runtime and integrity are already current."
-            exit 0
-          fi
+          git rm -f .github/workflows/sync-release-reconciliation.yml
           git status --short
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
