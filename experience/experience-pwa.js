@@ -1,4 +1,4 @@
-const SERVICE_WORKER_PATH = "../sw.js?v=premium-cache-new-20260904-1";
+const SERVICE_WORKER_PATH = "../sw.js?v=pairing-video-fix-20260916-2";
 const SERVICE_WORKER_SCOPE = "../";
 const trustedTypesApi = globalThis.trustedTypes;
 let trustedPolicy;
