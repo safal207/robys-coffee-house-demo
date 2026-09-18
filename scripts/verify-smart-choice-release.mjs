@@ -18,11 +18,11 @@ const pageSource = read("src/smart-choice/page.ts");
 const cartSource = read("src/smart-choice/cart.ts");
 const releaseRuntime = read("src/smart-choice/release-qa.ts");
 const releaseDomain = read("src/smart-choice/release-qa-domain.ts");
-const serviceWorker = read("sw.js");
+const serviceWorker = read("sw-core-v64.js");
 const buildScript = read("scripts/build.mjs");
 const smartChoicePwa = read("smart-choice/pwa.js");
 
-const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
+const APPROVED_IDENTITY_REVISION = "20260917-approved-v4-restore";
 
 function requireText(haystack, needle, message) {
   assert.ok(haystack.includes(needle), message ?? `Missing required text: ${needle}`);
