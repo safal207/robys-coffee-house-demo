@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 const RED = "#E21B23";
 const INK = "#111111";
 const WHITE = "#FFFFFF";
-const REVISION = "20260726-approved-v4";
+const REVISION = "20260917-approved-v4-restore";
 const OLD_REVISION = "20260724-wordmark-v3";
 const MARK_BOX = [0, 0, 184, 211];
 
