@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 
 // This contract prevents a new Organic O from being served through a stale URL.
-const REVISION = "20260726-approved-v4";
+const REVISION = "20260917-approved-v4-restore";
 const css = readFileSync("brand-photo-logo.css", "utf8");
 const expected = `robys-mark-master-v1.svg?v=${REVISION}`;
 
