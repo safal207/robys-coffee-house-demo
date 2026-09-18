@@ -121,7 +121,7 @@ for (const [path, preload] of preloads) {
   assert(html.includes(preload), `${path} must preload v4 lockup`);
   assert(!html.includes(OLD_REVISION), `${path} must not retain old identity revision`);
 }
-const sw = read("sw.js");
+const sw = read("sw-core-v64.js");
 assert(sw.includes(`brand-photo-logo.css?v=${REVISION}`), "service worker must precache v4 stylesheet");
 assert(sw.includes(`robys-header-master-v1.svg?v=${REVISION}`), "service worker must precache v4 header");
 assert(!sw.includes(OLD_REVISION), "service worker must not retain old identity revision");
