@@ -12,6 +12,16 @@ interface FeaturedProduct {
   currency: string;
 }
 
+interface PairingPreviewCopy {
+  badge: string;
+  cta: string;
+  active: string;
+}
+
+interface GalleryAnalytics {
+  track?: (action: string, payload: Record<string, string>) => void;
+}
+
 const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   {
     id: "latte",
@@ -33,7 +43,7 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   },
   {
     id: "san-sebastian",
-    href: "menu.html#desserts",
+    href: "menu.html#pairing-offers",
     image: "src/products/gallery-v5/san-sebastian.webp?v=20260626-7",
     imageSmall: "src/products/gallery-v5/san-sebastian-828.webp?v=20260626-7",
     title: {
@@ -77,6 +87,32 @@ const FEATURED_PRODUCTS: readonly FeaturedProduct[] = [
   }
 ] as const;
 
+const PAIRING_PREVIEW = {
+  productId: "san-sebastian",
+  pairingId: "iced-san-sebastian",
+  href: "menu.html#pairing-offers",
+  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260916-2",
+  poster: "src/products/sets-v1/iced-san-sebastian.webp?v=20260704-3",
+  stylesheet: "pairing-preview.css?v=20260916-2",
+  copy: {
+    tr: {
+      badge: "SET ▶",
+      cta: "Set menüsünü aç →",
+      active: "Iced Latte + San Sebastian set videosu. Set menüsünü açmak için tekrar dokunun."
+    },
+    en: {
+      badge: "PAIRING ▶",
+      cta: "Open pairing menu →",
+      active: "Iced Latte + San Sebastian pairing video. Tap again to open the pairing menu."
+    },
+    ru: {
+      badge: "СЕТ ▶",
+      cta: "Открыть сет →",
+      active: "Видео сета Айс-латте + Сан-Себастьян. Нажмите ещё раз, чтобы открыть сет в меню."
+    }
+  } satisfies Record<GalleryLanguage, PairingPreviewCopy>
+} as const;
+
 function currentGalleryLanguage(): GalleryLanguage {
   const value = document.documentElement.lang;
   return value === "en" || value === "ru" ? value : "tr";
@@ -84,6 +120,19 @@ function currentGalleryLanguage(): GalleryLanguage {
 
 function galleryLabel(product: FeaturedProduct, language = currentGalleryLanguage()): string {
   return `${product.title[language]}, ${product.price} ${product.currency}`;
+}
+
+function pairingCopy(language = currentGalleryLanguage()): PairingPreviewCopy {
+  return PAIRING_PREVIEW.copy[language] ?? PAIRING_PREVIEW.copy.tr;
+}
+
+function ensurePairingPreviewStyles(): void {
+  if (document.querySelector('link[data-pairing-preview-styles="true"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = PAIRING_PREVIEW.stylesheet;
+  link.dataset.pairingPreviewStyles = "true";
+  document.head.append(link);
 }
 
 function createFallback(product: FeaturedProduct): HTMLElement {
@@ -99,6 +148,100 @@ function createFallback(product: FeaturedProduct): HTMLElement {
 
   fallback.append(title, price);
   return fallback;
+}
+
+function createPairingBadge(): HTMLSpanElement {
+  const badge = document.createElement("span");
+  badge.className = "pairing-preview-badge";
+  badge.dataset.pairingPreviewBadge = "true";
+  badge.setAttribute("aria-hidden", "true");
+  badge.textContent = pairingCopy().badge;
+  return badge;
+}
+
+function createPairingCta(): HTMLSpanElement {
+  const cta = document.createElement("span");
+  cta.className = "pairing-preview-cta";
+  cta.dataset.pairingPreviewCta = "true";
+  cta.setAttribute("aria-hidden", "true");
+  cta.textContent = pairingCopy().cta;
+  return cta;
+}
+
+function trackPairing(action: string): void {
+  const analytics = (window as Window & { robysAnalytics?: GalleryAnalytics }).robysAnalytics;
+  analytics?.track?.(action, {
+    pairing: PAIRING_PREVIEW.pairingId,
+    placement: "featured_gallery"
+  });
+}
+
+function activatePairingPreview(event: MouseEvent, card: HTMLAnchorElement): void {
+  if (card.dataset.pairingPreviewActive === "true") {
+    trackPairing("pairing_preview_menu_open");
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+
+  const frame = card.querySelector<HTMLElement>(".poster-card-frame");
+  if (!frame) return;
+
+  card.dataset.pairingPreviewActive = "true";
+  card.href = PAIRING_PREVIEW.href;
+  card.classList.add("is-pairing-preview");
+  card.classList.remove("pairing-preview-playing", "pairing-preview-ended", "pairing-preview-error");
+  card.setAttribute("aria-label", pairingCopy().active);
+
+  const video = document.createElement("video");
+  video.className = "pairing-preview-video";
+  video.preload = "metadata";
+  video.poster = PAIRING_PREVIEW.poster;
+  video.playsInline = true;
+  video.loop = false;
+  video.controls = false;
+  video.defaultMuted = true;
+  video.muted = true;
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+  video.setAttribute("muted", "");
+  video.setAttribute("aria-hidden", "true");
+
+  const source = document.createElement("source");
+  source.src = PAIRING_PREVIEW.video;
+  source.type = "video/mp4";
+  video.append(source);
+
+  const cta = createPairingCta();
+  frame.append(video, cta);
+
+  let failed = false;
+  const failPreview = (): void => {
+    if (failed) return;
+    failed = true;
+    card.classList.remove("pairing-preview-playing");
+    card.classList.add("pairing-preview-error");
+    video.pause();
+    video.remove();
+    trackPairing("pairing_preview_error");
+  };
+
+  video.addEventListener("playing", () => {
+    card.classList.remove("pairing-preview-error");
+    card.classList.add("pairing-preview-playing");
+  }, { once: true });
+
+  video.addEventListener("ended", () => {
+    card.classList.add("pairing-preview-ended");
+  }, { once: true });
+
+  video.addEventListener("error", failPreview, { once: true });
+  source.addEventListener("error", failPreview, { once: true });
+
+  video.load();
+  void video.play().catch(failPreview);
+  trackPairing("pairing_preview_play");
 }
 
 function createPosterCard(product: FeaturedProduct, index: number): HTMLAnchorElement {
@@ -135,6 +278,12 @@ function createPosterCard(product: FeaturedProduct, index: number): HTMLAnchorEl
   }, { once: true });
 
   frame.append(image, fallback);
+
+  if (product.id === PAIRING_PREVIEW.productId) {
+    frame.append(createPairingBadge());
+    card.addEventListener("click", (event) => activatePairingPreview(event, card));
+  }
+
   card.append(frame);
   return card;
 }
@@ -146,12 +295,23 @@ function updateGalleryLanguage(cards: readonly HTMLAnchorElement[]): void {
     const product = FEATURED_PRODUCTS[index];
     if (!product) return;
 
-    card.setAttribute("aria-label", galleryLabel(product, language));
+    if (card.dataset.pairingPreviewActive === "true" && product.id === PAIRING_PREVIEW.productId) {
+      card.setAttribute("aria-label", pairingCopy(language).active);
+    } else {
+      card.setAttribute("aria-label", galleryLabel(product, language));
+    }
+
     const image = card.querySelector<HTMLImageElement>("img");
     if (image) image.alt = product.title[language];
 
     const fallbackTitle = card.querySelector<HTMLElement>(`[data-gallery-title="${product.id}"]`);
     if (fallbackTitle) fallbackTitle.textContent = product.title[language];
+
+    const badge = card.querySelector<HTMLElement>("[data-pairing-preview-badge]");
+    if (badge) badge.textContent = pairingCopy(language).badge;
+
+    const cta = card.querySelector<HTMLElement>("[data-pairing-preview-cta]");
+    if (cta) cta.textContent = pairingCopy(language).cta;
   });
 }
 
@@ -201,6 +361,8 @@ function initFeaturedGallery(): void {
   const track = document.querySelector<HTMLElement>(".featured-track");
   const section = document.querySelector<HTMLElement>(".featured-strip");
   if (!track || !section) return;
+
+  ensurePairingPreviewStyles();
 
   const fragment = document.createDocumentFragment();
   const cards = FEATURED_PRODUCTS.map((product, index) => {
