@@ -252,10 +252,12 @@ function createAndroidDownloadSection() {
 
   const actions = document.createElement("div");
   actions.className = "android-app-actions";
-  const button = document.createElement("button");
+  const button = document.createElement("a");
   button.className = "android-download-button";
-  button.type = "button";
+  button.type = "application/vnd.android.package-archive";
   button.setAttribute("aria-describedby", "android-download-note android-download-status");
+  button.setAttribute("role", "button");
+  button.tabIndex = 0;
 
   const icon = document.createElement("span");
   icon.className = "android-download-icon";
@@ -305,6 +307,13 @@ function createAndroidDownloadSection() {
   screenCopy.append(screenTitle, screenPlace);
   const pill = document.createElement("div");
   pill.className = "android-app-screen-pill";
+  const androidMark = document.createElement("img");
+  androidMark.src = "src/android-mark.svg?v=20260627-2";
+  androidMark.alt = "";
+  androidMark.width = 48;
+  androidMark.height = 48;
+  androidMark.decoding = "async";
+  pill.append(androidMark);
   screen.append(screenCopy, pill);
   device.append(screen);
 
@@ -315,16 +324,17 @@ function createAndroidDownloadSection() {
 }
 
 async function sha256Hex(bytes) {
-  if (!globalThis.crypto?.subtle) return null;
+  if (!globalThis.crypto?.subtle) throw new Error("APK SHA-256 unavailable");
   const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
 }
 
 async function downloadAndroidApk(button, status) {
+  if (button.dataset.apkDownload === "verified-blob" || button.getAttribute("aria-busy") === "true") return;
   const language = document.documentElement.lang;
   const copy = androidStatusCopy[language] || androidStatusCopy.tr;
-  button.disabled = true;
   button.setAttribute("aria-busy", "true");
+  button.setAttribute("aria-disabled", "true");
   status.textContent = copy.preparing;
 
   try {
@@ -335,23 +345,30 @@ async function downloadAndroidApk(button, status) {
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
     if (bytes.byteLength !== androidApkBytes) throw new Error("APK size mismatch");
     const digest = await sha256Hex(bytes);
-    if (digest && digest !== androidApkSha256) throw new Error("APK checksum mismatch");
+    if (digest !== androidApkSha256) throw new Error("APK checksum mismatch");
 
     const blob = new Blob([bytes], { type: "application/vnd.android.package-archive" });
     const objectUrl = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = objectUrl;
-    anchor.download = androidApkFileName;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+    button.href = objectUrl;
+    button.download = androidApkFileName;
+    button.dataset.apkDownload = "verified-blob";
+    button.removeAttribute("role");
+    button.removeAttribute("aria-disabled");
     status.textContent = copy.ready;
+    button.click();
+    window.setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
+      if (button.href !== objectUrl) return;
+      button.removeAttribute("href");
+      button.removeAttribute("download");
+      delete button.dataset.apkDownload;
+      button.setAttribute("role", "button");
+    }, 30000);
   } catch {
     status.textContent = copy.error;
   } finally {
-    button.disabled = false;
     button.removeAttribute("aria-busy");
+    button.removeAttribute("aria-disabled");
   }
 }
 
@@ -370,6 +387,12 @@ function setupAndroidAppDownload() {
   const { section, button, status } = createAndroidDownloadSection();
   visit.before(section);
   button.addEventListener("click", () => void downloadAndroidApk(button, status));
+  button.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (event.key === "Enter" && button.hasAttribute("href")) return;
+    event.preventDefault();
+    button.click();
+  });
 }
 
 let initialized = false;
