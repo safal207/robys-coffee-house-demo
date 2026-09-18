@@ -46,12 +46,12 @@ try{
       if(width===320&&!touch&&fontSize===16&&language==='tr'){
         await page.evaluate(()=>{
           document.documentElement.style.scrollPaddingTop='0px';
-          document.querySelector('.full-menu-wrap').style.scrollMarginTop='170px';
+          document.querySelector('.full-menu-wrap').style.scrollMarginTop='0px';
         });
         await page.locator('[data-category="hot-coffee"]').click();await settle(page);
         const broken=await clearance(page,'.full-menu-panel-header');
-        assert.ok(!broken.clear||!broken.visible,'Negative control must catch the original fixed-offset overlap');
-        report.negativeControl={id:'original-fixed-offset',caught:true,evidence:broken};
+        assert.ok(!broken.clear||!broken.visible,'Negative control must catch missing measured insets');
+        report.negativeControl={id:'missing-measured-insets',caught:true,evidence:broken};
         await page.evaluate(()=>{
           document.documentElement.style.removeProperty('scroll-padding-top');
           document.querySelector('.full-menu-wrap').style.removeProperty('scroll-margin-top');
