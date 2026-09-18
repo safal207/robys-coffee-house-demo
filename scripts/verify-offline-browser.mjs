@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
+import { verifyMenuStabilityLegacyWorker } from "./menu-stability-cache-proof.mjs";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
 const expectedSha256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
@@ -42,6 +43,7 @@ page.on("request", (request) => {
 });
 
 try {
+  await verifyMenuStabilityLegacyWorker(browser);
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
   const legacyCacheIsolation = await page.evaluate(async () => {
     const cacheName = "robys-test-legacy-smart-choice-v40";
