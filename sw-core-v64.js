@@ -74,7 +74,6 @@ const CORE_ASSETS = [
   "./offline.css",
   "./pwa-pairing-fix.js?v=20260916-4",
   "./pwa.js?v=offline-20260707-ios-install-3",
-  "./android-download.js",
   "./android-app.css?v=1d08073e71ec",
   "./mobile-install.css",
   "./styles-v2.css?v=a4431b07fc04",
