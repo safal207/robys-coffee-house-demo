@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 const RED = "#E21B23";
 const INK = "#111111";
 const WHITE = "#FFFFFF";
-const REVISION = "20260726-approved-v4";
+const REVISION = "20260917-approved-v4-restore";
 const OLD_REVISION = "20260724-wordmark-v3";
 const MARK_BOX = [0, 0, 184, 211];
 
@@ -121,7 +121,7 @@ for (const [path, preload] of preloads) {
   assert(html.includes(preload), `${path} must preload v4 lockup`);
   assert(!html.includes(OLD_REVISION), `${path} must not retain old identity revision`);
 }
-const sw = read("sw.js");
+const sw = read("sw-core-v64.js");
 assert(sw.includes(`brand-photo-logo.css?v=${REVISION}`), "service worker must precache v4 stylesheet");
 assert(sw.includes(`robys-header-master-v1.svg?v=${REVISION}`), "service worker must precache v4 header");
 assert(!sw.includes(OLD_REVISION), "service worker must not retain old identity revision");
