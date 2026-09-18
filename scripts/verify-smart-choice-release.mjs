@@ -22,7 +22,7 @@ const serviceWorker = read("sw.js");
 const buildScript = read("scripts/build.mjs");
 const smartChoicePwa = read("smart-choice/pwa.js");
 
-const APPROVED_IDENTITY_REVISION = "20260726-approved-v4";
+const APPROVED_IDENTITY_REVISION = "20260917-approved-v4-restore";
 
 function requireText(haystack, needle, message) {
   assert.ok(haystack.includes(needle), message ?? `Missing required text: ${needle}`);
