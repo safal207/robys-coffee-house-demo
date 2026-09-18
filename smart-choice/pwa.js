@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "../sw.js?v=premium-cache-new-20260904-1";
+const SERVICE_WORKER_URL = "../sw.js?v=pairing-video-fix-20260916-2";
 const root = document.documentElement;
 
 function reflectConnection() {
