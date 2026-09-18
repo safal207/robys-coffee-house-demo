@@ -7,7 +7,7 @@ import { runInNewContext } from "node:vm";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
-const IDENTITY_REVISION = "20260726-approved-v4";
+const IDENTITY_REVISION = "20260917-approved-v4-restore";
 
 function read(path) {
   return readFileSync(resolve(root, path), "utf8");
@@ -85,7 +85,7 @@ export function verifyBrandWordmark() {
   const identityStyles = read("brand-photo-logo.css");
   const responsiveStyles = read("wordmark-responsive.css");
   const discoverGuard = read("discover-weather-guard.js");
-  const serviceWorker = read("sw.js");
+  const serviceWorker = read("sw-core-v64.js");
   const brandReference = read("docs/brand-reference-policy.md");
 
   for (const [page, html] of [["index.html", index], ["menu.html", menu], ["discover.html", discover]]) {
