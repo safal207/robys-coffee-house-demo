@@ -62,6 +62,8 @@ export async function verifyOrder(page, label) {
   await cart.locator('.menu-cart-remove').click();
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), 0);
   await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('#menu-cart-dialog').open &&
+    !document.body.classList.contains('menu-dialog-open'), null, {timeout:2000});
   assert.equal(await cart.isVisible(), false);
   assert.equal(await page.locator('body').evaluate(node => node.classList.contains('menu-dialog-open')), false);
   return {label, unitPrice, added:2, increased:3, emptyTotal:0, focusRestored:true};

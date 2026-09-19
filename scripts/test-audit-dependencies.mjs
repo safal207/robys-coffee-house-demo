@@ -42,6 +42,19 @@ for (const name of ["conversion", "menu-app"]) {
     "index.html": "<main>Menu</main>", [`src/${name}.js`]: "export {};"
   }, [`src/${name}.js`]);
 }
+for (const name of ["menu-stability", "final-qa", "community-reel"]) {
+  check(`${name}: reached cache-isolated CSS links canonical input`, {
+    "index.html": `<link rel="stylesheet" href="${name}-v2.css?v=fixture">`,
+    [`${name}-v2.css`]: "body{color:red}", [`${name}.css`]: "body{color:red}"
+  }, [], [[`${name}-v2.css`, `${name}.css`]]);
+  check(`${name}: detached stylesheet pair is NOT whitelisted`, {
+    "index.html": "<main>Menu</main>", [`${name}-v2.css`]: "body{color:red}",
+    [`${name}.css`]: "body{color:red}"
+  }, [`${name}-v2.css`, `${name}.css`]);
+  check(`${name}: canonical CSS without output remains an orphan`, {
+    "index.html": "<main>Menu</main>", [`${name}.css`]: "body{color:red}"
+  }, [`${name}.css`]);
+}
 check("unrelated source and output remain orphans", {
   "index.html": '<script type="module" src="conversion.js"></script>',
   "conversion.js": "export {};", "src/conversion.js": "export {};",
