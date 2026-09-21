@@ -31,10 +31,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat             .asset-upload/pairing-preview-001.b64             .asset-upload/pairing-preview-002.b64             .asset-upload/pairing-preview-004.b64             .asset-upload/pairing-preview-003.b64             | tr -d '\r\n'             | base64 -d             > src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4
+          cat \
+            .asset-upload/clean-001a.b64 \
+            .asset-upload/clean-001b.b64 \
+            .asset-upload/final-002.b64 \
+            .asset-upload/final-003.b64 \
+            .asset-upload/final-004.b64 \
+            .asset-upload/final-005.b64 \
+            .asset-upload/final-006.b64 \
+            .asset-upload/final-007.b64 \
+            .asset-upload/clean-008a1.b64 \
+            .asset-upload/clean-008a2.b64 \
+            .asset-upload/clean-008b.b64 \
+            .asset-upload/final-009.b64 \
+            .asset-upload/final-010.b64 \
+            | tr -d '\r\n' \
+            | base64 -d \
+            > src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4
 
-          test "$(stat -c%s src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4)" = "119546"
-          echo "d8fef6c0b66877e427157592e9ea327c60cb854eb6a33a172f747e35d7e214e6  src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4" | sha256sum -c -
+          test "$(stat -c%s src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4)" = "65010"
+          echo "037650426bb8b61c1be2612ef63f4dc10914dbf614ea1705092a2562a3fd020e  src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4" | sha256sum -c -
           node scripts/verify-pairing-preview-media.mjs
 
       - name: Bump preview cache revision
@@ -65,7 +81,7 @@ jobs:
       - name: Remove temporary staging transport
         shell: bash
         run: |
-          rm -f .asset-upload/pairing-preview-*.b64
+          rm -f .asset-upload/*.b64
           rm -f .github/workflows/assemble-pairing-preview-upload.yml
 
       - name: Commit assembled video
