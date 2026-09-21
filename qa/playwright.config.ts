@@ -38,7 +38,7 @@ export default defineConfig({
     },
     {
       name: "Pixel 5 Chrome",
-      use: { ...devices["Pixel 5"] }
+      use: { ...devices["Pixel 5"], channel: "chrome" }
     }
   ]
 });
