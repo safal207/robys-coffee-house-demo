@@ -71,6 +71,11 @@ assert(css.includes(".visit-section:has(+ .android-app-section){padding-bottom:0
 assert(!css.includes(".menu-section{padding-bottom:24px}"), "Android spacing must not compress the unrelated menu section");
 assert(css.includes(".android-app-section::after{display:none;mask-image:none;-webkit-mask-image:none}"), "Mobile Android promo must disable the masked compositor layer");
 assert(css.includes("background:#2a1d1b;backdrop-filter:none;-webkit-backdrop-filter:none"), "Mobile Android promo card must avoid backdrop-filter compositor artifacts");
+assert(!css.includes("contain:paint"), "Mobile Android promo must not create a paint-containment compositor surface");
+assert(css.includes(".android-app-section{padding:58px 0;contain:none}"), "Mobile Android promo must stay in normal paint flow");
+assert(css.includes(".android-app-device{width:min(78vw,300px);justify-self:center;order:-1;transform:none}"), "Mobile phone mockup must not force a transformed compositor layer");
+assert(css.includes(".android-app-screen::after{display:none}"), "Mobile phone gloss overlay must be disabled to avoid tiled GPU corruption");
+assert(css.includes(".android-app-screen-pill img{filter:none}"), "Mobile phone badge must avoid filter-based GPU compositing");
 assert(css.includes(".android-app-screen-brand .android-app-screen-mark{width:158px;height:74px"), "Approved Roby's lockup must keep the enlarged in-phone presentation");
 assert(mobileInstall.includes('icon.src = "apple-touch-icon.png?v=20260726-approved-v4"'), "iPhone install button must show the reviewed Roby's app image");
 assert(mobileInstall.includes('icon.alt = ""') && mobileInstall.includes('icon.setAttribute("aria-hidden", "true")'), "Decorative iPhone app image must stay accessibility-neutral");
