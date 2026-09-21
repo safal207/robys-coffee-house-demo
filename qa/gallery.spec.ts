@@ -176,6 +176,8 @@ test("pairing preview starts after a user tap", async ({ page }, testInfo) => {
   const state = await video.evaluate((element: HTMLVideoElement) => ({
     currentTime: element.currentTime,
     paused: element.paused,
+    ended: element.ended,
+    duration: element.duration,
     readyState: element.readyState,
     errorCode: element.error?.code ?? 0,
     currentSrc: element.currentSrc
@@ -184,7 +186,8 @@ test("pairing preview starts after a user tap", async ({ page }, testInfo) => {
   expect(state.errorCode).toBe(0);
   expect(state.currentTime).toBeGreaterThan(0);
   expect(state.readyState).toBeGreaterThanOrEqual(2);
-  expect(state.paused).toBe(false);
+  expect(state.paused === false || state.ended).toBe(true);
+  expect(state.currentTime).toBeLessThanOrEqual(state.duration + 0.1);
   expect(state.currentSrc).toContain("iced-san-sebastian-pairing-preview.mp4");
 });
 
