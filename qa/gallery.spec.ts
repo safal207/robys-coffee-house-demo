@@ -156,6 +156,38 @@ test("bottom panel remains actionable while the gallery is active", async ({ pag
   await expect(instagramAction).toBeFocused();
 });
 
+test("pairing preview starts after a user tap", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "Pixel 5 Chrome", "Bounded playback proof runs once in the Android-like Chromium profile.");
+
+  await page.goto("/", { waitUntil: "networkidle" });
+
+  const card = page.locator('[data-product-id="san-sebastian"]');
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toBeVisible();
+
+  await card.click();
+  await expect(card).toHaveAttribute("data-pairing-preview-active", "true");
+
+  const video = card.locator("video.pairing-preview-video");
+  await expect(video).toHaveCount(1);
+  await expect(card).toHaveClass(/pairing-preview-playing/, { timeout: 8_000 });
+  await page.waitForTimeout(250);
+
+  const state = await video.evaluate((element: HTMLVideoElement) => ({
+    currentTime: element.currentTime,
+    paused: element.paused,
+    readyState: element.readyState,
+    errorCode: element.error?.code ?? 0,
+    currentSrc: element.currentSrc
+  }));
+
+  expect(state.errorCode).toBe(0);
+  expect(state.currentTime).toBeGreaterThan(0);
+  expect(state.readyState).toBeGreaterThanOrEqual(2);
+  expect(state.paused).toBe(false);
+  expect(state.currentSrc).toContain("iced-san-sebastian-pairing-preview.mp4");
+});
+
 test("failed image keeps the same reserved card height", async ({ page }) => {
   await page.route("**/san-sebastian*.webp?*", (route) => route.abort());
   await page.goto("/", { waitUntil: "networkidle" });
