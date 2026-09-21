@@ -14,6 +14,8 @@ on:
       - "qa/footer.spec.ts"
       - "qa/playwright.config.ts"
       - "scripts/verify-gallery-assets.sh"
+      - "scripts/verify-pairing-preview-media.mjs"
+      - "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4"
       - ".github/workflows/gallery-mobile.yml"
   workflow_dispatch:
 
@@ -40,6 +42,9 @@ jobs:
 
       - name: Audit gallery assets and viewport units
         run: bash scripts/verify-gallery-assets.sh
+
+      - name: Verify pairing preview MP4 structure
+        run: node scripts/verify-pairing-preview-media.mjs
 
       - name: Compile TypeScript runtime
         run: npm run build
