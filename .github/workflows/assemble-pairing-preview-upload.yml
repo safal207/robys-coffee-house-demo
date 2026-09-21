@@ -1,0 +1,79 @@
+name: Assemble pairing preview upload
+
+on:
+  push:
+    branches:
+      - upload/pairing-preview-20260921
+    paths:
+      - ".github/workflows/assemble-pairing-preview-upload.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: upload/pairing-preview-20260921
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Reconstruct requested preview video
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat             .asset-upload/pairing-preview-001.b64             .asset-upload/pairing-preview-002.b64             .asset-upload/pairing-preview-004.b64             .asset-upload/pairing-preview-003.b64             | tr -d '\r\n'             | base64 -d             > src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4
+
+          test "$(stat -c%s src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4)" = "119546"
+          echo "d8fef6c0b66877e427157592e9ea327c60cb854eb6a33a172f747e35d7e214e6  src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4" | sha256sum -c -
+          node scripts/verify-pairing-preview-media.mjs
+
+      - name: Bump preview cache revision
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/featured-gallery.ts")
+          source = path.read_text()
+          old = "iced-san-sebastian-pairing-preview.mp4?v=20260921-1"
+          new = "iced-san-sebastian-pairing-preview.mp4?v=20260921-2"
+          if old not in source:
+              raise SystemExit("expected old pairing preview revision is missing")
+          path.write_text(source.replace(old, new))
+          PY
+
+      - name: Build and refresh integrity evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run integrity:generate
+          node scripts/verify-pairing-preview-media.mjs
+          npm run verify:integrity
+
+      - name: Remove temporary staging transport
+        shell: bash
+        run: |
+          rm -f .asset-upload/pairing-preview-*.b64
+          rm -f .github/workflows/assemble-pairing-preview-upload.yml
+
+      - name: Commit assembled video
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: upload requested pairing preview video"
+          git push origin HEAD:upload/pairing-preview-20260921
