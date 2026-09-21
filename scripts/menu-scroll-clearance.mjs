@@ -39,6 +39,33 @@ try{
       await page.locator(`[data-lang="${language}"]`).click();
       await page.evaluate(size=>document.documentElement.style.fontSize=size+'px',fontSize);
       await page.evaluate(()=>document.fonts.ready);await settle(page);
+      result.categoryRail=await page.evaluate(()=>{
+        const layout=document.querySelector('.menu-kiosk-layout');
+        const sidebar=document.querySelector('.menu-kiosk-sidebar');
+        const nav=document.querySelector('.menu-category-nav');
+        const title=document.querySelector('.menu-kiosk-title');
+        const sidebarBounds=sidebar?.getBoundingClientRect();
+        return {
+          layoutDisplay:layout?getComputedStyle(layout).display:null,
+          sidebarPosition:sidebar?getComputedStyle(sidebar).position:null,
+          sidebarWidth:sidebarBounds?.width??0,
+          navDirection:nav?getComputedStyle(nav).flexDirection:null,
+          titleDisplay:title?getComputedStyle(title).display:null
+        };
+      });
+      if(width>=820){
+        assert.equal(result.categoryRail.layoutDisplay,'grid',`${id}: desktop kiosk layout must be a grid`);
+        assert.equal(result.categoryRail.sidebarPosition,'sticky',`${id}: desktop category rail must stay sticky`);
+        assert.equal(result.categoryRail.navDirection,'column',`${id}: desktop categories must run vertically`);
+        assert.notEqual(result.categoryRail.titleDisplay,'none',`${id}: desktop category title must be visible`);
+        assert.ok(result.categoryRail.sidebarWidth>=210&&result.categoryRail.sidebarWidth<=226,`${id}: desktop category rail width drifted ${result.categoryRail.sidebarWidth}`);
+      }else{
+        assert.equal(result.categoryRail.layoutDisplay,'block',`${id}: compact menu layout must collapse to one column`);
+        assert.equal(result.categoryRail.sidebarPosition,'static',`${id}: compact category rail must not stay sticky`);
+        assert.equal(result.categoryRail.navDirection,'row',`${id}: compact categories must remain horizontal`);
+        assert.equal(result.categoryRail.titleDisplay,'none',`${id}: compact category title must stay hidden`);
+      }
+      if(width===1440&&!touch&&fontSize===16&&language==='tr')await page.screenshot({path:`${out}/desktop-kiosk-menu.png`,fullPage:false});
       await page.locator('[data-category="hot-coffee"]').click();await settle(page);
       result.category=await clearance(page,'.full-menu-panel-header');
       assert.ok(result.category.clear&&result.category.visible,`${id}: category covered ${JSON.stringify(result.category)}`);
@@ -81,4 +108,4 @@ try{
   writeFileSync(out+'/summary.json',JSON.stringify(report,null,2)+'\n');
 }
 assert.ok(report.passed,`Scroll clearance failed: ${report.cases.filter(row=>!row.passed).map(row=>row.id).join(', ')}`);
-console.log('SCROLL-CLEARANCE: 48 input/viewport/language/text-size cases and one detected negative control PASS');
+console.log('SCROLL-CLEARANCE: 48 input/viewport/language/text-size cases, desktop kiosk rail/compact horizontal rail, and one detected negative control PASS');

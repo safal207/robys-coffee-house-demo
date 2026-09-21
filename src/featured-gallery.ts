@@ -91,7 +91,7 @@ const PAIRING_PREVIEW = {
   productId: "san-sebastian",
   pairingId: "iced-san-sebastian",
   href: "menu.html#pairing-offers",
-  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260916-2",
+  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260921-1",
   poster: "src/products/sets-v1/iced-san-sebastian.webp?v=20260704-3",
   stylesheet: "pairing-preview.css?v=20260916-2",
   copy: {
