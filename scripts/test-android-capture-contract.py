@@ -44,6 +44,7 @@ if args[:1] == ['pull'] and case == 'pull_error':
 if args[:1] == ['install'] and case == 'install_error':
     sys.exit(23)
 if args[:4] == ['shell', 'am', 'start', '-W']:
+    Path('fixture-app-started').touch()
     if case == 'interrupted':
         os.kill(os.getppid(), signal.SIGTERM)
     print('Status: ok')
@@ -57,6 +58,12 @@ elif args[:2] == ['exec-out', 'screencap']:
     sys.stdout.buffer.write(b'fixture-png')
 elif args[:3] == ['shell', 'wm', 'size']:
     print('Physical size: 1080x2400')
+elif args == ['shell', 'cat', '/proc/stat']:
+    counter = Path('fixture-cpu-sample')
+    sample = int(counter.read_text()) + 1 if counter.exists() else 1
+    counter.write_text(str(sample))
+    idle = 0 if case == 'boot_busy' else sample * 900
+    print(f'cpu {sample * 100} 0 0 {idle} 0 0 0 0 0 0')
 elif args[:3] == ['shell', 'dumpsys', 'webviewupdate']:
     print('fixture-webview-provider')
 '''
@@ -65,7 +72,8 @@ CASES = {'success': 0, 'fallback': 0, 'timeout': 1, 'missing_visual': 1,
          'out_of_order': 1, 'missing_commit': 1, 'short_video': 1,
          'install_error': 23, 'interrupted': 143, 'recording_error': 17,
          'pull_error': 19, 'timeout_then_complete': 1,
-         'error_then_complete': 1, 'error_after_complete': 1, 'missing_web_asset': 1}
+         'error_then_complete': 1, 'error_after_complete': 1, 'missing_web_asset': 1,
+         'boot_busy': 1}
 selection = os.environ.get("CAPTURE_CASES")
 if selection:
     CASES = {key: CASES[key] for key in selection.split(",")}
@@ -101,7 +109,7 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
         assert (evidence / 'native-source.sha').read_text().strip() == head, case
         assert (evidence / 'handoff-states.txt').is_file(), case
         assert (evidence / 'evidence-summary.txt').exists() == (expected == 0), case
-        if case not in {'install_error', 'interrupted'}:
+        if case not in {'install_error', 'interrupted', 'boot_busy'}:
             recorder_exit = 17 if case == 'recording_error' else 0
             assert (evidence / 'recorder-exit.txt').read_text().strip() == f'exit_code={recorder_exit}', case
         if case == 'recording_error':
@@ -109,6 +117,10 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
             assert 'screen recording failed' in run.stderr, case
         if case in {'timeout_then_complete', 'error_then_complete', 'error_after_complete'}:
             assert 'terminal launch failure' in run.stderr, case
+        if case == 'boot_busy':
+            assert 'emulator CPU did not settle' in run.stderr, case
+            assert not (work / 'fixture-app-started').exists(), case
+            assert len((evidence / 'boot-cpu.csv').read_text().splitlines()) == 61, case
         print(f'{case}: PASS ({run.returncode})', file=sys.stderr, flush=True)
         results.append({'case': case, 'expectedExit': expected, 'actualExit': run.returncode,
                         'diagnosticsPreserved': True, 'passed': True})

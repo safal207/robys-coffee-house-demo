@@ -49,8 +49,39 @@ adb shell settings put global transition_animation_scale 1
 adb shell settings put global animator_duration_scale 1
 adb shell wm size > "$OUT/display-size.txt"
 
-# Preserve the cold provider load; only settle unrelated emulator services.
-sleep 20
+# First-boot package compilation and Google services can still saturate the
+# emulator after boot_completed. Require three quiet CPU samples before the
+# single cold app/provider launch; fail if the environment never settles.
+# Product deadlines, device resolution and animations remain unchanged.
+cpu_sample() {
+  adb shell cat /proc/stat | awk '/^cpu / {total=0; for(i=2;i<=9;i++) total+=$i; print total, $5; found=1; exit} END {if(!found) exit 1}'
+}
+read -r previous_total previous_idle < <(cpu_sample)
+quiet_samples=0
+printf 'sample,total_delta,idle_delta,idle_percent\n' > "$OUT/boot-cpu.csv"
+for ((sample = 1; sample <= 60; sample += 1)); do
+  sleep 2
+  read -r current_total current_idle < <(cpu_sample)
+  total_delta=$((current_total - previous_total))
+  idle_delta=$((current_idle - previous_idle))
+  idle_percent=0
+  if (( total_delta > 0 && idle_delta >= 0 )); then
+    idle_percent=$((100 * idle_delta / total_delta))
+  fi
+  printf '%s,%s,%s,%s\n' "$sample" "$total_delta" "$idle_delta" "$idle_percent" >> "$OUT/boot-cpu.csv"
+  if (( idle_percent >= 70 )); then
+    quiet_samples=$((quiet_samples + 1))
+  else
+    quiet_samples=0
+  fi
+  if (( quiet_samples >= 3 )); then break; fi
+  previous_total=$current_total
+  previous_idle=$current_idle
+done
+if (( quiet_samples < 3 )); then
+  echo "ANDROID-HANDOFF-002: emulator CPU did not settle; cold launch was not attempted." >&2
+  exit 1
+fi
 adb shell input keyevent HOME
 sleep 1
 adb shell am force-stop "$PACKAGE"

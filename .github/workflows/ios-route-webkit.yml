@@ -34,12 +34,24 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Start local site
+      - name: Start local HTTPS site
         run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/robys-ios-server.log 2>&1 &
+          # WebKit honors upgrade-insecure-requests on loopback too. Serve TLS
+          # instead of changing the production CSP or testing an unstyled page.
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout /tmp/robys-ios.key -out /tmp/robys-ios.crt \
+            -subj '/CN=localhost' -addext 'subjectAltName=IP:127.0.0.1,DNS:localhost'
+          python3 - <<'PY' > /tmp/robys-ios-server.log 2>&1 &
+          import http.server, ssl
+          server = http.server.ThreadingHTTPServer(('127.0.0.1', 4173), http.server.SimpleHTTPRequestHandler)
+          tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+          tls.load_cert_chain('/tmp/robys-ios.crt', '/tmp/robys-ios.key')
+          server.socket = tls.wrap_socket(server.socket, server_side=True)
+          server.serve_forever()
+          PY
           echo $! > /tmp/robys-ios-server.pid
           for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:4173/index.html > /dev/null; then
+            if curl --cacert /tmp/robys-ios.crt --fail --silent https://127.0.0.1:4173/index.html > /dev/null; then
               exit 0
             fi
             sleep 1
@@ -49,7 +61,7 @@ jobs:
 
       - name: Verify Google Maps route handoff in iPhone WebKit
         env:
-          BASE_URL: http://127.0.0.1:4173
+          BASE_URL: https://127.0.0.1:4173
         run: node scripts/verify-ios-route-webkit.mjs
 
       - name: Upload iOS route evidence

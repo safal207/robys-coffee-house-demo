@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { webkit, devices } from "playwright";
 
-const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
+const baseUrl = process.env.BASE_URL ?? "https://127.0.0.1:4173";
+const baseOrigin = new URL(baseUrl);
+assert.equal(baseOrigin.protocol, "https:", "WebKit route evidence requires HTTPS with the production CSP");
 const routePrefix = "https://www.google.com/maps/dir/";
 const expectedDestination = "Roby's Coffee House Gazipasa";
 const evidenceDir = "qa-artifacts";
@@ -24,6 +26,9 @@ await mkdir(evidenceDir, { recursive: true });
 const browser = await webkit.launch({ headless: true });
 const context = await browser.newContext({
   ...devices["iPhone 13"],
+  // Only the ephemeral loopback certificate is self-signed; deployed sites
+  // still require normal certificate validation. CSP remains fully enabled.
+  ignoreHTTPSErrors: ["127.0.0.1", "localhost"].includes(baseOrigin.hostname),
   locale: "tr-TR",
   timezoneId: "Europe/Istanbul"
 });
@@ -43,6 +48,10 @@ async function verifyPage(pathname) {
   const page = await context.newPage();
   const localUrl = new URL(pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(() => {
+    const styles = [...document.querySelectorAll('link[rel="stylesheet"]')];
+    return styles.length > 0 && styles.every(link => link.sheet && link.sheet.cssRules.length > 0);
+  });
 
   if (pathname === "index.html") {
     const heroPrimary = page.locator(".hero-actions .button-primary");
