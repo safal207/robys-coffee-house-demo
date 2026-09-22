@@ -49,10 +49,14 @@ async function verifyPage(pathname) {
   const page = await context.newPage();
   const localUrl = new URL(pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => {
-    const styles = [...document.querySelectorAll('link[rel="stylesheet"]')];
-    return styles.length > 0 && styles.every(link => link.sheet && link.sheet.cssRules.length > 0);
-  });
+  // These authored, blocking styles must be loaded by DOMContentLoaded.
+  // Use direct DOM inspection: waitForFunction internally compiles a string,
+  // which conflicts with the page's enforced Trusted Types policy.
+  for (const stylesheet of ["styles-v2.css", pathname === "index.html" ? "map-live.css" : "menu-premium.css"]) {
+    const loaded = await page.locator(`link[rel="stylesheet"][href^="${stylesheet}"]`)
+      .evaluate(link => Boolean(link.sheet && link.sheet.cssRules.length));
+    assert(loaded, `${pathname}: required stylesheet did not load: ${stylesheet}`);
+  }
 
   if (pathname === "index.html") {
     await page.locator(".hero-actions [data-smart-choice-entry]").waitFor({ state: "attached" });
@@ -96,7 +100,7 @@ async function verifyPage(pathname) {
       // The dock intentionally hides beside the visit/footer sections. Reach
       // its normal visible state before exercising the actual user click.
       await page.locator("#about").scrollIntoViewIfNeeded();
-      await page.waitForFunction(() => document.querySelector(".mobile-cta")?.classList.contains("is-visible"));
+      await page.locator(".mobile-cta.is-visible").waitFor({ state: "visible" });
     } else {
       await link.scrollIntoViewIfNeeded();
     }
