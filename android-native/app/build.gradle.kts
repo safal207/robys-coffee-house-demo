@@ -25,7 +25,7 @@ android {
         versionName = "1.2"
     }
 
-    sourceSets.getByName("debug").assets.srcDir(layout.buildDirectory.dir("qa-web-assets"))
+    sourceSets.getByName("debug").assets.srcDir(layout.buildDirectory.dir("qa-web-assets").get().asFile)
 
     if (releaseSigningReady) {
         signingConfigs {
