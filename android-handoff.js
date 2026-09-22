@@ -74,6 +74,7 @@ function createAndroidHandoffSurface() {
     height: "176%",
     borderRadius: "50%",
     background: "radial-gradient(ellipse at center, rgba(255,242,218,.94) 0%, rgba(255,224,181,.72) 28%, rgba(211,132,67,.34) 52%, rgba(36,28,27,0) 78%)",
+    filter: "blur(18px)",
     transform: "translate(-50%, -50%)",
     opacity: ".88",
     zIndex: "0",
@@ -94,7 +95,8 @@ function createAndroidHandoffSurface() {
     width: "46px",
     height: "53px",
     objectFit: "contain",
-    opacity: "1"
+    opacity: "1",
+    filter: "drop-shadow(0 8px 22px rgba(226,27,35,.18))"
   });
 
   const wordmark = document.createElement("img");
@@ -111,7 +113,8 @@ function createAndroidHandoffSurface() {
     width: "min(60vw, 230px)",
     height: "auto",
     objectFit: "contain",
-    opacity: "1"
+    opacity: "1",
+    filter: "drop-shadow(0 1px 0 rgba(255,247,235,.10)) drop-shadow(0 8px 20px rgba(0,0,0,.16))"
   });
 
   stage.append(focus, mark, wordmark);
