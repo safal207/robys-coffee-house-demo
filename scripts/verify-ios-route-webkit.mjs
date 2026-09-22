@@ -32,6 +32,7 @@ const context = await browser.newContext({
   locale: "tr-TR",
   timezoneId: "Europe/Istanbul"
 });
+await context.tracing.start({ screenshots: true, snapshots: true });
 
 await context.route(`${routePrefix}**`, async (route) => {
   const requestedUrl = route.request().url();
@@ -90,10 +91,20 @@ async function verifyPage(pathname) {
     assert.equal(destination.searchParams.get("destination"), expectedDestination, `${pathname}: wrong route destination`);
     assert.equal(destination.searchParams.get("travelmode"), "driving", `${pathname}: route must default to driving`);
 
-    await link.scrollIntoViewIfNeeded();
-    const popupPromise = page.waitForEvent("popup", { timeout: 5000 });
-    await link.click();
-    const popup = await popupPromise;
+    console.log(`Checking ${pathname} route ${index + 1}/${count}: ${await link.getAttribute("class")}`);
+    if (await link.evaluate(node => Boolean(node.closest(".mobile-cta")))) {
+      // The dock intentionally hides beside the visit/footer sections. Reach
+      // its normal visible state before exercising the actual user click.
+      await page.locator("#about").scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => document.querySelector(".mobile-cta")?.classList.contains("is-visible"));
+    } else {
+      await link.scrollIntoViewIfNeeded();
+    }
+    await link.click({ trial: true });
+    const [popup] = await Promise.all([
+      page.waitForEvent("popup", { timeout: 5000 }),
+      link.click()
+    ]);
     await popup.waitForLoadState("domcontentloaded");
 
     assert.notEqual(popup.url(), "about:blank", `${pathname}: route link opened a blank iOS tab`);
@@ -126,6 +137,7 @@ try {
 
   console.log("✅ iOS WebKit route gate passed: styled hero offers Smart Choice and direct pairings; every named route CTA opens a non-blank Google Maps driving route.");
 } finally {
+  await context.tracing.stop({ path: `${evidenceDir}/ios-route-trace.zip` });
   await context.close();
   await browser.close();
 }
