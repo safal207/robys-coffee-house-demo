@@ -95,9 +95,10 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: false
-          # swiftshader_indirect was deprecated in Emulator 36.4.9.
-          # The supported software backend does not change product deadlines.
-          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
+          # Pin the supported GLES/Vulkan backend. Automatic "software" selection
+          # mixed swangle/lavapipe and stalled frames for 5-13 seconds on CI.
+          # Keep the cold launch, animations and product deadlines unchanged.
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader -noaudio -no-boot-anim -camera-back none -camera-front none
           script: bash .github/scripts/capture-android-launch.sh
 
       - name: Upload launch evidence
