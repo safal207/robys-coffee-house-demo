@@ -1,6 +1,6 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
-import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js?v=shared-order-v1";
+import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));

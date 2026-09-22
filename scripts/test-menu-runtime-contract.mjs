@@ -8,6 +8,9 @@ import { compileMenuRuntime, readVerifiedMenuSource } from './menu-runtime-sourc
 const source = readVerifiedMenuSource();
 const emitted = readFileSync('menu-app.js', 'utf8');
 assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source), 'runtime must remain compact');
+assert.match(emitted, /from"\.\/menu-catalog\.js\?/, 'catalog must stay external');
+assert.match(emitted, /import\("\.\/menu-interactions\.js\?/, 'interaction actions must stay lazy');
+assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));
 try {
@@ -24,9 +27,9 @@ try {
   assert.throws(() => readVerifiedMenuSource(), /stale or differs/);
   writeFileSync('menu-app.js', compileMenuRuntime());
   assert.equal(readVerifiedMenuSource(), 'export const count = 2;\n');
-  const sharedSource = 'import { count } from "./src/order-draft.js?v=shared-order-v1";\nconsole.log(count);\n';
+  const sharedSource = 'import { count } from "./src/order-draft.js";\nconsole.log(count);\n';
   writeFileSync('src/menu-app.js', sharedSource);
-  assert.throws(() => compileMenuRuntime(), /ENOENT/, 'imported draft dependency must exist');
+  assert.throws(() => compileMenuRuntime(), /Could not resolve/, 'imported draft dependency must exist');
   writeFileSync('src/order-draft.js', 'export const count = 1;\n');
   writeFileSync('menu-app.js', compileMenuRuntime());
   assert.equal(readVerifiedMenuSource(), sharedSource);

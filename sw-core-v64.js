@@ -104,8 +104,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=bfb48d69c711",
   "./menu-ready.js",
-  "./menu-app.js?v=4ea7522c3a6d",
-  "./src/order-draft.js?v=52c55a2ba58d",
+  "./menu-app.js?v=86dc06d00f26",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./pairing-posters.js?v=745da5142f2d",
@@ -205,7 +204,6 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
-    url.pathname.endsWith("/src/order-draft.js") ||
     url.pathname.endsWith("/menu-product-reveal.css") ||
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||
