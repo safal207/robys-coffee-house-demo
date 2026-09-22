@@ -1,5 +1,6 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
+import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js?v=shared-order-v1";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -123,10 +124,13 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
+const orderProductIds = new Set(productIndex.keys());
+let orderDraft;
 
 function readCart() {
   try {
     const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
+    orderDraft = normalizeOrderDraft(parsed, orderProductIds);
     if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
     const validLines = parsed.lines.filter((line) => (
       productIndex.has(line?.id) &&
@@ -143,11 +147,10 @@ function readCart() {
 let cart = readCart();
 
 function saveCart() {
+  orderDraft = updateOrderLines(orderDraft,
+    Array.from(cart, ([id, quantity]) => ({ id, quantity })), orderProductIds);
   try {
-    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      lines: Array.from(cart, ([id, quantity]) => ({ id, quantity }))
-    }));
+    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(orderDraft));
   } catch {
     // The order calculator still works when session persistence is unavailable.
   }
@@ -793,6 +796,12 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
+
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  cart = readCart();
+  renderCart();
+});
 
 if (language !== "tr") void loadMenuActions();
 

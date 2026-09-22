@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -104,7 +104,8 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=bfb48d69c711",
   "./menu-ready.js",
-  "./menu-app.js?v=ea110bf488b2",
+  "./menu-app.js?v=4ea7522c3a6d",
+  "./src/order-draft.js?v=52c55a2ba58d",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./pairing-posters.js?v=745da5142f2d",
@@ -136,10 +137,10 @@ const CORE_ASSETS = [
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=8741e7ebc72b",
-  "./smart-choice/app-v2.js?v=5da253018750",
-  "./smart-choice/cart-v2.js?v=f8e10c173a2d",
+  "./smart-choice/app-v2.js?v=0319737202f2",
+  "./smart-choice/cart-v2.js?v=6abd42de1f7c",
   "./smart-choice/experiments-v2.js?v=4852fc7c9115",
-  "./smart-choice/analytics-v2.js?v=9cd3b5dd0fc2",
+  "./smart-choice/analytics-v2.js?v=b33d32a223fe",
   "./smart-choice/decision-trace-v2.js?v=923446e45093",
   "./discover.js",
   "./discover-v2.js?v=d16fc23e122d",
@@ -204,6 +205,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/src/order-draft.js") ||
     url.pathname.endsWith("/menu-product-reveal.css") ||
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||

@@ -368,6 +368,7 @@ for (const [filePath, revision] of [
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
+  ["src/order-draft.js", revisionFor("src/order-draft.js")],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
   ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],
