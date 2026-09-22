@@ -117,12 +117,17 @@ try {
   assert(contract.wordmarkPath.endsWith("/src/brand/robys-compact-master-v1.svg"), `Unexpected wordmark asset: ${contract.wordmarkPath}`);
   assert(contract.fullMorningLayerCount === 0, "Android bridge double-played the full Morning animation");
   assert(contract.releaseHook === "function", "Native release hook is unavailable");
+  assert(await page.locator(".hero-video").evaluate(video => video.paused && video.readyState === 0),
+    "Hero decoder started before native frame acknowledgement");
 
   await page.waitForTimeout(260);
   assert(await page.locator(".robys-android-handoff").count() === 1, "Bridge auto-dismissed before native release");
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-ready.png"), animations: "allow" });
 
   await page.evaluate(() => window.__robysAndroidHandoffRelease());
+  assert(await page.evaluate(() => document.documentElement.dataset.robysNativeReady) === "true",
+    "Native release did not acknowledge deferred media");
+  assert(await page.locator(".hero-video").evaluate(video => video.autoplay), "Native release did not schedule hero playback");
   await page.locator(".robys-android-handoff").waitFor({ state: "detached", timeout: 700 });
   assert(
     await page.evaluate(() => document.documentElement.dataset.robysAndroidHandoff) === "done",

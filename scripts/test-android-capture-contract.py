@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 CAPTURE = Path(sys.argv[1] if len(sys.argv) > 1 else '.github/scripts/capture-android-launch.sh').resolve()
 
@@ -48,6 +49,8 @@ if args[:4] == ['shell', 'am', 'start', '-W']:
     print('Status: ok')
 elif args[:2] == ['logcat', '-d']:
     print('\n'.join('D RobysHandoff: ' + state for state in states))
+    if case == 'missing_web_asset':
+        print('E RobysWebAssets: MISSING app.js')
 elif args[:1] == ['pull']:
     Path(args[2]).write_bytes(b'x' * (10 if case == 'short_video' else 60000))
 elif args[:2] == ['exec-out', 'screencap']:
@@ -62,7 +65,7 @@ CASES = {'success': 0, 'fallback': 0, 'timeout': 1, 'missing_visual': 1,
          'out_of_order': 1, 'missing_commit': 1, 'short_video': 1,
          'install_error': 23, 'interrupted': 143, 'recording_error': 17,
          'pull_error': 19, 'timeout_then_complete': 1,
-         'error_then_complete': 1, 'error_after_complete': 1}
+         'error_then_complete': 1, 'error_after_complete': 1, 'missing_web_asset': 1}
 selection = os.environ.get("CAPTURE_CASES")
 if selection:
     CASES = {key: CASES[key] for key in selection.split(",")}
@@ -83,14 +86,17 @@ with tempfile.TemporaryDirectory(prefix='robys-capture-contract-') as temporary:
                         'user.email=qa@example.invalid', 'commit', '--allow-empty', '-qm', 'fixture'], check=True)
         apk = work / 'android-native/app/build/outputs/apk/debug/app-debug.apk'
         apk.parent.mkdir(parents=True)
-        apk.write_bytes(b'fixture apk, not an installable application')
+        source_sha = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()
+        with zipfile.ZipFile(apk, 'w') as archive:
+            archive.writestr('assets/qa-web/source.json', json.dumps({
+                'sourceSha': source_sha, 'webSource': 'packaged-current-head'}))
         env = dict(os.environ, PATH=str(shims) + os.pathsep + os.environ['PATH'], CAPTURE_TEST_CASE=case)
         run = subprocess.run(['bash', str(CAPTURE)], cwd=work, env=env, capture_output=True, text=True, timeout=20)
         evidence = work / 'android-native/build/visual-evidence'
         assert run.returncode == expected, (case, run.returncode, expected, run.stderr)
         assert (evidence / 'capture-exit.txt').read_text().strip() == f'exit_code={expected}', case
         assert (evidence / 'webview-provider.txt').read_text().strip() == 'fixture-webview-provider', case
-        assert 'web_bytes_pinned_to_pr=false' in (evidence / 'source-boundary.txt').read_text(), case
+        assert 'web_bytes_pinned_to_pr=true' in (evidence / 'source-boundary.txt').read_text(), case
         head = subprocess.check_output(['git', '-C', str(work), 'rev-parse', 'HEAD'], text=True).strip()
         assert (evidence / 'native-source.sha').read_text().strip() == head, case
         assert (evidence / 'handoff-states.txt').is_file(), case

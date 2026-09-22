@@ -127,6 +127,7 @@ public final class MainActivity extends ComponentActivity {
 
     private void configureWebView() {
         WebView.setWebContentsDebuggingEnabled(false);
+        LocalWebAssets.install(this);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -161,6 +162,11 @@ public final class MainActivity extends ComponentActivity {
         });
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                return LocalWebAssets.intercept(MainActivity.this, request);
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();

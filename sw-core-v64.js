@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-native-video-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -95,8 +95,8 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore",
-  "./bootstrap-v2.js?v=9b85be106f25",
-  "./android-handoff.js",
+  "./bootstrap-v2.js?v=3db689ae7719",
+  "./android-handoff.js?v=9d68373aab02",
   "./morning-entry-v2.js?v=8a158515f4de",
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",

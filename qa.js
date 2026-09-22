@@ -31,6 +31,7 @@ function requestHeroPlayback(video) {
 }
 
 function enableHeroVideo() {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const video = q(".hero-video");
   const source = video ? q("source", video) : null;
   if (!video || !source) return;
@@ -57,6 +58,17 @@ function enableHeroVideo() {
 
   video.load();
   retryPlayback();
+}
+
+function scheduleHeroPlayback() {
+  const nativeEntry = new URLSearchParams(window.location.search).get("entry") === "android-handoff";
+  if (!nativeEntry || document.documentElement.dataset.robysNativeReady === "true") {
+    enableHeroVideo();
+    return;
+  }
+  // The native shell acknowledges a drawable frame before starting the decoder.
+  // The web bridge's own hard-stop must not start video behind the native surface.
+  window.addEventListener("robys:native-ready", enableHeroVideo, { once: true });
 }
 
 function applyImmediateA11yFixes() {
@@ -169,7 +181,7 @@ function initQaEnhancements() {
 
 function initQa() {
   ensureHeroBalanceStyles();
-  enableHeroVideo();
+  scheduleHeroPlayback();
   applyImmediateA11yFixes();
   window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });
   window.addEventListener("keydown", initQaEnhancements, { once: true });

@@ -4,3 +4,5 @@ node_modules/
 lighthouse/reports/
 lighthouse/regression-report*.json
 lighthouse-comment.md
+android-native/**/build/
+android-native/.gradle/

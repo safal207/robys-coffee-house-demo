@@ -90,9 +90,11 @@ dashboardContract("MAP-001", 6);
 const heroVideoBlocks = Array.from(html.matchAll(/<video\b[^>]*\bclass=["'][^"']*\bhero-video\b[^"']*["'][^>]*>[\s\S]*?<\/video>/gi)).map((match) => match[0]);
 assert(heroVideoBlocks.length === 1, "VIDEO-001", `Expected exactly one .hero-video element, found ${heroVideoBlocks.length}`);
 const heroVideo = heroVideoBlocks[0];
-for (const attribute of ["autoplay", "muted", "loop", "playsinline"]) {
+for (const attribute of ["muted", "loop", "playsinline"]) {
   assert(new RegExp(`\\b${attribute}(?:\\s|>|=)`, "i").test(heroVideo), "VIDEO-001", `Hero video must keep the ${attribute} attribute`);
 }
+assert(!/\bautoplay(?:\s|>|=)/i.test(heroVideo) && /preload="none"/.test(heroVideo), "VIDEO-001", "Hero decoder must wait for the playback scheduler");
+assert(qaRuntime.includes("video.autoplay = true") && qaRuntime.includes("scheduleHeroPlayback"), "VIDEO-001", "Scheduled hero autoplay must remain available");
 const heroSource = heroVideo.match(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
 assert(/^src\/[\w./-]+\.mp4(?:\?[^"']*)?$/i.test(heroSource), "VIDEO-001", "Hero video must use a local MP4 source");
 assert(/\bvideo\.play\s*\(/.test(qaRuntime), "VIDEO-001", "Hero runtime must explicitly call video.play()");

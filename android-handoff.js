@@ -160,10 +160,16 @@ async function runAndroidHandoff() {
     overlay.remove();
     document.documentElement.style.backgroundColor = "";
     emitAndroidHandoffState("done");
-    delete window.__robysAndroidHandoffRelease;
   };
 
-  window.__robysAndroidHandoffRelease = () => release(false);
+  // Retain this acknowledgement after the web-only hard stop as well: older
+  // native shells may confirm their first drawable frame after that fallback.
+  window.__robysAndroidHandoffRelease = () => {
+    document.documentElement.dataset.robysNativeReady = "true";
+    window.dispatchEvent(new Event("robys:native-ready"));
+    delete window.__robysAndroidHandoffRelease;
+    return release(false);
+  };
   hardStopId = window.setTimeout(() => release(true), ANDROID_HANDOFF_HARD_STOP_MS);
 
   await waitForAssets(mark, wordmark);

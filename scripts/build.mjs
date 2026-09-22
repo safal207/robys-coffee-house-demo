@@ -206,8 +206,11 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
+const androidHandoffRevision = revisionFor("android-handoff.js");
+const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
+bootstrapSource = synchronizeModuleImport(bootstrapSource, "android-handoff.js", androidHandoffRevision);
 writeFileSync("bootstrap-v2.js", bootstrapSource);
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
@@ -289,6 +292,7 @@ for (const { name, target, revision } of landingCacheStyles) {
   html = synchronizeStylesheet(html, target, revision);
 }
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
+html = synchronizeModuleScript(html, "qa.js", qaRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -361,6 +365,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["bootstrap-v2.js", bootstrapRevision],
+  ["android-handoff.js", androidHandoffRevision],
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],

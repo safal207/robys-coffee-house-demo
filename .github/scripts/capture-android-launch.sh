@@ -11,10 +11,19 @@ HANDOFF_WAIT_SECONDS=30
 mkdir -p "$OUT"
 rm -f "$OUT"/*
 
-# Evidence identifies the APK source, not the mutable public web deployment.
+# Both APK and protected web bytes are bound to the checked-out source.
 git rev-parse HEAD > "$OUT/native-source.sha"
 sha256sum "$APK" > "$OUT/apk-sha256.txt"
-printf 'web_source=public-github-pages\nweb_url=https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff\nweb_bytes_pinned_to_pr=false\n' > "$OUT/source-boundary.txt"
+unzip -p "$APK" assets/qa-web/source.json > "$OUT/web-source.json"
+python3 - "$OUT" <<'PY'
+import json, sys
+from pathlib import Path
+out = Path(sys.argv[1])
+source = json.loads((out / 'web-source.json').read_text())
+assert source['sourceSha'] == (out / 'native-source.sha').read_text().strip(), 'Web/APK source mismatch'
+assert source['webSource'] == 'packaged-current-head', 'Missing pinned web assets'
+PY
+printf 'web_source=packaged-current-head\nweb_url=https://safal207.github.io/robys-coffee-house-demo/?entry=android-handoff\nweb_bytes_pinned_to_pr=true\n' > "$OUT/source-boundary.txt"
 date -u '+captured_at=%Y-%m-%dT%H:%M:%SZ' >> "$OUT/source-boundary.txt"
 
 # Keep useful diagnostics on failure/cancellation, without turning either into
@@ -88,6 +97,11 @@ fi
 adb shell dumpsys window windows > "$OUT/window-state.txt"
 adb logcat -d > "$OUT/logcat.txt"
 grep "RobysHandoff" "$OUT/logcat.txt" > "$OUT/handoff-states.txt" || true
+
+if grep -q 'RobysWebAssets.*MISSING' "$OUT/logcat.txt"; then
+  echo "ANDROID-HANDOFF-002: missing pinned web resource; live fallback is forbidden." >&2
+  exit 1
+fi
 
 VIDEO_BYTES="$(wc -c < "$OUT/robys-atomic-handoff.mp4")"
 test "$VIDEO_BYTES" -gt 50000

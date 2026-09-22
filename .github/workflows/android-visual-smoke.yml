@@ -10,6 +10,10 @@ on:
       - "integrity-manifest.json"
       - "scripts/motion-release-certification.mjs"
       - "scripts/test-android-capture-contract.py"
+      - "scripts/prepare-android-web-assets.mjs"
+      - "scripts/test-android-web-assets.mjs"
+      - "qa.js"
+      - "index.html"
       - ".github/scripts/capture-android-launch.sh"
       - ".github/workflows/android-visual-smoke.yml"
       - ".github/workflows/motion-release-certification.yml"
@@ -79,7 +83,10 @@ jobs:
           gradle-version: "9.5.0"
 
       - name: Build debug APK
-        run: gradle -p android-native :app:assembleDebug --stacktrace
+        run: |
+          node scripts/test-android-web-assets.mjs
+          node scripts/prepare-android-web-assets.mjs
+          gradle -p android-native :app:assembleDebug --stacktrace
 
       - name: Release build resources before cold emulator launch
         run: |
