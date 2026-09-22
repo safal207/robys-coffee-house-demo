@@ -102,10 +102,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: false
-          # Use one explicit Mesa software backend. SwiftShader still produced
-          # multi-second frame stalls even after measured boot readiness.
-          # Keep the cold launch, animations and product deadlines unchanged.
-          emulator-options: -no-snapshot-save -no-window -gpu lavapipe -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot-save -no-window -gpu software -noaudio -no-boot-anim -camera-back none -camera-front none
           script: bash .github/scripts/capture-android-launch.sh
 
       - name: Upload launch evidence
