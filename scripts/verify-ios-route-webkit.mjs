@@ -54,9 +54,14 @@ async function verifyPage(pathname) {
   });
 
   if (pathname === "index.html") {
+    await page.locator(".hero-actions [data-smart-choice-entry]").waitFor({ state: "attached" });
     const heroPrimary = page.locator(".hero-actions .button-primary");
-    assert.equal(await heroPrimary.getAttribute("href"), "menu.html#pairing-offers", "hero primary CTA must route to pairing offers");
-    assert.equal(await heroPrimary.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
+    assert.equal(await heroPrimary.count(), 1, "enhanced hero must have exactly one primary CTA");
+    assert.equal(await heroPrimary.getAttribute("href"), "smart-choice/", "enhanced hero primary CTA must route to Smart Choice");
+    assert.equal(await heroPrimary.getAttribute("target"), null, "Smart Choice must stay in the current customer journey");
+    const pairing = page.locator('.hero-actions a[href="menu.html#pairing-offers"]');
+    assert.equal(await pairing.count(), 1, "enhancement must retain the direct pairing CTA");
+    assert.equal(await pairing.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
   }
 
   const selectors = expectedRouteSelectors[pathname];
@@ -119,7 +124,7 @@ try {
     "utf8"
   );
 
-  console.log("✅ iOS WebKit route gate passed: hero opens pairing offers and every named route CTA opens a non-blank Google Maps driving route.");
+  console.log("✅ iOS WebKit route gate passed: styled hero offers Smart Choice and direct pairings; every named route CTA opens a non-blank Google Maps driving route.");
 } finally {
   await context.close();
   await browser.close();
