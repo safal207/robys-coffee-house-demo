@@ -24,6 +24,16 @@ try {
   assert.throws(() => readVerifiedMenuSource(), /stale or differs/);
   writeFileSync('menu-app.js', compileMenuRuntime());
   assert.equal(readVerifiedMenuSource(), 'export const count = 2;\n');
+  const sharedSource = 'import { count } from "./src/order-draft.js?v=shared-order-v1";\nconsole.log(count);\n';
+  writeFileSync('src/menu-app.js', sharedSource);
+  assert.throws(() => compileMenuRuntime(), /ENOENT/, 'imported draft dependency must exist');
+  writeFileSync('src/order-draft.js', 'export const count = 1;\n');
+  writeFileSync('menu-app.js', compileMenuRuntime());
+  assert.equal(readVerifiedMenuSource(), sharedSource);
+  writeFileSync('src/order-draft.js', 'export const count = 2;\n');
+  assert.throws(() => readVerifiedMenuSource(), /stale or differs/, 'changed draft dependency requires a new runtime revision');
+  writeFileSync('menu-app.js', compileMenuRuntime());
+  assert.equal(readVerifiedMenuSource(), sharedSource);
 } finally {
   process.chdir(cwd);
   rmSync(fixture, { recursive: true, force: true });

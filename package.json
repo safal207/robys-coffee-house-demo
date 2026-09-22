@@ -7,7 +7,7 @@
     "typecheck": "tsc --noEmit",
     "verify:menu-content": "node scripts/verify-menu-content.mjs",
     "verify:menu-images": "node scripts/verify-menu-image-assets.mjs",
-    "verify:menu-order": "node scripts/verify-menu-order.mjs",
+    "verify:menu-order": "node scripts/verify-menu-order.mjs && node scripts/test-menu-runtime-contract.mjs",
     "verify:entry-handoff": "node scripts/verify-entry-handoff.mjs",
     "verify:smart-choice-catalog": "node scripts/verify-smart-choice-catalog.mjs",
     "verify:smart-choice-release": "node scripts/verify-smart-choice-release.mjs",
