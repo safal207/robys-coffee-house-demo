@@ -19,6 +19,10 @@
 html{scroll-behavior:smooth;background:var(--dark)}
 body{margin:0;min-width:320px;color:var(--ink);background:var(--cream);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
 body.menu-open,body.lightbox-open{overflow:hidden}
+/* Keep layout measurable, but avoid rasterizing the page behind the opaque
+   Android bridge. Releasing, timeout and failure states restore it before fade. */
+html[data-robys-android-handoff="loading"] body>:not(.robys-android-handoff),
+html[data-robys-android-handoff="ready"] body>:not(.robys-android-handoff){visibility:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 button{font:inherit}

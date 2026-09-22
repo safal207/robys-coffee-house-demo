@@ -149,6 +149,15 @@ async function runAndroidHandoff() {
     window.clearTimeout(hardStopId);
     emitAndroidHandoffState("releasing");
 
+    if (!immediate) {
+      // Product paint was deferred beneath the opaque bridge. Give the browser
+      // a frame with the product visible before fading the bridge away.
+      await Promise.race([
+        new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        delay(450)
+      ]);
+    }
+
     if (!immediate && !reduceMotion && typeof overlay.animate === "function") {
       const animation = overlay.animate(
         [{ opacity: 1 }, { opacity: 0 }],

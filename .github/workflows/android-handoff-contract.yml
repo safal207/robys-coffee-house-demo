@@ -56,9 +56,18 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Create local HTTPS certificate
+        run: |
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout /tmp/robys-handoff.key -out /tmp/robys-handoff.crt \
+            -subj '/CN=localhost' -addext 'subjectAltName=IP:127.0.0.1,DNS:localhost'
+
       - name: Verify atomic WebView bridge contract
         env:
           ANDROID_HANDOFF_RESULTS_DIR: ${{ github.workspace }}/visual-results/android-handoff
+          ANDROID_HANDOFF_TLS_CERT: /tmp/robys-handoff.crt
+          ANDROID_HANDOFF_TLS_KEY: /tmp/robys-handoff.key
+          NODE_EXTRA_CA_CERTS: /tmp/robys-handoff.crt
         run: node scripts/android-handoff-smoke.mjs
 
       - name: Upload handoff evidence
