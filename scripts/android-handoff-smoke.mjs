@@ -95,7 +95,7 @@ async function readContract(page) {
   });
 }
 
-async function assertProductPaint(page, visible) {
+async function assertProductVisible(page) {
   const state = await page.locator("main").evaluate(main => {
     const hero = main.querySelector(".hero");
     const rect = hero.getBoundingClientRect();
@@ -107,10 +107,10 @@ async function assertProductPaint(page, visible) {
       height: rect.height
     };
   });
-  const expected = visible ? "visible" : "hidden";
+  const expected = "visible";
   assert([state.main, state.header, state.hero].every(value => value === expected),
     `Product paint should be ${expected}: ${JSON.stringify(state)}`);
-  assert(state.width >= 320 && state.height >= 300, "Deferring paint collapsed the product layout");
+  assert(state.width >= 320 && state.height >= 300, "Bridge setup collapsed the product layout");
 }
 
 rmSync(resultsDir, { recursive: true, force: true });
@@ -150,7 +150,7 @@ try {
   assert(contract.wordmarkPath.endsWith("/src/brand/robys-compact-master-v1.svg"), `Unexpected wordmark asset: ${contract.wordmarkPath}`);
   assert(contract.fullMorningLayerCount === 0, "Android bridge double-played the full Morning animation");
   assert(contract.releaseHook === "function", "Native release hook is unavailable");
-  await assertProductPaint(page, false);
+  await assertProductVisible(page);
   assert(await page.locator(".hero-video").evaluate(video => video.paused && video.readyState === 0),
     "Hero decoder started before native frame acknowledgement");
 
@@ -158,20 +158,16 @@ try {
   assert(await page.locator(".robys-android-handoff").count() === 1, "Bridge auto-dismissed before native release");
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-ready.png"), animations: "allow" });
 
-  await page.evaluate(() => { window.__robysAndroidHandoffRelease(); });
+  await page.evaluate(() => window.__robysAndroidHandoffRelease());
   assert(await page.evaluate(() => document.documentElement.dataset.robysNativeReady) === "true",
     "Native release did not acknowledge deferred media");
-  await page.locator('html[data-robys-android-handoff="releasing"]').waitFor({ state: "attached", timeout: 500 });
-  await assertProductPaint(page, true);
-  assert(await page.locator(".robys-android-handoff").count() === 1,
-    "Bridge disappeared before the product could paint");
   assert(await page.locator(".hero-video").evaluate(video => video.autoplay), "Native release did not schedule hero playback");
   await page.locator(".robys-android-handoff").waitFor({ state: "detached", timeout: 700 });
   assert(
     await page.evaluate(() => document.documentElement.dataset.robysAndroidHandoff) === "done",
     "Bridge did not finish after native release"
   );
-  await assertProductPaint(page, true);
+  await assertProductVisible(page);
   await page.screenshot({ path: path.join(resultsDir, "android-handoff-product.png") });
   await context.close();
 
@@ -188,12 +184,12 @@ try {
   await reducedPage.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
   assert(await reducedPage.locator(".robys-android-handoff").count() === 1, "Reduced motion removed the static native/web bridge");
   assert(await reducedPage.locator(".robys-morning-entry").count() === 0, "Reduced motion Android bridge replayed Morning motion");
-  await assertProductPaint(reducedPage, false);
+  await assertProductVisible(reducedPage);
   const reducedReleaseStarted = Date.now();
   await reducedPage.evaluate(() => window.__robysAndroidHandoffRelease());
   await reducedPage.locator(".robys-android-handoff").waitFor({ state: "detached", timeout: 300 });
   assert(Date.now() - reducedReleaseStarted < 250, "Reduced-motion handoff did not release immediately");
-  await assertProductPaint(reducedPage, true);
+  await assertProductVisible(reducedPage);
   await reducedContext.close();
 
   // Recovery must expose the real page even if native acknowledgement never
@@ -218,17 +214,18 @@ try {
     await recoveryPage.goto(`${baseUrl}?entry=android-handoff`, { waitUntil: "domcontentloaded" });
     if (fault === "no-ack") {
       await recoveryPage.locator('html[data-robys-android-handoff="ready"]').waitFor({ state: "attached", timeout: 2200 });
-      await assertProductPaint(recoveryPage, false);
+      await assertProductVisible(recoveryPage);
     }
-    await recoveryPage.locator(".hero").waitFor({ state: "visible", timeout: 6000 });
-    await assertProductPaint(recoveryPage, true);
+    await recoveryPage.locator(".robys-android-handoff").waitFor({ state: "detached", timeout: 6000 });
+    await recoveryPage.locator(".hero").waitFor({ state: "visible", timeout: 1000 });
+    await assertProductVisible(recoveryPage);
     assert(await recoveryPage.locator(".robys-android-handoff").count() === 0, `${fault} retained the bridge`);
     assert(await recoveryPage.locator(".hero-video").evaluate(video => video.paused && video.readyState === 0),
       `${fault} started the hero decoder without native acknowledgement`);
     await recovery.close();
   }
 
-  console.log("✅ ANDROID-HANDOFF-001 passed: static brand bridge, canonical assets, preserved layout with deferred product paint, native release, reduced motion, no-ack timeout and import/runtime failure recovery.");
+  console.log("✅ ANDROID-HANDOFF-001 passed: static brand bridge, canonical assets, styled product, native release, reduced motion, no-ack timeout and import/runtime failure recovery.");
 } finally {
   await browser?.close().catch(() => {});
   server.kill("SIGTERM");

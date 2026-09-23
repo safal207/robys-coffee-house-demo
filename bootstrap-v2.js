@@ -75,7 +75,7 @@ function loadAndroidHandoffIfRequested() {
 
   window.__robysAndroidHandoffAborted = false;
   document.documentElement.style.backgroundColor = "#241c1b";
-  import("./android-handoff.js?v=f294256e0ad0")
+  import("./android-handoff.js?v=9d68373aab02")
     .catch(revealProductAfterAndroidHandoffFailure);
   return true;
 }

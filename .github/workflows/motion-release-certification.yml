@@ -86,9 +86,18 @@ jobs:
           MOTION_RELEASE_RESULTS_DIR: ${{ github.workspace }}/visual-results/motion-release
         run: node scripts/motion-release-certification.mjs
 
+      - name: Create local HTTPS certificate for Android bridge
+        run: |
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout /tmp/robys-handoff.key -out /tmp/robys-handoff.crt \
+            -subj '/CN=localhost' -addext 'subjectAltName=IP:127.0.0.1,DNS:localhost'
+
       - name: Re-certify browser Android handoff bridge
         env:
           ANDROID_HANDOFF_RESULTS_DIR: ${{ github.workspace }}/visual-results/android-handoff
+          ANDROID_HANDOFF_TLS_CERT: /tmp/robys-handoff.crt
+          ANDROID_HANDOFF_TLS_KEY: /tmp/robys-handoff.key
+          NODE_EXTRA_CA_CERTS: /tmp/robys-handoff.crt
         run: node scripts/android-handoff-smoke.mjs
 
       - name: Upload motion certification evidence
