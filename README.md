@@ -4,7 +4,7 @@ A production-oriented, mobile-first web experience for **Roby's Coffee House in 
 
 **Live site:** <https://safal207.github.io/robys-coffee-house-demo/>
 
-The repository is no longer a one-page mockup. It contains a multilingual storefront, a structured menu, product pairings, discovery journeys, a Smart Choice recommendation flow, PWA support, analytics hooks, accessibility contracts, security checks and an extensive evidence-driven QA pipeline.
+The repository is no longer a one-page mockup. It contains a multilingual storefront, a structured menu, product pairings, discovery journeys, a Smart Choice recommendation flow, offline website support, analytics hooks, accessibility contracts, security checks and an extensive evidence-driven QA pipeline.
 
 ## Product surfaces
 
@@ -15,7 +15,7 @@ The repository is no longer a one-page mockup. It contains a multilingual storef
 - `instagram-tools.html` — content support tools
 - `qa/` — test fixtures, evidence contracts, browser-lab documentation and review artifacts
 
-The customer-facing experience supports **Turkish, English and Russian**, responsive layouts, reduced-motion preferences, keyboard navigation, structured SEO data, installable PWA behavior, offline caching, Google Maps and Instagram entry points.
+The customer-facing experience supports **Turkish, English and Russian**, responsive layouts, reduced-motion preferences, keyboard navigation, structured SEO data, offline caching, Google Maps and Instagram entry points.
 
 ## Technology
 

@@ -2,36 +2,39 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-function setup({ native = true, ready = false, reduced = false } = {}) {
+function setup({ reduced = false, hidden = false, hasSource = true } = {}) {
   const window = new EventTarget();
-  Object.assign(window, { location: { search: native ? "?entry=android-handoff" : "" },
-    matchMedia: () => ({ matches: reduced }), setTimeout: () => {} });
+  Object.assign(window, { matchMedia: () => ({ matches: reduced }), setTimeout: () => {} });
   const video = new EventTarget();
-  const source = { removeAttribute() {} };
+  const source = { mediaRemoved: false, removeAttribute(name) { if (name === "media") this.mediaRemoved = true; } };
   Object.assign(video, { loads: 0, plays: 0, dataset: {}, classList: { add() {}, remove() {} },
-    querySelector: () => source, load() { this.loads++; }, play() { this.plays++; return Promise.resolve(); } });
+    querySelector: () => hasSource ? source : null, load() { this.loads++; }, play() { this.plays++; return Promise.resolve(); } });
   const document = new EventTarget();
-  Object.assign(document, { readyState: "loading", hidden: false,
-    documentElement: { dataset: ready ? { robysNativeReady: "true" } : {} }, querySelector: () => video });
-  const context = vm.createContext({ window, document, URLSearchParams });
+  Object.assign(document, { readyState: "loading", hidden, querySelector: () => video });
+  const context = vm.createContext({ window, document });
   vm.runInContext(readFileSync("qa.js", "utf8"), context);
   context.scheduleHeroPlayback();
-  return { video, window };
+  return { video, source, window, document };
 }
 
-const waiting = setup();
-assert.equal(waiting.video.loads, 0);
-assert.equal(waiting.video.plays, 0);
-waiting.window.dispatchEvent(new Event("robys:android-handoff"));
-assert.equal(waiting.video.plays, 0, "The web hard stop must not start native playback");
-waiting.window.dispatchEvent(new Event("robys:native-ready"));
-assert.equal(waiting.video.loads, 1);
-assert.equal(waiting.video.plays, 1);
-waiting.window.dispatchEvent(new Event("robys:native-ready"));
-assert.equal(waiting.video.loads, 1, "Native acknowledgement is one-shot");
-assert.equal(setup({ ready: true }).video.plays, 1, "Late scheduler sees the native acknowledgement");
-assert.equal(setup({ native: false }).video.plays, 1, "Normal website autoplay is preserved");
+const normal = setup();
+assert.equal(normal.video.loads, 1, "The website must load the hero video immediately");
+assert.equal(normal.video.plays, 1, "The website must attempt autoplay");
+assert.equal(normal.video.autoplay, true);
+assert.equal(normal.video.muted, true);
+assert.equal(normal.video.playsInline, true);
+assert.equal(normal.source.mediaRemoved, true);
+assert.match(normal.source.src, /robys-ambience-clean\.mp4/);
+
+const hidden = setup({ hidden: true });
+assert.equal(hidden.video.loads, 1);
+assert.equal(hidden.video.plays, 0, "A hidden tab must not start playback");
+hidden.document.hidden = false;
+hidden.document.dispatchEvent(new Event("visibilitychange"));
+assert.equal(hidden.video.plays, 1, "Playback must retry when the tab becomes visible");
+
 const reduced = setup({ reduced: true });
-reduced.window.dispatchEvent(new Event("robys:native-ready"));
 assert.equal(reduced.video.loads, 0, "Reduced motion keeps the poster without starting a decoder");
-console.log("Hero playback: native deferral, web fallback, late/duplicate acknowledgement, normal autoplay and reduced motion PASS");
+assert.equal(reduced.video.plays, 0);
+assert.equal(setup({ hasSource: false }).video.loads, 0, "Missing video source must fail gracefully");
+console.log("Hero playback: normal web autoplay, visible-tab recovery, missing-source fallback and reduced motion PASS");

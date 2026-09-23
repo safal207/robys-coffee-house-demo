@@ -164,17 +164,10 @@ assert(featuredSource.includes("window.requestAnimationFrame"), "FEATURED-001", 
 assert(html.includes("script-src 'self';"), "FEATURED-001", "Gallery deployment must keep a strict external-script CSP");
 assert(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*visualViewport/i.test(html), "FEATURED-001", "iOS gallery fallback must not be duplicated as inline JavaScript");
 
-assert(/if\s*\(document\.head\.querySelector\((['"])link\[rel="apple-touch-icon"\]\1\)\)\s*return;/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Bootstrap must guard against duplicate Apple touch icon links with an early return");
-assert(bootstrapRuntime.includes('apple-touch-icon.png?v='), "MOBILE-INSTALL-001", "Bootstrap must install the PNG Apple touch icon");
-assert(/const\s+ANDROID_LOGO_OBSERVER_TIMEOUT_MS\s*=\s*10_000\s*;/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Android logo observer timeout must remain bounded at 10 seconds");
-assert(/const\s+ANDROID_LOGO_MAX_ATTEMPTS\s*=\s*100\s*;/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Android logo observer attempts must remain bounded at 100 callbacks");
-assert(/attempts\s*\+=\s*1/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Android logo observer must count callback attempts");
-assert(/attempts\s*>=\s*ANDROID_LOGO_MAX_ATTEMPTS/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Android logo observer must disconnect at its attempt limit");
-assert(/window\.clearTimeout\(timeoutId\)/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Successful bootstrap enhancement must clear its timeout");
-assert(/window\.setTimeout\(\(\)\s*=>\s*observer\.disconnect\(\),\s*ANDROID_LOGO_OBSERVER_TIMEOUT_MS\)/.test(bootstrapRuntime), "MOBILE-INSTALL-001", "Android logo observer must disconnect when its timeout elapses");
+assert(!/apple-touch-icon\.png|ANDROID_LOGO_OBSERVER_TIMEOUT_MS|ANDROID_LOGO_MAX_ATTEMPTS/.test(bootstrapRuntime), "WEB-ONLY-001", "Bootstrap must not recreate the retired install UI or icons");
 
 console.log("✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.");
 console.log("✅ VIDEO-001 gated: hero playback has explicit mobile recovery.");
 console.log("✅ THEME-001 gated: hero contrast and light-section palette remain balanced.");
 console.log("✅ FEATURED-001 gated: the TypeScript gallery keeps six complete images, actionable mobile visit controls, exact offline CSS revisioning, stable fallback height and no crop.");
-console.log("✅ MOBILE-INSTALL-001 gated: PNG touch icon bootstrap and bounded Android logo observation remain enforced.");
+console.log("✅ WEB-ONLY-001 gated: retired installer bootstraps remain absent.");

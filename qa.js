@@ -61,14 +61,7 @@ function enableHeroVideo() {
 }
 
 function scheduleHeroPlayback() {
-  const nativeEntry = new URLSearchParams(window.location.search).get("entry") === "android-handoff";
-  if (!nativeEntry || document.documentElement.dataset.robysNativeReady === "true") {
-    enableHeroVideo();
-    return;
-  }
-  // The native shell acknowledges a drawable frame before starting the decoder.
-  // The web bridge's own hard-stop must not start video behind the native surface.
-  window.addEventListener("robys:native-ready", enableHeroVideo, { once: true });
+  enableHeroVideo();
 }
 
 function applyImmediateA11yFixes() {

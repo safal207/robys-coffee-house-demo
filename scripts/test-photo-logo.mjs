@@ -25,7 +25,7 @@ assert.equal(
   "deprecated baked mobile pill master must stay removed"
 );
 
-assert.match(bootstrap, /apple-touch-icon\.png\?v=ios-install-20260707-1/, "progressive Apple touch fallback changed");
+assert.doesNotMatch(bootstrap, /apple-touch-icon\.png/, "retired install icon must not be injected");
 assert.doesNotMatch(bootstrap, /brand-photo-logo\.css/, "identity stylesheet must remain statically linked by HTML");
 assert.match(stylesheet, new RegExp(`robys-header-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));
 assert.match(stylesheet, new RegExp(`robys-primary-master-v1\\.svg\\?v=${IDENTITY_REVISION}`));

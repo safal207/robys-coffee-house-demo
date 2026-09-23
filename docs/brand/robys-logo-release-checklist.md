@@ -4,13 +4,11 @@ Use with `evaluate-world-class-logo` and the current audit in `robys-world-class
 
 ## Verified digital release scope
 
-- [x] Primary, medium, compact, mark-only, favicon and maskable variants have documented use boundaries.
+- [x] Primary, medium, compact, mark-only and favicon variants have documented use boundaries.
 - [x] No production logo asset contains `<text>` or depends on installed fonts.
 - [x] Favicon geometry retains bounded clearance at 16 and 32 CSS px.
-- [x] PWA maskable artwork remains inside the automated safe-zone contract.
-- [x] Apple touch icon is statically linked and visually belongs to the organic-O family.
 - [x] Header uses the no-micro-tagline medium lockup; mobile uses the compact master inside a CSS-owned pill.
-- [x] Approved red, ink and paper values are defined and checked across SVG, CSS, PWA and offline assets.
+- [x] Approved red, ink and paper values are defined and checked across SVG, CSS and offline website assets.
 - [x] Owner utility and 404 pages reuse approved SVG identity assets and contain no visible legacy `R` badge.
 - [x] Turkish, English and Russian interface surroundings preserve the logo hierarchy.
 - [x] SVG viewBox, aspect ratio, cache revision, integrity manifest and Service Worker delivery are checked by repository contracts.

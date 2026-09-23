@@ -1,11 +1,8 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 import { verifyMenuStabilityLegacyWorker } from "./menu-stability-cache-proof.mjs";
 
 const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
-const expectedSha256 = "9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19";
 
 async function waitForServiceWorker(context, timeout = 30000) {
   const existing = context.serviceWorkers()[0];
@@ -29,18 +26,12 @@ const browser = await chromium.launch({
     ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH }
     : {})
 });
-const context = await browser.newContext({ acceptDownloads: true });
+const context = await browser.newContext();
 const page = await context.newPage();
 const browserMessages = [];
-const apkPartRequests = [];
 
 page.on("console", (message) => browserMessages.push(`${message.type()}: ${message.text()}`));
 page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
-page.on("request", (request) => {
-  if (/\/downloads\/android-v1\.2\/part-\d+\.b64(?:\?|$)/.test(request.url())) {
-    apkPartRequests.push(request.url());
-  }
-});
 
 try {
   await verifyMenuStabilityLegacyWorker(browser);
@@ -78,35 +69,11 @@ try {
     return collisions;
   });
   assert.deepEqual(legacyCacheIsolation, [], "Cache-new entry or Smart Choice paths collided with legacy ignoreSearch entries");
-  const downloadLink = page.locator("a.android-download-button");
-  await downloadLink.waitFor({ state: "visible", timeout: 15000 });
-  await page.locator(".android-app-screen-pill img[src*='android-mark.svg']").waitFor({ state: "visible" });
-
-  await page.waitForTimeout(300);
   assert.equal(
-    apkPartRequests.length,
+    await page.locator(".android-app-section, .mobile-install-section, a[download$='.apk'], link[rel='manifest']").count(),
     0,
-    `APK parts must stay lazy before user intent, saw ${JSON.stringify(apkPartRequests)}`
+    "The web-only homepage must not offer installation"
   );
-  assert.equal(await downloadLink.getAttribute("data-apk-download"), null, "APK must not be prepared before user intent");
-  assert.doesNotMatch(await downloadLink.getAttribute("href") ?? "", /^blob:/, "APK Blob URL appeared before user intent");
-
-  const [download] = await Promise.all([
-    page.waitForEvent("download", { timeout: 15000 }),
-    downloadLink.click()
-  ]);
-
-  const uniqueApkParts = new Set(apkPartRequests.map((url) => new URL(url).pathname));
-  assert.equal(uniqueApkParts.size, 6, `Expected six APK parts after click, got ${JSON.stringify([...uniqueApkParts])}`);
-  assert.equal(await downloadLink.getAttribute("data-apk-download"), "verified-blob");
-  assert.match(await downloadLink.getAttribute("href"), /^blob:/, "APK link is not a prepared Blob URL");
-  assert.equal(download.suggestedFilename(), "robys-coffee-house-v1.2.apk");
-  const downloadPath = await download.path();
-  assert.ok(downloadPath, "APK download did not create a file");
-  const apk = await readFile(downloadPath);
-  assert.equal(apk.length, 1086268, "Downloaded APK byte size changed");
-  assert.equal(apk.subarray(0, 2).toString("ascii"), "PK", "Downloaded file is not an APK/ZIP");
-  assert.equal(createHash("sha256").update(apk).digest("hex"), expectedSha256, "Downloaded APK checksum changed");
 
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
   const worker = await waitForServiceWorker(context);
@@ -120,6 +87,13 @@ try {
   await waitForControlledPage(page, "menu page bootstrap");
 
   await context.setOffline(true);
+  await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
+  await page.locator(".hero-actions a[href='menu.html']").waitFor({ state: "visible", timeout: 15000 });
+  assert.equal(
+    await page.locator(".android-app-section, .mobile-install-section, a[download$='.apk'], link[rel='manifest']").count(),
+    0,
+    "Cached homepage must not revive the install offer"
+  );
   await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
   await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
   assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
@@ -135,7 +109,7 @@ try {
 
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: APK stays lazy until click, verified download works, and cached menu plus Smart Choice remain interactive offline.");
+  console.log("✅ Offline browser gate passed: cached homepage, menu search and Smart Choice remain usable without an install offer.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();

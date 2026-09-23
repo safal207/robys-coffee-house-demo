@@ -1,5 +1,7 @@
 # Roby’s Smart Choice — Release v1 candidate
 
+This is a historical release record. The current website retains offline service-worker caching without an installation offer or app manifest.
+
 Status: **release candidate**  
 Integration PR: **#288**  
 Integrated product commit: `80ea75e752c2cd7d5ca62a9de36346c7ee635834`

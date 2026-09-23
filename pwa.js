@@ -1,2 +1,38 @@
 const SERVICE_WORKER_URL = "sw.js?v=pairing-video-fix-20260916-2";
-const M="mobile-install.js?v=platform-install-20260727-1",P="robys-pwa",T=globalThis.trustedTypes;let p,l;const h=document.documentElement,c=()=>h.classList.toggle("is-offline",!navigator.onLine),u=x=>T?(p??=T.createPolicy(P,{createScriptURL:y=>y===SERVICE_WORKER_URL||y===M?y:(()=>{throw TypeError()})()})).createScriptURL(x):x,a=(q,t,o)=>document.head.querySelector(q)||document.head.append(Object.assign(document.createElement(t),o)),i=()=>{const e=document.querySelector("#visit");if(!e)return;const t=()=>{if(l)return;l=1;const e=document.createElement("script");e.src=u(M);e.async=1;e.onerror=()=>{e.remove();l=0};document.head.append(e)};addEventListener("pointerdown",t,{passive:1});if(!window.IntersectionObserver)return addEventListener("scroll",t,{passive:1});const n=new IntersectionObserver(e=>e.some(e=>e.isIntersecting)&&(n.disconnect(),t()),{rootMargin:"1400px 0px"});n.observe(e)},r=async()=>{try{await navigator.serviceWorker.register(u(SERVICE_WORKER_URL),{ scope: "./" });await navigator.serviceWorker.ready;h.dataset.offlineReady="true"}catch{h.dataset.offlineReady="false"}};a('link[rel="manifest"]',"link",{rel:"manifest",href:"manifest.webmanifest?v=ios-install-20260707-1"});a('link[href^="mobile-install.css"]',"link",{rel:"stylesheet",href:"mobile-install.css?v=platform-install-20260727-1"});a('meta[name="apple-mobile-web-app-capable"]',"meta",{name:"apple-mobile-web-app-capable",content:"yes"});c();for(const e of["online","offline"])addEventListener(e,c);const d=()=>{i();navigator.serviceWorker&&r()};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",d,{once:1}):d();
+const root = document.documentElement;
+let workerPolicy;
+
+function syncOfflineState() {
+  root.classList.toggle("is-offline", !navigator.onLine);
+}
+
+const trustedWorkerUrl = (value) => globalThis.trustedTypes
+  ? (workerPolicy ??= globalThis.trustedTypes.createPolicy("robys-pwa", {
+    createScriptURL(url) {
+      if (url !== SERVICE_WORKER_URL) throw new TypeError("Unexpected service worker URL");
+      return url;
+    }
+  })).createScriptURL(value)
+  : value;
+
+async function registerOfflineWorker() {
+  try {
+    await navigator.serviceWorker.register(trustedWorkerUrl(SERVICE_WORKER_URL), { scope: "./" });
+    await navigator.serviceWorker.ready;
+    root.dataset.offlineReady = "true";
+  } catch {
+    root.dataset.offlineReady = "false";
+  }
+}
+
+syncOfflineState();
+for (const eventName of ["online", "offline"]) {
+  addEventListener(eventName, syncOfflineState);
+}
+if ("serviceWorker" in navigator) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", registerOfflineWorker, { once: true });
+  } else {
+    void registerOfflineWorker();
+  }
+}

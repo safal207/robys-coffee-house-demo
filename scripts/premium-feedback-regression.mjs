@@ -92,10 +92,7 @@ try {
   const bounds = await link.boundingBox();
   check("home/touch-target", bounds && bounds.height >= 44, bounds);
   await page.screenshot({ path: `${output}/home-390.png` });
-  await page.locator(".android-app-section").scrollIntoViewIfNeeded();
-  const mark = page.locator("img.android-app-screen-mark");
-  await mark.waitFor();
-  check("brand/approved-asset", await mark.evaluate(async img => { await img.decode(); return img.naturalWidth > 0 && img.alt === "Roby's Coffee House"; }));
+  check("home/no-install-promo", await page.locator(".android-app-section, .mobile-install-section, a[download$='.apk']").count() === 0);
   await context.close();
 } catch (error) {
   check("FATAL", false, error.stack ?? String(error));

@@ -206,11 +206,9 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
-const androidHandoffRevision = revisionFor("android-handoff.js");
 const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
-bootstrapSource = synchronizeModuleImport(bootstrapSource, "android-handoff.js", androidHandoffRevision);
 writeFileSync("bootstrap-v2.js", bootstrapSource);
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
@@ -237,11 +235,7 @@ const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
 const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
 const discoverDeckRevision = revisionFor("discover-deck.js");
 const discoverDeckCssRevision = revisionFor("discover-deck.css");
-const androidStylesRevision = revisionFor("android-app.css");
-let conversionSource = readFileSync("src/conversion.js", "utf8");
-const androidStylePattern = /android-app\.css\?v=[^"']+/;
-if (!androidStylePattern.test(conversionSource)) throw new Error("Missing Android stylesheet loader");
-conversionSource = conversionSource.replace(androidStylePattern, `android-app.css?v=${androidStylesRevision}`);
+const conversionSource = readFileSync("src/conversion.js", "utf8");
 writeFileSync("conversion.js", transformSync(conversionSource, {
   minify: true, format: "esm", target: "es2020", legalComments: "none"
 }).code);
@@ -365,7 +359,6 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["bootstrap-v2.js", bootstrapRevision],
-  ["android-handoff.js", androidHandoffRevision],
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
@@ -379,7 +372,6 @@ for (const [filePath, revision] of [
   ["discover-deck.css", discoverDeckCssRevision],
   ["discover-deck.js", discoverDeckRevision],
   ["conversion.js", conversionRevision],
-  ["android-app.css", androidStylesRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],
