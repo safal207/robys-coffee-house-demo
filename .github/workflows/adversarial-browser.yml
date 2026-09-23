@@ -16,35 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-direct-apk:
-    name: Stage reviewed Android package
-    if: github.event_name == 'pull_request' && github.head_ref == 'fix/android-download-offline'
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: fix/android-download-offline
-      - name: Assemble and publish reviewed APK
-        run: |
-          set -euo pipefail
-          mkdir -p downloads
-          cat downloads/android-v1.2/part-*.b64 | base64 --decode > downloads/robys-coffee-house-v1.2.apk
-          echo '9850bd12d07d87dc6eca71d1b64f40c8d3953445855ca65b653bd46d37a53d19  downloads/robys-coffee-house-v1.2.apk' | sha256sum --check --strict
-          test "$(stat -c %s downloads/robys-coffee-house-v1.2.apk)" = '1086268'
-          unzip -t downloads/robys-coffee-house-v1.2.apk
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add downloads/robys-coffee-house-v1.2.apk
-          if git diff --cached --quiet; then
-            echo 'Reviewed APK is already published.'
-            exit 0
-          fi
-          git commit -m 'build: publish reviewed Android APK'
-          git push origin HEAD:fix/android-download-offline
-
   browser-probes:
     name: ADV-001 browser probes
     runs-on: ubuntu-latest
@@ -69,7 +40,7 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           node scripts/adversarial-browser.mjs 2>&1 | tee .artifacts/adversarial-browser.log
-      - name: Detect Android/offline probe scope
+      - name: Detect offline website probe scope
         id: offline_scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -80,7 +51,7 @@ jobs:
 
           if [ "${{ github.event_name }}" != "pull_request" ]; then
             echo "run_offline=true" >> "$GITHUB_OUTPUT"
-            echo "Non-PR event: Android/offline probe required." | tee .artifacts/offline-scope.log
+            echo "Non-PR event: offline website probe required." | tee .artifacts/offline-scope.log
             exit 0
           fi
 
@@ -90,14 +61,14 @@ jobs:
 
           if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null || ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
             echo "run_offline=true" >> "$GITHUB_OUTPUT"
-            echo "Required PR commits are unavailable locally: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            echo "Required PR commits are unavailable locally: fail closed and run offline website probe." | tee .artifacts/offline-scope.log
             exit 0
           fi
 
           merge_base="$(git merge-base "$BASE_SHA" "$HEAD_SHA" || true)"
           if [ -z "$merge_base" ]; then
             echo "run_offline=true" >> "$GITHUB_OUTPUT"
-            echo "PR merge base is unavailable: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            echo "PR merge base is unavailable: fail closed and run offline website probe." | tee .artifacts/offline-scope.log
             exit 0
           fi
 
@@ -121,25 +92,23 @@ jobs:
             | sort -u \
             > .artifacts/offline-scope-changed-files.txt; then
             echo "run_offline=true" >> "$GITHUB_OUTPUT"
-            echo "Changed-file diff failed: fail closed and run Android/offline probe." | tee .artifacts/offline-scope.log
+            echo "Changed-file diff failed: fail closed and run offline website probe." | tee .artifacts/offline-scope.log
             exit 0
           fi
           changed_files="$(cat .artifacts/offline-scope-changed-files.txt)"
 
-          # Root web/PWA assets, published data, and the runtime build entrypoint are in scope;
+          # Root web/offline assets, published data, and the runtime build entrypoint are in scope;
           # nested docs/process files remain deliberately excluded.
-          scope_pattern='^(index\.html|menu\.html|offline\.html|manifest\.json|manifest\.webmanifest|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|downloads/.*|assets/.*|data/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
+          scope_pattern='^(index\.html|menu\.html|offline\.html|sw\.js|scripts/build\.mjs|scripts/verify-offline-browser\.mjs|assets/.*|data/.*|src/.*|[^/]+\.(js|css|html|json|svg|png|jpe?g|webp|ico))$'
 
           for required_path in \
-            manifest.webmanifest \
+            sw-core-v64.js \
             app.js \
             icon.svg \
-            apple-touch-icon.png \
-            mobile-install-copy.json \
             package.json \
             package-lock.json \
             scripts/build.mjs \
-            downloads/robys-coffee-house.apk \
+            scripts/verify-offline-browser.mjs \
             assets/runtime-image.webp \
             data/featured-products.json \
             src/nested/runtime-data.bin; do
@@ -173,12 +142,12 @@ jobs:
 
           if printf '%s\n' "$changed_files" | grep -Eq "$scope_pattern"; then
             echo "run_offline=true" >> "$GITHUB_OUTPUT"
-            echo "Runtime/PWA/download files changed: Android/offline probe required." | tee .artifacts/offline-scope.log
+            echo "Website/offline files changed: offline website probe required." | tee .artifacts/offline-scope.log
           else
             echo "run_offline=false" >> "$GITHUB_OUTPUT"
-            echo "No runtime/PWA/download files changed: Android/offline probe skipped." | tee .artifacts/offline-scope.log
+            echo "No website/offline files changed: offline website probe skipped." | tee .artifacts/offline-scope.log
           fi
-      - name: Run Android download and offline probes
+      - name: Run offline website probe
         if: ${{ hashFiles('scripts/verify-offline-browser.mjs') != '' && steps.offline_scope.outputs.run_offline == 'true' }}
         env:
           BASE_URL: http://127.0.0.1:4173
@@ -191,7 +160,7 @@ jobs:
             sleep 1
           done
           set -o pipefail
-          node scripts/verify-offline-browser.mjs 2>&1 | tee .artifacts/offline-android.log
+          node scripts/verify-offline-browser.mjs 2>&1 | tee .artifacts/offline-website.log
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -200,7 +169,7 @@ jobs:
           path: |
             .artifacts/adversarial-browser-report.json
             .artifacts/adversarial-browser.log
-            .artifacts/offline-android.log
+            .artifacts/offline-website.log
             .artifacts/offline-server.log
             .artifacts/offline-scope.log
             .artifacts/offline-scope-changed-files.txt

@@ -11,16 +11,15 @@ import {
   type RequestedTemperature
 } from "./engine.js";
 import {
-  buildStableOrderPayload,
-  buildWhatsAppDraftMessage,
   calculateCart,
   createInitialCart,
   deriveCartRules,
   reconcileCart,
-  stableSerializeOrderPayload,
   type CartState
 } from "./cart-domain.js";
 import { CART_COPY } from "./cart-copy.js";
+import { ORDER_DRAFT_KEY, type OrderDraft } from "../order-draft.js";
+import { syncRecommendation, orderProducts, buildSharedOrderPayload, buildSharedWhatsAppMessage } from "./shared-order.js";
 
 interface FlowStateSnapshot {
   version: 1;
@@ -29,13 +28,14 @@ interface FlowStateSnapshot {
   answers: Partial<Record<"intent" | "temperature" | "taste" | "partySize" | "budgetKey", string>>;
   locale: SmartChoiceLanguage;
   selectedCandidateId?: string;
+  selectionToken?: string;
 }
 
 const FLOW_STORAGE_KEY = "robys-smart-choice-session.v1";
 const CART_STORAGE_KEY = "robys-smart-choice-cart.v1";
 const ORDER_STORAGE_KEY = "robys-smart-choice-order.v1";
 const rules = deriveCartRules();
-const itemIndex = new Map(SMART_CHOICE_CATALOG.items.map((item) => [item.id, item]));
+let refreshCart: (() => void) | undefined;
 const comboIndex = new Map(SMART_CHOICE_CATALOG.combos.map((combo) => [combo.id, combo]));
 const budgets: Readonly<Record<string, { minMinor?: number; maxMinor: number }>> = {
   "250": { maxMinor: 25_000 },
@@ -82,7 +82,7 @@ function formatPrice(valueMinor: number, language: SmartChoiceLanguage): string 
 }
 
 function recommendationFor(flow: FlowStateSnapshot) {
-  const answers = flow.answers;
+  const answers = flow.answers ?? {};
   if (!answers.intent || !answers.temperature || !answers.taste || !answers.partySize || !answers.budgetKey) return null;
   const budget = budgets[answers.budgetKey];
   if (!budget) return null;
@@ -103,7 +103,10 @@ function loadCart(candidateId: string): CartState {
   const stored = readJson<CartState>(CART_STORAGE_KEY);
   return stored?.version === 1 &&
     stored.candidateId === candidateId &&
-    stored.catalogVersion === SMART_CHOICE_CATALOG.version
+    stored.catalogVersion === SMART_CHOICE_CATALOG.version &&
+    Array.isArray(stored.substitutionIds) && stored.substitutionIds.every(id => typeof id === "string") &&
+    Array.isArray(stored.upgradeIds) && stored.upgradeIds.every(id => typeof id === "string") &&
+    ["pending", "accepted", "declined", "ineligible"].includes(stored.bumpDecision)
     ? stored
     : createInitialCart(candidateId);
 }
@@ -122,15 +125,21 @@ function mountCart(): void {
   selectedCard.insertBefore(root, selectedCard.querySelector(".actions"));
   const partySize = flow.answers.partySize as PartySize;
   let cart = reconcileCart(loadCart(combo.id), partySize).state;
+  let sharedDraft: OrderDraft | null = readJson<OrderDraft>(ORDER_DRAFT_KEY);
+  const token = flow.selectionToken ?? `legacy:${combo.id}`;
 
   const render = (): void => {
     const language = flow.locale;
     const text = CART_COPY[language];
     cart = reconcileCart(cart, partySize).state;
     const calculation = calculateCart(cart, partySize);
-    const payload = buildStableOrderPayload(cart, calculation, rules);
+    const shared = syncRecommendation(readJson<OrderDraft>(ORDER_DRAFT_KEY) ?? sharedDraft, cart, calculation, token);
+    sharedDraft = shared.draft;
+    const payload = buildSharedOrderPayload(sharedDraft);
+    const canHandoff = !shared.blocked && payload.lines.length > 0;
     writeJson(CART_STORAGE_KEY, cart);
-    writeJson(ORDER_STORAGE_KEY, JSON.parse(stableSerializeOrderPayload(payload)));
+    writeJson(ORDER_DRAFT_KEY, sharedDraft);
+    writeJson(ORDER_STORAGE_KEY, payload);
 
     root.replaceChildren();
     const heading = create("h2", "cart-title", text.title);
@@ -138,11 +147,11 @@ function mountCart(): void {
     root.append(heading, create("p", "cart-lead", text.lead));
 
     const list = create("ul", "cart-line-list");
-    for (const line of calculation.lines) {
+    for (const line of payload.lines) {
       list.append(create(
         "li",
         "cart-line",
-        `${line.quantity} × ${itemIndex.get(line.itemId)?.name[language] ?? line.itemId}`
+        `${line.quantity} × ${orderProducts.get(line.id)?.name[language] ?? line.id}`
       ));
     }
     root.append(create("h3", "cart-section-title", text.contents), list);
@@ -233,7 +242,7 @@ function mountCart(): void {
     if (calculation.notices.some((notice) => notice.code.includes("removed"))) {
       root.append(create("p", "cart-notice", text.unavailable));
     }
-    if (!calculation.canHandoff) {
+    if (!canHandoff) {
       root.append(create("p", "cart-notice cart-notice--error", text.blocked));
     }
 
@@ -241,14 +250,14 @@ function mountCart(): void {
     const total = create("div", "cart-total");
     total.append(
       create("span", "", text.total),
-      create("strong", "", formatPrice(calculation.totalMinor, language))
+      create("strong", "", formatPrice(payload.pricing.totalMinor, language))
     );
     const handoff = create("a", "primary-button cart-handoff", text.handoff);
-    handoff.href = `https://wa.me/?text=${encodeURIComponent(buildWhatsAppDraftMessage(payload, language))}`;
+    handoff.href = `https://wa.me/?text=${encodeURIComponent(buildSharedWhatsAppMessage(payload, language))}`;
     handoff.target = "_blank";
     handoff.rel = "noopener noreferrer";
-    handoff.setAttribute("aria-disabled", String(!calculation.canHandoff));
-    if (!calculation.canHandoff) {
+    handoff.setAttribute("aria-disabled", String(!canHandoff));
+    if (!canHandoff) {
       handoff.removeAttribute("href");
       handoff.removeAttribute("target");
     }
@@ -258,11 +267,12 @@ function mountCart(): void {
     const details = create("details", "cart-payload");
     details.append(
       create("summary", "", text.payload),
-      create("code", "", stableSerializeOrderPayload(payload))
+      create("code", "", JSON.stringify(payload))
     );
     root.append(details);
   };
 
+  refreshCart = () => { if (root.isConnected) render(); };
   render();
 }
 
@@ -276,3 +286,5 @@ function start(): void {
 document.readyState === "loading"
   ? document.addEventListener("DOMContentLoaded", start, { once: true })
   : start();
+
+window.addEventListener("pageshow", event => { if (event.persisted) refreshCart?.(); });

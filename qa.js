@@ -31,6 +31,7 @@ function requestHeroPlayback(video) {
 }
 
 function enableHeroVideo() {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const video = q(".hero-video");
   const source = video ? q("source", video) : null;
   if (!video || !source) return;
@@ -57,6 +58,10 @@ function enableHeroVideo() {
 
   video.load();
   retryPlayback();
+}
+
+function scheduleHeroPlayback() {
+  enableHeroVideo();
 }
 
 function applyImmediateA11yFixes() {
@@ -169,7 +174,7 @@ function initQaEnhancements() {
 
 function initQa() {
   ensureHeroBalanceStyles();
-  enableHeroVideo();
+  scheduleHeroPlayback();
   applyImmediateA11yFixes();
   window.addEventListener("pointerdown", initQaEnhancements, { once: true, passive: true });
   window.addEventListener("keydown", initQaEnhancements, { once: true });

@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 const RED = "#E21B23";
@@ -62,8 +61,7 @@ const paths = {
   compact: "src/brand/robys-compact-master-v1.svg",
   header: "src/brand/robys-header-master-v1.svg",
   primary: "src/brand/robys-primary-master-v1.svg",
-  icon: "icon.svg",
-  maskable: "icon-maskable.svg"
+  icon: "icon.svg"
 };
 const assets = Object.fromEntries(Object.entries(paths).map(([key, path]) => [key, read(path)]));
 for (const [key, source] of Object.entries(assets)) assertVector(source, paths[key]);
@@ -89,16 +87,11 @@ assert(assets.header.includes('id="coffee-house"') && !assets.header.includes('i
 assert(assets.primary.includes('id="coffee-house"') && assets.primary.includes('id="tagline"'), "primary must contain COFFEE HOUSE and tagline");
 assert([assets.compact, assets.header, assets.primary].every((source) => source.includes(INK)), `lockups must use ${INK}`);
 
-for (const [key, minimum] of [["icon", 0.15], ["maskable", 0.20]]) {
+for (const [key, minimum] of [["icon", 0.15]]) {
   assert(assets[key].includes(mark), `${paths[key]} must reuse canonical Organic O`);
   assert(assets[key].includes(WHITE), `${paths[key]} must use pure white background`);
   assert(iconClearance(assets[key], paths[key]) >= minimum, `${paths[key]} must retain ${minimum * 100}% safe clearance`);
 }
-
-const apple = readFileSync("apple-touch-icon.png");
-assert(apple.subarray(1, 4).toString("ascii") === "PNG", "Apple touch icon must remain PNG");
-assert(apple.readUInt32BE(16) === 180 && apple.readUInt32BE(20) === 180, "Apple touch icon must remain 180 × 180");
-assert(createHash("sha256").update(apple).digest("hex") !== "095279d4874eadaf28febbd35b6da7c1c83073489f7b45b0a93a65daaf4fb6a8", "Apple touch icon must be regenerated for v4");
 
 const css = read("brand-photo-logo.css");
 for (const [token, value] of [["--robys-brand-red", RED], ["--robys-brand-ink", INK], ["--robys-brand-paper", WHITE]]) {
@@ -126,9 +119,8 @@ assert(sw.includes(`brand-photo-logo.css?v=${REVISION}`), "service worker must p
 assert(sw.includes(`robys-header-master-v1.svg?v=${REVISION}`), "service worker must precache v4 header");
 assert(!sw.includes(OLD_REVISION), "service worker must not retain old identity revision");
 
-const manifest = JSON.parse(read("manifest.webmanifest"));
-assert((manifest.icons ?? []).some((item) => item.src === "icon.svg" && item.purpose === "any"), "manifest must publish any icon");
-assert((manifest.icons ?? []).some((item) => item.src === "icon-maskable.svg" && item.purpose === "maskable"), "manifest must publish maskable icon");
+assert(!existsSync("manifest.webmanifest"), "retired install manifest must remain absent");
+assert(!existsSync("icon-maskable.svg") && !existsSync("apple-touch-icon.png"), "retired install icons must remain absent");
 assert(!existsSync("src/brand/robys-mobile-master-v1.svg"), "deprecated baked-in mobile SVG must remain absent");
 
 const baseCss = read("styles-v2.css");

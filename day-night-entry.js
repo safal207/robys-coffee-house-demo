@@ -145,7 +145,7 @@ function writeSeenEntry() {
 
 function resolveSceneMode() {
   const mode = new URLSearchParams(window.location.search).get("entry");
-  if (mode === "off" || mode === "morning" || mode === "android-handoff") {
+  if (mode === "off" || mode === "morning") {
     return { enabled: false, forced: false, scene: null };
   }
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {

@@ -2,8 +2,8 @@
 
 const PAIRING_PREVIEW_PATH = "/src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
 
-// Activate this repair immediately so an already-open mobile session does not keep
-// serving previous gallery media or stale Android/install promo styling from runtime cache.
+// Activate this repair immediately so returning visitors do not keep serving
+// previous gallery media or retired installer assets from runtime caches.
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -24,6 +24,13 @@ self.addEventListener("activate", (event) => {
                     path.endsWith("/android-app.css") ||
                     path.endsWith("/mobile-install.js") ||
                     path.endsWith("/mobile-install.css") ||
+                    path.endsWith("/mobile-install-copy.json") ||
+                    path.endsWith("/android-handoff.js") ||
+                    path.endsWith("/manifest.webmanifest") ||
+                    path.endsWith("/icon-maskable.svg") ||
+                    path.endsWith("/apple-touch-icon.png") ||
+                    /\/downloads\/android-v1\.2\/part-\d+\.b64$/.test(path) ||
+                    /\/downloads\/robys-coffee-house(?:-v[\d.]+)?\.apk$/.test(path) ||
                     path.endsWith(PAIRING_PREVIEW_PATH);
                 })
                 .map((request) => cache.delete(request))
@@ -36,7 +43,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// HTML5 video players use byte-range requests on Android. Let the browser fetch this
+// HTML5 video players use byte-range requests on mobile browsers. Let the browser fetch this
 // media directly instead of routing those requests through the legacy cache-first layer.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;

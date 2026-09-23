@@ -70,4 +70,25 @@ check("root-relative emitted imports remain traversed", {
   "menu-app.js": 'import "./menu-catalog.js";', "menu-catalog.js": "export {};",
   "src/menu-app.js": 'import "./menu-catalog.js";'
 }, [], [["menu-app.js", "src/menu-app.js"]]);
+check("reached menu links its bundled draft helper", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": "export {};",
+  "src/menu-app.js": 'import { normalizeOrderDraft } from "./src/order-draft.js";',
+  "src/order-draft.js": "export function normalizeOrderDraft() {}"
+}, [], [["menu-app.js", "src/menu-app.js"], ["menu-app.js", "src/order-draft.js"]]);
+check("unreferenced draft helper remains an orphan", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": "export {};", "src/menu-app.js": "export {};",
+  "src/order-draft.js": "export {};"
+}, ["src/order-draft.js"], [["menu-app.js", "src/menu-app.js"]]);
+check("detached menu cannot retain its bundled helper", {
+  "index.html": "<main>Menu</main>", "menu-app.js": "export {};",
+  "src/menu-app.js": 'import "./src/order-draft.js";',
+  "src/order-draft.js": "export {};"
+}, ["menu-app.js", "src/menu-app.js", "src/order-draft.js"]);
+check("missing menu output cannot retain its bundled helper", {
+  "index.html": "<main>Menu</main>",
+  "src/menu-app.js": 'import "./src/order-draft.js";',
+  "src/order-draft.js": "export {};"
+}, ["src/menu-app.js", "src/order-draft.js"]);
 console.log(`Dependency build-edge regression: ${checks}/${checks} PASS`);

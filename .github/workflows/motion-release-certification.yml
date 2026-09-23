@@ -8,7 +8,6 @@ on:
       - "styles-v2.css"
       - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
-      - "android-handoff.js"
       - "sw.js"
       - "integrity-manifest.json"
       - "src/brand/**"
@@ -17,7 +16,6 @@ on:
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/motion-release-certification.mjs"
-      - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/motion-release-certification.yml"
   push:
     branches:
@@ -28,7 +26,6 @@ on:
       - "styles-v2.css"
       - "scripts/takeaway-browser-contract.mjs"
       - "morning-entry-v2.js"
-      - "android-handoff.js"
       - "sw.js"
       - "integrity-manifest.json"
       - "src/brand/**"
@@ -37,7 +34,6 @@ on:
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/morning-entry-smoke.mjs"
       - "scripts/motion-release-certification.mjs"
-      - "scripts/android-handoff-smoke.mjs"
       - ".github/workflows/motion-release-certification.yml"
   workflow_dispatch:
 
@@ -85,11 +81,6 @@ jobs:
         env:
           MOTION_RELEASE_RESULTS_DIR: ${{ github.workspace }}/visual-results/motion-release
         run: node scripts/motion-release-certification.mjs
-
-      - name: Re-certify browser Android handoff bridge
-        env:
-          ANDROID_HANDOFF_RESULTS_DIR: ${{ github.workspace }}/visual-results/android-handoff
-        run: node scripts/android-handoff-smoke.mjs
 
       - name: Upload motion certification evidence
         if: always()

@@ -26,6 +26,7 @@ interface FlowState {
   answers: Answers;
   locale: SmartChoiceLanguage;
   selectedCandidateId?: string;
+  selectionToken?: string;
 }
 
 interface QuestionOption {
@@ -94,7 +95,7 @@ const copy = {
     components: "İçindekiler",
     why: "Neden uygun",
     noOrder: "Sipariş gönderilmez",
-    price: "Toplam fiyat"
+    price: "Seçim fiyatı"
   },
   en: {
     fullMenu: "Full menu",
@@ -133,7 +134,7 @@ const copy = {
     components: "Includes",
     why: "Why it fits",
     noOrder: "No order is sent",
-    price: "Total price"
+    price: "Choice price"
   },
   ru: {
     fullMenu: "Полное меню",
@@ -172,7 +173,7 @@ const copy = {
     components: "Состав",
     why: "Почему подходит",
     noOrder: "Заказ не отправляется",
-    price: "Итоговая цена"
+    price: "Цена варианта"
   }
 } satisfies Record<SmartChoiceLanguage, Record<string, string>>;
 
@@ -361,7 +362,8 @@ function loadState(): FlowState {
       questionIndex,
       answers: parsed.answers,
       locale: parsed.locale,
-      ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {})
+      ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {}),
+      ...(typeof parsed.selectionToken === "string" && parsed.selectionToken.length <= 200 ? { selectionToken: parsed.selectionToken } : {})
     };
   } catch {
     return initialState();
@@ -621,7 +623,8 @@ function renderRecommendationCard(recommendation: RankedRecommendation): HTMLEle
   }
 
   const choose = createButton(copy[state.locale].choose, "primary-button", () => {
-    setState({ ...state, screen: "selected", selectedCandidateId: recommendation.candidateId });
+    setState({ ...state, screen: "selected", selectedCandidateId: recommendation.candidateId,
+      selectionToken: crypto.randomUUID() });
   });
   card.append(choose, createElement("p", "safe-note", copy[state.locale].noOrder));
   return card;

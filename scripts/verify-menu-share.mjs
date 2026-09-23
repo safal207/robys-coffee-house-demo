@@ -24,20 +24,19 @@ assert(statusRule.includes("text-align:center"), "Share status messages must be 
 assert(statusRule.includes("width:100%") && statusRule.includes("justify-self:stretch"), "Share status must span the card width");
 assert(!/\.menu-share-status\s*\{[^}]*text-align\s*:\s*left/i.test(css), "A mobile rule overrides centered share status");
 
-assert(runtime.includes("android.intent.action.SEND"), "Android ACTION_SEND fallback is missing");
-assert(runtime.includes("android.intent.extra.SUBJECT"), "Android share subject is missing");
-assert(runtime.includes("android.intent.extra.TEXT"), "Android share text and URL are missing");
-assert(runtime.includes('type=text/plain'), "Android share MIME type changed");
-assert(runtime.includes("window.location.assign(androidShareIntent(payload))"), "Android WebView does not launch the system share intent");
+assert(!/isAndroidWebView|androidShareIntent|android\.intent|menu_share_android_intent/i.test(runtime + menuPageRuntime), "Retired Android app share path must not return");
 assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API path is missing");
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
+assert(runtime.includes("window.prompt(localized.copyPrompt, canonical)"), "Copy-link prompt fallback is missing");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
 assert(runtime.includes("export async function shareMenu"), "Share behavior must be callable from the interaction loader");
 assert(runtime.includes("export function completeNativeShare"), "Native share completion must preserve localized feedback and analytics");
 assert(runtime.includes("!skipNative && typeof navigator.share"), "Fallback share must not retry a rejected native share");
 assert(runtime.includes("export function track"), "Menu action tracking must be callable from the interaction loader");
-assert(menuPageRuntime.includes('import("./menu-interactions.js?v=20260904-interaction-v3")'), "Menu actions are not loaded on demand");
+assert(menuPageRuntime.includes('import("./menu-interactions.js?v=20260923-web-only-v4")'), "Menu actions are not loaded on demand at the web-only revision");
+assert(serviceWorker.includes('"./menu-interactions.js?v=20260923-web-only-v4"'), "Offline cache must use the same web-only menu interactions revision");
 assert(menuPageRuntime.includes('menuShareButton?.addEventListener("click"'), "First-click share activation is missing");
+assert(menuPageRuntime.includes('if (typeof navigator.share !== "function")'), "Browsers without Web Share must use the link fallback");
 assert(menuPageRuntime.includes("const nativeShare = navigator.share(payload)"), "Native share must run synchronously in the activation handler");
 assert(menuPageRuntime.includes("runLazyShare(true)"), "Rejected native share lacks a non-native fallback");
 assert(html.includes('data-share-text-tr=') && html.includes('data-share-text-en=') && html.includes('data-share-text-ru='), "Activation-safe share copy lacks TR/EN/RU coverage");
@@ -73,4 +72,4 @@ assert(indexHtml.includes(`src="pwa-pairing-fix.js?v=${pwaAssetRevision}"`), "in
 assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not load the current menu PWA registration revision");
 assert(!menuPageRuntime.includes('import("./menu-pwa.js'), "Menu PWA registration must have one deterministic bootstrap path");
 
-console.log(`✅ SHARE-001 passed: centered feedback, Android/Web Share fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and PWA revision ${pwaRevision} remain valid.`);
+console.log(`✅ SHARE-001 passed: centered feedback, Web Share and copy-link fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and offline revision ${pwaRevision} remain valid.`);

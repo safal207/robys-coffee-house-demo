@@ -172,14 +172,19 @@ while (queue.length) {
 // src/** or make every build output a root: detached source/output pairs must fail.
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
-for (const [runtime, input] of [
+for (const [runtime, input, importer] of [
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
+  ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
   ["menu-stability-v2.css", "menu-stability.css"],
   ["final-qa-v2.css", "final-qa.css"],
   ["community-reel-v2.css", "community-reel.css"]
 ]) {
-  if (reachable.has(runtime) && fileSet.has(input)) {
+  // Bundled helpers must still be referenced by the readable entry point.
+  const referenced = !importer || (fileSet.has(importer) &&
+    literalReferences(readFileSync(join(ROOT, importer), "utf8"))
+      .some((reference) => candidatePaths(runtime, reference).includes(input)));
+  if (reachable.has(runtime) && fileSet.has(input) && referenced) {
     reachable.add(input);
     edges.push({ source: runtime, target: input, kind: "build-source", reference: input });
   }

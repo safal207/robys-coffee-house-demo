@@ -34,7 +34,7 @@ There is **no first-party application backend today**. The matrix deliberately r
 | `FEAT-UI-005` Taste Journey | released / available | released | client-only | not-built | Version local state before expansion or sync |
 | `FEAT-UI-006` Daily offer | released / available | released | client-only | not-built | Add a CMS only when update workflow requires it |
 | `FEAT-API-001` Weather context | released / fallback | released | external | not-built | Proxy only if weather becomes business-critical |
-| `FEAT-PLATFORM-001` PWA/offline | released / fallback | implemented | client-only | not-built | Verify cache revisions against HTML references |
+| `FEAT-PLATFORM-001` Offline website | released / fallback | implemented | client-only | not-built | Verify cache revisions against HTML references; no install flow |
 | `FEAT-PLATFORM-002` Analytics queue | implemented / **degraded** | not-applicable | client-only | not-built | Define collector acknowledgement or call it best-effort |
 | `FEAT-QA-001` UI/UX matrix | released / available | released | not-applicable | not-applicable | Add a cold-load temporal scenario for the first-scroll flash |
 | `FEAT-QA-002` Traceability governance | implemented / available | verified | verified | verified | Keep the check in regression and bundle gates |

@@ -246,6 +246,9 @@ function selectedRecommendationPrice(flow: FlowSnapshot): number | null {
 }
 
 function currentCartTotal(flow: FlowSnapshot, cart: CartState | null = safeCart()): number | null {
+  const order = readJson<{ schemaVersion: string; pricing: { totalMinor: number } }>(sessionStorage, "robys-smart-choice-order.v1");
+  const total = order?.pricing?.totalMinor;
+  if (order?.schemaVersion === "robys.order-draft.v1" && Number.isSafeInteger(total) && total! >= 0) return total!;
   if (!cart || !flow.answers.partySize) return selectedRecommendationPrice(flow);
   return calculateCart(cart, flow.answers.partySize as PartySize).totalMinor;
 }

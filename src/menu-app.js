@@ -1,5 +1,6 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
 import "./menu-search-clear.js";
+import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -123,10 +124,13 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
+const orderProductIds = new Set(productIndex.keys());
+let orderDraft;
 
 function readCart() {
   try {
     const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
+    orderDraft = normalizeOrderDraft(parsed, orderProductIds);
     if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
     const validLines = parsed.lines.filter((line) => (
       productIndex.has(line?.id) &&
@@ -143,11 +147,10 @@ function readCart() {
 let cart = readCart();
 
 function saveCart() {
+  orderDraft = updateOrderLines(orderDraft,
+    Array.from(cart, ([id, quantity]) => ({ id, quantity })), orderProductIds);
   try {
-    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      lines: Array.from(cart, ([id, quantity]) => ({ id, quantity }))
-    }));
+    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(orderDraft));
   } catch {
     // The order calculator still works when session persistence is unavailable.
   }
@@ -657,7 +660,7 @@ function renderMenu() {
 
 let menuActionsPromise;
 function loadMenuActions() {
-  menuActionsPromise ??= import("./menu-interactions.js?v=20260904-interaction-v3");
+  menuActionsPromise ??= import("./menu-interactions.js?v=20260923-web-only-v4");
   return menuActionsPromise;
 }
 
@@ -721,18 +724,13 @@ cartTrigger.addEventListener("click", () => {
   openDialog(cartDialog);
 });
 
-function isAndroidWebView() {
-  const userAgent = navigator.userAgent || "";
-  return /Android/i.test(userAgent) && (/(?:^|[;\s])wv(?:[;)\s]|$)/i.test(userAgent) || /Version\/4\.0/i.test(userAgent));
-}
-
 function runLazyShare(skipNative = false) {
   void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
 }
 
 menuShareButton?.addEventListener("click", (event) => {
   event.preventDefault();
-  if (isAndroidWebView() || typeof navigator.share !== "function") {
+  if (typeof navigator.share !== "function") {
     runLazyShare();
     return;
   }
@@ -793,6 +791,12 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
+
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  cart = readCart();
+  renderCart();
+});
 
 if (language !== "tr") void loadMenuActions();
 

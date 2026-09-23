@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { transformSync } from "esbuild";
+import { buildSync } from "esbuild";
 
 // This module is emitted at the repository root. Keep runtime-relative imports;
-// do not bundle the shared catalog or move interaction-only code into startup.
+// Only bundle the small draft helpers used by the menu. Keep the catalog external
+// and interaction-only code lazy; do not ship recommendation code to this page.
 export function compileMenuRuntime(source = readFileSync("src/menu-app.js", "utf8")) {
-  return transformSync(source, {
-    loader: "js", format: "esm", target: "es2020",
-    minify: true, legalComments: "none"
-  }).code;
+  return buildSync({
+    stdin: { contents: source, resolveDir: process.cwd(), loader: "js" },
+    bundle: true, write: false, format: "esm", target: "es2020",
+    external: ["./menu-catalog.js*", "./menu-search-clear.js", "./menu-interactions.js*"],
+    minify: true, legalComments: "none", logLevel: "silent"
+  }).outputFiles[0].text;
 }
 
 export function readVerifiedMenuSource() {

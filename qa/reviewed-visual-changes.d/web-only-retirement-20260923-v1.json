@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "web-only-retirement-20260923-v1",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/415",
+      "contentBindings": {
+        "conversion.js": "203a94ff2b042ec85e1ad93399f42fb722ff5fc5",
+        "index.html": "a5467e4498e2a757438539c5b6a3154b8de3e627",
+        "pwa-pairing-fix.js": "a138644bfb34cd531f1f3706115a08516726df60"
+      },
+      "expectedFailures": [
+        { "capture": "landing-full", "viewport": "phone-320", "reason": "dimension mismatch 320x8027 vs 320x6968" },
+        { "capture": "social-offer", "viewport": "phone-320", "reason": "dimension mismatch 320x271 vs 320x270" },
+        { "capture": "social-offer", "viewport": "phone-360-short", "totalPixels": 88560, "maxDiffPixelRatio": 0.0091 },
+        { "capture": "landing-full", "viewport": "phone-390", "reason": "dimension mismatch 390x8456 vs 390x7337" },
+        { "capture": "visit-map", "viewport": "phone-390", "reason": "dimension mismatch 390x1243 vs 390x1315" },
+        { "capture": "social-offer", "viewport": "phone-390", "totalPixels": 95940, "maxDiffPixelRatio": 0.0033 },
+        { "capture": "landing-full", "viewport": "tablet-768", "reason": "dimension mismatch 768x7430 vs 768x6404" },
+        { "capture": "social-offer", "viewport": "laptop-1366", "reason": "dimension mismatch 1366x215 vs 1366x214" },
+        { "capture": "landing-full", "viewport": "desktop-1440", "reason": "dimension mismatch 1440x6972 vs 1440x6054" },
+        { "capture": "social-offer", "viewport": "desktop-1440", "totalPixels": 308160, "maxDiffPixelRatio": 0.0052 }
+      ]
+    }
+  ]
+}

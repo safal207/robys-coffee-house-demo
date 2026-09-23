@@ -68,7 +68,7 @@
       "reason": "Customer-visible or runtime behavior requires mutation coverage and two reviewers.",
       "patterns": [
         "^src/",
-        "^(?:app|pwa|sw|android-download)\\.(?:js|mjs|cjs|ts)$",
+        "^(?:app|pwa|sw)\\.(?:js|mjs|cjs|ts)$",
         "\\.(?:js|mjs|cjs|ts|tsx|jsx|html|css)$"
       ]
     },

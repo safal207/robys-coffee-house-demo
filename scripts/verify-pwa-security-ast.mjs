@@ -854,15 +854,24 @@ function regressionTests() {
 }
 
 regressionTests();
-const landing = analyzeRuntime("pwa.js", readFileSync("pwa.js", "utf8"));
+const landingSource = readFileSync("pwa.js", "utf8");
+const deployedLandingSource = readFileSync("pwa-pairing-fix.js", "utf8");
+const landing = analyzeRuntime("pwa.js", landingSource);
+const deployedLanding = analyzeRuntime("pwa-pairing-fix.js", deployedLandingSource);
 const menu = analyzeRuntime("menu-pwa.js", readFileSync("menu-pwa.js", "utf8"));
 const app = readFileSync("src/app.ts", "utf8");
 
 if (landing.registerCalls !== 1 || landing.validRegisterCalls !== 1) fail("Landing must contain one valid Trusted Types service-worker registration chain");
+if (deployedLanding.registerCalls !== 1 || deployedLanding.validRegisterCalls !== 1) fail("Deployed landing must contain one valid Trusted Types service-worker registration chain");
 if (menu.registerCalls !== 1 || menu.validRegisterCalls !== 1) fail("Menu must contain one valid Trusted Types service-worker registration chain");
-if (landing.loadCalls !== 0 || menu.loadCalls !== 0) fail("PWA registration must not wait for the full load event");
-if (landing.ambiguousEventCalls !== 0 || menu.ambiguousEventCalls !== 0) fail("PWA event-listener aliases and event names must be provably immutable");
-if (landing.pointerCalls !== 1 || landing.retryablePointerCalls !== 1) fail("Install pointer trigger must remain persistent and retryable");
+if (landing.loadCalls !== 0 || deployedLanding.loadCalls !== 0 || menu.loadCalls !== 0) fail("Offline registration must not wait for the full load event");
+if (landing.ambiguousEventCalls !== 0 || deployedLanding.ambiguousEventCalls !== 0 || menu.ambiguousEventCalls !== 0) fail("Offline event-listener aliases and event names must be provably immutable");
+if (landing.pointerCalls !== 0 || deployedLanding.pointerCalls !== 0) fail("Offline worker registration must not depend on the retired install pointer trigger");
+for (const [file, source] of [["pwa.js", landingSource], ["pwa-pairing-fix.js", deployedLandingSource]]) {
+  if (!source.includes('await navigator.serviceWorker.ready') || !source.includes('root.dataset.offlineReady = "true"') || !source.includes('root.dataset.offlineReady = "false"')) {
+    fail(`${file} must record offline worker readiness and failure`);
+  }
+}
 if (hasUnregisterCall("src/app.ts", app)) fail("Landing source must not call unregister in direct, computed, aliased, bare, call, apply, bind, sequence, or Reflect invocation form");
 
-console.log("✅ CSP-001 AST contract passed: Trusted Types registration, retry semantics and unregister prohibition verified.");
+console.log("✅ CSP-001 AST contract passed: Trusted Types offline registration, no install pointer dependency and unregister prohibition verified.");

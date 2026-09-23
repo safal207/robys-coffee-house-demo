@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { webkit, devices } from "playwright";
 
-const baseUrl = process.env.BASE_URL ?? "http://127.0.0.1:4173";
+const baseUrl = process.env.BASE_URL ?? "https://127.0.0.1:4173";
+const baseOrigin = new URL(baseUrl);
+assert.equal(baseOrigin.protocol, "https:", "WebKit route evidence requires HTTPS with the production CSP");
 const routePrefix = "https://www.google.com/maps/dir/";
 const expectedDestination = "Roby's Coffee House Gazipasa";
 const evidenceDir = "qa-artifacts";
@@ -24,9 +26,13 @@ await mkdir(evidenceDir, { recursive: true });
 const browser = await webkit.launch({ headless: true });
 const context = await browser.newContext({
   ...devices["iPhone 13"],
+  // Only the ephemeral loopback certificate is self-signed; deployed sites
+  // still require normal certificate validation. CSP remains fully enabled.
+  ignoreHTTPSErrors: ["127.0.0.1", "localhost"].includes(baseOrigin.hostname),
   locale: "tr-TR",
   timezoneId: "Europe/Istanbul"
 });
+await context.tracing.start({ screenshots: true, snapshots: true });
 
 await context.route(`${routePrefix}**`, async (route) => {
   const requestedUrl = route.request().url();
@@ -43,11 +49,24 @@ async function verifyPage(pathname) {
   const page = await context.newPage();
   const localUrl = new URL(pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
+  // These authored, blocking styles must be loaded by DOMContentLoaded.
+  // Use direct DOM inspection: waitForFunction internally compiles a string,
+  // which conflicts with the page's enforced Trusted Types policy.
+  for (const stylesheet of ["styles-v2.css", pathname === "index.html" ? "map-live.css" : "menu-premium.css"]) {
+    const loaded = await page.locator(`link[rel="stylesheet"][href^="${stylesheet}"]`)
+      .evaluate(link => Boolean(link.sheet && link.sheet.cssRules.length));
+    assert(loaded, `${pathname}: required stylesheet did not load: ${stylesheet}`);
+  }
 
   if (pathname === "index.html") {
+    await page.locator(".hero-actions [data-smart-choice-entry]").waitFor({ state: "attached" });
     const heroPrimary = page.locator(".hero-actions .button-primary");
-    assert.equal(await heroPrimary.getAttribute("href"), "menu.html#pairing-offers", "hero primary CTA must route to pairing offers");
-    assert.equal(await heroPrimary.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
+    assert.equal(await heroPrimary.count(), 1, "enhanced hero must have exactly one primary CTA");
+    assert.equal(await heroPrimary.getAttribute("href"), "smart-choice/", "enhanced hero primary CTA must route to Smart Choice");
+    assert.equal(await heroPrimary.getAttribute("target"), null, "Smart Choice must stay in the current customer journey");
+    const pairing = page.locator('.hero-actions a[href="menu.html#pairing-offers"]');
+    assert.equal(await pairing.count(), 1, "enhancement must retain the direct pairing CTA");
+    assert.equal(await pairing.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
   }
 
   const selectors = expectedRouteSelectors[pathname];
@@ -76,10 +95,20 @@ async function verifyPage(pathname) {
     assert.equal(destination.searchParams.get("destination"), expectedDestination, `${pathname}: wrong route destination`);
     assert.equal(destination.searchParams.get("travelmode"), "driving", `${pathname}: route must default to driving`);
 
-    await link.scrollIntoViewIfNeeded();
-    const popupPromise = page.waitForEvent("popup", { timeout: 5000 });
-    await link.click();
-    const popup = await popupPromise;
+    console.log(`Checking ${pathname} route ${index + 1}/${count}: ${await link.getAttribute("class")}`);
+    if (await link.evaluate(node => Boolean(node.closest(".mobile-cta")))) {
+      // The dock intentionally hides beside the visit/footer sections. Reach
+      // its normal visible state before exercising the actual user click.
+      await page.locator("#about").scrollIntoViewIfNeeded();
+      await page.locator(".mobile-cta.is-visible").waitFor({ state: "visible" });
+    } else {
+      await link.scrollIntoViewIfNeeded();
+    }
+    await link.click({ trial: true });
+    const [popup] = await Promise.all([
+      page.waitForEvent("popup", { timeout: 5000 }),
+      link.click()
+    ]);
     await popup.waitForLoadState("domcontentloaded");
 
     assert.notEqual(popup.url(), "about:blank", `${pathname}: route link opened a blank iOS tab`);
@@ -110,8 +139,9 @@ try {
     "utf8"
   );
 
-  console.log("✅ iOS WebKit route gate passed: hero opens pairing offers and every named route CTA opens a non-blank Google Maps driving route.");
+  console.log("✅ iOS WebKit route gate passed: styled hero offers Smart Choice and direct pairings; every named route CTA opens a non-blank Google Maps driving route.");
 } finally {
+  await context.tracing.stop({ path: `${evidenceDir}/ios-route-trace.zip` });
   await context.close();
   await browser.close();
 }

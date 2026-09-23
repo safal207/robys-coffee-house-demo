@@ -24,6 +24,6 @@ A reconstructed website treatment must never be promoted as an official master a
 1. Capture or link the strongest available production reference.
 2. Record the selected master or inverse variant and the target surface.
 3. Compare reference and implementation side by side on desktop and mobile.
-4. Verify Home, Menu, Discover, footer, and offline/PWA delivery.
+4. Verify Home, Menu, Discover, footer, and offline website delivery.
 5. Bind visual evidence and automated contracts to the exact current head SHA.
 6. Any new commit invalidates prior screenshots, review evidence, and merge authorization.
