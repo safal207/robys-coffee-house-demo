@@ -660,7 +660,7 @@ function renderMenu() {
 
 let menuActionsPromise;
 function loadMenuActions() {
-  menuActionsPromise ??= import("./menu-interactions.js?v=20260904-interaction-v3");
+  menuActionsPromise ??= import("./menu-interactions.js?v=20260923-web-only-v4");
   return menuActionsPromise;
 }
 
@@ -724,18 +724,13 @@ cartTrigger.addEventListener("click", () => {
   openDialog(cartDialog);
 });
 
-function isAndroidWebView() {
-  const userAgent = navigator.userAgent || "";
-  return /Android/i.test(userAgent) && (/(?:^|[;\s])wv(?:[;)\s]|$)/i.test(userAgent) || /Version\/4\.0/i.test(userAgent));
-}
-
 function runLazyShare(skipNative = false) {
   void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
 }
 
 menuShareButton?.addEventListener("click", (event) => {
   event.preventDefault();
-  if (isAndroidWebView() || typeof navigator.share !== "function") {
+  if (typeof navigator.share !== "function") {
     runLazyShare();
     return;
   }

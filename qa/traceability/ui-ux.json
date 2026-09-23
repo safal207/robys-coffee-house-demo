@@ -216,7 +216,7 @@
         "backend": "not-built"
       },
       "requirements": [
-        "REQ-UI-004-01 fallback order is Android intent -> Web Share -> clipboard -> prompt",
+        "REQ-UI-004-01 fallback order is Web Share -> clipboard -> prompt",
         "REQ-UI-004-02 share cancellation is not reported as failure",
         "REQ-UI-004-03 Instagram reply is required for reservation confirmation"
       ],
@@ -224,8 +224,7 @@
         "initial": "idle",
         "states": [
           "idle",
-          "android-intent",
-          "native-share",
+          "web-share",
           "clipboard-copy",
           "prompt-fallback",
           "shared",
@@ -233,12 +232,11 @@
           "external-booking"
         ],
         "transitions": [
-          "idle --android-webview--> android-intent",
-          "idle --navigator.share--> native-share",
+          "idle --navigator.share--> web-share",
           "idle --clipboard--> clipboard-copy",
           "idle --no-api--> prompt-fallback",
-          "native-share --resolved--> shared",
-          "native-share --AbortError--> cancelled",
+          "web-share --resolved--> shared",
+          "web-share --AbortError--> cancelled",
           "idle --booking-click--> external-booking"
         ]
       },
@@ -246,7 +244,7 @@
         "menu.html#menu-share-button",
         "menu.html#[data-instagram-booking]",
         "menu-interactions.js#shareMenu",
-        "menu-interactions.js#androidShareIntent"
+        "src/menu-app.js#navigator.share"
       ],
       "tests": [
         "npm run verify:menu-share"

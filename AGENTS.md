@@ -14,7 +14,7 @@ source and rebuilding them.
 
 - `src/app.ts` generates `app.js`.
 - `src/menu-app.js` generates `menu-app.js`; source contracts also verify emitted-byte equality.
-- `src/conversion.js` generates `conversion.js`; its Android stylesheet revision is injected during build.
+- `src/conversion.js` generates `conversion.js`.
 - `src/featured-gallery.ts` generates `featured-gallery.js`.
 - `src/social-offer.ts` generates `social-offer.js`.
 - `src/discover-rotation.ts` generates `discover-rotation.js`.

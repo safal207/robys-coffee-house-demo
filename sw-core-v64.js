@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-web-only-20260923-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-web-only-20260923-share-v4-d16fc23e122d-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -98,14 +98,14 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=86dc06d00f26",
+  "./menu-app.js?v=bdbf6583d89f",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
   "./pairing-posters.js?v=745da5142f2d",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
-  "./menu-interactions.js?v=20260904-interaction-v3",
+  "./menu-interactions.js?v=20260923-web-only-v4",
   "./smart-choice/index.html",
   "./experience/",
   "./experience/index.html",

@@ -80,23 +80,6 @@ export function track(action) {
   });
 }
 
-function isAndroidWebView() {
-  const userAgent = navigator.userAgent || "";
-  return /Android/i.test(userAgent) && (/(?:^|[;\s])wv(?:[;)\s]|$)/i.test(userAgent) || /Version\/4\.0/i.test(userAgent));
-}
-
-function androidShareIntent(payload) {
-  const text = `${payload.text}\n${payload.url}`;
-  return [
-    "intent:#Intent",
-    "action=android.intent.action.SEND",
-    "type=text/plain",
-    `S.android.intent.extra.SUBJECT=${encodeURIComponent(payload.title)}`,
-    `S.android.intent.extra.TEXT=${encodeURIComponent(text)}`,
-    "end"
-  ].join(";");
-}
-
 export function completeNativeShare() {
   const localized = copy[currentLanguage()];
   if (shareStatus) shareStatus.textContent = localized.shared;
@@ -115,12 +98,6 @@ export async function shareMenu(event, { skipNative = false } = {}) {
   };
 
   try {
-    if (isAndroidWebView()) {
-      window.location.assign(androidShareIntent(payload));
-      track("menu_share_android_intent");
-      return;
-    }
-
     if (!skipNative && typeof navigator.share === "function") {
       await navigator.share(payload);
       completeNativeShare();
