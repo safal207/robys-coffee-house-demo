@@ -9,10 +9,15 @@ on:
       - "android-native/**"
       - "integrity-manifest.json"
       - "scripts/android-handoff-smoke.mjs"
+      - "scripts/test-android-handoff-deadlines.py"
+      - "scripts/qa/fixtures/android-handoff-deadlines/**"
       - ".github/workflows/android-handoff-contract.yml"
   push:
     branches:
       - agent/android-webview-atomic-handoff-v1
+      - fix/android-handoff-deadlines-20260908
+      - fix/android-commit-deadline-20260908
+      - fix/android-deadline-races-main-20260909
     paths:
       - "bootstrap-v2.js"
       - "android-handoff.js"
@@ -20,6 +25,8 @@ on:
       - "android-native/**"
       - "integrity-manifest.json"
       - "scripts/android-handoff-smoke.mjs"
+      - "scripts/test-android-handoff-deadlines.py"
+      - "scripts/qa/fixtures/android-handoff-deadlines/**"
       - ".github/workflows/android-handoff-contract.yml"
   workflow_dispatch:
 
@@ -31,6 +38,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  native-deadlines:
+    name: Native callback deadline behavior
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Exercise actual MainActivity with controlled callback delivery
+        run: python3 scripts/test-android-handoff-deadlines.py
+
   browser-contract:
     name: ANDROID-HANDOFF-001 browser bridge
     runs-on: ubuntu-latest
