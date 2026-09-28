@@ -10,14 +10,14 @@ import { fileURLToPath } from "node:url";
 export async function verifyMenuStabilityLegacyWorker(browser) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const approvedCss = await readFile(resolve(root, "menu-stability.css"), "utf8");
-  const legacyCss = '.full-menu-grid[data-ready]{display:grid}body{--robys-stale-menu-stability:yes}';
+  const legacyCss = await readFile(resolve(root, "menu-stability-v2.css"), "utf8");
   const landingStyles = ["final-qa", "community-reel"];
   const cacheName = "robys-menu-stability-legacy-proof";
   const legacyWorker = `
 const CACHE_NAME = ${JSON.stringify(cacheName)};
 self.addEventListener("install", event => event.waitUntil((async () => {
   const cache = await caches.open(CACHE_NAME);
-  await cache.put(new URL("menu-stability.css?v=cls-20260622-1", self.location),
+  await cache.put(new URL("menu-stability-v2.css?v=legacy-reviewed-revision", self.location),
     new Response(${JSON.stringify(legacyCss)}, {headers:{"Content-Type":"text/css"}}));
   for (const name of ${JSON.stringify(landingStyles)}) {
     await cache.put(new URL(name + ".css?v=legacy", self.location),
@@ -78,7 +78,7 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     });
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
     const queryOnlyResponse = await page.evaluate(async () =>
-      (await fetch("/menu-stability.css?v=new-content-revision")).text());
+      (await fetch("/menu-stability-v2.css?v=new-content-revision")).text());
     assert.equal(queryOnlyResponse, legacyCss, "Control must prove the old worker defeats a query-only revision bump");
 
     for (const name of landingStyles) {
@@ -97,7 +97,7 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     }
 
     const cssResponsePromise = page.waitForResponse((response) =>
-      new URL(response.url()).pathname === "/menu-stability-v2.css");
+      new URL(response.url()).pathname === "/menu-stability-v3.css");
     await page.goto(`${origin}/menu.html`, { waitUntil: "domcontentloaded" });
     const cssResponse = await cssResponsePromise;
     assert.equal(cssResponse.fromServiceWorker(), true, "The first menu navigation must still pass through the legacy worker");
@@ -105,13 +105,15 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible", timeout: 15000 });
     const rendered = await page.evaluate(() => ({
       columns: getComputedStyle(document.querySelector("#menu-root")).columnCount,
+      featuredSpan: getComputedStyle(document.querySelector(".full-menu-panel--featured")).columnSpan,
       stale: getComputedStyle(document.body).getPropertyValue("--robys-stale-menu-stability"),
       controller: navigator.serviceWorker.controller.scriptURL
     }));
     assert.equal(rendered.columns, "2", "Approved desktop column packing must render on the first returning-client navigation");
-    assert.equal(rendered.stale, "", "The stale stylesheet must not be applied");
+    assert.equal(rendered.featuredSpan, "all", "Featured pairing panel must span both desktop columns");
+    assert.equal(rendered.stale, "", "The stale v2 stylesheet must not be applied");
     assert.equal(rendered.controller, `${origin}/legacy-worker.js`, "The proof must not depend on a replacement worker activating");
-    console.log("✅ Menu stability cache proof passed: query-only control stays stale; the new pathname delivers approved bytes and two-column packing under the unchanged legacy worker.");
+    console.log("✅ Menu stability cache proof passed: a stale v2 query stays stale; v3 delivers approved bytes, two-column packing, and a full-width featured panel under the unchanged legacy worker.");
   } finally {
     try {
       await context?.close();
