@@ -1,10 +1,18 @@
 .menu-category-nav:not([data-ready]){min-height:40px}
 .full-menu-grid:not([data-ready]){min-height:2542px}
-@media(max-width:900px){.full-menu-grid:not([data-ready]){min-height:3574px}}
+@media(max-width:1079px){.full-menu-grid:not([data-ready]){min-height:3574px;grid-template-columns:1fr}}
 @media(max-width:680px){.menu-category-nav:not([data-ready]){min-height:38px}}
 
-/* Manual QA: pack variable-height desktop categories without grid-row deserts. */
-@media(min-width:901px){
+/* Manual QA: keep kiosk content single-column until each desktop panel has enough room for localized headings. */
+@media(min-width:901px) and (max-width:1079px){
+  .full-menu-grid[data-ready]{display:block;columns:auto}
+  .full-menu-grid[data-ready] .full-menu-panel{display:block;width:100%;margin:0 0 18px;break-inside:auto;vertical-align:top}
+  .full-menu-panel--featured .full-menu-list{grid-template-columns:1fr}
+}
+
+/* Manual QA: pack variable-height desktop categories without grid-row deserts once the kiosk content is wide enough. */
+@media(min-width:1080px){
   .full-menu-grid[data-ready]{display:block;columns:2;column-gap:18px}
   .full-menu-grid[data-ready] .full-menu-panel{display:inline-block;width:100%;margin:0 0 18px;break-inside:avoid;vertical-align:top}
+  .full-menu-grid[data-ready] .full-menu-panel--featured{column-span:all}
 }
