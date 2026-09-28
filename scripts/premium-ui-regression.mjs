@@ -69,11 +69,11 @@ export async function verifyFinePointerKiosk(page, label, width) {
   assert.equal(state.display, 'block', `${label}: ready menu must use controlled block/multicol packing`);
   assert.deepEqual(state.brokenHeadingWords, [], `${label}: localized category headings must not break inside words`);
   assert.ok(state.overflow <= 1, `${label}: horizontal overflow ${state.overflow}px`);
-  if (width < 1080) {
-    assert.equal(state.columnCount, 'auto', `${label}: kiosk must remain single-column below 1080px`);
+  if (width < 1220) {
+    assert.equal(state.columnCount, 'auto', `${label}: kiosk must remain single-column below 1220px`);
     assert.ok(state.featuredWidth >= state.gridWidth - 1, `${label}: featured panel must use the full single-column width`);
   } else {
-    assert.equal(state.columnCount, '2', `${label}: kiosk must use two columns from 1080px`);
+    assert.equal(state.columnCount, '2', `${label}: kiosk must use two columns from 1220px`);
     assert.equal(state.featuredSpan, 'all', `${label}: featured pairing panel must span both columns`);
     assert.ok(state.minRegularPanelWidth >= 380, `${label}: regular panels are too narrow (${state.minRegularPanelWidth}px)`);
   }
@@ -163,7 +163,7 @@ async function main() {
       await kioskPage.goto(`${base}menu.html?entry=off`, {waitUntil:'networkidle'});
       await kioskPage.locator(`[data-lang="${language}"]`).click();
       await kioskPage.evaluate(()=>document.fonts.ready);
-      for (const width of [901,1024,1079,1080,1440]) {
+      for (const width of [901,1024,1079,1080,1219,1220,1440]) {
         await kioskPage.setViewportSize({width,height:900});
         report.checks.push(await verifyFinePointerKiosk(kioskPage,`${language}/fine-pointer/${width}px`,width));
       }
