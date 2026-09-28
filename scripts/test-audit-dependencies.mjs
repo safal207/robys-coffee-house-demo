@@ -42,15 +42,16 @@ for (const name of ["conversion", "menu-app"]) {
     "index.html": "<main>Menu</main>", [`src/${name}.js`]: "export {};"
   }, [`src/${name}.js`]);
 }
-for (const name of ["menu-stability", "final-qa", "community-reel"]) {
+for (const [name, revision] of [["menu-stability", "v3"], ["final-qa", "v2"], ["community-reel", "v2"]]) {
+  const output = `${name}-${revision}.css`;
   check(`${name}: reached cache-isolated CSS links canonical input`, {
-    "index.html": `<link rel="stylesheet" href="${name}-v2.css?v=fixture">`,
-    [`${name}-v2.css`]: "body{color:red}", [`${name}.css`]: "body{color:red}"
-  }, [], [[`${name}-v2.css`, `${name}.css`]]);
+    "index.html": `<link rel="stylesheet" href="${output}?v=fixture">`,
+    [output]: "body{color:red}", [`${name}.css`]: "body{color:red}"
+  }, [], [[output, `${name}.css`]]);
   check(`${name}: detached stylesheet pair is NOT whitelisted`, {
-    "index.html": "<main>Menu</main>", [`${name}-v2.css`]: "body{color:red}",
+    "index.html": "<main>Menu</main>", [output]: "body{color:red}",
     [`${name}.css`]: "body{color:red}"
-  }, [`${name}-v2.css`, `${name}.css`]);
+  }, [output, `${name}.css`]);
   check(`${name}: canonical CSS without output remains an orphan`, {
     "index.html": "<main>Menu</main>", [`${name}.css`]: "body{color:red}"
   }, [`${name}.css`]);
