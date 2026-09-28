@@ -352,7 +352,6 @@ for (const { name, target, revision } of landingCacheStyles) {
   );
 }
 serviceWorker = serviceWorker.replace('"./menu-stability.css', '"./menu-stability-v3.css');
-serviceWorker = serviceWorker.replace('"./menu-stability-v2.css', '"./menu-stability-v3.css');
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
