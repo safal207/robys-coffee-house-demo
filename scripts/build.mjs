@@ -222,8 +222,8 @@ const baseStylesRevision = revisionFor("styles-v2.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 // Publish reviewed visual CSS under fresh pathnames so returning clients whose
 // old service worker ignores query strings cannot receive stale bytes.
-writeFileSync("menu-stability-v2.css", readFileSync("menu-stability.css"));
-const menuStabilityRevision = revisionFor("menu-stability-v2.css");
+writeFileSync("menu-stability-v3.css", readFileSync("menu-stability.css"));
+const menuStabilityRevision = revisionFor("menu-stability-v3.css");
 const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   const target = `${name}-v2.css`;
   writeFileSync(target, readFileSync(`${name}.css`));
@@ -305,11 +305,12 @@ discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discov
 writeFileSync("discover.html", discoverHtml);
 
 let menuHtml = readFileSync("menu.html", "utf8");
-menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
+menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v3.css');
+menuHtml = menuHtml.replace('href="menu-stability-v2.css', 'href="menu-stability-v3.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v3.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
@@ -363,7 +364,7 @@ for (const [filePath, revision] of [
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
   ["menu-security-v2.css", menuSecurityRevision],
-  ["menu-stability-v2.css", menuStabilityRevision],
+  ["menu-stability-v3.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
@@ -396,7 +397,7 @@ writeFileSync("sw-core-v64.js", serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +
-  `menu-security-v2.css (${menuSecurityRevision}), ` +
+  `menu-security-v2.css (${menuSecurityRevision}), menu-stability-v3.css (${menuStabilityRevision}), ` +
   `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
   `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +
