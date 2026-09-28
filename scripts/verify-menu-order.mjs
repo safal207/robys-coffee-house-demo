@@ -9,11 +9,11 @@ const styles = `${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("men
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");
 const stabilitySource = readFileSync("menu-stability.css");
-assert.deepEqual(readFileSync("menu-stability-v2.css"), stabilitySource, "Delivered menu stability CSS must preserve the approved source bytes");
+assert.deepEqual(readFileSync("menu-stability-v3.css"), stabilitySource, "Delivered menu stability v3 CSS must preserve the approved source bytes");
 const stabilityRevision = createHash("sha256").update(stabilitySource).digest("hex").slice(0, 12);
-assert(html.includes(`href="menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must bypass legacy pathname caches at its current revision");
-assert(serviceWorker.includes(`"./menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must be precached at the delivered revision");
-assert(serviceWorker.includes('url.pathname.endsWith("/menu-stability-v2.css")'), "Current workers must match menu stability CSS at its exact revision");
+assert(html.includes(`href="menu-stability-v3.css?v=${stabilityRevision}"`), "Menu stability CSS must use the cache-safe v3 pathname at its current revision");
+assert(serviceWorker.includes(`"./menu-stability-v3.css?v=${stabilityRevision}"`), "Menu stability v3 CSS must be precached at the delivered revision");
+assert(serviceWorker.includes('url.pathname.endsWith("/menu-stability-v3.css")'), "Current workers must match menu stability v3 CSS at its exact revision");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
 const { menuCategories, menuCopy } = await import(moduleUrl);
 
