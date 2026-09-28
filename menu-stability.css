@@ -14,5 +14,5 @@
 @media(min-width:1080px){
   .full-menu-grid[data-ready]{display:block;columns:2;column-gap:18px}
   .full-menu-grid[data-ready] .full-menu-panel{display:inline-block;width:100%;margin:0 0 18px;break-inside:avoid;vertical-align:top}
-  .full-menu-grid[data-ready] .full-menu-panel--featured{column-span:all}
+  .full-menu-grid[data-ready] .full-menu-panel--featured{display:block;width:100%;column-span:all}
 }
