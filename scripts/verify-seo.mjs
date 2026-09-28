@@ -137,6 +137,14 @@ check('sitemap contains homepage', sitemap.includes('<loc>https://safal207.githu
 check('sitemap contains menu', sitemap.includes('<loc>https://safal207.github.io/robys-coffee-house-demo/menu.html</loc>'));
 check('sitemap contains Russian landing page', sitemap.includes('<loc>https://safal207.github.io/robys-coffee-house-demo/ru/coffee-gazipasa.html</loc>'));
 
+const hreflangLinks = (html) => [...html.matchAll(/<link\s+rel="alternate"\s+hreflang="([^"]+)"\s+href="([^"]+)"/gi)].map((m) => [m[1], m[2]]);
+const indexAlternates = Object.fromEntries(hreflangLinks(index));
+const ruAlternates = Object.fromEntries(hreflangLinks(ru));
+const siteRoot = 'https://safal207.github.io/robys-coffee-house-demo/';
+const ruUrl = `${siteRoot}ru/coffee-gazipasa.html`;
+check('homepage declares hreflang tr, ru and x-default', indexAlternates.tr === siteRoot && indexAlternates.ru === ruUrl && indexAlternates['x-default'] === siteRoot);
+check('Russian page declares hreflang tr back to homepage (reciprocal)', ruAlternates.tr === siteRoot && ruAlternates.ru === ruUrl && ruAlternates['x-default'] === siteRoot);
+
 const failed = checks.filter((item) => !item.condition);
 
 for (const item of checks) {
