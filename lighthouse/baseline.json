@@ -1,13 +1,18 @@
 {
   "schema_version": 2,
-  "recorded_at": "2026-09-29T04:37:35Z",
+  "recorded_at": "2026-09-29T04:48:18Z",
   "source": {
-    "workflow_run_id": 36522140090,
-    "head_sha": "205be07d5176ba47be1620f5dec953ac8ec6b687",
-    "base_sha": "5aaac199e4a1aa7a8c39435cf1467cb2d9c580ab",
     "runtime_equivalent_to_base_sha": "5aaac199e4a1aa7a8c39435cf1467cb2d9c580ab",
-    "runs_per_profile": 6,
-    "runs_per_page": 3,
+    "profile_workflow_run_ids": [
+      36522140090,
+      36522547312,
+      36522943841
+    ],
+    "repeatability_workflow_run_id": 36522547178,
+    "profile_runs_per_page": 3,
+    "independent_profile_samples": 3,
+    "repeatability_measured_runs": 6,
+    "repeatability_warmup_runs": 1,
     "lighthouse_version": "12.6.1",
     "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
   },
@@ -18,13 +23,20 @@
     "pages": {
       "index": {
         "path": "/index.html",
+        "evidence": {
+          "method": "steady-state-repeatability-median",
+          "workflow_run_id": 36522547178,
+          "measured_runs": 6,
+          "warmup_runs": 1,
+          "verdict": "stable"
+        },
         "values": {
           "performance": 0.99,
-          "lcp": 2050.0032,
+          "lcp": 2055.5274999999997,
           "tbt": 0,
           "cls": 0,
-          "fcp": 1298.6988,
-          "speed_index": 1306.4907749999998,
+          "fcp": 1309.3434374999997,
+          "speed_index": 1309.3434374999997,
           "total_js_bytes": 23155,
           "hero_transfer_bytes": null,
           "hero_request_duration": null
@@ -32,10 +44,19 @@
       },
       "menu": {
         "path": "/menu.html",
+        "evidence": {
+          "method": "median-of-independent-profile-medians",
+          "workflow_run_ids": [
+            36522140090,
+            36522547312,
+            36522943841
+          ],
+          "samples": 3
+        },
         "values": {
           "performance": 1,
-          "lcp": 1367.6426000000001,
-          "tbt": 33,
+          "lcp": 1370.5484,
+          "tbt": 23.5,
           "cls": 0,
           "fcp": 1290.4372750000002,
           "speed_index": 1290.4372750000002,
@@ -53,13 +74,22 @@
     "pages": {
       "index": {
         "path": "/index.html",
+        "evidence": {
+          "method": "steady-state-repeatability-median",
+          "workflow_run_id": 36522547178,
+          "measured_runs": 6,
+          "warmup_runs": 1,
+          "verdict": "stable",
+          "lcp_p10": 808.3359250000001,
+          "lcp_p90": 1091.122875
+        },
         "values": {
-          "performance": 1,
-          "lcp": 480.45759999999996,
+          "performance": 0.985,
+          "lcp": 856.9646375,
           "tbt": 0,
           "cls": 0,
-          "fcp": 372.27692499999995,
-          "speed_index": 500.57402083335273,
+          "fcp": 720.1197,
+          "speed_index": 747.0168517083354,
           "total_js_bytes": 23155,
           "hero_transfer_bytes": null,
           "hero_request_duration": null
@@ -67,9 +97,18 @@
       },
       "menu": {
         "path": "/menu.html",
+        "evidence": {
+          "method": "median-of-independent-profile-medians",
+          "workflow_run_ids": [
+            36522140090,
+            36522547312,
+            36522943841
+          ],
+          "samples": 3
+        },
         "values": {
           "performance": 1,
-          "lcp": 342.91445,
+          "lcp": 366.1082,
           "tbt": 0,
           "cls": 0,
           "fcp": 302.91445,
