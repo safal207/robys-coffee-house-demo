@@ -106,6 +106,7 @@ for (const file of HTML_FILES) {
   must("CSP-001", !csp.includes("'unsafe-inline'"), `${file} CSP allows unsafe-inline`);
   must("CSP-001", !csp.includes("'unsafe-eval'"), `${file} CSP allows unsafe-eval`);
   must("CSP-001", !/(?:^|\s)\*(?:\s|;|$)/.test(csp), `${file} CSP contains a wildcard source`);
+  if (file === "index.html") must("CSP-001", !/frame-src[^;]*instagram\.com/i.test(csp), `${file} CSP must not allow Instagram frames on default load`);
   must("CSP-001", /<meta\b[^>]*name=["']referrer["'][^>]*content=["']strict-origin-when-cross-origin["']/i.test(html), `${file} referrer policy is missing`);
 
   const scripts = Array.from(html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi));
@@ -161,6 +162,14 @@ must("SEC-001", /src=["']https:\/\/maps\.google\.com\/maps/i.test(iframe), "Map 
 must("SEC-001", /title=["'][^"']+["']/i.test(iframe), "Map iframe is missing a title");
 must("SEC-001", /referrerpolicy=["'][^"']+["']/i.test(iframe), "Map iframe is missing a referrer policy");
 must("SEC-001", /loading=["']lazy["']/i.test(iframe), "Map iframe must remain lazy-loaded");
+
+const landingHtml = read("index.html");
+const instagramFrames = Array.from(landingHtml.matchAll(/<iframe\b[^>]*>/gi), (match) => match[0])
+  .filter((tag) => /instagram\.com/i.test(attribute(tag, "src")));
+must("PRIVACY-001", instagramFrames.length === 0, "Default landing page must not embed Instagram");
+const reelLink = Array.from(landingHtml.matchAll(/<a\b[^>]*>/gi), (match) => match[0])
+  .find((tag) => attribute(tag, "href") === "https://www.instagram.com/reel/C0qYxxmIY9t/");
+must("PRIVACY-001", Boolean(reelLink), "Instagram reel must remain available through explicit user intent");
 
 for (const { file, content } of runtime) {
   for (const match of content.matchAll(/localStorage\.(?:getItem|setItem|removeItem)\(\s*["']([^"']+)["']/g)) {
