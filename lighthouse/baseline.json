@@ -1,20 +1,22 @@
 {
   "schema_version": 2,
-  "recorded_at": "2026-09-29T04:48:18Z",
+  "recorded_at": "2026-09-29T04:55:24Z",
   "source": {
     "runtime_equivalent_to_base_sha": "5aaac199e4a1aa7a8c39435cf1467cb2d9c580ab",
     "profile_workflow_run_ids": [
       36522140090,
       36522547312,
-      36522943841
+      36522943841,
+      36523481287
     ],
     "repeatability_workflow_run_id": 36522547178,
     "profile_runs_per_page": 3,
-    "independent_profile_samples": 3,
+    "independent_profile_samples": 4,
     "repeatability_measured_runs": 6,
     "repeatability_warmup_runs": 1,
     "lighthouse_version": "12.6.1",
-    "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+    "chrome_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "gate_runs_per_page": 5
   },
   "mobile": {
     "shared_values": {
@@ -45,21 +47,22 @@
       "menu": {
         "path": "/menu.html",
         "evidence": {
-          "method": "median-of-independent-profile-medians",
+          "method": "median-of-raw-profile-runs",
           "workflow_run_ids": [
             36522140090,
             36522547312,
-            36522943841
+            36522943841,
+            36523481287
           ],
-          "samples": 3
+          "raw_runs": 12
         },
         "values": {
           "performance": 1,
-          "lcp": 1370.5484,
-          "tbt": 23.5,
+          "lcp": 1301.1826,
+          "tbt": 41.5,
           "cls": 0,
-          "fcp": 1290.4372750000002,
-          "speed_index": 1290.4372750000002,
+          "fcp": 1258.2396125,
+          "speed_index": 1258.2396125,
           "total_js_bytes": 18015,
           "hero_transfer_bytes": null,
           "hero_request_duration": null
@@ -102,13 +105,14 @@
           "workflow_run_ids": [
             36522140090,
             36522547312,
-            36522943841
+            36522943841,
+            36523481287
           ],
-          "samples": 3
+          "samples": 4
         },
         "values": {
           "performance": 1,
-          "lcp": 366.1082,
+          "lcp": 365.4839,
           "tbt": 0,
           "cls": 0,
           "fcp": 302.91445,
