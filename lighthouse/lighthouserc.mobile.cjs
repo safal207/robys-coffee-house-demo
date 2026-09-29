@@ -9,7 +9,7 @@ module.exports = {
         'http://localhost/index.html?entry=off',
         'http://localhost/menu.html?entry=off'
       ],
-      numberOfRuns: 3,
+      numberOfRuns: 5,
       settings: {
         formFactor: 'mobile',
         throttlingMethod: 'simulate',
