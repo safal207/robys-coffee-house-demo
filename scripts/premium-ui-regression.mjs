@@ -75,6 +75,7 @@ export async function verifyFinePointerKiosk(page, label, width) {
   } else {
     assert.equal(state.columnCount, '2', `${label}: kiosk must use two columns from 1220px`);
     assert.equal(state.featuredSpan, 'all', `${label}: featured pairing panel must span both columns`);
+    assert.ok(state.featuredWidth >= state.gridWidth - 1, `${label}: featured pairing panel must occupy the full two-column width`);
     assert.ok(state.minRegularPanelWidth >= 380, `${label}: regular panels are too narrow (${state.minRegularPanelWidth}px)`);
   }
   assert.ok(state.pairingWidths.length >= 2, `${label}: pairing cards did not render`);
