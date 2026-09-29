@@ -29,6 +29,60 @@ export async function verifyGeometry(page, label) {
   return {label, products: rows.length, overlapFailures: failures.length, overflow};
 }
 
+export async function verifyFinePointerKiosk(page, label, width) {
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const state = await page.evaluate(() => {
+    const grid = document.querySelector('.full-menu-grid[data-ready]');
+    const featured = document.querySelector('.full-menu-panel--featured');
+    const regularPanels = [...document.querySelectorAll('.full-menu-panel:not(.full-menu-panel--featured)')];
+    const pairingCards = [...document.querySelectorAll('.pairing-poster-card')];
+    const brokenHeadingWords = [];
+    for (const heading of document.querySelectorAll('.full-menu-panel-header h2')) {
+      const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const text = node.textContent ?? '';
+        for (const match of text.matchAll(/\S+/g)) {
+          const tops = new Set();
+          for (let index = match.index; index < match.index + match[0].length; index += 1) {
+            const range = document.createRange();
+            range.setStart(node, index);
+            range.setEnd(node, index + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.width || rect.height) tops.add(Math.round(rect.top * 2) / 2);
+          }
+          if (tops.size > 1) brokenHeadingWords.push({ heading: heading.textContent?.trim(), word: match[0] });
+        }
+      }
+    }
+    return {
+      display: getComputedStyle(grid).display,
+      columnCount: getComputedStyle(grid).columnCount,
+      gridWidth: grid.getBoundingClientRect().width,
+      featuredSpan: getComputedStyle(featured).columnSpan,
+      featuredWidth: featured.getBoundingClientRect().width,
+      minRegularPanelWidth: Math.min(...regularPanels.map(panel => panel.getBoundingClientRect().width)),
+      pairingWidths: pairingCards.map(card => card.getBoundingClientRect().width),
+      brokenHeadingWords,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+    };
+  });
+  assert.equal(state.display, 'block', `${label}: ready menu must use controlled block/multicol packing`);
+  assert.deepEqual(state.brokenHeadingWords, [], `${label}: localized category headings must not break inside words`);
+  assert.ok(state.overflow <= 1, `${label}: horizontal overflow ${state.overflow}px`);
+  if (width < 1220) {
+    assert.equal(state.columnCount, 'auto', `${label}: kiosk must remain single-column below 1220px`);
+    assert.ok(state.featuredWidth >= state.gridWidth - 1, `${label}: featured panel must use the full single-column width`);
+  } else {
+    assert.equal(state.columnCount, '2', `${label}: kiosk must use two columns from 1220px`);
+    assert.equal(state.featuredSpan, 'all', `${label}: featured pairing panel must span both columns`);
+    assert.ok(state.featuredWidth >= state.gridWidth - 1, `${label}: featured pairing panel must occupy the full two-column width`);
+    assert.ok(state.minRegularPanelWidth >= 380, `${label}: regular panels are too narrow (${state.minRegularPanelWidth}px)`);
+  }
+  assert.ok(state.pairingWidths.length >= 2, `${label}: pairing cards did not render`);
+  assert.ok(state.pairingWidths.every(value => value >= 340), `${label}: pairing card width clipped: ${state.pairingWidths.join(', ')}`);
+  return { label, width, ...state };
+}
+
 export async function verifyOrder(page, label) {
   const product = page.locator('.full-menu-item--product').first();
   const unitPrice = Number((await product.locator('.full-menu-price').innerText()).replace(/\D/g, ''));
@@ -103,6 +157,21 @@ async function main() {
       assert.deepEqual(errors,[],`${language}: unhandled browser exceptions`);
       await context.close();
     }
+    for (const language of ['tr','ru']) {
+      const kioskContext = await browser.newContext({viewport:{width:901,height:900},hasTouch:false,isMobile:false,reducedMotion:'reduce',serviceWorkers:'block'});
+      const kioskPage = await kioskContext.newPage();
+      const kioskErrors=[];kioskPage.on('pageerror',error=>kioskErrors.push(error.message));
+      await kioskPage.goto(`${base}menu.html?entry=off`, {waitUntil:'networkidle'});
+      await kioskPage.locator(`[data-lang="${language}"]`).click();
+      await kioskPage.evaluate(()=>document.fonts.ready);
+      for (const width of [901,1024,1079,1080,1219,1220,1440]) {
+        await kioskPage.setViewportSize({width,height:900});
+        report.checks.push(await verifyFinePointerKiosk(kioskPage,`${language}/fine-pointer/${width}px`,width));
+      }
+      assert.deepEqual(kioskErrors,[],`${language}: fine-pointer kiosk browser exceptions`);
+      await kioskContext.close();
+    }
+
     const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,reducedMotion:'no-preference',serviceWorkers:'block'});
     const page = await context.newPage();
     await page.goto(`${base}index.html?entry=off`,{waitUntil:'domcontentloaded'});
