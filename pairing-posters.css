@@ -1,4 +1,4 @@
-/* Pairing poster cards — Roby's Favorites style */
+/* Pairing poster cards + inline taste discovery */
 .full-menu-panel--featured {
   position: relative;
   overflow: hidden;
@@ -236,5 +236,229 @@
 
   .pairing-poster-price strong {
     font-size: 1.75rem;
+  }
+}
+
+
+/* Inline discovery: choosing a pair and meeting the taste are one flow. */
+.full-menu-panel--featured .full-menu-item-media {
+  cursor: pointer;
+}
+
+.full-menu-panel--featured .full-menu-item-media::after {
+  content: "→";
+  z-index: 4;
+  background: rgba(28, 19, 18, .78);
+}
+
+.full-menu-item--visual.pairing-poster-card.is-selected {
+  border-color: rgba(181, 147, 73, .92);
+  box-shadow: 0 0 0 3px rgba(239, 208, 109, .16), 0 28px 66px rgba(36, 28, 27, .22);
+}
+
+.pairing-discovery-panel {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 22px;
+  margin-top: 2px;
+  padding: clamp(22px, 4vw, 36px);
+  color: #2f2725;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(212, 175, 92, .2), transparent 32%),
+    linear-gradient(145deg, #fffaf3 0%, #f8efe2 100%);
+  border: 1px solid rgba(181, 147, 73, .32);
+  border-radius: 24px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+}
+
+.pairing-discovery-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.pairing-discovery-heading {
+  min-width: 0;
+}
+
+.pairing-discovery-eyebrow {
+  margin: 0 0 12px;
+  color: #9a6d23;
+  font: 800 .68rem/1 var(--sans);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.pairing-discovery-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #81736c;
+  font: 700 .72rem/1.2 var(--sans);
+}
+
+.pairing-discovery-heading h3 {
+  max-width: 720px;
+  margin: 0;
+  font: 500 clamp(2rem, 4.6vw, 4.2rem)/.98 var(--display);
+  letter-spacing: -.03em;
+}
+
+.pairing-discovery-price {
+  flex: 0 0 auto;
+  padding: 13px 16px;
+  color: #6e4e19;
+  background: rgba(255, 247, 222, .86);
+  border: 1px solid rgba(181, 147, 73, .36);
+  border-radius: 999px;
+  font: 700 1.15rem/1 var(--sans);
+}
+
+.pairing-discovery-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, .65fr);
+  gap: 26px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(47, 39, 37, .1);
+}
+
+.pairing-discovery-story strong {
+  display: block;
+  margin-bottom: 9px;
+  font: 800 .72rem/1.2 var(--sans);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pairing-discovery-story p {
+  max-width: 760px;
+  margin: 0;
+  color: #71645e;
+  font-size: .94rem;
+  line-height: 1.65;
+}
+
+.pairing-discovery-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pairing-discovery-notes span {
+  padding: 8px 11px;
+  color: #6d5222;
+  background: rgba(255, 247, 222, .9);
+  border: 1px solid rgba(181, 147, 73, .25);
+  border-radius: 999px;
+  font: 700 .72rem/1 var(--sans);
+}
+
+.pairing-discovery-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pairing-discovery-mark,
+.pairing-discovery-close {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font: 800 .72rem/1 var(--sans);
+  cursor: pointer;
+}
+
+.pairing-discovery-mark {
+  color: #8b5d18;
+  background: rgba(255, 249, 231, .82);
+  border: 1px solid rgba(181, 147, 73, .34);
+}
+
+.pairing-discovery-mark.is-done {
+  color: #52604b;
+  background: #eef3e9;
+  border-color: rgba(82, 96, 75, .22);
+  cursor: default;
+}
+
+.pairing-discovery-close {
+  color: #6f625d;
+  background: transparent;
+  border: 1px solid rgba(47, 39, 37, .14);
+}
+
+@media (max-width: 680px) {
+  .pairing-poster-title {
+    max-width: 68%;
+  }
+
+  .pairing-poster-title-main {
+    font-size: 2.5rem;
+  }
+
+  .pairing-poster-title-accent {
+    font-size: 2.08rem;
+  }
+
+  .pairing-poster-price {
+    top: 60%;
+    width: 88px;
+    height: 88px;
+  }
+
+  .pairing-discovery-panel {
+    gap: 18px;
+    padding: 20px 17px;
+    border-radius: 20px;
+  }
+
+  .pairing-discovery-top {
+    gap: 12px;
+  }
+
+  .pairing-discovery-heading h3 {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .pairing-discovery-price {
+    padding: 10px 12px;
+    font-size: .96rem;
+  }
+
+  .pairing-discovery-story {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .pairing-discovery-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pairing-discovery-actions .button,
+  .pairing-discovery-mark,
+  .pairing-discovery-close {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .pairing-poster-title {
+    max-width: 66%;
+  }
+
+  .pairing-poster-title-main {
+    font-size: 2.22rem;
+  }
+
+  .pairing-poster-title-accent {
+    font-size: 1.82rem;
+  }
+
+  .pairing-poster-price {
+    right: 13px;
+    width: 80px;
+    height: 80px;
   }
 }
