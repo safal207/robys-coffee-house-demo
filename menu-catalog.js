@@ -99,7 +99,7 @@ export const menuCategories = [
     id: "pairing-offers",
     icon: "✨",
     name: { tr: "Lezzetle Tanış", en: "Discover the Taste", ru: "Знакомство со вкусом" },
-    lead: { tr: "Bir eşleşme seç, hikâyesini ve neden birlikte güzel olduklarını keşfet.", en: "Choose a pairing and discover its story and why the flavors work together.", ru: "Выбери сочетание и узнай его историю — почему эти вкусы подходят друг другу." },
+    lead: { tr: "Bir eşleşme seç; tadı, hikâyesi ve neden birlikte güzel oldukları hemen burada açılsın.", en: "Choose a pairing; its taste story and why it works will open right here.", ru: "Выбери пару — знакомство со вкусом и объяснение сочетания откроются прямо здесь." },
     items: [
 
 {
