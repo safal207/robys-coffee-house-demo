@@ -30,6 +30,16 @@ function posterKicker() {
   return "TASTE JOURNEY";
 }
 
+const discoverAction = {
+  tr: "Lezzeti keşfet",
+  en: "Discover the taste",
+  ru: "Познакомиться со вкусом"
+};
+
+function discoverUrl(pairingId) {
+  return `discover.html?pair=${encodeURIComponent(pairingId)}`;
+}
+
 function createTitle(main, accent) {
   const title = document.createElement("div");
   title.className = "pairing-poster-title";
@@ -61,6 +71,11 @@ function enhancePairingCards() {
     if (!media || !name || !price || card.dataset.posterReady === renderKey) return;
 
     card.classList.add("pairing-poster-card");
+    if (pairingId) {
+      media.dataset.discoverHref = discoverUrl(pairingId);
+      media.setAttribute("aria-label", `${discoverAction[lang] ?? discoverAction.tr}: ${name}`);
+      media.setAttribute("title", discoverAction[lang] ?? discoverAction.tr);
+    }
     media.querySelector(".pairing-poster-overlay")?.remove();
 
     const [main, accent] = splitPairingTitle(name);
@@ -110,4 +125,12 @@ if (menuRoot) {
   const observer = new MutationObserver(scheduleEnhance);
   observer.observe(menuRoot, { childList: true, subtree: true });
   scheduleEnhance();
+
+  menuRoot.addEventListener("click", (event) => {
+    const trigger = event.target?.closest?.(".full-menu-panel--featured .full-menu-item-media[data-discover-href]");
+    if (!trigger) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.location.assign(trigger.dataset.discoverHref);
+  }, true);
 }
