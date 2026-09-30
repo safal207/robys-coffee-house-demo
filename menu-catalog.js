@@ -98,8 +98,8 @@ export const menuCategories = [
   {
     id: "pairing-offers",
     icon: "✨",
-    name: { tr: "Taste Journey Eşleşmeleri", en: "Taste Journey Pairings", ru: "Сочетания Taste Journey" },
-    lead: { tr: "Anınız için seçilmiş içecek ve tatlı eşleşmeleri.", en: "Drink and dessert pairings selected for your moment.", ru: "Идеальные сочетания напитков и десертов для вашего момента." },
+    name: { tr: "Lezzetle Tanış", en: "Discover the Taste", ru: "Знакомство со вкусом" },
+    lead: { tr: "Bir eşleşme seç, hikâyesini ve neden birlikte güzel olduklarını keşfet.", en: "Choose a pairing and discover its story and why the flavors work together.", ru: "Выбери сочетание и узнай его историю — почему эти вкусы подходят друг другу." },
     items: [
 
 {
