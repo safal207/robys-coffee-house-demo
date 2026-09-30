@@ -1,0 +1,52 @@
+/* Owner-approved screen refinement; the v4 master SVGs remain untouched for rollback.
+   This stylesheet must follow brand-photo-logo.css. No font substitution or blur. */
+.brand-copy{
+  background-image:url("src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5")!important;
+}
+.site-header .brand-copy,
+.discover-header .brand-copy{
+  background-image:url("src/brand/robys-header-smooth-v5.svg?v=20261001-smooth-v5")!important;
+}
+.menu-page-brand .brand-copy{
+  background-image:url("src/brand/robys-primary-smooth-v5.svg?v=20261001-smooth-v5")!important;
+}
+
+/* The border hugs three controls instead of stretching across an empty row. */
+.site-header .language-switcher,
+.discover-header .language-switcher{
+  display:inline-flex!important;
+  width:max-content!important;
+  max-width:100%!important;
+  flex:0 0 auto!important;
+  justify-content:flex-start!important;
+  margin-inline-start:auto!important;
+}
+.site-header .language-switcher .lang-button,
+.discover-header .language-switcher .lang-button{
+  min-width:44px!important;
+  min-height:44px!important;
+  flex:0 0 auto;
+}
+@media(max-width:680px){
+  .site-header .brand-copy,
+  .discover-header .brand-copy{
+    background-image:url("src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5")!important;
+  }
+  .discover-header-inner{
+    flex-wrap:wrap!important;
+    gap:8px 12px!important;
+    min-height:auto!important;
+    padding-block:10px!important;
+  }
+  .discover-header .language-switcher{
+    order:3!important;
+    gap:6px!important;
+    padding:4px!important;
+  }
+}
+@media(max-width:340px){
+  .site-header .brand-copy,
+  body.discover-page .discover-header .brand-copy{
+    background-image:url("src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5")!important;
+  }
+}
