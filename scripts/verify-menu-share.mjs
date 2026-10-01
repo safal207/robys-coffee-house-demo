@@ -8,6 +8,7 @@ const css = readFileSync("menu-premium.css", "utf8");
 const premiumRevision = createHash("sha256").update(css).digest("hex").slice(0, 12);
 const runtime = readFileSync("menu-interactions.js", "utf8");
 const menuPageRuntime = readVerifiedMenuSource();
+const catalogRevision = createHash("sha256").update(readFileSync("menu-catalog.js")).digest("hex").slice(0, 12);
 const pwaRuntime = readFileSync("pwa-pairing-fix.js", "utf8");
 const menuPwaRuntime = readFileSync("menu-pwa.js", "utf8");
 const serviceWorker = readFileSync("sw.js", "utf8") + "\n" + readFileSync("sw-core-v64.js", "utf8");
@@ -46,8 +47,8 @@ assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must l
 assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
 assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
-assert(menuPageRuntime.includes('from "./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu runtime must use the cache-new catalog pathname");
-assert(serviceWorker.includes('"./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu catalog is not precached at its runtime revision");
+assert(menuPageRuntime.includes(`from "./menu-catalog.js?v=${catalogRevision}"`), "Menu runtime must use the cache-new catalog pathname");
+assert(serviceWorker.includes(`"./menu-catalog.js?v=${catalogRevision}"`), "Menu catalog is not precached at its runtime revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-catalog.js")'), "Menu catalog is not exact-revision cached");
 assert(!serviceWorker.includes('"./menu-data.js"'), "Legacy unversioned menu catalog must not remain in the cache manifest");
 assert(serviceWorker.includes(`"./menu-premium.css?v=${premiumRevision}"`), "Premium menu stylesheet is not precached at its HTML revision");
@@ -73,3 +74,6 @@ assert(html.includes(`src="menu-pwa.js?v=${pwaRevision}"`), "menu.html does not 
 assert(!menuPageRuntime.includes('import("./menu-pwa.js'), "Menu PWA registration must have one deterministic bootstrap path");
 
 console.log(`✅ SHARE-001 passed: centered feedback, Web Share and copy-link fallbacks, cache generation ${cacheGeneration} (${cacheDate}), and offline revision ${pwaRevision} remain valid.`);
+
+// Content-addressed imports and exact offline revisions are part of the menu contract.
+await import("./test-menu-catalog-revision.mjs");

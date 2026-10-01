@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-catalog.js?v=20260904-premium-order-v1";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=23d5e08d85d2";
 import "./menu-search-clear.js";
 import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js";
 

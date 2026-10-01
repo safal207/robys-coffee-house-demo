@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -52,7 +53,8 @@ assert.match(loaderSource, /root\.dataset\.ready/, "Product deep links must wait
 
 const runtimeSource = readFileSync(resolve(root, "menu-product-reveal-runtime.js"), "utf8");
 assert.ok(runtimeSource.indexOf('sourceImage.getAttribute("src")') < runtimeSource.indexOf("sourceImage.currentSrc"), "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc");
-assert.match(runtimeSource, /menu-catalog\.js\?v=20260904-premium-order-v1/, "Pairing bridge must reuse the exact catalog module already loaded by the menu");
+const catalogRevision = createHash("sha256").update(readFileSync(resolve(root, "menu-catalog.js"))).digest("hex").slice(0, 12);
+assert.ok(runtimeSource.includes(`./menu-catalog.js?v=${catalogRevision}`), "Pairing bridge must reuse the exact catalog module already loaded by the menu");
 assert.doesNotMatch(runtimeSource, /gallery-v5\/san-sebastian\.webp/, "Reveal must not use the gallery poster as a food-photo alternate view");
 assert.doesNotMatch(runtimeSource, /createElement\(["']style["']\)|style\.textContent/, "Reveal runtime must not inject inline style blocks rejected by menu CSP");
 

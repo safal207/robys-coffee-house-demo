@@ -1,4 +1,4 @@
-import{menuCategories}from"./menu-catalog.js?v=20260930-discover-taste-v1";
+import{menuCategories}from"./menu-catalog.js?v=23d5e08d85d2";
 import{copy,supportedLanguages}from"./discover-copy.js?v=20260930-discover-taste-v1";
 import{journeys,imageAlt}from"./discover-journeys-v2.js";
 const S={language:"robys-language",visitDate:"robys-discovery-last-date",visits:"robys-discovery-visits",discovered:"robys-discovery-pairs"};

@@ -4,6 +4,9 @@ import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
+import { synchronizeCatalogImports } from "./menu-catalog-revision.mjs";
+
+const menuCatalogRevision = synchronizeCatalogImports();
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
@@ -354,6 +357,7 @@ writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 serviceWorker = serviceWorker.replace(/(robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-/, `$1${pairingPostersRevision}-`);
+serviceWorker = serviceWorker.replace(/-brand-v5-(?:catalog-[a-f0-9]{12}-)?/, `-brand-v5-catalog-${menuCatalogRevision}-`);
 for (const { name, target, revision } of landingCacheStyles) {
   serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
   serviceWorker = serviceWorker.replace(
@@ -377,6 +381,7 @@ for (const [filePath, revision] of [
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-catalog.js", menuCatalogRevision],
   ["pairing-posters.js", pairingPostersRevision],
   ["pairing-posters.css", pairingPostersCssRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
