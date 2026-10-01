@@ -158,7 +158,21 @@ try {
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
   await menu.locator("#menu-search").fill("");
-  await menu.locator(".full-menu-item-media").first().click();
+  // Pairing posters intentionally open inline discovery before the order dialog.
+  const pairing = menu.locator(".full-menu-item--visual[data-pairing] .full-menu-item-media").first();
+  const menuUrl = menu.url();
+  await pairing.click();
+  await menu.locator(".pairing-discovery-panel").waitFor({ state: "visible" });
+  const discovery = await menu.evaluate(() => ({
+    panels: document.querySelectorAll(".pairing-discovery-panel").length,
+    pairingId: document.querySelector(".pairing-discovery-panel")?.dataset.pairingId,
+    selectedId: document.querySelector(".pairing-poster-card.is-selected")?.dataset.pairing,
+    dialogOpen: document.querySelector("#menu-product-dialog")?.hasAttribute("open") ?? false
+  }));
+  check("PAIRING-INLINE-001", menu.url() === menuUrl && discovery.panels === 1 &&
+    Boolean(discovery.pairingId) && discovery.pairingId === discovery.selectedId && !discovery.dialogOpen,
+    "A pairing opens its inline taste story without navigating or ordering", discovery);
+  await menu.locator(".pairing-discovery-choose").click();
   await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
   await menu.locator("#menu-add-to-cart").click();
   await menu.locator("#menu-cart-trigger").click();
@@ -190,7 +204,7 @@ try {
   fallbackMenu.on("pageerror", (error) => fallbackErrors.push(error.message));
   try {
     await fallbackMenu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
-    await fallbackMenu.locator("#menu-root .full-menu-item-media").first().waitFor({ state: "visible" });
+    await fallbackMenu.locator("#menu-root .full-menu-item--product .full-menu-item-media").first().waitFor({ state: "visible" });
     const initiallyHidden = await fallbackMenu.locator("#menu-product-dialog").evaluate(
       (dialog) => getComputedStyle(dialog).display === "none" && !dialog.hasAttribute("open")
     );
@@ -199,7 +213,7 @@ try {
         Object.defineProperty(dialog, "showModal", { configurable: true, value: undefined });
       });
     });
-    const opener = fallbackMenu.locator("#menu-root .full-menu-item-media").first();
+    const opener = fallbackMenu.locator("#menu-root .full-menu-item--product .full-menu-item-media").first();
     await opener.click();
     await fallbackMenu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
     await fallbackMenu.waitForTimeout(50);
