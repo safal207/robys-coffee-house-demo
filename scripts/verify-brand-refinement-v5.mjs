@@ -46,3 +46,11 @@ for (const page of ['index.html', 'menu.html', 'discover.html']) {
   assert.ok(html.includes(`href="src/brand/robys-${kind}-smooth-v5.svg?v=${REVISION}"`), `${page}: preload active asset`);
 }
 console.log('PASS BRAND-REFINEMENT-V5: shared smooth contours, original red geometry, active preloads and bounded language control.');
+
+// Offline navigation must not depend on having visited each logo surface online.
+const serviceWorker = read('sw-core-v64.js');
+for (const asset of ['brand-refinement-v5.css', ...['compact', 'header', 'primary'].map(kind => `src/brand/robys-${kind}-smooth-v5.svg`)]) {
+  assert.ok(serviceWorker.includes(`"./${asset}?v=${REVISION}"`), `${asset}: active revision must be precached`);
+  assert.ok(serviceWorker.includes(`url.pathname.endsWith("/${asset}")`), `${asset}: cache matching must include the revision`);
+}
+assert.match(serviceWorker, /brand-v5-/);

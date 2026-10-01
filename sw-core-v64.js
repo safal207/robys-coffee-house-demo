@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-745da5142f2d-shared-order-20260922-web-only-20260923-share-v4-d16fc23e122d-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-7a3e18b5a25f-shared-order-20260922-web-only-20260923-share-v4-brand-v5-4d8f9ffc6b1f-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -86,6 +86,10 @@ const CORE_ASSETS = [
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260917-approved-v4-restore",
+  "./brand-refinement-v5.css?v=20261001-smooth-v5",
+  "./src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5",
+  "./src/brand/robys-header-smooth-v5.svg?v=20261001-smooth-v5",
+  "./src/brand/robys-primary-smooth-v5.svg?v=20261001-smooth-v5",
   "./src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
@@ -101,7 +105,8 @@ const CORE_ASSETS = [
   "./menu-app.js?v=bdbf6583d89f",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
-  "./pairing-posters.js?v=745da5142f2d",
+  "./pairing-posters.js?v=7a3e18b5a25f",
+  "./pairing-posters.css?v=b9a348de0392",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
@@ -129,14 +134,14 @@ const CORE_ASSETS = [
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
-  "./smart-choice/release-qa.js?v=8741e7ebc72b",
-  "./smart-choice/app-v2.js?v=0319737202f2",
-  "./smart-choice/cart-v2.js?v=6abd42de1f7c",
-  "./smart-choice/experiments-v2.js?v=4852fc7c9115",
-  "./smart-choice/analytics-v2.js?v=b33d32a223fe",
-  "./smart-choice/decision-trace-v2.js?v=923446e45093",
+  "./smart-choice/release-qa.js?v=2811759ef7b2",
+  "./smart-choice/app-v2.js?v=93335e1563d8",
+  "./smart-choice/cart-v2.js?v=d46a2dd1a933",
+  "./smart-choice/experiments-v2.js?v=d2cf87558e55",
+  "./smart-choice/analytics-v2.js?v=0cd995e8d9b4",
+  "./smart-choice/decision-trace-v2.js?v=4f0a4ac0f332",
   "./discover.js",
-  "./discover-v2.js?v=d16fc23e122d",
+  "./discover-v2.js?v=4d8f9ffc6b1f",
   "./discover-deck.js?v=e96235fea324",
   "./discover-copy.js",
   "./discover-journeys.js",
@@ -199,6 +204,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||
     url.pathname.endsWith("/pairing-posters.js") ||
+    url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
@@ -218,6 +224,10 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/src/robys-ambience-clean.mp4") ||
     url.pathname.endsWith("/wordmark-responsive.css") ||
     url.pathname.endsWith("/brand-photo-logo.css") ||
+    url.pathname.endsWith("/brand-refinement-v5.css") ||
+    url.pathname.endsWith("/src/brand/robys-compact-smooth-v5.svg") ||
+    url.pathname.endsWith("/src/brand/robys-header-smooth-v5.svg") ||
+    url.pathname.endsWith("/src/brand/robys-primary-smooth-v5.svg") ||
     url.pathname.endsWith("/src/brand/robys-primary-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-header-master-v1.svg") ||
     url.pathname.endsWith("/src/brand/robys-compact-master-v1.svg") ||

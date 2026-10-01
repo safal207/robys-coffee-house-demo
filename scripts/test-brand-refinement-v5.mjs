@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { chromium } from 'playwright';
+import { verifyBrandOffline } from './test-brand-offline-v5.mjs';
 
 const root = process.cwd();
 const output = resolve(root, 'visual-results/brand-refinement-v5');
@@ -66,6 +67,11 @@ try {
   }
   assert.deepEqual(pageErrors, [], 'Unexpected JavaScript errors on the three entry pages');
   console.log(`PASS BRAND-REFINEMENT-V5 browser: ${rows.length} language/viewport/page cases`);
+  await context.close();
+  await verifyBrandOffline(browser, base, output, async () => {
+    server.closeAllConnections();
+    await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  });
 } finally {
   await writeFile(resolve(output, 'results.json'), JSON.stringify({ rows, pageErrors }, null, 2) + '\n');
   if (browser) await browser.close();

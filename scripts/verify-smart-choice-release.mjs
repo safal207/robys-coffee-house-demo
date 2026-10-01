@@ -175,3 +175,6 @@ console.log(
   `[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: ` +
   `${totalJs} B JS / ${totalCss} B CSS`
 );
+
+// Verify that compact encoding changes emitted bytes, not localized program semantics.
+await import("./test-smart-choice-output-encoding.mjs");
