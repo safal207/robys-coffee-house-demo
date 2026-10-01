@@ -1,125 +1,51 @@
-# Solo maintainer merge attestation
+# Manual owner confirmation — retired
 
-This protocol is for periods when the repository has only one trusted human
-maintainer. It provides deliberate current-head evidence, but it is **not** an
-independent human review and must never be described as one.
+## Decision and scope
 
-## Trusted execution boundary
+On 1 October 2026 the owner requested: "Бро уберем это проверку владельцем".
+The additional owner-confirmation step is retired for
+`safal207/robys-coffee-house-demo`, including PR #422.
 
-The status writer runs on `pull_request_target` and `issue_comment`, so GitHub
-loads the workflow only from the trusted default branch. The workflow never
-checks out or executes pull-request code. Pull-request titles, bodies, refs,
-comments, and SHAs are treated only as untrusted API data.
+The file `.github/workflows/maintainer-merge-attestation.yml` has been removed.
+It no longer listens for pull-request/comment events or writes the
+`Maintainer merge attestation` status and its internal cursors. The automatic
+writer's `statuses: write` permission is removed with it.
 
-The pull request that first installs this workflow is a bootstrap exception: the
-new trusted-base workflow cannot run until it exists on the default branch. After
-that bootstrap merge, validate the full protocol with a disposable pull request
-before making the status required in branch rules.
+No `/merge-ready <SHA>` comment, duplicate owner attestation or manual D6 seal
+is required for an owner-requested merge. Older instructions that require one
+are superseded by this policy. The owner still determines task and release scope;
+this change does not authorize unrelated work or unattended publication.
 
-## Decision commands
+## Requirements retained
 
-After all current-head CI and review findings are complete, the configured solo
-maintainer posts a new top-level pull-request comment containing exactly:
+Current-head build and tests, security checks, CodeQL/ZAP where applicable,
+visual verification, integrity, performance budgets and generated-source parity
+remain mandatory. Resolve actionable findings or document why they do not apply.
+Do not merge red or running required technical checks. Guard the merge with the
+expected head SHA and verify the deployment separately.
 
-```text
-/merge-ready <full 40-character current head SHA>
-```
+Other workflows, repository protection/rulesets, reviewer allowlists, secrets,
+application files and runtime behavior are not changed by this retirement.
+The existing independent-human review workflow remains advisory unless separately
+configured otherwise. The existing review-ledger workflow is a manual audit,
+not an automatic release gate. Missing reviews are not successful reviews.
+Business-owner attestations about café data are unrelated and are unchanged.
 
-To revoke the decision or stop the merge, post a new comment:
+## Existing statuses and honest evidence
 
-```text
-/merge-hold <full 40-character current head SHA>
-```
+GitHub may retain `pending` or other historical attestation statuses on old SHAs.
+They are not current release requirements under this policy. Do not replace them
+with invented approvals, impersonated owner commands or synthetic successful
+attestation statuses. Record the policy change instead.
 
-The command must contain exactly one space before the full SHA, with no leading,
-trailing, or multiline whitespace.
+At retirement preflight, the branch API reported `main` as unprotected with no
+required status contexts, and the repository ruleset list was empty. No branch
+rule was modified. Recheck actual settings if an administrator adds rules later;
+removing a workflow does not remove an independently configured required check.
 
-Decision comments are append-only. Do not edit or delete an existing decision
-comment. A mutation stores a monotonic cursor for that comment ID and requires a
-newer append-only decision before the gate can become green again.
+## Rollback
 
-## Order-independent state reducer
-
-The workflow publishes the commit status context `Maintainer merge attestation`
-on the pull-request head. Every trusted event recomputes that status from current
-GitHub state instead of trusting webhook delivery order.
-
-The reducer reads all existing, unedited decision comments from the configured
-maintainer and sorts them by GitHub comment ID. The newest decision is
-authoritative:
-
-- no decision → `pending`;
-- exact `/merge-ready <current SHA>` → `success`;
-- exact `/merge-hold <current SHA>` → `failure`;
-- latest command containing another SHA → `failure`.
-
-Edited or deleted decision evidence is represented by the separate
-`Maintainer attestation mutation cursor` status. Its description stores the
-largest mutated decision comment ID. When that cursor is greater than or equal
-to the newest surviving decision ID, the main gate is `failure`. A fresh command
-has a larger comment ID and can recover the gate.
-
-Every run also publishes its numeric GitHub Actions run ID in the internal
-`Maintainer attestation run cursor` status. Before any public gate write, the
-workflow reads the pull request, comments, mutation cursor, and run cursor again.
-A run exits without writing when a newer run ID or another head has superseded
-it.
-
-Attestation events for one pull request use `queue: max` and do not use
-`cancel-in-progress`. GitHub preserves up to 100 pending runs for the concurrency
-group and executes only one reducer at a time. This prevents an edit/delete run
-from being canceled before its mutation cursor is recorded. The run cursor still
-protects against delayed older runs that begin after a newer run has already
-published ordering evidence.
-
-A new head naturally invalidates old intent because the newest surviving command
-contains the previous SHA. Metadata-only PR events simply trigger another
-reduction; they do not invent a new decision or rely on timestamps.
-
-## Trust rules
-
-A decision qualifies only when these conditions hold:
-
-- the pull request targets `main` and is open;
-- the comment author matches repository variable `SOLO_MAINTAINER_LOGIN`;
-- when the variable is absent, the repository owner login is used;
-- login comparison is case-insensitive inside the trusted script;
-- the account is not a bot;
-- the configured account currently has repository `admin` permission;
-- the comment has never been edited;
-- the command contains a full 40-character SHA.
-
-The workflow fails closed when maintainer permission cannot be verified. Mutation
-events for maintainer-authored decision comments are recorded even when another
-account performed the edit or deletion, so another actor cannot preserve stale
-green evidence.
-
-The job condition rejects most unrelated public comments before the write-capable
-step starts. The mutation and run cursor contexts are internal evidence storage
-and must not be selected as required merge gates.
-
-## Safe order
-
-1. Finish implementation and stop changing the head.
-2. Run Security, CodeQL, ZAP, browser, visual, static, and project-specific checks.
-3. Collect exact-head human approval or maintainer attestation; optional automated reviewers may add advisory evidence.
-4. Resolve every actionable review thread.
-5. Read the final diff and evidence as the responsible maintainer.
-6. Post a new `/merge-ready <full current head SHA>` comment.
-7. Confirm `Maintainer merge attestation` is green.
-8. Merge with an expected-head SHA guard.
-
-Use a new `/merge-hold <full current head SHA>` comment whenever evidence becomes
-doubtful or a new risk appears.
-
-## Branch-rule activation
-
-When repository rules can be configured, add `Maintainer merge attestation` as a
-required status for `main` while the project remains in solo-maintainer mode.
-
-Keep `Human approval contract / Verify trusted human approval` advisory until a
-second verified human is available.
-
-When a second trusted human joins, the independent human approval contract should
-become authoritative. The solo attestation may remain as an explicit owner release
-decision, but it must not replace the independent approval.
+Restore the original workflow and policy documents from commit
+`766f515bc22976efa800b1834af7f666acce53e6` as an explicit owner-requested change.
+Restoring files is not proof of a new human approval. Reevaluate current rules,
+current-head checks and consent at that time; do not reuse old approval comments.

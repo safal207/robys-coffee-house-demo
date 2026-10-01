@@ -1,30 +1,21 @@
 ## Summary
 
-Describe what changed and why.
+Describe the owner-requested change, its scope and regression risks.
 
 ## Evidence
 
-Link screenshots, logs, artifacts, or reproducible checks.
+Link exact-head screenshots, logs, artifacts and reproducible checks. State what
+was actually run and what remains unverified. Keep generated output and the
+integrity manifest synchronized with their sources.
 
-## Independent review
+## Review findings
 
-After every PR head update, freeze the branch and bind the review decision to the full current 40-character SHA.
+Record actionable findings and their resolution or evidence-backed disposition.
+Human and automated reviews are advisory; unavailable or quota-exhausted reviews
+are not completed reviews. Never describe assistant inspection as independent
+human approval.
 
-A trusted human approval on the exact head satisfies the independent-review stage. A solo maintainer may instead post this accountable top-level attestation:
-
-```text
-Independent-Review: PDG-001
-Head: <full 40-character current head SHA>
-Outcome: accepted
-```
-
-The existing exact-head command is also accepted:
-
-```text
-/merge-ready <full 40-character current head SHA>
-```
-
-Optional automated reviews may be requested, but they are advisory and never own approval or merge authority:
+Optional automated review requests can be posted separately:
 
 ```text
 @codex review
@@ -32,29 +23,21 @@ Optional automated reviews may be requested, but they are advisory and never own
 /deepseek review
 ```
 
-A new commit invalidates earlier review evidence, dispositions and the Proof Seal. Bind new evidence to the new full SHA.
+## Release policy
 
-## Solo maintainer decision
-
-When no independent human reviewer is available, finish all required checks and finding dispositions, then post `/merge-ready <full SHA>` or the explicit `Independent-Review` attestation above.
-
-To revoke the decision, post:
-
-```text
-/merge-hold <full 40-character current head SHA>
-```
-
-This is explicit maintainer intent, not an external-provider approval.
+The owner removed the extra manual confirmation requirement on 1 October 2026.
+No `/merge-ready` comment, duplicate owner attestation or manual D6 seal is
+required for an owner-requested merge. This is not permission for unattended
+publication or for skipping a technical acceptance check. See
+`docs/solo-maintainer-attestation.md`.
 
 ## Checklist
 
-- [ ] Latest exact-head CI is green.
-- [ ] Generated files are current.
-- [ ] Visual changes include exact-head evidence.
-- [ ] Exact-head human approval or maintainer attestation exists.
-- [ ] Optional automated reviewers are treated as advisory only.
-- [ ] Optional reviewer findings are resolved or explicitly dispositioned when requested.
-- [ ] Solo maintainer attestation is green for the exact current head when no independent human reviewer is available.
-- [ ] The D6 proof seal was posted after the latest evidence and dispositions.
-- [ ] Every actionable finding is resolved or documented on the current head.
-- [ ] No external AI provider or provider quota is required for release.
+- [ ] The change and release are within the owner's requested scope.
+- [ ] All required technical checks are green on the exact current head.
+- [ ] Generated files and the integrity manifest match their sources.
+- [ ] Visual changes include current evidence.
+- [ ] Every actionable finding is resolved or documented with evidence.
+- [ ] Optional reviews and unavailable reviewers are reported accurately.
+- [ ] No security, integrity or performance threshold was weakened.
+- [ ] Merge will use the expected current head; publication will be verified.
