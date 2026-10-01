@@ -104,14 +104,14 @@ assert(css.includes("border-radius:999px!important") && css.includes("box-shadow
 assert(!css.includes(OLD_REVISION), "stylesheet must not retain old identity revision");
 
 const preloads = new Map([
-  ["index.html", `src/brand/robys-compact-master-v1.svg?v=${REVISION}`],
-  ["menu.html", `src/brand/robys-primary-master-v1.svg?v=${REVISION}`],
-  ["discover.html", `src/brand/robys-compact-master-v1.svg?v=${REVISION}`]
+  ["index.html", "src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5"],
+  ["menu.html", "src/brand/robys-primary-smooth-v5.svg?v=20261001-smooth-v5"],
+  ["discover.html", "src/brand/robys-compact-smooth-v5.svg?v=20261001-smooth-v5"]
 ]);
 for (const [path, preload] of preloads) {
   const html = read(path);
   assert(html.includes(`brand-photo-logo.css?v=${REVISION}`), `${path} must link v4 stylesheet`);
-  assert(html.includes(preload), `${path} must preload v4 lockup`);
+  assert(html.includes(preload), `${path} must preload active v5 lockup`);
   assert(!html.includes(OLD_REVISION), `${path} must not retain old identity revision`);
 }
 const sw = read("sw-core-v64.js");
@@ -136,3 +136,6 @@ for (const path of ["docs/instagram-tools.css", "docs/owner-pitch.css", "offline
 }
 
 console.log(`✅ BRAND-IDENTITY-001: ${REVISION} is path-only, white-backed, canonically shared, statically delivered and cache-revisioned.`);
+
+// Keep the original v4 baseline above; additionally verify the active screen refinement.
+await import("./verify-brand-refinement-v5.mjs");

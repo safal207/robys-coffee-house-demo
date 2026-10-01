@@ -4,6 +4,9 @@ import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
+import { synchronizeCatalogImports } from "./menu-catalog-revision.mjs";
+
+const menuCatalogRevision = synchronizeCatalogImports();
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
@@ -18,6 +21,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -29,6 +33,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -40,6 +45,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -51,6 +57,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -62,6 +69,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -73,6 +81,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
+  charset: "utf8", // ES modules are UTF-8; retain localized text without ASCII expansion.
   bundle: true,
   minify: true,
   format: "esm",
@@ -304,6 +313,8 @@ discoverHtml = synchronizeStylesheet(discoverHtml, "discover-rotation.css", disc
 discoverHtml = synchronizeScript(discoverHtml, "discover-rotation-v3.js", discoverRotationRevision);
 writeFileSync("discover.html", discoverHtml);
 
+const pairingPostersRevision = createHash("sha256").update(readFileSync("pairing-posters.js")).digest("hex").slice(0, 12);
+const pairingPostersCssRevision = createHash("sha256").update(readFileSync("pairing-posters.css")).digest("hex").slice(0, 12);
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
@@ -314,6 +325,8 @@ menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevisi
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
 writeFileSync("menu.html", menuHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
@@ -343,6 +356,8 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smart
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+serviceWorker = serviceWorker.replace(/(robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-/, `$1${pairingPostersRevision}-`);
+serviceWorker = serviceWorker.replace(/-brand-v5-(?:catalog-[a-f0-9]{12}-)?/, `-brand-v5-catalog-${menuCatalogRevision}-`);
 for (const { name, target, revision } of landingCacheStyles) {
   serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
   serviceWorker = serviceWorker.replace(
@@ -366,6 +381,9 @@ for (const [filePath, revision] of [
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-catalog.js", menuCatalogRevision],
+  ["pairing-posters.js", pairingPostersRevision],
+  ["pairing-posters.css", pairingPostersCssRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
   ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],

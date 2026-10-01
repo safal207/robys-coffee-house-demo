@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -64,7 +65,8 @@ assert.match(html, /href="discover-deck\.css\?v=[a-f0-9]{12}"/);
 assert.match(html, /src="discover-deck\.js\?v=[a-f0-9]{12}"/);
 
 const source = readFileSync(resolve(root, "discover-deck.js"), "utf8");
-assert.match(source, /menu-catalog\.js\?v=20260904-premium-order-v1/);
+const catalogRevision = createHash("sha256").update(readFileSync(resolve(root, "menu-catalog.js"))).digest("hex").slice(0, 12);
+assert.ok(source.includes(`./menu-catalog.js?v=${catalogRevision}`));
 assert.match(source, /discover-journeys-v2\.js/);
 assert.match(source, /#next-pairing/);
 assert.match(source, /next\.click\(\)/, "Deck preview must delegate selection to existing Discover handler");

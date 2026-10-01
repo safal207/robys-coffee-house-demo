@@ -21,8 +21,8 @@ const journeys = [
   { id: "iced-san-sebastian", contexts: ["day:hot"] }
 ];
 
-function evaluate(discoveredIds) {
-  const context = { result: null };
+function evaluate(discoveredIds, search = "") {
+  const context = { result: null, URLSearchParams, window: { location: { search } } };
   const source = `
     let time = "day";
     let weather = "hot";
@@ -75,3 +75,12 @@ assert(allDiscovered.ids.length === 2, "all-discovered state must retain both ac
 assert(allDiscovered.nextId !== allDiscovered.ids[0], "all-discovered state must still rotate");
 
 console.log("✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.");
+
+// A requested pair is first even when it is already discovered; rotation remains complete.
+const requested = evaluate(["iced-san-sebastian"], "?pair=iced-san-sebastian");
+assert(JSON.stringify(requested.ids) === JSON.stringify(["iced-san-sebastian", "cool-lime-macaron"]), "requested pair must be first exactly once");
+assert(requested.nextId === "cool-lime-macaron", "requested pair must still rotate");
+for (const search of ["?pair=unknown", "?pair=", "?pair=%3Cscript%3E"]) {
+  assert(JSON.stringify(evaluate([], search).ids) === JSON.stringify(fresh.ids), "invalid pair must retain the normal rotation");
+}
+console.log("PASS DISCOVER-ROTATION-001: requested, discovered and unknown deep links preserve the two-pair rotation.");

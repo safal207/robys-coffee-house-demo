@@ -6,6 +6,11 @@ on:
       - "qa/brand/candidate/**"
       - "src/brand/**"
       - "brand-photo-logo.css"
+      - "brand-refinement-v5.css"
+      - "index.html"
+      - "menu.html"
+      - "discover.html"
+      - "scripts/*brand*.mjs"
       - "scripts/verify-robys-approved-identity-v4.mjs"
       - "package.json"
       - ".github/workflows/brand-candidate.yml"
@@ -16,6 +21,11 @@ on:
       - "qa/brand/candidate/**"
       - "src/brand/**"
       - "brand-photo-logo.css"
+      - "brand-refinement-v5.css"
+      - "index.html"
+      - "menu.html"
+      - "discover.html"
+      - "scripts/*brand*.mjs"
       - "scripts/verify-robys-approved-identity-v4.mjs"
       - "package.json"
       - ".github/workflows/brand-candidate.yml"
@@ -32,7 +42,7 @@ jobs:
   verify-brand-identity:
     name: BRAND-IDENTITY-001 approved geometry contract
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,5 +56,21 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Verify approved Roby's identity
-        run: npm run verify:brand-candidate
+      - name: Verify original and refined Roby's identity
+        run: |
+          npm run verify:brand-candidate
+          npm run verify:brand-identity
+
+      - name: Install locked Playwright Chromium
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Verify compact controls and refined logo in the browser
+        run: node scripts/test-brand-refinement-v5.mjs
+
+      - name: Upload brand and language-control evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: brand-refinement-v5-${{ github.sha }}
+          path: visual-results/brand-refinement-v5/
+          if-no-files-found: warn
