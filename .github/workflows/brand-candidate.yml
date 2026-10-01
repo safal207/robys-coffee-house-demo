@@ -56,6 +56,26 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
+      # Temporary PR422 diagnostic. Export only tracked source and locked packages;
+      # never .git, credentials, runner configuration, environment or browser profiles.
+      - name: Package offline reproduction inputs
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 422 && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          mkdir -p "$RUNNER_TEMP/pr422-reproduction"
+          git archive --format=tar HEAD | gzip > "$RUNNER_TEMP/pr422-reproduction/source.tar.gz"
+          tar -czf "$RUNNER_TEMP/pr422-reproduction/locked-node-modules.tar.gz" node_modules
+          git rev-parse HEAD > "$RUNNER_TEMP/pr422-reproduction/checkout-sha.txt"
+          sha256sum package-lock.json > "$RUNNER_TEMP/pr422-reproduction/lock-sha256.txt"
+
+      - name: Upload offline reproduction inputs
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 422 && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pr422-reproduction-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/pr422-reproduction/
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Verify original and refined Roby's identity
         run: |
           npm run verify:brand-candidate
