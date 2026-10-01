@@ -23,7 +23,7 @@ edit('scripts/verify-smart-choice-release.mjs', source => source + '\n// Verify 
 edit('scripts/test-brand-refinement-v5.mjs', source => {
   source = replace(source, "import { chromium } from 'playwright';", "import { chromium } from 'playwright';\nimport { verifyBrandOffline } from './test-brand-offline-v5.mjs';");
   const anchor = '  console.log(`PASS BRAND-REFINEMENT-V5 browser: ${rows.length} language/viewport/page cases`);';
-  return replace(source, anchor, anchor + '\n  await context.close();\n  await verifyBrandOffline(browser, base, output);');
+  return replace(source, anchor, anchor + '\n  await context.close();\n  await verifyBrandOffline(browser, base, output, async () => {\n    server.closeAllConnections();\n    await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));\n  });');
 });
 const assets = ['brand-refinement-v5.css', ...['compact', 'header', 'primary'].map(kind => `src/brand/robys-${kind}-smooth-v5.svg`)];
 edit('sw-core-v64.js', source => {
