@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr-422-brand-v5-compact-language-frame",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/422#issuecomment-5935448455",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "summary": "Owner-requested smooth black lettering and compact TR/EN/RU frame. Inspected the actual baseline/current full-page Discover captures at 320/390px and pairing captures at 320/360/390px. The observed mobile header spacing changes full-page heights by 10px and 6px; the compact frame also moves the sticky header within section captures. Both attempts show exactly the same five deltas. No global threshold, baseline, toolchain or authorization gate is changed. Existing sticky-header overlap in the cropped pairing captures is present on both sides and is not claimed fixed. This records assistant inspection, not independent code review or human release authorization.",
+      "evidence": {
+        "sourceCommit": "a0e0068207dc3006a5d757e4ab5b35f3a0136949",
+        "baselineCommit": "766f515bc22976efa800b1834af7f666acce53e6",
+        "workflowRun": 36888226849,
+        "artifactId": 11176340499,
+        "artifactSha256": "652dde5c58cfcca8e566a36f6ff5666c2c2934197c5fd726b14d01309ae337db",
+        "summarySha256": "86972b11a16ea3674ccd83d52c4c516e0794844e91051cf1bf7de1fcda697917",
+        "comparisons": 43,
+        "rawPassingComparisons": 38,
+        "reviewedDeltas": 5,
+        "identicalFailureSetAcrossAttempts": true,
+        "captures": [
+          {
+            "path": "final/baseline/discover-full__phone-320.png",
+            "sha256": "c55cb44a0f486e538f3ce4c4041ee8a92f7069052821ed15f1347d3dfdef2450"
+          },
+          {
+            "path": "final/current/discover-full__phone-320.png",
+            "sha256": "65530b64efc31449cca3dd6bea7efc3c33cbd10d0a33c47fc9fe2227ed8d8174"
+          },
+          {
+            "path": "final/baseline/discover-pairing__phone-320.png",
+            "sha256": "babf4cf52729d98dbda38a06801791fea7d6e3cb1d7a202e5657c90867965dd0"
+          },
+          {
+            "path": "final/current/discover-pairing__phone-320.png",
+            "sha256": "0c1fd229dc43db84b1825ebe6d01c007fce4151c3e87e02abd2aa238a943872b"
+          },
+          {
+            "path": "final/baseline/discover-pairing__phone-360-short.png",
+            "sha256": "c99fe613e696b916232aa8b009a90b3a97146727aac4708abff908b636657f59"
+          },
+          {
+            "path": "final/current/discover-pairing__phone-360-short.png",
+            "sha256": "21bb7cad095b0ea8b020600a1e5d4b67e2ecc193b9ffe4ed7bb8f8a18e71335b"
+          },
+          {
+            "path": "final/baseline/discover-full__phone-390.png",
+            "sha256": "d0e07912cf471a9660ca8350ac34b978510ad14afee05f7867159bfbd3673702"
+          },
+          {
+            "path": "final/current/discover-full__phone-390.png",
+            "sha256": "ce42014351894c9f6267f279188a7de580a5bc53f18fcb5c88ed71a03abee4f9"
+          },
+          {
+            "path": "final/baseline/discover-pairing__phone-390.png",
+            "sha256": "7f8a00cb62935b8fc1446ffe80d16aa43b4b6b1d08895fafb1dc8501a6cfc581"
+          },
+          {
+            "path": "final/current/discover-pairing__phone-390.png",
+            "sha256": "2899bb569470052e90b94dadb78ec9c17d15355e1f560de43bb1984ea8b370bc"
+          }
+        ]
+      },
+      "contentBindings": {
+        "integrity-manifest.json": "55691b1d6baeefa3961587bd022eb57403a0c9ae",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "brand-refinement-v5.css": "825651ac95fbd6e16162a9cdaac432e52d07cb56",
+        "src/brand/robys-compact-smooth-v5.svg": "9f2b497543d517bb0ed3ee3ebc68ab1b2ad7a1c4",
+        "src/brand/robys-header-smooth-v5.svg": "5cddab70d7ad81246a3ebe22258267d7ac6be619",
+        "src/brand/robys-primary-smooth-v5.svg": "58a10fb3bea0b94b2cf5bacb72dcc2e14412758f",
+        "index.html": "d7e8c729132563f618a317203bbf23c9e1fd561a",
+        "menu.html": "9653ef9488d561c9271e446a2081842b0bd3356a",
+        "discover.html": "ee154d84c6f5463651cc41e11c35194cefb9c6e2",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
+        "package-lock.json": "744df76bef311ebacf5ae105810380cc51881318"
+      },
+      "expectedFailures": [
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x2961 vs 320x2971"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "totalPixels": 232400,
+          "maxDiffPixelRatio": 0.022870052
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-360-short",
+          "totalPixels": 257600,
+          "maxDiffPixelRatio": 0.017170032
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x2940 vs 390x2946"
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "totalPixels": 270900,
+          "maxDiffPixelRatio": 0.007836841
+        }
+      ]
+    }
+  ]
+}
