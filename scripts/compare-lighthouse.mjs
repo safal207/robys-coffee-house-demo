@@ -20,13 +20,15 @@ const outputPath = resolve(argument("output", `lighthouse/reports/${profile}-reg
 
 const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 const summary = readJson(summaryPath);
+if (summary.schema_version !== 2 || !summary.pages || typeof summary.pages !== "object") {
+  throw new Error("Lighthouse summary must use page-scoped schema_version 2");
+}
+
 const budgets = readJson(budgetsPath);
 const targets = readJson(targetsPath);
-const current = summary.values ?? {};
 const baselineDocument = statSync(baselinePath, { throwIfNoEntry: false })?.isFile()
   ? readJson(baselinePath)
   : null;
-const baseline = baselineDocument?.[profile] ?? null;
 const regressionRules = budgets.regression ?? {};
 
 const hardChecks = [];
@@ -44,35 +46,59 @@ const targetModes = {
   total_js_bytes: "max"
 };
 
-for (const [metric, mode] of Object.entries(targetModes)) {
-  const value = Number(current[metric]);
-  const target = Number(targets[profile]?.[metric]);
-  if (!Number.isFinite(value) || !Number.isFinite(target)) continue;
+const baselineStatus = !baselineDocument
+  ? "missing"
+  : baselineDocument.schema_version !== 2
+    ? "legacy-unscoped"
+    : baselineDocument?.[profile]?.pages
+      ? "available"
+      : "missing-profile";
 
-  const missed = mode === "min" ? value < target : value > target;
-  if (missed) targetWarnings.push({ metric, current: value, target, mode });
-}
+const baselineProfile = baselineStatus === "available" ? baselineDocument[profile] : null;
 
-for (const metric of ["total_js_bytes", "hero_file_bytes"]) {
-  const value = Number(current[metric]);
-  const limit = Number(budgets[profile]?.[metric]);
-  const passed = Number.isFinite(value) && Number.isFinite(limit) && value <= limit;
+for (const [page, pageSummary] of Object.entries(summary.pages)) {
+  const current = pageSummary?.values ?? {};
+  for (const [metric, mode] of Object.entries(targetModes)) {
+    const value = Number(current[metric]);
+    const target = Number(targets[profile]?.[metric]);
+    if (!Number.isFinite(value) || !Number.isFinite(target)) continue;
+    const missed = mode === "min" ? value < target : value > target;
+    if (missed) targetWarnings.push({ page, metric, current: value, target, mode });
+  }
+
+  const jsBytes = Number(current.total_js_bytes);
+  const jsLimit = Number(budgets[profile]?.total_js_bytes);
+  const jsPassed = Number.isFinite(jsBytes) && Number.isFinite(jsLimit) && jsBytes <= jsLimit;
   const check = {
-    metric,
-    status: passed ? "pass" : "error",
-    current: Number.isFinite(value) ? value : null,
-    limit: Number.isFinite(limit) ? limit : null,
+    page,
+    metric: "total_js_bytes",
+    status: jsPassed ? "pass" : "error",
+    current: Number.isFinite(jsBytes) ? jsBytes : null,
+    limit: Number.isFinite(jsLimit) ? jsLimit : null,
     kind: "hard-max"
   };
   hardChecks.push(check);
-  if (!passed) violations.push(check);
+  if (!jsPassed) violations.push(check);
 }
 
-function compare(metric, limit, kind) {
-  const now = Number(current[metric]);
-  const before = Number(baseline?.[metric]);
+const heroBytes = Number(summary.shared_values?.hero_file_bytes);
+const heroLimit = Number(budgets[profile]?.hero_file_bytes);
+const heroPassed = Number.isFinite(heroBytes) && Number.isFinite(heroLimit) && heroBytes <= heroLimit;
+const heroHardCheck = {
+  page: null,
+  metric: "hero_file_bytes",
+  status: heroPassed ? "pass" : "error",
+  current: Number.isFinite(heroBytes) ? heroBytes : null,
+  limit: Number.isFinite(heroLimit) ? heroLimit : null,
+  kind: "hard-max"
+};
+hardChecks.push(heroHardCheck);
+if (!heroPassed) violations.push(heroHardCheck);
+
+function compare({ page, metric, now, before, limit, kind }) {
   if (!Number.isFinite(now) || !Number.isFinite(before)) {
     regressionComparisons.push({
+      page,
       metric,
       status: "unavailable",
       current: Number.isFinite(now) ? now : null,
@@ -121,6 +147,7 @@ function compare(metric, limit, kind) {
   }
 
   const result = {
+    page,
     metric,
     status: violated ? "error" : "pass",
     current: now,
@@ -133,22 +160,42 @@ function compare(metric, limit, kind) {
   if (violated) violations.push(result);
 }
 
-if (baseline) {
-  compare("performance", Number(regressionRules.performance_points ?? 3), "score-drop");
-  compare("lcp", Number(regressionRules.lcp_percent ?? 15), "percent-growth");
-  compare("tbt", Number(regressionRules.tbt_percent ?? 15), "percent-growth");
-  compare("cls", Number(regressionRules.cls_absolute ?? 0.02), "absolute-growth");
-  compare("total_js_bytes", Number(regressionRules.total_js_bytes_percent ?? 5), "percent-growth");
-  compare("hero_file_bytes", Number(regressionRules.hero_file_bytes_percent ?? 5), "percent-growth");
+if (baselineStatus === "available") {
+  for (const [page, pageSummary] of Object.entries(summary.pages)) {
+    const baselinePage = baselineProfile.pages?.[page];
+    if (!baselinePage?.values) {
+      const missing = { page, metric: null, status: "error", kind: "missing-baseline-page" };
+      violations.push(missing);
+      continue;
+    }
+    const current = pageSummary.values ?? {};
+    const baseline = baselinePage.values ?? {};
+    compare({ page, metric: "performance", now: Number(current.performance), before: Number(baseline.performance), limit: Number(regressionRules.performance_points ?? 3), kind: "score-drop" });
+    compare({ page, metric: "lcp", now: Number(current.lcp), before: Number(baseline.lcp), limit: Number(regressionRules.lcp_percent ?? 15), kind: "percent-growth" });
+    compare({ page, metric: "tbt", now: Number(current.tbt), before: Number(baseline.tbt), limit: Number(regressionRules.tbt_percent ?? 15), kind: "percent-growth" });
+    compare({ page, metric: "cls", now: Number(current.cls), before: Number(baseline.cls), limit: Number(regressionRules.cls_absolute ?? 0.02), kind: "absolute-growth" });
+    compare({ page, metric: "total_js_bytes", now: Number(current.total_js_bytes), before: Number(baseline.total_js_bytes), limit: Number(regressionRules.total_js_bytes_percent ?? 5), kind: "percent-growth" });
+  }
+
+  compare({
+    page: null,
+    metric: "hero_file_bytes",
+    now: Number(summary.shared_values?.hero_file_bytes),
+    before: Number(baselineProfile.shared_values?.hero_file_bytes),
+    limit: Number(regressionRules.hero_file_bytes_percent ?? 5),
+    kind: "percent-growth"
+  });
 }
 
-const baselineStatus = baseline ? "available" : "missing";
 const report = {
-  schema_version: 1,
+  schema_version: 2,
   profile,
   generated_at: new Date().toISOString(),
   baseline_status: baselineStatus,
-  current,
+  current: {
+    shared_values: summary.shared_values ?? {},
+    pages: summary.pages
+  },
   hard_checks: hardChecks,
   target_warnings: targetWarnings,
   regression_comparisons: regressionComparisons,
