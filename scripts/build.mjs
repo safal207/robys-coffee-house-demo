@@ -231,6 +231,11 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
+const pairingPostersRevision = revisionFor("pairing-posters.js");
+// Publish pairing visual CSS under a fresh pathname so returning clients still
+// controlled by the pre-migration worker cannot ignore the new query revision.
+writeFileSync("pairing-posters-v2.css", readFileSync("pairing-posters.css"));
+const pairingPostersCssRevision = revisionFor("pairing-posters-v2.css");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
 const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
 const discoverDeckRevision = revisionFor("discover-deck.js");
@@ -306,14 +311,17 @@ writeFileSync("discover.html", discoverHtml);
 
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
+menuHtml = menuHtml.replace('href="pairing-posters.css', 'href="pairing-posters-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters-v2.css", pairingPostersCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
 writeFileSync("menu.html", menuHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
@@ -351,6 +359,7 @@ for (const { name, target, revision } of landingCacheStyles) {
   );
 }
 serviceWorker = serviceWorker.replace('"./menu-stability.css', '"./menu-stability-v2.css');
+serviceWorker = serviceWorker.replace('"./pairing-posters.css', '"./pairing-posters-v2.css');
 serviceWorker = synchronizeServiceWorker(
   serviceWorker,
   discoverRuntimeRevision,
@@ -369,6 +378,8 @@ for (const [filePath, revision] of [
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
   ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],
+  ["pairing-posters-v2.css", pairingPostersCssRevision],
+  ["pairing-posters.js", pairingPostersRevision],
   ["discover-deck.css", discoverDeckCssRevision],
   ["discover-deck.js", discoverDeckRevision],
   ["conversion.js", conversionRevision],
@@ -396,7 +407,7 @@ writeFileSync("sw-core-v64.js", serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +
-  `menu-security-v2.css (${menuSecurityRevision}), ` +
+  `menu-security-v2.css (${menuSecurityRevision}), pairing-posters.js (${pairingPostersRevision}), pairing-posters.css (${pairingPostersCssRevision}), ` +
   `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
   `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +

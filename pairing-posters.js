@@ -72,6 +72,7 @@ const experienceCopy = {
 };
 
 const DISCOVERED_KEY = "robys-inline-discovered-pairings";
+let activeDiscoveryTrigger = null;
 
 function currentLanguage() {
   const lang = document.documentElement.lang;
@@ -133,7 +134,13 @@ function enhancePairingCards() {
     const price = card.querySelector(".full-menu-price")?.textContent?.trim() ?? "";
     const pairingId = card.dataset.pairing ?? "";
     const renderKey = `${lang}|${name}|${price}|${pairingId}`;
-    if (!media || !name || !price || card.dataset.posterReady === renderKey) return;
+    if (!media || !name || !price) return;
+    if (activeDiscoveryTrigger && !activeDiscoveryTrigger.isConnected) activeDiscoveryTrigger = null;
+    if (!card.classList.contains("is-selected")) {
+      media.setAttribute("aria-expanded", "false");
+      media.removeAttribute("aria-controls");
+    }
+    if (card.dataset.posterReady === renderKey) return;
 
     card.classList.add("pairing-poster-card");
     media.dataset.discoverPairing = pairingId;
@@ -173,11 +180,19 @@ function enhancePairingCards() {
   });
 }
 
-function removeExperiencePanel() {
+function removeExperiencePanel({ restoreFocus = false } = {}) {
+  const returnTarget = activeDiscoveryTrigger;
   document.querySelector(".pairing-discovery-panel")?.remove();
   document.querySelectorAll(".pairing-poster-card.is-selected").forEach((card) => {
     card.classList.remove("is-selected");
+    const trigger = card.querySelector(".full-menu-item-media[data-discover-pairing]");
+    trigger?.setAttribute("aria-expanded", "false");
+    trigger?.removeAttribute("aria-controls");
   });
+  activeDiscoveryTrigger = null;
+  if (restoreFocus && returnTarget?.isConnected) {
+    window.requestAnimationFrame(() => returnTarget.focus({ preventScroll: true }));
+  }
 }
 
 function renderExperience(card, media) {
@@ -192,11 +207,14 @@ function renderExperience(card, media) {
   const discovered = readDiscovered();
 
   removeExperiencePanel();
+  activeDiscoveryTrigger = media;
   card.classList.add("is-selected");
 
   const panel = document.createElement("section");
   panel.className = "pairing-discovery-panel";
   panel.dataset.pairingId = pairingId;
+  panel.id = `pairing-discovery-${pairingId || "selection"}`;
+  panel.setAttribute("role", "region");
   panel.setAttribute("aria-live", "polite");
 
   const top = document.createElement("div");
@@ -214,7 +232,11 @@ function renderExperience(card, media) {
   label.textContent = copy.label;
 
   const title = document.createElement("h3");
+  title.id = `${panel.id}-title`;
   title.textContent = name;
+  panel.setAttribute("aria-labelledby", title.id);
+  media.setAttribute("aria-expanded", "true");
+  media.setAttribute("aria-controls", panel.id);
 
   const priceEl = document.createElement("strong");
   priceEl.className = "pairing-discovery-price";
@@ -278,7 +300,7 @@ function renderExperience(card, media) {
   close.type = "button";
   close.className = "pairing-discovery-close";
   close.textContent = copy.close;
-  close.addEventListener("click", removeExperiencePanel);
+  close.addEventListener("click", () => removeExperiencePanel({ restoreFocus: true }));
 
   actions.append(choose, mark, close);
   panel.append(top, story, actions);
@@ -326,4 +348,11 @@ if (menuRoot) {
     const card = trigger.closest(".pairing-poster-card");
     if (card) renderExperience(card, trigger);
   }, true);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.defaultPrevented || event.key !== "Escape" || !document.querySelector(".pairing-discovery-panel")) return;
+    if (document.querySelector(".menu-dialog[open]")) return;
+    event.preventDefault();
+    removeExperiencePanel({ restoreFocus: true });
+  });
 }
