@@ -350,7 +350,7 @@ if (menuRoot) {
   }, true);
 
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || !document.querySelector(".pairing-discovery-panel")) return;
+    if (event.defaultPrevented || event.key !== "Escape" || !document.querySelector(".pairing-discovery-panel")) return;
     if (document.querySelector(".menu-dialog[open]")) return;
     event.preventDefault();
     removeExperiencePanel({ restoreFocus: true });
