@@ -12,6 +12,8 @@
 }
 
 .full-menu-panel--featured .full-menu-list {
+  min-width: 0;
+  max-width: 100%;
   align-items: stretch;
 }
 
@@ -19,6 +21,8 @@
   position: relative;
   display: block;
   overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
   min-height: 0;
   background: #1c1411;
   border: 1px solid rgba(181, 147, 73, .38);
@@ -30,6 +34,14 @@
 .full-menu-item--visual.pairing-poster-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 28px 66px rgba(36, 28, 27, .22);
+}
+
+.full-menu-item--visual.pairing-poster-card:focus-within {
+  border-color: #8b5d18;
+  box-shadow:
+    0 0 0 3px #fffaf3,
+    0 0 0 6px rgba(139, 93, 24, .88),
+    0 28px 66px rgba(36, 28, 27, .22);
 }
 
 .full-menu-item--visual.pairing-poster-card .full-menu-item-media {
@@ -97,20 +109,24 @@
 
 .pairing-poster-title {
   align-self: center;
-  max-width: 78%;
+  min-width: 0;
+  max-width: 64%;
   text-shadow: 0 8px 26px rgba(0, 0, 0, .45);
 }
 
 .pairing-poster-title-main,
 .pairing-poster-title-accent {
   display: block;
+  max-width: 100%;
   font-family: var(--display);
   font-weight: 500;
-  line-height: .88;
+  line-height: .94;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .pairing-poster-title-main {
-  font-size: clamp(2.7rem, 7vw, 6.4rem);
+  font-size: clamp(2.2rem, 4.2vw, 4.8rem);
 }
 
 .pairing-poster-title-plus {
@@ -122,7 +138,7 @@
 
 .pairing-poster-title-accent {
   color: #d9d08f;
-  font-size: clamp(2.15rem, 5.8vw, 5.4rem);
+  font-size: clamp(1.95rem, 3.7vw, 4.15rem);
 }
 
 .pairing-poster-price {
@@ -157,9 +173,11 @@
 
 .pairing-poster-bottom {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 232, 171, .28);
   color: #f6d873;
@@ -167,6 +185,11 @@
   letter-spacing: .12em;
   text-align: center;
   text-transform: uppercase;
+}
+
+.pairing-poster-bottom span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .pairing-poster-bottom span + span::before {
@@ -260,15 +283,19 @@
   grid-column: 1 / -1;
   display: grid;
   gap: 22px;
-  margin-top: 2px;
+  margin-top: 4px;
   padding: clamp(22px, 4vw, 36px);
   color: #2f2725;
   background:
-    radial-gradient(circle at 92% 8%, rgba(212, 175, 92, .2), transparent 32%),
-    linear-gradient(145deg, #fffaf3 0%, #f8efe2 100%);
-  border: 1px solid rgba(181, 147, 73, .32);
+    radial-gradient(circle at 92% 8%, rgba(212, 175, 92, .24), transparent 32%),
+    linear-gradient(145deg, #fffaf3 0%, #f6ead9 100%);
+  border: 2px solid rgba(154, 109, 35, .32);
+  border-left-width: 5px;
   border-radius: 24px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .78),
+    0 18px 42px rgba(72, 47, 28, .1);
+  scroll-margin-block: 18px;
 }
 
 .pairing-discovery-top {
