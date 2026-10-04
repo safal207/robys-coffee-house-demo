@@ -231,6 +231,8 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
 const menuAppRevision = revisionFor("menu-app.js");
+const pairingPostersRevision = revisionFor("pairing-posters.js");
+const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
 const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
 const discoverDeckRevision = revisionFor("discover-deck.js");
@@ -312,8 +314,10 @@ menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityR
 menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
 writeFileSync("menu.html", menuHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
@@ -369,6 +373,8 @@ for (const [filePath, revision] of [
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
   ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],
+  ["pairing-posters.css", pairingPostersCssRevision],
+  ["pairing-posters.js", pairingPostersRevision],
   ["discover-deck.css", discoverDeckCssRevision],
   ["discover-deck.js", discoverDeckRevision],
   ["conversion.js", conversionRevision],
@@ -396,7 +402,7 @@ writeFileSync("sw-core-v64.js", serviceWorker);
 
 console.log(
   `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +
-  `menu-security-v2.css (${menuSecurityRevision}), ` +
+  `menu-security-v2.css (${menuSecurityRevision}), pairing-posters.js (${pairingPostersRevision}), pairing-posters.css (${pairingPostersCssRevision}), ` +
   `Smart Choice app-v2.js (${smartChoiceAppRevision}), ` +
   `Smart Choice cart-v2.js (${smartChoiceCartRevision}), Smart Choice experiments-v2.js (${smartChoiceExperimentsRevision}), ` +
   `Smart Choice analytics-v2.js (${smartChoiceAnalyticsRevision}), Smart Choice decision-trace-v2.js (${smartChoiceDecisionTraceRevision}), ` +
