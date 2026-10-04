@@ -12,6 +12,9 @@ const menuData = readFileSync("menu-catalog.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
 const pairingRuntime = readFileSync("pairing-posters.js", "utf8");
 const pairingCss = readFileSync("pairing-posters.css", "utf8");
+const menuHtml = readFileSync("menu.html", "utf8");
+const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+const buildScript = readFileSync("scripts/build.mjs", "utf8");
 
 function verifyAnalyticsBehavior() {
   const windowListeners = new Map();
@@ -107,6 +110,15 @@ assert.match(pairingCss, /\.pairing-poster-title-main,[\s\S]*?overflow-wrap: any
 assert.match(pairingCss, /\.pairing-poster-bottom\s*\{[\s\S]*?flex-wrap: wrap;/, "pairing taste chips must wrap instead of overflowing");
 assert.match(pairingCss, /\.full-menu-item--visual\.pairing-poster-card:focus-within/, "pairing cards need a high-contrast keyboard focus state");
 assert.match(pairingCss, /\.pairing-discovery-panel\s*\{[\s\S]*?border-left-width: 5px;/, "inline discovery must be visually distinct without pretending to be a modal");
+assert.match(menuHtml, /pairing-posters\.css\?v=[a-f0-9]{12}/, "menu must publish a content revision for pairing CSS");
+assert.match(menuHtml, /pairing-posters\.js\?v=[a-f0-9]{12}/, "menu must publish a content revision for pairing runtime");
+assert.match(serviceWorker, /"\.\/pairing-posters\.css\?v=[a-f0-9]{12}"/, "offline cache must include the revised pairing CSS");
+assert.match(serviceWorker, /"\.\/pairing-posters\.js\?v=[a-f0-9]{12}"/, "offline cache must include the revised pairing runtime");
+assert.match(serviceWorker, /url\.pathname\.endsWith\("\/pairing-posters\.css"\)/, "pairing CSS cache lookup must require the exact revision");
+assert.match(buildScript, /synchronizeStylesheet\(menuHtml, "pairing-posters\.css", pairingPostersCssRevision\)/, "build must keep pairing CSS cache-busting synchronized");
+assert.match(buildScript, /synchronizeModuleScript\(menuHtml, "pairing-posters\.js", pairingPostersRevision\)/, "build must keep pairing JS cache-busting synchronized");
+assert.match(buildScript, /\["pairing-posters\.css", pairingPostersCssRevision\]/, "build must synchronize pairing CSS in the service worker");
+assert.match(buildScript, /\["pairing-posters\.js", pairingPostersRevision\]/, "build must synchronize pairing JS in the service worker");
 
 assert.match(index, /<section class="section visit-section" id="visit">[\s\S]*google\.com\/maps\/dir\//);
 assert.match(index, /<nav class="mobile-cta"[\s\S]*google\.com\/maps\/dir\//);
