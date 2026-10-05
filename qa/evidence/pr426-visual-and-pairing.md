@@ -4,7 +4,7 @@
 
 - Inspected source head: `1f8bebf1d8352114750e04869d9f3c8f8db91a3e`.
 - Exact baseline: `fbda46da5e267de07e45202edeb9c35ff220fd93`.
-- Visual run: https://github.com/safal207/robys-coffee-house-demo/actions/runs/37311566759
+- Visual run: [37311566759](https://github.com/safal207/robys-coffee-house-demo/actions/runs/37311566759)
 - Artifact: `visual-ui-ux-37311566759`, ID `11345822648`.
 - ZIP SHA256: `01763b558722579da484111dda2cd07394ab54c7f96ad15990923460bb0c42db`.
 - Both preserved attempts report the same seven failures among 43 comparisons; locked toolchain unchanged.
@@ -64,6 +64,6 @@ A separate browser geometry probe confirms identical share text, card/copy width
 
 The initial artifact is historical defect evidence. It cannot approve the repaired UI. The single record `qa/reviewed-visual-changes.d/pr426-pairing-discovery-reviewed.json` covers only the inspected repaired local captures, 23 exact content bindings and their nine-comparison failure set. Its pixel-ratio limits are the actual observed ratios, with no added margin; full-page dimension reasons and crop pixel totals must match exactly. The unchanged verifier accepts the exact inspected set. Six isolated negative controls reject changed bound CSS, an additional comparison, one extra changed share pixel, changed full-page dimensions, changed crop pixel totals, and duplicate matching records; see `pr426-visual-record-negative-controls.json`. Global thresholds, toolchain and workflow privileges remain unchanged. Assistant visual inspection is explicitly not an independent human approval or release attestation.
 
-The reviewed local evidence archive is `pr426-reviewed-visual-captures-fc72f89.zip` (25,373,760 bytes), SHA256 `007425fc5240012b00c2aa1abaefd32ebd7a2e24b9f19c165b283f48d15858dd`. It includes raw baseline/current/diff frames, paired inspection images, the comparison summary, source/capture hashes and share geometry. Inspection provenance: https://github.com/safal207/robys-coffee-house-demo/pull/426#issuecomment-6002667291. These captures are not represented as CI output. The first source-head CI Visual attempt was cancelled without any recorded step, log or artifact; its targeted rerun was requested.
+The reviewed local evidence archive is `pr426-reviewed-visual-captures-fc72f89.zip` (25,373,760 bytes), SHA256 `007425fc5240012b00c2aa1abaefd32ebd7a2e24b9f19c165b283f48d15858dd`. It includes raw baseline/current/diff frames, paired inspection images, the comparison summary, source/capture hashes and share geometry. [Inspection provenance](https://github.com/safal207/robys-coffee-house-demo/pull/426#issuecomment-6002667291). These captures are not represented as CI output. The first source-head CI Visual attempt was cancelled without any recorded step, log or artifact; its targeted rerun was requested.
 
 Final-head remote CI evidence is recorded separately in the PR description after execution. Draft status remains unchanged; no merge or deployment is authorized by this evidence.
