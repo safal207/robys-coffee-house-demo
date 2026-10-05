@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { verifyPairingDiscovery } from "./test-pairing-discovery-browser.mjs";
 
 const PORT = Number(process.env.ADVERSARIAL_PORT ?? 4177);
 const BASE_URL = `http://127.0.0.1:${PORT}/`;
@@ -158,7 +159,7 @@ try {
   check("ADV-001", !hashResult.injected, "Markup-like URL fragment does not become DOM", hashResult);
 
   await menu.locator("#menu-search").fill("");
-  await menu.locator(".full-menu-item-media").first().click();
+  await menu.locator(".full-menu-item--product .full-menu-item-media").first().click();
   await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
   await menu.locator("#menu-add-to-cart").click();
   await menu.locator("#menu-cart-trigger").click();
@@ -190,7 +191,7 @@ try {
   fallbackMenu.on("pageerror", (error) => fallbackErrors.push(error.message));
   try {
     await fallbackMenu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
-    await fallbackMenu.locator("#menu-root .full-menu-item-media").first().waitFor({ state: "visible" });
+    await fallbackMenu.locator("#menu-root .full-menu-item--product .full-menu-item-media").first().waitFor({ state: "visible" });
     const initiallyHidden = await fallbackMenu.locator("#menu-product-dialog").evaluate(
       (dialog) => getComputedStyle(dialog).display === "none" && !dialog.hasAttribute("open")
     );
@@ -199,7 +200,7 @@ try {
         Object.defineProperty(dialog, "showModal", { configurable: true, value: undefined });
       });
     });
-    const opener = fallbackMenu.locator("#menu-root .full-menu-item-media").first();
+    const opener = fallbackMenu.locator("#menu-root .full-menu-item--product .full-menu-item-media").first();
     await opener.click();
     await fallbackMenu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
     await fallbackMenu.waitForTimeout(50);
@@ -244,6 +245,8 @@ try {
   } finally {
     await fallbackMenu.close().catch(() => {});
   }
+
+  await verifyPairingDiscovery(context, BASE_URL, check);
 
   const smartChoice = await context.newPage();
   smartChoice.setDefaultTimeout(7_000);
