@@ -1,0 +1,50 @@
+{
+  "kind": "local verifier controls in isolated temporary copies; repository inputs unchanged",
+  "sourceHead": "fc72f89cd4e7c05a309d55e4925212dd14364ce3",
+  "recordBlobSha": "98bf05244a15bbc4cc59298b9e5dae9e684b4354",
+  "captureSummarySha256": "ba6ae2b25c84ea9821ae3d8a18c67d8408451ee9d3c8d94af8f7c8f774be03dc",
+  "controls": [
+    {
+      "name": "Exact reviewed content and complete nine-comparison failure set",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "name": "Changed bound poster content",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "name": "Additional unreviewed comparison",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "name": "One additional changed share pixel beyond the observed ratio",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "name": "Different full-page dimension reason",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "name": "Different share crop pixel total",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    },
+    {
+      "name": "Two matching records instead of exactly one",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true
+    }
+  ]
+}
