@@ -3,7 +3,7 @@ name: Refresh integrity manifest
 on:
   workflow_dispatch:
   push:
-    branches: [main, fix/pairing-offers-qa-20261005]
+    branches: [main]
     paths-ignore:
       - "integrity-manifest.json"
 
@@ -11,24 +11,27 @@ permissions:
   contents: write
 
 concurrency:
-  group: refresh-integrity-${{ github.ref }}
+  group: refresh-integrity-main
   cancel-in-progress: true
 
 jobs:
   refresh:
-    if: github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
       - run: npm ci
       - run: npm run integrity:generate
+
       - name: Commit refreshed manifest
         run: |
           if git diff --quiet -- integrity-manifest.json; then
@@ -40,6 +43,7 @@ jobs:
           git add integrity-manifest.json
           git commit -m "chore: refresh integrity manifest"
           git push
+
       - name: Wait for refreshed GitHub Pages publication
         run: |
           local_build="$(node -e 'const m=require("./integrity-manifest.json"); process.stdout.write(m.build)')"
@@ -63,8 +67,10 @@ jobs:
           done
           echo "GitHub Pages did not publish the refreshed manifest in time"
           exit 1
+
       - name: Verify refreshed public digests
         run: node scripts/verify-live-integrity.mjs
+
       - name: Upload refreshed integrity evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -73,73 +79,3 @@ jobs:
           path: .artifacts/live-integrity-report.json
           if-no-files-found: warn
           retention-days: 30
-
-  repair-pr426:
-    if: github.ref == 'refs/heads/fix/pairing-offers-qa-20261005' && github.actor == 'safal207'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Apply reviewed repair and restore original workflow before acceptance
-        run: |
-          test "$(git hash-object scripts/build.mjs)" = 3b60700bb2ff40759abc1787ae5eb744a3697705
-          test "$(git hash-object scripts/test-discover-pairing-rotation.mjs)" = bc8bd19d553f9ec1f5bb907e43817a3647ba7b34
-          test "$(git hash-object scripts/test-smart-choice-encoding.mjs)" = 4efadc7a1330242607384c847338de7f3df15417
-          git apply --check qa/pr426-source-fix.patch
-          git apply qa/pr426-source-fix.patch
-          git show 95a3708efc79b25e92fb59dec3841468a9c39fc4:.github/workflows/refresh-integrity.yml > .github/workflows/refresh-integrity.yml
-          test "$(git hash-object .github/workflows/refresh-integrity.yml)" = e2a008a7ed4e8aac4eadb4b0e32f618d00d8a2b8
-          rm qa/pr426-source-fix.patch
-      - run: npm ci --no-audit --no-fund
-      - name: Ensure ffprobe
-        run: |
-          if ! command -v ffprobe >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
-          fi
-      - name: Rebuild and run complete acceptance
-        run: |
-          set -o pipefail
-          mkdir -p .artifacts/pr426-repair
-          npm run build 2>&1 | tee .artifacts/pr426-repair/build.log
-          npm run integrity:generate 2>&1 | tee .artifacts/pr426-repair/integrity.log
-          npm run check 2>&1 | tee .artifacts/pr426-repair/check.log
-          npm run verify:security 2>&1 | tee .artifacts/pr426-repair/security.log
-      - name: Commit only reviewed sources and regenerated assets to PR branch
-        env:
-          EXPECTED_HEAD: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          branch='fix/pairing-offers-qa-20261005'
-          remote_head="$(git ls-remote origin "refs/heads/$branch" | cut -f1)"
-          test "$remote_head" = "$EXPECTED_HEAD"
-          allowed=(scripts/build.mjs scripts/test-discover-pairing-rotation.mjs discover.html integrity-manifest.json menu-app.js menu.html smart-choice/analytics-v2.js smart-choice/app-v2.js smart-choice/cart-v2.js smart-choice/decision-trace-v2.js smart-choice/experiments-v2.js smart-choice/index.html smart-choice/release-qa.js smart-choice/simulator-v2.js smart-choice/simulator.html sw-core-v64.js .github/workflows/refresh-integrity.yml qa/pr426-source-fix.patch)
-          while IFS= read -r changed; do
-            ok=false
-            for candidate in "${allowed[@]}"; do
-              if [ "$changed" = "$candidate" ]; then ok=true; break; fi
-            done
-            "$ok" || { echo "Unexpected generated change: $changed"; exit 1; }
-          done < <(git diff --name-only)
-          git add -- "${allowed[@]}"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'fix(build): preserve UTF-8 literals, repair rotation harness and synchronize cache artifacts'
-          git push origin "HEAD:refs/heads/$branch"
-          git rev-parse HEAD > .artifacts/pr426-repair/committed-head.txt
-          git show --stat --oneline HEAD > .artifacts/pr426-repair/commit.txt
-      - name: Upload repair evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr426-build-repair-${{ github.sha }}
-          path: .artifacts/pr426-repair/
-          retention-days: 14
-          if-no-files-found: warn
