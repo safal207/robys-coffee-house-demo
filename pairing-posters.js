@@ -1,7 +1,7 @@
 const priceMeta = {
   "cool-lime-macaron": {
     chips: {
-      tr: ["Fresh lime", "Fıstıklı makaron", "Perfect match"],
+      tr: ["Taze lime", "Fıstıklı makaron", "Uyumlu ikili"],
       en: ["Fresh lime", "Pistachio macaron", "Perfect match"],
       ru: ["Лайм", "Фисташковый макарон", "Лёгкая пара"]
     },
@@ -18,7 +18,7 @@ const priceMeta = {
   },
   "iced-san-sebastian": {
     chips: {
-      tr: ["Iced latte", "San Sebastian", "Creamy moment"],
+      tr: ["Buzlu latte", "San Sebastian", "Kremamsı uyum"],
       en: ["Iced latte", "San Sebastian", "Creamy moment"],
       ru: ["Айс-латте", "San Sebastian", "Сливочная пара"]
     },
@@ -38,6 +38,7 @@ const priceMeta = {
 const experienceCopy = {
   tr: {
     eyebrow: "LEZZETLE TANIŞ",
+    kicker: "LEZZET YOLCULUĞU",
     label: "Seçtiğin eşleşme",
     why: "Neden birlikte güzel?",
     notes: "Tatta ne var?",
@@ -49,6 +50,7 @@ const experienceCopy = {
   },
   en: {
     eyebrow: "DISCOVER THE TASTE",
+    kicker: "TASTE JOURNEY",
     label: "Your pairing",
     why: "Why does it work?",
     notes: "What will you taste?",
@@ -60,6 +62,7 @@ const experienceCopy = {
   },
   ru: {
     eyebrow: "ЗНАКОМСТВО СО ВКУСОМ",
+    kicker: "ПУТЕШЕСТВИЕ ВКУСА",
     label: "Твоя пара",
     why: "Почему они вместе?",
     notes: "Что почувствуешь?",
@@ -99,8 +102,8 @@ function splitPairingTitle(title) {
   return [parts[0], parts.slice(1).join(" + ")];
 }
 
-function posterKicker() {
-  return "TASTE JOURNEY";
+function posterKicker(lang) {
+  return (experienceCopy[lang] ?? experienceCopy.tr).kicker;
 }
 
 function createTitle(main, accent) {
@@ -138,6 +141,7 @@ function enhancePairingCards() {
     card.classList.add("pairing-poster-card");
     media.dataset.discoverPairing = pairingId;
     media.setAttribute("aria-label", `${copy.open}: ${name}`);
+    media.setAttribute("aria-expanded", "false");
     media.setAttribute("title", copy.open);
     media.querySelector(".pairing-poster-overlay")?.remove();
 
@@ -151,7 +155,7 @@ function enhancePairingCards() {
 
     const kicker = document.createElement("span");
     kicker.className = "pairing-poster-kicker";
-    kicker.textContent = posterKicker();
+    kicker.textContent = posterKicker(lang);
 
     const priceBadge = document.createElement("div");
     priceBadge.className = "pairing-poster-price";
@@ -173,11 +177,21 @@ function enhancePairingCards() {
   });
 }
 
-function removeExperiencePanel() {
+function removeExperiencePanel({ restoreFocus = false } = {}) {
+  const selectedCard = document.querySelector(".pairing-poster-card.is-selected");
+  const trigger = selectedCard?.querySelector(".full-menu-item-media[data-discover-pairing]") ?? null;
+
   document.querySelector(".pairing-discovery-panel")?.remove();
   document.querySelectorAll(".pairing-poster-card.is-selected").forEach((card) => {
     card.classList.remove("is-selected");
+    const cardTrigger = card.querySelector(".full-menu-item-media[data-discover-pairing]");
+    cardTrigger?.setAttribute("aria-expanded", "false");
+    cardTrigger?.removeAttribute("aria-controls");
   });
+
+  if (restoreFocus && trigger instanceof HTMLElement) {
+    trigger.focus({ preventScroll: true });
+  }
 }
 
 function renderExperience(card, media) {
@@ -196,8 +210,11 @@ function renderExperience(card, media) {
 
   const panel = document.createElement("section");
   panel.className = "pairing-discovery-panel";
+  panel.id = `pairing-discovery-${pairingId}`;
   panel.dataset.pairingId = pairingId;
   panel.setAttribute("aria-live", "polite");
+  media.setAttribute("aria-expanded", "true");
+  media.setAttribute("aria-controls", panel.id);
 
   const top = document.createElement("div");
   top.className = "pairing-discovery-top";
@@ -278,7 +295,7 @@ function renderExperience(card, media) {
   close.type = "button";
   close.className = "pairing-discovery-close";
   close.textContent = copy.close;
-  close.addEventListener("click", removeExperiencePanel);
+  close.addEventListener("click", () => removeExperiencePanel({ restoreFocus: true }));
 
   actions.append(choose, mark, close);
   panel.append(top, story, actions);
