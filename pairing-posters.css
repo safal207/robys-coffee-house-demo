@@ -462,3 +462,61 @@
     height: 80px;
   }
 }
+
+
+/* QA-20261005: pairing layout, focus and inline-discovery clarity */
+.full-menu-panel--featured .full-menu-list,
+.full-menu-item--visual.pairing-poster-card,
+.full-menu-item--visual.pairing-poster-card .full-menu-item-media {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pairing-poster-title {
+  min-width: 0;
+  max-width: calc(100% - clamp(118px, 30%, 170px));
+}
+
+.pairing-poster-title-main,
+.pairing-poster-title-accent {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: balance;
+}
+
+@media (min-width: 681px) {
+  .pairing-poster-title-main {
+    font-size: clamp(2.5rem, 4.2vw, 4.6rem);
+  }
+
+  .pairing-poster-title-accent {
+    font-size: clamp(2.15rem, 3.8vw, 4rem);
+  }
+}
+
+.full-menu-item--visual.pairing-poster-card:focus-within {
+  border-color: rgba(239, 208, 109, .96);
+  box-shadow:
+    0 0 0 4px rgba(239, 208, 109, .34),
+    0 28px 66px rgba(36, 28, 27, .22);
+}
+
+.pairing-discovery-panel {
+  border-color: rgba(181, 147, 73, .5);
+  box-shadow:
+    0 20px 52px rgba(36, 28, 27, .14),
+    inset 0 1px 0 rgba(255, 255, 255, .78);
+}
+
+@media (max-width: 680px) {
+  .pairing-poster-title {
+    max-width: calc(100% - 96px);
+  }
+}
+
+@media (max-width: 390px) {
+  .pairing-poster-title {
+    max-width: calc(100% - 86px);
+  }
+}
