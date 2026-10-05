@@ -3,6 +3,7 @@ import "./verify-pairing-cta-static.mjs";
 import "./verify-pairing-catalog-parity.mjs";
 import "./verify-menu-truth-live.mjs";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -10,6 +11,12 @@ const analytics = readFileSync("analytics.js", "utf8");
 const index = readFileSync("index.html", "utf8");
 const menuData = readFileSync("menu-catalog.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
+const menuHtml = readFileSync("menu.html", "utf8");
+const pairingRuntime = readFileSync("pairing-posters.js", "utf8");
+const pairingCss = readFileSync("pairing-posters.css", "utf8");
+const buildScript = readFileSync("scripts/build.mjs", "utf8");
+const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+const revisionFor = (content) => createHash("sha256").update(content).digest("hex").slice(0, 12);
 
 function verifyAnalyticsBehavior() {
   const windowListeners = new Map();
@@ -92,7 +99,21 @@ assert.match(menuRuntime, /window\.location\.hash\.slice\(1\)/);
 assert.match(menuRuntime, /menuCategories\.some\(\(category\) => category\.id === requested\)/);
 assert.match(menuRuntime, /document\.querySelector\("\.full-menu-wrap"\)\?\.scrollIntoView/);
 
+const pairingRuntimeRevision = revisionFor(pairingRuntime);
+const pairingCssRevision = revisionFor(pairingCss);
+assert.match(menuHtml, new RegExp(`pairing-posters\\.js\\?v=${pairingRuntimeRevision}`), "menu HTML must revision the pairing runtime");
+assert.match(menuHtml, new RegExp(`pairing-posters\\.css\\?v=${pairingCssRevision}`), "menu HTML must revision the pairing stylesheet");
+assert.match(buildScript, /const pairingPostersRevision = revisionFor\("pairing-posters\.js"\)/);
+assert.match(buildScript, /const pairingPostersCssRevision = revisionFor\("pairing-posters\.css"\)/);
+assert.match(serviceWorker, new RegExp(`\\./pairing-posters\\.js\\?v=${pairingRuntimeRevision}`), "offline cache must pin pairing runtime revision");
+assert.match(serviceWorker, new RegExp(`\\./pairing-posters\\.css\\?v=${pairingCssRevision}`), "offline cache must pin pairing stylesheet revision");
+assert.match(serviceWorker, /url\.pathname\.endsWith\("\/pairing-posters\.css"\)/, "pairing stylesheet cache must require exact revision");
+assert.match(pairingRuntime, /media\.setAttribute\("aria-expanded", "false"\)/, "pairing trigger must expose collapsed state");
+assert.match(pairingRuntime, /removeExperiencePanel\(\{ restoreFocus: true \}\)/, "closing discovery must return keyboard focus");
+assert.match(pairingCss, /\.pairing-poster-card \.full-menu-item-media:focus-visible/, "pairing trigger must have a visible keyboard focus state");
+assert.match(pairingCss, /content: "→"/, "pairing card must expose a visible action affordance");
+
 assert.match(index, /<section class="section visit-section" id="visit">[\s\S]*google\.com\/maps\/dir\//);
 assert.match(index, /<nav class="mobile-cta"[\s\S]*google\.com\/maps\/dir\//);
 
-console.log("✅ PAIRING-CTA-001: behavior proves one pairing_click event, analytics leaves localization untouched, and the customer path remains intact.");
+console.log("✅ PAIRING-CTA-001: CTA behavior, pairing accessibility, cache revisions and the customer path remain intact.");
