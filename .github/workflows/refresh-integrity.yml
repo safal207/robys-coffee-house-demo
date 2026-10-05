@@ -23,15 +23,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - run: npm ci
       - run: npm run integrity:generate
-
       - name: Commit refreshed manifest
         run: |
           if git diff --quiet -- integrity-manifest.json; then
@@ -43,7 +40,6 @@ jobs:
           git add integrity-manifest.json
           git commit -m "chore: refresh integrity manifest"
           git push
-
       - name: Wait for refreshed GitHub Pages publication
         run: |
           local_build="$(node -e 'const m=require("./integrity-manifest.json"); process.stdout.write(m.build)')"
@@ -67,10 +63,8 @@ jobs:
           done
           echo "GitHub Pages did not publish the refreshed manifest in time"
           exit 1
-
       - name: Verify refreshed public digests
         run: node scripts/verify-live-integrity.mjs
-
       - name: Upload refreshed integrity evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -93,13 +87,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Apply reviewed exact-source repair
+      - name: Apply reviewed repair and restore original workflow before acceptance
         run: |
           test "$(git hash-object scripts/build.mjs)" = 3b60700bb2ff40759abc1787ae5eb744a3697705
           test "$(git hash-object scripts/test-discover-pairing-rotation.mjs)" = bc8bd19d553f9ec1f5bb907e43817a3647ba7b34
           test "$(git hash-object scripts/test-smart-choice-encoding.mjs)" = 4efadc7a1330242607384c847338de7f3df15417
           git apply --check qa/pr426-source-fix.patch
           git apply qa/pr426-source-fix.patch
+          git show 95a3708efc79b25e92fb59dec3841468a9c39fc4:.github/workflows/refresh-integrity.yml > .github/workflows/refresh-integrity.yml
+          test "$(git hash-object .github/workflows/refresh-integrity.yml)" = e2a008a7ed4e8aac4eadb4b0e32f618d00d8a2b8
+          rm qa/pr426-source-fix.patch
       - run: npm ci --no-audit --no-fund
       - name: Ensure ffprobe
         run: |
@@ -123,7 +120,7 @@ jobs:
           branch='fix/pairing-offers-qa-20261005'
           remote_head="$(git ls-remote origin "refs/heads/$branch" | cut -f1)"
           test "$remote_head" = "$EXPECTED_HEAD"
-          allowed=(scripts/build.mjs scripts/test-discover-pairing-rotation.mjs discover.html integrity-manifest.json menu-app.js menu.html smart-choice/analytics-v2.js smart-choice/app-v2.js smart-choice/cart-v2.js smart-choice/decision-trace-v2.js smart-choice/experiments-v2.js smart-choice/index.html smart-choice/release-qa.js smart-choice/simulator-v2.js smart-choice/simulator.html sw-core-v64.js)
+          allowed=(scripts/build.mjs scripts/test-discover-pairing-rotation.mjs discover.html integrity-manifest.json menu-app.js menu.html smart-choice/analytics-v2.js smart-choice/app-v2.js smart-choice/cart-v2.js smart-choice/decision-trace-v2.js smart-choice/experiments-v2.js smart-choice/index.html smart-choice/release-qa.js smart-choice/simulator-v2.js smart-choice/simulator.html sw-core-v64.js .github/workflows/refresh-integrity.yml qa/pr426-source-fix.patch)
           while IFS= read -r changed; do
             ok=false
             for candidate in "${allowed[@]}"; do
