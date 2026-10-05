@@ -26,8 +26,7 @@ claim of full behavioural equivalence.
 
 ## Executed verification
 
-GitHub Actions run:
-https://github.com/safal207/robys-coffee-house-demo/actions/runs/37309854650
+[GitHub Actions verification run](https://github.com/safal207/robys-coffee-house-demo/actions/runs/37309854650)
 
 The repair job applied hash-guarded source patches, restored the original refresh
 workflow and removed the temporary patch file **before** executing:
