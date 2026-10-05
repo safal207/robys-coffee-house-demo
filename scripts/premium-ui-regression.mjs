@@ -4,6 +4,7 @@ import {mkdirSync, writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import {chromium} from 'playwright';
+import {verifyPairingGeometry} from './test-pairing-discovery-browser.mjs';
 
 export async function menuGeometry(page) {
   return page.locator('.full-menu-item--product').evaluateAll(rows => rows.map(row => {
@@ -90,6 +91,7 @@ async function main() {
         // Inline CSSOM mirrors browser text enlargement without disabling CSP.
         await page.evaluate(size=>document.documentElement.style.fontSize=`${size}px`,fontSize);
         report.checks.push(await verifyGeometry(page,`${language}/${width}px/${fontSize===32?'200%':'100%'} text`));
+        report.checks.push(await verifyPairingGeometry(page,`${language}/${width}px/${fontSize===32?'200%':'100%'} text`));
       }
       await page.setViewportSize({width:390,height:844});
       await page.evaluate(()=>document.documentElement.style.fontSize='16px');
@@ -101,6 +103,19 @@ async function main() {
       await photo.focus();
       assert.equal(await photo.evaluate(node=>getComputedStyle(node).outlineStyle),'solid');
       assert.deepEqual(errors,[],`${language}: unhandled browser exceptions`);
+      await context.close();
+    }
+    // Fine-pointer desktop also uses the masonry layout around the pairing grid.
+    for (const language of ['tr','en','ru']) {
+      const context = await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block'});
+      const page = await context.newPage();
+      await page.goto(`${base}menu.html?entry=off`, {waitUntil:'networkidle'});
+      await page.locator(`[data-lang="${language}"]`).click();
+      for (const width of [901,1440]) for (const fontSize of [16,32]) {
+        await page.setViewportSize({width,height:1000});
+        await page.evaluate(size=>document.documentElement.style.fontSize=`${size}px`,fontSize);
+        report.checks.push(await verifyPairingGeometry(page,`${language}/${width}px/${fontSize===32?'200%':'100%'} text/fine pointer`));
+      }
       await context.close();
     }
     const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,reducedMotion:'no-preference',serviceWorkers:'block'});
