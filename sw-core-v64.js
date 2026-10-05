@@ -78,6 +78,7 @@ const CORE_ASSETS = [
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
   "./menu-premium.css?v=8057fd0f208f",
+  "./pairing-posters.css?v=ec7c8de8865c",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
@@ -101,7 +102,7 @@ const CORE_ASSETS = [
   "./menu-app.js?v=bdbf6583d89f",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
-  "./pairing-posters.js?v=745da5142f2d",
+  "./pairing-posters.js?v=9c9ed904bb34",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
@@ -199,6 +200,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||
     url.pathname.endsWith("/pairing-posters.js") ||
+    url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
