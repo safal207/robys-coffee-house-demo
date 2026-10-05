@@ -10,6 +10,8 @@ const analytics = readFileSync("analytics.js", "utf8");
 const index = readFileSync("index.html", "utf8");
 const menuData = readFileSync("menu-catalog.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
+const menuHtml = readFileSync("menu.html", "utf8");
+const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 
 function verifyAnalyticsBehavior() {
   const windowListeners = new Map();
