@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { URLSearchParams } from "node:url";
 
 const fail = (message) => {
   throw new Error(`DISCOVER-ROTATION-001: ${message}`);
@@ -21,8 +22,8 @@ const journeys = [
   { id: "iced-san-sebastian", contexts: ["day:hot"] }
 ];
 
-function evaluate(discoveredIds) {
-  const context = { result: null };
+function evaluate(discoveredIds, search = "") {
+  const context = { result: null, URLSearchParams, window: { location: { search } } };
   const source = `
     let time = "day";
     let weather = "hot";
@@ -73,5 +74,12 @@ assert(
 const allDiscovered = evaluate(["cool-lime-macaron", "iced-san-sebastian"]);
 assert(allDiscovered.ids.length === 2, "all-discovered state must retain both active pairings");
 assert(allDiscovered.nextId !== allDiscovered.ids[0], "all-discovered state must still rotate");
+
+const requested = evaluate(["iced-san-sebastian"], "?pair=iced-san-sebastian");
+assert(requested.ids[0] === "iced-san-sebastian", "explicit known pairing must take priority");
+assert(requested.ids.length === 2 && new Set(requested.ids).size === 2, "deep link must not duplicate or lose pairings");
+assert(requested.candidateIndex === 0, "deep link must reset candidateIndex");
+const unknown = evaluate(["cool-lime-macaron"], "?pair=not-in-catalog");
+assert(JSON.stringify(unknown.ids) === JSON.stringify(coolLimeDiscovered.ids), "unknown deep link must preserve normal unseen-first rotation");
 
 console.log("✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.");

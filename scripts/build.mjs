@@ -18,6 +18,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -29,6 +30,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -40,6 +42,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -51,6 +54,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -62,6 +66,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -73,6 +78,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
+  charset: "utf8",
   bundle: true,
   minify: true,
   format: "esm",
@@ -81,6 +87,9 @@ await build({
   outfile: "smart-choice/release-qa.js",
   legalComments: "none"
 });
+
+// External ES modules are UTF-8; verify equivalence before publishing revisions.
+await import("./test-smart-choice-encoding.mjs");
 
 function transpileClassicScript(sourcePath, outputPath) {
   const source = readFileSync(sourcePath, "utf8");
@@ -230,6 +239,7 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
+const pairingPostersRevision = revisionFor("pairing-posters.js");
 const menuAppRevision = revisionFor("menu-app.js");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
 const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
@@ -314,6 +324,7 @@ menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevisi
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
 writeFileSync("menu.html", menuHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
@@ -343,6 +354,12 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smart
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+// Keep the existing poster runtime bound to its emitted content revision.
+const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-/;
+if (!pairingCachePattern.test(serviceWorker)) {
+  throw new Error("Service worker is missing its pairing cache version marker");
+}
+serviceWorker = serviceWorker.replace(pairingCachePattern, `$1${pairingPostersRevision}-`);
 for (const { name, target, revision } of landingCacheStyles) {
   serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
   serviceWorker = serviceWorker.replace(
@@ -365,6 +382,7 @@ for (const [filePath, revision] of [
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
+  ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],

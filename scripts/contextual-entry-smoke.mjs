@@ -14,6 +14,8 @@ await certify({ port: Number(process.env.CONTEXTUAL_ENTRY_PORT ?? 4191), results
     assertBrand(appearance);
     assert(appearance.scene === scene, `Forced ${scene} route changed`);
     const probe = await done(page);
+    // Preserve timestamps and transforms even when the timing/cadence gate fails.
+    save(resultsDir, `${scene}-raw-probe.json`, probe);
     evidence.scenes[scene] = { appearance, timing: timing(probe, "cold", scene), smoothness: cadenceTimeAware(probe) };
     await context.close();
   }
