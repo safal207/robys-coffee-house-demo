@@ -51,6 +51,13 @@ async function cart(page) {
 }
 
 async function prepare(page, base, { language = "tr", fallback = false, seed } = {}) {
+  if (fallback) {
+    await page.addInitScript(() => {
+      // Legacy dialog fallback lacks both methods and the native open property.
+      for (const name of ["showModal", "close"]) Object.defineProperty(HTMLDialogElement.prototype, name, { configurable: true, value: undefined });
+      Object.defineProperty(HTMLDialogElement.prototype, "open", { configurable: true, get: () => undefined });
+    });
+  }
   if (seed) {
     await page.addInitScript(({ key, draft }) => {
       if (sessionStorage.getItem("qa-custom-pairing-seeded")) return;
@@ -61,11 +68,6 @@ async function prepare(page, base, { language = "tr", fallback = false, seed } =
   await page.goto(new URL("menu.html?entry=off", base).href, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible" });
   await page.locator(`.lang-button[data-lang="${language}"]`).click();
-  if (fallback) {
-    await page.evaluate(() => document.querySelectorAll("dialog").forEach((dialog) => {
-      Object.defineProperty(dialog, "showModal", { configurable: true, value: undefined });
-    }));
-  }
 }
 
 async function open(page, product, eligible = true) {
@@ -74,6 +76,13 @@ async function open(page, product, eligible = true) {
   await page.keyboard.press("Enter");
   const dialog = page.locator("#menu-product-dialog[open]");
   await dialog.waitFor({ state: "visible" });
+  const support = await dialog.evaluate((node) => ({
+    fallback: node.classList.contains("menu-dialog--fallback"),
+    openAttribute: node.hasAttribute("open"), openPropertyMissing: node.open === undefined,
+    methodsMissing: typeof node.showModal !== "function" && typeof node.close !== "function"
+  }));
+  assert.equal(support.openAttribute, true, "dialog exposes its actual open state through the attribute");
+  if (support.fallback) assert.equal(support.openPropertyMissing && support.methodsMissing, true, "legacy fallback is exercised without native dialog methods or open property");
   if (eligible) await poll(() => page.locator("#menu-pairing-picker").getAttribute("data-ready"), (value) => value === "true", `${product.id}: picker is ready`);
   return trigger;
 }
@@ -355,9 +364,6 @@ export async function verifyMenuCustomPairing(context, base, check) {
   });
 
   await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the actual checked radio and close when all order controls are disabled", async (page) => {
-    await page.addInitScript(() => {
-      for (const name of ["showModal", "close"]) Object.defineProperty(HTMLDialogElement.prototype, name, { configurable: true, value: undefined });
-    });
     const seed = { version: 1, lines: [{ id: espresso.id, quantity: 99 }] };
     await prepare(page, base, { seed, fallback: true });
     const trigger = await open(page, espresso);

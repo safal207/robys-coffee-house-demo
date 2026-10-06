@@ -419,14 +419,14 @@ async function loadPairingPicker(product, session, retryLoad = false) {
     }
     pairingViewPromise ??= import("./menu-pairing.js?v=6a8c02cfd44b");
     const module = await pairingViewPromise;
-    if (session !== productSession || selectedProductId !== product.id || !productDialog.open) return;
+    if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
     pairingView ??= module.createMenuPairingView({ root: pairingPicker, preview: pairingPreview,
       productIndex, onChange: updateProductQuantity, localized, formatPrice });
     pairingView.render(product, language, true);
     updateProductQuantity();
   } catch {
     pairingViewPromise = null;
-    if (session !== productSession || selectedProductId !== product.id || !productDialog.open) return;
+    if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
     status.textContent = pairingActionCopy[language].error;
     const retry = createButton("button button-light menu-pairing-retry", pairingActionCopy[language].retry,
       () => { void loadPairingPicker(productIndex.get(selectedProductId), productSession, true); });
@@ -445,7 +445,7 @@ function hydrateProductDialog() {
   const description = localized(product.item.description);
   productDialogDescription.textContent = description;
   productDialogDescription.hidden = !description;
-  if (pairingView && productDialog.open) pairingView.render(product, language);
+  if (pairingView && productDialog.hasAttribute("open")) pairingView.render(product, language);
   updateProductQuantity();
 }
 
