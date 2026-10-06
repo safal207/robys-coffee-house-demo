@@ -176,6 +176,8 @@ for (const [runtime, input, importer] of [
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
   ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
+  ["menu-app.js", "src/menu-pairing.js", "src/menu-app.js"],
+  ["menu-pairing.js", "src/menu-pairing-view.js"],
   ["menu-stability-v2.css", "menu-stability.css"],
   ["final-qa-v2.css", "final-qa.css"],
   ["community-reel-v2.css", "community-reel.css"]

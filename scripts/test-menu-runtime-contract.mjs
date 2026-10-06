@@ -10,6 +10,7 @@ const emitted = readFileSync('menu-app.js', 'utf8');
 assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source), 'runtime must remain compact');
 assert.match(emitted, /from"\.\/menu-catalog\.js\?/, 'catalog must stay external');
 assert.match(emitted, /import\("\.\/menu-interactions\.js\?/, 'interaction actions must stay lazy');
+assert.match(emitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
 assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));

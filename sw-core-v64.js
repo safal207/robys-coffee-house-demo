@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-shared-order-20260922-web-only-20260923-share-v4-58001b69ae50-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-custom-pair-d91c94130e67-shared-order-20260922-web-only-20260923-share-v4-58001b69ae50-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -77,7 +77,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./menu-premium.css?v=0810a904258f",
+  "./menu-premium.css?v=f485dcfd57c4",
   "./pairing-posters.css?v=d1e9096d1ee4",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
@@ -99,7 +99,8 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=7b66a0eec388",
+  "./menu-app.js?v=c296470913e2",
+  "./menu-pairing.js?v=6a8c02cfd44b",
   "./menu-product-reveal.js?v=23e6c26f61a3",
   "./menu-product-reveal-runtime.js?v=80655ea173e1",
   "./pairing-posters.js?v=024743e64919",
@@ -196,6 +197,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-pairing.js") ||
     url.pathname.endsWith("/menu-product-reveal.css") ||
     url.pathname.endsWith("/menu-product-reveal.js") ||
     url.pathname.endsWith("/menu-product-reveal-runtime.js") ||

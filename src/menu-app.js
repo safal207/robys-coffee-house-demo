@@ -1,6 +1,7 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=23d5e08d85d2";
 import "./menu-search-clear.js";
 import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js";
+import { isHotDrink, quoteMenuSelection, applyMenuSelection } from "./src/menu-pairing.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -23,6 +24,8 @@ const productQuantityOutput = document.querySelector("#menu-product-quantity");
 const productDecrease = document.querySelector("#menu-quantity-decrease");
 const productIncrease = document.querySelector("#menu-quantity-increase");
 const addToCartButton = document.querySelector("#menu-add-to-cart");
+const pairingPicker = document.querySelector("#menu-pairing-picker");
+const pairingPreview = document.querySelector("#menu-pairing-preview");
 const cartDialog = document.querySelector("#menu-cart-dialog");
 const cartLinesRoot = document.querySelector("#menu-cart-lines");
 const cartEmpty = document.querySelector("#menu-cart-empty");
@@ -37,6 +40,15 @@ let activeCategory = readInitialCategory();
 let searchTerm = "";
 let selectedProductId = "";
 let selectedProductQuantity = 1;
+let pairingView;
+let pairingViewPromise;
+let pairingRetryCount = 0;
+let productSession = 0;
+const pairingActionCopy = {
+  tr: { add: "Çifti siparişe ekle", quantity: "Çift adedi", loading: "Tatlı seçenekleri yükleniyor…", error: "Tatlı seçenekleri açılamadı. İçeceği tek başına ekleyebilirsiniz.", retry: "Tekrar dene" },
+  en: { add: "Add pair to order", quantity: "Number of pairs", loading: "Loading sweet options…", error: "Sweet options could not load. You can add just the drink.", retry: "Try again" },
+  ru: { add: "Добавить пару в заказ", quantity: "Количество пар", loading: "Загружаем сладкое…", error: "Не удалось открыть выбор сладкого. Можно добавить только напиток.", retry: "Попробовать ещё раз" }
+};
 const dialogReturnFocus = new WeakMap();
 
 function readStoredLanguage() {
@@ -308,6 +320,12 @@ function openDialog(dialog) {
 }
 
 function closeDialog(dialog) {
+  if (dialog === productDialog) {
+    productSession += 1;
+    pairingView?.clear();
+    pairingPicker.hidden = true;
+    pairingPreview.hidden = true;
+  }
   const isFallback = dialog.classList.contains("menu-dialog--fallback");
   if (!isFallback && typeof dialog.close === "function" && dialog.hasAttribute("open")) dialog.close();
   else dialog.removeAttribute("open");
@@ -324,11 +342,13 @@ function closeDialog(dialog) {
 function fallbackFocusableControls(dialog) {
   return Array.from(dialog.querySelectorAll(
     'button:not([disabled]):not([hidden]),a[href]:not([hidden]),input:not([disabled]):not([hidden]),[tabindex]:not([tabindex="-1"]):not([hidden])'
-  ));
+  )).filter((control) => control.tabIndex >= 0 && !control.matches(":disabled")
+    && control.getClientRects().length > 0
+    && (control.type !== "radio" || control.checked));
 }
 
 document.addEventListener("keydown", (event) => {
-  const dialog = document.querySelector(".menu-dialog--fallback[open]");
+  const dialog = document.querySelector(".menu-dialog[open]");
   if (!dialog) return;
   if (event.key === "Escape") {
     event.preventDefault();
@@ -352,22 +372,66 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-function updateProductQuantity() {
+function selectedProducts() {
   const product = productIndex.get(selectedProductId);
-  if (!product) return;
+  if (!product) return [];
+  const sweet = isHotDrink(product) ? pairingView?.getSelectedProduct() : null;
+  return sweet ? [product, productIndex.get(sweet.id)] : [product];
+}
+
+function updateProductQuantity() {
+  const products = selectedProducts();
+  if (!products.length) return;
   const copy = menuCopy[language];
-  const currentQuantity = cart.get(selectedProductId) ?? 0;
-  const availableQuantity = Math.max(0, MAX_ITEM_QUANTITY - currentQuantity);
-  selectedProductQuantity = availableQuantity === 0
-    ? 0
-    : Math.max(1, Math.min(selectedProductQuantity, availableQuantity));
+  const { availableQuantity, quantity, total } = quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY);
+  selectedProductQuantity = quantity;
   productQuantityOutput.textContent = String(selectedProductQuantity);
   productDecrease.disabled = availableQuantity === 0 || selectedProductQuantity <= 1;
   productIncrease.disabled = availableQuantity === 0 || selectedProductQuantity >= availableQuantity;
   addToCartButton.disabled = availableQuantity === 0;
   addToCartButton.textContent = availableQuantity === 0
     ? copy.maxQuantity
-    : `${copy.addToCart} · ${formatPrice(product.item.price * selectedProductQuantity)}`;
+    : `${products.length === 2 ? pairingActionCopy[language].add : copy.addToCart} · ${formatPrice(total)}`;
+  document.querySelector("#menu-quantity-label").textContent = products.length === 2
+    ? pairingActionCopy[language].quantity : copy.quantity;
+}
+
+async function loadPairingPicker(product, session, retryLoad = false) {
+  pairingPicker.hidden = false;
+  if (pairingView) {
+    pairingView.render(product, language, true);
+    updateProductQuantity();
+    return;
+  }
+  const status = document.createElement("p");
+  status.className = "menu-pairing-loading";
+  status.setAttribute("role", "status");
+  status.textContent = pairingActionCopy[language].loading;
+  pairingPicker.replaceChildren(status);
+  delete pairingPicker.dataset.ready;
+  try {
+    // A failed module import is cached by the browser. Give an explicit retry
+    // a new, fixed same-origin URL so a recovered connection can fetch again.
+    if (retryLoad) {
+      const retryUrl = new URL("./menu-pairing.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(++pairingRetryCount));
+      pairingViewPromise = import(retryUrl.href);
+    }
+    pairingViewPromise ??= import("./menu-pairing.js?v=6a8c02cfd44b");
+    const module = await pairingViewPromise;
+    if (session !== productSession || selectedProductId !== product.id || !productDialog.open) return;
+    pairingView ??= module.createMenuPairingView({ root: pairingPicker, preview: pairingPreview,
+      productIndex, onChange: updateProductQuantity, localized, formatPrice });
+    pairingView.render(product, language, true);
+    updateProductQuantity();
+  } catch {
+    pairingViewPromise = null;
+    if (session !== productSession || selectedProductId !== product.id || !productDialog.open) return;
+    status.textContent = pairingActionCopy[language].error;
+    const retry = createButton("button button-light menu-pairing-retry", pairingActionCopy[language].retry,
+      () => { void loadPairingPicker(productIndex.get(selectedProductId), productSession, true); });
+    pairingPicker.replaceChildren(status, retry);
+  }
 }
 
 function hydrateProductDialog() {
@@ -381,6 +445,7 @@ function hydrateProductDialog() {
   const description = localized(product.item.description);
   productDialogDescription.textContent = description;
   productDialogDescription.hidden = !description;
+  if (pairingView && productDialog.open) pairingView.render(product, language);
   updateProductQuantity();
 }
 
@@ -388,23 +453,31 @@ function openProduct(id) {
   if (!productIndex.has(id)) return;
   selectedProductId = id;
   selectedProductQuantity = 1;
+  productSession += 1;
+  pairingView?.clear();
+  pairingPicker.hidden = true;
+  pairingPreview.hidden = true;
+  productDialog.classList.toggle("has-custom-pairing", isHotDrink(productIndex.get(id)));
   hydrateProductDialog();
   openDialog(productDialog);
+  if (isHotDrink(productIndex.get(id))) void loadPairingPicker(productIndex.get(id), productSession);
 }
 
 function addSelectedProduct() {
   const product = productIndex.get(selectedProductId);
   if (!product) return;
-  const currentQuantity = cart.get(selectedProductId) ?? 0;
   const copy = menuCopy[language];
-  const addedQuantity = Math.min(selectedProductQuantity, MAX_ITEM_QUANTITY - currentQuantity);
-  if (addedQuantity <= 0) {
+  const products = selectedProducts();
+  const selection = applyMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY);
+  if (!selection.applied) {
     announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
     updateProductQuantity();
     return;
   }
-  setCartQuantity(selectedProductId, currentQuantity + addedQuantity);
-  announceCart(`${copy.added}: ${localized(product.item.name)} × ${addedQuantity}`);
+  cart = selection.cart;
+  saveCart();
+  renderCart();
+  announceCart(`${copy.added}: ${products.map((item) => localized(item.item.name)).join(" + ")} × ${selectedProductQuantity}`);
   closeDialog(productDialog);
   cartTrigger.classList.add("is-emphasized");
   window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
