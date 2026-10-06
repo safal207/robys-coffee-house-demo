@@ -626,8 +626,19 @@
     }
   },
   "currentVisualVerification": {
-    "status": "Fresh UI against updated main capture in progress; fresh exact-head CI required",
-    "baselineCandidate": "81256116d23838d360fc87df2bdbced5483a3b49",
-    "localMainCaptureAnomaly": "Main attempts 2 and 3 omitted one baseline Discover thumbnail. This is not a migration PASS and does not establish a current UI regression."
+    "sourceHead": "48c949bc84286d1cb559237fb6443fb0ed67ce9f",
+    "baselineHead": "96ceae5fc7dc9604b2f98209636ebd39fc97cf46",
+    "rawComparisons": 43,
+    "rawPassed": 38,
+    "actualInspectedChanges": 5,
+    "pairedSheetsInspected": 36,
+    "protectedFilesStable": 252,
+    "contentBoundBlobs": 260,
+    "reviewKind": "assistant-not-human-approval",
+    "record": "qa/reviewed-visual-changes.d/pairing-layout-final-main-20261006.json",
+    "negativeControlsPassed": 6,
+    "freshCIRequired": true,
+    "captureReport": "qa/evidence/pairing-final-visual-capture-20261006.json",
+    "negativeControlReport": "qa/evidence/pairing-final-visual-negative-controls-20261006.json"
   }
 }
