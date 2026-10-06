@@ -57,6 +57,58 @@ export async function verifyPairingGeometry(page, label) {
   return { label, pairingCards: cards.length, pairingGeometryFailures: failures.length };
 }
 
+// An opened pairing must remain readable and operable when its text grows.
+export async function verifyPairingDetailsGeometry(page, label) {
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const geometry = await page.locator(".pairing-discovery-panel").evaluate((panel) => {
+    const bounds = panel.getBoundingClientRect();
+    const rect = (node) => {
+      const { left, right, top, bottom, width, height } = node.getBoundingClientRect();
+      return { left, right, top, bottom, width, height };
+    };
+    const overlap = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > .5 &&
+      Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > .5;
+    const inside = (r) => r.left >= bounds.left - 1 && r.right <= bounds.right + 1 &&
+      r.top >= bounds.top - 1 && r.bottom <= bounds.bottom + 1;
+    const title = rect(panel.querySelector("h3"));
+    const price = rect(panel.querySelector(".pairing-discovery-price"));
+    const notes = [...panel.querySelectorAll(".pairing-discovery-notes span")].map(rect);
+    const actions = [...panel.querySelectorAll(".pairing-discovery-actions button")].map((button) => ({
+      text: button.textContent, radius: parseFloat(getComputedStyle(button).borderRadius), ...rect(button)
+    }));
+    const clippedText = [];
+    for (const node of panel.querySelectorAll("h3, p, strong, .pairing-discovery-notes span, button")) {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      if ([...range.getClientRects()].some((r) => !inside(r))) clippedText.push(node.textContent);
+    }
+    const joinedNotes = notes.some((a, index) => notes.slice(index + 1).some((b) => {
+      const sameRow = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > .5;
+      const sameColumn = Math.min(a.right, b.right) - Math.max(a.left, b.left) > .5;
+      return overlap(a, b) || (sameRow && Math.max(a.left, b.left) - Math.min(a.right, b.right) <= .5) ||
+        (sameColumn && Math.max(a.top, b.top) - Math.min(a.bottom, b.bottom) <= .5);
+    }));
+    return {
+      id: panel.dataset.pairingId,
+      titlePriceOverlap: overlap(title, price),
+      headingContained: inside(title) && inside(price),
+      notesSeparate: notes.length >= 2 && !joinedNotes && notes.every(inside),
+      actions,
+      actionsUsable: actions.length === 3 && actions.every((action) => inside(action) && action.height >= 43.5 && action.radius > 0),
+      clippedText,
+      horizontalOverflow: panel.scrollWidth > panel.clientWidth + 1 ||
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+    };
+  });
+  assert.equal(geometry.titlePriceOverlap, false, `${label}: pairing title and price must not overlap`);
+  assert.equal(geometry.headingContained, true, `${label}: pairing title and price stay inside the panel`);
+  assert.equal(geometry.notesSeparate, true, `${label}: tasting notes have separate readable boxes`);
+  assert.equal(geometry.actionsUsable, true, `${label}: all three styled actions stay inside the panel and reach 44px height`);
+  assert.deepEqual(geometry.clippedText, [], `${label}: pairing details text must not be clipped`);
+  assert.equal(geometry.horizontalOverflow, false, `${label}: pairing details must not cause horizontal overflow`);
+  return { label, pairingDetailsGeometry: geometry };
+}
+
 // Keep the inline pairing route covered separately from ordinary product modals.
 export async function verifyPairingDiscovery(context, baseUrl, check) {
   for (const language of ["tr", "en", "ru"]) {
@@ -91,8 +143,22 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
             expanded: await opener.getAttribute("aria-expanded"),
             controls: await opener.getAttribute("aria-controls"),
             panelId: await panel.getAttribute("id"),
-            openModals: await page.locator(".menu-dialog[open]").count()
+            openModals: await page.locator(".menu-dialog[open]").count(),
+            placement: await panel.evaluate((node) => {
+              const cards = [...node.parentElement.querySelectorAll(".pairing-poster-card")];
+              const wide = document.documentElement.clientWidth >= 901;
+              return {
+                wide,
+                predecessor: node.previousElementSibling?.dataset.pairing ?? null,
+                expectedPredecessor: wide ? cards.at(-1)?.dataset.pairing : node.dataset.pairingId,
+                bothCardsBefore: cards.every((card) => Boolean(card.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING))
+              };
+            }),
+            posterPrice: (await opener.locator(".pairing-poster-price").textContent())?.trim(),
+            cardPrice: await opener.evaluate((node) => node.closest(".pairing-poster-card").querySelector(".full-menu-price").textContent.trim()),
+            price: (await panel.locator(".pairing-discovery-price").textContent())?.trim()
           };
+          const geometry = await verifyPairingDetailsGeometry(page, label);
           const copy = {
             eyebrow: await panel.locator(".pairing-discovery-eyebrow").textContent(),
             kicker: await opener.locator(".pairing-poster-kicker").textContent(),
@@ -114,6 +180,7 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
           await dialog.waitFor({ state: "visible" });
           const product = {
             name: await page.locator("#menu-product-title").textContent(),
+            price: (await page.locator("#menu-product-price").textContent())?.trim(),
             fallback: await dialog.evaluate((node) => node.classList.contains("menu-dialog--fallback")),
             draftNote: await page.locator("#menu-product-draft-note").textContent()
           };
@@ -131,12 +198,16 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
             "PAIRING-DISCOVERY-BROWSER-001",
             inline.language === language && inline.pairingId === pairing.id && inline.expanded === "true" &&
               Boolean(inline.panelId) && inline.controls === inline.panelId && inline.openModals === 0 &&
+              inline.placement.predecessor === inline.placement.expectedPredecessor &&
+              (!inline.placement.wide || inline.placement.bothCardsBefore) &&
+              Boolean(inline.price) && inline.price === inline.cardPrice && inline.price === inline.posterPrice &&
+              product.price === inline.price &&
               name === pairing.names[language] && product.name === pairing.names[language] &&
               product.fallback === fallback && Boolean(product.draftNote?.trim()) &&
               closed.expanded === "false" && closed.controls === null && closed.focusReturned &&
               closed.count === initialCount && errors.length === 0,
             `${label}: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering`,
-            { inline, product, closed, errors }
+            { inline, geometry, product, closed, errors }
           );
         } catch (error) {
           check("PAIRING-DISCOVERY-BROWSER-001", false, `${label}: pairing discovery failed`, {

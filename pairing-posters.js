@@ -194,6 +194,25 @@ function removeExperiencePanel({ restoreFocus = false } = {}) {
   }
 }
 
+const widePairingLayout = window.matchMedia("(min-width: 901px)");
+
+function placeExperiencePanel(panel, card) {
+  const list = card.closest(".full-menu-list");
+  if (!list) return;
+  // In the single-column layout, details must follow the pair that opened them.
+  // Wide screens keep both posters together above the full-width details.
+  const focused = panel.contains(document.activeElement) ? document.activeElement : null;
+  if (widePairingLayout.matches) list.append(panel);
+  else card.after(panel);
+  focused?.focus({ preventScroll: true });
+}
+
+widePairingLayout.addEventListener("change", () => {
+  const panel = document.querySelector(".pairing-discovery-panel");
+  const card = document.querySelector(".pairing-poster-card.is-selected");
+  if (panel && card) placeExperiencePanel(panel, card);
+});
+
 function renderExperience(card, media) {
   const lang = currentLanguage();
   const copy = experienceCopy[lang] ?? experienceCopy.tr;
@@ -258,7 +277,7 @@ function renderExperience(card, media) {
   notes.forEach((note) => {
     const chip = document.createElement("span");
     chip.textContent = note;
-    noteList.append(chip);
+    noteList.append(chip, document.createTextNode(" "));
   });
   tasting.append(tastingTitle, noteList);
   story.append(why, tasting);
@@ -277,7 +296,7 @@ function renderExperience(card, media) {
 
   const mark = document.createElement("button");
   mark.type = "button";
-  mark.className = "pairing-discovery-mark";
+  mark.className = "button button-light pairing-discovery-mark";
   const renderMark = () => {
     const done = discovered.has(pairingId);
     mark.textContent = done ? copy.marked : copy.mark;
@@ -293,15 +312,14 @@ function renderExperience(card, media) {
 
   const close = document.createElement("button");
   close.type = "button";
-  close.className = "pairing-discovery-close";
+  close.className = "button button-light pairing-discovery-close";
   close.textContent = copy.close;
   close.addEventListener("click", () => removeExperiencePanel({ restoreFocus: true }));
 
   actions.append(choose, mark, close);
   panel.append(top, story, actions);
 
-  const list = card.closest(".full-menu-list");
-  list?.append(panel);
+  placeExperiencePanel(panel, card);
 
   if (window.matchMedia("(max-width: 680px)").matches) {
     window.requestAnimationFrame(() => {

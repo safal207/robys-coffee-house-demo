@@ -1,0 +1,82 @@
+{
+  "sourceBase": "931d48701314faed480f7e88cad1439ccd9dadf3",
+  "evidenceKind": "local-worktree-tests-and-assistant-inspection-not-human-approval",
+  "generatedAt": "2026-10-06T09:38:39.757Z",
+  "contentBindings": {
+    "pairing-posters.css": "290dccf23d40bb9c0bd1b2a82e2a0706bcba1f89",
+    "pairing-posters.js": "a11855118590e54b3028a67ba4f79d0062f21282",
+    "menu-premium.css": "b505a73a9a0bfe0610ee2c45bc1aa45610e521a1",
+    "menu.html": "559a82b3dd019374c7cf9304c9065a93b35a07de",
+    "sw-core-v64.js": "d2c631411c9359058622c7fc2ead58a13bb2e27e",
+    "integrity-manifest.json": "ff7adbcfddb2088522a52fa24e5c8407ba89dfd5",
+    "scripts/test-pairing-discovery-browser.mjs": "47aae1852a1a736a27b91ca2f49654f72a8eb6f5"
+  },
+  "commands": {
+    "check": {
+      "exitCode": 0,
+      "log": ".artifacts/layout-review/check-verified.log"
+    },
+    "security": {
+      "exitCode": 0,
+      "log": ".artifacts/layout-review/security-verified.log"
+    }
+  },
+  "browser": {
+    "checks": 241,
+    "failures": [],
+    "checksById": {
+      "POSTER-GEOMETRY": 36,
+      "DETAILS-GEOMETRY": 72,
+      "DETAILS-ASSOCIATION": 72,
+      "RESIZE-FOCUS": 6,
+      "BROWSER-ERRORS": 3,
+      "PAIRING-DISCOVERY-LOCALIZATION-001": 24,
+      "PAIRING-DISCOVERY-BROWSER-001": 24,
+      "MOBILE-DETAILS-GEOMETRY": 2,
+      "STYLESHEET-FAILURE-ACTIONS": 1,
+      "STYLESHEET-FAILURE-NOTES": 1
+    },
+    "widths": [
+      320,
+      390,
+      768,
+      900,
+      901,
+      1440
+    ],
+    "languages": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "rootTextPercent": [
+      100,
+      200
+    ]
+  },
+  "visual": {
+    "baseline": "931d48701314faed480f7e88cad1439ccd9dadf3",
+    "attempt1": {
+      "comparisons": 43,
+      "failures": [
+        {
+          "id": "discover-pairing",
+          "viewport": "phone-320",
+          "file": "discover-pairing__phone-320.png",
+          "passed": false,
+          "diffPixels": 1413,
+          "totalPixels": 240520,
+          "diffPixelRatio": 0.0058747713287876265,
+          "maxDiffPixelRatio": 0.003
+        }
+      ]
+    },
+    "attempt2": {
+      "comparisons": 43,
+      "failures": []
+    },
+    "exceptionChanges": false,
+    "limitation": "One unchanged repeat recovered a missing Discover thumbnail in the first capture."
+  },
+  "screenshot": "pairing-inline-ru-390-20261006.png"
+}

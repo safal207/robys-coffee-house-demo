@@ -285,7 +285,10 @@
 
 .pairing-discovery-panel {
   grid-column: 1 / -1;
+  min-width: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: anywhere;
   gap: 22px;
   margin-top: 2px;
   padding: clamp(22px, 4vw, 36px);
@@ -299,20 +302,23 @@
 }
 
 .pairing-discovery-top {
+  min-width: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: start;
   justify-content: space-between;
   gap: 24px;
 }
 
 .pairing-discovery-heading {
+  flex: 1 1 15rem;
   min-width: 0;
 }
 
 .pairing-discovery-eyebrow {
   margin: 0 0 12px;
   color: #9a6d23;
-  font: 800 .68rem/1 var(--sans);
+  font: 800 .75rem/1.4 var(--sans);
   letter-spacing: .16em;
   text-transform: uppercase;
 }
@@ -321,29 +327,33 @@
   display: block;
   margin-bottom: 6px;
   color: #81736c;
-  font: 700 .72rem/1.2 var(--sans);
+  font: 700 .875rem/1.4 var(--sans);
 }
 
 .pairing-discovery-heading h3 {
   max-width: 720px;
   margin: 0;
-  font: 500 clamp(2rem, 4.6vw, 4.2rem)/.98 var(--display);
-  letter-spacing: -.03em;
+  font: 500 clamp(1.75rem, 3vw, 3rem)/1.15 var(--display);
+  letter-spacing: -.02em;
+  overflow-wrap: anywhere;
 }
 
 .pairing-discovery-price {
   flex: 0 0 auto;
+  max-width: 100%;
   padding: 13px 16px;
   color: #6e4e19;
   background: rgba(255, 247, 222, .86);
   border: 1px solid rgba(181, 147, 73, .36);
   border-radius: 999px;
-  font: 700 1.15rem/1 var(--sans);
+  font: 700 1.15rem/1.2 var(--sans);
+  white-space: nowrap;
 }
 
 .pairing-discovery-story {
+  min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(220px, .65fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, .65fr);
   gap: 26px;
   padding-top: 20px;
   border-top: 1px solid rgba(47, 39, 37, .1);
@@ -352,7 +362,7 @@
 .pairing-discovery-story strong {
   display: block;
   margin-bottom: 9px;
-  font: 800 .72rem/1.2 var(--sans);
+  font: 800 .875rem/1.4 var(--sans);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -361,7 +371,7 @@
   max-width: 760px;
   margin: 0;
   color: #71645e;
-  font-size: .94rem;
+  font-size: 1rem;
   line-height: 1.65;
 }
 
@@ -372,28 +382,44 @@
 }
 
 .pairing-discovery-notes span {
+  max-width: 100%;
   padding: 8px 11px;
   color: #6d5222;
   background: rgba(255, 247, 222, .9);
   border: 1px solid rgba(181, 147, 73, .25);
   border-radius: 999px;
-  font: 700 .72rem/1 var(--sans);
+  font: 700 .875rem/1.3 var(--sans);
+  overflow-wrap: anywhere;
 }
 
 .pairing-discovery-actions {
+  min-width: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
 }
 
+.pairing-discovery-choose,
 .pairing-discovery-mark,
 .pairing-discovery-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
+  max-width: 100%;
   padding: 10px 14px;
   border-radius: 999px;
-  font: 800 .72rem/1 var(--sans);
+  font: 800 .875rem/1.4 var(--sans);
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+.pairing-discovery-actions button:focus-visible {
+  outline: 3px solid #8b5d18;
+  outline-offset: 3px;
 }
 
 .pairing-discovery-mark {
@@ -427,7 +453,7 @@
   }
 
   .pairing-discovery-heading h3 {
-    font-size: clamp(2rem, 10vw, 3rem);
+    font-size: clamp(1.5rem, 6.8vw, 2rem);
   }
 
   .pairing-discovery-price {

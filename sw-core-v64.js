@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-9c9ed904bb34-pairing-css-877003e01ff4-shared-order-20260922-web-only-20260923-share-v4-4d8f9ffc6b1f-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-21616cbdd87f-pairing-css-cf73456b0834-shared-order-20260922-web-only-20260923-share-v4-4d8f9ffc6b1f-58d387ca0c01-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -77,8 +77,8 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./menu-premium.css?v=8057fd0f208f",
-  "./pairing-posters.css?v=877003e01ff4",
+  "./menu-premium.css?v=0810a904258f",
+  "./pairing-posters.css?v=cf73456b0834",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
@@ -102,7 +102,7 @@ const CORE_ASSETS = [
   "./menu-app.js?v=bdbf6583d89f",
   "./menu-product-reveal.js?v=28479855579d",
   "./menu-product-reveal-runtime.js?v=90e757f93063",
-  "./pairing-posters.js?v=9c9ed904bb34",
+  "./pairing-posters.js?v=21616cbdd87f",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
   "./menu-catalog.js?v=20260904-premium-order-v1",
   "./menu-search-clear.js",
