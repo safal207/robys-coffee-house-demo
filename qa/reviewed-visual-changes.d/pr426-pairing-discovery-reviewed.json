@@ -1,0 +1,326 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr426-pairing-discovery-reviewed-20261005",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/426#issuecomment-6002667291",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "summary": "Inspected local captures of the repaired, localized pairing posters: full-width desktop featured panel, contained title/price/chips and separate arrow region. Accept only the four exact full-page dimension changes and five observed share rasterization differences; products, prices, share actions and footer retained. Global thresholds and locked toolchain unchanged. This is not CI output or independent human approval.",
+      "sourceHead": "fc72f89cd4e7c05a309d55e4925212dd14364ce3",
+      "baselineHead": "fbda46da5e267de07e45202edeb9c35ff220fd93",
+      "evidenceKind": "local-locked-toolchain-captures",
+      "captureSummaryGeneratedAt": "2026-10-05T20:25:52.583Z",
+      "evidenceArchive": "pr426-reviewed-visual-captures-fc72f89.zip",
+      "evidenceSha256": "007425fc5240012b00c2aa1abaefd32ebd7a2e24b9f19c165b283f48d15858dd",
+      "evidenceSizeBytes": 25373760,
+      "captureSummarySha256": "ba6ae2b25c84ea9821ae3d8a18c67d8408451ee9d3c8d94af8f7c8f774be03dc",
+      "contentBindings": {
+        "integrity-manifest.json": "9afdb37008d1f1d7ecfd1c5a0f57a9e4744d70a0",
+        "menu.html": "b0917d077599be5a028eb3163ce375bfb2487012",
+        "pairing-posters.css": "28ae68d01c5519d655d1f0d4ed836de912ad68e1",
+        "pairing-posters.js": "cd5e6e34215cfeb7b2dff9334e09324d0c8b5183",
+        "menu-catalog.js": "a1b01c0deceff3845a26928b5bbf9a2192300fd9",
+        "menu-app.js": "a7abfb7fb861424a320fa530f7c0e70485c26879",
+        "src/menu-app.js": "b4be2c2107f02c31e3c91889dfc3703601037dac",
+        "styles-v2.css": "b6aea0c556daa5620730fbf5873e2d088a19c195",
+        "menu-premium.css": "23ad9d979c3d010d45fba799537784ff2dfb720f",
+        "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
+        "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
+        "sw-core-v64.js": "9b846dd23d797fb7e12b9b647568861bf83c0393",
+        "package.json": "be3be1ef7c755fe7264c964777f0ababf94ad6ad",
+        "package-lock.json": "744df76bef311ebacf5ae105810380cc51881318",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/verify-visual-toolchain.mjs": "73c13d4aec23867b20f5b48976a7b479c1ca6e1c",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "scripts/test-menu-share-capture.mjs": "c7ab8ea2692a984c0cea846217298501e3e35f40",
+        ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
+        "scripts/test-pairing-discovery-browser.mjs": "91a7f2ea4b678595432c235c34d961dcce5bbcde",
+        "scripts/premium-ui-regression.mjs": "9d912158924f3d14894e4b890a984963ee6ef0a7"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11669 vs 320x11654"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "totalPixels": 143080,
+          "maxDiffPixelRatio": 0.017116298574224212
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 158720,
+          "maxDiffPixelRatio": 0.013098538306451612
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x11424 vs 390x11408"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 176750,
+          "maxDiffPixelRatio": 0.004096181046676096
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13215 vs 768x13199"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "totalPixels": 368160,
+          "maxDiffPixelRatio": 0.005212407648848327
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6925 vs 1440x7563"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "totalPixels": 375240,
+          "maxDiffPixelRatio": 0.005993497494936574
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "file": "menu-full__phone-320.png",
+          "sha256": {
+            "baseline": "637ac39ad389289f9769d94d143be435f43681426a787771dd32cf44517ff347",
+            "current": "b55ced6386b6ee230b482cdcfe875626d1d3a0d596f0654d835ef40e0da8617f"
+          },
+          "dimensions": {
+            "baseline": [
+              320,
+              11669
+            ],
+            "current": [
+              320,
+              11654
+            ]
+          },
+          "observedDiffPixels": 3734080,
+          "viewedPairedSegments": [
+            "menu-full__phone-320-0.jpg",
+            "menu-full__phone-320-1.jpg",
+            "menu-full__phone-320-2.jpg",
+            "menu-full__phone-320-3.jpg",
+            "menu-full__phone-320-4.jpg",
+            "menu-full__phone-320-5.jpg",
+            "menu-full__phone-320-6.jpg",
+            "menu-full__phone-320-7.jpg"
+          ]
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-320",
+          "file": "menu-share__phone-320.png",
+          "sha256": {
+            "baseline": "1f1136f3418edbee16189cc216c62be6d60e60a5eaf8ef6237de4381fa186834",
+            "current": "b7cbe12e67b61acdb54e03e82133bae30c0abc722b69aac4471f1eb5a427146b",
+            "diff": "1a0bfbe40c01fa2eaf48e8eaa821d019cf0dad4f14c466ed42d586a0d8ce7de9"
+          },
+          "dimensions": {
+            "baseline": [
+              280,
+              511
+            ],
+            "current": [
+              280,
+              511
+            ]
+          },
+          "observedDiffPixels": 2449,
+          "viewedPairedCrop": "menu-share__phone-320.jpg"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "file": "menu-share__phone-360-short.png",
+          "sha256": {
+            "baseline": "7044a037ef24cd000b085cafcad84a83ab16ae29585dea79047e682c9ef45576",
+            "current": "7e3ac2bcb90434154e53e318813a42c7b3c3c5738065b74292a67ee18fc06c42",
+            "diff": "e7ce4806b1192ab8158d3415d91ea744114c28480abcf9f3f436486f1f126777"
+          },
+          "dimensions": {
+            "baseline": [
+              320,
+              496
+            ],
+            "current": [
+              320,
+              496
+            ]
+          },
+          "observedDiffPixels": 2079,
+          "viewedPairedCrop": "menu-share__phone-360-short.jpg"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "file": "menu-full__phone-390.png",
+          "sha256": {
+            "baseline": "79f9e7965d9636b53accd6bee8489364b1be1954b8051499945bbe20649b7365",
+            "current": "70fdfc9ecc3818536c3762f5400fa309e4be2e341c111cb5fd76e696fd10bb96"
+          },
+          "dimensions": {
+            "baseline": [
+              390,
+              11424
+            ],
+            "current": [
+              390,
+              11408
+            ]
+          },
+          "observedDiffPixels": 4455360,
+          "viewedPairedSegments": [
+            "menu-full__phone-390-0.jpg",
+            "menu-full__phone-390-1.jpg",
+            "menu-full__phone-390-2.jpg",
+            "menu-full__phone-390-3.jpg",
+            "menu-full__phone-390-4.jpg",
+            "menu-full__phone-390-5.jpg",
+            "menu-full__phone-390-6.jpg",
+            "menu-full__phone-390-7.jpg"
+          ]
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "file": "menu-share__phone-390.png",
+          "sha256": {
+            "baseline": "9dfaf45610165d45fc1b816dd488f0fe0441008dc87b13be1fcfd95550e20098",
+            "current": "e7962d8b9380f17a8247ce7d060104ae3ea894bb7d406b2477e7d64b693f6e56",
+            "diff": "15509474f31f4dd32c712bf51ede22d5c275ec0390a2ae63fad1829bfab536b0"
+          },
+          "dimensions": {
+            "baseline": [
+              350,
+              505
+            ],
+            "current": [
+              350,
+              505
+            ]
+          },
+          "observedDiffPixels": 724,
+          "viewedPairedCrop": "menu-share__phone-390.jpg"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "file": "menu-full__tablet-768.png",
+          "sha256": {
+            "baseline": "22180a3b145bc1eb1ccfc36146263489d58f786b3c4caf3907a5ccd56ad37ba6",
+            "current": "ba86040ae043fb53fea46088c1557ac7b2b68625179ac75a299fbf51901cea99"
+          },
+          "dimensions": {
+            "baseline": [
+              768,
+              13215
+            ],
+            "current": [
+              768,
+              13199
+            ]
+          },
+          "observedDiffPixels": 10149120,
+          "viewedPairedSegments": [
+            "menu-full__tablet-768-0.jpg",
+            "menu-full__tablet-768-1.jpg",
+            "menu-full__tablet-768-2.jpg",
+            "menu-full__tablet-768-3.jpg",
+            "menu-full__tablet-768-4.jpg",
+            "menu-full__tablet-768-5.jpg",
+            "menu-full__tablet-768-6.jpg",
+            "menu-full__tablet-768-7.jpg",
+            "menu-full__tablet-768-8.jpg"
+          ]
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "laptop-1366",
+          "file": "menu-share__laptop-1366.png",
+          "sha256": {
+            "baseline": "8d568c15176a9add8831f64d6878fc2d90f08230067e828ad81096585cda5ff9",
+            "current": "7df7fbc5b77711751605237836dd0ea9754bd59292304baf9cc6a9f10219e742",
+            "diff": "a3240b86e972e3bc7bfeee5f054537f3a22f6cd426b20196f3e03aa5f01332b4"
+          },
+          "dimensions": {
+            "baseline": [
+              1180,
+              312
+            ],
+            "current": [
+              1180,
+              312
+            ]
+          },
+          "observedDiffPixels": 1919,
+          "viewedPairedCrop": "menu-share__laptop-1366.jpg"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "file": "menu-full__desktop-1440.png",
+          "sha256": {
+            "baseline": "21353f6ee18ca52bd531882f55ecac0408f1a54021bc1568718c74211a5e88b0",
+            "current": "7e28390352497e6830161dd8c1ee4d4a010f7da9f8626a9baf2ae45788fb4459"
+          },
+          "dimensions": {
+            "baseline": [
+              1440,
+              6925
+            ],
+            "current": [
+              1440,
+              7563
+            ]
+          },
+          "observedDiffPixels": 9972000,
+          "viewedPairedSegments": [
+            "menu-full__desktop-1440-0.jpg",
+            "menu-full__desktop-1440-1.jpg",
+            "menu-full__desktop-1440-2.jpg",
+            "menu-full__desktop-1440-3.jpg",
+            "menu-full__desktop-1440-4.jpg"
+          ]
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "desktop-1440",
+          "file": "menu-share__desktop-1440.png",
+          "sha256": {
+            "baseline": "6cb433378ceed239c8fc0ef59081c722670a0131c74b8759c7c99a6c2b3f49e8",
+            "current": "3db6bf736bc5d3faf7848f1e51e5099040f32d6d45ac29d9d3cda9e4ff246311",
+            "diff": "a1baeee0276f695f36894ddcdd22faeeda54ecca7ed3ad51d9e95c72418dc64c"
+          },
+          "dimensions": {
+            "baseline": [
+              1180,
+              318
+            ],
+            "current": [
+              1180,
+              318
+            ]
+          },
+          "observedDiffPixels": 2249,
+          "viewedPairedCrop": "menu-share__desktop-1440.jpg"
+        }
+      ]
+    }
+  ]
+}

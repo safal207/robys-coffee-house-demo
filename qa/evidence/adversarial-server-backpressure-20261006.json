@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-10-06T20:01:37.203Z",
+  "before": {
+    "completedRequests": 1120,
+    "error": "TimeoutError: The operation was aborted due to timeout",
+    "stderrBufferedBytes": 65550,
+    "stderrHighWaterMark": 65536,
+    "stdoutBufferedBytes": 0
+  },
+  "after": {
+    "status": 200,
+    "responseTimeMs": 16.86707099999967
+  }
+}

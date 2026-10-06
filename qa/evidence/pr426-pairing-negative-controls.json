@@ -1,0 +1,34 @@
+{
+  "kind": "local browser mutation controls, no source files modified",
+  "sourceBindings": {
+    "pairing-posters.js": "cd5e6e34215cfeb7b2dff9334e09324d0c8b5183",
+    "menu-catalog.js": "a1b01c0deceff3845a26928b5bbf9a2192300fd9",
+    "scripts/test-pairing-discovery-browser.mjs": "91a7f2ea4b678595432c235c34d961dcce5bbcde"
+  },
+  "controls": [
+    {
+      "name": "English panel falls back to Turkish",
+      "checks": 24,
+      "rejectedCases": [
+        "cool-lime-macaron/en/native: localized inline headings, explanation, tasting notes and actions",
+        "iced-san-sebastian/en/native: localized inline headings, explanation, tasting notes and actions",
+        "cool-lime-macaron/en/fallback: localized inline headings, explanation, tasting notes and actions",
+        "iced-san-sebastian/en/fallback: localized inline headings, explanation, tasting notes and actions"
+      ],
+      "passed": true
+    },
+    {
+      "name": "Second pairing hands off to first product",
+      "checks": 24,
+      "rejectedCases": [
+        "iced-san-sebastian/tr/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+        "iced-san-sebastian/tr/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+        "iced-san-sebastian/en/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+        "iced-san-sebastian/en/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+        "iced-san-sebastian/ru/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+        "iced-san-sebastian/ru/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering"
+      ],
+      "passed": true
+    }
+  ]
+}

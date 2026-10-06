@@ -1,0 +1,327 @@
+{
+  "generatedAt": "2026-10-06T19:49:31.636Z",
+  "runtime": "playwright1.53.2/Chromium138-1179",
+  "policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; frame-src https://maps.google.com; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa",
+  "old": [
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": false,
+      "message": "cool-lime-macaron",
+      "evidence": {
+        "error": "frame.waitForFunction: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: \"script-src 'self'\".\n\n    at eval (<anonymous>)\n    at predicate (eval at evaluate (:291:30), <anonymous>:3:38)\n    at next (eval at evaluate (:291:30), <anonymous>:25:31)\n    at verifyPairingFractionalBreakpoint (/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-playwright-runtime/scripts/old-test-pairing-media-query-browser.mjs:130:21)\n    at async file:///workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-playwright-runtime/csp-replay.mjs:31:5",
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": true,
+      "message": "iced-san-sebastian",
+      "evidence": {
+        "states": [
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 901,
+            "cssIframeWidth": "901px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": false,
+            "narrow": false,
+            "oldWide": true,
+            "gridColumns": [
+              "269.5px",
+              "269.5px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          }
+        ],
+        "errors": []
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": true,
+      "message": "cool-lime-macaron",
+      "evidence": {
+        "states": [
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "cool-lime-macaron",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": false,
+            "cardsShareRow": false,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 901,
+            "cssIframeWidth": "901px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": false,
+            "narrow": false,
+            "oldWide": true,
+            "gridColumns": [
+              "269.5px",
+              "269.5px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "cool-lime-macaron",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": false,
+            "cardsShareRow": false,
+            "focusedMark": true
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": true,
+      "message": "iced-san-sebastian",
+      "evidence": {
+        "states": [
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 901,
+            "cssIframeWidth": "901px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": false,
+            "narrow": false,
+            "oldWide": true,
+            "gridColumns": [
+              "269.5px",
+              "269.5px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

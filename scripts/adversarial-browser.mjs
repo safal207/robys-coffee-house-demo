@@ -1,11 +1,20 @@
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createWriteStream, mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { verifyPairingDiscovery } from "./test-pairing-discovery-browser.mjs";
+import { verifyPairingCssFallback } from "./test-pairing-css-fallback-browser.mjs";
+import { verifyPairingMediaQueryCompatibility, verifyPairingFractionalBreakpoint } from "./test-pairing-media-query-browser.mjs";
 
 const PORT = Number(process.env.ADVERSARIAL_PORT ?? 4177);
 const BASE_URL = `http://127.0.0.1:${PORT}/`;
 const report = { generatedAt: new Date().toISOString(), baseUrl: BASE_URL, checks: [], failures: [], networkOrigins: [] };
+mkdirSync(".artifacts", { recursive: true });
+const serverLog = createWriteStream(".artifacts/adversarial-server.log");
 const server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { stdio: ["ignore", "pipe", "pipe"] });
+// Consume request logs so a long browser matrix cannot block the HTTP server.
+server.stdout.pipe(serverLog, { end: false });
+server.stderr.pipe(serverLog, { end: false });
+const serverClosed = new Promise((done) => server.once("close", () => serverLog.end(done)));
 let browser;
 let fatalError;
 
@@ -245,6 +254,11 @@ try {
     await fallbackMenu.close().catch(() => {});
   }
 
+  await verifyPairingDiscovery(context, BASE_URL, check);
+  await verifyPairingMediaQueryCompatibility(context, BASE_URL, check);
+  await verifyPairingFractionalBreakpoint(context, BASE_URL, check);
+  await verifyPairingCssFallback(context, BASE_URL, check);
+
   const smartChoice = await context.newPage();
   smartChoice.setDefaultTimeout(7_000);
   const smartChoiceErrors = [];
@@ -316,6 +330,7 @@ try {
   writeFileSync(".artifacts/adversarial-browser-report.json", `${JSON.stringify(report, null, 2)}\n`);
   await browser?.close();
   server.kill("SIGTERM");
+  await serverClosed;
 }
 
 if (fatalError) throw fatalError;

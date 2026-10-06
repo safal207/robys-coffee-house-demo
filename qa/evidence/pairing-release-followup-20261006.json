@@ -1,0 +1,665 @@
+{
+  "kind": "local-content-bound-followup-not-CI-or-human-approval",
+  "generatedAt": "2026-10-06T19:30:52.435487+00:00",
+  "parentCommit": "8c559495053983fd9c12608df72151b79893f20c",
+  "bindings": {
+    "discover-deck.js": {
+      "gitBlob": "34fad7f02c4946f12cc5e7f764c90fb27b3b1eed",
+      "sha256": "a54b275c3697b6ef5bde9ddf8333f7d550223e9c3c57005abae6e8ca902478dc"
+    },
+    "discover-v2.js": {
+      "gitBlob": "2d043ceee1906cd7bad35ea27e42e04634643a6a",
+      "sha256": "58001b69ae507effdeae2b80e870ce9a389df7a3b8826a9f2648c7ed00242283"
+    },
+    "discover.html": {
+      "gitBlob": "06fdfac1bff1bb6091d8773a7c0ec80c24fb0077",
+      "sha256": "0c1a8fb4226f05b61e9a716f494da5d62cb49c8ab0945bb9174a41b4b9b5ddd5"
+    },
+    "integrity-manifest.json": {
+      "gitBlob": "6a297c3fbf2fd65e959ad15d86048a54623ce7d0",
+      "sha256": "fac201c36eb7ece89ab2b1c1affca11a4d970fe657334921ae8f620a2a4d2796"
+    },
+    "menu-app.js": {
+      "gitBlob": "caab3057aa4d37b490d092cd20581812bba1851b",
+      "sha256": "7b66a0eec38815d9c08db77018577748ad9c5d99b8353a9a736252d0d5030feb"
+    },
+    "menu-catalog.js": {
+      "gitBlob": "a1b01c0deceff3845a26928b5bbf9a2192300fd9",
+      "sha256": "23d5e08d85d2d531d971a83381171b3139bcaaa2a2f76bbc1a6efe3027076316"
+    },
+    "menu-premium.css": {
+      "gitBlob": "b505a73a9a0bfe0610ee2c45bc1aa45610e521a1",
+      "sha256": "0810a904258f57293635cf121165a9a7c7e08f803b9a2c82967dd45481be7af6"
+    },
+    "menu-product-reveal-runtime.js": {
+      "gitBlob": "b7ad90fc04c4664a5c2a7209f0c9bdd3bfc0f3d8",
+      "sha256": "80655ea173e19355c672664a1b25281b55390d89f1a4ec1b2ee1aac0cb2844cd"
+    },
+    "menu-product-reveal.js": {
+      "gitBlob": "1e75a2d44ab8f9d9d9dacbd7fbe61d3de8972c6f",
+      "sha256": "23e6c26f61a3c611c18c6696554ac20c8f6850c220ba4f74187dcf2c6cddaf2e"
+    },
+    "menu.html": {
+      "gitBlob": "3ea30f0e117012e6f5c6649f57dbc8926effe948",
+      "sha256": "aaa615b1c3d6ab062ea8aa3b53caa69396448cf82157295aea5b2cddaab442fd"
+    },
+    "package-lock.json": {
+      "gitBlob": "8c98f828413278a7574738ec7392617341a0b088",
+      "sha256": "2fb7b56cbd9c2bbffd066ef7561921b8de615f8ad4ffcb438641fae6adf40782"
+    },
+    "package.json": {
+      "gitBlob": "06caeabb23c35a5c508fb6f1baddcbdc328eafd8",
+      "sha256": "62bd39251fe0f37ddcc079cc4de5222b25cdeec08d4ac0e8b63a31e2e57f50dc"
+    },
+    "pairing-posters.css": {
+      "gitBlob": "290dccf23d40bb9c0bd1b2a82e2a0706bcba1f89",
+      "sha256": "cf73456b0834c0e0e1b7273ce97eed6d7518ab024612f015af3d53f948e5525c"
+    },
+    "pairing-posters.js": {
+      "gitBlob": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+      "sha256": "024743e64919f882e4504e31990fdbc6eb6d206d941d848265ba506ad24b3a5f"
+    },
+    "scripts/adversarial-browser.mjs": {
+      "gitBlob": "1cb267ccbd889ff663408d8e046cae35e805e571",
+      "sha256": "388c371a0a4e8ba332716a9b94a8ea0686a0d83530a2155959d0ef31ad72d41e"
+    },
+    "scripts/contextual-entry-smoke.mjs": {
+      "gitBlob": "25db7aca1a5ecc3b0ecb85ce77b752b19478ed47",
+      "sha256": "afd485eaad886c3113d0c5fad745c6d90ca40c39dc7456ec7f8bc6b598ecacef"
+    },
+    "scripts/menu-catalog-revision.mjs": {
+      "gitBlob": "0669c1289233514db5e01e84b650469f3ffcf7bd",
+      "sha256": "f7104b900c6be1853c0c21ab55b6a97de851b7e96736f4112d92c6933890237f"
+    },
+    "scripts/test-menu-catalog-revision.mjs": {
+      "gitBlob": "81718ca13727a3aed1364f717ac8ae0ea7c723cd",
+      "sha256": "0d045bfde0ab022b9f881d2e4831e1755a332ac478411f1adcae34d6a3361231"
+    },
+    "scripts/test-pairing-media-query-browser.mjs": {
+      "gitBlob": "dc50b10b2fc79f9a5247dfc0f12fe04d97311c14",
+      "sha256": "f73c0cc8b7113d3cb56c7f03f819a59f759b344e9579c2e09a5687e9763ccb11"
+    },
+    "scripts/verify-menu-share.mjs": {
+      "gitBlob": "4ed1400f9d9917c144a8c82fd20ce5ec3d61dc24",
+      "sha256": "bdb3cdcd3d0f2235457b17958c15e25aa4ae89f26ac185dff2649ac38bb4c903"
+    },
+    "scripts/verify-security-contracts.mjs": {
+      "gitBlob": "5ee4802656ff73e009eca5d195a4c23e44caedf0",
+      "sha256": "6d5f185370553be1cfd052e93663af0d7c92256934509a0edf84ef210e028524"
+    },
+    "src/menu-app.js": {
+      "gitBlob": "5279692025bd93714883f94e68c37f7e554cb781",
+      "sha256": "796b991665ffc15535e9037d54429dbcd93a2dbba89ff55c8eba8c586a94346e"
+    },
+    "sw-core-v64.js": {
+      "gitBlob": "de6df81a3d472a9d7bcebb8f5a4b352eb7eec22f",
+      "sha256": "cd6551a1f2c7a1d55ef3db5d4ceba7d1660a0c5637684f143ba2ef5c25611f05"
+    }
+  },
+  "verification": {
+    "commands": [
+      {
+        "name": "check",
+        "exitCode": 0
+      },
+      {
+        "name": "security",
+        "exitCode": 0
+      },
+      {
+        "name": "diff",
+        "exitCode": 0
+      }
+    ],
+    "securityContracts": 353,
+    "cacheMutationTests": 6,
+    "npmAuditVulnerabilities": 0
+  },
+  "mediaQueryCompatibility": {
+    "generatedAt": "2026-10-06T19:13:46.317Z",
+    "baseUrl": "http://127.0.0.1:4318/",
+    "checks": [
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "modern/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 1,
+            "legacyRegistrations": 0,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "modern/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 1,
+            "legacyRegistrations": 0,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "legacy/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 1,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "legacy/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 1,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "no-listener/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 0,
+            "changes": 0
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "no-listener/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 0,
+            "changes": 0
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+        "passed": true,
+        "message": "cool-lime-macaron",
+        "evidence": {
+          "states": [
+            {
+              "expectedWidth": 900,
+              "cssIframeWidth": "900px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": false,
+              "below901": true,
+              "narrow": true,
+              "oldWide": false,
+              "gridColumns": [
+                "556px"
+              ],
+              "predecessor": "cool-lime-macaron",
+              "pairingId": "cool-lime-macaron",
+              "bothCardsBefore": false,
+              "cardsShareRow": false,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900.5,
+              "cssIframeWidth": "900.5px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": true,
+              "narrow": false,
+              "oldWide": false,
+              "gridColumns": [
+                "269.25px",
+                "269.25px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "cool-lime-macaron",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 901,
+              "cssIframeWidth": "901px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": false,
+              "narrow": false,
+              "oldWide": true,
+              "gridColumns": [
+                "269.5px",
+                "269.5px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "cool-lime-macaron",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900.5,
+              "cssIframeWidth": "900.5px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": true,
+              "narrow": false,
+              "oldWide": false,
+              "gridColumns": [
+                "269.25px",
+                "269.25px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "cool-lime-macaron",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900,
+              "cssIframeWidth": "900px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": false,
+              "below901": true,
+              "narrow": true,
+              "oldWide": false,
+              "gridColumns": [
+                "556px"
+              ],
+              "predecessor": "cool-lime-macaron",
+              "pairingId": "cool-lime-macaron",
+              "bothCardsBefore": false,
+              "cardsShareRow": false,
+              "focusedMark": true
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+        "passed": true,
+        "message": "iced-san-sebastian",
+        "evidence": {
+          "states": [
+            {
+              "expectedWidth": 900,
+              "cssIframeWidth": "900px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": false,
+              "below901": true,
+              "narrow": true,
+              "oldWide": false,
+              "gridColumns": [
+                "556px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "iced-san-sebastian",
+              "bothCardsBefore": true,
+              "cardsShareRow": false,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900.5,
+              "cssIframeWidth": "900.5px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": true,
+              "narrow": false,
+              "oldWide": false,
+              "gridColumns": [
+                "269.25px",
+                "269.25px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "iced-san-sebastian",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 901,
+              "cssIframeWidth": "901px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": false,
+              "narrow": false,
+              "oldWide": true,
+              "gridColumns": [
+                "269.5px",
+                "269.5px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "iced-san-sebastian",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900.5,
+              "cssIframeWidth": "900.5px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": true,
+              "below901": true,
+              "narrow": false,
+              "oldWide": false,
+              "gridColumns": [
+                "269.25px",
+                "269.25px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "iced-san-sebastian",
+              "bothCardsBefore": true,
+              "cardsShareRow": true,
+              "focusedMark": true
+            },
+            {
+              "expectedWidth": 900,
+              "cssIframeWidth": "900px",
+              "iframeZoom": "2",
+              "exactWidth": true,
+              "above900": false,
+              "below901": true,
+              "narrow": true,
+              "oldWide": false,
+              "gridColumns": [
+                "556px"
+              ],
+              "predecessor": "iced-san-sebastian",
+              "pairingId": "iced-san-sebastian",
+              "bothCardsBefore": true,
+              "cardsShareRow": false,
+              "focusedMark": true
+            }
+          ],
+          "errors": []
+        }
+      }
+    ],
+    "failures": []
+  },
+  "contextualDiagnosis": {
+    "historicalFailure": {
+      "run": 37444924408,
+      "job": 112207334141,
+      "head": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+      "movingTransitions": 7,
+      "minimum": 15,
+      "attribution": "Not established; CI archive omitted the failed raw probe."
+    },
+    "finalLocal": {
+      "day": {
+        "movingTransitions": 22,
+        "longestFlatDurationMs": 299.9,
+        "largestReversePx": 0,
+        "totalMovementPx": 9.9351367,
+        "medianFrameIntervalMs": 16.699999999999932
+      },
+      "night": {
+        "movingTransitions": 21,
+        "longestFlatDurationMs": 166.62199999999996,
+        "largestReversePx": 0,
+        "totalMovementPx": 9.681761,
+        "medianFrameIntervalMs": 16.700000000000045
+      }
+    },
+    "modification": "Preserve per-scene raw probe before timing and cadence assertions; runtime and gate thresholds unchanged."
+  },
+  "oldHeadReproduction": {
+    "passed": true,
+    "evidence": {
+      "sourceHead": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+      "substitutedResource": "pairing-posters.js",
+      "mode": "legacy-only",
+      "errors": [
+        "widePairingLayout.addEventListener is not a function"
+      ],
+      "enhancedCards": 0,
+      "inlineTriggers": 0
+    }
+  },
+  "adversarial": {
+    "checks": 46,
+    "failures": 0,
+    "reportSha256": "5922992693d39a5684891f2b8421a22d21ae15f3cc2be3709081f934a824795a",
+    "phase": "Fractional-breakpoint fix before catalog URL follow-up; current full-tree browser/offline CI required."
+  },
+  "historicalVisualBeforeCatalogFollowup": {
+    "visualMigration": {
+      "mode": "--comparison",
+      "passed": true,
+      "node": "v24.19.0",
+      "platform": "linux",
+      "arch": "x64",
+      "sourceSha": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+      "lockSha256": "2fb7b56cbd9c2bbffd066ef7561921b8de615f8ad4ffcb438641fae6adf40782",
+      "baselineLockSha256": "43487606b3a72f429b336d10d1db5982f46a95b532b7d67d646d0c71399d1926",
+      "toolchainChanged": true,
+      "packageMetadataSha256": {
+        "playwright": "5cb33bf4a5f7971e28d395f625af147eb42cc14423d204c61e02d14ba9014de8",
+        "pixelmatch": "24444e8a9140aebce52854e24889639719110808c23daee74767ffea16556c92",
+        "pngjs": "85b17f2f852aece03e71edb4ed4d9fddf6a0a8f0b69ac75d7f00b6592d62d37c",
+        "playwright-core": "5ad804ce5343706c6ef7d29d8a97821c8e4fa780c9bfdf8488dc5d36aea2e8a7"
+      },
+      "versions": {
+        "playwright": "1.55.1",
+        "pixelmatch": "6.0.0",
+        "pngjs": "7.0.0"
+      },
+      "migration": {
+        "comparisonsPerAttempt": 43,
+        "attempts": 2,
+        "unapprovedDifferences": 0
+      }
+    },
+    "visualCaptures": [
+      {
+        "attempt": 1,
+        "comparisons": 43,
+        "failures": 0,
+        "summarySha256": "acbf505019a9dd67955046975b53a8ec0ff28619d573b163843ad728837c0ce1"
+      },
+      {
+        "attempt": 2,
+        "comparisons": 43,
+        "failures": 0,
+        "summarySha256": "ca8f585081b9f8acaf272c591ffa0bca20e181b9efcd672f35354754d539ce1d"
+      }
+    ],
+    "visualObservation": "Attempt 1 had zero pixel differences. Attempt 2 passed unchanged budgets, but four tea thumbnails were missing in its desktop current capture (35053/11138400 pixels, ratio 0.0031470). The same assets loaded in attempt 1 and all protected bytes were unchanged; no threshold or record was changed."
+  },
+  "fractionalOldHeadReproduction": {
+    "passed": true,
+    "sourceHead": "8c559495053983fd9c12608df72151b79893f20c",
+    "substitutedResource": "pairing-posters.js",
+    "evidence": {
+      "cssIframeWidth": "900.5px",
+      "iframeZoom": "2",
+      "exactWidth900_5": true,
+      "above900": true,
+      "below901": true,
+      "narrow": false,
+      "oldWide": false,
+      "gridColumns": [
+        "269.25px",
+        "269.25px"
+      ],
+      "predecessor": "cool-lime-macaron",
+      "successor": "iced-san-sebastian",
+      "bothCardsBefore": false,
+      "cardsShareRow": false,
+      "childOrder": [
+        "cool-lime-macaron",
+        "details",
+        "iced-san-sebastian"
+      ]
+    }
+  },
+  "currentVisualVerification": {
+    "record": "qa/reviewed-visual-changes.d/pairing-ci-menu-cqw-20261006.json",
+    "actualCIHead": "8e4004d01cec4ab7941f8af66c1274844af03bfe",
+    "actualCIRun": 37520831030,
+    "actualCIArtifact": 11440961499,
+    "actualReviewedMenuChanges": 9,
+    "pairedSheetsInspected": 40,
+    "sourceHead": "6c1f3583641101d8ff391256d0a223b5e99ba00e",
+    "bindingProof": "Only9menu PNGpairs equal in native follow-up plus24modern computed cases; independent assistant adjudication; all261sourceblobs bound. No global43PNGidentity or finalCIexecution claimed.",
+    "localNativeRaw": "43 comparisons/6rawfailures; Discover emptythumbnail retained; global40/43same. No non-menu exception.",
+    "freshFinalHeadCIRequired": true,
+    "priorLocal5RecordHistoricalOnly": true
+  },
+  "subsequentFinalSource": "6c1f3583641101d8ff391256d0a223b5e99ba00e",
+  "finalVerification": [
+    {
+      "name": "check",
+      "exitCode": 0
+    },
+    {
+      "name": "security",
+      "exitCode": 0
+    },
+    {
+      "name": "diff",
+      "exitCode": 0
+    }
+  ],
+  "finalBrowserVerification": {
+    "passed": 70,
+    "failed": 0,
+    "runtime": "Playwright1.53.2/Chromium138-1179; localNode24, CINode22 stillrequired",
+    "report": "qa/evidence/pairing-final-browser-70-20261006.json",
+    "CSPPreserved": true,
+    "deadlineAndAssertionsPreserved": true,
+    "unsupportedCqwFixture": "24states/48cards pass; original24states failed; notphysicallegacybrowser"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "inspectorRole": "assistant",
+  "scope": "Isolated temporary fixtures using unchanged reviewed-change validator. No production bytes, global thresholds or source records mutated.",
+  "recordSha256": "08b97e8790eaf62f7b35eb32843de4bb5ea89fe7bdd5a1ce67a516d432ef8dbf",
+  "sourceHead": "48c949bc84286d1cb559237fb6443fb0ed67ce9f",
+  "summarySha256": "16fc1a67b4385b998a26c0b62c23a495c2426a57b467afda4864fa2cb40ddddc",
+  "cases": [
+    {
+      "case": "unchanged-positive",
+      "expectedExitCode": 0,
+      "actualExitCode": 0,
+      "passed": true,
+      "diagnostic": "n-sebastian.webp.base64.txt, src/products/sets-v1/cool-lime-macaron.webp, src/products/sets-v1/filter-lotus.webp, src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4, src/products/sets-v1/iced-san-sebastian.webp, src/products/sets-v1/latte-nutella.webp, src/products/sets-v1/relax-lotus.webp, src/products/triple-cookie.svg, src/robys-ambience-clean.mp4, src/robys-gallery-croissant.svg, src/robys-gallery-croissant.webp, src/robys-gallery-latte-art.svg, src/robys-gallery-latte-art.webp, src/robys-gallery-signature.svg, src/robys-gallery-signature.webp, src/robys-hero-mobile-lite.mp4, src/robys-hero-poster.jpg, styles-v2.css, sw-core-v64.js, sw.js, takeaway-entry.js, wordmark-responsive.css, integrity-manifest.json, package.json, package-lock.json, scripts/visual-regression.mjs, scripts/verify-visual-toolchain.mjs, qa/visual-regression.json, scripts/verify-reviewed-visual-change.mjs, scripts/capture-document-region.mjs, scripts/test-menu-share-capture.mjs, .github/workflows/visual-regression.yml, scripts/test-pairing-discovery-browser.mjs, scripts/premium-ui-regression.mjs, scripts/adversarial-browser.mjs, scripts/test-pairing-media-query-browser.mjs\n   Reviewed comparisons: 5\n"
+    },
+    {
+      "case": "changed-bound-css",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 5 failure(s), found 0. Actual failures: menu-full/phone-320(diff=0.03239480198019802), menu-full/phone-390(diff=1), menu-full/tablet-768(diff=1), menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.0045212765957446804). Bound approvals: no content-bound approvals.\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    },
+    {
+      "case": "additional-failure",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "AL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/phone-320(diff=4.4232130219391365e-7), menu-full/phone-320(diff=0.03239480198019802), menu-full/phone-390(diff=1), menu-full/tablet-768(diff=1), menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.0045212765957446804). Bound approvals: pairing-layout-final-main-reviewed-20261006: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680).\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    },
+    {
+      "case": "one-extra-diff-pixel",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 5 failure(s), found 0. Actual failures: menu-full/phone-320(diff=0.03239480198019802), menu-full/phone-390(diff=1), menu-full/tablet-768(diff=1), menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.00452353047241255). Bound approvals: pairing-layout-final-main-reviewed-20261006: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680).\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    },
+    {
+      "case": "changed-full-page-dimensions",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "viewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 5 failure(s), found 0. Actual failures: menu-full/phone-320(diff=0.03239480198019802), menu-full/phone-390(diff=1), menu-full/tablet-768(diff=1), menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.0045212765957446804). Bound approvals: pairing-layout-final-main-reviewed-20261006: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680).\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    },
+    {
+      "case": "changed-crop-pixel-total",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "viewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 5 failure(s), found 0. Actual failures: menu-full/phone-320(diff=0.03239480198019802), menu-full/phone-390(diff=1), menu-full/tablet-768(diff=1), menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.0045212765957446804). Bound approvals: pairing-layout-final-main-reviewed-20261006: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680).\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    },
+    {
+      "case": "duplicate-matching-record",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "passed": true,
+      "diagnostic": "menu-full/desktop-1440(diff=1), menu-share/desktop-1440(diff=0.0045212765957446804). Bound approvals: pairing-layout-final-main-reviewed-20261006: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680) | isolated-duplicate: menu-full/phone-320(pixels=3781440), menu-full/phone-390(reason=dimension mismatch 390x11529 vs 390x11514), menu-full/tablet-768(reason=dimension mismatch 768x13211 vs 768x13195), menu-full/desktop-1440(reason=dimension mismatch 1440x7096 vs 1440x7735), menu-share/desktop-1440(pixels=443680).\n    at fail (file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:11:9)\n    at file:///workspace/scratch/716c6a496d8c/robys-release/scripts/verify-reviewed-visual-change.mjs:135:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n"
+    }
+  ]
+}
