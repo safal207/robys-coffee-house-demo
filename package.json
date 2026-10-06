@@ -58,7 +58,7 @@
     "verify:regression": "npm run verify:evidence-boundary && npm run verify:proof-depth && npm run test:proof-depth && npm run verify:review-routing && npm run test:review-routing && npm run verify:traceability && npm run test:traceability && npm run verify:ai-style-matrix && npm run verify:brand-identity && npm run verify:brand-candidate && npm run verify:social-offer && npm run verify:pairing-cta && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial && npm run verify:causal-refactoring && npm run test:causal-refactoring",
     "verify:performance": "node scripts/verify-performance-contract.mjs",
     "verify:live:smoke": "node scripts/live-smoke.mjs",
-    "verify:security": "node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs",
+    "verify:security": "node --test scripts/test-menu-catalog-revision.mjs && node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs",
     "verify:adversarial": "node scripts/verify-adversarial-contracts.mjs",
     "integrity:generate": "node scripts/generate-integrity-manifest.mjs",
     "verify:integrity": "node scripts/generate-integrity-manifest.mjs --check && node scripts/verify-integrity-manifest.mjs",

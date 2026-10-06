@@ -1,4 +1,5 @@
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
+import { readMenuCatalogRevisionInputs, verifyMenuCatalogRevision } from "./menu-catalog-revision.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -46,8 +47,7 @@ assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must l
 assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
 assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
-assert(menuPageRuntime.includes('from "./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu runtime must use the cache-new catalog pathname");
-assert(serviceWorker.includes('"./menu-catalog.js?v=20260904-premium-order-v1"'), "Menu catalog is not precached at its runtime revision");
+verifyMenuCatalogRevision(readMenuCatalogRevisionInputs());
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-catalog.js")'), "Menu catalog is not exact-revision cached");
 assert(!serviceWorker.includes('"./menu-data.js"'), "Legacy unversioned menu catalog must not remain in the cache manifest");
 assert(serviceWorker.includes(`"./menu-premium.css?v=${premiumRevision}"`), "Premium menu stylesheet is not precached at its HTML revision");
