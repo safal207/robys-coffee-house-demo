@@ -1,0 +1,335 @@
+{
+  "kind": "local-content-bound-followup-not-CI-or-human-approval",
+  "generatedAt": "2026-10-06T18:55:41.326824+00:00",
+  "parentCommit": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+  "bindings": {
+    "pairing-posters.js": {
+      "gitBlob": "bfed8cecf9ccff96abeee004a15f1f7a0fd28ac7",
+      "sha256": "0a3e29938a8e7bdd5fedfcfb3cf1e597caf278ab556b8481f98d322ee89b3f9d"
+    },
+    "pairing-posters.css": {
+      "gitBlob": "290dccf23d40bb9c0bd1b2a82e2a0706bcba1f89",
+      "sha256": "cf73456b0834c0e0e1b7273ce97eed6d7518ab024612f015af3d53f948e5525c"
+    },
+    "menu-premium.css": {
+      "gitBlob": "b505a73a9a0bfe0610ee2c45bc1aa45610e521a1",
+      "sha256": "0810a904258f57293635cf121165a9a7c7e08f803b9a2c82967dd45481be7af6"
+    },
+    "menu.html": {
+      "gitBlob": "da336cf0881ed2257e3d26634f7e8d1eafc9bb3f",
+      "sha256": "74f640c7e523fb84032211d4562854b698df12e1ff3e722d142dd9bda67c6b0b"
+    },
+    "sw-core-v64.js": {
+      "gitBlob": "bb7b13d34ae215897771ce909a8a756d95135ef7",
+      "sha256": "8aa7464f2f595973142e0a65a2b4ecbf4f7d31b57f80ab1b21231acb6baf39ad"
+    },
+    "integrity-manifest.json": {
+      "gitBlob": "d2a2c1c3ae183d70a13729f06033b1b95ddb1f87",
+      "sha256": "feb916a4b969649f07aaffbe45e06e899c09f406030c1e7b3d130d2b6203bddf"
+    },
+    "package.json": {
+      "gitBlob": "be3be1ef7c755fe7264c964777f0ababf94ad6ad",
+      "sha256": "31051d9c08acaff42bbd3c2b18eef76627fa17bf77075d734e2d452ce598ba6a"
+    },
+    "package-lock.json": {
+      "gitBlob": "8c98f828413278a7574738ec7392617341a0b088",
+      "sha256": "2fb7b56cbd9c2bbffd066ef7561921b8de615f8ad4ffcb438641fae6adf40782"
+    },
+    "scripts/adversarial-browser.mjs": {
+      "gitBlob": "caad356295964dfb64bf2e116caa11e1515bb143",
+      "sha256": "6c0231217633dac0d90dc552e0e5eb47c82dfab8c645ec76c73ab548cdb4cffa"
+    },
+    "scripts/test-pairing-media-query-browser.mjs": {
+      "gitBlob": "8d018d09ef8025856d4b3e9406ef9be053c8f6ea",
+      "sha256": "50d88cc98d8ae9344dd0f458412da1aa4de6abf98369b2eb11128fca808c71c2"
+    },
+    "scripts/contextual-entry-smoke.mjs": {
+      "gitBlob": "25db7aca1a5ecc3b0ecb85ce77b752b19478ed47",
+      "sha256": "afd485eaad886c3113d0c5fad745c6d90ca40c39dc7456ec7f8bc6b598ecacef"
+    }
+  },
+  "verification": {
+    "check": 0,
+    "verifySecurity": 0,
+    "securityContracts": 353,
+    "npmAuditVulnerabilities": 0,
+    "visualToolchainTests": {
+      "passed": 26,
+      "failed": 0
+    }
+  },
+  "mediaQueryCompatibility": {
+    "generatedAt": "2026-10-06T18:51:07.844Z",
+    "baseUrl": "http://127.0.0.1:4318/",
+    "checks": [
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "modern/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 1,
+            "legacyRegistrations": 0,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "modern/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 1,
+            "legacyRegistrations": 0,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "legacy/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 1,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "legacy/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 1,
+            "changes": 2
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "no-listener/cool-lime-macaron",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 0,
+            "changes": 0
+          },
+          "placements": [
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "cool-lime-macaron",
+              "predecessor": "cool-lime-macaron",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      },
+      {
+        "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+        "passed": true,
+        "message": "no-listener/iced-san-sebastian",
+        "evidence": {
+          "state": {
+            "modernRegistrations": 0,
+            "legacyRegistrations": 0,
+            "changes": 0
+          },
+          "placements": [
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 1440
+            },
+            {
+              "id": "iced-san-sebastian",
+              "predecessor": "iced-san-sebastian",
+              "width": 390
+            }
+          ],
+          "errors": []
+        }
+      }
+    ],
+    "failures": []
+  },
+  "contextualDiagnosis": {
+    "historicalFailure": {
+      "run": 37444924408,
+      "job": 112207334141,
+      "head": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+      "movingTransitions": 7,
+      "minimum": 15,
+      "attribution": "Not established; CI archive omitted the failed raw probe."
+    },
+    "finalLocal": {
+      "day": {
+        "movingTransitions": 22,
+        "longestFlatDurationMs": 299.9,
+        "largestReversePx": 0,
+        "totalMovementPx": 9.9351367,
+        "medianFrameIntervalMs": 16.699999999999932
+      },
+      "night": {
+        "movingTransitions": 21,
+        "longestFlatDurationMs": 166.62199999999996,
+        "largestReversePx": 0,
+        "totalMovementPx": 9.681761,
+        "medianFrameIntervalMs": 16.700000000000045
+      }
+    },
+    "modification": "Preserve per-scene raw probe before timing and cadence assertions; runtime and gate thresholds unchanged."
+  },
+  "visualMigration": {
+    "mode": "--comparison",
+    "passed": true,
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "sourceSha": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+    "lockSha256": "2fb7b56cbd9c2bbffd066ef7561921b8de615f8ad4ffcb438641fae6adf40782",
+    "baselineLockSha256": "43487606b3a72f429b336d10d1db5982f46a95b532b7d67d646d0c71399d1926",
+    "toolchainChanged": true,
+    "packageMetadataSha256": {
+      "playwright": "5cb33bf4a5f7971e28d395f625af147eb42cc14423d204c61e02d14ba9014de8",
+      "pixelmatch": "24444e8a9140aebce52854e24889639719110808c23daee74767ffea16556c92",
+      "pngjs": "85b17f2f852aece03e71edb4ed4d9fddf6a0a8f0b69ac75d7f00b6592d62d37c",
+      "playwright-core": "5ad804ce5343706c6ef7d29d8a97821c8e4fa780c9bfdf8488dc5d36aea2e8a7"
+    },
+    "versions": {
+      "playwright": "1.55.1",
+      "pixelmatch": "6.0.0",
+      "pngjs": "7.0.0"
+    },
+    "migration": {
+      "comparisonsPerAttempt": 43,
+      "attempts": 2,
+      "unapprovedDifferences": 0
+    }
+  },
+  "visualCaptures": [
+    {
+      "attempt": 1,
+      "comparisons": 43,
+      "failures": 0,
+      "summarySha256": "acbf505019a9dd67955046975b53a8ec0ff28619d573b163843ad728837c0ce1"
+    },
+    {
+      "attempt": 2,
+      "comparisons": 43,
+      "failures": 0,
+      "summarySha256": "ca8f585081b9f8acaf272c591ffa0bca20e181b9efcd672f35354754d539ce1d"
+    }
+  ],
+  "oldHeadReproduction": {
+    "passed": true,
+    "evidence": {
+      "sourceHead": "8694997a84cbbdda2ad117d3f9b4729996b626de",
+      "substitutedResource": "pairing-posters.js",
+      "mode": "legacy-only",
+      "errors": [
+        "widePairingLayout.addEventListener is not a function"
+      ],
+      "enhancedCards": 0,
+      "inlineTriggers": 0
+    }
+  },
+  "adversarial": {
+    "checks": 44,
+    "failures": 0,
+    "reportSha256": "a482c07cda43a8c9fdff512cd9828ec33d501aa6e06567a0ebbbe740d8ec3600"
+  },
+  "visualObservation": "Attempt 1 had zero pixel differences. Attempt 2 passed unchanged budgets, but four tea thumbnails were missing in its desktop current capture (35053/11138400 pixels, ratio 0.0031470). The same assets loaded in attempt 1 and all protected bytes were unchanged; no threshold or record was changed."
+}

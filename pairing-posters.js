@@ -207,11 +207,17 @@ function placeExperiencePanel(panel, card) {
   focused?.focus({ preventScroll: true });
 }
 
-widePairingLayout.addEventListener("change", () => {
+function handlePairingLayoutChange() {
   const panel = document.querySelector(".pairing-discovery-panel");
   const card = document.querySelector(".pairing-poster-card.is-selected");
   if (panel && card) placeExperiencePanel(panel, card);
-});
+}
+
+if (typeof widePairingLayout.addEventListener === "function") {
+  widePairingLayout.addEventListener("change", handlePairingLayoutChange);
+} else if (typeof widePairingLayout.addListener === "function") {
+  widePairingLayout.addListener(handlePairingLayoutChange);
+}
 
 function renderExperience(card, media) {
   const lang = currentLanguage();
