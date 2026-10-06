@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { menuCategories } from "../menu-catalog.js";
 import { journeys } from "../discover-journeys-v2.js";
 import { alternativeJourney, pairingForJourney, productRouteForJourney } from "../discover-deck.js";
+import { menuCatalogRevision } from "./menu-catalog-revision.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -64,7 +65,8 @@ assert.match(html, /href="discover-deck\.css\?v=[a-f0-9]{12}"/);
 assert.match(html, /src="discover-deck\.js\?v=[a-f0-9]{12}"/);
 
 const source = readFileSync(resolve(root, "discover-deck.js"), "utf8");
-assert.match(source, /menu-catalog\.js\?v=20260904-premium-order-v1/);
+const catalogRevision = menuCatalogRevision(readFileSync(resolve(root, "menu-catalog.js")));
+assert.ok(source.includes(`from "./menu-catalog.js?v=${catalogRevision}"`), "Deck must use the current catalog's exact content revision");
 assert.match(source, /discover-journeys-v2\.js/);
 assert.match(source, /#next-pairing/);
 assert.match(source, /next\.click\(\)/, "Deck preview must delegate selection to existing Discover handler");
