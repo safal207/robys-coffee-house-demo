@@ -37,3 +37,25 @@ those assets loaded in attempt 1 and the protected bytes did not change.
 
 The site is not published by this record. Release still requires all applicable
 technical checks, review disposition and verification of the deployed bytes.
+
+## Subsequent breakpoint and catalog follow-up
+
+The JavaScript now uses the same `(max-width: 900px)` query as CSS, eliminating
+the fractional 900–901 px gap. A real Chromium iframe at 900.5 CSS px with
+`zoom:2` confirms the native media-query gap without mocking it. Both pairings
+retain their row, details placement and focus through 900 → 900.5 → 901 →
+900.5 → 900. The previous JavaScript reproduces the broken row. The standalone
+runner passed 8/8 and adversarial suite 46/46 on this breakpoint change.
+
+Menu/reveal and both active Discover modules now request the catalog's content
+revision. Source, compiled imports, lazy reveal, HTML and service-worker precache
+are bound by strict contracts. Six cache/mutation controls execute before the
+unchanged 353 security contracts and secret scan; the full security command is
+still required exactly. Catalog data, performance budgets and screenshot
+thresholds are unchanged. Browser/offline CI is required on the combined tree.
+
+The earlier two-set visual result above describes the preceding bytes. Fresh
+captures against the updated main are required for this follow-up. Its local
+main migration attempts 2 and 3 omitted one baseline Discover thumbnail; neither
+is reported as a passing migration. Fresh CI and its preserved evidence determine
+release acceptance. All previous captures remain historical evidence.

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { verifyPairingDetailsGeometry } from "./test-pairing-discovery-browser.mjs";
 
-// Exercise the real menu with only the 901px MediaQueryList API changed.
+// Exercise the real menu with only the CSS 900px MediaQueryList API changed.
 // Legacy listeners still receive actual browser viewport changes.
 export async function verifyPairingMediaQueryCompatibility(context, baseUrl, check) {
   for (const mode of ["modern", "legacy", "no-listener"]) {
@@ -23,7 +23,7 @@ export async function verifyPairingMediaQueryCompatibility(context, baseUrl, che
           window.__pairingMediaQueryState = state;
           window.matchMedia = (query) => {
             const native = nativeMatchMedia(query);
-            if (query !== "(min-width: 901px)") return native;
+            if (query !== "(max-width: 900px)") return native;
             const result = { media: native.media, get matches() { return native.matches; } };
             const track = (listener) => (event) => { state.changes += 1; listener(event); };
             if (listenerMode === "modern") {
@@ -68,7 +68,7 @@ export async function verifyPairingMediaQueryCompatibility(context, baseUrl, che
             const node = document.querySelector(".pairing-discovery-panel");
             return node?.dataset.pairingId === id && node.previousElementSibling?.dataset.pairing ===
               (wide ? "iced-san-sebastian" : id);
-          }, { id: pairing, wide: width >= 901 });
+          }, { id: pairing, wide: width > 900 });
           placements.push(await panel.evaluate((node) => ({
             id: node.dataset.pairingId,
             predecessor: node.previousElementSibling.dataset.pairing,
@@ -95,6 +95,95 @@ export async function verifyPairingMediaQueryCompatibility(context, baseUrl, che
   }
 }
 
+// CSS zoom keeps a half-pixel iframe viewport representable in Chromium.
+// Native media queries must prove the fractional viewport; none are mocked here.
+export async function verifyPairingFractionalBreakpoint(context, baseUrl, check) {
+  for (const pairing of ["cool-lime-macaron", "iced-san-sebastian"]) {
+    const page = await context.newPage();
+    page.setDefaultTimeout(10_000);
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    try {
+      await page.setViewportSize({ width: 2000, height: 2200 });
+      const harnessUrl = new URL("__pairing-fractional-harness.html", baseUrl).href;
+      await page.route(harnessUrl, (route) => route.fulfill({
+        contentType: "text/html",
+        body: '<!doctype html><html><body style="margin:0"><iframe id="pairing-test-frame" title="Pairing menu" style="width:900px;height:1000px;border:0;zoom:2" src="menu.html?entry=off#pairing-offers"></iframe></body></html>'
+      }));
+      await page.goto(harnessUrl, { waitUntil: "domcontentloaded" });
+      const iframe = page.locator("#pairing-test-frame");
+      const frame = await (await iframe.elementHandle()).contentFrame();
+      assert.ok(frame, "real menu iframe is attached");
+      await frame.locator('.lang-button[data-lang="ru"]').focus();
+      await page.keyboard.press("Enter");
+      const opener = frame.locator(`[data-discover-pairing="${pairing}"]`);
+      await opener.waitFor({ state: "visible" });
+      await opener.focus();
+      await page.keyboard.press("Enter");
+      const panel = frame.locator(".pairing-discovery-panel");
+      await panel.waitFor({ state: "visible" });
+      const states = [];
+      for (const width of [900, 900.5, 901, 900.5, 900]) {
+        const mark = panel.locator(".pairing-discovery-mark");
+        await mark.focus();
+        await iframe.evaluate((node, size) => { node.style.width = `${size}px`; }, width);
+        await frame.waitForFunction(({ id, expectedWidth }) => {
+          const node = document.querySelector(".pairing-discovery-panel");
+          if (!node || node.dataset.pairingId !== id || !matchMedia(`(width: ${expectedWidth}px)`).matches) return false;
+          const narrow = matchMedia("(max-width: 900px)").matches;
+          return narrow ? node.previousElementSibling?.dataset.pairing === id :
+            node === node.parentElement.lastElementChild;
+        }, { id: pairing, expectedWidth: width });
+        await frame.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+        const state = await frame.evaluate((expectedWidth) => {
+          const node = document.querySelector(".pairing-discovery-panel");
+          const cards = [...node.parentElement.querySelectorAll(".pairing-poster-card")];
+          return {
+            expectedWidth,
+            cssIframeWidth: frameElement.style.width,
+            iframeZoom: frameElement.style.zoom,
+            exactWidth: matchMedia(`(width: ${expectedWidth}px)`).matches,
+            above900: matchMedia("(width > 900px)").matches,
+            below901: matchMedia("(width < 901px)").matches,
+            narrow: matchMedia("(max-width: 900px)").matches,
+            oldWide: matchMedia("(min-width: 901px)").matches,
+            gridColumns: getComputedStyle(node.parentElement).gridTemplateColumns.split(" "),
+            predecessor: node.previousElementSibling?.dataset.pairing,
+            pairingId: node.dataset.pairingId,
+            bothCardsBefore: cards.every((card) => Boolean(card.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)),
+            cardsShareRow: Math.abs(cards[0].getBoundingClientRect().top - cards[1].getBoundingClientRect().top) <= 1,
+            focusedMark: document.activeElement === node.querySelector(".pairing-discovery-mark")
+          };
+        }, width);
+        assert.equal(state.exactWidth, true, `${pairing}/${width}: native query confirms the CSS viewport width`);
+        assert.equal(state.narrow, width === 900, `${pairing}/${width}: JS uses the CSS narrow breakpoint`);
+        assert.equal(state.gridColumns.length, width === 900 ? 1 : 2, `${pairing}/${width}: actual menu grid matches CSS`);
+        assert.equal(state.focusedMark, true, `${pairing}/${width}: resize preserves focused action`);
+        assert.equal(state.pairingId, pairing, `${pairing}/${width}: resize preserves the selected pair`);
+        if (width === 900.5) {
+          assert.equal(state.above900 && state.below901 && !state.oldWide, true, `${pairing}: fractional viewport lies inside the previous query gap`);
+        }
+        if (width > 900) {
+          assert.equal(state.bothCardsBefore && state.cardsShareRow, true, `${pairing}/${width}: details follow both adjacent posters`);
+        } else {
+          assert.equal(state.predecessor, pairing, `${pairing}/${width}: narrow details follow their selected poster`);
+        }
+        states.push(state);
+      }
+      await panel.locator(".pairing-discovery-close").focus();
+      await page.keyboard.press("Enter");
+      await panel.waitFor({ state: "detached" });
+      assert.equal(await opener.evaluate((node) => document.activeElement === node), true, `${pairing}: closing restores focus`);
+      assert.deepEqual(errors, [], `${pairing}: fractional iframe does not throw`);
+      check("PAIRING-FRACTIONAL-BREAKPOINT-001", true, pairing, { states, errors });
+    } catch (error) {
+      check("PAIRING-FRACTIONAL-BREAKPOINT-001", false, pairing, { error: String(error?.stack ?? error), errors });
+    } finally {
+      await page.close();
+    }
+  }
+}
+
 async function main() {
   const port = Number(process.env.PAIRING_MEDIA_QUERY_PORT ?? "4318");
   const baseUrl = `http://127.0.0.1:${port}/`;
@@ -113,6 +202,11 @@ async function main() {
     const context = await browser.newContext({ reducedMotion: "reduce", serviceWorkers: "block" });
     await context.route("**/*", (route) => new URL(route.request().url()).origin === new URL(baseUrl).origin ? route.continue() : route.abort());
     await verifyPairingMediaQueryCompatibility(context, baseUrl, (id, passed, message, evidence) => {
+      const item = { id, passed, message, evidence };
+      report.checks.push(item);
+      if (!passed) report.failures.push(item);
+    });
+    await verifyPairingFractionalBreakpoint(context, baseUrl, (id, passed, message, evidence) => {
       const item = { id, passed, message, evidence };
       report.checks.push(item);
       if (!passed) report.failures.push(item);

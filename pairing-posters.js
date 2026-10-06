@@ -194,7 +194,7 @@ function removeExperiencePanel({ restoreFocus = false } = {}) {
   }
 }
 
-const widePairingLayout = window.matchMedia("(min-width: 901px)");
+const narrowPairingLayout = window.matchMedia("(max-width: 900px)");
 
 function placeExperiencePanel(panel, card) {
   const list = card.closest(".full-menu-list");
@@ -202,8 +202,8 @@ function placeExperiencePanel(panel, card) {
   // In the single-column layout, details must follow the pair that opened them.
   // Wide screens keep both posters together above the full-width details.
   const focused = panel.contains(document.activeElement) ? document.activeElement : null;
-  if (widePairingLayout.matches) list.append(panel);
-  else card.after(panel);
+  if (narrowPairingLayout.matches) card.after(panel);
+  else list.append(panel);
   focused?.focus({ preventScroll: true });
 }
 
@@ -213,10 +213,10 @@ function handlePairingLayoutChange() {
   if (panel && card) placeExperiencePanel(panel, card);
 }
 
-if (typeof widePairingLayout.addEventListener === "function") {
-  widePairingLayout.addEventListener("change", handlePairingLayoutChange);
-} else if (typeof widePairingLayout.addListener === "function") {
-  widePairingLayout.addListener(handlePairingLayoutChange);
+if (typeof narrowPairingLayout.addEventListener === "function") {
+  narrowPairingLayout.addEventListener("change", handlePairingLayoutChange);
+} else if (typeof narrowPairingLayout.addListener === "function") {
+  narrowPairingLayout.addListener(handlePairingLayoutChange);
 }
 
 function renderExperience(card, media) {

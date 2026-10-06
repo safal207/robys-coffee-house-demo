@@ -189,7 +189,7 @@ must("SAST-001", codeql.includes("javascript-typescript"), "CodeQL does not anal
 must("SAST-001", codeql.includes("security-events: write"), "CodeQL cannot publish security findings");
 
 must("DEPSEC-001", packageJson.scripts?.["security:audit"] === "npm audit --audit-level=high", "security:audit package script changed");
-must("SEC-001", packageJson.scripts?.["verify:security"] === "node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs", "verify:security package script changed");
+must("SEC-001", packageJson.scripts?.["verify:security"] === "node --test scripts/test-menu-catalog-revision.mjs && node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs", "verify:security package script changed");
 
 for (const id of ["SEC-001", "CSP-001", "DEPSEC-001", "SECRET-001", "SAST-001", "CI-TRUST-001", "PRIVACY-001"]) {
   const contract = dashboard.contracts?.find((item) => item.id === id);

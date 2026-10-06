@@ -1,0 +1,119 @@
+{
+  "kind": "local-content-bound-followup-not-CI-or-human-approval",
+  "generatedAt": "2026-10-06T19:25:08.575361+00:00",
+  "parentCommit": "3d77b3fc1f9d9536c979ac56a6dcb125fffa7f3f",
+  "verification": [
+    {
+      "name": "check",
+      "exitCode": 0
+    },
+    {
+      "name": "security",
+      "exitCode": 0
+    },
+    {
+      "name": "diff",
+      "exitCode": 0
+    }
+  ],
+  "catalogRevision": "23d5e08d85d2",
+  "catalogDataChanged": false,
+  "catalogCacheTests": {
+    "passed": 6,
+    "failed": 0,
+    "boundary": "Node mutation fixtures and execution of shipped service-worker code in a Cache API VM, not a historical browser execution"
+  },
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "historicalAdversarialCI": {
+    "run": 37516089570,
+    "job": 112449227711,
+    "finding": "Broad selector opened the first pairing inline while the test expected the product dialog. Three selectors now explicitly target product cards; assertions preserved. Local cart/fallback probes and 14-case suite passed before catalog URL updates."
+  },
+  "activeConsumers": [
+    "menu source and compiled runtime",
+    "product reveal runtime and lazy loader",
+    "Discover runtime and deck",
+    "Discover HTML and service-worker precache"
+  ],
+  "bindings": {
+    "menu-catalog.js": {
+      "gitBlob": "a1b01c0deceff3845a26928b5bbf9a2192300fd9",
+      "sha256": "23d5e08d85d2d531d971a83381171b3139bcaaa2a2f76bbc1a6efe3027076316"
+    },
+    "src/menu-app.js": {
+      "gitBlob": "5279692025bd93714883f94e68c37f7e554cb781",
+      "sha256": "796b991665ffc15535e9037d54429dbcd93a2dbba89ff55c8eba8c586a94346e"
+    },
+    "menu-app.js": {
+      "gitBlob": "caab3057aa4d37b490d092cd20581812bba1851b",
+      "sha256": "7b66a0eec38815d9c08db77018577748ad9c5d99b8353a9a736252d0d5030feb"
+    },
+    "menu-product-reveal-runtime.js": {
+      "gitBlob": "b7ad90fc04c4664a5c2a7209f0c9bdd3bfc0f3d8",
+      "sha256": "80655ea173e19355c672664a1b25281b55390d89f1a4ec1b2ee1aac0cb2844cd"
+    },
+    "menu-product-reveal.js": {
+      "gitBlob": "1e75a2d44ab8f9d9d9dacbd7fbe61d3de8972c6f",
+      "sha256": "23e6c26f61a3c611c18c6696554ac20c8f6850c220ba4f74187dcf2c6cddaf2e"
+    },
+    "discover-v2.js": {
+      "gitBlob": "2d043ceee1906cd7bad35ea27e42e04634643a6a",
+      "sha256": "58001b69ae507effdeae2b80e870ce9a389df7a3b8826a9f2648c7ed00242283"
+    },
+    "discover-deck.js": {
+      "gitBlob": "34fad7f02c4946f12cc5e7f764c90fb27b3b1eed",
+      "sha256": "a54b275c3697b6ef5bde9ddf8333f7d550223e9c3c57005abae6e8ca902478dc"
+    },
+    "discover.html": {
+      "gitBlob": "06fdfac1bff1bb6091d8773a7c0ec80c24fb0077",
+      "sha256": "0c1a8fb4226f05b61e9a716f494da5d62cb49c8ab0945bb9174a41b4b9b5ddd5"
+    },
+    "menu.html": {
+      "gitBlob": "679b17740d2cc17d92057b3f1146721f9f2b2512",
+      "sha256": "cb0fe90f93e798c5e37f147b50b254fb5a297f5a7abee31dd9d8452f2a85c8e3"
+    },
+    "sw-core-v64.js": {
+      "gitBlob": "778a7e85ca74bce0257e81271087de86a62379ea",
+      "sha256": "c45525a8c3d96f010f6f237c660f080d695b3c79e4430be4887d06bcf4199a89"
+    },
+    "package.json": {
+      "gitBlob": "06caeabb23c35a5c508fb6f1baddcbdc328eafd8",
+      "sha256": "62bd39251fe0f37ddcc079cc4de5222b25cdeec08d4ac0e8b63a31e2e57f50dc"
+    },
+    "package-lock.json": {
+      "gitBlob": "8c98f828413278a7574738ec7392617341a0b088",
+      "sha256": "2fb7b56cbd9c2bbffd066ef7561921b8de615f8ad4ffcb438641fae6adf40782"
+    },
+    "scripts/menu-catalog-revision.mjs": {
+      "gitBlob": "0669c1289233514db5e01e84b650469f3ffcf7bd",
+      "sha256": "f7104b900c6be1853c0c21ab55b6a97de851b7e96736f4112d92c6933890237f"
+    },
+    "scripts/test-menu-catalog-revision.mjs": {
+      "gitBlob": "81718ca13727a3aed1364f717ac8ae0ea7c723cd",
+      "sha256": "0d045bfde0ab022b9f881d2e4831e1755a332ac478411f1adcae34d6a3361231"
+    },
+    "scripts/verify-menu-share.mjs": {
+      "gitBlob": "4ed1400f9d9917c144a8c82fd20ce5ec3d61dc24",
+      "sha256": "bdb3cdcd3d0f2235457b17958c15e25aa4ae89f26ac185dff2649ac38bb4c903"
+    },
+    "scripts/verify-security-contracts.mjs": {
+      "gitBlob": "5ee4802656ff73e009eca5d195a4c23e44caedf0",
+      "sha256": "6d5f185370553be1cfd052e93663af0d7c92256934509a0edf84ef210e028524"
+    },
+    "scripts/adversarial-browser.mjs": {
+      "gitBlob": "3fa669a0b6e79a24845933f1e0883fbb0c1e0cec",
+      "sha256": "5c9a8b7de93df36e0bf5cf27022ac943271bac7c13852628dfd9172f0c269dcb"
+    },
+    "integrity-manifest.json": {
+      "gitBlob": "b3e2dff81c67268587f337b14dc69f77291bcf71",
+      "sha256": "d510d9cd89e1ad48b8d6899999d738f901da1eb8bff6cf92eceee1d5f1ca4ea4"
+    }
+  }
+}
