@@ -4,6 +4,14 @@ import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
+await build({
+  entryPoints: ["src/menu-pairing-view.js"], bundle: true, minify: true, charset: "utf8",
+  format: "esm", target: "es2020", outfile: "menu-pairing.js", legalComments: "none"
+});
+const menuPairingRevision = revisionFor("menu-pairing.js");
+let menuSource = readFileSync("src/menu-app.js", "utf8");
+menuSource = synchronizeModuleImport(menuSource, "menu-pairing.js", menuPairingRevision);
+writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
@@ -366,6 +374,10 @@ serviceWorker = serviceWorker.replace(
   pairingCachePattern,
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
+const customPairingCacheRevision = createHash("sha256")
+  .update(`${menuAppRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-custom-pair-${customPairingCacheRevision}-shared-order-`);
 for (const { name, target, revision } of landingCacheStyles) {
   serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
   serviceWorker = serviceWorker.replace(
@@ -391,6 +403,7 @@ for (const [filePath, revision] of [
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-pairing.js", menuPairingRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
   ["menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision],

@@ -42,6 +42,18 @@ for (const name of ["conversion", "menu-app"]) {
     "index.html": "<main>Menu</main>", [`src/${name}.js`]: "export {};"
   }, [`src/${name}.js`]);
 }
+check("lazy pairing output links its readable view only when reached", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": 'import("./menu-pairing.js?v=fixture");', "src/menu-app.js": 'import("./menu-pairing.js?v=fixture");',
+  "menu-pairing.js": "export {};", "src/menu-pairing-view.js": "export {};"
+}, [], [["menu-app.js", "src/menu-app.js"], ["menu-pairing.js", "src/menu-pairing-view.js"]]);
+check("detached lazy pairing output cannot retain its readable view", {
+  "index.html": "<main>Menu</main>", "menu-pairing.js": "export {};", "src/menu-pairing-view.js": "export {};"
+}, ["menu-pairing.js", "src/menu-pairing-view.js"]);
+check("unreferenced pairing domain remains an orphan", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": "export {};", "src/menu-app.js": "export {};", "src/menu-pairing.js": "export {};"
+}, ["src/menu-pairing.js"], [["menu-app.js", "src/menu-app.js"]]);
 for (const name of ["menu-stability", "final-qa", "community-reel"]) {
   check(`${name}: reached cache-isolated CSS links canonical input`, {
     "index.html": `<link rel="stylesheet" href="${name}-v2.css?v=fixture">`,

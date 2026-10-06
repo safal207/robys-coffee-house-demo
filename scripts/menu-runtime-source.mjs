@@ -9,7 +9,7 @@ export function compileMenuRuntime(source = readFileSync("src/menu-app.js", "utf
   return buildSync({
     stdin: { contents: source, resolveDir: process.cwd(), loader: "js" },
     bundle: true, write: false, format: "esm", target: "es2020",
-    external: ["./menu-catalog.js*", "./menu-search-clear.js", "./menu-interactions.js*"],
+    external: ["./menu-catalog.js*", "./menu-search-clear.js", "./menu-interactions.js*", "./menu-pairing.js*"],
     minify: true, legalComments: "none", logLevel: "silent"
   }).outputFiles[0].text;
 }

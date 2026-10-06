@@ -3,6 +3,7 @@ import { createWriteStream, mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { verifyPairingDiscovery } from "./test-pairing-discovery-browser.mjs";
 import { verifyPairingCssFallback } from "./test-pairing-css-fallback-browser.mjs";
+import { verifyMenuCustomPairing } from "./test-menu-custom-pairing-browser.mjs";
 import { verifyPairingMediaQueryCompatibility, verifyPairingFractionalBreakpoint } from "./test-pairing-media-query-browser.mjs";
 
 const PORT = Number(process.env.ADVERSARIAL_PORT ?? 4177);
@@ -258,6 +259,7 @@ try {
   await verifyPairingMediaQueryCompatibility(context, BASE_URL, check);
   await verifyPairingFractionalBreakpoint(context, BASE_URL, check);
   await verifyPairingCssFallback(context, BASE_URL, check);
+  await verifyMenuCustomPairing(context, BASE_URL, check);
 
   const smartChoice = await context.newPage();
   smartChoice.setDefaultTimeout(7_000);
