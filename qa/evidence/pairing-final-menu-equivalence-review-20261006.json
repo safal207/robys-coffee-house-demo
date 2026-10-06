@@ -1,0 +1,74 @@
+{
+  "adjudicator": "/root/visual_comparison/tablet_visual_review",
+  "role": "independent assistant read-only adjudication; no human approval",
+  "verdict": "Sufficient for conditional binding ONLY of nine intended menu failure expectations to094 source; final-head CI still required.",
+  "sourceHead": "09412e0d1c3335b5f578044eded80f615798bf78",
+  "capturedCIHead": "8e4004d01cec4ab7941f8af66c1274844af03bfe",
+  "validatedMenuSceneCount": 9,
+  "validatedMenuNativeScenes": [
+    {
+      "file": "menu-full__desktop-1440.png",
+      "priorSha256": "008e154d1f28a362d4a13232b332db9975694005c9545ee7527c2858ea0894bd",
+      "currentSha256": "008e154d1f28a362d4a13232b332db9975694005c9545ee7527c2858ea0894bd",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__phone-320.png",
+      "priorSha256": "e8530a68bcb980a39e49b0bdfa9f3ca9fba6c73bd136ada00d1de52a05ed5852",
+      "currentSha256": "e8530a68bcb980a39e49b0bdfa9f3ca9fba6c73bd136ada00d1de52a05ed5852",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__phone-390.png",
+      "priorSha256": "0e621395d20042e81cd5fcbe06e9a93ab9b823bc1f4d2c8a839cc7c1e5c5ead6",
+      "currentSha256": "0e621395d20042e81cd5fcbe06e9a93ab9b823bc1f4d2c8a839cc7c1e5c5ead6",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__tablet-768.png",
+      "priorSha256": "c82faf112162c901fbab024b66e9f9d52cff36ada1c41fde4f7be9d54c96014a",
+      "currentSha256": "c82faf112162c901fbab024b66e9f9d52cff36ada1c41fde4f7be9d54c96014a",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__desktop-1440.png",
+      "priorSha256": "02229b00154c51ee9efdcf4929402a6ec25be59a3d1c3143d894eb1228da6904",
+      "currentSha256": "02229b00154c51ee9efdcf4929402a6ec25be59a3d1c3143d894eb1228da6904",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__laptop-1366.png",
+      "priorSha256": "5970e889cffd3601e97b36f40c351d5477d89f5a9d14d80f675b09bbe92db9d4",
+      "currentSha256": "5970e889cffd3601e97b36f40c351d5477d89f5a9d14d80f675b09bbe92db9d4",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-320.png",
+      "priorSha256": "eedeb60007a96b7b77da545d8cde1ca0f7415c559f85d96204cecaf0a5350463",
+      "currentSha256": "eedeb60007a96b7b77da545d8cde1ca0f7415c559f85d96204cecaf0a5350463",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-360-short.png",
+      "priorSha256": "e0a289afb023615db61c267305ebb94f932688626f8f4d636d82de5d9caf4adb",
+      "currentSha256": "e0a289afb023615db61c267305ebb94f932688626f8f4d636d82de5d9caf4adb",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-390.png",
+      "priorSha256": "97735fdd753730754b728b5bd1207c7d13055f609f83d664a2de5d025e3cc04b",
+      "currentSha256": "97735fdd753730754b728b5bd1207c7d13055f609f83d664a2de5d025e3cc04b",
+      "byteIdentical": true
+    }
+  ],
+  "modernComputedCaseCount": 24,
+  "modernComputedAllIdentical": true,
+  "sourceEvidence": "Adjudicator independently recomputed all9 PNG hashpairs, verified both252 native capture source maps against their committed sources, checked24 property/geometry equality/source endpoint hashes and unchangedvisual harness/toolchain/config.",
+  "globalSceneByteIdentity": {
+    "count": 40,
+    "total": 43,
+    "all43Identical": false
+  },
+  "nonMenuDifferencesAccepted": false,
+  "limitations": "No acceptance of three unrelated non-menu changes. This proof does not claim CI ran094 and cannot substitute final-head CI. Legacy fixture rejects cqw declarations in modern Chromium; root-font32px simulates rem scaling rather than native browserzoom."
+}

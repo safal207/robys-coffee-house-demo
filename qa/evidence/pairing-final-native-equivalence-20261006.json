@@ -1,0 +1,335 @@
+{
+  "sourceBindings": {
+    "current": {
+      "rawHeadAfter": "09412e0d1c3335b5f578044eded80f615798bf78",
+      "protectedCount": 252,
+      "changedDuringCapture": []
+    },
+    "baseline": {
+      "rawHeadAfter": "81256116d23838d360fc87df2bdbced5483a3b49",
+      "protectedCount": 252,
+      "changedDuringCapture": []
+    }
+  },
+  "priorNativeDirectory": "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ui-vs-updated-main/visual/current",
+  "currentNativeDirectory": "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/final-csp-cqw/visual/current",
+  "nativeSceneCount": 43,
+  "nativeByteIdenticalCount": 40,
+  "all43ByteIdentical": false,
+  "modernAffectedMenuScenesAllByteIdentical": true,
+  "nativeRows": [
+    {
+      "file": "discover-full__desktop-1440.png",
+      "priorSha256": "484d39d224b96153247b4e646d7fa2280273988c9102b652d82f983a12dd0273",
+      "currentSha256": "484d39d224b96153247b4e646d7fa2280273988c9102b652d82f983a12dd0273",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-full__phone-320.png",
+      "priorSha256": "b71aac1e8ef69f1e0953e62fa996608efcab6492b083cf4b315b6c9eb1bbcb47",
+      "currentSha256": "b71aac1e8ef69f1e0953e62fa996608efcab6492b083cf4b315b6c9eb1bbcb47",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-full__phone-390.png",
+      "priorSha256": "0bd9604bd7ffc357449882ed70a06fc7bd80dee3a69c46bda7f3fbef88f40ff7",
+      "currentSha256": "0bd9604bd7ffc357449882ed70a06fc7bd80dee3a69c46bda7f3fbef88f40ff7",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-full__tablet-768.png",
+      "priorSha256": "27ac32005b426b71ee91e838c7076a74638e510965c272ee3b0c8d84e8a5fd5d",
+      "currentSha256": "27ac32005b426b71ee91e838c7076a74638e510965c272ee3b0c8d84e8a5fd5d",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-pairing__desktop-1440.png",
+      "priorSha256": "a7551e2074b9470960985e621cf0a474ab30fd0b799ed3b5a5c6a672825f5b56",
+      "currentSha256": "a7551e2074b9470960985e621cf0a474ab30fd0b799ed3b5a5c6a672825f5b56",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-pairing__laptop-1366.png",
+      "priorSha256": "7b4b556a82ce437e44a8eca1ec7efaa2d6f21e3ce71d247194767ae1bbabe704",
+      "currentSha256": "7b4b556a82ce437e44a8eca1ec7efaa2d6f21e3ce71d247194767ae1bbabe704",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-pairing__phone-320.png",
+      "priorSha256": "74af4ad09efd955bcca3314d12657575f4e550837e52a1aa69d5b2bae3f393d5",
+      "currentSha256": "4b1c897481efda43791b6fb2a215778f1ae6d01ae7fd3f0990065f2ad919c61b",
+      "byteIdentical": false,
+      "dimensions": [
+        [
+          280,
+          859
+        ],
+        [
+          280,
+          859
+        ]
+      ],
+      "rawDifferenceBoundingBox": [
+        26,
+        767,
+        89,
+        830
+      ],
+      "pixelmatchDiffPixels": 1413,
+      "totalPixels": 240520
+    },
+    {
+      "file": "discover-pairing__phone-360-short.png",
+      "priorSha256": "24d768292c2022b17283808d1c13ee54d5c45c9e2261490d2c5e02bb5350f915",
+      "currentSha256": "24d768292c2022b17283808d1c13ee54d5c45c9e2261490d2c5e02bb5350f915",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-pairing__phone-390.png",
+      "priorSha256": "107558fa91057f105acd92ab99e96bc196ca450d35bdfa1941022951386b8758",
+      "currentSha256": "107558fa91057f105acd92ab99e96bc196ca450d35bdfa1941022951386b8758",
+      "byteIdentical": true
+    },
+    {
+      "file": "discover-pairing__tablet-768.png",
+      "priorSha256": "287b9fbea17073d0a641e13e68f5b44439a0fa48c5af4817653d9342d3693f99",
+      "currentSha256": "287b9fbea17073d0a641e13e68f5b44439a0fa48c5af4817653d9342d3693f99",
+      "byteIdentical": true
+    },
+    {
+      "file": "hero__desktop-1440.png",
+      "priorSha256": "bbb1ddd63619fdeb86ee2567117b21921179fbe57711dd7a878c8fb1d21b5c55",
+      "currentSha256": "bbb1ddd63619fdeb86ee2567117b21921179fbe57711dd7a878c8fb1d21b5c55",
+      "byteIdentical": true
+    },
+    {
+      "file": "hero__laptop-1366.png",
+      "priorSha256": "767200b5cd15c42e82287c8c1e72f94b7ae9359481a9e18fa9c944660f9cbcda",
+      "currentSha256": "767200b5cd15c42e82287c8c1e72f94b7ae9359481a9e18fa9c944660f9cbcda",
+      "byteIdentical": true
+    },
+    {
+      "file": "hero__phone-360-short.png",
+      "priorSha256": "a6b63b2d7754fd4eebcfc15fa293ee44b6963cd8a2b67b4375070c585e484885",
+      "currentSha256": "a6b63b2d7754fd4eebcfc15fa293ee44b6963cd8a2b67b4375070c585e484885",
+      "byteIdentical": true
+    },
+    {
+      "file": "hero__phone-390.png",
+      "priorSha256": "b4bce5f396daf63068ff34d28a80506ee58498e8478db4a66142c06f5e2357f9",
+      "currentSha256": "f71109af4c85b067997d477cca400227bb2e7604d8a2c275898c628f186038d4",
+      "byteIdentical": false,
+      "dimensions": [
+        [
+          390,
+          1000
+        ],
+        [
+          390,
+          1000
+        ]
+      ],
+      "rawDifferenceBoundingBox": [
+        199,
+        23,
+        210,
+        67
+      ],
+      "pixelmatchDiffPixels": 0,
+      "totalPixels": 390000
+    },
+    {
+      "file": "landing-full__desktop-1440.png",
+      "priorSha256": "25fb66edc0e234afc1d4c1f7864d988a70af3eedc22162d1a08624135852076e",
+      "currentSha256": "25fb66edc0e234afc1d4c1f7864d988a70af3eedc22162d1a08624135852076e",
+      "byteIdentical": true
+    },
+    {
+      "file": "landing-full__phone-320.png",
+      "priorSha256": "2f21947cb1d1364d097bccc3c1c1d02ccf74a23390317941f89d617206d9727e",
+      "currentSha256": "2f21947cb1d1364d097bccc3c1c1d02ccf74a23390317941f89d617206d9727e",
+      "byteIdentical": true
+    },
+    {
+      "file": "landing-full__phone-390.png",
+      "priorSha256": "9a14a31a935b68f46b915c0aa275a6fcfd5e48d0fcce3a8f9133a83d67a7d0f0",
+      "currentSha256": "29adf26691d58b8e4dac73a6a555736d0d8c9624fe985765b74e12ea5b15a3d6",
+      "byteIdentical": false,
+      "dimensions": [
+        [
+          390,
+          7595
+        ],
+        [
+          390,
+          7595
+        ]
+      ],
+      "rawDifferenceBoundingBox": [
+        58,
+        40,
+        343,
+        6717
+      ],
+      "pixelmatchDiffPixels": 447,
+      "totalPixels": 2962050
+    },
+    {
+      "file": "landing-full__tablet-768.png",
+      "priorSha256": "2770244b56cd28b86d8ff6610f50b4f146593511daa75aa9fd4bfc9ea2018029",
+      "currentSha256": "2770244b56cd28b86d8ff6610f50b4f146593511daa75aa9fd4bfc9ea2018029",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__desktop-1440.png",
+      "priorSha256": "008e154d1f28a362d4a13232b332db9975694005c9545ee7527c2858ea0894bd",
+      "currentSha256": "008e154d1f28a362d4a13232b332db9975694005c9545ee7527c2858ea0894bd",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__phone-320.png",
+      "priorSha256": "e8530a68bcb980a39e49b0bdfa9f3ca9fba6c73bd136ada00d1de52a05ed5852",
+      "currentSha256": "e8530a68bcb980a39e49b0bdfa9f3ca9fba6c73bd136ada00d1de52a05ed5852",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__phone-390.png",
+      "priorSha256": "0e621395d20042e81cd5fcbe06e9a93ab9b823bc1f4d2c8a839cc7c1e5c5ead6",
+      "currentSha256": "0e621395d20042e81cd5fcbe06e9a93ab9b823bc1f4d2c8a839cc7c1e5c5ead6",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-full__tablet-768.png",
+      "priorSha256": "c82faf112162c901fbab024b66e9f9d52cff36ada1c41fde4f7be9d54c96014a",
+      "currentSha256": "c82faf112162c901fbab024b66e9f9d52cff36ada1c41fde4f7be9d54c96014a",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-preview__desktop-1440.png",
+      "priorSha256": "91d943625b4795cfcb5e30704d14fee99216483b9b81bcc25190a04be9fc3100",
+      "currentSha256": "91d943625b4795cfcb5e30704d14fee99216483b9b81bcc25190a04be9fc3100",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-preview__laptop-1366.png",
+      "priorSha256": "679d6dc440dcb3d175bc11b158de8b3d4089a2a930acb12f4344d77433d04804",
+      "currentSha256": "679d6dc440dcb3d175bc11b158de8b3d4089a2a930acb12f4344d77433d04804",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-preview__phone-390.png",
+      "priorSha256": "090b7b50b77bd527e2e1f62ac5eaedc2f1570e32468f3be5f2c3e7262a85681b",
+      "currentSha256": "090b7b50b77bd527e2e1f62ac5eaedc2f1570e32468f3be5f2c3e7262a85681b",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__desktop-1440.png",
+      "priorSha256": "02229b00154c51ee9efdcf4929402a6ec25be59a3d1c3143d894eb1228da6904",
+      "currentSha256": "02229b00154c51ee9efdcf4929402a6ec25be59a3d1c3143d894eb1228da6904",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__laptop-1366.png",
+      "priorSha256": "5970e889cffd3601e97b36f40c351d5477d89f5a9d14d80f675b09bbe92db9d4",
+      "currentSha256": "5970e889cffd3601e97b36f40c351d5477d89f5a9d14d80f675b09bbe92db9d4",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-320.png",
+      "priorSha256": "eedeb60007a96b7b77da545d8cde1ca0f7415c559f85d96204cecaf0a5350463",
+      "currentSha256": "eedeb60007a96b7b77da545d8cde1ca0f7415c559f85d96204cecaf0a5350463",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-360-short.png",
+      "priorSha256": "e0a289afb023615db61c267305ebb94f932688626f8f4d636d82de5d9caf4adb",
+      "currentSha256": "e0a289afb023615db61c267305ebb94f932688626f8f4d636d82de5d9caf4adb",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__phone-390.png",
+      "priorSha256": "97735fdd753730754b728b5bd1207c7d13055f609f83d664a2de5d025e3cc04b",
+      "currentSha256": "97735fdd753730754b728b5bd1207c7d13055f609f83d664a2de5d025e3cc04b",
+      "byteIdentical": true
+    },
+    {
+      "file": "menu-share__tablet-768.png",
+      "priorSha256": "9041956d1f4024d50b6484b1db00a8f3aefc45c0e8a3d7142e62ef373757ea6e",
+      "currentSha256": "9041956d1f4024d50b6484b1db00a8f3aefc45c0e8a3d7142e62ef373757ea6e",
+      "byteIdentical": true
+    },
+    {
+      "file": "mobile-cta__phone-320.png",
+      "priorSha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "currentSha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "byteIdentical": true
+    },
+    {
+      "file": "mobile-cta__phone-360-short.png",
+      "priorSha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "currentSha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "byteIdentical": true
+    },
+    {
+      "file": "mobile-cta__phone-390.png",
+      "priorSha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "currentSha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__desktop-1440.png",
+      "priorSha256": "07c34bf7d28292ce9a0b9d9b2bec8e894fa5b6dd73455418fb4e38baa7795de3",
+      "currentSha256": "07c34bf7d28292ce9a0b9d9b2bec8e894fa5b6dd73455418fb4e38baa7795de3",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__laptop-1366.png",
+      "priorSha256": "7a43599d7bd1e1d5aa5b4cc10c78b89f31b153e8bbf8ec78a5487dd3eab4bdcc",
+      "currentSha256": "7a43599d7bd1e1d5aa5b4cc10c78b89f31b153e8bbf8ec78a5487dd3eab4bdcc",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__phone-320.png",
+      "priorSha256": "c1a52b0c0138edd311a16bd5e6ad8297d2bba0f9aa79762ba67404b08ebae9c3",
+      "currentSha256": "c1a52b0c0138edd311a16bd5e6ad8297d2bba0f9aa79762ba67404b08ebae9c3",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__phone-360-short.png",
+      "priorSha256": "a17cda3bc60a128f5b9a8bd2f38386074f37f1c4fdefedb044e95d9ef6691169",
+      "currentSha256": "a17cda3bc60a128f5b9a8bd2f38386074f37f1c4fdefedb044e95d9ef6691169",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__phone-390.png",
+      "priorSha256": "181e89a545f1479299a9921e26e360a3936152c68abc2298142916933883b1c0",
+      "currentSha256": "181e89a545f1479299a9921e26e360a3936152c68abc2298142916933883b1c0",
+      "byteIdentical": true
+    },
+    {
+      "file": "social-offer__tablet-768.png",
+      "priorSha256": "30ef1924dd9657f649deead57d1e3422ca048a20c847ed72be4fe2c8a8e28068",
+      "currentSha256": "30ef1924dd9657f649deead57d1e3422ca048a20c847ed72be4fe2c8a8e28068",
+      "byteIdentical": true
+    },
+    {
+      "file": "visit-map__desktop-1440.png",
+      "priorSha256": "ce08c17350fd97c341504d81699a2f236915c87c192d6d4fab760b201dfcf45d",
+      "currentSha256": "ce08c17350fd97c341504d81699a2f236915c87c192d6d4fab760b201dfcf45d",
+      "byteIdentical": true
+    },
+    {
+      "file": "visit-map__laptop-1366.png",
+      "priorSha256": "565530422a47ac97cf382abbbb0c7c940baacc29d130fa427012cdb78edb684d",
+      "currentSha256": "565530422a47ac97cf382abbbb0c7c940baacc29d130fa427012cdb78edb684d",
+      "byteIdentical": true
+    },
+    {
+      "file": "visit-map__phone-390.png",
+      "priorSha256": "f8f9752dfc66fdbcf0862bfa2304078cd87f7fee3a90020614edd2df428365a4",
+      "currentSha256": "f8f9752dfc66fdbcf0862bfa2304078cd87f7fee3a90020614edd2df428365a4",
+      "byteIdentical": true
+    }
+  ],
+  "freshSummarySha256": "0af22027b52f245b6c9f3645d92b66f5994857b709aafd8faff6529376d9e01f"
+}

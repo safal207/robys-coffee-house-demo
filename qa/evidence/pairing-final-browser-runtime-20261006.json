@@ -1,0 +1,26 @@
+{
+  "basisCommit": "09412e0d1c3335b5f578044eded80f615798bf78",
+  "runtime": {
+    "localNode": "v24.19.0",
+    "ciNodeMajor": 22,
+    "playwright": "1.53.2",
+    "chromium": "138.0.7204.23",
+    "browserRevision": "1179",
+    "bypassCSP": false
+  },
+  "checks": 70,
+  "failures": 0,
+  "report": ".artifacts/adversarial-browser-ci-runtime-final-70-report.json",
+  "serverLog": ".artifacts/adversarial-server.log",
+  "sourceSha256": {
+    "scripts/adversarial-browser.mjs": "5e41aa0790634c73e5d2474f7d997a9e9f2af6c31ae94c42b96690dc4e0612b4",
+    "scripts/test-pairing-discovery-browser.mjs": "e806b27a7eda9350d469c2064afe144615ff9c4b9ccdfed8c58d32699e341b3f",
+    "scripts/test-pairing-media-query-browser.mjs": "1bd9707388e9b4eda32f08a2f64bcf4f40dd36e5d8b6640ecd8750427dac4828",
+    "scripts/test-pairing-css-fallback-browser.mjs": "1f79a4d812d9a61cd7e058cb7835dc8c2caf2fd27ede15b6d86e4674f95f6afb",
+    "pairing-posters.js": "024743e64919f882e4504e31990fdbc6eb6d206d941d848265ba506ad24b3a5f",
+    "pairing-posters.css": "d1e9096d1ee4e080f8f329d7fc77f7220cdce58f3719ddb590e6eef409b9c863",
+    "menu.html": "0f1f146587b07bf65aab590793330e82163927e2b646e98a4bdbde59e8062500",
+    "sw-core-v64.js": "291aed24ffa1292c75fb9711858a1be08a9b4da86451e22420d95324f4eddbe2",
+    "integrity-manifest.json": "4b94a7299ecf437e13dd70815af549e1e4db8aedc5bd0fb3753416f45a291d87"
+  }
+}

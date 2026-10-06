@@ -1,0 +1,3094 @@
+{
+  "generatedAt": "2026-10-06T20:02:16.578Z",
+  "baseUrl": "http://127.0.0.1:4177/",
+  "checks": [
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Page-load network stays inside the explicit origin allowlist",
+      "evidence": [
+        "http://127.0.0.1:4177"
+      ]
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "All safe rich-text headings are present",
+      "evidence": [
+        {
+          "key": "heroTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "aboutTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "menuTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "visitTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Rich translations contain only BR and EM descendants",
+      "evidence": [
+        {
+          "key": "heroTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "aboutTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "menuTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        },
+        {
+          "key": "visitTitle",
+          "tags": [
+            "BR",
+            "EM"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Trusted Types blocks direct markup injection",
+      "evidence": {
+        "threw": true,
+        "name": "TypeError",
+        "injected": false
+      }
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Inline script probe did not execute",
+      "evidence": {
+        "threw": true,
+        "name": "TypeError",
+        "executed": false
+      }
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "External script outside the CSP allowlist did not execute",
+      "evidence": {
+        "threw": true,
+        "name": "TypeError",
+        "executed": false
+      }
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Browser emitted an enforcing script or Trusted Types violation",
+      "evidence": [
+        {
+          "directive": "require-trusted-types-for",
+          "blockedURI": "trusted-types-sink",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "require-trusted-types-for",
+          "blockedURI": "trusted-types-sink",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "require-trusted-types-for",
+          "blockedURI": "trusted-types-sink",
+          "disposition": "enforce"
+        }
+      ]
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Untrusted stored language value falls back safely",
+      "evidence": {
+        "lang": "tr",
+        "injected": false,
+        "keys": [
+          "robys-language"
+        ]
+      }
+    },
+    {
+      "id": "PRIVACY-001",
+      "passed": true,
+      "message": "Only the approved storage key exists",
+      "evidence": [
+        "robys-language"
+      ]
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Markup-like menu search remains inert text",
+      "evidence": {
+        "injected": false,
+        "value": "<svg data-search-probe=\"true\"></svg>"
+      }
+    },
+    {
+      "id": "ADV-001",
+      "passed": true,
+      "message": "Markup-like URL fragment does not become DOM",
+      "evidence": {
+        "injected": false,
+        "hash": "#%3Csvg%20data-hash-probe%3D%22true%22%3E%3C%2Fsvg%3E"
+      }
+    },
+    {
+      "id": "A11Y-CART-LIVE-001",
+      "passed": true,
+      "message": "Cart quantity changes are announced from inside the active modal dialog",
+      "evidence": {
+        "dialogOpen": true,
+        "statusInsideDialog": true,
+        "statusText": "Sepet adedi güncellendi: Espresso × 2",
+        "atomic": "true"
+      }
+    },
+    {
+      "id": "A11Y-DIALOG-FALLBACK-001",
+      "passed": true,
+      "message": "Dialog fallback stays hidden at first paint, behaves modally, closes with Escape and restores focus",
+      "evidence": {
+        "initiallyHidden": true,
+        "openedFallback": {
+          "fallbackClass": true,
+          "ariaModal": "true",
+          "position": "fixed",
+          "display": "grid",
+          "focusInside": true
+        },
+        "closedFallback": {
+          "open": false,
+          "display": "none",
+          "bodyLocked": false,
+          "focusReturned": true
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/tr/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "LEZZETLE TANIŞ",
+          "kicker": "LEZZET YOLCULUĞU",
+          "label": "Seçtiğin eşleşme",
+          "why": "Neden birlikte güzel?",
+          "notes": "Tatta ne var?",
+          "choose": "Bu eşleşmeyi seç",
+          "mark": "Bunu tanıdım",
+          "close": "Kapat"
+        },
+        "reason": "Canlı lime ferahlığı önce gelir; fıstıklı makaron tatlılığı yumuşatır. Birlikte hafif, parlak ve kolay içilen bir Roby's anı verir.",
+        "notes": [
+          "Ferah",
+          "Narenciye",
+          "Fıstık"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/tr/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "tr",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/tr/native",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Bu eşleşmeyi seç",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1539.921875,
+                "bottom": 1583.921875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Bunu tanıdım",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1593.921875,
+                "bottom": 1637.921875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Kapat",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1647.921875,
+                "bottom": 1691.921875,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + Makaron",
+          "price": "290 ₺",
+          "fallback": false,
+          "draftNote": "Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/tr/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "LEZZETLE TANIŞ",
+          "kicker": "LEZZET YOLCULUĞU",
+          "label": "Seçtiğin eşleşme",
+          "why": "Neden birlikte güzel?",
+          "notes": "Tatta ne var?",
+          "choose": "Bu eşleşmeyi seç",
+          "mark": "Bunu tanıdım",
+          "close": "Kapat"
+        },
+        "reason": "Serin latte damağı tazeler; yoğun ve kremamsı San Sebastian kahvenin yumuşaklığını uzatır. Sonuç daha sakin, derin ve tatlı bir eşleşmedir.",
+        "notes": [
+          "Serin kahve",
+          "Kremamsı",
+          "Karamelize"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/tr/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "tr",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/tr/native",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Bu eşleşmeyi seç",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2013.65625,
+                "bottom": 2057.65625,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Bunu tanıdım",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2067.65625,
+                "bottom": 2111.65625,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Kapat",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2121.65625,
+                "bottom": 2165.65625,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Buzlu Latte + San Sebastian",
+          "price": "370 ₺",
+          "fallback": false,
+          "draftNote": "Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/tr/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "LEZZETLE TANIŞ",
+          "kicker": "LEZZET YOLCULUĞU",
+          "label": "Seçtiğin eşleşme",
+          "why": "Neden birlikte güzel?",
+          "notes": "Tatta ne var?",
+          "choose": "Bu eşleşmeyi seç",
+          "mark": "Bunu tanıdım",
+          "close": "Kapat"
+        },
+        "reason": "Canlı lime ferahlığı önce gelir; fıstıklı makaron tatlılığı yumuşatır. Birlikte hafif, parlak ve kolay içilen bir Roby's anı verir.",
+        "notes": [
+          "Ferah",
+          "Narenciye",
+          "Fıstık"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/tr/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "tr",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/tr/fallback",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Bu eşleşmeyi seç",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1608.921875,
+                "bottom": 1652.921875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Bunu tanıdım",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1662.921875,
+                "bottom": 1706.921875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Kapat",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1716.921875,
+                "bottom": 1760.921875,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + Makaron",
+          "price": "290 ₺",
+          "fallback": true,
+          "draftNote": "Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/tr/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "LEZZETLE TANIŞ",
+          "kicker": "LEZZET YOLCULUĞU",
+          "label": "Seçtiğin eşleşme",
+          "why": "Neden birlikte güzel?",
+          "notes": "Tatta ne var?",
+          "choose": "Bu eşleşmeyi seç",
+          "mark": "Bunu tanıdım",
+          "close": "Kapat"
+        },
+        "reason": "Serin latte damağı tazeler; yoğun ve kremamsı San Sebastian kahvenin yumuşaklığını uzatır. Sonuç daha sakin, derin ve tatlı bir eşleşmedir.",
+        "notes": [
+          "Serin kahve",
+          "Kremamsı",
+          "Karamelize"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/tr/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "tr",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/tr/fallback",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Bu eşleşmeyi seç",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2081.65625,
+                "bottom": 2125.65625,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Bunu tanıdım",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2135.65625,
+                "bottom": 2179.65625,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Kapat",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2189.65625,
+                "bottom": 2233.65625,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Buzlu Latte + San Sebastian",
+          "price": "370 ₺",
+          "fallback": true,
+          "draftNote": "Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/en/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "DISCOVER THE TASTE",
+          "kicker": "TASTE JOURNEY",
+          "label": "Your pairing",
+          "why": "Why does it work?",
+          "notes": "What will you taste?",
+          "choose": "Choose this pairing",
+          "mark": "I've met this taste",
+          "close": "Close"
+        },
+        "reason": "Bright lime freshness arrives first; the pistachio macaron softens it with a gentle sweetness. Together they make a light, vivid Roby's moment.",
+        "notes": [
+          "Refreshing",
+          "Citrus",
+          "Pistachio"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/en/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "en",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/en/native",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Choose this pairing",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1650.671875,
+                "bottom": 1694.671875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "I've met this taste",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1704.671875,
+                "bottom": 1748.671875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Close",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1758.671875,
+                "bottom": 1802.671875,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + Macaron",
+          "price": "290 ₺",
+          "fallback": false,
+          "draftNote": "This is an order draft; it is not sent automatically to the café or payment system."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/en/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "DISCOVER THE TASTE",
+          "kicker": "TASTE JOURNEY",
+          "label": "Your pairing",
+          "why": "Why does it work?",
+          "notes": "What will you taste?",
+          "choose": "Choose this pairing",
+          "mark": "I've met this taste",
+          "close": "Close"
+        },
+        "reason": "The chilled latte refreshes the palate while the dense, creamy San Sebastian extends the coffee's softness. The result is a calmer, richer pairing.",
+        "notes": [
+          "Chilled coffee",
+          "Creamy",
+          "Caramelized"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/en/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "en",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/en/native",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Choose this pairing",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2083.3125,
+                "bottom": 2127.3125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "I've met this taste",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2137.3125,
+                "bottom": 2181.3125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Close",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2191.3125,
+                "bottom": 2235.3125,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Iced Latte + San Sebastian Cheesecake",
+          "price": "370 ₺",
+          "fallback": false,
+          "draftNote": "This is an order draft; it is not sent automatically to the café or payment system."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/en/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "DISCOVER THE TASTE",
+          "kicker": "TASTE JOURNEY",
+          "label": "Your pairing",
+          "why": "Why does it work?",
+          "notes": "What will you taste?",
+          "choose": "Choose this pairing",
+          "mark": "I've met this taste",
+          "close": "Close"
+        },
+        "reason": "Bright lime freshness arrives first; the pistachio macaron softens it with a gentle sweetness. Together they make a light, vivid Roby's moment.",
+        "notes": [
+          "Refreshing",
+          "Citrus",
+          "Pistachio"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/en/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "en",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/en/fallback",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Choose this pairing",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1650.671875,
+                "bottom": 1694.671875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "I've met this taste",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1704.671875,
+                "bottom": 1748.671875,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Close",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1758.671875,
+                "bottom": 1802.671875,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + Macaron",
+          "price": "290 ₺",
+          "fallback": true,
+          "draftNote": "This is an order draft; it is not sent automatically to the café or payment system."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/en/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "DISCOVER THE TASTE",
+          "kicker": "TASTE JOURNEY",
+          "label": "Your pairing",
+          "why": "Why does it work?",
+          "notes": "What will you taste?",
+          "choose": "Choose this pairing",
+          "mark": "I've met this taste",
+          "close": "Close"
+        },
+        "reason": "The chilled latte refreshes the palate while the dense, creamy San Sebastian extends the coffee's softness. The result is a calmer, richer pairing.",
+        "notes": [
+          "Chilled coffee",
+          "Creamy",
+          "Caramelized"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/en/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "en",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/en/fallback",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Choose this pairing",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2124.3125,
+                "bottom": 2168.3125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "I've met this taste",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2178.3125,
+                "bottom": 2222.3125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Close",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2232.3125,
+                "bottom": 2276.3125,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Iced Latte + San Sebastian Cheesecake",
+          "price": "370 ₺",
+          "fallback": true,
+          "draftNote": "This is an order draft; it is not sent automatically to the café or payment system."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/ru/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "ЗНАКОМСТВО СО ВКУСОМ",
+          "kicker": "ПУТЕШЕСТВИЕ ВКУСА",
+          "label": "Твоя пара",
+          "why": "Почему они вместе?",
+          "notes": "Что почувствуешь?",
+          "choose": "Выбрать эту пару",
+          "mark": "Я познакомился со вкусом",
+          "close": "Закрыть"
+        },
+        "reason": "Сначала приходит яркая свежесть лайма, а фисташковый макарон мягко добавляет сладость. Вместе получается лёгкий и свежий вкус Roby's.",
+        "notes": [
+          "Свежий",
+          "Цитрус",
+          "Фисташка"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/ru/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "ru",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/ru/native",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Выбрать эту пару",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1776.953125,
+                "bottom": 1820.953125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Я познакомился со вкусом",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1830.953125,
+                "bottom": 1874.953125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Закрыть",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1884.953125,
+                "bottom": 1928.953125,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + макарон",
+          "price": "290 ₺",
+          "fallback": false,
+          "draftNote": "Это предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/ru/native: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "ЗНАКОМСТВО СО ВКУСОМ",
+          "kicker": "ПУТЕШЕСТВИЕ ВКУСА",
+          "label": "Твоя пара",
+          "why": "Почему они вместе?",
+          "notes": "Что почувствуешь?",
+          "choose": "Выбрать эту пару",
+          "mark": "Я познакомился со вкусом",
+          "close": "Закрыть"
+        },
+        "reason": "Холодный латте освежает, а плотный сливочный San Sebastian продолжает мягкость кофе. Получается спокойное, насыщенное и десертное сочетание.",
+        "notes": [
+          "Холодный кофе",
+          "Сливочный",
+          "Карамельный"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/ru/native: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "ru",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/ru/native",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Выбрать эту пару",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2209.59375,
+                "bottom": 2253.59375,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Я познакомился со вкусом",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2263.59375,
+                "bottom": 2307.59375,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Закрыть",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2317.59375,
+                "bottom": 2361.59375,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Айс-латте + чизкейк Сан-Себастьян",
+          "price": "370 ₺",
+          "fallback": false,
+          "draftNote": "Это предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "cool-lime-macaron/ru/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "ЗНАКОМСТВО СО ВКУСОМ",
+          "kicker": "ПУТЕШЕСТВИЕ ВКУСА",
+          "label": "Твоя пара",
+          "why": "Почему они вместе?",
+          "notes": "Что почувствуешь?",
+          "choose": "Выбрать эту пару",
+          "mark": "Я познакомился со вкусом",
+          "close": "Закрыть"
+        },
+        "reason": "Сначала приходит яркая свежесть лайма, а фисташковый макарон мягко добавляет сладость. Вместе получается лёгкий и свежий вкус Roby's.",
+        "notes": [
+          "Свежий",
+          "Цитрус",
+          "Фисташка"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "cool-lime-macaron/ru/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "cool-lime-macaron",
+          "language": "ru",
+          "expanded": "true",
+          "controls": "pairing-discovery-cool-lime-macaron",
+          "panelId": "pairing-discovery-cool-lime-macaron",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "cool-lime-macaron",
+            "expectedPredecessor": "cool-lime-macaron",
+            "bothCardsBefore": false
+          },
+          "posterPrice": "290 ₺",
+          "cardPrice": "290 ₺",
+          "price": "290 ₺"
+        },
+        "geometry": {
+          "label": "cool-lime-macaron/ru/fallback",
+          "pairingDetailsGeometry": {
+            "id": "cool-lime-macaron",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Выбрать эту пару",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1694.953125,
+                "bottom": 1738.953125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Я познакомился со вкусом",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1748.953125,
+                "bottom": 1792.953125,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Закрыть",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 1802.953125,
+                "bottom": 1846.953125,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Cool Lime + макарон",
+          "price": "290 ₺",
+          "fallback": true,
+          "draftNote": "Это предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-LOCALIZATION-001",
+      "passed": true,
+      "message": "iced-san-sebastian/ru/fallback: localized inline headings, explanation, tasting notes and actions",
+      "evidence": {
+        "copy": {
+          "eyebrow": "ЗНАКОМСТВО СО ВКУСОМ",
+          "kicker": "ПУТЕШЕСТВИЕ ВКУСА",
+          "label": "Твоя пара",
+          "why": "Почему они вместе?",
+          "notes": "Что почувствуешь?",
+          "choose": "Выбрать эту пару",
+          "mark": "Я познакомился со вкусом",
+          "close": "Закрыть"
+        },
+        "reason": "Холодный латте освежает, а плотный сливочный San Sebastian продолжает мягкость кофе. Получается спокойное, насыщенное и десертное сочетание.",
+        "notes": [
+          "Холодный кофе",
+          "Сливочный",
+          "Карамельный"
+        ]
+      }
+    },
+    {
+      "id": "PAIRING-DISCOVERY-BROWSER-001",
+      "passed": true,
+      "message": "iced-san-sebastian/ru/fallback: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering",
+      "evidence": {
+        "inline": {
+          "pairingId": "iced-san-sebastian",
+          "language": "ru",
+          "expanded": "true",
+          "controls": "pairing-discovery-iced-san-sebastian",
+          "panelId": "pairing-discovery-iced-san-sebastian",
+          "openModals": 0,
+          "placement": {
+            "wide": false,
+            "predecessor": "iced-san-sebastian",
+            "expectedPredecessor": "iced-san-sebastian",
+            "bothCardsBefore": true
+          },
+          "posterPrice": "370 ₺",
+          "cardPrice": "370 ₺",
+          "price": "370 ₺"
+        },
+        "geometry": {
+          "label": "iced-san-sebastian/ru/fallback",
+          "pairingDetailsGeometry": {
+            "id": "iced-san-sebastian",
+            "titlePriceOverlap": false,
+            "headingContained": true,
+            "notesSeparate": true,
+            "actions": [
+              {
+                "text": "Выбрать эту пару",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2227.59375,
+                "bottom": 2271.59375,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Я познакомился со вкусом",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2281.59375,
+                "bottom": 2325.59375,
+                "width": 280,
+                "height": 44
+              },
+              {
+                "text": "Закрыть",
+                "radius": 999,
+                "left": 55,
+                "right": 335,
+                "top": 2335.59375,
+                "bottom": 2379.59375,
+                "width": 280,
+                "height": 44
+              }
+            ],
+            "actionsUsable": true,
+            "clippedText": [],
+            "horizontalOverflow": false
+          }
+        },
+        "product": {
+          "name": "Айс-латте + чизкейк Сан-Себастьян",
+          "price": "370 ₺",
+          "fallback": true,
+          "draftNote": "Это предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        "closed": {
+          "expanded": "false",
+          "controls": null,
+          "focusReturned": true,
+          "count": "0"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "modern/cool-lime-macaron",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 1,
+          "legacyRegistrations": 0,
+          "changes": 2
+        },
+        "placements": [
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "modern/iced-san-sebastian",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 1,
+          "legacyRegistrations": 0,
+          "changes": 2
+        },
+        "placements": [
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "legacy/cool-lime-macaron",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 0,
+          "legacyRegistrations": 1,
+          "changes": 2
+        },
+        "placements": [
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "legacy/iced-san-sebastian",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 0,
+          "legacyRegistrations": 1,
+          "changes": 2
+        },
+        "placements": [
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "no-listener/cool-lime-macaron",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 0,
+          "legacyRegistrations": 0,
+          "changes": 0
+        },
+        "placements": [
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "cool-lime-macaron",
+            "predecessor": "cool-lime-macaron",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-MEDIA-QUERY-COMPATIBILITY-001",
+      "passed": true,
+      "message": "no-listener/iced-san-sebastian",
+      "evidence": {
+        "state": {
+          "modernRegistrations": 0,
+          "legacyRegistrations": 0,
+          "changes": 0
+        },
+        "placements": [
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 1440
+          },
+          {
+            "id": "iced-san-sebastian",
+            "predecessor": "iced-san-sebastian",
+            "width": 390
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": true,
+      "message": "cool-lime-macaron",
+      "evidence": {
+        "states": [
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "cool-lime-macaron",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": false,
+            "cardsShareRow": false,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 901,
+            "cssIframeWidth": "901px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": false,
+            "narrow": false,
+            "oldWide": true,
+            "gridColumns": [
+              "269.5px",
+              "269.5px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "cool-lime-macaron",
+            "pairingId": "cool-lime-macaron",
+            "bothCardsBefore": false,
+            "cardsShareRow": false,
+            "focusedMark": true
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-FRACTIONAL-BREAKPOINT-001",
+      "passed": true,
+      "message": "iced-san-sebastian",
+      "evidence": {
+        "states": [
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 901,
+            "cssIframeWidth": "901px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": false,
+            "narrow": false,
+            "oldWide": true,
+            "gridColumns": [
+              "269.5px",
+              "269.5px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900.5,
+            "cssIframeWidth": "900.5px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": true,
+            "below901": true,
+            "narrow": false,
+            "oldWide": false,
+            "gridColumns": [
+              "269.25px",
+              "269.25px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": true,
+            "focusedMark": true
+          },
+          {
+            "expectedWidth": 900,
+            "cssIframeWidth": "900px",
+            "iframeZoom": "2",
+            "exactWidth": true,
+            "above900": false,
+            "below901": true,
+            "narrow": true,
+            "oldWide": false,
+            "gridColumns": [
+              "556px"
+            ],
+            "predecessor": "iced-san-sebastian",
+            "pairingId": "iced-san-sebastian",
+            "bothCardsBefore": true,
+            "cardsShareRow": false,
+            "focusedMark": true
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/320/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/320/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 313.140625,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 330.734375,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/320/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/320/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 866.5625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 984.96875,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/320/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/320/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 313.140625,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 348.328125,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/320/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/320/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 840.453125,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 1086.875,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/320/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/320/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 326.953125,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 348.328125,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 17.6,
+            "priceFont": 19.2,
+            "overlayMinHeight": "288px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "76.0938px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/320/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/320/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 244,
+            "height": 921.875,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 244,
+            "height": 1236.640625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/390/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/390/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/390/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/390/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 576,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 633.59375,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/390/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/390/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/390/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/390/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 576,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 629.890625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/390/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/390/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 319.796875,
+            "rootFont": 16,
+            "titleFont": 24,
+            "plusFont": 24,
+            "accentFont": 19.5,
+            "priceFont": 19.2,
+            "overlayMinHeight": "319.8px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "78px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/390/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/390/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 314,
+            "height": 576,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 314,
+            "height": 704,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 35.2,
+            "priceFont": 38.4,
+            "overlayMinHeight": "576px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/768/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/768/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/768/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/768/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/768/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/768/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/768/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/768/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/768/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/768/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 16,
+            "titleFont": 46.08,
+            "plusFont": 46.08,
+            "accentFont": 38.4,
+            "priceFont": 35.328,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "132px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/768/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/768/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 664,
+            "height": 614.390625,
+            "rootFont": 32,
+            "titleFont": 48,
+            "plusFont": 48,
+            "accentFont": 38.4,
+            "priceFont": 38.4,
+            "overlayMinHeight": "614.4px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "136.219px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/1440/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/1440/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 640,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 640,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/tr/1440/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/tr/1440/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 1152,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 1152,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/1440/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/1440/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 640,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 655.453125,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/en/1440/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/en/1440/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 1152,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 1314.78125,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/1440/100%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/1440/100%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 640,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 640,
+            "rootFont": 16,
+            "titleFont": 62.4,
+            "plusFont": 62.4,
+            "accentFont": 49.6,
+            "priceFont": 44.8,
+            "overlayMinHeight": "640px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "11.52px",
+            "priceWidth": "156.281px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "PAIRING-CSS-FALLBACK-001",
+      "passed": true,
+      "message": "cqw-rejected/ru/1440/200%: both posters retain readable type, photograph height and separated content",
+      "evidence": {
+        "label": "cqw-rejected/ru/1440/200%",
+        "rejectedDeclarations": 10,
+        "cards": [
+          {
+            "id": "cool-lime-macaron",
+            "width": 427,
+            "height": 1152,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          },
+          {
+            "id": "iced-san-sebastian",
+            "width": 427,
+            "height": 1401.1875,
+            "rootFont": 32,
+            "titleFont": 86.4,
+            "plusFont": 86.4,
+            "accentFont": 72,
+            "priceFont": 66.24,
+            "overlayMinHeight": "1152px",
+            "gap": "14px",
+            "padding": "20px",
+            "titleFamily": "Oswald, Arial, sans-serif",
+            "plusFamily": "Oswald, Arial, sans-serif",
+            "priceFamily": "Oswald, Arial, sans-serif",
+            "bottomFont": "23.04px",
+            "priceWidth": "223.406px",
+            "documentOverflow": false
+          }
+        ],
+        "geometryError": null,
+        "errors": []
+      }
+    },
+    {
+      "id": "SMART-CHOICE-BROWSER-001",
+      "passed": true,
+      "message": "Smart Choice remains interactive under its experiment observer and returns a cheaper coffee-safe result",
+      "evidence": {
+        "language": "ru",
+        "heading": "Ваш выбор Roby's готов.",
+        "cards": [
+          {
+            "role": "Лучшее совпадение",
+            "name": "Карамельный латте",
+            "price": 200,
+            "top": true
+          },
+          {
+            "role": "Экономнее",
+            "name": "Фильтр-кофе",
+            "price": 160,
+            "top": false
+          }
+        ],
+        "experiment": "smart-choice-benefit-copy-v1",
+        "errors": []
+      }
+    }
+  ],
+  "failures": [],
+  "networkOrigins": [
+    "http://127.0.0.1:4177"
+  ]
+}
