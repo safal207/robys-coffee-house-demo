@@ -626,19 +626,40 @@
     }
   },
   "currentVisualVerification": {
-    "sourceHead": "48c949bc84286d1cb559237fb6443fb0ed67ce9f",
-    "baselineHead": "96ceae5fc7dc9604b2f98209636ebd39fc97cf46",
-    "rawComparisons": 43,
-    "rawPassed": 38,
-    "actualInspectedChanges": 5,
-    "pairedSheetsInspected": 36,
-    "protectedFilesStable": 252,
-    "contentBoundBlobs": 260,
-    "reviewKind": "assistant-not-human-approval",
-    "record": "qa/reviewed-visual-changes.d/pairing-layout-final-main-20261006.json",
-    "negativeControlsPassed": 6,
-    "freshCIRequired": true,
-    "captureReport": "qa/evidence/pairing-final-visual-capture-20261006.json",
-    "negativeControlReport": "qa/evidence/pairing-final-visual-negative-controls-20261006.json"
+    "record": "qa/reviewed-visual-changes.d/pairing-ci-menu-cqw-20261006.json",
+    "actualCIHead": "8e4004d01cec4ab7941f8af66c1274844af03bfe",
+    "actualCIRun": 37520831030,
+    "actualCIArtifact": 11440961499,
+    "actualReviewedMenuChanges": 9,
+    "pairedSheetsInspected": 40,
+    "sourceHead": "6c1f3583641101d8ff391256d0a223b5e99ba00e",
+    "bindingProof": "Only9menu PNGpairs equal in native follow-up plus24modern computed cases; independent assistant adjudication; all261sourceblobs bound. No global43PNGidentity or finalCIexecution claimed.",
+    "localNativeRaw": "43 comparisons/6rawfailures; Discover emptythumbnail retained; global40/43same. No non-menu exception.",
+    "freshFinalHeadCIRequired": true,
+    "priorLocal5RecordHistoricalOnly": true
+  },
+  "subsequentFinalSource": "6c1f3583641101d8ff391256d0a223b5e99ba00e",
+  "finalVerification": [
+    {
+      "name": "check",
+      "exitCode": 0
+    },
+    {
+      "name": "security",
+      "exitCode": 0
+    },
+    {
+      "name": "diff",
+      "exitCode": 0
+    }
+  ],
+  "finalBrowserVerification": {
+    "passed": 70,
+    "failed": 0,
+    "runtime": "Playwright1.53.2/Chromium138-1179; localNode24, CINode22 stillrequired",
+    "report": "qa/evidence/pairing-final-browser-70-20261006.json",
+    "CSPPreserved": true,
+    "deadlineAndAssertionsPreserved": true,
+    "unsupportedCqwFixture": "24states/48cards pass; original24states failed; notphysicallegacybrowser"
   }
 }

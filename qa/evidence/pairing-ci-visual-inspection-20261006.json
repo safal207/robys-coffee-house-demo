@@ -1,0 +1,681 @@
+{
+  "repository": "safal207/robys-coffee-house-demo",
+  "captureRun": 37520831030,
+  "captureJob": 112465487636,
+  "capturedSourceHead": "8e4004d01cec4ab7941f8af66c1274844af03bfe",
+  "capturedBaselineHead": "96ceae5fc7dc9604b2f98209636ebd39fc97cf46",
+  "artifactSha256": "7da1ffbafd40998b524a48117826a17430ad72f6679e05d02205a51653faca9c",
+  "captureSummarySha256": "ea2ce4b5c61167b89f05ce68ad3e6a4448e0a6b65d8dcf7e3f4177cc0b61daf6",
+  "comparisons": 43,
+  "failures": 9,
+  "allFailureScenesInspected": true,
+  "pairedFullCoverageSheetsViewed": 40,
+  "reviewers": [
+    "/root/visual_comparison",
+    "/root/visual_comparison/desktop_visual_review",
+    "/root/visual_comparison/tablet_visual_review"
+  ],
+  "inspectionRole": "assistant, not human approval",
+  "observations": "All four complete menu pages and all five actual failing share crops inspected freshly. Current poster titles and price badges separated; captions and arrow buttons contained. Downstream product cards/photos/descriptions/prices/category groups, disclaimer, share/Instagram/Maps/reservation and legal footer intact. No unexpected missing content or new overlap/clipping observed. Share crop geometry/content same; small vertical raster/placement differences visible. Covers OLD8e source before CSS fallback only; no final-source acceptance implied.",
+  "fontEvidence": {
+    "declarations": "--display:Oswald,Arial,sans-serif; --sans:Montserrat,Arial,sans-serif; no bundled Oswald/Montserrat definitions found in menuHTML/styles.",
+    "localFontConfig": "Arial\u2192Nimbus Sans; system-ui/Inter\u2192DejaVu Sans. Local category emoji glyphs were boxes; actualCI has color emoji.",
+    "ciLog": "Locked Playwright1.55.1 Chromium1193. Ubuntu font dependencies include Liberation/FreeFont and Noto Color Emoji; freetype2.13.2-1ubuntu0.2, local0.1.",
+    "conclusion": "Text wrapping, emoji appearance and installed font stacks differ. Font environment is a supported explanation for geometry discrepancy; actual CI platform-font names/bytes were not recorded, so exact causal attribution is not proved. No global font config/project/workflow changes made."
+  },
+  "failedResults": [
+    {
+      "id": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "passed": false,
+      "reason": "dimension mismatch 320x11669 vs 320x11654",
+      "diffPixels": 3734080,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "passed": false,
+      "diffPixels": 2449,
+      "totalPixels": 143080,
+      "diffPixelRatio": 0.017116298574224212,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "passed": false,
+      "diffPixels": 2079,
+      "totalPixels": 158720,
+      "diffPixelRatio": 0.013098538306451612,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x11424 vs 390x11408",
+      "diffPixels": 4455360,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "passed": false,
+      "diffPixels": 724,
+      "totalPixels": 176750,
+      "diffPixelRatio": 0.004096181046676096,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "passed": false,
+      "reason": "dimension mismatch 768x13215 vs 768x13199",
+      "diffPixels": 10149120,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "laptop-1366",
+      "file": "menu-share__laptop-1366.png",
+      "passed": false,
+      "diffPixels": 1919,
+      "totalPixels": 368160,
+      "diffPixelRatio": 0.005212407648848327,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x6925 vs 1440x7563",
+      "diffPixels": 9972000,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "desktop-1440",
+      "file": "menu-share__desktop-1440.png",
+      "passed": false,
+      "diffPixels": 2249,
+      "totalPixels": 375240,
+      "diffPixelRatio": 0.005993497494936574,
+      "maxDiffPixelRatio": 0.003
+    }
+  ],
+  "reviewedCaptureImages": [
+    {
+      "result": {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "file": "menu-full__phone-320.png",
+        "passed": false,
+        "reason": "dimension mismatch 320x11669 vs 320x11654",
+        "diffPixels": 3734080,
+        "diffPixelRatio": 1
+      },
+      "baselineDimensions": [
+        320,
+        11669
+      ],
+      "currentDimensions": [
+        320,
+        11654
+      ],
+      "rawDifferenceBoundingBox": null,
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-01.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-02.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-03.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-04.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-05.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-06.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-07.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-08.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-09.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-320-segment-10.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-share",
+        "viewport": "phone-320",
+        "file": "menu-share__phone-320.png",
+        "passed": false,
+        "diffPixels": 2449,
+        "totalPixels": 143080,
+        "diffPixelRatio": 0.017116298574224212,
+        "maxDiffPixelRatio": 0.003
+      },
+      "baselineDimensions": [
+        280,
+        511
+      ],
+      "currentDimensions": [
+        280,
+        511
+      ],
+      "rawDifferenceBoundingBox": [
+        0,
+        63,
+        280,
+        423
+      ],
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-share__phone-320-segment-01.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "file": "menu-share__phone-360-short.png",
+        "passed": false,
+        "diffPixels": 2079,
+        "totalPixels": 158720,
+        "diffPixelRatio": 0.013098538306451612,
+        "maxDiffPixelRatio": 0.003
+      },
+      "baselineDimensions": [
+        320,
+        496
+      ],
+      "currentDimensions": [
+        320,
+        496
+      ],
+      "rawDifferenceBoundingBox": [
+        0,
+        62,
+        320,
+        409
+      ],
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-share__phone-360-short-segment-01.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "file": "menu-full__phone-390.png",
+        "passed": false,
+        "reason": "dimension mismatch 390x11424 vs 390x11408",
+        "diffPixels": 4455360,
+        "diffPixelRatio": 1
+      },
+      "baselineDimensions": [
+        390,
+        11424
+      ],
+      "currentDimensions": [
+        390,
+        11408
+      ],
+      "rawDifferenceBoundingBox": null,
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-01.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-02.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-03.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-04.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-05.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-06.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-07.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-08.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-09.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__phone-390-segment-10.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-share",
+        "viewport": "phone-390",
+        "file": "menu-share__phone-390.png",
+        "passed": false,
+        "diffPixels": 724,
+        "totalPixels": 176750,
+        "diffPixelRatio": 0.004096181046676096,
+        "maxDiffPixelRatio": 0.003
+      },
+      "baselineDimensions": [
+        350,
+        505
+      ],
+      "currentDimensions": [
+        350,
+        505
+      ],
+      "rawDifferenceBoundingBox": [
+        21,
+        190,
+        329,
+        354
+      ],
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-share__phone-390-segment-01.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "file": "menu-full__tablet-768.png",
+        "passed": false,
+        "reason": "dimension mismatch 768x13215 vs 768x13199",
+        "diffPixels": 10149120,
+        "diffPixelRatio": 1
+      },
+      "baselineDimensions": [
+        768,
+        13215
+      ],
+      "currentDimensions": [
+        768,
+        13199
+      ],
+      "rawDifferenceBoundingBox": null,
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-01.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-02.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-03.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-04.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-05.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-06.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-07.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-08.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-09.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-10.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__tablet-768-segment-11.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-share",
+        "viewport": "laptop-1366",
+        "file": "menu-share__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 1919,
+        "totalPixels": 368160,
+        "diffPixelRatio": 0.005212407648848327,
+        "maxDiffPixelRatio": 0.003
+      },
+      "baselineDimensions": [
+        1180,
+        312
+      ],
+      "currentDimensions": [
+        1180,
+        312
+      ],
+      "rawDifferenceBoundingBox": [
+        0,
+        21,
+        1180,
+        312
+      ],
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-share__laptop-1366-segment-01.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "file": "menu-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x6925 vs 1440x7563",
+        "diffPixels": 9972000,
+        "diffPixelRatio": 1
+      },
+      "baselineDimensions": [
+        1440,
+        6925
+      ],
+      "currentDimensions": [
+        1440,
+        7563
+      ],
+      "rawDifferenceBoundingBox": null,
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__desktop-1440-segment-01.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__desktop-1440-segment-02.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__desktop-1440-segment-03.png",
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-full__desktop-1440-segment-04.png"
+      ]
+    },
+    {
+      "result": {
+        "id": "menu-share",
+        "viewport": "desktop-1440",
+        "file": "menu-share__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 2249,
+        "totalPixels": 375240,
+        "diffPixelRatio": 0.005993497494936574,
+        "maxDiffPixelRatio": 0.003
+      },
+      "baselineDimensions": [
+        1180,
+        318
+      ],
+      "currentDimensions": [
+        1180,
+        318
+      ],
+      "rawDifferenceBoundingBox": [
+        0,
+        24,
+        1180,
+        318
+      ],
+      "pairedFullCoverageContactSheets": [
+        "/workspace/scratch/716c6a496d8c/robys-release/.artifacts/ci-visual-8e4004d/inspection/menu-share__desktop-1440-segment-01.png"
+      ]
+    }
+  ],
+  "sheetSha256": {
+    "inspection/menu-full__phone-320-segment-05.png": "87dd8165605772168a8bfd8f545b99f064cea4f3474c21f67480dcd277beccbe",
+    "inspection/menu-full__phone-320-segment-02.png": "e3d2ff21d929b65a050233dc595b201d2c3443413d38f13401d37bd60f827969",
+    "inspection/menu-full__phone-390-segment-09.png": "348fa4003b0f9707dbb7dae0af2e9a1f09c417e4a439676201fad91f0813493a",
+    "inspection/menu-full__phone-320-segment-06.png": "7311e640c7f0162dd6d2999154ccc73fc2f0e408bae204572163ba9bd291ac5a",
+    "inspection/menu-full__phone-320-segment-01.png": "2f9e4f5ed9d31c697c73d168ab991ed47834409dff800b1087b2c7c649e41117",
+    "inspection/menu-full__phone-390-segment-03.png": "d65a7b7de740005f7b07bc8825d88a3d26ace1527524eee1bf94b60583e53a23",
+    "inspection/menu-full__phone-320-segment-09.png": "fb20cde5e37827d30797f3f1488a0f2533308d15a27aae2c7b7a131e8c1ed05a",
+    "inspection/menu-full__tablet-768-segment-06.png": "0ee40bb093ae17f2a5d2242cefbbcfc79cf495dc23d1d03a64a549ed3804ec6b",
+    "inspection/menu-full__phone-390-segment-04.png": "8fb04518123424fa8f8fb14c53ee92196a9e87eea139ff509badac972f8350d2",
+    "inspection/menu-share__desktop-1440-segment-01.png": "1e7ea053b14339f3fc0c28085503ffa14664c1b59a80c973ff2ce3ea855621c6",
+    "inspection/menu-full__phone-390-segment-06.png": "1843aa0f09c86defc1dcef29e140170df4fcb79f6ffe65922225d0415e29327f",
+    "inspection/menu-full__phone-320-segment-08.png": "70d9c971f8a2500756f8789fdd792ba346f3a246048f3abd7f317392ede348d2",
+    "inspection/menu-full__phone-320-segment-03.png": "eb14f53ba245c4b3f79871e44dff11389c9f8a63db07b3c9ca90851c7022f7eb",
+    "inspection/menu-full__phone-390-segment-05.png": "258d93a8ab35914a75b1fc3a26b22d4193094c28f06c0ca82a2eb7ede86f2480",
+    "inspection/menu-full__tablet-768-segment-10.png": "899def2e11498600dc8dc67ca82dc5d72bf3b0bc8a982ce602db1547166662f8",
+    "inspection/menu-share__phone-360-short-segment-01.png": "76b25977d62e2038ee7acf535768603c99580747d91fadb1486bf48d988db0fc",
+    "inspection/menu-full__phone-390-segment-01.png": "ad34c520d213c8eecdb876668a5e118d0d73f276e05491186aba106b0cb0b7bc",
+    "inspection/menu-full__phone-320-segment-04.png": "26f659e49889db6add5a78a41396e949b54d3d1a7f131a915393e3b210fdea24",
+    "inspection/menu-full__tablet-768-segment-11.png": "01620b43639efedd126888ac122a51753a3c60ca8bfe3540f716a35c93e7c12a",
+    "inspection/menu-full__tablet-768-segment-08.png": "c08350ec505a9ac9893c1e8c9c82db757fe4c7fb69afb5f6d205069fdb538b05",
+    "inspection/menu-full__phone-390-segment-07.png": "ce22973db1a616d51561283ad7fe4226c28cb095227f6753911bd3eb917e6247",
+    "inspection/menu-full__desktop-1440-segment-01.png": "8bb81974d97b13c3031a2ba2e94f11cba7fe2c1f42a7258b470382fd93e150f0",
+    "inspection/menu-full__phone-390-segment-02.png": "00a6fcd2e4aec1177d69e13c5dff3ed2e67330d585269982acffb1a75ca5599e",
+    "inspection/menu-share__phone-320-segment-01.png": "aed9d2e0f1b941c6e95a6dc20a5114b66b03c385413c112339299e0fced45366",
+    "inspection/menu-full__phone-320-segment-07.png": "334d8de107f0255c75b5c8919cd32673be08ca85204b98acb41cec3c015a9851",
+    "inspection/menu-full__phone-390-segment-08.png": "8dfec20b15ebab3e5ffa6133e96a7d622ac747ca141ade9a2674bd36e874ae2d",
+    "inspection/menu-full__tablet-768-segment-03.png": "79c5ffc61d6c36f84013630b03e5a758d3c56fb799c5281d074da5da12904a07",
+    "inspection/menu-share__laptop-1366-segment-01.png": "3fb0b75c62c862c5f265ab1aec82936ad6697fa2f88590f9ca306efd9c35e817",
+    "inspection/menu-full__phone-390-segment-10.png": "08ff19880091716aae05e6b2da5dc4070ae7cd52f79e5720d1793c631dee220f",
+    "inspection/menu-full__tablet-768-segment-07.png": "8075dcff5199a937ea9737088f66673a6c7491c96d759c3773fd960a11a9006b",
+    "inspection/menu-share__phone-390-segment-01.png": "cb199ae3ce6cf7183faeeb0a710ebb2e2b70ad5376e11608408ea1c5b82a77de",
+    "inspection/menu-full__tablet-768-segment-05.png": "e7198eb58131696cb91a7c198019758dcc27e723f6b75014bfdab726911383c7",
+    "inspection/menu-full__phone-320-segment-10.png": "58d1dea2fe77c8f563d7a5351c828b918c6de066819403ce0bf44ae5d5cb6758",
+    "inspection/menu-full__desktop-1440-segment-03.png": "660dd8317f1081cff3e6a6f4403e310d80ea22f749f3c2ed371e5efffedfe4b3",
+    "inspection/menu-full__desktop-1440-segment-02.png": "2dfde19309361727825304e4cc4e23e31dafdf8acdf0e48d6c3e645e25706294",
+    "inspection/menu-full__tablet-768-segment-09.png": "1454be743b56b6c69b8345bb4fbe10faaec22a1465c2d293fac4ebbc902e52df",
+    "inspection/menu-full__tablet-768-segment-01.png": "ddc1e05dceea4abb7bd08760286159d58619d1a554351c23e12c79a5cc4d04fd",
+    "inspection/menu-full__desktop-1440-segment-04.png": "5b69e99555cff654d1bcc72fee9e63ed12c0cb4d8f856c5d1aff8d59b6fb9595",
+    "inspection/menu-full__tablet-768-segment-04.png": "11025e66512c07652e22b84f50af882797a526f44ddb54e365327be66b8864cb",
+    "inspection/menu-full__tablet-768-segment-02.png": "651c84a3cf90eb0456b719533c810b97f5a6ca2a478a9144d14ebe4fc2e11d6b"
+  },
+  "localVsCIGeometry": [
+    {
+      "scene": [
+        "menu-full",
+        "phone-320"
+      ],
+      "local": {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "file": "menu-full__phone-320.png",
+        "passed": false,
+        "diffPixels": 122499,
+        "totalPixels": 3781440,
+        "diffPixelRatio": 0.03239480198019802,
+        "maxDiffPixelRatio": 0.004
+      },
+      "ci": {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "file": "menu-full__phone-320.png",
+        "passed": false,
+        "reason": "dimension mismatch 320x11669 vs 320x11654",
+        "diffPixels": 3734080,
+        "diffPixelRatio": 1
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "phone-320"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "phone-320",
+        "file": "menu-share__phone-320.png",
+        "passed": true,
+        "diffPixels": 0,
+        "totalPixels": 143080,
+        "diffPixelRatio": 0,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "phone-320",
+        "file": "menu-share__phone-320.png",
+        "passed": false,
+        "diffPixels": 2449,
+        "totalPixels": 143080,
+        "diffPixelRatio": 0.017116298574224212,
+        "maxDiffPixelRatio": 0.003
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "phone-360-short"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "file": "menu-share__phone-360-short.png",
+        "passed": true,
+        "diffPixels": 372,
+        "totalPixels": 167040,
+        "diffPixelRatio": 0.0022270114942528735,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "file": "menu-share__phone-360-short.png",
+        "passed": false,
+        "diffPixels": 2079,
+        "totalPixels": 158720,
+        "diffPixelRatio": 0.013098538306451612,
+        "maxDiffPixelRatio": 0.003
+      }
+    },
+    {
+      "scene": [
+        "menu-full",
+        "phone-390"
+      ],
+      "local": {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "file": "menu-full__phone-390.png",
+        "passed": false,
+        "reason": "dimension mismatch 390x11529 vs 390x11514",
+        "diffPixels": 4496310,
+        "diffPixelRatio": 1
+      },
+      "ci": {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "file": "menu-full__phone-390.png",
+        "passed": false,
+        "reason": "dimension mismatch 390x11424 vs 390x11408",
+        "diffPixels": 4455360,
+        "diffPixelRatio": 1
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "phone-390"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "phone-390",
+        "file": "menu-share__phone-390.png",
+        "passed": true,
+        "diffPixels": 276,
+        "totalPixels": 176750,
+        "diffPixelRatio": 0.0015615275813295616,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "phone-390",
+        "file": "menu-share__phone-390.png",
+        "passed": false,
+        "diffPixels": 724,
+        "totalPixels": 176750,
+        "diffPixelRatio": 0.004096181046676096,
+        "maxDiffPixelRatio": 0.003
+      }
+    },
+    {
+      "scene": [
+        "menu-full",
+        "tablet-768"
+      ],
+      "local": {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "file": "menu-full__tablet-768.png",
+        "passed": false,
+        "reason": "dimension mismatch 768x13211 vs 768x13195",
+        "diffPixels": 10146048,
+        "diffPixelRatio": 1
+      },
+      "ci": {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "file": "menu-full__tablet-768.png",
+        "passed": false,
+        "reason": "dimension mismatch 768x13215 vs 768x13199",
+        "diffPixels": 10149120,
+        "diffPixelRatio": 1
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "tablet-768"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "tablet-768",
+        "file": "menu-share__tablet-768.png",
+        "passed": true,
+        "diffPixels": 241,
+        "totalPixels": 312312,
+        "diffPixelRatio": 0.0007716642332026947,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "tablet-768",
+        "file": "menu-share__tablet-768.png",
+        "passed": true,
+        "diffPixels": 248,
+        "totalPixels": 312312,
+        "diffPixelRatio": 0.0007940777171546403,
+        "maxDiffPixelRatio": 0.003
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "laptop-1366"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "laptop-1366",
+        "file": "menu-share__laptop-1366.png",
+        "passed": true,
+        "diffPixels": 731,
+        "totalPixels": 368160,
+        "diffPixelRatio": 0.0019855497609734896,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "laptop-1366",
+        "file": "menu-share__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 1919,
+        "totalPixels": 368160,
+        "diffPixelRatio": 0.005212407648848327,
+        "maxDiffPixelRatio": 0.003
+      }
+    },
+    {
+      "scene": [
+        "menu-full",
+        "desktop-1440"
+      ],
+      "local": {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "file": "menu-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7096 vs 1440x7735",
+        "diffPixels": 10218240,
+        "diffPixelRatio": 1
+      },
+      "ci": {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "file": "menu-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x6925 vs 1440x7563",
+        "diffPixels": 9972000,
+        "diffPixelRatio": 1
+      }
+    },
+    {
+      "scene": [
+        "menu-share",
+        "desktop-1440"
+      ],
+      "local": {
+        "id": "menu-share",
+        "viewport": "desktop-1440",
+        "file": "menu-share__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 2006,
+        "totalPixels": 443680,
+        "diffPixelRatio": 0.0045212765957446804,
+        "maxDiffPixelRatio": 0.003
+      },
+      "ci": {
+        "id": "menu-share",
+        "viewport": "desktop-1440",
+        "file": "menu-share__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 2249,
+        "totalPixels": 375240,
+        "diffPixelRatio": 0.005993497494936574,
+        "maxDiffPixelRatio": 0.003
+      }
+    }
+  ]
+}
