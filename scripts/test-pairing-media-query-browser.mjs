@@ -127,13 +127,28 @@ export async function verifyPairingFractionalBreakpoint(context, baseUrl, check)
         const mark = panel.locator(".pairing-discovery-mark");
         await mark.focus();
         await iframe.evaluate((node, size) => { node.style.width = `${size}px`; }, width);
-        await frame.waitForFunction(({ id, expectedWidth }) => {
-          const node = document.querySelector(".pairing-discovery-panel");
-          if (!node || node.dataset.pairingId !== id || !matchMedia(`(width: ${expectedWidth}px)`).matches) return false;
-          const narrow = matchMedia("(max-width: 900px)").matches;
-          return narrow ? node.previousElementSibling?.dataset.pairing === id :
-            node === node.parentElement.lastElementChild;
-        }, { id: pairing, expectedWidth: width });
+        // Older Playwright iframe pollers compile strings with eval under CSP.
+        // Poll from Node instead, preserving the same 10-second deadline.
+        const deadline = performance.now() + 10_000;
+        let placementReady = false;
+        let lastPlacement;
+        while (performance.now() < deadline) {
+          lastPlacement = await frame.evaluate((expectedWidth) => {
+            const node = document.querySelector(".pairing-discovery-panel");
+            return {
+              exactWidth: matchMedia(`(width: ${expectedWidth}px)`).matches,
+              narrow: matchMedia("(max-width: 900px)").matches,
+              pairingId: node?.dataset.pairingId ?? null,
+              predecessor: node?.previousElementSibling?.dataset.pairing ?? null,
+              isLastChild: Boolean(node && node === node.parentElement.lastElementChild)
+            };
+          }, width);
+          placementReady = lastPlacement.exactWidth && lastPlacement.pairingId === pairing &&
+            (lastPlacement.narrow ? lastPlacement.predecessor === pairing : lastPlacement.isLastChild);
+          if (placementReady) break;
+          await new Promise((done) => setTimeout(done, 50));
+        }
+        assert.equal(placementReady, true, `${pairing}/${width}: placement timed out: ${JSON.stringify(lastPlacement)}`);
         await frame.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
         const state = await frame.evaluate((expectedWidth) => {
           const node = document.querySelector(".pairing-discovery-panel");

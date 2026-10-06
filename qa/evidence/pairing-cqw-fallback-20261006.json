@@ -1,0 +1,59 @@
+{
+  "source": {
+    "beforeSha256": "cf73456b0834c0e0e1b7273ce97eed6d7518ab024612f015af3d53f948e5525c",
+    "afterSha256": "d1e9096d1ee4e080f8f329d7fc77f7220cdce58f3719ddb590e6eef409b9c863"
+  },
+  "fixture": "PostCSS removes declarations containing cqw; Chromium still supports all other CSS. Not a physical legacy browser.",
+  "original": {
+    "failedCases": 24,
+    "totalCases": 24,
+    "failedCards": 48,
+    "totalCards": 48,
+    "ru390Example": [
+      {
+        "id": "cool-lime-macaron",
+        "width": 314,
+        "height": 252.9375,
+        "rootFont": 16,
+        "titleFont": 16,
+        "priceFont": 16
+      },
+      {
+        "id": "iced-san-sebastian",
+        "width": 314,
+        "height": 220.34375,
+        "rootFont": 16,
+        "titleFont": 16,
+        "priceFont": 16
+      }
+    ]
+  },
+  "fixed": {
+    "failedCases": 0,
+    "totalCases": 24,
+    "failedCards": 0,
+    "totalCards": 48,
+    "ru390Example": [
+      {
+        "id": "cool-lime-macaron",
+        "width": 314,
+        "height": 319.796875,
+        "rootFont": 16,
+        "titleFont": 24,
+        "priceFont": 19.2
+      },
+      {
+        "id": "iced-san-sebastian",
+        "width": 314,
+        "height": 319.796875,
+        "rootFont": 16,
+        "titleFont": 24,
+        "priceFont": 19.2
+      }
+    ]
+  },
+  "modern": {
+    "identicalCases": 24,
+    "totalCases": 24
+  }
+}
