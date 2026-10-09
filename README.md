@@ -144,3 +144,10 @@ Before a commercial release, confirm with the café owner:
 ## Project status
 
 This repository is an advanced product and QA demonstration, not a finished ordering backend. Customer orders, payments, inventory and personal-data processing must not be implied unless a separately reviewed production service actually provides them.
+
+## License
+
+Original code and original technical documentation by Aleksey Safonov are
+licensed under [MIT](LICENSE). Photographs, media, branding, cafe business
+content and third-party material are excluded from that grant. See
+[LICENSE-SCOPE.md](LICENSE-SCOPE.md) for the exact scope and exclusions.

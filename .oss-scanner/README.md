@@ -3,12 +3,12 @@
 This directory prepares Roby's for a possible Anthropic OSS Scanner enrollment.
 It does not itself submit, approve or run an Anthropic vulnerability scan.
 
-## Pending maintainer decisions
+## License and enrollment decisions
 
-- No root open-source license was present at inspected base
-  `3e2aba1d2aaca93b6139f04db528bd2dd2904741`. A public repository alone does not
-  establish an open-source license. The maintainer must decide licensing for
-  original code and explicitly preserve third-party brand/media rights.
+- The maintainer approved MIT for original code on 9 October 2026. This branch
+  contains `LICENSE` and `LICENSE-SCOPE.md`; photographs, branding, business
+  content and third-party material are excluded. This preparation does not
+  publish that change to the production branch.
 - Anthropic accepts eligible established OSS projects case by case. The cafe
   project's infrastructure importance or adoption must not be overstated.
 - The first upstream enrollment PR requires the maintainer's Contributor
