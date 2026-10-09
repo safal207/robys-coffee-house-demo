@@ -1,0 +1,82 @@
+name: OSS Scanner environment
+
+on:
+  pull_request:
+    paths:
+      - '.oss-scanner/**'
+      - '.github/workflows/oss-scanner-build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oss-scanner-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  offline-environment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout exact proposed revision without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: robys
+
+      - name: Checkout official scanner tooling at the inspected revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: anthropics/oss-scanner
+          ref: 481b73cc028deee0409d09c6aca619b614553880
+          persist-credentials: false
+          path: scanner
+
+      - name: Install validator dependency
+        run: python3 -m pip install --disable-pip-version-check PyYAML==6.0.3
+
+      - name: Validate the enrollment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p scanner/projects evidence
+          cp -R robys/.oss-scanner/enrollment/robys-coffee-house-demo scanner/projects/
+          python3 scanner/tools/validate.py 2>&1 | tee evidence/validate.log
+
+      - name: Build with the official scanner environment checker
+        working-directory: scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/check robys-coffee-house-demo --no-shell \
+            --dir "$RUNNER_TEMP/robys-oss-scanner-check" 2>&1 | tee ../evidence/build.log
+
+      - name: Verify exact-head tests and Chromium with networking disabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --shm-size=1g \
+            --env EXPECTED_SHA="$EXPECTED_SHA" \
+            oss-scanner-check/built:robys-coffee-house-demo \
+            bash -lc '
+              set -euo pipefail
+              test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+              npm run check
+              npm run verify:security
+              node scripts/verify-analytics-destination-boundaries.mjs
+              node -e '\''const { chromium } = require("playwright"); (async () => { const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] }); await browser.close(); console.log("Chromium launches offline"); })().catch(error => { console.error(error); process.exit(1); });'\''
+              git diff --exit-code
+            ' 2>&1 | tee evidence/offline.log
+
+      - name: Upload exact-run environment evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: oss-scanner-environment-${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14
