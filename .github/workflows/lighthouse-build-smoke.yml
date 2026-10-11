@@ -17,6 +17,8 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - name: Verify page-scoped regression contract
+        run: npm run test:lighthouse-page-scoping
       - run: npm run build
       - run: node --check app.js
       - name: Ensure ffprobe is available
