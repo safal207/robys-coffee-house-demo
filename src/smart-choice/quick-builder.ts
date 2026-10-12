@@ -7,8 +7,8 @@ import type { SmartChoiceLanguage } from "./catalog.js";
 import { openQuickCheckout } from "./checkout-link.js";
 import { orderProducts, orderProductIds } from "./shared-order.js";
 import {
-  quickProducts, sweetProducts, drinkCategories, matchesQuickProduct, variantsFor,
-  orderGroupName, orderGroupTotal, orderGroupItems, needsOrderVariant, updateQuickGroupVariant, stepQuickGroupQuantity, type QuickProduct, type QuickOrderItem
+  quickProducts, sweetProducts, drinkCategories, matchesQuickProduct, variantsFor, drinkChoicesFor, drinkChoiceLabel,
+  orderGroupName, orderGroupTotal, orderGroupItems, needsOrderVariant, updateQuickGroupVariant, stepQuickGroupQuantity, replaceQuickGroup, type QuickProduct, type QuickOrderItem, type QuickOrderGroup
 } from "./quick-builder-domain.js";
 
 const COPY = {
@@ -21,7 +21,8 @@ const COPY = {
     cart: "Siparişin", cartEmpty: "Henüz bir şey eklemedin.", cartHint: "İlk içeceğini seçerek başlayabilirsin.", total: "Toplam", checkout: "Siparişi hazırla · QR",
     draftNote: "QR'ı kasaya göster. Ödeme ve son onay kafede yapılır.", remove: "Kaldır", increase: "Adedi artır", decrease: "Adedi azalt", pair: "Birlikte",
     updated: "Sipariş güncellendi", removed: "Siparişten kaldırıldı", checkoutError: "Sipariş ekranı açılamadı. Yeniden deneyin.", review: "Siparişi gör",
-    coffee: "Kahve molası", tea: "Çay vakti", cold: "Serin bir seçim", catalog: "Menüden seç", itemPrice: "Birim fiyat", pairPrice: "Bir çift", selectedTotal: "Eklenecek tutar"
+    coffee: "Kahve molası", tea: "Çay vakti", cold: "Serin bir seçim", catalog: "Menüden seç", itemPrice: "Birim fiyat", pairPrice: "Bir çift", selectedTotal: "Eklenecek tutar",
+    close: "Kapat", edit: "Seçimi düzenle", save: "Değişiklikleri kaydet", editTotal: "Yeni tutar", editBlocked: "Sipariş değişti veya adet sınırına ulaşıldı. Sepeti kontrol edip seçimi yeniden açın.", drinkChoice: "İçecek seçeneği"
   },
   en: {
     eyebrow: "ROBY'S · YOUR CHOICE", title: "What sounds good today?", lead: "Pick a drink, add something sweet. Put your order together right here.",
@@ -32,7 +33,8 @@ const COPY = {
     cart: "Your order", cartEmpty: "Nothing added yet.", cartHint: "Start with your first drink.", total: "Total", checkout: "Prepare order · QR",
     draftNote: "Show the QR at the counter. Payment and final confirmation happen at the café.", remove: "Remove", increase: "Increase quantity", decrease: "Decrease quantity", pair: "Together",
     updated: "Order updated", removed: "Removed from your order", checkoutError: "The order screen could not open. Please try again.", review: "Review order",
-    coffee: "Coffee break", tea: "Time for tea", cold: "Something refreshing", catalog: "Choose from the menu", itemPrice: "Unit price", pairPrice: "One pair", selectedTotal: "Amount to add"
+    coffee: "Coffee break", tea: "Time for tea", cold: "Something refreshing", catalog: "Choose from the menu", itemPrice: "Unit price", pairPrice: "One pair", selectedTotal: "Amount to add",
+    close: "Close", edit: "Customize selection", save: "Save changes", editTotal: "Updated amount", editBlocked: "The order changed or reached its quantity limit. Check your order and reopen this selection.", drinkChoice: "Drink option"
   },
   ru: {
     eyebrow: "ROBY'S · ТВОЙ ВЫБОР", title: "Чего хочется сегодня?", lead: "Выбери напиток, добавь сладкое. Собери весь заказ прямо здесь.",
@@ -43,7 +45,8 @@ const COPY = {
     cart: "Твой заказ", cartEmpty: "Пока ничего не добавлено.", cartHint: "Начни с первого напитка.", total: "Итого", checkout: "Оформить заказ · QR",
     draftNote: "Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.", remove: "Убрать", increase: "Увеличить количество", decrease: "Уменьшить количество", pair: "Вместе",
     updated: "Заказ обновлён", removed: "Убрано из заказа", checkoutError: "Не удалось открыть оформление. Попробуй ещё раз.", review: "Посмотреть заказ",
-    coffee: "Кофейная пауза", tea: "Время для чая", cold: "Хочется прохлады", catalog: "Выбирай из меню", itemPrice: "Цена за штуку", pairPrice: "Одна пара", selectedTotal: "Добавится к заказу"
+    coffee: "Кофейная пауза", tea: "Время для чая", cold: "Хочется прохлады", catalog: "Выбирай из меню", itemPrice: "Цена за штуку", pairPrice: "Одна пара", selectedTotal: "Добавится к заказу",
+    close: "Закрыть", edit: "Изменить выбор", save: "Сохранить изменения", editTotal: "Новая сумма", editBlocked: "Заказ изменился или достигнут предел количества. Проверь корзину и открой этот выбор заново.", drinkChoice: "Вариант напитка"
   }
 };
 
@@ -150,10 +153,25 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   const cards = node("div", "qb-products");
   catalog.append(catalogTitle, searchWrap, chips, count, cards);
   const side = node("div", "qb-side");
+  const customizer = node("dialog", "qb-customizer");
+  customizer.setAttribute("aria-labelledby", "qb-customizer-title");
   const composer = node("section", "qb-composer"); composer.id = "qb-composer";
+  const modalNotice = node("p", "qb-notice"); modalNotice.setAttribute("role", "status"); modalNotice.setAttribute("aria-live", "polite");
+  customizer.append(composer);
+  let returnFocus: HTMLElement | undefined;
+  let editingGroup: QuickOrderGroup | undefined;
+  customizer.addEventListener("close", () => {
+    (returnFocus?.isConnected ? returnFocus : cart.querySelector<HTMLElement>("h2"))?.focus({ preventScroll: true });
+  });
+  customizer.addEventListener("click", event => {
+    if (event.target !== customizer) return;
+    const bounds = customizer.getBoundingClientRect();
+    const click = event as MouseEvent;
+    if (click.clientX < bounds.left || click.clientX > bounds.right || click.clientY < bounds.top || click.clientY > bounds.bottom) customizer.close();
+  });
   const cart = node("section", "qb-cart"); cart.id = "qb-cart";
   const notice = node("p", "qb-notice"); notice.setAttribute("role", "status"); notice.setAttribute("aria-live", "polite");
-  side.append(composer, notice, cart);
+  side.append(notice, cart);
   layout.append(catalog, side);
   const dock = node("div", "qb-cart-dock");
   const dockTotal = node("strong");
@@ -161,9 +179,16 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   review.append(node("span", "", text.review), dockTotal);
   const dockCheckout = action(text.checkout, "primary-button", () => requestCheckout(dockCheckout));
   dock.append(review, dockCheckout);
-  root.append(layout, dock);
+  root.append(layout, dock, customizer);
 
-  function announce(message: string): void { notice.textContent = message; }
+  function announce(message: string): void { notice.textContent = modalNotice.textContent = message; }
+  function openCustomizer(trigger: HTMLElement): void {
+    returnFocus = trigger;
+    announce(""); renderComposer();
+    if (!customizer.open) customizer.showModal();
+    customizer.scrollTop = 0;
+    composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+  }
   function requestCheckout(button: HTMLButtonElement): void {
     const draft = readDraft();
     if (!draft.groups.length) { renderCart(); return; }
@@ -187,6 +212,15 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     }
   }
 
+  function updateSelectedCards(previousId: string): void {
+    for (const id of new Set([previousId, selectedId])) {
+      const card = cards.querySelector<HTMLButtonElement>(`[data-product-id="${id}"]`);
+      card?.setAttribute("aria-pressed", String(id === selectedId));
+      const label = card?.querySelector<HTMLElement>(".qb-product-action");
+      if (label) label.textContent = id === selectedId ? `✓ ${text.chosen}` : `${text.choose} +`;
+    }
+  }
+
   function renderCatalog(): void {
     const matches = quickProducts.filter(product => matchesQuickProduct(product, query, category));
     count.textContent = `${matches.length} ${text.results}`;
@@ -202,18 +236,10 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     for (const product of matches) {
       const card = action("", "qb-product", () => {
         const previousId = selectedId;
+        editingGroup = undefined;
         if (selectedId !== product.id) { selectedId = product.id; variantId = ""; dessertId = ""; quantity = 1; }
-        for (const id of new Set([previousId, selectedId])) {
-          const selectedCard = cards.querySelector<HTMLButtonElement>(`[data-product-id="${id}"]`);
-          if (!selectedCard) continue;
-          const selected = id === selectedId;
-          selectedCard.setAttribute("aria-pressed", String(selected));
-          const label = selectedCard.querySelector<HTMLElement>(".qb-product-action");
-          if (label) label.textContent = selected ? `✓ ${text.chosen}` : `${text.choose} +`;
-        }
-        announce(""); renderComposer();
-        composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
-        if (window.matchMedia("(max-width: 850px)").matches) composer.scrollIntoView({ block: "start", behavior: "auto" });
+        updateSelectedCards(previousId);
+        openCustomizer(card);
       });
       card.dataset.productId = product.id;
       card.setAttribute("aria-pressed", String(selectedId === product.id));
@@ -227,8 +253,10 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
 
   function renderComposer(): void {
     composer.replaceChildren();
-    const composerTitle = node("h2", "qb-section-title", text.selection); composerTitle.tabIndex = -1;
-    composer.append(composerTitle);
+    const composerTitle = node("h2", "qb-section-title", editingGroup ? text.edit : text.selection); composerTitle.tabIndex = -1; composerTitle.id = "qb-customizer-title";
+    const header = node("div", "qb-customizer-header");
+    const close = action("×", "qb-customizer-close", () => customizer.close()); close.setAttribute("aria-label", text.close);
+    header.append(composerTitle, close); composer.append(header);
     const product = orderProducts.get(selectedId);
     if (!product) { composer.append(node("p", "qb-muted", text.selectHint)); return; }
     const sweet = sweetProducts.find(item => item.id === dessertId);
@@ -241,54 +269,81 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     composer.append(photos);
     if (product.item.description) composer.append(node("p", "qb-product-description", product.item.description[language]));
     const variants = variantsFor(product);
-    if (variants.length) {
-      const field = node("label", "qb-field", text.flavour);
-      const select = node("select"); select.id = "qb-flavour"; select.required = true;
-      const placeholder = node("option", "", text.flavour); placeholder.value = ""; placeholder.disabled = true;
-      select.append(placeholder);
-      for (const variant of variants) { const option = node("option", "", variant.name[language]); option.value = variant.id; select.append(option); }
-      select.value = variantId;
-      select.addEventListener("change", () => { variantId = select.value; renderComposer(); composer.querySelector<HTMLSelectElement>("#qb-flavour")?.focus(); });
-      field.append(select); composer.append(field);
+    const drinkChoices = drinkChoicesFor(product);
+    if (drinkChoices.length) {
+      const field = node("fieldset", "qb-flavours"); field.append(node("legend", "", text.drinkChoice));
+      for (const choice of drinkChoices) {
+        const key = `${choice.product.id}/${choice.variant?.id ?? "plain"}`;
+        const name = `${choice.product.name[language]}${choice.variant ? ` · ${choice.variant.name[language]}` : ""}`;
+        const button = action(`${drinkChoiceLabel(choice, language)} · ${price(choice.product.unitPriceMinor)}`, "qb-flavour", () => {
+          const previousId = selectedId;
+          selectedId = choice.product.id; variantId = choice.variant?.id ?? "";
+          updateSelectedCards(previousId); renderComposer();
+          composer.querySelector<HTMLButtonElement>(`[data-choice-id="${key}"]`)?.focus({ preventScroll: true });
+        });
+        button.setAttribute("aria-label", `${name} · ${price(choice.product.unitPriceMinor)}`);
+        button.dataset.choiceId = key;
+        if (choice.variant) button.dataset.variantId = choice.variant.id;
+        button.setAttribute("aria-pressed", String(choice.product.id === selectedId && (choice.variant?.id ?? "") === variantId));
+        field.append(button);
+      }
+      composer.append(field);
+    } else if (variants.length) {
+      const field = node("fieldset", "qb-flavours"); field.append(node("legend", "", text.flavour));
+      for (const variant of variants) {
+        const button = action(variant.name[language], "qb-flavour", () => {
+          variantId = variant.id; renderComposer(); composer.querySelector<HTMLButtonElement>(`[data-variant-id="${variant.id}"]`)?.focus({ preventScroll: true });
+        });
+        button.dataset.variantId = variant.id; button.setAttribute("aria-pressed", String(variant.id === variantId)); field.append(button);
+      }
+      composer.append(field);
     }
     if (drinkCategories.has(product.categoryId)) {
-      const field = node("label", "qb-field", text.sweet);
-      const select = node("select"); select.id = "qb-dessert";
-      const none = node("option", "", text.noSweet); none.value = ""; select.append(none);
+      const field = node("fieldset", "qb-sweets-field"); field.append(node("legend", "", text.sweet));
+      const none = action(text.noSweet, "qb-no-sweet", () => {
+        dessertId = ""; renderComposer(); composer.querySelector<HTMLButtonElement>(".qb-no-sweet")?.focus({ preventScroll: true });
+      });
+      none.setAttribute("aria-pressed", String(!dessertId)); field.append(none);
+      const sweets = node("div", "qb-sweets");
       for (const dessert of sweetProducts) {
-        const option = node("option", "", `${dessert.name[language]} · +${price(dessert.unitPriceMinor)}`);
-        option.value = dessert.id; select.append(option);
+        const button = action("", "qb-sweet", () => {
+          dessertId = dessert.id; renderComposer(); composer.querySelector<HTMLButtonElement>(`[data-dessert-id="${dessert.id}"]`)?.focus({ preventScroll: true });
+        });
+        button.dataset.dessertId = dessert.id; button.setAttribute("aria-pressed", String(dessert.id === dessertId));
+        button.append(productPhoto(dessert), node("span", "qb-sweet-name", dessert.name[language]), node("strong", "", `+${price(dessert.unitPriceMinor)}`));
+        sweets.append(button);
       }
-      select.value = dessertId;
-      select.addEventListener("change", () => { dessertId = select.value; renderComposer(); composer.querySelector<HTMLSelectElement>("#qb-dessert")?.focus(); });
-      field.append(select); composer.append(field);
+      field.append(sweets); composer.append(field);
     }
+    const footer = node("div", "qb-composer-footer");
     const row = node("div", "qb-quantity-row");
     row.append(node("span", "", sweet ? text.pairs : text.quantity));
     const stepper = quantityControl(quantity, 99, value => { const direction = value > quantity ? "up" : "down"; quantity = value; renderComposer();
       const target = composer.querySelector<HTMLButtonElement>(`[data-step="${direction}"]`);
       (target && !target.disabled ? target : composer.querySelector<HTMLButtonElement>("[data-step]:not(:disabled)"))?.focus(); }, product.name[language]);
-    row.append(stepper); composer.append(row);
+    row.append(stepper); footer.append(row);
     const total = (product.unitPriceMinor + (sweet?.unitPriceMinor ?? 0)) * quantity;
-    const totalRow = node("p", "qb-add-total"); totalRow.append(node("span", "", text.selectedTotal), node("strong", "", price(total)));
+    const totalRow = node("p", "qb-add-total"); totalRow.append(node("span", "", editingGroup ? text.editTotal : text.selectedTotal), node("strong", "", price(total)));
     const needsVariant = variants.length > 0 && !variants.some(item => item.id === variantId);
-    const add = action(`${sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", () => {
+    const add = action(`${editingGroup ? text.save : sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", () => {
       const items: QuickOrderItem[] = [{ id: product.id, quantity: 1, ...(variantId ? { variant: variantId } : {}) },
         ...(sweet ? [{ id: sweet.id, quantity: 1 }] : [])];
-      const result = addOrderGroup(readDraft(), items, quantity, orderProductIds);
-      if (!result.applied) { announce(text.limit); return; }
+      const result = editingGroup ? replaceQuickGroup(readDraft(), editingGroup, items, quantity) : addOrderGroup(readDraft(), items, quantity, orderProductIds);
+      if (!result.applied) { announce(editingGroup ? text.editBlocked : text.limit); return; }
       saveDraft(result.draft);
-      announce(`${text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${quantity}`);
+      announce(`${editingGroup ? text.updated : text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${quantity}`);
       renderCart();
+      customizer.close();
     });
     add.disabled = needsVariant;
-    if (needsVariant) composer.append(node("p", "qb-muted", text.flavourRequired));
+    if (needsVariant) footer.append(node("p", "qb-muted", text.flavourRequired));
     const chooseMore = action(text.chooseMore, "secondary-button qb-continue-shopping", () => {
+      returnFocus = search; customizer.close();
       catalog.scrollIntoView({ block: "start", behavior: "auto" });
       search.focus({ preventScroll: true });
       if (search.value) search.select();
     });
-    composer.append(totalRow, add, chooseMore);
+    footer.append(totalRow, add, chooseMore, modalNotice); composer.append(footer);
   }
 
   function quantityControl(value: number, max: number, onChange: (quantity: number) => void, name: string): HTMLElement {
@@ -301,6 +356,13 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     increase.dataset.step = "up"; increase.disabled = value >= max;
     increase.setAttribute("aria-label", `${text.increase}: ${name}`);
     controls.append(decrease, amount, increase); return controls;
+  }
+
+  function editableItems(group: QuickOrderGroup): QuickOrderItem[] | undefined {
+    if (!group.items.every(item => item.quantity === 1)) return;
+    const items = orderGroupItems(group);
+    if (items.length === 1) return items;
+    if (items.length === 2 && drinkCategories.has(orderProducts.get(items[0].id)?.categoryId ?? "") && sweetProducts.some(item => item.id === items[1].id)) return items;
   }
 
   function renderCart(focusGroup?: string, focusStep?: string): void {
@@ -362,7 +424,21 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true }); announce(`${text.removed}: ${name}`);
       });
       remove.setAttribute("aria-label", `${text.remove}: ${name}`);
-      info.append(controls, remove); row.append(photos, info); cart.append(row);
+      info.append(controls);
+      if (editableItems(group)) {
+        const edit = action(text.edit, "qb-edit", () => {
+          const latest = readDraft().groups.find(entry => entry.id === group.id);
+          const items = latest && editableItems(latest);
+          if (!latest || !items) { renderCart(); announce(text.editBlocked); return; }
+          const previousId = selectedId;
+          editingGroup = latest; selectedId = items[0].id; variantId = items[0].variant ?? "";
+          dessertId = items[1]?.id ?? ""; quantity = latest.quantity;
+          updateSelectedCards(previousId);
+          openCustomizer(edit);
+        });
+        edit.setAttribute("aria-label", `${text.edit}: ${name}`); info.append(edit);
+      }
+      info.append(remove); row.append(photos, info); cart.append(row);
     }
     const total = draft.groups.reduce((sum, group) => sum + orderGroupTotal(group), 0);
     dockTotal.textContent = price(total);

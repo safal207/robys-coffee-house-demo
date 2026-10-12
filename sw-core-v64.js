@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-d6e22236d396-custom-pair-98a550eb91a1-shared-order-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-ca3d4f933116-custom-pair-98a550eb91a1-shared-order-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -133,14 +133,14 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=1c60b33d3b33",
+  "./smart-choice/style.css?v=d09579a029cd",
   "./smart-choice/cart.css?v=86651c23e97c",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=7672d518bb3a",
-  "./smart-choice/cart-v2.js?v=2208917ef95b",
+  "./smart-choice/app-v2.js?v=57eba6212f64",
+  "./smart-choice/cart-v2.js?v=45e80a61f8dc",
   "./smart-choice/experiments-v2.js?v=caab0cd78008",
   "./smart-choice/analytics-v2.js?v=5ec9feed2166",
   "./smart-choice/decision-trace-v2.js?v=20a644b14a02",

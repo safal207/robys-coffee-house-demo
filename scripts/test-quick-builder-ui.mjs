@@ -51,6 +51,8 @@ class TestElement extends EventTarget {
   focus() { document.activeElement = this; }
   scrollIntoView() { this.scrolled = true; }
   select() { this.textSelected = true; }
+  showModal() { this.open = true; }
+  close() { this.open = false; this.dispatchEvent(new Event("close")); }
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
@@ -76,16 +78,25 @@ try {
   const tea = cards.find(card => card.dataset.productId === "brew-hot:black-tea");
   const coffee = cards.find(card => card.dataset.productId === "hot-coffee:americano");
   const composer = root.querySelector("#qb-composer");
+  const customizer = root.querySelector(".qb-customizer");
   tea.click();
   assert.deepEqual(root.querySelectorAll(".qb-product"), cards, "Selecting a product must preserve catalog card identity");
   assert.deepEqual(cards.map(card => card.querySelector("img")), photos, "Selecting a product must preserve all existing photo nodes");
   assert.equal(tea.getAttribute("aria-pressed"), "true");
   assert.match(tea.querySelector(".qb-product-action").textContent, /Selected/);
   assert.equal(document.activeElement, composer.querySelector("h2"));
-  assert.equal(composer.scrolled, true, "Mobile selection still scrolls to its composer");
+  assert.equal(customizer.open, true, "A selection must open its customizer on mobile");
+  assert.equal(customizer.getAttribute("aria-labelledby"), composer.querySelector("h2").id);
+  assert.equal(composer.querySelectorAll(".qb-sweet").length, 12, "All accompanying sweets must be visible buttons");
   composer.querySelector('[data-step="up"]').click();
+  composer.querySelector(".qb-customizer-close").click();
+  assert.equal(customizer.open, false);
+  assert.equal(document.activeElement, tea, "Closing returns focus to the opening product");
+  window.matchMedia = () => ({ matches: false });
   tea.click();
+  assert.equal(customizer.open, true, "A selection must also open its customizer on desktop");
   assert.equal(composer.querySelector("output").textContent, "2", "Repeated selection must preserve composer quantity");
+  composer.querySelector(".qb-customizer-close").click();
   coffee.click();
   assert.equal(tea.getAttribute("aria-pressed"), "false");
   assert.equal(coffee.getAttribute("aria-pressed"), "true");
@@ -94,6 +105,7 @@ try {
   const cart = root.querySelector("#qb-cart");
   let before = cart.replacements;
   composer.querySelector(".qb-add").click();
+  assert.equal(customizer.open, false, "Adding finishes the composer and returns to the catalog");
   assert.equal(cart.replacements - before, 1, "Own add must render the cart once, not twice through its event echo");
   before = cart.replacements;
   cart.querySelector('[data-step="up"]').click();
@@ -105,6 +117,78 @@ try {
   before = cart.replacements;
   window.dispatchEvent(Object.assign(new Event("storage"), { key: "robys-menu-order.v1" }));
   assert.equal(cart.replacements - before, 1, "Cross-tab storage updates must still refresh the cart");
+  const savedDraft = () => JSON.parse(localStorage.getItem("robys-menu-order.v1"));
+  const beforeEdit = savedDraft();
+  cart.querySelector(".qb-edit").click();
+  assert.equal(customizer.open, true);
+  composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
+  assert.equal(composer.querySelector("output").textContent, "2", "A dessert selection preserves the drink quantity");
+  assert.equal(composer.querySelectorAll(".qb-selection-photos")[0].querySelectorAll("figure").length, 2);
+  composer.querySelector(".qb-customizer-close").click();
+  assert.deepEqual(savedDraft(), beforeEdit, "Cancel must not alter or remove the original item");
+  cart.querySelector(".qb-edit").click();
+  composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
+  composer.querySelector(".qb-add").click();
+  const pairedDraft = savedDraft();
+  assert.equal(pairedDraft.groups.length, 1, "Saving an edit replaces the original instead of adding another copy");
+  assert.equal(pairedDraft.groups[0].quantity, 2);
+  assert.deepEqual(pairedDraft.groups[0].items.map(item => item.id), ["hot-coffee:americano", "desserts:macaron"]);
+  cart.querySelector(".qb-edit").click();
+  composer.querySelector(".qb-no-sweet").click();
+  const changedElsewhere = savedDraft(); changedElsewhere.groups[0].quantity = 3;
+  localStorage.setItem("robys-menu-order.v1", JSON.stringify(changedElsewhere));
+  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  composer.querySelector(".qb-add").click();
+  assert.equal(customizer.open, true, "A stale edit must stay open with an actionable explanation");
+  assert.equal(savedDraft().groups[0].quantity, 3, "A stale edit must preserve the latest quantity");
+  assert.equal(savedDraft().groups[0].items.length, 2, "A stale edit must preserve the original pair atomically");
+  assert.match(composer.querySelector(".qb-notice").textContent, /order changed/);
+  composer.querySelector(".qb-customizer-close").click();
+  const flavoured = cards.find(card => card.dataset.productId === "cold-coffee:flavoured-iced-caffe-latte");
+  flavoured.click();
+  assert.equal(composer.querySelector(".qb-add").disabled, true, "An unresolved flavour blocks adding");
+  const flavour = composer.querySelector('[data-variant-id="caramel"]'); const flavourId = flavour.dataset.variantId;
+  flavour.click();
+  composer.querySelector('[data-step="up"]').click();
+  composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
+  assert.equal(composer.querySelector(`[data-variant-id="${flavourId}"]`).getAttribute("aria-pressed"), "true", "A dessert change preserves the drink flavour");
+  assert.equal(composer.querySelector("output").textContent, "2");
+  assert.equal(composer.querySelector(".qb-add").disabled, false);
+  composer.querySelector(".qb-customizer-close").click();
+  const cappuccino = cards.find(card => card.dataset.productId === "hot-coffee:cappuccino");
+  const caramelCappuccino = cards.find(card => card.dataset.productId === "hot-coffee:caramel-cappuccino");
+  cappuccino.click();
+  composer.querySelector('[data-step="up"]').click();
+  composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
+  composer.querySelector('[data-choice-id="hot-coffee:caramel-cappuccino/plain"]').click();
+  assert.equal(composer.querySelector("output").textContent, "2", "Changing drink option preserves quantity");
+  assert.equal(composer.querySelector('[data-dessert-id="desserts:macaron"]').getAttribute("aria-pressed"), "true", "Changing drink option preserves dessert");
+  assert.equal(cappuccino.getAttribute("aria-pressed"), "false");
+  assert.equal(caramelCappuccino.getAttribute("aria-pressed"), "true");
+  assert.match(composer.querySelector(".qb-selection-photos").querySelector("img").src, /hot-coffee--caramel-cappuccino/);
+  const money = value => new numberFormat("en-US", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(value);
+  assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460), "Family price comes from the selected canonical drink plus dessert, times quantity");
+  composer.querySelector(".qb-add").click();
+  const cappuccinoPair = savedDraft().groups.find(group => group.items[0].id === "hot-coffee:caramel-cappuccino");
+  assert.equal(cappuccinoPair.quantity, 2);
+  assert.equal(cappuccinoPair.items[1].id, "desserts:macaron");
+  const pairRow = cart.querySelectorAll(".qb-order-group").find(row => row.dataset.groupId === cappuccinoPair.id);
+  pairRow.querySelector(".qb-edit").click();
+  composer.querySelector('[data-choice-id="hot-coffee:cappuccino/plain"]').click();
+  composer.querySelector(".qb-add").click();
+  assert(!savedDraft().groups.some(group => group.items[0].id === "hot-coffee:caramel-cappuccino"), "Editing a drink option replaces the original canonical product");
+  assert.equal(savedDraft().groups.find(group => group.items[0].id === "hot-coffee:cappuccino").quantity, 2);
+  const icedLatte = cards.find(card => card.dataset.productId === "cold-coffee:iced-caffe-latte");
+  icedLatte.click();
+  composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
+  composer.querySelector('[data-step="up"]').click();
+  composer.querySelector('[data-choice-id="cold-coffee:flavoured-iced-caffe-latte/vanilla"]').click();
+  assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460));
+  assert.equal(composer.querySelector("output").textContent, "2");
+  composer.querySelector(".qb-add").click();
+  const icedPair = savedDraft().groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte");
+  assert.equal(icedPair.items[0].variant, "vanilla", "A flavour option stores its canonical product and variant");
+  assert.equal(icedPair.items[1].id, "desserts:macaron");
   const search = root.querySelector("#qb-search"); search.value = "black tea"; search.dispatchEvent(new Event("input"));
   const filtered = root.querySelectorAll(".qb-product");
   assert(filtered.length > 0 && filtered.length < cards.length);
@@ -116,7 +200,7 @@ try {
   createQuickBuilder("ru", () => {});
   createQuickBuilder("en", () => {});
   assert.equal(formatterCount, 2, "Returning to a locale must reuse its cached formatter");
-  console.log("Quick builder UI PASS: persistent photo nodes, selected labels/focus, filtered and repeated selection, one cart render, external updates, cached locale formatters.");
+  console.log("Quick builder UI PASS: desktop/mobile modal, focus return, visible sweets/flavours, edit/save/cancel and stale edits, persistent photo nodes, one cart render, external updates, cached locale formatters.");
 } finally {
   Intl.NumberFormat = numberFormat;
   for (const [key, value] of previous) {

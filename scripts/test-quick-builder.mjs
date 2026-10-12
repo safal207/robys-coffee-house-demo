@@ -30,6 +30,25 @@ const variant = variants[0];
 assert(domain.matchesQuickProduct(flavoured, variant.name.ru));
 
 const ids = shared.orderProductIds;
+for (const [id, count] of [["hot-coffee:cappuccino", 2], ["hot-coffee:caffe-latte", 6], ["cold-coffee:iced-caffe-latte", 6]]) {
+  const choices = domain.drinkChoicesFor(shared.orderProducts.get(id));
+  assert.equal(choices.length, count, `Canonical drink choices: ${id}`);
+  assert.equal(domain.drinkChoiceLabel(choices[0], "ru"), "Классический", "The plain drink button uses a compact label");
+  for (const choice of choices) {
+    assert(!domain.drinkChoiceLabel(choice, "ru").includes("латте"), "Family labels avoid repeating the full drink name on mobile");
+    assert.deepEqual(domain.drinkChoicesFor(choice.product), choices, "Every member must expose the same menu family");
+    const items = [{ id: choice.product.id, quantity: 1, ...(choice.variant ? { variant: choice.variant.id } : {}) }, { id: "desserts:macaron", quantity: 1 }];
+    const selection = draft.addOrderGroup(null, items, 2, ids).draft;
+    assert.equal(domain.needsOrderVariant(selection.groups), false);
+    const ticket = getOrCreateOrderTicket(selection);
+    const restored = decodeOrderTicket(encodeOrderTicket(ticket, "ru"));
+    assert.deepEqual(restored.ticket, ticket, "Drink family choices preserve canonical IDs and flavours in QR");
+    assert.equal(quoteOrderTicket(restored.ticket, "ru").totalMinor,
+      (choice.product.item.price + shared.orderProducts.get("desserts:macaron").item.price) * 200,
+      "Family choices use full catalog prices instead of invented syrup surcharges");
+  }
+}
+assert.deepEqual(domain.drinkChoicesFor(shared.orderProducts.get("hot-coffee:americano")), [], "Drink families must not invent generic add-ons for other drinks");
 const pairItems = [{ id: tea.id, quantity: 1 }, { id: "desserts:macaron", quantity: 1 }];
 let result = draft.addOrderGroup(null, pairItems, 2, ids);
 assert(result.applied);
@@ -62,6 +81,44 @@ const latestMax = draft.updateOrderGroupQuantity(latestTwo, renderedId, 99, ids)
 const afterStaleMax = domain.stepQuickGroupQuantity(latestMax, renderedId, 1);
 assert.equal(afterStaleMax.applied, false);
 assert.deepEqual(afterStaleMax.draft, latestMax, "A stale step must respect the latest maximum atomically");
+const originalSingle = draft.addOrderGroup(null, [pairItems[0]], 2, ids).draft;
+const originalGroup = originalSingle.groups[0];
+const replaced = domain.replaceQuickGroup(originalSingle, originalGroup, pairItems, 2);
+assert(replaced.applied);
+assert.equal(replaced.draft.groups.length, 1);
+assert.deepEqual(replaced.draft.lines.map(line => line.quantity), [2, 2], "Editing a drink into a pair preserves quantities without duplicating the drink");
+const unrelatedLatest = draft.addOrderGroup(originalSingle, [{ id: "hot-coffee:americano", quantity: 1 }], 3, ids).draft;
+const preservingUnrelated = domain.replaceQuickGroup(unrelatedLatest, originalGroup, pairItems, 2);
+assert(preservingUnrelated.applied);
+assert.equal(preservingUnrelated.draft.lines.find(line => line.id === "hot-coffee:americano").quantity, 3, "Editing uses the latest unrelated basket contents");
+const dessertAtLimit = draft.addOrderGroup(originalSingle, [pairItems[1]], 99, ids).draft;
+const rejectedReplacement = domain.replaceQuickGroup(dessertAtLimit, originalGroup, pairItems, 2);
+assert.equal(rejectedReplacement.applied, false);
+assert.deepEqual(rejectedReplacement.draft, dessertAtLimit, "A failed replacement must retain the original drink atomically");
+const removedOriginal = draft.removeOrderGroup(originalSingle, originalGroup.id, ids);
+assert.deepEqual(domain.replaceQuickGroup(removedOriginal, originalGroup, pairItems, 2).draft, removedOriginal, "A stale editor cannot resurrect a removed selection");
+const changedOriginal = draft.updateOrderGroupQuantity(originalSingle, originalGroup.id, 3, ids).draft;
+assert.equal(domain.replaceQuickGroup(changedOriginal, originalGroup, pairItems, 2).applied, false, "A stale editor cannot overwrite the latest quantity");
+const recommendationSelection = { token: "editable-pair", signature: "first", lines: pairItems.map(({ id, quantity }) => ({ id, quantity })) };
+const ownedPair = draft.applyOrderRecommendation(null, recommendationSelection, ids).draft;
+const ownedGroup = ownedPair.groups[0];
+assert.deepEqual(domain.replaceQuickGroup(ownedPair, ownedGroup, pairItems, 1).draft, ownedPair,
+  "Saving an unchanged recommendation must preserve its source and metadata");
+const changedOwnedQuantity = domain.replaceQuickGroup(ownedPair, ownedGroup, pairItems, 2).draft;
+assert.equal(changedOwnedQuantity.groups[0].source, "recommendation");
+assert.equal(changedOwnedQuantity.groups[0].quantity, 2);
+assert.equal(changedOwnedQuantity.recommendation.removed, undefined);
+const ownedDrinkOnly = domain.replaceQuickGroup(ownedPair, ownedGroup, [pairItems[0]], 1).draft;
+assert.equal(ownedDrinkOnly.groups[0].source, "recommendation");
+assert.deepEqual(ownedDrinkOnly.recommendation.removedLines, [{ id: "desserts:macaron", quantity: 1 }]);
+const changedAdvisorOption = draft.applyOrderRecommendation(ownedDrinkOnly, { ...recommendationSelection, signature: "changed-drink",
+  lines: [{ id: "hot-coffee:americano", quantity: 1 }, pairItems[1]] }, ids).draft;
+assert.equal(changedAdvisorOption.groups[0].items[0].id, "hot-coffee:americano", "Editing a recommendation must not disable later advisor options");
+assert(!changedAdvisorOption.lines.some(line => line.id === "desserts:macaron"), "Changing an advisor option must not re-add a dessert explicitly removed in the editor");
+const explicitlyRestored = domain.replaceQuickGroup(ownedDrinkOnly, ownedDrinkOnly.groups[0], pairItems, 1).draft;
+assert.deepEqual(explicitlyRestored.recommendation.removedLines, [], "Explicitly adding a dessert back must clear its removal marker");
+assert(draft.applyOrderRecommendation(explicitlyRestored, { ...recommendationSelection, signature: "after-restore" }, ids).draft.lines.some(line => line.id === "desserts:macaron"),
+  "A later advisor update must preserve an explicitly restored dessert");
 const builderSource = readFileSync("src/smart-choice/quick-builder.ts", "utf8");
 assert(builderSource.includes("stepQuickGroupQuantity(readDraft(), group.id, delta)"), "The UI must apply the step to freshly read storage");
 assert(!builderSource.includes("updateOrderGroupQuantity(readDraft(), group.id, next"), "The UI must not write the stale rendered absolute quantity");
