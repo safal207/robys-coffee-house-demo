@@ -26,7 +26,7 @@ const posters: Record<string, PairingPoster> = {
   },
   "iced-san-sebastian": {
     id: "iced-san-sebastian",
-    source: "src/pairings-data/approved/iced-san-sebastian-hq.png",
+    source: "src/pairings-data/approved/iced-san-sebastian-hq.webp",
     alt: localized(
       "Buzlu Latte ve San Sebastian eşleşmesi posteri",
       "Iced Latte and San Sebastian pairing poster",

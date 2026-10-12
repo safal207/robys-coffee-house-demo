@@ -54,6 +54,8 @@ let dessertId = "";
 let variantId = "";
 let quantity = 1;
 let refreshBuilder: (() => void) | undefined;
+const orderChangeOrigin = {};
+const priceFormatters = new Map<string, Intl.NumberFormat>();
 
 function readDraft(): OrderDraft {
   return readStoredOrderDraft(orderProductIds);
@@ -61,7 +63,7 @@ function readDraft(): OrderDraft {
 
 function saveDraft(draft: OrderDraft): void {
   writeStoredOrderDraft(draft, orderProductIds);
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  window.dispatchEvent(new CustomEvent("robys:order-change", { detail: { origin: orderChangeOrigin } }));
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -90,9 +92,18 @@ function productPhoto(product: QuickProduct, className = ""): HTMLImageElement {
 
 export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => void): HTMLElement {
   const text = COPY[language];
-  const price = (minor: number): string => new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language], {
-    style: "currency", currency: "TRY", maximumFractionDigits: minor % 100 ? 2 : 0
-  }).format(minor / 100);
+  const price = (minor: number): string => {
+    const digits = minor % 100 ? 2 : 0;
+    const key = `${language}:${digits}`;
+    let formatter = priceFormatters.get(key);
+    if (!formatter) {
+      formatter = new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language], {
+        style: "currency", currency: "TRY", maximumFractionDigits: digits
+      });
+      priceFormatters.set(key, formatter);
+    }
+    return formatter.format(minor / 100);
+  };
   const root = node("section", "quick-builder");
   root.dataset.quickBuilder = "true";
   const hero = node("div", "qb-hero");
@@ -190,8 +201,17 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     }
     for (const product of matches) {
       const card = action("", "qb-product", () => {
+        const previousId = selectedId;
         if (selectedId !== product.id) { selectedId = product.id; variantId = ""; dessertId = ""; quantity = 1; }
-        announce(""); renderCatalog(); renderComposer();
+        for (const id of new Set([previousId, selectedId])) {
+          const selectedCard = cards.querySelector<HTMLButtonElement>(`[data-product-id="${id}"]`);
+          if (!selectedCard) continue;
+          const selected = id === selectedId;
+          selectedCard.setAttribute("aria-pressed", String(selected));
+          const label = selectedCard.querySelector<HTMLElement>(".qb-product-action");
+          if (label) label.textContent = selected ? `✓ ${text.chosen}` : `${text.choose} +`;
+        }
+        announce(""); renderComposer();
         composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
         if (window.matchMedia("(max-width: 850px)").matches) composer.scrollIntoView({ block: "start", behavior: "auto" });
       });
@@ -366,5 +386,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   return root;
 }
 
-window.addEventListener("robys:order-change", () => refreshBuilder?.());
+window.addEventListener("robys:order-change", event => {
+  if ((event as CustomEvent<{ origin?: unknown }>).detail?.origin !== orderChangeOrigin) refreshBuilder?.();
+});
 window.addEventListener("storage", event => { if (event.key === ORDER_DRAFT_KEY || event.key === null) refreshBuilder?.(); });

@@ -652,7 +652,7 @@ button {
 .qb-help{flex-shrink:0;background:var(--paper);font-size:.85rem}
 .qb-inspiration{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 26px}
 .qb-inspiration-card{position:relative;display:grid;gap:0;min-width:0;padding:0;overflow:hidden;text-align:left;color:#fff;background:var(--dark);border:0;border-radius:20px;cursor:pointer}
-.qb-inspiration-card img{display:block;width:100%;height:clamp(100px,14vw,165px);object-fit:cover}
+.qb-inspiration-card img{display:block;width:100%;height:clamp(100px,14vw,165px);object-fit:contain;object-position:center;background:#f4eee5}
 .qb-inspiration-card span{padding:11px 15px;font-size:.92rem;font-weight:800}
 .qb-layout{display:grid;width:100%;min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(300px,360px);align-items:start;gap:26px}
 .qb-catalog,.qb-side,.qb-composer,.qb-cart{min-width:0;max-width:100%}

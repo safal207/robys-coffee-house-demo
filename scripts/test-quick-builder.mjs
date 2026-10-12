@@ -213,3 +213,4 @@ for (const recipe of recipes) {
   assert.equal(remaining.groups[0].quantity, 3, "Removing a pair must keep the independent item");
 }
 console.log(`Quick builder PASS: ${recipes.length} complete recipes, ${quantityCases} quantity cases (1–99), ${qrRoundTrips} TR/EN/RU QR round trips, atomic limits, removal, multilingual search and product photos.`);
+await import("./test-quick-builder-ui.mjs");
