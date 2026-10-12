@@ -2,6 +2,7 @@ import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { runInNewContext } from "node:vm";
 
 const html = readFileSync("menu.html", "utf8");
 const runtime = readVerifiedMenuSource();
@@ -102,7 +103,9 @@ for (const contract of [
   "orderDraft = selection.draft",
   "orderDraft.groups.forEach",
   "updateOrderGroupQuantity(orderDraft, id, quantity, orderProductIds)",
-  'products.map((item) => localized(item.item.name)).join(" + ")',
+  'groupName(lastAddedSelection)',
+  'openDialog(cartDialog, cartTitle, returnFocus)',
+  'returnFocus: checkoutButton',
   'document.querySelectorAll("[data-menu-cart-status]")',
   "cartStatuses.forEach((status) =>",
   "function renderCart(focusTarget = null)",
@@ -127,6 +130,120 @@ assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must fol
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
 assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an extra render-blocking request");
 
+// Exercise the real Add handler: a successful mutation confirms the selection,
+// while a rejected or disabled Add must never advance to cart or checkout.
+const addHandler = runtime.match(/function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
+assert(addHandler, "The menu Add handler must be available for behavior verification");
+for (const mode of ["success", "rejected", "disabled"]) {
+  const events = [];
+  const drink = { id: "test-drink", item: { name: { en: "Test drink" } } };
+  const dessert = { id: "test-dessert", item: { name: { en: "Test dessert" } } };
+  const productDialog = {};
+  const cartDialog = {};
+  const cartTitle = {};
+  const origin = { name: "product photo" };
+  const context = {
+    productIndex: new Map([[drink.id, drink]]), selectedProductId: drink.id,
+    selectedProductQuantity: 2, selectedProductVariant: "vanilla", language: "en",
+    menuCopy: { en: { maxQuantity: "Maximum" } }, addToCartButton: { disabled: mode === "disabled" },
+    cart: new Map(), readCart: () => new Map(), orderDraft: { groups: [] }, orderProductIds: new Set(),
+    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: mode === "success", draft: { groups: [] } }),
+    announceCart: () => events.push("rejected"), updateProductQuantity: () => {}, localized: value => value.en,
+    rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
+    lastAddedSelection: null, cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
+    productDialog, cartDialog, cartTitle, cartTrigger: {}, dialogReturnFocus: new Map([[productDialog, origin]]),
+    closeDialog: dialog => { assert.equal(dialog, productDialog); events.push("closed product"); },
+    openDialog: (dialog, focus, returnFocus) => {
+      assert.equal(dialog, cartDialog); assert.equal(focus, cartTitle); assert.equal(returnFocus, origin);
+      events.push("opened confirmation");
+    }
+  };
+  runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
+  assert.deepEqual(events, mode === "success" ? ["saved", "rendered", "closed product", "opened confirmation"] : mode === "rejected" ? ["rejected"] : []);
+  if (mode === "success") {
+    assert.deepEqual(JSON.parse(JSON.stringify(context.lastAddedSelection)), {
+      items: [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }], quantity: 2
+    }, "Confirmation must preserve the actual variant, pair and quantity");
+    assert.equal(context.cartLinesRoot.scrollTop, 0);
+  }
+}
+
+// A delayed optional module must not pull a guest back into checkout after
+// they have continued browsing, or move focus out of an already open QR.
+const checkoutHandler = runtime.match(/checkoutButton\.addEventListener\("click", (async \(\) => \{[\s\S]*?\n\})\);/)?.[1]
+  ?.replace(/await import\("\.\/order-checkout\.js\?v=[a-f0-9]+"\)/, "await loadCheckout()");
+assert(checkoutHandler?.includes("await loadCheckout()"), "Execute the real checkout callback with a controlled module load");
+for (const mode of ["open", "closed", "reopened", "empty", "missing-variant", "load-error"]) {
+  let resolveLoad, rejectLoad, loadCount = 0, opens = 0, focuses = 0;
+  let cartOpen = true;
+  const context = {
+    checkoutOpening: false, cartSession: 1, cart: new Map(), orderDraft: { groups: [{}] }, language: "en",
+    readCart: () => new Map(), renderCart: () => {}, hasMissingVariant: () => mode === "missing-variant" && loadCount > 0,
+    cartDialog: { hasAttribute: () => cartOpen }, checkoutButton: { disabled: false },
+    cartCheckoutError: { hidden: true, textContent: "", focus: () => { focuses += 1; } },
+    orderUiCopy: { en: { checkoutError: "Try again" } },
+    loadCheckout: () => { loadCount += 1; return new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; }); }
+  };
+  const handler = runInNewContext(`(${checkoutHandler})`, context);
+  const pending = handler();
+  assert.equal(context.checkoutOpening, true);
+  await handler();
+  assert.equal(loadCount, 1, "A repeated action during loading must not open another checkout");
+  if (mode === "closed") cartOpen = false;
+  if (mode === "reopened") context.cartSession += 1;
+  if (mode === "empty") context.orderDraft.groups = [];
+  if (mode === "load-error") rejectLoad(new Error("offline"));
+  else resolveLoad({ openOrderCheckout: async options => {
+    assert.equal(options.returnFocus, context.checkoutButton);
+    assert.equal(options.draft, context.orderDraft);
+    opens += 1;
+  } });
+  await pending;
+  assert.equal(opens, mode === "open" ? 1 : 0, mode);
+  assert.equal(context.checkoutOpening, false, "Loading guard must release after success, cancellation or failure");
+  assert.equal(focuses, mode === "load-error" ? 1 : 0);
+  assert.equal(context.cartCheckoutError.hidden, mode !== "load-error", "Load errors stay visible in the cart");
+}
+const openDialogHandler = runtime.match(/function openDialog\([\s\S]*?\n\}/)?.[0];
+assert(openDialogHandler);
+let qrOpen = true, titleFocuses = 0, scheduledFocus;
+const fakeCartDialog = {
+  showModal() {}, hasAttribute: () => true, classList: { contains: () => false }
+};
+const dialogContext = {
+  cartDialog: fakeCartDialog, cartSession: 0, dialogReturnFocus: new WeakMap(),
+  document: { activeElement: {}, querySelector: () => qrOpen ? {} : null, body: { classList: { add() {} } } },
+  window: { requestAnimationFrame: callback => { scheduledFocus = callback; } }
+};
+const openTestDialog = runInNewContext(`${openDialogHandler}\nopenDialog`, dialogContext);
+openTestDialog(fakeCartDialog, { focus: () => { titleFocuses += 1; } });
+scheduledFocus();
+assert.equal(titleFocuses, 0, "Deferred cart focus must never steal focus from QR checkout");
+qrOpen = false;
+scheduledFocus();
+assert.equal(titleFocuses, 1, "The confirmation heading receives focus when it is the active dialog");
+
+const translateHandler = runtime.match(/function translateStaticPage\(\) \{[\s\S]*?\n\}/)?.[0];
+assert(translateHandler);
+for (const language of ["tr", "en", "ru"]) {
+  const element = () => ({ attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } });
+  const iconClose = element();
+  const chooseMore = element();
+  const document = {
+    documentElement: {},
+    querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
+      : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore] : []
+  };
+  runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
+    menuCopy, language, document, searchInput: element(), categoryNav: element(),
+    productDecrease: element(), productIncrease: element(), languageButtons: [],
+    selectedProductId: "", renderCart: () => {}
+  });
+  assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
+  assert.equal(chooseMore.attributes["aria-label"], undefined,
+    "The Choose more text button must retain its visible action as its accessible name");
+}
+
 for (const contract of [
   "/* PREMIUM-MENU-ORDER-V1 */",
   ".full-menu-item-media{appearance:none",
@@ -142,14 +259,18 @@ for (const contract of [
 }
 assert.match(
   styles,
-  /\.menu-product-shell\{[^}]*overflow:auto/,
-  "Product dialog must remain vertically scrollable on short and mobile viewports"
+  /\.menu-product-main\{[^}]*overflow:auto/,
+  "Product details and optional choices must remain scrollable on short and mobile viewports"
 );
-assert.doesNotMatch(
+assert.match(
   styles,
-  /\.menu-product-shell\{[^}]*overflow:hidden/,
-  "Product dialog shell must not clip the add-to-order controls"
+  /\.menu-product-actions\{[^}]*flex:none/,
+  "Quantity and Add controls must occupy their own non-shrinking footer"
 );
+assert.match(productDialogMarkup, /<div class="menu-product-main">[\s\S]*<\/div>\s*<footer class="menu-product-actions">[\s\S]*id="menu-add-to-cart"[\s\S]*<\/footer>/,
+  "The product action must stay outside the scrolling optional choices");
+assert.match(cartDialogMarkup, /id="menu-cart-title" tabindex="-1"/, "Add confirmation needs an accessible focus destination");
+assert.match(cartDialogMarkup, /id="menu-cart-added-summary"/, "Cart confirmation must expose the added composition, quantity and amount");
 assert(
   /href="menu-security-v2\.css\?v=[a-f0-9]{12}"/.test(html),
   "Menu must load the cache-new dialog fallback stylesheet at its content revision"

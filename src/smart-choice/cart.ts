@@ -177,6 +177,59 @@ function mountCart(): void {
     heading.id = "cart-builder-title";
     root.append(heading, create("p", "cart-lead", text.lead));
 
+    const nextStep = create("div", "cart-next-step");
+    const footer = create("div", "cart-total-row");
+    const total = create("div", "cart-total");
+    total.setAttribute("aria-live", "polite");
+    total.append(
+      create("span", "", text.total),
+      create("strong", "", formatPrice(payload.pricing.totalMinor, language))
+    );
+    const actions = create("div", "cart-next-actions");
+    const handoff = create("button", "primary-button cart-handoff", needsFlavour ? text.chooseFlavours : text.handoff);
+    handoff.type = "button";
+    handoff.disabled = !canHandoff;
+    handoff.setAttribute("aria-disabled", String(!canHandoff));
+    handoff.setAttribute("aria-describedby", "cart-payment-note");
+    handoff.addEventListener("click", () => {
+      const current = readStoredOrderDraft(orderProductIds);
+      if (needsOrderVariant(current.groups)) {
+        window.dispatchEvent(new CustomEvent("robys:quick-order"));
+        window.requestAnimationFrame(() => {
+          document.querySelector<HTMLSelectElement>('.qb-cart select[aria-invalid="true"]')?.focus();
+        });
+        return;
+      }
+      handoff.disabled = true;
+      handoff.setAttribute("aria-disabled", "true");
+      void openQuickCheckout(current, language, handoff)
+        .catch(() => nextStep.append(create("p", "cart-notice cart-notice--error", text.checkoutError)))
+        .finally(() => {
+          handoff.disabled = !canHandoff;
+          handoff.setAttribute("aria-disabled", String(!canHandoff));
+        });
+    });
+    const more = create("button", "secondary-button cart-choose-more", text.chooseMore);
+    more.type = "button";
+    more.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("robys:quick-order"));
+      window.requestAnimationFrame(() => {
+        const catalog = document.querySelector<HTMLElement>("#qb-catalog-title");
+        if (!catalog) return;
+        catalog.tabIndex = -1;
+        catalog.focus({ preventScroll: true });
+        catalog.scrollIntoView({ block: "start", behavior: "auto" });
+      });
+    });
+    actions.append(handoff, more);
+    footer.append(total, actions);
+    const paymentNote = create("p", "cart-draft-note", text.draftNote);
+    paymentNote.id = "cart-payment-note";
+    nextStep.append(footer, paymentNote);
+    if (!canHandoff) nextStep.append(create("p", "cart-notice cart-notice--error", text.blocked));
+    if (needsFlavour) nextStep.append(create("p", "cart-notice", text.flavourNotice));
+    root.append(nextStep);
+
     const list = create("ul", "cart-line-list");
     for (const group of sharedDraft.groups) {
       const line = create("li", "cart-line");
@@ -282,38 +335,6 @@ function mountCart(): void {
     if (calculation.notices.some((notice) => notice.code.includes("removed"))) {
       root.append(create("p", "cart-notice", text.unavailable));
     }
-    if (!canHandoff) {
-      root.append(create("p", "cart-notice cart-notice--error", text.blocked));
-    }
-    if (needsFlavour) root.append(create("p", "cart-notice", text.flavourNotice));
-
-    const footer = create("div", "cart-total-row");
-    const total = create("div", "cart-total");
-    total.append(
-      create("span", "", text.total),
-      create("strong", "", formatPrice(payload.pricing.totalMinor, language))
-    );
-    const handoff = create("button", "primary-button cart-handoff", needsFlavour ? text.chooseFlavours : text.handoff);
-    handoff.type = "button";
-    handoff.disabled = !canHandoff;
-    handoff.setAttribute("aria-disabled", String(!canHandoff));
-    handoff.addEventListener("click", () => {
-      const current = readStoredOrderDraft(orderProductIds);
-      if (needsOrderVariant(current.groups)) {
-        window.dispatchEvent(new CustomEvent("robys:quick-order"));
-        window.requestAnimationFrame(() => {
-          document.querySelector<HTMLSelectElement>('.qb-cart select[aria-invalid="true"]')?.focus();
-        });
-        return;
-      }
-      handoff.disabled = true;
-      void openQuickCheckout(current, language, handoff)
-        .catch(() => root.append(create("p", "cart-notice cart-notice--error", text.checkoutError)))
-        .finally(() => { handoff.disabled = !canHandoff; });
-    });
-    footer.append(total, handoff);
-    root.append(footer, create("p", "cart-draft-note", text.draftNote));
-
   };
 
   refreshCart = () => { if (root.isConnected) render(false); };

@@ -30,6 +30,14 @@ const cartDialog = document.querySelector("#menu-cart-dialog");
 const cartLinesRoot = document.querySelector("#menu-cart-lines");
 const cartEmpty = document.querySelector("#menu-cart-empty");
 const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
+const cartTitle = document.querySelector("#menu-cart-title");
+const cartAddedSummary = document.querySelector("#menu-cart-added-summary");
+const cartNextStep = document.querySelector("#menu-cart-next-step");
+const cartCheckoutError = document.querySelector("#menu-cart-checkout-error");
+const cartContinue = document.querySelector(".menu-cart-continue");
+let lastAddedSelection = null;
+let checkoutOpening = false;
+let cartSession = 0;
 
 const CART_STORAGE_KEY = "robys-menu-order.v1";
 const MAX_ITEM_QUANTITY = 99;
@@ -77,25 +85,37 @@ const pairingActionCopy = {
   ru: { add: "Добавить пару в заказ", quantity: "Количество пар", loading: "Загружаем сладкое…", error: "Не удалось открыть выбор сладкого. Можно добавить только напиток.", retry: "Попробовать ещё раз" }
 };
 const orderUiCopy = {
-  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Siparişi kontrol et · QR", checkoutError: "QR açılamadı. Lütfen tekrar deneyin." },
-  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "Review order · QR", checkoutError: "Could not open the QR. Please try again." },
-  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Проверить заказ · QR", checkoutError: "Не удалось открыть QR. Попробуйте ещё раз." }
+  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Tamam, devam et", continue: "Başka bir şey seç", added: "Siparişine eklendi", next: "Seçimin tamam mı? Devam edebilir veya başka bir şey seçebilirsin.", payment: "Sonraki adımda kasa için QR kodunu al. Ödeme kasada yapılır.", checkoutError: "QR açılamadı. Seçimin burada duruyor; tekrar deneyebilirsin." },
+  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "All set · continue", continue: "Choose something else", added: "Added to your order", next: "Happy with your choice? Continue when ready, or choose something else.", payment: "Next, get a QR code for the cashier. Payment is at the counter.", checkoutError: "Could not open the QR. Your selection is still here; please try again." },
+  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Всё, к оформлению", continue: "Выбрать ещё", added: "Добавлено в заказ", next: "Уже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.", payment: "Дальше — QR для кассира. Оплата на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
 };
 const checkoutButton = document.querySelector("#menu-checkout-trigger") ?? document.createElement("button");
 checkoutButton.id = "menu-checkout-trigger";
 checkoutButton.type = "button";
 checkoutButton.className = "button button-primary menu-checkout-trigger";
-if (!checkoutButton.isConnected) document.querySelector(".menu-cart-footer").prepend(checkoutButton);
+if (!checkoutButton.isConnected) cartContinue.before(checkoutButton);
 checkoutButton.addEventListener("click", async () => {
+  if (checkoutOpening) return;
   cart = readCart();
-  if (!orderDraft.groups.length) return;
+  renderCart();
+  if (!orderDraft.groups.length || hasMissingVariant()) return;
+  cartCheckoutError.hidden = true;
+  checkoutOpening = true;
+  const session = cartSession;
   checkoutButton.disabled = true;
   try {
     const { openOrderCheckout } = await import("./order-checkout.js?v=6aa30239d031");
-    closeDialog(cartDialog);
-    await openOrderCheckout({ draft: orderDraft, language, returnFocus: cartTrigger });
-  } catch { announceCart(orderUiCopy[language].checkoutError); }
-  finally { renderCart(); }
+    if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
+    cart = readCart();
+    if (!orderDraft.groups.length || hasMissingVariant()) return;
+    await openOrderCheckout({ draft: orderDraft, language, returnFocus: checkoutButton });
+  } catch {
+    if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
+    cartCheckoutError.textContent = orderUiCopy[language].checkoutError;
+    cartCheckoutError.hidden = false;
+    cartCheckoutError.focus({ preventScroll: true });
+  }
+  finally { checkoutOpening = false; renderCart(); }
 });
 const dialogReturnFocus = new WeakMap();
 
@@ -233,6 +253,8 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
     return;
   }
   orderDraft = result.draft;
+  lastAddedSelection = null;
+  cartCheckoutError.hidden = true;
   saveCart();
   renderCart(focusControl ? { id, control: focusControl } : null);
   if (shouldAnnounce && group) {
@@ -273,6 +295,8 @@ function setCartVariant(groupId, itemIndex, variant) {
   const item = group?.items[itemIndex];
   if (!item || !variantsFor(productIndex.get(item.id)).some(entry => entry.id === variant)) return;
   orderDraft = updateOrderGroupVariant(orderDraft, groupId, itemIndex, variant, orderProductIds).draft;
+  lastAddedSelection = null;
+  cartCheckoutError.hidden = true;
   saveCart();
   renderCart();
   Array.from(cartLinesRoot.querySelectorAll("select[data-product-id]"))
@@ -334,6 +358,14 @@ function renderCart(focusTarget = null) {
   syncMenuCartState();
   const copy = menuCopy[language];
   const summary = cartSummary();
+  const ui = orderUiCopy[language];
+  cartTitle.textContent = lastAddedSelection ? ui.added : copy.cartTitle;
+  cartAddedSummary.hidden = !lastAddedSelection;
+  if (lastAddedSelection) cartAddedSummary.textContent = `${groupName(lastAddedSelection)} × ${lastAddedSelection.quantity} · ${formatPrice(groupUnitPrice(lastAddedSelection) * lastAddedSelection.quantity)}`;
+  cartNextStep.textContent = ui.next;
+  cartNextStep.hidden = summary.quantity === 0;
+  cartContinue.textContent = ui.continue;
+  document.querySelector("#menu-cart-draft-note").textContent = ui.payment;
   let focusCandidate = null;
   cartCount.textContent = String(summary.quantity);
   cartTriggerTotal.textContent = formatPrice(summary.total);
@@ -341,7 +373,7 @@ function renderCart(focusTarget = null) {
   cartTrigger.classList.toggle("has-items", summary.quantity > 0);
   const missingVariant = hasMissingVariant();
   checkoutButton.textContent = missingVariant ? orderUiCopy[language].required : orderUiCopy[language].checkout;
-  checkoutButton.disabled = summary.quantity === 0 || missingVariant;
+  checkoutButton.disabled = checkoutOpening || summary.quantity === 0 || missingVariant;
   cartTrigger.setAttribute(
     "aria-label",
     `${copy.cart}: ${summary.quantity} ${formatItemCount(summary.quantity)}, ${copy.total} ${formatPrice(summary.total)}`
@@ -424,8 +456,9 @@ function renderCart(focusTarget = null) {
   }
 }
 
-function openDialog(dialog) {
-  dialogReturnFocus.set(dialog, document.activeElement);
+function openDialog(dialog, initialFocus = null, returnFocus = document.activeElement) {
+  if (dialog === cartDialog) cartSession += 1;
+  dialogReturnFocus.set(dialog, returnFocus);
   if (typeof dialog.showModal === "function") {
     dialog.showModal();
   } else {
@@ -433,10 +466,12 @@ function openDialog(dialog) {
     dialog.setAttribute("role", "dialog");
     dialog.setAttribute("aria-modal", "true");
     dialog.setAttribute("open", "");
-    window.requestAnimationFrame(() => {
-      dialog.querySelector("[data-menu-dialog-close]")?.focus({ preventScroll: true });
-    });
   }
+  if (initialFocus || dialog.classList.contains("menu-dialog--fallback")) window.requestAnimationFrame(() => {
+    if (dialog.hasAttribute("open") && !document.querySelector(".order-checkout-dialog[open]")) {
+      (initialFocus ?? dialog.querySelector("[data-menu-dialog-close]"))?.focus({ preventScroll: true });
+    }
+  });
   document.body.classList.add("menu-dialog-open");
 }
 
@@ -470,7 +505,7 @@ function fallbackFocusableControls(dialog) {
 
 document.addEventListener("keydown", (event) => {
   const dialog = document.querySelector(".menu-dialog[open]");
-  if (!dialog) return;
+  if (!dialog || !dialog.contains(event.target)) return;
   if (event.key === "Escape") {
     event.preventDefault();
     closeDialog(dialog);
@@ -624,6 +659,7 @@ function openProduct(id) {
   productDialog.classList.toggle("has-custom-pairing", isHotDrink(productIndex.get(id)));
   hydrateProductDialog();
   openDialog(productDialog);
+  document.querySelector(".menu-product-main").scrollTop = 0;
   if (isHotDrink(productIndex.get(id))) void loadPairingPicker(productIndex.get(id), productSession);
 }
 
@@ -644,11 +680,14 @@ function addSelectedProduct() {
   orderDraft = selection.draft;
   rememberSelection();
   saveCart();
+  lastAddedSelection = { items: products.map((entry, index) => ({ id: entry.id, quantity: 1,
+    ...(index === 0 && selectedProductVariant ? { variant: selectedProductVariant } : {}) })), quantity: selectedProductQuantity };
+  cartCheckoutError.hidden = true;
   renderCart();
-  announceCart(`${copy.added}: ${products.map((item) => localized(item.item.name)).join(" + ")} × ${selectedProductQuantity}`);
+  const returnFocus = dialogReturnFocus.get(productDialog) ?? cartTrigger;
   closeDialog(productDialog);
-  cartTrigger.classList.add("is-emphasized");
-  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
+  openDialog(cartDialog, cartTitle, returnFocus);
+  cartLinesRoot.scrollTop = 0;
 }
 
 function createItem(item, { priority = false, categoryId } = {}) {
@@ -921,7 +960,7 @@ function translateStaticPage() {
   categoryNav.setAttribute("aria-label", copy.categories);
   productDecrease.setAttribute("aria-label", copy.decrease);
   productIncrease.setAttribute("aria-label", copy.increase);
-  document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
+  document.querySelectorAll(".menu-dialog-close[data-menu-dialog-close]").forEach((button) => {
     button.setAttribute("aria-label", copy.close);
   });
 
@@ -963,8 +1002,10 @@ searchInput.addEventListener("input", () => {
 
 cartTrigger.addEventListener("click", () => {
   cart = readCart();
+  lastAddedSelection = null;
+  cartCheckoutError.hidden = true;
   renderCart();
-  openDialog(cartDialog);
+  openDialog(cartDialog, cartTitle);
 });
 
 function runLazyShare(skipNative = false) {
@@ -1046,6 +1087,7 @@ initializeMenuScrollMetrics();
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   cart = readCart();
+  lastAddedSelection = null;
   language = readStoredLanguage();
   translateStaticPage();
   renderCategoryNav();
@@ -1056,6 +1098,7 @@ window.addEventListener("pageshow", (event) => {
 window.addEventListener("storage", event => {
   if (event.key === CART_STORAGE_KEY || event.key === null) {
     cart = readCart();
+    lastAddedSelection = null;
     renderCart();
     if (productDialog.hasAttribute("open")) updateProductQuantity();
   }

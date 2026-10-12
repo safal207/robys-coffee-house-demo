@@ -68,12 +68,15 @@ test("full-menu +/- gestures use the current shared draft rather than a stale vi
     let saved;
     const context = {
       orderDraft: null, cart: null, orderProductIds: ids, updateOrderGroupQuantity,
+      lastAddedSelection: { quantity: 1 }, cartCheckoutError: { hidden: false },
       readCart: () => { context.orderDraft = latest; return new Map(latest.lines.map(item => [item.id, item.quantity])); },
       saveCart: () => { saved = context.orderDraft; }, renderCart: () => {}
     };
     vm.runInNewContext(`${source.slice(start, end)}\nsetCartQuantity(${JSON.stringify(latest.groups[0].id)}, ${displayedTarget}, ${JSON.stringify(control)}, false);`, context);
     assert.equal(saved.groups[0].quantity, expected);
     assert.deepEqual(saved.lines, [line("cake", expected), line("tea", expected)]);
+    assert.equal(context.lastAddedSelection, null, "Editing the basket clears the previous Add confirmation");
+    assert.equal(context.cartCheckoutError.hidden, true, "Editing the basket clears a previous checkout error");
   };
   run(2, 2, "increase", 3); // The old row still showed one when another tab added one.
   run(3, 1, "decrease", 2); // The old row still showed two when another tab added one.

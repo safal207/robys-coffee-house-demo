@@ -29,6 +29,8 @@ class TestElement extends EventTarget {
       if (this.disabled) return false;
       selector = selector.replace(":not(:disabled)", "");
     }
+    const classAttribute = selector.match(/^(\.[\w-]+)(\[.+\])$/);
+    if (classAttribute) return this.matches(classAttribute[1]) && this.matches(classAttribute[2]);
     if (selector.startsWith(".")) return this.className.split(/\s+/).includes(selector.slice(1));
     if (selector.startsWith("#")) return this.id === selector.slice(1);
     const attribute = selector.match(/^\[([^=\]]+)(?:="([^"]*)")?\]$/);
@@ -37,6 +39,8 @@ class TestElement extends EventTarget {
       const value = attribute[1].startsWith("data-") ? this.dataset[key] : this.getAttribute(attribute[1]);
       return attribute[2] === undefined ? value !== undefined && value !== null : value === attribute[2];
     }
+    const compound = selector.match(/^([a-z]+)(\[.+\])$/);
+    if (compound) return this.tagName === compound[1] && this.matches(compound[2]);
     return this.tagName === selector;
   }
   querySelectorAll(selector) {
@@ -52,7 +56,11 @@ class TestElement extends EventTarget {
   scrollIntoView() { this.scrolled = true; }
   select() { this.textSelected = true; }
   showModal() { assert(this.isConnected, "A modal may only open after it is attached"); this.open = true; }
-  close() { this.open = false; this.dispatchEvent(new Event("close")); }
+  close() {
+    this.open = false;
+    if (this.deferCloseEvent) this.pendingClose = () => this.dispatchEvent(new Event("close"));
+    else this.dispatchEvent(new Event("close"));
+  }
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
@@ -65,6 +73,7 @@ const storage = () => {
 };
 try {
   globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body") };
+  document.querySelector = selector => document.body.querySelector(selector);
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
   const animationFrames = [];
@@ -107,8 +116,23 @@ try {
   assert.deepEqual(root.querySelectorAll(".qb-product"), cards);
   const cart = root.querySelector("#qb-cart");
   let before = cart.replacements;
-  composer.querySelector(".qb-add").click();
-  assert.equal(customizer.open, false, "Adding finishes the composer and returns to the catalog");
+  const firstAdd = composer.querySelector(".qb-add");
+  firstAdd.click();
+  assert.equal(customizer.open, true, "Adding keeps a persistent next-step confirmation in view");
+  assert.equal(composer.querySelector("h2").textContent, "Added to your order");
+  assert.equal(document.activeElement, composer.querySelector("h2"), "Success moves focus to the confirmation");
+  assert.equal(composer.querySelector(".qb-add"), null, "Confirmation cannot accidentally add the same selection again");
+  const addedDraft = localStorage.getItem("robys-menu-order.v1");
+  firstAdd.click();
+  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "A second activation of the former Add button cannot duplicate the order");
+  assert(composer.querySelector(".qb-confirmation-checkout"));
+  composer.querySelector(".qb-confirmation-more").click();
+  assert.equal(customizer.open, false, "Choosing more explicitly returns to the catalog");
+  assert.equal(document.activeElement, root.querySelector("#qb-search"));
+  coffee.focus(); // Simulate native restoration finishing after our close callback.
+  flushAnimationFrames();
+  assert.equal(document.activeElement, root.querySelector("#qb-search"), "A late native focus restore cannot override Choose more");
+  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "Continuing to browse preserves the basket");
   assert.equal(cart.replacements - before, 1, "Own add must render the cart once, not twice through its event echo");
   before = cart.replacements;
   cart.querySelector('[data-step="up"]').click();
@@ -136,6 +160,8 @@ try {
   assert.equal(pairedDraft.groups.length, 1, "Saving an edit replaces the original instead of adding another copy");
   assert.equal(pairedDraft.groups[0].quantity, 2);
   assert.deepEqual(pairedDraft.groups[0].items.map(item => item.id), ["hot-coffee:americano", "desserts:macaron"]);
+  assert.equal(composer.querySelector("h2").textContent, "Order updated");
+  composer.querySelector(".qb-customizer-close").click();
   cart.querySelector(".qb-edit").click();
   composer.querySelector(".qb-no-sweet").click();
   const changedElsewhere = savedDraft(); changedElsewhere.groups[0].quantity = 3;
@@ -175,12 +201,15 @@ try {
   const cappuccinoPair = savedDraft().groups.find(group => group.items[0].id === "hot-coffee:caramel-cappuccino");
   assert.equal(cappuccinoPair.quantity, 2);
   assert.equal(cappuccinoPair.items[1].id, "desserts:macaron");
+  assert.match(composer.querySelector(".qb-confirmation-lines").textContent, /2 × Caramel Cappuccino/);
+  composer.querySelector(".qb-customizer-close").click();
   const pairRow = cart.querySelectorAll(".qb-order-group").find(row => row.dataset.groupId === cappuccinoPair.id);
   pairRow.querySelector(".qb-edit").click();
   composer.querySelector('[data-choice-id="hot-coffee:cappuccino/plain"]').click();
   composer.querySelector(".qb-add").click();
   assert(!savedDraft().groups.some(group => group.items[0].id === "hot-coffee:caramel-cappuccino"), "Editing a drink option replaces the original canonical product");
   assert.equal(savedDraft().groups.find(group => group.items[0].id === "hot-coffee:cappuccino").quantity, 2);
+  composer.querySelector(".qb-customizer-close").click();
   const icedLatte = cards.find(card => card.dataset.productId === "cold-coffee:iced-caffe-latte");
   icedLatte.click();
   composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
@@ -192,6 +221,8 @@ try {
   const icedPair = savedDraft().groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte");
   assert.equal(icedPair.items[0].variant, "vanilla", "A flavour option stores its canonical product and variant");
   assert.equal(icedPair.items[1].id, "desserts:macaron");
+  assert.match(composer.querySelector(".qb-confirmation-lines").textContent, /Vanilla/);
+  composer.querySelector(".qb-confirmation-more").click();
   const search = root.querySelector("#qb-search"); search.value = "black tea"; search.dispatchEvent(new Event("input"));
   const filtered = root.querySelectorAll(".qb-product");
   assert(filtered.length > 0 && filtered.length < cards.length);
@@ -249,6 +280,71 @@ try {
   const newGroup = afterPrefill.groups.find(group => group.items[0].id === "brew-hot:black-tea");
   assert.equal(newGroup.quantity, 4);
   assert.deepEqual(newGroup.items, [{ id: "brew-hot:black-tea", quantity: 1 }], "The addition must contain only the requested product without a stale flavour or dessert");
+  const confirmation = toAdd.querySelector("#qb-composer");
+  assert.equal(confirmation.querySelectorAll(".qb-confirmation-line").length, afterPrefill.groups.length,
+    "Success shows the whole order, including earlier selections");
+  const oldTotal = confirmation.querySelector(".qb-grand-total").textContent;
+  newGroup.quantity = 5;
+  localStorage.setItem("robys-menu-order.v1", JSON.stringify(afterPrefill));
+  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  assert.notEqual(confirmation.querySelector(".qb-grand-total").textContent, oldTotal,
+    "A confirmation updates its full total after another order surface changes the basket");
+  assert.equal(confirmation.querySelector("h2").textContent, "Order updated");
+  confirmation.querySelector(".qb-edit").click();
+  assert.equal(toAdd.querySelector(".qb-customizer").open, false);
+  assert.equal(document.activeElement, toAdd.querySelector("#qb-cart").querySelector("h2"), "Edit order lands on the actual basket");
+  const withMissingFlavour = savedDraft();
+  delete withMissingFlavour.groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte").items[0].variant;
+  localStorage.setItem("robys-menu-order.v1", JSON.stringify(withMissingFlavour));
+  const flavourHelp = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
+  document.body.replaceChildren(flavourHelp); flushAnimationFrames();
+  flavourHelp.querySelector(".qb-add").click();
+  const flavourDialog = flavourHelp.querySelector(".qb-customizer");
+  flavourDialog.deferCloseEvent = true;
+  const next = flavourHelp.querySelector(".qb-confirmation-checkout");
+  assert.equal(next.textContent, "Choose drink flavours");
+  next.click();
+  const requiredChoice = flavourHelp.querySelector('select[aria-invalid="true"]');
+  assert(requiredChoice, "The unresolved drink exposes a flavour control");
+  assert.equal(document.activeElement, requiredChoice);
+  flavourDialog.pendingClose();
+  assert.equal(document.activeElement, requiredChoice, "Native asynchronous close must keep focus on the required flavour");
+  flavourHelp.querySelector(".qb-product").focus();
+  flushAnimationFrames();
+  assert.equal(document.activeElement, requiredChoice, "The required flavour also survives late native focus restoration");
+
+  const focusRoot = createQuickBuilder("en", () => {});
+  document.body.replaceChildren(focusRoot);
+  const focusCards = focusRoot.querySelectorAll(".qb-product");
+  const focusDialog = focusRoot.querySelector(".qb-customizer");
+  const closeFocusDialog = () => focusRoot.querySelector(".qb-customizer-close").click();
+  focusCards[0].click(); closeFocusDialog();
+  focusCards[1].click();
+  const reopenedHeading = focusRoot.querySelector("#qb-composer").querySelector("h2");
+  flushAnimationFrames();
+  assert.equal(document.activeElement, reopenedHeading, "An old close frame cannot take focus from a reopened customizer");
+  assert.equal(focusDialog.open, true);
+  closeFocusDialog(); flushAnimationFrames();
+
+  focusCards[0].click(); closeFocusDialog();
+  focusCards[1].click(); closeFocusDialog();
+  const latestFocus = focusCards[1];
+  const staleFrame = animationFrames.shift();
+  staleFrame();
+  assert.equal(document.activeElement, latestFocus, "An old opening's close frame stays cancelled even when the new dialog has already closed");
+  flushAnimationFrames();
+
+  focusCards[0].click(); closeFocusDialog();
+  const qr = new TestElement("dialog"); qr.className = "order-checkout-dialog"; qr.setAttribute("open", "");
+  const qrButton = new TestElement("button"); qr.append(qrButton); document.body.append(qr); qrButton.focus();
+  flushAnimationFrames();
+  assert.equal(document.activeElement, qrButton, "A QR opened before the close frame retains its focus");
+
+  document.body.replaceChildren(focusRoot);
+  focusCards[0].click(); closeFocusDialog();
+  const replacement = new TestElement("button"); document.body.replaceChildren(replacement); replacement.focus();
+  flushAnimationFrames();
+  assert.equal(document.activeElement, replacement, "Removing the builder cancels pending focus restoration");
   console.log("Quick builder UI PASS: desktop/mobile modal, focus return, visible sweets/flavours, edit/save/cancel and stale edits, persistent photo nodes, one cart render, external updates, cached locale formatters; recommendation prefills for 1–6 guests, validation, mounted opening and basket preservation.");
 } finally {
   Intl.NumberFormat = numberFormat;

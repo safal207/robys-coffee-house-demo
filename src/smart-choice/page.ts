@@ -823,7 +823,7 @@ function renderSelected(): HTMLElement {
   const actions = createElement("div", "actions");
   actions.append(
     createButton(copy[state.locale].quickOrder, "secondary-button", showQuickOrder),
-    createButton(copy[state.locale].chooseAnother, "primary-button", () => {
+    createButton(copy[state.locale].chooseAnother, "secondary-button", () => {
       setState({ ...state, screen: "results", selectedCandidateId: undefined });
     }),
     createActionLink(copy[state.locale].openMenu, "../menu.html")
