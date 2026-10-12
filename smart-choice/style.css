@@ -439,6 +439,27 @@ button {
   margin-top: 26px;
 }
 
+.guest-count-options { display: flex; gap: 10px; flex-wrap: wrap; }
+.guest-count-button { min-height: 48px; min-width: 52px; justify-content: center; padding: 12px; }
+.family-guidance { margin-top: 20px; }
+.helpful-budget { font-weight: 700; line-height: 1.5; }
+.helpful-option { min-width: 0; padding: 22px; background: #fff; border: 1px solid var(--line); border-radius: 22px; }
+.helpful-option-heading { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 18px; }
+.helpful-option-photo { width: 112px; height: 112px; object-fit: contain; background: var(--cream); border-radius: 14px; }
+.helpful-option h2 { margin: 0 0 8px; font-size: 1.2rem; line-height: 1.3; overflow-wrap: anywhere; }
+.helpful-option .result-badge { margin-bottom: 8px; font-size: .63rem; letter-spacing: .04em; }
+.helpful-unit-price { margin: 0; color: var(--muted); font-size: .85rem; }
+.helpful-differences { display: grid; gap: 8px; padding: 0; margin: 0 0 20px; list-style: none; font-size: .9rem; line-height: 1.4; }
+.helpful-within-budget { color: #256147; font-weight: 700; }
+.helpful-over-budget { color: #982e18; font-weight: 800; }
+@media (max-width: 480px) {
+  .helpful-option { padding: 16px; }
+  .helpful-option-heading { grid-template-columns: 80px minmax(0, 1fr); gap: 12px; }
+  .helpful-option-photo { width: 80px; height: 80px; }
+  .helpful-option h2 { font-size: 1.05rem; }
+  .helpful-option .primary-button { width: 100%; padding-inline: 12px; }
+}
+
 .result-card {
   position: relative;
   padding: 24px;

@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { sharedMenuCatalogPlugin } from "./smart-choice-catalog-external.mjs";
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
 for (const file of ["src/menu-app.js", "menu-product-reveal-runtime.js", "discover-v2.js", "discover-deck.js"]) {
@@ -47,6 +48,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   external: ["../order-checkout.js*"],
   charset: "utf8",
   bundle: true,
@@ -60,6 +62,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -72,6 +75,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -84,6 +88,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -96,6 +101,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -108,6 +114,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,

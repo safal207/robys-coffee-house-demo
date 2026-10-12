@@ -12,7 +12,8 @@ import {
   type RequestedTaste,
   type RequestedTemperature
 } from "./engine.js";
-import { createQuickBuilder } from "./quick-builder.js";
+import { createQuickBuilder, type QuickBuilderSelection } from "./quick-builder.js";
+import { findHelpfulOptions, type HelpfulOption } from "./helpful-options.js";
 
 type LocalizedText = Record<SmartChoiceLanguage, string>;
 type Screen = "quick" | "welcome" | "question" | "results" | "selected";
@@ -28,6 +29,7 @@ interface FlowState {
   locale: SmartChoiceLanguage;
   selectedCandidateId?: string;
   selectionToken?: string;
+  guestCount?: number;
 }
 
 interface QuestionOption {
@@ -62,7 +64,6 @@ const copy = {
   tr: {
     skipContent: "İçeriğe geç", homeLabel: "Roby's Coffee House ana sayfası", controlsLabel: "Smart Choice kontrolleri", languageLabel: "Dil seçimi",
     quickOrder: "Siparişini kendin oluştur",
-    familyHelp: "Aileniz için içecekleri ve tatlıları ayrı ayrı seçip adetlerini belirleyebilirsiniz.",
     fullMenu: "Tam Menü",
     footerNote: "Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -91,9 +92,6 @@ const copy = {
     selectedTitle: "Güzel seçim.",
     selectedNote: "Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.",
     chooseAnother: "Başka bir seçim yap",
-    noMatchEyebrow: "TAM EŞLEŞME YOK",
-    noMatchTitle: "Bu tercihlerle doğrulanmış bir seçim bulamadık.",
-    noMatchCopy: "Bütçenizi veya sıcaklık tercihinizi değiştirebilir ya da tam menüden özgürce seçim yapabilirsiniz.",
     invalidTitle: "Seçim bilgileri tamamlanamadı.",
     invalidCopy: "Lütfen cevapları yeniden kontrol edin. Hiçbir fiyat veya ürün tahmin edilmedi.",
     components: "İçindekiler",
@@ -104,7 +102,6 @@ const copy = {
   en: {
     skipContent: "Skip to content", homeLabel: "Roby's Coffee House home", controlsLabel: "Smart Choice controls", languageLabel: "Language selector",
     quickOrder: "Build your order",
-    familyHelp: "Choose drinks and desserts for your group and set the quantity of each.",
     fullMenu: "Full menu",
     footerNote: "Smart Choice is a selection assistant. No order or payment is submitted on this screen.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -133,9 +130,6 @@ const copy = {
     selectedTitle: "Lovely choice.",
     selectedNote: "Your choice is saved in this browser. Show the QR at the counter to confirm your order.",
     chooseAnother: "Choose another",
-    noMatchEyebrow: "NO EXACT MATCH",
-    noMatchTitle: "We could not find a confirmed menu choice for all these preferences.",
-    noMatchCopy: "Adjust your budget or temperature preference, or choose freely from the full menu.",
     invalidTitle: "We could not complete the selection.",
     invalidCopy: "Please review the answers. No product or price was guessed.",
     components: "Includes",
@@ -146,7 +140,6 @@ const copy = {
   ru: {
     skipContent: "Перейти к содержимому", homeLabel: "На главную Roby's Coffee House", controlsLabel: "Управление Smart Choice", languageLabel: "Выбор языка",
     quickOrder: "Собрать заказ самому",
-    familyHelp: "Для компании можно выбрать напитки и десерты и указать нужное количество каждого.",
     fullMenu: "Полное меню",
     footerNote: "Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -175,9 +168,6 @@ const copy = {
     selectedTitle: "Отличный выбор.",
     selectedNote: "Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.",
     chooseAnother: "Выбрать другое",
-    noMatchEyebrow: "ТОЧНОГО СОВПАДЕНИЯ НЕТ",
-    noMatchTitle: "Мы не нашли подтверждённый вариант под все эти условия.",
-    noMatchCopy: "Измените бюджет или температуру напитка либо свободно выберите позицию в полном меню.",
     invalidTitle: "Не удалось завершить подбор.",
     invalidCopy: "Проверьте ответы ещё раз. Система не стала выдумывать товар или цену.",
     components: "Состав",
@@ -235,13 +225,13 @@ const questions: readonly QuestionDefinition[] = [
     options: [
       { value: "one", label: { tr: "Bir kişi", en: "One", ru: "Один" } },
       { value: "two", label: { tr: "İki kişi", en: "Two", ru: "Двое" } },
-      { value: "family", label: { tr: "Aile", en: "Family", ru: "Семья" } }
+      { value: "family", label: { tr: "Grup / aile", en: "Group / family", ru: "Компания / семья" } }
     ]
   },
   {
     id: "budgetKey",
     title: { tr: "Bütçeniz hangi aralıkta?", en: "What budget feels right?", ru: "Какой бюджет комфортен?" },
-    help: { tr: "Normal öneri sınırı aşmaz. Daha pahalı seçenek yalnızca premium olarak gösterilebilir.", en: "The main recommendation stays within this limit. A higher option can only appear as clearly marked premium.", ru: "Основная рекомендация не превысит лимит. Более дорогой вариант появится только с явной пометкой premium." },
+    help: { tr: "Tüm grup için toplam bütçe. Daha pahalı seçeneklerde bütçe aşımı açıkça belirtilir.", en: "The total budget for your whole group. Any option above this amount is clearly marked.", ru: "Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано." },
     options: [
       { value: "250", label: { tr: "250 ₺'ye kadar", en: "Up to 250 ₺", ru: "До 250 ₺" } },
       { value: "400", label: { tr: "400 ₺'ye kadar", en: "Up to 400 ₺", ru: "До 400 ₺" } },
@@ -257,6 +247,33 @@ const budgets: Readonly<Record<string, BudgetDefinition>> = {
   "600": { minMinor: 40_001, maxMinor: 60_000 },
   open: { maxMinor: 60_000 }
 };
+
+const helpfulCopy = {
+  ru: {
+    title: "Вот что можно выбрать", lead: "Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.",
+    guestCount: "Сколько человек в компании?", total: "Итого", each: "за штуку", servings: "По одной позиции на человека", budget: "Общий бюджет", within: "В пределах бюджета",
+    above: "Сверх бюджета", exact: "Подходит по вашим ответам", alternative: "Ближайший вариант", choose: "Выбрать и дополнить",
+    temperature: "Температура", taste: "Вкус", intent: "Изменено пожелание", hot: "горячее", cold: "холодное", "not-applicable": "это еда, без напитка",
+    sweet: "сладкий", neutral: "нейтральный", savoury: "несладкий", coffee: "кофе", breakfast: "к завтраку", snack: "перекус", dessert: "десерт", refresh: "освежающий напиток",
+    unavailable: "Меню временно недоступно", unavailableHelp: "Попробуйте собрать заказ из доступных позиций или повторите подбор позже."
+  },
+  en: {
+    title: "Here are your options", lead: "These are the closest menu options. Each card explains any differences from your preferences — you decide.",
+    guestCount: "How many people in your group?", total: "Total", each: "each", servings: "One item per person", budget: "Total budget", within: "Within budget",
+    above: "Over budget", exact: "Fits your answers", alternative: "Nearby option", choose: "Choose and customize",
+    temperature: "Temperature", taste: "Taste", intent: "Changed preference", hot: "hot", cold: "cold", "not-applicable": "food only, no drink",
+    sweet: "sweet", neutral: "neutral", savoury: "savoury", coffee: "coffee", breakfast: "for breakfast", snack: "snack", dessert: "dessert", refresh: "refreshing drink",
+    unavailable: "The menu is temporarily unavailable", unavailableHelp: "Build an order from available items or try choosing again later."
+  },
+  tr: {
+    title: "İşte seçebileceğiniz seçenekler", lead: "Menüdeki en yakın seçenekleri hazırladık. Tercihlerinizden farklı noktalar her kartta açıkça belirtilir — karar sizin.",
+    guestCount: "Grubunuz kaç kişi?", total: "Toplam", each: "adet fiyatı", servings: "Kişi başına bir ürün", budget: "Toplam bütçe", within: "Bütçe dahilinde",
+    above: "Bütçe aşımı", exact: "Tercihlerinize uygun", alternative: "Yakın seçenek", choose: "Seç ve özelleştir",
+    temperature: "Sıcaklık", taste: "Tat", intent: "Değişen tercih", hot: "sıcak", cold: "soğuk", "not-applicable": "yalnızca yiyecek, içecek yok",
+    sweet: "tatlı", neutral: "nötr", savoury: "tuzlu", coffee: "kahve", breakfast: "kahvaltılık", snack: "atıştırmalık", dessert: "tatlı", refresh: "ferahlatıcı içecek",
+    unavailable: "Menü geçici olarak kullanılamıyor", unavailableHelp: "Mevcut ürünlerden bir sipariş oluşturun veya daha sonra tekrar deneyin."
+  }
+} as const;
 
 const reasonText: Record<SmartChoiceLanguage, Record<string, string>> = {
   tr: {
@@ -318,6 +335,7 @@ const itemIndex = new Map(SMART_CHOICE_CATALOG.items.map((item) => [item.id, ite
 let state: FlowState = window.location.hash && window.location.hash !== "#quick"
   ? loadState() : { ...loadState(), screen: "quick" };
 let currentResult: RecommendationResult | null = null;
+let pendingQuickSelection: QuickBuilderSelection | undefined;
 
 function isLanguage(value: unknown): value is SmartChoiceLanguage {
   return value === "tr" || value === "en" || value === "ru";
@@ -355,10 +373,18 @@ function parseState(parsed: Partial<FlowState> | null): FlowState | null {
     const value = parsed.answers[question.id];
     if (typeof value === "string" && question.options.some(option => option.value === value)) answers[question.id] = value;
   }
+  const guestCount = Number.isInteger(parsed.guestCount) && parsed.guestCount! >= 3 && parsed.guestCount! <= 6
+    ? parsed.guestCount : undefined;
+  // Older saved flows did not record a family count. Ask instead of guessing
+  // servings or treating the missing answer as an unavailable menu.
+  const needsGuestCount = answers.partySize === "family" && guestCount === undefined &&
+    (parsed.screen === "results" || parsed.screen === "selected" || parsed.screen === "question" && parsed.questionIndex! > 3);
   return {
-    version: 1, screen: parsed.screen, questionIndex: parsed.questionIndex!, answers,
+    version: 1, screen: needsGuestCount ? "question" : parsed.screen,
+    questionIndex: needsGuestCount ? 3 : parsed.questionIndex!, answers,
     // Language is a site preference, independent of the history entry being restored.
     locale: safeStoredLanguage(),
+    ...(guestCount !== undefined ? { guestCount } : {}),
     ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {}),
     ...(typeof parsed.selectionToken === "string" && parsed.selectionToken.length <= 200 ? { selectionToken: parsed.selectionToken } : {})
   };
@@ -538,7 +564,7 @@ function renderQuestion(): HTMLElement {
   const options = createElement("div", "option-grid");
   const optionButtons: HTMLButtonElement[] = [];
   const continueButton = createButton(copy[state.locale].continue, "primary-button", () => {
-    if (!answerFor(question)) return;
+    if (!answerFor(question) || question.id === "partySize" && state.answers.partySize === "family" && !state.guestCount) return;
     if (state.questionIndex < questions.length - 1) {
       setState({ ...state, questionIndex: state.questionIndex + 1 });
     } else {
@@ -546,11 +572,24 @@ function renderQuestion(): HTMLElement {
       setState({ ...state, screen: "results" });
     }
   });
-  continueButton.disabled = !selected || question.id === "partySize" && selected === "family";
+  continueButton.disabled = !selected || question.id === "partySize" && selected === "family" && !state.guestCount;
   const family = createElement("div", "family-guidance");
   family.hidden = question.id !== "partySize" || selected !== "family";
-  family.append(createElement("p", "", copy[state.locale].familyHelp),
-    createButton(copy[state.locale].quickOrder, "primary-button", showQuickOrder));
+  family.append(createElement("p", "", helpfulCopy[state.locale].guestCount));
+  const guestButtons = createElement("div", "guest-count-options");
+  guestButtons.setAttribute("role", "group");
+  guestButtons.setAttribute("aria-label", helpfulCopy[state.locale].guestCount);
+  for (const count of [3, 4, 5, 6]) {
+    const button = createButton(String(count), "option-button guest-count-button", () => {
+      state = { ...state, guestCount: count };
+      saveState();
+      guestButtons.querySelectorAll("button").forEach(entry => entry.setAttribute("aria-pressed", String(entry === button)));
+      continueButton.disabled = false;
+    });
+    button.setAttribute("aria-pressed", String(state.guestCount === count));
+    guestButtons.append(button);
+  }
+  family.append(guestButtons);
 
   for (const option of question.options) {
     const button = createElement("button", "option-button");
@@ -564,7 +603,7 @@ function renderQuestion(): HTMLElement {
       state = { ...state, answers: { ...state.answers, [question.id]: option.value } };
       saveState();
       optionButtons.forEach((entry) => entry.setAttribute("aria-pressed", String(entry === button)));
-      continueButton.disabled = question.id === "partySize" && option.value === "family";
+      continueButton.disabled = question.id === "partySize" && option.value === "family" && !state.guestCount;
       family.hidden = question.id !== "partySize" || option.value !== "family";
     });
     optionButtons.push(button);
@@ -662,12 +701,15 @@ function uniqueRecommendations(result: RecommendationResult): RankedRecommendati
 }
 
 function renderNoMatch(result: RecommendationResult): HTMLElement {
+  const input = result.trace.normalizedInput;
+  const options = input ? findHelpfulOptions(input, state.guestCount) : [];
+  if (options.length) return renderHelpfulOptions(options, input!);
   const card = createElement("section", "no-match-card");
   const invalid = result.status === "invalid-input";
   card.append(
-    createElement("p", "eyebrow", invalid ? copy[state.locale].eyebrow : copy[state.locale].noMatchEyebrow),
-    createElement("h1", "result-title", invalid ? copy[state.locale].invalidTitle : copy[state.locale].noMatchTitle),
-    createElement("p", "no-match-copy", invalid ? copy[state.locale].invalidCopy : copy[state.locale].noMatchCopy)
+    createElement("p", "eyebrow", copy[state.locale].eyebrow),
+    createElement("h1", "result-title", invalid ? copy[state.locale].invalidTitle : helpfulCopy[state.locale].unavailable),
+    createElement("p", "no-match-copy", invalid ? copy[state.locale].invalidCopy : helpfulCopy[state.locale].unavailableHelp)
   );
   const actions = createElement("div", "actions");
   actions.append(
@@ -679,6 +721,53 @@ function renderNoMatch(result: RecommendationResult): HTMLElement {
   );
   card.append(actions);
   return card;
+}
+
+function renderHelpfulOptions(options: HelpfulOption[], input: RecommendationInput): HTMLElement {
+  const text = helpfulCopy[state.locale];
+  const wrapper = createElement("section", "smart-card helpful-results");
+  wrapper.append(createElement("p", "eyebrow", copy[state.locale].resultsEyebrow),
+    createElement("h1", "result-title", text.title), createElement("p", "result-lead", text.lead),
+    createElement("p", "helpful-budget", `${text.budget}: ${formatPrice(input.budget.maxMinor)} · ${text.servings} (${options[0].quantity})`));
+  const list = createElement("div", "result-list");
+  for (const option of options) {
+    // Separate from legacy recommendation cards: these open a concrete menu product,
+    // and must not be interpreted as a static combo by cart/analytics handlers.
+    const card = createElement("article", "helpful-option");
+    card.dataset.productId = option.productId;
+    const heading = createElement("div", "helpful-option-heading");
+    const photo = createElement("img", "helpful-option-photo");
+    photo.src = `../${option.image}`;
+    photo.alt = option.name[state.locale];
+    photo.width = 112; photo.height = 112; photo.loading = "lazy"; photo.decoding = "async";
+    const details = createElement("div");
+    details.append(createElement("span", "result-badge", option.differences.length ? text.alternative : text.exact),
+      createElement("h2", "", `${option.quantity} × ${option.name[state.locale]}`),
+      createElement("p", "helpful-unit-price", `${formatPrice(option.unitPriceMinor)} ${text.each}`));
+    heading.append(photo, details);
+    card.append(heading, createElement("p", "result-price", `${text.total}: ${formatPrice(option.totalPriceMinor)}`));
+    const differences = createElement("ul", "helpful-differences");
+    differences.append(createElement("li", option.overBudgetMinor ? "helpful-over-budget" : "helpful-within-budget",
+      option.overBudgetMinor ? `${text.above}: +${formatPrice(option.overBudgetMinor)}` : text.within));
+    for (const difference of option.differences) {
+      if (difference === "budget") continue;
+      const value = difference === "temperature" ? text[option.temperature] : difference === "taste" ? text[option.taste]
+        : text[input.intent];
+      differences.append(createElement("li", "", `${text[difference]}: ${value}`));
+    }
+    card.append(differences, createButton(text.choose, "primary-button", () => {
+      pendingQuickSelection = { productId: option.productId, quantity: option.quantity };
+      setState({ ...state, screen: "quick", selectedCandidateId: undefined, selectionToken: undefined });
+    }));
+    list.append(card);
+  }
+  wrapper.append(list);
+  const actions = createElement("div", "actions");
+  actions.append(createButton(copy[state.locale].changeAnswers, "secondary-button", () => {
+    setState({ ...state, screen: "question", questionIndex: 0 });
+  }), createButton(copy[state.locale].quickOrder, "secondary-button", showQuickOrder));
+  wrapper.append(actions);
+  return wrapper;
 }
 
 function renderResults(): HTMLElement {
@@ -777,9 +866,11 @@ function render(): void {
   document.body.classList.toggle("has-quick-builder", state.screen === "quick");
   app.setAttribute("aria-busy", "false");
   let content: HTMLElement;
+  const quickSelection = pendingQuickSelection;
+  pendingQuickSelection = undefined;
   if (state.screen === "quick") content = createQuickBuilder(state.locale, () => {
     setState({ ...state, screen: "question", questionIndex: 0, selectedCandidateId: undefined });
-  });
+  }, quickSelection);
   else if (state.screen === "welcome") content = renderWelcome();
   else if (state.screen === "question") content = renderQuestion();
   else if (state.screen === "results") content = renderResults();
@@ -790,11 +881,13 @@ function render(): void {
     app.replaceChildren(exit, content);
   }
   window.requestAnimationFrame(() => {
+    if (!content.isConnected || content.querySelector("dialog[open]")) return;
     const heading = content.querySelector<HTMLElement>("h1");
     if (!heading) return;
     if (!heading.id) heading.id = "smart-choice-title";
     document.querySelector(".smart-shell")?.setAttribute("aria-labelledby", heading.id);
     heading.tabIndex = -1;
+    if (state.screen !== "quick") window.scrollTo(0, 0);
     heading.focus({ preventScroll: true });
   });
 }

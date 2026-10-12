@@ -93,7 +93,22 @@ function productPhoto(product: QuickProduct, className = ""): HTMLImageElement {
   return image;
 }
 
-export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => void): HTMLElement {
+export interface QuickBuilderSelection {
+  productId: string;
+  quantity: number;
+}
+
+export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => void, selection?: QuickBuilderSelection): HTMLElement {
+  const prefill = selection && orderProducts.has(selection.productId) && Number.isInteger(selection.quantity)
+    && selection.quantity >= 1 && selection.quantity <= 6 ? selection : undefined;
+  if (prefill) {
+    selectedId = prefill.productId;
+    quantity = prefill.quantity;
+    variantId = "";
+    dessertId = "";
+    category = "all";
+    query = "";
+  }
   const text = COPY[language];
   const price = (minor: number): string => {
     const digits = minor % 100 ? 2 : 0;
@@ -459,6 +474,9 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
 
   renderChips(); renderCatalog(); renderComposer(); renderCart();
   refreshBuilder = () => { if (root.isConnected) renderCart(); };
+  if (prefill) requestAnimationFrame(() => {
+    if (root.isConnected) openCustomizer(search);
+  });
   return root;
 }
 

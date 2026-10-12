@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { buildSync } from "esbuild";
-import { menuCatalogRevision, readMenuCatalogRevisionInputs, verifyMenuCatalogRevision } from "./menu-catalog-revision.mjs";
+import { menuCatalogRevision, readMenuCatalogRevisionInputs, verifyMenuCatalogRevision,
+  SMART_CHOICE_CATALOG_CONSUMERS, readSmartChoiceCatalogRevisionInputs, verifySmartChoiceCatalogRevision } from "./menu-catalog-revision.mjs";
 
 const catalogBytes = Buffer.from('export const menuCategories = [{ id: "pairing-offers", price: 370 }];\n');
 const revision = menuCatalogRevision(catalogBytes);
@@ -35,6 +36,31 @@ async function cachedResponse(request) {
 
 test("shipped source, compiled runtime and service worker share the current catalog digest", () => {
   verifyMenuCatalogRevision(readMenuCatalogRevisionInputs());
+});
+
+test("all Smart Choice consumers share the canonical revisioned catalog and offline entry", () => {
+  verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
+});
+
+test("shared Smart Choice catalog rejects stale, missing and merely mentioned imports", () => {
+  const inputs = readSmartChoiceCatalogRevisionInputs();
+  const { expectedUrl } = verifySmartChoiceCatalogRevision(inputs);
+  for (const file of SMART_CHOICE_CATALOG_CONSUMERS) {
+    for (const altered of [inputs.runtimes[file].replace(expectedUrl, "../menu-catalog.js?v=000000000000"),
+      "export const empty = true;", `const mention = ${JSON.stringify(`import { menuCategories } from "${expectedUrl}";`)};`]) {
+      assert.notEqual(altered, inputs.runtimes[file]);
+      assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, runtimes: { ...inputs.runtimes, [file]: altered } }), /must import the shared catalog/);
+    }
+  }
+});
+
+test("shared catalog consumers reject changed data and stale offline cache references", () => {
+  const inputs = readSmartChoiceCatalogRevisionInputs();
+  const { revision } = verifySmartChoiceCatalogRevision(inputs);
+  assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, catalogBytes: Buffer.concat([inputs.catalogBytes, Buffer.from("\n")]) }), /must import the shared catalog/);
+  const alteredWorker = inputs.serviceWorker.replace(`./menu-catalog.js?v=${revision}`, "./menu-catalog.js?v=000000000000");
+  assert.notEqual(alteredWorker, inputs.serviceWorker);
+  assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, serviceWorker: alteredWorker }), /precached at its exact content revision/);
 });
 
 function readPairingRevisionInputs() {

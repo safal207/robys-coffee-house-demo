@@ -51,12 +51,12 @@ class TestElement extends EventTarget {
   focus() { document.activeElement = this; }
   scrollIntoView() { this.scrolled = true; }
   select() { this.textSelected = true; }
-  showModal() { this.open = true; }
+  showModal() { assert(this.isConnected, "A modal may only open after it is attached"); this.open = true; }
   close() { this.open = false; this.dispatchEvent(new Event("close")); }
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
-const previous = new Map(["window", "document", "localStorage", "sessionStorage"].map(key => [key, globalThis[key]]));
+const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame"].map(key => [key, globalThis[key]]));
 const numberFormat = Intl.NumberFormat;
 let formatterCount = 0;
 const storage = () => {
@@ -67,6 +67,9 @@ try {
   globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body") };
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
+  const animationFrames = [];
+  globalThis.requestAnimationFrame = callback => animationFrames.push(callback);
+  const flushAnimationFrames = () => animationFrames.splice(0).forEach(callback => callback());
   Intl.NumberFormat = function (...args) { formatterCount++; return new numberFormat(...args); };
   const output = await build({ entryPoints: ["src/smart-choice/quick-builder.ts"], bundle: true,
     platform: "node", format: "esm", target: "node20", write: false });
@@ -200,7 +203,53 @@ try {
   createQuickBuilder("ru", () => {});
   createQuickBuilder("en", () => {});
   assert.equal(formatterCount, 2, "Returning to a locale must reuse its cached formatter");
-  console.log("Quick builder UI PASS: desktop/mobile modal, focus return, visible sweets/flavours, edit/save/cancel and stale edits, persistent photo nodes, one cart render, external updates, cached locale formatters.");
+
+  // A helpful recommendation enters a fresh composer, even after editing a
+  // flavoured pair. Merely reviewing that recommendation must never write it.
+  cart.querySelectorAll(".qb-order-group").find(row => row.dataset.groupId === icedPair.id).querySelector(".qb-edit").click();
+  const beforePrefill = savedDraft();
+  for (let quantity = 1; quantity <= 6; quantity++) {
+    const prefilled = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity });
+    const dialog = prefilled.querySelector(".qb-customizer");
+    assert(!dialog.open, "Creating a prefill must not open a disconnected dialog");
+    document.body.replaceChildren(prefilled);
+    assert(!dialog.open, "Opening is deferred until the mounted frame");
+    flushAnimationFrames();
+    assert.equal(dialog.open, true);
+    const detail = prefilled.querySelector("#qb-composer");
+    assert.equal(detail.querySelector("output").textContent, String(quantity), "All requested guest counts must reach the composer unchanged");
+    assert.equal(detail.querySelector(".qb-selection-photos").querySelectorAll("figure").length, 1, "A recommendation must clear a previous accompanying dessert");
+    assert.equal(detail.querySelector(".qb-add-total").querySelector("strong").textContent, money(50 * quantity));
+    assert.match(detail.querySelector(".qb-add").textContent, /^Add to order/, "A recommendation starts an addition, not an edit of the previous basket item");
+    assert.deepEqual(savedDraft(), beforePrefill, "Opening a recommendation must preserve the existing order");
+    detail.querySelector(".qb-customizer-close").click();
+    assert.equal(document.activeElement, prefilled.querySelector("#qb-search"), "Closing a recommended selection returns to an available catalog control");
+  }
+  const detached = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 2 });
+  document.body.replaceChildren(detached);
+  document.body.replaceChildren();
+  flushAnimationFrames();
+  assert(!detached.querySelector(".qb-customizer").open, "An obsolete selection must not open after navigation removed its builder");
+  for (const selection of [{ productId: "unknown", quantity: 1 }, ...[0, -1, 7, 1.5, NaN].map(quantity => ({ productId: "brew-hot:black-tea", quantity }))]) {
+    const invalid = createQuickBuilder("en", () => {}, selection);
+    document.body.replaceChildren(invalid);
+    assert.equal(animationFrames.length, 0, "Invalid prefills must not schedule a modal");
+    assert(!invalid.querySelector(".qb-customizer").open);
+    assert.deepEqual(savedDraft(), beforePrefill);
+  }
+  const unresolved = createQuickBuilder("en", () => {}, { productId: "cold-coffee:flavoured-iced-caffe-latte", quantity: 2 });
+  document.body.replaceChildren(unresolved); flushAnimationFrames();
+  assert.equal(unresolved.querySelector(".qb-add").disabled, true, "Prefill must ask for a required flavour rather than reuse an earlier one");
+  const toAdd = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 4 });
+  document.body.replaceChildren(toAdd); flushAnimationFrames();
+  toAdd.querySelector(".qb-add").click();
+  const afterPrefill = savedDraft();
+  assert.deepEqual(afterPrefill.groups.filter(group => group.items[0].id !== "brew-hot:black-tea"), beforePrefill.groups,
+    "Adding a recommended selection must preserve every pre-existing basket group");
+  const newGroup = afterPrefill.groups.find(group => group.items[0].id === "brew-hot:black-tea");
+  assert.equal(newGroup.quantity, 4);
+  assert.deepEqual(newGroup.items, [{ id: "brew-hot:black-tea", quantity: 1 }], "The addition must contain only the requested product without a stale flavour or dessert");
+  console.log("Quick builder UI PASS: desktop/mobile modal, focus return, visible sweets/flavours, edit/save/cancel and stale edits, persistent photo nodes, one cart render, external updates, cached locale formatters; recommendation prefills for 1–6 guests, validation, mounted opening and basket preservation.");
 } finally {
   Intl.NumberFormat = numberFormat;
   for (const [key, value] of previous) {
