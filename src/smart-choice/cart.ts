@@ -18,8 +18,10 @@ import {
   type CartState
 } from "./cart-domain.js";
 import { CART_COPY } from "./cart-copy.js";
-import { ORDER_DRAFT_KEY, type OrderDraft } from "../order-draft.js";
-import { syncRecommendation, orderProducts, buildSharedOrderPayload, buildSharedWhatsAppMessage } from "./shared-order.js";
+import { ORDER_DRAFT_KEY, readStoredOrderDraft, writeStoredOrderDraft } from "../order-draft.js";
+import { syncRecommendation, orderProducts, orderProductIds, buildSharedOrderPayload } from "./shared-order.js";
+import { orderGroupName, orderGroupTotal, orderGroupItems, needsOrderVariant } from "./quick-builder-domain.js";
+import { openQuickCheckout } from "./checkout-link.js";
 
 interface FlowStateSnapshot {
   version: 1;
@@ -34,6 +36,8 @@ interface FlowStateSnapshot {
 const FLOW_STORAGE_KEY = "robys-smart-choice-session.v1";
 const CART_STORAGE_KEY = "robys-smart-choice-cart.v1";
 const ORDER_STORAGE_KEY = "robys-smart-choice-order.v1";
+const DECLINED_STORAGE_KEY = "robys-smart-choice-declined-bumps.v1";
+const APPLIED_STORAGE_KEY = "robys-smart-choice-applied-selections.v1";
 const rules = deriveCartRules();
 let refreshCart: (() => void) | undefined;
 const comboIndex = new Map(SMART_CHOICE_CATALOG.combos.map((combo) => [combo.id, combo]));
@@ -101,7 +105,7 @@ function recommendationFor(flow: FlowStateSnapshot) {
 
 function loadCart(candidateId: string): CartState {
   const stored = readJson<CartState>(CART_STORAGE_KEY);
-  return stored?.version === 1 &&
+  const cart = stored?.version === 1 &&
     stored.candidateId === candidateId &&
     stored.catalogVersion === SMART_CHOICE_CATALOG.version &&
     Array.isArray(stored.substitutionIds) && stored.substitutionIds.every(id => typeof id === "string") &&
@@ -109,6 +113,17 @@ function loadCart(candidateId: string): CartState {
     ["pending", "accepted", "declined", "ineligible"].includes(stored.bumpDecision)
     ? stored
     : createInitialCart(candidateId);
+  const declined = readJson<string[]>(DECLINED_STORAGE_KEY);
+  if (cart.bumpDecision === "declined") rememberDeclined(cart.bumpId);
+  return cart.bumpId && cart.bumpDecision === "pending" && Array.isArray(declined) && declined.includes(cart.bumpId)
+    ? { ...cart, bumpDecision: "declined" } : cart;
+}
+
+function rememberDeclined(id: string | undefined): void {
+  if (!id) return;
+  const stored = readJson<unknown>(DECLINED_STORAGE_KEY);
+  const ids = Array.isArray(stored) ? stored.filter((value): value is string => typeof value === "string") : [];
+  writeJson(DECLINED_STORAGE_KEY, [...new Set([...ids, id])]);
 }
 
 function mountCart(): void {
@@ -125,21 +140,37 @@ function mountCart(): void {
   selectedCard.insertBefore(root, selectedCard.querySelector(".actions"));
   const partySize = flow.answers.partySize as PartySize;
   let cart = reconcileCart(loadCart(combo.id), partySize).state;
-  let sharedDraft: OrderDraft | null = readJson<OrderDraft>(ORDER_DRAFT_KEY);
+  let sharedDraft = readStoredOrderDraft(orderProductIds);
   const token = flow.selectionToken ?? `legacy:${combo.id}`;
+  const storedTokens = readJson<unknown>(APPLIED_STORAGE_KEY);
+  const appliedTokens = new Set(Array.isArray(storedTokens) ? storedTokens.filter((value): value is string => typeof value === "string") : []);
 
-  const render = (): void => {
+  const render = (applySelection = true): void => {
     const language = flow.locale;
     const text = CART_COPY[language];
     cart = reconcileCart(cart, partySize).state;
     const calculation = calculateCart(cart, partySize);
-    const shared = syncRecommendation(readJson<OrderDraft>(ORDER_DRAFT_KEY) ?? sharedDraft, cart, calculation, token);
+    const shared = applySelection
+      ? syncRecommendation(readStoredOrderDraft(orderProductIds), cart, calculation, token)
+      : { draft: readStoredOrderDraft(orderProductIds), applied: false, blocked: false };
     sharedDraft = shared.draft;
     const payload = buildSharedOrderPayload(sharedDraft);
     const canHandoff = !shared.blocked && payload.lines.length > 0;
+    const needsFlavour = needsOrderVariant(sharedDraft.groups);
     writeJson(CART_STORAGE_KEY, cart);
-    writeJson(ORDER_DRAFT_KEY, sharedDraft);
+    if (shared.applied) writeStoredOrderDraft(sharedDraft, orderProductIds);
+    if (applySelection && !shared.blocked) {
+      appliedTokens.add(token);
+      writeJson(APPLIED_STORAGE_KEY, [...appliedTokens].slice(-100));
+    }
     writeJson(ORDER_STORAGE_KEY, payload);
+
+    const selectedGroups = sharedDraft.groups.filter(group => group.source === "recommendation");
+    const summaryName = selectedCard.querySelector(".selected-summary strong");
+    const summaryPrice = selectedCard.querySelector(".selected-summary span");
+    if (summaryName) summaryName.textContent = selectedGroups.length
+      ? selectedGroups.map(group => orderGroupName(group, language)).join(" + ") : text.selectionRemoved;
+    if (summaryPrice) summaryPrice.textContent = `${text.selectionTotal}: ${formatPrice(selectedGroups.reduce((sum, group) => sum + orderGroupTotal(group), 0), language)}`;
 
     root.replaceChildren();
     const heading = create("h2", "cart-title", text.title);
@@ -147,12 +178,19 @@ function mountCart(): void {
     root.append(heading, create("p", "cart-lead", text.lead));
 
     const list = create("ul", "cart-line-list");
-    for (const line of payload.lines) {
-      list.append(create(
-        "li",
-        "cart-line",
-        `${line.quantity} × ${orderProducts.get(line.id)?.name[language] ?? line.id}`
-      ));
+    for (const group of sharedDraft.groups) {
+      const line = create("li", "cart-line");
+      const photos = create("div", "cart-line-photos");
+      for (const item of orderGroupItems(group)) {
+        const product = orderProducts.get(item.id);
+        if (!product) continue;
+        const image = create("img"); image.src = `../${product.image}`; image.alt = "";
+        image.width = image.height = 70; image.loading = "lazy";
+        photos.append(image);
+      }
+      line.append(photos, create("span", "", `${group.quantity} × ${orderGroupName(group, language)}`),
+        create("strong", "", formatPrice(orderGroupTotal(group), language)));
+      list.append(line);
     }
     root.append(create("h3", "cart-section-title", text.contents), list);
 
@@ -184,7 +222,7 @@ function mountCart(): void {
       button.setAttribute("aria-pressed", String(active));
       button.append(
         create("span", "cart-choice-label", rule.label[language]),
-        create("strong", "cart-choice-price", `${active ? text.remove : text.add} · +${formatPrice(rule.priceDeltaMinor, language)}`)
+        create("strong", "cart-choice-price", `${active ? text.remove : text.add} · ${active ? "−" : "+"}${formatPrice(rule.priceDeltaMinor, language)}`)
       );
       button.addEventListener("click", () => {
         cart = {
@@ -216,6 +254,7 @@ function mountCart(): void {
         render();
       });
       decline.addEventListener("click", () => {
+        rememberDeclined(cart.bumpId);
         cart = { ...cart, bumpDecision: "declined" };
         render();
       });
@@ -230,9 +269,10 @@ function mountCart(): void {
       remove.setAttribute("aria-pressed", "true");
       remove.append(
         create("span", "cart-choice-label", bump.label[language]),
-        create("strong", "cart-choice-price", `${text.remove} · +${formatPrice(bump.priceDeltaMinor, language)}`)
+        create("strong", "cart-choice-price", `${text.remove} · −${formatPrice(bump.priceDeltaMinor, language)}`)
       );
       remove.addEventListener("click", () => {
+        rememberDeclined(cart.bumpId);
         cart = { ...cart, bumpDecision: "declined" };
         render();
       });
@@ -245,6 +285,7 @@ function mountCart(): void {
     if (!canHandoff) {
       root.append(create("p", "cart-notice cart-notice--error", text.blocked));
     }
+    if (needsFlavour) root.append(create("p", "cart-notice", text.flavourNotice));
 
     const footer = create("div", "cart-total-row");
     const total = create("div", "cart-total");
@@ -252,28 +293,31 @@ function mountCart(): void {
       create("span", "", text.total),
       create("strong", "", formatPrice(payload.pricing.totalMinor, language))
     );
-    const handoff = create("a", "primary-button cart-handoff", text.handoff);
-    handoff.href = `https://wa.me/?text=${encodeURIComponent(buildSharedWhatsAppMessage(payload, language))}`;
-    handoff.target = "_blank";
-    handoff.rel = "noopener noreferrer";
+    const handoff = create("button", "primary-button cart-handoff", needsFlavour ? text.chooseFlavours : text.handoff);
+    handoff.type = "button";
+    handoff.disabled = !canHandoff;
     handoff.setAttribute("aria-disabled", String(!canHandoff));
-    if (!canHandoff) {
-      handoff.removeAttribute("href");
-      handoff.removeAttribute("target");
-    }
+    handoff.addEventListener("click", () => {
+      const current = readStoredOrderDraft(orderProductIds);
+      if (needsOrderVariant(current.groups)) {
+        window.dispatchEvent(new CustomEvent("robys:quick-order"));
+        window.requestAnimationFrame(() => {
+          document.querySelector<HTMLSelectElement>('.qb-cart select[aria-invalid="true"]')?.focus();
+        });
+        return;
+      }
+      handoff.disabled = true;
+      void openQuickCheckout(current, language, handoff)
+        .catch(() => root.append(create("p", "cart-notice cart-notice--error", text.checkoutError)))
+        .finally(() => { handoff.disabled = !canHandoff; });
+    });
     footer.append(total, handoff);
     root.append(footer, create("p", "cart-draft-note", text.draftNote));
 
-    const details = create("details", "cart-payload");
-    details.append(
-      create("summary", "", text.payload),
-      create("code", "", JSON.stringify(payload))
-    );
-    root.append(details);
   };
 
-  refreshCart = () => { if (root.isConnected) render(); };
-  render();
+  refreshCart = () => { if (root.isConnected) render(false); };
+  render(!appliedTokens.has(token));
 }
 
 function start(): void {
@@ -288,3 +332,4 @@ document.readyState === "loading"
   : start();
 
 window.addEventListener("pageshow", event => { if (event.persisted) refreshCart?.(); });
+window.addEventListener("storage", event => { if (event.key === ORDER_DRAFT_KEY || event.key === null) refreshCart?.(); });

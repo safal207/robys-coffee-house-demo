@@ -12,9 +12,10 @@ import {
   type RequestedTaste,
   type RequestedTemperature
 } from "./engine.js";
+import { createQuickBuilder } from "./quick-builder.js";
 
 type LocalizedText = Record<SmartChoiceLanguage, string>;
-type Screen = "welcome" | "question" | "results" | "selected";
+type Screen = "quick" | "welcome" | "question" | "results" | "selected";
 type AnswerKey = "intent" | "temperature" | "taste" | "partySize" | "budgetKey";
 
 type Answers = Partial<Record<AnswerKey, string>>;
@@ -59,6 +60,9 @@ const localeTag: Record<SmartChoiceLanguage, string> = {
 
 const copy = {
   tr: {
+    skipContent: "İçeriğe geç", homeLabel: "Roby's Coffee House ana sayfası", controlsLabel: "Smart Choice kontrolleri", languageLabel: "Dil seçimi",
+    quickOrder: "Siparişini kendin oluştur",
+    familyHelp: "Aileniz için içecekleri ve tatlıları ayrı ayrı seçip adetlerini belirleyebilirsiniz.",
     fullMenu: "Tam Menü",
     footerNote: "Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -85,7 +89,7 @@ const copy = {
     premiumWarning: "Bu alternatif seçtiğiniz bütçenin biraz üzerindedir ve açıkça premium olarak işaretlenmiştir.",
     selectedEyebrow: "SEÇİM KAYDEDİLDİ",
     selectedTitle: "Güzel seçim.",
-    selectedNote: "Bu seçim yalnızca bu tarayıcı oturumunda saklandı. Kafeye, kasaya veya ödeme sistemine henüz sipariş gönderilmedi.",
+    selectedNote: "Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.",
     chooseAnother: "Başka bir seçim yap",
     noMatchEyebrow: "TAM EŞLEŞME YOK",
     noMatchTitle: "Bu tercihlerle doğrulanmış bir seçim bulamadık.",
@@ -98,6 +102,9 @@ const copy = {
     price: "Seçim fiyatı"
   },
   en: {
+    skipContent: "Skip to content", homeLabel: "Roby's Coffee House home", controlsLabel: "Smart Choice controls", languageLabel: "Language selector",
+    quickOrder: "Build your order",
+    familyHelp: "Choose drinks and desserts for your group and set the quantity of each.",
     fullMenu: "Full menu",
     footerNote: "Smart Choice is a selection assistant. No order or payment is submitted on this screen.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -124,7 +131,7 @@ const copy = {
     premiumWarning: "This alternative is slightly above your chosen budget and is clearly marked as premium.",
     selectedEyebrow: "CHOICE SAVED",
     selectedTitle: "Lovely choice.",
-    selectedNote: "This choice is stored only for this browser session. No order has been sent to the café, POS, or payment system.",
+    selectedNote: "Your choice is saved in this browser. Show the QR at the counter to confirm your order.",
     chooseAnother: "Choose another",
     noMatchEyebrow: "NO EXACT MATCH",
     noMatchTitle: "We could not find a confirmed menu choice for all these preferences.",
@@ -137,6 +144,9 @@ const copy = {
     price: "Choice price"
   },
   ru: {
+    skipContent: "Перейти к содержимому", homeLabel: "На главную Roby's Coffee House", controlsLabel: "Управление Smart Choice", languageLabel: "Выбор языка",
+    quickOrder: "Собрать заказ самому",
+    familyHelp: "Для компании можно выбрать напитки и десерты и указать нужное количество каждого.",
     fullMenu: "Полное меню",
     footerNote: "Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.",
     eyebrow: "ROBY'S SMART CHOICE",
@@ -163,7 +173,7 @@ const copy = {
     premiumWarning: "Этот вариант немного превышает выбранный бюджет и явно отмечен как премиальный.",
     selectedEyebrow: "ВЫБОР СОХРАНЁН",
     selectedTitle: "Отличный выбор.",
-    selectedNote: "Выбор сохранён только в этой сессии браузера. Заказ ещё не отправлен в кафе, кассу или платёжную систему.",
+    selectedNote: "Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.",
     chooseAnother: "Выбрать другое",
     noMatchEyebrow: "ТОЧНОГО СОВПАДЕНИЯ НЕТ",
     noMatchTitle: "Мы не нашли подтверждённый вариант под все эти условия.",
@@ -305,9 +315,9 @@ function requireElement<T extends HTMLElement>(selector: string): T {
 const app = requireElement<HTMLElement>("#smart-choice-app");
 
 const itemIndex = new Map(SMART_CHOICE_CATALOG.items.map((item) => [item.id, item]));
-let state = loadState();
+let state: FlowState = window.location.hash && window.location.hash !== "#quick"
+  ? loadState() : { ...loadState(), screen: "quick" };
 let currentResult: RecommendationResult | null = null;
-let suppressHistory = false;
 
 function isLanguage(value: unknown): value is SmartChoiceLanguage {
   return value === "tr" || value === "en" || value === "ru";
@@ -325,7 +335,7 @@ function safeStoredLanguage(): SmartChoiceLanguage {
 function initialState(): FlowState {
   return {
     version: STATE_VERSION,
-    screen: "welcome",
+    screen: "quick",
     questionIndex: 0,
     answers: {},
     locale: safeStoredLanguage()
@@ -333,38 +343,32 @@ function initialState(): FlowState {
 }
 
 function isScreen(value: unknown): value is Screen {
-  return value === "welcome" || value === "question" || value === "results" || value === "selected";
+  return value === "quick" || value === "welcome" || value === "question" || value === "results" || value === "selected";
+}
+
+function parseState(parsed: Partial<FlowState> | null): FlowState | null {
+  if (!parsed || parsed.version !== STATE_VERSION || !isScreen(parsed.screen) ||
+    !Number.isInteger(parsed.questionIndex) || (parsed.questionIndex ?? -1) < 0 ||
+    (parsed.questionIndex ?? 5) >= questions.length || !parsed.answers || typeof parsed.answers !== "object" || Array.isArray(parsed.answers)) return null;
+  const answers: Answers = {};
+  for (const question of questions) {
+    const value = parsed.answers[question.id];
+    if (typeof value === "string" && question.options.some(option => option.value === value)) answers[question.id] = value;
+  }
+  return {
+    version: 1, screen: parsed.screen, questionIndex: parsed.questionIndex!, answers,
+    // Language is a site preference, independent of the history entry being restored.
+    locale: safeStoredLanguage(),
+    ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {}),
+    ...(typeof parsed.selectionToken === "string" && parsed.selectionToken.length <= 200 ? { selectionToken: parsed.selectionToken } : {})
+  };
 }
 
 function loadState(): FlowState {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return initialState();
-    const parsed = JSON.parse(raw) as Partial<FlowState>;
-    const questionIndex =
-      typeof parsed.questionIndex === "number" && Number.isInteger(parsed.questionIndex)
-        ? parsed.questionIndex
-        : -1;
-    if (
-      parsed.version !== STATE_VERSION ||
-      !isScreen(parsed.screen) ||
-      !isLanguage(parsed.locale) ||
-      questionIndex < 0 ||
-      questionIndex >= questions.length ||
-      !parsed.answers ||
-      typeof parsed.answers !== "object"
-    ) {
-      return initialState();
-    }
-    return {
-      version: STATE_VERSION,
-      screen: parsed.screen,
-      questionIndex,
-      answers: parsed.answers,
-      locale: parsed.locale,
-      ...(typeof parsed.selectedCandidateId === "string" ? { selectedCandidateId: parsed.selectedCandidateId } : {}),
-      ...(typeof parsed.selectionToken === "string" && parsed.selectionToken.length <= 200 ? { selectionToken: parsed.selectionToken } : {})
-    };
+    return parseState(JSON.parse(raw)) ?? initialState();
   } catch {
     return initialState();
   }
@@ -376,6 +380,8 @@ function saveState(): void {
   } catch {
     // Session persistence is optional; the flow remains usable without storage.
   }
+  // Store the full snapshot on the current history entry, including answers changed in-place.
+  window.history.replaceState({ smartChoice: true, flow: state }, "", window.location.href);
 }
 
 function storeLanguage(language: SmartChoiceLanguage): void {
@@ -388,13 +394,17 @@ function storeLanguage(language: SmartChoiceLanguage): void {
 
 function setState(next: FlowState, historyMode: "push" | "replace" | "none" = "push"): void {
   state = next;
-  saveState();
-  if (!suppressHistory && historyMode !== "none") {
+  if (historyMode !== "none") {
     const hash = state.screen === "question" ? `#step-${state.questionIndex + 1}` : `#${state.screen}`;
     const method = historyMode === "replace" ? "replaceState" : "pushState";
-    window.history[method]({ smartChoice: true }, "", hash);
+    window.history[method]({ smartChoice: true, flow: state }, "", hash);
   }
+  saveState();
   render();
+}
+
+function showQuickOrder(): void {
+  setState({ ...state, screen: "quick" });
 }
 
 function createElement<K extends keyof HTMLElementTagNameMap>(
@@ -425,6 +435,12 @@ function updateStaticCopy(): void {
   document.documentElement.lang = state.locale;
   const languageCopy: Record<string, string> = copy[state.locale];
   document.title = `Roby's Smart Choice | ${languageCopy.fullMenu}`;
+  const skipLink = document.querySelector<HTMLElement>(".skip-link");
+  if (skipLink) skipLink.textContent = languageCopy.skipContent;
+  for (const [selector, label] of [[".brand", languageCopy.homeLabel],
+    [".smart-header-actions", languageCopy.controlsLabel], [".language-switcher", languageCopy.languageLabel]]) {
+    document.querySelector(selector)?.setAttribute("aria-label", label);
+  }
   document.querySelectorAll<HTMLElement>("[data-static-copy]").forEach((element) => {
     const key = element.dataset.staticCopy;
     if (key && languageCopy[key]) element.textContent = languageCopy[key];
@@ -530,7 +546,11 @@ function renderQuestion(): HTMLElement {
       setState({ ...state, screen: "results" });
     }
   });
-  continueButton.disabled = !selected;
+  continueButton.disabled = !selected || question.id === "partySize" && selected === "family";
+  const family = createElement("div", "family-guidance");
+  family.hidden = question.id !== "partySize" || selected !== "family";
+  family.append(createElement("p", "", copy[state.locale].familyHelp),
+    createButton(copy[state.locale].quickOrder, "primary-button", showQuickOrder));
 
   for (const option of question.options) {
     const button = createElement("button", "option-button");
@@ -544,12 +564,14 @@ function renderQuestion(): HTMLElement {
       state = { ...state, answers: { ...state.answers, [question.id]: option.value } };
       saveState();
       optionButtons.forEach((entry) => entry.setAttribute("aria-pressed", String(entry === button)));
-      continueButton.disabled = false;
+      continueButton.disabled = question.id === "partySize" && option.value === "family";
+      family.hidden = question.id !== "partySize" || option.value !== "family";
     });
     optionButtons.push(button);
     options.append(button);
   }
   card.append(options);
+  card.append(family);
 
   const actions = createElement("div", "actions");
   actions.append(
@@ -649,7 +671,8 @@ function renderNoMatch(result: RecommendationResult): HTMLElement {
   );
   const actions = createElement("div", "actions");
   actions.append(
-    createButton(copy[state.locale].changeAnswers, "primary-button", () => {
+    createButton(copy[state.locale].quickOrder, "primary-button", showQuickOrder),
+    createButton(copy[state.locale].changeAnswers, "secondary-button", () => {
       setState({ ...state, screen: "question", questionIndex: Math.max(0, questions.length - 1) });
     }),
     createActionLink(copy[state.locale].openMenu, "../menu.html")
@@ -710,6 +733,7 @@ function renderSelected(): HTMLElement {
 
   const actions = createElement("div", "actions");
   actions.append(
+    createButton(copy[state.locale].quickOrder, "secondary-button", showQuickOrder),
     createButton(copy[state.locale].chooseAnother, "primary-button", () => {
       setState({ ...state, screen: "results", selectedCandidateId: undefined });
     }),
@@ -750,16 +774,26 @@ function restartFlow(): void {
 
 function render(): void {
   updateStaticCopy();
+  document.body.classList.toggle("has-quick-builder", state.screen === "quick");
   app.setAttribute("aria-busy", "false");
   let content: HTMLElement;
-  if (state.screen === "welcome") content = renderWelcome();
+  if (state.screen === "quick") content = createQuickBuilder(state.locale, () => {
+    setState({ ...state, screen: "question", questionIndex: 0, selectedCandidateId: undefined });
+  });
+  else if (state.screen === "welcome") content = renderWelcome();
   else if (state.screen === "question") content = renderQuestion();
   else if (state.screen === "results") content = renderResults();
   else content = renderSelected();
-  app.replaceChildren(content);
+  if (state.screen === "quick") app.replaceChildren(content);
+  else {
+    const exit = createButton(`← ${copy[state.locale].quickOrder}`, "secondary-button smart-wizard-exit", showQuickOrder);
+    app.replaceChildren(exit, content);
+  }
   window.requestAnimationFrame(() => {
     const heading = content.querySelector<HTMLElement>("h1");
     if (!heading) return;
+    if (!heading.id) heading.id = "smart-choice-title";
+    document.querySelector(".smart-shell")?.setAttribute("aria-labelledby", heading.id);
     heading.tabIndex = -1;
     heading.focus({ preventScroll: true });
   });
@@ -777,11 +811,27 @@ document.querySelectorAll<HTMLButtonElement>(".lang-button").forEach((button) =>
   });
 });
 
-window.addEventListener("popstate", () => {
-  suppressHistory = true;
-  goBack();
-  suppressHistory = false;
+window.addEventListener("popstate", event => {
+  const restored = parseState(event.state?.flow ?? null);
+  state = restored ?? { ...state, screen: "quick" };
+  currentResult = null;
+  saveState();
+  render();
 });
 
-window.history.replaceState({ smartChoice: true }, "", window.location.hash || "#welcome");
+window.addEventListener("robys:quick-order", showQuickOrder);
+window.addEventListener("pageshow", event => {
+  if (!event.persisted) return;
+  state = { ...state, locale: safeStoredLanguage() };
+  currentResult = null;
+  saveState(); render();
+});
+window.addEventListener("storage", event => {
+  if (event.key !== LANGUAGE_KEY && event.key !== null) return;
+  state = { ...state, locale: safeStoredLanguage() };
+  currentResult = null;
+  saveState(); render();
+});
+window.history.replaceState({ smartChoice: true, flow: state }, "", window.location.hash || "#quick");
+saveState();
 render();

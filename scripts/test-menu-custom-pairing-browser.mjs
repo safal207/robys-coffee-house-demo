@@ -47,7 +47,7 @@ async function poll(read, accepts, message, timeout = 10_000) {
 }
 
 async function cart(page) {
-  return page.evaluate((key) => JSON.parse(sessionStorage.getItem(key) ?? '{"version":1,"lines":[]}'), cartKey);
+  return page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{"version":1,"groups":[],"lines":[]}'), cartKey);
 }
 
 async function prepare(page, base, { language = "tr", fallback = false, seed } = {}) {
@@ -58,13 +58,13 @@ async function prepare(page, base, { language = "tr", fallback = false, seed } =
       Object.defineProperty(HTMLDialogElement.prototype, "open", { configurable: true, get: () => undefined });
     });
   }
-  if (seed) {
-    await page.addInitScript(({ key, draft }) => {
-      if (sessionStorage.getItem("qa-custom-pairing-seeded")) return;
-      sessionStorage.setItem("qa-custom-pairing-seeded", "true");
-      sessionStorage.setItem(key, JSON.stringify(draft));
-    }, { key: cartKey, draft: seed });
-  }
+  await page.addInitScript(({ key, draft }) => {
+    if (sessionStorage.getItem("qa-custom-pairing-seeded")) return;
+    sessionStorage.setItem("qa-custom-pairing-seeded", "true");
+    sessionStorage.removeItem(key);
+    localStorage.removeItem("robys-menu-preferences.v1");
+    localStorage.setItem(key, JSON.stringify(draft ?? { version: 1, lines: [] }));
+  }, { key: cartKey, draft: seed });
   await page.goto(new URL("menu.html?entry=off", base).href, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible" });
   await page.locator(`.lang-button[data-lang="${language}"]`).click();
@@ -104,8 +104,11 @@ async function choose(page, id) {
 async function assertPreview(page, drink, sweet, language) {
   const preview = page.locator("#menu-pairing-preview");
   await preview.waitFor({ state: "visible" });
-  assert.equal(await page.locator("#menu-product-title").textContent(), drink.item.name[language], "main title remains the drink");
-  assert.equal(money(await page.locator("#menu-product-price").textContent()), drink.item.price, "main price remains the drink's unit price");
+  assert.equal(await page.locator("#menu-product-title").textContent(), `${drink.item.name[language]} + ${sweet.item.name[language]}`, "main title describes the complete selected pair");
+  const quantity = Number(await page.locator("#menu-product-quantity").textContent());
+  assert.equal(money(await page.locator("#menu-product-price").textContent()), (drink.item.price + sweet.item.price) * quantity, "primary total follows the selected quantity");
+  assert.equal(money(await page.locator("#menu-product-unit-price").textContent()), drink.item.price + sweet.item.price, "unit price remains explicitly separate from the total");
+  assert.equal(imageMatches(await page.locator("#menu-product-pair-image").getAttribute("src"), sweet), true, "large pair image shows the selected dessert");
   assert.equal(await preview.locator(".menu-pairing-preview-title").textContent(), `${drink.item.name[language]} + ${sweet.item.name[language]}`);
   assert.equal(money(await preview.locator(".menu-pairing-preview-total").textContent()), drink.item.price + sweet.item.price);
   const photos = await preview.locator("img").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("src")));
@@ -250,7 +253,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
   });
 
   for (const language of ["tr", "en", "ru"]) for (const fallback of [false, true]) {
-    await run("CUSTOM-PAIRING-ORDER-001", `${language}/${fallback ? "fallback" : "native"}: quantity2 adds two lines and preserves existing order`, async (page) => {
+    await run("CUSTOM-PAIRING-ORDER-001", `${language}/${fallback ? "fallback" : "native"}: quantity2 adds one pair group and preserves existing order`, async (page) => {
       const recommendation = { token: "existing-browser-draft", signature: "independent-existing-selection", lines: [{ id: existing.id, quantity: 1 }] };
       await prepare(page, base, { language, fallback, seed: { version: 1, lines: [{ id: existing.id, quantity: 3 }], recommendation } });
       await open(page, espresso);
@@ -269,6 +272,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await page.locator("#menu-quantity-increase").click();
       assert.equal(await page.locator("#menu-product-quantity").textContent(), "2");
       assert.equal(money(await page.locator("#menu-add-to-cart").textContent()), (espresso.item.price + dessert.item.price) * 2);
+      assert.equal(money(await page.locator("#menu-product-price").textContent()), (espresso.item.price + dessert.item.price) * 2, "primary and action totals agree");
       assert.equal((await page.locator("#menu-add-to-cart").textContent()).startsWith(copy[language].addPair), true);
       assert.equal(await page.locator("#menu-product-draft-note").textContent(), menuCopy[language].orderDraft);
       await page.locator("#menu-add-to-cart").focus();
@@ -278,17 +282,25 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
       const draft = await cart(page);
       assert.deepEqual(entries(draft), sortedEntries([[existing.id, 3], [espresso.id, 2], [dessert.id, 2]]));
-      assert.deepEqual(draft.recommendation, recommendation, "custom pairs preserve the existing recommendation contribution");
-      assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 7);
+      assert.equal(draft.recommendation.token, recommendation.token);
+      assert.equal(draft.recommendation.signature, recommendation.signature);
+      assert.deepEqual(draft.recommendation.lines, recommendation.lines, "custom pairs preserve the existing recommendation contribution");
+      const pair = draft.groups.find(group => group.items.some(item => item.id === espresso.id));
+      assert.equal(pair.quantity, 2);
+      assert.deepEqual(pair.items.map(item => item.id).sort(), [espresso.id, dessert.id].sort(), "pair identities remain together");
+      assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 5, "cart count counts selections, including each pair once");
       await page.locator("#menu-cart-trigger").click();
       await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
-      assert.equal(await page.locator(".menu-cart-line").count(), 3, "pair additions remain two ordinary cart lines");
+      assert.equal(await page.locator(".menu-cart-line").count(), 3, "two migrated selections plus one grouped pair");
+      const pairRow = page.locator(".menu-cart-line").filter({ hasText: espresso.item.name[language] });
+      assert.equal(await pairRow.locator(".menu-cart-group-images img").count(), 2, "pair row preserves both product photos");
+      assert.equal((await pairRow.textContent()).includes(dessert.item.name[language]), true);
       assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), existing.item.price * 3 + (espresso.item.price + dessert.item.price) * 2);
       await page.keyboard.press("Escape");
       await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
       const trigger = await open(page, espresso);
-      assert.equal(await page.locator('input[name="menu-dessert"][value=""]').isChecked(), true, "reopening resets the uncommitted dessert in both dialog modes");
-      await choose(page, dessert.id);
+      assert.equal(await page.locator(`input[name="menu-dessert"][value="${dessert.id}"]`).isChecked(), true, "reopening restores the chosen dessert in both dialog modes");
+      assert.equal(await page.locator("#menu-product-quantity").textContent(), "2", "reopening restores quantity and clearly offers another selection");
       await close(page, trigger, true);
       assert.deepEqual(entries(await cart(page)), entries(draft), "Escape cancels the new draft without altering committed lines");
       return { language, fallback, draft, pairQuantity: 2 };
@@ -324,7 +336,83 @@ export async function verifyMenuCustomPairing(context, base, check) {
     trigger = await open(page, otherDrink);
     assert.equal(await page.locator('input[name="menu-dessert"][value=""]').isChecked(), true);
     await close(page, trigger, true);
-    return { committed, reopenResetsDessert: true, backAndReloadPreserve: true };
+    return { committed, reopenedChoiceMatchesLastPreference: true, backAndReloadPreserve: true };
+  });
+
+  await run("CUSTOM-PAIRING-GROUP-EDIT-001", "two drinks sharing one dessert stay separate pairs when edited or removed", async (page) => {
+    await prepare(page, base, { language: "ru" });
+    const tea = products.get("brew-hot:black-tea");
+    for (const drink of [tea, espresso]) {
+      await open(page, drink);
+      await choose(page, dessert.id);
+      await page.locator("#menu-add-to-cart").click();
+      await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+    }
+    await page.locator("#menu-cart-trigger").click();
+    assert.equal(await page.locator(".menu-cart-line").count(), 2);
+    const teaRow = page.locator(".menu-cart-line").filter({ hasText: tea.item.name.ru });
+    await teaRow.locator(".menu-cart-step").last().click();
+    assert.deepEqual(entries(await cart(page)), sortedEntries([[tea.id, 2], [espresso.id, 1], [dessert.id, 3]]));
+    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), (tea.item.price + dessert.item.price) * 2 + espresso.item.price + dessert.item.price);
+    await teaRow.locator(".menu-cart-remove").click();
+    assert.equal(await page.locator(".menu-cart-line").count(), 1);
+    assert.deepEqual(entries(await cart(page)), sortedEntries([[espresso.id, 1], [dessert.id, 1]]), "removing the tea pair removes only its matching dessert quantities");
+    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), espresso.item.price + dessert.item.price);
+    return { groups: (await cart(page)).groups };
+  });
+
+  await run("MENU-VARIANT-IDENTITY-001", "flavor is required and distinct flavors remain distinct cart selections", async (page) => {
+    await prepare(page, base, { language: "ru" });
+    const drink = products.get("cold-coffee:flavoured-iced-caffe-latte");
+    const flavors = drink.item.variants.slice(0, 2);
+    await open(page, drink, false);
+    assert.equal(await page.locator("#menu-add-to-cart").isDisabled(), true, "a flavored item cannot be ordered without choosing its flavor");
+    for (const [index, flavor] of flavors.entries()) {
+      if (index) await open(page, drink, false);
+      await page.locator("#menu-product-variant").selectOption(flavor.id);
+      assert.equal(await page.locator("#menu-add-to-cart").isEnabled(), true);
+      await page.locator("#menu-add-to-cart").click();
+      await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+    }
+    await page.locator("#menu-cart-trigger").click();
+    assert.equal(await page.locator(".menu-cart-line").count(), 2);
+    const draft = await cart(page);
+    assert.deepEqual(draft.groups.map(group => group.items[0].variant).sort(), flavors.map(flavor => flavor.id).sort());
+    for (const flavor of flavors) assert.equal((await page.locator("#menu-cart-lines").textContent()).includes(flavor.name.ru), true);
+    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), drink.item.price * 2);
+    return { variants: flavors.map(flavor => flavor.id), groups: draft.groups };
+  });
+
+  await run("MENU-LEGACY-FLAVOR-001", "a restored order can choose its missing flavor directly in the cart", async (page) => {
+    const product = [...products.values()].find(entry => entry.item.variants?.length > 1);
+    const flavor = product.item.variants[0];
+    await prepare(page, base, { language: "ru", seed: { version: 1, lines: [{ id: product.id, quantity: 2 }] } });
+    await page.locator("#menu-cart-trigger").click();
+    assert.equal(await page.locator("#menu-checkout-trigger").isDisabled(), true, "an unspecified flavor cannot reach checkout");
+    const selector = page.locator("#menu-cart-lines select");
+    assert.equal(await selector.inputValue(), "");
+    await selector.selectOption(flavor.id);
+    assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), true);
+    const draft = await cart(page);
+    assert.equal(draft.groups.length, 1);
+    assert.equal(draft.groups[0].quantity, 2);
+    assert.equal(draft.groups[0].items[0].variant, flavor.id);
+    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), product.item.price * 2);
+    assert.equal((await page.locator("#menu-cart-lines").textContent()).includes(flavor.name.ru), true);
+    return { product: product.id, flavor: flavor.id, quantity: 2, correctedInCart: true };
+  });
+
+  await run("MENU-CATEGORY-SEARCH-001", "category-name searches and Turkish I work across languages", async (page) => {
+    await prepare(page, base, { language: "tr" });
+    await page.locator("#menu-search").fill("Cold Coffee");
+    assert.equal(await page.locator("#menu-root [data-product-id]").count(), menuCategories.find(category => category.id === "cold-coffee").items.length);
+    await page.locator("#menu-search").fill("SICAK");
+    assert.equal(await page.locator("#menu-root [data-product-id]").count(), hot.filter(product => product.category.id !== "herbal-tea").length);
+    await page.goto(new URL("menu.html?entry=off#brew-hot", base).href, { waitUntil: "domcontentloaded" });
+    await poll(() => page.locator("#menu-root .full-menu-panel").count(), count => count === 1, "same-page hash activates one category");
+    assert.equal(await page.locator("#menu-root .full-menu-panel").getAttribute("id"), "brew-hot");
+    assert.equal(await page.locator(".menu-search-clear").isHidden(), true, "hash navigation also clears the search reset control");
+    return { categorySearch: true, turkishCasefold: true, hashFilter: "brew-hot" };
   });
 
   for (const capped of [espresso, dessert]) {

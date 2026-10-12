@@ -11,6 +11,7 @@ assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source), 'runtime must 
 assert.match(emitted, /from"\.\/menu-catalog\.js\?/, 'catalog must stay external');
 assert.match(emitted, /import\("\.\/menu-interactions\.js\?/, 'interaction actions must stay lazy');
 assert.match(emitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
+assert.match(emitted, /import\("\.\/order-checkout\.js\?/, 'QR checkout must remain lazy and external');
 assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));

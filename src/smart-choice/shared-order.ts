@@ -9,7 +9,12 @@ const slug = (name: string): string => name.normalize("NFKD")
 const products = menuCategories.flatMap(category =>
   (category.items ?? category.groups?.flatMap(group => group.items) ?? []).map(item => {
     const id = `${category.id}:${item.id ?? slug(item.name.en)}`;
-    return { id, sourceId: item.id ?? `${category.id}--${slug(item.name.en)}`, name: item.name, unitPriceMinor: item.price * 100 };
+    const sourceId = category.id === "pairing-offers" ? item.id ?? `${category.id}--${slug(item.name.en)}`
+      : `${category.id}--${item.id ?? slug(item.name.en)}`;
+    return { id, sourceId, name: item.name,
+      categoryId: category.id, categoryName: category.name, item,
+      image: item.image ?? `src/products/menu-v1/${category.id}--${slug(item.name.en)}.webp`,
+      unitPriceMinor: item.price * 100 };
   })
 );
 export const orderProducts = new Map(products.map(item => [item.id, item]));
@@ -33,13 +38,15 @@ export function syncRecommendation(raw: unknown, cart: CartState, calculation: C
 }
 
 export function buildSharedOrderPayload(draft: OrderDraft) {
-  const lines = normalizeOrderDraft(draft, orderProductIds).lines.map(line => {
+  const normalized = normalizeOrderDraft(draft, orderProductIds);
+  const lines = normalized.lines.map(line => {
     const product = orderProducts.get(line.id)!;
     return { ...line, unitPriceMinor: product.unitPriceMinor, lineTotalMinor: product.unitPriceMinor * line.quantity };
   });
   return {
     schemaVersion: "robys.order-draft.v1",
     currency: "TRY",
+    groups: normalized.groups,
     lines,
     pricing: { totalMinor: lines.reduce((sum, line) => sum + line.lineTotalMinor, 0) },
     handoff: { channel: "whatsapp-share", status: "draft", submitted: false, paid: false, acceptedByCafe: false }
@@ -57,7 +64,13 @@ export function buildSharedWhatsAppMessage(payload: ReturnType<typeof buildShare
     style: "currency", currency: "TRY", minimumFractionDigits: 0,
     maximumFractionDigits: payload.pricing.totalMinor % 100 === 0 ? 0 : 2
   }).format(payload.pricing.totalMinor / 100);
-  return [heading[language], "", ...payload.lines.map(line =>
-    `• ${line.quantity} × ${orderProducts.get(line.id)!.name[language]}`), "",
+  return [heading[language], "", ...payload.groups.map(group => {
+    const names = group.items.map(item => {
+      const product = orderProducts.get(item.id)!;
+      const variant = product.item.variants?.find(entry => entry.id === item.variant);
+      return `${item.quantity > 1 ? `${item.quantity} × ` : ""}${product.name[language]}${variant ? ` · ${variant.name[language]}` : ""}`;
+    });
+    return `• ${group.quantity} × ${names.join(" + ")}`;
+  }), "",
   `${{ tr: "Toplam", en: "Total", ru: "Итого" }[language]}: ${price}`, "", confirmation[language]].join("\n");
 }

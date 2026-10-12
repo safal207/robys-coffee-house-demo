@@ -78,7 +78,7 @@ try {
 
   const expectedPreview = previewBefore === "iced-san-sebastian"
     ? { text: /Айс-латте \+ чизкейк Сан-Себастьян/i, price: "370 ₺" }
-    : { text: /Cool Lime \+ макарон/i, price: "290 ₺" };
+    : { text: /Cool Lime \+ макарон/i, price: "220 ₺" };
   assert.match(await preview.locator(".discover-deck-preview-name").innerText(), expectedPreview.text);
   assert.equal((await previewPrice.innerText()).trim(), expectedPreview.price);
   assert.equal(await preview.evaluate((node) => getComputedStyle(node).position), "sticky");

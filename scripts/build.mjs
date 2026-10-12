@@ -4,12 +4,33 @@ import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
+const menuCatalogRevision = revisionFor("menu-catalog.js");
+for (const file of ["src/menu-app.js", "menu-product-reveal-runtime.js", "discover-v2.js", "discover-deck.js"]) {
+  const source = readFileSync(file, "utf8").replace(/(from\s*["']\.\/menu-catalog\.js)(?:\?[^"']*)?(["'])/g, `$1?v=${menuCatalogRevision}$2`);
+  writeFileSync(file, source);
+}
+
+await build({ entryPoints: ["src/order-checkout.js"], bundle: true, minify: true, charset: "utf8",
+  format: "esm", target: "es2020", outfile: "order-checkout.js", legalComments: "none" });
+const orderCheckoutRevision = revisionFor("order-checkout.js");
+const orderCheckoutCssRevision = revisionFor("order-checkout.css");
+let cashierSource = readFileSync("src/cashier.js", "utf8");
+cashierSource = cashierSource.replace(/from "\.\/order-checkout\.js(?:\?v=[^"]*)?"/, `from "./order-checkout.js?v=${orderCheckoutRevision}"`);
+writeFileSync("src/cashier.js", cashierSource);
+await build({ entryPoints: ["src/cashier.js"], bundle: true, minify: true, charset: "utf8",
+  external: ["./order-checkout.js*"], format: "esm", target: "es2020", outfile: "cashier.js", legalComments: "none" });
+const cashierRevision = revisionFor("cashier.js");
+let quickSource = readFileSync("src/smart-choice/checkout-link.ts", "utf8");
+quickSource = quickSource.replace(/new URL\("\.\.\/order-checkout\.js(?:\?v=[^"]*)?",/, `new URL("../order-checkout.js?v=${orderCheckoutRevision}",`);
+writeFileSync("src/smart-choice/checkout-link.ts", quickSource);
+
 await build({
   entryPoints: ["src/menu-pairing-view.js"], bundle: true, minify: true, charset: "utf8",
   format: "esm", target: "es2020", outfile: "menu-pairing.js", legalComments: "none"
 });
 const menuPairingRevision = revisionFor("menu-pairing.js");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
+menuSource = synchronizeModuleImport(menuSource, "order-checkout.js", orderCheckoutRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-pairing.js", menuPairingRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
@@ -26,6 +47,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
+  external: ["../order-checkout.js*"],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -330,6 +352,8 @@ menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+if (!menuHtml.includes('href="order-checkout.css')) menuHtml = menuHtml.replace("</head>", '<link rel="stylesheet" href="order-checkout.css" />\n</head>');
+menuHtml = synchronizeStylesheet(menuHtml, "order-checkout.css", orderCheckoutCssRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
@@ -359,11 +383,24 @@ smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics-v2.js", sm
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace-v2.js", smartChoiceDecisionTraceRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "../order-checkout.css", orderCheckoutCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smartChoiceReleaseQaCssRevision);
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
+let cashierHtml = readFileSync("cashier.html", "utf8");
+cashierHtml = synchronizeStylesheet(cashierHtml, "order-checkout.css", orderCheckoutCssRevision);
+cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision);
+writeFileSync("cashier.html", cashierHtml);
+
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css",
+  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
+  if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
+}
+const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlowRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -393,6 +430,10 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationCssRevision
 );
 for (const [filePath, revision] of [
+  ["menu-catalog.js", menuCatalogRevision],
+  ["order-checkout.js", orderCheckoutRevision],
+  ["cashier.js", cashierRevision],
+  ["order-checkout.css", orderCheckoutCssRevision],
   ["bootstrap-v2.js", bootstrapRevision],
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],

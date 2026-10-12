@@ -9,6 +9,7 @@ export interface MenuItemSource {
   description?: MenuLocalizedText;
   image?: string;
   imageAlt?: MenuLocalizedText;
+  variants?: Array<{ id: string; name: MenuLocalizedText }>;
   price: number;
 }
 

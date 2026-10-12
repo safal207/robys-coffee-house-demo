@@ -21,7 +21,7 @@ const pairingCategory = menuCategories.find((category) => category.id === "pairi
 assert.ok(pairingCategory, "Pairing catalog category must exist");
 
 const expected = new Map([
-  ["cool-lime-macaron", { price: 290, image: "src/products/sets-v1/cool-lime-macaron.webp" }],
+  ["cool-lime-macaron", { price: 220, image: "src/products/sets-v1/cool-lime-macaron.webp" }],
   ["iced-san-sebastian", { price: 370, image: "src/products/sets-v1/iced-san-sebastian.webp" }]
 ]);
 

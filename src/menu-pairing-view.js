@@ -6,21 +6,21 @@ const COPY = {
     hint: "Bir tatlı seç veya sadece içeceğinle devam et.",
     drinkOnly: "Sadece içecek",
     pairPriceLabel: "Çift",
-    total: "Bir içecek + bir tatlı"
+    total: "Bir çiftin fiyatı · bir içecek + bir tatlı"
   },
   en: {
     legend: "Sweet with your drink",
     hint: "Choose a dessert or keep just the drink.",
     drinkOnly: "Just the drink",
     pairPriceLabel: "Pair",
-    total: "One drink + one dessert"
+    total: "Price per pair · one drink + one dessert"
   },
   ru: {
     legend: "Сладкое к напитку",
     hint: "Выбери десерт или оставь только напиток.",
     drinkOnly: "Только напиток",
     pairPriceLabel: "Пара",
-    total: "Один напиток + один десерт"
+    total: "Цена за одну пару · один напиток + один десерт"
   }
 };
 
@@ -93,7 +93,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     const quote = element("p", "menu-pairing-preview-quote");
     quote.append(element("span", "", COPY[language].total), element("strong", "menu-pairing-preview-total", total));
     preview.append(heading, images, quote);
-    if (summary) summary.textContent = `${title} · ${total}`;
+    if (summary) summary.textContent = `${COPY[language].total}: ${total}`;
   }
 
   function option(drink, dessert = null) {
@@ -124,13 +124,13 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     delete root.dataset.ready;
   }
 
-  function render(product, nextLanguage, reset = false) {
+  function render(product, nextLanguage, reset = false, preferredId = "") {
     const current = productIndex.get(product?.id);
     if (!validProduct(current) || !isHotDrink(current)) {
       clear();
       return;
     }
-    if (reset || activeId !== current.id) selectedId = "";
+    if (reset || activeId !== current.id) selectedId = preferredId;
     activeId = current.id;
     language = ["tr", "en", "ru"].includes(nextLanguage) ? nextLanguage : "tr";
     if (!getSelectedProduct()) selectedId = "";

@@ -29,3 +29,11 @@
 .cart-payload summary { cursor: pointer; font-weight: 800; }
 .cart-payload code { display: block; max-height: 130px; margin-top: 8px; padding: 10px; overflow: auto; background: var(--cream); border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 700px) { .cart-total-row { align-items: stretch; flex-direction: column; } .cart-handoff, .cart-bump-actions > * { width: 100%; } }
+.cart-line{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px}
+.cart-line>strong{grid-column:2;color:var(--ruby);font-size:.85rem}
+.cart-line-photos{display:flex;flex-wrap:wrap;gap:5px;max-width:145px;grid-row:span 2}
+.cart-line-photos img{width:64px;height:64px;object-fit:contain;background:#f4eee5;border-radius:10px}
+.cart-choice-label{min-width:0;overflow-wrap:anywhere}
+.cart-choice-price{white-space:normal;text-align:right;flex-shrink:0;max-width:45%}
+.cart-handoff{border:0;cursor:pointer}
+@media(max-width:480px){.cart-line-photos{max-width:64px}.cart-line{font-size:.85rem}.cart-choice{gap:10px;padding:12px}.selected-card{padding:20px}}

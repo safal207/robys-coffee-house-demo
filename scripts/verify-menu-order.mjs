@@ -87,8 +87,8 @@ assert.equal(visualItemCount, 63, "Every current menu item and pairing must rema
 
 for (const contract of [
   'const CART_STORAGE_KEY = "robys-menu-order.v1"',
-  "sessionStorage.getItem(CART_STORAGE_KEY)",
-  "sessionStorage.setItem(CART_STORAGE_KEY",
+  "readStoredOrderDraft(orderProductIds)",
+  "writeStoredOrderDraft(orderDraft, orderProductIds)",
   "media.addEventListener(\"click\", () => openProduct(id))",
   "total += product.item.price * lineQuantity",
   "quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
@@ -97,9 +97,11 @@ for (const contract of [
   "new Intl.NumberFormat(localeTag[language]",
   "new Intl.PluralRules(localeTag[language]).select(count)",
   "formatItemCount(summary.quantity)",
-  "applyMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
+  "addOrderGroup(orderDraft, products.map",
   "if (!selection.applied)",
-  "cart = selection.cart",
+  "orderDraft = selection.draft",
+  "orderDraft.groups.forEach",
+  "updateOrderGroupQuantity(orderDraft, id, quantity, orderProductIds)",
   'products.map((item) => localized(item.item.name)).join(" + ")',
   'document.querySelectorAll("[data-menu-cart-status]")',
   "cartStatuses.forEach((status) =>",
@@ -158,4 +160,4 @@ assert(
   "Dialog fallback stylesheet must be precached and matched at its exact revision"
 );
 
-console.log(`✅ MENU-ORDER-001 passed: ${visualItemCount} clickable photos, localized modal, session cart, quantity controls and total calculator are wired.`);
+console.log(`✅ MENU-ORDER-001 passed: ${visualItemCount} clickable photos, localized modal, shared grouped cart, quantity controls and total calculator are wired.`);

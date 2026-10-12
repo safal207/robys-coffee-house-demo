@@ -1,8 +1,12 @@
 {
-  "version": 3,
-  "verifiedAt": "2026-07-05",
-  "source": "Photographed printed menu, real-device screenshots, and the approved Cool Lime + Macaron and Iced Latte + San Sebastian Taste Journey artwork supplied for the Roby's Coffee House demo",
-  "languages": ["tr", "en", "ru"],
+  "version": 4,
+  "verifiedAt": "2026-10-10",
+  "source": "Photographed printed menu, real-device screenshots, and the approved Cool Lime + Macaron and Iced Latte + San Sebastian Taste Journey artwork supplied for the Roby's Coffee House demo; 2026-10-10 ordering repair: Cool Lime + Macaron is the sum of existing component prices (190 + 30 TRY); hot/cold white chocolate mocha labels clarified without changing IDs or individual prices",
+  "languages": [
+    "tr",
+    "en",
+    "ru"
+  ],
   "categoryCount": 8,
   "itemCount": 63,
   "categories": {
@@ -16,7 +20,7 @@
     "food": 5
   },
   "prices": {
-    "pairing-offers::Cool Lime + Makaron": 290,
+    "pairing-offers::Cool Lime + Makaron": 220,
     "pairing-offers::Buzlu Latte + San Sebastian": 370,
     "hot-coffee::Espresso": 110,
     "hot-coffee::Americano": 160,
@@ -32,7 +36,6 @@
     "hot-coffee::Vanilla Latte": 200,
     "hot-coffee::Fındıklı Latte": 200,
     "hot-coffee::Caffè Mocca": 200,
-    "hot-coffee::White Chocolate Mocca": 200,
     "brew-hot::Filtre Kahve": 160,
     "brew-hot::Türk Kahvesi": 90,
     "brew-hot::Siyah Çay": 50,
@@ -45,7 +48,6 @@
     "cold-coffee::Buzlu Caffè Latte": 180,
     "cold-coffee::Aromalı Buzlu Caffè Latte": 200,
     "cold-coffee::Buzlu Mocca": 200,
-    "cold-coffee::White Chocolate Mocca": 200,
     "cold-coffee::Caffè Latte Frappe": 220,
     "cold-coffee::Milkshake": 220,
     "refreshers::Cool Lime": 190,
@@ -78,6 +80,8 @@
     "food::Nutellalı Kruvasan": 170,
     "food::Beyaz Peynirli Baget Sandviç": 180,
     "food::Dana Kontrfile Baget Sandviç": 230,
-    "food::Susamlı Simit": 35
+    "food::Susamlı Simit": 35,
+    "hot-coffee::Sıcak White Chocolate Mocca": 200,
+    "cold-coffee::Buzlu White Chocolate Mocca": 200
   }
 }

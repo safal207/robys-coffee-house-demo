@@ -28,7 +28,7 @@ const macaron = allItems.find((item) => item.name?.tr === "Makaron" && item.pric
 
 assert(pairingCategory, "menu-catalog.js does not define the pairing-offers category");
 assert(pairingOffer, "menu-catalog.js does not define the Cool Lime + Macaron pairing offer");
-assert(pairingOffer.price === 290, `pairing offer must cost 290 TRY, found ${pairingOffer.price}`);
+assert(pairingOffer.price === coolLime?.price + macaron?.price, `pairing offer must equal its components, found ${pairingOffer.price}`);
 assert(coolLime, "individual Cool Lime price must remain explicitly verified at 190 TRY");
 assert(macaron, "individual Macaron price must remain explicitly verified at 30 TRY");
 for (const language of ["tr", "en", "ru"]) {
@@ -96,5 +96,5 @@ assert(
 );
 
 console.log(
-  `✅ PR140-BLOCKERS-001 passed: menu defines the 290 TRY pairing offer separately from 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime ${discoverRuntimeRevision}, poster JS ${scriptRevision} and CSS ${cssRevision}.`
+  `✅ PR140-BLOCKERS-001 passed: menu pairing agrees with the 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime ${discoverRuntimeRevision}, poster JS ${scriptRevision} and CSS ${cssRevision}.`
 );

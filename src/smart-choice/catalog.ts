@@ -142,7 +142,7 @@ function slugify(value: string): string {
 }
 
 function sourceIdFor(categoryId: string, item: MenuItemSource): string {
-  return item.id ?? `${categoryId}--${slugify(item.name.en)}`;
+  return categoryId === "pairing-offers" && item.id ? item.id : `${categoryId}--${item.id ?? slugify(item.name.en)}`;
 }
 
 function flattenMenu(categories: readonly MenuCategorySource[]): FlattenedMenuItem[] {
@@ -252,7 +252,7 @@ const ITEM_RULES: readonly ItemRule[] = [
     intents: ["refresh", "snack"],
     temperature: "cold",
     taste: "sweet",
-    partySizes: ["one", "two", "family"],
+    partySizes: ["one", "two"],
     availability: "available",
     sourceStatus: "confirmed"
   },
@@ -292,7 +292,7 @@ const ITEM_RULES: readonly ItemRule[] = [
     intents: ["dessert", "snack"],
     temperature: "not-applicable",
     taste: "sweet",
-    partySizes: ["one", "two", "family"],
+    partySizes: ["one", "two"],
     availability: "available",
     sourceStatus: "confirmed"
   },
@@ -344,9 +344,8 @@ const COMBO_RULES: readonly ComboRule[] = [
     componentIds: ["refreshers--cool-lime", "desserts--macaron"],
     intents: ["refresh", "dessert", "snack"],
     tags: ["cold", "light", "sweet"],
-    availability: "unavailable",
-    sourceStatus: "provisional",
-    blockedReason: "offer-price-exceeds-components-without-declared-extra-value"
+    availability: "available",
+    sourceStatus: "confirmed"
   }
 ];
 
@@ -446,7 +445,7 @@ const BUMPS: readonly SmartChoiceBump[] = [
 ];
 
 export const SMART_CHOICE_CATALOG: SmartChoiceCatalog = {
-  version: "smart-choice-catalog.v0.2.0",
+  version: "smart-choice-catalog.v0.3.0",
   currency: "TRY",
   minorUnitScale: 100,
   items: ITEMS,

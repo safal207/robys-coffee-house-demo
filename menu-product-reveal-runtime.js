@@ -1,4 +1,4 @@
-import { menuCategories } from "./menu-catalog.js?v=23d5e08d85d2";
+import { menuCategories } from "./menu-catalog.js?v=bc69a9e52fa4";
 
 const REVEAL_PRODUCTS = Object.freeze([
   Object.freeze({

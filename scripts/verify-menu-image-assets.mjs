@@ -80,7 +80,7 @@ const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const productCategories = menuCategories.filter((category) => category.id !== "pairing-offers");
 const expectedMenuFiles = productCategories.flatMap((category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
-  return items.map((item) => `${category.id}--${imageSlug(item.name.en)}.webp`);
+  return items.map((item) => item.image ? path.basename(item.image) : `${category.id}--${imageSlug(item.name.en)}.webp`);
 }).sort();
 
 if (expectedMenuFiles.length !== 61) fail(`expected 61 individual menu images, found ${expectedMenuFiles.length} menu entries`);

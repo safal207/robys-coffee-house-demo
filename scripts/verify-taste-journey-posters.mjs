@@ -18,14 +18,14 @@ const EXPECTED_IDS = [
 ];
 const ACTIVE_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
 const BASE64_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`);
-const FINAL_DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
+const FINAL_DIRECT_FILES = ["cool-lime-macaron-hq.webp", "cool-lime-macaron-price-free.webp"];
 const EXPECTED_FINAL_FILES = [...BASE64_FILES, ...FINAL_DIRECT_FILES].sort();
 const DESCRIPTIVE_ALTS = [
   "Cool Lime ve Makaron eşleşmesi posteri",
   "Cool Lime and Macaron pairing poster",
   "Постер сочетания Cool Lime и макарона"
 ];
-const ACCESSIBLE_PRICES = ["Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺"];
+const ACCESSIBLE_PRICES = ["Fiyat: 220 ₺", "Price: 220 ₺", "Цена: 220 ₺"];
 const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
 const revisionFor = (buffer) => createHash("sha256").update(buffer).digest("hex").slice(0, 12);
 const digestFor = (buffer) => createHash("sha256").update(buffer).digest("hex");
@@ -134,7 +134,7 @@ const expectedSources = {
   "iced-san-sebastian": 'source: "src/pairings-data/approved/iced-san-sebastian-hq.png"',
   "filter-lotus": 'posterSource("filter-lotus")',
   "relax-lotus": 'posterSource("relax-lotus")',
-  "cool-lime-macaron": 'source: "src/pairings-data/final/cool-lime-macaron-hq.webp"'
+  "cool-lime-macaron": 'source: "src/pairings-data/final/cool-lime-macaron-price-free.webp"'
 };
 
 for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
@@ -164,7 +164,7 @@ if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGu
 
 for (const asset of [
   "discover-journeys-v2.js",
-  "src/pairings-data/final/cool-lime-macaron-hq.webp",
+  "src/pairings-data/final/cool-lime-macaron-price-free.webp",
   "src/pairings-data/approved/iced-san-sebastian-hq.png"
 ]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
