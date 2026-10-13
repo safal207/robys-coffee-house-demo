@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "pr431-discover-canonical-price-photo",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/431",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "summary": "Inspected all six failing CI comparisons. Differences are confined to removal of the obsolete embedded 290 TRY price on the Cool Lime + macaron poster and small compression differences in that image. The canonical pair is 220 TRY. Product identity, Roby branding, layout, controls and adjacent 370 TRY pairing remain intact. Only these exact capture dimensions and observed ratios are covered; global screenshot thresholds are unchanged. This is assistant inspection, not independent human approval.",
+      "sourceHead": "64c462c39633f4c9f736814566cb15d79595e912",
+      "evidenceKind": "github-actions-locked-toolchain-captures",
+      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/38244035263",
+      "evidenceArtifactId": "11745460832",
+      "captureSummarySha256": "ff743fc10b58c04a43c722de18e6a6697f646a807b94db0b03b2c6e36c6d29cc",
+      "contentBindings": {
+        "discover.html": "74c0de0f0ed87a0bc38a2affe589ab065f003030",
+        "discover-v2.js": "d70bf14636fbef2ab2abc1c47ddc478eb38a1e15",
+        "discover-deck.js": "388be61a7dcb50df235503a96a1a26269095085f",
+        "discover-journeys-v2.js": "1fd7e32ba8e75b23f64d8bfc5d7cb21d3e75c3cf",
+        "discover-rotation-v3.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "src/discover-rotation.ts": "ec96ecf32907a4cce0e2a65b2000230f4bdd9339",
+        "discover-copy.js": "a504d6058e96ddbdf57ec3a9a533d023f281e3bc",
+        "discover.css": "ac03708c1d95e1dfd4df4f2b3aff4df21934390d",
+        "discover-deck.css": "04ba0f4f904ef37edd234c259bc71bcdf753f014",
+        "discover-rotation.css": "df96f55c7d03fa339dfb2f3e749abe621f16f361",
+        "styles-v2.css": "b6aea0c556daa5620730fbf5873e2d088a19c195",
+        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "menu-catalog.js": "1a71231eb768aef60d66f33d387b6bec1f259a15",
+        "src/pairings-data/final/cool-lime-macaron-price-free.webp": "4f12c50a8d431e9e5943ff8d1e417752a505d42c",
+        "src/pairings-data/approved/iced-san-sebastian-hq.webp": "1ddfcb88d413a90b1b53cf01b830e02fc1ec0526",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "package-lock.json": "194182d125db42d1e8f3cecffce8b97026cddc7e"
+      },
+      "expectedFailures": [
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "totalPixels": 232400,
+          "maxDiffPixelRatio": 0.010806
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "totalPixels": 270900,
+          "maxDiffPixelRatio": 0.014047
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "totalPixels": 2270976,
+          "maxDiffPixelRatio": 0.007431
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "totalPixels": 843752,
+          "maxDiffPixelRatio": 0.019904
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "laptop-1366",
+          "totalPixels": 803580,
+          "maxDiffPixelRatio": 0.01821
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "desktop-1440",
+          "totalPixels": 802400,
+          "maxDiffPixelRatio": 0.018247
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-320",
+          "file": "discover-pairing__phone-320.png",
+          "sha256": {
+            "baseline": "babf4cf52729d98dbda38a06801791fea7d6e3cb1d7a202e5657c90867965dd0",
+            "current": "413efd5dd4efd691bac17ed31febe7432f1712045ca4babf9608f3a1c0e8e65b",
+            "diff": "868b7f76bef90153569af66bf7f60d6b358671a362ab3c77a42e37e20e4c1450"
+          }
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "phone-390",
+          "file": "discover-pairing__phone-390.png",
+          "sha256": {
+            "baseline": "7f8a00cb62935b8fc1446ffe80d16aa43b4b6b1d08895fafb1dc8501a6cfc581",
+            "current": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+            "diff": "e0717c11907b90d66bb2a4537ec971c51096d66d5b6e5a05c651d576df379bb1"
+          }
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "file": "discover-full__tablet-768.png",
+          "sha256": {
+            "baseline": "15a780ca0a0f4c13d23f0837e080d989b43d8e1c44ab9f22aab49f094d283664",
+            "current": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+            "diff": "96941684a6167746cae72b9aebe38669ffe85aaae7c3e373fd25cf45ef15ce90"
+          }
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "tablet-768",
+          "file": "discover-pairing__tablet-768.png",
+          "sha256": {
+            "baseline": "c415651b99d04f95cb884761117affd973b680132c0931f94e989bd0f2b82a4a",
+            "current": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+            "diff": "96ab2e7f4683c8ddac354fabd84543eb9266d42c2635b6307e72924f407f4e80"
+          }
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "laptop-1366",
+          "file": "discover-pairing__laptop-1366.png",
+          "sha256": {
+            "baseline": "82ead6572a29cc6938e7718231e0fe280e0eb9892907839b92e42e8ddc2d8e07",
+            "current": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+            "diff": "bc136322aa3ab473b9cf8b6ffe8dd7e75b6f3e5c0a8259df21f8de8e39d866c8"
+          }
+        },
+        {
+          "capture": "discover-pairing",
+          "viewport": "desktop-1440",
+          "file": "discover-pairing__desktop-1440.png",
+          "sha256": {
+            "baseline": "9ea39682b1cbf348795e1d57e111d6113e9e57d7b20d56e4b2335f73e1a9409f",
+            "current": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+            "diff": "7233c10b3d5e85ac98e755817d9c284930a94222a259a2ab21b44b6ba3e57198"
+          }
+        }
+      ]
+    }
+  ]
+}

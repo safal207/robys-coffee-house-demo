@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { buildSync } from "esbuild";
+import { build } from "esbuild";
 import ts from "typescript";
+import { sharedMenuCatalogPlugin } from "./smart-choice-catalog-external.mjs";
 
 // Check exact source/runtime parity plus decoded literal preservation.
 // Identifier allocation may differ with charset, so don't compare minified
@@ -13,6 +14,7 @@ const entries = [
   ["decision-trace", "decision-trace-v2"], ["release-qa", "release-qa"]
 ];
 const digest = (value) => createHash("sha256").update(value).digest("hex");
+const menuCatalogRevision = digest(readFileSync("menu-catalog.js")).slice(0, 12);
 function literals(code) {
   const ast = ts.createSourceFile("module.js", code, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   assert.equal(ast.parseDiagnostics.length, 0, "generated JavaScript must parse");
@@ -33,12 +35,14 @@ for (const [source, output] of entries) {
   const outfile = `smart-choice/${output}.js`;
   const options = {
     entryPoints: [`src/smart-choice/${source}.ts`],
+    plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+    ...(source === "page" ? { external: ["../order-checkout.js*"] } : {}),
     outfile, write: false, bundle: true, minify: true,
     format: "esm", platform: "browser", target: "es2020",
     legalComments: "none", logLevel: "silent"
   };
-  const ascii = buildSync({ ...options, charset: "ascii" }).outputFiles[0].text;
-  const utf8 = buildSync({ ...options, charset: "utf8" }).outputFiles[0].text;
+  const ascii = (await build({ ...options, charset: "ascii" })).outputFiles[0].text;
+  const utf8 = (await build({ ...options, charset: "utf8" })).outputFiles[0].text;
   const actual = readFileSync(outfile, "utf8");
   assert.equal(digest(actual), digest(utf8), `${outfile}: stale or altered UTF-8 runtime`);
   assert.equal(literals(actual), literals(ascii), `${outfile}: literal values changed`);

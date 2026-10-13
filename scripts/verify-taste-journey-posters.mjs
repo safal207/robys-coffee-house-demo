@@ -7,6 +7,7 @@ const FINAL = path.join(ROOT, "final");
 const APPROVED = path.join(ROOT, "approved");
 const APPROVED_ICED_POSTER = path.join(APPROVED, "iced-san-sebastian-hq.png");
 const APPROVED_ICED_MANIFEST_PATH = "src/pairings-data/approved/iced-san-sebastian-hq.png";
+const OPTIMIZED_ICED_POSTER = path.join(APPROVED, "iced-san-sebastian-hq.webp");
 const APPROVED_ICED_WIDTH = 1254;
 const APPROVED_ICED_HEIGHT = 1254;
 const EXPECTED_IDS = [
@@ -18,14 +19,14 @@ const EXPECTED_IDS = [
 ];
 const ACTIVE_IDS = ["cool-lime-macaron", "iced-san-sebastian"];
 const BASE64_FILES = EXPECTED_IDS.map((id) => `${id}.webp.b64.txt`);
-const FINAL_DIRECT_FILES = ["cool-lime-macaron-hq.webp"];
+const FINAL_DIRECT_FILES = ["cool-lime-macaron-hq.webp", "cool-lime-macaron-price-free.webp"];
 const EXPECTED_FINAL_FILES = [...BASE64_FILES, ...FINAL_DIRECT_FILES].sort();
 const DESCRIPTIVE_ALTS = [
   "Cool Lime ve Makaron eşleşmesi posteri",
   "Cool Lime and Macaron pairing poster",
   "Постер сочетания Cool Lime и макарона"
 ];
-const ACCESSIBLE_PRICES = ["Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺"];
+const ACCESSIBLE_PRICES = ["Fiyat: 220 ₺", "Price: 220 ₺", "Цена: 220 ₺"];
 const fail = (message) => { throw new Error(`TASTE-POSTER-001: ${message}`); };
 const revisionFor = (buffer) => createHash("sha256").update(buffer).digest("hex").slice(0, 12);
 const digestFor = (buffer) => createHash("sha256").update(buffer).digest("hex");
@@ -99,7 +100,7 @@ if (JSON.stringify(rootEntries) !== JSON.stringify(["approved", "final"])) fail(
 const finalFiles = readdirSync(FINAL).sort();
 if (JSON.stringify(finalFiles) !== JSON.stringify(EXPECTED_FINAL_FILES)) fail(`expected final assets ${EXPECTED_FINAL_FILES.join(", ")}; found ${finalFiles.join(", ")}`);
 const approvedFiles = readdirSync(APPROVED).sort();
-if (JSON.stringify(approvedFiles) !== JSON.stringify(["iced-san-sebastian-hq.png"])) fail(`expected only the approved Iced Latte poster; found ${approvedFiles.join(", ")}`);
+if (JSON.stringify(approvedFiles) !== JSON.stringify(["iced-san-sebastian-hq.png", "iced-san-sebastian-hq.webp"])) fail(`expected the approved Iced Latte original and optimized delivery image; found ${approvedFiles.join(", ")}`);
 
 for (const fileName of BASE64_FILES) {
   const filePath = path.join(FINAL, fileName);
@@ -115,6 +116,10 @@ for (const fileName of FINAL_DIRECT_FILES) {
 }
 
 const approvedImage = verifyApprovedPng(readFileSync(APPROVED_ICED_POSTER), APPROVED_ICED_POSTER);
+const optimizedBytes = readFileSync(OPTIMIZED_ICED_POSTER);
+const optimizedImage = verifyWebP(optimizedBytes, OPTIMIZED_ICED_POSTER, APPROVED_ICED_WIDTH);
+if (optimizedImage.width !== APPROVED_ICED_WIDTH || optimizedImage.height !== APPROVED_ICED_HEIGHT) fail("optimized Iced Latte poster must retain the original dimensions");
+if (optimizedBytes.length > 300_000) fail("optimized Iced Latte poster exceeds its 300 KB delivery budget");
 
 const source = readFileSync(path.join("src", "discover-rotation.ts"), "utf8");
 const runtimeBuffer = readFileSync("discover-rotation-v3.js");
@@ -131,10 +136,10 @@ const html = readFileSync("discover.html", "utf8");
 
 const expectedSources = {
   "latte-nutella": 'posterSource("latte-nutella")',
-  "iced-san-sebastian": 'source: "src/pairings-data/approved/iced-san-sebastian-hq.png"',
+  "iced-san-sebastian": 'source: "src/pairings-data/approved/iced-san-sebastian-hq.webp"',
   "filter-lotus": 'posterSource("filter-lotus")',
   "relax-lotus": 'posterSource("relax-lotus")',
-  "cool-lime-macaron": 'source: "src/pairings-data/final/cool-lime-macaron-hq.webp"'
+  "cool-lime-macaron": 'source: "src/pairings-data/final/cool-lime-macaron-price-free.webp"'
 };
 
 for (const [label, text] of [["source", source], ["runtime v3", runtime]]) {
@@ -164,8 +169,8 @@ if (!compatibilityGuard.includes("Compatibility placeholder") || compatibilityGu
 
 for (const asset of [
   "discover-journeys-v2.js",
-  "src/pairings-data/final/cool-lime-macaron-hq.webp",
-  "src/pairings-data/approved/iced-san-sebastian-hq.png"
+  "src/pairings-data/final/cool-lime-macaron-price-free.webp",
+  "src/pairings-data/approved/iced-san-sebastian-hq.webp"
 ]) {
   if (!serviceWorker.includes(`"./${asset}"`)) fail(`offline cache does not include required Discover asset ${asset}`);
 }
@@ -197,4 +202,4 @@ if (!css.includes("object-fit: contain")) fail("posters must render without crop
 if (/\bfilter\s*:/.test(css)) fail("poster CSS must not recolor approved artwork");
 if (!html.includes("<noscript>") || !html.includes('class="pairing-noscript"')) fail("Discover page must keep the no-script fallback");
 
-console.log(`✅ TASTE-POSTER-001 verified the approved ${approvedImage.width}x${approvedImage.height} Iced Latte + San Sebastian PNG (${approvedImage.bytes} bytes, SHA-256 ${approvedImage.digest}), source/runtime mapping, offline delivery and synchronized cache revisions.`);
+console.log(`✅ TASTE-POSTER-001 verified the unchanged approved ${approvedImage.width}x${approvedImage.height} Iced Latte + San Sebastian PNG (${approvedImage.bytes} bytes, SHA-256 ${approvedImage.digest}), optimized ${optimizedBytes.length}-byte WebP delivery, source/runtime mapping, offline delivery and synchronized cache revisions.`);

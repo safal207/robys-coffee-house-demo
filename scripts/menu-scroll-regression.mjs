@@ -14,6 +14,7 @@ const viewports = [
 ];
 const scrollSequence = [0, 0.94, 0.12, 0.78, 0.34, 1, 0.48, 0.06, 0.72, 0.55];
 const maxStabilityDiffRatio = 0.002;
+const maxPaintReadinessCaptures = 6;
 const expectedPanelCount = menuCategories.length;
 
 rmSync(resultsDir, { recursive: true, force: true });
@@ -134,6 +135,26 @@ async function settleViewportImages(page) {
   });
 }
 
+async function capturePaintedViewport(page, screenshotPath, viewportId) {
+  // The CI before/after artifact showed only Pineapple Berry's beige placeholder
+  // changing into its photo, despite complete + decode + two frames. Decoding
+  // can finish before the async image raster appears in a screenshot. Require
+  // two identical painted frames at EACH endpoint, with at most six captures.
+  // Never compare readiness against the other endpoint or alter image/CSS hints.
+  let previous;
+  for (let capture = 1; capture <= maxPaintReadinessCaptures; capture += 1) {
+    await settleViewportImages(page);
+    const buffer = await page.screenshot({ path: screenshotPath, animations: "disabled" });
+    const painted = PNG.sync.read(buffer);
+    if (previous && previous.width === painted.width && previous.height === painted.height
+      && previous.data.equals(painted.data)) {
+      return { buffer, readinessCaptures: capture };
+    }
+    previous = painted;
+  }
+  assert(false, viewportId, `decoded viewport paint did not stabilize within ${maxPaintReadinessCaptures} captures: ${path.basename(screenshotPath)}`);
+}
+
 function compareScreenshots(beforeBuffer, afterBuffer, diffPath) {
   const before = PNG.sync.read(beforeBuffer);
   const after = PNG.sync.read(afterBuffer);
@@ -202,11 +223,10 @@ try {
     });
 
     await scrollToRatio(page, 0.55);
-    await settleViewportImages(page);
     const beforePath = path.join(resultsDir, `${viewport.id}-before.png`);
     const afterPath = path.join(resultsDir, `${viewport.id}-after.png`);
     const diffPath = path.join(resultsDir, `${viewport.id}-diff.png`);
-    const beforeBuffer = await page.screenshot({ path: beforePath, animations: "disabled" });
+    const before = await capturePaintedViewport(page, beforePath, viewport.id);
 
     for (const ratio of scrollSequence) {
       const scroll = await scrollToRatio(page, ratio);
@@ -218,12 +238,12 @@ try {
     }
 
     await scrollToRatio(page, 0.55);
-    await settleViewportImages(page);
-    const afterBuffer = await page.screenshot({ path: afterPath, animations: "disabled" });
-    const comparison = compareScreenshots(beforeBuffer, afterBuffer, diffPath);
+    const after = await capturePaintedViewport(page, afterPath, viewport.id);
+    const comparison = compareScreenshots(before.buffer, after.buffer, diffPath);
     assert(comparison.passed, viewport.id, `same-position screenshot changed by ${(comparison.diffPixelRatio * 100).toFixed(4)}% after rapid scrolling`);
 
-    results.push({ viewport: viewport.id, width: viewport.width, height: viewport.height, scrollHeight: initial.scrollHeight, panelCount: initial.panels.length, ...comparison });
+    results.push({ viewport: viewport.id, width: viewport.width, height: viewport.height, scrollHeight: initial.scrollHeight, panelCount: initial.panels.length,
+      paintReadiness: { beforeCaptures: before.readinessCaptures, afterCaptures: after.readinessCaptures, maxCapturesPerEndpoint: maxPaintReadinessCaptures }, ...comparison });
     console.log(`✅ SCROLL-001 / ${viewport.id}: no overflow, stable height, ${(comparison.diffPixelRatio * 100).toFixed(4)}% repaint diff`);
     await context.close();
   }

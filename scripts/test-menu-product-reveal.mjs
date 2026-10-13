@@ -15,6 +15,12 @@ assert.ok(sanSebastian, "San Sebastian must opt into product reveal");
 assert.equal(sanSebastian.id, "desserts:san-sebastian-cheesecake");
 assert.equal(sanSebastian.revealImage, "src/products/san-sebastian.webp");
 assert.ok(existsSync(resolve(root, sanSebastian.revealImage)), "Reveal image must be a real repository asset");
+const revealBytes = readFileSync(resolve(root, sanSebastian.revealImage));
+assert.equal(revealBytes.toString("ascii", 0, 4), "RIFF", "Reveal photo must be an actual WebP image");
+assert.equal(revealBytes.toString("ascii", 8, 12), "WEBP", "Reveal photo must retain its WebP container");
+assert.equal(revealBytes.readUInt32LE(4) + 8, revealBytes.length, "Reveal photo must not be a truncated payload that exists but fails to decode");
+assert.deepEqual(revealBytes, readFileSync(resolve(root, "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp")), "The repaired fallback must reuse the approved food photo without an old embedded price");
+assert.equal(sanSebastian.hasAlternateView, false, "Identical catalog/fallback photos must not advertise an alternate angle");
 assert.ok(existsSync(resolve(root, "menu-product-reveal.css")), "Reveal styling must be served as a same-origin external stylesheet");
 
 const pairing = pairingOffer();

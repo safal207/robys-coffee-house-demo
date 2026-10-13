@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 // This contract validates both authored source and the exact generated static assets shipped by hosting.
 function assert(condition, message) {
@@ -19,6 +20,8 @@ const css = readFileSync("smart-choice/style.css", "utf8");
 const source = readFileSync("src/smart-choice/page.ts", "utf8");
 const bundle = readFileSync("smart-choice/app-v2.js", "utf8");
 const homepageEnhancements = readFileSync("src/social-offer.ts", "utf8");
+const checkoutLoader = readFileSync("src/smart-choice/checkout-link.ts", "utf8");
+const checkoutRevision = createHash("sha256").update(readFileSync("order-checkout.js")).digest("hex").slice(0, 12);
 
 assert(/<main\b[^>]*id="smart-choice-main"/.test(html), "Smart Choice main landmark is missing");
 assert(/id="smart-choice-app"/.test(html), "Smart Choice app root is missing");
@@ -59,9 +62,14 @@ for (const staleBreakfastPromise of [
 assert(css.includes(":focus-visible"), "Visible keyboard focus styling is missing");
 assert(css.includes("prefers-reduced-motion"), "Reduced-motion support is missing");
 assert(css.includes("min-width: 320px"), "Narrow-mobile floor is missing");
-assert(!/width:\s*\d{4,}px/.test(css), "Suspicious fixed desktop width may cause horizontal scrolling");
+// Check actual width declarations; a max-width breakpoint is not a fixed element width.
+const fixedDesktopWidth = /(?:^|[;{])\s*(?:min-)?width\s*:\s*\d{4,}px\s*(?:[;}]|$)/m;
+assert(!fixedDesktopWidth.test(css), "Suspicious fixed desktop width may cause horizontal scrolling");
+assert(fixedDesktopWidth.test(".test { width: 1200px; }") && !fixedDesktopWidth.test("@media (max-width: 1050px) {}"), "Fixed-width check must distinguish declarations from media queries");
 
 assert(bundle.length > 5_000, "Generated Smart Choice bundle is unexpectedly small");
+assert(checkoutLoader.includes(`../order-checkout.js?v=${checkoutRevision}`), "Shared checkout loader must reference the current generated revision");
+assert(bundle.includes(`../order-checkout.js?v=${checkoutRevision}`), "Shipped Smart Choice bundle must load the current shared checkout revision");
 assert(!bundle.includes("sourceMappingURL"), "Production bundle must not expose a source map URL");
 assert(homepageEnhancements.includes('link.href = "smart-choice/"'), "Homepage Smart Choice CTA is missing");
 assert(homepageEnhancements.includes("data.smartChoiceEntry") || homepageEnhancements.includes("dataset.smartChoiceEntry"), "Homepage CTA needs an idempotency marker");

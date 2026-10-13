@@ -105,7 +105,7 @@ export const menuCategories = [
 {
   id: "cool-lime-macaron-pairing",
   journeyId: "cool-lime-macaron",
-  pricingMode: "approved-offer",
+  pricingMode: "menu-total",
   name: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
   description: {
     tr: "Ferah lime ve yumuşak fıstıklı makaron.",
@@ -118,7 +118,7 @@ export const menuCategories = [
     en: "Iced Cool Lime with a pistachio macaron",
     ru: "Cool Lime со льдом и фисташковый макарон"
   },
-  price: 290
+  price: 220
 },
 
 {
@@ -160,7 +160,7 @@ export const menuCategories = [
       { name: { tr: "Vanilla Latte", en: "Vanilla Latte", ru: "Ванильный латте" }, price: 200 },
       { name: { tr: "Fındıklı Latte", en: "Hazelnut Latte", ru: "Ореховый латте" }, price: 200 },
       { name: { tr: "Caffè Mocca", en: "Caffè Mocha", ru: "Кафе мокка" }, price: 200 },
-      { name: { tr: "White Chocolate Mocca", en: "White Chocolate Mocha", ru: "Мокка с белым шоколадом" }, price: 200 }
+      { id: "white-chocolate-mocha", name: { tr: "Sıcak White Chocolate Mocca", en: "Hot White Chocolate Mocha", ru: "Горячая мокка с белым шоколадом" }, image: "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp", price: 200 }
     ]
   },
   {
@@ -187,6 +187,13 @@ export const menuCategories = [
       { name: { tr: "Buzlu Caffè Latte", en: "Iced Caffè Latte", ru: "Айс латте" }, price: 180 },
       {
         name: { tr: "Aromalı Buzlu Caffè Latte", en: "Flavoured Iced Caffè Latte", ru: "Айс латте со вкусом" },
+        variants: [
+          { id: "caramel", name: { tr: "Karamel", en: "Caramel", ru: "Карамель" } },
+          { id: "vanilla", name: { tr: "Vanilya", en: "Vanilla", ru: "Ваниль" } },
+          { id: "chocolate-cookie", name: { tr: "Chocolate Cookie", en: "Chocolate Cookie", ru: "Шоколадное печенье" } },
+          { id: "hazelnut", name: { tr: "Fındık", en: "Hazelnut", ru: "Фундук" } },
+          { id: "cinnamon", name: { tr: "Tarçın", en: "Cinnamon", ru: "Корица" } }
+        ],
         description: {
           tr: "Karamel · Vanilya · Chocolate Cookie · Fındık · Tarçın",
           en: "Caramel · Vanilla · Chocolate Cookie · Hazelnut · Cinnamon",
@@ -195,9 +202,18 @@ export const menuCategories = [
         price: 200
       },
       { name: { tr: "Buzlu Mocca", en: "Iced Mocha", ru: "Айс мокка" }, price: 200 },
-      { name: { tr: "White Chocolate Mocca", en: "White Chocolate Mocha", ru: "Мокка с белым шоколадом" }, price: 200 },
+      { id: "white-chocolate-mocha", name: { tr: "Buzlu White Chocolate Mocca", en: "Iced White Chocolate Mocha", ru: "Холодная мокка с белым шоколадом" }, image: "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp", price: 200 },
       {
         name: { tr: "Caffè Latte Frappe", en: "Caffè Latte Frappe", ru: "Кафе латте фраппе" },
+        variants: [
+          { id: "caramel", name: { tr: "Karamel", en: "Caramel", ru: "Карамель" } },
+          { id: "vanilla", name: { tr: "Vanilya", en: "Vanilla", ru: "Ваниль" } },
+          { id: "chocolate-cookie", name: { tr: "Chocolate Cookie", en: "Chocolate Cookie", ru: "Шоколадное печенье" } },
+          { id: "cinnamon", name: { tr: "Tarçın", en: "Cinnamon", ru: "Корица" } },
+          { id: "hazelnut", name: { tr: "Fındık", en: "Hazelnut", ru: "Фундук" } },
+          { id: "chocolate", name: { tr: "Çikolata", en: "Chocolate", ru: "Шоколад" } },
+          { id: "white-chocolate", name: { tr: "White Chocolate", en: "White Chocolate", ru: "Белый шоколад" } }
+        ],
         description: {
           tr: "Karamel · Vanilya · Chocolate Cookie · Tarçın · Fındık · Çikolata · White Chocolate",
           en: "Caramel · Vanilla · Chocolate Cookie · Cinnamon · Hazelnut · Chocolate · White Chocolate",
@@ -207,6 +223,12 @@ export const menuCategories = [
       },
       {
         name: { tr: "Milkshake", en: "Milkshake", ru: "Милкшейк" },
+        variants: [
+          { id: "vanilla", name: { tr: "Vanilya", en: "Vanilla", ru: "Ваниль" } },
+          { id: "strawberry", name: { tr: "Çilek", en: "Strawberry", ru: "Клубника" } },
+          { id: "mango", name: { tr: "Mango", en: "Mango", ru: "Манго" } },
+          { id: "chocolate", name: { tr: "Çikolata", en: "Chocolate", ru: "Шоколад" } }
+        ],
         description: {
           tr: "Vanilya · Çilek · Mango · Çikolata",
           en: "Vanilla · Strawberry · Mango · Chocolate",

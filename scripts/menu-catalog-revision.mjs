@@ -1,6 +1,39 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import ts from "typescript";
+
+export const SMART_CHOICE_CATALOG_CONSUMERS = [
+  "smart-choice/app-v2.js", "smart-choice/cart-v2.js", "smart-choice/experiments-v2.js",
+  "smart-choice/analytics-v2.js", "smart-choice/decision-trace-v2.js"
+];
+
+export function readSmartChoiceCatalogRevisionInputs() {
+  return {
+    catalogBytes: readFileSync("menu-catalog.js"),
+    runtimes: Object.fromEntries(SMART_CHOICE_CATALOG_CONSUMERS.map(file => [file, readFileSync(file, "utf8")])),
+    serviceWorker: readFileSync("sw-core-v64.js", "utf8")
+  };
+}
+
+export function verifySmartChoiceCatalogRevision({ catalogBytes, runtimes, serviceWorker }) {
+  const revision = menuCatalogRevision(catalogBytes);
+  const expectedUrl = `../menu-catalog.js?v=${revision}`;
+  for (const file of SMART_CHOICE_CATALOG_CONSUMERS) {
+    const parsed = ts.createSourceFile(file, runtimes[file] ?? "", ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    const imports = parsed.statements.filter(ts.isImportDeclaration)
+      .filter(node => ts.isStringLiteral(node.moduleSpecifier))
+      .map(node => node.moduleSpecifier.text)
+      .filter(specifier => /(?:^|\/)menu-catalog\.js(?:\?|$)/.test(specifier));
+    // Separate named imports may remain after bundling; the browser fetches
+    // and evaluates one module for their identical revisioned URL.
+    assert.deepEqual([...new Set(imports)], [expectedUrl], `[CATALOG-REV-002] ${file} must import the shared catalog's exact content revision ${revision}`);
+  }
+  const precache = serviceWorker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1] ?? "";
+  const urls = Array.from(precache.matchAll(/["'](\.\/menu-catalog\.js(?:\?[^"']*)?)["']/g), match => match[1]);
+  assert.deepEqual(urls, [`./menu-catalog.js?v=${revision}`], "[CATALOG-REV-002] Shared catalog must be precached at its exact content revision");
+  return { revision, expectedUrl };
+}
 
 export function menuCatalogRevision(catalogBytes) {
   return createHash("sha256").update(catalogBytes).digest("hex").slice(0, 12);

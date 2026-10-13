@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
+import { readSmartChoiceCatalogRevisionInputs, verifySmartChoiceCatalogRevision } from "./menu-catalog-revision.mjs";
 
 const root = process.cwd();
 const read = (file) => readFileSync(path.join(root, file), "utf8");
@@ -140,9 +141,13 @@ const cssFiles = [
   "smart-choice/release-qa.css",
   "smart-choice/brand-v4.css"
 ];
-const totalJs = jsFiles.reduce((sum, file) => sum + size(file), 0);
+// Count the shared dependency once: removing duplicate copies must reduce the
+// real delivered payload, not merely move bytes outside the budget inventory.
+const sharedJsFiles = ["menu-catalog.js"];
+verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
+const totalJs = [...jsFiles, ...sharedJsFiles].reduce((sum, file) => sum + size(file), 0);
 const totalCss = cssFiles.reduce((sum, file) => sum + size(file), 0);
-for (const file of jsFiles) {
+for (const file of [...jsFiles, ...sharedJsFiles]) {
   assert.ok(size(file) <= 90_000, `${file} exceeds the 90 KB per-bundle pilot budget`);
 }
 assert.ok(totalJs <= 300_000, `Smart Choice JS total ${totalJs} exceeds the 300 KB pilot budget`);

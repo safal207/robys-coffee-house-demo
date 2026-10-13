@@ -172,20 +172,29 @@ while (queue.length) {
 // src/** or make every build output a root: detached source/output pairs must fail.
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
-for (const [runtime, input, importer] of [
+for (const [runtime, input, importer, importBase = runtime] of [
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
   ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
-  ["menu-app.js", "src/menu-pairing.js", "src/menu-app.js"],
+  ["menu-order-ui.js", "src/menu-order-ui.js"],
+  ["menu-order-ui.js", "src/order-draft.js", "src/menu-order-ui.js"],
+  ["menu-order-ui.js", "src/menu-pairing.js", "src/menu-order-ui.js"],
   ["menu-pairing.js", "src/menu-pairing-view.js"],
+  ["order-checkout.js", "src/order-checkout.js"],
+  ["order-checkout.js", "src/order-ticket.js", "src/order-checkout.js", "src/order-checkout.js"],
+  ["order-checkout.js", "src/order-ticket-storage.js", "src/order-checkout.js", "src/order-checkout.js"],
+  ["cashier.js", "src/cashier.js"],
+  ["cashier.js", "src/order-ticket.js", "src/cashier.js", "src/cashier.js"],
   ["menu-stability-v2.css", "menu-stability.css"],
   ["final-qa-v2.css", "final-qa.css"],
   ["community-reel-v2.css", "community-reel.css"]
 ]) {
-  // Bundled helpers must still be referenced by the readable entry point.
+  // Bundled helpers must still be imported by their readable entry point.
+  // Menu stdin deliberately uses emitted-root paths; esbuild entryPoints for
+  // checkout/cashier resolve local bundled dependencies beside their source.
   const referenced = !importer || (fileSet.has(importer) &&
-    literalReferences(readFileSync(join(ROOT, importer), "utf8"))
-      .some((reference) => candidatePaths(runtime, reference).includes(input)));
+    Array.from(readFileSync(join(ROOT, importer), "utf8").matchAll(/\b(?:import|export)\s+(?:[^'";]+?\s+from\s+)?["']([^"']+)["']/g), match => match[1])
+      .some((reference) => candidatePaths(importBase, reference).includes(input)));
   if (reachable.has(runtime) && fileSet.has(input) && referenced) {
     reachable.add(input);
     edges.push({ source: runtime, target: input, kind: "build-source", reference: input });

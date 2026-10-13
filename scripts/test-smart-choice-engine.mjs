@@ -130,6 +130,16 @@ assert(baseCombo, "Expected the confirmed Iced Latte + San Sebastian combo");
     coolLimeTrace?.rejectedBy.some((entry) => entry.code === "hard.single-item-party-size-mismatch"),
     "Multi-person requests must hard-reject unscaled single-item candidates"
   );
+  assert(
+    familyRefreshChoice.trace.candidates.find((candidate) => candidate.candidateId === "combo-cool-lime-macaron")
+      ?.rejectedBy.some((entry) => entry.code === "hard.party-size-mismatch"),
+    "One Cool Lime and one macaron must not become a family serving when the corrected pair becomes orderable"
+  );
+  const singleRefreshChoice = recommendSmartChoice({
+    intent: "refresh", temperature: "cold", taste: "sweet", partySize: "one", budget: { maxMinor: 25_000 }, locale: "ru"
+  });
+  const correctedPair = singleRefreshChoice.trace.candidates.find((candidate) => candidate.candidateId === "combo-cool-lime-macaron");
+  assert(correctedPair?.eligible && correctedPair.priceMinor === 22_000, "The corrected 220 TRY pair must remain eligible for one guest");
 }
 
 function combo(id, priceMinor, componentItemIds, tags = ["cold", "sweet"], intents = ["dessert", "snack"]) {

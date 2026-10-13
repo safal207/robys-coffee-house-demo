@@ -78,7 +78,7 @@ try {
 
   const expectedPreview = previewBefore === "iced-san-sebastian"
     ? { text: /Айс-латте \+ чизкейк Сан-Себастьян/i, price: "370 ₺" }
-    : { text: /Cool Lime \+ макарон/i, price: "290 ₺" };
+    : { text: /Cool Lime \+ макарон/i, price: "220 ₺" };
   assert.match(await preview.locator(".discover-deck-preview-name").innerText(), expectedPreview.text);
   assert.equal((await previewPrice.innerText()).trim(), expectedPreview.price);
   assert.equal(await preview.evaluate((node) => getComputedStyle(node).position), "sticky");
@@ -141,15 +141,11 @@ try {
   assert.match(await page.locator("#menu-product-price").innerText(), /190\s*₺/);
 
   const reveal = page.locator(".menu-product-reveal-control");
-  await reveal.waitFor({ state: "visible", timeout: 5000 });
-  await reveal.evaluate((node) => {
-    node.value = "35";
-    node.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  assert.match(await reveal.getAttribute("aria-valuetext"), /65%/);
-
   const bridge = page.locator(".menu-product-pairing-bridge");
   await bridge.waitFor({ state: "visible" });
+  assert.equal(await reveal.count(), 1, "The product reveal runtime must have mounted");
+  assert.equal(await reveal.isHidden(), true, "Identical catalog and fallback photos must not promise another angle");
+  assert.equal(await page.locator(".menu-product-reveal-image").isHidden(), true, "No duplicate photo overlay should be presented");
   assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
   assert.match(await bridge.innerText(), /370\s*₺/);
   await page.locator(".menu-product-pairing-action").click();
@@ -164,19 +160,23 @@ try {
 
   await page.locator("#menu-add-to-cart").click();
   assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Journey must end in one existing pairing cart line");
-  await page.locator("#menu-cart-trigger").click();
   await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
+  await page.waitForFunction(() => document.activeElement === document.querySelector("#menu-cart-title"));
+  assert.equal(await page.locator("#menu-cart-added-summary").isVisible(), true, "Adding the pairing must show persistent confirmation");
+  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), true, "The next checkout action must be available");
+  assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding a pairing must not automatically create its QR");
   assert.equal(
     Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
     370,
-    "Discover → reveal → pairing must reuse the existing 370 ₺ cart product"
+    "Discover → product → pairing must reuse the existing 370 ₺ cart product"
   );
 
   await page.screenshot({ path: `${out}/discover-to-cart-390.png` });
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
 
   await context.close();
-  console.log("discover deck → product → reveal → pairing → cart browser smoke: PASS");
+  console.log("discover deck → product → pairing → order confirmation browser smoke: PASS");
 } finally {
   await browser?.close();
   server.kill();

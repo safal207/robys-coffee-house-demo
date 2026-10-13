@@ -50,6 +50,17 @@ check("lazy pairing output links its readable view only when reached", {
 check("detached lazy pairing output cannot retain its readable view", {
   "index.html": "<main>Menu</main>", "menu-pairing.js": "export {};", "src/menu-pairing-view.js": "export {};"
 }, ["menu-pairing.js", "src/menu-pairing-view.js"]);
+check("lazy order UI reaches its source and actual bundled helpers", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": 'import("./menu-order-ui.js?v=fixture");', "src/menu-app.js": 'import("./menu-order-ui.js?v=fixture");',
+  "menu-order-ui.js": 'export {};',
+  "src/menu-order-ui.js": 'import "./src/order-draft.js"; import "./src/menu-pairing.js";',
+  "src/order-draft.js": 'export {};', "src/menu-pairing.js": 'export {};'
+}, [], [["menu-app.js", "src/menu-app.js"], ["menu-order-ui.js", "src/menu-order-ui.js"], ["menu-order-ui.js", "src/order-draft.js"], ["menu-order-ui.js", "src/menu-pairing.js"]]);
+check("detached order UI cannot retain its source or helpers", {
+  "index.html": '<main>Menu</main>', "menu-order-ui.js": 'export {};',
+  "src/menu-order-ui.js": 'import "./src/order-draft.js";', "src/order-draft.js": 'export {};'
+}, ["menu-order-ui.js", "src/menu-order-ui.js", "src/order-draft.js"]);
 check("unreferenced pairing domain remains an orphan", {
   "index.html": '<script type="module" src="menu-app.js"></script>',
   "menu-app.js": "export {};", "src/menu-app.js": "export {};", "src/menu-pairing.js": "export {};"
@@ -103,4 +114,30 @@ check("missing menu output cannot retain its bundled helper", {
   "src/menu-app.js": 'import "./src/order-draft.js";',
   "src/order-draft.js": "export {};"
 }, ["src/menu-app.js", "src/order-draft.js"]);
+
+for (const [name, helpers] of [
+  ["order-checkout", ["order-ticket", "order-ticket-storage"]],
+  ["cashier", ["order-ticket"]]
+]) {
+  const runtime = `${name}.js`;
+  const input = `src/${name}.js`;
+  const imported = helpers.map(helper => `import "./${helper}.js";`).join("\n");
+  const files = { [runtime]: "export {};", [input]: imported,
+    ...Object.fromEntries(helpers.map(helper => [`src/${helper}.js`, "export {}; "])) };
+  const buildEdges = [[runtime, input], ...helpers.map(helper => [runtime, `src/${helper}.js`])];
+  check(`${name}: reached bundle retains only actual source-relative imported helpers`, {
+    "index.html": `<script type="module" src="${runtime}"></script>`, ...files
+  }, [], buildEdges);
+  check(`${name}: detached bundle and imported helpers remain orphans`, {
+    "index.html": "<main>Menu</main>", ...files
+  }, Object.keys(files));
+  check(`${name}: absent bundle cannot retain source or helpers`, {
+    "index.html": `<script type="module" src="${runtime}"></script>`,
+    ...Object.fromEntries(Object.entries(files).filter(([path]) => path !== runtime))
+  }, Object.keys(files).filter(path => path !== runtime));
+  check(`${name}: mentioning helpers without importing them cannot hide orphans`, {
+    "index.html": `<script type="module" src="${runtime}"></script>`, ...files,
+    [input]: helpers.map(helper => `const unused${helper.replaceAll("-", "")} = "./${helper}.js";`).join("\n")
+  }, helpers.map(helper => `src/${helper}.js`), [[runtime, input]]);
+}
 console.log(`Dependency build-edge regression: ${checks}/${checks} PASS`);

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-custom-pair-9e601fab5754-shared-order-20260922-web-only-20260923-share-v4-58001b69ae50-58d387ca0c01-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-a7df01fbb25a-custom-pair-d09f99a1021f-shared-order-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -65,6 +65,14 @@ const MENU_IMAGE_ASSETS = [
 const CORE_ASSETS = [
   "./",
   "./index.html",
+  "./cashier.html",
+  "./cashier.js?v=ee5541cb1c07",
+  "./order-checkout.js?v=6aa30239d031",
+  "./order-checkout.css?v=52d404809a87",
+  "./src/products/quick-choice-v1/coffee.webp",
+  "./src/products/quick-choice-v1/tea.webp",
+  "./src/products/quick-choice-v1/cold.webp",
+  "./menu-order-ui.js?v=54ae56c1bd70",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -77,7 +85,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./menu-premium.css?v=f485dcfd57c4",
+  "./menu-premium.css?v=435e50173a1f",
   "./pairing-posters.css?v=d1e9096d1ee4",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
@@ -99,13 +107,13 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=906dc010d61c",
-  "./menu-pairing.js?v=6a8c02cfd44b",
-  "./menu-product-reveal.js?v=23e6c26f61a3",
-  "./menu-product-reveal-runtime.js?v=80655ea173e1",
+  "./menu-app.js?v=e9efa592727d",
+  "./menu-pairing.js?v=413cfaa7a0d5",
+  "./menu-product-reveal.js?v=497fa714ac94",
+  "./menu-product-reveal-runtime.js?v=496a14490e84",
   "./pairing-posters.js?v=024743e64919",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
-  "./menu-catalog.js?v=23d5e08d85d2",
+  "./menu-catalog.js?v=bc69a9e52fa4",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260923-web-only-v4",
   "./smart-choice/index.html",
@@ -126,29 +134,29 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=93af186a5b11",
-  "./smart-choice/cart.css?v=4fcc327520f5",
+  "./smart-choice/style.css?v=27e35fbd4218",
+  "./smart-choice/cart.css?v=42034af591c0",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=93335e1563d8",
-  "./smart-choice/cart-v2.js?v=d46a2dd1a933",
-  "./smart-choice/experiments-v2.js?v=d2cf87558e55",
-  "./smart-choice/analytics-v2.js?v=0cd995e8d9b4",
-  "./smart-choice/decision-trace-v2.js?v=4f0a4ac0f332",
+  "./smart-choice/app-v2.js?v=aed4068915da",
+  "./smart-choice/cart-v2.js?v=a21523eadf8f",
+  "./smart-choice/experiments-v2.js?v=5de1d0eb1bea",
+  "./smart-choice/analytics-v2.js?v=c267da7f3a89",
+  "./smart-choice/decision-trace-v2.js?v=66ee1d986996",
   "./discover.js",
-  "./discover-v2.js?v=58001b69ae50",
-  "./discover-deck.js?v=a54b275c3697",
+  "./discover-v2.js?v=c871d3f4f240",
+  "./discover-deck.js?v=7228be958854",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
   "./discover-rotation.js",
   "./discover-rotation-v2.js",
-  "./discover-rotation-v3.js?v=58d387ca0c01",
+  "./discover-rotation-v3.js?v=b7b8c4df73db",
   "./src/brand/robys-organic-ring.svg?v=20260720-1",
-  "./src/pairings-data/final/cool-lime-macaron-hq.webp",
-  "./src/pairings-data/approved/iced-san-sebastian-hq.png",
+  "./src/pairings-data/final/cool-lime-macaron-price-free.webp",
+  "./src/pairings-data/approved/iced-san-sebastian-hq.webp",
   ...MENU_IMAGE_ASSETS,
   "./src/products/sets-v1/cool-lime-macaron.webp",
   "./src/products/sets-v1/iced-san-sebastian.webp",
@@ -197,6 +205,10 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-order-ui.js") ||
+    url.pathname.endsWith("/order-checkout.js") ||
+    url.pathname.endsWith("/order-checkout.css") ||
+    url.pathname.endsWith("/cashier.js") ||
     url.pathname.endsWith("/menu-pairing.js") ||
     url.pathname.endsWith("/menu-product-reveal.css") ||
     url.pathname.endsWith("/menu-product-reveal.js") ||
@@ -253,6 +265,7 @@ async function navigationResponse(request) {
   const url = new URL(request.url);
   const scopePath = new URL(self.registration.scope).pathname;
   const isMenu = url.pathname.endsWith("/menu.html");
+  const isCashier = url.pathname.endsWith("/cashier.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
     url.pathname === `${scopePath}smart-choice/index.html`;
@@ -263,7 +276,7 @@ async function navigationResponse(request) {
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isDiscover || isSmartChoice || isExperience || isHome) {
+      if (isMenu || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -274,6 +287,7 @@ async function navigationResponse(request) {
   }
 
   if (isMenu) return cachedPage("menu.html");
+  if (isCashier) return cachedPage("cashier.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isSmartChoice) return cachedPage("smart-choice/index.html");
   if (isExperience) return cachedPage("experience/index.html");

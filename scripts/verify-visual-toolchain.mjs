@@ -15,6 +15,68 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const readJson = file => JSON.parse(readFileSync(file, 'utf8'));
 const isExactVersion = value => typeof value === 'string' && /^\d+\.\d+\.\d+$/.test(value);
 
+function resolveLockedDependency(packages, from, name) {
+  // npm v3 package keys are POSIX paths, including on Windows. Match Node's
+  // nearest node_modules lookup rather than assuming every dependency hoists.
+  let directory = from;
+  while (true) {
+    if (path.posix.basename(directory) !== 'node_modules') {
+      const candidate = `${directory ? `${directory}/` : ''}node_modules/${name}`;
+      if (packages[candidate]) return candidate;
+    }
+    if (!directory) return null;
+    const parent = path.posix.dirname(directory);
+    directory = parent === '.' ? '' : parent;
+  }
+}
+
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') return Object.fromEntries(
+    Object.keys(value).sort().map(key => [key, canonical(value[key])])
+  );
+  return value;
+}
+
+export function visualToolchainFingerprint(lock) {
+  assert.equal(lock.lockfileVersion, 3, 'A version-3 npm lockfile is required');
+  const packages = lock.packages ?? {};
+  const roots = {};
+  const closure = {};
+
+  const visit = packagePath => {
+    if (Object.hasOwn(closure, packagePath)) return;
+    const locked = packages[packagePath];
+    assert(locked && typeof locked.version === 'string', `${packagePath}: missing locked package`);
+    assert(typeof locked.integrity === 'string' && locked.integrity.startsWith('sha512-'),
+      `${packagePath}: missing registry integrity`);
+    // These flags describe who consumes a package, not its bytes or resolution.
+    // Adding a non-visual consumer must not turn the same tool into a migration.
+    const { dev, devOptional, optional, ...identity } = locked;
+    const edges = {};
+    closure[packagePath] = { package: identity, edges };
+    const dependencies = { ...locked.peerDependencies, ...locked.dependencies, ...locked.optionalDependencies };
+    for (const name of Object.keys(dependencies).sort()) {
+      const target = resolveLockedDependency(packages, packagePath, name);
+      const optionalDependency = Object.hasOwn(locked.optionalDependencies ?? {}, name) ||
+        (!Object.hasOwn(locked.dependencies ?? {}, name) && locked.peerDependenciesMeta?.[name]?.optional === true);
+      assert(target || optionalDependency, `${packagePath}: missing required dependency ${name}`);
+      edges[name] = target;
+      if (target) visit(target);
+    }
+  };
+
+  for (const name of toolNames) {
+    const wanted = packages['']?.devDependencies?.[name];
+    assert(isExactVersion(wanted), `${name}: missing exact root lock pin`);
+    const packagePath = resolveLockedDependency(packages, '', name);
+    assert(packagePath, `${name}: missing required visual tool`);
+    roots[name] = { wanted, packagePath };
+    visit(packagePath);
+  }
+  return sha256(JSON.stringify(canonical({ roots, closure })));
+}
+
 export function verifyVersions(manifest, lock, installed) {
   assert.equal(lock.lockfileVersion, 3, 'A version-3 npm lockfile is required');
   const versions = {};
@@ -48,7 +110,7 @@ export function verifyVersions(manifest, lock, installed) {
     'Playwright core declaration drift'
   );
   assert.equal(
-    lock.packages?.['node_modules/playwright-core']?.version,
+    lock.packages?.[resolveLockedDependency(lock.packages ?? {}, 'node_modules/playwright', 'playwright-core')]?.version,
     versions.playwright,
     'Playwright core lock drift'
   );
@@ -131,21 +193,27 @@ async function main() {
     report.sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     report.lockSha256 = sha256(readFileSync('package-lock.json'));
     report.baselineLockSha256 = sha256(readFileSync(path.join(baseline, 'package-lock.json')));
-    report.toolchainChanged = report.lockSha256 !== report.baselineLockSha256;
+    const lock = readJson('package-lock.json');
+    report.toolchainSha256 = visualToolchainFingerprint(lock);
+    report.baselineToolchainSha256 = visualToolchainFingerprint(readJson(path.join(baseline, 'package-lock.json')));
+    report.toolchainChanged = report.toolchainSha256 !== report.baselineToolchainSha256;
 
     const localRequire = createRequire(path.join(root, 'package.json'));
     const installed = {};
+    const packageFiles = {};
     report.packageMetadataSha256 = {};
 
     for (const name of [...toolNames, 'playwright-core']) {
-      const file = realpathSync(localRequire.resolve(`${name}/package.json`));
+      const packageRequire = name === 'playwright-core' ? createRequire(packageFiles.playwright) : localRequire;
+      const file = realpathSync(packageRequire.resolve(`${name}/package.json`));
       const nodeModulesRoot = realpathSync(path.join(root, 'node_modules')) + path.sep;
       assert(file.startsWith(nodeModulesRoot), `${name} resolved outside this checkout`);
       installed[name] = readJson(file);
+      packageFiles[name] = file;
       report.packageMetadataSha256[name] = sha256(readFileSync(file));
     }
 
-    report.versions = verifyVersions(readJson('package.json'), readJson('package-lock.json'), installed);
+    report.versions = verifyVersions(readJson('package.json'), lock, installed);
 
     if (mode === '--packages' && process.env.GITHUB_OUTPUT) {
       appendFileSync(process.env.GITHUB_OUTPUT, `changed=${report.toolchainChanged}\n`);
@@ -153,7 +221,7 @@ async function main() {
 
     if (mode === '--browser') {
       const browserManifestPath = path.join(
-        path.dirname(localRequire.resolve('playwright-core/package.json')),
+        path.dirname(packageFiles['playwright-core']),
         'browsers.json'
       );
       browser = await localRequire('playwright').chromium.launch({ headless: true });
@@ -167,7 +235,7 @@ async function main() {
             readJson('visual-results/screenshot-attempt-1/summary.json'),
             readJson('visual-results/screenshot-attempt-2/summary.json')
           )
-        : { status: 'not-required', reason: 'Dependency lock unchanged; ordinary reviewed-change gate applies' };
+        : { status: 'not-required', reason: 'Visual dependency closure unchanged; ordinary reviewed-change gate applies' };
     }
 
     report.passed = true;

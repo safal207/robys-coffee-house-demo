@@ -11,3 +11,4 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.b64 text eol=lf
+*.sha256 text eol=lf

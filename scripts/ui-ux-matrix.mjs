@@ -114,6 +114,12 @@ async function stabilize(page) {
     document.querySelectorAll("video").forEach((video) => video.pause());
     if (document.fonts?.ready) await document.fonts.ready;
     for (const image of Array.from(document.images)) {
+      // Optional dialog media has no source until the guest selects it. Only
+      // skip source-less, unrendered placeholders; sourced or visible images
+      // must still load and decode successfully.
+      const hasSource = image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
+        || image.closest("picture")?.querySelector("source[srcset]");
+      if (!hasSource && image.getClientRects().length === 0) continue;
       image.loading = "eager";
       const label = image.currentSrc || image.src || image.alt || "unknown-image";
       if (!image.complete) {
@@ -124,7 +130,7 @@ async function stabilize(page) {
       }
       if (image.decode) {
         await withTimeout(image.decode(), `Timed out decoding image: ${label}`).catch((error) => {
-          if (!image.complete || image.naturalWidth === 0) throw error;
+          if (!image.complete || image.naturalWidth === 0) throw new Error(`Failed to decode image: ${label}: ${error.message}`);
         });
       }
     }
@@ -149,7 +155,9 @@ async function assertPageStructure(page, profile, route) {
       clientWidth: root?.clientWidth ?? 0,
       duplicateIds: [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))],
       brokenImages: Array.from(document.images)
-        .filter((image) => image.complete && image.naturalWidth === 0)
+        .filter((image) => image.complete && image.naturalWidth === 0 &&
+          (image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset") ||
+            image.closest("picture")?.querySelector("source[srcset]") || image.getClientRects().length > 0))
         .map((image) => image.currentSrc || image.src || image.alt || "unknown-image")
     };
   });

@@ -1,7 +1,6 @@
-import { menuCategories, menuCopy } from "./menu-catalog.js?v=23d5e08d85d2";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=bc69a9e52fa4";
 import "./menu-search-clear.js";
-import { normalizeOrderDraft, updateOrderLines } from "./src/order-draft.js";
-import { isHotDrink, quoteMenuSelection, applyMenuSelection } from "./src/menu-pairing.js";
+import { readStoredOrderDraft, writeStoredOrderDraft } from "./src/order-draft.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -13,44 +12,12 @@ const menuShareButton = document.querySelector("#menu-share-button");
 const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
-const cartStatuses = Array.from(document.querySelectorAll("[data-menu-cart-status]"));
-const productDialog = document.querySelector("#menu-product-dialog");
-const productDialogImage = document.querySelector("#menu-product-image");
-const productDialogCategory = document.querySelector("#menu-product-category");
-const productDialogTitle = document.querySelector("#menu-product-title");
-const productDialogDescription = document.querySelector("#menu-product-description");
-const productDialogPrice = document.querySelector("#menu-product-price");
-const productQuantityOutput = document.querySelector("#menu-product-quantity");
-const productDecrease = document.querySelector("#menu-quantity-decrease");
-const productIncrease = document.querySelector("#menu-quantity-increase");
-const addToCartButton = document.querySelector("#menu-add-to-cart");
-const pairingPicker = document.querySelector("#menu-pairing-picker");
-const pairingPreview = document.querySelector("#menu-pairing-preview");
-const cartDialog = document.querySelector("#menu-cart-dialog");
-const cartLinesRoot = document.querySelector("#menu-cart-lines");
-const cartEmpty = document.querySelector("#menu-cart-empty");
-const cartDialogTotal = document.querySelector("#menu-cart-dialog-total");
-
 const CART_STORAGE_KEY = "robys-menu-order.v1";
-const MAX_ITEM_QUANTITY = 99;
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
 let language = readStoredLanguage();
 let activeCategory = readInitialCategory();
 let searchTerm = "";
-let selectedProductId = "";
-let selectedProductQuantity = 1;
-let pairingView;
-let pairingViewPromise;
-let pairingRetryCount = 0;
-let productSession = 0;
-const pairingActionCopy = {
-  tr: { add: "Çifti siparişe ekle", quantity: "Çift adedi", loading: "Tatlı seçenekleri yükleniyor…", error: "Tatlı seçenekleri açılamadı. İçeceği tek başına ekleyebilirsiniz.", retry: "Tekrar dene" },
-  en: { add: "Add pair to order", quantity: "Number of pairs", loading: "Loading sweet options…", error: "Sweet options could not load. You can add just the drink.", retry: "Try again" },
-  ru: { add: "Добавить пару в заказ", quantity: "Количество пар", loading: "Загружаем сладкое…", error: "Не удалось открыть выбор сладкого. Можно добавить только напиток.", retry: "Попробовать ещё раз" }
-};
-const dialogReturnFocus = new WeakMap();
-
 function readStoredLanguage() {
   try {
     const stored = localStorage.getItem("robys-language");
@@ -81,9 +48,10 @@ function syncCategoryHash(categoryId) {
 
 function normalize(value) {
   return value
-    .toLocaleLowerCase(language === "tr" ? "tr-TR" : language)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/ı/g, "i")
     .trim();
 }
 
@@ -140,81 +108,21 @@ const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
 
 function readCart() {
-  try {
-    const parsed = JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY) ?? "null");
-    orderDraft = normalizeOrderDraft(parsed, orderProductIds);
-    if (parsed?.version !== 1 || !Array.isArray(parsed.lines)) return new Map();
-    const validLines = parsed.lines.filter((line) => (
-      productIndex.has(line?.id) &&
-      Number.isInteger(line.quantity) &&
-      line.quantity > 0 &&
-      line.quantity <= MAX_ITEM_QUANTITY
-    ));
-    return new Map(validLines.map((line) => [line.id, line.quantity]));
-  } catch {
-    return new Map();
-  }
+  orderDraft = readStoredOrderDraft(orderProductIds);
+  return new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
 }
 
 let cart = readCart();
 
-function saveCart() {
-  orderDraft = updateOrderLines(orderDraft,
-    Array.from(cart, ([id, quantity]) => ({ id, quantity })), orderProductIds);
-  try {
-    sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(orderDraft));
-  } catch {
-    // The order calculator still works when session persistence is unavailable.
-  }
-}
-
 function cartSummary() {
-  let quantity = 0;
+  const quantity = orderDraft.groups.reduce((sum, group) => sum + group.quantity, 0);
   let total = 0;
   cart.forEach((lineQuantity, id) => {
     const product = productIndex.get(id);
     if (!product) return;
-    quantity += lineQuantity;
     total += product.item.price * lineQuantity;
   });
   return { quantity, total };
-}
-
-function createButton(className, label, listener) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = className;
-  button.textContent = label;
-  button.addEventListener("click", listener);
-  return button;
-}
-
-function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = false) {
-  const normalized = Math.max(0, Math.min(MAX_ITEM_QUANTITY, quantity));
-  if (normalized === 0) cart.delete(id);
-  else cart.set(id, normalized);
-  saveCart();
-  renderCart(focusControl ? { id, control: focusControl } : null);
-  const product = productIndex.get(id);
-  if (shouldAnnounce && product) {
-    const copy = menuCopy[language];
-    const name = localized(product.item.name);
-    announceCart(normalized === 0
-      ? `${copy.removedFromCart}: ${name}`
-      : `${copy.quantityUpdated}: ${name} × ${normalized}`);
-  }
-}
-
-let cartNoticeTimer;
-function announceCart(message) {
-  window.clearTimeout(cartNoticeTimer);
-  cartStatuses.forEach((status) => { status.textContent = ""; });
-  window.requestAnimationFrame(() => {
-    cartStatuses.forEach((status) => { status.textContent = message; });
-    const notice = document.querySelector("#menu-cart-status");
-    notice?.classList.add("is-visible");
-    cartNoticeTimer = window.setTimeout(() => notice?.classList.remove("is-visible"), 3200);
-  });
 }
 
 function syncMenuCartState() {
@@ -229,262 +137,75 @@ function syncMenuCartState() {
   });
 }
 
-function renderCart(focusTarget = null) {
+function renderCart() {
   syncMenuCartState();
   const copy = menuCopy[language];
   const summary = cartSummary();
-  let focusCandidate = null;
   cartCount.textContent = String(summary.quantity);
   cartTriggerTotal.textContent = formatPrice(summary.total);
-  cartDialogTotal.textContent = formatPrice(summary.total);
   cartTrigger.classList.toggle("has-items", summary.quantity > 0);
-  cartTrigger.setAttribute(
-    "aria-label",
-    `${copy.cart}: ${summary.quantity} ${formatItemCount(summary.quantity)}, ${copy.total} ${formatPrice(summary.total)}`
-  );
-
-  cartLinesRoot.replaceChildren();
-  cartEmpty.hidden = cart.size > 0;
-
-  cart.forEach((lineQuantity, id) => {
-    const product = productIndex.get(id);
-    if (!product) return;
-    const name = localized(product.item.name);
-    const line = document.createElement("article");
-    line.className = "menu-cart-line";
-    line.setAttribute("aria-label", name);
-
-    const image = document.createElement("img");
-    image.src = product.image;
-    image.alt = "";
-    image.width = 128;
-    image.height = 128;
-    image.loading = "lazy";
-    image.decoding = "async";
-
-    const details = document.createElement("div");
-    details.className = "menu-cart-line-details";
-    const title = document.createElement("strong");
-    title.textContent = name;
-    const unit = document.createElement("span");
-    unit.textContent = `${formatPrice(product.item.price)} × ${lineQuantity}`;
-    details.append(title, unit);
-
-    const controls = document.createElement("div");
-    controls.className = "menu-cart-line-controls";
-    const decrease = createButton("menu-cart-step", "−", () => setCartQuantity(id, lineQuantity - 1, "decrease", true));
-    decrease.setAttribute("aria-label", `${copy.decrease}: ${name}`);
-    const count = document.createElement("span");
-    count.textContent = String(lineQuantity);
-    const increase = createButton("menu-cart-step", "+", () => setCartQuantity(id, lineQuantity + 1, "increase", true));
-    increase.setAttribute("aria-label", `${copy.increase}: ${name}`);
-    increase.disabled = lineQuantity >= MAX_ITEM_QUANTITY;
-    const remove = createButton("menu-cart-remove", copy.remove, () => {
-      setCartQuantity(id, 0, "remove", true);
-    });
-    remove.setAttribute("aria-label", `${copy.remove}: ${name}`);
-    controls.append(decrease, count, increase, remove);
-
-    const lineTotal = document.createElement("strong");
-    lineTotal.className = "menu-cart-line-total";
-    lineTotal.textContent = formatPrice(product.item.price * lineQuantity);
-    line.append(image, details, controls, lineTotal);
-    cartLinesRoot.append(line);
-
-    if (focusTarget?.id === id) {
-      focusCandidate = focusTarget.control === "increase" && !increase.disabled ? increase : decrease;
-    }
-  });
-
-  if (focusTarget) {
-    const fallback = cartLinesRoot.querySelector("button:not([disabled])")
-      ?? cartDialog.querySelector("[data-menu-dialog-close]");
-    (focusCandidate ?? fallback)?.focus({ preventScroll: true });
-  }
+  cartTrigger.setAttribute("aria-label", `${copy.cart}: ${summary.quantity} ${formatItemCount(summary.quantity)}, ${copy.total} ${formatPrice(summary.total)}`);
 }
 
-function openDialog(dialog) {
-  dialogReturnFocus.set(dialog, document.activeElement);
-  if (typeof dialog.showModal === "function") {
-    dialog.showModal();
-  } else {
-    dialog.classList.add("menu-dialog--fallback");
-    dialog.setAttribute("role", "dialog");
-    dialog.setAttribute("aria-modal", "true");
-    dialog.setAttribute("open", "");
-    window.requestAnimationFrame(() => {
-      dialog.querySelector("[data-menu-dialog-close]")?.focus({ preventScroll: true });
-    });
+let orderUi;
+let orderUiPromise;
+let orderUiRetry = 0;
+let orderIntent = 0;
+function loadOrderUi() {
+  if (!orderUiPromise) {
+    let loading;
+    if (orderUiRetry) {
+      const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(orderUiRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./menu-order-ui.js?v=54ae56c1bd70");
+    orderUiPromise = loading.then(({ createMenuOrderUi }) => {
+      orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
+        initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
+        readDraft: () => { cart = readCart(); return orderDraft; },
+        writeDraft: draft => {
+          orderDraft = writeStoredOrderDraft(draft, orderProductIds);
+          cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+          return orderDraft;
+        },
+        onCartChange: renderCart
+      });
+      return orderUi;
+    }).catch(error => { orderUiPromise = null; orderUiRetry += 1; throw error; });
   }
-  document.body.classList.add("menu-dialog-open");
+  return orderUiPromise;
 }
-
-function closeDialog(dialog) {
-  if (dialog === productDialog) {
-    productSession += 1;
-    pairingView?.clear();
-    pairingPicker.hidden = true;
-    pairingPreview.hidden = true;
-  }
-  const isFallback = dialog.classList.contains("menu-dialog--fallback");
-  if (!isFallback && typeof dialog.close === "function" && dialog.hasAttribute("open")) dialog.close();
-  else dialog.removeAttribute("open");
-  dialog.classList.remove("menu-dialog--fallback");
-  dialog.removeAttribute("aria-modal");
-  if (!document.querySelector(".menu-dialog[open]")) {
-    document.body.classList.remove("menu-dialog-open");
-  }
-  const returnFocus = dialogReturnFocus.get(dialog);
-  dialogReturnFocus.delete(dialog);
-  if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
-}
-
-function fallbackFocusableControls(dialog) {
-  return Array.from(dialog.querySelectorAll(
-    'button:not([disabled]):not([hidden]),a[href]:not([hidden]),input:not([disabled]):not([hidden]),[tabindex]:not([tabindex="-1"]):not([hidden])'
-  )).filter((control) => control.tabIndex >= 0 && !control.matches(":disabled")
-    && control.getClientRects().length > 0
-    && (control.type !== "radio" || control.checked));
-}
-
-document.addEventListener("keydown", (event) => {
-  const dialog = document.querySelector(".menu-dialog[open]");
-  if (!dialog) return;
-  if (event.key === "Escape") {
-    event.preventDefault();
-    closeDialog(dialog);
-    return;
-  }
-  if (event.key !== "Tab") return;
-  const controls = fallbackFocusableControls(dialog);
-  if (controls.length === 0) {
-    event.preventDefault();
-    return;
-  }
-  const first = controls[0];
-  const last = controls[controls.length - 1];
-  if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
-});
-
-function selectedProducts() {
-  const product = productIndex.get(selectedProductId);
-  if (!product) return [];
-  const sweet = isHotDrink(product) ? pairingView?.getSelectedProduct() : null;
-  return sweet ? [product, productIndex.get(sweet.id)] : [product];
-}
-
-function updateProductQuantity() {
-  const products = selectedProducts();
-  if (!products.length) return;
-  const copy = menuCopy[language];
-  const { availableQuantity, quantity, total } = quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY);
-  selectedProductQuantity = quantity;
-  productQuantityOutput.textContent = String(selectedProductQuantity);
-  productDecrease.disabled = availableQuantity === 0 || selectedProductQuantity <= 1;
-  productIncrease.disabled = availableQuantity === 0 || selectedProductQuantity >= availableQuantity;
-  addToCartButton.disabled = availableQuantity === 0;
-  addToCartButton.textContent = availableQuantity === 0
-    ? copy.maxQuantity
-    : `${products.length === 2 ? pairingActionCopy[language].add : copy.addToCart} · ${formatPrice(total)}`;
-  document.querySelector("#menu-quantity-label").textContent = products.length === 2
-    ? pairingActionCopy[language].quantity : copy.quantity;
-}
-
-async function loadPairingPicker(product, session, retryLoad = false) {
-  pairingPicker.hidden = false;
-  if (pairingView) {
-    pairingView.render(product, language, true);
-    updateProductQuantity();
-    return;
-  }
-  const status = document.createElement("p");
-  status.className = "menu-pairing-loading";
-  status.setAttribute("role", "status");
-  status.textContent = pairingActionCopy[language].loading;
-  pairingPicker.replaceChildren(status);
-  delete pairingPicker.dataset.ready;
+async function openOrderIntent(kind, id, trigger = document.activeElement) {
+  const intent = ++orderIntent;
+  trigger?.setAttribute("aria-busy", "true");
   try {
-    // A failed module import is cached by the browser. Give an explicit retry
-    // a new, fixed same-origin URL so a recovered connection can fetch again.
-    if (retryLoad) {
-      const retryUrl = new URL("./menu-pairing.js", import.meta.url);
-      retryUrl.searchParams.set("retry", String(++pairingRetryCount));
-      pairingViewPromise = import(retryUrl.href);
-    }
-    pairingViewPromise ??= import("./menu-pairing.js?v=6a8c02cfd44b");
-    const module = await pairingViewPromise;
-    if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
-    pairingView ??= module.createMenuPairingView({ root: pairingPicker, preview: pairingPreview,
-      productIndex, onChange: updateProductQuantity, localized, formatPrice });
-    pairingView.render(product, language, true);
-    updateProductQuantity();
+    const ui = await loadOrderUi();
+    if (intent !== orderIntent) return;
+    document.querySelector("#menu-cart-status").classList.remove("is-visible");
+    ui.refresh({ nextLanguage: language });
+    const returnFocus = trigger?.isConnected ? trigger : (kind === "product"
+      ? Array.from(menuRoot.querySelectorAll("[data-product-id]")).find(row => row.dataset.productId === id)?.querySelector(".full-menu-item-media")
+      : null) ?? cartTrigger;
+    if (kind === "product") ui.openProduct(id, returnFocus);
+    else ui.openCart(returnFocus);
   } catch {
-    pairingViewPromise = null;
-    if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
-    status.textContent = pairingActionCopy[language].error;
-    const retry = createButton("button button-light menu-pairing-retry", pairingActionCopy[language].retry,
-      () => { void loadPairingPicker(productIndex.get(selectedProductId), productSession, true); });
-    pairingPicker.replaceChildren(status, retry);
-  }
+    if (intent !== orderIntent) return;
+    const message = {
+      tr: "Seçim açılamadı. Lütfen tekrar deneyin.",
+      en: "Your selection could not open. Please try again.",
+      ru: "Не удалось открыть выбор. Попробуйте ещё раз."
+    }[language];
+    const notice = document.querySelector("#menu-cart-status");
+    notice.textContent = message;
+    notice.classList.add("is-visible");
+  } finally { trigger?.removeAttribute("aria-busy"); }
 }
-
-function hydrateProductDialog() {
-  const product = productIndex.get(selectedProductId);
-  if (!product) return;
-  productDialogImage.src = product.image;
-  productDialogImage.alt = localized(product.item.imageAlt ?? product.item.name);
-  productDialogCategory.textContent = localized(product.category.name);
-  productDialogTitle.textContent = localized(product.item.name);
-  productDialogPrice.textContent = formatPrice(product.item.price);
-  const description = localized(product.item.description);
-  productDialogDescription.textContent = description;
-  productDialogDescription.hidden = !description;
-  if (pairingView && productDialog.hasAttribute("open")) pairingView.render(product, language);
-  updateProductQuantity();
-}
-
-function openProduct(id) {
-  if (!productIndex.has(id)) return;
-  selectedProductId = id;
-  selectedProductQuantity = 1;
-  productSession += 1;
-  pairingView?.clear();
-  pairingPicker.hidden = true;
-  pairingPreview.hidden = true;
-  productDialog.classList.toggle("has-custom-pairing", isHotDrink(productIndex.get(id)));
-  hydrateProductDialog();
-  openDialog(productDialog);
-  if (isHotDrink(productIndex.get(id))) void loadPairingPicker(productIndex.get(id), productSession);
-}
-
-function addSelectedProduct() {
-  const product = productIndex.get(selectedProductId);
-  if (!product) return;
-  const copy = menuCopy[language];
-  const products = selectedProducts();
-  const selection = applyMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY);
-  if (!selection.applied) {
-    announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
-    updateProductQuantity();
-    return;
-  }
-  cart = selection.cart;
-  saveCart();
-  renderCart();
-  announceCart(`${copy.added}: ${products.map((item) => localized(item.item.name)).join(" + ")} × ${selectedProductQuantity}`);
-  closeDialog(productDialog);
-  cartTrigger.classList.add("is-emphasized");
-  window.setTimeout(() => cartTrigger.classList.remove("is-emphasized"), 620);
-}
+function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
+// Escape also cancels an intent whose optional code is still downloading.
+document.addEventListener("keydown", event => { if (event.key === "Escape") orderIntent += 1; });
 
 function createItem(item, { priority = false, categoryId } = {}) {
-  const pairing = Boolean(item.image);
+  const pairing = categoryId === "pairing-offers";
   const visual = pairing || Boolean(categoryId);
   const row = document.createElement(pairing ? "article" : "div");
   row.className = pairing
@@ -519,7 +240,7 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.type = "button";
     media.className = "full-menu-item-media";
     media.setAttribute("aria-label", `${menuCopy[language].openProduct}: ${localized(item.name)}`);
-    media.addEventListener("click", () => openProduct(id));
+    media.addEventListener("click", event => openProduct(id, event.currentTarget));
 
     const image = document.createElement("img");
     image.src = productImage(categoryId, item);
@@ -578,9 +299,10 @@ function matchesSearch(category) {
   return normalize(haystack).includes(query);
 }
 
-function filteredItems(items) {
+function filteredItems(items, category) {
   if (!searchTerm) return items;
   const query = normalize(searchTerm);
+  if (category && Object.values(category.name).some(name => normalize(name).includes(query))) return items;
   return items.filter((item) => {
     const haystack = [
       ...Object.values(item.name),
@@ -621,7 +343,7 @@ function createCategory(category) {
   section.append(header);
 
   if (category.items) {
-    const items = filteredItems(category.items);
+    const items = filteredItems(category.items, category);
     if (!items.length) return null;
     const list = document.createElement("div");
     list.className = "full-menu-list";
@@ -633,7 +355,7 @@ function createCategory(category) {
   } else {
     let renderedGroups = 0;
     category.groups.forEach((group) => {
-      const items = filteredItems(group.items);
+      const items = filteredItems(group.items, category);
       if (!items.length) return;
       section.append(createGroup({ ...group, items }, category.id));
       renderedGroups += 1;
@@ -750,9 +472,7 @@ function translateStaticPage() {
   searchInput.setAttribute("aria-label", copy.searchLabel);
   searchInput.placeholder = copy.searchPlaceholder;
   categoryNav.setAttribute("aria-label", copy.categories);
-  productDecrease.setAttribute("aria-label", copy.decrease);
-  productIncrease.setAttribute("aria-label", copy.increase);
-  document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
+  document.querySelectorAll(".menu-dialog-close[data-menu-dialog-close]").forEach((button) => {
     button.setAttribute("aria-label", copy.close);
   });
 
@@ -762,8 +482,8 @@ function translateStaticPage() {
     button.setAttribute("aria-pressed", String(active));
   });
 
-  if (selectedProductId) hydrateProductDialog();
   renderCart();
+  orderUi?.refresh({ nextLanguage: language });
 }
 
 function setLanguage(next) {
@@ -792,10 +512,7 @@ searchInput.addEventListener("input", () => {
   renderMenu();
 });
 
-cartTrigger.addEventListener("click", () => {
-  renderCart();
-  openDialog(cartDialog);
-});
+cartTrigger.addEventListener("click", () => { void openOrderIntent("cart", undefined, cartTrigger); });
 
 function runLazyShare(skipNative = false) {
   void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
@@ -830,35 +547,6 @@ document.querySelector("[data-instagram-booking]")?.addEventListener("click", ()
   void loadMenuActions().then(({ track }) => track("instagram_booking_click"));
 });
 
-productDecrease.addEventListener("click", () => {
-  selectedProductQuantity = Math.max(1, selectedProductQuantity - 1);
-  updateProductQuantity();
-});
-
-productIncrease.addEventListener("click", () => {
-  selectedProductQuantity = Math.min(MAX_ITEM_QUANTITY, selectedProductQuantity + 1);
-  updateProductQuantity();
-});
-
-addToCartButton.addEventListener("click", addSelectedProduct);
-
-document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
-  button.addEventListener("click", () => {
-    closeDialog(button.dataset.menuDialogClose === "product" ? productDialog : cartDialog);
-  });
-});
-
-[productDialog, cartDialog].forEach((dialog) => {
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) closeDialog(dialog);
-  });
-  dialog.addEventListener("close", () => {
-    if (!document.querySelector(".menu-dialog[open]")) {
-      document.body.classList.remove("menu-dialog-open");
-    }
-  });
-});
-
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());
 translateStaticPage();
 renderCategoryNav();
@@ -868,7 +556,29 @@ initializeMenuScrollMetrics();
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   cart = readCart();
+  orderIntent += 1;
+  orderUi?.refresh({ nextLanguage: language, resetAdded: true });
+  language = readStoredLanguage();
+  translateStaticPage();
+  renderCategoryNav();
+  renderMenu();
   renderCart();
+});
+
+window.addEventListener("storage", event => {
+  if (event.key === CART_STORAGE_KEY || event.key === null) {
+    cart = readCart();
+    orderUi?.refresh({ nextLanguage: language, resetAdded: true });
+    renderCart();
+  }
+  if (event.key === "robys-language" || event.key === null) setLanguage(readStoredLanguage());
+});
+
+window.addEventListener("hashchange", () => {
+  activeCategory = readInitialCategory();
+  searchInput.value = "";
+  searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+  renderCategoryNav();
 });
 
 if (language !== "tr") void loadMenuActions();

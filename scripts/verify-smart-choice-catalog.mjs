@@ -61,8 +61,8 @@ const warnings = diagnostics.filter((entry) => entry.severity === "warning");
 
 assert(errors.length === 0, `Current catalog has errors:\n${JSON.stringify(errors, null, 2)}`);
 assert(
-  warnings.some((entry) => entry.code === "SC-CATALOG-COMBO-PRICE-001"),
-  "Expected the blocked Cool Lime + Macaron price warning"
+  !warnings.some((entry) => entry.code === "SC-CATALOG-COMBO-PRICE-001"),
+  "Confirmed combos must match their component prices without a price warning"
 );
 
 assert(SMART_CHOICE_CATALOG.currency === "TRY", "Catalog currency must be TRY");
@@ -96,8 +96,8 @@ assert(
   "Verified single menu items must be eligible recommendation candidates"
 );
 assert(
-  !eligibleCombos.some((combo) => combo.id === "combo-cool-lime-macaron"),
-  "Cool Lime + Macaron must remain blocked until pricing is explained or corrected"
+  eligibleCombos.some((combo) => combo.id === "combo-cool-lime-macaron" && combo.priceMinor === 22_000),
+  "Corrected Cool Lime + Macaron must be eligible at the sum of its component prices"
 );
 assert(eligibleBumps.length === 0, "No provisional bump may be eligible");
 
@@ -151,6 +151,7 @@ assert(
 );
 
 const provisionalLeak = clone(SMART_CHOICE_CATALOG);
+provisionalLeak.combos[1].sourceStatus = "provisional";
 provisionalLeak.combos[1].availability = "available";
 assert(
   validateSmartChoiceCatalog(provisionalLeak).some(

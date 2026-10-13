@@ -1,10 +1,13 @@
-import { menuCategories } from "./menu-catalog.js?v=23d5e08d85d2";
+import { menuCategories } from "./menu-catalog.js?v=bc69a9e52fa4";
 
 const REVEAL_PRODUCTS = Object.freeze([
   Object.freeze({
     id: "desserts:san-sebastian-cheesecake",
     primaryPath: "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp",
-    revealImage: "src/products/san-sebastian.webp"
+    revealImage: "src/products/san-sebastian.webp",
+    // The repaired asset reuses the catalog photo; keep the pairing action,
+    // without promising a different angle or loading a duplicate overlay.
+    hasAlternateView: false
   })
 ]);
 
@@ -144,7 +147,7 @@ function bootReveal() {
 
   const updatePairingBridge = (revealed = 0) => {
     const offer = pairingOffer();
-    if (!activeConfig || !offer || revealed < PAIRING_REVEAL_THRESHOLD) {
+    if (!activeConfig || !offer || (activeConfig.hasAlternateView !== false && revealed < PAIRING_REVEAL_THRESHOLD)) {
       pairingBridge.hidden = true;
       return;
     }
@@ -163,6 +166,10 @@ function bootReveal() {
 
   const updatePosition = () => {
     if (!activeConfig) return;
+    if (activeConfig.hasAlternateView === false) {
+      updatePairingBridge(100);
+      return;
+    }
     const position = Math.max(0, Math.min(100, Number(control.value)));
     const revealed = 100 - position;
     const copy = revealCopy(currentLanguage());
@@ -186,7 +193,7 @@ function bootReveal() {
   };
 
   const showReveal = (generation) => {
-    if (!activeConfig || generation !== revealGeneration || !revealImage.naturalWidth) return;
+    if (!activeConfig || activeConfig.hasAlternateView === false || generation !== revealGeneration || !revealImage.naturalWidth) return;
     visual.dataset.menuRevealActive = "true";
     revealImage.hidden = false;
     control.hidden = false;
@@ -206,6 +213,10 @@ function bootReveal() {
     pairingBridge.hidden = true;
     visual.removeAttribute("data-menu-reveal-active");
     updatePosition();
+    if (config.hasAlternateView === false) {
+      visual.style.removeProperty("--menu-reveal-position");
+      return;
+    }
 
     revealImage.onload = () => showReveal(generation);
     revealImage.onerror = () => {

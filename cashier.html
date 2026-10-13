@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; require-trusted-types-for 'script'" />
+  <meta name="theme-color" content="#302320" />
+  <title>Kasada sipariş | Roby's</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="order-checkout.css?v=52d404809a87" />
+</head>
+<body class="cashier-page">
+  <main class="cashier-wrap">
+    <header class="cashier-header">
+      <a class="cashier-brand" href="./">ROBY’S COFFEE HOUSE</a>
+      <nav class="cashier-language" aria-label="Language">
+        <button type="button" data-cashier-language="tr" aria-pressed="true">TR</button>
+        <button type="button" data-cashier-language="en" aria-pressed="false">EN</button>
+        <button type="button" data-cashier-language="ru" aria-pressed="false">RU</button>
+      </nav>
+    </header>
+    <section id="cashier-ticket" aria-live="polite"></section>
+    <noscript><p>QR siparişini görmek için JavaScript'i etkinleştirin. / Enable JavaScript to view the order. / Включите JavaScript для просмотра заказа.</p></noscript>
+    <footer class="cashier-actions">
+      <button class="order-ticket-button order-ticket-button-primary" id="cashier-print" type="button" hidden>Yazdır</button>
+      <a class="order-ticket-button" id="cashier-menu" href="menu.html">Menüye dön</a>
+    </footer>
+  </main>
+  <script type="module" src="cashier.js?v=ee5541cb1c07"></script>
+</body>
+</html>

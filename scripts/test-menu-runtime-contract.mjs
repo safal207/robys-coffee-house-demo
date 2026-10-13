@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { compileMenuRuntime, readVerifiedMenuSource } from './menu-runtime-source.mjs';
+import { compileMenuRuntime, readVerifiedMenuSource, readVerifiedMenuOrderSource } from './menu-runtime-source.mjs';
 
 // Verify the real shipped bytes before testing rejection in an isolated fixture.
 const source = readVerifiedMenuSource();
@@ -10,7 +10,13 @@ const emitted = readFileSync('menu-app.js', 'utf8');
 assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source), 'runtime must remain compact');
 assert.match(emitted, /from"\.\/menu-catalog\.js\?/, 'catalog must stay external');
 assert.match(emitted, /import\("\.\/menu-interactions\.js\?/, 'interaction actions must stay lazy');
-assert.match(emitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
+assert.match(emitted, /import\("\.\/menu-order-ui\.js\?/, 'ordering dialogs must load on intent');
+assert.doesNotMatch(emitted, /menu-product-title|menu-cart-lines/, 'initial catalog must not initialize hidden ordering dialogs');
+const orderSource = readVerifiedMenuOrderSource();
+const orderEmitted = readFileSync('menu-order-ui.js', 'utf8');
+assert.match(orderEmitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
+assert.match(orderEmitted, /import\("\.\/order-checkout\.js\?/, 'QR checkout must remain lazy and external');
+assert.ok(orderSource.includes('readDraft()') && orderSource.includes('writeDraft(orderDraft)'), 'dialogs must share the eager storage owner');
 assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));
@@ -44,3 +50,4 @@ try {
 }
 assert.equal(readFileSync('menu-app.js', 'utf8'), emitted, 'real runtime was modified by test');
 console.log('Menu runtime contract: PASS (source parity, compact output, tamper rejection, stale-source rejection, rebuild recovery)');
+await import('./test-menu-order-loader.mjs');

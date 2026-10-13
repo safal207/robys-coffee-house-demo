@@ -20,7 +20,11 @@
 .cart-bump-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .cart-notice { padding: 12px 14px; background: var(--cream); border-radius: 13px; font-weight: 700; }
 .cart-notice--error { color: #8b1117; background: rgba(226,27,35,.09); }
-.cart-total-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; padding: 18px; background: var(--dark); border-radius: 18px; }
+.cart-next-step { display: grid; gap: 10px; }
+.cart-total-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; background: var(--dark); border-radius: 18px; }
+.cart-next-actions { display: grid; gap: 8px; min-width: 0; }
+.cart-choose-more { min-height: 44px; color: #fff; background: transparent; border-color: rgba(255,255,255,.45); cursor: pointer; }
+.cart-next-actions > button { white-space: normal; text-align: center; }
 .cart-total { display: grid; color: #fff; }
 .cart-total span { font-size: .72rem; opacity: .7; }
 .cart-total strong { font: 700 1.8rem/1 var(--display); }
@@ -28,4 +32,12 @@
 .cart-payload { overflow: hidden; color: var(--muted); font-size: .72rem; }
 .cart-payload summary { cursor: pointer; font-weight: 800; }
 .cart-payload code { display: block; max-height: 130px; margin-top: 8px; padding: 10px; overflow: auto; background: var(--cream); border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
-@media (max-width: 700px) { .cart-total-row { align-items: stretch; flex-direction: column; } .cart-handoff, .cart-bump-actions > * { width: 100%; } }
+@media (max-width: 700px) { .cart-total-row { align-items: stretch; flex-direction: column; } .cart-next-actions > button, .cart-bump-actions > * { width: 100%; } }
+.cart-line{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px}
+.cart-line>strong{grid-column:2;color:var(--ruby);font-size:.85rem}
+.cart-line-photos{display:flex;flex-wrap:wrap;gap:5px;max-width:145px;grid-row:span 2}
+.cart-line-photos img{width:64px;height:64px;object-fit:contain;background:#f4eee5;border-radius:10px}
+.cart-choice-label{min-width:0;overflow-wrap:anywhere}
+.cart-choice-price{white-space:normal;text-align:right;flex-shrink:0;max-width:45%}
+.cart-handoff{border:0;cursor:pointer}
+@media(max-width:480px){.cart-line-photos{max-width:64px}.cart-line{font-size:.85rem}.cart-choice{gap:10px;padding:12px}.selected-card{padding:20px}}

@@ -62,11 +62,12 @@ try {
   assert(buildSource.includes('entryPoints: ["src/smart-choice/cart.ts"]'));
   assert(source.includes("MutationObserver"));
   assert(source.includes("robys-smart-choice-order.v1"));
-  assert(source.includes("https://wa.me/?text="));
+  assert(source.includes("openQuickCheckout"), "The selected order must use the shared local QR checkout");
+  assert(!source.includes('create("details", "cart-payload")'), "Internal order JSON must not be shown in the customer flow");
   assert(!source.includes("innerHTML"));
   assert(!source.includes("fetch("));
   assert(!source.includes(".style."));
-  console.log("✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and honest WhatsApp handoff verified.");
+  console.log("✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and local QR checkout verified.");
 } finally {
   await rm(temp, { recursive: true, force: true });
 }

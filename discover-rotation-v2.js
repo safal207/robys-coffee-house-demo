@@ -11,7 +11,7 @@ const posters = {
     },
     "iced-san-sebastian": {
         id: "iced-san-sebastian",
-        source: "src/pairings-data/approved/iced-san-sebastian-hq.png",
+        source: "src/pairings-data/approved/iced-san-sebastian-hq.webp",
         alt: localized("Buzlu Latte ve San Sebastian eşleşmesi posteri", "Iced Latte and San Sebastian pairing poster", "Постер сочетания айс-латте и Сан-Себастьяна")
     },
     "filter-lotus": {
@@ -26,9 +26,9 @@ const posters = {
     },
     "cool-lime-macaron": {
         id: "cool-lime-macaron",
-        source: "src/pairings-data/final/cool-lime-macaron-hq.webp",
+        source: "src/pairings-data/final/cool-lime-macaron-price-free.webp",
         alt: localized("Cool Lime ve Makaron eşleşmesi posteri", "Cool Lime and Macaron pairing poster", "Постер сочетания Cool Lime и макарона"),
-        price: localized("Fiyat: 290 ₺", "Price: 290 ₺", "Цена: 290 ₺")
+        price: localized("Fiyat: 220 ₺", "Price: 220 ₺", "Цена: 220 ₺")
     }
 };
 function currentLanguage() {
