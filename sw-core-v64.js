@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-a7df01fbb25a-custom-pair-d09f99a1021f-shared-order-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-a7df01fbb25a-custom-pair-d09f99a1021f-shared-order-social-offer-77cf212ed128-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -85,6 +85,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
+  "./social-offer.js?v=77cf212ed128",
   "./menu-premium.css?v=435e50173a1f",
   "./pairing-posters.css?v=d1e9096d1ee4",
   "./menu-product-reveal.css?v=80aa0282d851",
@@ -193,6 +194,7 @@ async function cachedResponse(request) {
     isVersionedSmartChoiceAsset ||
     url.pathname.endsWith("/pwa-pairing-fix.js") ||
     url.pathname.endsWith("/conversion.js") ||
+    url.pathname.endsWith("/social-offer.js") ||
     url.pathname.endsWith("/bootstrap-v2.js") ||
     url.pathname.endsWith("/morning-entry-v2.js") ||
     url.pathname.endsWith("/takeaway-entry.js") ||

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { menuCategories } from "../menu-catalog.js";
 
 const html = readFileSync("index.html", "utf8");
 const css = readFileSync("social-offer.css", "utf8");
@@ -19,7 +20,6 @@ assert(html.indexOf('id="daily-offer"') < html.indexOf('class="site-footer"'), "
 
 for (const marker of [
   'id: "lotus-latte-340"',
-  'price: 340',
   'currency: "₺"',
   'href: "https://www.instagram.com/robyscoffeehouse/"',
   'ru: "Сегодня в Roby’s"',
@@ -28,6 +28,18 @@ for (const marker of [
 ]) {
   assert(source.includes(marker), `Typed offer config is missing ${marker}`);
 }
+
+const offerConfig = source.match(/const SOCIAL_OFFER:\s*SocialOffer\s*=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+const offerPrice = Number(offerConfig.match(/^\s*price:\s*(\d+)\s*,/m)?.[1]);
+const catalogTotal = [
+  ["hot-coffee", "Caffè Latte"],
+  ["desserts", "Lotus Cheesecake"]
+].reduce((total, [categoryId, name]) => {
+  const item = menuCategories.find((category) => category.id === categoryId)?.items?.find((item) => item.name.en === name);
+  assert(item && Number.isFinite(item.price) && item.price > 0, `Missing canonical offer component: ${categoryId}/${name}`);
+  return total + item.price;
+}, 0);
+assert(offerPrice === catalogTotal, `Offer price ${offerPrice} must equal the catalog sum ${catalogTotal} (Latte + Lotus Cheesecake), without an implicit discount`);
 
 assert(source.includes("type SocialOffer"), "Offer data must remain typed");
 assert(source.includes("root.replaceChildren(card)"), "Runtime must render with safe DOM APIs");

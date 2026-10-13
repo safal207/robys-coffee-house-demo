@@ -413,6 +413,10 @@ for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-c
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlowRevision}-shared-order-`);
+// Offer prices must refresh for returning visitors, including their cached home.
+// Bind both the worker namespace and exact precache URL to the rendered offer.
+serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -442,6 +446,7 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationCssRevision
 );
 for (const [filePath, revision] of [
+  ["social-offer.js", socialOfferRevision],
   ["menu-catalog.js", menuCatalogRevision],
   ["order-checkout.js", orderCheckoutRevision],
   ["cashier.js", cashierRevision],

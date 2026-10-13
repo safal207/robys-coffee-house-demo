@@ -227,7 +227,7 @@ test("daily social offer fits between the map and footer", async ({ page }) => {
   await offer.scrollIntoViewIfNeeded();
   await expect(offer).toBeVisible();
   await expect(offer.locator(".social-offer-title")).toHaveText("Bugün Roby's'de");
-  await expect(offer.locator(".social-offer-price")).toHaveText("340 ₺");
+  await expect(offer.locator(".social-offer-price")).toHaveText("370 ₺");
   await expect(offer.locator('a[href="https://www.instagram.com/robyscoffeehouse/"]')).toHaveCount(2);
 
   const layout = await offer.evaluate((element) => {
