@@ -143,13 +143,27 @@ try {
   await landing.evaluate((value) => localStorage.setItem("robys-language", value), "<svg data-storage-probe=\"true\"></svg>");
   await landing.reload({ waitUntil: "domcontentloaded" });
   await landing.locator("#hero-title").waitFor({ state: "visible" });
-  const storageResult = await landing.evaluate(() => ({
-    lang: document.documentElement.lang,
-    injected: Boolean(document.querySelector("[data-storage-probe]")),
-    keys: Object.keys(localStorage)
-  }));
+  const storageResult = await landing.evaluate(() => {
+    let orderDraft = null;
+    try { orderDraft = JSON.parse(localStorage.getItem("robys-menu-order.v1") ?? "null"); }
+    catch { orderDraft = { invalid: true }; }
+    return {
+      lang: document.documentElement.lang,
+      injected: Boolean(document.querySelector("[data-storage-probe]")),
+      keys: Object.keys(localStorage), orderDraft
+    };
+  });
   check("ADV-001", storageResult.lang === "tr" && !storageResult.injected, "Untrusted stored language value falls back safely", storageResult);
-  check("PRIVACY-001", storageResult.keys.every((key) => key === "robys-language"), "Only the approved storage key exists", storageResult.keys);
+  // Opening the menu initializes its shared draft even before any Add intent.
+  // No unrelated persistence or preselected items are allowed at this point.
+  const approvedStorageKeys = new Set(["robys-language", "robys-menu-order.v1"]);
+  const initialDraft = storageResult.orderDraft;
+  const emptyCanonicalDraft = initialDraft?.version === 1
+    && Object.keys(initialDraft).every(key => ["version", "groups", "lines"].includes(key))
+    && Array.isArray(initialDraft.groups) && initialDraft.groups.length === 0
+    && Array.isArray(initialDraft.lines) && initialDraft.lines.length === 0;
+  check("PRIVACY-001", storageResult.keys.every(key => approvedStorageKeys.has(key)) && emptyCanonicalDraft,
+    "Only language and the canonical empty menu draft are persisted before any selection", storageResult);
 
   const searchPayload = "<svg data-search-probe=\"true\"></svg>";
   await menu.locator("#menu-search").fill(searchPayload);
@@ -279,6 +293,11 @@ try {
   try {
     await smartChoice.goto(new URL("smart-choice/", BASE_URL).href, { waitUntil: "domcontentloaded" });
     await smartChoice.locator('#smart-choice-app[aria-busy="false"]').waitFor({ state: "visible" });
+    await smartChoice.waitForFunction(() => Boolean(window.RobysSmartChoiceExperiments?.getAssignment()), undefined, { timeout: 7_000 });
+    const initialAssignment = await smartChoice.evaluate(() => {
+      const assignment = window.RobysSmartChoiceExperiments?.getAssignment();
+      return assignment ? { experimentId: assignment.experimentId, experimentVersion: assignment.experimentVersion, variantId: assignment.variantId } : null;
+    });
     await smartChoice.locator('.lang-button[data-lang="ru"]').click();
     await smartChoice.getByRole("button", { name: "Помочь с выбором", exact: true }).click();
 
@@ -287,7 +306,13 @@ try {
       await smartChoice.locator(".actions .primary-button").click();
     }
 
-    const smartChoiceEvidence = await smartChoice.evaluate(() => ({
+    const smartChoiceEvidence = await smartChoice.evaluate(() => {
+      const api = window.RobysSmartChoiceExperiments;
+      const definition = api?.getDefinition();
+      const assignment = api?.getAssignment();
+      const persisted = JSON.parse(sessionStorage.getItem("robys-smart-choice-experiment-assignment.v1") ?? "null");
+      const analytics = JSON.parse(sessionStorage.getItem("robys-smart-choice-experiment.v1") ?? "null");
+      return {
       language: document.documentElement.lang,
       heading: document.querySelector("#smart-choice-app h1")?.textContent?.trim() ?? "",
       cards: [...document.querySelectorAll(".result-card")].map((card) => ({
@@ -296,8 +321,26 @@ try {
         price: Number(card.querySelector(".result-price")?.textContent?.match(/\d+/)?.[0] ?? NaN),
         top: card.classList.contains("result-card--top")
       })),
-      experiment: document.documentElement.dataset.smartChoiceExperiment ?? ""
-    }));
+      // The DOM treatment marker belongs to the optional welcome copy surface.
+      // Quick order enters the questions directly; assignment remains observable
+      // through the public API even though that welcome node was never mounted.
+      experiment: {
+        apiVersion: api?.version ?? "",
+        definitionId: definition?.id ?? "",
+        definitionVersion: definition?.version ?? "",
+        active: definition?.enabled === true && definition?.killSwitch === false,
+        assignmentId: assignment?.experimentId ?? "",
+        assignmentVersion: assignment?.experimentVersion ?? "",
+        assignmentPlatformVersion: assignment?.platformVersion ?? "",
+        variantId: assignment?.variantId ?? "",
+        knownVariant: Boolean(definition?.variants.some(variant => variant.id === assignment?.variantId)),
+        persistedAssignmentMatches: Boolean(assignment && persisted?.experimentId === assignment.experimentId
+          && persisted.experimentVersion === assignment.experimentVersion && persisted.variantId === assignment.variantId),
+        analyticsAssignmentMatches: Boolean(assignment && analytics?.id === assignment.experimentId && analytics.variant === assignment.variantId),
+        welcomeMarker: document.documentElement.dataset.smartChoiceExperiment ?? ""
+      }
+    };
+    });
     const top = smartChoiceEvidence.cards.find((card) => card.top);
     const economy = smartChoiceEvidence.cards.find((card) => card.role === "Экономнее");
     check(
@@ -309,10 +352,21 @@ try {
         Number.isFinite(economy?.price) &&
         economy.price < top.price &&
         !smartChoiceEvidence.cards.some((card) => card.name === "Hot Chocolate") &&
-        Boolean(smartChoiceEvidence.experiment) &&
+        smartChoiceEvidence.experiment.apiVersion !== "" &&
+        smartChoiceEvidence.experiment.definitionId === "smart-choice-benefit-copy-v1" &&
+        smartChoiceEvidence.experiment.active &&
+        smartChoiceEvidence.experiment.assignmentId === smartChoiceEvidence.experiment.definitionId &&
+        smartChoiceEvidence.experiment.assignmentVersion === smartChoiceEvidence.experiment.definitionVersion &&
+        smartChoiceEvidence.experiment.assignmentPlatformVersion === smartChoiceEvidence.experiment.apiVersion &&
+        smartChoiceEvidence.experiment.knownVariant &&
+        smartChoiceEvidence.experiment.persistedAssignmentMatches &&
+        smartChoiceEvidence.experiment.analyticsAssignmentMatches &&
+        initialAssignment?.experimentId === smartChoiceEvidence.experiment.assignmentId &&
+        initialAssignment?.experimentVersion === smartChoiceEvidence.experiment.assignmentVersion &&
+        initialAssignment?.variantId === smartChoiceEvidence.experiment.variantId &&
         smartChoiceErrors.length === 0,
-      "Smart Choice remains interactive under its experiment observer and returns a cheaper coffee-safe result",
-      { ...smartChoiceEvidence, errors: smartChoiceErrors }
+      "Smart Choice retains its active experiment assignment through the interactive flow and returns a cheaper coffee-safe result",
+      { ...smartChoiceEvidence, initialAssignment, errors: smartChoiceErrors }
     );
   } catch (error) {
     check(

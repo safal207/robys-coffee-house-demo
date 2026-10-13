@@ -48,6 +48,7 @@ try {
     const media = first.locator(".full-menu-item-media");
     const id = await first.getAttribute("data-product-id");
     await media.click();
+    await page.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
     const actionBeforeScroll = await page.locator("#menu-add-to-cart").evaluate(node => {
       const bounds = node.getBoundingClientRect();
       return { top: bounds.top, bottom: bounds.bottom, viewport: innerHeight };
@@ -83,7 +84,12 @@ try {
     await page.locator('#menu-root[data-ready="true"]').waitFor();
     check(`${lang}/session-restores-highlight`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2");
     await page.locator("#menu-cart-trigger").click();
-    check(`${lang}/exact-total`, (await page.locator("#menu-cart-dialog-total").textContent()).replace(/\D/g, "") === String(unit * 2), { expected: unit * 2 });
+    // After reload, the order UI loads on this intent. Its hidden HTML starts
+    // at 0 ₺; opening the dialog is the boundary at which it has read the draft.
+    await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+    const totalText = await page.locator("#menu-cart-dialog-total").textContent();
+    const actualTotal = Number(totalText.replace(/\D/g, ""));
+    check(`${lang}/exact-total`, actualTotal === unit * 2, { expected: unit * 2, actual: actualTotal, text: totalText });
     await page.locator(".menu-cart-line img").evaluateAll(images => Promise.all(images.map(img => img.decode())));
     await page.waitForTimeout(400);
     if (lang === "ru") await page.screenshot({ path: `${output}/cart-390.png` });
@@ -109,6 +115,7 @@ try {
     await page.keyboard.press("Escape");
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.locator(".full-menu-item--product .full-menu-item-media").first().click();
+    await page.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
     const animation = await page.locator(".menu-product-shell").evaluate(el => getComputedStyle(el).animationName);
     check(`${lang}/reduced-motion`, animation === "none", { animation });
     await page.keyboard.press("Escape");
