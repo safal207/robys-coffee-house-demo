@@ -41,10 +41,19 @@ export async function verifyOrder(page, label) {
   assert.equal((await page.locator('#menu-product-quantity').innerText()).trim(), '2');
   await page.locator('#menu-add-to-cart').click();
   assert.equal(await dialog.isVisible(), false);
-  assert.equal(await photo.evaluate(node => document.activeElement === node), true, `${label}: focus restored`);
-  assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2);
-  await page.locator('#menu-cart-trigger').click();
   const cart = page.locator('#menu-cart-dialog');
+  await cart.waitFor({state:'visible'});
+  await page.waitForFunction(() => document.activeElement === document.querySelector('#menu-cart-title'), null, {timeout:2000});
+  assert.equal(await cart.locator('#menu-cart-added-summary').isVisible(), true, `${label}: persistent added confirmation`);
+  assert.equal(await cart.locator('#menu-checkout-trigger').isEnabled(), true, `${label}: checkout is immediately available`);
+  assert.equal(await page.locator('.order-checkout-dialog[open]').count(), 0, `${label}: adding must not generate a QR`);
+  assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2);
+  assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
+  await cart.locator('.menu-cart-continue').click();
+  assert.equal(await cart.isVisible(), false);
+  assert.equal(await photo.evaluate(node => document.activeElement === node), true, `${label}: choosing more restores product focus`);
+  assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2, `${label}: choosing more preserves the order`);
+  await page.locator('#menu-cart-trigger').click();
   await cart.waitFor({state:'visible'});
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
   const increase = cart.locator('.menu-cart-step').last();
@@ -157,7 +166,7 @@ async function main() {
     report.checks.push({label:'mobile direct-menu navigation, pressed feedback and reduced motion',passed:true});
     await page.goto(`${base}smart-choice/`,{waitUntil:'networkidle'});
     await page.locator('[data-lang="en"]').click();
-    await page.locator('.primary-button').first().click();
+    await page.locator('.qb-help').click();
     for(const choice of ['Coffee','Hot','Sweet','One','250']) {
       await page.locator('.option-button').filter({hasText:choice}).first().click();
       assert.equal(await page.locator('.option-button[aria-pressed="true"]').count(),1);

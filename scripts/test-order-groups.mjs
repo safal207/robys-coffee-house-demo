@@ -59,7 +59,7 @@ test("changing a flavor preserves components when their identities collide insid
 });
 
 test("full-menu +/- gestures use the current shared draft rather than a stale visible row", () => {
-  const source = readFileSync(new URL("../src/menu-app.js", import.meta.url), "utf8");
+  const source = readFileSync(new URL("../src/menu-order-ui.js", import.meta.url), "utf8");
   const start = source.indexOf("function setCartQuantity(");
   const end = source.indexOf("\nfunction variantsFor(", start);
   assert.ok(start >= 0 && end > start, "execute the real menu mutation handler");

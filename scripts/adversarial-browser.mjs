@@ -171,8 +171,19 @@ try {
   await menu.locator(".full-menu-item--product .full-menu-item-media").first().click();
   await menu.locator("#menu-product-dialog[open]").waitFor({ state: "visible" });
   await menu.locator("#menu-add-to-cart").click();
-  await menu.locator("#menu-cart-trigger").click();
   await menu.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  const addedEvidence = await menu.locator("#menu-cart-dialog").evaluate(dialog => ({
+    title: dialog.querySelector("#menu-cart-title")?.textContent?.trim(),
+    summary: dialog.querySelector("#menu-cart-added-summary")?.textContent?.trim(),
+    summaryVisible: !dialog.querySelector("#menu-cart-added-summary")?.hidden,
+    checkout: dialog.querySelector("#menu-checkout-trigger")?.textContent?.trim(),
+    more: dialog.querySelector(".menu-cart-continue")?.textContent?.trim(),
+    automaticQr: Boolean(document.querySelector(".order-checkout-dialog[open]"))
+  }));
+  check("A11Y-CART-CONFIRM-001", addedEvidence.title === "Siparişine eklendi"
+    && addedEvidence.summaryVisible && addedEvidence.summary?.includes("× 1")
+    && addedEvidence.checkout === "Tamam, devam et" && addedEvidence.more === "Başka bir şey seç" && !addedEvidence.automaticQr,
+  "Adding opens a persistent order confirmation with explicit checkout or choose-more actions", addedEvidence);
   await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
   // Observe the live-region text without evaluating a string under the page CSP.
   // It is visually hidden for accessibility, so wait for attachment, not visibility.
@@ -269,7 +280,7 @@ try {
     await smartChoice.goto(new URL("smart-choice/", BASE_URL).href, { waitUntil: "domcontentloaded" });
     await smartChoice.locator('#smart-choice-app[aria-busy="false"]').waitFor({ state: "visible" });
     await smartChoice.locator('.lang-button[data-lang="ru"]').click();
-    await smartChoice.locator(".smart-card .primary-button").click();
+    await smartChoice.getByRole("button", { name: "Помочь с выбором", exact: true }).click();
 
     for (const optionIndex of [0, 0, 2, 0, 0]) {
       await smartChoice.locator(".option-button").nth(optionIndex).click();

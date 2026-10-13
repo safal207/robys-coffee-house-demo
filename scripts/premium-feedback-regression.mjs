@@ -8,6 +8,11 @@ mkdirSync(output, { recursive: true });
 const base = "http://127.0.0.1:4192/";
 const server = spawn("python3", ["-m", "http.server", "4192", "--bind", "127.0.0.1"], { stdio: "ignore" });
 const report = { boundary: "Real Chromium navigation with original CSP, emulated viewport; no physical-device/FPS/payment claim", checks: [], failures: [] };
+const nextStepCopy = {
+  tr: { added: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
+  en: { added: "Added to your order", checkout: "All set · continue", more: "Choose something else", payment: "Payment is at the counter." },
+  ru: { added: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё", payment: "Оплата на кассе." }
+};
 let browser;
 function check(id, passed, evidence = null) {
   const result = { id, passed: Boolean(passed), evidence };
@@ -20,6 +25,13 @@ async function ready() {
     await new Promise(r => setTimeout(r, 150));
   }
   throw new Error("Server startup timeout");
+}
+async function waitForFocus(locator) {
+  for (let attempt = 0; attempt < 50; attempt++) {
+    if (await locator.evaluate(node => node === document.activeElement)) return true;
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  return false;
 }
 try {
   await ready();
@@ -36,15 +48,37 @@ try {
     const media = first.locator(".full-menu-item-media");
     const id = await first.getAttribute("data-product-id");
     await media.click();
+    const actionBeforeScroll = await page.locator("#menu-add-to-cart").evaluate(node => {
+      const bounds = node.getBoundingClientRect();
+      return { top: bounds.top, bottom: bounds.bottom, viewport: innerHeight };
+    });
+    check(`${lang}/next-action-visible`, actionBeforeScroll.top >= 0 && actionBeforeScroll.bottom <= actionBeforeScroll.viewport, actionBeforeScroll);
     const unit = Number((await page.locator("#menu-product-price").textContent()).replace(/\D/g, ""));
     await page.locator("#menu-quantity-increase").click();
     check(`${lang}/quantity-preview`, (await page.locator("#menu-product-quantity").textContent()) === "2" && (await page.locator("#menu-add-to-cart").textContent()).includes(String(unit * 2)), { unit });
     await page.locator("#menu-add-to-cart").click();
     check(`${lang}/cart-add-two`, (await page.locator("#menu-cart-count").textContent()) === "2", { id });
     check(`${lang}/selected-card`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2", { id });
-    check(`${lang}/focus-return`, await media.evaluate(el => el === document.activeElement));
-    await page.waitForFunction(() => document.querySelector("#menu-cart-status.is-visible")?.textContent.includes("× 2"));
-    check(`${lang}/visible-confirmation`, true);
+    await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+    const text = nextStepCopy[lang];
+    const confirmation = await page.locator("#menu-cart-added-summary").textContent();
+    check(`${lang}/confirmation-focus`, await waitForFocus(page.locator("#menu-cart-title")));
+    check(`${lang}/visible-confirmation`, await page.locator("#menu-cart-added-summary").isVisible()
+      && (await page.locator("#menu-cart-title").textContent()) === text.added
+      && confirmation.includes((await first.locator(".full-menu-item-copy > strong").textContent()).trim())
+      && confirmation.includes("× 2") && confirmation.split("·").at(-1).replace(/\D/g, "") === String(unit * 2), { confirmation });
+    check(`${lang}/explicit-next-actions`, await page.getByRole("button", { name: text.checkout, exact: true }).isVisible()
+      && await page.getByRole("button", { name: text.more, exact: true }).isVisible()
+      && (await page.locator("#menu-cart-draft-note").textContent()).includes(text.payment));
+    check(`${lang}/no-automatic-checkout`, await page.locator(".order-checkout-dialog[open]").count() === 0);
+    if (lang === "ru") {
+      await page.waitForTimeout(3500);
+      check(`${lang}/confirmation-persists`, await page.locator("#menu-cart-dialog[open]").isVisible()
+        && await page.locator("#menu-cart-added-summary").isVisible());
+    }
+    await page.getByRole("button", { name: text.more, exact: true }).click();
+    await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
+    check(`${lang}/focus-return`, await waitForFocus(media));
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.locator('#menu-root[data-ready="true"]').waitFor();
     check(`${lang}/session-restores-highlight`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2");

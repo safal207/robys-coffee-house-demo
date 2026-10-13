@@ -71,18 +71,19 @@ function readPairingRevisionInputs() {
   }).outputFiles[0].text;
   return {
     pairingBytes, generatedPairing,
-    menuSource: readFileSync("src/menu-app.js", "utf8"),
+    orderSource: readFileSync("src/menu-order-ui.js", "utf8"),
+    orderRuntime: readFileSync("menu-order-ui.js", "utf8"),
     menuRuntime: readFileSync("menu-app.js", "utf8"),
     premiumBytes: readFileSync("menu-premium.css"),
     worker: readFileSync("sw-core-v64.js", "utf8")
   };
 }
 
-function verifyPairingRevision({ pairingBytes, generatedPairing, menuSource, menuRuntime, premiumBytes, worker }) {
+function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, orderRuntime, menuRuntime, premiumBytes, worker }) {
   assert.equal(pairingBytes, generatedPairing, "Pairing view bytes must match their readable source and bundled domain dependency");
   const pairingRevision = menuCatalogRevision(pairingBytes);
   const expectedUrl = `./menu-pairing.js?v=${pairingRevision}`;
-  for (const [file, source] of [["src/menu-app.js", menuSource], ["menu-app.js", menuRuntime]]) {
+  for (const [file, source] of [["src/menu-order-ui.js", orderSource], ["menu-order-ui.js", orderRuntime]]) {
     const imports = Array.from(source.matchAll(/\bimport\(["'](\.\/menu-pairing\.js(?:\?[^"']*)?)["']\)/g), (match) => match[1]);
     assert.deepEqual(imports, [expectedUrl], `${file} must lazily import the pairing view's exact content revision`);
   }
@@ -92,6 +93,7 @@ function verifyPairingRevision({ pairingBytes, generatedPairing, menuSource, men
   assert.deepEqual(cachedUrls, [expectedUrl], "Service worker must precache only the pairing view's exact content revision");
   const cacheRevision = menuCatalogRevision([
     menuCatalogRevision(menuRuntime),
+    menuCatalogRevision(orderRuntime),
     menuCatalogRevision(premiumBytes),
     pairingRevision
   ].join(":"));
@@ -107,7 +109,7 @@ test("lazy pairing source, emitted bytes, loader, precache and cache namespace s
 test("reject stale lazy pairing loaders, precache, source/output bytes and cache namespaces", () => {
   const current = readPairingRevisionInputs();
   const { expectedUrl, cacheRevision } = verifyPairingRevision(current);
-  for (const key of ["menuSource", "menuRuntime", "worker"]) {
+  for (const key of ["orderSource", "orderRuntime", "worker"]) {
     const inputs = { ...current, [key]: current[key].replace(expectedUrl, "./menu-pairing.js?v=000000000000") };
     assert.notEqual(inputs[key], current[key], `${key}: stale-URL control must actually change the fixture`);
     assert.throws(() => verifyPairingRevision(inputs), /exact content revision/, key);
@@ -115,7 +117,7 @@ test("reject stale lazy pairing loaders, precache, source/output bytes and cache
   for (const key of ["pairingBytes", "generatedPairing"]) {
     assert.throws(() => verifyPairingRevision({ ...current, [key]: current[key] + "\n// byte drift\n" }), /must match their readable source/, key);
   }
-  for (const key of ["menuRuntime", "premiumBytes"]) {
+  for (const key of ["menuRuntime", "orderRuntime", "premiumBytes"]) {
     assert.throws(() => verifyPairingRevision({ ...current, [key]: current[key] + "\n" }), /cache namespace must bind/, key);
   }
   const staleNamespace = current.worker.replace(`-custom-pair-${cacheRevision}-`, "-custom-pair-000000000000-");
@@ -202,6 +204,7 @@ test("returning service-worker cache does not reuse old catalog or lazy pairing 
   const worker = readFileSync("sw-core-v64.js", "utf8");
   await verifyReturningModuleCache(worker, "menu-catalog.js", menuCatalogRevision(readFileSync("menu-catalog.js")));
   await verifyReturningModuleCache(worker, "menu-pairing.js", menuCatalogRevision(readFileSync("menu-pairing.js")));
+  await verifyReturningModuleCache(worker, "menu-order-ui.js", menuCatalogRevision(readFileSync("menu-order-ui.js")));
 });
 
 test("actual-worker negative control rejects removal of the pairing exact-query cache rule", async () => {

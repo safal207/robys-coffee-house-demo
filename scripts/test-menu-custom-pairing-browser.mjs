@@ -13,6 +13,11 @@ const copy = {
   en: { legend: "Sweet with your drink", drinkOnly: "Just the drink", addPair: "Add pair to order", quantity: "Number of pairs" },
   ru: { legend: "Сладкое к напитку", drinkOnly: "Только напиток", addPair: "Добавить пару в заказ", quantity: "Количество пар" }
 };
+const confirmationCopy = {
+  tr: { title: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç" },
+  en: { title: "Added to your order", checkout: "All set · continue", more: "Choose something else" },
+  ru: { title: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё" }
+};
 
 // Expectations come from the catalog, independently of the pairing domain/view.
 const products = new Map();
@@ -94,6 +99,35 @@ async function close(page, trigger, escape = false) {
   assert.equal(await trigger.evaluate((node) => document.activeElement === node), true, "closing returns focus to the drink");
 }
 
+async function addAndConfirm(page) {
+  const language = await page.locator("html").getAttribute("lang");
+  const text = confirmationCopy[language];
+  const chosenName = await page.locator("#menu-product-title").textContent();
+  const chosenQuantity = await page.locator("#menu-product-quantity").textContent();
+  const chosenTotal = money(await page.locator("#menu-add-to-cart").textContent());
+  await page.locator("#menu-add-to-cart").click();
+  await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+  await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  assert.equal(await page.locator("#menu-cart-title").textContent(), text.title);
+  const summary = await page.locator("#menu-cart-added-summary").textContent();
+  assert.equal(await page.locator("#menu-cart-added-summary").isVisible(), true);
+  assert.equal(summary.includes(`${chosenName} × ${chosenQuantity}`), true, "confirmation preserves the chosen composition and quantity");
+  assert.equal(money(summary), chosenTotal, "confirmation amount equals the explicit Add amount");
+  assert.equal(await page.getByRole("button", { name: text.checkout, exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole("button", { name: text.more, exact: true }).isVisible(), true);
+  await poll(() => page.locator("#menu-cart-title").evaluate(node => document.activeElement === node), Boolean,
+    "confirmation heading receives focus after Add");
+  assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Add alone does not open checkout");
+}
+
+async function continueMenu(page, trigger) {
+  const language = await page.locator("html").getAttribute("lang");
+  await page.getByRole("button", { name: confirmationCopy[language].more, exact: true }).click();
+  await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
+  if (trigger) assert.equal(await trigger.evaluate(node => document.activeElement === node), true,
+    "Choose more returns focus to the product that was added");
+}
+
 async function choose(page, id) {
   const radio = page.locator(`#menu-pairing-picker input[name="menu-dessert"][value="${id}"]`);
   await radio.locator("..").click();
@@ -134,9 +168,9 @@ async function geometry(page, label) {
       return { left, right, top, bottom, width, height };
     };
     const images = [...dialog.querySelectorAll("#menu-pairing-preview img")].map((node) => ({ ...rect(node), loaded: node.naturalWidth > 0 }));
-    const content = dialog.querySelector(".menu-product-content").getBoundingClientRect();
     const clippedText = [];
     for (const node of dialog.querySelectorAll("h2, #menu-product-price, #menu-pairing-preview h3, #menu-pairing-preview figcaption, .menu-pairing-preview-total, .menu-pairing-summary, #menu-add-to-cart")) {
+      const content = node.closest(".menu-product-content, .menu-product-actions").getBoundingClientRect();
       const range = document.createRange();
       range.selectNodeContents(node);
       if ([...range.getClientRects()].some((part) => part.left < content.left - 1 || part.right > content.right + 1)) clippedText.push(node.textContent);
@@ -172,11 +206,12 @@ async function geometry(page, label) {
     const measured = await node.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
       const shell = element.closest(".menu-dialog-shell").getBoundingClientRect();
+      const region = element.closest(".menu-product-main, .menu-product-actions").getBoundingClientRect();
       const action = document.querySelector("#menu-add-to-cart").getBoundingClientRect();
       const overlap = Math.min(bounds.right, action.right) - Math.max(bounds.left, action.left) > 1 &&
         Math.min(bounds.bottom, action.bottom) - Math.max(bounds.top, action.top) > 1;
       return { text: element.textContent, top: bounds.top, bottom: bounds.bottom,
-        clipTop: Math.max(shell.top, 0), clipBottom: Math.min(shell.bottom, innerHeight), overlap };
+        clipTop: Math.max(shell.top, region.top, 0), clipBottom: Math.min(shell.bottom, region.bottom, innerHeight), overlap };
     });
     assert.equal(measured.top >= measured.clipTop - 1 && measured.bottom <= measured.clipBottom + 1, true, `${label}: ${measured.text} is reachable in the dialog scroll area`);
     assert.equal(measured.overlap, false, `${label}: the purchase action does not cover ${measured.text}`);
@@ -256,7 +291,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     await run("CUSTOM-PAIRING-ORDER-001", `${language}/${fallback ? "fallback" : "native"}: quantity2 adds one pair group and preserves existing order`, async (page) => {
       const recommendation = { token: "existing-browser-draft", signature: "independent-existing-selection", lines: [{ id: existing.id, quantity: 1 }] };
       await prepare(page, base, { language, fallback, seed: { version: 1, lines: [{ id: existing.id, quantity: 3 }], recommendation } });
-      await open(page, espresso);
+      const addedProductTrigger = await open(page, espresso);
       assert.equal(await page.locator("#menu-product-dialog").evaluate((node) => node.classList.contains("menu-dialog--fallback")), fallback);
       assert.equal(await page.locator("#menu-pairing-picker legend").textContent(), copy[language].legend);
       assert.equal(await page.locator(".menu-pairing-option").first().locator(".menu-pairing-name").textContent(), copy[language].drinkOnly);
@@ -278,7 +313,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await page.locator("#menu-add-to-cart").focus();
       await page.keyboard.press("Tab");
       assert.equal(await page.locator('#menu-product-dialog [data-menu-dialog-close="product"]').evaluate((node) => document.activeElement === node), true, "Tab stays within the native/fallback dialog");
-      await page.locator("#menu-add-to-cart").click();
+      await addAndConfirm(page);
       await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
       const draft = await cart(page);
       assert.deepEqual(entries(draft), sortedEntries([[existing.id, 3], [espresso.id, 2], [dessert.id, 2]]));
@@ -289,7 +324,6 @@ export async function verifyMenuCustomPairing(context, base, check) {
       assert.equal(pair.quantity, 2);
       assert.deepEqual(pair.items.map(item => item.id).sort(), [espresso.id, dessert.id].sort(), "pair identities remain together");
       assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 5, "cart count counts selections, including each pair once");
-      await page.locator("#menu-cart-trigger").click();
       await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
       assert.equal(await page.locator(".menu-cart-line").count(), 3, "two migrated selections plus one grouped pair");
       const pairRow = page.locator(".menu-cart-line").filter({ hasText: espresso.item.name[language] });
@@ -298,6 +332,8 @@ export async function verifyMenuCustomPairing(context, base, check) {
       assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), existing.item.price * 3 + (espresso.item.price + dessert.item.price) * 2);
       await page.keyboard.press("Escape");
       await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
+      assert.equal(await addedProductTrigger.evaluate(node => document.activeElement === node), true,
+        "Escape from confirmation returns focus to the drink");
       const trigger = await open(page, espresso);
       assert.equal(await page.locator(`input[name="menu-dessert"][value="${dessert.id}"]`).isChecked(), true, "reopening restores the chosen dessert in both dialog modes");
       assert.equal(await page.locator("#menu-product-quantity").textContent(), "2", "reopening restores quantity and clearly offers another selection");
@@ -321,9 +357,10 @@ export async function verifyMenuCustomPairing(context, base, check) {
     await choose(page, dessert.id);
     await choose(page, "");
     assert.equal(await page.locator("#menu-quantity-label").textContent(), menuCopy.ru.quantity);
-    await page.locator("#menu-add-to-cart").click();
+    await addAndConfirm(page);
     const committed = entries(await cart(page));
     assert.deepEqual(committed, [[otherDrink.id, 1]], "default/deselected choices add only the drink");
+    await continueMenu(page, trigger);
     await page.locator(".menu-page-back").click();
     await page.goBack({ waitUntil: "domcontentloaded" });
     await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible" });
@@ -343,10 +380,11 @@ export async function verifyMenuCustomPairing(context, base, check) {
     await prepare(page, base, { language: "ru" });
     const tea = products.get("brew-hot:black-tea");
     for (const drink of [tea, espresso]) {
-      await open(page, drink);
+      const trigger = await open(page, drink);
       await choose(page, dessert.id);
-      await page.locator("#menu-add-to-cart").click();
+      await addAndConfirm(page);
       await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+      await continueMenu(page, trigger);
     }
     await page.locator("#menu-cart-trigger").click();
     assert.equal(await page.locator(".menu-cart-line").count(), 2);
@@ -371,8 +409,9 @@ export async function verifyMenuCustomPairing(context, base, check) {
       if (index) await open(page, drink, false);
       await page.locator("#menu-product-variant").selectOption(flavor.id);
       assert.equal(await page.locator("#menu-add-to-cart").isEnabled(), true);
-      await page.locator("#menu-add-to-cart").click();
+      await addAndConfirm(page);
       await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
+      await continueMenu(page);
     }
     await page.locator("#menu-cart-trigger").click();
     assert.equal(await page.locator(".menu-cart-line").count(), 2);
@@ -423,7 +462,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await choose(page, dessert.id);
       assert.equal(await page.locator("#menu-product-quantity").textContent(), "1", "selection clamps to the tighter remaining line");
       assert.equal(await page.locator("#menu-quantity-increase").isDisabled(), true);
-      await page.locator("#menu-add-to-cart").click();
+      await addAndConfirm(page);
       const expected = new Map([[capped.id, 98], [existing.id, 3]]);
       for (const product of [espresso, dessert]) expected.set(product.id, (expected.get(product.id) ?? 0) + 1);
       const draft = await cart(page);
@@ -445,7 +484,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     assert.deepEqual(entries(await cart(page)), entries(seed), "even a stale synthetic activation cannot partially add a zero-capacity pair");
     await choose(page, "");
     assert.equal(await page.locator("#menu-add-to-cart").isEnabled(), true, "full dessert capacity still permits the drink alone");
-    await page.locator("#menu-add-to-cart").click();
+    await addAndConfirm(page);
     const draft = await cart(page);
     assert.deepEqual(entries(draft), sortedEntries([...entries(seed), [espresso.id, 1]]));
     return { remainingPairCapacity: 0, drinkOnlyStillAvailable: true, draft };
@@ -510,7 +549,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     assert.equal(await page.locator("#menu-add-to-cart").isEnabled(), true);
     assert.equal(money(await page.locator("#menu-add-to-cart").textContent()), espresso.item.price);
     assert.deepEqual((await cart(page)).lines, [], "failed optional loading does not commit an order");
-    await page.locator("#menu-add-to-cart").click();
+    await addAndConfirm(page);
     const draft = await cart(page);
     assert.deepEqual(entries(draft), [[espresso.id, 1]]);
     return { feedback, optionalLoadBlocked: true, draft };
@@ -532,7 +571,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     assert.deepEqual(entries(await cart(page)), entries(before), "retry only restores the draft UI");
     await choose(page, dessert.id);
     const preview = await assertPreview(page, espresso, dessert, "ru");
-    await page.locator("#menu-add-to-cart").click();
+    await addAndConfirm(page);
     const draft = await cart(page);
     assert.deepEqual(entries(draft), sortedEntries([[espresso.id, 1], [dessert.id, 1]]));
     return { recoveredAfterRetry: true, preview, draft };

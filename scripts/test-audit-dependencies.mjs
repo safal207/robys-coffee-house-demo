@@ -50,6 +50,17 @@ check("lazy pairing output links its readable view only when reached", {
 check("detached lazy pairing output cannot retain its readable view", {
   "index.html": "<main>Menu</main>", "menu-pairing.js": "export {};", "src/menu-pairing-view.js": "export {};"
 }, ["menu-pairing.js", "src/menu-pairing-view.js"]);
+check("lazy order UI reaches its source and actual bundled helpers", {
+  "index.html": '<script type="module" src="menu-app.js"></script>',
+  "menu-app.js": 'import("./menu-order-ui.js?v=fixture");', "src/menu-app.js": 'import("./menu-order-ui.js?v=fixture");',
+  "menu-order-ui.js": 'export {};',
+  "src/menu-order-ui.js": 'import "./src/order-draft.js"; import "./src/menu-pairing.js";',
+  "src/order-draft.js": 'export {};', "src/menu-pairing.js": 'export {};'
+}, [], [["menu-app.js", "src/menu-app.js"], ["menu-order-ui.js", "src/menu-order-ui.js"], ["menu-order-ui.js", "src/order-draft.js"], ["menu-order-ui.js", "src/menu-pairing.js"]]);
+check("detached order UI cannot retain its source or helpers", {
+  "index.html": '<main>Menu</main>', "menu-order-ui.js": 'export {};',
+  "src/menu-order-ui.js": 'import "./src/order-draft.js";', "src/order-draft.js": 'export {};'
+}, ["menu-order-ui.js", "src/menu-order-ui.js", "src/order-draft.js"]);
 check("unreferenced pairing domain remains an orphan", {
   "index.html": '<script type="module" src="menu-app.js"></script>',
   "menu-app.js": "export {};", "src/menu-app.js": "export {};", "src/menu-pairing.js": "export {};"

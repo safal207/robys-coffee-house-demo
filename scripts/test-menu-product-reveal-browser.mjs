@@ -8,16 +8,6 @@ const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "1
   stdio: "ignore"
 });
 
-async function revealTo(page, value) {
-  const control = page.locator(".menu-product-reveal-control");
-  await control.waitFor({ state: "visible", timeout: 5000 });
-  await control.evaluate((node, nextValue) => {
-    node.value = String(nextValue);
-    node.dispatchEvent(new Event("input", { bubbles: true }));
-  }, value);
-  return control;
-}
-
 let browser;
 try {
   for (let attempt = 0; attempt < 50; attempt += 1) {
@@ -56,28 +46,32 @@ try {
   await sanSebastian.click();
   await page.locator("#menu-product-dialog").waitFor({ state: "visible" });
 
-  const control = await revealTo(page, 35);
+  const bridge = page.locator(".menu-product-pairing-bridge");
+  await bridge.waitFor({ state: "visible" });
+  const control = page.locator(".menu-product-reveal-control");
   assert.equal(
     requests.some((path) => path.endsWith("/menu-product-reveal-runtime.js")),
     true,
     "Reveal runtime must load after San Sebastian is opened"
   );
-  assert.match(await control.getAttribute("aria-label"), /другой ракурс/i);
+  assert.equal(await control.isHidden(), true, "Identical approved photos must not expose a misleading alternate-angle slider");
+  assert.equal(await page.locator(".menu-product-reveal-image").isHidden(), true);
+  assert.equal(await page.locator(".menu-product-reveal-cue").isHidden(), true);
+  await page.locator("#menu-product-image").evaluate(image => image.decode());
   assert.equal(
     await page.locator(".menu-product-visual").getAttribute("data-menu-reveal-active"),
-    "true"
+    null,
+    "The catalog photo remains the only active product view"
   );
   assert.equal(
     await page.locator(".menu-product-visual").evaluate((node) => (
       node.style.getPropertyValue("--menu-reveal-position").trim()
     )),
-    "35%",
-    "Range interaction must move the reveal boundary"
+    "",
+    "A single photo must not retain a clipping boundary"
   );
-  assert.match(await control.getAttribute("aria-valuetext"), /65%/);
-
-  const bridge = page.locator(".menu-product-pairing-bridge");
-  await bridge.waitFor({ state: "visible" });
+  assert.equal(requests.some(path => path.endsWith("/src/products/san-sebastian.webp")), false,
+    "Single-photo mode must not download a duplicate overlay image");
   assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
   assert.match(await bridge.innerText(), /370\s*₺/);
   assert.match(await page.locator(".menu-product-pairing-action").innerText(), /Посмотреть сочетание/i);
@@ -103,14 +97,11 @@ try {
 
   await sanSebastian.click();
   await page.locator("#menu-product-dialog").waitFor({ state: "visible" });
-  await revealTo(page, 35);
+  await bridge.waitFor({ state: "visible" });
   await page.locator(".menu-product-pairing-action").click();
 
-  await page.waitForFunction(() => {
-    const dialog = document.querySelector("#menu-product-dialog");
-    const title = document.querySelector("#menu-product-title")?.textContent ?? "";
-    return dialog?.hasAttribute("open") && title.includes("Айс-латте + чизкейк Сан-Себастьян");
-  });
+  await page.locator("#menu-product-dialog[open] #menu-product-title")
+    .filter({ hasText: "Айс-латте + чизкейк Сан-Себастьян" }).waitFor({ state: "visible" });
 
   assert.match(await page.locator("#menu-product-title").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
   assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
@@ -119,13 +110,21 @@ try {
 
   await page.locator("#menu-add-to-cart").click();
   assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Pairing must add as one existing catalog line");
-  await page.locator("#menu-cart-trigger").click();
-  await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
+  await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  assert.equal(await page.locator("#menu-cart-title").innerText(), "Добавлено в заказ");
+  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
+  assert.equal(await page.getByRole("button", { name: "Всё, к оформлению", exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole("button", { name: "Выбрать ещё", exact: true }).isVisible(), true);
+  assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding must not implicitly create a QR checkout");
   assert.equal(
     Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
     370,
     "Pairing bridge must reuse the existing 370 ₺ cart item without double-adding San Sebastian"
   );
+  await page.getByRole("button", { name: "Выбрать ещё", exact: true }).click();
+  await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
+  assert.equal(await page.locator('[data-product-id="pairing-offers:iced-san-sebastian-pairing"] .full-menu-item-media')
+    .evaluate(node => document.activeElement === node), true, "Continue browsing returns focus to the chosen pairing");
 
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
   await context.close();

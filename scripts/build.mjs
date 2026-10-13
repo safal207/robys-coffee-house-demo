@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
-import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
 import { sharedMenuCatalogPlugin } from "./smart-choice-catalog-external.mjs";
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
@@ -30,9 +30,14 @@ await build({
   format: "esm", target: "es2020", outfile: "menu-pairing.js", legalComments: "none"
 });
 const menuPairingRevision = revisionFor("menu-pairing.js");
+let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
+menuOrderSource = synchronizeModuleImport(menuOrderSource, "order-checkout.js", orderCheckoutRevision);
+menuOrderSource = synchronizeModuleImport(menuOrderSource, "menu-pairing.js", menuPairingRevision);
+writeFileSync("src/menu-order-ui.js", menuOrderSource);
+writeFileSync("menu-order-ui.js", compileMenuOrderRuntime());
+const menuOrderRevision = revisionFor("menu-order-ui.js");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
-menuSource = synchronizeModuleImport(menuSource, "order-checkout.js", orderCheckoutRevision);
-menuSource = synchronizeModuleImport(menuSource, "menu-pairing.js", menuPairingRevision);
+menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
@@ -401,7 +406,7 @@ cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision
 writeFileSync("cashier.html", cashierHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
-for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css",
+for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js",
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -419,7 +424,7 @@ serviceWorker = serviceWorker.replace(
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
 const customPairingCacheRevision = createHash("sha256")
-  .update(`${menuAppRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
+  .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-custom-pair-${customPairingCacheRevision}-shared-order-`);
 for (const { name, target, revision } of landingCacheStyles) {
@@ -451,6 +456,7 @@ for (const [filePath, revision] of [
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-order-ui.js", menuOrderRevision],
   ["menu-pairing.js", menuPairingRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],

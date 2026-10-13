@@ -1,11 +1,11 @@
-import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
+import { readVerifiedMenuSource, readVerifiedMenuOrderSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { runInNewContext } from "node:vm";
 
 const html = readFileSync("menu.html", "utf8");
-const runtime = readVerifiedMenuSource();
+const runtime = `${readVerifiedMenuSource()}\n${readVerifiedMenuOrderSource()}`;
 const styles = `${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")}`;
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const menuSource = readFileSync("menu-catalog.js", "utf8");
@@ -89,8 +89,8 @@ assert.equal(visualItemCount, 63, "Every current menu item and pairing must rema
 for (const contract of [
   'const CART_STORAGE_KEY = "robys-menu-order.v1"',
   "readStoredOrderDraft(orderProductIds)",
-  "writeStoredOrderDraft(orderDraft, orderProductIds)",
-  "media.addEventListener(\"click\", () => openProduct(id))",
+  "writeStoredOrderDraft(draft, orderProductIds)",
+  "media.addEventListener(\"click\", event => openProduct(id, event.currentTarget))",
   "total += product.item.price * lineQuantity",
   "quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
   "formatPrice(total)",
@@ -237,7 +237,7 @@ for (const language of ["tr", "en", "ru"]) {
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
     productDecrease: element(), productIncrease: element(), languageButtons: [],
-    selectedProductId: "", renderCart: () => {}
+    orderUi: undefined, renderCart: () => {}
   });
   assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
   assert.equal(chooseMore.attributes["aria-label"], undefined,

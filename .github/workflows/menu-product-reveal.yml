@@ -32,11 +32,11 @@ jobs:
           node --check menu-product-reveal-runtime.js
           node --check scripts/test-menu-product-reveal.mjs
           node --check scripts/test-menu-product-reveal-browser.mjs
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts
       - name: Verify reveal contract
         run: node scripts/test-menu-product-reveal.mjs
-      - name: Install browser test dependencies
-        run: |
-          npm ci --ignore-scripts
-          npx playwright install --with-deps chromium
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
       - name: Run Chromium reveal smoke
         run: node scripts/test-menu-product-reveal-browser.mjs
