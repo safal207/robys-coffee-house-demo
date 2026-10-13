@@ -36,7 +36,8 @@ const SOCIAL_OFFER: SocialOffer = {
     en: "Instagram",
     ru: "Instagram"
   },
-  price: 340,
+  // Checked against the catalog sum by verify:social-offer without loading the catalog here.
+  price: 370,
   currency: "₺",
   href: "https://www.instagram.com/robyscoffeehouse/"
 };

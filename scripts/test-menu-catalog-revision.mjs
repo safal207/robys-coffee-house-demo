@@ -218,3 +218,94 @@ test("actual-worker negative control rejects removal of the pairing exact-query 
     "Removing the exact-query rule must reproduce stale lazy-module reuse"
   );
 });
+
+function readSocialOfferRevisionInputs() {
+  return {
+    offerBytes: readFileSync("social-offer.js"),
+    home: readFileSync("index.html", "utf8"),
+    worker: readFileSync("sw-core-v64.js", "utf8")
+  };
+}
+
+function verifySocialOfferRevision({ offerBytes, home, worker }) {
+  const revision = menuCatalogRevision(offerBytes);
+  const expectedUrl = `social-offer.js?v=${revision}`;
+  const scripts = Array.from(home.matchAll(/<script\b[^>]*\bsrc=["'](?:\.\/)?(social-offer\.js(?:\?[^"']*)?)["']/g), (match) => match[1]);
+  assert.deepEqual(scripts, [expectedUrl], "Home must load the social offer's exact content revision");
+  const precache = worker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1];
+  assert.ok(precache, "Service worker precache list is missing");
+  const cachedUrls = Array.from(precache.matchAll(/["'](\.\/social-offer\.js(?:\?[^"']*)?)["']/g), (match) => match[1]);
+  assert.deepEqual(cachedUrls, [`./${expectedUrl}`], "Service worker must precache the social offer's exact content revision");
+  const cacheVersion = worker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
+  assert.ok(cacheVersion?.includes(`-social-offer-${revision}-`), "Social offer cache namespace must bind its actual runtime bytes");
+  return { revision, expectedUrl, cacheVersion };
+}
+
+test("home offer runtime, page, precache and cache namespace share their content revision", () => {
+  verifySocialOfferRevision(readSocialOfferRevisionInputs());
+});
+
+test("reject stale home offer loaders, precache and cache namespaces after offer byte changes", () => {
+  const current = readSocialOfferRevisionInputs();
+  const { expectedUrl, revision } = verifySocialOfferRevision(current);
+  for (const key of ["home", "worker"]) {
+    const stale = current[key].replace(expectedUrl, "social-offer.js?v=000000000000");
+    assert.notEqual(stale, current[key], `${key}: stale-URL control must change the fixture`);
+    assert.throws(() => verifySocialOfferRevision({ ...current, [key]: stale }), /exact content revision/);
+  }
+  assert.throws(() => verifySocialOfferRevision({ ...current, offerBytes: Buffer.concat([current.offerBytes, Buffer.from("\n")]) }), /exact content revision/);
+  const staleNamespace = current.worker.replace(`-social-offer-${revision}-`, "-social-offer-000000000000-");
+  assert.notEqual(staleNamespace, current.worker, "Cache namespace control must change the fixture");
+  assert.throws(() => verifySocialOfferRevision({ ...current, worker: staleNamespace }), /cache namespace must bind/);
+});
+
+test("returning worker fetches the current home offer instead of reusing its old query", async () => {
+  const inputs = readSocialOfferRevisionInputs();
+  const { revision } = verifySocialOfferRevision(inputs);
+  await verifyReturningModuleCache(inputs.worker, "social-offer.js", revision);
+  const exactOfferRule = /url\.pathname\.endsWith\("\/social-offer\.js"\)\s*\|\|/;
+  assert.match(inputs.worker, exactOfferRule, "Negative control must remove the actual social offer exact-query rule");
+  await assert.rejects(
+    verifyReturningModuleCache(inputs.worker.replace(exactOfferRule, ""), "social-offer.js", revision),
+    /a stale query must not satisfy the current content URL/,
+    "Removing the exact-query rule must reproduce stale offer reuse"
+  );
+});
+
+test("actual worker installation precaches the new offer and activation retires the previous home cache", async () => {
+  const inputs = readSocialOfferRevisionInputs();
+  const { expectedUrl, revision, cacheVersion } = verifySocialOfferRevision(inputs);
+  const previousVersion = cacheVersion.replace(`-social-offer-${revision}`, "");
+  const cacheNames = new Set([previousVersion]);
+  const handlers = new Map();
+  let precached;
+  let skippedWaiting = false;
+  let claimed = false;
+  runInNewContext(inputs.worker, {
+    URL,
+    caches: {
+      async open(name) {
+        assert.equal(name, cacheVersion);
+        cacheNames.add(name);
+        return { async addAll(urls) { precached = Array.from(urls); } };
+      },
+      async keys() { return Array.from(cacheNames); },
+      async delete(name) { return cacheNames.delete(name); }
+    },
+    self: {
+      registration: { scope: "https://example.test/robys-coffee-house-demo/" },
+      addEventListener(name, handler) { handlers.set(name, handler); },
+      async skipWaiting() { skippedWaiting = true; },
+      clients: { async claim() { claimed = true; } }
+    }
+  });
+  let completion;
+  handlers.get("install")({ waitUntil(promise) { completion = promise; } });
+  await completion;
+  assert.ok(precached.includes(`./${expectedUrl}`));
+  assert.equal(skippedWaiting, true);
+  handlers.get("activate")({ waitUntil(promise) { completion = promise; } });
+  await completion;
+  assert.deepEqual(Array.from(cacheNames), [cacheVersion], "Activation must remove the previously cached home and offer");
+  assert.equal(claimed, true);
+});
