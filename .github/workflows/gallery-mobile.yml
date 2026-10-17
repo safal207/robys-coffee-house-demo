@@ -80,17 +80,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
-      - name: Install Playwright without changing the lockfile
-        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.55.0
-
       - name: Install browser engines
-        run: npx playwright install --with-deps webkit chromium
+        run: npx --no-install playwright install --with-deps webkit chromium
 
       - name: Verify codec-capable Chrome
         run: google-chrome --version
 
       - name: Run mobile gallery matrix
-        run: npx playwright test --config=qa/playwright.config.ts
+        run: npx --no-install playwright test --config=qa/playwright.config.ts
 
       - name: Upload Playwright report
         if: always()

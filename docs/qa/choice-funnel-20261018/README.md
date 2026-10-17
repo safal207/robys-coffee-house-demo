@@ -19,3 +19,13 @@ Captured locally on 18 October 2026 (Moscow date) against base `d368897b8185cbf1
 | [cart-390-ru.png](cart-390-ru.png) | Two selected pairs, 740 ₺ total, explicit QR action. |
 
 These are local assistant-produced evidence, not independent human approval or proof of sales growth. Element captures can include fixed navigation where it intersects the captured region. The browser matrix additionally verifies text reachability at 200%, short screens, focus, failure recovery and no-JavaScript links. Reproduce with the commands in [choice-to-counter.md](../../choice-to-counter.md). Required CI remains authoritative for release.
+
+## Follow-up CI diagnosis
+
+Initial CI on `21418d0` found stale checkout-copy expectations in the premium-feedback and product-reveal browser checks. Those assertions now expect the explicit QR text; local feedback passed 55/55 and the product-reveal smoke passed. The adversarial expectation is synchronized too.
+
+The iOS and gallery jobs stopped before testing, while trying to install older browser packages over the committed lockfile (`npm: Cannot read properties of null (reading edgesOut)`). Their workflows, plus the adversarial workflow, now consume locked Playwright 1.55.1. `@playwright/test` is pinned to the same version; no application behavior, workflow permission, scenario or threshold was relaxed.
+
+The local base/head visual comparison produced 43 captures, of which 18 exceeded the unchanged global threshold. All 18 were inspected: four full-page height changes add the planned section, four hero changes alter action hierarchy/copy, and ten lower-section crops contain 1 px rasterization/crop differences with content and controls intact. `visual-summary.json` and the content-bound record in `qa/reviewed-visual-changes.d/choice-to-counter-20261018.json` preserve the exact observed failure set. This local inspection does not assert that CI has passed.
+
+After pinning the runner, `npm run check`, `npm run verify:security`, the installed-toolchain verifier and `npm audit --audit-level=high` passed (zero reported vulnerabilities). The gallery runner discovers all 24 existing tests; listing is not an execution pass.

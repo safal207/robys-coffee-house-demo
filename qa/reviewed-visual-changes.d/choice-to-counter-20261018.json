@@ -1,0 +1,303 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "choice-to-counter-20261018",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/433",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "sourceHead": "21418d01b769a8dc2a95a5312acfea9694a64093",
+      "baselineHead": "d368897b8185cbf120f051398fb2dc2a5cc9663b",
+      "evidenceKind": "local-locked-toolchain-captures",
+      "summary": "Inspected the 18 failing comparisons out of 43: four full landings add the coffee paths section and order steps; four hero captures reflect the new CTA hierarchy and counter note. Ten existing section captures show 1 px crop/rasterization shifts after the preceding content changed height; content, price, links and surrounding layout are intact. Existing sticky navigation appears in both baseline and current element captures. Narrowly bound to these files, dimensions and observed ratios rounded up to six decimal places; global thresholds are unchanged. This is assistant inspection, not independent human approval. CI may reject a different failure set.",
+      "captureSummarySha256": "e19e647022161b7a5dee937a13bc264fb11dcb395fecebb9ecda152637693323",
+      "contentBindings": {
+        "index.html": "e864a219e999d37adf32ca13d8b4448733670b0e",
+        "coffee-paths.css": "42b6c9641e7f5c9a4ff088381f2029b0cb0bbf0a",
+        "social-offer.js": "85eb159cb377e9519242450281b7373f265f8e7d",
+        "src/social-offer.ts": "953c527684d66acd69229acfbcc3273ddbd325d6",
+        "styles-v2.css": "b6aea0c556daa5620730fbf5873e2d088a19c195",
+        "conversion.css": "3eace373b7435b2bdf42d13f270126c1dedbf907",
+        "featured-gallery.css": "2f73520206ca458cfbdfde529e1e923724706f46",
+        "final-qa-v2.css": "68be65202d440734d92e6299c7fb17906384a327",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x7065 vs 320x8147"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "totalPixels": 93760,
+          "maxDiffPixelRatio": 0.014964
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "totalPixels": 230400,
+          "maxDiffPixelRatio": 0.133824
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x265 vs 360x264"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x7595 vs 390x8644"
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "totalPixels": 390000,
+          "maxDiffPixelRatio": 0.085052
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x949 vs 390x950"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 530400,
+          "maxDiffPixelRatio": 0.015291
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x246 vs 390x245"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x6404 vs 768x7161"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x218 vs 768x219"
+        },
+        {
+          "capture": "hero",
+          "viewport": "laptop-1366",
+          "totalPixels": 1049088,
+          "maxDiffPixelRatio": 0.073428
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "laptop-1366",
+          "totalPixels": 979422,
+          "maxDiffPixelRatio": 0.009716
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "totalPixels": 1334582,
+          "maxDiffPixelRatio": 0.004329
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1366x214 vs 1366x215"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6055 vs 1440x6901"
+        },
+        {
+          "capture": "hero",
+          "viewport": "desktop-1440",
+          "totalPixels": 1584000,
+          "maxDiffPixelRatio": 0.050894
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "desktop-1440",
+          "totalPixels": 309600,
+          "maxDiffPixelRatio": 0.003227
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "file": "landing-full__phone-320.png",
+          "sha256": {
+            "baseline": "9e1a524d2aa176a3204c4c1139a5a6d10184e755e738bc4cfd6dc91c74a57c3f",
+            "current": "cdbefa9a1991e3ed98771e7949976bd376bd32a97acebd343e6891e23b354376"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "file": "social-offer__phone-320.png",
+          "sha256": {
+            "baseline": "7c58b40ca6d339f13080993033e0e22c1f142ca1307573c68751bd814f050b45",
+            "current": "0980c9a315ef81d4049ddf78a88b50a2c9aee415f04c119a5e9a82c6d7de2d7b",
+            "diff": "32d9e70b05a9fac3914f4660894a77e1b50a92a3d8417723987ac346b5d80478"
+          }
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-360-short",
+          "file": "hero__phone-360-short.png",
+          "sha256": {
+            "baseline": "a6b63b2d7754fd4eebcfc15fa293ee44b6963cd8a2b67b4375070c585e484885",
+            "current": "6f90fc710f96047f8a6f184a6f2443efc807a10075a2f12229653d9a31980ddb",
+            "diff": "c9daf63654db7a14a552ded91b6ff0763209859a42c9e57e24f9cc7e686e1ac8"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "file": "social-offer__phone-360-short.png",
+          "sha256": {
+            "baseline": "02c1844b35ab70662ad324e99053c256ca5d7c629a038b8548b34f8921a9ac30",
+            "current": "e079f2f1a038f8edb7dbe5fb474a834b895c0935a82742cc104f20c298bf0211"
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "file": "landing-full__phone-390.png",
+          "sha256": {
+            "baseline": "0678539cea6c5c9dc02ba79b2a15c80be82d33ffd4d6bcc11fb5eb5b1eeda8d8",
+            "current": "9b86037bf28be09cfaa8993cd853816fd5d8592dc7031011c59f15f42d57c0e7"
+          }
+        },
+        {
+          "capture": "hero",
+          "viewport": "phone-390",
+          "file": "hero__phone-390.png",
+          "sha256": {
+            "baseline": "f71109af4c85b067997d477cca400227bb2e7604d8a2c275898c628f186038d4",
+            "current": "463422364c3305a38bcfca8dde260b2bca2977ff12f7600f639cb34e3a68165b",
+            "diff": "88375c87b6570c477b2d04d1220cc14ba7e459743b03d5dabcfcce8cffb87c1a"
+          }
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "file": "menu-preview__phone-390.png",
+          "sha256": {
+            "baseline": "090b7b50b77bd527e2e1f62ac5eaedc2f1570e32468f3be5f2c3e7262a85681b",
+            "current": "9a7a21ea490df9a1dc2b1f1a5bf0b49c61556bbd083deb17e380bb487fcbaccc"
+          }
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "file": "visit-map__phone-390.png",
+          "sha256": {
+            "baseline": "f8f9752dfc66fdbcf0862bfa2304078cd87f7fee3a90020614edd2df428365a4",
+            "current": "1358192c821003cafcb4c74d1f9fedbcf95b99522cb5698a175fcc1ffd791e33",
+            "diff": "08b1c156605bcc552c8dfdec3958abd608f865daff86b93811fd6d89b8285c44"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "file": "social-offer__phone-390.png",
+          "sha256": {
+            "baseline": "ea386fdfd63bc9f90060e5b7146a0814ca111a8a5ac47d152c4b034467650102",
+            "current": "c181512959ee94e7e8e98626d4376a3d0c2bf59a35fe0d99f4071f9e50ca8527"
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "file": "landing-full__tablet-768.png",
+          "sha256": {
+            "baseline": "f12f8fec2f03d9a42a30ef88e4ac09a31af07d202b8739dfeeadc2ca4f7c8b7d",
+            "current": "5d4dd1c5774b4b7e7f8ca1a488ea00fd40f55d78932f098e1a99b827c72e491a"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "file": "social-offer__tablet-768.png",
+          "sha256": {
+            "baseline": "509965670ff7dcf322b2765aa9e62e2a3edad6e66a616c266edd775ffdd2d6fe",
+            "current": "262513a125d8240362b7d7ffabb28f8eb2745172296371f66c428706898be373"
+          }
+        },
+        {
+          "capture": "hero",
+          "viewport": "laptop-1366",
+          "file": "hero__laptop-1366.png",
+          "sha256": {
+            "baseline": "767200b5cd15c42e82287c8c1e72f94b7ae9359481a9e18fa9c944660f9cbcda",
+            "current": "c074f9b354d6d5d623c67429b505dbdb1e246b53a190f11bb590832dd6bf8eab",
+            "diff": "8c2832a4cf21d0d999854f47c0273f891d0b20a49b2a4cd252539410ef4d282e"
+          }
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "laptop-1366",
+          "file": "menu-preview__laptop-1366.png",
+          "sha256": {
+            "baseline": "ac5ea803d6e00e63729ea33c7d4d9fdb55a1830a50808bfebe2f5d3ee57504f4",
+            "current": "3b2b0f456dcbd86d2a505c98779306e2c259dc11d519e52c861bd2e7d18c5a86",
+            "diff": "8c580176f966287455dea56061a83f41a45fd19b1d9ad237a56b7a59bee28a52"
+          }
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "file": "visit-map__laptop-1366.png",
+          "sha256": {
+            "baseline": "565530422a47ac97cf382abbbb0c7c940baacc29d130fa427012cdb78edb684d",
+            "current": "183f200789e093f37f1a14e75f6e7264cfd82aa0fa8eaa489af2c4f9f5585941",
+            "diff": "cc3d97d933704a4208f1905a25961f3004d41bf30366c019c3503f862f4aa69b"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "laptop-1366",
+          "file": "social-offer__laptop-1366.png",
+          "sha256": {
+            "baseline": "91fbff6a7c7b946141136e80a2584c804d84b83621e34c8fac45b1de26be3a52",
+            "current": "3b9d1b3bb9b8d022a23bbd37d1cd7bc2d79b7471e5992fb6873be46d41b319bc"
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "file": "landing-full__desktop-1440.png",
+          "sha256": {
+            "baseline": "45dc512a04e7c4c16735fbe07e30308b91f82a81e17656b0baed36ae04e55803",
+            "current": "92f39743c14dbea1c33b3485f185c9b5e1b26ec41adb313a04599ef6388869e0"
+          }
+        },
+        {
+          "capture": "hero",
+          "viewport": "desktop-1440",
+          "file": "hero__desktop-1440.png",
+          "sha256": {
+            "baseline": "872383c44beb462c829e875c396a751172ca584de423d6094425234210dcf396",
+            "current": "f66c916397b66b64a870897b9a0ab33fe6c4aea235bd9678f0a1cfc8fc97a216",
+            "diff": "97bffe61b01c832eeb6a2d8e57835175a5e6d7fec2e437d72146660f710c89d8"
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "desktop-1440",
+          "file": "social-offer__desktop-1440.png",
+          "sha256": {
+            "baseline": "b95841adbec7e2b08843820515f1de8b5b6c77c45c8f23d535bc8702d0ce4192",
+            "current": "ab7f0c69e7887c2f9bd7a7541bec53c05868ed94d594f72b99f56f7e51693dbf",
+            "diff": "b10a155d81f7818dba3bc99680b7de60dab935abb7fc4ec65322850edd323d56"
+          }
+        }
+      ]
+    }
+  ]
+}

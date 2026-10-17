@@ -28,8 +28,7 @@ jobs:
 
       - name: Install Playwright for the iOS WebKit gate
         run: |
-          npm install --no-save --package-lock=false playwright@1.53.2
-          npx playwright install --with-deps webkit
+          npx --no-install playwright install --with-deps webkit
 
       - name: Build site
         run: npm run build
