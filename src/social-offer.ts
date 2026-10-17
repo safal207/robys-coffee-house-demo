@@ -49,9 +49,9 @@ const TASTE_JOURNEY_LINK: LocalizedCopy = {
 };
 
 const SMART_CHOICE_LINK: LocalizedCopy = {
-  tr: "Seçmeme yardım et",
-  en: "Help me choose",
-  ru: "Помочь выбрать"
+  tr: "Siparişimi oluştur",
+  en: "Build my order",
+  ru: "Собрать заказ"
 };
 
 function localizedElement<K extends keyof HTMLElementTagNameMap>(

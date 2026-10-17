@@ -17,6 +17,11 @@ The repository is no longer a one-page mockup. It contains a multilingual storef
 
 The customer-facing experience supports **Turkish, English and Russian**, responsive layouts, reduced-motion preferences, keyboard navigation, structured SEO data, offline caching, Google Maps and Instagram entry points.
 
+The [choice-to-counter journey](docs/choice-to-counter.md) connects three homepage
+entry points, a short optional dessert selection, a complete price review and
+the cashier QR. Run `npm run test:choice-funnel` for its browser regression checks
+and reproducible screenshots.
+
 ## Technology
 
 - Semantic HTML and modular CSS
