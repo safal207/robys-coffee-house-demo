@@ -1,0 +1,476 @@
+{
+  "generatedAt": "2026-10-18T22:28:18.715Z",
+  "baseCommit": "f3f855accc376af38ab2e3c57565404f870c2769",
+  "environment": "Unchanged built files; original CSP; local HTTPS; fresh contexts; external requests blocked; desktop browser engines with touch viewport emulation, not physical devices",
+  "assetHashesStart": {
+    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
+    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
+    "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
+    "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
+    "src/seasonal-theme.ts": "9e907aa94a6bcf950298e2bc02bceb116cc443e828b1b662048925e1f72ed336",
+    "seasonal-theme.js": "7e07ce1187f0f86dabc2dd0dbaddd05bc67f97654b8de52b03e3edbc1499b6be",
+    "seasonal.css": "5805e35cea7a241d63cbe44b60c89e1a93167cc2904e1e853c5d43ca4140f73f",
+    "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
+    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "integrity-manifest.json": "4ce5dc11e8075550d46c682b294a4049eea4d741df2bccbb5cbd02c5db8baf6b",
+    "scripts/test-seasonal-theme-browser.mjs": "62cabfa761bb48f563a2b8ded24d3f276d5fe3c7f2d3232b4d10c4214577a72e"
+  },
+  "browsers": {
+    "chromium": "140.0.7339.186",
+    "webkit": "26.0"
+  },
+  "cases": [
+    {
+      "id": "chromium/index.html/320x640/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/320x640/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/320x640/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/390x844/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/390x844/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/390x844/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/768x1024/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/768x1024/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/768x1024/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/1440x900/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/1440x900/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/1440x900/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/date/2026-10-14T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/date/2026-10-15T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/date/2026-10-31T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/date/2026-11-01T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/date/2027-10-19T12:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/midnight-sunset-without-reload",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/language-switch",
+      "passed": true
+    },
+    {
+      "id": "chromium/index.html/no-javascript-fallback",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/320x640/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/320x640/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/320x640/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/390x844/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/390x844/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/390x844/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/768x1024/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/768x1024/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/768x1024/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/1440x900/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/1440x900/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/1440x900/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/date/2026-10-14T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/date/2026-10-15T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/date/2026-10-31T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/date/2026-11-01T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/date/2027-10-19T12:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/midnight-sunset-without-reload",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/language-switch",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/no-javascript-fallback",
+      "passed": true
+    },
+    {
+      "id": "chromium/discover.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/discover.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/discover.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/smart-choice/index.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/smart-choice/index.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/smart-choice/index.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/experience/index.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "chromium/experience/index.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "chromium/experience/index.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/ru/coffee-gazipasa.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "chromium/normal-motion-still-decoration",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/seasonal-breakpoint/679",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/seasonal-breakpoint/680",
+      "passed": true
+    },
+    {
+      "id": "chromium/menu.html/seasonal-breakpoint/681",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/320x640/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/320x640/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/320x640/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/390x844/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/390x844/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/390x844/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/768x1024/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/768x1024/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/768x1024/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/1440x900/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/1440x900/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/1440x900/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/date/2026-10-14T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/date/2026-10-15T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/date/2026-10-31T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/date/2026-11-01T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/date/2027-10-19T12:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/midnight-sunset-without-reload",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/language-switch",
+      "passed": true
+    },
+    {
+      "id": "webkit/index.html/no-javascript-fallback",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/320x640/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/320x640/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/320x640/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/390x844/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/390x844/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/390x844/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/768x1024/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/768x1024/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/768x1024/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/1440x900/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/1440x900/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/1440x900/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/date/2026-10-14T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/date/2026-10-15T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/date/2026-10-31T23:59:59+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/date/2026-11-01T00:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/date/2027-10-19T12:00:00+03:00",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/midnight-sunset-without-reload",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/language-switch",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/no-javascript-fallback",
+      "passed": true
+    },
+    {
+      "id": "webkit/discover.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/discover.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/discover.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/smart-choice/index.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/smart-choice/index.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/smart-choice/index.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/experience/index.html/390/tr",
+      "passed": true
+    },
+    {
+      "id": "webkit/experience/index.html/390/en",
+      "passed": true
+    },
+    {
+      "id": "webkit/experience/index.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/ru/coffee-gazipasa.html/390/ru",
+      "passed": true
+    },
+    {
+      "id": "webkit/normal-motion-still-decoration",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/seasonal-breakpoint/679",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/seasonal-breakpoint/680",
+      "passed": true
+    },
+    {
+      "id": "webkit/menu.html/seasonal-breakpoint/681",
+      "passed": true
+    }
+  ],
+  "assetHashesEnd": {
+    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
+    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
+    "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
+    "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
+    "src/seasonal-theme.ts": "9e907aa94a6bcf950298e2bc02bceb116cc443e828b1b662048925e1f72ed336",
+    "seasonal-theme.js": "7e07ce1187f0f86dabc2dd0dbaddd05bc67f97654b8de52b03e3edbc1499b6be",
+    "seasonal.css": "5805e35cea7a241d63cbe44b60c89e1a93167cc2904e1e853c5d43ca4140f73f",
+    "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
+    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "integrity-manifest.json": "4ce5dc11e8075550d46c682b294a4049eea4d741df2bccbb5cbd02c5db8baf6b",
+    "scripts/test-seasonal-theme-browser.mjs": "62cabfa761bb48f563a2b8ded24d3f276d5fe3c7f2d3232b4d10c4214577a72e"
+  },
+  "hashesUnchanged": true,
+  "passed": 108,
+  "failed": 0
+}

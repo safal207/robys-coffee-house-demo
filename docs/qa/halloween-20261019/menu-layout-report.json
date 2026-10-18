@@ -1,0 +1,1087 @@
+{
+  "startedAt": "2026-10-18T22:28:18.830Z",
+  "head": "f3f855accc376af38ab2e3c57565404f870c2769",
+  "dirtyFilesAtStart": [
+    "M discover.html",
+    " M experience/index.html",
+    " M index.html",
+    " M integrity-manifest.json",
+    " M menu-runtime.css",
+    " M menu.html",
+    " M ru/coffee-gazipasa.html",
+    " M scripts/build.mjs",
+    " M scripts/menu-styles-bundle.mjs",
+    " M scripts/test-menu-styles-bundle.mjs",
+    " M smart-choice/index.html",
+    " M sw-core-v64.js",
+    "?? docs/qa/halloween-20261019/",
+    "?? scripts/test-seasonal-theme-browser.mjs",
+    "?? seasonal-theme.js",
+    "?? seasonal.css",
+    "?? src/seasonal-theme.ts"
+  ],
+  "mode": "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
+  "environment": {
+    "bypassCSP": false,
+    "selfSignedLocalHttps": true,
+    "externalRequests": "blocked",
+    "authoritativeStore": "readonly IDB verification"
+  },
+  "assetHashesStart": {
+    "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
+    "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
+    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
+    "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
+    "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+    "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
+    "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
+    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
+    "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
+    "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
+    "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+    "choice-help-entry.js": "23ec0e1f0addbe1caba718f4d4c591d17cc24906bfff793e51bd6e005d685247",
+    "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
+    "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+    "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "scripts/test-menu-combos-browser.mjs": "96e0009f135508b9e750a0bf023e75c58b615338590b00eca49f16c8086dfb0b",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+    "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/choice-help-entry.js": "62104cbfedb07911ee818a4fc78d328fbca4f3a9f8c73827f2e30d9fbfb9f205",
+    "src/choice-help.js": "b9aca6ace9d7cc089c59848896b480a594957648d20b85629cdba91571ba7a8a",
+    "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+    "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+    "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+    "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+    "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+    "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+    "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+    "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+    "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+    "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+    "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+    "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+    "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+    "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+    "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+  },
+  "browsers": {
+    "chromium": "140.0.7339.186",
+    "webkit": "26.0"
+  },
+  "cases": [
+    {
+      "id": "chromium-layout-320x700-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:18.920Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 567.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-320x700-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:19.377Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 567.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-320x700-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:19.800Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 567.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:20.546Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 572.703125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:20.924Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 552.3125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:21.372Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 572.703125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:22.073Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:22.516Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:22.980Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:23.388Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:23.833Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:24.296Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:25.003Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:25.426Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:25.872Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-320x700-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:26.690Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 565,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.328125,
+              "height": 46
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-320x700-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:27.690Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 565,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.328125,
+              "height": 46
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-320x700-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:28.907Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 565,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 46
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.328125,
+              "height": 46
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-390x844-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:30.278Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 547,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 44
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 44
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.671875,
+              "height": 44
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-390x844-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:31.446Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 547,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 44
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 44
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.671875,
+              "height": 44
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-390x844-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:32.666Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 569,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 46
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 46
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.671875,
+              "height": 46
+            }
+          ]
+        },
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-768x1024-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:34.215Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-768x1024-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:35.414Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-768x1024-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:36.774Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-1440x1000-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:38.218Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-1440x1000-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:39.466Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-1440x1000-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:40.954Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-844x390-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:42.664Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-844x390-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:43.807Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "webkit-layout-844x390-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T22:28:45.038Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    }
+  ],
+  "finishedAt": "2026-10-18T22:28:46.499Z",
+  "assetHashesEnd": {
+    "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
+    "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
+    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
+    "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
+    "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+    "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
+    "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
+    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
+    "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
+    "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
+    "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+    "choice-help-entry.js": "23ec0e1f0addbe1caba718f4d4c591d17cc24906bfff793e51bd6e005d685247",
+    "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
+    "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+    "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "scripts/test-menu-combos-browser.mjs": "96e0009f135508b9e750a0bf023e75c58b615338590b00eca49f16c8086dfb0b",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+    "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/choice-help-entry.js": "62104cbfedb07911ee818a4fc78d328fbca4f3a9f8c73827f2e30d9fbfb9f205",
+    "src/choice-help.js": "b9aca6ace9d7cc089c59848896b480a594957648d20b85629cdba91571ba7a8a",
+    "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+    "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+    "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+    "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+    "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+    "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+    "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+    "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+    "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+    "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+    "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+    "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+    "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+    "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+    "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+  },
+  "assetsUnchanged": true,
+  "requests": {
+    "/bootstrap-v2.js": 30,
+    "/menu-app.js": 30,
+    "/menu-catalog.js": 30,
+    "/menu-combos-ui.js": 30,
+    "/menu-interactions.js": 20,
+    "/menu-product-reveal.js": 30,
+    "/menu-pwa.js": 30,
+    "/menu-runtime.css": 30,
+    "/menu.html": 30,
+    "/pairing-posters.js": 30,
+    "/seasonal-theme.js": 30,
+    "/src/brand/robys-compact-master-v1.svg": 30,
+    "/src/brand/robys-primary-master-v1.svg": 30,
+    "/src/products/menu-v1/food--three-cheese-croissant.webp": 30,
+    "/src/products/menu-v1/hot-coffee--cappuccino.webp": 30,
+    "/src/products/occasion-sets-v1/cycle.webp": 30,
+    "/src/products/occasion-sets-v1/family.webp": 30,
+    "/src/products/occasion-sets-v1/go.webp": 30,
+    "/src/products/occasion-sets-v1/hearty.webp": 30,
+    "/src/products/occasion-sets-v1/local.webp": 30,
+    "/src/products/occasion-sets-v1/morning.webp": 30,
+    "/src/products/occasion-sets-v1/rain.webp": 30,
+    "/src/products/occasion-sets-v1/refresh.webp": 30,
+    "/src/products/occasion-sets-v1/student.webp": 30,
+    "/src/products/occasion-sets-v1/sweet.webp": 30,
+    "/src/products/occasion-sets-v1/tea.webp": 30,
+    "/src/products/occasion-sets-v1/together.webp": 30,
+    "/src/products/sets-v1/cool-lime-macaron.webp": 30,
+    "/src/products/sets-v1/iced-san-sebastian.webp": 3
+  },
+  "passed": 30,
+  "failed": 0
+}
