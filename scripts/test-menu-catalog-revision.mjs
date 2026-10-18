@@ -236,8 +236,15 @@ test("family selection source, loader and offline cache use the same fresh bytes
   assert.ok(worker.includes(`"./menu-family.css?v=${cssRevision}"`), "Offline family CSS must precache current bytes");
   assert.ok(readFileSync("menu.html", "utf8").includes(`href="menu-family.css?v=${cssRevision}"`),
     "Family page stylesheet must match offline content");
-  const namespace = menuCatalogRevision(`${revision}:${cssRevision}`);
-  assert.ok(worker.includes(`-family-menu-${namespace}-`), "Family cache namespace must bind UI and CSS bytes");
+  const familyPhotos = ["milk-cookie", "simit-break", "milk-roll", "kids-box"]
+    .map(name => `src/products/family-sets-v1/${name}.webp`);
+  const precache = worker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1];
+  for (const path of familyPhotos) {
+    assert.ok(precache?.includes(`"./${path}"`), `${path}: first offline reveal requires precaching`);
+  }
+  const photoRevisions = familyPhotos.map(path => menuCatalogRevision(readFileSync(path)));
+  const namespace = menuCatalogRevision([revision, cssRevision, ...photoRevisions].join(":"));
+  assert.ok(worker.includes(`-family-menu-${namespace}-`), "Family cache namespace must bind UI, CSS and photo bytes");
   for (const file of ["menu-family-ui.js", "menu-family.css"]) {
     const digest = menuCatalogRevision(readFileSync(file));
     await verifyReturningModuleCache(worker, file, digest);

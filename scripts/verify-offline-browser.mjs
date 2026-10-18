@@ -86,6 +86,18 @@ try {
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
   await waitForControlledPage(page, "menu page bootstrap");
 
+  const uncachedFamilyPhotos = await page.evaluate(async () => {
+    const paths = ["milk-cookie", "simit-break", "milk-roll", "kids-box"];
+    const results = await Promise.all(paths.map(async (name) => {
+      const path = `src/products/family-sets-v1/${name}.webp`;
+      const response = await caches.match(new URL(path, location.href));
+      return response?.ok ? null : path;
+    }));
+    return results.filter(Boolean);
+  });
+  assert.deepEqual(uncachedFamilyPhotos, [],
+    "All family photos must be precached before the panel is first revealed");
+
   await context.setOffline(true);
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
   await page.locator(".hero-actions a[href='menu.html']").waitFor({ state: "visible", timeout: 15000 });
@@ -100,6 +112,22 @@ try {
 
   await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
+  // This panel was never opened online: every new photo must already be in
+  // the installed worker's cache, not merely left in the HTTP/runtime cache.
+  assert.equal(await page.locator(".menu-family-card").count(), 0);
+  await page.locator("#menu-family-trigger").click();
+  await page.locator(".menu-family-coming-soon").waitFor({ state: "visible", timeout: 15000 });
+  assert.equal(await page.locator(".menu-family-card").count(), 3);
+  const familyImages = page.locator(".menu-family-photos img, .menu-family-box-image");
+  assert.equal(await familyImages.count(), 4);
+  for (const image of await familyImages.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await image.evaluate(node => node.decode());
+    assert.deepEqual(await image.evaluate(node => [node.naturalWidth, node.naturalHeight]), [900, 900],
+      "First offline family reveal must load the complete set and Kids Box photos");
+  }
+  assert.equal(await page.locator(".menu-family-coming-soon button, .menu-family-coming-soon a").count(), 0,
+    "Coming-soon packaging must remain non-orderable offline");
   await page.locator("#menu-search").fill("latte");
   assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
 
@@ -109,7 +137,7 @@ try {
 
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: cached homepage, menu search and Smart Choice remain usable without an install offer.");
+  console.log("✅ Offline browser gate passed: cached homepage, first family reveal with all four photos, menu search and Smart Choice remain usable without an install offer.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();
