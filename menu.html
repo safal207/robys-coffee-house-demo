@@ -41,7 +41,7 @@
   <script src="bootstrap-v2.js?v=845efb76f384"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" fetchpriority="high" />
-  <link rel="stylesheet" href="menu-runtime.css?v=f97ffb7fd14f" />
+  <link rel="stylesheet" href="menu-runtime.css?v=feefe9e4a9cc" />
 
 
 
@@ -85,7 +85,13 @@
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
-      <a class="menu-family-link" id="menu-family-trigger" href="#menu-family-fallback" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
+      <nav class="combo-entry-links" aria-label="Setler / Combos / Комбо">
+        <a class="menu-family-link" id="menu-combos-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Her ana bir set · 12 fikir</a>
+        <a class="menu-family-link" id="menu-combos-takeaway-trigger" href="#menu-combos-fallback" aria-controls="menu-combos">Al ve çık · 4 fikir</a>
+        <a class="menu-family-link" id="menu-family-trigger" href="#menu-family-fallback" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
+      </nav>
+      <div data-choice-help></div>
+      <noscript><p id="menu-combos-fallback">Set fikirleri / Combo ideas / Идеи комбо: Çay + simit / Tea + simit / Чай + симит · Kahve + cookie / Coffee + cookie / Кофе + печенье. İçerik ve fiyatları kasada sorun / Ask at the counter about contents and prices / Состав и цены уточните на кассе.</p></noscript>
       <noscript><p class="menu-family-fallback" id="menu-family-fallback">Menüden ürün fotoğrafları:
         <a href="src/products/menu-v1/brew-hot--milk.webp">Süt / Milk / Молоко</a> ·
         <a href="src/products/menu-v1/desserts--cookie.webp">Cookie / Печенье</a> ·
@@ -95,6 +101,11 @@
     </div>
   </div>
 </section>
+
+    <section class="menu-combos-section" id="menu-combos" hidden>
+      <span id="menu-combos-takeaway" aria-hidden="true"></span>
+      <div class="container" id="menu-combos-content"></div>
+    </section>
 
     <section class="menu-family-section" id="menu-family" hidden>
       <div class="container" id="menu-family-content"></div>
@@ -236,7 +247,8 @@
   </dialog>
 
   <script type="module" src="menu-product-reveal.js?v=6ae2dd3ba2e7"></script>
-  <script type="module" src="menu-app.js?v=a6eb54d1d3a2"></script>
+  <script type="module" src="menu-app.js?v=1edcbbc8dd42"></script>
   <script type="module" src="pairing-posters.js?v=024743e64919"></script>
+  <script type="module" src="choice-help.js?v=4cd702042077"></script>
 </body>
 </html>

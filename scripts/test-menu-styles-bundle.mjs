@@ -10,6 +10,7 @@ const expectedInputs = [
   ["styles-v2.css", "styles-v2.css"], ["menu-premium.css", "menu-premium.css"],
   ["menu-family.css", "menu-family.css"], ["menu-product-reveal.css", "menu-product-reveal.css"],
   ["pairing-posters.css", "pairing-posters.css"], ["menu-stability.css", "menu-stability-v2.css"],
+  ["menu-combos.css", "menu-combos.css"], ["combo-entry.css", "combo-entry.css"], ["choice-help.css", "choice-help.css"],
   ["menu-security-v2.css", "menu-security-v2.css"], ["brand-photo-logo.css", "brand-photo-logo.css"],
   ["order-checkout.css", "order-checkout.css"]
 ];
@@ -46,11 +47,11 @@ for (const [source] of expectedInputs) {
   test(`${source}: stale source bytes, omitted source and omitted segment are rejected`, () => {
     const inputs = fixture();
     assert.throws(() => verifyMenuStylesBundle({ ...inputs,
-      sources: { ...inputs.sources, [source]: Buffer.concat([inputs.sources[source], Buffer.from("/* changed */")]) } }), /nine current source files/);
+      sources: { ...inputs.sources, [source]: Buffer.concat([inputs.sources[source], Buffer.from("/* changed */")]) } }), /current source files/);
     const missing = { ...inputs.sources }; delete missing[source];
     assert.throws(() => verifyMenuStylesBundle({ ...inputs, sources: missing }), /source is missing/);
     const omitted = Buffer.from(expectedInputs.filter(([name]) => name !== source).map(([name]) => inputs.sources[name].toString()).join("\n"));
-    assert.throws(() => verifyMenuStylesBundle({ ...inputs, bundleBytes: omitted }), /nine current source files/);
+    assert.throws(() => verifyMenuStylesBundle({ ...inputs, bundleBytes: omitted }), /current source files/);
   });
 }
 
@@ -58,7 +59,7 @@ test("reordered or absent delivered CSS and a stale stability alias are rejected
   const inputs = fixture();
   const reordered = Buffer.from([...expectedInputs].reverse().map(([source]) => inputs.sources[source].toString()).join("\n"));
   assert.throws(() => verifyMenuStylesBundle({ ...inputs, bundleBytes: reordered }), /reviewed cascade order/);
-  assert.throws(() => verifyMenuStylesBundle({ ...inputs, bundleBytes: Buffer.alloc(0) }), /nine current source files/);
+  assert.throws(() => verifyMenuStylesBundle({ ...inputs, bundleBytes: Buffer.alloc(0) }), /current source files/);
   assert.throws(() => verifyMenuStylesBundle({ ...inputs, stabilityAliasBytes: Buffer.from("stale") }), /stability alias/);
 });
 

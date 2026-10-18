@@ -112,7 +112,7 @@ const preloads = new Map([
 for (const [path, preload] of preloads) {
   const html = read(path);
   if (path === "menu.html") {
-    assert(JSON.stringify(MENU_STYLE_INPUTS.slice(6).map(({ source }) => source)) ===
+    assert(JSON.stringify(MENU_STYLE_INPUTS.slice(-3).map(({ source }) => source)) ===
       JSON.stringify(["menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]),
     "menu must preserve the approved brand layer after security and before checkout");
     verifyMenuStylesBundle(readMenuStylesBundleInputs());

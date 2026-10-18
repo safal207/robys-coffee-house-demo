@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-d0043b80b57c-coffee-paths-54035247389e-family-menu-696c2d6971a7-custom-pair-c18162fd3aa3-menu-css-f97ffb7fd14f-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-0e2b05dc97ec-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-54035247389e-family-menu-696c2d6971a7-occasion-combos-259bc76d58ec-custom-pair-5f4d15ef5486-menu-css-feefe9e4a9cc-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -80,7 +80,24 @@ const CORE_ASSETS = [
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=f97ffb7fd14f",
+  "./menu-runtime.css?v=feefe9e4a9cc",
+  "./menu-combos-ui.js?v=a679972ee3b5",
+  "./menu-combos.css?v=d3c129dd8356",
+  "./combo-entry.css?v=da624d45b4d6",
+  "./choice-help.js?v=4cd702042077",
+  "./choice-help.css?v=8b952c93e8ce",
+  "./src/products/occasion-sets-v1/student.webp",
+  "./src/products/occasion-sets-v1/cycle.webp",
+  "./src/products/occasion-sets-v1/rain.webp",
+  "./src/products/occasion-sets-v1/tea.webp",
+  "./src/products/occasion-sets-v1/refresh.webp",
+  "./src/products/occasion-sets-v1/together.webp",
+  "./src/products/occasion-sets-v1/family.webp",
+  "./src/products/occasion-sets-v1/local.webp",
+  "./src/products/occasion-sets-v1/go.webp",
+  "./src/products/occasion-sets-v1/morning.webp",
+  "./src/products/occasion-sets-v1/sweet.webp",
+  "./src/products/occasion-sets-v1/hearty.webp",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -117,7 +134,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=a6eb54d1d3a2",
+  "./menu-app.js?v=1edcbbc8dd42",
   "./menu-pairing.js?v=6b033c91bf9a",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
@@ -150,15 +167,15 @@ const CORE_ASSETS = [
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=1d8ffadfdb5d",
+  "./smart-choice/app-v2.js?v=78d63233b7d3",
   "./smart-choice/cart-v2.js?v=847fee89f1da",
   "./smart-choice/experiments-v2.js?v=7392addbe349",
   "./smart-choice/analytics-v2.js?v=535cf3f27418",
   "./smart-choice/decision-trace-v2.js?v=1b7d1934cf2e",
   "./discover.js",
-  "./discover-v2.js?v=0e2b05dc97ec",
+  "./discover-v2.js?v=7b9e7a630fd1",
   "./discover-deck.js?v=16c7c7dc8590",
-  "./discover-copy.js",
+  "./discover-copy.js?v=748cea1d06ec",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
   "./discover-rotation.js",
@@ -204,6 +221,12 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-runtime.css") ||
     url.pathname.endsWith("/menu-family-ui.js") ||
     url.pathname.endsWith("/menu-family.css") ||
+    url.pathname.endsWith("/menu-combos-ui.js") ||
+    url.pathname.endsWith("/menu-combos.css") ||
+    url.pathname.endsWith("/combo-entry.css") ||
+    url.pathname.endsWith("/choice-help.js") ||
+    url.pathname.endsWith("/choice-help.css") ||
+    url.pathname.endsWith("/discover-copy.js") ||
     url.pathname.endsWith("/pwa-pairing-fix.js") ||
     url.pathname.endsWith("/conversion.js") ||
     url.pathname.endsWith("/social-offer.js") ||

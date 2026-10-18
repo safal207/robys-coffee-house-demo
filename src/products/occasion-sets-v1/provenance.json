@@ -1,0 +1,274 @@
+{
+  "createdAt": "2026-10-18T19:24:07.080Z",
+  "method": "Native Chromium rendering of approved 1080-square photo composition scaled to 640-square. No image labels, card text or prices. No raster repainting.",
+  "render": {
+    "width": 640,
+    "height": 640,
+    "deviceScaleFactor": 1,
+    "compositionScale": 0.5925925925925926
+  },
+  "sources": [
+    {
+      "preview": "combo-card-preview",
+      "photo": "photos.png",
+      "photoSha256": "19a1047e86d326a5f4b6442ddc3a3ed725fbeb9e60d1fc2e944dbe8f31b2fe94",
+      "columns": 4,
+      "rows": 2,
+      "previewJsSha256": "ed6d25075b136bf336623e54b48452a9e3f7c961ccf69045a0ae04414bb21248",
+      "previewCssSha256": "50fadd1264e20261232bc39315d7a850d184ee68c7caa18eab2d3cbf14f822c7"
+    },
+    {
+      "preview": "takeaway-card-preview",
+      "photo": "photos.png",
+      "photoSha256": "087445b32d46e7e39063b174f4213e696ebf496add4822babe4910e4d3e8efdc",
+      "columns": 2,
+      "rows": 2,
+      "previewJsSha256": "6b80c31d24e15f82e904ccf2039582200d4674f61cdeac3cb93740fcea305dc2",
+      "previewCssSha256": "d1e6d6266dab58f4010d06c1d599894759fac532ee0b9176dc397429867d7847",
+      "cup": {
+        "canonicalPath": "src/brand/robys-takeaway-cup-v1.webp",
+        "sha256": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+        "presentation": "Original WebP in approved native SVG image element and outer silhouette clipPath; no logo repainting, color filters or text replacement."
+      }
+    }
+  ],
+  "images": [
+    {
+      "id": "student",
+      "source": "combo-card-preview",
+      "tileIndex": 0,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "student.webp",
+      "bytes": 59386,
+      "sha256": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894"
+    },
+    {
+      "id": "cycle",
+      "source": "combo-card-preview",
+      "tileIndex": 1,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "cycle.webp",
+      "bytes": 75642,
+      "sha256": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa"
+    },
+    {
+      "id": "rain",
+      "source": "combo-card-preview",
+      "tileIndex": 2,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "rain.webp",
+      "bytes": 49724,
+      "sha256": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72"
+    },
+    {
+      "id": "tea",
+      "source": "combo-card-preview",
+      "tileIndex": 3,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "tea.webp",
+      "bytes": 69020,
+      "sha256": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7"
+    },
+    {
+      "id": "refresh",
+      "source": "combo-card-preview",
+      "tileIndex": 4,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "refresh.webp",
+      "bytes": 67900,
+      "sha256": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599"
+    },
+    {
+      "id": "together",
+      "source": "combo-card-preview",
+      "tileIndex": 5,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "together.webp",
+      "bytes": 46810,
+      "sha256": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b"
+    },
+    {
+      "id": "family",
+      "source": "combo-card-preview",
+      "tileIndex": 6,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "family.webp",
+      "bytes": 77522,
+      "sha256": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031"
+    },
+    {
+      "id": "local",
+      "source": "combo-card-preview",
+      "tileIndex": 7,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 0,
+        "cupFilter": null
+      },
+      "file": "local.webp",
+      "bytes": 61476,
+      "sha256": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e"
+    },
+    {
+      "id": "go",
+      "source": "takeaway-card-preview",
+      "tileIndex": 0,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 1,
+        "cupFilter": "none"
+      },
+      "file": "go.webp",
+      "bytes": 63986,
+      "sha256": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9"
+    },
+    {
+      "id": "morning",
+      "source": "takeaway-card-preview",
+      "tileIndex": 1,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 1,
+        "cupFilter": "none"
+      },
+      "file": "morning.webp",
+      "bytes": 57130,
+      "sha256": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a"
+    },
+    {
+      "id": "sweet",
+      "source": "takeaway-card-preview",
+      "tileIndex": 2,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 1,
+        "cupFilter": "none"
+      },
+      "file": "sweet.webp",
+      "bytes": 61558,
+      "sha256": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf"
+    },
+    {
+      "id": "hearty",
+      "source": "takeaway-card-preview",
+      "tileIndex": 3,
+      "width": 640,
+      "height": 640,
+      "geometry": {
+        "width": 640,
+        "height": 640,
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "cupCount": 1,
+        "cupFilter": "none"
+      },
+      "file": "hearty.webp",
+      "bytes": 59712,
+      "sha256": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+    }
+  ],
+  "encoding": {
+    "format": "WebP",
+    "quality": 88,
+    "method": 6,
+    "colorMode": "RGB",
+    "encoder": "Pillow 12.3.0",
+    "imageProcessing": "Format encoding only; no resizing, retouching or repainting after native Chromium rendering."
+  },
+  "totalBytes": 749866
+}

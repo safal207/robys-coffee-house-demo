@@ -1,0 +1,2273 @@
+{
+  "startedAt": "2026-10-18T19:35:44.099Z",
+  "head": "2ac573a2709bcb67a5e7998b96aa5e97b6571cc2",
+  "dirtyFilesAtStart": [
+    "M .github/workflows/order-reliability.yml",
+    " M discover-copy.js",
+    " M discover-v2.js",
+    " M discover.html",
+    " M experience/index.html",
+    " M index.html",
+    " M integrity-manifest.json",
+    " M menu-app.js",
+    " M menu-runtime.css",
+    " M menu.html",
+    " M package.json",
+    " M ru/coffee-gazipasa.html",
+    " M scripts/audit-dependencies.mjs",
+    " M scripts/build.mjs",
+    " M scripts/menu-runtime-source.mjs",
+    " M scripts/menu-styles-bundle.mjs",
+    " M scripts/test-brand-wordmark.mjs",
+    " M scripts/test-menu-order-loader.mjs",
+    " M scripts/test-menu-styles-bundle.mjs",
+    " M scripts/verify-brand-identity-assets.mjs",
+    " M scripts/verify-menu-order.mjs",
+    " M smart-choice/app-v2.js",
+    " M smart-choice/index.html",
+    " M src/menu-app.js",
+    " M src/smart-choice/page.ts",
+    " M sw-core-v64.js",
+    "?? choice-help.css",
+    "?? choice-help.js",
+    "?? combo-entry.css",
+    "?? docs/qa/occasion-combos-20261018/",
+    "?? menu-combos-ui.js",
+    "?? menu-combos.css",
+    "?? scripts/test-choice-help.mjs",
+    "?? scripts/test-combo-offline.mjs",
+    "?? scripts/test-menu-combos-browser.mjs",
+    "?? scripts/test-menu-combos.mjs",
+    "?? src/choice-help.js",
+    "?? src/menu-combos-ui.js",
+    "?? src/menu-combos.js",
+    "?? src/products/occasion-sets-v1/"
+  ],
+  "mode": "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
+  "environment": {
+    "bypassCSP": false,
+    "selfSignedLocalHttps": true,
+    "externalRequests": "blocked",
+    "authoritativeStore": "readonly IDB verification"
+  },
+  "assetHashesStart": {
+    "menu.html": "2e692b4f52ffffd58e3855b3725ccf54d6884a773767243a360de6c8d58d06ec",
+    "menu-app.js": "1edcbbc8dd42ac0ed8c219282c27a09e81ec05b5e0979b8d616ac05d587562b0",
+    "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+    "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+    "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "index.html": "4ac4e1d83248434ea612ec8cb7d1a6f8ad4b3f1e7b196a910d750e648925b0a5",
+    "discover.html": "f964c92ba966ea50b587618de1b4b3fef260a629ebd594caf456762387a34e26",
+    "experience/index.html": "51c8c00ea017d1c40cd55ad248c68ed405fe86cd3475270d858c322c38f66df7",
+    "smart-choice/index.html": "0f5660f617e22770a0a35b95b6ea5188fb85e940cc92172c529b782ecd1d1f5e",
+    "ru/coffee-gazipasa.html": "2ed7efb07b49f7752c9978fb41545cb5747cd6640da7eea4bc853182eefbd2d9",
+    "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+    "choice-help.js": "4cd7020420779adf798387f7368a0dc4b55005878bee90c46b4dd135fe50f07e",
+    "choice-help.css": "8b952c93e8ce6ed4f31980abe6bde8e715d3869b2efc51f7bdff46b3b9a0f505",
+    "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+    "sw-core-v64.js": "9583ac617ed2af8c44145dc9b813d4a506ae4296bf3b8929e0bbcd5b7276c4f3",
+    "scripts/test-menu-combos-browser.mjs": "8fadb1b464233c3540b37cba1429c8a53c548270c3e9addf322b4ff7b9b28c90",
+    "src/menu-app.js": "49ef9deec3f2f56fdea49b470b6e9764caf301e90c3212d8b362de9f5fb65a4a",
+    "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/choice-help.js": "c54ce069dc4ebfb0b03c9ab97e20ae07d577452ee79c1adea6899289412a0ca2",
+    "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+    "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+    "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+    "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+    "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+    "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+    "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+    "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+    "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+    "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+    "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+    "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+    "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+    "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+    "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+  },
+  "browsers": {
+    "chromium": "140.0.7339.186"
+  },
+  "cases": [
+    {
+      "id": "chromium-catalog-and-edit-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:44.165Z",
+      "facts": {
+        "language": "tr",
+        "recipes": [
+          {
+            "id": "student",
+            "total": 85,
+            "quantities": [
+              {
+                "id": "brew-hot:black-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/student.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "cycle",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "cold-coffee:iced-americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/cycle.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "rain",
+            "total": 300,
+            "quantities": [
+              {
+                "id": "brew-hot:salep",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/rain.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "tea",
+            "total": 165,
+            "quantities": [
+              {
+                "id": "herbal-tea:balance-tea-detox-green-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/tea.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "refresh",
+            "total": 220,
+            "quantities": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:macaron",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/refresh.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "together",
+            "total": 550,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/together.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "family",
+            "total": 750,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 2
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 2
+              },
+              {
+                "id": "brew-hot:milk",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 2
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/family.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "local",
+            "total": 125,
+            "quantities": [
+              {
+                "id": "brew-hot:turkish-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/local.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "go",
+            "total": 195,
+            "quantities": [
+              {
+                "id": "hot-coffee:americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/go.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "morning",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 1
+              },
+              {
+                "id": "food:three-cheese-croissant",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/morning.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "sweet",
+            "total": 280,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/sweet.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "hearty",
+            "total": 340,
+            "quantities": [
+              {
+                "id": "brew-hot:filter-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/hearty.webp",
+              "width": 640,
+              "height": 640
+            }
+          }
+        ],
+        "filterCounts": {
+          "takeaway": 4,
+          "family": 1,
+          "together": 2,
+          "pause": 6,
+          "all": 12
+        },
+        "editedLines": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 3
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 1
+          }
+        ],
+        "editedTotal": 250,
+        "emptySelectionDisabled": true,
+        "originalLogo": true,
+        "focusRestoredForAllRecipes": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-together-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:46.806Z",
+      "facts": {
+        "language": "tr",
+        "recipe": "together",
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 1
+          },
+          {
+            "id": "hot-coffee:caffe-latte",
+            "quantity": 2
+          }
+        ],
+        "total": 550,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-family-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:47.234Z",
+      "facts": {
+        "language": "tr",
+        "recipe": "family",
+        "lines": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 2
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:cappuccino",
+            "quantity": 2
+          }
+        ],
+        "total": 750,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-catalog-and-edit-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:47.704Z",
+      "facts": {
+        "language": "en",
+        "recipes": [
+          {
+            "id": "student",
+            "total": 85,
+            "quantities": [
+              {
+                "id": "brew-hot:black-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/student.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "cycle",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "cold-coffee:iced-americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/cycle.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "rain",
+            "total": 300,
+            "quantities": [
+              {
+                "id": "brew-hot:salep",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/rain.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "tea",
+            "total": 165,
+            "quantities": [
+              {
+                "id": "herbal-tea:balance-tea-detox-green-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/tea.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "refresh",
+            "total": 220,
+            "quantities": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:macaron",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/refresh.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "together",
+            "total": 550,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/together.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "family",
+            "total": 750,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 2
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 2
+              },
+              {
+                "id": "brew-hot:milk",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 2
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/family.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "local",
+            "total": 125,
+            "quantities": [
+              {
+                "id": "brew-hot:turkish-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/local.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "go",
+            "total": 195,
+            "quantities": [
+              {
+                "id": "hot-coffee:americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/go.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "morning",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 1
+              },
+              {
+                "id": "food:three-cheese-croissant",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/morning.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "sweet",
+            "total": 280,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/sweet.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "hearty",
+            "total": 340,
+            "quantities": [
+              {
+                "id": "brew-hot:filter-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/hearty.webp",
+              "width": 640,
+              "height": 640
+            }
+          }
+        ],
+        "filterCounts": {
+          "takeaway": 4,
+          "family": 1,
+          "together": 2,
+          "pause": 6,
+          "all": 12
+        },
+        "editedLines": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 3
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 1
+          }
+        ],
+        "editedTotal": 250,
+        "emptySelectionDisabled": true,
+        "originalLogo": true,
+        "focusRestoredForAllRecipes": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-together-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:50.124Z",
+      "facts": {
+        "language": "en",
+        "recipe": "together",
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 1
+          },
+          {
+            "id": "hot-coffee:caffe-latte",
+            "quantity": 2
+          }
+        ],
+        "total": 550,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-family-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:50.579Z",
+      "facts": {
+        "language": "en",
+        "recipe": "family",
+        "lines": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 2
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:cappuccino",
+            "quantity": 2
+          }
+        ],
+        "total": 750,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-catalog-and-edit-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:51.064Z",
+      "facts": {
+        "language": "ru",
+        "recipes": [
+          {
+            "id": "student",
+            "total": 85,
+            "quantities": [
+              {
+                "id": "brew-hot:black-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/student.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "cycle",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "cold-coffee:iced-americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/cycle.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "rain",
+            "total": 300,
+            "quantities": [
+              {
+                "id": "brew-hot:salep",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/rain.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "tea",
+            "total": 165,
+            "quantities": [
+              {
+                "id": "herbal-tea:balance-tea-detox-green-tea",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/tea.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "refresh",
+            "total": 220,
+            "quantities": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:macaron",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/refresh.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "together",
+            "total": 550,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/together.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "family",
+            "total": 750,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 2
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 2
+              },
+              {
+                "id": "brew-hot:milk",
+                "quantity": 2
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 2
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/family.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "local",
+            "total": 125,
+            "quantities": [
+              {
+                "id": "brew-hot:turkish-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/local.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "go",
+            "total": 195,
+            "quantities": [
+              {
+                "id": "hot-coffee:americano",
+                "quantity": 1
+              },
+              {
+                "id": "food:sesame-simit",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/go.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "morning",
+            "total": 350,
+            "quantities": [
+              {
+                "id": "hot-coffee:cappuccino",
+                "quantity": 1
+              },
+              {
+                "id": "food:three-cheese-croissant",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/morning.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "sweet",
+            "total": 280,
+            "quantities": [
+              {
+                "id": "hot-coffee:caffe-latte",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:cookie",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/sweet.webp",
+              "width": 640,
+              "height": 640
+            }
+          },
+          {
+            "id": "hearty",
+            "total": 340,
+            "quantities": [
+              {
+                "id": "brew-hot:filter-coffee",
+                "quantity": 1
+              },
+              {
+                "id": "food:white-cheese-baguette-sandwich",
+                "quantity": 1
+              }
+            ],
+            "photo": {
+              "src": "/src/products/occasion-sets-v1/hearty.webp",
+              "width": 640,
+              "height": 640
+            }
+          }
+        ],
+        "filterCounts": {
+          "takeaway": 4,
+          "family": 1,
+          "together": 2,
+          "pause": 6,
+          "all": 12
+        },
+        "editedLines": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 3
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 1
+          }
+        ],
+        "editedTotal": 250,
+        "emptySelectionDisabled": true,
+        "originalLogo": true,
+        "focusRestoredForAllRecipes": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-together-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:53.787Z",
+      "facts": {
+        "language": "ru",
+        "recipe": "together",
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 1
+          },
+          {
+            "id": "hot-coffee:caffe-latte",
+            "quantity": 2
+          }
+        ],
+        "total": 550,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-exact-add-family-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:54.256Z",
+      "facts": {
+        "language": "ru",
+        "recipe": "family",
+        "lines": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 2
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:cappuccino",
+            "quantity": 2
+          }
+        ],
+        "total": 750,
+        "canonicalRevision": 1,
+        "separateEditableLines": true
+      }
+    },
+    {
+      "id": "chromium-layout-320x700-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:54.911Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-320x700-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:55.279Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-320x700-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:55.622Z",
+      "facts": {
+        "width": 320,
+        "height": 700,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:56.305Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:56.656Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-390x844-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:57.002Z",
+      "facts": {
+        "width": 390,
+        "height": 844,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:57.641Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:58.070Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-768x1024-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:58.484Z",
+      "facts": {
+        "width": 768,
+        "height": 1024,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:58.869Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:59.210Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-1440x1000-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:35:59.513Z",
+      "facts": {
+        "width": 1440,
+        "height": 1000,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:00.093Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "tr",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:00.431Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "en",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-layout-844x390-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:00.725Z",
+      "facts": {
+        "width": 844,
+        "height": 390,
+        "language": "ru",
+        "cards": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "dialog": {
+          "pageOverflow": false,
+          "contained": true,
+          "clippedControls": [],
+          "dialogFits": true
+        },
+        "keyboardFocusContained": true
+      }
+    },
+    {
+      "id": "chromium-two-tabs-preserve-combo-additions",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:01.339Z",
+      "facts": {
+        "nativeAddHandlers": 2,
+        "exactLines": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 1
+          },
+          {
+            "id": "brew-hot:salep",
+            "quantity": 1
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 1
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 1
+          }
+        ],
+        "newTabRecoversBoth": true,
+        "lostUpdates": 0
+      }
+    },
+    {
+      "id": "chromium-busy-double-activation-adds-once",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:02.159Z",
+      "facts": {
+        "activation": "Two immediate DOM button.click() attempts, actual production handler",
+        "commits": 1,
+        "exactLines": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          },
+          {
+            "id": "desserts:cookie",
+            "quantity": 2
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:cappuccino",
+            "quantity": 2
+          }
+        ],
+        "canonicalRevision": 1
+      }
+    },
+    {
+      "id": "chromium-delayed-combo-loader-keeps-newer-cart-intent",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:02.580Z",
+      "facts": {
+        "delayedModule": "menu-combos-ui.js",
+        "newerCartRemainsOpen": true,
+        "focusPreserved": true
+      }
+    },
+    {
+      "id": "chromium-delayed-combo-loader-keeps-newer-category",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:03.404Z",
+      "facts": {
+        "delayedModule": "menu-combos-ui.js",
+        "newerChoice": "category",
+        "olderRevealCancelled": true,
+        "focusPreserved": true
+      }
+    },
+    {
+      "id": "chromium-delayed-combo-loader-keeps-newer-search",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:04.201Z",
+      "facts": {
+        "delayedModule": "menu-combos-ui.js",
+        "newerChoice": "search",
+        "olderRevealCancelled": true,
+        "focusPreserved": true
+      }
+    },
+    {
+      "id": "chromium-delayed-combo-loader-keeps-newer-hash",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:05.014Z",
+      "facts": {
+        "delayedModule": "menu-combos-ui.js",
+        "newerChoice": "hash",
+        "olderRevealCancelled": true,
+        "focusPreserved": true
+      }
+    },
+    {
+      "id": "chromium-same-hash-helper-reopens-hidden-combos",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:05.784Z",
+      "facts": {
+        "sameHash": "#menu-combos",
+        "hiddenThenReopened": true,
+        "explicitHelperNavigationWorks": true
+      }
+    },
+    {
+      "id": "chromium-all-view-entry-points-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:06.176Z",
+      "facts": {
+        "language": "tr",
+        "views": [
+          {
+            "path": "index.html?entry=off",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Birlikte güzelMola, arkadaşlar veya aile için kombinler→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Al ve devam etKahve ve yanına bir atıştırmalık→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺ÇocuklarlaMenüden 3 küçük mola fikri→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "discover.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Birlikte güzelMola, arkadaşlar veya aile için kombinler→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Al ve devam etKahve ve yanına bir atıştırmalık→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺ÇocuklarlaMenüden 3 küçük mola fikri→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "smart-choice/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Birlikte güzelMola, arkadaşlar veya aile için kombinler→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Al ve devam etKahve ve yanına bir atıştırmalık→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺ÇocuklarlaMenüden 3 küçük mola fikri→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "experience/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Birlikte güzelMola, arkadaşlar veya aile için kombinler→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Al ve devam etKahve ve yanına bir atıştırmalık→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺ÇocuklarlaMenüden 3 küçük mola fikri→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "ru/coffee-gazipasa.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-all-view-entry-points-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:08.136Z",
+      "facts": {
+        "language": "en",
+        "views": [
+          {
+            "path": "index.html?entry=off",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Better togetherCombos for a break, friends or family→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Grab and goCoffee with something to eat→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺With kids3 little-break ideas from the menu→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "discover.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Better togetherCombos for a break, friends or family→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Grab and goCoffee with something to eat→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺With kids3 little-break ideas from the menu→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "smart-choice/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Better togetherCombos for a break, friends or family→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Grab and goCoffee with something to eat→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺With kids3 little-break ideas from the menu→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "experience/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Better togetherCombos for a break, friends or family→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Grab and goCoffee with something to eat→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺With kids3 little-break ideas from the menu→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "ru/coffee-gazipasa.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-all-view-entry-points-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:10.198Z",
+      "facts": {
+        "language": "ru",
+        "views": [
+          {
+            "path": "index.html?entry=off",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "discover.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "smart-choice/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "experience/",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          },
+          {
+            "path": "ru/coffee-gazipasa.html",
+            "links": [
+              {
+                "href": "/menu.html#menu-combos",
+                "text": "❤Вместе вкуснееКомбо для паузы, друзей и семьи→"
+              },
+              {
+                "href": "/menu.html#menu-combos-takeaway",
+                "text": "↗Взял и побежалКофе и что-нибудь перекусить→"
+              },
+              {
+                "href": "/menu.html#menu-family",
+                "text": "☺С ребёнком3 идеи маленькой паузы из меню→"
+              }
+            ],
+            "layout": {
+              "pageOverflow": false,
+              "contained": true,
+              "clippedControls": [],
+              "dialogFits": true
+            },
+            "takeawayNavigation": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-quiet-helper-once-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:12.195Z",
+      "facts": {
+        "language": "tr",
+        "virtualVisibleTimeBeforeOffer": 49000,
+        "editingSuppressed": true,
+        "idleThresholdRespected": true,
+        "noFocusSteal": true,
+        "nonmodal": true,
+        "oncePerSessionAcrossViews": true,
+        "manualStillAvailable": true,
+        "actions": [
+          {
+            "text": "Kombinleri keşfet",
+            "href": "/menu.html#menu-combos"
+          },
+          {
+            "text": "Akıllı seçim",
+            "href": "/smart-choice/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-quiet-helper-once-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:12.882Z",
+      "facts": {
+        "language": "en",
+        "virtualVisibleTimeBeforeOffer": 49000,
+        "editingSuppressed": true,
+        "idleThresholdRespected": true,
+        "noFocusSteal": true,
+        "nonmodal": true,
+        "oncePerSessionAcrossViews": true,
+        "manualStillAvailable": true,
+        "actions": [
+          {
+            "text": "Explore combos",
+            "href": "/menu.html#menu-combos"
+          },
+          {
+            "text": "Smart Choice",
+            "href": "/smart-choice/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-quiet-helper-once-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:13.628Z",
+      "facts": {
+        "language": "ru",
+        "virtualVisibleTimeBeforeOffer": 49000,
+        "editingSuppressed": true,
+        "idleThresholdRespected": true,
+        "noFocusSteal": true,
+        "nonmodal": true,
+        "oncePerSessionAcrossViews": true,
+        "manualStillAvailable": true,
+        "actions": [
+          {
+            "text": "Посмотреть комбо",
+            "href": "/menu.html#menu-combos"
+          },
+          {
+            "text": "Умный подбор",
+            "href": "/smart-choice/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-helper-timing-and-immediate-dismissal",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:14.436Z",
+      "facts": {
+        "before34s": "hidden",
+        "after36s": "visible",
+        "activeSearchImmediatelyHides": true,
+        "openCartImmediatelyHides": true
+      }
+    },
+    {
+      "id": "chromium-helper-suppressed-by-order-and-dialog",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:14.906Z",
+      "facts": {
+        "selectionDialogSuppressed": true,
+        "cartSuppressed": true,
+        "nonemptyOrderAutomaticallySuppressed": true,
+        "explicitHelpAvailableWithExistingOrder": true,
+        "expectedLines": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 1
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "chromium-closed-combo-dialog-allows-helper",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:15.847Z",
+      "facts": {
+        "closedDialog": "combo",
+        "automaticHelpAllowedAfterClosing": true,
+        "explicitHelpAllowedAfterClosing": true
+      }
+    },
+    {
+      "id": "chromium-closed-family-dialog-allows-helper",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:16.375Z",
+      "facts": {
+        "closedDialog": "family",
+        "automaticHelpAllowedAfterClosing": true,
+        "explicitHelpAllowedAfterClosing": true
+      }
+    },
+    {
+      "id": "chromium-smart-choice-helper-has-useful-exit-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:17.023Z",
+      "facts": {
+        "language": "tr",
+        "usefulExit": "menu.html#menu-combos",
+        "selfLinkHidden": true
+      }
+    },
+    {
+      "id": "chromium-smart-choice-helper-has-useful-exit-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:17.275Z",
+      "facts": {
+        "language": "en",
+        "usefulExit": "menu.html#menu-combos",
+        "selfLinkHidden": true
+      }
+    },
+    {
+      "id": "chromium-smart-choice-helper-has-useful-exit-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:17.518Z",
+      "facts": {
+        "language": "ru",
+        "usefulExit": "menu.html#menu-combos",
+        "selfLinkHidden": true
+      }
+    },
+    {
+      "id": "chromium-helper-short-viewport-remains-quiet",
+      "status": "PASS",
+      "startedAt": "2026-10-18T19:36:17.761Z",
+      "facts": {
+        "automaticOfferSuppressed": true,
+        "manualPanelFits": true,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        }
+      }
+    }
+  ],
+  "finishedAt": "2026-10-18T19:36:18.156Z",
+  "assetHashesEnd": {
+    "menu.html": "2e692b4f52ffffd58e3855b3725ccf54d6884a773767243a360de6c8d58d06ec",
+    "menu-app.js": "1edcbbc8dd42ac0ed8c219282c27a09e81ec05b5e0979b8d616ac05d587562b0",
+    "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+    "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+    "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "index.html": "4ac4e1d83248434ea612ec8cb7d1a6f8ad4b3f1e7b196a910d750e648925b0a5",
+    "discover.html": "f964c92ba966ea50b587618de1b4b3fef260a629ebd594caf456762387a34e26",
+    "experience/index.html": "51c8c00ea017d1c40cd55ad248c68ed405fe86cd3475270d858c322c38f66df7",
+    "smart-choice/index.html": "0f5660f617e22770a0a35b95b6ea5188fb85e940cc92172c529b782ecd1d1f5e",
+    "ru/coffee-gazipasa.html": "2ed7efb07b49f7752c9978fb41545cb5747cd6640da7eea4bc853182eefbd2d9",
+    "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+    "choice-help.js": "4cd7020420779adf798387f7368a0dc4b55005878bee90c46b4dd135fe50f07e",
+    "choice-help.css": "8b952c93e8ce6ed4f31980abe6bde8e715d3869b2efc51f7bdff46b3b9a0f505",
+    "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+    "sw-core-v64.js": "9583ac617ed2af8c44145dc9b813d4a506ae4296bf3b8929e0bbcd5b7276c4f3",
+    "scripts/test-menu-combos-browser.mjs": "8fadb1b464233c3540b37cba1429c8a53c548270c3e9addf322b4ff7b9b28c90",
+    "src/menu-app.js": "49ef9deec3f2f56fdea49b470b6e9764caf301e90c3212d8b362de9f5fb65a4a",
+    "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/choice-help.js": "c54ce069dc4ebfb0b03c9ab97e20ae07d577452ee79c1adea6899289412a0ca2",
+    "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+    "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+    "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+    "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+    "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+    "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+    "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+    "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+    "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+    "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+    "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+    "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+    "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+    "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+    "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+  },
+  "assetsUnchanged": true,
+  "requests": {
+    "/analytics.js": 6,
+    "/app.js": 6,
+    "/bootstrap-v2.js": 65,
+    "/brand-photo-logo.css": 18,
+    "/choice-help.css": 21,
+    "/choice-help.js": 77,
+    "/coffee-paths.css": 6,
+    "/combo-entry.css": 21,
+    "/community-reel-v2.css": 6,
+    "/conversion.css": 6,
+    "/conversion.js": 6,
+    "/discover-copy.js": 3,
+    "/discover-deck.css": 3,
+    "/discover-deck.js": 3,
+    "/discover-journeys-v2.js": 3,
+    "/discover-rotation-v3.js": 3,
+    "/discover-rotation.css": 3,
+    "/discover-v2.js": 3,
+    "/discover-weather-guard.js": 3,
+    "/discover.css": 3,
+    "/discover.html": 3,
+    "/experience/": 3,
+    "/experience/brand-fidelity.css": 3,
+    "/experience/cinematic-environments.css": 3,
+    "/experience/environments/energy.svg": 3,
+    "/experience/environments/finale.svg": 3,
+    "/experience/environments/moment.svg": 3,
+    "/experience/environments/move.svg": 3,
+    "/experience/environments/origin.svg": 3,
+    "/experience/environments/pair.svg": 3,
+    "/experience/experience-pwa.js": 3,
+    "/experience/experience-state.css": 3,
+    "/experience/experience.css": 3,
+    "/experience/experience.js": 3,
+    "/featured-gallery.css": 6,
+    "/featured-gallery.js": 6,
+    "/featured-strip.css": 6,
+    "/final-qa-v2.css": 6,
+    "/gallery-clean.css": 6,
+    "/hero-balance.css": 6,
+    "/index.html": 6,
+    "/map-live.css": 6,
+    "/menu-app.js": 56,
+    "/menu-catalog.js": 74,
+    "/menu-combos-ui.js": 50,
+    "/menu-family-ui.js": 1,
+    "/menu-interactions.js": 42,
+    "/menu-order-ui.js": 16,
+    "/menu-preview.css": 6,
+    "/menu-product-reveal.js": 56,
+    "/menu-pwa.js": 56,
+    "/menu-runtime.css": 56,
+    "/menu-search-clear.js": 56,
+    "/menu.html": 56,
+    "/mobile.css": 9,
+    "/order-checkout.css": 6,
+    "/order-storage.js": 27,
+    "/pairing-posters.js": 56,
+    "/pairing-preview.css": 6,
+    "/pwa-pairing-fix.js": 6,
+    "/qa.js": 6,
+    "/ru/coffee-gazipasa.html": 3,
+    "/smart-choice/": 6,
+    "/smart-choice/analytics-v2.js": 6,
+    "/smart-choice/app-v2.js": 6,
+    "/smart-choice/brand-v4.css": 6,
+    "/smart-choice/cart-v2.js": 6,
+    "/smart-choice/cart.css": 6,
+    "/smart-choice/decision-trace-v2.js": 6,
+    "/smart-choice/decision-trace.css": 6,
+    "/smart-choice/experiments-v2.js": 6,
+    "/smart-choice/pwa.js": 6,
+    "/smart-choice/release-qa.css": 6,
+    "/smart-choice/release-qa.js": 6,
+    "/smart-choice/style.css": 6,
+    "/social-offer.css": 6,
+    "/social-offer.js": 6,
+    "/src/brand/robys-compact-master-v1.svg": 83,
+    "/src/brand/robys-header-master-v1.svg": 3,
+    "/src/brand/robys-mark-master-v1.svg": 9,
+    "/src/brand/robys-primary-master-v1.svg": 56,
+    "/src/brand/robys-takeaway-cup-v1.webp": 3,
+    "/src/menu-icons/cold.svg": 6,
+    "/src/menu-icons/dessert.svg": 6,
+    "/src/menu-icons/food.svg": 6,
+    "/src/menu-icons/hot.svg": 6,
+    "/src/menu-icons/refreshers.svg": 6,
+    "/src/menu-icons/tea.svg": 6,
+    "/src/pairings-data/final/cool-lime-macaron-price-free.webp": 6,
+    "/src/products/family-sets-v1/kids-box.webp": 1,
+    "/src/products/family-sets-v1/milk-cookie.webp": 1,
+    "/src/products/family-sets-v1/milk-roll.webp": 1,
+    "/src/products/family-sets-v1/simit-break.webp": 1,
+    "/src/products/gallery-v5/croissant-828.webp": 9,
+    "/src/products/gallery-v5/iced-latte-828.webp": 6,
+    "/src/products/gallery-v5/latte-828.webp": 11,
+    "/src/products/gallery-v5/lotus-cheesecake-828.webp": 7,
+    "/src/products/gallery-v5/nutella-croissant-828.webp": 6,
+    "/src/products/gallery-v5/san-sebastian-828.webp": 9,
+    "/src/products/menu-v1/brew-hot--black-tea.webp": 33,
+    "/src/products/menu-v1/brew-hot--filter-coffee.webp": 9,
+    "/src/products/menu-v1/brew-hot--hot-chocolate.webp": 6,
+    "/src/products/menu-v1/brew-hot--milk.webp": 18,
+    "/src/products/menu-v1/brew-hot--salep.webp": 8,
+    "/src/products/menu-v1/brew-hot--turkish-coffee.webp": 9,
+    "/src/products/menu-v1/cold-coffee--iced-americano.webp": 4,
+    "/src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": 1,
+    "/src/products/menu-v1/desserts--almond-tart.webp": 4,
+    "/src/products/menu-v1/desserts--brownie.webp": 4,
+    "/src/products/menu-v1/desserts--cake-roll.webp": 4,
+    "/src/products/menu-v1/desserts--chocolate-cake.webp": 5,
+    "/src/products/menu-v1/desserts--cookie.webp": 40,
+    "/src/products/menu-v1/desserts--lotus-cheesecake.webp": 5,
+    "/src/products/menu-v1/desserts--macaron.webp": 6,
+    "/src/products/menu-v1/desserts--mosaic-cake.webp": 4,
+    "/src/products/menu-v1/desserts--raspberry-cheesecake.webp": 5,
+    "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": 14,
+    "/src/products/menu-v1/desserts--savoury-cookie.webp": 4,
+    "/src/products/menu-v1/desserts--tiramisu.webp": 4,
+    "/src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": 7,
+    "/src/products/menu-v1/food--nutella-croissant.webp": 3,
+    "/src/products/menu-v1/food--sesame-simit.webp": 49,
+    "/src/products/menu-v1/food--three-cheese-croissant.webp": 21,
+    "/src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": 9,
+    "/src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": 8,
+    "/src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": 5,
+    "/src/products/menu-v1/hot-coffee--americano.webp": 10,
+    "/src/products/menu-v1/hot-coffee--caffe-latte.webp": 18,
+    "/src/products/menu-v1/hot-coffee--caffe-mocha.webp": 6,
+    "/src/products/menu-v1/hot-coffee--cappuccino.webp": 36,
+    "/src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": 6,
+    "/src/products/menu-v1/hot-coffee--caramel-latte.webp": 6,
+    "/src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": 6,
+    "/src/products/menu-v1/hot-coffee--cinnamon-latte.webp": 6,
+    "/src/products/menu-v1/hot-coffee--cortado.webp": 7,
+    "/src/products/menu-v1/hot-coffee--espresso-macchiato.webp": 7,
+    "/src/products/menu-v1/hot-coffee--espresso.webp": 7,
+    "/src/products/menu-v1/hot-coffee--flat-white.webp": 7,
+    "/src/products/menu-v1/hot-coffee--hazelnut-latte.webp": 6,
+    "/src/products/menu-v1/hot-coffee--vanilla-latte.webp": 6,
+    "/src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": 6,
+    "/src/products/menu-v1/refreshers--cool-lime.webp": 3,
+    "/src/products/occasion-sets-v1/cycle.webp": 53,
+    "/src/products/occasion-sets-v1/family.webp": 56,
+    "/src/products/occasion-sets-v1/go.webp": 52,
+    "/src/products/occasion-sets-v1/hearty.webp": 52,
+    "/src/products/occasion-sets-v1/local.webp": 53,
+    "/src/products/occasion-sets-v1/morning.webp": 52,
+    "/src/products/occasion-sets-v1/rain.webp": 53,
+    "/src/products/occasion-sets-v1/refresh.webp": 53,
+    "/src/products/occasion-sets-v1/student.webp": 53,
+    "/src/products/occasion-sets-v1/sweet.webp": 52,
+    "/src/products/occasion-sets-v1/tea.webp": 53,
+    "/src/products/occasion-sets-v1/together.webp": 53,
+    "/src/products/quick-choice-v1/coffee.webp": 12,
+    "/src/products/quick-choice-v1/cold.webp": 12,
+    "/src/products/quick-choice-v1/tea.webp": 6,
+    "/src/products/sets-v1/cool-lime-macaron.webp": 62,
+    "/src/products/sets-v1/iced-san-sebastian.webp": 20,
+    "/src/robys-hero-poster.jpg": 15,
+    "/styles-v2.css": 12,
+    "/wordmark-responsive.css": 3
+  },
+  "passed": 45,
+  "failed": 0
+}

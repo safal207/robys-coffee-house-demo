@@ -16,14 +16,16 @@
   <link rel="stylesheet" href="release-qa.css?v=382f68926f7d" />
   <link rel="stylesheet" href="../brand-photo-logo.css?v=20260917-approved-v4-restore" />
   <link rel="stylesheet" href="brand-v4.css?v=20260917-approved-v4-restore" />
+  <link rel="stylesheet" href="../combo-entry.css?v=da624d45b4d6" />
   <title>Roby's Smart Choice</title>
   <script defer src="pwa.js?v=pairing-video-fix-20260916-2"></script>
   <script type="module" src="release-qa.js?v=2811759ef7b2"></script>
-  <script type="module" src="app-v2.js?v=1d8ffadfdb5d"></script>
+  <script type="module" src="app-v2.js?v=78d63233b7d3"></script>
   <script type="module" src="cart-v2.js?v=847fee89f1da"></script>
   <script type="module" src="experiments-v2.js?v=7392addbe349"></script>
   <script type="module" src="analytics-v2.js?v=535cf3f27418"></script>
   <script type="module" src="decision-trace-v2.js?v=1b7d1934cf2e"></script>
+  <link rel="stylesheet" href="../choice-help.css?v=8b952c93e8ce" />
 </head>
 <body>
   <a class="skip-link" href="#smart-choice-main">İçeriğe geç</a>
@@ -54,6 +56,16 @@
           <p>Smart Choice hazırlanıyor…</p>
         </div>
       </div>
+      <section class="combo-entry" aria-labelledby="combo-entry-title">
+        <h2 id="combo-entry-title" data-static-copy="comboEntryTitle">Her ana bir Roby’s seçimi</h2>
+        <p class="combo-entry-lead" data-static-copy="comboEntryLead">Bir fikirle başla. İçeriği ve adetleri menüde kendine göre düzenle.</p>
+        <div class="combo-entry-links">
+          <a class="combo-entry-link" href="../menu.html#menu-combos"><span class="combo-entry-icon" aria-hidden="true">❤</span><span><strong data-static-copy="comboEntryAllTitle">Birlikte güzel</strong><span class="combo-entry-detail" data-static-copy="comboEntryAllBody">Mola, arkadaşlar veya aile için kombinler</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="../menu.html#menu-combos-takeaway"><span class="combo-entry-icon" aria-hidden="true">↗</span><span><strong data-static-copy="comboEntryGoTitle">Al ve devam et</strong><span class="combo-entry-detail" data-static-copy="comboEntryGoBody">Kahve ve yanına bir atıştırmalık</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="../menu.html#menu-family"><span class="combo-entry-icon" aria-hidden="true">☺</span><span><strong data-static-copy="comboEntryKidsTitle">Çocuklarla</strong><span class="combo-entry-detail" data-static-copy="comboEntryKidsBody">Menüden 3 küçük mola fikri</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+        </div>
+        <div data-choice-help></div>
+      </section>
     </section>
   </main>
 
@@ -67,5 +79,6 @@
   <footer class="smart-footer">
     <p data-static-copy="footerNote">Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.</p>
   </footer>
+  <script type="module" src="../choice-help.js?v=4cd702042077"></script>
 </body>
 </html>

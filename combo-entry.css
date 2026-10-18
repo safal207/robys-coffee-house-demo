@@ -1,0 +1,18 @@
+/* Shared, progressively enhanced routes to editable menu selections. */
+.combo-entry{box-sizing:border-box;min-width:0;margin:32px 0;padding:clamp(20px,3vw,32px);border:1px solid #ddcfc0;border-radius:24px;background:#fffaf3;color:#241c1b;text-align:left}
+.combo-entry h2{margin:0;font:700 clamp(1.35rem,2.5vw,2rem)/1.2 var(--sans,system-ui,sans-serif);letter-spacing:-.025em;text-wrap:balance}
+.combo-entry .combo-entry-lead{max-width:720px;margin:10px 0 22px;color:#65574e;font:400 .92rem/1.6 var(--sans,system-ui,sans-serif)}
+.combo-entry .combo-entry-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.combo-entry .combo-entry-link{box-sizing:border-box;display:flex;align-items:center;gap:12px;min-width:0;min-height:104px;padding:18px 14px;border:1px solid #ddcfc0;border-radius:16px;background:#fff;color:#241c1b;text-decoration:none;transition:border-color .15s ease,box-shadow .15s ease}
+.combo-entry-link>span:nth-child(2){min-width:0}
+.combo-entry-link strong{display:block;font:800 .92rem/1.4 var(--sans,system-ui,sans-serif);overflow-wrap:anywhere}
+.combo-entry .combo-entry-detail{display:block;margin-top:4px;color:#65574e;font:400 .78rem/1.5 var(--sans,system-ui,sans-serif);overflow-wrap:anywhere}
+.combo-entry-icon{display:grid;flex:0 0 34px;min-height:34px;place-items:center;border-radius:50%;background:#fff0ed;color:#e21b23;font-size:1rem;line-height:1}
+.combo-entry-arrow{margin-left:auto;color:#e21b23;font-size:1.2rem}
+.combo-entry-link:hover{border-color:#e21b23;box-shadow:0 4px 16px #422c2010}
+.combo-entry-link:focus-visible{outline:3px solid #e21b23;outline-offset:4px}
+.combo-entry-container{box-sizing:border-box;width:min(1240px,calc(100% - 40px));margin:0 auto}
+.smart-shell>.combo-entry{margin-bottom:0}
+@media(max-width:900px){.combo-entry .combo-entry-links{grid-template-columns:minmax(0,1fr)}.combo-entry .combo-entry-link{min-height:82px}}
+@media(max-width:480px){.combo-entry{margin:24px 0;padding:20px 16px;border-radius:18px}.combo-entry .combo-entry-link{padding:14px 12px}.combo-entry .combo-entry-lead{font-size:.85rem}.combo-entry-icon{flex-basis:30px;min-height:30px}.combo-entry-container{width:calc(100% - 28px)}}
+@media(prefers-reduced-motion:reduce){.combo-entry .combo-entry-link{transition:none}}

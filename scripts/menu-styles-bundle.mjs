@@ -14,6 +14,9 @@ export const MENU_STYLE_INPUTS = Object.freeze([
   { source: "menu-product-reveal.css", delivered: "menu-product-reveal.css" },
   { source: "pairing-posters.css", delivered: "pairing-posters.css" },
   { source: "menu-stability.css", delivered: "menu-stability-v2.css" },
+  { source: "menu-combos.css", delivered: "menu-combos.css" },
+  { source: "combo-entry.css", delivered: "combo-entry.css" },
+  { source: "choice-help.css", delivered: "choice-help.css" },
   { source: "menu-security-v2.css", delivered: "menu-security-v2.css" },
   { source: "brand-photo-logo.css", delivered: "brand-photo-logo.css" },
   { source: "order-checkout.css", delivered: "order-checkout.css" }
@@ -259,7 +262,7 @@ export function verifyMenuStylesCache(serviceWorker, bundleBytes) {
 
 export function verifyMenuStylesBundle({ sources, bundleBytes, menuHtml, serviceWorker, stabilityAliasBytes }) {
   assert.deepEqual(bundleBytes, compileMenuStylesBundle(sources),
-    "Delivered menu CSS must preserve all nine current source files in the reviewed cascade order");
+    "Delivered menu CSS must preserve all current source files in the reviewed cascade order");
   assert.deepEqual(stabilityAliasBytes, sources["menu-stability.css"],
     "Delivered menu stability alias must preserve the approved source bytes");
   verifyMenuStylesheetLink(menuHtml, bundleBytes);

@@ -291,6 +291,7 @@ function loadOrderUi() {
   return orderUiPromise;
 }
 async function openOrderIntent(kind, id, trigger = document.activeElement) {
+  combosUi?.close({ restoreFocus: false });
   const intent = beginMenuIntent(trigger);
   try {
     const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
@@ -365,6 +366,7 @@ function loadFamilyUi() {
 async function openFamilySuggestions(event) {
   event?.preventDefault();
   if (!familyTrigger) return;
+  combosUi?.close({ restoreFocus: false });
   const intent = beginMenuIntent(familyTrigger);
   try {
     const ui = await loadFamilyUi();
@@ -383,6 +385,72 @@ async function openFamilySuggestions(event) {
   } finally { finishMenuIntent(intent); }
 }
 familyTrigger?.addEventListener("click", openFamilySuggestions);
+
+const combosTrigger = document.querySelector("#menu-combos-trigger");
+let combosUi;
+let combosUiPromise;
+let combosRetry = 0;
+const combosCopy = {
+  tr: { link: "Her ana bir set · 12 fikir", takeaway: "Al ve çık · 4 fikir", error: "Setler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
+  en: { link: "A combo for your moment · 12 ideas", takeaway: "Grab & go · 4 ideas", error: "Combos could not load. Choose from the menu or try again." },
+  ru: { link: "Комбо под твой момент · 12 идей", takeaway: "Взял и побежал · 4 идеи", error: "Не удалось открыть комбо. Можно выбрать из меню или попробовать ещё раз." }
+};
+function loadCombosUi() {
+  if (!combosUiPromise) {
+    let loading;
+    if (combosRetry) {
+      const url = new URL("./menu-combos-ui.js", import.meta.url);
+      url.searchParams.set("retry", String(combosRetry));
+      loading = import(url.href);
+    } else loading = import("./menu-combos-ui.js?v=a679972ee3b5");
+    combosUiPromise = loading.then(({ createMenuCombosUi }) => {
+      combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
+        productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
+        readDraft: () => { cart = readCart(); return orderDraft; }, mutateDraft: mutateMenuDraft,
+        onCartChange: renderCart,
+        onIntent: () => { const intent = beginMenuIntent(); return () => intent === menuIntent; },
+        openCart: async (trigger, isCurrent) => {
+          if (!isCurrent()) return;
+          const intent = menuIntent;
+          const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+          if (intent !== menuIntent || !isCurrent()) return;
+          ui.refresh({ nextLanguage: language });
+          ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+        }
+      });
+      return combosUi;
+    }).catch(error => { combosUiPromise = null; combosRetry += 1; throw error; });
+  }
+  return combosUiPromise;
+}
+async function openComboSuggestions(event, filter = "all") {
+  event?.preventDefault();
+  const trigger = event?.target?.closest?.("a,button") ?? event?.currentTarget ?? combosTrigger;
+  const intent = beginMenuIntent(trigger);
+  try {
+    const ui = await loadCombosUi();
+    if (intent !== menuIntent) return;
+    document.querySelector("#menu-cart-status").classList.remove("is-visible");
+    ui.refresh(language);
+    document.querySelector("#menu-combos").hidden = false;
+    ui.reveal(filter);
+    combosTrigger?.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-combos").scrollIntoView({ block: "start" });
+  } catch {
+    if (intent !== menuIntent) return;
+    const notice = document.querySelector("#menu-cart-status");
+    notice.textContent = combosCopy[language].error;
+    notice.classList.add("is-visible");
+  } finally { finishMenuIntent(intent); }
+}
+combosTrigger?.addEventListener("click", event => { void openComboSuggestions(event); });
+document.querySelector("#menu-combos-takeaway-trigger")?.addEventListener("click", event => { void openComboSuggestions(event, "takeaway"); });
+document.addEventListener("click", event => {
+  const anchor = event.target.closest?.(".choice-help-actions a");
+  if (!anchor) return;
+  const url = new URL(anchor.href);
+  if (url.pathname === window.location.pathname && url.hash === "#menu-combos") void openComboSuggestions(event);
+});
 // Escape also cancels an intent whose optional code is still downloading.
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") beginMenuIntent();
@@ -633,6 +701,8 @@ function renderCategoryNav(focusId = null) {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
+      combosUi?.close({ restoreFocus: false });
+      beginMenuIntent();
       activeCategory = option.id;
       syncCategoryHash(option.id);
       renderCategoryNav(option.id);
@@ -710,6 +780,10 @@ function translateStaticPage() {
   orderUi?.refresh({ nextLanguage: language });
   if (familyTrigger) familyTrigger.textContent = familyCopy[language].link;
   familyUi?.refresh(language);
+  if (combosTrigger) combosTrigger.textContent = combosCopy[language].link;
+  const takeawayTrigger = document.querySelector("#menu-combos-takeaway-trigger");
+  if (takeawayTrigger) takeawayTrigger.textContent = combosCopy[language].takeaway;
+  combosUi?.refresh(language);
   storageNotice?.refresh();
 }
 
@@ -730,6 +804,8 @@ languageButtons.forEach((button) => {
 });
 
 searchInput.addEventListener("input", () => {
+  combosUi?.close({ restoreFocus: false });
+  beginMenuIntent();
   searchTerm = searchInput.value;
   if (searchTerm.trim() && activeCategory !== "all") {
     activeCategory = "all";
@@ -807,10 +883,16 @@ window.addEventListener("robys:order-change", event => {
 window.addEventListener("focus", () => refreshObservedCart());
 
 window.addEventListener("hashchange", () => {
+  if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
+    void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
+    return;
+  }
   if (window.location.hash === "#menu-family") {
     void openFamilySuggestions();
     return;
   }
+  combosUi?.close({ restoreFocus: false });
+  beginMenuIntent();
   activeCategory = readInitialCategory();
   searchInput.value = "";
   searchInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -820,6 +902,9 @@ window.addEventListener("hashchange", () => {
 if (language !== "tr") void loadMenuActions();
 
 if (window.location.hash === "#menu-family") void openFamilySuggestions();
+if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
+  void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
+}
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {

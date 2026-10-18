@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <link rel="stylesheet" href="combo-entry.css?v=da624d45b4d6" />
   <title>Roby's Taste Journey | Menü Keşfi</title>
   <script src="bootstrap-v2.js?v=845efb76f384"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
@@ -19,6 +20,7 @@
   <link rel="stylesheet" href="discover-rotation.css?v=96b566c9731e" />
   <link id="robys-wordmark-responsive" rel="stylesheet" href="wordmark-responsive.css?v=20260704-1" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260917-approved-v4-restore" />
+  <link rel="stylesheet" href="choice-help.css?v=8b952c93e8ce" />
 </head>
 <body class="discover-page">
   <a class="skip-link" href="#discover-main">İçeriğe geç</a>
@@ -96,6 +98,19 @@
       </div>
     </section>
 
+    <div class="container">
+      <section class="combo-entry" aria-labelledby="combo-entry-title">
+        <h2 id="combo-entry-title" data-copy="comboEntryTitle">Her ana bir Roby’s seçimi</h2>
+        <p class="combo-entry-lead" data-copy="comboEntryLead">Bir fikirle başla. İçeriği ve adetleri menüde kendine göre düzenle.</p>
+        <div class="combo-entry-links">
+          <a class="combo-entry-link" href="menu.html#menu-combos"><span class="combo-entry-icon" aria-hidden="true">❤</span><span><strong data-copy="comboEntryAllTitle">Birlikte güzel</strong><span class="combo-entry-detail" data-copy="comboEntryAllBody">Mola, arkadaşlar veya aile için kombinler</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="menu.html#menu-combos-takeaway"><span class="combo-entry-icon" aria-hidden="true">↗</span><span><strong data-copy="comboEntryGoTitle">Al ve devam et</strong><span class="combo-entry-detail" data-copy="comboEntryGoBody">Kahve ve yanına bir atıştırmalık</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="menu.html#menu-family"><span class="combo-entry-icon" aria-hidden="true">☺</span><span><strong data-copy="comboEntryKidsTitle">Çocuklarla</strong><span class="combo-entry-detail" data-copy="comboEntryKidsBody">Menüden 3 küçük mola fikri</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+        </div>
+        <div data-choice-help></div>
+      </section>
+    </div>
+
     <section class="discover-principles" aria-labelledby="principles-title">
       <div class="container discover-principles-inner">
         <div>
@@ -131,8 +146,9 @@
   </footer>
 
   <script defer src="discover-weather-guard.js?v=20260629-1"></script>
-  <script type="module" src="discover-v2.js?v=0e2b05dc97ec"></script>
+  <script type="module" src="discover-v2.js?v=7b9e7a630fd1"></script>
   <script type="module" src="discover-deck.js?v=16c7c7dc8590"></script>
   <script defer src="discover-rotation-v3.js?v=b7b8c4df73db"></script>
+  <script type="module" src="choice-help.js?v=4cd702042077"></script>
 </body>
 </html>

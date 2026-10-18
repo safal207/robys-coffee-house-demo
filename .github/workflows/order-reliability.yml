@@ -31,6 +31,8 @@ jobs:
       ROBYS_LAZY_QA_DIR: .artifacts/order-reliability/lazy-images
       ROBYS_PAIRING_BROWSER: ${{ matrix.browser }}
       ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
+      ROBYS_COMBO_BROWSERS: ${{ matrix.browser }}
+      ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,6 +51,11 @@ jobs:
         run: node scripts/test-pairing-price-browser.mjs
       - name: Family loading, contents and photographs
         run: node scripts/test-menu-family-browser.mjs
+      - name: Editable combos, all views and gentle choice help
+        run: node scripts/test-menu-combos-browser.mjs
+      - name: First offline combo reveal and missing-photo negative control
+        if: matrix.browser == 'chromium'
+        run: node scripts/test-combo-offline.mjs
       - name: Editable promotional pairs
         run: node scripts/test-promo-components-browser.mjs
       - name: Concurrent cart mutations and storage recovery
