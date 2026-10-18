@@ -42,7 +42,8 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" fetchpriority="high" />
   <link rel="stylesheet" href="styles-v2.css?v=f003bf1a9feb" />
-  <link rel="stylesheet" href="menu-premium.css?v=dc1fddf1cb59" />
+  <link rel="stylesheet" href="menu-premium.css?v=f8b06ad3a6fe" />
+  <link rel="stylesheet" href="menu-family.css?v=ae8d8a1167d4" />
   <link rel="stylesheet" href="menu-product-reveal.css?v=80aa0282d851" />
   <link rel="stylesheet" href="pairing-posters.css?v=d1e9096d1ee4" />
   <link rel="stylesheet" href="menu-stability-v2.css?v=84e172cb281b" />
@@ -84,9 +85,20 @@
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
+      <a class="menu-family-link" id="menu-family-trigger" href="#menu-family-fallback" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
+      <noscript><p class="menu-family-fallback" id="menu-family-fallback">Menüden ürün fotoğrafları:
+        <a href="src/products/menu-v1/brew-hot--milk.webp">Süt / Milk / Молоко</a> ·
+        <a href="src/products/menu-v1/desserts--cookie.webp">Cookie / Печенье</a> ·
+        <a href="src/products/menu-v1/food--sesame-simit.webp">Simit / Симит</a> ·
+        <a href="src/products/menu-v1/desserts--cake-roll.webp">Rulo pasta / Cake roll / Рулет</a>.
+        Fiyat ve içerikleri kasada sorun / Ask at the counter about prices and ingredients / Цены и состав уточните на кассе.</p></noscript>
     </div>
   </div>
 </section>
+
+    <section class="menu-family-section" id="menu-family" hidden>
+      <div class="container" id="menu-family-content"></div>
+    </section>
 
     <section class="menu-controls" aria-label="Menu controls">
       <div class="container menu-controls-inner">
@@ -224,7 +236,7 @@
   </dialog>
 
   <script type="module" src="menu-product-reveal.js?v=497fa714ac94"></script>
-  <script type="module" src="menu-app.js?v=f1e79f3cd527"></script>
+  <script type="module" src="menu-app.js?v=c6c0fa840743"></script>
   <script type="module" src="pairing-posters.js?v=024743e64919"></script>
 </body>
 </html>

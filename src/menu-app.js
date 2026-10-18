@@ -1,6 +1,7 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=bc69a9e52fa4";
 import "./menu-search-clear.js";
 import { readStoredOrderDraft, writeStoredOrderDraft } from "./src/order-draft.js";
+import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -114,6 +115,12 @@ function readCart() {
 
 let cart = readCart();
 
+function writeMenuDraft(draft) {
+  orderDraft = writeStoredOrderDraft(draft, orderProductIds);
+  cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+  return orderDraft;
+}
+
 function cartSummary() {
   const quantity = orderDraft.groups.reduce((sum, group) => sum + group.quantity, 0);
   let total = 0;
@@ -158,16 +165,12 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=20de3e20764c");
+    } else loading = import("./menu-order-ui.js?v=61cc25a7d5a4");
     orderUiPromise = loading.then(({ createMenuOrderUi }) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
         readDraft: () => { cart = readCart(); return orderDraft; },
-        writeDraft: draft => {
-          orderDraft = writeStoredOrderDraft(draft, orderProductIds);
-          cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
-          return orderDraft;
-        },
+        writeDraft: writeMenuDraft,
         onCartChange: renderCart
       });
       return orderUi;
@@ -201,8 +204,69 @@ async function openOrderIntent(kind, id, trigger = document.activeElement) {
   } finally { trigger?.removeAttribute("aria-busy"); }
 }
 function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
+const familyTrigger = document.querySelector("#menu-family-trigger");
+let familyUi;
+let familyUiPromise;
+let familyRetry = 0;
+let familyIntent = 0;
+const familyCopy = {
+  tr: { link: "Çocuklarla · 3 fikir", error: "Öneriler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
+  en: { link: "With kids · 3 ideas", error: "Suggestions could not load. Choose from the menu or try again." },
+  ru: { link: "С ребёнком · 3 идеи", error: "Не удалось открыть подборку. Можно выбрать из меню или попробовать ещё раз." }
+};
+function loadFamilyUi() {
+  if (!familyUiPromise) {
+    let loading;
+    if (familyRetry) {
+      const url = new URL("./menu-family-ui.js", import.meta.url);
+      url.searchParams.set("retry", String(familyRetry));
+      loading = import(url.href);
+    } else loading = import("./menu-family-ui.js?v=6f74a92f53a9");
+    familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
+      familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
+        productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
+        readDraft: () => { cart = readCart(); return orderDraft; }, writeDraft: writeMenuDraft,
+        onCartChange: renderCart,
+        openCart: async (trigger, isCurrent) => {
+          const intent = ++orderIntent;
+          const ui = await loadOrderUi();
+          if (intent !== orderIntent || !isCurrent()) return;
+          ui.refresh({ nextLanguage: language });
+          ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+        }
+      });
+      return familyUi;
+    }).catch(error => { familyUiPromise = null; familyRetry += 1; throw error; });
+  }
+  return familyUiPromise;
+}
+async function openFamilySuggestions(event) {
+  event?.preventDefault();
+  if (!familyTrigger) return;
+  orderIntent += 1;
+  const intent = ++familyIntent;
+  familyTrigger.setAttribute("aria-busy", "true");
+  try {
+    const ui = await loadFamilyUi();
+    if (intent !== familyIntent) return;
+    document.querySelector("#menu-cart-status").classList.remove("is-visible");
+    ui.refresh(language);
+    document.querySelector("#menu-family").hidden = false;
+    ui.reveal();
+    familyTrigger.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-family").scrollIntoView({ block: "start" });
+  } catch {
+    if (intent !== familyIntent) return;
+    const notice = document.querySelector("#menu-cart-status");
+    notice.textContent = familyCopy[language].error;
+    notice.classList.add("is-visible");
+  } finally { familyTrigger.removeAttribute("aria-busy"); }
+}
+familyTrigger?.addEventListener("click", openFamilySuggestions);
 // Escape also cancels an intent whose optional code is still downloading.
-document.addEventListener("keydown", event => { if (event.key === "Escape") orderIntent += 1; });
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") { orderIntent += 1; familyIntent += 1; }
+});
 
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = categoryId === "pairing-offers";
@@ -453,11 +517,20 @@ function renderMenu() {
   syncMenuCartState();
 }
 
-let menuActionsPromise;
-function loadMenuActions() {
-  menuActionsPromise ??= import("./menu-interactions.js?v=20260923-web-only-v4");
-  return menuActionsPromise;
-}
+const menuActions = createMenuActionsLoader({
+  loadModule(attempt) {
+    if (!attempt) return import("./menu-interactions.js?v=20260923-web-only-v4");
+    const retryUrl = new URL("./menu-interactions.js?v=20260923-web-only-v4", import.meta.url);
+    retryUrl.searchParams.set("retry", String(attempt));
+    return import(retryUrl.href);
+  },
+  getLanguage: () => language,
+  setStatus: text => {
+    const status = document.querySelector("#menu-share-status");
+    if (status) status.textContent = text;
+  }
+});
+function loadMenuActions() { return menuActions.prefetch(); }
 
 function translateStaticPage() {
   const copy = menuCopy[language];
@@ -484,6 +557,8 @@ function translateStaticPage() {
 
   renderCart();
   orderUi?.refresh({ nextLanguage: language });
+  if (familyTrigger) familyTrigger.textContent = familyCopy[language].link;
+  familyUi?.refresh(language);
 }
 
 function setLanguage(next) {
@@ -515,7 +590,7 @@ searchInput.addEventListener("input", () => {
 cartTrigger.addEventListener("click", () => { void openOrderIntent("cart", undefined, cartTrigger); });
 
 function runLazyShare(skipNative = false) {
-  void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
+  void menuActions.share(skipNative);
 }
 
 menuShareButton?.addEventListener("click", (event) => {
@@ -534,17 +609,17 @@ menuShareButton?.addEventListener("click", (event) => {
   try {
     const nativeShare = navigator.share(payload);
     void nativeShare
-      .then(() => loadMenuActions().then(({ completeNativeShare }) => completeNativeShare()))
+      .then(() => menuActions.completeNativeShare())
       .catch((error) => {
         if (error?.name !== "AbortError") runLazyShare(true);
       });
-  } catch {
-    runLazyShare(true);
+  } catch (error) {
+    if (error?.name !== "AbortError") runLazyShare(true);
   }
 });
 
 document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => {
-  void loadMenuActions().then(({ track }) => track("instagram_booking_click"));
+  void menuActions.track("instagram_booking_click");
 });
 
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());
@@ -575,6 +650,10 @@ window.addEventListener("storage", event => {
 });
 
 window.addEventListener("hashchange", () => {
+  if (window.location.hash === "#menu-family") {
+    void openFamilySuggestions();
+    return;
+  }
   activeCategory = readInitialCategory();
   searchInput.value = "";
   searchInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -582,6 +661,8 @@ window.addEventListener("hashchange", () => {
 });
 
 if (language !== "tr") void loadMenuActions();
+
+if (window.location.hash === "#menu-family") void openFamilySuggestions();
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {

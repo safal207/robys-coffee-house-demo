@@ -3,13 +3,14 @@ export interface OrderGroupItem { id: string; variant?: string; quantity?: numbe
 export interface OrderGroup { id: string; source: "menu" | "recommendation"; items: (OrderGroupItem & { quantity: number })[]; quantity: number }
 export interface OrderSelection { token: string; signature: string; lines: OrderLine[]; selectedLines?: OrderLine[]; removedLines?: OrderLine[]; removed?: boolean }
 export interface OrderDraft { version: 1; groups: OrderGroup[]; lines: OrderLine[]; recommendation?: OrderSelection }
-export interface OrderGroupResult { draft: OrderDraft; applied: boolean; blocked: boolean }
+export interface OrderGroupResult { draft: OrderDraft; applied: boolean; blocked: boolean; stale?: boolean }
 export const ORDER_DRAFT_KEY: string;
 export const MAX_ORDER_QUANTITY: number;
 export function normalizeOrderDraft(raw: unknown, validIds: ReadonlySet<string>): OrderDraft;
 export function addOrderGroup(raw: unknown, items: OrderGroupItem[], quantity: number, validIds: ReadonlySet<string>): OrderGroupResult;
 export function updateOrderGroupQuantity(raw: unknown, id: string, quantity: number, validIds: ReadonlySet<string>): OrderGroupResult;
 export function removeOrderGroup(raw: unknown, id: string, validIds: ReadonlySet<string>): OrderDraft;
+export function replaceOrderGroup(raw: unknown, original: Pick<OrderGroup, "id" | "items" | "quantity">, items: OrderGroupItem[], quantity: number, validIds: ReadonlySet<string>): OrderGroupResult;
 export function updateOrderGroupVariant(raw: unknown, id: string, itemIndex: number, variant: string, validIds: ReadonlySet<string>): OrderGroupResult;
 export function readStoredOrderDraft(validIds: ReadonlySet<string>): OrderDraft;
 export function writeStoredOrderDraft(raw: unknown, validIds: ReadonlySet<string>): OrderDraft;

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { buildSync } from "esbuild";
+import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 import { menuCatalogRevision, readMenuCatalogRevisionInputs, verifyMenuCatalogRevision,
   SMART_CHOICE_CATALOG_CONSUMERS, readSmartChoiceCatalogRevisionInputs, verifySmartChoiceCatalogRevision } from "./menu-catalog-revision.mjs";
 
@@ -217,6 +218,35 @@ test("actual-worker negative control rejects removal of the pairing exact-query 
     /a stale query must not satisfy the current content URL/,
     "Removing the exact-query rule must reproduce stale lazy-module reuse"
   );
+});
+
+test("family selection source, loader and offline cache use the same fresh bytes", async () => {
+  const runtime = readFileSync("menu-family-ui.js", "utf8");
+  assert.equal(runtime, compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8")),
+    "Family UI must match its source and bundled recipe domain");
+  const revision = menuCatalogRevision(runtime);
+  const cssRevision = menuCatalogRevision(readFileSync("menu-family.css"));
+  const expectedUrl = `./menu-family-ui.js?v=${revision}`;
+  for (const file of ["src/menu-app.js", "menu-app.js"]) {
+    assert.ok(readFileSync(file, "utf8").includes(`import("${expectedUrl}")`),
+      `${file}: family intent must load the current content revision`);
+  }
+  const worker = readFileSync("sw-core-v64.js", "utf8");
+  assert.ok(worker.includes(`"${expectedUrl}"`), "Offline family UI must precache current bytes");
+  assert.ok(worker.includes(`"./menu-family.css?v=${cssRevision}"`), "Offline family CSS must precache current bytes");
+  assert.ok(readFileSync("menu.html", "utf8").includes(`href="menu-family.css?v=${cssRevision}"`),
+    "Family page stylesheet must match offline content");
+  const namespace = menuCatalogRevision(`${revision}:${cssRevision}`);
+  assert.ok(worker.includes(`-family-menu-${namespace}-`), "Family cache namespace must bind UI and CSS bytes");
+  for (const file of ["menu-family-ui.js", "menu-family.css"]) {
+    const digest = menuCatalogRevision(readFileSync(file));
+    await verifyReturningModuleCache(worker, file, digest);
+    const exactRule = new RegExp(`url\\.pathname\\.endsWith\\("/${file.replaceAll(".", "\\.")}"\\)\\s*\\|\\|`);
+    assert.match(worker, exactRule, `${file}: negative control must remove the real cache rule`);
+    await assert.rejects(verifyReturningModuleCache(worker.replace(exactRule, ""), file, digest),
+      /a stale query must not satisfy the current content URL/,
+      `${file}: removing query identity must reproduce stale bytes`);
+  }
 });
 
 function readSocialOfferRevisionInputs() {

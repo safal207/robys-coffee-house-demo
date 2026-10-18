@@ -15,9 +15,26 @@ assert(worker.includes('url.pathname.endsWith("/menu-order-ui.js")'), "An old ca
 assert(!orderSource.includes("readStoredOrderDraft") && !orderSource.includes("writeStoredOrderDraft"),
   "Lazy dialogs must use the eager storage owner, including its in-memory fallback");
 
-// Execute the shipped loader and intent callbacks with controlled asynchronous
-// module resolution. No browser/network is used by this boundary test.
-const loader = source.slice(source.indexOf("let orderUi;"), source.indexOf("function createItem("))
+// Execute the shipped ordering boundary and shared Escape listener. Family
+// suggestions have a separate loader; including their implementation here
+// would turn this controlled ordering fixture into an unrelated UI bootstrap.
+const orderStart = source.indexOf("let orderUi;");
+const orderEnd = source.indexOf("const familyTrigger =", orderStart);
+const writerStart = source.indexOf("function writeMenuDraft(");
+const writerEnd = source.indexOf("function cartSummary(", writerStart);
+const escapeStart = source.indexOf('document.addEventListener("keydown", event =>', orderEnd);
+const escapeEnd = source.indexOf("\n});", escapeStart);
+const familyIntentDeclaration = source.match(/^let familyIntent = 0;$/m)?.[0];
+assert(orderStart >= 0 && orderEnd > orderStart, "The shipped ordering loader boundary must be identifiable");
+assert(writerStart >= 0 && writerEnd > writerStart, "The shared draft writer must be executed from shipped source");
+assert(escapeStart > orderEnd && escapeEnd > escapeStart && familyIntentDeclaration,
+  "The actual shared Escape listener and unloaded family intent state must be identifiable");
+const loader = [
+  source.slice(writerStart, writerEnd),
+  source.slice(orderStart, orderEnd),
+  familyIntentDeclaration,
+  source.slice(escapeStart, escapeEnd + "\n});".length)
+].join("\n")
   .replace(/import\(("\.\/menu-order-ui\.js\?v=[a-f0-9]+")\)/g, "loadModule($1)")
   .replace("import(retryUrl.href)", "loadModule(retryUrl.href)")
   .replace("import.meta.url", '"https://example.test/site/menu-app.js"');
@@ -40,7 +57,7 @@ function fixture() {
       addEventListener: (name, handler) => events.set(name, handler) },
     loadModule(url) { requests.push(url); return new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; }); }
   };
-  const api = runInNewContext(`${loader}\n({ openOrderIntent });`, context);
+  const api = runInNewContext(`${loader}\n({ openOrderIntent, intents: () => ({ order: orderIntent, family: familyIntent }) });`, context);
   const module = { createMenuOrderUi(config) {
     factoryCount += 1; options = config;
     return { refresh(value) { refreshes.push(value); }, openProduct(id, target) { opens.push(["product", id, target]); },
@@ -89,7 +106,13 @@ function fixture() {
 {
   const f = fixture();
   const pending = f.api.openOrderIntent("product", "tea", f.trigger());
+  const before = f.api.intents();
+  f.events.get("keydown")({ key: "Enter" });
+  assert.equal(f.api.intents().order, before.order, "Unrelated keys must not cancel the current ordering intent");
+  assert.equal(f.api.intents().family, before.family, "Unrelated keys must not mutate the unloaded family intent");
   f.events.get("keydown")({ key: "Escape" });
+  assert.equal(f.api.intents().order, before.order + 1, "The shipped Escape listener invalidates the pending order intent");
+  assert.equal(f.api.intents().family, before.family + 1, "The same shipped listener also invalidates the unloaded family intent");
   f.resolve(); await pending;
   assert.equal(f.opens.length, 0, "Escape during download must not cause a delayed dialog to appear");
 }

@@ -22,10 +22,20 @@ jobs:
         run: node scripts/test-menu-runtime-contract.mjs
       - run: npx playwright install --with-deps chromium
       - run: node scripts/premium-feedback-regression.mjs
+      - name: Cart composition save, cancel and concurrent edits
+        run: node scripts/test-menu-cart-edit-browser.mjs
+      - name: Share module failure and retry
+        run: node scripts/test-menu-share-loader-browser.mjs
+      - name: Family selection, removal, limits and recovery
+        run: node scripts/test-menu-family-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: premium-feedback-${{ github.event.pull_request.head.sha || github.sha }}
-          path: .artifacts/premium-feedback/
+          path: |
+            .artifacts/premium-feedback/
+            .artifacts/menu-cart-edit/
+            .artifacts/share-loader/
+            .artifacts/menu-family/
           include-hidden-files: true
           retention-days: 14

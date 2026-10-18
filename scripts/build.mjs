@@ -36,8 +36,12 @@ menuOrderSource = synchronizeModuleImport(menuOrderSource, "menu-pairing.js", me
 writeFileSync("src/menu-order-ui.js", menuOrderSource);
 writeFileSync("menu-order-ui.js", compileMenuOrderRuntime());
 const menuOrderRevision = revisionFor("menu-order-ui.js");
+writeFileSync("menu-family-ui.js", compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8")));
+const menuFamilyRevision = revisionFor("menu-family-ui.js");
+const menuFamilyCssRevision = revisionFor("menu-family.css");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
+menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
@@ -366,6 +370,7 @@ menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "menu-family.css", menuFamilyCssRevision);
 if (!menuHtml.includes('href="order-checkout.css')) menuHtml = menuHtml.replace("</head>", '<link rel="stylesheet" href="order-checkout.css" />\n</head>');
 menuHtml = synchronizeStylesheet(menuHtml, "order-checkout.css", orderCheckoutCssRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
@@ -408,7 +413,7 @@ cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision
 writeFileSync("cashier.html", cashierHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
-for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js",
+for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -431,6 +436,10 @@ serviceWorker = serviceWorker.replace(
   pairingCachePattern,
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
+const familyCacheRevision = createHash("sha256")
+  .update(`${menuFamilyRevision}:${menuFamilyCssRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")
   .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
@@ -467,6 +476,8 @@ for (const [filePath, revision] of [
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-order-ui.js", menuOrderRevision],
+  ["menu-family-ui.js", menuFamilyRevision],
+  ["menu-family.css", menuFamilyCssRevision],
   ["menu-pairing.js", menuPairingRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],

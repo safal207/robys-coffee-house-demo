@@ -204,7 +204,7 @@ async function geometry(page, label) {
   // Scrollable dialogs must expose each caption/amount, including enlarged text;
   // a sticky purchase action cannot count as success when it paints over them.
   const reachability = [];
-  const readable = page.locator("#menu-product-dialog #menu-pairing-preview figcaption, #menu-product-dialog .menu-pairing-preview-total, #menu-product-dialog .menu-pairing-summary, #menu-quantity-label, #menu-product-dialog .menu-quantity-stepper");
+  const readable = page.locator("#menu-product-price, #menu-product-dialog #menu-pairing-preview figcaption, #menu-product-dialog .menu-pairing-preview-total, #menu-product-dialog .menu-pairing-summary, #menu-quantity-label, #menu-product-dialog .menu-quantity-stepper");
   for (let index = 0; index < await readable.count(); index++) {
     const node = readable.nth(index);
     await node.evaluate((element) => element.scrollIntoView({ block: "center", inline: "nearest" }));
@@ -224,6 +224,54 @@ async function geometry(page, label) {
     reachability.push(measured);
   }
   return { label, ...result, reachability };
+}
+
+async function headingVisibility(page, label) {
+  const title = page.locator("#menu-product-title");
+  await title.scrollIntoViewIfNeeded();
+  const initial = await title.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const photo = document.querySelector(".menu-product-visual").getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return {
+      text: element.textContent,
+      photoOverlap: Math.min(bounds.right, photo.right) - Math.max(bounds.left, photo.left) > 1 &&
+        Math.min(bounds.bottom, photo.bottom) - Math.max(bounds.top, photo.top) > 1,
+      lineCount: [...range.getClientRects()].filter((line) => line.width > 0 && line.height > 0).length
+    };
+  });
+  assert.equal(initial.photoOverlap, false, `${label}: product photo does not overlap its title`);
+  assert.equal(initial.lineCount > 0, true, `${label}: product title has rendered text`);
+  const lines = [];
+  // Enlarged titles can be taller than the content viewport; each rendered line
+  // must remain readable through scrolling rather than fit all at once.
+  for (let index = 0; index < initial.lineCount; index++) {
+    await title.evaluate((element, lineIndex) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const line = [...range.getClientRects()].filter((part) => part.width > 0 && part.height > 0)[lineIndex];
+      const main = element.closest(".menu-product-main");
+      const region = main.getBoundingClientRect();
+      main.scrollTop += line.top + line.height / 2 - (region.top + region.height / 2);
+    }, index);
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    const measured = await title.evaluate((element, lineIndex) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const bounds = [...range.getClientRects()].filter((part) => part.width > 0 && part.height > 0)[lineIndex];
+      const region = element.closest(".menu-product-main").getBoundingClientRect();
+      const hit = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+      return {
+        top: bounds.top, bottom: bounds.bottom, regionTop: region.top, regionBottom: region.bottom,
+        paintedAtCenter: hit === element || element.contains(hit)
+      };
+    }, index);
+    assert.equal(measured.top >= Math.max(measured.regionTop, 0) - 1 && measured.bottom <= Math.min(measured.regionBottom, await page.evaluate(() => innerHeight)) + 1, true, `${label}: title line ${index + 1} is reachable: ${JSON.stringify(measured)}`);
+    assert.equal(measured.paintedAtCenter, true, `${label}: title line ${index + 1} is not obscured: ${JSON.stringify(measured)}`);
+    lines.push(measured);
+  }
+  return { ...initial, lines };
 }
 
 export async function verifyMenuCustomPairing(context, base, check) {
@@ -535,6 +583,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     const drink = hot.reduce((longest, product) => product.item.name.ru.length > longest.item.name.ru.length ? product : longest);
     await page.setViewportSize({ width: 320, height: 844 });
     await open(page, drink);
+    const drinkOnlyHeading = await headingVisibility(page, "ru/320px/100%/drink-only");
     mkdirSync(".artifacts/custom-pairing", { recursive: true });
     await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
     const defaultScreenshot = ".artifacts/custom-pairing/ru-320-100-drink-only.png";
@@ -546,7 +595,8 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await page.setViewportSize({ width, height: 844 });
       await page.evaluate((size) => { document.documentElement.style.fontSize = `${size}px`; }, fontSize);
       const label = `ru/${width}px/${fontSize === 32 ? "200" : "100"}%`;
-      states.push(await geometry(page, label));
+      const heading = await headingVisibility(page, label);
+      states.push({ ...await geometry(page, label), heading });
       if ((width === 390 && fontSize === 16) || width === 320 || (width === 1440 && fontSize === 16)) {
         await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
         const path = `.artifacts/custom-pairing/ru-${width}-${fontSize === 32 ? "200" : "100"}.png`;
@@ -554,7 +604,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
         screenshots.push({ path, width, textScale: fontSize === 32 ? 200 : 100, selection: dessert.id });
       }
     }
-    return { drink: drink.id, dessert: dessert.id, states, screenshots, textScaleMethod: "document root font16/32px; text enlargement, not browser zoom" };
+    return { drink: drink.id, dessert: dessert.id, drinkOnlyHeading, states, screenshots, textScaleMethod: "document root font16/32px; text enlargement, not browser zoom" };
   });
 
   await run("CUSTOM-PAIRING-LAZY-FAILURE-001", "blocked optional view reports failure and retains drink-only ordering", async (page) => {
