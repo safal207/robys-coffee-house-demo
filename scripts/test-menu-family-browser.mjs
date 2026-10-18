@@ -544,12 +544,72 @@ try {
 
   await run("pending-family-save-keeps-new-preview-busy", async (page, context) => {
     await openMenu(page);
+    await canonicalDraft(page);
     await page.evaluate(() => {
       window.__orderTransactionsRequested = 0;
+      window.__completedFamilySaves = 0;
       const original = IDBDatabase.prototype.transaction;
+      const originalGet = IDBObjectStore.prototype.get;
+      const originalSetItem = Storage.prototype.setItem;
+      const requestSuccess = Object.getOwnPropertyDescriptor(IDBRequest.prototype, "onsuccess");
+      const transactionComplete = Object.getOwnPropertyDescriptor(IDBTransaction.prototype, "oncomplete");
       IDBDatabase.prototype.transaction = function (...args) {
         if (this.name === "robys-order-transactions.v1" && args[1] === "readwrite") window.__orderTransactionsRequested += 1;
         return original.apply(this, args);
+      };
+      // Identify the actual projection transaction by the v2 write performed
+      // inside its get-success handler. Do not assume a transaction count: reads,
+      // migration and projection repair may each need their own atomic scope.
+      IDBObjectStore.prototype.get = function (...args) {
+        const transaction = this.transaction;
+        const request = originalGet.apply(this, args);
+        Object.defineProperty(request, "onsuccess", { configurable: true,
+          get() { return requestSuccess.get.call(this); },
+          set(callback) {
+            requestSuccess.set.call(this, typeof callback !== "function" ? callback : function (event) {
+              const previous = window.__activeOrderGet;
+              window.__activeOrderGet = transaction;
+              try { return callback.call(this, event); }
+              finally { window.__activeOrderGet = previous; }
+            });
+          }
+        });
+        return request;
+      };
+      Storage.prototype.setItem = function (key, value) {
+        const result = originalSetItem.call(this, key, value);
+        if (this === localStorage && key === "robys-menu-order.v2" && !window.__firstProjectionTransaction
+            && window.__activeOrderGet?.db.name === "robys-order-transactions.v1") {
+          const lines = JSON.parse(value).lines;
+          if (JSON.stringify(lines) === JSON.stringify([{ id: "brew-hot:milk", quantity: 1 }, { id: "desserts:cookie", quantity: 1 }])) {
+            window.__firstProjectionTransaction = window.__activeOrderGet;
+          }
+        }
+        return result;
+      };
+      Object.defineProperty(IDBTransaction.prototype, "oncomplete", { ...transactionComplete,
+        set(callback) {
+          transactionComplete.set.call(this, typeof callback !== "function" ? callback : function (event) {
+            if (this === window.__firstProjectionTransaction && !window.__firstProjectionCompletionHeld) {
+              window.__firstProjectionCompletionHeld = true;
+              window.__releaseFirstProjectionCompletion = () => {
+                window.__releaseFirstProjectionCompletion = undefined;
+                return callback.call(this, event);
+              };
+              return;
+            }
+            return callback.call(this, event);
+          });
+        }
+      });
+      window.addEventListener("robys:order-change", event => {
+        if (event.detail?.origin === "menu-app") window.__completedFamilySaves += 1;
+      });
+      window.__restoreFamilyCompletionProbe = () => {
+        IDBDatabase.prototype.transaction = original;
+        IDBObjectStore.prototype.get = originalGet;
+        Storage.prototype.setItem = originalSetItem;
+        Object.defineProperty(IDBTransaction.prototype, "oncomplete", transactionComplete);
       };
     });
     const gate = await context.newPage();
@@ -570,21 +630,25 @@ try {
       held.transaction.abort(); held.database.close();
     }, label);
     try {
-      await hold("before-first");
       await page.locator('[data-family-recipe="milk-cookie"] button').click();
-      const beforeFirst = await page.evaluate(() => window.__orderTransactionsRequested);
       await page.locator(".menu-family-add").click();
-      await page.waitForFunction(previous => window.__orderTransactionsRequested > previous, beforeFirst);
-      // Queue a second lock behind the first Add, then queue the new preview's
-      // Add behind it. This lets the old operation finish while the new one waits.
+      await page.waitForFunction(() => window.__firstProjectionCompletionHeld === true);
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v2")).lines),
+        [{ id: "brew-hot:milk", quantity: 1 }, { id: "desserts:cookie", quantity: 1 }],
+        "The first save has committed and projected before only its completion callback is delayed");
+      assert.equal(await page.evaluate(() => window.__completedFamilySaves), 0);
+      // The old projection transaction has really completed and released its
+      // lock. Hold only the new Add; releasing the old callback below must let
+      // its frontend completion run while the latest preview is still pending.
       await hold("before-second");
       await page.locator(".menu-family-close").click();
       await page.locator('[data-family-recipe="simit-break"] button').click();
       const beforeSecond = await page.evaluate(() => window.__orderTransactionsRequested);
       await page.locator(".menu-family-add").click();
       await page.waitForFunction(previous => window.__orderTransactionsRequested > previous, beforeSecond);
-      await release("before-first");
-      await page.waitForFunction(() => JSON.parse(localStorage.getItem("robys-menu-order.v2") ?? "null")?.lines.length === 2);
+      assert.equal(await page.locator(".menu-family-add").isDisabled(), true);
+      await page.evaluate(() => window.__releaseFirstProjectionCompletion());
+      await page.waitForFunction(() => window.__completedFamilySaves === 1);
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       assert.equal(await page.locator(".menu-family-dialog[open]").count(), 1, "The old completion cannot close the latest preview");
       const cookie = page.locator('.menu-family-dialog input[value="desserts:cookie"]');
@@ -594,10 +658,15 @@ try {
       await cookie.check();
       await release("before-second");
       await page.locator("#menu-cart-dialog[open]").waitFor();
+      assert.equal(await page.evaluate(() => window.__completedFamilySaves), 2, "Both explicit Adds finish exactly once");
       assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v2")).lines),
         [{ id: "brew-hot:milk", quantity: 2 }, { id: "desserts:cookie", quantity: 2 }, { id: "food:sesame-simit", quantity: 1 }]);
-      return { twoQueuedAdds: true, oldCompletionPreservesNewBusyState: true, eachConfirmedSelectionAddedOnce: true };
-    } finally { await gate.close(); }
+      return { firstSaveCommittedAndProjectedBeforeHeldCallback: true, secondSaveHeldSeparately: true,
+        oldCompletionRanWhileNewPending: true, oldCompletionPreservesNewBusyState: true, eachConfirmedSelectionAddedOnce: true };
+    } finally {
+      await page.evaluate(() => { window.__releaseFirstProjectionCompletion?.(); window.__restoreFamilyCompletionProbe?.(); });
+      await gate.close();
+    }
   });
 
   await run("no-js-fallback", async page => {

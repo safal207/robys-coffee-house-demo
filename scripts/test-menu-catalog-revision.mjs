@@ -1,3 +1,5 @@
+import "./test-menu-styles-bundle.mjs";
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -76,11 +78,12 @@ function readPairingRevisionInputs() {
     orderRuntime: readFileSync("menu-order-ui.js", "utf8"),
     menuRuntime: readFileSync("menu-app.js", "utf8"),
     premiumBytes: readFileSync("menu-premium.css"),
+    bundleBytes: readFileSync("menu-runtime.css"),
     worker: readFileSync("sw-core-v64.js", "utf8")
   };
 }
 
-function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, orderRuntime, menuRuntime, premiumBytes, worker }) {
+function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, orderRuntime, menuRuntime, premiumBytes, bundleBytes, worker }) {
   assert.equal(pairingBytes, generatedPairing, "Pairing view bytes must match their readable source and bundled domain dependency");
   const pairingRevision = menuCatalogRevision(pairingBytes);
   const expectedUrl = `./menu-pairing.js?v=${pairingRevision}`;
@@ -99,7 +102,9 @@ function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, or
     pairingRevision
   ].join(":"));
   const cacheVersion = worker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
-  assert.ok(cacheVersion?.includes(`-custom-pair-${cacheRevision}-shared-order-`), "Custom pairing cache namespace must bind the actual menu runtime, stylesheet and lazy view bytes");
+  const cssRevision = menuCatalogRevision(bundleBytes);
+  assert.ok(cacheVersion?.includes(`-custom-pair-${cacheRevision}-menu-css-${cssRevision}-shared-order-`),
+    "Custom pairing cache namespace must bind the actual menu runtime, stylesheet bundle and lazy view bytes");
   return { expectedUrl, cacheRevision };
 }
 
@@ -118,12 +123,15 @@ test("reject stale lazy pairing loaders, precache, source/output bytes and cache
   for (const key of ["pairingBytes", "generatedPairing"]) {
     assert.throws(() => verifyPairingRevision({ ...current, [key]: current[key] + "\n// byte drift\n" }), /must match their readable source/, key);
   }
-  for (const key of ["menuRuntime", "orderRuntime", "premiumBytes"]) {
+  for (const key of ["menuRuntime", "orderRuntime", "premiumBytes", "bundleBytes"]) {
     assert.throws(() => verifyPairingRevision({ ...current, [key]: current[key] + "\n" }), /cache namespace must bind/, key);
   }
   const staleNamespace = current.worker.replace(`-custom-pair-${cacheRevision}-`, "-custom-pair-000000000000-");
   assert.notEqual(staleNamespace, current.worker, "Cache namespace control must actually change the fixture");
   assert.throws(() => verifyPairingRevision({ ...current, worker: staleNamespace }), /cache namespace must bind/);
+  const staleCssNamespace = current.worker.replace(`-menu-css-${menuCatalogRevision(current.bundleBytes)}-`, "-menu-css-000000000000-");
+  assert.notEqual(staleCssNamespace, current.worker, "CSS bundle namespace control must actually change the fixture");
+  assert.throws(() => verifyPairingRevision({ ...current, worker: staleCssNamespace }), /cache namespace must bind/);
 });
 
 test("reject a rollback to a previously cached catalog URL in each delivery layer", () => {
@@ -266,8 +274,7 @@ test("family selection source, loader and offline cache use the same fresh bytes
   const worker = readFileSync("sw-core-v64.js", "utf8");
   assert.ok(worker.includes(`"${expectedUrl}"`), "Offline family UI must precache current bytes");
   assert.ok(worker.includes(`"./menu-family.css?v=${cssRevision}"`), "Offline family CSS must precache current bytes");
-  assert.ok(readFileSync("menu.html", "utf8").includes(`href="menu-family.css?v=${cssRevision}"`),
-    "Family page stylesheet must match offline content");
+  verifyMenuStylesBundle(readMenuStylesBundleInputs());
   const familyPhotos = ["milk-cookie", "simit-break", "milk-roll", "kids-box"]
     .map(name => `src/products/family-sets-v1/${name}.webp`);
   const precache = worker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1];

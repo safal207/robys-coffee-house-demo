@@ -535,10 +535,10 @@ function projectCanonical(database, validIds) {
   });
 }
 
-function enterTabMode(validIds) {
+function enterTabMode(validIds, initialDraft) {
   const state = storageRuntime();
   if (state.mode !== "tab") {
-    let seed = canonicalDraft;
+    let seed = initialDraft ?? canonicalDraft;
     if (!seed) {
       try { seed = JSON.parse(localStorage.getItem(ORDER_DRAFT_PROJECTION_KEY) ?? "null"); } catch {}
       seed ??= memoryDraft;
@@ -592,13 +592,24 @@ async function sharedTransaction(updater, validIds, options = {}, readOnly = fal
   if (state.mode === "tab") return tabTransaction(updater, validIds, options);
   const epoch = databaseEpoch;
   return new Promise((resolve, reject) => {
-    let transaction, result, record, failure, initialized = false;
+    let transaction, result, record, failure, initialDraft, initialized = false, initialWriteAttempted = false, divertedToTab = false;
     try { transaction = database.transaction(transactionStore, "readwrite"); }
     catch (cause) {
       if (resolution || state.sharedActive) { databasePromise = undefined; reject(new OrderStorageError(undefined, { cause })); return; }
       databasePromise = undefined; enterTabMode(validIds); resolve(tabTransaction(updater, validIds, options)); return;
     }
-    transaction.onabort = () => reject(failure ?? new OrderStorageError(undefined, { cause: transaction.error }));
+    transaction.onabort = () => {
+      // Only an uncommitted first record may switch modes. A failed updater,
+      // damaged migration or any failure after observing a canonical record
+      // remains an error. Already queued first operations join the same tab.
+      if (!resolution && !state.sharedActive && epoch === databaseEpoch
+          && (divertedToTab || (initialized && initialWriteAttempted))) {
+        enterTabMode(validIds, initialDraft);
+        resolve(tabTransaction(updater, validIds, options));
+        return;
+      }
+      reject(failure ?? new OrderStorageError(undefined, { cause: transaction.error }));
+    };
     transaction.onerror = () => {};
     transaction.oncomplete = async () => {
       if (epoch !== databaseEpoch) { reject(new OrderStorageError("Shared order storage changed; please retry")); return; }
@@ -627,10 +638,12 @@ async function sharedTransaction(updater, validIds, options = {}, readOnly = fal
     }
     request.onsuccess = () => {
       try {
+        if (state.mode === "tab") { divertedToTab = true; transaction.abort(); return; }
         initialized = request.result === undefined;
         const legacy = readPersistentDraft();
         record = initialized ? { version: 1, revision: 0, draft: initialCanonicalDraft(validIds, legacy),
           ...(legacy.available ? { legacyBase: legacy.value } : {}) } : canonicalRecord(request.result, validIds);
+        if (initialized) initialDraft = record.draft;
         if (!initialized) state.sharedActive = true;
         if (resolution && !legacy.available) throw new OrderStorageError("The older order is temporarily unavailable; please retry");
         const conflict = inspectLegacy(record, validIds, legacy);
@@ -651,7 +664,10 @@ async function sharedTransaction(updater, validIds, options = {}, readOnly = fal
           if (record.revision >= Number.MAX_SAFE_INTEGER) throw new OrderStorageError("Order revision limit reached");
           record = { ...record, revision: record.revision + 1, draft: result.draft };
         }
-        if (initialized || result.applied) store.put(record, ORDER_DRAFT_KEY);
+        if (initialized || result.applied) {
+          initialWriteAttempted = initialized;
+          store.put(record, ORDER_DRAFT_KEY);
+        }
       } catch (cause) {
         failure = cause instanceof OrderStorageError ? cause : new OrderStorageError(undefined, { cause });
         transaction.abort();

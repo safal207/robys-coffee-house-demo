@@ -19,7 +19,7 @@ const certificate = mkdtempSync(join(tmpdir(), "robys-built-release-"));
 execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1", "-keyout", join(certificate, "key.pem"),
   "-out", join(certificate, "cert.pem"), "-subj", "/CN=localhost"], { stdio: "ignore" });
 const assets = ["menu.html", "menu-app.js", "menu-order-ui.js", "menu-family-ui.js", "menu-pairing.js", "menu-catalog.js",
-  "menu-premium.css", "menu-family.css", "order-checkout.js", "order-checkout.css", "order-storage.js", "cashier.html", "cashier.js",
+  "menu-premium.css", "menu-family.css", "menu-runtime.css", "scripts/menu-styles-bundle.mjs", "order-checkout.js", "order-checkout.css", "order-storage.js", "cashier.html", "cashier.js",
   "src/order-draft.js", "src/menu-order-ui.js", "src/menu-app.js", "src/menu-promo-pair.js", "src/order-checkout.js",
   "src/order-storage.js", "src/order-storage-notice.js",
   "src/products/family-sets-v1/milk-cookie.webp", "src/products/family-sets-v1/simit-break.webp", "src/products/family-sets-v1/milk-roll.webp",

@@ -118,7 +118,7 @@ checkoutButton.addEventListener("click", async () => {
   const session = cartSession;
   checkoutButton.disabled = true;
   try {
-    const { openOrderCheckout } = await import("./order-checkout.js?v=8737e01cdca9");
+    const { openOrderCheckout } = await import("./order-checkout.js?v=5f9a05cab988");
     if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
     cart = readCart();
     if (!orderDraft.groups.length || hasMissingVariant()) return;

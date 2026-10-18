@@ -165,7 +165,7 @@ function loadOrderStorage() {
       const retryUrl = new URL("./order-storage.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderStorageRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./order-storage.js?v=c2f56e3a95b4");
+    } else loading = import("./order-storage.js?v=6908555cd79b");
     orderStoragePromise = loading.then(storage => {
       storageNotice = storage.createOrderStorageNotice({
         getLanguage: () => language,
@@ -272,7 +272,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=8d6b2d145715");
+    } else loading = import("./menu-order-ui.js?v=0c4db7b85f2d");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
@@ -391,6 +391,28 @@ document.addEventListener("click", event => {
   if (event.target.closest?.("[data-menu-dialog-close]")) beginMenuIntent();
 }, true);
 
+// Native lazy loading can fetch several screens of large catalog photos on a
+// slow connection. Keep those requests close to the viewport so they do not
+// compete with the first visible photograph. Older browsers retain native loading.
+function createProductImageObserver() {
+  if (typeof IntersectionObserver !== "function") return null;
+  try {
+    return new IntersectionObserver((entries, observer) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const image = entry.target;
+        observer.unobserve(image);
+        const sourceUrl = image.dataset.menuLazySrc;
+        if (!image.isConnected || !sourceUrl) continue;
+        delete image.dataset.menuLazySrc;
+        image.src = sourceUrl;
+      }
+    }, { rootMargin: "150px 0px", threshold: 0 });
+  } catch { return null; }
+}
+
+const productImageObserver = createProductImageObserver();
+
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = categoryId === "pairing-offers";
   const visual = pairing || Boolean(categoryId);
@@ -430,13 +452,17 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.addEventListener("click", event => openProduct(id, event.currentTarget));
 
     const image = document.createElement("img");
-    image.src = productImage(categoryId, item);
+    const sourceUrl = productImage(categoryId, item);
     image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
     image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
     if (priority) image.fetchPriority = "high";
     image.width = 1024;
     image.height = 1024;
+    if (!priority && productImageObserver) {
+      image.dataset.menuLazySrc = sourceUrl;
+      productImageObserver.observe(image);
+    } else image.src = sourceUrl;
     media.append(image);
 
     const details = document.createElement("div");
@@ -621,6 +647,8 @@ function renderCategoryNav(focusId = null) {
 }
 
 function renderMenu() {
+  productImageObserver?.takeRecords();
+  productImageObserver?.disconnect();
   menuRoot.replaceChildren();
   const categories = menuCategories.filter((category) => {
     const matchesCategory = activeCategory === "all" || activeCategory === category.id;

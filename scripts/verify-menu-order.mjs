@@ -1,3 +1,4 @@
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import { readVerifiedMenuSource, readVerifiedMenuOrderSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -12,7 +13,7 @@ const menuSource = readFileSync("menu-catalog.js", "utf8");
 const stabilitySource = readFileSync("menu-stability.css");
 assert.deepEqual(readFileSync("menu-stability-v2.css"), stabilitySource, "Delivered menu stability CSS must preserve the approved source bytes");
 const stabilityRevision = createHash("sha256").update(stabilitySource).digest("hex").slice(0, 12);
-assert(html.includes(`href="menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must bypass legacy pathname caches at its current revision");
+verifyMenuStylesBundle(readMenuStylesBundleInputs());
 assert(serviceWorker.includes(`"./menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must be precached at the delivered revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-stability-v2.css")'), "Current workers must match menu stability CSS at its exact revision");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
@@ -349,10 +350,6 @@ assert.match(productDialogMarkup, /<div class="menu-product-main">[\s\S]*<\/div>
   "The product action must stay outside the scrolling optional choices");
 assert.match(cartDialogMarkup, /id="menu-cart-title" tabindex="-1"/, "Add confirmation needs an accessible focus destination");
 assert.match(cartDialogMarkup, /id="menu-cart-added-summary"/, "Cart confirmation must expose the added composition, quantity and amount");
-assert(
-  /href="menu-security-v2\.css\?v=[a-f0-9]{12}"/.test(html),
-  "Menu must load the cache-new dialog fallback stylesheet at its content revision"
-);
 assert(
   serviceWorker.includes('"./menu-security-v2.css?v=') &&
     serviceWorker.includes('url.pathname.endsWith("/menu-security-v2.css")'),

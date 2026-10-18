@@ -59,6 +59,20 @@ async function denial(page, mode, memory = false) {
     if (mode === "absent") Object.defineProperty(globalThis, "indexedDB", { configurable: true, value: undefined });
     if (mode === "open-denied") IDBFactory.prototype.open = function() { throw new DOMException("denied", "SecurityError"); };
     if (mode === "store-unavailable") IDBDatabase.prototype.transaction = function() { throw new DOMException("missing store", "NotFoundError"); };
+    if (["initial-put-quota", "initial-put-once-quota", "initial-put-request-error"].includes(mode)) {
+      const put = IDBObjectStore.prototype.put;
+      let denied = false;
+      IDBObjectStore.prototype.put = function(value, key) {
+        if (this.name !== "shared-order") return put.apply(this, arguments);
+        if (mode === "initial-put-once-quota" && denied) return put.apply(this, arguments);
+        denied = true;
+        if (mode !== "initial-put-request-error") throw new DOMException("initial write denied", "QuotaExceededError");
+        // A genuine asynchronous request failure aborts both writes, including
+        // the temporary first insert. No canonical record can have committed.
+        this.add(value, key);
+        return this.add(value, key);
+      };
+    }
     if (memory) for (const method of ["getItem", "setItem", "removeItem"]) {
       const original = Storage.prototype[method];
       Storage.prototype[method] = function(...args) { if (this === sessionStorage) throw new DOMException("denied", "SecurityError"); return original.apply(this, args); };
@@ -83,7 +97,7 @@ const resolveConflict = (page, choice, token) => page.evaluate(({ choice, token 
 async function rejected(operation, name) { let failure; try { await operation(); } catch (error) { failure = error; } assert.ok(failure, "the operation must be rejected"); assert.match(failure.message, new RegExp(name)); }
 try {
   browser = await type.launch({ headless: true }); report.version = browser.version();
-  for (const mode of ["absent", "open-denied", "store-unavailable"]) await run(`fallback-${mode}-two-tab-isolation`, async context => {
+  for (const mode of ["absent", "open-denied", "store-unavailable", "initial-put-quota", "initial-put-request-error"]) await run(`fallback-${mode}-two-tab-isolation`, async context => {
     const first = await prepare(context, { mode }), second = await prepare(context, { mode });
     assert.deepEqual(lines(await latest(first)), []); assert.deepEqual(lines(await latest(second)), []);
     await Promise.all([add(first, milk, 2), add(second, cookie, 1)]);
@@ -92,6 +106,55 @@ try {
     assert.equal((await state(first)).mode, "tab"); assert.equal((await state(second)).mode, "tab");
     assert.deepEqual(await first.evaluate(({ legacyKey, projectionKey }) => [localStorage.getItem(legacyKey), localStorage.getItem(projectionKey)], { legacyKey, projectionKey }), [null, null]);
     return { mode, independentTotals: [120, 100], noSharedOrderWrite: true };
+  });
+  await run("fallback-initial-put-retains-legacy-seed-and-session-reload", async context => {
+    const legacy = JSON.stringify(flat([[milk, 2]]));
+    const page = await prepare(context, { mode: "initial-put-request-error", legacy });
+    assert.deepEqual(lines(await latest(page)), [{ id: milk, quantity: 2 }]);
+    assert.equal((await state(page)).mode, "tab"); assert.equal((await state(page)).hasSessionPersistence, true);
+    await add(page, cookie); assert.equal(total(await latest(page)), 220);
+    assert.equal(await legacyValue(page), legacy);
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), projectionKey), null);
+    await page.reload(); await imports(page);
+    assert.deepEqual(lines(await latest(page)), [{ id: milk, quantity: 2 }, { id: cookie, quantity: 1 }]);
+    assert.equal(await legacyValue(page), legacy);
+    return { initialMigrationAborted: true, seedTotal: 120, restoredTabTotal: 220, legacyBytesPreserved: true };
+  });
+  await run("fallback-initial-put-concurrent-first-mutations-stay-in-one-tab-order", async context => {
+    const page = await context.newPage(); await denial(page, "initial-put-once-quota");
+    await page.goto(`${origin}/storage-fixture.html`);
+    await page.evaluate(async ids => {
+      window.ids = new Set(ids);
+      [window.orders, window.otherOrders] = await Promise.all([import("/src/order-draft.js"), import("/src/order-draft.js?initial-second-bundle")]);
+    }, ids);
+    const results = await Promise.all([add(page, milk), add(page, milk, 1, "otherOrders"), add(page, cookie)]);
+    assert.ok(results.every(result => result.applied));
+    assert.deepEqual(lines(await latest(page)), [{ id: milk, quantity: 2 }, { id: cookie, quantity: 1 }]);
+    assert.equal((await state(page)).mode, "tab");
+    const canonical = await page.evaluate(key => new Promise((resolve, reject) => {
+      const open = indexedDB.open("robys-order-transactions.v1", 1);
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const database = open.result; const transaction = database.transaction("shared-order", "readonly");
+        const request = transaction.objectStore("shared-order").get(key);
+        request.onsuccess = () => { resolve(request.result ?? null); database.close(); };
+        request.onerror = () => { reject(request.error); database.close(); };
+      };
+    }), legacyKey);
+    assert.equal(canonical, null, "queued initial writers must not create a hidden shared basket after the tab fallback");
+    return { successfulFirstGestures: 3, serializedTotal: 220, noHiddenCanonicalBasket: true };
+  });
+  await run("initial-corrupt-legacy-is-error-not-tab-fallback", async context => {
+    const page = await context.newPage(); const raw = "{broken-initial-order";
+    await page.goto(`${origin}/storage-fixture.html`);
+    await page.evaluate(async ({ ids, legacyKey, raw }) => {
+      localStorage.setItem(legacyKey, raw); window.ids = new Set(ids); window.orders = await import("/src/order-draft.js");
+    }, { ids, legacyKey, raw });
+    await rejected(() => latest(page), "OrderStorageError");
+    assert.equal((await state(page)).mode, "shared");
+    assert.equal(await page.evaluate(key => sessionStorage.getItem(key), tabKey), null);
+    assert.equal(await legacyValue(page), raw);
+    return { malformedMigrationRejected: true, preservedOriginalBytes: true, noHiddenFallback: true };
   });
   await run("fallback-same-tab-cross-module-serialization", async context => {
     const page = await prepare(context, { mode: "absent" });
@@ -203,8 +266,8 @@ try {
     assert.equal(total(await resolveConflict(page, "keep-current", conflict.token)), 60); assert.equal(await legacyValue(page), "{broken-json");
     return { invalidLegacyNeverImported: true, preservedCurrentTotal: 60, malformedLegacyBytesPreserved: true };
   });
-  await run("fallback-native-order-and-qr", async context => {
-    const page = await context.newPage(); page.setDefaultTimeout(8000); await denial(page, "absent");
+  for (const mode of ["absent", "initial-put-request-error"]) await run(mode === "absent" ? "fallback-native-order-and-qr" : "fallback-initial-put-native-order-and-qr", async context => {
+    const page = await context.newPage(); page.setDefaultTimeout(8000); await denial(page, mode);
     await page.addInitScript(() => localStorage.setItem("robys-language", "ru"));
     await page.goto(`${origin}/menu.html?entry=off`); await page.locator('#menu-root[data-ready="true"]').waitFor();
     await page.locator(`[data-product-id="${milk}"] .full-menu-item-media`).click(); await page.locator("#menu-product-dialog[open]").waitFor();
@@ -213,7 +276,7 @@ try {
     await page.locator("#menu-checkout-trigger").click(); await page.locator(".order-checkout-dialog[open]").waitFor();
     assert.equal(await page.locator(".order-ticket-qr").count(), 1); assert.match(await page.locator(".order-ticket-total").textContent(), /60/);
     assert.equal(await page.evaluate(key => localStorage.getItem(key), legacyKey), null); assert.equal(await page.evaluate(key => localStorage.getItem(key), projectionKey), null);
-    return { fallbackNativeAdd: true, qrTotal: 60, noSharedOrderWrite: true };
+    return { mode, fallbackNativeAdd: true, qrTotal: 60, noSharedOrderWrite: true };
   });
   for (const choice of ["keep-current", "use-legacy"]) await run(`legacy-native-${choice}-qr-fence`, async context => {
     const page = await context.newPage(); page.setDefaultTimeout(8000);

@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 // before the new worker can activate.
 export async function verifyMenuStabilityLegacyWorker(browser) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const approvedCss = await readFile(resolve(root, "menu-stability.css"), "utf8");
+  const approvedCss = await readFile(resolve(root, "menu-runtime.css"));
   const legacyCss = '.full-menu-grid[data-ready]{display:grid}body{--robys-stale-menu-stability:yes}';
   const landingStyles = ["final-qa", "community-reel"];
   const cacheName = "robys-menu-stability-legacy-proof";
@@ -97,11 +97,16 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     }
 
     const cssResponsePromise = page.waitForResponse((response) =>
-      new URL(response.url()).pathname === "/menu-stability-v2.css");
+      new URL(response.url()).pathname === "/menu-runtime.css").then(async (response) => ({
+        response,
+        // waitForResponse fires for headers; await the entire emitted bundle.
+        body: await response.body()
+      }));
     await page.goto(`${origin}/menu.html`, { waitUntil: "domcontentloaded" });
-    const cssResponse = await cssResponsePromise;
+    const { response: cssResponse, body: cssBody } = await cssResponsePromise;
     assert.equal(cssResponse.fromServiceWorker(), true, "The first menu navigation must still pass through the legacy worker");
-    assert.equal(await cssResponse.text(), approvedCss, "First navigation under the legacy worker must receive the approved CSS bytes");
+    assert.equal(cssResponse.status(), 200, "The first menu bundle response must succeed");
+    assert.deepEqual(cssBody, approvedCss, "First navigation under the legacy worker must receive the complete approved bundle bytes");
     await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible", timeout: 15000 });
     const rendered = await page.evaluate(() => ({
       columns: getComputedStyle(document.querySelector("#menu-root")).columnCount,
@@ -111,7 +116,7 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
     assert.equal(rendered.columns, "2", "Approved desktop column packing must render on the first returning-client navigation");
     assert.equal(rendered.stale, "", "The stale stylesheet must not be applied");
     assert.equal(rendered.controller, `${origin}/legacy-worker.js`, "The proof must not depend on a replacement worker activating");
-    console.log("✅ Menu stability cache proof passed: query-only control stays stale; the new pathname delivers approved bytes and two-column packing under the unchanged legacy worker.");
+    console.log("✅ Menu stability cache proof passed: query-only control stays stale; the fresh bundle pathname delivers complete approved bytes and two-column packing under the unchanged legacy worker.");
   } finally {
     try {
       await context?.close();

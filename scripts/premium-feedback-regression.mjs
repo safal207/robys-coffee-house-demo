@@ -33,6 +33,40 @@ async function waitForFocus(locator) {
   }
   return false;
 }
+async function warmCatalogImages(page) {
+  await page.locator('#menu-root[data-ready="true"]').waitFor();
+  await page.locator(".full-menu-item-media img").evaluateAll(async images => {
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const hasSource = image => image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
+      || image.closest("picture")?.querySelector("source[srcset]");
+    const timeoutMs = 5000;
+    for (const image of images) {
+      const rendered = image.getClientRects().length > 0;
+      if (!hasSource(image) && !rendered) continue;
+      image.loading = "eager";
+      if (rendered) {
+        image.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        await frame();
+        await frame();
+      }
+      const label = image.currentSrc || image.getAttribute("src") || image.dataset.menuLazySrc || image.alt || "unknown-image";
+      const deadline = performance.now() + timeoutMs;
+      while (!hasSource(image) && performance.now() < deadline) await frame();
+      if (!hasSource(image)) throw new Error(`Rendered catalog image has no source after viewport entry: ${label}`);
+      let timeout;
+      try {
+        await Promise.race([
+          image.decode(),
+          new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error(`Timed out decoding catalog image: ${label}`)), timeoutMs); })
+        ]);
+      } finally { clearTimeout(timeout); }
+      if (!image.complete || image.naturalWidth === 0) throw new Error(`Catalog image failed to load: ${label}`);
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await frame();
+    await frame();
+  });
+}
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
@@ -122,7 +156,7 @@ try {
     const animation = await page.locator(".menu-product-shell").evaluate(el => getComputedStyle(el).animationName);
     check(`${lang}/reduced-motion`, animation === "none", { animation });
     await page.keyboard.press("Escape");
-    await page.locator(".full-menu-item-media img").evaluateAll(images => Promise.all(images.map(async img => { img.loading = "eager"; await img.decode(); })));
+    await warmCatalogImages(page);
     if (lang === "ru") await page.screenshot({ path: `${output}/herbal-390.png`, fullPage: true });
     check(`${lang}/no-runtime-errors`, !errors.length, errors);
     await context.close();

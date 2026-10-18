@@ -500,7 +500,10 @@ export async function verifyMenuCustomPairing(context, base, check) {
     const selector = page.locator("#menu-cart-lines select");
     assert.equal(await selector.inputValue(), "");
     await selector.selectOption(flavor.id);
-    assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), true);
+    await poll(() => cart(page), draft => draft.groups.length === 1 && draft.groups[0].quantity === 2 &&
+      draft.groups[0].items[0].variant === flavor.id, "the restored cart commits its exact chosen flavor and quantity");
+    await poll(() => page.locator("#menu-checkout-trigger").isEnabled(), Boolean,
+      "checkout becomes available after the chosen flavor commits");
     const draft = await cart(page);
     assert.equal(draft.groups.length, 1);
     assert.equal(draft.groups[0].quantity, 2);

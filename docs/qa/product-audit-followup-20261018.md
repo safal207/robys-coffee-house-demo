@@ -15,6 +15,9 @@ The audit found a shared-order race, late navigation intents and several mobile 
 | PO-01 | A localized family shortcut on the home page opens the existing three editable recipes. |
 | PO-02 | The menu introduction uses a compact approved wordmark. Each family card has one complete photograph and a localized heart ribbon. |
 | PO-03 | A changed order produces a warning beside the immutable old QR. Only an explicit refresh creates the latest QR; an empty or unreadable order cannot silently replace it. |
+| PERF-01 | The first menu photograph retains eager, high-priority loading. Other catalog photographs start within 150 px of the viewport and load on approach; unsupported or denied observers retain native loading. Redrawing the menu clears old observations. |
+| PERF-02 | One content-revisioned stylesheet preserves all nine original CSS inputs byte for byte and in their original cascade order. The closed product dialog retains its branded image source with lazy loading. |
+| A11Y-01 | Promotional prices stay inside their cards when text is enlarged to 200%, including WebKit. Their intrinsic width can grow without shrinking the type or clipping the currency. |
 
 ## Family content
 
@@ -28,7 +31,7 @@ IndexedDB is the authoritative shared order store. Its read, mutation and write 
 
 Completed canonical writes remain successful if the optional projection cannot be written. Projection refresh reads the latest committed record while holding a separate transaction, so a delayed earlier completion cannot leave an untouched tab's badge showing an older order. A failed or aborted canonical transaction reports an error and leaves the previous order. Fresh UI and QR reads use the canonical store; storage/broadcast notifications and returning to the page refresh the view. Storage and recovery controls load on the first ordering intent, keeping them outside the initial catalog payload.
 
-When shared storage is unavailable from the start, the customer can continue with an explicitly labeled order for that tab. A shared in-document queue serializes all entry modules. Session storage restores this mode after reloading; if session storage is also unavailable, the notice explains that reloading loses the in-memory order. A later failed session write removes the old saved snapshot; if the browser also refuses removal, the notice explicitly warns that reloading may restore an earlier order. This mode does not write to shared localStorage or claim cross-tab synchronization. A failure after a shared canonical order is active must remain an error.
+When shared storage is unavailable from the start, the customer can continue with an explicitly labeled order for that tab. A shared in-document queue serializes all entry modules. Session storage restores this mode after reloading; if session storage is also unavailable, the notice explains that reloading loses the in-memory order. A later failed session write removes the old saved snapshot; if the browser also refuses removal, the notice explicitly warns that reloading may restore an earlier order. This mode does not write to shared localStorage or claim cross-tab synchronization. A failure after a shared canonical order is active must remain an error. An aborted first canonical write also enters the labeled tab fallback, preserving its validated pre-mutation seed. Already queued first operations join the same tab queue; malformed migration and failed updaters remain errors.
 
 An older client changing the preserved v1 key creates a visible fork. New mutations and new QR generation pause until the customer compares both orders and explicitly keeps the current order or uses the older order. Resolution checks the captured fork again inside the transaction; a newer change requires a new choice. Existing QR content stays unchanged. Existing canonical records without a legacy acknowledgment also require this choice.
 
@@ -62,6 +65,8 @@ node scripts/test-order-checkout-staleness-browser.mjs
 node scripts/test-order-storage-compat-browser.mjs
 node scripts/test-order-release-built-browser.mjs
 node scripts/test-mobile-navigation-browser.mjs
+node scripts/test-menu-lazy-images-browser.mjs
+node scripts/test-pairing-price-browser.mjs
 ```
 
 Source fixtures and emitted-runtime checks are distinct evidence. Initial failed probes and environment failures are retained in task artifacts; a later pass does not erase them. Linux browser engines and touch-sized viewports do not certify physical Xiaomi, Huawei, OPPO or vivo built-in browsers. Revenue uplift, café stock, real payments and physical device keyboards are outside this verification.

@@ -117,11 +117,19 @@ async function stabilize(page) {
       // Optional dialog media has no source until the guest selects it. Only
       // skip source-less, unrendered placeholders; sourced or visible images
       // must still load and decode successfully.
-      const hasSource = image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
+      const hasSource = () => image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
         || image.closest("picture")?.querySelector("source[srcset]");
-      if (!hasSource && image.getClientRects().length === 0) continue;
+      const rendered = image.getClientRects().length > 0;
+      if (!hasSource() && !rendered) continue;
       image.loading = "eager";
-      const label = image.currentSrc || image.src || image.alt || "unknown-image";
+      if (rendered) {
+        image.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      }
+      const label = image.currentSrc || image.getAttribute("src") || image.dataset.menuLazySrc || image.alt || "unknown-image";
+      const deadline = performance.now() + imageTimeoutMs;
+      while (!hasSource() && performance.now() < deadline) await new Promise(resolve => requestAnimationFrame(resolve));
+      if (!hasSource()) throw new Error(`Rendered image has no source after viewport entry: ${label}`);
       if (!image.complete) {
         await withTimeout(new Promise((resolve) => {
           image.addEventListener("load", resolve, { once: true });

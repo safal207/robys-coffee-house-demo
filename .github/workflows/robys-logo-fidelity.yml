@@ -13,6 +13,21 @@ on:
       - src/brand/robys-header-master-v1.svg
       - src/brand/robys-primary-master-v1.svg
       - brand-photo-logo.css
+      - menu-runtime.css
+      - styles-v2.css
+      - menu-premium.css
+      - menu-family.css
+      - menu-product-reveal.css
+      - pairing-posters.css
+      - menu-stability.css
+      - menu-stability-v2.css
+      - menu-security-v2.css
+      - order-checkout.css
+      - scripts/menu-styles-bundle.mjs
+      - scripts/test-menu-styles-bundle.mjs
+      - scripts/test-brand-wordmark.mjs
+      - scripts/verify-brand-identity-assets.mjs
+      - scripts/build.mjs
       - menu.html
       - .github/workflows/robys-logo-fidelity.yml
   pull_request:
@@ -26,6 +41,21 @@ on:
       - src/brand/robys-header-master-v1.svg
       - src/brand/robys-primary-master-v1.svg
       - brand-photo-logo.css
+      - menu-runtime.css
+      - styles-v2.css
+      - menu-premium.css
+      - menu-family.css
+      - menu-product-reveal.css
+      - pairing-posters.css
+      - menu-stability.css
+      - menu-stability-v2.css
+      - menu-security-v2.css
+      - order-checkout.css
+      - scripts/menu-styles-bundle.mjs
+      - scripts/test-menu-styles-bundle.mjs
+      - scripts/test-brand-wordmark.mjs
+      - scripts/verify-brand-identity-assets.mjs
+      - scripts/build.mjs
       - menu.html
       - .github/workflows/robys-logo-fidelity.yml
 

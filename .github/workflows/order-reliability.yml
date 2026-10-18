@@ -27,6 +27,10 @@ jobs:
       CHECKOUT_BROWSERS: ${{ matrix.browser }}
       ROBYS_RELEASE_BUILT_BROWSERS: ${{ matrix.browser }}
       ROBYS_STORAGE_BROWSER: ${{ matrix.browser }}
+      ROBYS_LAZY_BROWSER: ${{ matrix.browser }}
+      ROBYS_LAZY_QA_DIR: .artifacts/order-reliability/lazy-images
+      ROBYS_PAIRING_BROWSER: ${{ matrix.browser }}
+      ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,6 +43,10 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run build && npm run verify:integrity && git diff --exit-code
       - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - name: Built menu photo visibility and recovery
+        run: node scripts/test-menu-lazy-images-browser.mjs
+      - name: Pairing prices at increased text size
+        run: node scripts/test-pairing-price-browser.mjs
       - name: Family loading, contents and photographs
         run: node scripts/test-menu-family-browser.mjs
       - name: Editable promotional pairs

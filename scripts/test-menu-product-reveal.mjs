@@ -1,3 +1,4 @@
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -42,7 +43,7 @@ for (const language of ["tr", "en", "ru"]) {
 }
 
 const menuHtml = readFileSync(resolve(root, "menu.html"), "utf8");
-assert.match(menuHtml, /<link rel="stylesheet" href="menu-product-reveal\.css\?v=[a-f0-9]{12}" \/>/, "Menu must load a build-revisioned CSP-safe reveal stylesheet");
+verifyMenuStylesBundle(readMenuStylesBundleInputs(root));
 assert.match(menuHtml, /<script type="module" src="menu-product-reveal\.js\?v=[a-f0-9]{12}"><\/script>/, "Menu must mount a build-revisioned lightweight reveal loader");
 
 const searchHelper = readFileSync(resolve(root, "menu-search-clear.js"), "utf8");
