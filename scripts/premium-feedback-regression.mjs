@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, devices } from "playwright";
 
 const output = ".artifacts/premium-feedback";
 mkdirSync(output, { recursive: true });
@@ -123,6 +123,46 @@ try {
     if (lang === "ru") await page.screenshot({ path: `${output}/herbal-390.png`, fullPage: true });
     check(`${lang}/no-runtime-errors`, !errors.length, errors);
     await context.close();
+  }
+  // A mouse click cannot reproduce a touch target moving before compatibility
+  // mouse events. Exercise real trusted taps with mobile input and both motion
+  // preferences, then verify the search and its focus instead of CSS text.
+  for (const lang of ["tr", "en", "ru"]) for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ ...devices["Pixel 7"], serviceWorkers: "block", reducedMotion });
+    try {
+      const page = await context.newPage();
+      await page.goto(base + "menu.html?entry=off", { waitUntil: "domcontentloaded" });
+      await page.locator('#menu-root[data-ready="true"]').waitFor();
+      await page.locator(`.lang-button[data-lang="${lang}"]`).tap();
+      const search = page.locator("#menu-search");
+      const clear = page.locator(".menu-search-clear");
+      await search.fill("latte");
+      await clear.waitFor({ state: "visible" });
+      const filteredCount = await page.locator(".full-menu-item--product:visible").count();
+      const before = await clear.boundingBox();
+      assert(before, "The search clear control is rendered");
+      await page.evaluate(() => {
+        window.qaSearchClearEvents = [];
+        for (const type of ["touchstart", "touchend", "click"]) document.addEventListener(type, event => {
+          window.qaSearchClearEvents.push({ type, trusted: event.isTrusted, clear: event.target.closest(".menu-search-clear") !== null });
+        }, { capture: true });
+      });
+      await clear.tap();
+      const actual = await search.evaluate(node => ({ value: node.value, focused: document.activeElement === node }));
+      const events = await page.evaluate(() => window.qaSearchClearEvents);
+      const restoredCount = await page.locator(".full-menu-item--product:visible").count();
+      const evidence = { lang, reducedMotion, before, actual, filteredCount, restoredCount, events,
+        noHover: await page.evaluate(() => matchMedia("(hover: none)").matches) };
+      check(`${lang}/${reducedMotion}/touch-search-clear`, actual.value === "" && await clear.isHidden()
+        && actual.focused && restoredCount > filteredCount && filteredCount > 0
+        && events.some(event => event.type === "touchstart" && event.trusted && event.clear)
+        && events.some(event => event.type === "touchend" && event.trusted && event.clear)
+        && events.some(event => event.type === "click" && event.trusted && event.clear)
+        && evidence.noHover, evidence);
+      await page.screenshot({ path: `${output}/search-clear-${lang}-${reducedMotion}.png` });
+    } finally {
+      await context.close();
+    }
   }
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block", reducedMotion: "reduce" });
   const page = await context.newPage();

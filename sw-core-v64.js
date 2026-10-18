@@ -79,7 +79,7 @@ const CORE_ASSETS = [
   "./offline.css",
   "./pwa-pairing-fix.js?v=web-only-20260923-1",
   "./pwa.js?v=web-only-20260923-1",
-  "./styles-v2.css?v=a4431b07fc04",
+  "./styles-v2.css?v=f003bf1a9feb",
   "./mobile.css",
   "./conversion.css",
   "./final-qa-v2.css?v=daa1b27c54f2",
