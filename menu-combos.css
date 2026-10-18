@@ -61,3 +61,6 @@ body.menu-combos-open{overflow:hidden}
 @media(max-width:620px){.menu-combos-heading{flex-wrap:wrap;align-items:start;gap:8px}.menu-combos-hide{font-size:.85rem}.menu-combos-cards{grid-template-columns:1fr}.menu-combos-card{padding:16px}.menu-combos-card h3{font-size:1.55rem}.menu-combos-dialog{padding:20px}.menu-combos-links{gap:4px}.menu-combos-links a{width:100%}}
 @media(max-width:360px){.menu-combos-dialog{padding:16px}.menu-combos-option{padding:10px;gap:10px}.menu-combos-quantity{gap:5px}.menu-combos-quantity input{width:48px}.menu-combos-quantity .menu-combos-remove{padding-inline:4px}.menu-combos-filter{padding-inline:13px}}
 @media(prefers-reduced-motion:reduce){.menu-combos-section,.menu-combos-dialog{scroll-behavior:auto}}
+
+.menu-page-hero-copy>.combo-entry-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.menu-page-hero-copy>.combo-entry-links .menu-family-link{margin-top:0}.menu-page-hero-copy>[data-choice-help]{margin-top:8px}
+@media(max-width:680px){.menu-page-hero-copy>.combo-entry-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.menu-page-hero-copy>.combo-entry-links .menu-family-link{box-sizing:border-box;justify-content:center;min-width:0;min-height:44px;padding:8px 4px;font-size:.72rem;line-height:1.3;text-align:center}}

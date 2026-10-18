@@ -1,36 +1,16 @@
 {
-  "startedAt": "2026-10-18T20:02:55.642Z",
-  "head": "f927944b18f61408f71d16528bff7325d6d13264",
+  "startedAt": "2026-10-18T20:14:11.295Z",
+  "head": "c16d7620a66d00c09abe2146612b308dc99283e0",
   "dirtyFilesAtStart": [
-    "M app.js",
-    " M choice-help.css",
-    " M choice-help.js",
-    " M discover.html",
-    " M docs/qa/occasion-combos-20261018/README.md",
-    " M docs/qa/occasion-combos-20261018/offline-report.json",
-    " M docs/qa/occasion-combos-20261018/report.json",
-    " M experience/index.html",
-    " M index.html",
-    " M integrity-manifest.json",
+    "M integrity-manifest.json",
     " M menu-app.js",
+    " M menu-combos.css",
     " M menu-runtime.css",
     " M menu.html",
-    " M qa/gallery.spec.ts",
-    " M ru/coffee-gazipasa.html",
-    " M scripts/audit-dependencies.mjs",
-    " M scripts/build.mjs",
-    " M scripts/menu-runtime-source.mjs",
-    " M scripts/test-combo-offline.mjs",
     " M scripts/test-menu-combos-browser.mjs",
-    " M scripts/verify-pairing-cta-static.mjs",
-    " M smart-choice/index.html",
-    " M src/app.ts",
-    " M src/choice-help.js",
+    " M scripts/test-mobile-navigation-browser.mjs",
     " M src/menu-app.js",
-    " M sw-core-v64.js",
-    "?? choice-help-entry.js",
-    "?? qa/reviewed-visual-changes.d/occasion-combos-20261018.json",
-    "?? src/choice-help-entry.js"
+    " M sw-core-v64.js"
   ],
   "mode": "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
   "environment": {
@@ -42,10 +22,11 @@
   "assetHashesStart": {
     "app.js": "e7e9d1431d790496a0537a9c0bdba0e94c2a22b54854d8563e615169f0815634",
     "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
-    "menu.html": "aa1e1c90135301b020898fdf56d21f0af3b174f103199a97f0e0437d6ada91b7",
-    "menu-app.js": "54cab80ab43948eea993b46966c80dd70eaa3f786cb46872bd5c87db773e63c4",
+    "menu.html": "2edccbe2127b53b96b4a5c97a460cedfd7c07cb26f5404dbd11d738fb192a22c",
+    "menu-app.js": "458ade98ae6c81a41589f4870dbfa5296cd9bfcb941a03fc05e7da83a603e791",
+    "menu-runtime.css": "475ce4d2f30a4298673b1763a2f6fe0351ce80531e740353a3b9a454169ca4dc",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
-    "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+    "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
     "index.html": "190e8a0a52834555e6315a6a6ae342abb033ca0ffc9c9cc9284cb5453e50857d",
@@ -58,9 +39,9 @@
     "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
     "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "c74ae1c905c43ad8351763bb55ced75196f8146218b692cdb3ba1545d5794bb7",
-    "scripts/test-menu-combos-browser.mjs": "d306340297cf66320608a0163ee4e5df4ce9f49a3d071208f9fd5531435d0f77",
-    "src/menu-app.js": "ae9ed03d3c7f944bf3b63ee701844502e71fbd76115374071c58ff1bd3323902",
+    "sw-core-v64.js": "682d0c75e129e90662e04ce2f1bbd74554554004736d3e2e868a5cf469b1a7a6",
+    "scripts/test-menu-combos-browser.mjs": "c8b8ee14e17458b672fffeeb6af2fc6df0071e3021f1959d376d09dea0492fc8",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
     "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
     "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
@@ -88,7 +69,7 @@
     {
       "id": "chromium-catalog-and-edit-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:02:55.718Z",
+      "startedAt": "2026-10-18T20:14:11.365Z",
       "facts": {
         "language": "tr",
         "recipes": [
@@ -355,7 +336,7 @@
     {
       "id": "chromium-exact-add-together-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:02:58.697Z",
+      "startedAt": "2026-10-18T20:14:14.566Z",
       "facts": {
         "language": "tr",
         "recipe": "together",
@@ -377,7 +358,7 @@
     {
       "id": "chromium-exact-add-family-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:02:59.197Z",
+      "startedAt": "2026-10-18T20:14:15.205Z",
       "facts": {
         "language": "tr",
         "recipe": "family",
@@ -407,7 +388,7 @@
     {
       "id": "chromium-catalog-and-edit-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:02:59.668Z",
+      "startedAt": "2026-10-18T20:14:15.811Z",
       "facts": {
         "language": "en",
         "recipes": [
@@ -674,7 +655,7 @@
     {
       "id": "chromium-exact-add-together-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:02.289Z",
+      "startedAt": "2026-10-18T20:14:19.114Z",
       "facts": {
         "language": "en",
         "recipe": "together",
@@ -696,7 +677,7 @@
     {
       "id": "chromium-exact-add-family-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:02.814Z",
+      "startedAt": "2026-10-18T20:14:19.656Z",
       "facts": {
         "language": "en",
         "recipe": "family",
@@ -726,7 +707,7 @@
     {
       "id": "chromium-catalog-and-edit-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:03.338Z",
+      "startedAt": "2026-10-18T20:14:20.295Z",
       "facts": {
         "language": "ru",
         "recipes": [
@@ -993,7 +974,7 @@
     {
       "id": "chromium-exact-add-together-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:06.061Z",
+      "startedAt": "2026-10-18T20:14:23.297Z",
       "facts": {
         "language": "ru",
         "recipe": "together",
@@ -1015,7 +996,7 @@
     {
       "id": "chromium-exact-add-family-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:06.619Z",
+      "startedAt": "2026-10-18T20:14:23.909Z",
       "facts": {
         "language": "ru",
         "recipe": "family",
@@ -1045,11 +1026,31 @@
     {
       "id": "chromium-layout-320x700-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:07.162Z",
+      "startedAt": "2026-10-18T20:14:24.671Z",
       "facts": {
         "width": 320,
         "height": 700,
         "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 568.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1068,11 +1069,31 @@
     {
       "id": "chromium-layout-320x700-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:07.479Z",
+      "startedAt": "2026-10-18T20:14:25.046Z",
       "facts": {
         "width": 320,
         "height": 700,
         "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 568.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1091,11 +1112,31 @@
     {
       "id": "chromium-layout-320x700-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:07.867Z",
+      "startedAt": "2026-10-18T20:14:25.504Z",
       "facts": {
         "width": 320,
         "height": 700,
         "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 568.796875,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 89.328125,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 89.34375,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1114,11 +1155,31 @@
     {
       "id": "chromium-layout-390x844-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:08.495Z",
+      "startedAt": "2026-10-18T20:14:26.272Z",
       "facts": {
         "width": 390,
         "height": 844,
         "language": "tr",
+        "initialMenu": {
+          "firstCategoryTop": 573.703125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1137,11 +1198,31 @@
     {
       "id": "chromium-layout-390x844-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:08.871Z",
+      "startedAt": "2026-10-18T20:14:26.677Z",
       "facts": {
         "width": 390,
         "height": 844,
         "language": "en",
+        "initialMenu": {
+          "firstCategoryTop": 553.3125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1160,11 +1241,31 @@
     {
       "id": "chromium-layout-390x844-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:09.254Z",
+      "startedAt": "2026-10-18T20:14:27.267Z",
       "facts": {
         "width": 390,
         "height": 844,
         "language": "ru",
+        "initialMenu": {
+          "firstCategoryTop": 573.703125,
+          "heroLinks": [
+            {
+              "id": "menu-combos-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-combos-takeaway-trigger",
+              "width": 112.671875,
+              "height": 47.9375
+            },
+            {
+              "id": "menu-family-trigger",
+              "width": 112.65625,
+              "height": 47.9375
+            }
+          ]
+        },
         "cards": {
           "pageOverflow": false,
           "contained": true,
@@ -1183,7 +1284,7 @@
     {
       "id": "chromium-layout-768x1024-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:09.878Z",
+      "startedAt": "2026-10-18T20:14:27.981Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1206,7 +1307,7 @@
     {
       "id": "chromium-layout-768x1024-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:10.269Z",
+      "startedAt": "2026-10-18T20:14:28.414Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1229,7 +1330,7 @@
     {
       "id": "chromium-layout-768x1024-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:10.825Z",
+      "startedAt": "2026-10-18T20:14:28.930Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1252,7 +1353,7 @@
     {
       "id": "chromium-layout-1440x1000-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:11.192Z",
+      "startedAt": "2026-10-18T20:14:29.399Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1275,7 +1376,7 @@
     {
       "id": "chromium-layout-1440x1000-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:11.560Z",
+      "startedAt": "2026-10-18T20:14:29.886Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1298,7 +1399,7 @@
     {
       "id": "chromium-layout-1440x1000-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:11.979Z",
+      "startedAt": "2026-10-18T20:14:30.368Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1321,7 +1422,7 @@
     {
       "id": "chromium-layout-844x390-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:12.573Z",
+      "startedAt": "2026-10-18T20:14:31.140Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1344,7 +1445,7 @@
     {
       "id": "chromium-layout-844x390-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:12.912Z",
+      "startedAt": "2026-10-18T20:14:31.510Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1367,7 +1468,7 @@
     {
       "id": "chromium-layout-844x390-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:13.307Z",
+      "startedAt": "2026-10-18T20:14:31.987Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1390,7 +1491,7 @@
     {
       "id": "chromium-two-tabs-preserve-combo-additions",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:13.987Z",
+      "startedAt": "2026-10-18T20:14:32.711Z",
       "facts": {
         "nativeAddHandlers": 2,
         "exactLines": [
@@ -1418,7 +1519,7 @@
     {
       "id": "chromium-busy-double-activation-adds-once",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:14.842Z",
+      "startedAt": "2026-10-18T20:14:33.915Z",
       "facts": {
         "activation": "Two immediate DOM button.click() attempts, actual production handler",
         "commits": 1,
@@ -1446,7 +1547,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-cart-intent",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:15.279Z",
+      "startedAt": "2026-10-18T20:14:34.510Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerCartRemainsOpen": true,
@@ -1456,7 +1557,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-category",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:16.098Z",
+      "startedAt": "2026-10-18T20:14:35.478Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "category",
@@ -1467,7 +1568,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-search",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:16.938Z",
+      "startedAt": "2026-10-18T20:14:36.447Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "search",
@@ -1478,7 +1579,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-hash",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:17.680Z",
+      "startedAt": "2026-10-18T20:14:37.246Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "hash",
@@ -1489,7 +1590,7 @@
     {
       "id": "chromium-same-hash-helper-reopens-hidden-combos",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:18.472Z",
+      "startedAt": "2026-10-18T20:14:38.103Z",
       "facts": {
         "sameHash": "#menu-combos",
         "hiddenThenReopened": true,
@@ -1499,7 +1600,7 @@
     {
       "id": "chromium-all-view-entry-points-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:18.900Z",
+      "startedAt": "2026-10-18T20:14:38.662Z",
       "facts": {
         "language": "tr",
         "views": [
@@ -1629,7 +1730,7 @@
     {
       "id": "chromium-all-view-entry-points-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:21.007Z",
+      "startedAt": "2026-10-18T20:14:41.215Z",
       "facts": {
         "language": "en",
         "views": [
@@ -1759,7 +1860,7 @@
     {
       "id": "chromium-all-view-entry-points-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:23.283Z",
+      "startedAt": "2026-10-18T20:14:44.021Z",
       "facts": {
         "language": "ru",
         "views": [
@@ -1889,7 +1990,7 @@
     {
       "id": "chromium-helper-notifications-keep-storage-lazy-until-eligible",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:25.423Z",
+      "startedAt": "2026-10-18T20:14:46.929Z",
       "facts": {
         "notificationTypes": [
           "storage projection",
@@ -1916,7 +2017,7 @@
     {
       "id": "chromium-quiet-helper-once-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:26.824Z",
+      "startedAt": "2026-10-18T20:14:48.592Z",
       "facts": {
         "language": "tr",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1926,6 +2027,20 @@
         "nonmodal": true,
         "oncePerSessionAcrossViews": true,
         "manualStillAvailable": true,
+        "idleActivity": [
+          {
+            "type": "focusin",
+            "time": 1,
+            "target": "menu-search",
+            "scrollY": 0
+          },
+          {
+            "type": "focusin",
+            "time": 40001,
+            "target": "menu-share-button",
+            "scrollY": 0
+          }
+        ],
         "actions": [
           {
             "text": "Kombinleri keşfet",
@@ -1941,7 +2056,7 @@
     {
       "id": "chromium-quiet-helper-once-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:28.026Z",
+      "startedAt": "2026-10-18T20:14:49.913Z",
       "facts": {
         "language": "en",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1951,6 +2066,20 @@
         "nonmodal": true,
         "oncePerSessionAcrossViews": true,
         "manualStillAvailable": true,
+        "idleActivity": [
+          {
+            "type": "focusin",
+            "time": 4,
+            "target": "menu-search",
+            "scrollY": 0
+          },
+          {
+            "type": "focusin",
+            "time": 40004,
+            "target": "menu-share-button",
+            "scrollY": 0
+          }
+        ],
         "actions": [
           {
             "text": "Explore combos",
@@ -1966,7 +2095,7 @@
     {
       "id": "chromium-quiet-helper-once-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:29.272Z",
+      "startedAt": "2026-10-18T20:14:51.324Z",
       "facts": {
         "language": "ru",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1976,6 +2105,20 @@
         "nonmodal": true,
         "oncePerSessionAcrossViews": true,
         "manualStillAvailable": true,
+        "idleActivity": [
+          {
+            "type": "focusin",
+            "time": 1,
+            "target": "menu-search",
+            "scrollY": 0
+          },
+          {
+            "type": "focusin",
+            "time": 40001,
+            "target": "menu-share-button",
+            "scrollY": 0
+          }
+        ],
         "actions": [
           {
             "text": "Посмотреть комбо",
@@ -1991,7 +2134,7 @@
     {
       "id": "chromium-helper-timing-and-immediate-dismissal",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:30.589Z",
+      "startedAt": "2026-10-18T20:14:52.756Z",
       "facts": {
         "before34s": "hidden",
         "after36s": "visible",
@@ -2002,7 +2145,7 @@
     {
       "id": "chromium-helper-suppressed-by-order-and-dialog",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:31.072Z",
+      "startedAt": "2026-10-18T20:14:53.390Z",
       "facts": {
         "selectionDialogSuppressed": true,
         "cartSuppressed": true,
@@ -2023,7 +2166,7 @@
     {
       "id": "chromium-closed-combo-dialog-allows-helper",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:31.946Z",
+      "startedAt": "2026-10-18T20:14:54.497Z",
       "facts": {
         "closedDialog": "combo",
         "automaticHelpAllowedAfterClosing": true,
@@ -2033,7 +2176,7 @@
     {
       "id": "chromium-closed-family-dialog-allows-helper",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:32.526Z",
+      "startedAt": "2026-10-18T20:14:55.266Z",
       "facts": {
         "closedDialog": "family",
         "automaticHelpAllowedAfterClosing": true,
@@ -2043,7 +2186,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:33.163Z",
+      "startedAt": "2026-10-18T20:14:55.880Z",
       "facts": {
         "language": "tr",
         "usefulExit": "menu.html#menu-combos",
@@ -2053,7 +2196,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:33.463Z",
+      "startedAt": "2026-10-18T20:14:56.290Z",
       "facts": {
         "language": "en",
         "usefulExit": "menu.html#menu-combos",
@@ -2063,7 +2206,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:33.748Z",
+      "startedAt": "2026-10-18T20:14:56.592Z",
       "facts": {
         "language": "ru",
         "usefulExit": "menu.html#menu-combos",
@@ -2073,7 +2216,7 @@
     {
       "id": "chromium-helper-short-viewport-remains-quiet",
       "status": "PASS",
-      "startedAt": "2026-10-18T20:03:34.036Z",
+      "startedAt": "2026-10-18T20:14:56.921Z",
       "facts": {
         "automaticOfferSuppressed": true,
         "manualPanelFits": true,
@@ -2084,14 +2227,15 @@
       }
     }
   ],
-  "finishedAt": "2026-10-18T20:03:34.478Z",
+  "finishedAt": "2026-10-18T20:14:57.475Z",
   "assetHashesEnd": {
     "app.js": "e7e9d1431d790496a0537a9c0bdba0e94c2a22b54854d8563e615169f0815634",
     "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
-    "menu.html": "aa1e1c90135301b020898fdf56d21f0af3b174f103199a97f0e0437d6ada91b7",
-    "menu-app.js": "54cab80ab43948eea993b46966c80dd70eaa3f786cb46872bd5c87db773e63c4",
+    "menu.html": "2edccbe2127b53b96b4a5c97a460cedfd7c07cb26f5404dbd11d738fb192a22c",
+    "menu-app.js": "458ade98ae6c81a41589f4870dbfa5296cd9bfcb941a03fc05e7da83a603e791",
+    "menu-runtime.css": "475ce4d2f30a4298673b1763a2f6fe0351ce80531e740353a3b9a454169ca4dc",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
-    "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+    "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
     "index.html": "190e8a0a52834555e6315a6a6ae342abb033ca0ffc9c9cc9284cb5453e50857d",
@@ -2104,9 +2248,9 @@
     "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
     "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "c74ae1c905c43ad8351763bb55ced75196f8146218b692cdb3ba1545d5794bb7",
-    "scripts/test-menu-combos-browser.mjs": "d306340297cf66320608a0163ee4e5df4ce9f49a3d071208f9fd5531435d0f77",
-    "src/menu-app.js": "ae9ed03d3c7f944bf3b63ee701844502e71fbd76115374071c58ff1bd3323902",
+    "sw-core-v64.js": "682d0c75e129e90662e04ce2f1bbd74554554004736d3e2e868a5cf469b1a7a6",
+    "scripts/test-menu-combos-browser.mjs": "c8b8ee14e17458b672fffeeb6af2fc6df0071e3021f1959d376d09dea0492fc8",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
     "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
     "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
@@ -2227,13 +2371,14 @@
     "/src/products/gallery-v5/lotus-cheesecake-828.webp": 7,
     "/src/products/gallery-v5/nutella-croissant-828.webp": 7,
     "/src/products/gallery-v5/san-sebastian-828.webp": 10,
-    "/src/products/menu-v1/brew-hot--black-tea.webp": 34,
+    "/src/products/menu-v1/brew-hot--black-tea.webp": 36,
     "/src/products/menu-v1/brew-hot--filter-coffee.webp": 9,
     "/src/products/menu-v1/brew-hot--hot-chocolate.webp": 6,
     "/src/products/menu-v1/brew-hot--milk.webp": 18,
-    "/src/products/menu-v1/brew-hot--salep.webp": 8,
+    "/src/products/menu-v1/brew-hot--salep.webp": 7,
     "/src/products/menu-v1/brew-hot--turkish-coffee.webp": 9,
     "/src/products/menu-v1/cold-coffee--iced-americano.webp": 4,
+    "/src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": 1,
     "/src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": 1,
     "/src/products/menu-v1/desserts--almond-tart.webp": 6,
     "/src/products/menu-v1/desserts--brownie.webp": 6,
@@ -2247,9 +2392,9 @@
     "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": 15,
     "/src/products/menu-v1/desserts--savoury-cookie.webp": 6,
     "/src/products/menu-v1/desserts--tiramisu.webp": 6,
-    "/src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": 8,
+    "/src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": 7,
     "/src/products/menu-v1/food--nutella-croissant.webp": 4,
-    "/src/products/menu-v1/food--sesame-simit.webp": 52,
+    "/src/products/menu-v1/food--sesame-simit.webp": 48,
     "/src/products/menu-v1/food--three-cheese-croissant.webp": 22,
     "/src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": 10,
     "/src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": 9,
@@ -2271,17 +2416,17 @@
     "/src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": 6,
     "/src/products/menu-v1/refreshers--cool-lime.webp": 3,
     "/src/products/occasion-sets-v1/cycle.webp": 54,
-    "/src/products/occasion-sets-v1/family.webp": 57,
-    "/src/products/occasion-sets-v1/go.webp": 54,
-    "/src/products/occasion-sets-v1/hearty.webp": 54,
-    "/src/products/occasion-sets-v1/local.webp": 54,
-    "/src/products/occasion-sets-v1/morning.webp": 54,
+    "/src/products/occasion-sets-v1/family.webp": 56,
+    "/src/products/occasion-sets-v1/go.webp": 53,
+    "/src/products/occasion-sets-v1/hearty.webp": 53,
+    "/src/products/occasion-sets-v1/local.webp": 53,
+    "/src/products/occasion-sets-v1/morning.webp": 53,
     "/src/products/occasion-sets-v1/rain.webp": 54,
     "/src/products/occasion-sets-v1/refresh.webp": 54,
     "/src/products/occasion-sets-v1/student.webp": 54,
-    "/src/products/occasion-sets-v1/sweet.webp": 54,
+    "/src/products/occasion-sets-v1/sweet.webp": 53,
     "/src/products/occasion-sets-v1/tea.webp": 54,
-    "/src/products/occasion-sets-v1/together.webp": 54,
+    "/src/products/occasion-sets-v1/together.webp": 53,
     "/src/products/quick-choice-v1/coffee.webp": 13,
     "/src/products/quick-choice-v1/cold.webp": 13,
     "/src/products/quick-choice-v1/tea.webp": 6,

@@ -39,7 +39,7 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
 const storageKey = "robys-menu-order.v2";
-const assets = ["app.js", "src/app.ts", "menu.html", "menu-app.js", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
+const assets = ["app.js", "src/app.ts", "menu.html", "menu-app.js", "menu-runtime.css", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
   "index.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html",
   "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "sw.js", "sw-core-v64.js", "scripts/test-menu-combos-browser.mjs",
   "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help-entry.js", "src/choice-help.js", "order-storage.js",
@@ -104,6 +104,7 @@ async function run(browser, id, callback, options = {}) {
       await page.screenshot({ path: join(output, `${id}-failure-${index}.png`) }).catch(() => {});
       diagnostics.push(await page.evaluate(() => ({ url: location.href, lang: document.documentElement.lang,
         active: document.activeElement?.outerHTML.slice(0, 250), openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
+        helperActivity: window.__qaHelperActivity,
         text: document.body.innerText.slice(-3500) })).catch(() => ({})));
     }
     report.cases.push({ id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics });
@@ -291,7 +292,23 @@ try {
 
       for (const [width, height] of [[320, 700], [390, 844], [768, 1024], [1440, 1000], [844, 390]]) {
         for (const language of ["tr", "en", "ru"]) await run(browser, `${name}-layout-${width}x${height}-${language}`, async context => {
-          const page = await context.newPage(); await openMenu(page, "menu-combos-takeaway");
+          const page = await context.newPage();
+          let initialMenu;
+          if (width === 320 || width === 390) {
+            await openMenu(page, "");
+            initialMenu = await page.evaluate(() => ({
+              firstCategoryTop: document.querySelector(".full-menu-panel").getBoundingClientRect().top,
+              heroLinks: [...document.querySelectorAll(".menu-page-hero-copy > .combo-entry-links a")].map(link => {
+                const box = link.getBoundingClientRect();
+                return { id: link.id, width: box.width, height: box.height };
+              })
+            }));
+            assert.equal(initialMenu.heroLinks.length, 3);
+            assert.ok(initialMenu.heroLinks.every(link => link.width >= 44 && link.height >= 44), "All three hero routes retain44pixel touch targets");
+            assert.ok(initialMenu.firstCategoryTop < 600, "Hero routes preserve the first menu category within600pixels on narrow screens");
+            if (width === 320 && language === "ru") await page.screenshot({ path: join(output, "menu-hero-320-ru.png") });
+          }
+          await openMenu(page, "menu-combos-takeaway");
           assert.equal(await page.locator(".menu-combos-card").count(), 4, "Takeaway deep-link selects its filter");
           const cards = await geometry(page, ".menu-combos-section");
           assert.deepEqual(cards, { pageOverflow: false, contained: true, clippedControls: [], dialogFits: true });
@@ -308,7 +325,7 @@ try {
             await page.keyboard.press("Escape");
             await page.locator(".menu-combos-card").first().screenshot({ path: join(output, `takeaway-card-${width}x${height}-${language}.png`) });
           }
-          return { width, height, language, cards, dialog, keyboardFocusContained: true };
+          return { width, height, language, initialMenu, cards, dialog, keyboardFocusContained: true };
         }, { width, height, language });
       }
 
@@ -465,6 +482,12 @@ try {
         await installClock(page);
         await openMenu(page, "");
         await page.locator(".choice-help-entry").waitFor();
+        await page.evaluate(() => {
+          window.__qaHelperActivity = [];
+          for (const type of ["scroll", "focusin"]) document.addEventListener(type, event => {
+            window.__qaHelperActivity.push({ type, time: performance.now(), target: event.target.id, scrollY });
+          }, { capture: true });
+        });
         await page.locator("#menu-search").focus();
         await page.clock.runFor(40_000);
         // At35seconds the small entry driver imports the suggestion module.
@@ -473,11 +496,16 @@ try {
         // the focus change and require a subsequent timer tick to revalidate.
         await page.waitForLoadState("networkidle");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "No interruption while typing/search has focus");
-        await page.locator("#menu-share-button").focus();
+        // This case measures the idle window after editing. Focusing the
+        // distant footer with default scrolling delivers a later native scroll
+        // in WebKit, correctly restarting the app's idle clock. Keep focus and
+        // scroll independent here; other cases cover scrolling/layout behavior.
+        await page.locator("#menu-share-button").evaluate(button => button.focus({ preventScroll: true }));
         await page.clock.runFor(7_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Wait for eight seconds of idle after editing");
         await page.clock.runFor(2_000);
         await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        const idleActivity = await page.evaluate(() => window.__qaHelperActivity);
         assert.equal(await page.locator("#menu-share-button").evaluate(button => document.activeElement === button), true, "Automatic hint never moves focus");
         assert.equal(await page.locator(".choice-help-panel").getAttribute("aria-modal"), null);
         const actions = await page.locator(".choice-help-actions a").evaluateAll(nodes => nodes.map(node => ({ text: node.textContent, href: new URL(node.href).pathname + new URL(node.href).hash })));
@@ -496,7 +524,7 @@ try {
         await page.keyboard.press("Escape");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
         return { language, virtualVisibleTimeBeforeOffer: 49_000, editingSuppressed: true, idleThresholdRespected: true,
-          noFocusSteal: true, nonmodal: true, oncePerSessionAcrossViews: true, manualStillAvailable: true, actions };
+          noFocusSteal: true, nonmodal: true, oncePerSessionAcrossViews: true, manualStillAvailable: true, idleActivity, actions };
       }, { language });
 
       await run(browser, `${name}-helper-timing-and-immediate-dismissal`, async context => {

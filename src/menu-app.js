@@ -392,9 +392,9 @@ let combosUi;
 let combosUiPromise;
 let combosRetry = 0;
 const combosCopy = {
-  tr: { link: "Her ana bir set · 12 fikir", takeaway: "Al ve çık · 4 fikir", error: "Setler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
-  en: { link: "A combo for your moment · 12 ideas", takeaway: "Grab & go · 4 ideas", error: "Combos could not load. Choose from the menu or try again." },
-  ru: { link: "Комбо под твой момент · 12 идей", takeaway: "Взял и побежал · 4 идеи", error: "Не удалось открыть комбо. Можно выбрать из меню или попробовать ещё раз." }
+  tr: { link: "Setler · 12", takeaway: "Al götür · 4", error: "Setler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
+  en: { link: "Combos · 12", takeaway: "To go · 4", error: "Combos could not load. Choose from the menu or try again." },
+  ru: { link: "Комбо · 12", takeaway: "С собой · 4", error: "Не удалось открыть комбо. Можно выбрать из меню или попробовать ещё раз." }
 };
 function loadCombosUi() {
   if (!combosUiPromise) {
